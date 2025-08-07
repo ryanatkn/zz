@@ -5,25 +5,28 @@ A modular CLI utility toolkit for common development tasks, starting with direct
 ## Quick Start
 
 ```bash
-./dev tree <directory> [max_depth]
+./zz tree [directory] [max_depth]
 ```
 
 ## Commands
 
-- `tree <directory> [max_depth]` - Display directory tree structure
+- `tree [directory] [max_depth]` - Display directory tree structure (defaults to current directory)
 - `help` - Show available commands
 
 ## Examples
 
 ```bash
+# Current directory tree
+./zz tree
+
 # Basic directory tree
-./dev tree src/
+./zz tree src/
 
 # Limit depth to 2 levels
-./dev tree . 2
+./zz tree . 2
 
 # Show help
-./dev help
+./zz help
 ```
 
 ## Tree Command Features
@@ -36,12 +39,12 @@ A modular CLI utility toolkit for common development tasks, starting with direct
 
 ## Development
 
-The `./dev` script handles building and running:
+The `./zz` script handles building and running:
 
 ```bash
 # Development workflow
-./dev tree .           # Run tree command
-./dev help             # Show help
+./zz tree .           # Run tree command
+./zz help             # Show help
 
 # Manual build (if needed)
 zig build

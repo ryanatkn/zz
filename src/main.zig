@@ -17,7 +17,7 @@ fn showHelp(program_name: []const u8) void {
     std.debug.print("zz - CLI utility toolkit\n\n", .{});
     std.debug.print("Usage: {s} <command> [args...]\n\n", .{program_name});
     std.debug.print("Commands:\n", .{});
-    std.debug.print("  tree <directory> [max_depth]  Show directory tree\n", .{});
+    std.debug.print("  tree [directory] [max_depth]  Show directory tree (defaults to current dir)\n", .{});
     std.debug.print("  help                          Show this help\n", .{});
 }
 
@@ -227,18 +227,14 @@ pub fn main() !void {
             showHelp(args[0]);
         },
         .tree => {
-            if (args.len < 3) {
-                std.debug.print("tree command requires a directory path\n", .{});
-                std.debug.print("Usage: {s} tree <directory> [max_depth]\n", .{args[0]});
-                std.process.exit(1);
-            }
+            // Default to current directory if no path provided
+            const dir_path = if (args.len >= 3) args[2] else ".";
 
             // Shift args for tree command (remove program name and "tree" command)
             const tree_args = args[1..];
             const config = try TreeConfig.fromArgs(allocator, tree_args);
             const walker = TreeWalker.init(allocator, config);
 
-            const dir_path = args[2];
             try walker.walk(dir_path);
         },
     }

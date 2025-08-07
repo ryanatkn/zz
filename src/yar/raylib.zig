@@ -52,7 +52,11 @@ extern fn BeginDrawing() void;
 extern fn EndDrawing() void;
 extern fn ClearBackground(color: Color) void;
 extern fn DrawCircleV(center: Vector2, radius: f32, color: Color) void;
+extern fn DrawCircleLines(centerX: c_int, centerY: c_int, radius: f32, color: Color) void;
 extern fn DrawRectangleV(position: Vector2, size: Vector2, color: Color) void;
+extern fn DrawRectangleLines(posX: c_int, posY: c_int, width: c_int, height: c_int, color: Color) void;
+extern fn DrawTriangle(v1: Vector2, v2: Vector2, v3: Vector2, color: Color) void;
+extern fn DrawTriangleLines(v1: Vector2, v2: Vector2, v3: Vector2, color: Color) void;
 extern fn DrawText(text: [*:0]const u8, posX: c_int, posY: c_int, fontSize: c_int, color: Color) void;
 extern fn GetFrameTime() f32;
 extern fn GetFPS() c_int;
@@ -111,8 +115,24 @@ pub fn drawCircleV(center: Vector2, radius: f32, color: Color) void {
     DrawCircleV(center, radius, color);
 }
 
+pub fn drawCircleLinesV(center: Vector2, radius: f32, color: Color) void {
+    DrawCircleLines(@intFromFloat(center.x), @intFromFloat(center.y), radius, color);
+}
+
 pub fn drawRectangleV(position: Vector2, size: Vector2, color: Color) void {
     DrawRectangleV(position, size, color);
+}
+
+pub fn drawRectangleLinesV(position: Vector2, size: Vector2, color: Color) void {
+    DrawRectangleLines(@intFromFloat(position.x), @intFromFloat(position.y), @intFromFloat(size.x), @intFromFloat(size.y), color);
+}
+
+pub fn drawTriangle(v1: Vector2, v2: Vector2, v3: Vector2, color: Color) void {
+    DrawTriangle(v1, v2, v3, color);
+}
+
+pub fn drawTriangleLines(v1: Vector2, v2: Vector2, v3: Vector2, color: Color) void {
+    DrawTriangleLines(v1, v2, v3, color);
 }
 
 pub fn drawText(text: [:0]const u8, posX: i32, posY: i32, fontSize: i32, color: Color) void {

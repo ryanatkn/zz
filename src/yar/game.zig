@@ -5,13 +5,15 @@ const math = std.math;
 // Fixed 1080p resolution
 const SCREEN_WIDTH: f32 = 1920;
 const SCREEN_HEIGHT: f32 = 1080;
-const PLAYER_SPEED = 200.0;
+const PLAYER_SPEED = 600.0;
 const BULLET_SPEED = 400.0;
 const ENEMY_SPEED = 100.0;
 const MAX_BULLETS = 20;
 const MAX_ENEMIES = 10;
 const MAX_OBSTACLES = 15;
-const SAFE_SPAWN_DISTANCE = 150.0; // Minimum distance from player for safe spawning
+const MAX_PORTALS = 2;
+const NUM_SCENES = 3;
+const SAFE_SPAWN_DISTANCE = 200.0; // Minimum distance from player for safe spawning
 
 // Vibrant color palette
 const SOOTHING_BLUE = raylib.Color{ .r = 0, .g = 100, .b = 255, .a = 255 };
@@ -19,6 +21,7 @@ const SOOTHING_GREEN = raylib.Color{ .r = 0, .g = 180, .b = 0, .a = 255 };
 const SOOTHING_PURPLE = raylib.Color{ .r = 150, .g = 50, .b = 200, .a = 255 };
 const SOOTHING_RED = raylib.Color{ .r = 255, .g = 50, .b = 50, .a = 255 };
 const SOOTHING_YELLOW = raylib.Color{ .r = 255, .g = 200, .b = 0, .a = 255 };
+const SOOTHING_ORANGE = raylib.Color{ .r = 255, .g = 140, .b = 0, .a = 255 };
 const SOOTHING_GRAY = raylib.Color{ .r = 128, .g = 128, .b = 128, .a = 255 };
 const SOOTHING_WHITE = raylib.Color{ .r = 255, .g = 255, .b = 255, .a = 255 };
 const SOOTHING_DARK = raylib.Color{ .r = 25, .g = 25, .b = 35, .a = 255 };
@@ -36,6 +39,20 @@ const ObstacleType = enum {
     deadly, // Purple - kills on contact
 };
 
+const SceneShape = enum {
+    circle, // Scene 0
+    triangle, // Scene 1
+    square, // Scene 2
+};
+
+const Portal = struct {
+    position: raylib.Vector2,
+    radius: f32,
+    active: bool,
+    destinationScene: u8,
+    shape: SceneShape, // Shape of the destination scene
+};
+
 const Obstacle = struct {
     position: raylib.Vector2,
     size: raylib.Vector2,
@@ -43,11 +60,18 @@ const Obstacle = struct {
     active: bool,
 };
 
+const Scene = struct {
+    enemies: [MAX_ENEMIES]GameObject,
+    obstacles: [MAX_OBSTACLES]Obstacle,
+    portals: [MAX_PORTALS]Portal,
+    shape: SceneShape,
+};
+
 const GameState = struct {
     player: GameObject,
     bullets: [MAX_BULLETS]GameObject,
-    enemies: [MAX_ENEMIES]GameObject,
-    obstacles: [MAX_OBSTACLES]Obstacle,
+    scenes: [NUM_SCENES]Scene,
+    currentScene: u8,
     gameOver: bool,
     gameWon: bool,
     allocator: std.mem.Allocator,
@@ -57,7 +81,7 @@ const GameState = struct {
     pub fn init(allocator: std.mem.Allocator) Self {
         // Set random seed for proper randomization
         raylib.setRandomSeed(@intCast(std.time.timestamp()));
-        
+
         var game = Self{
             .player = GameObject{
                 .position = raylib.Vector2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 },
@@ -67,8 +91,8 @@ const GameState = struct {
                 .color = SOOTHING_BLUE,
             },
             .bullets = undefined,
-            .enemies = undefined,
-            .obstacles = undefined,
+            .scenes = undefined,
+            .currentScene = 0,
             .gameOver = false,
             .gameWon = false,
             .allocator = allocator,
@@ -85,12 +109,33 @@ const GameState = struct {
             };
         }
 
-        // Initialize enemies
+        // Initialize all scenes
+        for (0..NUM_SCENES) |sceneIndex| {
+            const shape: SceneShape = switch (sceneIndex) {
+                0 => .circle,
+                1 => .triangle,
+                2 => .square,
+                else => .circle,
+            };
+
+            game.scenes[sceneIndex] = Scene{
+                .enemies = undefined,
+                .obstacles = undefined,
+                .portals = undefined,
+                .shape = shape,
+            };
+
+            game.initializeScene(@intCast(sceneIndex));
+        }
+
+        return game;
+    }
+
+    fn initializeScene(self: *Self, sceneIndex: u8) void {
+        // Initialize enemies for this scene
         for (0..MAX_ENEMIES) |i| {
-            const safePos = game.getSafeSpawnPosition(raylib.Vector2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 }, // Player start position
-                SAFE_SPAWN_DISTANCE, 15.0 // Enemy radius
-            );
-            game.enemies[i] = GameObject{
+            const safePos = self.getSafeSpawnPosition(raylib.Vector2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 }, SAFE_SPAWN_DISTANCE, 15.0, sceneIndex);
+            self.scenes[sceneIndex].enemies[i] = GameObject{
                 .position = safePos,
                 .velocity = raylib.Vector2{ .x = 0, .y = 0 },
                 .radius = 15.0,
@@ -99,24 +144,21 @@ const GameState = struct {
             };
         }
 
-        // Initialize obstacles
+        // Initialize obstacles for this scene
         for (0..MAX_OBSTACLES) |i| {
             const obstacleType: ObstacleType = if (raylib.getRandomValue(0, 1) == 0) .blocking else .deadly;
             const baseSize = raylib.Vector2{
                 .x = @floatFromInt(raylib.getRandomValue(20, 40)),
                 .y = @floatFromInt(raylib.getRandomValue(20, 40)),
             };
-            
-            // Make blocking obstacles (green) 4x bigger
+
             const obstacleSize = switch (obstacleType) {
                 .blocking => raylib.Vector2{ .x = baseSize.x * 4.0, .y = baseSize.y * 4.0 },
                 .deadly => baseSize,
             };
-            
-            const safePos = game.getSafeSpawnPosition(raylib.Vector2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 }, // Player start position
-                SAFE_SPAWN_DISTANCE, 0.0 // Use 0 to indicate this is an obstacle
-            );
-            game.obstacles[i] = Obstacle{
+
+            const safePos = self.getSafeSpawnPosition(raylib.Vector2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 }, SAFE_SPAWN_DISTANCE, 0.0, sceneIndex);
+            self.scenes[sceneIndex].obstacles[i] = Obstacle{
                 .position = safePos,
                 .size = obstacleSize,
                 .type = obstacleType,
@@ -124,13 +166,39 @@ const GameState = struct {
             };
         }
 
-        return game;
+        // Initialize portals (2 per scene, each going to one of the other scenes)
+        for (0..MAX_PORTALS) |i| {
+            // Get the two other scenes (not current scene)
+            const otherScenes = switch (sceneIndex) {
+                0 => [_]u8{ 1, 2 }, // Scene 0: go to scenes 1 and 2
+                1 => [_]u8{ 0, 2 }, // Scene 1: go to scenes 0 and 2
+                2 => [_]u8{ 0, 1 }, // Scene 2: go to scenes 0 and 1
+                else => [_]u8{ 0, 1 },
+            };
+
+            const destinationScene = otherScenes[i];
+            const destinationShape: SceneShape = switch (destinationScene) {
+                0 => .circle,
+                1 => .triangle,
+                2 => .square,
+                else => .circle,
+            };
+
+            const safePos = self.getSafeSpawnPosition(raylib.Vector2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 }, SAFE_SPAWN_DISTANCE, 25.0, sceneIndex);
+            self.scenes[sceneIndex].portals[i] = Portal{
+                .position = safePos,
+                .radius = 25.0,
+                .active = true,
+                .destinationScene = destinationScene,
+                .shape = destinationShape,
+            };
+        }
     }
 
     pub fn restart(self: *Self) void {
         // Set new random seed for different layouts
         raylib.setRandomSeed(@intCast(std.time.timestamp()));
-        
+
         // Reset player
         self.player.position = raylib.Vector2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 };
         self.player.active = true;
@@ -140,98 +208,104 @@ const GameState = struct {
             self.bullets[i].active = false;
         }
 
-        // Regenerate obstacles with new positions and types
-        for (0..MAX_OBSTACLES) |i| {
-            const obstacleType: ObstacleType = if (raylib.getRandomValue(0, 1) == 0) .blocking else .deadly;
-            const baseSize = raylib.Vector2{
-                .x = @floatFromInt(raylib.getRandomValue(20, 40)),
-                .y = @floatFromInt(raylib.getRandomValue(20, 40)),
-            };
-            
-            // Make blocking obstacles (green) 4x bigger
-            const obstacleSize = switch (obstacleType) {
-                .blocking => raylib.Vector2{ .x = baseSize.x * 4.0, .y = baseSize.y * 4.0 },
-                .deadly => baseSize,
-            };
-            
-            const safePos = self.getSafeSpawnPosition(raylib.Vector2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 }, // Player start position
-                SAFE_SPAWN_DISTANCE, 0.0 // Use 0 to indicate this is an obstacle
-            );
-            self.obstacles[i] = Obstacle{
-                .position = safePos,
-                .size = obstacleSize,
-                .type = obstacleType,
-                .active = true,
-            };
-        }
-
-        // Reset enemies AFTER obstacles are recreated
-        for (0..MAX_ENEMIES) |i| {
-            const safePos = self.getSafeSpawnPosition(raylib.Vector2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 }, // Player start position
-                SAFE_SPAWN_DISTANCE, 15.0 // Enemy radius
-            );
-            self.enemies[i].position = safePos;
-            self.enemies[i].active = true;
-        }
+        // Only regenerate the current scene
+        self.initializeScene(self.currentScene);
 
         self.gameOver = false;
         self.gameWon = false;
     }
 
-    fn getSafeSpawnPosition(self: *Self, avoidPos: raylib.Vector2, minDistance: f32, unitRadius: f32) raylib.Vector2 {
+    fn getSafeSpawnPosition(self: *Self, avoidPos: raylib.Vector2, minDistance: f32, unitRadius: f32, sceneIndex: u8) raylib.Vector2 {
         var attempts: u32 = 0;
-        const maxAttempts: u32 = 50; // Prevent infinite loops
+        const maxAttempts: u32 = 100; // More attempts for better placement
+        const isObstacle = unitRadius == 0;
+        const effectiveRadius = if (isObstacle) 40.0 else unitRadius; // Use 40 as obstacle test size
 
         while (attempts < maxAttempts) {
-            const minX: i32 = @intFromFloat(unitRadius);
-            const maxX: i32 = @intFromFloat(SCREEN_WIDTH - unitRadius);
-            const minY: i32 = @intFromFloat(unitRadius);
-            const maxY: i32 = @intFromFloat(SCREEN_HEIGHT - unitRadius);
-
-            const x: f32 = @floatFromInt(raylib.getRandomValue(minX, maxX));
-            const y: f32 = @floatFromInt(raylib.getRandomValue(minY, maxY));
+            const margin = effectiveRadius + 10.0; // Safety margin
+            const x: f32 = @floatFromInt(raylib.getRandomValue(@intFromFloat(margin), @intFromFloat(SCREEN_WIDTH - margin)));
+            const y: f32 = @floatFromInt(raylib.getRandomValue(@intFromFloat(margin), @intFromFloat(SCREEN_HEIGHT - margin)));
             const testPos = raylib.Vector2{ .x = x, .y = y };
 
-            // Check distance from avoid position
+            // Check distance from avoid position (usually player)
             const dx = testPos.x - avoidPos.x;
             const dy = testPos.y - avoidPos.y;
             const distance = math.sqrt(dx * dx + dy * dy);
+            if (distance < minDistance) {
+                attempts += 1;
+                continue;
+            }
 
-            if (distance >= minDistance) {
-                // For obstacles, also check they don't overlap with existing obstacles
-                if (unitRadius == 0) { // This is an obstacle (using radius 0 as indicator)
-                    var overlaps = false;
-                    for (0..MAX_OBSTACLES) |i| {
-                        if (self.obstacles[i].active) {
-                            const obstacleRight = self.obstacles[i].position.x + self.obstacles[i].size.x;
-                            const obstacleBottom = self.obstacles[i].position.y + self.obstacles[i].size.y;
+            // Check collisions with all existing objects in this scene
+            var hasCollision = false;
 
-                            // Dynamic margin based on obstacle sizes for better spacing
-                            const margin: f32 = @max(20.0, @max(self.obstacles[i].size.x, self.obstacles[i].size.y) * 0.1);
-                            if (!(testPos.x > obstacleRight + margin or
-                                testPos.x + 40 < self.obstacles[i].position.x - margin or
-                                testPos.y > obstacleBottom + margin or
-                                testPos.y + 40 < self.obstacles[i].position.y - margin))
+            // Check obstacle collisions
+            if (!hasCollision) {
+                for (0..MAX_OBSTACLES) |i| {
+                    if (self.scenes[sceneIndex].obstacles[i].active) {
+                        const collisionMargin: f32 = 30.0; // Good spacing
+                        if (isObstacle) {
+                            // Obstacle-obstacle: check rectangle overlap with margin
+                            if (!(testPos.x > self.scenes[sceneIndex].obstacles[i].position.x + self.scenes[sceneIndex].obstacles[i].size.x + collisionMargin or
+                                testPos.x + 40 < self.scenes[sceneIndex].obstacles[i].position.x - collisionMargin or
+                                testPos.y > self.scenes[sceneIndex].obstacles[i].position.y + self.scenes[sceneIndex].obstacles[i].size.y + collisionMargin or
+                                testPos.y + 40 < self.scenes[sceneIndex].obstacles[i].position.y - collisionMargin))
                             {
-                                overlaps = true;
+                                hasCollision = true;
+                                break;
+                            }
+                        } else {
+                            // Circle-obstacle: use circle-rect collision with margin
+                            if (self.checkCircleRectCollision(testPos, effectiveRadius + collisionMargin, self.scenes[sceneIndex].obstacles[i].position, self.scenes[sceneIndex].obstacles[i].size)) {
+                                hasCollision = true;
                                 break;
                             }
                         }
                     }
-                    if (!overlaps) return testPos;
-                } else {
-                    return testPos;
                 }
             }
+
+            // Check enemy collisions (circle-circle)
+            if (!hasCollision) {
+                for (0..MAX_ENEMIES) |i| {
+                    if (self.scenes[sceneIndex].enemies[i].active) {
+                        const dx2 = testPos.x - self.scenes[sceneIndex].enemies[i].position.x;
+                        const dy2 = testPos.y - self.scenes[sceneIndex].enemies[i].position.y;
+                        const dist = math.sqrt(dx2 * dx2 + dy2 * dy2);
+                        if (dist < effectiveRadius + self.scenes[sceneIndex].enemies[i].radius + 20.0) {
+                            hasCollision = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Check portal collisions (circle-circle)
+            if (!hasCollision) {
+                for (0..MAX_PORTALS) |i| {
+                    if (self.scenes[sceneIndex].portals[i].active) {
+                        const dx2 = testPos.x - self.scenes[sceneIndex].portals[i].position.x;
+                        const dy2 = testPos.y - self.scenes[sceneIndex].portals[i].position.y;
+                        const dist = math.sqrt(dx2 * dx2 + dy2 * dy2);
+                        if (dist < effectiveRadius + self.scenes[sceneIndex].portals[i].radius + 20.0) {
+                            hasCollision = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (!hasCollision) {
+                return testPos;
+            }
+
             attempts += 1;
         }
 
-        // Fallback: spawn at edge of screen away from player
-        if (avoidPos.x < SCREEN_WIDTH / 2) {
-            return raylib.Vector2{ .x = SCREEN_WIDTH - 50, .y = @floatFromInt(raylib.getRandomValue(50, @intFromFloat(SCREEN_HEIGHT - 50))) };
-        } else {
-            return raylib.Vector2{ .x = 50, .y = @floatFromInt(raylib.getRandomValue(50, @intFromFloat(SCREEN_HEIGHT - 50))) };
-        }
+        // Fallback: spawn at edge of screen away from everything
+        const fallbackX = if (avoidPos.x < SCREEN_WIDTH / 2) SCREEN_WIDTH - 100 else 100;
+        const fallbackY: f32 = @floatFromInt(raylib.getRandomValue(100, @intFromFloat(SCREEN_HEIGHT - 100)));
+        return raylib.Vector2{ .x = fallbackX, .y = fallbackY };
     }
 
     fn checkCircleRectCollision(self: *Self, circlePos: raylib.Vector2, radius: f32, rectPos: raylib.Vector2, rectSize: raylib.Vector2) bool {
@@ -247,8 +321,8 @@ const GameState = struct {
 
     fn isPositionBlocked(self: *Self, pos: raylib.Vector2, radius: f32) bool {
         for (0..MAX_OBSTACLES) |i| {
-            if (self.obstacles[i].active and self.obstacles[i].type == .blocking) {
-                if (self.checkCircleRectCollision(pos, radius, self.obstacles[i].position, self.obstacles[i].size)) {
+            if (self.scenes[self.currentScene].obstacles[i].active and self.scenes[self.currentScene].obstacles[i].type == .blocking) {
+                if (self.checkCircleRectCollision(pos, radius, self.scenes[self.currentScene].obstacles[i].position, self.scenes[self.currentScene].obstacles[i].size)) {
                     return true;
                 }
             }
@@ -357,11 +431,11 @@ const GameState = struct {
 
     pub fn updateEnemies(self: *Self, deltaTime: f32) void {
         for (0..MAX_ENEMIES) |i| {
-            if (self.enemies[i].active) {
+            if (self.scenes[self.currentScene].enemies[i].active) {
                 // Move towards player
                 var direction = raylib.Vector2{
-                    .x = self.player.position.x - self.enemies[i].position.x,
-                    .y = self.player.position.y - self.enemies[i].position.y,
+                    .x = self.player.position.x - self.scenes[self.currentScene].enemies[i].position.x,
+                    .y = self.player.position.y - self.scenes[self.currentScene].enemies[i].position.y,
                 };
 
                 const length = math.sqrt(direction.x * direction.x + direction.y * direction.y);
@@ -371,84 +445,99 @@ const GameState = struct {
                 }
 
                 // Check for obstacle collision before moving
-                const newX = self.enemies[i].position.x + direction.x * ENEMY_SPEED * deltaTime;
-                const newY = self.enemies[i].position.y + direction.y * ENEMY_SPEED * deltaTime;
+                const newX = self.scenes[self.currentScene].enemies[i].position.x + direction.x * ENEMY_SPEED * deltaTime;
+                const newY = self.scenes[self.currentScene].enemies[i].position.y + direction.y * ENEMY_SPEED * deltaTime;
 
                 // Check X movement
-                const testPosX = raylib.Vector2{ .x = newX, .y = self.enemies[i].position.y };
-                if (!self.isPositionBlocked(testPosX, self.enemies[i].radius)) {
-                    self.enemies[i].position.x = newX;
+                const testPosX = raylib.Vector2{ .x = newX, .y = self.scenes[self.currentScene].enemies[i].position.y };
+                if (!self.isPositionBlocked(testPosX, self.scenes[self.currentScene].enemies[i].radius)) {
+                    self.scenes[self.currentScene].enemies[i].position.x = newX;
                 }
 
                 // Check Y movement
-                const testPosY = raylib.Vector2{ .x = self.enemies[i].position.x, .y = newY };
-                if (!self.isPositionBlocked(testPosY, self.enemies[i].radius)) {
-                    self.enemies[i].position.y = newY;
+                const testPosY = raylib.Vector2{ .x = self.scenes[self.currentScene].enemies[i].position.x, .y = newY };
+                if (!self.isPositionBlocked(testPosY, self.scenes[self.currentScene].enemies[i].radius)) {
+                    self.scenes[self.currentScene].enemies[i].position.y = newY;
                 }
             }
         }
     }
 
     pub fn checkCollisions(self: *Self) void {
-        // Bullet-Enemy collisions
+        const currentScene = &self.scenes[self.currentScene];
+
+        // Bullet-Enemy collisions (current scene only)
         for (0..MAX_BULLETS) |i| {
             if (self.bullets[i].active) {
                 for (0..MAX_ENEMIES) |j| {
-                    if (self.enemies[j].active) {
-                        const dx = self.bullets[i].position.x - self.enemies[j].position.x;
-                        const dy = self.bullets[i].position.y - self.enemies[j].position.y;
+                    if (currentScene.enemies[j].active) {
+                        const dx = self.bullets[i].position.x - currentScene.enemies[j].position.x;
+                        const dy = self.bullets[i].position.y - currentScene.enemies[j].position.y;
                         const distance = math.sqrt(dx * dx + dy * dy);
 
-                        if (distance < self.bullets[i].radius + self.enemies[j].radius) {
+                        if (distance < self.bullets[i].radius + currentScene.enemies[j].radius) {
                             self.bullets[i].active = false;
-                            self.enemies[j].active = false;
-
-                            // Don't respawn enemy - let player win when all are dead
+                            currentScene.enemies[j].active = false;
                         }
                     }
                 }
             }
         }
 
-        // Player-Enemy collisions
+        // Player-Enemy collisions (current scene only)
         for (0..MAX_ENEMIES) |i| {
-            if (self.enemies[i].active) {
-                const dx = self.player.position.x - self.enemies[i].position.x;
-                const dy = self.player.position.y - self.enemies[i].position.y;
+            if (currentScene.enemies[i].active) {
+                const dx = self.player.position.x - currentScene.enemies[i].position.x;
+                const dy = self.player.position.y - currentScene.enemies[i].position.y;
                 const distance = math.sqrt(dx * dx + dy * dy);
 
-                if (distance < self.player.radius + self.enemies[i].radius) {
+                if (distance < self.player.radius + currentScene.enemies[i].radius) {
                     self.gameOver = true;
                 }
             }
         }
 
-        // Player-Deadly Obstacle collisions
+        // Player-Portal collisions (scene switching)
+        for (0..MAX_PORTALS) |i| {
+            if (currentScene.portals[i].active) {
+                const dx = self.player.position.x - currentScene.portals[i].position.x;
+                const dy = self.player.position.y - currentScene.portals[i].position.y;
+                const distance = math.sqrt(dx * dx + dy * dy);
+
+                if (distance < self.player.radius + currentScene.portals[i].radius) {
+                    self.currentScene = currentScene.portals[i].destinationScene;
+                    // Player position stays the same - world changes around them
+                    return; // Exit early to avoid processing more collisions
+                }
+            }
+        }
+
+        // Player-Deadly Obstacle collisions (current scene only)
         for (0..MAX_OBSTACLES) |i| {
-            if (self.obstacles[i].active and self.obstacles[i].type == .deadly) {
-                if (self.checkCircleRectCollision(self.player.position, self.player.radius, self.obstacles[i].position, self.obstacles[i].size)) {
+            if (currentScene.obstacles[i].active and currentScene.obstacles[i].type == .deadly) {
+                if (self.checkCircleRectCollision(self.player.position, self.player.radius, currentScene.obstacles[i].position, currentScene.obstacles[i].size)) {
                     self.gameOver = true;
                 }
             }
         }
 
-        // Enemy-Deadly Obstacle collisions
+        // Enemy-Deadly Obstacle collisions (current scene only)
         for (0..MAX_ENEMIES) |i| {
-            if (self.enemies[i].active) {
+            if (currentScene.enemies[i].active) {
                 for (0..MAX_OBSTACLES) |j| {
-                    if (self.obstacles[j].active and self.obstacles[j].type == .deadly) {
-                        if (self.checkCircleRectCollision(self.enemies[i].position, self.enemies[i].radius, self.obstacles[j].position, self.obstacles[j].size)) {
-                            self.enemies[i].active = false;
+                    if (currentScene.obstacles[j].active and currentScene.obstacles[j].type == .deadly) {
+                        if (self.checkCircleRectCollision(currentScene.enemies[i].position, currentScene.enemies[i].radius, currentScene.obstacles[j].position, currentScene.obstacles[j].size)) {
+                            currentScene.enemies[i].active = false;
                         }
                     }
                 }
             }
         }
 
-        // Check win condition - all enemies dead
+        // Check win condition - all enemies dead in current scene
         var allEnemiesDead = true;
         for (0..MAX_ENEMIES) |i| {
-            if (self.enemies[i].active) {
+            if (currentScene.enemies[i].active) {
                 allEnemiesDead = false;
                 break;
             }
@@ -474,27 +563,68 @@ const GameState = struct {
                 }
             }
 
-            // Draw enemies
+            // Draw current scene entities
+            const currentScene = &self.scenes[self.currentScene];
+
+            // Draw enemies from current scene
             for (0..MAX_ENEMIES) |i| {
-                if (self.enemies[i].active) {
-                    raylib.drawCircleV(self.enemies[i].position, self.enemies[i].radius, self.enemies[i].color);
+                if (currentScene.enemies[i].active) {
+                    raylib.drawCircleV(currentScene.enemies[i].position, currentScene.enemies[i].radius, currentScene.enemies[i].color);
                 }
             }
 
-            // Draw obstacles
+            // Draw obstacles from current scene
             for (0..MAX_OBSTACLES) |i| {
-                if (self.obstacles[i].active) {
-                    const color = switch (self.obstacles[i].type) {
+                if (currentScene.obstacles[i].active) {
+                    const color = switch (currentScene.obstacles[i].type) {
                         .blocking => SOOTHING_GREEN,
                         .deadly => SOOTHING_PURPLE,
                     };
-                    raylib.drawRectangleV(self.obstacles[i].position, self.obstacles[i].size, color);
+                    raylib.drawRectangleV(currentScene.obstacles[i].position, currentScene.obstacles[i].size, color);
                 }
             }
 
-            // Draw UI
-            raylib.drawText("Left Click: Move | Right Click: Shoot", 10, @intFromFloat(SCREEN_HEIGHT - 60), 16, SOOTHING_GRAY);
-            raylib.drawText("WASD/Arrows: Move (Alt) | ESC: Quit", 10, @intFromFloat(SCREEN_HEIGHT - 40), 16, SOOTHING_GRAY);
+            // Draw portals with destination-specific shapes
+            for (0..MAX_PORTALS) |i| {
+                if (currentScene.portals[i].active) {
+                    const pos = currentScene.portals[i].position;
+                    const radius = currentScene.portals[i].radius;
+
+                    // Draw portal with the shape of its destination scene
+                    switch (currentScene.portals[i].shape) {
+                        .circle => {
+                            raylib.drawCircleV(pos, radius, SOOTHING_ORANGE);
+                            raylib.drawCircleLinesV(pos, radius, SOOTHING_WHITE);
+                        },
+                        .triangle => {
+                            // Draw triangle pointing up
+                            raylib.drawTriangle(raylib.Vector2{ .x = pos.x, .y = pos.y - radius }, raylib.Vector2{ .x = pos.x - radius * 0.866, .y = pos.y + radius * 0.5 }, raylib.Vector2{ .x = pos.x + radius * 0.866, .y = pos.y + radius * 0.5 }, SOOTHING_ORANGE);
+                            raylib.drawTriangleLines(raylib.Vector2{ .x = pos.x, .y = pos.y - radius }, raylib.Vector2{ .x = pos.x - radius * 0.866, .y = pos.y + radius * 0.5 }, raylib.Vector2{ .x = pos.x + radius * 0.866, .y = pos.y + radius * 0.5 }, SOOTHING_WHITE);
+                        },
+                        .square => {
+                            const size = radius * 1.4; // Make square similar area to circle
+                            const rectPos = raylib.Vector2{ .x = pos.x - size / 2, .y = pos.y - size / 2 };
+                            const rectSize = raylib.Vector2{ .x = size, .y = size };
+                            raylib.drawRectangleV(rectPos, rectSize, SOOTHING_ORANGE);
+                            raylib.drawRectangleLinesV(rectPos, rectSize, SOOTHING_WHITE);
+                        },
+                    }
+                }
+            }
+
+            // Draw UI with scene info
+            raylib.drawText("Left Click: Move | Right Click: Shoot | Orange = Portal", 10, @intFromFloat(SCREEN_HEIGHT - 80), 16, SOOTHING_GRAY);
+            raylib.drawText("WASD/Arrows: Move (Alt) | R: Restart Scene | ESC: Quit", 10, @intFromFloat(SCREEN_HEIGHT - 60), 16, SOOTHING_GRAY);
+
+            // Scene indicator
+            const shapeName = switch (self.scenes[self.currentScene].shape) {
+                .circle => "circle",
+                .triangle => "triangle",
+                .square => "square",
+            };
+            const sceneText = try raylib.textFormat(self.allocator, "Scene {d}/3 ({s})", .{ self.currentScene + 1, shapeName });
+            defer self.allocator.free(sceneText);
+            raylib.drawText(sceneText, 10, @intFromFloat(SCREEN_HEIGHT - 40), 16, SOOTHING_WHITE);
 
             // FPS Counter (top right corner)
             const fps = raylib.getFPS();

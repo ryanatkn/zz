@@ -1,46 +1,62 @@
-//! By convention, main.zig is where your main function lives in the case that
-//! you are building an executable. If you are making a library, the convention
-//! is to delete this file and start with root.zig instead.
-
-pub fn main() !void {
-    // Prints to stderr (it's a shortcut based on `std.io.getStdErr()`)
-    std.debug.print("All your {s} are belong to thus.\n", .{"thangs"});
-
-    // stdout is for the actual output of your application, for example if you
-    // are implementing gzip, then only the compressed bytes should be sent to
-    // stdout, not any debugging messages.
-    const stdout_file = std.io.getStdOut().writer();
-    var bw = std.io.bufferedWriter(stdout_file);
-    const stdout = bw.writer();
-
-    try stdout.print("Run `zig build test` to run the tests.\n", .{});
-
-    try bw.flush(); // Don't forget to flush!
-}
-
-test "simple test" {
-    var list = std.ArrayList(i32).init(std.testing.allocator);
-    defer list.deinit(); // Try commenting this out and see if zig detects the memory leak!
-    try list.append(42);
-    try std.testing.expectEqual(@as(i32, 42), list.pop());
-}
-
-test "use other module" {
-    try std.testing.expectEqual(@as(i32, 150), lib.add(100, 50));
-}
-
-test "fuzz example" {
-    const Context = struct {
-        fn testOne(context: @This(), input: []const u8) anyerror!void {
-            _ = context;
-            // Try passing `--fuzz` to `zig build test` and see if it manages to fail this test case!
-            try std.testing.expect(!std.mem.eql(u8, "canyoufindme", input));
-        }
-    };
-    try std.testing.fuzz(Context{}, Context.testOne, .{});
-}
-
 const std = @import("std");
 
-/// This imports the separate module containing `root.zig`. Take a look in `build.zig` for details.
-const lib = @import("zz_lib");
+pub fn main() !void {
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    defer _ = gpa.deinit();
+    const allocator = gpa.allocator();
+
+    const args = try std.process.argsAlloc(allocator);
+    defer std.process.argsFree(allocator, args);
+
+    if (args.len < 2) {
+        std.debug.print("Usage: {s} <directory>\n", .{args[0]});
+        std.process.exit(1);
+    }
+
+    const dir_path = args[1];
+    try printDirTree(allocator, dir_path, "", true);
+}
+
+fn printDirTree(allocator: std.mem.Allocator, path: []const u8, prefix: []const u8, is_last: bool) !void {
+    const connector = if (is_last) "└── " else "├── ";
+
+    const basename = std.fs.path.basename(path);
+    std.debug.print("{s}{s}{s}\n", .{ prefix, connector, basename });
+
+    const dir = std.fs.cwd().openDir(path, .{ .iterate = true }) catch |err| switch (err) {
+        error.NotDir => return,
+        else => return err,
+    };
+    var iter_dir = dir;
+    defer iter_dir.close();
+
+    var entries = std.ArrayList(std.fs.Dir.Entry).init(allocator);
+    defer entries.deinit();
+
+    var iterator = iter_dir.iterate();
+    while (try iterator.next()) |entry| {
+        try entries.append(entry);
+    }
+
+    std.sort.insertion(std.fs.Dir.Entry, entries.items, {}, struct {
+        fn lessThan(context: void, lhs: std.fs.Dir.Entry, rhs: std.fs.Dir.Entry) bool {
+            _ = context;
+            if (lhs.kind == .directory and rhs.kind != .directory) return true;
+            if (lhs.kind != .directory and rhs.kind == .directory) return false;
+            return std.mem.lessThan(u8, lhs.name, rhs.name);
+        }
+    }.lessThan);
+
+    for (entries.items, 0..) |entry, i| {
+        const is_last_entry = i == entries.items.len - 1;
+        const new_prefix_char = if (is_last) "    " else "│   ";
+
+        const new_prefix = try std.fmt.allocPrint(allocator, "{s}{s}", .{ prefix, new_prefix_char });
+        defer allocator.free(new_prefix);
+
+        const full_path = try std.fs.path.join(allocator, &.{ path, entry.name });
+        defer allocator.free(full_path);
+
+        try printDirTree(allocator, full_path, new_prefix, is_last_entry);
+    }
+}

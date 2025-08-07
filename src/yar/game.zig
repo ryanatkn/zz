@@ -4,6 +4,7 @@ const types = @import("types.zig");
 const units = @import("units.zig");
 const input = @import("input.zig");
 const world = @import("world.zig");
+const physics = @import("physics.zig");
 
 pub fn init(allocator: std.mem.Allocator) types.GameState {
     var game = types.GameState{
@@ -33,7 +34,10 @@ pub fn init(allocator: std.mem.Allocator) types.GameState {
         };
     }
 
-    // Initialize enemies
+    // Initialize obstacles FIRST to avoid enemies spawning on them
+    world.initializeObstacles(&game.obstacles, raylib.Vector2{ .x = types.SCREEN_WIDTH / 2.0, .y = types.SCREEN_HEIGHT / 2.0 });
+
+    // Initialize enemies AFTER obstacles
     for (0..types.MAX_ENEMIES) |i| {
         const safePos = world.getSafeSpawnPosition(&game, raylib.Vector2{ .x = types.SCREEN_WIDTH / 2.0, .y = types.SCREEN_HEIGHT / 2.0 }, types.SAFE_SPAWN_DISTANCE, 15.0);
         game.enemies[i] = types.GameObject{
@@ -44,9 +48,6 @@ pub fn init(allocator: std.mem.Allocator) types.GameState {
             .color = types.SOOTHING_RED,
         };
     }
-
-    // Initialize obstacles
-    world.initializeObstacles(&game.obstacles, raylib.Vector2{ .x = types.SCREEN_WIDTH / 2.0, .y = types.SCREEN_HEIGHT / 2.0 });
 
     return game;
 }
@@ -61,7 +62,10 @@ pub fn restart(gameState: *types.GameState) void {
         gameState.bullets[i].active = false;
     }
 
-    // Reset enemies
+    // Reinitialize obstacles FIRST
+    world.initializeObstacles(&gameState.obstacles, raylib.Vector2{ .x = types.SCREEN_WIDTH / 2.0, .y = types.SCREEN_HEIGHT / 2.0 });
+
+    // Reset enemies AFTER obstacles to ensure they don't spawn on obstacles
     for (0..types.MAX_ENEMIES) |i| {
         const safePos = world.getSafeSpawnPosition(gameState, raylib.Vector2{ .x = types.SCREEN_WIDTH / 2.0, .y = types.SCREEN_HEIGHT / 2.0 }, types.SAFE_SPAWN_DISTANCE, 15.0);
         gameState.enemies[i].position = safePos;
@@ -84,12 +88,50 @@ pub fn update(gameState: *types.GameState, deltaTime: f32) void {
 
         units.updateBullets(gameState, deltaTime);
         units.updateEnemies(gameState, deltaTime);
-        units.checkCollisions(gameState);
+
+        // Handle all collision detection and game state changes
+        checkCollisionsAndGameState(gameState);
     } else {
         if (inputState.restartPressed) {
             restart(gameState);
         }
     }
+}
+
+// Centralized collision detection and game state management
+fn checkCollisionsAndGameState(gameState: *types.GameState) void {
+    // Bullet-Enemy collisions
+    physics.checkBulletEnemyCollisions(gameState.bullets[0..], gameState.enemies[0..]);
+
+    // Player-Enemy collisions
+    if (physics.checkPlayerEnemyCollision(&gameState.player, gameState.enemies[0..])) {
+        gameState.gameOver = true;
+        return; // Exit early if game over
+    }
+
+    // Player-Deadly Obstacle collisions
+    if (physics.checkPlayerObstacleCollision(&gameState.player, gameState.obstacles[0..])) {
+        gameState.gameOver = true;
+        return; // Exit early if game over
+    }
+
+    // Enemy-Deadly Obstacle collisions
+    physics.checkEnemyObstacleCollisions(gameState.enemies[0..], gameState.obstacles[0..]);
+
+    // Check win condition - all enemies dead
+    if (checkWinCondition(gameState)) {
+        gameState.gameWon = true;
+    }
+}
+
+// Game state logic - moved from units.zig
+fn checkWinCondition(gameState: *const types.GameState) bool {
+    for (0..types.MAX_ENEMIES) |i| {
+        if (gameState.enemies[i].active) {
+            return false;
+        }
+    }
+    return true;
 }
 
 pub fn shouldQuit() bool {

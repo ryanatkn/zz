@@ -46,3 +46,74 @@ pub fn isOnScreen(pos: raylib.Vector2) bool {
     return pos.x >= 0 and pos.x <= types.SCREEN_WIDTH and
         pos.y >= 0 and pos.y <= types.SCREEN_HEIGHT;
 }
+
+// Collision detection systems - moved from units.zig for better separation of concerns
+pub fn checkBulletEnemyCollisions(bullets: []types.GameObject, enemies: []types.GameObject) void {
+    for (0..bullets.len) |i| {
+        if (bullets[i].active) {
+            for (0..enemies.len) |j| {
+                if (enemies[j].active) {
+                    if (checkCircleCircleCollision(bullets[i].position, bullets[i].radius, enemies[j].position, enemies[j].radius)) {
+                        bullets[i].active = false;
+                        enemies[j].active = false;
+                    }
+                }
+            }
+        }
+    }
+}
+
+pub fn checkPlayerEnemyCollision(player: *const types.GameObject, enemies: []const types.GameObject) bool {
+    for (0..enemies.len) |i| {
+        if (enemies[i].active) {
+            if (checkCircleCircleCollision(player.position, player.radius, enemies[i].position, enemies[i].radius)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+pub fn checkPlayerObstacleCollision(player: *const types.GameObject, obstacles: []const types.Obstacle) bool {
+    for (0..obstacles.len) |i| {
+        if (obstacles[i].active and obstacles[i].type == .deadly) {
+            if (checkCircleRectCollision(player.position, player.radius, obstacles[i].position, obstacles[i].size)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+pub fn checkEnemyObstacleCollisions(enemies: []types.GameObject, obstacles: []const types.Obstacle) void {
+    for (0..enemies.len) |i| {
+        if (enemies[i].active) {
+            for (0..obstacles.len) |j| {
+                if (obstacles[j].active and obstacles[j].type == .deadly) {
+                    if (checkCircleRectCollision(enemies[i].position, enemies[i].radius, obstacles[j].position, obstacles[j].size)) {
+                        enemies[i].active = false;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Utility function for safe movement with collision checking
+pub fn tryMoveEntity(currentPos: raylib.Vector2, targetPos: raylib.Vector2, radius: f32, gameState: *const types.GameState) raylib.Vector2 {
+    var newPos = currentPos;
+
+    // Try X movement first
+    const testPosX = raylib.Vector2{ .x = targetPos.x, .y = currentPos.y };
+    if (!@import("world.zig").isPositionBlocked(gameState, testPosX, radius)) {
+        newPos.x = targetPos.x;
+    }
+
+    // Try Y movement
+    const testPosY = raylib.Vector2{ .x = newPos.x, .y = targetPos.y };
+    if (!@import("world.zig").isPositionBlocked(gameState, testPosY, radius)) {
+        newPos.y = targetPos.y;
+    }
+
+    return newPos;
+}

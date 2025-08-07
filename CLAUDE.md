@@ -12,7 +12,6 @@ $ zig version
 **Dependencies:**
 - Raylib 5.5.0 (static/shared libraries included in `src/raylib/`)
 - Linux development environment
-- Fish shell (build scripts optimized for fish)
 
 ## Project Structure
 

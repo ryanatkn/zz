@@ -4,7 +4,6 @@ const math = std.math;
 const types = @import("types.zig");
 const physics = @import("physics.zig");
 const input = @import("input.zig");
-const world = @import("world.zig");
 
 // Unit management and behavior systems
 pub fn updatePlayer(gameState: *types.GameState, inputState: input.InputState, deltaTime: f32) void {
@@ -28,21 +27,14 @@ pub fn updatePlayer(gameState: *types.GameState, inputState: input.InputState, d
         movement = inputState.keyboardMovement;
     }
 
-    // Update position with collision checking
-    const newX = gameState.player.position.x + movement.x * types.PLAYER_SPEED * deltaTime;
-    const newY = gameState.player.position.y + movement.y * types.PLAYER_SPEED * deltaTime;
+    // Calculate target position
+    const targetPos = raylib.Vector2{
+        .x = gameState.player.position.x + movement.x * types.PLAYER_SPEED * deltaTime,
+        .y = gameState.player.position.y + movement.y * types.PLAYER_SPEED * deltaTime,
+    };
 
-    // Check X movement
-    const testPosX = raylib.Vector2{ .x = newX, .y = gameState.player.position.y };
-    if (!world.isPositionBlocked(gameState, testPosX, gameState.player.radius)) {
-        gameState.player.position.x = newX;
-    }
-
-    // Check Y movement
-    const testPosY = raylib.Vector2{ .x = gameState.player.position.x, .y = newY };
-    if (!world.isPositionBlocked(gameState, testPosY, gameState.player.radius)) {
-        gameState.player.position.y = newY;
-    }
+    // Use physics utility for safe movement
+    gameState.player.position = physics.tryMoveEntity(gameState.player.position, targetPos, gameState.player.radius, gameState);
 
     // Keep player on screen
     gameState.player.position = physics.clampToScreen(gameState.player.position, gameState.player.radius);
@@ -89,80 +81,14 @@ pub fn updateEnemies(gameState: *types.GameState, deltaTime: f32) void {
                 .y = gameState.player.position.y - gameState.enemies[i].position.y,
             });
 
-            // Check for obstacle collision before moving
-            const newX = gameState.enemies[i].position.x + direction.x * types.ENEMY_SPEED * deltaTime;
-            const newY = gameState.enemies[i].position.y + direction.y * types.ENEMY_SPEED * deltaTime;
+            // Calculate target position
+            const targetPos = raylib.Vector2{
+                .x = gameState.enemies[i].position.x + direction.x * types.ENEMY_SPEED * deltaTime,
+                .y = gameState.enemies[i].position.y + direction.y * types.ENEMY_SPEED * deltaTime,
+            };
 
-            // Check X movement
-            const testPosX = raylib.Vector2{ .x = newX, .y = gameState.enemies[i].position.y };
-            if (!world.isPositionBlocked(gameState, testPosX, gameState.enemies[i].radius)) {
-                gameState.enemies[i].position.x = newX;
-            }
-
-            // Check Y movement
-            const testPosY = raylib.Vector2{ .x = gameState.enemies[i].position.x, .y = newY };
-            if (!world.isPositionBlocked(gameState, testPosY, gameState.enemies[i].radius)) {
-                gameState.enemies[i].position.y = newY;
-            }
+            // Use physics utility for safe movement
+            gameState.enemies[i].position = physics.tryMoveEntity(gameState.enemies[i].position, targetPos, gameState.enemies[i].radius, gameState);
         }
-    }
-}
-
-pub fn checkCollisions(gameState: *types.GameState) void {
-    // Bullet-Enemy collisions
-    for (0..types.MAX_BULLETS) |i| {
-        if (gameState.bullets[i].active) {
-            for (0..types.MAX_ENEMIES) |j| {
-                if (gameState.enemies[j].active) {
-                    if (physics.checkCircleCircleCollision(gameState.bullets[i].position, gameState.bullets[i].radius, gameState.enemies[j].position, gameState.enemies[j].radius)) {
-                        gameState.bullets[i].active = false;
-                        gameState.enemies[j].active = false;
-                    }
-                }
-            }
-        }
-    }
-
-    // Player-Enemy collisions
-    for (0..types.MAX_ENEMIES) |i| {
-        if (gameState.enemies[i].active) {
-            if (physics.checkCircleCircleCollision(gameState.player.position, gameState.player.radius, gameState.enemies[i].position, gameState.enemies[i].radius)) {
-                gameState.gameOver = true;
-            }
-        }
-    }
-
-    // Player-Deadly Obstacle collisions
-    for (0..types.MAX_OBSTACLES) |i| {
-        if (gameState.obstacles[i].active and gameState.obstacles[i].type == .deadly) {
-            if (physics.checkCircleRectCollision(gameState.player.position, gameState.player.radius, gameState.obstacles[i].position, gameState.obstacles[i].size)) {
-                gameState.gameOver = true;
-            }
-        }
-    }
-
-    // Enemy-Deadly Obstacle collisions
-    for (0..types.MAX_ENEMIES) |i| {
-        if (gameState.enemies[i].active) {
-            for (0..types.MAX_OBSTACLES) |j| {
-                if (gameState.obstacles[j].active and gameState.obstacles[j].type == .deadly) {
-                    if (physics.checkCircleRectCollision(gameState.enemies[i].position, gameState.enemies[i].radius, gameState.obstacles[j].position, gameState.obstacles[j].size)) {
-                        gameState.enemies[i].active = false;
-                    }
-                }
-            }
-        }
-    }
-
-    // Check win condition - all enemies dead
-    var allEnemiesDead = true;
-    for (0..types.MAX_ENEMIES) |i| {
-        if (gameState.enemies[i].active) {
-            allEnemiesDead = false;
-            break;
-        }
-    }
-    if (allEnemiesDead) {
-        gameState.gameWon = true;
     }
 }

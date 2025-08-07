@@ -20,7 +20,19 @@ $ ./zz tree
 └── .
     ├── .git [...]                      # Git repository metadata
     ├── .zig-cache [...]                # Zig build cache (filtered from tree output)
-    ├── src/                            # Source code
+    ├── src/                            # Source code (modular architecture)
+    │   ├── cli/                        # CLI interface module (command-line concerns)
+    │   │   ├── command.zig            # Command enumeration and parsing
+    │   │   ├── help.zig               # Help text and usage documentation
+    │   │   ├── main.zig               # CLI entry point and argument processing
+    │   │   └── runner.zig             # Command execution and orchestration
+    │   ├── tree/                       # Tree visualization module (directory traversal)
+    │   │   ├── config.zig             # Configuration parsing and options
+    │   │   ├── entry.zig              # File/directory entry representation
+    │   │   ├── filter.zig             # Directory filtering rules and patterns
+    │   │   ├── formatter.zig          # Tree output formatting and display
+    │   │   ├── main.zig               # Tree command entry point
+    │   │   └── walker.zig             # Recursive directory traversal logic
     │   ├── raylib/                     # Raylib 5.5.0 library bundle
     │   │   ├── include/                # C header files for FFI
     │   │   │   ├── raylib.h           # Main graphics/window API
@@ -31,7 +43,6 @@ $ ./zz tree
     │   │   │   ├── libraylib.so       # Shared library symlink
     │   │   │   ├── libraylib.so.5.5.0 # Versioned shared library
     │   │   │   └── libraylib.so.550   # Alternative version symlink
-    │   │   ├── CHANGELOG              # Raylib release notes
     │   │   ├── LICENSE                # zlib/libpng license
     │   │   ├── README.md              # Raylib documentation
     │   │   ├── raylib_cheatsheet.txt  # API quick reference
@@ -46,7 +57,7 @@ $ ./zz tree
     │   │   ├── types.zig             # Core data structures, constants, color palette
     │   │   ├── units.zig             # Unit management and behavior (ECS-ready design)
     │   │   └── world.zig             # World generation, obstacles, safe spawn positioning
-    │   └── main.zig                   # CLI entry point with command routing
+    │   └── main.zig                   # Minimal application entry point
     ├── zig-out/                       # Build output directory (auto-generated)
     │   ├── bin/                       # Executable binaries
     │   │   └── zz                     # Main CLI executable
@@ -94,26 +105,16 @@ $ zig build run         # Build and run
 ## Development Guidelines & Architecture
 
 ### Core Principles
-- **Command-based CLI**: Enum-driven command parsing with extensible architecture
+- **Modular Architecture**: Clean separation of concerns into domain-specific modules
+- **CLI Module**: Command parsing, help text, and execution orchestration
+- **Tree Module**: Directory traversal, filtering, and visualization logic
+- **YAR Module**: Game-specific logic isolated from CLI concerns
 - **Memory Management**: Arena allocators for short-lived data, careful lifetime management
 - **Static Linking**: External libraries bundled (see Raylib integration pattern)
 - **Error Handling**: Zig error unions for robust error propagation
 - **Build Automation**: `./zz` wrapper script handles build + run workflow
 
-### YAR Modular Architecture
-
-YAR uses a **flat, modular design** optimized for maintainability and future ECS/SOA patterns:
-
-#### Module Responsibilities
-- **`types.zig`**: Core data structures, game constants, vibrant color palette
-- **`physics.zig`**: Collision detection algorithms, vector math, spatial utilities
-- **`input.zig`**: Input state management, control abstraction, dual input schemes
-- **`world.zig`**: Procedural world generation, obstacle placement, safe spawn logic
-- **`units.zig`**: Unit behavior, lifecycle management, enemy AI pathfinding
-- **`render.zig`**: Drawing pipeline, visual effects, UI rendering
-- **`game.zig`**: Game loop coordination, state transitions, system orchestration
-- **`raylib.zig`**: C FFI bindings, memory layout compatibility, API wrappers
-- **`main.zig`**: Initialization, window setup, main entry point
+### Project Architecture Overview
 
 #### Design Benefits
 - **Single Responsibility**: Each module owns one clear domain
@@ -133,14 +134,15 @@ YAR uses a **flat, modular design** optimized for maintainability and future ECS
 ## Extending the CLI
 
 ### Adding New Commands
-1. **Define Command**: Add enum variant to `Command` in `src/main.zig`
+1. **Define Command**: Add enum variant to `Command` in `src/cli/command.zig`
 2. **Parser Integration**: Update `fromString()` method for command recognition
-3. **Implementation**: Add case to main switch statement with command logic
-4. **Documentation**: Update help text and command descriptions
-5. **Complex Features**: Consider separate modules following YAR architecture patterns
+3. **Help Documentation**: Update help text in `src/cli/help.zig`
+4. **Implementation**: Add case to switch statement in `src/cli/runner.zig`
+5. **Complex Features**: Create new module directory (e.g., `src/newfeature/`) following established patterns
 
-### Example Command Structure
+### Example Command Addition
 ```zig
+// In src/cli/command.zig
 const Command = enum {
     tree,
     yar,
@@ -149,9 +151,30 @@ const Command = enum {
 
     pub fn fromString(str: []const u8) ?Command {
         // Add string matching logic
+        if (std.mem.eql(u8, str, "your_new_command")) return .your_new_command;
+        // ...existing logic...
     }
 };
+
+// In src/cli/runner.zig
+pub fn run(self: Self, command: Command, args: [][:0]u8) !void {
+    switch (command) {
+        // ...existing cases...
+        .your_new_command => {
+            // For simple commands, implement directly
+            // For complex commands, delegate to module:
+            // const your_module = @import("../your_feature/main.zig");
+            // try your_module.run(self.allocator, args[1..]);
+        },
+    }
+}
 ```
+
+### Module Creation Guidelines
+- **Simple Commands**: Implement directly in `src/cli/runner.zig`
+- **Complex Features**: Create dedicated module directory with `main.zig` entry point
+- **Follow Patterns**: Use `src/tree/` as template for new modules
+- **Clear Interfaces**: Each module exports a `run()` function taking allocator and args
 
 ## Future Roadmap
 

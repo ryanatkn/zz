@@ -6,30 +6,30 @@ const physics = @import("physics.zig");
 
 // World/obstacle management functions
 
-// Entity type for unified spawning
-pub const EntityType = enum {
+// Unit type for unified spawning
+pub const UnitType = enum {
     circle, // For players, enemies, bullets
     rectangle, // For obstacles
 };
 
-pub const EntitySpec = struct {
-    entityType: EntityType,
-    radius: f32 = 0, // For circle entities
-    size: raylib.Vector2 = raylib.Vector2{ .x = 0, .y = 0 }, // For rectangle entities
+pub const UnitSpec = struct {
+    unitType: UnitType,
+    radius: f32 = 0, // For circle units
+    size: raylib.Vector2 = raylib.Vector2{ .x = 0, .y = 0 }, // For rectangle units
     minDistance: f32 = 0, // Minimum distance from avoid position
     avoidPos: raylib.Vector2 = raylib.Vector2{ .x = 0, .y = 0 }, // Position to avoid
     excludePlayer: bool = false, // Whether to exclude player from collision checks
 };
 
-// Unified function to find a safe spawn position for any entity type
-pub fn findSafeSpawnPosition(gameState: *const types.GameState, spec: EntitySpec) raylib.Vector2 {
+// Unified function to find a safe spawn position for any unit type
+pub fn findSafeSpawnPosition(gameState: *const types.GameState, spec: UnitSpec) raylib.Vector2 {
     var attempts: u32 = 0;
     const maxAttempts: u32 = 100;
 
     while (attempts < maxAttempts) {
         var testPos: raylib.Vector2 = undefined;
 
-        switch (spec.entityType) {
+        switch (spec.unitType) {
             .circle => {
                 const minX: i32 = @intFromFloat(spec.radius);
                 const maxX: i32 = @intFromFloat(types.SCREEN_WIDTH - spec.radius);
@@ -53,7 +53,7 @@ pub fn findSafeSpawnPosition(gameState: *const types.GameState, spec: EntitySpec
         }
 
         // Check distance from avoid position
-        const distanceFromAvoid = switch (spec.entityType) {
+        const distanceFromAvoid = switch (spec.unitType) {
             .circle => physics.vectorLength(raylib.Vector2{ .x = testPos.x - spec.avoidPos.x, .y = testPos.y - spec.avoidPos.y }),
             .rectangle => {
                 // Use center of rectangle for distance calculation
@@ -64,7 +64,7 @@ pub fn findSafeSpawnPosition(gameState: *const types.GameState, spec: EntitySpec
 
         if (distanceFromAvoid >= spec.minDistance) {
             // Check if position is free from collisions
-            const isColliding = switch (spec.entityType) {
+            const isColliding = switch (spec.unitType) {
                 .circle => isPositionOccupied(gameState, testPos, spec.radius, spec.excludePlayer),
                 .rectangle => isRectPositionOccupied(gameState, testPos, spec.size, spec.excludePlayer),
             };
@@ -76,15 +76,15 @@ pub fn findSafeSpawnPosition(gameState: *const types.GameState, spec: EntitySpec
         attempts += 1;
     }
 
-    // Fallback position based on entity type and avoid position
+    // Fallback position based on unit type and avoid position
     return getFallbackPosition(spec);
 }
 
 // Fallback position generator when safe spawn fails
-fn getFallbackPosition(spec: EntitySpec) raylib.Vector2 {
+fn getFallbackPosition(spec: UnitSpec) raylib.Vector2 {
     const rightSide = spec.avoidPos.x < types.SCREEN_WIDTH / 2;
 
-    switch (spec.entityType) {
+    switch (spec.unitType) {
         .circle => {
             if (rightSide) {
                 return raylib.Vector2{ .x = types.SCREEN_WIDTH - 50, .y = @floatFromInt(raylib.getRandomValue(50, @intFromFloat(types.SCREEN_HEIGHT - 50))) };
@@ -180,10 +180,10 @@ pub fn isPositionBlocked(gameState: *const types.GameState, pos: raylib.Vector2,
     return false;
 }
 
-pub fn getSafeSpawnPosition(gameState: *const types.GameState, avoidPos: raylib.Vector2, minDistance: f32, entityRadius: f32) raylib.Vector2 {
-    const spec = EntitySpec{
-        .entityType = .circle,
-        .radius = entityRadius,
+pub fn getSafeSpawnPosition(gameState: *const types.GameState, avoidPos: raylib.Vector2, minDistance: f32, unitRadius: f32) raylib.Vector2 {
+    const spec = UnitSpec{
+        .unitType = .circle,
+        .radius = unitRadius,
         .minDistance = minDistance,
         .avoidPos = avoidPos,
         .excludePlayer = false,
@@ -192,8 +192,8 @@ pub fn getSafeSpawnPosition(gameState: *const types.GameState, avoidPos: raylib.
 }
 
 pub fn getSafeObstaclePosition(gameState: *const types.GameState, avoidPos: raylib.Vector2, minDistance: f32, obstacleSize: raylib.Vector2) raylib.Vector2 {
-    const spec = EntitySpec{
-        .entityType = .rectangle,
+    const spec = UnitSpec{
+        .unitType = .rectangle,
         .size = obstacleSize,
         .minDistance = minDistance,
         .avoidPos = avoidPos,
@@ -233,8 +233,8 @@ pub fn initializeObstacles(obstacles: *[types.MAX_OBSTACLES]types.Obstacle, play
             .allocator = undefined,
         };
 
-        const spec = EntitySpec{
-            .entityType = .rectangle,
+        const spec = UnitSpec{
+            .unitType = .rectangle,
             .size = obstacleSize,
             .minDistance = types.SAFE_SPAWN_DISTANCE,
             .avoidPos = playerStartPos,

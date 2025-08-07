@@ -100,7 +100,7 @@ pub fn checkEnemyObstacleCollisions(enemies: []types.GameObject, obstacles: []co
 }
 
 // Utility function for safe movement with collision checking
-pub fn tryMoveEntity(currentPos: raylib.Vector2, targetPos: raylib.Vector2, radius: f32, gameState: *const types.GameState) raylib.Vector2 {
+pub fn tryMoveUnit(currentPos: raylib.Vector2, targetPos: raylib.Vector2, radius: f32, gameState: *const types.GameState) raylib.Vector2 {
     var newPos = currentPos;
 
     // Try X movement first

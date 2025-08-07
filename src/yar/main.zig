@@ -139,15 +139,15 @@ const GameState = struct {
         self.gameWon = false;
     }
 
-    fn getSafeSpawnPosition(self: *Self, avoidPos: raylib.Vector2, minDistance: f32, entityRadius: f32) raylib.Vector2 {
+    fn getSafeSpawnPosition(self: *Self, avoidPos: raylib.Vector2, minDistance: f32, unitRadius: f32) raylib.Vector2 {
         var attempts: u32 = 0;
         const maxAttempts: u32 = 50; // Prevent infinite loops
 
         while (attempts < maxAttempts) {
-            const minX: i32 = @intFromFloat(entityRadius);
-            const maxX: i32 = @intFromFloat(SCREEN_WIDTH - entityRadius);
-            const minY: i32 = @intFromFloat(entityRadius);
-            const maxY: i32 = @intFromFloat(SCREEN_HEIGHT - entityRadius);
+            const minX: i32 = @intFromFloat(unitRadius);
+            const maxX: i32 = @intFromFloat(SCREEN_WIDTH - unitRadius);
+            const minY: i32 = @intFromFloat(unitRadius);
+            const maxY: i32 = @intFromFloat(SCREEN_HEIGHT - unitRadius);
 
             const x: f32 = @floatFromInt(raylib.getRandomValue(minX, maxX));
             const y: f32 = @floatFromInt(raylib.getRandomValue(minY, maxY));
@@ -160,7 +160,7 @@ const GameState = struct {
 
             if (distance >= minDistance) {
                 // For obstacles, also check they don't overlap with existing obstacles
-                if (entityRadius == 0) { // This is an obstacle (using radius 0 as indicator)
+                if (unitRadius == 0) { // This is an obstacle (using radius 0 as indicator)
                     var overlaps = false;
                     for (0..MAX_OBSTACLES) |i| {
                         if (self.obstacles[i].active) {

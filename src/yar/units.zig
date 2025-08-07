@@ -34,7 +34,7 @@ pub fn updatePlayer(gameState: *types.GameState, inputState: input.InputState, d
     };
 
     // Use physics utility for safe movement
-    gameState.player.position = physics.tryMoveEntity(gameState.player.position, targetPos, gameState.player.radius, gameState);
+    gameState.player.position = physics.tryMoveUnit(gameState.player.position, targetPos, gameState.player.radius, gameState);
 
     // Keep player on screen
     gameState.player.position = physics.clampToScreen(gameState.player.position, gameState.player.radius);
@@ -88,7 +88,7 @@ pub fn updateEnemies(gameState: *types.GameState, deltaTime: f32) void {
             };
 
             // Use physics utility for safe movement
-            gameState.enemies[i].position = physics.tryMoveEntity(gameState.enemies[i].position, targetPos, gameState.enemies[i].radius, gameState);
+            gameState.enemies[i].position = physics.tryMoveUnit(gameState.enemies[i].position, targetPos, gameState.enemies[i].radius, gameState);
         }
     }
 }

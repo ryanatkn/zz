@@ -1,66 +1,98 @@
-# zz
+# zz - Experimental Software Tools
 
-CLI utility toolkit with tree visualization and 2D game featuring modular architecture.
+A Zig project featuring CLI utilities and a 2D game with clean modular architecture.
 
-## Usage
+## Quick Start
 
 ```bash
-./zz <command> [args...]
+# Install dependencies
+zig version  # Requires 0.14.1+
+
+# Build and run
+./zz help    # Show available commands
+./zz tree    # Display directory structure  
+./zz yar     # Play the 2D shooter game
 ```
 
-**Commands:**
-- `tree [dir] [depth]` - Directory tree (filters common build/cache dirs)
-- `yar` - 2D top-down shooter game with vibrant colors and smooth gameplay
-- `help` - Show commands
+## Features
 
-**Examples:**
+### Tree Visualization
+- Recursive directory traversal with customizable depth
+- Smart filtering (hides build artifacts, cache directories)
+- Clean tree-style output formatting
+
+### YAR Game
+- **YAR** (Yet Another RPG) - Vibrant 2D top-down shooter
+- **Controls**: Mouse (move + shoot) or WASD + mouse
+- **Gameplay**: Green obstacles (blocking), purple hazards (deadly)
+- **Features**: Enemy AI, collision detection, dynamic world generation
+- **Performance**: 144 FPS target with smooth gameplay
+
+## Commands
+
 ```bash
-./zz tree          # Current directory
-./zz tree src/ 2   # src/ limited to 2 levels
-./zz yar           # Play game (mouse + WASD controls)
+./zz tree [directory] [depth]    # Show directory tree
+./zz yar                         # Launch 2D shooter
+./zz help                        # Display help
 ```
 
-## YAR Game Features
+## Examples
 
-- **Mouse + Keyboard Controls**: Left click to move, right click to shoot, WASD for keyboard movement
-- **Vibrant Color Palette**: Non-pastel colors for better visual clarity
-- **Obstacle System**: Green blocking obstacles and purple deadly obstacles
-- **Smart Enemy AI**: Enemies navigate around obstacles to reach the player
-- **Collision Detection**: Precise circle-rectangle and circle-circle collision
-- **Modular Architecture**: ECS-ready design with focused, single-responsibility modules
+```bash
+# Show current directory structure, 2 levels deep
+./zz tree . 2
+
+# Show src directory with default depth  
+./zz tree src/
+
+# Play the game
+./zz yar
+```
 
 ## Architecture
 
-The project uses a modular architecture designed for maintainability and future ECS patterns:
+- **`src/cli/`** - Command parsing and execution
+- **`src/tree/`** - Directory traversal and visualization  
+- **`src/yar/`** - Consolidated 2D game implementation
+- **`src/raylib/`** - Graphics library (bundled)
 
-### YAR Game Modules
-- **`types.zig`** - Core data structures, constants, and configuration
-- **`physics.zig`** - Collision detection, vector math, and spatial utilities  
-- **`input.zig`** - Input state management and control abstraction
-- **`world.zig`** - World generation, obstacles, and safe spawn positioning
-- **`units.zig`** - Unit behavior and management (player, enemies, bullets)
-- **`render.zig`** - All drawing operations and visual output
-- **`game.zig`** - Core game loop, state management, and system coordination
-- **`main.zig`** - Entry point and initialization
+### Design Principles
+- Single binary with no external runtime dependencies
+- Direct function calls (no shell process spawning)
+- Clean separation of concerns across modules
+- Static linking with bundled libraries
 
-### Design Benefits
-- **Single Responsibility**: Each module focuses on one clear purpose
-- **Flat Hierarchy**: No nested directories to avoid complex dependencies
-- **ECS-Ready**: Uses "units" terminology and SOA-friendly patterns
-- **Testable**: Input abstraction enables easy unit testing
-- **Reusable**: Physics and utility modules work across different games
+## Game Controls (YAR)
 
-## Building
-
-```bash
-zig build          # Builds to zig-out/bin/zz
-./zz help          # Wrapper script auto-builds
-```
-
-The `zz` script automatically builds and runs the binary. Game requires Raylib static library in `src/raylib/lib/`.
+- **Left Click**: Move player toward mouse cursor
+- **Right Click**: Shoot toward mouse cursor  
+- **WASD/Arrow Keys**: Alternative movement controls
+- **R Key**: Restart with new randomly generated world
+- **ESC**: Quit game
 
 ## Development
 
-For detailed architecture documentation, development guidelines, and technical implementation details, see **[CLAUDE.md](CLAUDE.md)**.
+```bash
+# Build only
+zig build
 
-This README focuses on user-facing features and usage, while CLAUDE.md contains the technical documentation for developers and AI assistants working on the codebase.
+# Run directly  
+./zig-out/bin/zz [command]
+
+# Development build with debug info
+zig build -Doptimize=Debug
+```
+
+## Requirements
+
+- Zig 0.14.1+
+- Linux (X11 libraries for graphics)
+- OpenGL support
+
+## Technical Documentation
+
+For detailed architecture documentation, development guidelines, and implementation details, see **[CLAUDE.md](CLAUDE.md)**.
+
+## License
+
+See individual component licenses in their respective directories.

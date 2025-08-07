@@ -47,16 +47,9 @@ $ ./zz tree
     │   │   ├── README.md              # Raylib documentation
     │   │   ├── raylib_cheatsheet.txt  # API quick reference
     │   │   └── raymath_cheatsheet.txt # Math functions reference
-    │   ├── yar/                       # YAR game module (modular architecture)
-    │   │   ├── game.zig              # Core game loop, state management, system coordination
-    │   │   ├── input.zig             # Input state management and control abstraction
-    │   │   ├── main.zig              # Game entry point and Raylib initialization
-    │   │   ├── physics.zig           # Collision detection, vector math, spatial queries
-    │   │   ├── raylib.zig            # Raylib FFI bindings and C interop
-    │   │   ├── render.zig            # All drawing operations and visual output
-    │   │   ├── types.zig             # Core data structures, constants, color palette
-    │   │   ├── units.zig             # Unit management and behavior (ECS-ready design)
-    │   │   └── world.zig             # World generation, obstacles, safe spawn positioning
+    │   ├── yar/                       # YAR game module (clean, consolidated architecture)
+    │   │   ├── game.zig              # Complete game implementation with integrated systems
+    │   │   └── raylib.zig            # Raylib FFI bindings and C interop
     │   └── main.zig                   # Minimal application entry point
     ├── zig-out/                       # Build output directory (auto-generated)
     │   ├── bin/                       # Executable binaries
@@ -97,10 +90,11 @@ $ ./zig-out/bin/zz      # Run binary directly after build
 **YAR** (Yet Another RPG) is a vibrant 2D top-down shooter featuring:
 - **Dual Control Schemes**: Mouse (left click move, right click shoot) + WASD keyboard movement
 - **Vibrant Color Palette**: Non-pastel colors for clear visual distinction
-- **Dynamic Obstacle System**: Green blocking obstacles and purple deadly hazards
+- **Dynamic Obstacle System**: Green blocking obstacles (4x larger) and purple deadly hazards
 - **Intelligent Enemy AI**: Pathfinding around obstacles with collision avoidance
 - **Precise Collision Detection**: Circle-rectangle and circle-circle collision systems
-- **60 FPS Gameplay**: Smooth movement and responsive controls
+- **Dynamic Restart**: R key regenerates entire world with new obstacle layouts
+- **Integrated Runtime**: No shell process spawning - runs directly within CLI binary
 
 ## Development Guidelines & Architecture
 
@@ -108,77 +102,37 @@ $ ./zig-out/bin/zz      # Run binary directly after build
 - **Modular Architecture**: Clean separation of concerns into domain-specific modules
 - **CLI Module**: Command parsing, help text, and execution orchestration
 - **Tree Module**: Directory traversal, filtering, and visualization logic
-- **YAR Module**: Game-specific logic isolated from CLI concerns
+- **YAR Module**: Consolidated game implementation with runtime integration
 - **Memory Management**: Arena allocators for short-lived data, careful lifetime management
-- **Static Linking**: External libraries bundled (see Raylib integration pattern)
+- **Static Linking**: External libraries bundled with build system integration
 - **Error Handling**: Zig error unions for robust error propagation
+- **No Shell Dependencies**: All components run within single binary process
 
-### Project Architecture Overview
-
-#### Design Benefits
+### Architecture Benefits
 - **Single Responsibility**: Each module owns one clear domain
-- **Flat Hierarchy**: No nested dependencies, import any module from any other
-- **ECS-Ready**: "Units" terminology and SOA-friendly data structures
-- **Testable**: Input abstraction enables pure function testing and mocking
-- **Reusable**: Physics and math modules work across different game projects
-- **Performance**: Minimal indirection, cache-friendly data layouts
-
-### Technical Highlights
-- **Collision System**: Circle-rectangle and circle-circle detection with early exits
-- **AI Pathfinding**: Vector-based obstacle avoidance with smooth movement
-- **Color Design**: Non-pastel palette for accessibility and visual clarity
-- **Input Flexibility**: Mouse precision + WASD keyboard alternative controls
-- **60 FPS Target**: Frame-rate independent game logic with delta time
+- **Runtime Integration**: Game runs as library function, not separate process
+- **Consolidated Logic**: YAR combines all systems in single, maintainable module
+- **Performance**: No process spawning overhead, minimal indirection
 
 ## Extending the CLI
 
 ### Adding New Commands
-1. **Define Command**: Add enum variant to `Command` in `src/cli/command.zig`
-2. **Parser Integration**: Update `fromString()` method for command recognition
-3. **Help Documentation**: Update help text in `src/cli/help.zig`
-4. **Implementation**: Add case to switch statement in `src/cli/runner.zig`
-5. **Complex Features**: Create new module directory (e.g., `src/newfeature/`) following established patterns
+1. Add enum variant to `Command` in `src/cli/command.zig`
+2. Update `fromString()` method for command recognition  
+3. Update help text in `src/cli/help.zig`
+4. Add case to switch statement in `src/cli/runner.zig`
+5. Create module directory following `src/tree/` or `src/yar/` patterns
 
-### Example Command Addition
-```zig
-// In src/cli/command.zig
-const Command = enum {
-    tree,
-    yar,
-    help,
-    your_new_command, // Add here
-
-    pub fn fromString(str: []const u8) ?Command {
-        // Add string matching logic
-        if (std.mem.eql(u8, str, "your_new_command")) return .your_new_command;
-        // ...existing logic...
-    }
-};
-
-// In src/cli/runner.zig
-pub fn run(self: Self, command: Command, args: [][:0]u8) !void {
-    switch (command) {
-        // ...existing cases...
-        .your_new_command => {
-            // For simple commands, implement directly
-            // For complex commands, delegate to module:
-            // const your_module = @import("../your_feature/main.zig");
-            // try your_module.run(self.allocator, args[1..]);
-        },
-    }
-}
-```
-
-### Module Creation Guidelines
-- **Simple Commands**: Implement directly in `src/cli/runner.zig`
-- **Complex Features**: Create dedicated module directory with `main.zig` entry point
-- **Follow Patterns**: Use `src/tree/` as template for new modules
-- **Clear Interfaces**: Each module exports a `run()` function taking allocator and args
+### Module Guidelines
+- Simple commands: implement in `src/cli/runner.zig`
+- Complex features: dedicated module with `run(allocator, args)` function
+- Prefer direct function calls over shell processes
 
 ## Future Roadmap
 
-- **ECS Migration**: Refactor YAR to full Entity-Component-System architecture
-- **Additional Games**: Leverage modular physics/input for new game types  
+- **Module Expansion**: Consider extracting reusable components (collision, math) from YAR
+- **Additional Games**: Leverage consolidated game patterns for new game types  
 - **Tree Enhancements**: Add file filtering, size display, git status integration
 - **Performance Tools**: Memory profiling, build time analysis
 - **Cross-Platform**: Windows and macOS support with platform-specific optimizations
+- **Build System**: Further integrate raylib dependencies for smoother development

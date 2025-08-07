@@ -73,7 +73,7 @@ $ ./zz tree
 
 ## Commands & Usage
 
-The `./zz` wrapper script provides convenient access to all commands:
+The `./zz` wrapper script auto-builds and provides convenient access to the `zig-out/bin/zz` binary:
 
 ```bash
 # Display project tree structure (filters build/cache directories)
@@ -87,9 +87,9 @@ $ ./zz yar
 # Show help and available commands
 $ ./zz help
 
-# Direct build commands
+# Direct build commands (without wrapper script)
 $ zig build             # Standard build
-$ zig build run         # Build and run
+$ ./zig-out/bin/zz      # Run binary directly after build
 ```
 
 ## YAR Game Overview
@@ -112,7 +112,6 @@ $ zig build run         # Build and run
 - **Memory Management**: Arena allocators for short-lived data, careful lifetime management
 - **Static Linking**: External libraries bundled (see Raylib integration pattern)
 - **Error Handling**: Zig error unions for robust error propagation
-- **Build Automation**: `./zz` wrapper script handles build + run workflow
 
 ### Project Architecture Overview
 

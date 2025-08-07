@@ -13,15 +13,15 @@ const MAX_ENEMIES = 10;
 const MAX_OBSTACLES = 15;
 const SAFE_SPAWN_DISTANCE = 150.0; // Minimum distance from player for safe spawning
 
-// Soothing color palette
-const SOOTHING_BLUE = raylib.Color{ .r = 135, .g = 167, .b = 210, .a = 255 };
-const SOOTHING_GREEN = raylib.Color{ .r = 157, .g = 192, .b = 157, .a = 255 };
-const SOOTHING_PURPLE = raylib.Color{ .r = 174, .g = 151, .b = 193, .a = 255 };
-const SOOTHING_RED = raylib.Color{ .r = 210, .g = 135, .b = 135, .a = 255 };
-const SOOTHING_YELLOW = raylib.Color{ .r = 225, .g = 210, .b = 150, .a = 255 };
-const SOOTHING_GRAY = raylib.Color{ .r = 180, .g = 180, .b = 180, .a = 255 };
-const SOOTHING_WHITE = raylib.Color{ .r = 245, .g = 245, .b = 245, .a = 255 };
-const SOOTHING_DARK = raylib.Color{ .r = 45, .g = 52, .b = 64, .a = 255 };
+// Vibrant color palette
+const SOOTHING_BLUE = raylib.Color{ .r = 0, .g = 100, .b = 255, .a = 255 };
+const SOOTHING_GREEN = raylib.Color{ .r = 0, .g = 180, .b = 0, .a = 255 };
+const SOOTHING_PURPLE = raylib.Color{ .r = 150, .g = 50, .b = 200, .a = 255 };
+const SOOTHING_RED = raylib.Color{ .r = 255, .g = 50, .b = 50, .a = 255 };
+const SOOTHING_YELLOW = raylib.Color{ .r = 255, .g = 200, .b = 0, .a = 255 };
+const SOOTHING_GRAY = raylib.Color{ .r = 128, .g = 128, .b = 128, .a = 255 };
+const SOOTHING_WHITE = raylib.Color{ .r = 255, .g = 255, .b = 255, .a = 255 };
+const SOOTHING_DARK = raylib.Color{ .r = 25, .g = 25, .b = 35, .a = 255 };
 
 const GameObject = struct {
     position: raylib.Vector2,
@@ -463,15 +463,15 @@ const GameState = struct {
             raylib.drawText(fpsText, @as(i32, @intFromFloat(SCREEN_WIDTH)) - fpsWidth - 10, 10, 16, SOOTHING_WHITE);
         } else if (self.gameWon) {
             // Win screen
-            raylib.drawText("YOU WIN!", @intFromFloat(SCREEN_WIDTH / 2 - 80), @intFromFloat(SCREEN_HEIGHT / 2 - 50), 40, SOOTHING_GREEN);
+            raylib.drawText("YOU WIN!", @intFromFloat(SCREEN_WIDTH / 2 - 400), @intFromFloat(SCREEN_HEIGHT / 2 - 200), 160, SOOTHING_GREEN);
 
-            raylib.drawText("All enemies eliminated!", @intFromFloat(SCREEN_WIDTH / 2 - 100), @intFromFloat(SCREEN_HEIGHT / 2), 16, SOOTHING_WHITE);
-            raylib.drawText("Press R or Click to restart, ESC to quit", @intFromFloat(SCREEN_WIDTH / 2 - 160), @intFromFloat(SCREEN_HEIGHT / 2 + 25), 16, SOOTHING_GRAY);
+            raylib.drawText("All enemies eliminated!", @intFromFloat(SCREEN_WIDTH / 2 - 300), @intFromFloat(SCREEN_HEIGHT / 2 - 20), 48, SOOTHING_WHITE);
+            raylib.drawText("Press R or Click to restart, ESC to quit", @intFromFloat(SCREEN_WIDTH / 2 - 480), @intFromFloat(SCREEN_HEIGHT / 2 + 80), 48, SOOTHING_GRAY);
         } else {
             // Game over screen
-            raylib.drawText("GAME OVER", @intFromFloat(SCREEN_WIDTH / 2 - 100), @intFromFloat(SCREEN_HEIGHT / 2 - 50), 40, SOOTHING_RED);
+            raylib.drawText("GAME OVER", @intFromFloat(SCREEN_WIDTH / 2 - 480), @intFromFloat(SCREEN_HEIGHT / 2 - 200), 160, SOOTHING_RED);
 
-            raylib.drawText("Press R or Click to restart, ESC to quit", @intFromFloat(SCREEN_WIDTH / 2 - 160), @intFromFloat(SCREEN_HEIGHT / 2 + 20), 16, SOOTHING_GRAY);
+            raylib.drawText("Press R or Click to restart, ESC to quit", @intFromFloat(SCREEN_WIDTH / 2 - 480), @intFromFloat(SCREEN_HEIGHT / 2 + 80), 48, SOOTHING_GRAY);
         }
     }
 };

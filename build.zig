@@ -33,6 +33,17 @@ pub fn build(b: *std.Build) void {
         .root_module = exe_mod,
     });
 
+    // Add raylib static library and system dependencies for YAR game
+    exe.addIncludePath(b.path("src/raylib/include"));
+    exe.addObjectFile(b.path("src/raylib/lib/libraylib.a"));
+    exe.linkSystemLibrary("GL");
+    exe.linkSystemLibrary("m");
+    exe.linkSystemLibrary("pthread");
+    exe.linkSystemLibrary("dl");
+    exe.linkSystemLibrary("rt");
+    exe.linkSystemLibrary("X11");
+    exe.linkLibC();
+
     // This declares intent for the executable to be installed into the
     // standard location when the user invokes the "install" step (the default
     // step when running `zig build`).

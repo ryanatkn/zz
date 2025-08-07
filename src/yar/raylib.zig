@@ -63,6 +63,7 @@ extern fn IsMouseButtonPressed(button: c_int) bool;
 extern fn IsMouseButtonDown(button: c_int) bool;
 extern fn GetMousePosition() Vector2;
 extern fn GetRandomValue(min: c_int, max: c_int) c_int;
+extern fn SetRandomSeed(seed: c_uint) void;
 extern fn TextFormat(text: [*:0]const u8, ...) [*:0]const u8;
 
 // Wrapper functions for easier Zig usage
@@ -152,6 +153,10 @@ pub fn getMousePosition() Vector2 {
 
 pub fn getRandomValue(min: i32, max: i32) i32 {
     return @intCast(GetRandomValue(@intCast(min), @intCast(max)));
+}
+
+pub fn setRandomSeed(seed: u32) void {
+    SetRandomSeed(seed);
 }
 
 pub fn textFormat(allocator: std.mem.Allocator, comptime fmt: []const u8, args: anytype) ![:0]u8 {

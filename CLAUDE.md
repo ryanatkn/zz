@@ -109,7 +109,7 @@ YAR uses a **flat, modular design** optimized for maintainability and future ECS
 - **`physics.zig`**: Collision detection algorithms, vector math, spatial utilities
 - **`input.zig`**: Input state management, control abstraction, dual input schemes
 - **`world.zig`**: Procedural world generation, obstacle placement, safe spawn logic
-- **`units.zig`**: Entity behavior, lifecycle management, enemy AI pathfinding
+- **`units.zig`**: Unit behavior, lifecycle management, enemy AI pathfinding
 - **`render.zig`**: Drawing pipeline, visual effects, UI rendering
 - **`game.zig`**: Game loop coordination, state transitions, system orchestration
 - **`raylib.zig`**: C FFI bindings, memory layout compatibility, API wrappers

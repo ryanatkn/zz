@@ -1,83 +1,30 @@
 # zz
 
-A modular CLI utility toolkit for common development tasks, starting with directory tree visualization.
+CLI utility toolkit with tree visualization and 2D game.
 
-## Quick Start
-
-```bash
-./zz tree [directory] [max_depth]
-```
-
-## Commands
-
-- `tree [directory] [max_depth]` - Display directory tree structure (defaults to current directory)
-- `yar` - Play YAR - 2D top-down RPG
-- `help` - Show available commands
-
-## Examples
+## Usage
 
 ```bash
-# Current directory tree
-./zz tree
-
-# Basic directory tree
-./zz tree src/
-
-# Limit depth to 2 levels
-./zz tree . 2
-
-# Play the YAR game
-./zz yar
-
-# Show help
-./zz help
+./zz <command> [args...]
 ```
 
-## Tree Command Features
+**Commands:**
+- `tree [dir] [depth]` - Directory tree (filters common build/cache dirs)
+- `yar` - 2D top-down shooter game (Raylib)
+- `help` - Show commands
 
-- 🌳 Clean tree visualization with Unicode box-drawing characters
-- 🚫 Smart filtering (ignores `.git`, `node_modules`, etc.)
-- 📏 Configurable depth limiting
-- 🎨 Syntax highlighting for ignored/elided content
-- ⚡ Fast traversal with robust error handling
-
-## YAR Game Features
-
-- 🎮 2D top-down RPG gameplay
-- 🎯 Mouse aiming and shooting
-- 👾 Enemy AI that chases the player
-- 📊 Score tracking
-- 🎨 Built with Raylib for smooth graphics
-- ⌨️ WASD/Arrow key movement controls
-
-## Development
-
-The `./zz` script handles building and running:
-
+**Examples:**
 ```bash
-# Development workflow
-./zz tree .           # Run tree command
-./zz help             # Show help
-
-# Manual build (if needed)
-zig build
-./zig-out/bin/zz tree <directory>
+./zz tree          # Current directory
+./zz tree src/ 2   # src/ limited to 2 levels
+./zz yar           # Play game (WASD+mouse)
 ```
-
-## Architecture
-
-`zz` is designed as a modular CLI toolkit with:
-- Command-based architecture for easy extension
-- Reusable components (formatters, filters, walkers)
-- Clean separation of concerns
-- Type-safe configuration handling
-
-Future commands could include file operations, project scaffolding, text processing, and more.
 
 ## Building
 
-Requires Zig 0.14+:
-
 ```bash
-zig build
+zig build          # Builds to zig-out/bin/zz
+./zz help          # Wrapper script auto-builds
 ```
+
+The `zz` script automatically builds and runs the binary. Game requires Raylib static library in `src/raylib/lib/`.

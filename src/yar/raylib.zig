@@ -21,6 +21,8 @@ pub const RED = Color{ .r = 230, .g = 41, .b = 55, .a = 255 };
 pub const BLUE = Color{ .r = 0, .g = 121, .b = 241, .a = 255 };
 pub const YELLOW = Color{ .r = 253, .g = 249, .b = 0, .a = 255 };
 pub const GRAY = Color{ .r = 130, .g = 130, .b = 130, .a = 255 };
+pub const GREEN = Color{ .r = 0, .g = 228, .b = 48, .a = 255 };
+pub const PURPLE = Color{ .r = 200, .g = 122, .b = 255, .a = 255 };
 
 // Key constants
 pub const KEY_W = 87;
@@ -36,21 +38,29 @@ pub const KEY_R = 82;
 
 // Mouse constants
 pub const MOUSE_BUTTON_LEFT = 0;
+pub const MOUSE_BUTTON_RIGHT = 1;
 
 // External function declarations
 extern fn InitWindow(width: c_int, height: c_int, title: [*:0]const u8) void;
 extern fn SetTargetFPS(fps: c_int) void;
 extern fn WindowShouldClose() bool;
 extern fn CloseWindow() void;
+extern fn ToggleFullscreen() void;
+extern fn GetScreenWidth() c_int;
+extern fn GetScreenHeight() c_int;
 extern fn BeginDrawing() void;
 extern fn EndDrawing() void;
 extern fn ClearBackground(color: Color) void;
 extern fn DrawCircleV(center: Vector2, radius: f32, color: Color) void;
+extern fn DrawRectangleV(position: Vector2, size: Vector2, color: Color) void;
 extern fn DrawText(text: [*:0]const u8, posX: c_int, posY: c_int, fontSize: c_int, color: Color) void;
 extern fn GetFrameTime() f32;
+extern fn GetFPS() c_int;
+extern fn MeasureText(text: [*:0]const u8, fontSize: c_int) c_int;
 extern fn IsKeyDown(key: c_int) bool;
 extern fn IsKeyPressed(key: c_int) bool;
 extern fn IsMouseButtonPressed(button: c_int) bool;
+extern fn IsMouseButtonDown(button: c_int) bool;
 extern fn GetMousePosition() Vector2;
 extern fn GetRandomValue(min: c_int, max: c_int) c_int;
 extern fn TextFormat(text: [*:0]const u8, ...) [*:0]const u8;
@@ -72,6 +82,18 @@ pub fn closeWindow() void {
     CloseWindow();
 }
 
+pub fn toggleFullscreen() void {
+    ToggleFullscreen();
+}
+
+pub fn getScreenWidth() i32 {
+    return @intCast(GetScreenWidth());
+}
+
+pub fn getScreenHeight() i32 {
+    return @intCast(GetScreenHeight());
+}
+
 pub fn beginDrawing() void {
     BeginDrawing();
 }
@@ -88,12 +110,24 @@ pub fn drawCircleV(center: Vector2, radius: f32, color: Color) void {
     DrawCircleV(center, radius, color);
 }
 
+pub fn drawRectangleV(position: Vector2, size: Vector2, color: Color) void {
+    DrawRectangleV(position, size, color);
+}
+
 pub fn drawText(text: [:0]const u8, posX: i32, posY: i32, fontSize: i32, color: Color) void {
     DrawText(text.ptr, @intCast(posX), @intCast(posY), @intCast(fontSize), color);
 }
 
 pub fn getFrameTime() f32 {
     return GetFrameTime();
+}
+
+pub fn getFPS() i32 {
+    return @intCast(GetFPS());
+}
+
+pub fn measureText(text: [:0]const u8, fontSize: i32) i32 {
+    return @intCast(MeasureText(text.ptr, @intCast(fontSize)));
 }
 
 pub fn isKeyDown(key: i32) bool {
@@ -106,6 +140,10 @@ pub fn isKeyPressed(key: i32) bool {
 
 pub fn isMouseButtonPressed(button: i32) bool {
     return IsMouseButtonPressed(@intCast(button));
+}
+
+pub fn isMouseButtonDown(button: i32) bool {
+    return IsMouseButtonDown(@intCast(button));
 }
 
 pub fn getMousePosition() Vector2 {

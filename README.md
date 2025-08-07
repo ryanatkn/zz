@@ -11,7 +11,7 @@ A modular CLI utility toolkit for common development tasks, starting with direct
 ## Commands
 
 - `tree [directory] [max_depth]` - Display directory tree structure (defaults to current directory)
-- `yar` - Play YAR - 2D top-down action game
+- `yar` - Play YAR - 2D top-down RPG
 - `help` - Show available commands
 
 ## Examples
@@ -43,7 +43,7 @@ A modular CLI utility toolkit for common development tasks, starting with direct
 
 ## YAR Game Features
 
-- 🎮 2D top-down action gameplay
+- 🎮 2D top-down RPG gameplay
 - 🎯 Mouse aiming and shooting
 - 👾 Enemy AI that chases the player
 - 📊 Score tracking

@@ -19,7 +19,7 @@ fn showHelp(program_name: []const u8) void {
     std.debug.print("Usage: {s} <command> [args...]\n\n", .{program_name});
     std.debug.print("Commands:\n", .{});
     std.debug.print("  tree [directory] [max_depth]  Show directory tree (defaults to current dir)\n", .{});
-    std.debug.print("  yar                           Play YAR - 2D top-down action game\n", .{});
+    std.debug.print("  yar                           Play YAR - 2D top-down RPG\n", .{});
     std.debug.print("  help                          Show this help\n", .{});
 }
 
@@ -206,12 +206,12 @@ const TreeWalker = struct {
 };
 
 fn runYarGame(allocator: std.mem.Allocator) !void {
-    std.debug.print("Starting YAR - Yet Another Raider...\n", .{});
+    std.debug.print("Starting YAR - Yet Another RPG...\n", .{});
 
-    // Change to the src/yar directory and compile/run the game using static library
+    // Change to the src/yar directory and compile/run the Zig game with static library
     const result = std.process.Child.run(.{
         .allocator = allocator,
-        .argv = &[_][]const u8{ "sh", "-c", "cd src/yar && gcc -o yar main.c -I../raylib/include ../raylib/lib/libraylib.a -lGL -lm -lpthread -ldl -lrt -lX11 && ./yar" },
+        .argv = &[_][]const u8{ "sh", "-c", "cd src/yar && zig run main.zig -I../raylib/include ../raylib/lib/libraylib.a -lGL -lm -lpthread -ldl -lrt -lX11 -lc" },
         .cwd = ".",
     }) catch |err| {
         std.debug.print("Failed to run YAR game: {}\n", .{err});
@@ -228,7 +228,6 @@ fn runYarGame(allocator: std.mem.Allocator) !void {
     allocator.free(result.stdout);
     allocator.free(result.stderr);
 }
-
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     defer _ = gpa.deinit();

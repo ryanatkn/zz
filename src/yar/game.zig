@@ -16,15 +16,26 @@ const NUM_SCENES = 3;
 const SAFE_SPAWN_DISTANCE = 200.0; // Minimum distance from player for safe spawning
 
 // Vibrant color palette
-const SOOTHING_BLUE = raylib.Color{ .r = 0, .g = 100, .b = 255, .a = 255 };
-const SOOTHING_GREEN = raylib.Color{ .r = 0, .g = 180, .b = 0, .a = 255 };
-const SOOTHING_PURPLE = raylib.Color{ .r = 150, .g = 50, .b = 200, .a = 255 };
-const SOOTHING_RED = raylib.Color{ .r = 255, .g = 50, .b = 50, .a = 255 };
-const SOOTHING_YELLOW = raylib.Color{ .r = 255, .g = 200, .b = 0, .a = 255 };
-const SOOTHING_ORANGE = raylib.Color{ .r = 255, .g = 140, .b = 0, .a = 255 };
-const SOOTHING_GRAY = raylib.Color{ .r = 128, .g = 128, .b = 128, .a = 255 };
-const SOOTHING_WHITE = raylib.Color{ .r = 255, .g = 255, .b = 255, .a = 255 };
-const SOOTHING_DARK = raylib.Color{ .r = 25, .g = 25, .b = 35, .a = 255 };
+// Darker main colors
+const BLUE = raylib.Color{ .r = 0, .g = 70, .b = 200, .a = 255 };
+const GREEN = raylib.Color{ .r = 0, .g = 140, .b = 0, .a = 255 };
+const PURPLE = raylib.Color{ .r = 120, .g = 30, .b = 160, .a = 255 };
+const RED = raylib.Color{ .r = 200, .g = 30, .b = 30, .a = 255 };
+const YELLOW = raylib.Color{ .r = 220, .g = 160, .b = 0, .a = 255 };
+const ORANGE = raylib.Color{ .r = 200, .g = 100, .b = 0, .a = 255 };
+const GRAY = raylib.Color{ .r = 100, .g = 100, .b = 100, .a = 255 };
+const WHITE = raylib.Color{ .r = 230, .g = 230, .b = 230, .a = 255 };
+const DARK = raylib.Color{ .r = 20, .g = 20, .b = 30, .a = 255 };
+
+// Bright outline variants
+const BLUE_BRIGHT = raylib.Color{ .r = 100, .g = 150, .b = 255, .a = 255 };
+const GREEN_BRIGHT = raylib.Color{ .r = 80, .g = 220, .b = 80, .a = 255 };
+const PURPLE_BRIGHT = raylib.Color{ .r = 180, .g = 100, .b = 240, .a = 255 };
+const RED_BRIGHT = raylib.Color{ .r = 255, .g = 100, .b = 100, .a = 255 };
+const YELLOW_BRIGHT = raylib.Color{ .r = 255, .g = 220, .b = 80, .a = 255 };
+const ORANGE_BRIGHT = raylib.Color{ .r = 255, .g = 180, .b = 80, .a = 255 };
+const GRAY_BRIGHT = raylib.Color{ .r = 180, .g = 180, .b = 180, .a = 255 };
+const WHITE_BRIGHT = raylib.Color{ .r = 255, .g = 255, .b = 255, .a = 255 };
 
 const GameObject = struct {
     position: raylib.Vector2,
@@ -88,7 +99,7 @@ const GameState = struct {
                 .velocity = raylib.Vector2{ .x = 0, .y = 0 },
                 .radius = 20.0,
                 .active = true,
-                .color = SOOTHING_BLUE,
+                .color = BLUE,
             },
             .bullets = undefined,
             .scenes = undefined,
@@ -105,7 +116,7 @@ const GameState = struct {
                 .velocity = raylib.Vector2{ .x = 0, .y = 0 },
                 .radius = 5.0,
                 .active = false,
-                .color = SOOTHING_YELLOW,
+                .color = YELLOW,
             };
         }
 
@@ -140,7 +151,7 @@ const GameState = struct {
                 .velocity = raylib.Vector2{ .x = 0, .y = 0 },
                 .radius = 15.0,
                 .active = true,
-                .color = SOOTHING_RED,
+                .color = RED,
             };
         }
 
@@ -555,11 +566,13 @@ const GameState = struct {
         if (!self.gameOver and !self.gameWon) {
             // Draw player
             raylib.drawCircleV(self.player.position, self.player.radius, self.player.color);
+            raylib.drawCircleLinesV(self.player.position, self.player.radius, BLUE_BRIGHT);
 
             // Draw bullets
             for (0..MAX_BULLETS) |i| {
                 if (self.bullets[i].active) {
                     raylib.drawCircleV(self.bullets[i].position, self.bullets[i].radius, self.bullets[i].color);
+                    raylib.drawCircleLinesV(self.bullets[i].position, self.bullets[i].radius, YELLOW_BRIGHT);
                 }
             }
 
@@ -570,6 +583,7 @@ const GameState = struct {
             for (0..MAX_ENEMIES) |i| {
                 if (currentScene.enemies[i].active) {
                     raylib.drawCircleV(currentScene.enemies[i].position, currentScene.enemies[i].radius, currentScene.enemies[i].color);
+                    raylib.drawCircleLinesV(currentScene.enemies[i].position, currentScene.enemies[i].radius, RED_BRIGHT);
                 }
             }
 
@@ -577,10 +591,15 @@ const GameState = struct {
             for (0..MAX_OBSTACLES) |i| {
                 if (currentScene.obstacles[i].active) {
                     const color = switch (currentScene.obstacles[i].type) {
-                        .blocking => SOOTHING_GREEN,
-                        .deadly => SOOTHING_PURPLE,
+                        .blocking => GREEN,
+                        .deadly => PURPLE,
+                    };
+                    const outlineColor = switch (currentScene.obstacles[i].type) {
+                        .blocking => GREEN_BRIGHT,
+                        .deadly => PURPLE_BRIGHT,
                     };
                     raylib.drawRectangleV(currentScene.obstacles[i].position, currentScene.obstacles[i].size, color);
+                    raylib.drawRectangleLinesV(currentScene.obstacles[i].position, currentScene.obstacles[i].size, outlineColor);
                 }
             }
 
@@ -593,28 +612,28 @@ const GameState = struct {
                     // Draw portal with the shape of its destination scene
                     switch (currentScene.portals[i].shape) {
                         .circle => {
-                            raylib.drawCircleV(pos, radius, SOOTHING_ORANGE);
-                            raylib.drawCircleLinesV(pos, radius, SOOTHING_WHITE);
+                            raylib.drawCircleV(pos, radius, ORANGE);
+                            raylib.drawCircleLinesV(pos, radius, ORANGE_BRIGHT);
                         },
                         .triangle => {
                             // Draw triangle pointing up
-                            raylib.drawTriangle(raylib.Vector2{ .x = pos.x, .y = pos.y - radius }, raylib.Vector2{ .x = pos.x - radius * 0.866, .y = pos.y + radius * 0.5 }, raylib.Vector2{ .x = pos.x + radius * 0.866, .y = pos.y + radius * 0.5 }, SOOTHING_ORANGE);
-                            raylib.drawTriangleLines(raylib.Vector2{ .x = pos.x, .y = pos.y - radius }, raylib.Vector2{ .x = pos.x - radius * 0.866, .y = pos.y + radius * 0.5 }, raylib.Vector2{ .x = pos.x + radius * 0.866, .y = pos.y + radius * 0.5 }, SOOTHING_WHITE);
+                            raylib.drawTriangle(raylib.Vector2{ .x = pos.x, .y = pos.y - radius }, raylib.Vector2{ .x = pos.x - radius * 0.866, .y = pos.y + radius * 0.5 }, raylib.Vector2{ .x = pos.x + radius * 0.866, .y = pos.y + radius * 0.5 }, ORANGE);
+                            raylib.drawTriangleLines(raylib.Vector2{ .x = pos.x, .y = pos.y - radius }, raylib.Vector2{ .x = pos.x - radius * 0.866, .y = pos.y + radius * 0.5 }, raylib.Vector2{ .x = pos.x + radius * 0.866, .y = pos.y + radius * 0.5 }, ORANGE_BRIGHT);
                         },
                         .square => {
                             const size = radius * 1.4; // Make square similar area to circle
                             const rectPos = raylib.Vector2{ .x = pos.x - size / 2, .y = pos.y - size / 2 };
                             const rectSize = raylib.Vector2{ .x = size, .y = size };
-                            raylib.drawRectangleV(rectPos, rectSize, SOOTHING_ORANGE);
-                            raylib.drawRectangleLinesV(rectPos, rectSize, SOOTHING_WHITE);
+                            raylib.drawRectangleV(rectPos, rectSize, ORANGE);
+                            raylib.drawRectangleLinesV(rectPos, rectSize, ORANGE_BRIGHT);
                         },
                     }
                 }
             }
 
             // Draw UI with scene info
-            raylib.drawText("Left Click: Move | Right Click: Shoot | Orange = Portal", 10, @intFromFloat(SCREEN_HEIGHT - 80), 16, SOOTHING_GRAY);
-            raylib.drawText("WASD/Arrows: Move (Alt) | R: Restart Scene | ESC: Quit", 10, @intFromFloat(SCREEN_HEIGHT - 60), 16, SOOTHING_GRAY);
+            raylib.drawText("Left Click: Move | Right Click: Shoot | Orange = Portal", 10, @intFromFloat(SCREEN_HEIGHT - 80), 16, GRAY);
+            raylib.drawText("WASD/Arrows: Move (Alt) | R: Restart Scene | ESC: Quit", 10, @intFromFloat(SCREEN_HEIGHT - 60), 16, GRAY);
 
             // Scene indicator
             const shapeName = switch (self.scenes[self.currentScene].shape) {
@@ -624,25 +643,25 @@ const GameState = struct {
             };
             const sceneText = try raylib.textFormat(self.allocator, "Scene {d}/3 ({s})", .{ self.currentScene + 1, shapeName });
             defer self.allocator.free(sceneText);
-            raylib.drawText(sceneText, 10, @intFromFloat(SCREEN_HEIGHT - 40), 16, SOOTHING_WHITE);
+            raylib.drawText(sceneText, 10, @intFromFloat(SCREEN_HEIGHT - 40), 16, WHITE);
 
             // FPS Counter (top right corner)
             const fps = raylib.getFPS();
             const fpsText = try raylib.textFormat(self.allocator, "FPS: {d}", .{fps});
             defer self.allocator.free(fpsText);
             const fpsWidth = raylib.measureText(fpsText, 16);
-            raylib.drawText(fpsText, @as(i32, @intFromFloat(SCREEN_WIDTH)) - fpsWidth - 10, 10, 16, SOOTHING_WHITE);
+            raylib.drawText(fpsText, @as(i32, @intFromFloat(SCREEN_WIDTH)) - fpsWidth - 10, 10, 16, WHITE);
         } else if (self.gameWon) {
             // Win screen
-            raylib.drawText("YOU WIN!", @intFromFloat(SCREEN_WIDTH / 2 - 400), @intFromFloat(SCREEN_HEIGHT / 2 - 200), 160, SOOTHING_GREEN);
+            raylib.drawText("YOU WIN!", @intFromFloat(SCREEN_WIDTH / 2 - 400), @intFromFloat(SCREEN_HEIGHT / 2 - 200), 160, GREEN);
 
-            raylib.drawText("All enemies eliminated!", @intFromFloat(SCREEN_WIDTH / 2 - 300), @intFromFloat(SCREEN_HEIGHT / 2 - 20), 48, SOOTHING_WHITE);
-            raylib.drawText("Press R or Click to restart, ESC to quit", @intFromFloat(SCREEN_WIDTH / 2 - 480), @intFromFloat(SCREEN_HEIGHT / 2 + 80), 48, SOOTHING_GRAY);
+            raylib.drawText("All enemies eliminated!", @intFromFloat(SCREEN_WIDTH / 2 - 300), @intFromFloat(SCREEN_HEIGHT / 2 - 20), 48, WHITE);
+            raylib.drawText("Press R or Click to restart, ESC to quit", @intFromFloat(SCREEN_WIDTH / 2 - 480), @intFromFloat(SCREEN_HEIGHT / 2 + 80), 48, GRAY);
         } else {
             // Game over screen
-            raylib.drawText("GAME OVER", @intFromFloat(SCREEN_WIDTH / 2 - 480), @intFromFloat(SCREEN_HEIGHT / 2 - 200), 160, SOOTHING_RED);
+            raylib.drawText("GAME OVER", @intFromFloat(SCREEN_WIDTH / 2 - 480), @intFromFloat(SCREEN_HEIGHT / 2 - 200), 160, RED);
 
-            raylib.drawText("Press R or Click to restart, ESC to quit", @intFromFloat(SCREEN_WIDTH / 2 - 480), @intFromFloat(SCREEN_HEIGHT / 2 + 80), 48, SOOTHING_GRAY);
+            raylib.drawText("Press R or Click to restart, ESC to quit", @intFromFloat(SCREEN_WIDTH / 2 - 480), @intFromFloat(SCREEN_HEIGHT / 2 + 80), 48, GRAY);
         }
     }
 };

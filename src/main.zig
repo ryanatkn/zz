@@ -25,6 +25,11 @@ fn printDirTree(allocator: std.mem.Allocator, path: []const u8, prefix: []const 
 
     const dir = std.fs.cwd().openDir(path, .{ .iterate = true }) catch |err| switch (err) {
         error.NotDir => return,
+        error.InvalidUtf8 => return,
+        error.BadPathName => return,
+        error.FileNotFound => return,
+        error.AccessDenied => return,
+        error.SymLinkLoop => return,
         else => return err,
     };
     var iter_dir = dir;
@@ -54,7 +59,15 @@ fn printDirTree(allocator: std.mem.Allocator, path: []const u8, prefix: []const 
         const new_prefix = try std.fmt.allocPrint(allocator, "{s}{s}", .{ prefix, new_prefix_char });
         defer allocator.free(new_prefix);
 
-        const full_path = try std.fs.path.join(allocator, &.{ path, entry.name });
+        // Skip entries with null bytes or invalid characters
+        if (std.mem.indexOfScalar(u8, entry.name, 0) != null) {
+            continue;
+        }
+
+        const full_path = std.fs.path.join(allocator, &.{ path, entry.name }) catch {
+            // If path joining fails, skip this entry
+            continue;
+        };
         defer allocator.free(full_path);
 
         try printDirTree(allocator, full_path, new_prefix, is_last_entry);

@@ -58,3 +58,9 @@ zig build          # Builds to zig-out/bin/zz
 ```
 
 The `zz` script automatically builds and runs the binary. Game requires Raylib static library in `src/raylib/lib/`.
+
+## Development
+
+For detailed architecture documentation, development guidelines, and technical implementation details, see **[CLAUDE.md](CLAUDE.md)**.
+
+This README focuses on user-facing features and usage, while CLAUDE.md contains the technical documentation for developers and AI assistants working on the codebase.

@@ -484,7 +484,7 @@ pub fn main() !void {
     raylib.initWindow(@intFromFloat(SCREEN_WIDTH), @intFromFloat(SCREEN_HEIGHT), "YAR - Yet Another RPG");
     defer raylib.closeWindow();
 
-    raylib.setTargetFPS(60);
+    raylib.setTargetFPS(144);
 
     // Initialize game
     var game = GameState.init(allocator);
@@ -503,9 +503,15 @@ pub fn main() !void {
             game.updateEnemies(deltaTime);
             game.checkCollisions();
         } else {
-            if (raylib.isKeyPressed(raylib.KEY_R) or raylib.isMouseButtonPressed(raylib.MOUSE_BUTTON_LEFT)) {
+            // Allow mouse click restart only on game over/win screens
+            if (raylib.isMouseButtonPressed(raylib.MOUSE_BUTTON_LEFT)) {
                 game.restart();
             }
+        }
+
+        // R key resets at any time
+        if (raylib.isKeyPressed(raylib.KEY_R)) {
+            game.restart();
         }
 
         if (raylib.isKeyPressed(raylib.KEY_ESCAPE)) break;

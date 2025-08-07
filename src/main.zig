@@ -2,22 +2,24 @@ const std = @import("std");
 
 const Command = enum {
     tree,
+    yar,
     help,
 
     const Self = @This();
 
     pub fn fromString(cmd: []const u8) ?Self {
         if (std.mem.eql(u8, cmd, "tree")) return .tree;
+        if (std.mem.eql(u8, cmd, "yar")) return .yar;
         if (std.mem.eql(u8, cmd, "help")) return .help;
         return null;
     }
 };
-
 fn showHelp(program_name: []const u8) void {
     std.debug.print("zz - CLI utility toolkit\n\n", .{});
     std.debug.print("Usage: {s} <command> [args...]\n\n", .{program_name});
     std.debug.print("Commands:\n", .{});
     std.debug.print("  tree [directory] [max_depth]  Show directory tree (defaults to current dir)\n", .{});
+    std.debug.print("  yar                           Play YAR - 2D top-down action game\n", .{});
     std.debug.print("  help                          Show this help\n", .{});
 }
 
@@ -203,6 +205,30 @@ const TreeWalker = struct {
     }
 };
 
+fn runYarGame(allocator: std.mem.Allocator) !void {
+    std.debug.print("Starting YAR - Yet Another Raider...\n", .{});
+
+    // Change to the src/yar directory and compile/run the game using static library
+    const result = std.process.Child.run(.{
+        .allocator = allocator,
+        .argv = &[_][]const u8{ "sh", "-c", "cd src/yar && gcc -o yar main.c -I../raylib/include ../raylib/lib/libraylib.a -lGL -lm -lpthread -ldl -lrt -lX11 && ./yar" },
+        .cwd = ".",
+    }) catch |err| {
+        std.debug.print("Failed to run YAR game: {}\n", .{err});
+        return;
+    };
+
+    if (result.term.Exited != 0) {
+        std.debug.print("YAR game failed to compile or run\n", .{});
+        if (result.stderr.len > 0) {
+            std.debug.print("Error: {s}\n", .{result.stderr});
+        }
+    }
+
+    allocator.free(result.stdout);
+    allocator.free(result.stderr);
+}
+
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     defer _ = gpa.deinit();
@@ -236,6 +262,9 @@ pub fn main() !void {
             const walker = TreeWalker.init(allocator, config);
 
             try walker.walk(dir_path);
+        },
+        .yar => {
+            try runYarGame(allocator);
         },
     }
 }

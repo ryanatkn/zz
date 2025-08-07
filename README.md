@@ -11,6 +11,7 @@ A modular CLI utility toolkit for common development tasks, starting with direct
 ## Commands
 
 - `tree [directory] [max_depth]` - Display directory tree structure (defaults to current directory)
+- `yar` - Play YAR - 2D top-down action game
 - `help` - Show available commands
 
 ## Examples
@@ -25,6 +26,9 @@ A modular CLI utility toolkit for common development tasks, starting with direct
 # Limit depth to 2 levels
 ./zz tree . 2
 
+# Play the YAR game
+./zz yar
+
 # Show help
 ./zz help
 ```
@@ -36,6 +40,15 @@ A modular CLI utility toolkit for common development tasks, starting with direct
 - 📏 Configurable depth limiting
 - 🎨 Syntax highlighting for ignored/elided content
 - ⚡ Fast traversal with robust error handling
+
+## YAR Game Features
+
+- 🎮 2D top-down action gameplay
+- 🎯 Mouse aiming and shooting
+- 👾 Enemy AI that chases the player
+- 📊 Score tracking
+- 🎨 Built with Raylib for smooth graphics
+- ⌨️ WASD/Arrow key movement controls
 
 ## Development
 

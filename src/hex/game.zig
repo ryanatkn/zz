@@ -22,7 +22,6 @@ const COLOR_CYCLE_FREQ = 4.0;
 const ASPECT_RATIO = 16.0 / 9.0;
 const BORDER_PULSE_PAUSED = 1.5;
 const BORDER_PULSE_DEAD = 1.2;
-const BORDER_PULSE_WIN = 2.0;
 
 // Border color definitions for cycling
 const BorderColorPair = struct {
@@ -67,6 +66,7 @@ const ORANGE = Color{ .r = 200, .g = 100, .b = 0, .a = 255 };
 const GRAY = Color{ .r = 100, .g = 100, .b = 100, .a = 255 };
 const WHITE = Color{ .r = 230, .g = 230, .b = 230, .a = 255 };
 const DARK = Color{ .r = 20, .g = 20, .b = 30, .a = 255 };
+const OCEAN_BLUE = Color{ .r = 40, .g = 60, .b = 80, .a = 255 };
 
 // Bright outline variants
 const BLUE_BRIGHT = Color{ .r = 100, .g = 150, .b = 255, .a = 255 };
@@ -129,8 +129,7 @@ const Scene = struct {
     shape: SceneShape,
     name: []const u8,
     background_color: Color,
-    player_scale: f32,
-    enemy_scale: f32,
+    unit_scale: f32,
 };
 
 // Data structures for loading from ZON (same as YAR)
@@ -155,8 +154,7 @@ const DataEnemy = struct {
 const DataScene = struct {
     name: []const u8,
     background_color: struct { r: u8, g: u8, b: u8 },
-    player_scale: f32,
-    enemy_scale: f32,
+    unit_scale: f32,
     obstacles: []const DataObstacle,
     enemies: []const DataEnemy,
     portals: []const DataPortal,
@@ -246,13 +244,11 @@ const GameState = struct {
     bullets: [MAX_BULLETS]GameObject,
     scenes: [NUM_SCENES]Scene,
     currentScene: u8,
-    gameOver: bool,
-    gameWon: bool,
+    playerDead: bool,
     allocator: std.mem.Allocator,
     gameData: GameData,
     isPaused: bool,
     gameSpeed: f32,
-    winTime: f32,
     aggroTarget: ?Vec2,
     friendlyTarget: ?Vec2,
     sceneTextBuffer: [128]u8,
@@ -310,13 +306,11 @@ const GameState = struct {
             .bullets = undefined,
             .scenes = undefined,
             .currentScene = gameData.player_start.scene,
-            .gameOver = false,
-            .gameWon = false,
+            .playerDead = false,
             .allocator = allocator,
             .gameData = gameData,
             .isPaused = false,
             .gameSpeed = 1.0,
-            .winTime = 0.0,
             .aggroTarget = null,
             .friendlyTarget = null,
             .sceneTextBuffer = undefined,
@@ -384,8 +378,7 @@ const GameState = struct {
                     .b = dataScene.background_color.b,
                     .a = 255,
                 },
-                .player_scale = dataScene.player_scale,
-                .enemy_scale = dataScene.enemy_scale,
+                .unit_scale = dataScene.unit_scale,
             };
 
             game.loadSceneFromData(@intCast(sceneIndex));
@@ -397,12 +390,12 @@ const GameState = struct {
         return game;
     }
 
-    fn createEnemyFromData(dataEnemy: ?DataEnemy, enemyScale: f32) GameObject {
+    fn createEnemyFromData(dataEnemy: ?DataEnemy, unitScale: f32) GameObject {
         if (dataEnemy) |enemy| {
             return GameObject{
                 .position = Vec2{ .x = enemy.position.x, .y = enemy.position.y },
                 .velocity = Vec2{ .x = 0, .y = 0 },
-                .radius = enemy.radius * enemyScale,
+                .radius = enemy.radius * unitScale,
                 .active = true,
                 .color = RED,
                 .enemyState = .alive,
@@ -425,7 +418,7 @@ const GameState = struct {
         // Load enemies from data
         for (0..MAX_ENEMIES) |i| {
             const dataEnemy = if (i < dataScene.enemies.len) dataScene.enemies[i] else null;
-            const enemy = createEnemyFromData(dataEnemy, dataScene.enemy_scale);
+            const enemy = createEnemyFromData(dataEnemy, dataScene.unit_scale);
             self.scenes[sceneIndex].enemies[i] = enemy;
             self.scenes[sceneIndex].originalEnemies[i] = enemy;
         }
@@ -468,7 +461,7 @@ const GameState = struct {
 
                 self.scenes[sceneIndex].portals[i] = Portal{
                     .position = Vec2{ .x = dataPortal.position.x, .y = dataPortal.position.y },
-                    .radius = dataPortal.radius,
+                    .radius = dataPortal.radius * dataScene.unit_scale,
                     .active = true,
                     .destinationScene = dataPortal.destination,
                     .shape = destinationShape,
@@ -476,7 +469,7 @@ const GameState = struct {
             } else {
                 self.scenes[sceneIndex].portals[i] = Portal{
                     .position = Vec2{ .x = 0, .y = 0 },
-                    .radius = 25.0,
+                    .radius = 25.0 * dataScene.unit_scale,
                     .active = false,
                     .destinationScene = 0,
                     .shape = .circle,
@@ -533,10 +526,40 @@ const GameState = struct {
         if (self.currentScene != 0) {
             // Smoothly follow the player
             self.camera.target = self.player.position;
+            // Set camera offset to center of screen for proper following
+            self.camera.offset = Vec2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 };
         } else {
             // In overworld (scene 0), reset camera to center the screen
             self.camera.target = Vec2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 };
             self.camera.offset = Vec2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 };
+        }
+    }
+    
+    // Transform world coordinates to screen coordinates using camera
+    fn worldToScreen(self: *Self, worldPos: Vec2) Vec2 {
+        if (self.currentScene == 0) {
+            // No camera transformation in overworld
+            return worldPos;
+        } else {
+            // Apply camera transformation for dungeons
+            return Vec2{
+                .x = worldPos.x - self.camera.target.x + self.camera.offset.x,
+                .y = worldPos.y - self.camera.target.y + self.camera.offset.y,
+            };
+        }
+    }
+    
+    // Transform screen coordinates to world coordinates using camera
+    fn screenToWorld(self: *Self, screenPos: Vec2) Vec2 {
+        if (self.currentScene == 0) {
+            // No camera transformation in overworld
+            return screenPos;
+        } else {
+            // Reverse camera transformation for dungeons
+            return Vec2{
+                .x = screenPos.x + self.camera.target.x - self.camera.offset.x,
+                .y = screenPos.y + self.camera.target.y - self.camera.offset.y,
+            };
         }
     }
 
@@ -559,10 +582,8 @@ const GameState = struct {
             }
         }
 
-        self.gameOver = false;
-        self.gameWon = false;
+        self.playerDead = false;
         self.isPaused = false;
-        self.winTime = 0.0;
         self.aggroTarget = null; // Reset aggro target
         self.friendlyTarget = null; // Reset friendly target
     }
@@ -571,10 +592,8 @@ const GameState = struct {
         // Resurrect player at original spawn location without resetting world state
         self.player.position = Vec2{ .x = self.gameData.player_start.position.x, .y = self.gameData.player_start.position.y };
         self.player.active = true;
-        self.gameOver = false;
-        self.gameWon = false;
+        self.playerDead = false;
         self.isPaused = false;
-        self.winTime = 0.0;
         // Don't reset aggroTarget/friendlyTarget - let enemies continue their current behavior
 
         // Clear any active bullets
@@ -597,19 +616,12 @@ const GameState = struct {
         }
 
         // Reset game state flags
-        self.gameOver = false;
-        self.gameWon = false;
+        self.playerDead = false;
         self.isPaused = false;
-        self.winTime = 0.0;
         self.aggroTarget = null; // Reset aggro target
         self.friendlyTarget = null; // Reset friendly target
     }
 
-    pub fn updateWinState(self: *Self, deltaTime: f32) void {
-        if (self.gameWon and !self.isPaused) {
-            self.winTime += deltaTime;
-        }
-    }
 
     pub fn handleInput(self: *Self) void {
         // TODO: Convert SDL input to YAR-style input handling
@@ -632,8 +644,7 @@ const GameState = struct {
             };
 
             const length = math.sqrt(direction.x * direction.x + direction.y * direction.y);
-            const currentScene = &self.scenes[self.currentScene];
-            const playerRadius = self.gameData.player_start.radius * currentScene.player_scale;
+            const playerRadius = self.gameData.player_start.radius * self.scenes[self.currentScene].unit_scale;
             if (length > playerRadius) { // Only move if mouse is outside player's radius
                 movement.x = direction.x / length;
                 movement.y = direction.y / length;
@@ -657,9 +668,8 @@ const GameState = struct {
         const newX = self.player.position.x + movement.x * PLAYER_SPEED * effectiveDeltaTime;
         const newY = self.player.position.y + movement.y * PLAYER_SPEED * effectiveDeltaTime;
 
-        // Get player radius for current scene
-        const currentScene = &self.scenes[self.currentScene];
-        const playerRadius = self.gameData.player_start.radius * currentScene.player_scale;
+        // Get player radius with scene scaling
+        const playerRadius = self.gameData.player_start.radius * self.scenes[self.currentScene].unit_scale;
 
         // Check X movement
         const testPosX = Vec2{ .x = newX, .y = self.player.position.y };
@@ -753,7 +763,7 @@ const GameState = struct {
 
     pub fn checkCollisions(self: *Self) void {
         const currentScene = &self.scenes[self.currentScene];
-        const playerRadius = self.gameData.player_start.radius * currentScene.player_scale;
+        const playerRadius = self.gameData.player_start.radius * currentScene.unit_scale;
         const playerPos = self.player.position;
 
         // Cache arrays for better performance
@@ -793,7 +803,7 @@ const GameState = struct {
                 const radiusSum = playerRadius + enemies[i].radius;
 
                 if (distanceSq < radiusSum * radiusSum) {
-                    self.gameOver = true;
+                    self.playerDead = true;
                     self.aggroTarget = null; // Clear aggro - enemies will return home
                 }
             }
@@ -825,7 +835,7 @@ const GameState = struct {
         for (0..MAX_OBSTACLES) |i| {
             if (obstacles[i].active and obstacles[i].type == .deadly) {
                 if (self.checkCircleRectCollision(playerPos, playerRadius, obstacles[i].position, obstacles[i].size)) {
-                    self.gameOver = true;
+                    self.playerDead = true;
                     self.aggroTarget = null; // Clear aggro - enemies will return home
                 }
             }
@@ -844,18 +854,6 @@ const GameState = struct {
             }
         }
 
-        // Check win condition - all enemies dead in current scene (early exit)
-        var allEnemiesDead = true;
-        for (0..MAX_ENEMIES) |i| {
-            if (enemies[i].active and enemies[i].enemyState == .alive) {
-                allEnemiesDead = false;
-                break;
-            }
-        }
-        if (allEnemiesDead and !self.gameWon) {
-            self.gameWon = true;
-            self.winTime = 0.0; // Start win animation timer
-        }
     }
 
     pub fn fireBullet(self: *Self) void {
@@ -926,22 +924,26 @@ const GameState = struct {
         // Set the viewport for 16:9 game content
         _ = c.SDL_SetRenderViewport(self.renderer, &self.viewport.rect);
 
-        // Clear game area with black background
-        self.setRenderColor(Color{ .r = 0, .g = 0, .b = 0, .a = 255 });
-        _ = c.SDL_RenderClear(self.renderer);
-
         // Cache frequently used values
         const currentScene = &self.scenes[self.currentScene];
-        const playerRadius = self.gameData.player_start.radius * currentScene.player_scale;
-        const playerColor = if (self.gameOver) GRAY else self.player.color;
+        
+        // Clear game area with scene-specific background color
+        const background_color = if (self.currentScene == 0) OCEAN_BLUE else currentScene.background_color;
+        self.setRenderColor(background_color);
+        _ = c.SDL_RenderClear(self.renderer);
+        const playerRadius = self.gameData.player_start.radius * currentScene.unit_scale;
+        const playerColor = if (self.playerDead) GRAY else self.player.color;
 
-        // Draw player with scene-based scaling
-        self.drawCircle(self.player.position, playerRadius, playerColor);
+        // Draw player with scene-based scaling and camera transform
+        const playerScreenPos = self.worldToScreen(self.player.position);
+        self.drawCircle(playerScreenPos, playerRadius, playerColor);
 
-        // Draw bullets (always visible)
+        // Draw bullets (always visible) with scene-based scaling and camera transform
         for (0..MAX_BULLETS) |i| {
             if (self.bullets[i].active) {
-                self.drawCircle(self.bullets[i].position, self.bullets[i].radius, self.bullets[i].color);
+                const bulletRadius = self.bullets[i].radius;
+                const bulletScreenPos = self.worldToScreen(self.bullets[i].position);
+                self.drawCircle(bulletScreenPos, bulletRadius, self.bullets[i].color);
             }
         }
 
@@ -970,14 +972,16 @@ const GameState = struct {
         // Draw alive enemies first (red)
         for (0..MAX_ENEMIES) |i| {
             if (enemies[i].active and enemies[i].enemyState == .alive) {
-                self.drawCircle(enemies[i].position, enemies[i].radius, enemies[i].color);
+                const enemyScreenPos = self.worldToScreen(enemies[i].position);
+                self.drawCircle(enemyScreenPos, enemies[i].radius, enemies[i].color);
             }
         }
 
         // Draw dead enemies (gray) - batched together
         for (0..MAX_ENEMIES) |i| {
             if (enemies[i].active and enemies[i].enemyState == .dead) {
-                self.drawCircle(enemies[i].position, enemies[i].radius, GRAY);
+                const enemyScreenPos = self.worldToScreen(enemies[i].position);
+                self.drawCircle(enemyScreenPos, enemies[i].radius, GRAY);
             }
         }
 
@@ -985,21 +989,24 @@ const GameState = struct {
         // Draw blocking obstacles first (green)
         for (0..MAX_OBSTACLES) |i| {
             if (obstacles[i].active and obstacles[i].type == .blocking) {
-                self.drawRect(obstacles[i].position, obstacles[i].size, GREEN);
+                const obstacleScreenPos = self.worldToScreen(obstacles[i].position);
+                self.drawRect(obstacleScreenPos, obstacles[i].size, GREEN);
             }
         }
 
         // Draw deadly obstacles (purple)
         for (0..MAX_OBSTACLES) |i| {
             if (obstacles[i].active and obstacles[i].type == .deadly) {
-                self.drawRect(obstacles[i].position, obstacles[i].size, PURPLE);
+                const obstacleScreenPos = self.worldToScreen(obstacles[i].position);
+                self.drawRect(obstacleScreenPos, obstacles[i].size, PURPLE);
             }
         }
 
         // Draw all portals together (orange) - already batched by color
         for (0..MAX_PORTALS) |i| {
             if (portals[i].active) {
-                self.drawCircle(portals[i].position, portals[i].radius, ORANGE);
+                const portalScreenPos = self.worldToScreen(portals[i].position);
+                self.drawCircle(portalScreenPos, portals[i].radius, ORANGE);
             }
         }
     }
@@ -1108,23 +1115,14 @@ const GameState = struct {
             const intensity = 0.8 + pulse * 0.2;
             border_color = interpolateColor(GOLD_YELLOW_COLORS, hue_cycle, intensity);
         }
-        // Game over state (red)
-        else if (self.gameOver) {
+        // Player dead state (red)
+        else if (self.playerDead) {
             const pulse = (math.sin(current_time_sec * BORDER_PULSE_DEAD) + 1.0) * 0.5;
             border_width = 9.0 + pulse * 5.0;
 
             const hue_cycle = (math.sin(current_time_sec * COLOR_CYCLE_FREQ) + 1.0) * 0.5;
             const intensity = 0.6 + pulse * 0.4;
             border_color = interpolateColor(RED_COLORS, hue_cycle, intensity);
-        }
-        // Win state - all enemies dead in current scene (green)
-        else if (self.gameWon) {
-            const pulse = (math.sin(self.winTime * BORDER_PULSE_WIN) + 1.0) * 0.5;
-            border_width = 9.0 + pulse * 6.0;
-
-            const hue_cycle = (math.sin(self.winTime * COLOR_CYCLE_FREQ) + 1.0) * 0.5;
-            const intensity = 1.0; // Green always at full intensity
-            border_color = interpolateColor(GREEN_COLORS, hue_cycle, intensity);
         }
 
         // Draw border if a state is active
@@ -1168,7 +1166,7 @@ pub fn run(allocator: std.mem.Allocator, window: *c.SDL_Window, renderer: *c.SDL
         while (c.SDL_PollEvent(&event)) {
             switch (event.type) {
                 c.SDL_EVENT_QUIT => return,
-                c.SDL_EVENT_WINDOW_RESIZED => {
+                c.SDL_EVENT_WINDOW_RESIZED, c.SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED => {
                     game.viewport.update(game.window);
                 },
                 c.SDL_EVENT_KEY_DOWN => {
@@ -1192,25 +1190,27 @@ pub fn run(allocator: std.mem.Allocator, window: *c.SDL_Window, renderer: *c.SDL
                     game.keys_down.unset(event.key.scancode);
                 },
                 c.SDL_EVENT_MOUSE_MOTION => {
-                    const game_coords = game.viewport.windowToGameCoords(event.motion.x, event.motion.y);
-                    game.mouse_x = game_coords.x;
-                    game.mouse_y = game_coords.y;
+                    const screen_coords = game.viewport.windowToGameCoords(event.motion.x, event.motion.y);
+                    const world_coords = game.screenToWorld(screen_coords);
+                    game.mouse_x = world_coords.x;
+                    game.mouse_y = world_coords.y;
                 },
                 c.SDL_EVENT_MOUSE_BUTTON_DOWN => {
                     switch (event.button.button) {
                         c.SDL_BUTTON_LEFT => {
-                            if (game.gameOver) {
+                            if (game.playerDead) {
                                 game.resurrect();
                             } else {
                                 // Start holding left mouse button for movement
                                 game.left_mouse_held = true;
-                                const game_coords = game.viewport.windowToGameCoords(event.button.x, event.button.y);
-                                game.mouse_x = game_coords.x;
-                                game.mouse_y = game_coords.y;
+                                const screen_coords = game.viewport.windowToGameCoords(event.button.x, event.button.y);
+                                const world_coords = game.screenToWorld(screen_coords);
+                                game.mouse_x = world_coords.x;
+                                game.mouse_y = world_coords.y;
                             }
                         },
                         c.SDL_BUTTON_RIGHT => {
-                            if (!game.isPaused and !game.gameOver) {
+                            if (!game.isPaused and !game.playerDead) {
                                 game.fireBullet();
                             }
                         },
@@ -1235,19 +1235,21 @@ pub fn run(allocator: std.mem.Allocator, window: *c.SDL_Window, renderer: *c.SDL
 
         // Update game state
         game.handleInput();
-        if (!game.gameOver) {
-            game.updatePlayer(deltaTimeSec);
-            game.updateCamera();
-            game.updateWinState(deltaTimeSec);
-            game.updateBullets(deltaTimeSec);
-            if (!game.isPaused) {
-                game.checkCollisions();
-            }
-        } else {
-            // Update camera even when game is over
-            game.updateCamera();
-        }
+        
+        // Always update camera, bullets, and enemies
+        game.updateCamera();
+        game.updateBullets(deltaTimeSec);
         game.updateEnemies(deltaTimeSec);
+        
+        // Only update player when alive
+        if (!game.playerDead) {
+            game.updatePlayer(deltaTimeSec);
+        }
+        
+        // Only check collisions when alive and not paused
+        if (!game.playerDead and !game.isPaused) {
+            game.checkCollisions();
+        }
 
         // Render
         try game.draw();

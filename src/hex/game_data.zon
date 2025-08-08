@@ -18,8 +18,7 @@
         .{
             .name = "Overworld",
             .background_color = .{ .r = 20, .g = 20, .b = 30 },
-            .player_scale = 0.5, // Small player in overworld
-            .enemy_scale = 0.3, // Very small enemies in overworld
+            .unit_scale = 0.3, // Very small units in overworld
             .obstacles = .{
                 // Large blocking obstacles (original size)
                 .{ .position = .{ .x = 200.0, .y = 300.0 }, .size = .{ .x = 80.0, .y = 80.0 }, .type = "blocking" },
@@ -105,8 +104,7 @@
         .{
             .name = "North Dungeon",
             .background_color = .{ .r = 30, .g = 30, .b = 50 },
-            .player_scale = 1.0,
-            .enemy_scale = 1.0,
+            .unit_scale = 1.0,
             .obstacles = .{
                 // Circular chamber layout
                 .{ .position = .{ .x = 600.0, .y = 100.0 }, .size = .{ .x = 200.0, .y = 80.0 }, .type = "blocking" },
@@ -132,8 +130,7 @@
         .{
             .name = "Northeast Dungeon",
             .background_color = .{ .r = 50, .g = 30, .b = 30 },
-            .player_scale = 1.0,
-            .enemy_scale = 1.0,
+            .unit_scale = 1.0,
             .obstacles = .{
                 // Triangular chamber layout
                 .{ .position = .{ .x = 800.0, .y = 150.0 }, .size = .{ .x = 320.0, .y = 80.0 }, .type = "blocking" },
@@ -160,8 +157,7 @@
         .{
             .name = "Southeast Dungeon",
             .background_color = .{ .r = 30, .g = 50, .b = 30 },
-            .player_scale = 1.0,
-            .enemy_scale = 1.0,
+            .unit_scale = 1.0,
             .obstacles = .{
                 // Square chamber layout
                 .{ .position = .{ .x = 300.0, .y = 300.0 }, .size = .{ .x = 100.0, .y = 200.0 }, .type = "blocking" },
@@ -190,8 +186,7 @@
         .{
             .name = "South Dungeon",
             .background_color = .{ .r = 50, .g = 50, .b = 30 },
-            .player_scale = 1.0,
-            .enemy_scale = 1.0,
+            .unit_scale = 1.0,
             .obstacles = .{
                 // Circular chamber layout (variant)
                 .{ .position = .{ .x = 600.0, .y = 980.0 }, .size = .{ .x = 200.0, .y = 80.0 }, .type = "blocking" },
@@ -220,8 +215,7 @@
         .{
             .name = "Southwest Dungeon",
             .background_color = .{ .r = 50, .g = 30, .b = 50 },
-            .player_scale = 1.0,
-            .enemy_scale = 1.0,
+            .unit_scale = 1.0,
             .obstacles = .{
                 // Triangular chamber layout (variant)
                 .{ .position = .{ .x = 800.0, .y = 850.0 }, .size = .{ .x = 320.0, .y = 80.0 }, .type = "blocking" },
@@ -251,8 +245,7 @@
         .{
             .name = "Northwest Dungeon",
             .background_color = .{ .r = 30, .g = 40, .b = 50 },
-            .player_scale = 1.0,
-            .enemy_scale = 1.0,
+            .unit_scale = 1.0,
             .obstacles = .{
                 // Square chamber layout (variant)
                 .{ .position = .{ .x = 200.0, .y = 300.0 }, .size = .{ .x = 100.0, .y = 200.0 }, .type = "blocking" },

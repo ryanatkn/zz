@@ -2,46 +2,6 @@
 
 A Zig project building CLI utilities and a 2D action RPG with modular architecture. Features a tree visualization tool and YAR (Yet Another RPG), a vibrant top-down action game.
 
-## Coding Philosophy & Performance Goals
-
-### Core Principles
-
-- **Idiomatic Zig**: Leverage comptime, explicit memory management, zero-cost abstractions
-- **Frame Budget First**: Optimize for consistent 144+ FPS - every microsecond counts
-- **Memory for Speed**: Trade RAM for CPU cycles - precompute, cache, batch
-- **Predictable Performance**: No hot path allocations, compile-time over runtime
-- **Fail Fast**: Debug assertions, explicit error handling, no silent failures
-- **One Best Way**: Don't have two ways to do the same thing unless
-    there are meaningful differences for performance
-    or clear DX wins without downsides,
-    so for example don't re-export modules for convenience
-
-### Performance Guidelines
-
-- **Hot Path Priority**: Game loop, rendering, input processing get optimization focus
-- **Data-Oriented Design**: Cache-efficient layouts, minimize pointer chasing
-- **Batch Operations**: Group work to reduce overhead, improve cache locality
-- **Arena Allocation**: Frame-scoped arenas, minimize general allocator pressure
-- **Static Over Dynamic**: Compile-time sizes, avoid dispatch in critical sections
-- **Measure First**: Profile before optimizing, validate assumptions with benchmarks
-
-### Real-Time Constraints
-
-- **No Game Loop Allocations**: All memory from init/loading
-- **Bounded Operations**: Predictable worst-case performance
-- **Cache-Friendly Layouts**: Pack data, align for SIMD
-- **Minimal Indirection**: Direct access over pointer traversals
-- **Lock-Free**: Avoid synchronization primitives in hot paths
-
-### Zig-Specific Optimizations
-
-- **Comptime Everything**: Type generation, configuration, data processing
-- **Tagged Unions Over Vtables**: Enums with payloads instead of polymorphism
-- **Packed Structs**: Tight layouts for C interop and cache optimization
-- **Error Unions**: Avoid error paths in performance-critical code
-- **SIMD**: Vector types for parallel math
-- **Zero Runtime Cost**: `@bitCast`, `@intCast`, `@ptrCast` for type punning
-
 ## Environment & Dependencies
 
 ```bash
@@ -58,47 +18,54 @@ $ zig version
 ```
 $ ./zz tree
 └── .
-    ├── .git [...]                      # Git repository metadata
-    ├── .zig-cache [...]                # Zig build cache (filtered from tree output)
-    ├── src/                            # Source code (modular architecture)
-    │   ├── cli/                        # CLI interface module (command-line concerns)
-    │   │   ├── command.zig            # Command enumeration and parsing
-    │   │   ├── help.zig               # Help text and usage documentation
-    │   │   ├── main.zig               # CLI entry point and argument processing
-    │   │   └── runner.zig             # Command execution and orchestration
-    │   ├── tree/                       # Tree visualization module (directory traversal)
-    │   │   ├── config.zig             # Configuration parsing and options
-    │   │   ├── entry.zig              # File/directory entry representation
-    │   │   ├── filter.zig             # Directory filtering rules and patterns
-    │   │   ├── formatter.zig          # Tree output formatting and display
-    │   │   ├── main.zig               # Tree command entry point
-    │   │   └── walker.zig             # Recursive directory traversal logic
-    │   ├── raylib/                     # Raylib 5.5.0 library bundle
-    │   │   ├── include/                # C header files for FFI
-    │   │   │   ├── raylib.h           # Main graphics/window API
-    │   │   │   ├── raymath.h          # Vector math and utilities  
-    │   │   │   └── rlgl.h             # Low-level OpenGL abstraction
-    │   │   ├── lib/                   # Pre-compiled library binaries
-    │   │   │   ├── libraylib.a        # Static library (primary)
-    │   │   │   ├── libraylib.so       # Shared library symlink
+    ├── .claude [...]                  # Claude Code configuration directory
+    ├── .git [...]                     # Git repository metadata
+    ├── .zig-cache [...]               # Zig build cache (filtered from tree output)
+    ├── src                            # Source code (modular architecture)
+    │   ├── cli                        # CLI interface module (command-line concerns)
+    │   │   ├── command.zig           # Command enumeration and parsing
+    │   │   ├── help.zig              # Help text and usage documentation
+    │   │   ├── main.zig              # CLI entry point and argument processing
+    │   │   └── runner.zig            # Command execution and orchestration
+    │   ├── raylib                     # Raylib 5.5.0 library bundle
+    │   │   ├── include               # C header files for FFI
+    │   │   │   ├── raylib.h          # Main graphics/window API
+    │   │   │   ├── raymath.h         # Vector math and utilities  
+    │   │   │   └── rlgl.h            # Low-level OpenGL abstraction
+    │   │   ├── lib                   # Pre-compiled library binaries
+    │   │   │   ├── libraylib.a       # Static library (primary)
+    │   │   │   ├── libraylib.so      # Shared library symlink
     │   │   │   ├── libraylib.so.5.5.0 # Versioned shared library
-    │   │   │   └── libraylib.so.550   # Alternative version symlink
-    │   │   ├── LICENSE                # zlib/libpng license
-    │   │   ├── README.md              # Raylib documentation
-    │   │   ├── raylib_cheatsheet.txt  # API quick reference
+    │   │   │   └── libraylib.so.550  # Alternative version symlink
+    │   │   ├── LICENSE               # zlib/libpng license
+    │   │   ├── README.md             # Raylib documentation
+    │   │   ├── raylib_cheatsheet.txt # API quick reference
     │   │   └── raymath_cheatsheet.txt # Math functions reference
-    │   ├── yar/                       # YAR game module (clean, consolidated architecture)
+    │   ├── tree                       # Tree visualization module (directory traversal)
+    │   │   ├── config.zig            # Configuration parsing and options
+    │   │   ├── entry.zig             # File/directory entry representation
+    │   │   ├── filter.zig            # Directory filtering rules and patterns
+    │   │   ├── formatter.zig         # Tree output formatting and display
+    │   │   ├── main.zig              # Tree command entry point
+    │   │   └── walker.zig            # Recursive directory traversal logic
+    │   ├── yar                        # YAR game module (modular raylib bindings)
     │   │   ├── CLAUDE.md             # Game-specific documentation and concepts
     │   │   ├── game.zig              # Complete game implementation with aggro/targeting systems
     │   │   ├── game_data.zon         # Data-driven level/scene configuration
-    │   │   └── raylib.zig            # Raylib FFI bindings and C interop
+    │   │   ├── raylib_audio.zig      # Audio system bindings
+    │   │   ├── raylib_core.zig       # Core window/input bindings
+    │   │   ├── raylib_models.zig     # 3D model bindings
+    │   │   ├── raylib_shapes.zig     # 2D shape drawing bindings
+    │   │   ├── raylib_text.zig       # Text rendering bindings
+    │   │   ├── raylib_textures.zig   # Texture loading bindings
+    │   │   └── raylib_types.zig      # Common type definitions
     │   └── main.zig                   # Minimal application entry point
-    ├── zig-out/                       # Build output directory (auto-generated)
-    │   ├── bin/                       # Executable binaries
+    ├── zig-out                        # Build output directory (auto-generated)
+    │   ├── bin                        # Executable binaries
     │   │   └── zz                     # Main CLI executable
-    │   └── lib/                       # Compiled libraries
+    │   └── lib                        # Compiled libraries
     │       └── libzz.a                # Project static library
-    ├── .gitignore [...]               # Git ignore patterns (filtered from tree)
+    ├── .gitignore                     # Git ignore patterns
     ├── CLAUDE.md                      # AI assistant development documentation
     ├── README.md                      # User-facing documentation and usage guide
     ├── build.zig                      # Zig build system configuration
@@ -198,6 +165,46 @@ $ ./zig-out/bin/zz      # Run binary directly after build
 - Simple commands: implement in `src/cli/runner.zig`
 - Complex features: dedicated module with `run(allocator, args)` function
 - Prefer direct function calls over shell processes
+
+## Coding Philosophy & Performance Goals
+
+### Core Principles
+
+- **Idiomatic Zig**: Leverage comptime, explicit memory management, zero-cost abstractions
+- **Frame Budget First**: Optimize for consistent 144+ FPS - every microsecond counts
+- **Memory for Speed**: Trade RAM for CPU cycles - precompute, cache, batch
+- **Predictable Performance**: No hot path allocations, compile-time over runtime
+- **Fail Fast**: Debug assertions, explicit error handling, no silent failures
+- **One Best Way**: Don't have two ways to do the same thing unless
+    there are meaningful differences for performance
+    or clear DX wins without downsides,
+    so for example don't re-export modules for convenience
+
+### Performance Guidelines
+
+- **Hot Path Priority**: Game loop, rendering, input processing get optimization focus
+- **Data-Oriented Design**: Cache-efficient layouts, minimize pointer chasing
+- **Batch Operations**: Group work to reduce overhead, improve cache locality
+- **Arena Allocation**: Frame-scoped arenas, minimize general allocator pressure
+- **Static Over Dynamic**: Compile-time sizes, avoid dispatch in critical sections
+- **Measure First**: Profile before optimizing, validate assumptions with benchmarks
+
+### Real-Time Constraints
+
+- **No Game Loop Allocations**: All memory from init/loading
+- **Bounded Operations**: Predictable worst-case performance
+- **Cache-Friendly Layouts**: Pack data, align for SIMD
+- **Minimal Indirection**: Direct access over pointer traversals
+- **Lock-Free**: Avoid synchronization primitives in hot paths
+
+### Zig-Specific Optimizations
+
+- **Comptime Everything**: Type generation, configuration, data processing
+- **Tagged Unions Over Vtables**: Enums with payloads instead of polymorphism
+- **Packed Structs**: Tight layouts for C interop and cache optimization
+- **Error Unions**: Avoid error paths in performance-critical code
+- **SIMD**: Vector types for parallel math
+- **Zero Runtime Cost**: `@bitCast`, `@intCast`, `@ptrCast` for type punning
 
 ## Future Roadmap
 

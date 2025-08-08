@@ -2,6 +2,23 @@
 
 A vibrant 2D top-down action RPG with scene-based exploration and dynamic enemy AI.
 
+## Module Structure
+
+```
+$ ./zz tree src/yar
+└── yar
+    ├── CLAUDE.md             # Game-specific documentation and concepts
+    ├── game.zig              # Complete game implementation with all systems
+    ├── game_data.zon         # Data-driven scene/level configuration
+    ├── raylib_audio.zig      # Sound and music playback bindings
+    ├── raylib_core.zig       # Window management, input, timing bindings
+    ├── raylib_models.zig     # 3D model loading and rendering bindings
+    ├── raylib_shapes.zig     # 2D primitive drawing function bindings
+    ├── raylib_text.zig       # Font loading and text rendering bindings
+    ├── raylib_textures.zig   # Image/texture loading and manipulation bindings
+    └── raylib_types.zig      # Common types and structures
+```
+
 ## Core Concepts
 
 **Player**

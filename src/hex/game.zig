@@ -15,6 +15,36 @@ const SCREEN_HEIGHT: f32 = 1080;
 const DIAGONAL_FACTOR = @sqrt(0.5); // ~0.707
 const TARGET_FPS = 144;
 
+// Color cycling frequency for consistent rapid color changes
+const COLOR_CYCLE_FREQ = 4.0;
+
+// Border animation constants
+const ASPECT_RATIO = 16.0 / 9.0;
+const BORDER_PULSE_PAUSED = 1.5;
+const BORDER_PULSE_DEAD = 1.2;
+const BORDER_PULSE_WIN = 2.0;
+
+// Border color definitions for cycling
+const BorderColorPair = struct {
+    dark: struct { r: f32, g: f32, b: f32 },
+    bright: struct { r: f32, g: f32, b: f32 },
+};
+
+const GOLD_YELLOW_COLORS = BorderColorPair{
+    .dark = .{ .r = 200.0, .g = 150.0, .b = 10.0 },
+    .bright = .{ .r = 255.0, .g = 240.0, .b = 0.0 },
+};
+
+const RED_COLORS = BorderColorPair{
+    .dark = .{ .r = 180.0, .g = 40.0, .b = 40.0 },
+    .bright = .{ .r = 255.0, .g = 30.0, .b = 30.0 },
+};
+
+const GREEN_COLORS = BorderColorPair{
+    .dark = .{ .r = 20.0, .g = 160.0, .b = 20.0 },
+    .bright = .{ .r = 50.0, .g = 220.0, .b = 80.0 },
+};
+
 // Player and movement constants
 const PLAYER_SPEED = 600.0;
 const BULLET_SPEED = 400.0;
@@ -151,6 +181,66 @@ const Camera2D = struct {
     zoom: f32,
 };
 
+// Viewport management for maintaining aspect ratio
+const Viewport = struct {
+    rect: c.SDL_Rect,
+    window_width: c_int,
+    window_height: c_int,
+
+    fn update(self: *Viewport, window: *c.SDL_Window) void {
+        _ = c.SDL_GetWindowSize(window, &self.window_width, &self.window_height);
+
+        const window_aspect_ratio = @as(f32, @floatFromInt(self.window_width)) / @as(f32, @floatFromInt(self.window_height));
+
+        if (window_aspect_ratio > ASPECT_RATIO) {
+            // Pillarboxing
+            const viewport_width = @as(c_int, @intFromFloat(@as(f32, @floatFromInt(self.window_height)) * ASPECT_RATIO));
+            const offset_x = @divTrunc(self.window_width - viewport_width, 2);
+
+            self.rect = c.SDL_Rect{
+                .x = offset_x,
+                .y = 0,
+                .w = viewport_width,
+                .h = self.window_height,
+            };
+        } else {
+            // Letterboxing
+            const viewport_height = @as(c_int, @intFromFloat(@as(f32, @floatFromInt(self.window_width)) / ASPECT_RATIO));
+            const offset_y = @divTrunc(self.window_height - viewport_height, 2);
+
+            self.rect = c.SDL_Rect{
+                .x = 0,
+                .y = offset_y,
+                .w = self.window_width,
+                .h = viewport_height,
+            };
+        }
+    }
+
+    fn windowToGameCoords(self: *const Viewport, window_x: f32, window_y: f32) Vec2 {
+        const viewport_x = window_x - @as(f32, @floatFromInt(self.rect.x));
+        const viewport_y = window_y - @as(f32, @floatFromInt(self.rect.y));
+
+        const scale_x = SCREEN_WIDTH / @as(f32, @floatFromInt(self.rect.w));
+        const scale_y = SCREEN_HEIGHT / @as(f32, @floatFromInt(self.rect.h));
+
+        return Vec2{
+            .x = viewport_x * scale_x,
+            .y = viewport_y * scale_y,
+        };
+    }
+};
+
+// Color interpolation utility
+fn interpolateColor(color_pair: BorderColorPair, t: f32, intensity: f32) Color {
+    return Color{
+        .r = @intFromFloat((color_pair.dark.r + (color_pair.bright.r - color_pair.dark.r) * t) * intensity),
+        .g = @intFromFloat((color_pair.dark.g + (color_pair.bright.g - color_pair.dark.g) * t) * intensity),
+        .b = @intFromFloat((color_pair.dark.b + (color_pair.bright.b - color_pair.dark.b) * t) * intensity),
+        .a = 255,
+    };
+}
+
 const GameState = struct {
     player: GameObject,
     bullets: [MAX_BULLETS]GameObject,
@@ -168,7 +258,7 @@ const GameState = struct {
     sceneTextBuffer: [128]u8,
     fpsTextBuffer: [32]u8,
     camera: Camera2D,
-    
+
     // FPS tracking with SDL high-resolution timers
     fps_counter: u32,
     fps_frames: u32,
@@ -181,11 +271,14 @@ const GameState = struct {
     mouse_y: f32,
     keys_down: std.StaticBitSet(512), // SDL_SCANCODE_COUNT
     left_mouse_held: bool,
-    
+
+    // Viewport for maintaining 16:9 aspect ratio with letterboxing/pillarboxing
+    viewport: Viewport,
+
     // Pre-allocated drawing buffers for performance
     circle_points: [200]c.SDL_FPoint, // Max points for largest circle
     rect_points: [4]c.SDL_FPoint, // Rectangle corners
-    
+
     const Self = @This();
 
     pub fn deinit(self: *Self) void {
@@ -243,6 +336,11 @@ const GameState = struct {
             .mouse_y = 0,
             .keys_down = std.StaticBitSet(512).initEmpty(),
             .left_mouse_held = false,
+            .viewport = Viewport{
+                .rect = undefined,
+                .window_width = 0,
+                .window_height = 0,
+            },
             .circle_points = undefined,
             .rect_points = undefined,
         };
@@ -292,6 +390,9 @@ const GameState = struct {
 
             game.loadSceneFromData(@intCast(sceneIndex));
         }
+
+        // Initialize viewport
+        game.viewport.update(window);
 
         return game;
     }
@@ -386,11 +487,11 @@ const GameState = struct {
 
     // Optimized color handling - cache last color to avoid redundant SDL calls
     var last_color: ?Color = null;
-    
+
     inline fn colorToSDL(color: Color) struct { r: u8, g: u8, b: u8, a: u8 } {
         return .{ .r = color.r, .g = color.g, .b = color.b, .a = color.a };
     }
-    
+
     fn setRenderColor(self: *Self, color: Color) void {
         // Only change SDL color state if different from last color
         if (last_color == null or !std.meta.eql(last_color.?, color)) {
@@ -399,18 +500,18 @@ const GameState = struct {
             last_color = color;
         }
     }
-    
+
     fn checkCircleRectCollision(self: *Self, circlePos: Vec2, radius: f32, rectPos: Vec2, rectSize: Vec2) bool {
         _ = self;
         const closestX = math.clamp(circlePos.x, rectPos.x, rectPos.x + rectSize.x);
         const closestY = math.clamp(circlePos.y, rectPos.y, rectPos.y + rectSize.y);
-        
+
         const dx = circlePos.x - closestX;
         const dy = circlePos.y - closestY;
-        
+
         return (dx * dx + dy * dy) <= (radius * radius);
     }
-    
+
     fn isPositionBlocked(self: *Self, pos: Vec2, radius: f32) bool {
         for (0..MAX_OBSTACLES) |i| {
             if (self.scenes[self.currentScene].obstacles[i].active and self.scenes[self.currentScene].obstacles[i].type == .blocking) {
@@ -421,12 +522,12 @@ const GameState = struct {
         }
         return false;
     }
-    
+
     fn restoreEnemiesInScene(self: *Self, sceneIndex: u8) void {
         // Restore all enemies in the specified scene to their original state (bulk copy)
         self.scenes[sceneIndex].enemies = self.scenes[sceneIndex].originalEnemies;
     }
-    
+
     fn updateCamera(self: *Self) void {
         // Only use camera tracking in non-overworld scenes (currentScene != 0)
         if (self.currentScene != 0) {
@@ -439,24 +540,25 @@ const GameState = struct {
         }
     }
 
+
     pub fn restart(self: *Self) void {
         // Reset player to starting position
         self.player.position = Vec2{ .x = self.gameData.player_start.position.x, .y = self.gameData.player_start.position.y };
         self.player.active = true;
         self.currentScene = self.gameData.player_start.scene;
-        
+
         // Reset bullets
         for (0..MAX_BULLETS) |i| {
             self.bullets[i].active = false;
         }
-        
+
         // Reload all scenes from data (restore original state)
         for (0..NUM_SCENES) |sceneIndex| {
             if (sceneIndex < self.gameData.scenes.len) {
                 self.loadSceneFromData(@intCast(sceneIndex));
             }
         }
-        
+
         self.gameOver = false;
         self.gameWon = false;
         self.isPaused = false;
@@ -464,7 +566,7 @@ const GameState = struct {
         self.aggroTarget = null; // Reset aggro target
         self.friendlyTarget = null; // Reset friendly target
     }
-    
+
     pub fn resurrect(self: *Self) void {
         // Resurrect player at original spawn location without resetting world state
         self.player.position = Vec2{ .x = self.gameData.player_start.position.x, .y = self.gameData.player_start.position.y };
@@ -474,26 +576,26 @@ const GameState = struct {
         self.isPaused = false;
         self.winTime = 0.0;
         // Don't reset aggroTarget/friendlyTarget - let enemies continue their current behavior
-        
+
         // Clear any active bullets
         for (0..MAX_BULLETS) |i| {
             self.bullets[i].active = false;
         }
     }
-    
+
     pub fn resetScene(self: *Self) void {
         // Reset only the current scene enemies to their spawn positions
         self.restoreEnemiesInScene(self.currentScene);
-        
+
         // Reset player to original spawn location
         self.player.position = Vec2{ .x = self.gameData.player_start.position.x, .y = self.gameData.player_start.position.y };
         self.player.active = true;
-        
+
         // Clear bullets
         for (0..MAX_BULLETS) |i| {
             self.bullets[i].active = false;
         }
-        
+
         // Reset game state flags
         self.gameOver = false;
         self.gameWon = false;
@@ -502,33 +604,33 @@ const GameState = struct {
         self.aggroTarget = null; // Reset aggro target
         self.friendlyTarget = null; // Reset friendly target
     }
-    
+
     pub fn updateWinState(self: *Self, deltaTime: f32) void {
         if (self.gameWon and !self.isPaused) {
             self.winTime += deltaTime;
         }
     }
-    
+
     pub fn handleInput(self: *Self) void {
         // TODO: Convert SDL input to YAR-style input handling
         // Handle keyboard state
         _ = self;
     }
-    
+
     pub fn updatePlayer(self: *Self, deltaTime: f32) void {
         if (self.isPaused) return;
-        
+
         // Set aggro target to player position (enemies will chase this)
         self.aggroTarget = self.player.position;
         var movement = Vec2{ .x = 0, .y = 0 };
-        
+
         // Mouse movement - ONLY when left mouse button is held down
         if (self.left_mouse_held) {
             const direction = Vec2{
                 .x = self.mouse_x - self.player.position.x,
                 .y = self.mouse_y - self.player.position.y,
             };
-            
+
             const length = math.sqrt(direction.x * direction.x + direction.y * direction.y);
             const currentScene = &self.scenes[self.currentScene];
             const playerRadius = self.gameData.player_start.radius * currentScene.player_scale;
@@ -537,40 +639,40 @@ const GameState = struct {
                 movement.y = direction.y / length;
             }
         }
-        
+
         // Keyboard movement (fallback/alternative)
         if (self.keys_down.isSet(c.SDL_SCANCODE_W) or self.keys_down.isSet(c.SDL_SCANCODE_UP)) movement.y -= 1;
         if (self.keys_down.isSet(c.SDL_SCANCODE_S) or self.keys_down.isSet(c.SDL_SCANCODE_DOWN)) movement.y += 1;
         if (self.keys_down.isSet(c.SDL_SCANCODE_A) or self.keys_down.isSet(c.SDL_SCANCODE_LEFT)) movement.x -= 1;
         if (self.keys_down.isSet(c.SDL_SCANCODE_D) or self.keys_down.isSet(c.SDL_SCANCODE_RIGHT)) movement.x += 1;
-        
+
         // Normalize diagonal movement for keyboard
         if (movement.x != 0 and movement.y != 0 and !self.left_mouse_held) {
             movement.x *= DIAGONAL_FACTOR;
             movement.y *= DIAGONAL_FACTOR;
         }
-        
+
         // Update position with collision checking (apply game speed)
         const effectiveDeltaTime = deltaTime * self.gameSpeed;
         const newX = self.player.position.x + movement.x * PLAYER_SPEED * effectiveDeltaTime;
         const newY = self.player.position.y + movement.y * PLAYER_SPEED * effectiveDeltaTime;
-        
+
         // Get player radius for current scene
         const currentScene = &self.scenes[self.currentScene];
         const playerRadius = self.gameData.player_start.radius * currentScene.player_scale;
-        
+
         // Check X movement
         const testPosX = Vec2{ .x = newX, .y = self.player.position.y };
         if (!self.isPositionBlocked(testPosX, playerRadius)) {
             self.player.position.x = newX;
         }
-        
+
         // Check Y movement
         const testPosY = Vec2{ .x = self.player.position.x, .y = newY };
         if (!self.isPositionBlocked(testPosY, playerRadius)) {
             self.player.position.y = newY;
         }
-        
+
         // Keep player on screen
         if (self.player.position.x < playerRadius)
             self.player.position.x = playerRadius;
@@ -581,25 +683,26 @@ const GameState = struct {
         if (self.player.position.y > SCREEN_HEIGHT - playerRadius)
             self.player.position.y = SCREEN_HEIGHT - playerRadius;
     }
-    
+
     pub fn updateBullets(self: *Self, deltaTime: f32) void {
         if (self.isPaused) return;
         const effectiveDeltaTime = deltaTime * self.gameSpeed;
-        
+
         for (0..MAX_BULLETS) |i| {
             if (self.bullets[i].active) {
                 self.bullets[i].position.x += self.bullets[i].velocity.x * effectiveDeltaTime;
                 self.bullets[i].position.y += self.bullets[i].velocity.y * effectiveDeltaTime;
-                
+
                 // Deactivate if off screen
                 if (self.bullets[i].position.x < 0 or self.bullets[i].position.x > SCREEN_WIDTH or
-                    self.bullets[i].position.y < 0 or self.bullets[i].position.y > SCREEN_HEIGHT) {
+                    self.bullets[i].position.y < 0 or self.bullets[i].position.y > SCREEN_HEIGHT)
+                {
                     self.bullets[i].active = false;
                 }
             }
         }
     }
-    
+
     pub fn updateEnemies(self: *Self, deltaTime: f32) void {
         if (self.isPaused) return;
         for (0..MAX_ENEMIES) |i| {
@@ -609,36 +712,36 @@ const GameState = struct {
                     aggroPos
                 else
                     self.scenes[self.currentScene].originalEnemies[i].position;
-                
+
                 // Move towards target
                 var direction = Vec2{
                     .x = target.x - self.scenes[self.currentScene].enemies[i].position.x,
                     .y = target.y - self.scenes[self.currentScene].enemies[i].position.y,
                 };
-                
+
                 const length = math.sqrt(direction.x * direction.x + direction.y * direction.y);
                 if (length > 0) {
                     direction.x /= length;
                     direction.y /= length;
                 }
-                
+
                 // Use different speeds for overworld vs dungeons, and slower when not aggro
                 var enemySpeed: f32 = if (self.currentScene == 0) ENEMY_SPEED * 0.15 else ENEMY_SPEED;
                 if (self.aggroTarget == null) {
                     enemySpeed *= 0.333; // 1/3 speed when not aggro (returning to spawn)
                 }
                 const effectiveDeltaTime = deltaTime * self.gameSpeed;
-                
+
                 // Check for obstacle collision before moving
                 const newX = self.scenes[self.currentScene].enemies[i].position.x + direction.x * enemySpeed * effectiveDeltaTime;
                 const newY = self.scenes[self.currentScene].enemies[i].position.y + direction.y * enemySpeed * effectiveDeltaTime;
-                
+
                 // Check X movement
                 const testPosX = Vec2{ .x = newX, .y = self.scenes[self.currentScene].enemies[i].position.y };
                 if (!self.isPositionBlocked(testPosX, self.scenes[self.currentScene].enemies[i].radius)) {
                     self.scenes[self.currentScene].enemies[i].position.x = newX;
                 }
-                
+
                 // Check Y movement
                 const testPosY = Vec2{ .x = self.scenes[self.currentScene].enemies[i].position.x, .y = newY };
                 if (!self.isPositionBlocked(testPosY, self.scenes[self.currentScene].enemies[i].radius)) {
@@ -647,31 +750,31 @@ const GameState = struct {
             }
         }
     }
-    
+
     pub fn checkCollisions(self: *Self) void {
         const currentScene = &self.scenes[self.currentScene];
         const playerRadius = self.gameData.player_start.radius * currentScene.player_scale;
         const playerPos = self.player.position;
-        
+
         // Cache arrays for better performance
         const bullets = &self.bullets;
         const enemies = &currentScene.enemies;
         const obstacles = &currentScene.obstacles;
         const portals = &currentScene.portals;
-        
+
         // Bullet-Enemy collisions (current scene only) - avoid sqrt when possible
         for (0..MAX_BULLETS) |i| {
             if (bullets[i].active) {
                 const bulletPos = bullets[i].position;
                 const bulletRadius = bullets[i].radius;
-                
+
                 for (0..MAX_ENEMIES) |j| {
                     if (enemies[j].active and enemies[j].enemyState == .alive) {
                         const dx = bulletPos.x - enemies[j].position.x;
                         const dy = bulletPos.y - enemies[j].position.y;
                         const distanceSq = dx * dx + dy * dy;
                         const radiusSum = bulletRadius + enemies[j].radius;
-                        
+
                         if (distanceSq < radiusSum * radiusSum) {
                             bullets[i].active = false;
                             enemies[j].enemyState = .dead;
@@ -680,7 +783,7 @@ const GameState = struct {
                 }
             }
         }
-        
+
         // Player-Enemy collisions (current scene only) - avoid sqrt
         for (0..MAX_ENEMIES) |i| {
             if (enemies[i].active and enemies[i].enemyState == .alive) {
@@ -688,14 +791,14 @@ const GameState = struct {
                 const dy = playerPos.y - enemies[i].position.y;
                 const distanceSq = dx * dx + dy * dy;
                 const radiusSum = playerRadius + enemies[i].radius;
-                
+
                 if (distanceSq < radiusSum * radiusSum) {
                     self.gameOver = true;
                     self.aggroTarget = null; // Clear aggro - enemies will return home
                 }
             }
         }
-        
+
         // Player-Portal collisions (scene switching) - avoid sqrt
         for (0..MAX_PORTALS) |i| {
             if (portals[i].active) {
@@ -703,7 +806,7 @@ const GameState = struct {
                 const dy = playerPos.y - portals[i].position.y;
                 const distanceSq = dx * dx + dy * dy;
                 const radiusSum = playerRadius + portals[i].radius;
-                
+
                 if (distanceSq < radiusSum * radiusSum) {
                     const destinationScene = portals[i].destinationScene;
                     self.currentScene = destinationScene;
@@ -717,7 +820,7 @@ const GameState = struct {
                 }
             }
         }
-        
+
         // Player-Deadly Obstacle collisions (current scene only)
         for (0..MAX_OBSTACLES) |i| {
             if (obstacles[i].active and obstacles[i].type == .deadly) {
@@ -727,7 +830,7 @@ const GameState = struct {
                 }
             }
         }
-        
+
         // Enemy-Deadly Obstacle collisions (current scene only)
         for (0..MAX_ENEMIES) |i| {
             if (enemies[i].active and enemies[i].enemyState == .alive) {
@@ -740,7 +843,7 @@ const GameState = struct {
                 }
             }
         }
-        
+
         // Check win condition - all enemies dead in current scene (early exit)
         var allEnemiesDead = true;
         for (0..MAX_ENEMIES) |i| {
@@ -754,7 +857,7 @@ const GameState = struct {
             self.winTime = 0.0; // Start win animation timer
         }
     }
-    
+
     pub fn fireBullet(self: *Self) void {
         // TODO: Port bullet firing logic from YAR
         // For now, simple bullet firing toward mouse
@@ -762,12 +865,12 @@ const GameState = struct {
             .x = self.mouse_x - self.player.position.x,
             .y = self.mouse_y - self.player.position.y,
         };
-        
+
         const length = math.sqrt(direction.x * direction.x + direction.y * direction.y);
         if (length > 0) {
             const normalizedX = direction.x / length;
             const normalizedY = direction.y / length;
-            
+
             // Find inactive bullet
             for (0..MAX_BULLETS) |i| {
                 if (!self.bullets[i].active) {
@@ -780,16 +883,16 @@ const GameState = struct {
             }
         }
     }
-    
+
     // SDL3-specific drawing methods - optimized circle drawing with batched lines
     fn drawCircle(self: *Self, pos: Vec2, radius: f32, color: Color) void {
         self.setRenderColor(color);
-        
+
         const center_x = pos.x;
         const center_y = pos.y;
         const r = radius;
         const r_sq = r * r;
-        
+
         // Pre-compute and batch horizontal lines for better performance
         const r_int: i32 = @intFromFloat(r);
         var y: i32 = -r_int;
@@ -802,10 +905,10 @@ const GameState = struct {
             }
         }
     }
-    
+
     fn drawRect(self: *Self, pos: Vec2, size: Vec2, color: Color) void {
         self.setRenderColor(color);
-        
+
         const rect = c.SDL_FRect{
             .x = pos.x,
             .y = pos.y,
@@ -814,46 +917,55 @@ const GameState = struct {
         };
         _ = c.SDL_RenderFillRect(self.renderer, &rect);
     }
-    
+
     pub fn draw(self: *Self) !void {
-        // Clear screen with scene background color
-        const currentScene = &self.scenes[self.currentScene];
-        const bg_color = if (self.currentScene < NUM_SCENES)
-            currentScene.background_color
-        else
-            DARK;
-        self.setRenderColor(bg_color);
+        // First clear the entire window with black (for letterbox/pillarbox bars)
+        self.setRenderColor(Color{ .r = 0, .g = 0, .b = 0, .a = 255 });
         _ = c.SDL_RenderClear(self.renderer);
-        
+
+        // Set the viewport for 16:9 game content
+        _ = c.SDL_SetRenderViewport(self.renderer, &self.viewport.rect);
+
+        // Clear game area with black background
+        self.setRenderColor(Color{ .r = 0, .g = 0, .b = 0, .a = 255 });
+        _ = c.SDL_RenderClear(self.renderer);
+
         // Cache frequently used values
+        const currentScene = &self.scenes[self.currentScene];
         const playerRadius = self.gameData.player_start.radius * currentScene.player_scale;
         const playerColor = if (self.gameOver) GRAY else self.player.color;
-        
+
         // Draw player with scene-based scaling
         self.drawCircle(self.player.position, playerRadius, playerColor);
-        
+
         // Draw bullets (always visible)
         for (0..MAX_BULLETS) |i| {
             if (self.bullets[i].active) {
                 self.drawCircle(self.bullets[i].position, self.bullets[i].radius, self.bullets[i].color);
             }
         }
-        
+
         // Draw all scene entities (unified for alive/dead states)
         self.drawSceneEntities(currentScene);
-        
+
         // Draw FPS counter in bottom right
         self.drawFPS();
-        
+
+        // Draw state-based screen border
+        self.drawScreenBorder();
+
+        // Reset viewport to full window before presenting
+        _ = c.SDL_SetRenderViewport(self.renderer, null);
+
         _ = c.SDL_RenderPresent(self.renderer);
     }
-    
+
     fn drawSceneEntities(self: *Self, sceneData: *const Scene) void {
         // Cache arrays to avoid repeated pointer dereferencing
         const enemies = &sceneData.enemies;
         const obstacles = &sceneData.obstacles;
         const portals = &sceneData.portals;
-        
+
         // Batch enemies by color to reduce state changes
         // Draw alive enemies first (red)
         for (0..MAX_ENEMIES) |i| {
@@ -861,14 +973,14 @@ const GameState = struct {
                 self.drawCircle(enemies[i].position, enemies[i].radius, enemies[i].color);
             }
         }
-        
+
         // Draw dead enemies (gray) - batched together
         for (0..MAX_ENEMIES) |i| {
             if (enemies[i].active and enemies[i].enemyState == .dead) {
                 self.drawCircle(enemies[i].position, enemies[i].radius, GRAY);
             }
         }
-        
+
         // Batch obstacles by type to reduce state changes
         // Draw blocking obstacles first (green)
         for (0..MAX_OBSTACLES) |i| {
@@ -876,14 +988,14 @@ const GameState = struct {
                 self.drawRect(obstacles[i].position, obstacles[i].size, GREEN);
             }
         }
-        
+
         // Draw deadly obstacles (purple)
         for (0..MAX_OBSTACLES) |i| {
             if (obstacles[i].active and obstacles[i].type == .deadly) {
                 self.drawRect(obstacles[i].position, obstacles[i].size, PURPLE);
             }
         }
-        
+
         // Draw all portals together (orange) - already batched by color
         for (0..MAX_PORTALS) |i| {
             if (portals[i].active) {
@@ -891,15 +1003,15 @@ const GameState = struct {
             }
         }
     }
-    
+
     // Simple bitmap digits for FPS display (5x7 pixels each)
     const DIGIT_WIDTH = 6; // 5 + 1 spacing
     const DIGIT_HEIGHT = 7;
-    
+
     const DIGITS = [_][7]u8{
         // 0
         [_]u8{ 0b01110, 0b10001, 0b10001, 0b10001, 0b10001, 0b10001, 0b01110 },
-        // 1  
+        // 1
         [_]u8{ 0b00100, 0b01100, 0b00100, 0b00100, 0b00100, 0b00100, 0b01110 },
         // 2
         [_]u8{ 0b01110, 0b10001, 0b00001, 0b00010, 0b00100, 0b01000, 0b11111 },
@@ -918,10 +1030,10 @@ const GameState = struct {
         // 9
         [_]u8{ 0b01110, 0b10001, 0b10001, 0b01111, 0b00001, 0b10001, 0b01110 },
     };
-    
+
     fn drawDigit(self: *Self, digit: u8, x: f32, y: f32) void {
         if (digit > 9) return;
-        
+
         const pattern = DIGITS[digit];
         for (0..DIGIT_HEIGHT) |row| {
             const line = pattern[row];
@@ -934,13 +1046,13 @@ const GameState = struct {
             }
         }
     }
-    
+
     fn updateFPS(self: *Self) void {
         self.fps_frames += 1;
         const current_time = c.SDL_GetPerformanceCounter();
         const elapsed_ticks = current_time - self.fps_last_time;
         const frequency = c.SDL_GetPerformanceFrequency();
-        
+
         // Update FPS counter every second
         if (elapsed_ticks >= frequency) { // 1 second has passed
             self.fps_counter = self.fps_frames;
@@ -948,16 +1060,16 @@ const GameState = struct {
             self.fps_last_time = current_time;
         }
     }
-    
+
     fn drawFPS(self: *Self) void {
-        
+
         // Set color for FPS text
         self.setRenderColor(WHITE);
-        
+
         // Draw "FPS: " label and numbers in bottom right
         const fps_text_x = SCREEN_WIDTH - 80.0; // 80 pixels from right edge
         const fps_text_y = SCREEN_HEIGHT - 20.0; // 20 pixels from bottom
-        
+
         // For now, just draw the FPS counter as a simple number
         // Extract digits from fps_counter
         if (self.fps_counter >= 100) {
@@ -976,7 +1088,62 @@ const GameState = struct {
             self.drawDigit(@intCast(self.fps_counter), fps_text_x + DIGIT_WIDTH * 2, fps_text_y);
         }
     }
-    
+
+    fn drawScreenBorder(self: *Self) void {
+        // Determine border color and width based on game state
+        // Priority: Paused (yellow) > Dead (red) > All enemies dead (green) > None
+
+        const current_time_ms = @as(f32, @floatFromInt(c.SDL_GetTicks()));
+        const current_time_sec = current_time_ms / 1000.0;
+
+        var border_color: ?Color = null;
+        var border_width: f32 = 0;
+
+        // Paused state takes highest priority (yellow)
+        if (self.isPaused) {
+            const pulse = (math.sin(current_time_sec * BORDER_PULSE_PAUSED) + 1.0) * 0.5;
+            border_width = 6.0 + pulse * 4.0;
+
+            const hue_cycle = (math.sin(current_time_sec * COLOR_CYCLE_FREQ) + 1.0) * 0.5;
+            const intensity = 0.8 + pulse * 0.2;
+            border_color = interpolateColor(GOLD_YELLOW_COLORS, hue_cycle, intensity);
+        }
+        // Game over state (red)
+        else if (self.gameOver) {
+            const pulse = (math.sin(current_time_sec * BORDER_PULSE_DEAD) + 1.0) * 0.5;
+            border_width = 9.0 + pulse * 5.0;
+
+            const hue_cycle = (math.sin(current_time_sec * COLOR_CYCLE_FREQ) + 1.0) * 0.5;
+            const intensity = 0.6 + pulse * 0.4;
+            border_color = interpolateColor(RED_COLORS, hue_cycle, intensity);
+        }
+        // Win state - all enemies dead in current scene (green)
+        else if (self.gameWon) {
+            const pulse = (math.sin(self.winTime * BORDER_PULSE_WIN) + 1.0) * 0.5;
+            border_width = 9.0 + pulse * 6.0;
+
+            const hue_cycle = (math.sin(self.winTime * COLOR_CYCLE_FREQ) + 1.0) * 0.5;
+            const intensity = 1.0; // Green always at full intensity
+            border_color = interpolateColor(GREEN_COLORS, hue_cycle, intensity);
+        }
+
+        // Draw border if a state is active
+        if (border_color) |color| {
+            self.setRenderColor(color);
+
+            // Draw 4 rectangles efficiently (top, bottom, left, right)
+            const top_rect = c.SDL_FRect{ .x = 0, .y = 0, .w = SCREEN_WIDTH, .h = border_width };
+            const bottom_rect = c.SDL_FRect{ .x = 0, .y = SCREEN_HEIGHT - border_width, .w = SCREEN_WIDTH, .h = border_width };
+            const left_rect = c.SDL_FRect{ .x = 0, .y = 0, .w = border_width, .h = SCREEN_HEIGHT };
+            const right_rect = c.SDL_FRect{ .x = SCREEN_WIDTH - border_width, .y = 0, .w = border_width, .h = SCREEN_HEIGHT };
+
+            _ = c.SDL_RenderFillRect(self.renderer, &top_rect);
+            _ = c.SDL_RenderFillRect(self.renderer, &bottom_rect);
+            _ = c.SDL_RenderFillRect(self.renderer, &left_rect);
+            _ = c.SDL_RenderFillRect(self.renderer, &right_rect);
+        }
+    }
+
     // All core methods from YAR have been ported
 };
 
@@ -984,23 +1151,26 @@ const GameState = struct {
 pub fn run(allocator: std.mem.Allocator, window: *c.SDL_Window, renderer: *c.SDL_Renderer) !void {
     var game = try GameState.init(allocator, window, renderer);
     defer game.deinit();
-    
+
     // Use SDL high-resolution timer for better precision
     var last_time = c.SDL_GetPerformanceCounter();
     const frequency = c.SDL_GetPerformanceFrequency();
-    
+
     // Main game loop
     while (true) {
         const current_time = c.SDL_GetPerformanceCounter();
         const delta_ticks = current_time - last_time;
         const deltaTimeSec: f32 = @as(f32, @floatFromInt(delta_ticks)) / @as(f32, @floatFromInt(frequency));
         last_time = current_time;
-        
+
         // Handle events
         var event: c.SDL_Event = undefined;
         while (c.SDL_PollEvent(&event)) {
             switch (event.type) {
                 c.SDL_EVENT_QUIT => return,
+                c.SDL_EVENT_WINDOW_RESIZED => {
+                    game.viewport.update(game.window);
+                },
                 c.SDL_EVENT_KEY_DOWN => {
                     game.keys_down.set(event.key.scancode);
                     switch (event.key.scancode) {
@@ -1022,8 +1192,9 @@ pub fn run(allocator: std.mem.Allocator, window: *c.SDL_Window, renderer: *c.SDL
                     game.keys_down.unset(event.key.scancode);
                 },
                 c.SDL_EVENT_MOUSE_MOTION => {
-                    game.mouse_x = event.motion.x;
-                    game.mouse_y = event.motion.y;
+                    const game_coords = game.viewport.windowToGameCoords(event.motion.x, event.motion.y);
+                    game.mouse_x = game_coords.x;
+                    game.mouse_y = game_coords.y;
                 },
                 c.SDL_EVENT_MOUSE_BUTTON_DOWN => {
                     switch (event.button.button) {
@@ -1033,8 +1204,9 @@ pub fn run(allocator: std.mem.Allocator, window: *c.SDL_Window, renderer: *c.SDL
                             } else {
                                 // Start holding left mouse button for movement
                                 game.left_mouse_held = true;
-                                game.mouse_x = event.button.x;
-                                game.mouse_y = event.button.y;
+                                const game_coords = game.viewport.windowToGameCoords(event.button.x, event.button.y);
+                                game.mouse_x = game_coords.x;
+                                game.mouse_y = game_coords.y;
                             }
                         },
                         c.SDL_BUTTON_RIGHT => {
@@ -1057,10 +1229,10 @@ pub fn run(allocator: std.mem.Allocator, window: *c.SDL_Window, renderer: *c.SDL
                 else => {},
             }
         }
-        
+
         // Update FPS counter
         game.updateFPS();
-        
+
         // Update game state
         game.handleInput();
         if (!game.gameOver) {
@@ -1076,10 +1248,10 @@ pub fn run(allocator: std.mem.Allocator, window: *c.SDL_Window, renderer: *c.SDL
             game.updateCamera();
         }
         game.updateEnemies(deltaTimeSec);
-        
+
         // Render
         try game.draw();
-        
+
         // Optional frame limiting to target FPS
         const target_frame_time = frequency / TARGET_FPS;
         const frame_time = c.SDL_GetPerformanceCounter() - current_time;

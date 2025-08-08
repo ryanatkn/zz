@@ -8,8 +8,8 @@ A vibrant 2D topdown action RPG in Zig and SDL3.
 $ ./zz tree src/hex
 └── hex
     ├── CLAUDE.md             # Game-specific documentation and concepts
-    ├── game.zig              # SDL3 game implementation with YAR systems
-    ├── game_data.zon         # Data-driven scene/level configuration (from YAR)
+    ├── game.zig              # SDL3 game implementation
+    ├── game_data.zon         # Data-driven scene/level configuration
     └── main.zig              # SDL3 entry point and application lifecycle
 ```
 
@@ -26,7 +26,7 @@ $ ./zz tree src/hex
 - Handles input through SDL3 event system
 - Manages rendering through SDL3 renderer API
 
-## Core Game Concepts (Ported from YAR)
+## Core Game Concepts
 
 **Player**
 - Blue circle that moves via mouse (left-click) or WASD/arrows  
@@ -90,7 +90,6 @@ $ ./zz tree src/hex
 - Game state structure
 
 **🚧 In Progress**
-- YAR game systems porting
 - Scene management and transitions
 - Enemy AI and pathfinding
 - Collision detection

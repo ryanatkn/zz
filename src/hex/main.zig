@@ -3,10 +3,10 @@ const game = @import("game.zig");
 
 pub fn run(allocator: std.mem.Allocator) !void {
     app_err.reset();
-    
+
     // Store allocator globally for use in SDL callbacks
     global_allocator = allocator;
-    
+
     var empty_argv: [0:null]?[*:0]u8 = .{};
     const status: u8 = @truncate(@as(c_uint, @bitCast(c.SDL_RunApp(empty_argv.len, @ptrCast(&empty_argv), sdlMainC, null))));
     if (app_err.load()) |err| {
@@ -39,8 +39,8 @@ fn sdlAppInit(appstate: ?*?*anyopaque, argv: [][*:0]u8) !c.SDL_AppResult {
     _ = argv;
 
     try errify(c.SDL_Init(c.SDL_INIT_VIDEO));
-    
-    try errify(c.SDL_CreateWindowAndRenderer("Hex Game - YAR Port", window_w, window_h, 0, @ptrCast(&window), @ptrCast(&renderer)));
+
+    try errify(c.SDL_CreateWindowAndRenderer("Hex", window_w, window_h, c.SDL_WINDOW_RESIZABLE, @ptrCast(&window), @ptrCast(&renderer)));
     errdefer c.SDL_DestroyWindow(window);
     errdefer c.SDL_DestroyRenderer(renderer);
 

@@ -49,10 +49,7 @@ zig version  # Requires 0.14.1+
 # Show src directory with default depth  
 ./zz tree src/
 
-# Play the YAR action RPG
-./zz yar
-
-# Play the Hex puzzle game
+# Play the Hex action RPG
 ./zz hex
 ```
 
@@ -68,7 +65,7 @@ zig version  # Requires 0.14.1+
 - Clean separation of concerns across modules
 - Static linking with bundled libraries
 
-## Game Controls (YAR)
+## Game Controls
 
 ### Movement & Combat
 - **Left Click**: Move player toward mouse cursor

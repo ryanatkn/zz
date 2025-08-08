@@ -99,6 +99,35 @@
                 // West
                 .{ .position = .{ .x = 580.0, .y = 540.0 }, .radius = 60.0, .destination = 3, .shape = "circle" },
             },
+            .lifestones = .{
+                // 6 lifestones near portals (slightly offset from portals)
+                // Northwest portal area
+                .{ .position = .{ .x = 720.0, .y = 250.0 }, .radius = 8.0 },
+                // Northeast portal area  
+                .{ .position = .{ .x = 1200.0, .y = 250.0 }, .radius = 8.0 },
+                // East portal area
+                .{ .position = .{ .x = 1290.0, .y = 490.0 }, .radius = 8.0 },
+                // Southeast portal area
+                .{ .position = .{ .x = 1200.0, .y = 830.0 }, .radius = 8.0 },
+                // Southwest portal area
+                .{ .position = .{ .x = 720.0, .y = 830.0 }, .radius = 8.0 },
+                // West portal area
+                .{ .position = .{ .x = 630.0, .y = 490.0 }, .radius = 8.0 },
+                
+                // 6 wilderness lifestones scattered further out
+                // Far north
+                .{ .position = .{ .x = 960.0, .y = 80.0 }, .radius = 8.0 },
+                // Far northeast
+                .{ .position = .{ .x = 1600.0, .y = 150.0 }, .radius = 8.0 },
+                // Far southeast
+                .{ .position = .{ .x = 1700.0, .y = 800.0 }, .radius = 8.0 },
+                // Far south
+                .{ .position = .{ .x = 960.0, .y = 1000.0 }, .radius = 8.0 },
+                // Far southwest
+                .{ .position = .{ .x = 320.0, .y = 800.0 }, .radius = 8.0 },
+                // Far northwest
+                .{ .position = .{ .x = 220.0, .y = 150.0 }, .radius = 8.0 },
+            },
         },
 
         // Scene 1: North Dungeon (Circle theme)
@@ -125,6 +154,11 @@
                 // To adjacent dungeons (clockwise)
                 .{ .position = .{ .x = 1700.0, .y = 540.0 }, .radius = 25.0, .destination = 2, .shape = "triangle" },
                 .{ .position = .{ .x = 220.0, .y = 540.0 }, .radius = 25.0, .destination = 6, .shape = "square" },
+            },
+            .lifestones = .{
+                // 2 lifestones in North Dungeon
+                .{ .position = .{ .x = 700.0, .y = 300.0 }, .radius = 12.0 },
+                .{ .position = .{ .x = 1220.0, .y = 300.0 }, .radius = 12.0 },
             },
         },
 
@@ -153,6 +187,12 @@
                 // To adjacent dungeons
                 .{ .position = .{ .x = 1520.0, .y = 800.0 }, .radius = 25.0, .destination = 3, .shape = "square" },
                 .{ .position = .{ .x = 220.0, .y = 200.0 }, .radius = 25.0, .destination = 1, .shape = "circle" },
+            },
+            .lifestones = .{
+                // 3 lifestones in Northeast Dungeon
+                .{ .position = .{ .x = 960.0, .y = 300.0 }, .radius = 12.0 },
+                .{ .position = .{ .x = 600.0, .y = 500.0 }, .radius = 12.0 },
+                .{ .position = .{ .x = 1320.0, .y = 500.0 }, .radius = 12.0 },
             },
         },
 
@@ -184,6 +224,11 @@
                 .{ .position = .{ .x = 960.0, .y = 950.0 }, .radius = 25.0, .destination = 4, .shape = "circle" },
                 .{ .position = .{ .x = 200.0, .y = 400.0 }, .radius = 25.0, .destination = 2, .shape = "triangle" },
             },
+            .lifestones = .{
+                // 2 lifestones in Southeast Dungeon
+                .{ .position = .{ .x = 500.0, .y = 600.0 }, .radius = 12.0 },
+                .{ .position = .{ .x = 1420.0, .y = 600.0 }, .radius = 12.0 },
+            },
         },
 
         // Scene 4: South Dungeon (Circle theme)
@@ -213,6 +258,12 @@
                 // To adjacent dungeons
                 .{ .position = .{ .x = 220.0, .y = 540.0 }, .radius = 25.0, .destination = 5, .shape = "triangle" },
                 .{ .position = .{ .x = 1700.0, .y = 540.0 }, .radius = 25.0, .destination = 3, .shape = "square" },
+            },
+            .lifestones = .{
+                // 3 lifestones in South Dungeon
+                .{ .position = .{ .x = 600.0, .y = 500.0 }, .radius = 12.0 },
+                .{ .position = .{ .x = 1320.0, .y = 500.0 }, .radius = 12.0 },
+                .{ .position = .{ .x = 960.0, .y = 800.0 }, .radius = 12.0 },
             },
         },
 
@@ -244,6 +295,11 @@
                 // To adjacent dungeons
                 .{ .position = .{ .x = 400.0, .y = 150.0 }, .radius = 25.0, .destination = 6, .shape = "square" },
                 .{ .position = .{ .x = 1700.0, .y = 880.0 }, .radius = 25.0, .destination = 4, .shape = "circle" },
+            },
+            .lifestones = .{
+                // 2 lifestones in Southwest Dungeon
+                .{ .position = .{ .x = 700.0, .y = 450.0 }, .radius = 12.0 },
+                .{ .position = .{ .x = 1220.0, .y = 450.0 }, .radius = 12.0 },
             },
         },
 
@@ -277,6 +333,12 @@
                 // To adjacent dungeons
                 .{ .position = .{ .x = 1700.0, .y = 200.0 }, .radius = 25.0, .destination = 1, .shape = "circle" },
                 .{ .position = .{ .x = 960.0, .y = 950.0 }, .radius = 25.0, .destination = 5, .shape = "triangle" },
+            },
+            .lifestones = .{
+                // 3 lifestones in Northwest Dungeon
+                .{ .position = .{ .x = 600.0, .y = 400.0 }, .radius = 12.0 },
+                .{ .position = .{ .x = 1320.0, .y = 400.0 }, .radius = 12.0 },
+                .{ .position = .{ .x = 960.0, .y = 700.0 }, .radius = 12.0 },
             },
         },
     },

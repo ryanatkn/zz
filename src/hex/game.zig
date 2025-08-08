@@ -52,6 +52,7 @@ const MAX_BULLETS = 20;
 const MAX_ENEMIES = 12;
 const MAX_OBSTACLES = 15;
 const MAX_PORTALS = 6;
+const MAX_LIFESTONES = 12;
 const NUM_SCENES = 7;
 
 // Colors (SDL RGBA format) - ported from YAR color palette
@@ -67,6 +68,8 @@ const GRAY = Color{ .r = 100, .g = 100, .b = 100, .a = 255 };
 const WHITE = Color{ .r = 230, .g = 230, .b = 230, .a = 255 };
 const DARK = Color{ .r = 20, .g = 20, .b = 30, .a = 255 };
 const OCEAN_BLUE = Color{ .r = 40, .g = 60, .b = 80, .a = 255 };
+const CYAN = Color{ .r = 0, .g = 200, .b = 200, .a = 255 };
+const CYAN_FADED = Color{ .r = 0, .g = 100, .b = 100, .a = 255 };
 
 // Bright outline variants
 const BLUE_BRIGHT = Color{ .r = 100, .g = 150, .b = 255, .a = 255 };
@@ -119,6 +122,18 @@ const Portal = struct {
     shape: SceneShape,
 };
 
+const Lifestone = struct {
+    position: Vec2,
+    radius: f32,
+    active: bool,
+    attuned: bool,
+};
+
+const LifestoneResult = struct {
+    scene: u8,
+    position: Vec2,
+};
+
 const Obstacle = struct {
     position: Vec2,
     size: Vec2,
@@ -131,6 +146,7 @@ const Scene = struct {
     originalEnemies: [MAX_ENEMIES]GameObject,
     obstacles: [MAX_OBSTACLES]Obstacle,
     portals: [MAX_PORTALS]Portal,
+    lifestones: [MAX_LIFESTONES]Lifestone,
     shape: SceneShape,
     name: []const u8,
     background_color: Color,
@@ -157,6 +173,11 @@ const DataEnemy = struct {
     radius: f32,
 };
 
+const DataLifestone = struct {
+    position: struct { x: f32, y: f32 },
+    radius: f32,
+};
+
 const DataScene = struct {
     name: []const u8,
     background_color: struct { r: u8, g: u8, b: u8 },
@@ -165,6 +186,7 @@ const DataScene = struct {
     obstacles: []const DataObstacle,
     enemies: []const DataEnemy,
     portals: []const DataPortal,
+    lifestones: []const DataLifestone,
 };
 
 const GameData = struct {
@@ -382,6 +404,7 @@ const GameState = struct {
                 .originalEnemies = undefined,
                 .obstacles = undefined,
                 .portals = undefined,
+                .lifestones = undefined,
                 .shape = shape,
                 .name = dataScene.name,
                 .background_color = Color{
@@ -489,6 +512,26 @@ const GameState = struct {
                 };
             }
         }
+
+        // Load lifestones from data
+        for (0..MAX_LIFESTONES) |i| {
+            if (i < dataScene.lifestones.len) {
+                const dataLifestone = dataScene.lifestones[i];
+                self.scenes[sceneIndex].lifestones[i] = Lifestone{
+                    .position = Vec2{ .x = dataLifestone.position.x, .y = dataLifestone.position.y },
+                    .radius = dataLifestone.radius * dataScene.unit_scale,
+                    .active = true,
+                    .attuned = false,
+                };
+            } else {
+                self.scenes[sceneIndex].lifestones[i] = Lifestone{
+                    .position = Vec2{ .x = 0, .y = 0 },
+                    .radius = 8.0 * dataScene.unit_scale,
+                    .active = false,
+                    .attuned = false,
+                };
+            }
+        }
     }
 
     // Optimized color handling - cache last color to avoid redundant SDL calls
@@ -532,6 +575,57 @@ const GameState = struct {
     fn restoreEnemiesInScene(self: *Self, sceneIndex: u8) void {
         // Restore all enemies in the specified scene to their original state (bulk copy)
         self.scenes[sceneIndex].enemies = self.scenes[sceneIndex].originalEnemies;
+    }
+
+    fn findNearestAttunedLifestone(self: *Self) ?LifestoneResult {
+        var nearestDistance: f32 = std.math.floatMax(f32);
+        var nearestLifestone: ?LifestoneResult = null;
+
+        // Check current scene first
+        for (0..MAX_LIFESTONES) |i| {
+            if (self.scenes[self.currentScene].lifestones[i].active and self.scenes[self.currentScene].lifestones[i].attuned) {
+                const dx = self.player.position.x - self.scenes[self.currentScene].lifestones[i].position.x;
+                const dy = self.player.position.y - self.scenes[self.currentScene].lifestones[i].position.y;
+                const distance = dx * dx + dy * dy; // Use squared distance to avoid sqrt
+
+                if (distance < nearestDistance) {
+                    nearestDistance = distance;
+                    nearestLifestone = LifestoneResult{
+                        .scene = self.currentScene,
+                        .position = self.scenes[self.currentScene].lifestones[i].position,
+                    };
+                }
+            }
+        }
+
+        // If found in current scene, return it
+        if (nearestLifestone != null) {
+            return nearestLifestone;
+        }
+
+        // Search other scenes - for simplicity, just check all scenes
+        // In the future, this could use portal connections for pathfinding
+        for (0..NUM_SCENES) |sceneIndex| {
+            if (sceneIndex == self.currentScene) continue; // Already checked
+
+            for (0..MAX_LIFESTONES) |i| {
+                if (self.scenes[sceneIndex].lifestones[i].active and self.scenes[sceneIndex].lifestones[i].attuned) {
+                    // For cross-scene distance, use a simple heuristic:
+                    // Add base distance penalty for being in different scene
+                    const baseDistance: f32 = 1000000.0; // Large penalty for cross-scene
+                    
+                    if (baseDistance < nearestDistance) {
+                        nearestDistance = baseDistance;
+                        nearestLifestone = LifestoneResult{
+                            .scene = @intCast(sceneIndex),
+                            .position = self.scenes[sceneIndex].lifestones[i].position,
+                        };
+                    }
+                }
+            }
+        }
+
+        return nearestLifestone;
     }
 
     fn updateCamera(self: *Self) void {
@@ -607,8 +701,24 @@ const GameState = struct {
     }
 
     pub fn resurrect(self: *Self) void {
-        // Resurrect player at original spawn location without resetting world state
-        self.player.position = Vec2{ .x = self.gameData.player_start.position.x, .y = self.gameData.player_start.position.y };
+        // Find nearest attuned lifestone
+        if (self.findNearestAttunedLifestone()) |nearestLifestone| {
+            // Teleport to nearest attuned lifestone
+            if (nearestLifestone.scene != self.currentScene) {
+                // Switch to the lifestone's scene
+                self.currentScene = nearestLifestone.scene;
+                // Update camera for new scene
+                self.updateCamera();
+                // Restore enemies in the destination scene
+                self.restoreEnemiesInScene(nearestLifestone.scene);
+            }
+            self.player.position = nearestLifestone.position;
+        } else {
+            // Fallback to original spawn location if no lifestones are attuned
+            self.player.position = Vec2{ .x = self.gameData.player_start.position.x, .y = self.gameData.player_start.position.y };
+            self.currentScene = self.gameData.player_start.scene;
+        }
+        
         self.player.active = true;
         self.playerDead = false;
         self.isPaused = false;
@@ -794,6 +904,22 @@ const GameState = struct {
         const enemies = &currentScene.enemies;
         const obstacles = &currentScene.obstacles;
         const portals = &currentScene.portals;
+        const lifestones = &currentScene.lifestones;
+
+        // Player-Lifestone collisions (attunement) - avoid sqrt
+        for (0..MAX_LIFESTONES) |i| {
+            if (lifestones[i].active and !lifestones[i].attuned) {
+                const dx = playerPos.x - lifestones[i].position.x;
+                const dy = playerPos.y - lifestones[i].position.y;
+                const distanceSq = dx * dx + dy * dy;
+                const radiusSum = playerRadius + lifestones[i].radius;
+
+                if (distanceSq < radiusSum * radiusSum) {
+                    // Attune to this lifestone
+                    lifestones[i].attuned = true;
+                }
+            }
+        }
 
         // Bullet-Enemy collisions (current scene only) - avoid sqrt when possible
         for (0..MAX_BULLETS) |i| {
@@ -990,6 +1116,7 @@ const GameState = struct {
         const enemies = &sceneData.enemies;
         const obstacles = &sceneData.obstacles;
         const portals = &sceneData.portals;
+        const lifestones = &sceneData.lifestones;
 
         // Batch enemies by color to reduce state changes
         // Draw alive enemies first (red)
@@ -1030,6 +1157,23 @@ const GameState = struct {
             if (portals[i].active) {
                 const portalScreenPos = self.worldToScreen(portals[i].position);
                 self.drawCircle(portalScreenPos, portals[i].radius, ORANGE);
+            }
+        }
+
+        // Draw lifestones - batch by attunement state
+        // Draw unattunmed lifestones first (faded cyan)
+        for (0..MAX_LIFESTONES) |i| {
+            if (lifestones[i].active and !lifestones[i].attuned) {
+                const lifestoneScreenPos = self.worldToScreen(lifestones[i].position);
+                self.drawCircle(lifestoneScreenPos, lifestones[i].radius, CYAN_FADED);
+            }
+        }
+
+        // Draw attuned lifestones (bright cyan)
+        for (0..MAX_LIFESTONES) |i| {
+            if (lifestones[i].active and lifestones[i].attuned) {
+                const lifestoneScreenPos = self.worldToScreen(lifestones[i].position);
+                self.drawCircle(lifestoneScreenPos, lifestones[i].radius, CYAN);
             }
         }
     }

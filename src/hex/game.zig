@@ -578,10 +578,10 @@ const GameState = struct {
     }
 
     fn findNearestAttunedLifestone(self: *Self) ?LifestoneResult {
+        // 1. Check current scene first - prefer any lifestone in current scene
         var nearestDistance: f32 = std.math.floatMax(f32);
         var nearestLifestone: ?LifestoneResult = null;
 
-        // Check current scene first
         for (0..MAX_LIFESTONES) |i| {
             if (self.scenes[self.currentScene].lifestones[i].active and self.scenes[self.currentScene].lifestones[i].attuned) {
                 const dx = self.player.position.x - self.scenes[self.currentScene].lifestones[i].position.x;
@@ -598,28 +598,103 @@ const GameState = struct {
             }
         }
 
-        // If found in current scene, return it
+        // If found in current scene, return it immediately
         if (nearestLifestone != null) {
             return nearestLifestone;
         }
 
-        // Search other scenes - for simplicity, just check all scenes
-        // In the future, this could use portal connections for pathfinding
-        for (0..NUM_SCENES) |sceneIndex| {
-            if (sceneIndex == self.currentScene) continue; // Already checked
+        // 2-3. Breadth-first search through portal network
+        // We'll use simple arrays for BFS queue since scene count is small
+        var visited: [NUM_SCENES]bool = [_]bool{false} ** NUM_SCENES;
+        var queue: [NUM_SCENES]struct { scene: u8, entry_portal_pos: Vec2, depth: u32 } = undefined;
+        var queue_start: usize = 0;
+        var queue_end: usize = 0;
 
+        visited[self.currentScene] = true;
+
+        // 2. Start BFS: Add all portals from current scene to queue
+        for (0..MAX_PORTALS) |i| {
+            if (self.scenes[self.currentScene].portals[i].active) {
+                const portal = self.scenes[self.currentScene].portals[i];
+                const dest_scene = portal.destinationScene;
+
+                if (!visited[dest_scene]) {
+                    visited[dest_scene] = true;
+
+                    // Find the return portal in the destination scene that leads back to current scene
+                    var entry_portal_pos = Vec2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 }; // Default center
+                    for (0..MAX_PORTALS) |j| {
+                        if (self.scenes[dest_scene].portals[j].active and
+                            self.scenes[dest_scene].portals[j].destinationScene == self.currentScene)
+                        {
+                            entry_portal_pos = self.scenes[dest_scene].portals[j].position;
+                            break;
+                        }
+                    }
+
+                    queue[queue_end] = .{
+                        .scene = dest_scene,
+                        .entry_portal_pos = entry_portal_pos, // Position of portal in destination scene
+                        .depth = 1,
+                    };
+                    queue_end += 1;
+                }
+            }
+        }
+
+        // BFS through scenes
+        while (queue_start < queue_end) {
+            const current = queue[queue_start];
+            queue_start += 1;
+
+            // Search for lifestones in this scene
             for (0..MAX_LIFESTONES) |i| {
-                if (self.scenes[sceneIndex].lifestones[i].active and self.scenes[sceneIndex].lifestones[i].attuned) {
-                    // For cross-scene distance, use a simple heuristic:
-                    // Add base distance penalty for being in different scene
-                    const baseDistance: f32 = 1000000.0; // Large penalty for cross-scene
-                    
-                    if (baseDistance < nearestDistance) {
-                        nearestDistance = baseDistance;
+                if (self.scenes[current.scene].lifestones[i].active and self.scenes[current.scene].lifestones[i].attuned) {
+                    // Calculate distance from portal entry point in this scene to the lifestone
+                    const lifestone_dx = current.entry_portal_pos.x - self.scenes[current.scene].lifestones[i].position.x;
+                    const lifestone_dy = current.entry_portal_pos.y - self.scenes[current.scene].lifestones[i].position.y;
+                    const lifestone_distance = lifestone_dx * lifestone_dx + lifestone_dy * lifestone_dy;
+
+                    // Add penalty based on depth (number of portal hops)
+                    const depth_penalty = @as(f32, @floatFromInt(current.depth)) * 100000.0;
+                    const total_distance = lifestone_distance + depth_penalty;
+
+                    if (total_distance < nearestDistance) {
+                        nearestDistance = total_distance;
                         nearestLifestone = LifestoneResult{
-                            .scene = @intCast(sceneIndex),
-                            .position = self.scenes[sceneIndex].lifestones[i].position,
+                            .scene = current.scene,
+                            .position = self.scenes[current.scene].lifestones[i].position,
                         };
+                    }
+                }
+            }
+
+            // Add connected scenes to queue for next depth level
+            for (0..MAX_PORTALS) |i| {
+                if (self.scenes[current.scene].portals[i].active) {
+                    const portal = self.scenes[current.scene].portals[i];
+                    const dest_scene = portal.destinationScene;
+
+                    if (!visited[dest_scene] and queue_end < NUM_SCENES) {
+                        visited[dest_scene] = true;
+
+                        // Find the entry portal in the new destination scene
+                        var entry_portal_pos = Vec2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 }; // Default center
+                        for (0..MAX_PORTALS) |j| {
+                            if (self.scenes[dest_scene].portals[j].active and
+                                self.scenes[dest_scene].portals[j].destinationScene == current.scene)
+                            {
+                                entry_portal_pos = self.scenes[dest_scene].portals[j].position;
+                                break;
+                            }
+                        }
+
+                        queue[queue_end] = .{
+                            .scene = dest_scene,
+                            .entry_portal_pos = entry_portal_pos,
+                            .depth = current.depth + 1,
+                        };
+                        queue_end += 1;
                     }
                 }
             }
@@ -630,7 +705,7 @@ const GameState = struct {
 
     fn updateCamera(self: *Self) void {
         const currentScene = &self.scenes[self.currentScene];
-        
+
         if (currentScene.camera_mode == .follow) {
             // Camera follows the player
             self.camera.target = self.player.position;
@@ -642,11 +717,11 @@ const GameState = struct {
             self.camera.offset = Vec2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 };
         }
     }
-    
+
     // Transform world coordinates to screen coordinates using camera
     fn worldToScreen(self: *Self, worldPos: Vec2) Vec2 {
         const currentScene = &self.scenes[self.currentScene];
-        
+
         if (currentScene.camera_mode == .fixed) {
             // No camera transformation for fixed camera
             return worldPos;
@@ -658,11 +733,11 @@ const GameState = struct {
             };
         }
     }
-    
+
     // Transform screen coordinates to world coordinates using camera
     fn screenToWorld(self: *Self, screenPos: Vec2) Vec2 {
         const currentScene = &self.scenes[self.currentScene];
-        
+
         if (currentScene.camera_mode == .fixed) {
             // No camera transformation for fixed camera
             return screenPos;
@@ -674,7 +749,6 @@ const GameState = struct {
             };
         }
     }
-
 
     pub fn restart(self: *Self) void {
         // Reset player to starting position
@@ -718,7 +792,7 @@ const GameState = struct {
             self.player.position = Vec2{ .x = self.gameData.player_start.position.x, .y = self.gameData.player_start.position.y };
             self.currentScene = self.gameData.player_start.scene;
         }
-        
+
         self.player.active = true;
         self.playerDead = false;
         self.isPaused = false;
@@ -749,7 +823,6 @@ const GameState = struct {
         self.aggroTarget = null; // Reset aggro target
         self.friendlyTarget = null; // Reset friendly target
     }
-
 
     pub fn handleInput(self: *Self) void {
         // TODO: Convert SDL input to YAR-style input handling
@@ -1002,7 +1075,6 @@ const GameState = struct {
                 }
             }
         }
-
     }
 
     pub fn fireBullet(self: *Self) void {
@@ -1075,7 +1147,7 @@ const GameState = struct {
 
         // Cache frequently used values
         const currentScene = &self.scenes[self.currentScene];
-        
+
         // Clear game area with scene-specific background color
         const background_color = if (self.currentScene == 0) OCEAN_BLUE else currentScene.background_color;
         self.setRenderColor(background_color);
@@ -1402,17 +1474,17 @@ pub fn run(allocator: std.mem.Allocator, window: *c.SDL_Window, renderer: *c.SDL
 
         // Update game state
         game.handleInput();
-        
+
         // Always update camera, bullets, and enemies
         game.updateCamera();
         game.updateBullets(deltaTimeSec);
         game.updateEnemies(deltaTimeSec);
-        
+
         // Only update player when alive
         if (!game.playerDead) {
             game.updatePlayer(deltaTimeSec);
         }
-        
+
         // Only check collisions when alive and not paused
         if (!game.playerDead and !game.isPaused) {
             game.checkCollisions();

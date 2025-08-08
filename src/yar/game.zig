@@ -637,6 +637,7 @@ const GameState = struct {
         else
             raylib.BLACK;
         raylib.clearBackground(currentSceneBg);
+        
         if (!self.gameOver) {
             // Draw player with scene-based scaling
             const currentScene = &self.scenes[self.currentScene];
@@ -665,10 +666,9 @@ const GameState = struct {
                             raylib.drawCircleLinesV(sceneData.enemies[i].position, sceneData.enemies[i].radius, RED_BRIGHT);
                         },
                         .dead => {
-                            // Draw dead enemies as smaller gray circles with outline
-                            const deadRadius = sceneData.enemies[i].radius * 0.7; // Smaller when dead
-                            raylib.drawCircleV(sceneData.enemies[i].position, deadRadius, GRAY);
-                            raylib.drawCircleLinesV(sceneData.enemies[i].position, deadRadius, GRAY_BRIGHT);
+                            // Draw dead enemies as gray circles with outline (same size)
+                            raylib.drawCircleV(sceneData.enemies[i].position, sceneData.enemies[i].radius, GRAY);
+                            raylib.drawCircleLinesV(sceneData.enemies[i].position, sceneData.enemies[i].radius, GRAY_BRIGHT);
                         },
                     }
                 }
@@ -752,15 +752,15 @@ const GameState = struct {
                 raylib.drawRectangle(0, 0, borderWidth, @as(i32, @intFromFloat(SCREEN_HEIGHT)), borderColor); // Left
                 raylib.drawRectangle(@as(i32, @intFromFloat(SCREEN_WIDTH)) - borderWidth, 0, borderWidth, @as(i32, @intFromFloat(SCREEN_HEIGHT)), borderColor); // Right
             }
-            // Pause effect - subtle colorful pulsing border
+            // Pause effect - subtle colorful pulsing border (yellow to cyan range)
             else if (self.isPaused) {
                 const time = raylib.getTime();
                 const pulse = (math.sin(time * 1.5) + 1.0) * 0.5; // 0.0 to 1.0, slower pulse
                 const borderWidth = @as(i32, @intFromFloat(2 + pulse * 4)); // 2 to 6 pixels
                 
-                // Pulsing rainbow border effect
-                const hue = @mod(time * 60.0, 360.0); // Cycle through colors
-                const borderColor = raylib.colorFromHSV(@floatCast(hue), 1.0, 1.0);
+                // Smooth cycle from yellow (60°) to cyan (180°) - avoiding purple/red
+                const hue = 60.0 + (math.sin(time * 0.8) + 1.0) * 0.5 * 120.0; // 60° to 180° smoothly
+                const borderColor = raylib.colorFromHSV(@floatCast(hue), 0.8, 1.0); // Slightly less saturated
                 
                 // Draw thick border around entire screen
                 raylib.drawRectangle(0, 0, @as(i32, @intFromFloat(SCREEN_WIDTH)), borderWidth, borderColor); // Top
@@ -769,13 +769,12 @@ const GameState = struct {
                 raylib.drawRectangle(@as(i32, @intFromFloat(SCREEN_WIDTH)) - borderWidth, 0, borderWidth, @as(i32, @intFromFloat(SCREEN_HEIGHT)), borderColor); // Right
             }
         } else {
-            // Game over - still draw the game world but with overlay
+            // Game over - still draw the game world first
             const currentScene = &self.scenes[self.currentScene];
             const playerRadius = self.gameData.player_start.radius * currentScene.player_scale;
-            // Draw player as smaller gray circle when dead, like enemies
-            const deadPlayerRadius = playerRadius * 0.7;
-            raylib.drawCircleV(self.player.position, deadPlayerRadius, GRAY);
-            raylib.drawCircleLinesV(self.player.position, deadPlayerRadius, GRAY_BRIGHT);
+            // Draw player as gray circle when dead, same size as alive
+            raylib.drawCircleV(self.player.position, playerRadius, GRAY);
+            raylib.drawCircleLinesV(self.player.position, playerRadius, GRAY_BRIGHT);
 
             // Draw bullets
             for (0..MAX_BULLETS) |i| {
@@ -798,10 +797,9 @@ const GameState = struct {
                             raylib.drawCircleLinesV(sceneData.enemies[i].position, sceneData.enemies[i].radius, RED_BRIGHT);
                         },
                         .dead => {
-                            // Draw dead enemies as smaller gray circles with outline
-                            const deadRadius = sceneData.enemies[i].radius * 0.7; // Smaller when dead
-                            raylib.drawCircleV(sceneData.enemies[i].position, deadRadius, GRAY);
-                            raylib.drawCircleLinesV(sceneData.enemies[i].position, deadRadius, GRAY_BRIGHT);
+                            // Draw dead enemies as gray circles with outline (same size)
+                            raylib.drawCircleV(sceneData.enemies[i].position, sceneData.enemies[i].radius, GRAY);
+                            raylib.drawCircleLinesV(sceneData.enemies[i].position, sceneData.enemies[i].radius, GRAY_BRIGHT);
                         },
                     }
                 }
@@ -851,10 +849,38 @@ const GameState = struct {
                 }
             }
 
-            // Game over overlay with semi-transparent background
-            raylib.drawRectangle(0, @intFromFloat(SCREEN_HEIGHT / 2 - 250), @intFromFloat(SCREEN_WIDTH), 500, raylib.Color{ .r = 0, .g = 0, .b = 0, .a = 180 });
-            raylib.drawText("GAME OVER", @intFromFloat(SCREEN_WIDTH / 2 - 480), @intFromFloat(SCREEN_HEIGHT / 2 - 200), 160, RED);
-            raylib.drawText("Press R or Click to restart, ESC to quit", @intFromFloat(SCREEN_WIDTH / 2 - 480), @intFromFloat(SCREEN_HEIGHT / 2 + 80), 48, GRAY);
+            // Draw UI with scene info (same as normal gameplay)
+            raylib.drawText("Left Click: Move | Right Click: Shoot | Orange = Portal", 10, @intFromFloat(SCREEN_HEIGHT - 80), 16, GRAY);
+            raylib.drawText("WASD/Arrows: Move (Alt) | R: Restart Scene | ESC: Quit", 10, @intFromFloat(SCREEN_HEIGHT - 60), 16, GRAY);
+
+            // Scene indicator (using pre-allocated buffer)
+            const sceneName = if (self.currentScene < NUM_SCENES)
+                self.scenes[self.currentScene].name
+            else
+                "Unknown";
+            const sceneText = std.fmt.bufPrintZ(&self.sceneTextBuffer, "Scene {d}/{d}: {s}", .{ self.currentScene, NUM_SCENES - 1, sceneName }) catch "Scene";
+            raylib.drawText(sceneText, 10, @intFromFloat(SCREEN_HEIGHT - 40), 16, WHITE);
+
+            // FPS Counter (top right corner, using pre-allocated buffer)
+            const fps = raylib.getFPS();
+            const fpsText = std.fmt.bufPrintZ(&self.fpsTextBuffer, "FPS: {d}", .{fps}) catch "FPS: --";
+            const fpsWidth = raylib.measureText(fpsText, 16);
+            raylib.drawText(fpsText, @as(i32, @intFromFloat(SCREEN_WIDTH)) - fpsWidth - 10, 10, 16, WHITE);
+
+            // Game over effect - subtle red pulsing border
+            const time = raylib.getTime();
+            const pulse = (math.sin(time * 1.2) + 1.0) * 0.5; // 0.0 to 1.0, slower pulse for game over
+            const borderWidth = @as(i32, @intFromFloat(3 + pulse * 5)); // 3 to 8 pixels
+            
+            // Dark red pulsing border
+            const intensity = 0.6 + pulse * 0.4; // 0.6 to 1.0
+            const borderColor = raylib.Color{ .r = @intFromFloat(200 * intensity), .g = @intFromFloat(30 * intensity), .b = @intFromFloat(30 * intensity), .a = 255 };
+            
+            // Draw thick border around entire screen
+            raylib.drawRectangle(0, 0, @as(i32, @intFromFloat(SCREEN_WIDTH)), borderWidth, borderColor); // Top
+            raylib.drawRectangle(0, @as(i32, @intFromFloat(SCREEN_HEIGHT)) - borderWidth, @as(i32, @intFromFloat(SCREEN_WIDTH)), borderWidth, borderColor); // Bottom  
+            raylib.drawRectangle(0, 0, borderWidth, @as(i32, @intFromFloat(SCREEN_HEIGHT)), borderColor); // Left
+            raylib.drawRectangle(@as(i32, @intFromFloat(SCREEN_WIDTH)) - borderWidth, 0, borderWidth, @as(i32, @intFromFloat(SCREEN_HEIGHT)), borderColor); // Right
         }
     }
 };

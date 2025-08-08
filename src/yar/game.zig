@@ -11,9 +11,8 @@ const ENEMY_SPEED = 100.0;
 const MAX_BULLETS = 20;
 const MAX_ENEMIES = 10;
 const MAX_OBSTACLES = 15;
-const MAX_PORTALS = 2;
-const NUM_SCENES = 3;
-const SAFE_SPAWN_DISTANCE = 200.0; // Minimum distance from player for safe spawning
+const MAX_PORTALS = 6; // More portals needed for hexagon layout
+const NUM_SCENES = 7;  // Overworld + 6 dungeons
 
 // Vibrant color palette
 // Darker main colors
@@ -76,6 +75,50 @@ const Scene = struct {
     obstacles: [MAX_OBSTACLES]Obstacle,
     portals: [MAX_PORTALS]Portal,
     shape: SceneShape,
+    name: []const u8,
+    background_color: raylib.Color,
+    player_scale: f32,
+    enemy_scale: f32,
+};
+
+// Data structures for loading from ZON
+const DataPortal = struct {
+    position: struct { x: f32, y: f32 },
+    radius: f32,
+    destination: u8,
+    shape: []const u8,
+};
+
+const DataObstacle = struct {
+    position: struct { x: f32, y: f32 },
+    size: struct { x: f32, y: f32 },
+    type: []const u8,
+};
+
+const DataEnemy = struct {
+    position: struct { x: f32, y: f32 },
+    radius: f32,
+};
+
+const DataScene = struct {
+    name: []const u8,
+    background_color: struct { r: u8, g: u8, b: u8 },
+    player_scale: f32,
+    enemy_scale: f32,
+    obstacles: []const DataObstacle,
+    enemies: []const DataEnemy,
+    portals: []const DataPortal,
+};
+
+const GameData = struct {
+    screen_width: f32,
+    screen_height: f32,
+    player_start: struct {
+        scene: u8,
+        position: struct { x: f32, y: f32 },
+        radius: f32,
+    },
+    scenes: []const DataScene,
 };
 
 const GameState = struct {
@@ -86,27 +129,47 @@ const GameState = struct {
     gameOver: bool,
     gameWon: bool,
     allocator: std.mem.Allocator,
+    gameData: GameData,
 
     const Self = @This();
 
-    pub fn init(allocator: std.mem.Allocator) Self {
-        // Set random seed for proper randomization
-        raylib.setRandomSeed(@intCast(std.time.timestamp()));
+    pub fn init(allocator: std.mem.Allocator) !Self {
+        // Load game data from ZON file
+        const gameDataFile = @embedFile("game_data.zon");
+        
+        // Convert to null-terminated string for ZON parser
+        const gameDataNullTerm = try allocator.dupeZ(u8, gameDataFile);
+        defer allocator.free(gameDataNullTerm);
+        
+        const gameData = std.zon.parse.fromSlice(
+            GameData, 
+            allocator, 
+            gameDataNullTerm, 
+            null, 
+            .{}
+        ) catch |err| {
+            std.debug.print("Failed to load game data: {}\n", .{err});
+            return err;
+        };
 
         var game = Self{
             .player = GameObject{
-                .position = raylib.Vector2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 },
+                .position = raylib.Vector2{ 
+                    .x = gameData.player_start.position.x, 
+                    .y = gameData.player_start.position.y 
+                },
                 .velocity = raylib.Vector2{ .x = 0, .y = 0 },
-                .radius = 20.0,
+                .radius = gameData.player_start.radius,
                 .active = true,
                 .color = BLUE,
             },
             .bullets = undefined,
             .scenes = undefined,
-            .currentScene = 0,
+            .currentScene = gameData.player_start.scene,
             .gameOver = false,
             .gameWon = false,
             .allocator = allocator,
+            .gameData = gameData,
         };
 
         // Initialize bullets
@@ -120,12 +183,17 @@ const GameState = struct {
             };
         }
 
-        // Initialize all scenes
+        // Initialize all scenes from data
         for (0..NUM_SCENES) |sceneIndex| {
-            const shape: SceneShape = switch (sceneIndex) {
-                0 => .circle,
-                1 => .triangle,
-                2 => .square,
+            if (sceneIndex >= game.gameData.scenes.len) continue;
+            
+            const dataScene = game.gameData.scenes[sceneIndex];
+            const shape: SceneShape = if (std.mem.eql(u8, dataScene.name, "Overworld")) 
+                .circle 
+            else switch (sceneIndex % 3) {
+                1, 4 => .circle,
+                2, 5 => .triangle, 
+                0, 3, 6 => .square,
                 else => .circle,
             };
 
@@ -134,190 +202,141 @@ const GameState = struct {
                 .obstacles = undefined,
                 .portals = undefined,
                 .shape = shape,
+                .name = dataScene.name,
+                .background_color = raylib.Color{
+                    .r = dataScene.background_color.r,
+                    .g = dataScene.background_color.g,
+                    .b = dataScene.background_color.b,
+                    .a = 255,
+                },
+                .player_scale = dataScene.player_scale,
+                .enemy_scale = dataScene.enemy_scale,
             };
 
-            game.initializeScene(@intCast(sceneIndex));
+            game.loadSceneFromData(@intCast(sceneIndex));
         }
 
         return game;
     }
 
-    fn initializeScene(self: *Self, sceneIndex: u8) void {
-        // Initialize enemies for this scene
+    fn loadSceneFromData(self: *Self, sceneIndex: u8) void {
+        const dataScene = self.gameData.scenes[sceneIndex];
+
+        // Load enemies from data
         for (0..MAX_ENEMIES) |i| {
-            const safePos = self.getSafeSpawnPosition(raylib.Vector2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 }, SAFE_SPAWN_DISTANCE, 15.0, sceneIndex);
-            self.scenes[sceneIndex].enemies[i] = GameObject{
-                .position = safePos,
-                .velocity = raylib.Vector2{ .x = 0, .y = 0 },
-                .radius = 15.0,
-                .active = true,
-                .color = RED,
-            };
+            if (i < dataScene.enemies.len) {
+                const dataEnemy = dataScene.enemies[i];
+                self.scenes[sceneIndex].enemies[i] = GameObject{
+                    .position = raylib.Vector2{ 
+                        .x = dataEnemy.position.x, 
+                        .y = dataEnemy.position.y 
+                    },
+                    .velocity = raylib.Vector2{ .x = 0, .y = 0 },
+                    .radius = dataEnemy.radius * dataScene.enemy_scale,
+                    .active = true,
+                    .color = RED,
+                };
+            } else {
+                self.scenes[sceneIndex].enemies[i] = GameObject{
+                    .position = raylib.Vector2{ .x = 0, .y = 0 },
+                    .velocity = raylib.Vector2{ .x = 0, .y = 0 },
+                    .radius = 15.0,
+                    .active = false,
+                    .color = RED,
+                };
+            }
         }
 
-        // Initialize obstacles for this scene
+        // Load obstacles from data
         for (0..MAX_OBSTACLES) |i| {
-            const obstacleType: ObstacleType = if (raylib.getRandomValue(0, 1) == 0) .blocking else .deadly;
-            const baseSize = raylib.Vector2{
-                .x = @floatFromInt(raylib.getRandomValue(20, 40)),
-                .y = @floatFromInt(raylib.getRandomValue(20, 40)),
-            };
-
-            const obstacleSize = switch (obstacleType) {
-                .blocking => raylib.Vector2{ .x = baseSize.x * 4.0, .y = baseSize.y * 4.0 },
-                .deadly => baseSize,
-            };
-
-            const safePos = self.getSafeSpawnPosition(raylib.Vector2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 }, SAFE_SPAWN_DISTANCE, 0.0, sceneIndex);
-            self.scenes[sceneIndex].obstacles[i] = Obstacle{
-                .position = safePos,
-                .size = obstacleSize,
-                .type = obstacleType,
-                .active = true,
-            };
+            if (i < dataScene.obstacles.len) {
+                const dataObstacle = dataScene.obstacles[i];
+                const obstacleType: ObstacleType = if (std.mem.eql(u8, dataObstacle.type, "blocking")) 
+                    .blocking 
+                else 
+                    .deadly;
+                
+                self.scenes[sceneIndex].obstacles[i] = Obstacle{
+                    .position = raylib.Vector2{ 
+                        .x = dataObstacle.position.x, 
+                        .y = dataObstacle.position.y 
+                    },
+                    .size = raylib.Vector2{ 
+                        .x = dataObstacle.size.x, 
+                        .y = dataObstacle.size.y 
+                    },
+                    .type = obstacleType,
+                    .active = true,
+                };
+            } else {
+                self.scenes[sceneIndex].obstacles[i] = Obstacle{
+                    .position = raylib.Vector2{ .x = 0, .y = 0 },
+                    .size = raylib.Vector2{ .x = 0, .y = 0 },
+                    .type = .blocking,
+                    .active = false,
+                };
+            }
         }
 
-        // Initialize portals (2 per scene, each going to one of the other scenes)
+        // Load portals from data
         for (0..MAX_PORTALS) |i| {
-            // Get the two other scenes (not current scene)
-            const otherScenes = switch (sceneIndex) {
-                0 => [_]u8{ 1, 2 }, // Scene 0: go to scenes 1 and 2
-                1 => [_]u8{ 0, 2 }, // Scene 1: go to scenes 0 and 2
-                2 => [_]u8{ 0, 1 }, // Scene 2: go to scenes 0 and 1
-                else => [_]u8{ 0, 1 },
-            };
-
-            const destinationScene = otherScenes[i];
-            const destinationShape: SceneShape = switch (destinationScene) {
-                0 => .circle,
-                1 => .triangle,
-                2 => .square,
-                else => .circle,
-            };
-
-            const safePos = self.getSafeSpawnPosition(raylib.Vector2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 }, SAFE_SPAWN_DISTANCE, 25.0, sceneIndex);
-            self.scenes[sceneIndex].portals[i] = Portal{
-                .position = safePos,
-                .radius = 25.0,
-                .active = true,
-                .destinationScene = destinationScene,
-                .shape = destinationShape,
-            };
+            if (i < dataScene.portals.len) {
+                const dataPortal = dataScene.portals[i];
+                const destinationShape: SceneShape = if (std.mem.eql(u8, dataPortal.shape, "circle")) 
+                    .circle 
+                else if (std.mem.eql(u8, dataPortal.shape, "triangle")) 
+                    .triangle 
+                else 
+                    .square;
+                
+                self.scenes[sceneIndex].portals[i] = Portal{
+                    .position = raylib.Vector2{ 
+                        .x = dataPortal.position.x, 
+                        .y = dataPortal.position.y 
+                    },
+                    .radius = dataPortal.radius,
+                    .active = true,
+                    .destinationScene = dataPortal.destination,
+                    .shape = destinationShape,
+                };
+            } else {
+                self.scenes[sceneIndex].portals[i] = Portal{
+                    .position = raylib.Vector2{ .x = 0, .y = 0 },
+                    .radius = 25.0,
+                    .active = false,
+                    .destinationScene = 0,
+                    .shape = .circle,
+                };
+            }
         }
     }
 
     pub fn restart(self: *Self) void {
-        // Set new random seed for different layouts
-        raylib.setRandomSeed(@intCast(std.time.timestamp()));
-
-        // Reset player
-        self.player.position = raylib.Vector2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 };
+        // Reset player to starting position
+        self.player.position = raylib.Vector2{ 
+            .x = self.gameData.player_start.position.x, 
+            .y = self.gameData.player_start.position.y 
+        };
         self.player.active = true;
+        self.currentScene = self.gameData.player_start.scene;
 
         // Reset bullets
         for (0..MAX_BULLETS) |i| {
             self.bullets[i].active = false;
         }
 
-        // Only regenerate the current scene
-        self.initializeScene(self.currentScene);
+        // Reload all scenes from data (restore original state)
+        for (0..NUM_SCENES) |sceneIndex| {
+            if (sceneIndex < self.gameData.scenes.len) {
+                self.loadSceneFromData(@intCast(sceneIndex));
+            }
+        }
 
         self.gameOver = false;
         self.gameWon = false;
     }
 
-    fn getSafeSpawnPosition(self: *Self, avoidPos: raylib.Vector2, minDistance: f32, unitRadius: f32, sceneIndex: u8) raylib.Vector2 {
-        var attempts: u32 = 0;
-        const maxAttempts: u32 = 100; // More attempts for better placement
-        const isObstacle = unitRadius == 0;
-        const effectiveRadius = if (isObstacle) 40.0 else unitRadius; // Use 40 as obstacle test size
 
-        while (attempts < maxAttempts) {
-            const margin = effectiveRadius + 10.0; // Safety margin
-            const x: f32 = @floatFromInt(raylib.getRandomValue(@intFromFloat(margin), @intFromFloat(SCREEN_WIDTH - margin)));
-            const y: f32 = @floatFromInt(raylib.getRandomValue(@intFromFloat(margin), @intFromFloat(SCREEN_HEIGHT - margin)));
-            const testPos = raylib.Vector2{ .x = x, .y = y };
-
-            // Check distance from avoid position (usually player)
-            const dx = testPos.x - avoidPos.x;
-            const dy = testPos.y - avoidPos.y;
-            const distance = math.sqrt(dx * dx + dy * dy);
-            if (distance < minDistance) {
-                attempts += 1;
-                continue;
-            }
-
-            // Check collisions with all existing objects in this scene
-            var hasCollision = false;
-
-            // Check obstacle collisions
-            if (!hasCollision) {
-                for (0..MAX_OBSTACLES) |i| {
-                    if (self.scenes[sceneIndex].obstacles[i].active) {
-                        const collisionMargin: f32 = 30.0; // Good spacing
-                        if (isObstacle) {
-                            // Obstacle-obstacle: check rectangle overlap with margin
-                            if (!(testPos.x > self.scenes[sceneIndex].obstacles[i].position.x + self.scenes[sceneIndex].obstacles[i].size.x + collisionMargin or
-                                testPos.x + 40 < self.scenes[sceneIndex].obstacles[i].position.x - collisionMargin or
-                                testPos.y > self.scenes[sceneIndex].obstacles[i].position.y + self.scenes[sceneIndex].obstacles[i].size.y + collisionMargin or
-                                testPos.y + 40 < self.scenes[sceneIndex].obstacles[i].position.y - collisionMargin))
-                            {
-                                hasCollision = true;
-                                break;
-                            }
-                        } else {
-                            // Circle-obstacle: use circle-rect collision with margin
-                            if (self.checkCircleRectCollision(testPos, effectiveRadius + collisionMargin, self.scenes[sceneIndex].obstacles[i].position, self.scenes[sceneIndex].obstacles[i].size)) {
-                                hasCollision = true;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Check enemy collisions (circle-circle)
-            if (!hasCollision) {
-                for (0..MAX_ENEMIES) |i| {
-                    if (self.scenes[sceneIndex].enemies[i].active) {
-                        const dx2 = testPos.x - self.scenes[sceneIndex].enemies[i].position.x;
-                        const dy2 = testPos.y - self.scenes[sceneIndex].enemies[i].position.y;
-                        const dist = math.sqrt(dx2 * dx2 + dy2 * dy2);
-                        if (dist < effectiveRadius + self.scenes[sceneIndex].enemies[i].radius + 20.0) {
-                            hasCollision = true;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            // Check portal collisions (circle-circle)
-            if (!hasCollision) {
-                for (0..MAX_PORTALS) |i| {
-                    if (self.scenes[sceneIndex].portals[i].active) {
-                        const dx2 = testPos.x - self.scenes[sceneIndex].portals[i].position.x;
-                        const dy2 = testPos.y - self.scenes[sceneIndex].portals[i].position.y;
-                        const dist = math.sqrt(dx2 * dx2 + dy2 * dy2);
-                        if (dist < effectiveRadius + self.scenes[sceneIndex].portals[i].radius + 20.0) {
-                            hasCollision = true;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if (!hasCollision) {
-                return testPos;
-            }
-
-            attempts += 1;
-        }
-
-        // Fallback: spawn at edge of screen away from everything
-        const fallbackX = if (avoidPos.x < SCREEN_WIDTH / 2) SCREEN_WIDTH - 100 else 100;
-        const fallbackY: f32 = @floatFromInt(raylib.getRandomValue(100, @intFromFloat(SCREEN_HEIGHT - 100)));
-        return raylib.Vector2{ .x = fallbackX, .y = fallbackY };
-    }
 
     fn checkCircleRectCollision(self: *Self, circlePos: raylib.Vector2, radius: f32, rectPos: raylib.Vector2, rectSize: raylib.Vector2) bool {
         _ = self;
@@ -376,27 +395,31 @@ const GameState = struct {
         const newX = self.player.position.x + movement.x * PLAYER_SPEED * deltaTime;
         const newY = self.player.position.y + movement.y * PLAYER_SPEED * deltaTime;
 
+        // Get player radius for current scene
+        const currentScene = &self.scenes[self.currentScene];
+        const playerRadius = self.gameData.player_start.radius * currentScene.player_scale;
+
         // Check X movement
         const testPosX = raylib.Vector2{ .x = newX, .y = self.player.position.y };
-        if (!self.isPositionBlocked(testPosX, self.player.radius)) {
+        if (!self.isPositionBlocked(testPosX, playerRadius)) {
             self.player.position.x = newX;
         }
 
         // Check Y movement
         const testPosY = raylib.Vector2{ .x = self.player.position.x, .y = newY };
-        if (!self.isPositionBlocked(testPosY, self.player.radius)) {
+        if (!self.isPositionBlocked(testPosY, playerRadius)) {
             self.player.position.y = newY;
         }
 
         // Keep player on screen
-        if (self.player.position.x < self.player.radius)
-            self.player.position.x = self.player.radius;
-        if (self.player.position.x > SCREEN_WIDTH - self.player.radius)
-            self.player.position.x = SCREEN_WIDTH - self.player.radius;
-        if (self.player.position.y < self.player.radius)
-            self.player.position.y = self.player.radius;
-        if (self.player.position.y > SCREEN_HEIGHT - self.player.radius)
-            self.player.position.y = SCREEN_HEIGHT - self.player.radius;
+        if (self.player.position.x < playerRadius)
+            self.player.position.x = playerRadius;
+        if (self.player.position.x > SCREEN_WIDTH - playerRadius)
+            self.player.position.x = SCREEN_WIDTH - playerRadius;
+        if (self.player.position.y < playerRadius)
+            self.player.position.y = playerRadius;
+        if (self.player.position.y > SCREEN_HEIGHT - playerRadius)
+            self.player.position.y = SCREEN_HEIGHT - playerRadius;
     }
 
     pub fn fireBullet(self: *Self) void {
@@ -476,6 +499,7 @@ const GameState = struct {
 
     pub fn checkCollisions(self: *Self) void {
         const currentScene = &self.scenes[self.currentScene];
+        const playerRadius = self.gameData.player_start.radius * currentScene.player_scale;
 
         // Bullet-Enemy collisions (current scene only)
         for (0..MAX_BULLETS) |i| {
@@ -502,7 +526,7 @@ const GameState = struct {
                 const dy = self.player.position.y - currentScene.enemies[i].position.y;
                 const distance = math.sqrt(dx * dx + dy * dy);
 
-                if (distance < self.player.radius + currentScene.enemies[i].radius) {
+                if (distance < playerRadius + currentScene.enemies[i].radius) {
                     self.gameOver = true;
                 }
             }
@@ -515,9 +539,10 @@ const GameState = struct {
                 const dy = self.player.position.y - currentScene.portals[i].position.y;
                 const distance = math.sqrt(dx * dx + dy * dy);
 
-                if (distance < self.player.radius + currentScene.portals[i].radius) {
+                if (distance < playerRadius + currentScene.portals[i].radius) {
                     self.currentScene = currentScene.portals[i].destinationScene;
-                    // Player position stays the same - world changes around them
+                    // Always place player at screen center
+                    self.player.position = raylib.Vector2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 };
                     return; // Exit early to avoid processing more collisions
                 }
             }
@@ -526,7 +551,7 @@ const GameState = struct {
         // Player-Deadly Obstacle collisions (current scene only)
         for (0..MAX_OBSTACLES) |i| {
             if (currentScene.obstacles[i].active and currentScene.obstacles[i].type == .deadly) {
-                if (self.checkCircleRectCollision(self.player.position, self.player.radius, currentScene.obstacles[i].position, currentScene.obstacles[i].size)) {
+                if (self.checkCircleRectCollision(self.player.position, playerRadius, currentScene.obstacles[i].position, currentScene.obstacles[i].size)) {
                     self.gameOver = true;
                 }
             }
@@ -562,11 +587,18 @@ const GameState = struct {
         raylib.beginDrawing();
         defer raylib.endDrawing();
 
-        raylib.clearBackground(raylib.BLACK);
+        // Use scene-specific background color
+        const currentSceneBg = if (self.currentScene < NUM_SCENES) 
+            self.scenes[self.currentScene].background_color 
+        else 
+            raylib.BLACK;
+        raylib.clearBackground(currentSceneBg);
         if (!self.gameOver and !self.gameWon) {
-            // Draw player
-            raylib.drawCircleV(self.player.position, self.player.radius, self.player.color);
-            raylib.drawCircleLinesV(self.player.position, self.player.radius, BLUE_BRIGHT);
+            // Draw player with scene-based scaling
+            const currentScene = &self.scenes[self.currentScene];
+            const playerRadius = self.gameData.player_start.radius * currentScene.player_scale;
+            raylib.drawCircleV(self.player.position, playerRadius, self.player.color);
+            raylib.drawCircleLinesV(self.player.position, playerRadius, BLUE_BRIGHT);
 
             // Draw bullets
             for (0..MAX_BULLETS) |i| {
@@ -577,40 +609,40 @@ const GameState = struct {
             }
 
             // Draw current scene entities
-            const currentScene = &self.scenes[self.currentScene];
+            const sceneData = &self.scenes[self.currentScene];
 
             // Draw enemies from current scene
             for (0..MAX_ENEMIES) |i| {
-                if (currentScene.enemies[i].active) {
-                    raylib.drawCircleV(currentScene.enemies[i].position, currentScene.enemies[i].radius, currentScene.enemies[i].color);
-                    raylib.drawCircleLinesV(currentScene.enemies[i].position, currentScene.enemies[i].radius, RED_BRIGHT);
+                if (sceneData.enemies[i].active) {
+                    raylib.drawCircleV(sceneData.enemies[i].position, sceneData.enemies[i].radius, sceneData.enemies[i].color);
+                    raylib.drawCircleLinesV(sceneData.enemies[i].position, sceneData.enemies[i].radius, RED_BRIGHT);
                 }
             }
 
             // Draw obstacles from current scene
             for (0..MAX_OBSTACLES) |i| {
-                if (currentScene.obstacles[i].active) {
-                    const color = switch (currentScene.obstacles[i].type) {
+                if (sceneData.obstacles[i].active) {
+                    const color = switch (sceneData.obstacles[i].type) {
                         .blocking => GREEN,
                         .deadly => PURPLE,
                     };
-                    const outlineColor = switch (currentScene.obstacles[i].type) {
+                    const outlineColor = switch (sceneData.obstacles[i].type) {
                         .blocking => GREEN_BRIGHT,
                         .deadly => PURPLE_BRIGHT,
                     };
-                    raylib.drawRectangleV(currentScene.obstacles[i].position, currentScene.obstacles[i].size, color);
-                    raylib.drawRectangleLinesV(currentScene.obstacles[i].position, currentScene.obstacles[i].size, outlineColor);
+                    raylib.drawRectangleV(sceneData.obstacles[i].position, sceneData.obstacles[i].size, color);
+                    raylib.drawRectangleLinesV(sceneData.obstacles[i].position, sceneData.obstacles[i].size, outlineColor);
                 }
             }
 
             // Draw portals with destination-specific shapes
             for (0..MAX_PORTALS) |i| {
-                if (currentScene.portals[i].active) {
-                    const pos = currentScene.portals[i].position;
-                    const radius = currentScene.portals[i].radius;
+                if (sceneData.portals[i].active) {
+                    const pos = sceneData.portals[i].position;
+                    const radius = sceneData.portals[i].radius;
 
                     // Draw portal with the shape of its destination scene
-                    switch (currentScene.portals[i].shape) {
+                    switch (sceneData.portals[i].shape) {
                         .circle => {
                             raylib.drawCircleV(pos, radius, ORANGE);
                             raylib.drawCircleLinesV(pos, radius, ORANGE_BRIGHT);
@@ -636,12 +668,11 @@ const GameState = struct {
             raylib.drawText("WASD/Arrows: Move (Alt) | R: Restart Scene | ESC: Quit", 10, @intFromFloat(SCREEN_HEIGHT - 60), 16, GRAY);
 
             // Scene indicator
-            const shapeName = switch (self.scenes[self.currentScene].shape) {
-                .circle => "circle",
-                .triangle => "triangle",
-                .square => "square",
-            };
-            const sceneText = try raylib.textFormat(self.allocator, "Scene {d}/3 ({s})", .{ self.currentScene + 1, shapeName });
+            const sceneName = if (self.currentScene < NUM_SCENES) 
+                self.scenes[self.currentScene].name 
+            else 
+                "Unknown";
+            const sceneText = try raylib.textFormat(self.allocator, "Scene {d}/{d}: {s}", .{ self.currentScene, NUM_SCENES - 1, sceneName });
             defer self.allocator.free(sceneText);
             raylib.drawText(sceneText, 10, @intFromFloat(SCREEN_HEIGHT - 40), 16, WHITE);
 
@@ -675,7 +706,10 @@ pub fn run(allocator: std.mem.Allocator) !void {
 
     raylib.setTargetFPS(144);
 
-    var game = GameState.init(allocator);
+    var game = GameState.init(allocator) catch |err| {
+        std.debug.print("Failed to initialize game: {}\n", .{err});
+        return err;
+    };
 
     while (!raylib.windowShouldClose()) {
         const deltaTime = raylib.getFrameTime();

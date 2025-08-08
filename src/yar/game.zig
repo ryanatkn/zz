@@ -139,6 +139,7 @@ const GameState = struct {
     gameData: GameData,
     isPaused: bool,
     gameSpeed: f32,
+    winTime: f32, // Track time since winning for animation
     // Pre-allocated text buffers to avoid per-frame allocation
     sceneTextBuffer: [128]u8,
     fpsTextBuffer: [32]u8,
@@ -176,6 +177,7 @@ const GameState = struct {
             .gameData = gameData,
             .isPaused = false,
             .gameSpeed = 1.0,
+            .winTime = 0.0,
             .sceneTextBuffer = undefined,
             .fpsTextBuffer = undefined,
         };
@@ -343,6 +345,7 @@ const GameState = struct {
         self.gameOver = false;
         self.gameWon = false;
         self.isPaused = false;
+        self.winTime = 0.0;
     }
 
     fn checkCircleRectCollision(self: *Self, circlePos: raylib.Vector2, radius: f32, rectPos: raylib.Vector2, rectSize: raylib.Vector2) bool {
@@ -612,8 +615,15 @@ const GameState = struct {
                 break;
             }
         }
-        if (allEnemiesDead) {
+        if (allEnemiesDead and !self.gameWon) {
             self.gameWon = true;
+            self.winTime = 0.0; // Start win animation timer
+        }
+    }
+
+    pub fn updateWinState(self: *Self, deltaTime: f32) void {
+        if (self.gameWon and !self.isPaused) {
+            self.winTime += deltaTime;
         }
     }
 
@@ -627,7 +637,7 @@ const GameState = struct {
         else
             raylib.BLACK;
         raylib.clearBackground(currentSceneBg);
-        if (!self.gameOver and !self.gameWon) {
+        if (!self.gameOver) {
             // Draw player with scene-based scaling
             const currentScene = &self.scenes[self.currentScene];
             const playerRadius = self.gameData.player_start.radius * currentScene.player_scale;
@@ -726,8 +736,24 @@ const GameState = struct {
             const fpsWidth = raylib.measureText(fpsText, 16);
             raylib.drawText(fpsText, @as(i32, @intFromFloat(SCREEN_WIDTH)) - fpsWidth - 10, 10, 16, WHITE);
 
+            // Win state effect - different colored pulsing border 
+            if (self.gameWon) {
+                const pulse = (math.sin(self.winTime * 2.0) + 1.0) * 0.5; // 0.0 to 1.0, faster pulse for win
+                const borderWidth = @as(i32, @intFromFloat(3 + pulse * 6)); // 3 to 9 pixels, thicker for win
+                
+                // Cycle between gold and green colors for win state
+                const colorCycle = @mod(self.winTime * 120.0, 720.0); // Full cycle every 6 seconds
+                const hue: f32 = if (colorCycle < 360.0) 45.0 else 120.0; // Gold (45°) and Green (120°)
+                const borderColor = raylib.colorFromHSV(@floatCast(hue), 0.9, 1.0);
+                
+                // Draw thick border around entire screen
+                raylib.drawRectangle(0, 0, @as(i32, @intFromFloat(SCREEN_WIDTH)), borderWidth, borderColor); // Top
+                raylib.drawRectangle(0, @as(i32, @intFromFloat(SCREEN_HEIGHT)) - borderWidth, @as(i32, @intFromFloat(SCREEN_WIDTH)), borderWidth, borderColor); // Bottom  
+                raylib.drawRectangle(0, 0, borderWidth, @as(i32, @intFromFloat(SCREEN_HEIGHT)), borderColor); // Left
+                raylib.drawRectangle(@as(i32, @intFromFloat(SCREEN_WIDTH)) - borderWidth, 0, borderWidth, @as(i32, @intFromFloat(SCREEN_HEIGHT)), borderColor); // Right
+            }
             // Pause effect - subtle colorful pulsing border
-            if (self.isPaused) {
+            else if (self.isPaused) {
                 const time = raylib.getTime();
                 const pulse = (math.sin(time * 1.5) + 1.0) * 0.5; // 0.0 to 1.0, slower pulse
                 const borderWidth = @as(i32, @intFromFloat(2 + pulse * 4)); // 2 to 6 pixels
@@ -742,16 +768,90 @@ const GameState = struct {
                 raylib.drawRectangle(0, 0, borderWidth, @as(i32, @intFromFloat(SCREEN_HEIGHT)), borderColor); // Left
                 raylib.drawRectangle(@as(i32, @intFromFloat(SCREEN_WIDTH)) - borderWidth, 0, borderWidth, @as(i32, @intFromFloat(SCREEN_HEIGHT)), borderColor); // Right
             }
-        } else if (self.gameWon) {
-            // Win screen
-            raylib.drawText("YOU WIN!", @intFromFloat(SCREEN_WIDTH / 2 - 400), @intFromFloat(SCREEN_HEIGHT / 2 - 200), 160, GREEN);
-
-            raylib.drawText("All enemies eliminated!", @intFromFloat(SCREEN_WIDTH / 2 - 300), @intFromFloat(SCREEN_HEIGHT / 2 - 20), 48, WHITE);
-            raylib.drawText("Press R or Click to restart, ESC to quit", @intFromFloat(SCREEN_WIDTH / 2 - 480), @intFromFloat(SCREEN_HEIGHT / 2 + 80), 48, GRAY);
         } else {
-            // Game over screen
-            raylib.drawText("GAME OVER", @intFromFloat(SCREEN_WIDTH / 2 - 480), @intFromFloat(SCREEN_HEIGHT / 2 - 200), 160, RED);
+            // Game over - still draw the game world but with overlay
+            const currentScene = &self.scenes[self.currentScene];
+            const playerRadius = self.gameData.player_start.radius * currentScene.player_scale;
+            raylib.drawCircleV(self.player.position, playerRadius, self.player.color);
+            raylib.drawCircleLinesV(self.player.position, playerRadius, BLUE_BRIGHT);
 
+            // Draw bullets
+            for (0..MAX_BULLETS) |i| {
+                if (self.bullets[i].active) {
+                    raylib.drawCircleV(self.bullets[i].position, self.bullets[i].radius, self.bullets[i].color);
+                    raylib.drawCircleLinesV(self.bullets[i].position, self.bullets[i].radius, YELLOW_BRIGHT);
+                }
+            }
+
+            // Draw current scene entities
+            const sceneData = &self.scenes[self.currentScene];
+
+            // Draw enemies from current scene
+            for (0..MAX_ENEMIES) |i| {
+                if (sceneData.enemies[i].active) {
+                    switch (sceneData.enemies[i].enemyState) {
+                        .alive => {
+                            // Draw alive enemies normally
+                            raylib.drawCircleV(sceneData.enemies[i].position, sceneData.enemies[i].radius, sceneData.enemies[i].color);
+                            raylib.drawCircleLinesV(sceneData.enemies[i].position, sceneData.enemies[i].radius, RED_BRIGHT);
+                        },
+                        .dead => {
+                            // Draw dead enemies as smaller gray circles with outline
+                            const deadRadius = sceneData.enemies[i].radius * 0.7; // Smaller when dead
+                            raylib.drawCircleV(sceneData.enemies[i].position, deadRadius, GRAY);
+                            raylib.drawCircleLinesV(sceneData.enemies[i].position, deadRadius, GRAY_BRIGHT);
+                        },
+                    }
+                }
+            }
+
+            // Draw obstacles from current scene
+            for (0..MAX_OBSTACLES) |i| {
+                if (sceneData.obstacles[i].active) {
+                    const color = switch (sceneData.obstacles[i].type) {
+                        .blocking => GREEN,
+                        .deadly => PURPLE,
+                    };
+                    const outlineColor = switch (sceneData.obstacles[i].type) {
+                        .blocking => GREEN_BRIGHT,
+                        .deadly => PURPLE_BRIGHT,
+                    };
+                    raylib.drawRectangleV(sceneData.obstacles[i].position, sceneData.obstacles[i].size, color);
+                    raylib.drawRectangleLinesV(sceneData.obstacles[i].position, sceneData.obstacles[i].size, outlineColor);
+                }
+            }
+
+            // Draw portals with destination-specific shapes
+            for (0..MAX_PORTALS) |i| {
+                if (sceneData.portals[i].active) {
+                    const pos = sceneData.portals[i].position;
+                    const radius = sceneData.portals[i].radius;
+
+                    // Draw portal with the shape of its destination scene
+                    switch (sceneData.portals[i].shape) {
+                        .circle => {
+                            raylib.drawCircleV(pos, radius, ORANGE);
+                            raylib.drawCircleLinesV(pos, radius, ORANGE_BRIGHT);
+                        },
+                        .triangle => {
+                            // Draw triangle pointing up
+                            raylib.drawTriangle(raylib.Vector2{ .x = pos.x, .y = pos.y - radius }, raylib.Vector2{ .x = pos.x - radius * 0.866, .y = pos.y + radius * 0.5 }, raylib.Vector2{ .x = pos.x + radius * 0.866, .y = pos.y + radius * 0.5 }, ORANGE);
+                            raylib.drawTriangleLines(raylib.Vector2{ .x = pos.x, .y = pos.y - radius }, raylib.Vector2{ .x = pos.x - radius * 0.866, .y = pos.y + radius * 0.5 }, raylib.Vector2{ .x = pos.x + radius * 0.866, .y = pos.y + radius * 0.5 }, ORANGE_BRIGHT);
+                        },
+                        .square => {
+                            const size = radius * 1.4; // Make square similar area to circle
+                            const rectPos = raylib.Vector2{ .x = pos.x - size / 2, .y = pos.y - size / 2 };
+                            const rectSize = raylib.Vector2{ .x = size, .y = size };
+                            raylib.drawRectangleV(rectPos, rectSize, ORANGE);
+                            raylib.drawRectangleLinesV(rectPos, rectSize, ORANGE_BRIGHT);
+                        },
+                    }
+                }
+            }
+
+            // Game over overlay with semi-transparent background
+            raylib.drawRectangle(0, @intFromFloat(SCREEN_HEIGHT / 2 - 250), @intFromFloat(SCREEN_WIDTH), 500, raylib.Color{ .r = 0, .g = 0, .b = 0, .a = 180 });
+            raylib.drawText("GAME OVER", @intFromFloat(SCREEN_WIDTH / 2 - 480), @intFromFloat(SCREEN_HEIGHT / 2 - 200), 160, RED);
             raylib.drawText("Press R or Click to restart, ESC to quit", @intFromFloat(SCREEN_WIDTH / 2 - 480), @intFromFloat(SCREEN_HEIGHT / 2 + 80), 48, GRAY);
         }
     }
@@ -777,8 +877,9 @@ pub fn run(allocator: std.mem.Allocator) !void {
         // Handle input regardless of game state
         game.handleInput();
 
-        if (!game.gameOver and !game.gameWon) {
+        if (!game.gameOver) {
             game.updatePlayer(deltaTime);
+            game.updateWinState(deltaTime);
 
             if (raylib.isMouseButtonPressed(raylib.MOUSE_BUTTON_RIGHT) and !game.isPaused) {
                 game.fireBullet();
@@ -790,7 +891,7 @@ pub fn run(allocator: std.mem.Allocator) !void {
                 game.checkCollisions();
             }
         } else {
-            // Allow mouse click restart only on game over/win screens
+            // Allow mouse click restart only on game over screens
             if (raylib.isMouseButtonPressed(raylib.MOUSE_BUTTON_LEFT)) {
                 game.restart();
             }

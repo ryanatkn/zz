@@ -71,7 +71,7 @@
             .enemies = .{
                 // 12 overworld enemies positioned around the map avoiding obstacles and portals
                 // Player spawns at (960, 540) - keep enemies away from center
-                .{ .position = .{ .x = 750.0, .y = 200.0 }, .radius = 8.0 },
+                .{ .position = .{ .x = 850.0, .y = 150.0 }, .radius = 8.0 },
                 .{ .position = .{ .x = 1200.0, .y = 250.0 }, .radius = 9.0 },
                 .{ .position = .{ .x = 350.0, .y = 350.0 }, .radius = 7.0 },
                 .{ .position = .{ .x = 1550.0, .y = 450.0 }, .radius = 8.0 },
@@ -85,19 +85,19 @@
                 .{ .position = .{ .x = 1750.0, .y = 850.0 }, .radius = 9.0 },
             },
             .portals = .{
-                // Portals to 6 dungeons arranged in hexagon
-                // Top
-                .{ .position = .{ .x = 960.0, .y = 200.0 }, .radius = 40.0, .destination = 1, .shape = "circle" },
-                // Top-Right
-                .{ .position = .{ .x = 1300.0, .y = 350.0 }, .radius = 40.0, .destination = 2, .shape = "triangle" },
-                // Bottom-Right
-                .{ .position = .{ .x = 1300.0, .y = 730.0 }, .radius = 40.0, .destination = 3, .shape = "square" },
-                // Bottom
-                .{ .position = .{ .x = 960.0, .y = 880.0 }, .radius = 40.0, .destination = 4, .shape = "circle" },
-                // Bottom-Left
-                .{ .position = .{ .x = 620.0, .y = 730.0 }, .radius = 40.0, .destination = 5, .shape = "triangle" },
-                // Top-Left
-                .{ .position = .{ .x = 620.0, .y = 350.0 }, .radius = 40.0, .destination = 6, .shape = "square" },
+                // Portals to 6 dungeons arranged in regular hexagon (380px radius)
+                // Northwest
+                .{ .position = .{ .x = 770.0, .y = 211.0 }, .radius = 40.0, .destination = 4, .shape = "square" },
+                // Northeast  
+                .{ .position = .{ .x = 1150.0, .y = 211.0 }, .radius = 40.0, .destination = 5, .shape = "triangle" },
+                // East
+                .{ .position = .{ .x = 1340.0, .y = 540.0 }, .radius = 40.0, .destination = 6, .shape = "circle" },
+                // Southeast
+                .{ .position = .{ .x = 1150.0, .y = 869.0 }, .radius = 40.0, .destination = 1, .shape = "square" },
+                // Southwest
+                .{ .position = .{ .x = 770.0, .y = 869.0 }, .radius = 40.0, .destination = 2, .shape = "triangle" },
+                // West
+                .{ .position = .{ .x = 580.0, .y = 540.0 }, .radius = 40.0, .destination = 3, .shape = "circle" },
             },
         },
 

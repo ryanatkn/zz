@@ -140,6 +140,10 @@ const GameState = struct {
     isPaused: bool,
     gameSpeed: f32,
     winTime: f32, // Track time since winning for animation
+    // Aggro system - enemies target this position when not null
+    aggroTarget: ?raylib.Vector2,
+    // Friendly target - for healing/support abilities (future use)
+    friendlyTarget: ?raylib.Vector2,
     // Pre-allocated text buffers to avoid per-frame allocation
     sceneTextBuffer: [128]u8,
     fpsTextBuffer: [32]u8,
@@ -178,6 +182,8 @@ const GameState = struct {
             .isPaused = false,
             .gameSpeed = 1.0,
             .winTime = 0.0,
+            .aggroTarget = null, // Start with no aggro target (enemies go home)
+            .friendlyTarget = null, // No friendly target initially
             .sceneTextBuffer = undefined,
             .fpsTextBuffer = undefined,
         };
@@ -346,6 +352,46 @@ const GameState = struct {
         self.gameWon = false;
         self.isPaused = false;
         self.winTime = 0.0;
+        self.aggroTarget = null; // Reset aggro target
+        self.friendlyTarget = null; // Reset friendly target
+    }
+
+    pub fn resurrect(self: *Self) void {
+        // Resurrect player at original spawn location without resetting world state
+        self.player.position = raylib.Vector2{ .x = self.gameData.player_start.position.x, .y = self.gameData.player_start.position.y };
+        self.player.active = true;
+        self.gameOver = false;
+        self.gameWon = false;
+        self.isPaused = false;
+        self.winTime = 0.0;
+        // Don't reset aggroTarget/friendlyTarget - let enemies continue their current behavior
+
+        // Clear any active bullets
+        for (0..MAX_BULLETS) |i| {
+            self.bullets[i].active = false;
+        }
+    }
+
+    pub fn resetScene(self: *Self) void {
+        // Reset only the current scene enemies to their spawn positions
+        self.restoreEnemiesInScene(self.currentScene);
+
+        // Reset player to original spawn location
+        self.player.position = raylib.Vector2{ .x = self.gameData.player_start.position.x, .y = self.gameData.player_start.position.y };
+        self.player.active = true;
+
+        // Clear bullets
+        for (0..MAX_BULLETS) |i| {
+            self.bullets[i].active = false;
+        }
+
+        // Reset game state flags
+        self.gameOver = false;
+        self.gameWon = false;
+        self.isPaused = false;
+        self.winTime = 0.0;
+        self.aggroTarget = null; // Reset aggro target
+        self.friendlyTarget = null; // Reset friendly target
     }
 
     fn checkCircleRectCollision(self: *Self, circlePos: raylib.Vector2, radius: f32, rectPos: raylib.Vector2, rectSize: raylib.Vector2) bool {
@@ -387,6 +433,9 @@ const GameState = struct {
 
     pub fn updatePlayer(self: *Self, deltaTime: f32) void {
         if (self.isPaused) return;
+
+        // Set aggro target to player position (enemies will chase this)
+        self.aggroTarget = self.player.position;
         var movement = raylib.Vector2{ .x = 0, .y = 0 };
 
         // Mouse movement - move toward left click position
@@ -496,10 +545,16 @@ const GameState = struct {
         if (self.isPaused) return;
         for (0..MAX_ENEMIES) |i| {
             if (self.scenes[self.currentScene].enemies[i].active and self.scenes[self.currentScene].enemies[i].enemyState == .alive) {
-                // Move towards player
+                // Choose target: aggro target if set, otherwise go to spawn location
+                const target = if (self.aggroTarget) |aggroPos|
+                    aggroPos
+                else
+                    self.scenes[self.currentScene].originalEnemies[i].position;
+
+                // Move towards target
                 var direction = raylib.Vector2{
-                    .x = self.player.position.x - self.scenes[self.currentScene].enemies[i].position.x,
-                    .y = self.player.position.y - self.scenes[self.currentScene].enemies[i].position.y,
+                    .x = target.x - self.scenes[self.currentScene].enemies[i].position.x,
+                    .y = target.y - self.scenes[self.currentScene].enemies[i].position.y,
                 };
 
                 const length = math.sqrt(direction.x * direction.x + direction.y * direction.y);
@@ -508,8 +563,11 @@ const GameState = struct {
                     direction.y /= length;
                 }
 
-                // Use different speeds for overworld vs dungeons
-                const enemySpeed: f32 = if (self.currentScene == 0) 50.0 else ENEMY_SPEED; // Slower in overworld
+                // Use different speeds for overworld vs dungeons, and slower when not aggro
+                var enemySpeed: f32 = if (self.currentScene == 0) 50.0 else ENEMY_SPEED; // Slower in overworld
+                if (self.aggroTarget == null) {
+                    enemySpeed *= 0.333; // 1/3 speed when not aggro (returning to spawn)
+                }
                 const effectiveDeltaTime = deltaTime * self.gameSpeed;
 
                 // Check for obstacle collision before moving
@@ -562,6 +620,7 @@ const GameState = struct {
 
                 if (distance < playerRadius + currentScene.enemies[i].radius) {
                     self.gameOver = true;
+                    self.aggroTarget = null; // Clear aggro - enemies will return home
                 }
             }
         }
@@ -590,6 +649,7 @@ const GameState = struct {
             if (currentScene.obstacles[i].active and currentScene.obstacles[i].type == .deadly) {
                 if (self.checkCircleRectCollision(self.player.position, playerRadius, currentScene.obstacles[i].position, currentScene.obstacles[i].size)) {
                     self.gameOver = true;
+                    self.aggroTarget = null; // Clear aggro - enemies will return home
                 }
             }
         }
@@ -720,7 +780,7 @@ const GameState = struct {
 
             // Draw UI with scene info
             raylib.drawText("Left Click: Move | Right Click: Shoot | Orange = Portal", 10, @intFromFloat(SCREEN_HEIGHT - 80), 16, GRAY);
-            raylib.drawText("WASD/Arrows: Move (Alt) | R: Restart Scene | ESC: Quit", 10, @intFromFloat(SCREEN_HEIGHT - 60), 16, GRAY);
+            raylib.drawText("WASD/Arrows: Move (Alt) | R: Resurrect | T: Reset Scene | Y: Reset Game | ESC: Quit", 10, @intFromFloat(SCREEN_HEIGHT - 60), 16, GRAY);
 
             // Scene indicator (using pre-allocated buffer)
             const sceneName = if (self.currentScene < NUM_SCENES)
@@ -850,7 +910,7 @@ const GameState = struct {
 
             // Draw UI with scene info (same as normal gameplay)
             raylib.drawText("Left Click: Move | Right Click: Shoot | Orange = Portal", 10, @intFromFloat(SCREEN_HEIGHT - 80), 16, GRAY);
-            raylib.drawText("WASD/Arrows: Move (Alt) | R: Restart Scene | ESC: Quit", 10, @intFromFloat(SCREEN_HEIGHT - 60), 16, GRAY);
+            raylib.drawText("WASD/Arrows: Move (Alt) | R: Resurrect | T: Reset Scene | Y: Reset Game | ESC: Quit", 10, @intFromFloat(SCREEN_HEIGHT - 60), 16, GRAY);
 
             // Scene indicator (using pre-allocated buffer)
             const sceneName = if (self.currentScene < NUM_SCENES)
@@ -913,19 +973,31 @@ pub fn run(allocator: std.mem.Allocator) !void {
             }
 
             game.updateBullets(deltaTime);
-            game.updateEnemies(deltaTime);
             if (!game.isPaused) {
                 game.checkCollisions();
             }
         } else {
-            // Allow mouse click restart only on game over screens
+            // Allow mouse click resurrect on game over screens
             if (raylib.isMouseButtonPressed(raylib.MOUSE_BUTTON_LEFT)) {
-                game.restart();
+                game.resurrect();
             }
         }
 
-        // R key resets at any time
+        // Always update enemies (they target spawn when game over)
+        game.updateEnemies(deltaTime);
+
+        // R key: always resurrect (revive player at spawn without resetting world)
         if (raylib.isKeyPressed(raylib.KEY_R)) {
+            game.resurrect();
+        }
+
+        // T key: reset current scene (restore enemies in current scene only)
+        if (raylib.isKeyPressed(@intFromEnum(raylib.KeyboardKey.KEY_T))) {
+            game.resetScene();
+        }
+
+        // Y key: full restart (reset entire game state)
+        if (raylib.isKeyPressed(@intFromEnum(raylib.KeyboardKey.KEY_Y))) {
             game.restart();
         }
 

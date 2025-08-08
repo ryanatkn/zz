@@ -26,22 +26,19 @@
                 .{ .position = .{ .x = 1600.0, .y = 200.0 }, .size = .{ .x = 120.0, .y = 60.0 }, .type = "blocking" },
                 .{ .position = .{ .x = 400.0, .y = 800.0 }, .size = .{ .x = 60.0, .y = 100.0 }, .type = "blocking" },
                 .{ .position = .{ .x = 1400.0, .y = 900.0 }, .size = .{ .x = 100.0, .y = 80.0 }, .type = "blocking" },
-                
                 // Medium blocking obstacles (~1/2 size)
                 .{ .position = .{ .x = 300.0, .y = 150.0 }, .size = .{ .x = 40.0, .y = 30.0 }, .type = "blocking" },
                 .{ .position = .{ .x = 1500.0, .y = 400.0 }, .size = .{ .x = 35.0, .y = 45.0 }, .type = "blocking" },
                 .{ .position = .{ .x = 250.0, .y = 900.0 }, .size = .{ .x = 50.0, .y = 25.0 }, .type = "blocking" },
                 .{ .position = .{ .x = 1650.0, .y = 750.0 }, .size = .{ .x = 30.0, .y = 40.0 }, .type = "blocking" },
                 .{ .position = .{ .x = 700.0, .y = 950.0 }, .size = .{ .x = 45.0, .y = 35.0 }, .type = "blocking" },
-                
-                // Small blocking obstacles (~1/4 size)  
+                // Small blocking obstacles (~1/4 size)
                 .{ .position = .{ .x = 500.0, .y = 250.0 }, .size = .{ .x = 20.0, .y = 20.0 }, .type = "blocking" },
                 .{ .position = .{ .x = 1300.0, .y = 150.0 }, .size = .{ .x = 25.0, .y = 15.0 }, .type = "blocking" },
                 .{ .position = .{ .x = 150.0, .y = 700.0 }, .size = .{ .x = 15.0, .y = 25.0 }, .type = "blocking" },
                 .{ .position = .{ .x = 1750.0, .y = 300.0 }, .size = .{ .x = 20.0, .y = 18.0 }, .type = "blocking" },
                 .{ .position = .{ .x = 600.0, .y = 100.0 }, .size = .{ .x = 18.0, .y = 22.0 }, .type = "blocking" },
                 .{ .position = .{ .x = 1100.0, .y = 950.0 }, .size = .{ .x = 22.0, .y = 20.0 }, .type = "blocking" },
-                
                 // Tiny blocking obstacles (~1/10 size)
                 .{ .position = .{ .x = 350.0, .y = 450.0 }, .size = .{ .x = 8.0, .y = 8.0 }, .type = "blocking" },
                 .{ .position = .{ .x = 1450.0, .y = 600.0 }, .size = .{ .x = 12.0, .y = 6.0 }, .type = "blocking" },
@@ -50,25 +47,21 @@
                 .{ .position = .{ .x = 100.0, .y = 500.0 }, .size = .{ .x = 8.0, .y = 12.0 }, .type = "blocking" },
                 .{ .position = .{ .x = 1800.0, .y = 900.0 }, .size = .{ .x = 9.0, .y = 9.0 }, .type = "blocking" },
                 .{ .position = .{ .x = 450.0, .y = 200.0 }, .size = .{ .x = 7.0, .y = 8.0 }, .type = "blocking" },
-                
                 // Large deadly hazards (original size)
                 .{ .position = .{ .x = 800.0, .y = 200.0 }, .size = .{ .x = 40.0, .y = 40.0 }, .type = "deadly" },
                 .{ .position = .{ .x = 1200.0, .y = 400.0 }, .size = .{ .x = 50.0, .y = 30.0 }, .type = "deadly" },
                 .{ .position = .{ .x = 300.0, .y = 600.0 }, .size = .{ .x = 30.0, .y = 50.0 }, .type = "deadly" },
-                
                 // Medium deadly hazards (~1/2 size)
                 .{ .position = .{ .x = 750.0, .y = 850.0 }, .size = .{ .x = 20.0, .y = 20.0 }, .type = "deadly" },
                 .{ .position = .{ .x = 1400.0, .y = 700.0 }, .size = .{ .x = 25.0, .y = 15.0 }, .type = "deadly" },
                 .{ .position = .{ .x = 200.0, .y = 200.0 }, .size = .{ .x = 15.0, .y = 25.0 }, .type = "deadly" },
                 .{ .position = .{ .x = 1700.0, .y = 500.0 }, .size = .{ .x = 22.0, .y = 18.0 }, .type = "deadly" },
-                
                 // Small deadly hazards (~1/4 size)
                 .{ .position = .{ .x = 650.0, .y = 300.0 }, .size = .{ .x = 10.0, .y = 10.0 }, .type = "deadly" },
                 .{ .position = .{ .x = 1350.0, .y = 800.0 }, .size = .{ .x = 12.0, .y = 8.0 }, .type = "deadly" },
                 .{ .position = .{ .x = 150.0, .y = 350.0 }, .size = .{ .x = 8.0, .y = 12.0 }, .type = "deadly" },
                 .{ .position = .{ .x = 1800.0, .y = 400.0 }, .size = .{ .x = 10.0, .y = 9.0 }, .type = "deadly" },
-                
-                // Tiny deadly hazards (~1/10 size)  
+                // Tiny deadly hazards (~1/10 size)
                 .{ .position = .{ .x = 400.0, .y = 350.0 }, .size = .{ .x = 4.0, .y = 4.0 }, .type = "deadly" },
                 .{ .position = .{ .x = 1250.0, .y = 650.0 }, .size = .{ .x = 5.0, .y = 3.0 }, .type = "deadly" },
                 .{ .position = .{ .x = 550.0, .y = 950.0 }, .size = .{ .x = 3.0, .y = 5.0 }, .type = "deadly" },
@@ -270,7 +263,7 @@
                 .{ .position = .{ .x = 1220.0, .y = 500.0 }, .size = .{ .x = 40.0, .y = 40.0 }, .type = "deadly" },
             },
             .enemies = .{
-                // Northwest Dungeon: 6 enemies (smallest size) 
+                // Northwest Dungeon: 6 enemies (smallest size)
                 .{ .position = .{ .x = 400.0, .y = 300.0 }, .radius = 15.0 },
                 .{ .position = .{ .x = 1520.0, .y = 300.0 }, .radius = 15.0 },
                 .{ .position = .{ .x = 400.0, .y = 780.0 }, .radius = 15.0 },

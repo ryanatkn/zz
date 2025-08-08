@@ -1335,49 +1335,52 @@ const GameState = struct {
         }
     }
 
-    fn drawScreenBorder(self: *Self) void {
-        // Determine border color and width based on game state
-        // Priority: Paused (yellow) > Dead (red) > All enemies dead (green) > None
+    fn drawBorder(self: *Self, color: Color, width: f32) void {
+        self.setRenderColor(color);
 
+        // Draw 4 rectangles efficiently (top, bottom, left, right)
+        const top_rect = c.SDL_FRect{ .x = 0, .y = 0, .w = SCREEN_WIDTH, .h = width };
+        const bottom_rect = c.SDL_FRect{ .x = 0, .y = SCREEN_HEIGHT - width, .w = SCREEN_WIDTH, .h = width };
+        const left_rect = c.SDL_FRect{ .x = 0, .y = 0, .w = width, .h = SCREEN_HEIGHT };
+        const right_rect = c.SDL_FRect{ .x = SCREEN_WIDTH - width, .y = 0, .w = width, .h = SCREEN_HEIGHT };
+
+        _ = c.SDL_RenderFillRect(self.renderer, &top_rect);
+        _ = c.SDL_RenderFillRect(self.renderer, &bottom_rect);
+        _ = c.SDL_RenderFillRect(self.renderer, &left_rect);
+        _ = c.SDL_RenderFillRect(self.renderer, &right_rect);
+    }
+
+    fn drawScreenBorder(self: *Self) void {
         const current_time_ms = @as(f32, @floatFromInt(c.SDL_GetTicks()));
         const current_time_sec = current_time_ms / 1000.0;
 
-        var border_color: ?Color = null;
-        var border_width: f32 = 0;
-
-        // Paused state takes highest priority (yellow)
+        // Draw paused border (yellow) - outer layer
         if (self.isPaused) {
             const pulse = (math.sin(current_time_sec * BORDER_PULSE_PAUSED) + 1.0) * 0.5;
-            border_width = 6.0 + pulse * 4.0;
+            const border_width = 6.0 + pulse * 4.0;
 
             const hue_cycle = (math.sin(current_time_sec * COLOR_CYCLE_FREQ) + 1.0) * 0.5;
             const intensity = 0.8 + pulse * 0.2;
-            border_color = interpolateColor(GOLD_YELLOW_COLORS, hue_cycle, intensity);
-        }
-        // Player dead state (red)
-        else if (self.playerDead) {
-            const pulse = (math.sin(current_time_sec * BORDER_PULSE_DEAD) + 1.0) * 0.5;
-            border_width = 9.0 + pulse * 5.0;
-
-            const hue_cycle = (math.sin(current_time_sec * COLOR_CYCLE_FREQ) + 1.0) * 0.5;
-            const intensity = 0.6 + pulse * 0.4;
-            border_color = interpolateColor(RED_COLORS, hue_cycle, intensity);
+            const border_color = interpolateColor(GOLD_YELLOW_COLORS, hue_cycle, intensity);
+            
+            self.drawBorder(border_color, border_width);
         }
 
-        // Draw border if a state is active
-        if (border_color) |color| {
-            self.setRenderColor(color);
+        // Draw dead border (red) - inner layer
+        if (self.playerDead) {
+            const border_width = if (self.isPaused) 4.0 else blk: { // Minimal width when paused
+                const pulse = (math.sin(current_time_sec * BORDER_PULSE_DEAD) + 1.0) * 0.5;
+                break :blk 9.0 + pulse * 5.0;
+            };
 
-            // Draw 4 rectangles efficiently (top, bottom, left, right)
-            const top_rect = c.SDL_FRect{ .x = 0, .y = 0, .w = SCREEN_WIDTH, .h = border_width };
-            const bottom_rect = c.SDL_FRect{ .x = 0, .y = SCREEN_HEIGHT - border_width, .w = SCREEN_WIDTH, .h = border_width };
-            const left_rect = c.SDL_FRect{ .x = 0, .y = 0, .w = border_width, .h = SCREEN_HEIGHT };
-            const right_rect = c.SDL_FRect{ .x = SCREEN_WIDTH - border_width, .y = 0, .w = border_width, .h = SCREEN_HEIGHT };
-
-            _ = c.SDL_RenderFillRect(self.renderer, &top_rect);
-            _ = c.SDL_RenderFillRect(self.renderer, &bottom_rect);
-            _ = c.SDL_RenderFillRect(self.renderer, &left_rect);
-            _ = c.SDL_RenderFillRect(self.renderer, &right_rect);
+            const border_color = if (self.isPaused) RED else blk: {
+                const pulse = (math.sin(current_time_sec * BORDER_PULSE_DEAD) + 1.0) * 0.5;
+                const hue_cycle = (math.sin(current_time_sec * COLOR_CYCLE_FREQ) + 1.0) * 0.5;
+                const intensity = 0.6 + pulse * 0.4;
+                break :blk interpolateColor(RED_COLORS, hue_cycle, intensity);
+            };
+            
+            self.drawBorder(border_color, border_width);
         }
     }
 
@@ -1437,7 +1440,7 @@ pub fn run(allocator: std.mem.Allocator, window: *c.SDL_Window, renderer: *c.SDL
                 c.SDL_EVENT_MOUSE_BUTTON_DOWN => {
                     switch (event.button.button) {
                         c.SDL_BUTTON_LEFT => {
-                            if (game.playerDead) {
+                            if (game.playerDead and !game.isPaused) {
                                 game.resurrect();
                             }
                             // Always start holding left mouse button and update coordinates

@@ -55,8 +55,8 @@ const MAX_PORTALS = 6;
 const MAX_LIFESTONES = 12;
 const NUM_SCENES = 7;
 
-// Colors (SDL RGBA format) - ported from YAR color palette
-const Color = struct { r: u8, g: u8, b: u8, a: u8 };
+// Import Color type from shared types
+const Color = types.Color;
 
 const BLUE = Color{ .r = 0, .g = 70, .b = 200, .a = 255 };
 const GREEN = Color{ .r = 0, .g = 140, .b = 0, .a = 255 };
@@ -67,7 +67,7 @@ const ORANGE = Color{ .r = 200, .g = 100, .b = 0, .a = 255 };
 const GRAY = Color{ .r = 100, .g = 100, .b = 100, .a = 255 };
 const WHITE = Color{ .r = 230, .g = 230, .b = 230, .a = 255 };
 const DARK = Color{ .r = 20, .g = 20, .b = 30, .a = 255 };
-const OCEAN_BLUE = Color{ .r = 40, .g = 60, .b = 80, .a = 255 };
+const OCEAN_BLUE = Color{ .r = 8, .g = 12, .b = 16, .a = 255 };
 const CYAN = Color{ .r = 0, .g = 200, .b = 200, .a = 255 };
 const CYAN_FADED = Color{ .r = 0, .g = 100, .b = 100, .a = 255 };
 
@@ -81,11 +81,15 @@ const ORANGE_BRIGHT = Color{ .r = 255, .g = 180, .b = 80, .a = 255 };
 const GRAY_BRIGHT = Color{ .r = 180, .g = 180, .b = 180, .a = 255 };
 const WHITE_BRIGHT = Color{ .r = 255, .g = 255, .b = 255, .a = 255 };
 
-// Game structures - ported from YAR
-const Vec2 = struct { x: f32, y: f32 };
+// Import shared types
+const types = @import("types.zig");
+const Vec2 = types.Vec2;
 
 // Border system for declarative stacked borders
 const MAX_BORDER_LAYERS = 8;
+
+// Import visual effects system
+const visuals = @import("visuals.zig");
 
 const BorderSpec = struct {
     base_width: f32,
@@ -93,25 +97,25 @@ const BorderSpec = struct {
     color_pair: ?BorderColorPair, // null = static color, value = animated color
     pulse_freq: ?f32, // null = no pulse, value = pulse frequency
     pulse_amplitude: f32, // how much the pulse changes the width
-    
+
     fn getCurrentWidth(self: *const BorderSpec) f32 {
         if (self.pulse_freq) |freq| {
-            const pulse = calculatePulse(freq);
+            const pulse = visuals.calculateAnimationPulse(freq);
             return self.base_width + pulse * self.pulse_amplitude;
         } else {
             return self.base_width;
         }
     }
-    
+
     fn getMaxWidth(self: *const BorderSpec) f32 {
         // Maximum possible width this border could reach
         return self.base_width + self.pulse_amplitude;
     }
-    
+
     fn getCurrentColor(self: *const BorderSpec) Color {
         if (self.color_pair) |colors| {
-            const pulse = calculatePulse(self.pulse_freq orelse COLOR_CYCLE_FREQ);
-            const hue_cycle = calculateColorCycle();
+            const pulse = visuals.calculateAnimationPulse(self.pulse_freq orelse 4.0);
+            const hue_cycle = visuals.calculateColorCycle();
             const intensity = 0.7 + pulse * 0.3;
             return interpolateColor(colors, hue_cycle, intensity);
         } else {
@@ -168,12 +172,12 @@ const BorderStack = struct {
     fn render(self: *const Self, game: *GameState) void {
         // Calculate cumulative offset based on current animated widths
         var current_offset: f32 = 0;
-        
+
         for (0..self.count) |i| {
             const spec = &self.specs[i];
             const current_width = spec.getCurrentWidth();
             const current_color = spec.getCurrentColor();
-            
+
             game.drawBorderWithOffset(current_color, current_width, current_offset);
             current_offset += current_width;
         }
@@ -354,7 +358,7 @@ const Viewport = struct {
     }
 };
 
-// Color interpolation utility
+// Color interpolation utility for border system
 fn interpolateColor(color_pair: BorderColorPair, t: f32, intensity: f32) Color {
     return Color{
         .r = @intFromFloat((color_pair.dark.r + (color_pair.bright.r - color_pair.dark.r) * t) * intensity),
@@ -364,18 +368,6 @@ fn interpolateColor(color_pair: BorderColorPair, t: f32, intensity: f32) Color {
     };
 }
 
-// Helper functions for border animations (global scope)
-fn calculatePulse(frequency: f32) f32 {
-    const current_time_ms = @as(f32, @floatFromInt(c.SDL_GetTicks()));
-    const current_time_sec = current_time_ms / 1000.0;
-    return (math.sin(current_time_sec * frequency) + 1.0) * 0.5;
-}
-
-fn calculateColorCycle() f32 {
-    const current_time_ms = @as(f32, @floatFromInt(c.SDL_GetTicks()));
-    const current_time_sec = current_time_ms / 1000.0;
-    return (math.sin(current_time_sec * COLOR_CYCLE_FREQ) + 1.0) * 0.5;
-}
 
 const GameState = struct {
     player: GameObject,
@@ -412,6 +404,13 @@ const GameState = struct {
     // Pre-allocated drawing buffers for performance
     circle_points: [200]c.SDL_FPoint, // Max points for largest circle
     rect_points: [4]c.SDL_FPoint, // Rectangle corners
+
+    // Iris wipe effect for resurrection
+    iris_wipe_active: bool,
+    iris_wipe_start_time: u64,
+
+    // Visual effects system for entity highlighting
+    visual_system: visuals.VisualSystem,
 
     const Self = @This();
 
@@ -475,6 +474,9 @@ const GameState = struct {
             },
             .circle_points = undefined,
             .rect_points = undefined,
+            .iris_wipe_active = false,
+            .iris_wipe_start_time = 0,
+            .visual_system = visuals.VisualSystem.init(),
         };
 
         // Initialize bullets
@@ -532,7 +534,35 @@ const GameState = struct {
         // Initialize viewport
         game.viewport.update(window);
 
+        // Initialize visual effects for starting scene and add reduced spawn effect (game start)
+        game.refreshSceneVisuals();
+        game.addPlayerTransitionEffect();
+        
         return game;
+    }
+    
+    fn refreshSceneVisuals(self: *Self) void {
+        // Clear existing visual effects
+        self.visual_system.clear();
+        
+        // Add permanent portal ambient effects
+        const current_scene = &self.scenes[self.currentScene];
+        self.visual_system.addPortalAmbientEffects(&current_scene.portals, MAX_PORTALS);
+        
+        // Add permanent lifestone effects
+        self.visual_system.addLifestoneEffects(&current_scene.lifestones, MAX_LIFESTONES);
+    }
+    
+    fn addPlayerSpawnEffect(self: *Self) void {
+        // Unified player spawn effect for all entry points (dramatic ripple burst at drop site)
+        const playerRadius = self.gameData.player_start.radius * self.scenes[self.currentScene].unit_scale;
+        self.visual_system.addEffect(self.player.position, playerRadius * 3.0, visuals.VisualEffectType.player_spawn, 3.0); // 3 second total effect
+    }
+    
+    fn addPlayerTransitionEffect(self: *Self) void {
+        // Subtle transition effect for scene changes and game start (bigger, slower rings)
+        const playerRadius = self.gameData.player_start.radius * self.scenes[self.currentScene].unit_scale;
+        self.visual_system.addEffect(self.player.position, playerRadius * 2.5, visuals.VisualEffectType.player_transition, 2.7); // 2.7 second total effect (0.3 delay + 2.4 lifetime)
     }
 
     fn createEnemyFromData(dataEnemy: ?DataEnemy, unitScale: f32) GameObject {
@@ -828,7 +858,7 @@ const GameState = struct {
     }
 
     // Transform world coordinates to screen coordinates using camera
-    fn worldToScreen(self: *Self, worldPos: Vec2) Vec2 {
+    pub fn worldToScreen(self: *Self, worldPos: Vec2) Vec2 {
         const currentScene = &self.scenes[self.currentScene];
 
         if (currentScene.camera_mode == .fixed) {
@@ -881,9 +911,17 @@ const GameState = struct {
         self.isPaused = false;
         self.aggroTarget = null; // Reset aggro target
         self.friendlyTarget = null; // Reset friendly target
+        
+        // Refresh visual effects for current scene and add reduced spawn effect (restart)
+        self.refreshSceneVisuals();
+        self.addPlayerTransitionEffect();
     }
 
     pub fn resurrect(self: *Self) void {
+        // Start iris wipe effect (back in border system for simplicity)
+        self.iris_wipe_active = true;
+        self.iris_wipe_start_time = c.SDL_GetPerformanceCounter();
+
         // Find nearest attuned lifestone
         if (self.findNearestAttunedLifestone()) |nearestLifestone| {
             // Teleport to nearest attuned lifestone
@@ -906,6 +944,10 @@ const GameState = struct {
         self.playerDead = false;
         self.isPaused = false;
         // Don't reset aggroTarget/friendlyTarget - let enemies continue their current behavior
+
+        // Refresh visual effects for current scene and add player spawn effect
+        self.refreshSceneVisuals();
+        self.addPlayerSpawnEffect();
 
         // Clear any active bullets
         for (0..MAX_BULLETS) |i| {
@@ -1099,6 +1141,8 @@ const GameState = struct {
                 if (distanceSq < radiusSum * radiusSum) {
                     // Attune to this lifestone
                     lifestones[i].attuned = true;
+                    // Refresh visual effects to update lifestone appearance
+                    self.refreshSceneVisuals();
                 }
             }
         }
@@ -1157,6 +1201,11 @@ const GameState = struct {
                     self.updateCamera();
                     // Restore enemies in the destination scene to their original positions
                     self.restoreEnemiesInScene(destinationScene);
+                    
+                    // Refresh visual effects for new scene and add reduced spawn effect (portal transition)
+                    self.refreshSceneVisuals();
+                    self.addPlayerTransitionEffect();
+                    
                     return; // Exit early to avoid processing more collisions
                 }
             }
@@ -1213,7 +1262,7 @@ const GameState = struct {
     }
 
     // SDL3-specific drawing methods - optimized circle drawing with batched lines
-    fn drawCircle(self: *Self, pos: Vec2, radius: f32, color: Color) void {
+    pub fn drawCircle(self: *Self, pos: Vec2, radius: f32, color: Color) void {
         self.setRenderColor(color);
 
         const center_x = pos.x;
@@ -1285,6 +1334,9 @@ const GameState = struct {
 
         // Draw state-based screen border
         self.drawScreenBorder();
+
+        // Draw visual effects (includes screen-wide effects like iris wipe)
+        self.visual_system.render(self);
 
         // Reset viewport to full window before presenting
         _ = c.SDL_SetRenderViewport(self.renderer, null);
@@ -1448,7 +1500,7 @@ const GameState = struct {
         self.drawBorderWithOffset(color, width, 0.0);
     }
 
-    fn drawBorderWithOffset(self: *Self, color: Color, width: f32, offset: f32) void {
+    pub fn drawBorderWithOffset(self: *Self, color: Color, width: f32, offset: f32) void {
         self.setRenderColor(color);
 
         // Draw border INSIDE the remaining space after accounting for outer borders
@@ -1474,7 +1526,39 @@ const GameState = struct {
     fn drawScreenBorder(self: *Self) void {
         var border_stack = BorderStack.init();
 
-        // Declaratively build border layers from outermost to innermost
+        // Iris wipe effect (highest priority - renders over everything)
+        if (self.iris_wipe_active) {
+            const current_time = c.SDL_GetPerformanceCounter();
+            const frequency = c.SDL_GetPerformanceFrequency();
+            const elapsed_sec = @as(f32, @floatFromInt(current_time - self.iris_wipe_start_time)) / @as(f32, @floatFromInt(frequency));
+            const wipe_duration = 1.0; // 1 second for full iris wipe
+
+            if (elapsed_sec < wipe_duration) {
+                const progress = elapsed_sec / wipe_duration; // 0.0 to 1.0
+                const shrink_factor = 1.0 - progress; // 1.0 to 0.0 (shrinking)
+
+                // Create rainbow wipe bands using existing game colors
+                const wipe_colors = [_]Color{
+                    BLUE_BRIGHT, GREEN_BRIGHT, YELLOW_BRIGHT, 
+                    ORANGE_BRIGHT, PURPLE_BRIGHT, CYAN,
+                };
+
+                for (0..wipe_colors.len) |i| {
+                    const wipe_color = wipe_colors[i];
+                    const max_width = 12.0; // Maximum width per band
+                    const current_width = max_width * shrink_factor;
+
+                    if (current_width > 0.5) { // Only render if visible
+                        border_stack.pushStatic(current_width, wipe_color);
+                    }
+                }
+            } else {
+                // End iris wipe
+                self.iris_wipe_active = false;
+            }
+        }
+
+        // Game state borders (lower priority)
         if (self.isPaused) {
             // Animated paused border: base 6px + 4px pulse amplitude
             border_stack.pushAnimated(6.0, GOLD_YELLOW_COLORS, BORDER_PULSE_PAUSED, 4.0);
@@ -1583,10 +1667,11 @@ pub fn run(allocator: std.mem.Allocator, window: *c.SDL_Window, renderer: *c.SDL
         // Update game state
         game.handleInput();
 
-        // Always update camera, bullets, and enemies
+        // Always update camera, bullets, enemies, and visual effects
         game.updateCamera();
         game.updateBullets(deltaTimeSec);
         game.updateEnemies(deltaTimeSec);
+        game.visual_system.update();
 
         // Only update player when alive
         if (!game.playerDead) {

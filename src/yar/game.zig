@@ -772,8 +772,10 @@ const GameState = struct {
             // Game over - still draw the game world but with overlay
             const currentScene = &self.scenes[self.currentScene];
             const playerRadius = self.gameData.player_start.radius * currentScene.player_scale;
-            raylib.drawCircleV(self.player.position, playerRadius, self.player.color);
-            raylib.drawCircleLinesV(self.player.position, playerRadius, BLUE_BRIGHT);
+            // Draw player as smaller gray circle when dead, like enemies
+            const deadPlayerRadius = playerRadius * 0.7;
+            raylib.drawCircleV(self.player.position, deadPlayerRadius, GRAY);
+            raylib.drawCircleLinesV(self.player.position, deadPlayerRadius, GRAY_BRIGHT);
 
             // Draw bullets
             for (0..MAX_BULLETS) |i| {

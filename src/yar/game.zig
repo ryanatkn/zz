@@ -1,10 +1,38 @@
 const std = @import("std");
-const raylib = @import("raylib.zig");
 const math = std.math;
 
-// Fixed 1080p resolution
+// Direct raylib module imports
+const rl_types = @import("raylib_types.zig");
+const rl_core = @import("raylib_core.zig");
+const rl_shapes = @import("raylib_shapes.zig");
+const rl_textures = @import("raylib_textures.zig");
+const rl_text = @import("raylib_text.zig");
+
+// Comptime constants for performance
+const DIAGONAL_FACTOR = @sqrt(0.5); // ~0.707
 const SCREEN_WIDTH: f32 = 1920;
 const SCREEN_HEIGHT: f32 = 1080;
+
+// Input constants
+const KEY_SPACE = @intFromEnum(rl_types.KeyboardKey.KEY_SPACE);
+const KEY_LEFT_BRACKET = @intFromEnum(rl_types.KeyboardKey.KEY_LEFT_BRACKET);
+const KEY_RIGHT_BRACKET = @intFromEnum(rl_types.KeyboardKey.KEY_RIGHT_BRACKET);
+const KEY_W = @intFromEnum(rl_types.KeyboardKey.KEY_W);
+const KEY_S = @intFromEnum(rl_types.KeyboardKey.KEY_S);
+const KEY_A = @intFromEnum(rl_types.KeyboardKey.KEY_A);
+const KEY_D = @intFromEnum(rl_types.KeyboardKey.KEY_D);
+const KEY_UP = @intFromEnum(rl_types.KeyboardKey.KEY_UP);
+const KEY_DOWN = @intFromEnum(rl_types.KeyboardKey.KEY_DOWN);
+const KEY_LEFT = @intFromEnum(rl_types.KeyboardKey.KEY_LEFT);
+const KEY_RIGHT = @intFromEnum(rl_types.KeyboardKey.KEY_RIGHT);
+const KEY_R = @intFromEnum(rl_types.KeyboardKey.KEY_R);
+const KEY_T = @intFromEnum(rl_types.KeyboardKey.KEY_T);
+const KEY_Y = @intFromEnum(rl_types.KeyboardKey.KEY_Y);
+const KEY_ESCAPE = @intFromEnum(rl_types.KeyboardKey.KEY_ESCAPE);
+const MOUSE_LEFT = @intFromEnum(rl_types.MouseButton.MOUSE_BUTTON_LEFT);
+const MOUSE_RIGHT = @intFromEnum(rl_types.MouseButton.MOUSE_BUTTON_RIGHT);
+
+// Game constants
 const PLAYER_SPEED = 600.0;
 const BULLET_SPEED = 400.0;
 const ENEMY_SPEED = 100.0;
@@ -16,25 +44,25 @@ const NUM_SCENES = 7; // Overworld + 6 dungeons
 
 // Vibrant color palette
 // Darker main colors
-const BLUE = raylib.Color{ .r = 0, .g = 70, .b = 200, .a = 255 };
-const GREEN = raylib.Color{ .r = 0, .g = 140, .b = 0, .a = 255 };
-const PURPLE = raylib.Color{ .r = 120, .g = 30, .b = 160, .a = 255 };
-const RED = raylib.Color{ .r = 200, .g = 30, .b = 30, .a = 255 };
-const YELLOW = raylib.Color{ .r = 220, .g = 160, .b = 0, .a = 255 };
-const ORANGE = raylib.Color{ .r = 200, .g = 100, .b = 0, .a = 255 };
-const GRAY = raylib.Color{ .r = 100, .g = 100, .b = 100, .a = 255 };
-const WHITE = raylib.Color{ .r = 230, .g = 230, .b = 230, .a = 255 };
-const DARK = raylib.Color{ .r = 20, .g = 20, .b = 30, .a = 255 };
+const BLUE = rl_types.Color{ .r = 0, .g = 70, .b = 200, .a = 255 };
+const GREEN = rl_types.Color{ .r = 0, .g = 140, .b = 0, .a = 255 };
+const PURPLE = rl_types.Color{ .r = 120, .g = 30, .b = 160, .a = 255 };
+const RED = rl_types.Color{ .r = 200, .g = 30, .b = 30, .a = 255 };
+const YELLOW = rl_types.Color{ .r = 220, .g = 160, .b = 0, .a = 255 };
+const ORANGE = rl_types.Color{ .r = 200, .g = 100, .b = 0, .a = 255 };
+const GRAY = rl_types.Color{ .r = 100, .g = 100, .b = 100, .a = 255 };
+const WHITE = rl_types.Color{ .r = 230, .g = 230, .b = 230, .a = 255 };
+const DARK = rl_types.Color{ .r = 20, .g = 20, .b = 30, .a = 255 };
 
 // Bright outline variants
-const BLUE_BRIGHT = raylib.Color{ .r = 100, .g = 150, .b = 255, .a = 255 };
-const GREEN_BRIGHT = raylib.Color{ .r = 80, .g = 220, .b = 80, .a = 255 };
-const PURPLE_BRIGHT = raylib.Color{ .r = 180, .g = 100, .b = 240, .a = 255 };
-const RED_BRIGHT = raylib.Color{ .r = 255, .g = 100, .b = 100, .a = 255 };
-const YELLOW_BRIGHT = raylib.Color{ .r = 255, .g = 220, .b = 80, .a = 255 };
-const ORANGE_BRIGHT = raylib.Color{ .r = 255, .g = 180, .b = 80, .a = 255 };
-const GRAY_BRIGHT = raylib.Color{ .r = 180, .g = 180, .b = 180, .a = 255 };
-const WHITE_BRIGHT = raylib.Color{ .r = 255, .g = 255, .b = 255, .a = 255 };
+const BLUE_BRIGHT = rl_types.Color{ .r = 100, .g = 150, .b = 255, .a = 255 };
+const GREEN_BRIGHT = rl_types.Color{ .r = 80, .g = 220, .b = 80, .a = 255 };
+const PURPLE_BRIGHT = rl_types.Color{ .r = 180, .g = 100, .b = 240, .a = 255 };
+const RED_BRIGHT = rl_types.Color{ .r = 255, .g = 100, .b = 100, .a = 255 };
+const YELLOW_BRIGHT = rl_types.Color{ .r = 255, .g = 220, .b = 80, .a = 255 };
+const ORANGE_BRIGHT = rl_types.Color{ .r = 255, .g = 180, .b = 80, .a = 255 };
+const GRAY_BRIGHT = rl_types.Color{ .r = 180, .g = 180, .b = 180, .a = 255 };
+const WHITE_BRIGHT = rl_types.Color{ .r = 255, .g = 255, .b = 255, .a = 255 };
 
 const EnemyState = enum {
     alive,
@@ -42,11 +70,11 @@ const EnemyState = enum {
 };
 
 const GameObject = struct {
-    position: raylib.Vector2,
-    velocity: raylib.Vector2,
+    position: rl_types.Vector2,
+    velocity: rl_types.Vector2,
     radius: f32,
     active: bool,
-    color: raylib.Color,
+    color: rl_types.Color,
     enemyState: EnemyState, // Only used for enemies
 };
 
@@ -62,7 +90,7 @@ const SceneShape = enum {
 };
 
 const Portal = struct {
-    position: raylib.Vector2,
+    position: rl_types.Vector2,
     radius: f32,
     active: bool,
     destinationScene: u8,
@@ -70,8 +98,8 @@ const Portal = struct {
 };
 
 const Obstacle = struct {
-    position: raylib.Vector2,
-    size: raylib.Vector2,
+    position: rl_types.Vector2,
+    size: rl_types.Vector2,
     type: ObstacleType,
     active: bool,
 };
@@ -83,7 +111,7 @@ const Scene = struct {
     portals: [MAX_PORTALS]Portal,
     shape: SceneShape,
     name: []const u8,
-    background_color: raylib.Color,
+    background_color: rl_types.Color,
     player_scale: f32,
     enemy_scale: f32,
 };
@@ -141,14 +169,14 @@ const GameState = struct {
     gameSpeed: f32,
     winTime: f32, // Track time since winning for animation
     // Aggro system - enemies target this position when not null
-    aggroTarget: ?raylib.Vector2,
+    aggroTarget: ?rl_types.Vector2,
     // Friendly target - for healing/support abilities (future use)
-    friendlyTarget: ?raylib.Vector2,
+    friendlyTarget: ?rl_types.Vector2,
     // Pre-allocated text buffers to avoid per-frame allocation
     sceneTextBuffer: [128]u8,
     fpsTextBuffer: [32]u8,
     // 2D camera for tracking player movement in non-overworld scenes
-    camera: raylib.Camera2D,
+    camera: rl_types.Camera2D,
 
     const Self = @This();
 
@@ -167,8 +195,8 @@ const GameState = struct {
 
         var game = Self{
             .player = GameObject{
-                .position = raylib.Vector2{ .x = gameData.player_start.position.x, .y = gameData.player_start.position.y },
-                .velocity = raylib.Vector2{ .x = 0, .y = 0 },
+                .position = rl_types.Vector2{ .x = gameData.player_start.position.x, .y = gameData.player_start.position.y },
+                .velocity = rl_types.Vector2{ .x = 0, .y = 0 },
                 .radius = gameData.player_start.radius,
                 .active = true,
                 .color = BLUE,
@@ -188,9 +216,9 @@ const GameState = struct {
             .friendlyTarget = null, // No friendly target initially
             .sceneTextBuffer = undefined,
             .fpsTextBuffer = undefined,
-            .camera = raylib.Camera2D{
-                .offset = raylib.Vector2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 }, // Center the camera
-                .target = raylib.Vector2{ .x = gameData.player_start.position.x, .y = gameData.player_start.position.y }, // Start tracking player
+            .camera = rl_types.Camera2D{
+                .offset = rl_types.Vector2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 }, // Center the camera
+                .target = rl_types.Vector2{ .x = gameData.player_start.position.x, .y = gameData.player_start.position.y }, // Start tracking player
                 .rotation = 0.0,
                 .zoom = 1.0,
             },
@@ -199,8 +227,8 @@ const GameState = struct {
         // Initialize bullets
         for (0..MAX_BULLETS) |i| {
             game.bullets[i] = GameObject{
-                .position = raylib.Vector2{ .x = 0, .y = 0 },
-                .velocity = raylib.Vector2{ .x = 0, .y = 0 },
+                .position = rl_types.Vector2{ .x = 0, .y = 0 },
+                .velocity = rl_types.Vector2{ .x = 0, .y = 0 },
                 .radius = 5.0,
                 .active = false,
                 .color = YELLOW,
@@ -229,7 +257,7 @@ const GameState = struct {
                 .portals = undefined,
                 .shape = shape,
                 .name = dataScene.name,
-                .background_color = raylib.Color{
+                .background_color = rl_types.Color{
                     .r = dataScene.background_color.r,
                     .g = dataScene.background_color.g,
                     .b = dataScene.background_color.b,
@@ -248,8 +276,8 @@ const GameState = struct {
     fn createEnemyFromData(dataEnemy: ?DataEnemy, enemyScale: f32) GameObject {
         if (dataEnemy) |enemy| {
             return GameObject{
-                .position = raylib.Vector2{ .x = enemy.position.x, .y = enemy.position.y },
-                .velocity = raylib.Vector2{ .x = 0, .y = 0 },
+                .position = rl_types.Vector2{ .x = enemy.position.x, .y = enemy.position.y },
+                .velocity = rl_types.Vector2{ .x = 0, .y = 0 },
                 .radius = enemy.radius * enemyScale,
                 .active = true,
                 .color = RED,
@@ -257,8 +285,8 @@ const GameState = struct {
             };
         } else {
             return GameObject{
-                .position = raylib.Vector2{ .x = 0, .y = 0 },
-                .velocity = raylib.Vector2{ .x = 0, .y = 0 },
+                .position = rl_types.Vector2{ .x = 0, .y = 0 },
+                .velocity = rl_types.Vector2{ .x = 0, .y = 0 },
                 .radius = 15.0,
                 .active = false,
                 .color = RED,
@@ -288,15 +316,15 @@ const GameState = struct {
                     .deadly;
 
                 self.scenes[sceneIndex].obstacles[i] = Obstacle{
-                    .position = raylib.Vector2{ .x = dataObstacle.position.x, .y = dataObstacle.position.y },
-                    .size = raylib.Vector2{ .x = dataObstacle.size.x, .y = dataObstacle.size.y },
+                    .position = rl_types.Vector2{ .x = dataObstacle.position.x, .y = dataObstacle.position.y },
+                    .size = rl_types.Vector2{ .x = dataObstacle.size.x, .y = dataObstacle.size.y },
                     .type = obstacleType,
                     .active = true,
                 };
             } else {
                 self.scenes[sceneIndex].obstacles[i] = Obstacle{
-                    .position = raylib.Vector2{ .x = 0, .y = 0 },
-                    .size = raylib.Vector2{ .x = 0, .y = 0 },
+                    .position = rl_types.Vector2{ .x = 0, .y = 0 },
+                    .size = rl_types.Vector2{ .x = 0, .y = 0 },
                     .type = .blocking,
                     .active = false,
                 };
@@ -315,7 +343,7 @@ const GameState = struct {
                     .square;
 
                 self.scenes[sceneIndex].portals[i] = Portal{
-                    .position = raylib.Vector2{ .x = dataPortal.position.x, .y = dataPortal.position.y },
+                    .position = rl_types.Vector2{ .x = dataPortal.position.x, .y = dataPortal.position.y },
                     .radius = dataPortal.radius,
                     .active = true,
                     .destinationScene = dataPortal.destination,
@@ -323,7 +351,7 @@ const GameState = struct {
                 };
             } else {
                 self.scenes[sceneIndex].portals[i] = Portal{
-                    .position = raylib.Vector2{ .x = 0, .y = 0 },
+                    .position = rl_types.Vector2{ .x = 0, .y = 0 },
                     .radius = 25.0,
                     .active = false,
                     .destinationScene = 0,
@@ -340,7 +368,7 @@ const GameState = struct {
 
     pub fn restart(self: *Self) void {
         // Reset player to starting position
-        self.player.position = raylib.Vector2{ .x = self.gameData.player_start.position.x, .y = self.gameData.player_start.position.y };
+        self.player.position = rl_types.Vector2{ .x = self.gameData.player_start.position.x, .y = self.gameData.player_start.position.y };
         self.player.active = true;
         self.currentScene = self.gameData.player_start.scene;
 
@@ -366,7 +394,7 @@ const GameState = struct {
 
     pub fn resurrect(self: *Self) void {
         // Resurrect player at original spawn location without resetting world state
-        self.player.position = raylib.Vector2{ .x = self.gameData.player_start.position.x, .y = self.gameData.player_start.position.y };
+        self.player.position = rl_types.Vector2{ .x = self.gameData.player_start.position.x, .y = self.gameData.player_start.position.y };
         self.player.active = true;
         self.gameOver = false;
         self.gameWon = false;
@@ -385,7 +413,7 @@ const GameState = struct {
         self.restoreEnemiesInScene(self.currentScene);
 
         // Reset player to original spawn location
-        self.player.position = raylib.Vector2{ .x = self.gameData.player_start.position.x, .y = self.gameData.player_start.position.y };
+        self.player.position = rl_types.Vector2{ .x = self.gameData.player_start.position.x, .y = self.gameData.player_start.position.y };
         self.player.active = true;
 
         // Clear bullets
@@ -402,7 +430,7 @@ const GameState = struct {
         self.friendlyTarget = null; // Reset friendly target
     }
 
-    fn checkCircleRectCollision(self: *Self, circlePos: raylib.Vector2, radius: f32, rectPos: raylib.Vector2, rectSize: raylib.Vector2) bool {
+    fn checkCircleRectCollision(self: *Self, circlePos: rl_types.Vector2, radius: f32, rectPos: rl_types.Vector2, rectSize: rl_types.Vector2) bool {
         _ = self;
         const closestX = math.clamp(circlePos.x, rectPos.x, rectPos.x + rectSize.x);
         const closestY = math.clamp(circlePos.y, rectPos.y, rectPos.y + rectSize.y);
@@ -413,7 +441,7 @@ const GameState = struct {
         return (dx * dx + dy * dy) <= (radius * radius);
     }
 
-    fn isPositionBlocked(self: *Self, pos: raylib.Vector2, radius: f32) bool {
+    fn isPositionBlocked(self: *Self, pos: rl_types.Vector2, radius: f32) bool {
         for (0..MAX_OBSTACLES) |i| {
             if (self.scenes[self.currentScene].obstacles[i].active and self.scenes[self.currentScene].obstacles[i].type == .blocking) {
                 if (self.checkCircleRectCollision(pos, radius, self.scenes[self.currentScene].obstacles[i].position, self.scenes[self.currentScene].obstacles[i].size)) {
@@ -431,22 +459,22 @@ const GameState = struct {
             self.camera.target = self.player.position;
         } else {
             // In overworld (scene 0), reset camera to center the screen
-            self.camera.target = raylib.Vector2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 };
-            self.camera.offset = raylib.Vector2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 };
+            self.camera.target = rl_types.Vector2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 };
+            self.camera.offset = rl_types.Vector2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 };
         }
     }
 
     pub fn handleInput(self: *Self) void {
         // Handle pause toggle
-        if (raylib.isKeyPressed(raylib.KEY_SPACE)) {
+        if (rl_core.IsKeyPressed(KEY_SPACE)) {
             self.isPaused = !self.isPaused;
         }
 
         // Handle speed control with chunky increments
-        if (raylib.isKeyPressed(raylib.KEY_LEFT_BRACKET)) {
+        if (rl_core.IsKeyPressed(KEY_LEFT_BRACKET)) {
             self.gameSpeed = @max(0.25, self.gameSpeed - 0.25); // Min 0.25x speed
         }
-        if (raylib.isKeyPressed(raylib.KEY_RIGHT_BRACKET)) {
+        if (rl_core.IsKeyPressed(KEY_RIGHT_BRACKET)) {
             self.gameSpeed = @min(4.0, self.gameSpeed + 0.25); // Max 4x speed
         }
     }
@@ -456,18 +484,22 @@ const GameState = struct {
 
         // Set aggro target to player position (enemies will chase this)
         self.aggroTarget = self.player.position;
-        var movement = raylib.Vector2{ .x = 0, .y = 0 };
+        var movement = rl_types.Vector2{ .x = 0, .y = 0 };
 
         // Mouse movement - move toward left click position
-        if (raylib.isMouseButtonDown(raylib.MOUSE_BUTTON_LEFT)) {
-            const mousePos = raylib.getMousePosition();
-            var direction = raylib.Vector2{
+        if (rl_core.IsMouseButtonDown(MOUSE_LEFT)) {
+            const mouseScreenPos = rl_core.GetMousePosition();
+            const mousePos = rl_core.GetScreenToWorld2D(mouseScreenPos, self.camera);
+            var direction = rl_types.Vector2{
                 .x = mousePos.x - self.player.position.x,
                 .y = mousePos.y - self.player.position.y,
             };
 
             const length = math.sqrt(direction.x * direction.x + direction.y * direction.y);
-            if (length > 10.0) { // Only move if mouse is far enough away
+            // Get player radius for current scene
+            const currentScene = &self.scenes[self.currentScene];
+            const playerRadius = self.gameData.player_start.radius * currentScene.player_scale;
+            if (length > playerRadius) { // Only move if mouse is outside player's radius
                 direction.x /= length;
                 direction.y /= length;
                 movement = direction;
@@ -475,15 +507,15 @@ const GameState = struct {
         }
 
         // Keyboard movement (fallback/alternative)
-        if (raylib.isKeyDown(raylib.KEY_W) or raylib.isKeyDown(raylib.KEY_UP)) movement.y -= 1;
-        if (raylib.isKeyDown(raylib.KEY_S) or raylib.isKeyDown(raylib.KEY_DOWN)) movement.y += 1;
-        if (raylib.isKeyDown(raylib.KEY_A) or raylib.isKeyDown(raylib.KEY_LEFT)) movement.x -= 1;
-        if (raylib.isKeyDown(raylib.KEY_D) or raylib.isKeyDown(raylib.KEY_RIGHT)) movement.x += 1;
+        if (rl_core.IsKeyDown(KEY_W) or rl_core.IsKeyDown(KEY_UP)) movement.y -= 1;
+        if (rl_core.IsKeyDown(KEY_S) or rl_core.IsKeyDown(KEY_DOWN)) movement.y += 1;
+        if (rl_core.IsKeyDown(KEY_A) or rl_core.IsKeyDown(KEY_LEFT)) movement.x -= 1;
+        if (rl_core.IsKeyDown(KEY_D) or rl_core.IsKeyDown(KEY_RIGHT)) movement.x += 1;
 
         // Normalize diagonal movement for keyboard
-        if (movement.x != 0 and movement.y != 0 and !raylib.isMouseButtonDown(raylib.MOUSE_BUTTON_LEFT)) {
-            movement.x *= 0.707;
-            movement.y *= 0.707;
+        if (movement.x != 0 and movement.y != 0 and !rl_core.IsMouseButtonDown(MOUSE_LEFT)) {
+            movement.x *= DIAGONAL_FACTOR;
+            movement.y *= DIAGONAL_FACTOR;
         }
 
         // Update position with collision checking (apply game speed)
@@ -496,13 +528,13 @@ const GameState = struct {
         const playerRadius = self.gameData.player_start.radius * currentScene.player_scale;
 
         // Check X movement
-        const testPosX = raylib.Vector2{ .x = newX, .y = self.player.position.y };
+        const testPosX = rl_types.Vector2{ .x = newX, .y = self.player.position.y };
         if (!self.isPositionBlocked(testPosX, playerRadius)) {
             self.player.position.x = newX;
         }
 
         // Check Y movement
-        const testPosY = raylib.Vector2{ .x = self.player.position.x, .y = newY };
+        const testPosY = rl_types.Vector2{ .x = self.player.position.x, .y = newY };
         if (!self.isPositionBlocked(testPosY, playerRadius)) {
             self.player.position.y = newY;
         }
@@ -519,8 +551,9 @@ const GameState = struct {
     }
 
     pub fn fireBullet(self: *Self) void {
-        const mousePos = raylib.getMousePosition();
-        var direction = raylib.Vector2{
+        const mouseScreenPos = rl_core.GetMousePosition();
+        const mousePos = rl_core.GetScreenToWorld2D(mouseScreenPos, self.camera);
+        var direction = rl_types.Vector2{
             .x = mousePos.x - self.player.position.x,
             .y = mousePos.y - self.player.position.y,
         };
@@ -572,7 +605,7 @@ const GameState = struct {
                     self.scenes[self.currentScene].originalEnemies[i].position;
 
                 // Move towards target
-                var direction = raylib.Vector2{
+                var direction = rl_types.Vector2{
                     .x = target.x - self.scenes[self.currentScene].enemies[i].position.x,
                     .y = target.y - self.scenes[self.currentScene].enemies[i].position.y,
                 };
@@ -595,13 +628,13 @@ const GameState = struct {
                 const newY = self.scenes[self.currentScene].enemies[i].position.y + direction.y * enemySpeed * effectiveDeltaTime;
 
                 // Check X movement
-                const testPosX = raylib.Vector2{ .x = newX, .y = self.scenes[self.currentScene].enemies[i].position.y };
+                const testPosX = rl_types.Vector2{ .x = newX, .y = self.scenes[self.currentScene].enemies[i].position.y };
                 if (!self.isPositionBlocked(testPosX, self.scenes[self.currentScene].enemies[i].radius)) {
                     self.scenes[self.currentScene].enemies[i].position.x = newX;
                 }
 
                 // Check Y movement
-                const testPosY = raylib.Vector2{ .x = self.scenes[self.currentScene].enemies[i].position.x, .y = newY };
+                const testPosY = rl_types.Vector2{ .x = self.scenes[self.currentScene].enemies[i].position.x, .y = newY };
                 if (!self.isPositionBlocked(testPosY, self.scenes[self.currentScene].enemies[i].radius)) {
                     self.scenes[self.currentScene].enemies[i].position.y = newY;
                 }
@@ -656,7 +689,7 @@ const GameState = struct {
                     const destinationScene = currentScene.portals[i].destinationScene;
                     self.currentScene = destinationScene;
                     // Always place player at screen center
-                    self.player.position = raylib.Vector2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 };
+                    self.player.position = rl_types.Vector2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 };
                     // Update camera for new scene
                     self.updateCamera();
                     // Restore enemies in the destination scene to their original positions
@@ -710,31 +743,31 @@ const GameState = struct {
     }
 
     pub fn draw(self: *Self) !void {
-        raylib.beginDrawing();
-        defer raylib.endDrawing();
+        rl_core.BeginDrawing();
+        defer rl_core.EndDrawing();
 
         // Use scene-specific background color
         const currentSceneBg = if (self.currentScene < NUM_SCENES)
             self.scenes[self.currentScene].background_color
         else
-            raylib.BLACK;
-        raylib.clearBackground(currentSceneBg);
+            rl_types.BLACK;
+        rl_core.ClearBackground(currentSceneBg);
 
         // Begin camera mode for all game objects (player, enemies, bullets, obstacles, portals)
-        raylib.beginMode2D(self.camera);
+        rl_core.BeginMode2D(self.camera);
 
         if (!self.gameOver) {
             // Draw player with scene-based scaling
             const currentScene = &self.scenes[self.currentScene];
             const playerRadius = self.gameData.player_start.radius * currentScene.player_scale;
-            raylib.drawCircleV(self.player.position, playerRadius, self.player.color);
-            raylib.drawCircleLinesV(self.player.position, playerRadius, BLUE_BRIGHT);
+            rl_shapes.DrawCircleV(self.player.position, playerRadius, self.player.color);
+            rl_shapes.DrawCircleLinesV(self.player.position, playerRadius, BLUE_BRIGHT);
 
             // Draw bullets
             for (0..MAX_BULLETS) |i| {
                 if (self.bullets[i].active) {
-                    raylib.drawCircleV(self.bullets[i].position, self.bullets[i].radius, self.bullets[i].color);
-                    raylib.drawCircleLinesV(self.bullets[i].position, self.bullets[i].radius, YELLOW_BRIGHT);
+                    rl_shapes.DrawCircleV(self.bullets[i].position, self.bullets[i].radius, self.bullets[i].color);
+                    rl_shapes.DrawCircleLinesV(self.bullets[i].position, self.bullets[i].radius, YELLOW_BRIGHT);
                 }
             }
 
@@ -747,13 +780,13 @@ const GameState = struct {
                     switch (sceneData.enemies[i].enemyState) {
                         .alive => {
                             // Draw alive enemies normally
-                            raylib.drawCircleV(sceneData.enemies[i].position, sceneData.enemies[i].radius, sceneData.enemies[i].color);
-                            raylib.drawCircleLinesV(sceneData.enemies[i].position, sceneData.enemies[i].radius, RED_BRIGHT);
+                            rl_shapes.DrawCircleV(sceneData.enemies[i].position, sceneData.enemies[i].radius, sceneData.enemies[i].color);
+                            rl_shapes.DrawCircleLinesV(sceneData.enemies[i].position, sceneData.enemies[i].radius, RED_BRIGHT);
                         },
                         .dead => {
                             // Draw dead enemies as gray circles with outline (same size)
-                            raylib.drawCircleV(sceneData.enemies[i].position, sceneData.enemies[i].radius, GRAY);
-                            raylib.drawCircleLinesV(sceneData.enemies[i].position, sceneData.enemies[i].radius, GRAY_BRIGHT);
+                            rl_shapes.DrawCircleV(sceneData.enemies[i].position, sceneData.enemies[i].radius, GRAY);
+                            rl_shapes.DrawCircleLinesV(sceneData.enemies[i].position, sceneData.enemies[i].radius, GRAY_BRIGHT);
                         },
                     }
                 }
@@ -770,8 +803,9 @@ const GameState = struct {
                         .blocking => GREEN_BRIGHT,
                         .deadly => PURPLE_BRIGHT,
                     };
-                    raylib.drawRectangleV(sceneData.obstacles[i].position, sceneData.obstacles[i].size, color);
-                    raylib.drawRectangleLinesV(sceneData.obstacles[i].position, sceneData.obstacles[i].size, outlineColor);
+                    rl_shapes.DrawRectangleV(sceneData.obstacles[i].position, sceneData.obstacles[i].size, color);
+                    const obstacleRect = rl_types.Rectangle{ .x = sceneData.obstacles[i].position.x, .y = sceneData.obstacles[i].position.y, .width = sceneData.obstacles[i].size.x, .height = sceneData.obstacles[i].size.y };
+                    rl_shapes.DrawRectangleLinesEx(obstacleRect, 2.0, outlineColor);
                 }
             }
 
@@ -784,31 +818,32 @@ const GameState = struct {
                     // Draw portal with the shape of its destination scene
                     switch (sceneData.portals[i].shape) {
                         .circle => {
-                            raylib.drawCircleV(pos, radius, ORANGE);
-                            raylib.drawCircleLinesV(pos, radius, ORANGE_BRIGHT);
+                            rl_shapes.DrawCircleV(pos, radius, ORANGE);
+                            rl_shapes.DrawCircleLinesV(pos, radius, ORANGE_BRIGHT);
                         },
                         .triangle => {
                             // Draw triangle pointing up
-                            raylib.drawTriangle(raylib.Vector2{ .x = pos.x, .y = pos.y - radius }, raylib.Vector2{ .x = pos.x - radius * 0.866, .y = pos.y + radius * 0.5 }, raylib.Vector2{ .x = pos.x + radius * 0.866, .y = pos.y + radius * 0.5 }, ORANGE);
-                            raylib.drawTriangleLines(raylib.Vector2{ .x = pos.x, .y = pos.y - radius }, raylib.Vector2{ .x = pos.x - radius * 0.866, .y = pos.y + radius * 0.5 }, raylib.Vector2{ .x = pos.x + radius * 0.866, .y = pos.y + radius * 0.5 }, ORANGE_BRIGHT);
+                            rl_shapes.DrawTriangle(rl_types.Vector2{ .x = pos.x, .y = pos.y - radius }, rl_types.Vector2{ .x = pos.x - radius * 0.866, .y = pos.y + radius * 0.5 }, rl_types.Vector2{ .x = pos.x + radius * 0.866, .y = pos.y + radius * 0.5 }, ORANGE);
+                            rl_shapes.DrawTriangleLines(rl_types.Vector2{ .x = pos.x, .y = pos.y - radius }, rl_types.Vector2{ .x = pos.x - radius * 0.866, .y = pos.y + radius * 0.5 }, rl_types.Vector2{ .x = pos.x + radius * 0.866, .y = pos.y + radius * 0.5 }, ORANGE_BRIGHT);
                         },
                         .square => {
                             const size = radius * 1.4; // Make square similar area to circle
-                            const rectPos = raylib.Vector2{ .x = pos.x - size / 2, .y = pos.y - size / 2 };
-                            const rectSize = raylib.Vector2{ .x = size, .y = size };
-                            raylib.drawRectangleV(rectPos, rectSize, ORANGE);
-                            raylib.drawRectangleLinesV(rectPos, rectSize, ORANGE_BRIGHT);
+                            const rectPos = rl_types.Vector2{ .x = pos.x - size / 2, .y = pos.y - size / 2 };
+                            const rectSize = rl_types.Vector2{ .x = size, .y = size };
+                            rl_shapes.DrawRectangleV(rectPos, rectSize, ORANGE);
+                            const portalRect = rl_types.Rectangle{ .x = rectPos.x, .y = rectPos.y, .width = rectSize.x, .height = rectSize.y };
+                            rl_shapes.DrawRectangleLinesEx(portalRect, 2.0, ORANGE_BRIGHT);
                         },
                     }
                 }
             }
 
             // End camera mode before drawing UI elements
-            raylib.endMode2D();
+            rl_core.EndMode2D();
 
             // Draw UI with scene info (always in screen space)
-            raylib.drawText("Left Click: Move | Right Click: Shoot | Orange = Portal", 10, @intFromFloat(SCREEN_HEIGHT - 80), 16, GRAY);
-            raylib.drawText("WASD/Arrows: Move (Alt) | R: Resurrect | T: Reset Scene | Y: Reset Game | ESC: Quit", 10, @intFromFloat(SCREEN_HEIGHT - 60), 16, GRAY);
+            rl_text.DrawText("Left Click: Move | Right Click: Shoot | Orange = Portal", 10, @intFromFloat(SCREEN_HEIGHT - 80), 16, GRAY);
+            rl_text.DrawText("WASD/Arrows: Move (Alt) | R: Resurrect | T: Reset Scene | Y: Reset Game | ESC: Quit", 10, @intFromFloat(SCREEN_HEIGHT - 60), 16, GRAY);
 
             // Scene indicator (using pre-allocated buffer)
             const sceneName = if (self.currentScene < NUM_SCENES)
@@ -816,29 +851,29 @@ const GameState = struct {
             else
                 "Unknown";
             const sceneText = std.fmt.bufPrintZ(&self.sceneTextBuffer, "Scene {d}/{d}: {s}", .{ self.currentScene, NUM_SCENES - 1, sceneName }) catch "Scene";
-            raylib.drawText(sceneText, 10, @intFromFloat(SCREEN_HEIGHT - 40), 16, WHITE);
+            rl_text.DrawText(sceneText, 10, @intFromFloat(SCREEN_HEIGHT - 40), 16, WHITE);
 
             // FPS Counter (top right corner, using pre-allocated buffer)
-            const fps = raylib.getFPS();
+            const fps = rl_core.GetFPS();
             const fpsText = std.fmt.bufPrintZ(&self.fpsTextBuffer, "FPS: {d}", .{fps}) catch "FPS: --";
-            const fpsWidth = raylib.measureText(fpsText, 16);
-            raylib.drawText(fpsText, @as(i32, @intFromFloat(SCREEN_WIDTH)) - fpsWidth - 10, 10, 16, WHITE);
+            const fpsWidth = rl_text.MeasureText(fpsText, 16);
+            rl_text.DrawText(fpsText, @as(i32, @intFromFloat(SCREEN_WIDTH)) - fpsWidth - 10, 10, 16, WHITE);
 
             // Pause effect - yellow cycling border (takes priority over other states)
             if (self.isPaused) {
-                const time = raylib.getTime();
+                const time = rl_core.GetTime();
                 const pulse = (math.sin(time * 1.5) + 1.0) * 0.5; // 0.0 to 1.0, slower pulse
                 const borderWidth = @as(i32, @intFromFloat(2 + pulse * 4)); // 2 to 6 pixels
 
                 // Smooth cycle from orange (30°) to yellow (60°)
                 const hue = 30.0 + (math.sin(time * 0.8) + 1.0) * 0.5 * 30.0; // 30° to 60° smoothly
-                const borderColor = raylib.colorFromHSV(@floatCast(hue), 0.8, 1.0); // Slightly less saturated
+                const borderColor = rl_textures.ColorFromHSV(@floatCast(hue), 0.8, 1.0); // Slightly less saturated
 
                 // Draw thick border around entire screen
-                raylib.drawRectangle(0, 0, @as(i32, @intFromFloat(SCREEN_WIDTH)), borderWidth, borderColor); // Top
-                raylib.drawRectangle(0, @as(i32, @intFromFloat(SCREEN_HEIGHT)) - borderWidth, @as(i32, @intFromFloat(SCREEN_WIDTH)), borderWidth, borderColor); // Bottom
-                raylib.drawRectangle(0, 0, borderWidth, @as(i32, @intFromFloat(SCREEN_HEIGHT)), borderColor); // Left
-                raylib.drawRectangle(@as(i32, @intFromFloat(SCREEN_WIDTH)) - borderWidth, 0, borderWidth, @as(i32, @intFromFloat(SCREEN_HEIGHT)), borderColor); // Right
+                rl_shapes.DrawRectangle(0, 0, @as(i32, @intFromFloat(SCREEN_WIDTH)), borderWidth, borderColor); // Top
+                rl_shapes.DrawRectangle(0, @as(i32, @intFromFloat(SCREEN_HEIGHT)) - borderWidth, @as(i32, @intFromFloat(SCREEN_WIDTH)), borderWidth, borderColor); // Bottom
+                rl_shapes.DrawRectangle(0, 0, borderWidth, @as(i32, @intFromFloat(SCREEN_HEIGHT)), borderColor); // Left
+                rl_shapes.DrawRectangle(@as(i32, @intFromFloat(SCREEN_WIDTH)) - borderWidth, 0, borderWidth, @as(i32, @intFromFloat(SCREEN_HEIGHT)), borderColor); // Right
             }
             // Win state effect - different colored pulsing border
             else if (self.gameWon) {
@@ -847,27 +882,27 @@ const GameState = struct {
 
                 // Cycle between green and teal colors for win state (wider range)
                 const hue: f32 = 120.0 + (math.sin(self.winTime * 1.0) + 1.0) * 0.5 * 60.0; // 120° to 180° smoothly (green to teal)
-                const borderColor = raylib.colorFromHSV(@floatCast(hue), 0.9, 1.0);
+                const borderColor = rl_textures.ColorFromHSV(@floatCast(hue), 0.9, 1.0);
 
                 // Draw thick border around entire screen
-                raylib.drawRectangle(0, 0, @as(i32, @intFromFloat(SCREEN_WIDTH)), borderWidth, borderColor); // Top
-                raylib.drawRectangle(0, @as(i32, @intFromFloat(SCREEN_HEIGHT)) - borderWidth, @as(i32, @intFromFloat(SCREEN_WIDTH)), borderWidth, borderColor); // Bottom
-                raylib.drawRectangle(0, 0, borderWidth, @as(i32, @intFromFloat(SCREEN_HEIGHT)), borderColor); // Left
-                raylib.drawRectangle(@as(i32, @intFromFloat(SCREEN_WIDTH)) - borderWidth, 0, borderWidth, @as(i32, @intFromFloat(SCREEN_HEIGHT)), borderColor); // Right
+                rl_shapes.DrawRectangle(0, 0, @as(i32, @intFromFloat(SCREEN_WIDTH)), borderWidth, borderColor); // Top
+                rl_shapes.DrawRectangle(0, @as(i32, @intFromFloat(SCREEN_HEIGHT)) - borderWidth, @as(i32, @intFromFloat(SCREEN_WIDTH)), borderWidth, borderColor); // Bottom
+                rl_shapes.DrawRectangle(0, 0, borderWidth, @as(i32, @intFromFloat(SCREEN_HEIGHT)), borderColor); // Left
+                rl_shapes.DrawRectangle(@as(i32, @intFromFloat(SCREEN_WIDTH)) - borderWidth, 0, borderWidth, @as(i32, @intFromFloat(SCREEN_HEIGHT)), borderColor); // Right
             }
         } else {
             // Game over - still draw the game world first
             const currentScene = &self.scenes[self.currentScene];
             const playerRadius = self.gameData.player_start.radius * currentScene.player_scale;
             // Draw player as gray circle when dead, same size as alive
-            raylib.drawCircleV(self.player.position, playerRadius, GRAY);
-            raylib.drawCircleLinesV(self.player.position, playerRadius, GRAY_BRIGHT);
+            rl_shapes.DrawCircleV(self.player.position, playerRadius, GRAY);
+            rl_shapes.DrawCircleLinesV(self.player.position, playerRadius, GRAY_BRIGHT);
 
             // Draw bullets
             for (0..MAX_BULLETS) |i| {
                 if (self.bullets[i].active) {
-                    raylib.drawCircleV(self.bullets[i].position, self.bullets[i].radius, self.bullets[i].color);
-                    raylib.drawCircleLinesV(self.bullets[i].position, self.bullets[i].radius, YELLOW_BRIGHT);
+                    rl_shapes.DrawCircleV(self.bullets[i].position, self.bullets[i].radius, self.bullets[i].color);
+                    rl_shapes.DrawCircleLinesV(self.bullets[i].position, self.bullets[i].radius, YELLOW_BRIGHT);
                 }
             }
 
@@ -880,13 +915,13 @@ const GameState = struct {
                     switch (sceneData.enemies[i].enemyState) {
                         .alive => {
                             // Draw alive enemies normally
-                            raylib.drawCircleV(sceneData.enemies[i].position, sceneData.enemies[i].radius, sceneData.enemies[i].color);
-                            raylib.drawCircleLinesV(sceneData.enemies[i].position, sceneData.enemies[i].radius, RED_BRIGHT);
+                            rl_shapes.DrawCircleV(sceneData.enemies[i].position, sceneData.enemies[i].radius, sceneData.enemies[i].color);
+                            rl_shapes.DrawCircleLinesV(sceneData.enemies[i].position, sceneData.enemies[i].radius, RED_BRIGHT);
                         },
                         .dead => {
                             // Draw dead enemies as gray circles with outline (same size)
-                            raylib.drawCircleV(sceneData.enemies[i].position, sceneData.enemies[i].radius, GRAY);
-                            raylib.drawCircleLinesV(sceneData.enemies[i].position, sceneData.enemies[i].radius, GRAY_BRIGHT);
+                            rl_shapes.DrawCircleV(sceneData.enemies[i].position, sceneData.enemies[i].radius, GRAY);
+                            rl_shapes.DrawCircleLinesV(sceneData.enemies[i].position, sceneData.enemies[i].radius, GRAY_BRIGHT);
                         },
                     }
                 }
@@ -903,8 +938,9 @@ const GameState = struct {
                         .blocking => GREEN_BRIGHT,
                         .deadly => PURPLE_BRIGHT,
                     };
-                    raylib.drawRectangleV(sceneData.obstacles[i].position, sceneData.obstacles[i].size, color);
-                    raylib.drawRectangleLinesV(sceneData.obstacles[i].position, sceneData.obstacles[i].size, outlineColor);
+                    rl_shapes.DrawRectangleV(sceneData.obstacles[i].position, sceneData.obstacles[i].size, color);
+                    const obstacleRect = rl_types.Rectangle{ .x = sceneData.obstacles[i].position.x, .y = sceneData.obstacles[i].position.y, .width = sceneData.obstacles[i].size.x, .height = sceneData.obstacles[i].size.y };
+                    rl_shapes.DrawRectangleLinesEx(obstacleRect, 2.0, outlineColor);
                 }
             }
 
@@ -917,31 +953,32 @@ const GameState = struct {
                     // Draw portal with the shape of its destination scene
                     switch (sceneData.portals[i].shape) {
                         .circle => {
-                            raylib.drawCircleV(pos, radius, ORANGE);
-                            raylib.drawCircleLinesV(pos, radius, ORANGE_BRIGHT);
+                            rl_shapes.DrawCircleV(pos, radius, ORANGE);
+                            rl_shapes.DrawCircleLinesV(pos, radius, ORANGE_BRIGHT);
                         },
                         .triangle => {
                             // Draw triangle pointing up
-                            raylib.drawTriangle(raylib.Vector2{ .x = pos.x, .y = pos.y - radius }, raylib.Vector2{ .x = pos.x - radius * 0.866, .y = pos.y + radius * 0.5 }, raylib.Vector2{ .x = pos.x + radius * 0.866, .y = pos.y + radius * 0.5 }, ORANGE);
-                            raylib.drawTriangleLines(raylib.Vector2{ .x = pos.x, .y = pos.y - radius }, raylib.Vector2{ .x = pos.x - radius * 0.866, .y = pos.y + radius * 0.5 }, raylib.Vector2{ .x = pos.x + radius * 0.866, .y = pos.y + radius * 0.5 }, ORANGE_BRIGHT);
+                            rl_shapes.DrawTriangle(rl_types.Vector2{ .x = pos.x, .y = pos.y - radius }, rl_types.Vector2{ .x = pos.x - radius * 0.866, .y = pos.y + radius * 0.5 }, rl_types.Vector2{ .x = pos.x + radius * 0.866, .y = pos.y + radius * 0.5 }, ORANGE);
+                            rl_shapes.DrawTriangleLines(rl_types.Vector2{ .x = pos.x, .y = pos.y - radius }, rl_types.Vector2{ .x = pos.x - radius * 0.866, .y = pos.y + radius * 0.5 }, rl_types.Vector2{ .x = pos.x + radius * 0.866, .y = pos.y + radius * 0.5 }, ORANGE_BRIGHT);
                         },
                         .square => {
                             const size = radius * 1.4; // Make square similar area to circle
-                            const rectPos = raylib.Vector2{ .x = pos.x - size / 2, .y = pos.y - size / 2 };
-                            const rectSize = raylib.Vector2{ .x = size, .y = size };
-                            raylib.drawRectangleV(rectPos, rectSize, ORANGE);
-                            raylib.drawRectangleLinesV(rectPos, rectSize, ORANGE_BRIGHT);
+                            const rectPos = rl_types.Vector2{ .x = pos.x - size / 2, .y = pos.y - size / 2 };
+                            const rectSize = rl_types.Vector2{ .x = size, .y = size };
+                            rl_shapes.DrawRectangleV(rectPos, rectSize, ORANGE);
+                            const portalRect = rl_types.Rectangle{ .x = rectPos.x, .y = rectPos.y, .width = rectSize.x, .height = rectSize.y };
+                            rl_shapes.DrawRectangleLinesEx(portalRect, 2.0, ORANGE_BRIGHT);
                         },
                     }
                 }
             }
 
             // End camera mode before drawing UI in game over state
-            raylib.endMode2D();
+            rl_core.EndMode2D();
 
             // Draw UI with scene info (same as normal gameplay)
-            raylib.drawText("Left Click: Move | Right Click: Shoot | Orange = Portal", 10, @intFromFloat(SCREEN_HEIGHT - 80), 16, GRAY);
-            raylib.drawText("WASD/Arrows: Move (Alt) | R: Resurrect | T: Reset Scene | Y: Reset Game | ESC: Quit", 10, @intFromFloat(SCREEN_HEIGHT - 60), 16, GRAY);
+            rl_text.DrawText("Left Click: Move | Right Click: Shoot | Orange = Portal", 10, @intFromFloat(SCREEN_HEIGHT - 80), 16, GRAY);
+            rl_text.DrawText("WASD/Arrows: Move (Alt) | R: Resurrect | T: Reset Scene | Y: Reset Game | ESC: Quit", 10, @intFromFloat(SCREEN_HEIGHT - 60), 16, GRAY);
 
             // Scene indicator (using pre-allocated buffer)
             const sceneName = if (self.currentScene < NUM_SCENES)
@@ -949,28 +986,28 @@ const GameState = struct {
             else
                 "Unknown";
             const sceneText = std.fmt.bufPrintZ(&self.sceneTextBuffer, "Scene {d}/{d}: {s}", .{ self.currentScene, NUM_SCENES - 1, sceneName }) catch "Scene";
-            raylib.drawText(sceneText, 10, @intFromFloat(SCREEN_HEIGHT - 40), 16, WHITE);
+            rl_text.DrawText(sceneText, 10, @intFromFloat(SCREEN_HEIGHT - 40), 16, WHITE);
 
             // FPS Counter (top right corner, using pre-allocated buffer)
-            const fps = raylib.getFPS();
+            const fps = rl_core.GetFPS();
             const fpsText = std.fmt.bufPrintZ(&self.fpsTextBuffer, "FPS: {d}", .{fps}) catch "FPS: --";
-            const fpsWidth = raylib.measureText(fpsText, 16);
-            raylib.drawText(fpsText, @as(i32, @intFromFloat(SCREEN_WIDTH)) - fpsWidth - 10, 10, 16, WHITE);
+            const fpsWidth = rl_text.MeasureText(fpsText, 16);
+            rl_text.DrawText(fpsText, @as(i32, @intFromFloat(SCREEN_WIDTH)) - fpsWidth - 10, 10, 16, WHITE);
 
             // Game over effect - subtle red pulsing border
-            const time = raylib.getTime();
+            const time = rl_core.GetTime();
             const pulse = (math.sin(time * 1.2) + 1.0) * 0.5; // 0.0 to 1.0, slower pulse for game over
             const borderWidth = @as(i32, @intFromFloat(3 + pulse * 5)); // 3 to 8 pixels
 
             // Dark red pulsing border
             const intensity = 0.6 + pulse * 0.4; // 0.6 to 1.0
-            const borderColor = raylib.Color{ .r = @intFromFloat(200 * intensity), .g = @intFromFloat(30 * intensity), .b = @intFromFloat(30 * intensity), .a = 255 };
+            const borderColor = rl_types.Color{ .r = @intFromFloat(200 * intensity), .g = @intFromFloat(30 * intensity), .b = @intFromFloat(30 * intensity), .a = 255 };
 
             // Draw thick border around entire screen
-            raylib.drawRectangle(0, 0, @as(i32, @intFromFloat(SCREEN_WIDTH)), borderWidth, borderColor); // Top
-            raylib.drawRectangle(0, @as(i32, @intFromFloat(SCREEN_HEIGHT)) - borderWidth, @as(i32, @intFromFloat(SCREEN_WIDTH)), borderWidth, borderColor); // Bottom
-            raylib.drawRectangle(0, 0, borderWidth, @as(i32, @intFromFloat(SCREEN_HEIGHT)), borderColor); // Left
-            raylib.drawRectangle(@as(i32, @intFromFloat(SCREEN_WIDTH)) - borderWidth, 0, borderWidth, @as(i32, @intFromFloat(SCREEN_HEIGHT)), borderColor); // Right
+            rl_shapes.DrawRectangle(0, 0, @as(i32, @intFromFloat(SCREEN_WIDTH)), borderWidth, borderColor); // Top
+            rl_shapes.DrawRectangle(0, @as(i32, @intFromFloat(SCREEN_HEIGHT)) - borderWidth, @as(i32, @intFromFloat(SCREEN_WIDTH)), borderWidth, borderColor); // Bottom
+            rl_shapes.DrawRectangle(0, 0, borderWidth, @as(i32, @intFromFloat(SCREEN_HEIGHT)), borderColor); // Left
+            rl_shapes.DrawRectangle(@as(i32, @intFromFloat(SCREEN_WIDTH)) - borderWidth, 0, borderWidth, @as(i32, @intFromFloat(SCREEN_HEIGHT)), borderColor); // Right
         }
     }
 };
@@ -979,18 +1016,18 @@ const GameState = struct {
 pub fn run(allocator: std.mem.Allocator) !void {
     std.debug.print("Starting YAR - Yet Another RPG...\n", .{});
 
-    raylib.initWindow(@intFromFloat(SCREEN_WIDTH), @intFromFloat(SCREEN_HEIGHT), "YAR - Yet Another RPG");
-    defer raylib.closeWindow();
+    rl_core.InitWindow(@intFromFloat(SCREEN_WIDTH), @intFromFloat(SCREEN_HEIGHT), "YAR - Yet Another RPG");
+    defer rl_core.CloseWindow();
 
-    raylib.setTargetFPS(144);
+    rl_core.SetTargetFPS(144);
 
     var game = GameState.init(allocator) catch |err| {
         std.debug.print("Failed to initialize game: {}\n", .{err});
         return err;
     };
 
-    while (!raylib.windowShouldClose()) {
-        const deltaTime = raylib.getFrameTime();
+    while (!rl_core.WindowShouldClose()) {
+        const deltaTime = rl_core.GetFrameTime();
 
         // Handle input regardless of game state
         game.handleInput();
@@ -1000,7 +1037,7 @@ pub fn run(allocator: std.mem.Allocator) !void {
             game.updateCamera(); // Update camera after player movement
             game.updateWinState(deltaTime);
 
-            if (raylib.isMouseButtonPressed(raylib.MOUSE_BUTTON_RIGHT) and !game.isPaused) {
+            if (rl_core.IsMouseButtonPressed(MOUSE_RIGHT) and !game.isPaused) {
                 game.fireBullet();
             }
 
@@ -1012,7 +1049,7 @@ pub fn run(allocator: std.mem.Allocator) !void {
             // Update camera even when game is over
             game.updateCamera();
             // Allow mouse click resurrect on game over screens
-            if (raylib.isMouseButtonPressed(raylib.MOUSE_BUTTON_LEFT)) {
+            if (rl_core.IsMouseButtonPressed(MOUSE_LEFT)) {
                 game.resurrect();
             }
         }
@@ -1021,21 +1058,21 @@ pub fn run(allocator: std.mem.Allocator) !void {
         game.updateEnemies(deltaTime);
 
         // R key: always resurrect (revive player at spawn without resetting world)
-        if (raylib.isKeyPressed(raylib.KEY_R)) {
+        if (rl_core.IsKeyPressed(KEY_R)) {
             game.resurrect();
         }
 
         // T key: reset current scene (restore enemies in current scene only)
-        if (raylib.isKeyPressed(@intFromEnum(raylib.KeyboardKey.KEY_T))) {
+        if (rl_core.IsKeyPressed(KEY_T)) {
             game.resetScene();
         }
 
         // Y key: full restart (reset entire game state)
-        if (raylib.isKeyPressed(@intFromEnum(raylib.KeyboardKey.KEY_Y))) {
+        if (rl_core.IsKeyPressed(KEY_Y)) {
             game.restart();
         }
 
-        if (raylib.isKeyPressed(raylib.KEY_ESCAPE)) break;
+        if (rl_core.IsKeyPressed(KEY_ESCAPE)) break;
 
         try game.draw();
     }

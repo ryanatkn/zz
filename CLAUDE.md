@@ -2,6 +2,46 @@
 
 A Zig project building CLI utilities and a 2D action RPG with modular architecture. Features a tree visualization tool and YAR (Yet Another RPG), a vibrant top-down action game.
 
+## Coding Philosophy & Performance Goals
+
+### Core Principles
+
+- **Idiomatic Zig**: Leverage comptime, explicit memory management, zero-cost abstractions
+- **Frame Budget First**: Optimize for consistent 144+ FPS - every microsecond counts
+- **Memory for Speed**: Trade RAM for CPU cycles - precompute, cache, batch
+- **Predictable Performance**: No hot path allocations, compile-time over runtime
+- **Fail Fast**: Debug assertions, explicit error handling, no silent failures
+- **One Best Way**: Don't have two ways to do the same thing unless
+    there are meaningful differences for performance
+    or clear DX wins without downsides,
+    so for example don't re-export modules for convenience
+
+### Performance Guidelines
+
+- **Hot Path Priority**: Game loop, rendering, input processing get optimization focus
+- **Data-Oriented Design**: Cache-efficient layouts, minimize pointer chasing
+- **Batch Operations**: Group work to reduce overhead, improve cache locality
+- **Arena Allocation**: Frame-scoped arenas, minimize general allocator pressure
+- **Static Over Dynamic**: Compile-time sizes, avoid dispatch in critical sections
+- **Measure First**: Profile before optimizing, validate assumptions with benchmarks
+
+### Real-Time Constraints
+
+- **No Game Loop Allocations**: All memory from init/loading
+- **Bounded Operations**: Predictable worst-case performance
+- **Cache-Friendly Layouts**: Pack data, align for SIMD
+- **Minimal Indirection**: Direct access over pointer traversals
+- **Lock-Free**: Avoid synchronization primitives in hot paths
+
+### Zig-Specific Optimizations
+
+- **Comptime Everything**: Type generation, configuration, data processing
+- **Tagged Unions Over Vtables**: Enums with payloads instead of polymorphism
+- **Packed Structs**: Tight layouts for C interop and cache optimization
+- **Error Unions**: Avoid error paths in performance-critical code
+- **SIMD**: Vector types for parallel math
+- **Zero Runtime Cost**: `@bitCast`, `@intCast`, `@ptrCast` for type punning
+
 ## Environment & Dependencies
 
 ```bash

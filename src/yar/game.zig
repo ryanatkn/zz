@@ -637,7 +637,7 @@ const GameState = struct {
         else
             raylib.BLACK;
         raylib.clearBackground(currentSceneBg);
-        
+
         if (!self.gameOver) {
             // Draw player with scene-based scaling
             const currentScene = &self.scenes[self.currentScene];
@@ -736,35 +736,34 @@ const GameState = struct {
             const fpsWidth = raylib.measureText(fpsText, 16);
             raylib.drawText(fpsText, @as(i32, @intFromFloat(SCREEN_WIDTH)) - fpsWidth - 10, 10, 16, WHITE);
 
-            // Win state effect - different colored pulsing border 
-            if (self.gameWon) {
-                const pulse = (math.sin(self.winTime * 2.0) + 1.0) * 0.5; // 0.0 to 1.0, faster pulse for win
-                const borderWidth = @as(i32, @intFromFloat(3 + pulse * 6)); // 3 to 9 pixels, thicker for win
-                
-                // Cycle between gold and green colors for win state
-                const colorCycle = @mod(self.winTime * 120.0, 720.0); // Full cycle every 6 seconds
-                const hue: f32 = if (colorCycle < 360.0) 45.0 else 120.0; // Gold (45°) and Green (120°)
-                const borderColor = raylib.colorFromHSV(@floatCast(hue), 0.9, 1.0);
-                
-                // Draw thick border around entire screen
-                raylib.drawRectangle(0, 0, @as(i32, @intFromFloat(SCREEN_WIDTH)), borderWidth, borderColor); // Top
-                raylib.drawRectangle(0, @as(i32, @intFromFloat(SCREEN_HEIGHT)) - borderWidth, @as(i32, @intFromFloat(SCREEN_WIDTH)), borderWidth, borderColor); // Bottom  
-                raylib.drawRectangle(0, 0, borderWidth, @as(i32, @intFromFloat(SCREEN_HEIGHT)), borderColor); // Left
-                raylib.drawRectangle(@as(i32, @intFromFloat(SCREEN_WIDTH)) - borderWidth, 0, borderWidth, @as(i32, @intFromFloat(SCREEN_HEIGHT)), borderColor); // Right
-            }
-            // Pause effect - subtle colorful pulsing border (yellow to cyan range)
-            else if (self.isPaused) {
+            // Pause effect - yellow cycling border (takes priority over other states)
+            if (self.isPaused) {
                 const time = raylib.getTime();
                 const pulse = (math.sin(time * 1.5) + 1.0) * 0.5; // 0.0 to 1.0, slower pulse
                 const borderWidth = @as(i32, @intFromFloat(2 + pulse * 4)); // 2 to 6 pixels
-                
-                // Smooth cycle from yellow (60°) to cyan (180°) - avoiding purple/red
-                const hue = 60.0 + (math.sin(time * 0.8) + 1.0) * 0.5 * 120.0; // 60° to 180° smoothly
+
+                // Smooth cycle from orange (30°) to yellow (60°)
+                const hue = 30.0 + (math.sin(time * 0.8) + 1.0) * 0.5 * 30.0; // 30° to 60° smoothly
                 const borderColor = raylib.colorFromHSV(@floatCast(hue), 0.8, 1.0); // Slightly less saturated
-                
+
                 // Draw thick border around entire screen
                 raylib.drawRectangle(0, 0, @as(i32, @intFromFloat(SCREEN_WIDTH)), borderWidth, borderColor); // Top
-                raylib.drawRectangle(0, @as(i32, @intFromFloat(SCREEN_HEIGHT)) - borderWidth, @as(i32, @intFromFloat(SCREEN_WIDTH)), borderWidth, borderColor); // Bottom  
+                raylib.drawRectangle(0, @as(i32, @intFromFloat(SCREEN_HEIGHT)) - borderWidth, @as(i32, @intFromFloat(SCREEN_WIDTH)), borderWidth, borderColor); // Bottom
+                raylib.drawRectangle(0, 0, borderWidth, @as(i32, @intFromFloat(SCREEN_HEIGHT)), borderColor); // Left
+                raylib.drawRectangle(@as(i32, @intFromFloat(SCREEN_WIDTH)) - borderWidth, 0, borderWidth, @as(i32, @intFromFloat(SCREEN_HEIGHT)), borderColor); // Right
+            }
+            // Win state effect - different colored pulsing border
+            else if (self.gameWon) {
+                const pulse = (math.sin(self.winTime * 2.0) + 1.0) * 0.5; // 0.0 to 1.0, faster pulse for win
+                const borderWidth = @as(i32, @intFromFloat(3 + pulse * 6)); // 3 to 9 pixels, thicker for win
+
+                // Cycle between green and teal colors for win state (wider range)
+                const hue: f32 = 120.0 + (math.sin(self.winTime * 1.0) + 1.0) * 0.5 * 60.0; // 120° to 180° smoothly (green to teal)
+                const borderColor = raylib.colorFromHSV(@floatCast(hue), 0.9, 1.0);
+
+                // Draw thick border around entire screen
+                raylib.drawRectangle(0, 0, @as(i32, @intFromFloat(SCREEN_WIDTH)), borderWidth, borderColor); // Top
+                raylib.drawRectangle(0, @as(i32, @intFromFloat(SCREEN_HEIGHT)) - borderWidth, @as(i32, @intFromFloat(SCREEN_WIDTH)), borderWidth, borderColor); // Bottom
                 raylib.drawRectangle(0, 0, borderWidth, @as(i32, @intFromFloat(SCREEN_HEIGHT)), borderColor); // Left
                 raylib.drawRectangle(@as(i32, @intFromFloat(SCREEN_WIDTH)) - borderWidth, 0, borderWidth, @as(i32, @intFromFloat(SCREEN_HEIGHT)), borderColor); // Right
             }
@@ -871,14 +870,14 @@ const GameState = struct {
             const time = raylib.getTime();
             const pulse = (math.sin(time * 1.2) + 1.0) * 0.5; // 0.0 to 1.0, slower pulse for game over
             const borderWidth = @as(i32, @intFromFloat(3 + pulse * 5)); // 3 to 8 pixels
-            
+
             // Dark red pulsing border
             const intensity = 0.6 + pulse * 0.4; // 0.6 to 1.0
             const borderColor = raylib.Color{ .r = @intFromFloat(200 * intensity), .g = @intFromFloat(30 * intensity), .b = @intFromFloat(30 * intensity), .a = 255 };
-            
+
             // Draw thick border around entire screen
             raylib.drawRectangle(0, 0, @as(i32, @intFromFloat(SCREEN_WIDTH)), borderWidth, borderColor); // Top
-            raylib.drawRectangle(0, @as(i32, @intFromFloat(SCREEN_HEIGHT)) - borderWidth, @as(i32, @intFromFloat(SCREEN_WIDTH)), borderWidth, borderColor); // Bottom  
+            raylib.drawRectangle(0, @as(i32, @intFromFloat(SCREEN_HEIGHT)) - borderWidth, @as(i32, @intFromFloat(SCREEN_WIDTH)), borderWidth, borderColor); // Bottom
             raylib.drawRectangle(0, 0, borderWidth, @as(i32, @intFromFloat(SCREEN_HEIGHT)), borderColor); // Left
             raylib.drawRectangle(@as(i32, @intFromFloat(SCREEN_WIDTH)) - borderWidth, 0, borderWidth, @as(i32, @intFromFloat(SCREEN_HEIGHT)), borderColor); // Right
         }

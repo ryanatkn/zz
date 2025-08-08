@@ -2,7 +2,7 @@ const std = @import("std");
 const Command = @import("command.zig").Command;
 const Help = @import("help.zig");
 const tree = @import("../tree/main.zig");
-const yar = @import("../yar/game.zig");
+const hex = @import("../hex/main.zig");
 
 pub const Runner = struct {
     allocator: std.mem.Allocator,
@@ -25,8 +25,8 @@ pub const Runner = struct {
                 const tree_args = args[1..];
                 try tree.run(self.allocator, tree_args);
             },
-            .yar => {
-                try yar.run(self.allocator);
+            .hex => {
+                try hex.run(self.allocator);
             },
         }
     }

@@ -33,9 +33,15 @@ pub fn build(b: *std.Build) void {
         .root_module = exe_mod,
     });
 
-    // Add raylib static library and system dependencies for YAR game
-    exe.addIncludePath(b.path("src/raylib/include"));
-    exe.addObjectFile(b.path("src/raylib/lib/libraylib.a"));
+    // Add SDL3 dependency for Hex game
+    const sdl_dep = b.dependency("sdl", .{
+        .target = target,
+        .optimize = optimize,
+    });
+    const sdl_lib = sdl_dep.artifact("SDL3");
+    exe.linkLibrary(sdl_lib);
+
+    // System libraries needed by both games
     exe.linkSystemLibrary("GL");
     exe.linkSystemLibrary("m");
     exe.linkSystemLibrary("pthread");

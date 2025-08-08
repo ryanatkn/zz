@@ -1,6 +1,6 @@
 # zz - Experimental Software Tools
 
-A Zig project featuring CLI utilities and a 2D action RPG with clean modular architecture.
+A Zig project featuring CLI utilities and games with clean modular architecture.
 
 ## Quick Start
 
@@ -11,7 +11,7 @@ zig version  # Requires 0.14.1+
 # Build and run
 ./zz help    # Show available commands
 ./zz tree    # Display directory structure  
-./zz yar     # Play the 2D shooter game
+./zz hex     # Play the 2D action RPG
 ```
 
 ## Features
@@ -21,20 +21,22 @@ zig version  # Requires 0.14.1+
 - Smart filtering (hides build artifacts, cache directories)
 - Clean tree-style output formatting
 
-### YAR Game
-- **YAR** (Yet Another RPG) - Vibrant 2D top-down action RPG
+### Hex Game
+- **Hex** - Vibrant 2D top-down action RPG built with SDL3
 - **World**: Interconnected locations with portal system
-- **Controls**: Mouse (move + shoot) or WASD + mouse
+- **Graphics**: SDL3 rendering with custom circle drawing and primitives
+- **Controls**: Mouse (move/shoot) + WASD, Space (pause), R/T/Y (resets)
 - **Gameplay**: Green obstacles (blocking), purple hazards (deadly), orange portals (transitions)
 - **Enemy AI**: Intelligent aggro-based targeting with pathfinding
 - **Reset System**: Multiple reset levels (resurrect, scene reset, full restart)
-- **Performance**: 144 FPS target with smooth gameplay
+- **Data**: Uses `game_data.zon` configuration for scenes and game objects
+- **Performance**: Optimized for SDL3's rendering pipeline
 
 ## Commands
 
 ```bash
 ./zz tree [directory] [depth]    # Show directory tree
-./zz yar                         # Launch 2D shooter
+./zz hex                         # Launch 2D action RPG
 ./zz help                        # Display help
 ```
 
@@ -47,16 +49,18 @@ zig version  # Requires 0.14.1+
 # Show src directory with default depth  
 ./zz tree src/
 
-# Play the game
+# Play the YAR action RPG
 ./zz yar
+
+# Play the Hex puzzle game
+./zz hex
 ```
 
 ## Architecture
 
 - **`src/cli/`** - Command parsing and execution
 - **`src/tree/`** - Directory traversal and visualization  
-- **`src/yar/`** - Consolidated 2D game implementation
-- **`src/raylib/`** - Graphics library (bundled)
+- **`src/hex/`** - Simple SDL3-based puzzle game
 
 ### Design Principles
 - Single binary with no external runtime dependencies

@@ -12,7 +12,7 @@ const MAX_BULLETS = 20;
 const MAX_ENEMIES = 10;
 const MAX_OBSTACLES = 15;
 const MAX_PORTALS = 6; // More portals needed for hexagon layout
-const NUM_SCENES = 7;  // Overworld + 6 dungeons
+const NUM_SCENES = 7; // Overworld + 6 dungeons
 
 // Vibrant color palette
 // Darker main colors
@@ -136,28 +136,19 @@ const GameState = struct {
     pub fn init(allocator: std.mem.Allocator) !Self {
         // Load game data from ZON file
         const gameDataFile = @embedFile("game_data.zon");
-        
+
         // Convert to null-terminated string for ZON parser
         const gameDataNullTerm = try allocator.dupeZ(u8, gameDataFile);
         defer allocator.free(gameDataNullTerm);
-        
-        const gameData = std.zon.parse.fromSlice(
-            GameData, 
-            allocator, 
-            gameDataNullTerm, 
-            null, 
-            .{}
-        ) catch |err| {
+
+        const gameData = std.zon.parse.fromSlice(GameData, allocator, gameDataNullTerm, null, .{}) catch |err| {
             std.debug.print("Failed to load game data: {}\n", .{err});
             return err;
         };
 
         var game = Self{
             .player = GameObject{
-                .position = raylib.Vector2{ 
-                    .x = gameData.player_start.position.x, 
-                    .y = gameData.player_start.position.y 
-                },
+                .position = raylib.Vector2{ .x = gameData.player_start.position.x, .y = gameData.player_start.position.y },
                 .velocity = raylib.Vector2{ .x = 0, .y = 0 },
                 .radius = gameData.player_start.radius,
                 .active = true,
@@ -186,13 +177,13 @@ const GameState = struct {
         // Initialize all scenes from data
         for (0..NUM_SCENES) |sceneIndex| {
             if (sceneIndex >= game.gameData.scenes.len) continue;
-            
+
             const dataScene = game.gameData.scenes[sceneIndex];
-            const shape: SceneShape = if (std.mem.eql(u8, dataScene.name, "Overworld")) 
-                .circle 
+            const shape: SceneShape = if (std.mem.eql(u8, dataScene.name, "Overworld"))
+                .circle
             else switch (sceneIndex % 3) {
                 1, 4 => .circle,
-                2, 5 => .triangle, 
+                2, 5 => .triangle,
                 0, 3, 6 => .square,
                 else => .circle,
             };
@@ -227,10 +218,7 @@ const GameState = struct {
             if (i < dataScene.enemies.len) {
                 const dataEnemy = dataScene.enemies[i];
                 self.scenes[sceneIndex].enemies[i] = GameObject{
-                    .position = raylib.Vector2{ 
-                        .x = dataEnemy.position.x, 
-                        .y = dataEnemy.position.y 
-                    },
+                    .position = raylib.Vector2{ .x = dataEnemy.position.x, .y = dataEnemy.position.y },
                     .velocity = raylib.Vector2{ .x = 0, .y = 0 },
                     .radius = dataEnemy.radius * dataScene.enemy_scale,
                     .active = true,
@@ -251,20 +239,14 @@ const GameState = struct {
         for (0..MAX_OBSTACLES) |i| {
             if (i < dataScene.obstacles.len) {
                 const dataObstacle = dataScene.obstacles[i];
-                const obstacleType: ObstacleType = if (std.mem.eql(u8, dataObstacle.type, "blocking")) 
-                    .blocking 
-                else 
+                const obstacleType: ObstacleType = if (std.mem.eql(u8, dataObstacle.type, "blocking"))
+                    .blocking
+                else
                     .deadly;
-                
+
                 self.scenes[sceneIndex].obstacles[i] = Obstacle{
-                    .position = raylib.Vector2{ 
-                        .x = dataObstacle.position.x, 
-                        .y = dataObstacle.position.y 
-                    },
-                    .size = raylib.Vector2{ 
-                        .x = dataObstacle.size.x, 
-                        .y = dataObstacle.size.y 
-                    },
+                    .position = raylib.Vector2{ .x = dataObstacle.position.x, .y = dataObstacle.position.y },
+                    .size = raylib.Vector2{ .x = dataObstacle.size.x, .y = dataObstacle.size.y },
                     .type = obstacleType,
                     .active = true,
                 };
@@ -282,18 +264,15 @@ const GameState = struct {
         for (0..MAX_PORTALS) |i| {
             if (i < dataScene.portals.len) {
                 const dataPortal = dataScene.portals[i];
-                const destinationShape: SceneShape = if (std.mem.eql(u8, dataPortal.shape, "circle")) 
-                    .circle 
-                else if (std.mem.eql(u8, dataPortal.shape, "triangle")) 
-                    .triangle 
-                else 
+                const destinationShape: SceneShape = if (std.mem.eql(u8, dataPortal.shape, "circle"))
+                    .circle
+                else if (std.mem.eql(u8, dataPortal.shape, "triangle"))
+                    .triangle
+                else
                     .square;
-                
+
                 self.scenes[sceneIndex].portals[i] = Portal{
-                    .position = raylib.Vector2{ 
-                        .x = dataPortal.position.x, 
-                        .y = dataPortal.position.y 
-                    },
+                    .position = raylib.Vector2{ .x = dataPortal.position.x, .y = dataPortal.position.y },
                     .radius = dataPortal.radius,
                     .active = true,
                     .destinationScene = dataPortal.destination,
@@ -313,10 +292,7 @@ const GameState = struct {
 
     pub fn restart(self: *Self) void {
         // Reset player to starting position
-        self.player.position = raylib.Vector2{ 
-            .x = self.gameData.player_start.position.x, 
-            .y = self.gameData.player_start.position.y 
-        };
+        self.player.position = raylib.Vector2{ .x = self.gameData.player_start.position.x, .y = self.gameData.player_start.position.y };
         self.player.active = true;
         self.currentScene = self.gameData.player_start.scene;
 
@@ -336,7 +312,33 @@ const GameState = struct {
         self.gameWon = false;
     }
 
+    fn moveOverworldPortalNearPlayer(self: *Self) void {
+        // Only do this when we're in a dungeon (not overworld)
+        if (self.currentScene == 0) return;
 
+        const currentScene = &self.scenes[self.currentScene];
+
+        // Find the portal that goes back to overworld (destination = 0)
+        for (0..MAX_PORTALS) |i| {
+            if (currentScene.portals[i].active and currentScene.portals[i].destinationScene == 0) {
+                // Place portal close to player but not directly on top
+                currentScene.portals[i].position = raylib.Vector2{
+                    .x = self.player.position.x + 120.0, // Right next to player
+                    .y = self.player.position.y,
+                };
+
+                // Keep portal on screen
+                if (currentScene.portals[i].position.x + currentScene.portals[i].radius > SCREEN_WIDTH) {
+                    currentScene.portals[i].position.x = self.player.position.x - 120.0; // Put on left side instead
+                }
+                if (currentScene.portals[i].position.x < currentScene.portals[i].radius) {
+                    currentScene.portals[i].position.x = currentScene.portals[i].radius;
+                }
+
+                break; // Only move the first overworld portal we find
+            }
+        }
+    }
 
     fn checkCircleRectCollision(self: *Self, circlePos: raylib.Vector2, radius: f32, rectPos: raylib.Vector2, rectSize: raylib.Vector2) bool {
         _ = self;
@@ -543,6 +545,8 @@ const GameState = struct {
                     self.currentScene = currentScene.portals[i].destinationScene;
                     // Always place player at screen center
                     self.player.position = raylib.Vector2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 };
+                    // Move the portal back to overworld next to the player for easy return
+                    self.moveOverworldPortalNearPlayer();
                     return; // Exit early to avoid processing more collisions
                 }
             }
@@ -588,9 +592,9 @@ const GameState = struct {
         defer raylib.endDrawing();
 
         // Use scene-specific background color
-        const currentSceneBg = if (self.currentScene < NUM_SCENES) 
-            self.scenes[self.currentScene].background_color 
-        else 
+        const currentSceneBg = if (self.currentScene < NUM_SCENES)
+            self.scenes[self.currentScene].background_color
+        else
             raylib.BLACK;
         raylib.clearBackground(currentSceneBg);
         if (!self.gameOver and !self.gameWon) {
@@ -668,9 +672,9 @@ const GameState = struct {
             raylib.drawText("WASD/Arrows: Move (Alt) | R: Restart Scene | ESC: Quit", 10, @intFromFloat(SCREEN_HEIGHT - 60), 16, GRAY);
 
             // Scene indicator
-            const sceneName = if (self.currentScene < NUM_SCENES) 
-                self.scenes[self.currentScene].name 
-            else 
+            const sceneName = if (self.currentScene < NUM_SCENES)
+                self.scenes[self.currentScene].name
+            else
                 "Unknown";
             const sceneText = try raylib.textFormat(self.allocator, "Scene {d}/{d}: {s}", .{ self.currentScene, NUM_SCENES - 1, sceneName });
             defer self.allocator.free(sceneText);

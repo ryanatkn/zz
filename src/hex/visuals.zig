@@ -187,7 +187,8 @@ pub const VisualSystem = struct {
     pub fn addPortalAmbientEffects(self: *Self, portals: anytype, max_portals: usize) void {
         for (0..max_portals) |i| {
             if (portals[i].active) {
-                self.addEffect(portals[i].position, portals[i].radius * 1.8, .portal_ambient, 0.0);
+                const PORTAL_AMBIENT_RADIUS_MULTIPLIER = 1.8;
+                self.addEffect(portals[i].position, portals[i].radius * PORTAL_AMBIENT_RADIUS_MULTIPLIER, .portal_ambient, 0.0);
             }
         }
     }
@@ -197,7 +198,8 @@ pub const VisualSystem = struct {
         for (0..max_lifestones) |i| {
             if (lifestones[i].active) {
                 const effect_type: VisualEffectType = if (lifestones[i].attuned) .lifestone_attuned else .lifestone_dormant;
-                self.addEffect(lifestones[i].position, lifestones[i].radius * 2.2, effect_type, 0.0);
+                const LIFESTONE_EFFECT_RADIUS_MULTIPLIER = 2.2;
+                self.addEffect(lifestones[i].position, lifestones[i].radius * LIFESTONE_EFFECT_RADIUS_MULTIPLIER, effect_type, 0.0);
             }
         }
     }
@@ -301,7 +303,7 @@ pub const VisualSystem = struct {
                         const alpha_progress = 1.0 - growth_progress; // 1.0 to 0.0
                         const ring_intensity = alpha_progress * intensity;
                         
-                        if (ring_intensity > 0.01) { // Only draw if visible
+                        if (ring_intensity > 0.01) {
                             const ring_color = effect.getEffectColor(ring_intensity);
                             game_state.drawCircle(screen_pos, ring_radius, ring_color);
                         }
@@ -326,7 +328,7 @@ pub const VisualSystem = struct {
                         const alpha_progress = 1.0 - growth_progress; // 1.0 to 0.0
                         const ring_intensity = alpha_progress * intensity;
                         
-                        if (ring_intensity > 0.01) { // Only draw if visible
+                        if (ring_intensity > 0.01) {
                             const ring_color = effect.getEffectColor(ring_intensity);
                             game_state.drawCircle(screen_pos, ring_radius, ring_color);
                         }
@@ -348,8 +350,7 @@ pub const VisualSystem = struct {
                     const pulse_amount = base_ring_radius * 0.4; // 40% size variation
                     const ring_radius = base_ring_radius + (ring_pulse - 0.5) * pulse_amount; // Pulse ±20% around base size
                     
-                    // Constant medium alpha intensity - no fading
-                    const ring_intensity = 0.6; // Fixed medium intensity
+                    const ring_intensity = 0.6;
                     
                     const ring_color = effect.getEffectColor(ring_intensity);
                     game_state.drawCircle(screen_pos, ring_radius, ring_color);
@@ -361,7 +362,7 @@ pub const VisualSystem = struct {
                 for (0..num_rings) |i| {
                     const ring_factor = @as(f32, @floatFromInt(i + 1)) / @as(f32, @floatFromInt(num_rings));
                     const ring_radius = effect.radius * (0.7 + ring_factor * 0.5);
-                    const ring_intensity = intensity * (1.1 - ring_factor * 0.4); // Fade outer rings
+                    const ring_intensity = intensity * (1.1 - ring_factor * 0.4);
                     const ring_color = effect.getEffectColor(ring_intensity);
                     
                     game_state.drawCircle(screen_pos, ring_radius, ring_color);

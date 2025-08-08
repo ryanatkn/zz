@@ -130,9 +130,9 @@
             },
         },
 
-        // Scene 1: North Dungeon (Circle theme)
+        // Scene 1: Southeast Dungeon (Circle theme)
         .{
-            .name = "North Dungeon",
+            .name = "Southeast Dungeon",
             .background_color = .{ .r = 15, .g = 15, .b = 25 },
             .unit_scale = 1.0,
             .camera_mode = "follow",
@@ -145,26 +145,26 @@
                 .{ .position = .{ .x = 1120.0, .y = 700.0 }, .size = .{ .x = 40.0, .y = 40.0 }, .type = "deadly" },
             },
             .enemies = .{
-                // North Dungeon: 1 enemy (largest size)
+                // Southeast Dungeon: 1 enemy (largest size)
                 .{ .position = .{ .x = 960.0, .y = 400.0 }, .radius = 30.0 },
             },
             .portals = .{
-                // Back to overworld (North dungeon - portal positioned DOWN toward overworld)
+                // Back to overworld (Southeast dungeon - portal positioned UP-LEFT toward overworld)
                 .{ .position = .{ .x = 960.0, .y = 660.0 }, .radius = 30.0, .destination = 0, .shape = "circle" },
                 // To adjacent dungeons (clockwise)
                 .{ .position = .{ .x = 1700.0, .y = 540.0 }, .radius = 25.0, .destination = 2, .shape = "triangle" },
                 .{ .position = .{ .x = 220.0, .y = 540.0 }, .radius = 25.0, .destination = 6, .shape = "square" },
             },
             .lifestones = .{
-                // 2 lifestones in North Dungeon
+                // 2 lifestones in Southeast Dungeon
                 .{ .position = .{ .x = 700.0, .y = 300.0 }, .radius = 12.0 },
                 .{ .position = .{ .x = 1220.0, .y = 300.0 }, .radius = 12.0 },
             },
         },
 
-        // Scene 2: Northeast Dungeon (Triangle theme)
+        // Scene 2: Southwest Dungeon (Triangle theme)
         .{
-            .name = "Northeast Dungeon",
+            .name = "Southwest Dungeon",
             .background_color = .{ .r = 25, .g = 15, .b = 15 },
             .unit_scale = 1.0,
             .camera_mode = "follow",
@@ -177,28 +177,28 @@
                 .{ .position = .{ .x = 700.0, .y = 400.0 }, .size = .{ .x = 35.0, .y = 35.0 }, .type = "deadly" },
             },
             .enemies = .{
-                // Northeast Dungeon: 2 enemies (second largest size)
+                // Southwest Dungeon: 2 enemies (second largest size)
                 .{ .position = .{ .x = 700.0, .y = 350.0 }, .radius = 25.0 },
                 .{ .position = .{ .x = 1220.0, .y = 650.0 }, .radius = 25.0 },
             },
             .portals = .{
-                // Back to overworld (Northeast dungeon - portal positioned DOWN-LEFT toward overworld)
+                // Back to overworld (Southwest dungeon - portal positioned UP-RIGHT toward overworld)
                 .{ .position = .{ .x = 856.0, .y = 644.0 }, .radius = 30.0, .destination = 0, .shape = "circle" },
                 // To adjacent dungeons
                 .{ .position = .{ .x = 1520.0, .y = 800.0 }, .radius = 25.0, .destination = 3, .shape = "square" },
                 .{ .position = .{ .x = 220.0, .y = 200.0 }, .radius = 25.0, .destination = 1, .shape = "circle" },
             },
             .lifestones = .{
-                // 3 lifestones in Northeast Dungeon
+                // 3 lifestones in Southwest Dungeon
                 .{ .position = .{ .x = 960.0, .y = 300.0 }, .radius = 12.0 },
                 .{ .position = .{ .x = 600.0, .y = 500.0 }, .radius = 12.0 },
                 .{ .position = .{ .x = 1320.0, .y = 500.0 }, .radius = 12.0 },
             },
         },
 
-        // Scene 3: Southeast Dungeon (Square theme)
+        // Scene 3: West Dungeon (Square theme)
         .{
-            .name = "Southeast Dungeon",
+            .name = "West Dungeon",
             .background_color = .{ .r = 15, .g = 25, .b = 15 },
             .unit_scale = 1.0,
             .camera_mode = "follow",
@@ -218,7 +218,7 @@
                 .{ .position = .{ .x = 960.0, .y = 700.0 }, .radius = 20.0 },
             },
             .portals = .{
-                // Back to overworld (Southeast dungeon - portal positioned UP-LEFT toward overworld)
+                // Back to overworld (West dungeon - portal positioned RIGHT toward overworld)
                 .{ .position = .{ .x = 856.0, .y = 436.0 }, .radius = 30.0, .destination = 0, .shape = "circle" },
                 // To adjacent dungeons
                 .{ .position = .{ .x = 960.0, .y = 950.0 }, .radius = 25.0, .destination = 4, .shape = "circle" },
@@ -231,9 +231,9 @@
             },
         },
 
-        // Scene 4: South Dungeon (Circle theme)
+        // Scene 4: Northwest Dungeon (Circle theme)
         .{
-            .name = "South Dungeon",
+            .name = "Northwest Dungeon",
             .background_color = .{ .r = 25, .g = 25, .b = 15 },
             .unit_scale = 1.0,
             .camera_mode = "follow",
@@ -253,7 +253,7 @@
                 .{ .position = .{ .x = 1220.0, .y = 600.0 }, .radius = 18.0 },
             },
             .portals = .{
-                // Back to overworld (South dungeon - portal positioned UP toward overworld)
+                // Back to overworld (Northwest dungeon - portal positioned DOWN-RIGHT toward overworld)
                 .{ .position = .{ .x = 960.0, .y = 420.0 }, .radius = 30.0, .destination = 0, .shape = "circle" },
                 // To adjacent dungeons
                 .{ .position = .{ .x = 220.0, .y = 540.0 }, .radius = 25.0, .destination = 5, .shape = "triangle" },
@@ -267,9 +267,9 @@
             },
         },
 
-        // Scene 5: Southwest Dungeon (Triangle theme)
+        // Scene 5: Northeast Dungeon (Triangle theme)
         .{
-            .name = "Southwest Dungeon",
+            .name = "Northeast Dungeon",
             .background_color = .{ .r = 25, .g = 15, .b = 25 },
             .unit_scale = 1.0,
             .camera_mode = "follow",
@@ -290,22 +290,22 @@
                 .{ .position = .{ .x = 960.0, .y = 700.0 }, .radius = 16.0 },
             },
             .portals = .{
-                // Back to overworld (Southwest dungeon - portal positioned UP-RIGHT toward overworld)
+                // Back to overworld (Northeast dungeon - portal positioned DOWN-LEFT toward overworld)
                 .{ .position = .{ .x = 1064.0, .y = 436.0 }, .radius = 30.0, .destination = 0, .shape = "circle" },
                 // To adjacent dungeons
                 .{ .position = .{ .x = 400.0, .y = 150.0 }, .radius = 25.0, .destination = 6, .shape = "square" },
                 .{ .position = .{ .x = 1700.0, .y = 880.0 }, .radius = 25.0, .destination = 4, .shape = "circle" },
             },
             .lifestones = .{
-                // 2 lifestones in Southwest Dungeon
+                // 2 lifestones in Northeast Dungeon
                 .{ .position = .{ .x = 700.0, .y = 450.0 }, .radius = 12.0 },
                 .{ .position = .{ .x = 1220.0, .y = 450.0 }, .radius = 12.0 },
             },
         },
 
-        // Scene 6: Northwest Dungeon (Square theme)
+        // Scene 6: East Dungeon (Square theme)
         .{
-            .name = "Northwest Dungeon",
+            .name = "East Dungeon",
             .background_color = .{ .r = 15, .g = 20, .b = 25 },
             .unit_scale = 1.0,
             .camera_mode = "follow",
@@ -328,8 +328,8 @@
                 .{ .position = .{ .x = 1120.0, .y = 600.0 }, .radius = 15.0 },
             },
             .portals = .{
-                // Back to overworld (Northwest dungeon - portal positioned DOWN-RIGHT toward overworld)
-                .{ .position = .{ .x = 1064.0, .y = 644.0 }, .radius = 30.0, .destination = 0, .shape = "circle" },
+                // Back to overworld (East dungeon - portal positioned DOWN-LEFT toward overworld)
+                .{ .position = .{ .x = 1064.0, .y = 744.0 }, .radius = 30.0, .destination = 0, .shape = "circle" },
                 // To adjacent dungeons
                 .{ .position = .{ .x = 1700.0, .y = 200.0 }, .radius = 25.0, .destination = 1, .shape = "circle" },
                 .{ .position = .{ .x = 960.0, .y = 950.0 }, .radius = 25.0, .destination = 5, .shape = "triangle" },

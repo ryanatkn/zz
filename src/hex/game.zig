@@ -55,6 +55,26 @@ const MAX_PORTALS = 6;
 const MAX_LIFESTONES = 12;
 const NUM_SCENES = 7;
 
+// Performance constants
+const DEFAULT_ENEMY_RADIUS = 15.0;
+const BULLET_RADIUS = 5.0;
+const OVERWORLD_SCENE_INDEX = 0;
+const OVERWORLD_ENEMY_SPEED_FACTOR = 0.15;
+const ENEMY_RETURN_SPEED_FACTOR = 0.333;
+
+// Visual effect constants  
+const PLAYER_SPAWN_EFFECT_RADIUS_MULTIPLIER = 3.0;
+const PLAYER_TRANSITION_EFFECT_RADIUS_MULTIPLIER = 2.5;
+const PLAYER_SPAWN_EFFECT_DURATION = 3.0;
+const PLAYER_TRANSITION_EFFECT_DURATION = 2.7;
+const PORTAL_AMBIENT_RADIUS_MULTIPLIER = 1.8;
+const LIFESTONE_EFFECT_RADIUS_MULTIPLIER = 2.2;
+
+// Iris wipe constants
+const IRIS_WIPE_DURATION = 1.0;
+const IRIS_WIPE_BAND_COUNT = 6;
+const IRIS_WIPE_BAND_WIDTH = 12.0;
+
 // Import Color type from shared types
 const Color = types.Color;
 
@@ -402,8 +422,11 @@ const GameState = struct {
     viewport: Viewport,
 
     // Pre-allocated drawing buffers for performance
-    circle_points: [200]c.SDL_FPoint, // Max points for largest circle
-    rect_points: [4]c.SDL_FPoint, // Rectangle corners
+    circle_points: [200]c.SDL_FPoint,
+    rect_points: [4]c.SDL_FPoint,
+    
+    // Pre-computed values for collision detection  
+    player_radius_cache: f32,
 
     // Iris wipe effect for resurrection
     iris_wipe_active: bool,
@@ -411,6 +434,9 @@ const GameState = struct {
 
     // Visual effects system for entity highlighting
     visual_system: visuals.VisualSystem,
+
+    // Color caching for performance
+    color_cache: ColorCache,
 
     const Self = @This();
 
@@ -474,21 +500,22 @@ const GameState = struct {
             },
             .circle_points = undefined,
             .rect_points = undefined,
+            .player_radius_cache = 0,
             .iris_wipe_active = false,
             .iris_wipe_start_time = 0,
             .visual_system = visuals.VisualSystem.init(),
+            .color_cache = ColorCache{},
         };
 
         // Initialize bullets
         for (0..MAX_BULLETS) |i| {
-            game.bullets[i] = GameObject{
-                .position = Vec2{ .x = 0, .y = 0 },
-                .velocity = Vec2{ .x = 0, .y = 0 },
-                .radius = 5.0,
-                .active = false,
-                .color = YELLOW,
-                .enemyState = .alive,
-            };
+            game.bullets[i] = createGameObject(
+                Vec2{ .x = 0, .y = 0 },
+                BULLET_RADIUS,
+                false,
+                YELLOW,
+                .alive
+            );
         }
 
         // Initialize all scenes from data
@@ -538,6 +565,9 @@ const GameState = struct {
         game.refreshSceneVisuals();
         game.addPlayerTransitionEffect();
         
+        // Initialize player radius cache
+        game.updatePlayerRadiusCache();
+        
         return game;
     }
     
@@ -556,34 +586,43 @@ const GameState = struct {
     fn addPlayerSpawnEffect(self: *Self) void {
         // Unified player spawn effect for all entry points (dramatic ripple burst at drop site)
         const playerRadius = self.gameData.player_start.radius * self.scenes[self.currentScene].unit_scale;
-        self.visual_system.addEffect(self.player.position, playerRadius * 3.0, visuals.VisualEffectType.player_spawn, 3.0); // 3 second total effect
+        self.visual_system.addEffect(self.player.position, playerRadius * PLAYER_SPAWN_EFFECT_RADIUS_MULTIPLIER, visuals.VisualEffectType.player_spawn, PLAYER_SPAWN_EFFECT_DURATION); // 3 second total effect
     }
     
     fn addPlayerTransitionEffect(self: *Self) void {
         // Subtle transition effect for scene changes and game start (bigger, slower rings)
         const playerRadius = self.gameData.player_start.radius * self.scenes[self.currentScene].unit_scale;
-        self.visual_system.addEffect(self.player.position, playerRadius * 2.5, visuals.VisualEffectType.player_transition, 2.7); // 2.7 second total effect (0.3 delay + 2.4 lifetime)
+        self.visual_system.addEffect(self.player.position, playerRadius * PLAYER_TRANSITION_EFFECT_RADIUS_MULTIPLIER, visuals.VisualEffectType.player_transition, PLAYER_TRANSITION_EFFECT_DURATION); // 2.7 second total effect (0.3 delay + 2.4 lifetime)
+    }
+
+    fn createGameObject(position: Vec2, radius: f32, active: bool, color: Color, enemyState: EnemyState) GameObject {
+        return GameObject{
+            .position = position,
+            .velocity = Vec2{ .x = 0, .y = 0 },
+            .radius = radius,
+            .active = active,
+            .color = color,
+            .enemyState = enemyState,
+        };
     }
 
     fn createEnemyFromData(dataEnemy: ?DataEnemy, unitScale: f32) GameObject {
         if (dataEnemy) |enemy| {
-            return GameObject{
-                .position = Vec2{ .x = enemy.position.x, .y = enemy.position.y },
-                .velocity = Vec2{ .x = 0, .y = 0 },
-                .radius = enemy.radius * unitScale,
-                .active = true,
-                .color = RED,
-                .enemyState = .alive,
-            };
+            return createGameObject(
+                Vec2{ .x = enemy.position.x, .y = enemy.position.y },
+                enemy.radius * unitScale,
+                true,
+                RED,
+                .alive
+            );
         } else {
-            return GameObject{
-                .position = Vec2{ .x = 0, .y = 0 },
-                .velocity = Vec2{ .x = 0, .y = 0 },
-                .radius = 15.0,
-                .active = false,
-                .color = RED,
-                .enemyState = .alive,
-            };
+            return createGameObject(
+                Vec2{ .x = 0, .y = 0 },
+                DEFAULT_ENEMY_RADIUS,
+                false,
+                RED,
+                .alive
+            );
         }
     }
 
@@ -673,20 +712,34 @@ const GameState = struct {
         }
     }
 
-    // Optimized color handling - cache last color to avoid redundant SDL calls
-    var last_color: ?Color = null;
-
-    inline fn colorToSDL(color: Color) struct { r: u8, g: u8, b: u8, a: u8 } {
-        return .{ .r = color.r, .g = color.g, .b = color.b, .a = color.a };
-    }
+    // Encapsulated color caching system
+    const ColorCache = struct {
+        last_color: ?Color = null,
+        
+        inline fn colorToSDL(color: Color) struct { r: u8, g: u8, b: u8, a: u8 } {
+            return .{ .r = color.r, .g = color.g, .b = color.b, .a = color.a };
+        }
+        
+        fn setRenderColor(self: *@This(), renderer: *c.SDL_Renderer, color: Color) void {
+            // Only change SDL color state if different from last color
+            if (self.last_color == null or !std.meta.eql(self.last_color.?, color)) {
+                const sdl_color = colorToSDL(color);
+                _ = c.SDL_SetRenderDrawColor(renderer, sdl_color.r, sdl_color.g, sdl_color.b, sdl_color.a);
+                self.last_color = color;
+            }
+        }
+        
+        fn reset(self: *@This()) void {
+            self.last_color = null;
+        }
+    };
 
     fn setRenderColor(self: *Self, color: Color) void {
-        // Only change SDL color state if different from last color
-        if (last_color == null or !std.meta.eql(last_color.?, color)) {
-            const sdl_color = colorToSDL(color);
-            _ = c.SDL_SetRenderDrawColor(self.renderer, sdl_color.r, sdl_color.g, sdl_color.b, sdl_color.a);
-            last_color = color;
-        }
+        self.color_cache.setRenderColor(self.renderer, color);
+    }
+    
+    fn updatePlayerRadiusCache(self: *Self) void {
+        self.player_radius_cache = self.gameData.player_start.radius * self.scenes[self.currentScene].unit_scale;
     }
 
     fn checkCircleRectCollision(self: *Self, circlePos: Vec2, radius: f32, rectPos: Vec2, rectSize: Vec2) bool {
@@ -725,7 +778,7 @@ const GameState = struct {
             if (self.scenes[self.currentScene].lifestones[i].active and self.scenes[self.currentScene].lifestones[i].attuned) {
                 const dx = self.player.position.x - self.scenes[self.currentScene].lifestones[i].position.x;
                 const dy = self.player.position.y - self.scenes[self.currentScene].lifestones[i].position.y;
-                const distance = dx * dx + dy * dy; // Use squared distance to avoid sqrt
+                const distance = dx * dx + dy * dy;
 
                 if (distance < nearestDistance) {
                     nearestDistance = distance;
@@ -761,7 +814,7 @@ const GameState = struct {
                     visited[dest_scene] = true;
 
                     // Find the return portal in the destination scene that leads back to current scene
-                    var entry_portal_pos = Vec2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 }; // Default center
+                    var entry_portal_pos = Vec2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 };
                     for (0..MAX_PORTALS) |j| {
                         if (self.scenes[dest_scene].portals[j].active and
                             self.scenes[dest_scene].portals[j].destinationScene == self.currentScene)
@@ -818,7 +871,7 @@ const GameState = struct {
                         visited[dest_scene] = true;
 
                         // Find the entry portal in the new destination scene
-                        var entry_portal_pos = Vec2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 }; // Default center
+                        var entry_portal_pos = Vec2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 };
                         for (0..MAX_PORTALS) |j| {
                             if (self.scenes[dest_scene].portals[j].active and
                                 self.scenes[dest_scene].portals[j].destinationScene == current.scene)
@@ -915,6 +968,9 @@ const GameState = struct {
         // Refresh visual effects for current scene and add reduced spawn effect (restart)
         self.refreshSceneVisuals();
         self.addPlayerTransitionEffect();
+        
+        // Update cached player radius
+        self.updatePlayerRadiusCache();
     }
 
     pub fn resurrect(self: *Self) void {
@@ -930,6 +986,8 @@ const GameState = struct {
                 self.currentScene = nearestLifestone.scene;
                 // Update camera for new scene
                 self.updateCamera();
+                // Update cached player radius for new scene
+                self.updatePlayerRadiusCache();
                 // Restore enemies in the destination scene
                 self.restoreEnemiesInScene(nearestLifestone.scene);
             }
@@ -945,9 +1003,15 @@ const GameState = struct {
         self.isPaused = false;
         // Don't reset aggroTarget/friendlyTarget - let enemies continue their current behavior
 
-        // Refresh visual effects for current scene and add player spawn effect
+        // Refresh visual effects for current scene and add appropriate player effect
         self.refreshSceneVisuals();
-        self.addPlayerSpawnEffect();
+        if (self.findNearestAttunedLifestone() != null) {
+            // Found lifestone - dramatic spawn effect at lifestone
+            self.addPlayerSpawnEffect();
+        } else {
+            // No lifestone - subtle transition effect at original spawn
+            self.addPlayerTransitionEffect();
+        }
 
         // Clear any active bullets
         for (0..MAX_BULLETS) |i| {
@@ -995,9 +1059,11 @@ const GameState = struct {
                 .y = self.mouse_y - self.player.position.y,
             };
 
-            const length = math.sqrt(direction.x * direction.x + direction.y * direction.y);
-            const playerRadius = self.gameData.player_start.radius * self.scenes[self.currentScene].unit_scale;
-            if (length > playerRadius) { // Only move if mouse is outside player's radius
+            const lengthSq = direction.x * direction.x + direction.y * direction.y;
+            const playerRadius = self.player_radius_cache;
+            const playerRadiusSq = playerRadius * playerRadius;
+            if (lengthSq > playerRadiusSq) { // Only move if mouse is outside player's radius
+                const length = math.sqrt(lengthSq);
                 movement.x = direction.x / length;
                 movement.y = direction.y / length;
             }
@@ -1093,9 +1159,9 @@ const GameState = struct {
                 }
 
                 // Use different speeds for overworld vs dungeons, and slower when not aggro
-                var enemySpeed: f32 = if (self.currentScene == 0) ENEMY_SPEED * 0.15 else ENEMY_SPEED;
+                var enemySpeed: f32 = if (self.currentScene == OVERWORLD_SCENE_INDEX) ENEMY_SPEED * OVERWORLD_ENEMY_SPEED_FACTOR else ENEMY_SPEED;
                 if (self.aggroTarget == null) {
-                    enemySpeed *= 0.333; // 1/3 speed when not aggro (returning to spawn)
+                    enemySpeed *= ENEMY_RETURN_SPEED_FACTOR;
                 }
                 const effectiveDeltaTime = deltaTime * self.gameSpeed;
 
@@ -1120,7 +1186,7 @@ const GameState = struct {
 
     pub fn checkCollisions(self: *Self) void {
         const currentScene = &self.scenes[self.currentScene];
-        const playerRadius = self.gameData.player_start.radius * currentScene.unit_scale;
+        const playerRadius = self.player_radius_cache;
         const playerPos = self.player.position;
 
         // Cache arrays for better performance
@@ -1130,7 +1196,7 @@ const GameState = struct {
         const portals = &currentScene.portals;
         const lifestones = &currentScene.lifestones;
 
-        // Player-Lifestone collisions (attunement) - avoid sqrt
+        // Player-Lifestone collisions (attunement)
         for (0..MAX_LIFESTONES) |i| {
             if (lifestones[i].active and !lifestones[i].attuned) {
                 const dx = playerPos.x - lifestones[i].position.x;
@@ -1147,7 +1213,7 @@ const GameState = struct {
             }
         }
 
-        // Bullet-Enemy collisions (current scene only) - avoid sqrt when possible
+        // Bullet-Enemy collisions (current scene only)
         for (0..MAX_BULLETS) |i| {
             if (bullets[i].active) {
                 const bulletPos = bullets[i].position;
@@ -1169,7 +1235,7 @@ const GameState = struct {
             }
         }
 
-        // Player-Enemy collisions (current scene only) - avoid sqrt
+        // Player-Enemy collisions (current scene only)
         for (0..MAX_ENEMIES) |i| {
             if (enemies[i].active and enemies[i].enemyState == .alive) {
                 const dx = playerPos.x - enemies[i].position.x;
@@ -1184,7 +1250,7 @@ const GameState = struct {
             }
         }
 
-        // Player-Portal collisions (scene switching) - avoid sqrt
+        // Player-Portal collisions (scene switching)
         for (0..MAX_PORTALS) |i| {
             if (portals[i].active) {
                 const dx = playerPos.x - portals[i].position.x;
@@ -1199,6 +1265,8 @@ const GameState = struct {
                     self.player.position = Vec2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 };
                     // Update camera for new scene
                     self.updateCamera();
+                    // Update cached player radius for new scene
+                    self.updatePlayerRadiusCache();
                     // Restore enemies in the destination scene to their original positions
                     self.restoreEnemiesInScene(destinationScene);
                     
@@ -1531,7 +1599,7 @@ const GameState = struct {
             const current_time = c.SDL_GetPerformanceCounter();
             const frequency = c.SDL_GetPerformanceFrequency();
             const elapsed_sec = @as(f32, @floatFromInt(current_time - self.iris_wipe_start_time)) / @as(f32, @floatFromInt(frequency));
-            const wipe_duration = 1.0; // 1 second for full iris wipe
+            const wipe_duration = IRIS_WIPE_DURATION;
 
             if (elapsed_sec < wipe_duration) {
                 const progress = elapsed_sec / wipe_duration; // 0.0 to 1.0
@@ -1542,10 +1610,11 @@ const GameState = struct {
                     BLUE_BRIGHT, GREEN_BRIGHT, YELLOW_BRIGHT, 
                     ORANGE_BRIGHT, PURPLE_BRIGHT, CYAN,
                 };
+                comptime std.debug.assert(wipe_colors.len == IRIS_WIPE_BAND_COUNT);
 
                 for (0..wipe_colors.len) |i| {
                     const wipe_color = wipe_colors[i];
-                    const max_width = 12.0; // Maximum width per band
+                    const max_width = IRIS_WIPE_BAND_WIDTH;
                     const current_width = max_width * shrink_factor;
 
                     if (current_width > 0.5) { // Only render if visible

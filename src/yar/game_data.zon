@@ -21,23 +21,75 @@
             .player_scale = 0.5, // Small player in overworld
             .enemy_scale = 0.3, // Very small enemies in overworld
             .obstacles = .{
-                // Scattered green blocking obstacles
+                // Large blocking obstacles (original size)
                 .{ .position = .{ .x = 200.0, .y = 300.0 }, .size = .{ .x = 80.0, .y = 80.0 }, .type = "blocking" },
                 .{ .position = .{ .x = 1600.0, .y = 200.0 }, .size = .{ .x = 120.0, .y = 60.0 }, .type = "blocking" },
                 .{ .position = .{ .x = 400.0, .y = 800.0 }, .size = .{ .x = 60.0, .y = 100.0 }, .type = "blocking" },
                 .{ .position = .{ .x = 1400.0, .y = 900.0 }, .size = .{ .x = 100.0, .y = 80.0 }, .type = "blocking" },
-                // Some purple deadly hazards
+                
+                // Medium blocking obstacles (~1/2 size)
+                .{ .position = .{ .x = 300.0, .y = 150.0 }, .size = .{ .x = 40.0, .y = 30.0 }, .type = "blocking" },
+                .{ .position = .{ .x = 1500.0, .y = 400.0 }, .size = .{ .x = 35.0, .y = 45.0 }, .type = "blocking" },
+                .{ .position = .{ .x = 250.0, .y = 900.0 }, .size = .{ .x = 50.0, .y = 25.0 }, .type = "blocking" },
+                .{ .position = .{ .x = 1650.0, .y = 750.0 }, .size = .{ .x = 30.0, .y = 40.0 }, .type = "blocking" },
+                .{ .position = .{ .x = 700.0, .y = 950.0 }, .size = .{ .x = 45.0, .y = 35.0 }, .type = "blocking" },
+                
+                // Small blocking obstacles (~1/4 size)  
+                .{ .position = .{ .x = 500.0, .y = 250.0 }, .size = .{ .x = 20.0, .y = 20.0 }, .type = "blocking" },
+                .{ .position = .{ .x = 1300.0, .y = 150.0 }, .size = .{ .x = 25.0, .y = 15.0 }, .type = "blocking" },
+                .{ .position = .{ .x = 150.0, .y = 700.0 }, .size = .{ .x = 15.0, .y = 25.0 }, .type = "blocking" },
+                .{ .position = .{ .x = 1750.0, .y = 300.0 }, .size = .{ .x = 20.0, .y = 18.0 }, .type = "blocking" },
+                .{ .position = .{ .x = 600.0, .y = 100.0 }, .size = .{ .x = 18.0, .y = 22.0 }, .type = "blocking" },
+                .{ .position = .{ .x = 1100.0, .y = 950.0 }, .size = .{ .x = 22.0, .y = 20.0 }, .type = "blocking" },
+                
+                // Tiny blocking obstacles (~1/10 size)
+                .{ .position = .{ .x = 350.0, .y = 450.0 }, .size = .{ .x = 8.0, .y = 8.0 }, .type = "blocking" },
+                .{ .position = .{ .x = 1450.0, .y = 600.0 }, .size = .{ .x = 12.0, .y = 6.0 }, .type = "blocking" },
+                .{ .position = .{ .x = 550.0, .y = 850.0 }, .size = .{ .x = 6.0, .y = 10.0 }, .type = "blocking" },
+                .{ .position = .{ .x = 1200.0, .y = 100.0 }, .size = .{ .x = 10.0, .y = 8.0 }, .type = "blocking" },
+                .{ .position = .{ .x = 100.0, .y = 500.0 }, .size = .{ .x = 8.0, .y = 12.0 }, .type = "blocking" },
+                .{ .position = .{ .x = 1800.0, .y = 900.0 }, .size = .{ .x = 9.0, .y = 9.0 }, .type = "blocking" },
+                .{ .position = .{ .x = 450.0, .y = 200.0 }, .size = .{ .x = 7.0, .y = 8.0 }, .type = "blocking" },
+                
+                // Large deadly hazards (original size)
                 .{ .position = .{ .x = 800.0, .y = 200.0 }, .size = .{ .x = 40.0, .y = 40.0 }, .type = "deadly" },
                 .{ .position = .{ .x = 1200.0, .y = 400.0 }, .size = .{ .x = 50.0, .y = 30.0 }, .type = "deadly" },
                 .{ .position = .{ .x = 300.0, .y = 600.0 }, .size = .{ .x = 30.0, .y = 50.0 }, .type = "deadly" },
+                
+                // Medium deadly hazards (~1/2 size)
+                .{ .position = .{ .x = 750.0, .y = 850.0 }, .size = .{ .x = 20.0, .y = 20.0 }, .type = "deadly" },
+                .{ .position = .{ .x = 1400.0, .y = 700.0 }, .size = .{ .x = 25.0, .y = 15.0 }, .type = "deadly" },
+                .{ .position = .{ .x = 200.0, .y = 200.0 }, .size = .{ .x = 15.0, .y = 25.0 }, .type = "deadly" },
+                .{ .position = .{ .x = 1700.0, .y = 500.0 }, .size = .{ .x = 22.0, .y = 18.0 }, .type = "deadly" },
+                
+                // Small deadly hazards (~1/4 size)
+                .{ .position = .{ .x = 650.0, .y = 300.0 }, .size = .{ .x = 10.0, .y = 10.0 }, .type = "deadly" },
+                .{ .position = .{ .x = 1350.0, .y = 800.0 }, .size = .{ .x = 12.0, .y = 8.0 }, .type = "deadly" },
+                .{ .position = .{ .x = 150.0, .y = 350.0 }, .size = .{ .x = 8.0, .y = 12.0 }, .type = "deadly" },
+                .{ .position = .{ .x = 1800.0, .y = 400.0 }, .size = .{ .x = 10.0, .y = 9.0 }, .type = "deadly" },
+                
+                // Tiny deadly hazards (~1/10 size)  
+                .{ .position = .{ .x = 400.0, .y = 350.0 }, .size = .{ .x = 4.0, .y = 4.0 }, .type = "deadly" },
+                .{ .position = .{ .x = 1250.0, .y = 650.0 }, .size = .{ .x = 5.0, .y = 3.0 }, .type = "deadly" },
+                .{ .position = .{ .x = 550.0, .y = 950.0 }, .size = .{ .x = 3.0, .y = 5.0 }, .type = "deadly" },
+                .{ .position = .{ .x = 1500.0, .y = 250.0 }, .size = .{ .x = 4.0, .y = 3.0 }, .type = "deadly" },
+                .{ .position = .{ .x = 250.0, .y = 750.0 }, .size = .{ .x = 3.0, .y = 4.0 }, .type = "deadly" },
             },
             .enemies = .{
-                // Small overworld enemies scattered around (avoiding center)
-                .{ .position = .{ .x = 600.0, .y = 300.0 }, .radius = 8.0 },
-                .{ .position = .{ .x = 1300.0, .y = 300.0 }, .radius = 10.0 },
-                .{ .position = .{ .x = 500.0, .y = 800.0 }, .radius = 9.0 },
-                .{ .position = .{ .x = 1400.0, .y = 800.0 }, .radius = 8.0 },
-                .{ .position = .{ .x = 200.0, .y = 400.0 }, .radius = 9.0 },
+                // 12 overworld enemies positioned around the map avoiding obstacles and portals
+                // Player spawns at (960, 540) - keep enemies away from center
+                .{ .position = .{ .x = 750.0, .y = 200.0 }, .radius = 8.0 },
+                .{ .position = .{ .x = 1200.0, .y = 250.0 }, .radius = 9.0 },
+                .{ .position = .{ .x = 350.0, .y = 350.0 }, .radius = 7.0 },
+                .{ .position = .{ .x = 1550.0, .y = 450.0 }, .radius = 8.0 },
+                .{ .position = .{ .x = 200.0, .y = 600.0 }, .radius = 9.0 },
+                .{ .position = .{ .x = 1450.0, .y = 650.0 }, .radius = 8.0 },
+                .{ .position = .{ .x = 600.0, .y = 950.0 }, .radius = 7.0 },
+                .{ .position = .{ .x = 1300.0, .y = 950.0 }, .radius = 9.0 },
+                .{ .position = .{ .x = 150.0, .y = 250.0 }, .radius = 8.0 },
+                .{ .position = .{ .x = 1500.0, .y = 150.0 }, .radius = 7.0 },
+                .{ .position = .{ .x = 100.0, .y = 800.0 }, .radius = 8.0 },
+                .{ .position = .{ .x = 1750.0, .y = 850.0 }, .radius = 9.0 },
             },
             .portals = .{
                 // Portals to 6 dungeons arranged in hexagon
@@ -71,15 +123,12 @@
                 .{ .position = .{ .x = 1120.0, .y = 700.0 }, .size = .{ .x = 40.0, .y = 40.0 }, .type = "deadly" },
             },
             .enemies = .{
-                .{ .position = .{ .x = 700.0, .y = 300.0 }, .radius = 15.0 },
-                .{ .position = .{ .x = 1220.0, .y = 300.0 }, .radius = 15.0 },
-                .{ .position = .{ .x = 500.0, .y = 800.0 }, .radius = 18.0 },
-                .{ .position = .{ .x = 600.0, .y = 700.0 }, .radius = 15.0 },
-                .{ .position = .{ .x = 1320.0, .y = 700.0 }, .radius = 15.0 },
+                // North Dungeon: 1 enemy (largest size)
+                .{ .position = .{ .x = 960.0, .y = 400.0 }, .radius = 30.0 },
             },
             .portals = .{
-                // Back to overworld
-                .{ .position = .{ .x = 960.0, .y = 900.0 }, .radius = 30.0, .destination = 0, .shape = "circle" },
+                // Back to overworld (North dungeon - portal positioned DOWN toward overworld)
+                .{ .position = .{ .x = 960.0, .y = 660.0 }, .radius = 30.0, .destination = 0, .shape = "circle" },
                 // To adjacent dungeons (clockwise)
                 .{ .position = .{ .x = 1700.0, .y = 540.0 }, .radius = 25.0, .destination = 2, .shape = "triangle" },
                 .{ .position = .{ .x = 220.0, .y = 540.0 }, .radius = 25.0, .destination = 6, .shape = "square" },
@@ -101,15 +150,13 @@
                 .{ .position = .{ .x = 700.0, .y = 400.0 }, .size = .{ .x = 35.0, .y = 35.0 }, .type = "deadly" },
             },
             .enemies = .{
-                .{ .position = .{ .x = 800.0, .y = 250.0 }, .radius = 16.0 },
-                .{ .position = .{ .x = 500.0, .y = 400.0 }, .radius = 14.0 },
-                .{ .position = .{ .x = 1420.0, .y = 400.0 }, .radius = 14.0 },
-                .{ .position = .{ .x = 700.0, .y = 800.0 }, .radius = 15.0 },
-                .{ .position = .{ .x = 1220.0, .y = 800.0 }, .radius = 15.0 },
+                // Northeast Dungeon: 2 enemies (second largest size)
+                .{ .position = .{ .x = 700.0, .y = 350.0 }, .radius = 25.0 },
+                .{ .position = .{ .x = 1220.0, .y = 650.0 }, .radius = 25.0 },
             },
             .portals = .{
-                // Back to overworld
-                .{ .position = .{ .x = 400.0, .y = 300.0 }, .radius = 30.0, .destination = 0, .shape = "circle" },
+                // Back to overworld (Northeast dungeon - portal positioned DOWN-LEFT toward overworld)
+                .{ .position = .{ .x = 856.0, .y = 644.0 }, .radius = 30.0, .destination = 0, .shape = "circle" },
                 // To adjacent dungeons
                 .{ .position = .{ .x = 1520.0, .y = 800.0 }, .radius = 25.0, .destination = 3, .shape = "square" },
                 .{ .position = .{ .x = 220.0, .y = 200.0 }, .radius = 25.0, .destination = 1, .shape = "circle" },
@@ -132,15 +179,14 @@
                 .{ .position = .{ .x = 1120.0, .y = 500.0 }, .size = .{ .x = 40.0, .y = 40.0 }, .type = "deadly" },
             },
             .enemies = .{
-                .{ .position = .{ .x = 500.0, .y = 250.0 }, .radius = 15.0 },
-                .{ .position = .{ .x = 1420.0, .y = 250.0 }, .radius = 15.0 },
-                .{ .position = .{ .x = 500.0, .y = 830.0 }, .radius = 15.0 },
-                .{ .position = .{ .x = 1420.0, .y = 830.0 }, .radius = 15.0 },
-                .{ .position = .{ .x = 1300.0, .y = 400.0 }, .radius = 18.0 },
+                // Southeast Dungeon: 3 enemies (medium size)
+                .{ .position = .{ .x = 600.0, .y = 300.0 }, .radius = 20.0 },
+                .{ .position = .{ .x = 1320.0, .y = 400.0 }, .radius = 20.0 },
+                .{ .position = .{ .x = 960.0, .y = 700.0 }, .radius = 20.0 },
             },
             .portals = .{
-                // Back to overworld
-                .{ .position = .{ .x = 500.0, .y = 200.0 }, .radius = 30.0, .destination = 0, .shape = "circle" },
+                // Back to overworld (Southeast dungeon - portal positioned UP-LEFT toward overworld)
+                .{ .position = .{ .x = 856.0, .y = 436.0 }, .radius = 30.0, .destination = 0, .shape = "circle" },
                 // To adjacent dungeons
                 .{ .position = .{ .x = 960.0, .y = 950.0 }, .radius = 25.0, .destination = 4, .shape = "circle" },
                 .{ .position = .{ .x = 200.0, .y = 400.0 }, .radius = 25.0, .destination = 2, .shape = "triangle" },
@@ -162,15 +208,15 @@
                 .{ .position = .{ .x = 1220.0, .y = 300.0 }, .size = .{ .x = 40.0, .y = 40.0 }, .type = "deadly" },
             },
             .enemies = .{
-                .{ .position = .{ .x = 500.0, .y = 300.0 }, .radius = 15.0 },
-                .{ .position = .{ .x = 1420.0, .y = 300.0 }, .radius = 15.0 },
-                .{ .position = .{ .x = 800.0, .y = 150.0 }, .radius = 18.0 },
-                .{ .position = .{ .x = 400.0, .y = 700.0 }, .radius = 15.0 },
-                .{ .position = .{ .x = 1520.0, .y = 700.0 }, .radius = 15.0 },
+                // South Dungeon: 4 enemies (smaller size)
+                .{ .position = .{ .x = 500.0, .y = 400.0 }, .radius = 18.0 },
+                .{ .position = .{ .x = 1420.0, .y = 400.0 }, .radius = 18.0 },
+                .{ .position = .{ .x = 700.0, .y = 600.0 }, .radius = 18.0 },
+                .{ .position = .{ .x = 1220.0, .y = 600.0 }, .radius = 18.0 },
             },
             .portals = .{
-                // Back to overworld
-                .{ .position = .{ .x = 960.0, .y = 100.0 }, .radius = 30.0, .destination = 0, .shape = "circle" },
+                // Back to overworld (South dungeon - portal positioned UP toward overworld)
+                .{ .position = .{ .x = 960.0, .y = 420.0 }, .radius = 30.0, .destination = 0, .shape = "circle" },
                 // To adjacent dungeons
                 .{ .position = .{ .x = 220.0, .y = 540.0 }, .radius = 25.0, .destination = 5, .shape = "triangle" },
                 .{ .position = .{ .x = 1700.0, .y = 540.0 }, .radius = 25.0, .destination = 3, .shape = "square" },
@@ -192,15 +238,16 @@
                 .{ .position = .{ .x = 1220.0, .y = 600.0 }, .size = .{ .x = 35.0, .y = 35.0 }, .type = "deadly" },
             },
             .enemies = .{
-                .{ .position = .{ .x = 800.0, .y = 800.0 }, .radius = 16.0 },
-                .{ .position = .{ .x = 480.0, .y = 350.0 }, .radius = 14.0 },
-                .{ .position = .{ .x = 1440.0, .y = 350.0 }, .radius = 14.0 },
-                .{ .position = .{ .x = 620.0, .y = 200.0 }, .radius = 15.0 },
-                .{ .position = .{ .x = 1300.0, .y = 200.0 }, .radius = 15.0 },
+                // Southwest Dungeon: 5 enemies (small size)
+                .{ .position = .{ .x = 600.0, .y = 300.0 }, .radius = 16.0 },
+                .{ .position = .{ .x = 1320.0, .y = 300.0 }, .radius = 16.0 },
+                .{ .position = .{ .x = 480.0, .y = 500.0 }, .radius = 16.0 },
+                .{ .position = .{ .x = 1440.0, .y = 500.0 }, .radius = 16.0 },
+                .{ .position = .{ .x = 960.0, .y = 700.0 }, .radius = 16.0 },
             },
             .portals = .{
-                // Back to overworld
-                .{ .position = .{ .x = 1520.0, .y = 750.0 }, .radius = 30.0, .destination = 0, .shape = "circle" },
+                // Back to overworld (Southwest dungeon - portal positioned UP-RIGHT toward overworld)
+                .{ .position = .{ .x = 1064.0, .y = 436.0 }, .radius = 30.0, .destination = 0, .shape = "circle" },
                 // To adjacent dungeons
                 .{ .position = .{ .x = 400.0, .y = 150.0 }, .radius = 25.0, .destination = 6, .shape = "square" },
                 .{ .position = .{ .x = 1700.0, .y = 880.0 }, .radius = 25.0, .destination = 4, .shape = "circle" },
@@ -223,15 +270,17 @@
                 .{ .position = .{ .x = 1220.0, .y = 500.0 }, .size = .{ .x = 40.0, .y = 40.0 }, .type = "deadly" },
             },
             .enemies = .{
-                .{ .position = .{ .x = 400.0, .y = 250.0 }, .radius = 15.0 },
-                .{ .position = .{ .x = 1520.0, .y = 250.0 }, .radius = 15.0 },
-                .{ .position = .{ .x = 400.0, .y = 830.0 }, .radius = 15.0 },
-                .{ .position = .{ .x = 1520.0, .y = 830.0 }, .radius = 15.0 },
-                .{ .position = .{ .x = 1300.0, .y = 700.0 }, .radius = 18.0 },
+                // Northwest Dungeon: 6 enemies (smallest size) 
+                .{ .position = .{ .x = 400.0, .y = 300.0 }, .radius = 15.0 },
+                .{ .position = .{ .x = 1520.0, .y = 300.0 }, .radius = 15.0 },
+                .{ .position = .{ .x = 400.0, .y = 780.0 }, .radius = 15.0 },
+                .{ .position = .{ .x = 1520.0, .y = 780.0 }, .radius = 15.0 },
+                .{ .position = .{ .x = 800.0, .y = 400.0 }, .radius = 15.0 },
+                .{ .position = .{ .x = 1120.0, .y = 600.0 }, .radius = 15.0 },
             },
             .portals = .{
-                // Back to overworld
-                .{ .position = .{ .x = 1420.0, .y = 800.0 }, .radius = 30.0, .destination = 0, .shape = "circle" },
+                // Back to overworld (Northwest dungeon - portal positioned DOWN-RIGHT toward overworld)
+                .{ .position = .{ .x = 1064.0, .y = 644.0 }, .radius = 30.0, .destination = 0, .shape = "circle" },
                 // To adjacent dungeons
                 .{ .position = .{ .x = 1700.0, .y = 200.0 }, .radius = 25.0, .destination = 1, .shape = "circle" },
                 .{ .position = .{ .x = 960.0, .y = 950.0 }, .radius = 25.0, .destination = 5, .shape = "triangle" },

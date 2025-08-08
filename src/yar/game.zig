@@ -9,7 +9,7 @@ const PLAYER_SPEED = 600.0;
 const BULLET_SPEED = 400.0;
 const ENEMY_SPEED = 100.0;
 const MAX_BULLETS = 20;
-const MAX_ENEMIES = 10;
+const MAX_ENEMIES = 12;
 const MAX_OBSTACLES = 15;
 const MAX_PORTALS = 6; // More portals needed for hexagon layout
 const NUM_SCENES = 7; // Overworld + 6 dungeons
@@ -36,12 +36,18 @@ const ORANGE_BRIGHT = raylib.Color{ .r = 255, .g = 180, .b = 80, .a = 255 };
 const GRAY_BRIGHT = raylib.Color{ .r = 180, .g = 180, .b = 180, .a = 255 };
 const WHITE_BRIGHT = raylib.Color{ .r = 255, .g = 255, .b = 255, .a = 255 };
 
+const EnemyState = enum {
+    alive,
+    dead,
+};
+
 const GameObject = struct {
     position: raylib.Vector2,
     velocity: raylib.Vector2,
     radius: f32,
     active: bool,
     color: raylib.Color,
+    enemyState: EnemyState, // Only used for enemies
 };
 
 const ObstacleType = enum {
@@ -72,6 +78,7 @@ const Obstacle = struct {
 
 const Scene = struct {
     enemies: [MAX_ENEMIES]GameObject,
+    originalEnemies: [MAX_ENEMIES]GameObject, // Store original enemy states for respawning
     obstacles: [MAX_OBSTACLES]Obstacle,
     portals: [MAX_PORTALS]Portal,
     shape: SceneShape,
@@ -130,6 +137,11 @@ const GameState = struct {
     gameWon: bool,
     allocator: std.mem.Allocator,
     gameData: GameData,
+    isPaused: bool,
+    gameSpeed: f32,
+    // Pre-allocated text buffers to avoid per-frame allocation
+    sceneTextBuffer: [128]u8,
+    fpsTextBuffer: [32]u8,
 
     const Self = @This();
 
@@ -153,6 +165,7 @@ const GameState = struct {
                 .radius = gameData.player_start.radius,
                 .active = true,
                 .color = BLUE,
+                .enemyState = .alive, // Not used for player, but required
             },
             .bullets = undefined,
             .scenes = undefined,
@@ -161,6 +174,10 @@ const GameState = struct {
             .gameWon = false,
             .allocator = allocator,
             .gameData = gameData,
+            .isPaused = false,
+            .gameSpeed = 1.0,
+            .sceneTextBuffer = undefined,
+            .fpsTextBuffer = undefined,
         };
 
         // Initialize bullets
@@ -171,6 +188,7 @@ const GameState = struct {
                 .radius = 5.0,
                 .active = false,
                 .color = YELLOW,
+                .enemyState = .alive, // Not used for bullets, but required
             };
         }
 
@@ -190,6 +208,7 @@ const GameState = struct {
 
             game.scenes[sceneIndex] = Scene{
                 .enemies = undefined,
+                .originalEnemies = undefined,
                 .obstacles = undefined,
                 .portals = undefined,
                 .shape = shape,
@@ -210,29 +229,37 @@ const GameState = struct {
         return game;
     }
 
+    fn createEnemyFromData(dataEnemy: ?DataEnemy, enemyScale: f32) GameObject {
+        if (dataEnemy) |enemy| {
+            return GameObject{
+                .position = raylib.Vector2{ .x = enemy.position.x, .y = enemy.position.y },
+                .velocity = raylib.Vector2{ .x = 0, .y = 0 },
+                .radius = enemy.radius * enemyScale,
+                .active = true,
+                .color = RED,
+                .enemyState = .alive,
+            };
+        } else {
+            return GameObject{
+                .position = raylib.Vector2{ .x = 0, .y = 0 },
+                .velocity = raylib.Vector2{ .x = 0, .y = 0 },
+                .radius = 15.0,
+                .active = false,
+                .color = RED,
+                .enemyState = .alive,
+            };
+        }
+    }
+
     fn loadSceneFromData(self: *Self, sceneIndex: u8) void {
         const dataScene = self.gameData.scenes[sceneIndex];
 
-        // Load enemies from data
+        // Load enemies from data (create once, store in both arrays)
         for (0..MAX_ENEMIES) |i| {
-            if (i < dataScene.enemies.len) {
-                const dataEnemy = dataScene.enemies[i];
-                self.scenes[sceneIndex].enemies[i] = GameObject{
-                    .position = raylib.Vector2{ .x = dataEnemy.position.x, .y = dataEnemy.position.y },
-                    .velocity = raylib.Vector2{ .x = 0, .y = 0 },
-                    .radius = dataEnemy.radius * dataScene.enemy_scale,
-                    .active = true,
-                    .color = RED,
-                };
-            } else {
-                self.scenes[sceneIndex].enemies[i] = GameObject{
-                    .position = raylib.Vector2{ .x = 0, .y = 0 },
-                    .velocity = raylib.Vector2{ .x = 0, .y = 0 },
-                    .radius = 15.0,
-                    .active = false,
-                    .color = RED,
-                };
-            }
+            const dataEnemy = if (i < dataScene.enemies.len) dataScene.enemies[i] else null;
+            const enemy = createEnemyFromData(dataEnemy, dataScene.enemy_scale);
+            self.scenes[sceneIndex].enemies[i] = enemy;
+            self.scenes[sceneIndex].originalEnemies[i] = enemy;
         }
 
         // Load obstacles from data
@@ -290,6 +317,11 @@ const GameState = struct {
         }
     }
 
+    fn restoreEnemiesInScene(self: *Self, sceneIndex: u8) void {
+        // Restore all enemies in the specified scene to their original state (bulk copy)
+        self.scenes[sceneIndex].enemies = self.scenes[sceneIndex].originalEnemies;
+    }
+
     pub fn restart(self: *Self) void {
         // Reset player to starting position
         self.player.position = raylib.Vector2{ .x = self.gameData.player_start.position.x, .y = self.gameData.player_start.position.y };
@@ -310,34 +342,7 @@ const GameState = struct {
 
         self.gameOver = false;
         self.gameWon = false;
-    }
-
-    fn moveOverworldPortalNearPlayer(self: *Self) void {
-        // Only do this when we're in a dungeon (not overworld)
-        if (self.currentScene == 0) return;
-
-        const currentScene = &self.scenes[self.currentScene];
-
-        // Find the portal that goes back to overworld (destination = 0)
-        for (0..MAX_PORTALS) |i| {
-            if (currentScene.portals[i].active and currentScene.portals[i].destinationScene == 0) {
-                // Place portal close to player but not directly on top
-                currentScene.portals[i].position = raylib.Vector2{
-                    .x = self.player.position.x + 120.0, // Right next to player
-                    .y = self.player.position.y,
-                };
-
-                // Keep portal on screen
-                if (currentScene.portals[i].position.x + currentScene.portals[i].radius > SCREEN_WIDTH) {
-                    currentScene.portals[i].position.x = self.player.position.x - 120.0; // Put on left side instead
-                }
-                if (currentScene.portals[i].position.x < currentScene.portals[i].radius) {
-                    currentScene.portals[i].position.x = currentScene.portals[i].radius;
-                }
-
-                break; // Only move the first overworld portal we find
-            }
-        }
+        self.isPaused = false;
     }
 
     fn checkCircleRectCollision(self: *Self, circlePos: raylib.Vector2, radius: f32, rectPos: raylib.Vector2, rectSize: raylib.Vector2) bool {
@@ -362,7 +367,23 @@ const GameState = struct {
         return false;
     }
 
+    pub fn handleInput(self: *Self) void {
+        // Handle pause toggle
+        if (raylib.isKeyPressed(raylib.KEY_SPACE)) {
+            self.isPaused = !self.isPaused;
+        }
+
+        // Handle speed control with chunky increments
+        if (raylib.isKeyPressed(raylib.KEY_LEFT_BRACKET)) {
+            self.gameSpeed = @max(0.25, self.gameSpeed - 0.25); // Min 0.25x speed
+        }
+        if (raylib.isKeyPressed(raylib.KEY_RIGHT_BRACKET)) {
+            self.gameSpeed = @min(4.0, self.gameSpeed + 0.25); // Max 4x speed
+        }
+    }
+
     pub fn updatePlayer(self: *Self, deltaTime: f32) void {
+        if (self.isPaused) return;
         var movement = raylib.Vector2{ .x = 0, .y = 0 };
 
         // Mouse movement - move toward left click position
@@ -393,9 +414,10 @@ const GameState = struct {
             movement.y *= 0.707;
         }
 
-        // Update position with collision checking
-        const newX = self.player.position.x + movement.x * PLAYER_SPEED * deltaTime;
-        const newY = self.player.position.y + movement.y * PLAYER_SPEED * deltaTime;
+        // Update position with collision checking (apply game speed)
+        const effectiveDeltaTime = deltaTime * self.gameSpeed;
+        const newX = self.player.position.x + movement.x * PLAYER_SPEED * effectiveDeltaTime;
+        const newY = self.player.position.y + movement.y * PLAYER_SPEED * effectiveDeltaTime;
 
         // Get player radius for current scene
         const currentScene = &self.scenes[self.currentScene];
@@ -450,10 +472,12 @@ const GameState = struct {
     }
 
     pub fn updateBullets(self: *Self, deltaTime: f32) void {
+        if (self.isPaused) return;
+        const effectiveDeltaTime = deltaTime * self.gameSpeed;
         for (0..MAX_BULLETS) |i| {
             if (self.bullets[i].active) {
-                self.bullets[i].position.x += self.bullets[i].velocity.x * deltaTime;
-                self.bullets[i].position.y += self.bullets[i].velocity.y * deltaTime;
+                self.bullets[i].position.x += self.bullets[i].velocity.x * effectiveDeltaTime;
+                self.bullets[i].position.y += self.bullets[i].velocity.y * effectiveDeltaTime;
 
                 // Deactivate if off screen
                 if (self.bullets[i].position.x < 0 or self.bullets[i].position.x > SCREEN_WIDTH or
@@ -466,8 +490,9 @@ const GameState = struct {
     }
 
     pub fn updateEnemies(self: *Self, deltaTime: f32) void {
+        if (self.isPaused) return;
         for (0..MAX_ENEMIES) |i| {
-            if (self.scenes[self.currentScene].enemies[i].active) {
+            if (self.scenes[self.currentScene].enemies[i].active and self.scenes[self.currentScene].enemies[i].enemyState == .alive) {
                 // Move towards player
                 var direction = raylib.Vector2{
                     .x = self.player.position.x - self.scenes[self.currentScene].enemies[i].position.x,
@@ -480,9 +505,13 @@ const GameState = struct {
                     direction.y /= length;
                 }
 
+                // Use different speeds for overworld vs dungeons
+                const enemySpeed: f32 = if (self.currentScene == 0) 50.0 else ENEMY_SPEED; // Slower in overworld
+                const effectiveDeltaTime = deltaTime * self.gameSpeed;
+
                 // Check for obstacle collision before moving
-                const newX = self.scenes[self.currentScene].enemies[i].position.x + direction.x * ENEMY_SPEED * deltaTime;
-                const newY = self.scenes[self.currentScene].enemies[i].position.y + direction.y * ENEMY_SPEED * deltaTime;
+                const newX = self.scenes[self.currentScene].enemies[i].position.x + direction.x * enemySpeed * effectiveDeltaTime;
+                const newY = self.scenes[self.currentScene].enemies[i].position.y + direction.y * enemySpeed * effectiveDeltaTime;
 
                 // Check X movement
                 const testPosX = raylib.Vector2{ .x = newX, .y = self.scenes[self.currentScene].enemies[i].position.y };
@@ -507,14 +536,14 @@ const GameState = struct {
         for (0..MAX_BULLETS) |i| {
             if (self.bullets[i].active) {
                 for (0..MAX_ENEMIES) |j| {
-                    if (currentScene.enemies[j].active) {
+                    if (currentScene.enemies[j].active and currentScene.enemies[j].enemyState == .alive) {
                         const dx = self.bullets[i].position.x - currentScene.enemies[j].position.x;
                         const dy = self.bullets[i].position.y - currentScene.enemies[j].position.y;
                         const distance = math.sqrt(dx * dx + dy * dy);
 
                         if (distance < self.bullets[i].radius + currentScene.enemies[j].radius) {
                             self.bullets[i].active = false;
-                            currentScene.enemies[j].active = false;
+                            currentScene.enemies[j].enemyState = .dead;
                         }
                     }
                 }
@@ -523,7 +552,7 @@ const GameState = struct {
 
         // Player-Enemy collisions (current scene only)
         for (0..MAX_ENEMIES) |i| {
-            if (currentScene.enemies[i].active) {
+            if (currentScene.enemies[i].active and currentScene.enemies[i].enemyState == .alive) {
                 const dx = self.player.position.x - currentScene.enemies[i].position.x;
                 const dy = self.player.position.y - currentScene.enemies[i].position.y;
                 const distance = math.sqrt(dx * dx + dy * dy);
@@ -542,11 +571,12 @@ const GameState = struct {
                 const distance = math.sqrt(dx * dx + dy * dy);
 
                 if (distance < playerRadius + currentScene.portals[i].radius) {
-                    self.currentScene = currentScene.portals[i].destinationScene;
+                    const destinationScene = currentScene.portals[i].destinationScene;
+                    self.currentScene = destinationScene;
                     // Always place player at screen center
                     self.player.position = raylib.Vector2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 };
-                    // Move the portal back to overworld next to the player for easy return
-                    self.moveOverworldPortalNearPlayer();
+                    // Restore enemies in the destination scene to their original positions
+                    self.restoreEnemiesInScene(destinationScene);
                     return; // Exit early to avoid processing more collisions
                 }
             }
@@ -563,11 +593,11 @@ const GameState = struct {
 
         // Enemy-Deadly Obstacle collisions (current scene only)
         for (0..MAX_ENEMIES) |i| {
-            if (currentScene.enemies[i].active) {
+            if (currentScene.enemies[i].active and currentScene.enemies[i].enemyState == .alive) {
                 for (0..MAX_OBSTACLES) |j| {
                     if (currentScene.obstacles[j].active and currentScene.obstacles[j].type == .deadly) {
                         if (self.checkCircleRectCollision(currentScene.enemies[i].position, currentScene.enemies[i].radius, currentScene.obstacles[j].position, currentScene.obstacles[j].size)) {
-                            currentScene.enemies[i].active = false;
+                            currentScene.enemies[i].enemyState = .dead;
                         }
                     }
                 }
@@ -577,7 +607,7 @@ const GameState = struct {
         // Check win condition - all enemies dead in current scene
         var allEnemiesDead = true;
         for (0..MAX_ENEMIES) |i| {
-            if (currentScene.enemies[i].active) {
+            if (currentScene.enemies[i].active and currentScene.enemies[i].enemyState == .alive) {
                 allEnemiesDead = false;
                 break;
             }
@@ -618,8 +648,19 @@ const GameState = struct {
             // Draw enemies from current scene
             for (0..MAX_ENEMIES) |i| {
                 if (sceneData.enemies[i].active) {
-                    raylib.drawCircleV(sceneData.enemies[i].position, sceneData.enemies[i].radius, sceneData.enemies[i].color);
-                    raylib.drawCircleLinesV(sceneData.enemies[i].position, sceneData.enemies[i].radius, RED_BRIGHT);
+                    switch (sceneData.enemies[i].enemyState) {
+                        .alive => {
+                            // Draw alive enemies normally
+                            raylib.drawCircleV(sceneData.enemies[i].position, sceneData.enemies[i].radius, sceneData.enemies[i].color);
+                            raylib.drawCircleLinesV(sceneData.enemies[i].position, sceneData.enemies[i].radius, RED_BRIGHT);
+                        },
+                        .dead => {
+                            // Draw dead enemies as smaller gray circles with outline
+                            const deadRadius = sceneData.enemies[i].radius * 0.7; // Smaller when dead
+                            raylib.drawCircleV(sceneData.enemies[i].position, deadRadius, GRAY);
+                            raylib.drawCircleLinesV(sceneData.enemies[i].position, deadRadius, GRAY_BRIGHT);
+                        },
+                    }
                 }
             }
 
@@ -671,21 +712,36 @@ const GameState = struct {
             raylib.drawText("Left Click: Move | Right Click: Shoot | Orange = Portal", 10, @intFromFloat(SCREEN_HEIGHT - 80), 16, GRAY);
             raylib.drawText("WASD/Arrows: Move (Alt) | R: Restart Scene | ESC: Quit", 10, @intFromFloat(SCREEN_HEIGHT - 60), 16, GRAY);
 
-            // Scene indicator
+            // Scene indicator (using pre-allocated buffer)
             const sceneName = if (self.currentScene < NUM_SCENES)
                 self.scenes[self.currentScene].name
             else
                 "Unknown";
-            const sceneText = try raylib.textFormat(self.allocator, "Scene {d}/{d}: {s}", .{ self.currentScene, NUM_SCENES - 1, sceneName });
-            defer self.allocator.free(sceneText);
+            const sceneText = std.fmt.bufPrintZ(&self.sceneTextBuffer, "Scene {d}/{d}: {s}", .{ self.currentScene, NUM_SCENES - 1, sceneName }) catch "Scene";
             raylib.drawText(sceneText, 10, @intFromFloat(SCREEN_HEIGHT - 40), 16, WHITE);
 
-            // FPS Counter (top right corner)
+            // FPS Counter (top right corner, using pre-allocated buffer)
             const fps = raylib.getFPS();
-            const fpsText = try raylib.textFormat(self.allocator, "FPS: {d}", .{fps});
-            defer self.allocator.free(fpsText);
+            const fpsText = std.fmt.bufPrintZ(&self.fpsTextBuffer, "FPS: {d}", .{fps}) catch "FPS: --";
             const fpsWidth = raylib.measureText(fpsText, 16);
             raylib.drawText(fpsText, @as(i32, @intFromFloat(SCREEN_WIDTH)) - fpsWidth - 10, 10, 16, WHITE);
+
+            // Pause effect - subtle colorful pulsing border
+            if (self.isPaused) {
+                const time = raylib.getTime();
+                const pulse = (math.sin(time * 1.5) + 1.0) * 0.5; // 0.0 to 1.0, slower pulse
+                const borderWidth = @as(i32, @intFromFloat(2 + pulse * 4)); // 2 to 6 pixels
+                
+                // Pulsing rainbow border effect
+                const hue = @mod(time * 60.0, 360.0); // Cycle through colors
+                const borderColor = raylib.colorFromHSV(@floatCast(hue), 1.0, 1.0);
+                
+                // Draw thick border around entire screen
+                raylib.drawRectangle(0, 0, @as(i32, @intFromFloat(SCREEN_WIDTH)), borderWidth, borderColor); // Top
+                raylib.drawRectangle(0, @as(i32, @intFromFloat(SCREEN_HEIGHT)) - borderWidth, @as(i32, @intFromFloat(SCREEN_WIDTH)), borderWidth, borderColor); // Bottom  
+                raylib.drawRectangle(0, 0, borderWidth, @as(i32, @intFromFloat(SCREEN_HEIGHT)), borderColor); // Left
+                raylib.drawRectangle(@as(i32, @intFromFloat(SCREEN_WIDTH)) - borderWidth, 0, borderWidth, @as(i32, @intFromFloat(SCREEN_HEIGHT)), borderColor); // Right
+            }
         } else if (self.gameWon) {
             // Win screen
             raylib.drawText("YOU WIN!", @intFromFloat(SCREEN_WIDTH / 2 - 400), @intFromFloat(SCREEN_HEIGHT / 2 - 200), 160, GREEN);
@@ -718,16 +774,21 @@ pub fn run(allocator: std.mem.Allocator) !void {
     while (!raylib.windowShouldClose()) {
         const deltaTime = raylib.getFrameTime();
 
+        // Handle input regardless of game state
+        game.handleInput();
+
         if (!game.gameOver and !game.gameWon) {
             game.updatePlayer(deltaTime);
 
-            if (raylib.isMouseButtonPressed(raylib.MOUSE_BUTTON_RIGHT)) {
+            if (raylib.isMouseButtonPressed(raylib.MOUSE_BUTTON_RIGHT) and !game.isPaused) {
                 game.fireBullet();
             }
 
             game.updateBullets(deltaTime);
             game.updateEnemies(deltaTime);
-            game.checkCollisions();
+            if (!game.isPaused) {
+                game.checkCollisions();
+            }
         } else {
             // Allow mouse click restart only on game over/win screens
             if (raylib.isMouseButtonPressed(raylib.MOUSE_BUTTON_LEFT)) {

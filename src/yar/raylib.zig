@@ -35,6 +35,9 @@ pub const KEY_LEFT = 263;
 pub const KEY_RIGHT = 262;
 pub const KEY_ESCAPE = 256;
 pub const KEY_R = 82;
+pub const KEY_SPACE = 32;
+pub const KEY_LEFT_BRACKET = 91;  // [
+pub const KEY_RIGHT_BRACKET = 93; // ]
 
 // Mouse constants
 pub const MOUSE_BUTTON_LEFT = 0;
@@ -53,6 +56,7 @@ extern fn EndDrawing() void;
 extern fn ClearBackground(color: Color) void;
 extern fn DrawCircleV(center: Vector2, radius: f32, color: Color) void;
 extern fn DrawCircleLines(centerX: c_int, centerY: c_int, radius: f32, color: Color) void;
+extern fn DrawRectangle(posX: c_int, posY: c_int, width: c_int, height: c_int, color: Color) void;
 extern fn DrawRectangleV(position: Vector2, size: Vector2, color: Color) void;
 extern fn DrawRectangleLines(posX: c_int, posY: c_int, width: c_int, height: c_int, color: Color) void;
 extern fn DrawTriangle(v1: Vector2, v2: Vector2, v3: Vector2, color: Color) void;
@@ -60,6 +64,7 @@ extern fn DrawTriangleLines(v1: Vector2, v2: Vector2, v3: Vector2, color: Color)
 extern fn DrawText(text: [*:0]const u8, posX: c_int, posY: c_int, fontSize: c_int, color: Color) void;
 extern fn GetFrameTime() f32;
 extern fn GetFPS() c_int;
+extern fn GetTime() f64;
 extern fn MeasureText(text: [*:0]const u8, fontSize: c_int) c_int;
 extern fn IsKeyDown(key: c_int) bool;
 extern fn IsKeyPressed(key: c_int) bool;
@@ -69,6 +74,7 @@ extern fn GetMousePosition() Vector2;
 extern fn GetRandomValue(min: c_int, max: c_int) c_int;
 extern fn SetRandomSeed(seed: c_uint) void;
 extern fn TextFormat(text: [*:0]const u8, ...) [*:0]const u8;
+extern fn ColorFromHSV(hue: f32, saturation: f32, value: f32) Color;
 
 // Wrapper functions for easier Zig usage
 pub fn initWindow(width: i32, height: i32, title: [:0]const u8) void {
@@ -119,6 +125,10 @@ pub fn drawCircleLinesV(center: Vector2, radius: f32, color: Color) void {
     DrawCircleLines(@intFromFloat(center.x), @intFromFloat(center.y), radius, color);
 }
 
+pub fn drawRectangle(posX: i32, posY: i32, width: i32, height: i32, color: Color) void {
+    DrawRectangle(@intCast(posX), @intCast(posY), @intCast(width), @intCast(height), color);
+}
+
 pub fn drawRectangleV(position: Vector2, size: Vector2, color: Color) void {
     DrawRectangleV(position, size, color);
 }
@@ -145,6 +155,10 @@ pub fn getFrameTime() f32 {
 
 pub fn getFPS() i32 {
     return @intCast(GetFPS());
+}
+
+pub fn getTime() f64 {
+    return GetTime();
 }
 
 pub fn measureText(text: [:0]const u8, fontSize: i32) i32 {
@@ -181,4 +195,8 @@ pub fn setRandomSeed(seed: u32) void {
 
 pub fn textFormat(allocator: std.mem.Allocator, comptime fmt: []const u8, args: anytype) ![:0]u8 {
     return std.fmt.allocPrintZ(allocator, fmt, args);
+}
+
+pub fn colorFromHSV(hue: f32, saturation: f32, value: f32) Color {
+    return ColorFromHSV(hue, saturation, value);
 }

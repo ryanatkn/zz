@@ -85,6 +85,10 @@ $ zig build             # Standard build
 $ ./zig-out/bin/zz      # Run binary directly after build
 ```
 
+## Notes to LLMs
+
+- don't run tests, I'll do that myself
+
 ## YAR Game Overview
 
 **YAR** (Yet Another RPG) is a vibrant 2D top-down shooter featuring:

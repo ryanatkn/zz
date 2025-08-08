@@ -1,6 +1,6 @@
 # zz - Experimental Software Tools
 
-A Zig project featuring CLI utilities and a 2D game with clean modular architecture.
+A Zig project featuring CLI utilities and a 2D action RPG with clean modular architecture.
 
 ## Quick Start
 
@@ -22,10 +22,12 @@ zig version  # Requires 0.14.1+
 - Clean tree-style output formatting
 
 ### YAR Game
-- **YAR** (Yet Another RPG) - Vibrant 2D top-down shooter
+- **YAR** (Yet Another RPG) - Vibrant 2D top-down action RPG
+- **World**: Interconnected locations with portal system
 - **Controls**: Mouse (move + shoot) or WASD + mouse
-- **Gameplay**: Green obstacles (blocking), purple hazards (deadly)
-- **Features**: Enemy AI, collision detection, dynamic world generation
+- **Gameplay**: Green obstacles (blocking), purple hazards (deadly), orange portals (transitions)
+- **Enemy AI**: Intelligent aggro-based targeting with pathfinding
+- **Reset System**: Multiple reset levels (resurrect, scene reset, full restart)
 - **Performance**: 144 FPS target with smooth gameplay
 
 ## Commands
@@ -64,11 +66,22 @@ zig version  # Requires 0.14.1+
 
 ## Game Controls (YAR)
 
+### Movement & Combat
 - **Left Click**: Move player toward mouse cursor
 - **Right Click**: Shoot toward mouse cursor  
 - **WASD/Arrow Keys**: Alternative movement controls
-- **R Key**: Restart with new randomly generated world
+
+### Game Management
+- **R Key**: Resurrect player (preserve world state)
+- **T Key**: Reset current scene (respawn enemies in current location)
+- **Y Key**: Full restart (reset entire game world)
+- **Space**: Pause/unpause game
+- **[/] Keys**: Speed control (0.25x - 4x)
 - **ESC**: Quit game
+
+### Visual Indicators
+- **Orange Portals**: Transitions between locations (shape indicates destination type)
+- **Border Colors**: Yellow/orange (paused), green/teal (victory), red (death)
 
 ## Development
 

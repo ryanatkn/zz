@@ -1,6 +1,6 @@
 # zz - Experimental Software Tools
 
-A Zig project building experimental CLI utilities and 2D games with modular architecture. Features a tree visualization tool and YAR (Yet Another RPG), a vibrant top-down shooter.
+A Zig project building CLI utilities and a 2D action RPG with modular architecture. Features a tree visualization tool and YAR (Yet Another RPG), a vibrant top-down action game.
 
 ## Environment & Dependencies
 
@@ -48,7 +48,9 @@ $ ./zz tree
     │   │   ├── raylib_cheatsheet.txt  # API quick reference
     │   │   └── raymath_cheatsheet.txt # Math functions reference
     │   ├── yar/                       # YAR game module (clean, consolidated architecture)
-    │   │   ├── game.zig              # Complete game implementation with integrated systems
+    │   │   ├── CLAUDE.md             # Game-specific documentation and concepts
+    │   │   ├── game.zig              # Complete game implementation with aggro/targeting systems
+    │   │   ├── game_data.zon         # Data-driven level/scene configuration
     │   │   └── raylib.zig            # Raylib FFI bindings and C interop
     │   └── main.zig                   # Minimal application entry point
     ├── zig-out/                       # Build output directory (auto-generated)
@@ -74,10 +76,10 @@ $ ./zz tree [directory] [depth]
 $ ./zz tree            # Current directory, default depth
 $ ./zz tree src/ 2     # src/ directory, max 2 levels deep
 
-# Run the 2D shooter game YAR with mouse + keyboard controls
+# Run the 2D action RPG YAR with intelligent enemy AI
 $ ./zz yar
 
-# Show help and available commands
+# Show help and available commands  
 $ ./zz help
 
 # Direct build commands (without wrapper script)
@@ -91,13 +93,15 @@ $ ./zig-out/bin/zz      # Run binary directly after build
 
 ## YAR Game Overview
 
-**YAR** (Yet Another RPG) is a vibrant 2D top-down shooter featuring:
+**YAR** (Yet Another RPG) is a vibrant 2D top-down action RPG featuring:
+- **Interconnected World**: Multiple locations with unique layouts and enemy spawns
+- **Portal System**: Orange portals (circle/triangle/square shapes) for scene transitions
+- **Intelligent Enemy AI**: Aggro-based targeting system with pathfinding and collision avoidance
+- **Flexible Reset System**: Multiple reset levels (resurrect, scene reset, full restart)
+- **Dynamic Visual Effects**: Color-cycling borders for different game states (pause, victory, death)
 - **Dual Control Schemes**: Mouse (left click move, right click shoot) + WASD keyboard movement
 - **Vibrant Color Palette**: Non-pastel colors for clear visual distinction
-- **Dynamic Obstacle System**: Green blocking obstacles (4x larger) and purple deadly hazards
-- **Intelligent Enemy AI**: Pathfinding around obstacles with collision avoidance
-- **Precise Collision Detection**: Circle-rectangle and circle-circle collision systems
-- **Dynamic Restart**: R key regenerates entire world with new obstacle layouts
+- **Obstacle Systems**: Green blocking obstacles and purple deadly hazards
 - **Integrated Runtime**: No shell process spawning - runs directly within CLI binary
 
 ## Development Guidelines & Architecture
@@ -106,7 +110,7 @@ $ ./zig-out/bin/zz      # Run binary directly after build
 - **Modular Architecture**: Clean separation of concerns into domain-specific modules
 - **CLI Module**: Command parsing, help text, and execution orchestration
 - **Tree Module**: Directory traversal, filtering, and visualization logic
-- **YAR Module**: Consolidated game implementation with runtime integration
+- **YAR Module**: Consolidated game implementation with aggro/targeting system and scene management
 - **Memory Management**: Arena allocators for short-lived data, careful lifetime management
 - **Static Linking**: External libraries bundled with build system integration
 - **Error Handling**: Zig error unions for robust error propagation
@@ -115,8 +119,31 @@ $ ./zig-out/bin/zz      # Run binary directly after build
 ### Architecture Benefits
 - **Single Responsibility**: Each module owns one clear domain
 - **Runtime Integration**: Game runs as library function, not separate process
-- **Consolidated Logic**: YAR combines all systems in single, maintainable module
+- **Consolidated Logic**: YAR combines all systems in single, maintainable module with data-driven configuration
 - **Performance**: No process spawning overhead, minimal indirection
+
+## YAR Game Systems
+
+### Aggro/Targeting System
+- **`aggroTarget`**: When set, enemies chase this position at full speed
+- **`friendlyTarget`**: Reserved for future healing/support mechanics  
+- **Dynamic Behavior**: Enemies switch between chasing player and returning home based on game state
+
+### Scene Management
+- **Multi-Scene World**: 7 interconnected scenes (Overworld + 6 dungeons) loaded from `game_data.zon`
+- **Portal System**: Scene transitions via colored shape-coded portals  
+- **Per-Scene Scaling**: Player and enemy sizes adjust based on scene configuration
+- **State Persistence**: Enemy states preserved across scene transitions
+
+### Reset System Hierarchy
+1. **Resurrect (R key/Mouse click)**: Player respawns at original location, world state preserved
+2. **Scene Reset (T key)**: Current scene enemies respawn, other scenes unchanged  
+3. **Full Restart (Y key)**: Complete world reset, all scenes restored to initial state
+
+### Visual Feedback
+- **Pause State**: Yellow-orange cycling border (60°-30° hue range)
+- **Victory State**: Green-teal cycling border (120°-180° hue range)  
+- **Death State**: Red pulsing border with dynamic intensity
 
 ## Extending the CLI
 

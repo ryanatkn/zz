@@ -100,6 +100,11 @@ const ObstacleType = enum {
     deadly,
 };
 
+const CameraMode = enum {
+    fixed,
+    follow,
+};
+
 const SceneShape = enum {
     circle,
     triangle,
@@ -130,6 +135,7 @@ const Scene = struct {
     name: []const u8,
     background_color: Color,
     unit_scale: f32,
+    camera_mode: CameraMode,
 };
 
 // Data structures for loading from ZON (same as YAR)
@@ -155,6 +161,7 @@ const DataScene = struct {
     name: []const u8,
     background_color: struct { r: u8, g: u8, b: u8 },
     unit_scale: f32,
+    camera_mode: []const u8,
     obstacles: []const DataObstacle,
     enemies: []const DataEnemy,
     portals: []const DataPortal,
@@ -365,6 +372,11 @@ const GameState = struct {
                 else => .circle,
             };
 
+            const camera_mode: CameraMode = if (std.mem.eql(u8, dataScene.camera_mode, "follow"))
+                .follow
+            else
+                .fixed;
+
             game.scenes[sceneIndex] = Scene{
                 .enemies = undefined,
                 .originalEnemies = undefined,
@@ -379,6 +391,7 @@ const GameState = struct {
                     .a = 255,
                 },
                 .unit_scale = dataScene.unit_scale,
+                .camera_mode = camera_mode,
             };
 
             game.loadSceneFromData(@intCast(sceneIndex));
@@ -522,14 +535,15 @@ const GameState = struct {
     }
 
     fn updateCamera(self: *Self) void {
-        // Only use camera tracking in non-overworld scenes (currentScene != 0)
-        if (self.currentScene != 0) {
-            // Smoothly follow the player
+        const currentScene = &self.scenes[self.currentScene];
+        
+        if (currentScene.camera_mode == .follow) {
+            // Camera follows the player
             self.camera.target = self.player.position;
             // Set camera offset to center of screen for proper following
             self.camera.offset = Vec2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 };
         } else {
-            // In overworld (scene 0), reset camera to center the screen
+            // Fixed camera - center the screen
             self.camera.target = Vec2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 };
             self.camera.offset = Vec2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 };
         }
@@ -537,11 +551,13 @@ const GameState = struct {
     
     // Transform world coordinates to screen coordinates using camera
     fn worldToScreen(self: *Self, worldPos: Vec2) Vec2 {
-        if (self.currentScene == 0) {
-            // No camera transformation in overworld
+        const currentScene = &self.scenes[self.currentScene];
+        
+        if (currentScene.camera_mode == .fixed) {
+            // No camera transformation for fixed camera
             return worldPos;
         } else {
-            // Apply camera transformation for dungeons
+            // Apply camera transformation for following camera
             return Vec2{
                 .x = worldPos.x - self.camera.target.x + self.camera.offset.x,
                 .y = worldPos.y - self.camera.target.y + self.camera.offset.y,
@@ -551,11 +567,13 @@ const GameState = struct {
     
     // Transform screen coordinates to world coordinates using camera
     fn screenToWorld(self: *Self, screenPos: Vec2) Vec2 {
-        if (self.currentScene == 0) {
-            // No camera transformation in overworld
+        const currentScene = &self.scenes[self.currentScene];
+        
+        if (currentScene.camera_mode == .fixed) {
+            // No camera transformation for fixed camera
             return screenPos;
         } else {
-            // Reverse camera transformation for dungeons
+            // Reverse camera transformation for following camera
             return Vec2{
                 .x = screenPos.x + self.camera.target.x - self.camera.offset.x,
                 .y = screenPos.y + self.camera.target.y - self.camera.offset.y,
@@ -683,15 +701,20 @@ const GameState = struct {
             self.player.position.y = newY;
         }
 
-        // Keep player on screen
-        if (self.player.position.x < playerRadius)
-            self.player.position.x = playerRadius;
-        if (self.player.position.x > SCREEN_WIDTH - playerRadius)
-            self.player.position.x = SCREEN_WIDTH - playerRadius;
-        if (self.player.position.y < playerRadius)
-            self.player.position.y = playerRadius;
-        if (self.player.position.y > SCREEN_HEIGHT - playerRadius)
-            self.player.position.y = SCREEN_HEIGHT - playerRadius;
+        // Keep player bounded based on camera mode
+        const currentScene = &self.scenes[self.currentScene];
+        if (currentScene.camera_mode == .fixed) {
+            // Fixed camera: keep player on screen
+            if (self.player.position.x < playerRadius)
+                self.player.position.x = playerRadius;
+            if (self.player.position.x > SCREEN_WIDTH - playerRadius)
+                self.player.position.x = SCREEN_WIDTH - playerRadius;
+            if (self.player.position.y < playerRadius)
+                self.player.position.y = playerRadius;
+            if (self.player.position.y > SCREEN_HEIGHT - playerRadius)
+                self.player.position.y = SCREEN_HEIGHT - playerRadius;
+        }
+        // Follow camera: no screen bounds, movement only limited by terrain (obstacles)
     }
 
     pub fn updateBullets(self: *Self, deltaTime: f32) void {
@@ -1200,14 +1223,14 @@ pub fn run(allocator: std.mem.Allocator, window: *c.SDL_Window, renderer: *c.SDL
                         c.SDL_BUTTON_LEFT => {
                             if (game.playerDead) {
                                 game.resurrect();
-                            } else {
-                                // Start holding left mouse button for movement
-                                game.left_mouse_held = true;
-                                const screen_coords = game.viewport.windowToGameCoords(event.button.x, event.button.y);
-                                const world_coords = game.screenToWorld(screen_coords);
-                                game.mouse_x = world_coords.x;
-                                game.mouse_y = world_coords.y;
                             }
+                            // Always start holding left mouse button and update coordinates
+                            // (works for both resurrect case and normal movement)
+                            game.left_mouse_held = true;
+                            const screen_coords = game.viewport.windowToGameCoords(event.button.x, event.button.y);
+                            const world_coords = game.screenToWorld(screen_coords);
+                            game.mouse_x = world_coords.x;
+                            game.mouse_y = world_coords.y;
                         },
                         c.SDL_BUTTON_RIGHT => {
                             if (!game.isPaused and !game.playerDead) {

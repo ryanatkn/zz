@@ -19,6 +19,7 @@
             .name = "Overworld",
             .background_color = .{ .r = 20, .g = 20, .b = 30 },
             .unit_scale = 0.3, // Very small units in overworld
+            .camera_mode = "fixed",
             .obstacles = .{
                 // Large blocking obstacles (original size)
                 .{ .position = .{ .x = 200.0, .y = 300.0 }, .size = .{ .x = 80.0, .y = 80.0 }, .type = "blocking" },
@@ -86,17 +87,17 @@
             .portals = .{
                 // Portals to 6 dungeons arranged in regular hexagon (380px radius)
                 // Northwest
-                .{ .position = .{ .x = 770.0, .y = 211.0 }, .radius = 40.0, .destination = 4, .shape = "square" },
+                .{ .position = .{ .x = 770.0, .y = 211.0 }, .radius = 60.0, .destination = 4, .shape = "square" },
                 // Northeast  
-                .{ .position = .{ .x = 1150.0, .y = 211.0 }, .radius = 40.0, .destination = 5, .shape = "triangle" },
+                .{ .position = .{ .x = 1150.0, .y = 211.0 }, .radius = 60.0, .destination = 5, .shape = "triangle" },
                 // East
-                .{ .position = .{ .x = 1340.0, .y = 540.0 }, .radius = 40.0, .destination = 6, .shape = "circle" },
+                .{ .position = .{ .x = 1340.0, .y = 540.0 }, .radius = 60.0, .destination = 6, .shape = "circle" },
                 // Southeast
-                .{ .position = .{ .x = 1150.0, .y = 869.0 }, .radius = 40.0, .destination = 1, .shape = "square" },
+                .{ .position = .{ .x = 1150.0, .y = 869.0 }, .radius = 60.0, .destination = 1, .shape = "square" },
                 // Southwest
-                .{ .position = .{ .x = 770.0, .y = 869.0 }, .radius = 40.0, .destination = 2, .shape = "triangle" },
+                .{ .position = .{ .x = 770.0, .y = 869.0 }, .radius = 60.0, .destination = 2, .shape = "triangle" },
                 // West
-                .{ .position = .{ .x = 580.0, .y = 540.0 }, .radius = 40.0, .destination = 3, .shape = "circle" },
+                .{ .position = .{ .x = 580.0, .y = 540.0 }, .radius = 60.0, .destination = 3, .shape = "circle" },
             },
         },
 
@@ -105,6 +106,7 @@
             .name = "North Dungeon",
             .background_color = .{ .r = 30, .g = 30, .b = 50 },
             .unit_scale = 1.0,
+            .camera_mode = "follow",
             .obstacles = .{
                 // Circular chamber layout
                 .{ .position = .{ .x = 600.0, .y = 100.0 }, .size = .{ .x = 200.0, .y = 80.0 }, .type = "blocking" },
@@ -131,6 +133,7 @@
             .name = "Northeast Dungeon",
             .background_color = .{ .r = 50, .g = 30, .b = 30 },
             .unit_scale = 1.0,
+            .camera_mode = "follow",
             .obstacles = .{
                 // Triangular chamber layout
                 .{ .position = .{ .x = 800.0, .y = 150.0 }, .size = .{ .x = 320.0, .y = 80.0 }, .type = "blocking" },
@@ -158,6 +161,7 @@
             .name = "Southeast Dungeon",
             .background_color = .{ .r = 30, .g = 50, .b = 30 },
             .unit_scale = 1.0,
+            .camera_mode = "follow",
             .obstacles = .{
                 // Square chamber layout
                 .{ .position = .{ .x = 300.0, .y = 300.0 }, .size = .{ .x = 100.0, .y = 200.0 }, .type = "blocking" },
@@ -187,6 +191,7 @@
             .name = "South Dungeon",
             .background_color = .{ .r = 50, .g = 50, .b = 30 },
             .unit_scale = 1.0,
+            .camera_mode = "follow",
             .obstacles = .{
                 // Circular chamber layout (variant)
                 .{ .position = .{ .x = 600.0, .y = 980.0 }, .size = .{ .x = 200.0, .y = 80.0 }, .type = "blocking" },
@@ -216,6 +221,7 @@
             .name = "Southwest Dungeon",
             .background_color = .{ .r = 50, .g = 30, .b = 50 },
             .unit_scale = 1.0,
+            .camera_mode = "follow",
             .obstacles = .{
                 // Triangular chamber layout (variant)
                 .{ .position = .{ .x = 800.0, .y = 850.0 }, .size = .{ .x = 320.0, .y = 80.0 }, .type = "blocking" },
@@ -246,6 +252,7 @@
             .name = "Northwest Dungeon",
             .background_color = .{ .r = 30, .g = 40, .b = 50 },
             .unit_scale = 1.0,
+            .camera_mode = "follow",
             .obstacles = .{
                 // Square chamber layout (variant)
                 .{ .position = .{ .x = 200.0, .y = 300.0 }, .size = .{ .x = 100.0, .y = 200.0 }, .type = "blocking" },

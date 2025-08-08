@@ -180,6 +180,12 @@ const GameState = struct {
 
     const Self = @This();
 
+    pub fn deinit(self: *Self) void {
+        // Free the entire ZON-parsed data structure
+        // The ZON parser owns all the allocations within gameData
+        std.zon.parse.free(self.allocator, self.gameData);
+    }
+
     pub fn init(allocator: std.mem.Allocator) !Self {
         // Load game data from ZON file
         const gameDataFile = @embedFile("game_data.zon");
@@ -1025,6 +1031,7 @@ pub fn run(allocator: std.mem.Allocator) !void {
         std.debug.print("Failed to initialize game: {}\n", .{err});
         return err;
     };
+    defer game.deinit();
 
     while (!rl_core.WindowShouldClose()) {
         const deltaTime = rl_core.GetFrameTime();

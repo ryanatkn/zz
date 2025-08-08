@@ -1425,6 +1425,14 @@ pub fn endDrawing() void {
     EndDrawing();
 }
 
+pub fn beginMode2D(camera: Camera2D) void {
+    BeginMode2D(camera);
+}
+
+pub fn endMode2D() void {
+    EndMode2D();
+}
+
 pub fn clearBackground(color: Color) void {
     ClearBackground(color);
 }

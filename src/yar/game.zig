@@ -147,6 +147,8 @@ const GameState = struct {
     // Pre-allocated text buffers to avoid per-frame allocation
     sceneTextBuffer: [128]u8,
     fpsTextBuffer: [32]u8,
+    // 2D camera for tracking player movement in non-overworld scenes
+    camera: raylib.Camera2D,
 
     const Self = @This();
 
@@ -186,6 +188,12 @@ const GameState = struct {
             .friendlyTarget = null, // No friendly target initially
             .sceneTextBuffer = undefined,
             .fpsTextBuffer = undefined,
+            .camera = raylib.Camera2D{
+                .offset = raylib.Vector2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 }, // Center the camera
+                .target = raylib.Vector2{ .x = gameData.player_start.position.x, .y = gameData.player_start.position.y }, // Start tracking player
+                .rotation = 0.0,
+                .zoom = 1.0,
+            },
         };
 
         // Initialize bullets
@@ -416,6 +424,18 @@ const GameState = struct {
         return false;
     }
 
+    fn updateCamera(self: *Self) void {
+        // Only use camera tracking in non-overworld scenes (currentScene != 0)
+        if (self.currentScene != 0) {
+            // Smoothly follow the player
+            self.camera.target = self.player.position;
+        } else {
+            // In overworld (scene 0), reset camera to center the screen
+            self.camera.target = raylib.Vector2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 };
+            self.camera.offset = raylib.Vector2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 };
+        }
+    }
+
     pub fn handleInput(self: *Self) void {
         // Handle pause toggle
         if (raylib.isKeyPressed(raylib.KEY_SPACE)) {
@@ -564,7 +584,7 @@ const GameState = struct {
                 }
 
                 // Use different speeds for overworld vs dungeons, and slower when not aggro
-                var enemySpeed: f32 = if (self.currentScene == 0) 50.0 else ENEMY_SPEED; // Slower in overworld
+                var enemySpeed: f32 = if (self.currentScene == 0) ENEMY_SPEED * 0.15 else ENEMY_SPEED; // Slower in overworld
                 if (self.aggroTarget == null) {
                     enemySpeed *= 0.333; // 1/3 speed when not aggro (returning to spawn)
                 }
@@ -637,6 +657,8 @@ const GameState = struct {
                     self.currentScene = destinationScene;
                     // Always place player at screen center
                     self.player.position = raylib.Vector2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 };
+                    // Update camera for new scene
+                    self.updateCamera();
                     // Restore enemies in the destination scene to their original positions
                     self.restoreEnemiesInScene(destinationScene);
                     return; // Exit early to avoid processing more collisions
@@ -697,6 +719,9 @@ const GameState = struct {
         else
             raylib.BLACK;
         raylib.clearBackground(currentSceneBg);
+
+        // Begin camera mode for all game objects (player, enemies, bullets, obstacles, portals)
+        raylib.beginMode2D(self.camera);
 
         if (!self.gameOver) {
             // Draw player with scene-based scaling
@@ -778,7 +803,10 @@ const GameState = struct {
                 }
             }
 
-            // Draw UI with scene info
+            // End camera mode before drawing UI elements
+            raylib.endMode2D();
+
+            // Draw UI with scene info (always in screen space)
             raylib.drawText("Left Click: Move | Right Click: Shoot | Orange = Portal", 10, @intFromFloat(SCREEN_HEIGHT - 80), 16, GRAY);
             raylib.drawText("WASD/Arrows: Move (Alt) | R: Resurrect | T: Reset Scene | Y: Reset Game | ESC: Quit", 10, @intFromFloat(SCREEN_HEIGHT - 60), 16, GRAY);
 
@@ -908,6 +936,9 @@ const GameState = struct {
                 }
             }
 
+            // End camera mode before drawing UI in game over state
+            raylib.endMode2D();
+
             // Draw UI with scene info (same as normal gameplay)
             raylib.drawText("Left Click: Move | Right Click: Shoot | Orange = Portal", 10, @intFromFloat(SCREEN_HEIGHT - 80), 16, GRAY);
             raylib.drawText("WASD/Arrows: Move (Alt) | R: Resurrect | T: Reset Scene | Y: Reset Game | ESC: Quit", 10, @intFromFloat(SCREEN_HEIGHT - 60), 16, GRAY);
@@ -966,6 +997,7 @@ pub fn run(allocator: std.mem.Allocator) !void {
 
         if (!game.gameOver) {
             game.updatePlayer(deltaTime);
+            game.updateCamera(); // Update camera after player movement
             game.updateWinState(deltaTime);
 
             if (raylib.isMouseButtonPressed(raylib.MOUSE_BUTTON_RIGHT) and !game.isPaused) {
@@ -977,6 +1009,8 @@ pub fn run(allocator: std.mem.Allocator) !void {
                 game.checkCollisions();
             }
         } else {
+            // Update camera even when game is over
+            game.updateCamera();
             // Allow mouse click resurrect on game over screens
             if (raylib.isMouseButtonPressed(raylib.MOUSE_BUTTON_LEFT)) {
                 game.resurrect();

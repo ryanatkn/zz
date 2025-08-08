@@ -84,6 +84,102 @@ const WHITE_BRIGHT = Color{ .r = 255, .g = 255, .b = 255, .a = 255 };
 // Game structures - ported from YAR
 const Vec2 = struct { x: f32, y: f32 };
 
+// Border system for declarative stacked borders
+const MAX_BORDER_LAYERS = 8;
+
+const BorderSpec = struct {
+    base_width: f32,
+    base_color: Color,
+    color_pair: ?BorderColorPair, // null = static color, value = animated color
+    pulse_freq: ?f32, // null = no pulse, value = pulse frequency
+    pulse_amplitude: f32, // how much the pulse changes the width
+    
+    fn getCurrentWidth(self: *const BorderSpec) f32 {
+        if (self.pulse_freq) |freq| {
+            const pulse = calculatePulse(freq);
+            return self.base_width + pulse * self.pulse_amplitude;
+        } else {
+            return self.base_width;
+        }
+    }
+    
+    fn getMaxWidth(self: *const BorderSpec) f32 {
+        // Maximum possible width this border could reach
+        return self.base_width + self.pulse_amplitude;
+    }
+    
+    fn getCurrentColor(self: *const BorderSpec) Color {
+        if (self.color_pair) |colors| {
+            const pulse = calculatePulse(self.pulse_freq orelse COLOR_CYCLE_FREQ);
+            const hue_cycle = calculateColorCycle();
+            const intensity = 0.7 + pulse * 0.3;
+            return interpolateColor(colors, hue_cycle, intensity);
+        } else {
+            return self.base_color;
+        }
+    }
+};
+
+const BorderStack = struct {
+    specs: [MAX_BORDER_LAYERS]BorderSpec,
+    count: usize,
+
+    const Self = @This();
+
+    fn init() Self {
+        return Self{
+            .specs = undefined,
+            .count = 0,
+        };
+    }
+
+    fn clear(self: *Self) void {
+        self.count = 0;
+    }
+
+    fn push(self: *Self, base_width: f32, base_color: Color, color_pair: ?BorderColorPair, pulse_freq: ?f32, pulse_amplitude: f32) void {
+        if (self.count < MAX_BORDER_LAYERS) {
+            self.specs[self.count] = BorderSpec{
+                .base_width = base_width,
+                .base_color = base_color,
+                .color_pair = color_pair,
+                .pulse_freq = pulse_freq,
+                .pulse_amplitude = pulse_amplitude,
+            };
+            self.count += 1;
+        }
+    }
+
+    fn pushStatic(self: *Self, width: f32, color: Color) void {
+        self.push(width, color, null, null, 0.0);
+    }
+
+    fn pushAnimated(self: *Self, base_width: f32, color_pair: BorderColorPair, pulse_freq: f32, pulse_amplitude: f32) void {
+        // Use the dark color from the pair as base color
+        const base_color = Color{
+            .r = @intFromFloat(color_pair.dark.r),
+            .g = @intFromFloat(color_pair.dark.g),
+            .b = @intFromFloat(color_pair.dark.b),
+            .a = 255,
+        };
+        self.push(base_width, base_color, color_pair, pulse_freq, pulse_amplitude);
+    }
+
+    fn render(self: *const Self, game: *GameState) void {
+        // Calculate cumulative offset based on current animated widths
+        var current_offset: f32 = 0;
+        
+        for (0..self.count) |i| {
+            const spec = &self.specs[i];
+            const current_width = spec.getCurrentWidth();
+            const current_color = spec.getCurrentColor();
+            
+            game.drawBorderWithOffset(current_color, current_width, current_offset);
+            current_offset += current_width;
+        }
+    }
+};
+
 const EnemyState = enum {
     alive,
     dead,
@@ -266,6 +362,19 @@ fn interpolateColor(color_pair: BorderColorPair, t: f32, intensity: f32) Color {
         .b = @intFromFloat((color_pair.dark.b + (color_pair.bright.b - color_pair.dark.b) * t) * intensity),
         .a = 255,
     };
+}
+
+// Helper functions for border animations (global scope)
+fn calculatePulse(frequency: f32) f32 {
+    const current_time_ms = @as(f32, @floatFromInt(c.SDL_GetTicks()));
+    const current_time_sec = current_time_ms / 1000.0;
+    return (math.sin(current_time_sec * frequency) + 1.0) * 0.5;
+}
+
+fn calculateColorCycle() f32 {
+    const current_time_ms = @as(f32, @floatFromInt(c.SDL_GetTicks()));
+    const current_time_sec = current_time_ms / 1000.0;
+    return (math.sin(current_time_sec * COLOR_CYCLE_FREQ) + 1.0) * 0.5;
 }
 
 const GameState = struct {
@@ -1336,13 +1445,24 @@ const GameState = struct {
     }
 
     fn drawBorder(self: *Self, color: Color, width: f32) void {
+        self.drawBorderWithOffset(color, width, 0.0);
+    }
+
+    fn drawBorderWithOffset(self: *Self, color: Color, width: f32, offset: f32) void {
         self.setRenderColor(color);
 
-        // Draw 4 rectangles efficiently (top, bottom, left, right)
-        const top_rect = c.SDL_FRect{ .x = 0, .y = 0, .w = SCREEN_WIDTH, .h = width };
-        const bottom_rect = c.SDL_FRect{ .x = 0, .y = SCREEN_HEIGHT - width, .w = SCREEN_WIDTH, .h = width };
-        const left_rect = c.SDL_FRect{ .x = 0, .y = 0, .w = width, .h = SCREEN_HEIGHT };
-        const right_rect = c.SDL_FRect{ .x = SCREEN_WIDTH - width, .y = 0, .w = width, .h = SCREEN_HEIGHT };
+        // Draw border INSIDE the remaining space after accounting for outer borders
+        // The border should be drawn at the inner edge of the available space
+        const inner_x = offset;
+        const inner_y = offset;
+        const inner_width = SCREEN_WIDTH - (offset * 2);
+        const inner_height = SCREEN_HEIGHT - (offset * 2);
+
+        // Draw 4 rectangles that form the border around the inner area
+        const top_rect = c.SDL_FRect{ .x = inner_x, .y = inner_y, .w = inner_width, .h = width };
+        const bottom_rect = c.SDL_FRect{ .x = inner_x, .y = inner_y + inner_height - width, .w = inner_width, .h = width };
+        const left_rect = c.SDL_FRect{ .x = inner_x, .y = inner_y + width, .w = width, .h = inner_height - (width * 2) };
+        const right_rect = c.SDL_FRect{ .x = inner_x + inner_width - width, .y = inner_y + width, .w = width, .h = inner_height - (width * 2) };
 
         _ = c.SDL_RenderFillRect(self.renderer, &top_rect);
         _ = c.SDL_RenderFillRect(self.renderer, &bottom_rect);
@@ -1350,38 +1470,23 @@ const GameState = struct {
         _ = c.SDL_RenderFillRect(self.renderer, &right_rect);
     }
 
+
     fn drawScreenBorder(self: *Self) void {
-        const current_time_ms = @as(f32, @floatFromInt(c.SDL_GetTicks()));
-        const current_time_sec = current_time_ms / 1000.0;
+        var border_stack = BorderStack.init();
 
-        // Draw paused border (yellow) - outer layer
+        // Declaratively build border layers from outermost to innermost
         if (self.isPaused) {
-            const pulse = (math.sin(current_time_sec * BORDER_PULSE_PAUSED) + 1.0) * 0.5;
-            const border_width = 6.0 + pulse * 4.0;
-
-            const hue_cycle = (math.sin(current_time_sec * COLOR_CYCLE_FREQ) + 1.0) * 0.5;
-            const intensity = 0.8 + pulse * 0.2;
-            const border_color = interpolateColor(GOLD_YELLOW_COLORS, hue_cycle, intensity);
-            
-            self.drawBorder(border_color, border_width);
+            // Animated paused border: base 6px + 4px pulse amplitude
+            border_stack.pushAnimated(6.0, GOLD_YELLOW_COLORS, BORDER_PULSE_PAUSED, 4.0);
         }
 
-        // Draw dead border (red) - inner layer
         if (self.playerDead) {
-            const border_width = if (self.isPaused) 4.0 else blk: { // Minimal width when paused
-                const pulse = (math.sin(current_time_sec * BORDER_PULSE_DEAD) + 1.0) * 0.5;
-                break :blk 9.0 + pulse * 5.0;
-            };
-
-            const border_color = if (self.isPaused) RED else blk: {
-                const pulse = (math.sin(current_time_sec * BORDER_PULSE_DEAD) + 1.0) * 0.5;
-                const hue_cycle = (math.sin(current_time_sec * COLOR_CYCLE_FREQ) + 1.0) * 0.5;
-                const intensity = 0.6 + pulse * 0.4;
-                break :blk interpolateColor(RED_COLORS, hue_cycle, intensity);
-            };
-            
-            self.drawBorder(border_color, border_width);
+            // Animated dead border: base 9px + 5px pulse amplitude
+            border_stack.pushAnimated(9.0, RED_COLORS, BORDER_PULSE_DEAD, 5.0);
         }
+
+        // Render all borders with automatic offset calculation based on current animated widths
+        border_stack.render(self);
     }
 
     // All core methods from YAR have been ported

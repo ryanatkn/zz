@@ -1,11 +1,5 @@
 const std = @import("std");
 
-// SDL C imports
-const c = @cImport({
-    @cDefine("SDL_DISABLE_OLD_NAMES", {});
-    @cInclude("SDL3/SDL.h");
-});
-
 // Import shared types
 const types = @import("types.zig");
 const Color = types.Color;
@@ -44,11 +38,14 @@ const DIGITS = [_][7]u8{
     [_]u8{ 0b01110, 0b10001, 0b10001, 0b01111, 0b00001, 0b10001, 0b01110 },
 };
 
-pub const HUD = struct {
+pub const Hud = struct {
     // FPS tracking with SDL high-resolution timers
     fps_counter: u32,
     fps_frames: u32,
     fps_last_time: u64,
+    
+    // HUD visibility toggle
+    visible: bool,
 
     const Self = @This();
 
@@ -56,15 +53,18 @@ pub const HUD = struct {
         return Self{
             .fps_counter = 60, // Start with reasonable default
             .fps_frames = 0,
-            .fps_last_time = c.SDL_GetPerformanceCounter(),
+            .fps_last_time = 0, // Will be set by game.zig
+            .visible = true, // Start visible
         };
     }
+    
+    pub fn toggle(self: *Self) void {
+        self.visible = !self.visible;
+    }
 
-    pub fn updateFPS(self: *Self) void {
+    pub fn updateFPS(self: *Self, current_time: u64, frequency: u64) void {
         self.fps_frames += 1;
-        const current_time = c.SDL_GetPerformanceCounter();
         const elapsed_ticks = current_time - self.fps_last_time;
-        const frequency = c.SDL_GetPerformanceFrequency();
 
         // Update FPS counter every second
         if (elapsed_ticks >= frequency) { // 1 second has passed
@@ -85,13 +85,15 @@ pub const HUD = struct {
                 if ((line >> @intCast(4 - col)) & 1 != 0) {
                     const px = x + @as(f32, @floatFromInt(col));
                     const py = y + @as(f32, @floatFromInt(row));
-                    _ = c.SDL_RenderPoint(game_state.renderer, px, py);
+                    game_state.drawPixel(px, py);
                 }
             }
         }
     }
 
     pub fn render(self: *const Self, game_state: anytype) void {
+        if (!self.visible) return; // Skip rendering if HUD is hidden
+        
         // Set color for FPS text
         game_state.setRenderColor(WHITE);
 

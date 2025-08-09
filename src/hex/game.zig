@@ -283,7 +283,7 @@ const GameState = struct {
     camera: Camera2D,
 
     // HUD system for on-screen display
-    hud_system: hud.HUD,
+    hud_system: hud.Hud,
 
     // SDL-specific state
     window: *c.SDL_Window,
@@ -353,7 +353,7 @@ const GameState = struct {
             .friendlyTarget = null,
             .sceneTextBuffer = undefined,
             .fpsTextBuffer = undefined,
-            .hud_system = hud.HUD.init(),
+            .hud_system = hud.Hud.init(),
             .camera = Camera2D{
                 .offset = Vec2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 },
                 .target = Vec2{ .x = gameData.player_start.position.x, .y = gameData.player_start.position.y },
@@ -434,6 +434,9 @@ const GameState = struct {
 
         // Initialize player radius cache
         game.updatePlayerRadiusCache();
+        
+        // Initialize HUD timing
+        game.hud_system.fps_last_time = c.SDL_GetPerformanceCounter();
 
         return game;
     }
@@ -589,8 +592,12 @@ const GameState = struct {
         }
     };
 
-    fn setRenderColor(self: *Self, color: Color) void {
+    pub fn setRenderColor(self: *Self, color: Color) void {
         self.color_cache.setRenderColor(self.renderer, color);
+    }
+
+    pub fn drawPixel(self: *Self, x: f32, y: f32) void {
+        _ = c.SDL_RenderPoint(self.renderer, x, y);
     }
 
     fn updatePlayerRadiusCache(self: *Self) void {
@@ -1406,6 +1413,9 @@ pub fn run(allocator: std.mem.Allocator, window: *c.SDL_Window, renderer: *c.SDL
                         c.SDL_SCANCODE_Y => {
                             game.restart();
                         },
+                        c.SDL_SCANCODE_GRAVE => { // Backtick key
+                            game.hud_system.toggle();
+                        },
                         else => {},
                     }
                 },
@@ -1454,7 +1464,9 @@ pub fn run(allocator: std.mem.Allocator, window: *c.SDL_Window, renderer: *c.SDL
         }
 
         // Update HUD system (FPS counter, etc.)
-        game.hud_system.updateFPS();
+        const hud_time = c.SDL_GetPerformanceCounter();
+        const hud_frequency = c.SDL_GetPerformanceFrequency();
+        game.hud_system.updateFPS(hud_time, hud_frequency);
 
         // Update game state
         game.handleInput();

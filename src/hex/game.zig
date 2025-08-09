@@ -20,29 +20,6 @@ const COLOR_CYCLE_FREQ = 4.0;
 
 // Border animation constants
 const ASPECT_RATIO = 16.0 / 9.0;
-const BORDER_PULSE_PAUSED = 1.5;
-const BORDER_PULSE_DEAD = 1.2;
-
-// Border color definitions for cycling
-const BorderColorPair = struct {
-    dark: struct { r: f32, g: f32, b: f32 },
-    bright: struct { r: f32, g: f32, b: f32 },
-};
-
-const GOLD_YELLOW_COLORS = BorderColorPair{
-    .dark = .{ .r = 200.0, .g = 150.0, .b = 10.0 },
-    .bright = .{ .r = 255.0, .g = 240.0, .b = 0.0 },
-};
-
-const RED_COLORS = BorderColorPair{
-    .dark = .{ .r = 180.0, .g = 40.0, .b = 40.0 },
-    .bright = .{ .r = 255.0, .g = 30.0, .b = 30.0 },
-};
-
-const GREEN_COLORS = BorderColorPair{
-    .dark = .{ .r = 20.0, .g = 160.0, .b = 20.0 },
-    .bright = .{ .r = 50.0, .g = 220.0, .b = 80.0 },
-};
 
 // Player and movement constants
 const PLAYER_SPEED = 600.0;
@@ -105,104 +82,11 @@ const WHITE_BRIGHT = Color{ .r = 255, .g = 255, .b = 255, .a = 255 };
 const types = @import("types.zig");
 const Vec2 = types.Vec2;
 
-// Border system for declarative stacked borders
-const MAX_BORDER_LAYERS = 8;
-
 // Import visual effects system
 const visuals = @import("visuals.zig");
 
-const BorderSpec = struct {
-    base_width: f32,
-    base_color: Color,
-    color_pair: ?BorderColorPair, // null = static color, value = animated color
-    pulse_freq: ?f32, // null = no pulse, value = pulse frequency
-    pulse_amplitude: f32, // how much the pulse changes the width
-
-    fn getCurrentWidth(self: *const BorderSpec) f32 {
-        if (self.pulse_freq) |freq| {
-            const pulse = visuals.calculateAnimationPulse(freq);
-            return self.base_width + pulse * self.pulse_amplitude;
-        } else {
-            return self.base_width;
-        }
-    }
-
-    fn getMaxWidth(self: *const BorderSpec) f32 {
-        // Maximum possible width this border could reach
-        return self.base_width + self.pulse_amplitude;
-    }
-
-    fn getCurrentColor(self: *const BorderSpec) Color {
-        if (self.color_pair) |colors| {
-            const pulse = visuals.calculateAnimationPulse(self.pulse_freq orelse 4.0);
-            const hue_cycle = visuals.calculateColorCycle();
-            const intensity = 0.7 + pulse * 0.3;
-            return interpolateColor(colors, hue_cycle, intensity);
-        } else {
-            return self.base_color;
-        }
-    }
-};
-
-const BorderStack = struct {
-    specs: [MAX_BORDER_LAYERS]BorderSpec,
-    count: usize,
-
-    const Self = @This();
-
-    fn init() Self {
-        return Self{
-            .specs = undefined,
-            .count = 0,
-        };
-    }
-
-    fn clear(self: *Self) void {
-        self.count = 0;
-    }
-
-    fn push(self: *Self, base_width: f32, base_color: Color, color_pair: ?BorderColorPair, pulse_freq: ?f32, pulse_amplitude: f32) void {
-        if (self.count < MAX_BORDER_LAYERS) {
-            self.specs[self.count] = BorderSpec{
-                .base_width = base_width,
-                .base_color = base_color,
-                .color_pair = color_pair,
-                .pulse_freq = pulse_freq,
-                .pulse_amplitude = pulse_amplitude,
-            };
-            self.count += 1;
-        }
-    }
-
-    fn pushStatic(self: *Self, width: f32, color: Color) void {
-        self.push(width, color, null, null, 0.0);
-    }
-
-    fn pushAnimated(self: *Self, base_width: f32, color_pair: BorderColorPair, pulse_freq: f32, pulse_amplitude: f32) void {
-        // Use the dark color from the pair as base color
-        const base_color = Color{
-            .r = @intFromFloat(color_pair.dark.r),
-            .g = @intFromFloat(color_pair.dark.g),
-            .b = @intFromFloat(color_pair.dark.b),
-            .a = 255,
-        };
-        self.push(base_width, base_color, color_pair, pulse_freq, pulse_amplitude);
-    }
-
-    fn render(self: *const Self, game: *GameState) void {
-        // Calculate cumulative offset based on current animated widths
-        var current_offset: f32 = 0;
-
-        for (0..self.count) |i| {
-            const spec = &self.specs[i];
-            const current_width = spec.getCurrentWidth();
-            const current_color = spec.getCurrentColor();
-
-            game.drawBorderWithOffset(current_color, current_width, current_offset);
-            current_offset += current_width;
-        }
-    }
-};
+// Import border system
+const borders = @import("borders.zig");
 
 const EnemyState = enum {
     alive,
@@ -378,15 +262,6 @@ const Viewport = struct {
     }
 };
 
-// Color interpolation utility for border system
-fn interpolateColor(color_pair: BorderColorPair, t: f32, intensity: f32) Color {
-    return Color{
-        .r = @intFromFloat((color_pair.dark.r + (color_pair.bright.r - color_pair.dark.r) * t) * intensity),
-        .g = @intFromFloat((color_pair.dark.g + (color_pair.bright.g - color_pair.dark.g) * t) * intensity),
-        .b = @intFromFloat((color_pair.dark.b + (color_pair.bright.b - color_pair.dark.b) * t) * intensity),
-        .a = 255,
-    };
-}
 
 const GameState = struct {
     player: GameObject,
@@ -1555,83 +1430,24 @@ const GameState = struct {
         }
     }
 
-    fn drawBorder(self: *Self, color: Color, width: f32) void {
-        self.drawBorderWithOffset(color, width, 0.0);
-    }
 
     pub fn drawBorderWithOffset(self: *Self, color: Color, width: f32, offset: f32) void {
         self.setRenderColor(color);
-
-        // Draw border INSIDE the remaining space after accounting for outer borders
-        // The border should be drawn at the inner edge of the available space
-        const inner_x = offset;
-        const inner_y = offset;
-        const inner_width = SCREEN_WIDTH - (offset * 2);
-        const inner_height = SCREEN_HEIGHT - (offset * 2);
-
-        // Draw 4 rectangles that form the border around the inner area
-        const top_rect = c.SDL_FRect{ .x = inner_x, .y = inner_y, .w = inner_width, .h = width };
-        const bottom_rect = c.SDL_FRect{ .x = inner_x, .y = inner_y + inner_height - width, .w = inner_width, .h = width };
-        const left_rect = c.SDL_FRect{ .x = inner_x, .y = inner_y + width, .w = width, .h = inner_height - (width * 2) };
-        const right_rect = c.SDL_FRect{ .x = inner_x + inner_width - width, .y = inner_y + width, .w = width, .h = inner_height - (width * 2) };
-
-        _ = c.SDL_RenderFillRect(self.renderer, &top_rect);
-        _ = c.SDL_RenderFillRect(self.renderer, &bottom_rect);
-        _ = c.SDL_RenderFillRect(self.renderer, &left_rect);
-        _ = c.SDL_RenderFillRect(self.renderer, &right_rect);
+        
+        const rects = borders.calculateBorderRects(width, offset);
+        for (rects) |rect| {
+            const sdl_rect = c.SDL_FRect{ 
+                .x = rect.x, 
+                .y = rect.y, 
+                .w = rect.w, 
+                .h = rect.h 
+            };
+            _ = c.SDL_RenderFillRect(self.renderer, &sdl_rect);
+        }
     }
 
     fn drawScreenBorder(self: *Self) void {
-        var border_stack = BorderStack.init();
-
-        // Iris wipe effect (highest priority - renders over everything)
-        if (self.iris_wipe_active) {
-            const current_time = c.SDL_GetPerformanceCounter();
-            const frequency = c.SDL_GetPerformanceFrequency();
-            const elapsed_sec = @as(f32, @floatFromInt(current_time - self.iris_wipe_start_time)) / @as(f32, @floatFromInt(frequency));
-            const wipe_duration = IRIS_WIPE_DURATION;
-
-            if (elapsed_sec < wipe_duration) {
-                const progress = elapsed_sec / wipe_duration; // 0.0 to 1.0
-                // Ease-out curve: fast at start, slow at end
-                const eased_progress = 1.0 - (1.0 - progress) * (1.0 - progress); // Quadratic ease-out
-                const shrink_factor = 1.0 - eased_progress; // 1.0 to 0.0 (shrinking with ease-out)
-
-                // Create iris wipe bands using existing game colors
-                const wipe_colors = [_]Color{
-                    BLUE_BRIGHT,   GREEN_BRIGHT,  YELLOW_BRIGHT,
-                    ORANGE_BRIGHT, PURPLE_BRIGHT, CYAN,
-                };
-                comptime std.debug.assert(wipe_colors.len == IRIS_WIPE_BAND_COUNT);
-
-                for (0..wipe_colors.len) |i| {
-                    const wipe_color = wipe_colors[i];
-                    const max_width = IRIS_WIPE_BAND_WIDTH;
-                    const current_width = max_width * shrink_factor;
-
-                    if (current_width > 0.5) { // Only render if visible
-                        border_stack.pushStatic(current_width, wipe_color);
-                    }
-                }
-            } else {
-                // End iris wipe
-                self.iris_wipe_active = false;
-            }
-        }
-
-        // Game state borders (lower priority)
-        if (self.isPaused) {
-            // Animated paused border: base 6px + 4px pulse amplitude
-            border_stack.pushAnimated(6.0, GOLD_YELLOW_COLORS, BORDER_PULSE_PAUSED, 4.0);
-        }
-
-        if (self.playerDead) {
-            // Animated dead border: base 9px + 5px pulse amplitude
-            border_stack.pushAnimated(9.0, RED_COLORS, BORDER_PULSE_DEAD, 5.0);
-        }
-
-        // Render all borders with automatic offset calculation based on current animated widths
-        border_stack.render(self);
+        borders.drawScreenBorder(self);
     }
 
     // All core methods from YAR have been ported

@@ -88,7 +88,7 @@
                 // Portals to 6 dungeons arranged in regular hexagon (380px radius)
                 // Northwest
                 .{ .position = .{ .x = 770.0, .y = 211.0 }, .radius = 60.0, .destination = 4, .shape = "square" },
-                // Northeast  
+                // Northeast
                 .{ .position = .{ .x = 1150.0, .y = 211.0 }, .radius = 60.0, .destination = 5, .shape = "triangle" },
                 // East
                 .{ .position = .{ .x = 1340.0, .y = 540.0 }, .radius = 60.0, .destination = 6, .shape = "circle" },
@@ -103,7 +103,7 @@
                 // 6 lifestones near portals (slightly offset from portals)
                 // Northwest portal area
                 .{ .position = .{ .x = 720.0, .y = 250.0 }, .radius = 8.0 },
-                // Northeast portal area  
+                // Northeast portal area
                 .{ .position = .{ .x = 1200.0, .y = 250.0 }, .radius = 8.0 },
                 // East portal area
                 .{ .position = .{ .x = 1290.0, .y = 490.0 }, .radius = 8.0 },
@@ -113,7 +113,6 @@
                 .{ .position = .{ .x = 720.0, .y = 830.0 }, .radius = 8.0 },
                 // West portal area
                 .{ .position = .{ .x = 630.0, .y = 490.0 }, .radius = 8.0 },
-                
                 // 6 wilderness lifestones scattered further out
                 // Far north
                 .{ .position = .{ .x = 960.0, .y = 80.0 }, .radius = 8.0 },

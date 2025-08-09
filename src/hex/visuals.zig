@@ -75,11 +75,11 @@ const MAX_VISUAL_EFFECTS = 32;
 
 // Visual effect types for different game entities
 pub const VisualEffectType = enum {
-    player_spawn,        // Temporary bright effect when player spawns/resurrects (full intensity)
-    player_transition,   // Subtle effect for scene transitions and game start
-    portal_ambient,      // Permanent subtle pulsing around portals
-    lifestone_dormant,   // Permanent gentle glow for unattached lifestones
-    lifestone_attuned,   // Permanent vibrant glow for attuned lifestones
+    player_spawn, // Temporary bright effect when player spawns/resurrects (full intensity)
+    player_transition, // Subtle effect for scene transitions and game start
+    portal_ambient, // Permanent subtle pulsing around portals
+    lifestone_dormant, // Permanent gentle glow for unattached lifestones
+    lifestone_attuned, // Permanent vibrant glow for attuned lifestones
 };
 
 const VisualEffect = struct {
@@ -89,17 +89,17 @@ const VisualEffect = struct {
     active: bool,
     start_time: u64,
     duration: f32, // Duration in seconds (0.0 = permanent)
-    
+
     fn isActive(self: *const VisualEffect) bool {
         if (!self.active) return false;
         if (self.duration == 0.0) return true; // Permanent effect
-        
+
         const current_time = c.SDL_GetPerformanceCounter();
         const frequency = c.SDL_GetPerformanceFrequency();
         const elapsed_sec = @as(f32, @floatFromInt(current_time - self.start_time)) / @as(f32, @floatFromInt(frequency));
         return elapsed_sec < self.duration;
     }
-    
+
     fn getEffectColor(self: *const VisualEffect, intensity: f32) Color {
         switch (self.effect_type) {
             .player_spawn => {
@@ -122,12 +122,12 @@ const VisualEffect = struct {
                 };
             },
             .portal_ambient => {
-                // More prominent warm orange for portal ambient glow
+                // Purple ambient glow to match portal color
                 return Color{
-                    .r = @as(u8, @intFromFloat(255.0 * intensity)),
-                    .g = @as(u8, @intFromFloat(180.0 * intensity)),
-                    .b = @as(u8, @intFromFloat(80.0 * intensity)),
-                    .a = @as(u8, @intFromFloat(85.0 * intensity)), // Increased from 40 to 85
+                    .r = @as(u8, @intFromFloat(180.0 * intensity)),
+                    .g = @as(u8, @intFromFloat(100.0 * intensity)),
+                    .b = @as(u8, @intFromFloat(240.0 * intensity)),
+                    .a = @as(u8, @intFromFloat(85.0 * intensity)), // Same alpha intensity
                 };
             },
             .lifestone_dormant => {
@@ -155,20 +155,20 @@ const VisualEffect = struct {
 pub const VisualSystem = struct {
     effects: [MAX_VISUAL_EFFECTS]VisualEffect,
     count: usize,
-    
+
     const Self = @This();
-    
+
     pub fn init() Self {
         return Self{
             .effects = undefined,
             .count = 0,
         };
     }
-    
+
     pub fn clear(self: *Self) void {
         self.count = 0;
     }
-    
+
     pub fn addEffect(self: *Self, position: Vec2, radius: f32, effect_type: VisualEffectType, duration: f32) void {
         if (self.count < MAX_VISUAL_EFFECTS) {
             self.effects[self.count] = VisualEffect{
@@ -182,9 +182,10 @@ pub const VisualSystem = struct {
             self.count += 1;
         }
     }
-    
+
     // Add permanent portal ambient effects for all active portals in a scene
-    pub fn addPortalAmbientEffects(self: *Self, portals: anytype, max_portals: usize) void {
+    pub fn addPortalAmbientEffects(self: *Self, portals: anytype, max_portals: usize, current_scene: u8) void {
+        _ = current_scene; // Remove unused parameter warning
         for (0..max_portals) |i| {
             if (portals[i].active) {
                 const PORTAL_AMBIENT_RADIUS_MULTIPLIER = 1.8;
@@ -192,7 +193,7 @@ pub const VisualSystem = struct {
             }
         }
     }
-    
+
     // Add permanent lifestone effects for all active lifestones in a scene
     pub fn addLifestoneEffects(self: *Self, lifestones: anytype, max_lifestones: usize) void {
         for (0..max_lifestones) |i| {
@@ -203,7 +204,7 @@ pub const VisualSystem = struct {
             }
         }
     }
-    
+
     pub fn update(self: *Self) void {
         // Remove expired effects (keep permanent ones)
         var write_index: usize = 0;
@@ -217,33 +218,33 @@ pub const VisualSystem = struct {
         }
         self.count = write_index;
     }
-    
+
     pub fn render(self: *const Self, game_state: anytype) void {
         // Enable alpha blending for visual effects
         _ = c.SDL_SetRenderDrawBlendMode(@ptrCast(game_state.renderer), c.SDL_BLENDMODE_BLEND);
-        
+
         for (0..self.count) |i| {
             const effect = &self.effects[i];
             if (effect.isActive()) {
                 self.drawEntityEffect(game_state, effect);
             }
         }
-        
+
         // Restore default blend mode
         _ = c.SDL_SetRenderDrawBlendMode(@ptrCast(game_state.renderer), c.SDL_BLENDMODE_NONE);
     }
-    
+
     fn drawEntityEffect(self: *const Self, game_state: anytype, effect: *const VisualEffect) void {
         _ = self;
         const current_time = c.SDL_GetPerformanceCounter();
         const frequency = c.SDL_GetPerformanceFrequency();
         const elapsed_sec = @as(f32, @floatFromInt(current_time - effect.start_time)) / @as(f32, @floatFromInt(frequency));
-        
+
         // Calculate pulsing intensity based on effect type
         var pulse_freq: f32 = undefined;
         var base_intensity: f32 = undefined;
         var pulse_amplitude: f32 = undefined;
-        
+
         switch (effect.effect_type) {
             .player_spawn => {
                 pulse_freq = 3.0; // Faster pulse for attention
@@ -256,9 +257,9 @@ pub const VisualSystem = struct {
                 pulse_amplitude = 0.5;
             },
             .portal_ambient => {
-                pulse_freq = 1.2; // Slightly faster for more noticeable growth
-                base_intensity = 0.3; // Lower base so the pulse is more dramatic
-                pulse_amplitude = 0.6; // Higher amplitude for stronger growth effect
+                pulse_freq = 0.8; // Slower pulse for more dramatic effect
+                base_intensity = 0.2; // Even lower base so the pulse is more dramatic
+                pulse_amplitude = 0.8; // Much higher amplitude for stronger growth effect
             },
             .lifestone_dormant => {
                 pulse_freq = 1.2; // Gentle pulse
@@ -271,38 +272,38 @@ pub const VisualSystem = struct {
                 pulse_amplitude = 0.4;
             },
         }
-        
+
         const pulse = (math.sin(elapsed_sec * pulse_freq) + 1.0) * 0.5; // 0.0 to 1.0
         const intensity = base_intensity + pulse * pulse_amplitude;
-        
+
         // Transform world position to screen coordinates
         const screen_pos = game_state.worldToScreen(effect.position);
-        
+
         // Handle different effect types with specific behaviors
         switch (effect.effect_type) {
             .player_spawn => {
                 // Player spawn: dramatic ripples at drop site with staggered timing
                 const ring_configs = [_]struct { lifetime: f32, max_size: f32, delay: f32 }{
-                    .{ .lifetime = 0.8, .max_size = 0.8, .delay = 0.0 },   // Fast small ring
-                    .{ .lifetime = 1.0, .max_size = 1.2, .delay = 0.1 },  // Medium ring
-                    .{ .lifetime = 1.4, .max_size = 1.8, .delay = 0.2 },  // Large ring
-                    .{ .lifetime = 1.8, .max_size = 2.4, .delay = 0.3 },  // Very large ring
-                    .{ .lifetime = 2.2, .max_size = 3.0, .delay = 0.4 },  // Huge ring
-                    .{ .lifetime = 1.2, .max_size = 1.0, .delay = 0.6 },  // Second wave - small
-                    .{ .lifetime = 1.6, .max_size = 2.0, .delay = 0.7 },  // Second wave - large
+                    .{ .lifetime = 0.8, .max_size = 0.8, .delay = 0.0 }, // Fast small ring
+                    .{ .lifetime = 1.0, .max_size = 1.2, .delay = 0.1 }, // Medium ring
+                    .{ .lifetime = 1.4, .max_size = 1.8, .delay = 0.2 }, // Large ring
+                    .{ .lifetime = 1.8, .max_size = 2.4, .delay = 0.3 }, // Very large ring
+                    .{ .lifetime = 2.2, .max_size = 3.0, .delay = 0.4 }, // Huge ring
+                    .{ .lifetime = 1.2, .max_size = 1.0, .delay = 0.6 }, // Second wave - small
+                    .{ .lifetime = 1.6, .max_size = 2.0, .delay = 0.7 }, // Second wave - large
                 };
-                
+
                 for (ring_configs) |config| {
                     const ring_age = elapsed_sec - config.delay;
-                    
+
                     if (ring_age >= 0 and ring_age <= config.lifetime) {
                         const growth_progress = ring_age / config.lifetime; // 0.0 to 1.0
                         const ring_radius = effect.radius * growth_progress * config.max_size;
-                        
+
                         // Linear alpha fade: start bright, fade to 0
                         const alpha_progress = 1.0 - growth_progress; // 1.0 to 0.0
                         const ring_intensity = alpha_progress * intensity;
-                        
+
                         if (ring_intensity > 0.01) {
                             const ring_color = effect.getEffectColor(ring_intensity);
                             game_state.drawCircle(screen_pos, ring_radius, ring_color);
@@ -313,21 +314,21 @@ pub const VisualSystem = struct {
             .player_transition => {
                 // Player transition: bigger rings spaced slower for scene changes
                 const ring_configs = [_]struct { lifetime: f32, max_size: f32, delay: f32 }{
-                    .{ .lifetime = 1.2, .max_size = 2.0, .delay = 0.0 },   // Large ring
-                    .{ .lifetime = 2.4, .max_size = 5.0, .delay = 0.3 },  // Massive ring (moved up and overlapping)
+                    .{ .lifetime = 1.2, .max_size = 2.0, .delay = 0.0 }, // Large ring
+                    .{ .lifetime = 2.4, .max_size = 5.0, .delay = 0.3 }, // Massive ring (moved up and overlapping)
                 };
-                
+
                 for (ring_configs) |config| {
                     const ring_age = elapsed_sec - config.delay;
-                    
+
                     if (ring_age >= 0 and ring_age <= config.lifetime) {
                         const growth_progress = ring_age / config.lifetime; // 0.0 to 1.0
                         const ring_radius = effect.radius * growth_progress * config.max_size;
-                        
+
                         // Linear alpha fade: start bright, fade to 0
                         const alpha_progress = 1.0 - growth_progress; // 1.0 to 0.0
                         const ring_intensity = alpha_progress * intensity;
-                        
+
                         if (ring_intensity > 0.01) {
                             const ring_color = effect.getEffectColor(ring_intensity);
                             game_state.drawCircle(screen_pos, ring_radius, ring_color);
@@ -336,35 +337,56 @@ pub const VisualSystem = struct {
                 }
             },
             .portal_ambient => {
-                // Portal ambient: slow stable pulsing fields at medium alpha
+                // Portal ambient: slow stable pulsing fields with high variance
                 const num_rings = 3;
                 for (0..num_rings) |i| {
                     const ring_factor = @as(f32, @floatFromInt(i + 1)) / @as(f32, @floatFromInt(num_rings));
-                    const base_ring_radius = effect.radius * (0.4 + ring_factor * 0.5); // Base size spacing
-                    
-                    // Much slower pulse frequencies
-                    const ring_pulse_freq = 0.15 + ring_factor * 0.1; // 0.15Hz to 0.25Hz - very slow
+                    const base_ring_radius = effect.radius * (0.3 + ring_factor * 0.6); // Wider base size spacing
+
+                    // Even slower pulse frequencies with more variance
+                    const ring_pulse_freq = 0.08 + ring_factor * 0.12; // 0.08Hz to 0.20Hz - very slow
                     const ring_pulse = (math.sin(elapsed_sec * ring_pulse_freq * 2 * math.pi) + 1.0) * 0.5; // 0.0 to 1.0
-                    
-                    // Pulse between smaller and larger size around base
-                    const pulse_amount = base_ring_radius * 0.4; // 40% size variation
-                    const ring_radius = base_ring_radius + (ring_pulse - 0.5) * pulse_amount; // Pulse ±20% around base size
-                    
-                    const ring_intensity = 0.6;
-                    
+
+                    // Much larger pulse variation
+                    const pulse_amount = base_ring_radius * 0.8; // 80% size variation (was 40%)
+                    const ring_radius = base_ring_radius + (ring_pulse - 0.5) * pulse_amount; // Pulse ±40% around base size
+
+                    // Subtle alpha variance - inner rings slightly brighter, outer rings slightly dimmer
+                    const ring_intensity = 0.6 * (1.05 - ring_factor * 0.2); // Varies from ~0.63 (inner) to ~0.48 (outer)
+
                     const ring_color = effect.getEffectColor(ring_intensity);
                     game_state.drawCircle(screen_pos, ring_radius, ring_color);
                 }
             },
             else => {
-                // Standard concentric rings for lifestone effects
+                // Lifestone effects: stable pulsing fields with low variance (2 rings)
                 const num_rings = 2;
                 for (0..num_rings) |i| {
                     const ring_factor = @as(f32, @floatFromInt(i + 1)) / @as(f32, @floatFromInt(num_rings));
-                    const ring_radius = effect.radius * (0.7 + ring_factor * 0.5);
+                    
+                    // Different properties for inner vs outer ring
+                    const base_ring_radius: f32 = if (i == 0) 
+                        effect.radius * 0.7  // Inner ring: larger base radius (was 0.5)
+                    else 
+                        effect.radius * 1.0; // Outer ring: same as before
+
+                    // Inner ring pulses faster, outer ring stays gentle
+                    const ring_pulse_freq: f32 = if (i == 0) 
+                        0.25  // Inner ring: faster pulse
+                    else 
+                        0.18; // Outer ring: gentle pulse (same as before)
+                    const ring_pulse = (math.sin(elapsed_sec * ring_pulse_freq * 2 * math.pi) + 1.0) * 0.5; // 0.0 to 1.0
+
+                    // Higher pulse variation for inner ring, same for outer
+                    const pulse_amount: f32 = if (i == 0)
+                        base_ring_radius * 0.25  // Inner ring: 25% size variation (±12.5%)
+                    else
+                        base_ring_radius * 0.15; // Outer ring: 15% size variation (±7.5%)
+                    const ring_radius = base_ring_radius + (ring_pulse - 0.5) * pulse_amount; // Pulse ±7.5% around base size
+
                     const ring_intensity = intensity * (1.1 - ring_factor * 0.4);
                     const ring_color = effect.getEffectColor(ring_intensity);
-                    
+
                     game_state.drawCircle(screen_pos, ring_radius, ring_color);
                 }
             },

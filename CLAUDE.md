@@ -26,9 +26,13 @@ Dependencies: SDL3 (auto-fetched)
     │   │   └── runner.zig             # Command execution and orchestration
     │   ├── hex                        # Hex game module (2D action RPG)
     │   │   ├── CLAUDE.md              # Game-specific documentation and SDL3 concepts  
+    │   │   ├── borders.zig            # Screen border system (iris wipe, status borders)
     │   │   ├── game.zig               # SDL3 game implementation with complete game systems
     │   │   ├── game_data.zon          # Data-driven level/scene configuration
-    │   │   └── main.zig               # SDL3 application entry point
+    │   │   ├── hud.zig                # HUD system (FPS counter, bitmap font, toggleable)
+    │   │   ├── main.zig               # SDL3 application entry point
+    │   │   ├── types.zig              # Shared game types (Vec2, Color)
+    │   │   └── visuals.zig            # Visual effects system (player spawn, portals)
     │   ├── tree                       # Tree visualization module (directory traversal)
     │   │   ├── config.zig             # Configuration parsing and options
     │   │   ├── entry.zig              # File/directory entry representation
@@ -61,7 +65,8 @@ $ ./zz help                  # Command list
 ## Hex Game
 
 **Controls:** Left click = move, Right click = shoot, WASD = alt movement  
-**Reset levels:** R = resurrect, T = scene reset, Y = full restart
+**Reset levels:** R = resurrect, T = scene reset, Y = full restart  
+**HUD:** ` (backtick) = toggle FPS counter and other HUD elements
 
 - 7 interconnected scenes (overworld + 6 dungeons)
 - Orange portals for scene transitions (shapes indicate destination)
@@ -90,7 +95,12 @@ $ ./zz help                  # Command list
 
 - **CLI Module:** `src/cli/` - command parsing and orchestration
 - **Tree Module:** `src/tree/` - directory traversal and visualization  
-- **Hex Module:** `src/hex/` - complete SDL3 game with data-driven config
+- **Hex Module:** `src/hex/` - complete SDL3 game with modular architecture:
+  - `game.zig` - core game logic and SDL integration
+  - `borders.zig` - screen border effects (iris wipe, status indicators)
+  - `hud.zig` - heads-up display (FPS counter, bitmap font system)
+  - `visuals.zig` - visual effects (particle systems, ambient effects)
+  - `types.zig` - shared data structures
 
 **Adding Commands:**
 1. Add to `Command` enum in `src/cli/command.zig`

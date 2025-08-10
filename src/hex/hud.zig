@@ -4,11 +4,7 @@ const std = @import("std");
 const types = @import("types.zig");
 const Color = types.Color;
 
-// SDL3 imports for timer functions
-const c = @cImport({
-    @cDefine("SDL_DISABLE_OLD_NAMES", {});
-    @cInclude("SDL3/SDL.h");
-});
+const sdl = @import("sdl.zig").c;
 
 // HUD system now uses GPU-based rendering through the renderer
 // Old bitmap digit constants removed - see renderer.zig for current implementation
@@ -28,7 +24,7 @@ pub const Hud = struct {
         return Self{
             .fps_counter = 60, // Start with reasonable default
             .fps_frames = 0,
-            .fps_last_time = c.SDL_GetPerformanceCounter(),
+            .fps_last_time = sdl.SDL_GetPerformanceCounter(),
             .visible = true, // Start visible
         };
     }

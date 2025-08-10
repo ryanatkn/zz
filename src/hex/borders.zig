@@ -1,11 +1,7 @@
 const std = @import("std");
 const math = std.math;
 
-// SDL C imports
-const c = @cImport({
-    @cDefine("SDL_DISABLE_OLD_NAMES", {});
-    @cInclude("SDL3/SDL.h");
-});
+const sdl = @import("sdl.zig").c;
 
 // Import shared types
 const types = @import("types.zig");
@@ -22,9 +18,9 @@ const SCREEN_WIDTH = constants.SCREEN_WIDTH;
 const SCREEN_HEIGHT = constants.SCREEN_HEIGHT;
 
 // Iris wipe constants
-const IRIS_WIPE_DURATION = 1.5;
-const IRIS_WIPE_BAND_COUNT = 6;
-const IRIS_WIPE_BAND_WIDTH = 12.0;
+pub const IRIS_WIPE_DURATION = 2.5; // Increased from 1.5 seconds
+pub const IRIS_WIPE_BAND_COUNT = 6;
+pub const IRIS_WIPE_BAND_WIDTH = 30.0; // Increased from 12.0 pixels
 
 // Color constants for borders
 const BLUE_BRIGHT = Color{ .r = 100, .g = 150, .b = 255, .a = 255 };
@@ -154,14 +150,14 @@ pub const BorderStack = struct {
 
 // Animation utility functions
 fn calculateAnimationPulse(frequency: f32) f32 {
-    const current_time_ms = @as(f32, @floatFromInt(c.SDL_GetTicks()));
+    const current_time_ms = @as(f32, @floatFromInt(sdl.SDL_GetTicks()));
     const current_time_sec = current_time_ms / 1000.0;
     return (math.sin(current_time_sec * frequency) + 1.0) * 0.5;
 }
 
 fn calculateColorCycle() f32 {
     const COLOR_CYCLE_FREQ = 4.0;
-    const current_time_ms = @as(f32, @floatFromInt(c.SDL_GetTicks()));
+    const current_time_ms = @as(f32, @floatFromInt(sdl.SDL_GetTicks()));
     const current_time_sec = current_time_ms / 1000.0;
     return (math.sin(current_time_sec * COLOR_CYCLE_FREQ) + 1.0) * 0.5;
 }
@@ -209,8 +205,8 @@ pub fn drawScreenBorder(game_state: anytype) void {
 
     // Iris wipe effect (highest priority - renders over everything)
     if (game_state.iris_wipe_active) {
-        const current_time = c.SDL_GetPerformanceCounter();
-        const frequency = c.SDL_GetPerformanceFrequency();
+        const current_time = sdl.SDL_GetPerformanceCounter();
+        const frequency = sdl.SDL_GetPerformanceFrequency();
         const elapsed_sec = @as(f32, @floatFromInt(current_time - game_state.iris_wipe_start_time)) / @as(f32, @floatFromInt(frequency));
         const wipe_duration = IRIS_WIPE_DURATION;
 

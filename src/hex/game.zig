@@ -10,11 +10,7 @@ const portals = @import("portals.zig");
 const camera = @import("camera.zig");
 const effects = @import("effects.zig");
 
-// SDL C imports for timing
-const c = @cImport({
-    @cDefine("SDL_DISABLE_OLD_NAMES", {});
-    @cInclude("SDL3/SDL.h");
-});
+const sdl = @import("sdl.zig").c;
 
 const Vec2 = types.Vec2;
 const World = entities.World;
@@ -199,11 +195,9 @@ pub fn handleFireBullet(game_state: *GameState, cam: *const camera.Camera) void 
 }
 
 pub fn handleRespawn(game_state: *GameState) void {
-    if (!game_state.world.player.alive) {
-        // Start iris wipe effect
-        game_state.iris_wipe_active = true;
-        game_state.iris_wipe_start_time = c.SDL_GetPerformanceCounter();
+    // Start iris wipe effect
+    game_state.iris_wipe_active = true;
+    game_state.iris_wipe_start_time = sdl.SDL_GetPerformanceCounter();
 
-        combat.respawnPlayer(game_state);
-    }
+    combat.respawnPlayer(game_state);
 }

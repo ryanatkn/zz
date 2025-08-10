@@ -1,12 +1,6 @@
 const std = @import("std");
 
-// SDL C imports
-const c = @cImport({
-    @cDefine("SDL_DISABLE_OLD_NAMES", {});
-    @cInclude("SDL3/SDL.h");
-    @cDefine("SDL_MAIN_HANDLED", {});
-    @cInclude("SDL3/SDL_main.h");
-});
+const sdl = @import("sdl.zig").c;
 
 // Circle uniform buffer structure matching HLSL
 // Let's check what size Zig actually gives us and adjust accordingly
@@ -21,19 +15,19 @@ const CircleUniforms = extern struct {
 
 pub const CircleTest = struct {
     allocator: std.mem.Allocator,
-    device: *c.SDL_GPUDevice,
-    vertex_shader: *c.SDL_GPUShader,
-    fragment_shader: *c.SDL_GPUShader,
-    pipeline: *c.SDL_GPUGraphicsPipeline,
+    device: *sdl.SDL_GPUDevice,
+    vertex_shader: *sdl.SDL_GPUShader,
+    fragment_shader: *sdl.SDL_GPUShader,
+    pipeline: *sdl.SDL_GPUGraphicsPipeline,
 
     const Self = @This();
 
-    pub fn init(allocator: std.mem.Allocator, window: *c.SDL_Window) !Self {
+    pub fn init(allocator: std.mem.Allocator, window: *sdl.SDL_Window) !Self {
         std.debug.print("Creating GPU device for circle test...\n", .{});
         std.debug.print("CircleUniforms size: {} bytes\n", .{@sizeOf(CircleUniforms)});
 
         // Create GPU device with multiple shader formats supported
-        const device = c.SDL_CreateGPUDevice(c.SDL_GPU_SHADERFORMAT_SPIRV | c.SDL_GPU_SHADERFORMAT_DXIL, false, // debug mode off for now
+        const device = sdl.SDL_CreateGPUDevice(sdl.SDL_GPU_SHADERFORMAT_SPIRV | sdl.SDL_GPU_SHADERFORMAT_DXIL, false, // debug mode off for now
             null // auto-select backend
         ) orelse {
             std.debug.print("Failed to create GPU device\n", .{});
@@ -41,9 +35,9 @@ pub const CircleTest = struct {
         };
 
         // Claim window for GPU rendering
-        if (!c.SDL_ClaimWindowForGPUDevice(device, window)) {
+        if (!sdl.SDL_ClaimWindowForGPUDevice(device, window)) {
             std.debug.print("Failed to claim window for GPU device\n", .{});
-            c.SDL_DestroyGPUDevice(device);
+            sdl.SDL_DestroyGPUDevice(device);
             return error.WindowClaimFailed;
         }
 
@@ -61,16 +55,16 @@ pub const CircleTest = struct {
         try self.createPipeline();
 
         // Show window now that GPU is set up
-        _ = c.SDL_ShowWindow(window);
+        _ = sdl.SDL_ShowWindow(window);
 
         return self;
     }
 
     pub fn deinit(self: *Self) void {
-        c.SDL_ReleaseGPUGraphicsPipeline(self.device, self.pipeline);
-        c.SDL_ReleaseGPUShader(self.device, self.vertex_shader);
-        c.SDL_ReleaseGPUShader(self.device, self.fragment_shader);
-        c.SDL_DestroyGPUDevice(self.device);
+        sdl.SDL_ReleaseGPUGraphicsPipeline(self.device, self.pipeline);
+        sdl.SDL_ReleaseGPUShader(self.device, self.vertex_shader);
+        sdl.SDL_ReleaseGPUShader(self.device, self.fragment_shader);
+        sdl.SDL_DestroyGPUDevice(self.device);
     }
 
     fn createShaders(self: *Self) !void {
@@ -81,40 +75,40 @@ pub const CircleTest = struct {
         const circle_fs_spv = @embedFile("shaders/compiled/vulkan/simple_circle_ps.spv");
 
         // Create vertex shader WITH uniform buffer support
-        const vs_info = c.SDL_GPUShaderCreateInfo{
+        const vs_info = sdl.SDL_GPUShaderCreateInfo{
             .code_size = circle_vs_spv.len,
             .code = @ptrCast(circle_vs_spv.ptr),
             .entrypoint = "vs_main",
-            .format = c.SDL_GPU_SHADERFORMAT_SPIRV,
-            .stage = c.SDL_GPU_SHADERSTAGE_VERTEX,
+            .format = sdl.SDL_GPU_SHADERFORMAT_SPIRV,
+            .stage = sdl.SDL_GPU_SHADERSTAGE_VERTEX,
             .num_samplers = 0,
             .num_storage_textures = 0,
             .num_storage_buffers = 0,
             .num_uniform_buffers = 1, // CRITICAL: Must match shader uniform count
         };
 
-        self.vertex_shader = c.SDL_CreateGPUShader(self.device, &vs_info) orelse {
+        self.vertex_shader = sdl.SDL_CreateGPUShader(self.device, &vs_info) orelse {
             std.debug.print("Failed to create circle vertex shader\n", .{});
-            std.debug.print("SDL Error: {s}\n", .{c.SDL_GetError()});
+            std.debug.print("SDL Error: {s}\n", .{sdl.SDL_GetError()});
             return error.VertexShaderFailed;
         };
 
         // Create fragment shader (no uniforms needed for simple circle)
-        const fs_info = c.SDL_GPUShaderCreateInfo{
+        const fs_info = sdl.SDL_GPUShaderCreateInfo{
             .code_size = circle_fs_spv.len,
             .code = @ptrCast(circle_fs_spv.ptr),
             .entrypoint = "ps_main",
-            .format = c.SDL_GPU_SHADERFORMAT_SPIRV,
-            .stage = c.SDL_GPU_SHADERSTAGE_FRAGMENT,
+            .format = sdl.SDL_GPU_SHADERFORMAT_SPIRV,
+            .stage = sdl.SDL_GPU_SHADERSTAGE_FRAGMENT,
             .num_samplers = 0,
             .num_storage_textures = 0,
             .num_storage_buffers = 0,
             .num_uniform_buffers = 0, // Fragment shader doesn't need uniforms
         };
 
-        self.fragment_shader = c.SDL_CreateGPUShader(self.device, &fs_info) orelse {
+        self.fragment_shader = sdl.SDL_CreateGPUShader(self.device, &fs_info) orelse {
             std.debug.print("Failed to create circle fragment shader\n", .{});
-            std.debug.print("SDL Error: {s}\n", .{c.SDL_GetError()});
+            std.debug.print("SDL Error: {s}\n", .{sdl.SDL_GetError()});
             return error.FragmentShaderFailed;
         };
 
@@ -125,7 +119,7 @@ pub const CircleTest = struct {
         std.debug.print("Creating circle graphics pipeline...\n", .{});
 
         // No vertex input - completely procedural
-        const vertex_input_state = c.SDL_GPUVertexInputState{
+        const vertex_input_state = sdl.SDL_GPUVertexInputState{
             .vertex_buffer_descriptions = null,
             .num_vertex_buffers = 0,
             .vertex_attributes = null,
@@ -133,10 +127,10 @@ pub const CircleTest = struct {
         };
 
         // Basic rasterizer state
-        const rasterizer_state = c.SDL_GPURasterizerState{
-            .fill_mode = c.SDL_GPU_FILLMODE_FILL,
-            .cull_mode = c.SDL_GPU_CULLMODE_NONE,
-            .front_face = c.SDL_GPU_FRONTFACE_COUNTER_CLOCKWISE,
+        const rasterizer_state = sdl.SDL_GPURasterizerState{
+            .fill_mode = sdl.SDL_GPU_FILLMODE_FILL,
+            .cull_mode = sdl.SDL_GPU_CULLMODE_NONE,
+            .front_face = sdl.SDL_GPU_FRONTFACE_COUNTER_CLOCKWISE,
             .depth_bias_constant_factor = 0.0,
             .depth_bias_clamp = 0.0,
             .depth_bias_slope_factor = 0.0,
@@ -144,62 +138,62 @@ pub const CircleTest = struct {
         };
 
         // Basic multisample state
-        const multisample_state = c.SDL_GPUMultisampleState{
-            .sample_count = c.SDL_GPU_SAMPLECOUNT_1,
+        const multisample_state = sdl.SDL_GPUMultisampleState{
+            .sample_count = sdl.SDL_GPU_SAMPLECOUNT_1,
             .sample_mask = 0xFFFFFFFF,
             .enable_mask = false,
         };
 
         // Color target configuration with alpha blending for anti-aliasing
-        const color_target_desc = c.SDL_GPUColorTargetDescription{
-            .format = c.SDL_GPU_TEXTUREFORMAT_B8G8R8A8_UNORM,
+        const color_target_desc = sdl.SDL_GPUColorTargetDescription{
+            .format = sdl.SDL_GPU_TEXTUREFORMAT_B8G8R8A8_UNORM,
             .blend_state = .{
-                .src_color_blendfactor = c.SDL_GPU_BLENDFACTOR_SRC_ALPHA,
-                .dst_color_blendfactor = c.SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
-                .color_blend_op = c.SDL_GPU_BLENDOP_ADD,
-                .src_alpha_blendfactor = c.SDL_GPU_BLENDFACTOR_ONE,
-                .dst_alpha_blendfactor = c.SDL_GPU_BLENDFACTOR_ZERO,
-                .alpha_blend_op = c.SDL_GPU_BLENDOP_ADD,
-                .color_write_mask = c.SDL_GPU_COLORCOMPONENT_R | c.SDL_GPU_COLORCOMPONENT_G | c.SDL_GPU_COLORCOMPONENT_B | c.SDL_GPU_COLORCOMPONENT_A,
+                .src_color_blendfactor = sdl.SDL_GPU_BLENDFACTOR_SRC_ALPHA,
+                .dst_color_blendfactor = sdl.SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
+                .color_blend_op = sdl.SDL_GPU_BLENDOP_ADD,
+                .src_alpha_blendfactor = sdl.SDL_GPU_BLENDFACTOR_ONE,
+                .dst_alpha_blendfactor = sdl.SDL_GPU_BLENDFACTOR_ZERO,
+                .alpha_blend_op = sdl.SDL_GPU_BLENDOP_ADD,
+                .color_write_mask = sdl.SDL_GPU_COLORCOMPONENT_R | sdl.SDL_GPU_COLORCOMPONENT_G | sdl.SDL_GPU_COLORCOMPONENT_B | sdl.SDL_GPU_COLORCOMPONENT_A,
                 .enable_blend = true, // Enable blending for anti-aliasing
                 .enable_color_write_mask = false,
             },
         };
 
-        const target_info = c.SDL_GPUGraphicsPipelineTargetInfo{
+        const target_info = sdl.SDL_GPUGraphicsPipelineTargetInfo{
             .color_target_descriptions = &color_target_desc,
             .num_color_targets = 1,
-            .depth_stencil_format = c.SDL_GPU_TEXTUREFORMAT_INVALID,
+            .depth_stencil_format = sdl.SDL_GPU_TEXTUREFORMAT_INVALID,
             .has_depth_stencil_target = false,
         };
 
         // Create the pipeline
-        const pipeline_create_info = c.SDL_GPUGraphicsPipelineCreateInfo{
+        const pipeline_create_info = sdl.SDL_GPUGraphicsPipelineCreateInfo{
             .vertex_shader = self.vertex_shader,
             .fragment_shader = self.fragment_shader,
             .vertex_input_state = vertex_input_state,
-            .primitive_type = c.SDL_GPU_PRIMITIVETYPE_TRIANGLELIST,
+            .primitive_type = sdl.SDL_GPU_PRIMITIVETYPE_TRIANGLELIST,
             .rasterizer_state = rasterizer_state,
             .multisample_state = multisample_state,
             .target_info = target_info,
         };
 
-        self.pipeline = c.SDL_CreateGPUGraphicsPipeline(self.device, &pipeline_create_info) orelse {
+        self.pipeline = sdl.SDL_CreateGPUGraphicsPipeline(self.device, &pipeline_create_info) orelse {
             std.debug.print("Failed to create circle graphics pipeline\n", .{});
-            std.debug.print("SDL Error: {s}\n", .{c.SDL_GetError()});
+            std.debug.print("SDL Error: {s}\n", .{sdl.SDL_GetError()});
             return error.PipelineCreationFailed;
         };
 
         std.debug.print("Circle pipeline created successfully!\n", .{});
     }
 
-    pub fn render(self: *Self, window: *c.SDL_Window) !void {
+    pub fn render(self: *Self, window: *sdl.SDL_Window) !void {
         // Prepare uniform data
         var window_w: c_int = undefined;
         var window_h: c_int = undefined;
-        _ = c.SDL_GetWindowSize(window, &window_w, &window_h);
+        _ = sdl.SDL_GetWindowSize(window, &window_w, &window_h);
 
-        const ticks = c.SDL_GetTicks();
+        const ticks = sdl.SDL_GetTicks();
         const time_sec = @as(f32, @floatFromInt(ticks)) / 1000.0;
 
         // Animated circle parameters
@@ -228,39 +222,39 @@ pub const CircleTest = struct {
         };
 
         // Acquire command buffer
-        const cmd_buffer = c.SDL_AcquireGPUCommandBuffer(self.device) orelse {
+        const cmd_buffer = sdl.SDL_AcquireGPUCommandBuffer(self.device) orelse {
             std.debug.print("Failed to acquire GPU command buffer\n", .{});
             return error.CommandBufferFailed;
         };
 
         // CRITICAL: Push uniform data BEFORE beginning render pass
-        c.SDL_PushGPUVertexUniformData(cmd_buffer, 0, &uniform_data, @sizeOf(CircleUniforms));
+        sdl.SDL_PushGPUVertexUniformData(cmd_buffer, 0, &uniform_data, @sizeOf(CircleUniforms));
 
         // Acquire swapchain texture
-        var swapchain_texture: ?*c.SDL_GPUTexture = null;
-        if (!c.SDL_WaitAndAcquireGPUSwapchainTexture(cmd_buffer, window, &swapchain_texture, null, null)) {
-            std.debug.print("Failed to acquire swapchain texture: {s}\n", .{c.SDL_GetError()});
+        var swapchain_texture: ?*sdl.SDL_GPUTexture = null;
+        if (!sdl.SDL_WaitAndAcquireGPUSwapchainTexture(cmd_buffer, window, &swapchain_texture, null, null)) {
+            std.debug.print("Failed to acquire swapchain texture: {s}\n", .{sdl.SDL_GetError()});
             return error.SwapchainFailed;
         }
 
         if (swapchain_texture) |texture| {
             // Set up color target - clear to dark background
-            const color_target_info = c.SDL_GPUColorTargetInfo{
+            const color_target_info = sdl.SDL_GPUColorTargetInfo{
                 .texture = texture,
                 .clear_color = .{ .r = 0.1, .g = 0.1, .b = 0.2, .a = 1.0 }, // Dark blue background
-                .load_op = c.SDL_GPU_LOADOP_CLEAR,
-                .store_op = c.SDL_GPU_STOREOP_STORE,
+                .load_op = sdl.SDL_GPU_LOADOP_CLEAR,
+                .store_op = sdl.SDL_GPU_STOREOP_STORE,
                 .cycle = false,
             };
 
             // Begin render pass
-            const render_pass = c.SDL_BeginGPURenderPass(cmd_buffer, &color_target_info, 1, null) orelse {
+            const render_pass = sdl.SDL_BeginGPURenderPass(cmd_buffer, &color_target_info, 1, null) orelse {
                 std.debug.print("Failed to begin render pass\n", .{});
                 return error.RenderPassFailed;
             };
 
             // Bind pipeline
-            c.SDL_BindGPUGraphicsPipeline(render_pass, self.pipeline);
+            sdl.SDL_BindGPUGraphicsPipeline(render_pass, self.pipeline);
 
             // Debug: print circle data every 3 seconds
             const frame_count = @as(u32, @intFromFloat(time_sec * 60));
@@ -269,14 +263,14 @@ pub const CircleTest = struct {
             }
 
             // Draw 6 vertices (2 triangles forming a quad)
-            c.SDL_DrawGPUPrimitives(render_pass, 6, 1, 0, 0);
+            sdl.SDL_DrawGPUPrimitives(render_pass, 6, 1, 0, 0);
 
             // End render pass
-            c.SDL_EndGPURenderPass(render_pass);
+            sdl.SDL_EndGPURenderPass(render_pass);
         }
 
         // Submit command buffer
-        _ = c.SDL_SubmitGPUCommandBuffer(cmd_buffer);
+        _ = sdl.SDL_SubmitGPUCommandBuffer(cmd_buffer);
     }
 };
 

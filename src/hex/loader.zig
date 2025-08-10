@@ -1,5 +1,5 @@
-// Loader - loads ZON data into entity pools
 const std = @import("std");
+
 const entities = @import("entities.zig");
 const types = @import("types.zig");
 
@@ -170,7 +170,7 @@ const ZoneData = struct {
     name: []const u8,
     background_color: struct { r: u8, g: u8, b: u8 },
     camera_mode: []const u8,
-    camera_scale: ?f32 = null,  // Optional camera scale with default value
+    camera_scale: ?f32 = null, // Optional camera scale with default value
     obstacles: ?[]const struct {
         position: struct { x: f32, y: f32 },
         size: struct { x: f32, y: f32 },
@@ -191,4 +191,3 @@ const ZoneData = struct {
         radius: f32,
     },
 };
-

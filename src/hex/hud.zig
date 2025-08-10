@@ -1,10 +1,10 @@
 const std = @import("std");
 
-// Import shared types
-const types = @import("types.zig");
-const Color = types.Color;
-
 const sdl = @import("sdl.zig").c;
+
+const types = @import("types.zig");
+
+const Color = types.Color;
 
 // HUD system now uses GPU-based rendering through the renderer
 // Old bitmap digit constants removed - see renderer.zig for current implementation

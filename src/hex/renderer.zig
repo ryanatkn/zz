@@ -1,5 +1,7 @@
-// Renderer wrapper - manages GPU rendering for all entities
 const std = @import("std");
+
+const sdl = @import("sdl.zig").c;
+
 const entities = @import("entities.zig");
 const types = @import("types.zig");
 const simple_gpu_renderer = @import("simple_gpu_renderer.zig");
@@ -7,8 +9,6 @@ const camera = @import("camera.zig");
 const borders = @import("borders.zig");
 const constants = @import("constants.zig");
 const effects = @import("effects.zig");
-
-const sdl = @import("sdl.zig").c;
 
 const Vec2 = types.Vec2;
 const Color = types.Color;
@@ -52,12 +52,13 @@ pub const Renderer = struct {
     // Update camera based on current zone (call before game logic update)
     pub fn updateCamera(self: *Renderer, world: *const entities.World) void {
         // Ensure camera has current screen dimensions (in case window resized)
-        if (self.camera.screen_width != self.gpu.screen_width or 
-            self.camera.screen_height != self.gpu.screen_height) {
+        if (self.camera.screen_width != self.gpu.screen_width or
+            self.camera.screen_height != self.gpu.screen_height)
+        {
             self.camera.screen_width = self.gpu.screen_width;
             self.camera.screen_height = self.gpu.screen_height;
         }
-        
+
         const zone = world.getCurrentZone();
         switch (zone.camera_mode) {
             .fixed => self.camera.setupFixed(zone.camera_scale),
@@ -280,4 +281,3 @@ pub const Renderer = struct {
         }
     }
 };
-

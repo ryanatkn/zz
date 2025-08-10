@@ -1,5 +1,7 @@
-// Controls - centralized input handling and action dispatch
 const std = @import("std");
+
+const sdl = @import("sdl.zig").c;
+
 const types = @import("types.zig");
 const constants = @import("constants.zig");
 const game_controller = @import("game.zig");
@@ -11,7 +13,6 @@ const Vec2 = types.Vec2;
 const GameState = game_controller.GameState;
 const Renderer = renderer.Renderer;
 const Hud = hud.Hud;
-const sdl = @import("sdl.zig").c;
 
 pub fn handleSDLEvent(
     game_state: *GameState,

@@ -1,5 +1,5 @@
-// Camera system for world-to-screen transformations
 const std = @import("std");
+
 const types = @import("types.zig");
 const constants = @import("constants.zig");
 
@@ -11,9 +11,9 @@ pub const Camera = struct {
     screen_height: f32,
 
     // World view bounds
-    view_x: f32,      // Left edge of view in world space
-    view_y: f32,      // Top edge of view in world space  
-    view_width: f32,  // Width of view in world units
+    view_x: f32, // Left edge of view in world space
+    view_y: f32, // Top edge of view in world space
+    view_width: f32, // Width of view in world units
     view_height: f32, // Height of view in world units
 
     // Visual scale (zoom level)

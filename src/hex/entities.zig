@@ -1,5 +1,5 @@
-// Entity storage - explicit pools for each entity type
 const std = @import("std");
+
 const types = @import("types.zig");
 const constants = @import("constants.zig");
 
@@ -150,7 +150,7 @@ pub const Zone = struct {
     background_color: Color,
     camera_mode: CameraMode,
     camera_scale: f32, // Zoom level for this zone (1.0 = default, <1.0 = zoomed out, >1.0 = zoomed in)
-    
+
     // Entity pools with counts
     units: [MAX_UNITS]Unit,
     unit_count: usize,
@@ -229,7 +229,6 @@ pub const Zone = struct {
         self.unit_count = self.original_unit_count;
     }
 };
-
 
 // World state - contains all game zones and entities
 pub const World = struct {

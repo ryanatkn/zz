@@ -1,5 +1,7 @@
 const std = @import("std");
+
 const types = @import("types.zig");
+
 const Vec2 = types.Vec2;
 
 pub fn normalizeVector(v: Vec2) Vec2 {

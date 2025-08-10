@@ -2,8 +2,8 @@ const std = @import("std");
 
 const sdl = @import("sdl.zig").c;
 
-// Import shared types
 const types = @import("types.zig");
+
 const Vec2 = types.Vec2;
 const Color = types.Color;
 

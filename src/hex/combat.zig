@@ -1,4 +1,5 @@
 const std = @import("std");
+
 const types = @import("types.zig");
 const entities = @import("entities.zig");
 const behaviors = @import("behaviors.zig");
@@ -28,7 +29,7 @@ pub fn respawnPlayer(game_state: anytype) void {
     const nearest = physics.findNearestAttunedLifestone(world, world.player.pos);
 
     var respawn_pos: Vec2 = undefined;
-    
+
     if (nearest) |result| {
         if (result.zone_index != world.current_zone) {
             game_state.travelToZone(result.zone_index);
@@ -42,7 +43,7 @@ pub fn respawnPlayer(game_state: anytype) void {
         }
         respawn_pos = Vec2{ .x = constants.SCREEN_CENTER_X, .y = constants.SCREEN_CENTER_Y };
     }
-    
+
     // Common respawn logic
     behaviors.respawnPlayer(&world.player, respawn_pos);
     effect_system.addPlayerSpawnEffect(respawn_pos, world.player.radius);

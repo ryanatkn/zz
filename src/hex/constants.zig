@@ -1,4 +1,3 @@
-// Game constants for the hex module
 const types = @import("types.zig");
 
 // Screen/Window dimensions

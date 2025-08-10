@@ -1,4 +1,7 @@
 const std = @import("std");
+
+const sdl = @import("sdl.zig").c;
+
 const types = @import("types.zig");
 const entities = @import("entities.zig");
 const behaviors = @import("behaviors.zig");
@@ -9,8 +12,6 @@ const combat = @import("combat.zig");
 const portals = @import("portals.zig");
 const camera = @import("camera.zig");
 const effects = @import("effects.zig");
-
-const sdl = @import("sdl.zig").c;
 
 const Vec2 = types.Vec2;
 const World = entities.World;
@@ -91,19 +92,19 @@ pub const GameState = struct {
         self.world.player.vel = types.Vec2{ .x = 0, .y = 0 };
         self.world.player.alive = true;
         self.world.player.color = @import("constants.zig").COLOR_PLAYER_ALIVE;
-        
+
         // Reset to starting zone
         if (self.world.current_zone != 0) {
             self.travelToZone(0);
         }
-        
+
         // Reset all zones
         self.world.resetAllZones();
-        
+
         // Clear effects for clean slate
         self.effect_system.clear();
         self.effect_system.refreshAmbientEffects(&self.world);
-        
+
         std.debug.print("Full game reset\n", .{});
     }
 };

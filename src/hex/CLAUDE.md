@@ -43,7 +43,6 @@ A procedurally-rendered 2D topdown action RPG built with Zig, SDL3 GPU API, and 
     ├── entities.zig                  # Zone-based world and entity system
     ├── game.zig                      # Main game state management and update loop
     ├── game_data.zon                 # Data-driven zone configuration
-    ├── gpu_circle_test.zig           # GPU debug test with orbital animation
     ├── hud.zig                       # HUD system (FPS counter, UI elements)
     ├── input.zig                     # Input handling (keyboard, mouse)
     ├── loader.zig                    # ZON data loading and parsing

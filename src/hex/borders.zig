@@ -3,7 +3,6 @@ const math = std.math;
 
 const sdl = @import("sdl.zig").c;
 
-// Import shared types
 const types = @import("types.zig");
 const Color = types.Color;
 const constants = @import("constants.zig");

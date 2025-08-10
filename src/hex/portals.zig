@@ -1,4 +1,5 @@
 const std = @import("std");
+
 const types = @import("types.zig");
 const entities = @import("entities.zig");
 const behaviors = @import("behaviors.zig");
@@ -50,7 +51,7 @@ pub fn handlePortalTravel(game_state: anytype, portal: *const Portal) void {
 
             // Add portal travel effect on the player
             effect_system.addPortalTravelEffect(world.player.pos, world.player.radius);
-            
+
             // Add portal ripple effect on the portal itself in the new zone
             effect_system.addPortalRippleEffect(return_portal.pos, return_portal.radius);
             return;

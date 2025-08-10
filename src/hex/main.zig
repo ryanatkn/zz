@@ -1,6 +1,8 @@
 const std = @import("std");
 
-// Import new modules
+const sdl = @import("sdl.zig").c;
+
+const constants = @import("constants.zig");
 const entities = @import("entities.zig");
 const behaviors = @import("behaviors.zig");
 const physics = @import("physics.zig");
@@ -16,9 +18,9 @@ const portals = @import("portals.zig");
 const maths = @import("maths.zig");
 const controls = @import("controls.zig");
 
-// Debug test (only load if needed)
-const gpu_circle_test = @import("gpu_circle_test.zig");
 
+const window_w = @as(u32, @intFromFloat(constants.SCREEN_WIDTH));
+const window_h = @as(u32, @intFromFloat(constants.SCREEN_HEIGHT));
 const Vec2 = types.Vec2;
 const Color = types.Color;
 const World = entities.World;
@@ -45,12 +47,6 @@ pub fn run(allocator: std.mem.Allocator) !void {
     }
 }
 
-const sdl = @import("sdl.zig").c;
-
-const constants = @import("constants.zig");
-const window_w = @as(u32, @intFromFloat(constants.SCREEN_WIDTH));
-const window_h = @as(u32, @intFromFloat(constants.SCREEN_HEIGHT));
-
 var fully_initialized = false;
 var window: *sdl.SDL_Window = undefined;
 var game_renderer: Renderer = undefined;
@@ -61,8 +57,6 @@ var global_allocator: std.mem.Allocator = undefined;
 // Timing
 var last_time: u64 = 0;
 
-// Debug test globals
-var circle_test: ?gpu_circle_test.CircleTest = null;
 
 fn sdlAppInit(appstate: ?*?*anyopaque, argv: [][*:0]u8) !sdl.SDL_AppResult {
     _ = appstate;
@@ -121,8 +115,8 @@ fn sdlAppIterate(appstate: ?*anyopaque) !sdl.SDL_AppResult {
     }
 
     if (DEBUG_MODE) {
-        // Debug mode - run GPU tests
-        try runDebugTests(global_allocator, window);
+        // Debug mode - no tests available
+        return sdl.SDL_APP_SUCCESS;
     } else {
         // Game mode - run actual game
         try runGameLoop();
@@ -141,12 +135,7 @@ fn sdlAppQuit(appstate: ?*anyopaque, result: anyerror!sdl.SDL_AppResult) void {
     _ = result catch {};
 
     if (fully_initialized) {
-        if (DEBUG_MODE) {
-            if (circle_test) |*c_test| {
-                c_test.deinit();
-                circle_test = null;
-            }
-        } else {
+        if (!DEBUG_MODE) {
             game_renderer.deinit();
             loader.deinit(); // Clean up ZON data memory
         }
@@ -202,23 +191,6 @@ fn renderGame() !void {
     game_renderer.endFrame(cmd_buffer);
 }
 
-// Debug test functions
-fn runDebugTests(allocator: std.mem.Allocator, win: *sdl.SDL_Window) !void {
-    if (circle_test == null) {
-        circle_test = gpu_circle_test.CircleTest.init(allocator, win) catch |err| {
-            std.debug.print("Circle test initialization failed: {}\n", .{err});
-            return err;
-        };
-        std.debug.print("Circle test initialized successfully\n", .{});
-    }
-
-    if (circle_test) |*c_test| {
-        c_test.render(win) catch |err| {
-            std.debug.print("Circle test render failed: {}\n", .{err});
-            return err;
-        };
-    }
-}
 
 // SDL boilerplate
 inline fn errify(value: anytype) error{SdlError}!switch (@typeInfo(@TypeOf(value))) {

@@ -1,9 +1,11 @@
 const std = @import("std");
-const types = @import("types.zig");
-const camera = @import("camera.zig");
-const Vec2 = types.Vec2;
 
 const sdl = @import("sdl.zig").c;
+
+const types = @import("types.zig");
+const camera = @import("camera.zig");
+
+const Vec2 = types.Vec2;
 
 pub const InputState = struct {
     keys_down: std.StaticBitSet(512),

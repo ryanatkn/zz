@@ -1,5 +1,5 @@
-// Behavior functions - direct, named functions for entity updates
 const std = @import("std");
+
 const entities = @import("entities.zig");
 const types = @import("types.zig");
 const constants = @import("constants.zig");

@@ -1,5 +1,5 @@
-// Collision detection and physics
 const std = @import("std");
+
 const entities = @import("entities.zig");
 const types = @import("types.zig");
 

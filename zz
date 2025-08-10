@@ -23,7 +23,10 @@ case "${1:-}" in
             echo "Windows build failed!" >&2
             exit 1
         fi
-        echo "Windows build complete: zig-out/bin/zz.exe"
+        # Rename with today's date
+        DATE=$(date +%b_%d_%Y | tr '[:upper:]' '[:lower:]')
+        mv ./zig-out/bin/zz.exe ./zig-out/bin/arpg_${DATE}.exe
+        echo "Windows build complete: zig-out/bin/arpg_${DATE}.exe"
         exit 0
         ;;
     hex)

@@ -189,7 +189,6 @@
                 .{ .position = .{ .x = 1520.0, .y = 300.0 }, .size = .{ .x = 100.0, .y = 200.0 }, .type = "blocking" },
                 .{ .position = .{ .x = 700.0, .y = 150.0 }, .size = .{ .x = 520.0, .y = 80.0 }, .type = "blocking" },
                 .{ .position = .{ .x = 700.0, .y = 820.0 }, .size = .{ .x = 520.0, .y = 80.0 }, .type = "blocking" },
-                .{ .position = .{ .x = 800.0, .y = 500.0 }, .size = .{ .x = 40.0, .y = 40.0 }, .type = "deadly" },
                 .{ .position = .{ .x = 1120.0, .y = 500.0 }, .size = .{ .x = 40.0, .y = 40.0 }, .type = "deadly" },
             },
             .units = .{

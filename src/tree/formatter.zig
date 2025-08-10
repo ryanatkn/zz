@@ -1,4 +1,5 @@
 const std = @import("std");
+
 const Entry = @import("entry.zig").Entry;
 
 pub const Formatter = struct {

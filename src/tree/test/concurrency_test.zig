@@ -1,5 +1,6 @@
 const std = @import("std");
 const testing = std.testing;
+
 const Walker = @import("../walker.zig").Walker;
 const Config = @import("../config.zig").Config;
 const TreeConfig = @import("../config.zig").TreeConfig;

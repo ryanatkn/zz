@@ -1,5 +1,6 @@
 const std = @import("std");
 const testing = std.testing;
+
 const Formatter = @import("../formatter.zig").Formatter;
 const Entry = @import("../entry.zig").Entry;
 

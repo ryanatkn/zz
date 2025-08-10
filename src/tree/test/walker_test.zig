@@ -1,5 +1,6 @@
 const std = @import("std");
 const testing = std.testing;
+
 const Walker = @import("../walker.zig").Walker;
 const Config = @import("../config.zig").Config;
 const TreeConfig = @import("../config.zig").TreeConfig;
@@ -211,9 +212,9 @@ test "nested path patterns are not crawled" {
 
     // Create complex nested structure
     const paths_to_create = [_][]const u8{
-        "src",                    "src/cli",                   "src/tree", "src/tree/compiled",
-        "src/tree/compiled/test1", "src/tree/compiled/test2", "node_modules",
-        "node_modules/deep",       "node_modules/deep/nested",
+        "src",                      "src/cli",                 "src/tree",     "src/tree/compiled",
+        "src/tree/compiled/test1",  "src/tree/compiled/test2", "node_modules", "node_modules/deep",
+        "node_modules/deep/nested",
     };
 
     for (paths_to_create) |path| {
@@ -473,8 +474,8 @@ test "real project structure is handled correctly" {
 
     // Simulate real project structure like our zz project
     const project_structure = [_][]const u8{
-        "src",       "src/cli", "src/tree", "src/tree/compiled", "src/tree/test",
-        "zig-out",   "zig-out/bin", ".git", ".zig-cache",
+        "src",     "src/cli",     "src/tree", "src/tree/compiled", "src/tree/test",
+        "zig-out", "zig-out/bin", ".git",     ".zig-cache",
     };
 
     for (project_structure) |path| {

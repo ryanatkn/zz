@@ -1,4 +1,5 @@
 const std = @import("std");
+
 const Config = @import("config.zig").Config;
 const Entry = @import("entry.zig").Entry;
 const Filter = @import("filter.zig").Filter;

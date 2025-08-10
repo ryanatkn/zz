@@ -41,13 +41,20 @@ pub fn build(b: *std.Build) void {
     const sdl_lib = sdl_dep.artifact("SDL3");
     exe.linkLibrary(sdl_lib);
 
-    // System libraries needed by both games
-    exe.linkSystemLibrary("GL");
-    exe.linkSystemLibrary("m");
-    exe.linkSystemLibrary("pthread");
-    exe.linkSystemLibrary("dl");
-    exe.linkSystemLibrary("rt");
-    exe.linkSystemLibrary("X11");
+    // System libraries (platform-specific)
+    if (target.result.os.tag == .linux) {
+        exe.linkSystemLibrary("GL");
+        exe.linkSystemLibrary("m");
+        exe.linkSystemLibrary("pthread");
+        exe.linkSystemLibrary("dl");
+        exe.linkSystemLibrary("rt");
+        exe.linkSystemLibrary("X11");
+    } else if (target.result.os.tag == .windows) {
+        exe.linkSystemLibrary("opengl32");
+        exe.linkSystemLibrary("gdi32");
+        exe.linkSystemLibrary("user32");
+        exe.linkSystemLibrary("kernel32");
+    }
     exe.linkLibC();
 
     // This declares intent for the executable to be installed into the

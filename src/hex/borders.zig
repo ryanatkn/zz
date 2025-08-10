@@ -10,9 +10,7 @@ const c = @cImport({
 // Import shared types
 const types = @import("types.zig");
 const Color = types.Color;
-
-// Import visual effects system
-const visuals = @import("visuals.zig");
+const constants = @import("constants.zig");
 
 // Border animation constants
 const ASPECT_RATIO = 16.0 / 9.0;
@@ -20,8 +18,8 @@ const BORDER_PULSE_PAUSED = 1.5;
 const BORDER_PULSE_DEAD = 1.2;
 
 // Screen constants for border calculations
-const SCREEN_WIDTH: f32 = 1920;
-const SCREEN_HEIGHT: f32 = 1080;
+const SCREEN_WIDTH = constants.SCREEN_WIDTH;
+const SCREEN_HEIGHT = constants.SCREEN_HEIGHT;
 
 // Iris wipe constants
 const IRIS_WIPE_DURATION = 1.5;
@@ -70,7 +68,7 @@ pub const BorderSpec = struct {
 
     pub fn getCurrentWidth(self: *const BorderSpec) f32 {
         if (self.pulse_freq) |freq| {
-            const pulse = visuals.calculateAnimationPulse(freq);
+            const pulse = calculateAnimationPulse(freq);
             return self.base_width + pulse * self.pulse_amplitude;
         } else {
             return self.base_width;
@@ -84,8 +82,8 @@ pub const BorderSpec = struct {
 
     pub fn getCurrentColor(self: *const BorderSpec) Color {
         if (self.color_pair) |colors| {
-            const pulse = visuals.calculateAnimationPulse(self.pulse_freq orelse 4.0);
-            const hue_cycle = visuals.calculateColorCycle();
+            const pulse = calculateAnimationPulse(self.pulse_freq orelse 4.0);
+            const hue_cycle = calculateColorCycle();
             const intensity = 0.7 + pulse * 0.3;
             return interpolateColor(colors, hue_cycle, intensity);
         } else {
@@ -154,6 +152,20 @@ pub const BorderStack = struct {
     }
 };
 
+// Animation utility functions
+fn calculateAnimationPulse(frequency: f32) f32 {
+    const current_time_ms = @as(f32, @floatFromInt(c.SDL_GetTicks()));
+    const current_time_sec = current_time_ms / 1000.0;
+    return (math.sin(current_time_sec * frequency) + 1.0) * 0.5;
+}
+
+fn calculateColorCycle() f32 {
+    const COLOR_CYCLE_FREQ = 4.0;
+    const current_time_ms = @as(f32, @floatFromInt(c.SDL_GetTicks()));
+    const current_time_sec = current_time_ms / 1000.0;
+    return (math.sin(current_time_sec * COLOR_CYCLE_FREQ) + 1.0) * 0.5;
+}
+
 // Color interpolation utility for border system
 fn interpolateColor(color_pair: BorderColorPair, t: f32, intensity: f32) Color {
     return Color{
@@ -204,9 +216,9 @@ pub fn drawScreenBorder(game_state: anytype) void {
 
         if (elapsed_sec < wipe_duration) {
             const progress = elapsed_sec / wipe_duration; // 0.0 to 1.0
-            // Ease-out curve: fast at start, slow at end
-            const eased_progress = 1.0 - (1.0 - progress) * (1.0 - progress); // Quadratic ease-out
-            const shrink_factor = 1.0 - eased_progress; // 1.0 to 0.0 (shrinking with ease-out)
+            // Strong ease-out curve: fast at start, very slow at end
+            const eased_progress = 1.0 - (1.0 - progress) * (1.0 - progress) * (1.0 - progress) * (1.0 - progress); // Quartic ease-out
+            const shrink_factor = 1.0 - eased_progress; // 1.0 to 0.0 (shrinking with strong ease-out)
 
             // Create iris wipe bands using existing game colors
             const wipe_colors = [_]Color{
@@ -231,12 +243,12 @@ pub fn drawScreenBorder(game_state: anytype) void {
     }
 
     // Game state borders (lower priority)
-    if (game_state.isPaused) {
+    if (game_state.isPaused()) {
         // Animated paused border: base 6px + 4px pulse amplitude
         border_stack.pushAnimated(6.0, GOLD_YELLOW_COLORS, BORDER_PULSE_PAUSED, 4.0);
     }
 
-    if (game_state.playerDead) {
+    if (!game_state.world.player.alive) {
         // Animated dead border: base 9px + 5px pulse amplitude
         border_stack.pushAnimated(9.0, RED_COLORS, BORDER_PULSE_DEAD, 5.0);
     }

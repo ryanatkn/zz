@@ -2,10 +2,13 @@ const std = @import("std");
 const Entry = @import("entry.zig").Entry;
 
 pub const Formatter = struct {
+    quiet: bool = false,
+
     const Self = @This();
 
     pub fn formatEntry(self: Self, entry: Entry, prefix: []const u8, is_last: bool) void {
-        _ = self;
+        if (self.quiet) return; // Skip output when in quiet mode
+
         const connector = if (is_last) "└── " else "├── ";
 
         if ((entry.is_ignored or entry.is_depth_limited) and entry.kind == .directory) {

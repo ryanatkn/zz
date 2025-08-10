@@ -1,0 +1,35 @@
+// zz CLI Configuration  
+// Configuration for the zz command-line tool
+
+.{
+    // Tree command configuration
+    .tree = .{
+        // Directories to show as [...] and never traverse into
+        .ignored_patterns = .{
+            // Version control
+            ".git",
+            ".svn", 
+            ".hg",
+            // Build and cache directories
+            "node_modules",
+            "dist", 
+            "build",
+            "target",
+            "__pycache__",
+            "venv",
+            "env",
+            "tmp",
+            "temp",
+            ".zig-cache",
+            "zig-out",
+            // Project-specific patterns  
+            "src/hex/shaders/compiled",
+        },
+        
+        // Files to completely hide (not displayed at all)
+        .hidden_files = .{
+            "Thumbs.db",
+            ".DS_Store",
+        },
+    },
+}

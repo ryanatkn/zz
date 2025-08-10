@@ -1,5 +1,33 @@
 const std = @import("std");
-const game = @import("game.zig");
+
+// Import new modules
+const entities = @import("entities.zig");
+const behaviors = @import("behaviors.zig");
+const physics = @import("physics.zig");
+const renderer = @import("renderer.zig");
+const loader = @import("loader.zig");
+const types = @import("types.zig");
+const hud = @import("hud.zig");
+const input = @import("input.zig");
+const game_controller = @import("game.zig");
+const combat = @import("combat.zig");
+const player_controller = @import("player.zig");
+const portals = @import("portals.zig");
+const maths = @import("maths.zig");
+const controls = @import("controls.zig");
+
+// Debug test (only load if needed)
+const gpu_circle_test = @import("gpu_circle_test.zig");
+
+const Vec2 = types.Vec2;
+const Color = types.Color;
+const World = entities.World;
+const Renderer = renderer.Renderer;
+const GameState = game_controller.GameState;
+const Hud = hud.Hud;
+
+// Test mode for debugging - change to enable debug tests
+const DEBUG_MODE = false; // Set to true to run debug tests instead of game
 
 pub fn run(allocator: std.mem.Allocator) !void {
     app_err.reset();
@@ -18,21 +46,25 @@ pub fn run(allocator: std.mem.Allocator) !void {
 }
 
 // SDL C imports
-const c = @cImport({
-    @cDefine("SDL_DISABLE_OLD_NAMES", {});
-    @cInclude("SDL3/SDL.h");
-    @cDefine("SDL_MAIN_HANDLED", {});
-    @cInclude("SDL3/SDL_main.h");
-});
+const sdl = @import("sdl.zig");
+const c = sdl.c;
 
-const window_w = 1920;
-const window_h = 1080;
+const constants = @import("constants.zig");
+const window_w = @as(u32, @intFromFloat(constants.SCREEN_WIDTH));
+const window_h = @as(u32, @intFromFloat(constants.SCREEN_HEIGHT));
 
 var fully_initialized = false;
 var window: *c.SDL_Window = undefined;
-var renderer: *c.SDL_Renderer = undefined;
+var game_renderer: Renderer = undefined;
+var game_state: GameState = undefined;
+var game_hud: Hud = undefined;
 var global_allocator: std.mem.Allocator = undefined;
-var quit_requested = false;
+
+// Timing
+var last_time: u64 = 0;
+
+// Debug test globals
+var circle_test: ?gpu_circle_test.CircleTest = null;
 
 fn sdlAppInit(appstate: ?*?*anyopaque, argv: [][*:0]u8) !c.SDL_AppResult {
     _ = appstate;
@@ -40,42 +72,70 @@ fn sdlAppInit(appstate: ?*?*anyopaque, argv: [][*:0]u8) !c.SDL_AppResult {
 
     try errify(c.SDL_Init(c.SDL_INIT_VIDEO));
 
-    try errify(c.SDL_CreateWindowAndRenderer("Hex", window_w, window_h, c.SDL_WINDOW_RESIZABLE, @ptrCast(&window), @ptrCast(&renderer)));
+    // Create window hidden initially
+    window = c.SDL_CreateWindow("Hex GPU Game", window_w, window_h, c.SDL_WINDOW_RESIZABLE | c.SDL_WINDOW_HIDDEN) orelse {
+        return error.SdlError;
+    };
     errdefer c.SDL_DestroyWindow(window);
-    errdefer c.SDL_DestroyRenderer(renderer);
+
+    if (DEBUG_MODE) {
+        // Debug mode - no GPU renderer needed
+        fully_initialized = true;
+        return c.SDL_APP_CONTINUE;
+    }
+
+    // Initialize renderer
+    game_renderer = try Renderer.init(global_allocator, window);
+
+    // Initialize game state
+    game_state = GameState.init();
+
+    // Initialize HUD
+    game_hud = Hud.init();
+
+    // Load game data
+    loader.loadGameData(global_allocator, &game_state.world) catch |err| {
+        std.debug.print("Failed to load game data from ZON file: {}\n", .{err});
+        std.debug.print("Please check that game_data.zon exists and is valid\n", .{});
+        return err;
+    };
+
+    // Initialize ambient effects for starting zone
+    game_state.effect_system.refreshAmbientEffects(&game_state.world);
+
+    // Show window after initialization
+    _ = c.SDL_ShowWindow(window);
+
+    last_time = c.SDL_GetPerformanceCounter();
 
     fully_initialized = true;
+    std.debug.print("Hex GPU game initialized successfully\n", .{});
+    std.debug.print("Controls: Hold mouse to move, WASD for direct movement, Space to pause, ESC to quit\n", .{});
+    std.debug.print("Portal interaction: Walk into portals to travel between zones\n", .{});
     return c.SDL_APP_CONTINUE;
 }
 
 fn sdlAppIterate(appstate: ?*anyopaque) !c.SDL_AppResult {
     _ = appstate;
 
-    if (quit_requested) {
+    if (game_state.shouldQuit()) {
         return c.SDL_APP_SUCCESS;
     }
 
-    // Run the game using our game module
-    game.run(global_allocator, window, renderer) catch |err| {
-        std.debug.print("Game error: {}\n", .{err});
-        return c.SDL_APP_FAILURE;
-    };
+    if (DEBUG_MODE) {
+        // Debug mode - run GPU tests
+        try runDebugTests(global_allocator, window);
+    } else {
+        // Game mode - run actual game
+        try runGameLoop();
+    }
 
-    return c.SDL_APP_SUCCESS; // Game loop handles its own termination
+    return c.SDL_APP_CONTINUE;
 }
 
 fn sdlAppEvent(appstate: ?*anyopaque, event: *c.SDL_Event) !c.SDL_AppResult {
     _ = appstate;
-
-    switch (event.type) {
-        c.SDL_EVENT_QUIT => {
-            quit_requested = true;
-            return c.SDL_APP_SUCCESS;
-        },
-        else => {},
-    }
-
-    return c.SDL_APP_CONTINUE;
+    return controls.handleSDLEvent(&game_state, &game_renderer, &game_hud, event);
 }
 
 fn sdlAppQuit(appstate: ?*anyopaque, result: anyerror!c.SDL_AppResult) void {
@@ -83,13 +143,86 @@ fn sdlAppQuit(appstate: ?*anyopaque, result: anyerror!c.SDL_AppResult) void {
     _ = result catch {};
 
     if (fully_initialized) {
-        c.SDL_DestroyRenderer(renderer);
+        if (DEBUG_MODE) {
+            if (circle_test) |*c_test| {
+                c_test.deinit();
+                circle_test = null;
+            }
+        } else {
+            game_renderer.deinit();
+            loader.deinit(); // Clean up ZON data memory
+        }
         c.SDL_DestroyWindow(window);
         fully_initialized = false;
     }
 }
 
-// Helper function to convert SDL return values to errors
+// Game loop functions
+fn runGameLoop() !void {
+    // Calculate delta time
+    const current_time = c.SDL_GetPerformanceCounter();
+    const frequency = c.SDL_GetPerformanceFrequency();
+    const delta_ticks = current_time - last_time;
+    const deltaTime: f32 = @as(f32, @floatFromInt(delta_ticks)) / @as(f32, @floatFromInt(frequency));
+    last_time = current_time;
+
+    // Update HUD system
+    game_hud.updateFPS(current_time, frequency);
+
+    // Update camera before game logic (for correct mouse coordinate transformation)
+    game_renderer.updateCamera(&game_state.world);
+
+    // Update game state
+    game_controller.updateGame(&game_state, &game_renderer.camera, deltaTime);
+
+    // Render
+    try renderGame();
+}
+
+fn renderGame() !void {
+    const zone = game_state.world.getCurrentZone();
+
+    // Begin GPU frame
+    const cmd_buffer = try game_renderer.beginFrame(window);
+    const render_pass = try game_renderer.beginRenderPass(cmd_buffer, window, zone.background_color);
+
+    // Render all entities
+    game_renderer.renderZone(cmd_buffer, render_pass, &game_state.world);
+
+    // Render visual effects
+    game_renderer.renderEffects(cmd_buffer, render_pass, &game_state.effect_system);
+
+    // Draw HUD
+    if (game_hud.visible) {
+        game_renderer.drawFPS(cmd_buffer, render_pass, game_hud.fps_counter);
+    }
+
+    // Draw state borders with stacking support and iris wipe effect
+    game_renderer.drawBorders(cmd_buffer, render_pass, &game_state);
+
+    game_renderer.endRenderPass(render_pass);
+    game_renderer.endFrame(cmd_buffer);
+}
+
+// Debug test functions
+fn runDebugTests(allocator: std.mem.Allocator, win: *c.SDL_Window) !void {
+    if (circle_test == null) {
+        circle_test = gpu_circle_test.CircleTest.init(allocator, win) catch |err| {
+            std.debug.print("Circle test initialization failed: {}\n", .{err});
+            return err;
+        };
+        std.debug.print("Circle test initialized successfully\n", .{});
+    }
+
+    if (circle_test) |*c_test| {
+        c_test.render(win) catch |err| {
+            std.debug.print("Circle test render failed: {}\n", .{err});
+            return err;
+        };
+    }
+}
+
+// SDL boilerplate
 inline fn errify(value: anytype) error{SdlError}!switch (@typeInfo(@TypeOf(value))) {
     .bool => void,
     .pointer, .optional => @TypeOf(value.?),
@@ -110,7 +243,7 @@ inline fn errify(value: anytype) error{SdlError}!switch (@typeInfo(@TypeOf(value
     };
 }
 
-// SDL main callbacks boilerplate
+// SDL main callbacks
 fn sdlMainC(argc: c_int, argv: ?[*:null]?[*:0]u8) callconv(.c) c_int {
     _ = argc;
     _ = argv;

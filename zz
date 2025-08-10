@@ -5,6 +5,32 @@ set -euo pipefail
 # Change to script directory
 cd "$(dirname "$0")"
 
+# Function to compile shaders
+compile_shaders() {
+    echo "Compiling shaders..."
+    if ! ./src/hex/shaders/compile_shaders.sh; then
+        echo "Shader compilation failed!" >&2
+        exit 1
+    fi
+}
+
+# Check first argument
+case "${1:-}" in
+    windows)
+        compile_shaders
+        echo "Building for Windows x86_64 (ReleaseFast)..."
+        if ! zig build -Dtarget=x86_64-windows -Doptimize=ReleaseFast; then
+            echo "Windows build failed!" >&2
+            exit 1
+        fi
+        echo "Windows build complete: zig-out/bin/zz.exe"
+        exit 0
+        ;;
+    hex)
+        compile_shaders
+        ;;
+esac
+
 # Build the project
 if ! zig build; then
     echo "Build failed!" >&2

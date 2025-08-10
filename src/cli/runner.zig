@@ -15,7 +15,7 @@ pub const Runner = struct {
         };
     }
 
-    pub fn run(self: Self, command: Command, args: [][:0]u8) !void {
+    pub fn run(self: Self, command: Command, args: [][:0]const u8) !void {
         switch (command) {
             .help => {
                 Help.show(args[0]);

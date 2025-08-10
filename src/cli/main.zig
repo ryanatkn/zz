@@ -20,5 +20,5 @@ pub fn run(allocator: std.mem.Allocator) !void {
     };
 
     const runner = Runner.init(allocator);
-    try runner.run(command, args);
+    try runner.run(command, @ptrCast(args));
 }

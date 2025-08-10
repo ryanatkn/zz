@@ -22,15 +22,14 @@ zig version  # Requires 0.14.1+
 - Clean tree-style output formatting
 
 ### Hex Game
-- **Hex** - Vibrant 2D top-down action RPG built with SDL3
-- **World**: Interconnected locations with portal system
-- **Graphics**: SDL3 rendering with custom circle drawing and primitives
-- **Controls**: Mouse (move/shoot) + WASD, Space (pause), R/T/Y (resets)
-- **Gameplay**: Green obstacles (blocking), purple hazards (deadly), orange portals (transitions)
-- **Enemy AI**: Intelligent aggro-based targeting with pathfinding
-- **Reset System**: Multiple reset levels (resurrect, scene reset, full restart)
-- **Data**: Uses `game_data.zon` configuration for scenes and game objects
-- **Performance**: Optimized for SDL3's rendering pipeline
+- **Hex** - GPU-accelerated 2D top-down action RPG built with SDL3 GPU API
+- **Graphics**: Procedural rendering with HLSL shaders, distance field anti-aliasing
+- **Performance**: Vulkan/D3D12 backend with procedural vertex generation
+- **Rendering**: No texture assets - pure algorithmic shape generation
+- **Controls**: Mouse hold-to-move + WASD for direct movement
+- **Architecture**: Complete SDL3 GPU pipeline with uniform buffers
+- **World**: Multiple entity types (enemies, obstacles, portals, lifestones)
+- **Development**: Debug mode for GPU shader testing
 
 ## Commands
 
@@ -57,7 +56,7 @@ zig version  # Requires 0.14.1+
 
 - **`src/cli/`** - Command parsing and execution
 - **`src/tree/`** - Directory traversal and visualization  
-- **`src/hex/`** - Simple SDL3-based puzzle game
+- **`src/hex/`** - GPU-accelerated 2D action RPG with HLSL shaders
 
 ### Design Principles
 - Single binary with no external runtime dependencies
@@ -67,22 +66,22 @@ zig version  # Requires 0.14.1+
 
 ## Game Controls
 
-### Movement & Combat
-- **Left Click**: Move player toward mouse cursor
-- **Right Click**: Shoot toward mouse cursor  
-- **WASD/Arrow Keys**: Alternative movement controls
-
-### Game Management
-- **R Key**: Resurrect player (preserve world state)
-- **T Key**: Reset current scene (respawn enemies in current location)
-- **Y Key**: Full restart (reset entire game world)
-- **Space**: Pause/unpause game
-- **[/] Keys**: Speed control (0.25x - 4x)
+### Movement
+- **Hold Left Mouse**: Move player toward cursor continuously
+- **WASD**: Direct movement controls
 - **ESC**: Quit game
 
-### Visual Indicators
-- **Orange Portals**: Transitions between locations (shape indicates destination type)
-- **Border Colors**: Yellow/orange (paused), green/teal (victory), red (death)
+### Game Elements
+- **Blue Circle**: Player character
+- **Red Circles**: Enemy entities
+- **Green Rectangles**: Blocking obstacles
+- **Orange Rectangles**: Deadly hazards
+- **Purple Circles**: Portal locations
+- **Cyan Circles**: Lifestone pickups
+
+### Development
+- Set `DEBUG_MODE = true` in `src/hex/main.zig` for GPU shader testing
+- Debug mode shows animated circle test with orbital motion
 
 ## Development
 
@@ -97,11 +96,19 @@ zig build
 zig build -Doptimize=Debug
 ```
 
+### Testing
+
+```bash
+# Run tree module tests
+zig test src/tree/test.zig
+```
+
 ## Requirements
 
 - Zig 0.14.1+
 - Linux (X11 libraries for graphics)
-- OpenGL support
+- Vulkan or D3D12 support (SDL3 GPU API)
+- SDL_shadercross for HLSL shader compilation
 
 ## Technical Documentation
 

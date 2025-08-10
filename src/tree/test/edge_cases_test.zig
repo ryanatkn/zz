@@ -1,0 +1,144 @@
+const std = @import("std");
+const testing = std.testing;
+const Walker = @import("../walker.zig").Walker;
+const Config = @import("../config.zig").Config;
+const TreeConfig = @import("../config.zig").TreeConfig;
+
+// Test handling of various filesystem edge cases
+test "symlink handling" {
+    const test_dir = "symlink_test";
+    std.fs.cwd().makeDir(test_dir) catch {};
+    defer std.fs.cwd().deleteTree(test_dir) catch {};
+
+    // Create a regular directory
+    std.fs.cwd().makeDir(test_dir ++ "/regular") catch {};
+    const file = std.fs.cwd().createFile(test_dir ++ "/regular/file.txt", .{}) catch unreachable;
+    file.close();
+
+    // Try to create a symlink (might fail on some systems/permissions)
+    std.fs.cwd().symLink("regular", test_dir ++ "/symlink", .{}) catch |err| switch (err) {
+        error.AccessDenied, error.FileNotFound => {
+            std.debug.print("Symlink test skipped (no permission/support)\n", .{});
+            return;
+        },
+        else => return err,
+    };
+
+    // Test that walker handles symlinks gracefully
+    const tree_config = TreeConfig{
+        .ignored_patterns = &[_][]const u8{},
+        .hidden_files = &[_][]const u8{},
+    };
+
+    const config = Config{ .tree_config = tree_config };
+    const walker = Walker.initQuiet(testing.allocator, config);
+
+    // Should not crash on symlinks
+    walker.walk(test_dir) catch |err| switch (err) {
+        error.SymLinkLoop => {}, // Expected for some symlink scenarios
+        else => return err,
+    };
+
+    std.debug.print("✅ Symlink handling test passed!\n", .{});
+}
+
+// Test null byte injection protection
+test "null byte injection protection" {
+    const tree_config = TreeConfig{
+        .ignored_patterns = &[_][]const u8{"test\x00injection"},
+        .hidden_files = &[_][]const u8{},
+    };
+
+    const filter = @import("../filter.zig").Filter.init(tree_config);
+
+    // Should handle null bytes safely
+    try testing.expect(filter.shouldIgnore("test\x00injection"));
+    try testing.expect(!filter.shouldIgnore("test"));
+    try testing.expect(!filter.shouldIgnore("injection"));
+
+    std.debug.print("✅ Null byte injection protection test passed!\n", .{});
+}
+
+// Test circular directory references (if possible to create)
+test "circular reference handling" {
+    // This is hard to test without actually creating circular references
+    // But we can test that the walker doesn't crash on complex structures
+    const test_dir = "circular_test";
+    std.fs.cwd().makeDir(test_dir) catch {};
+    defer std.fs.cwd().deleteTree(test_dir) catch {};
+
+    // Create a deep structure that might cause issues
+    var current_path = std.ArrayList(u8).init(testing.allocator);
+    defer current_path.deinit();
+
+    try current_path.appendSlice(test_dir);
+
+    var depth: u32 = 0;
+    while (depth < 50) : (depth += 1) {
+        try current_path.appendSlice("/level");
+        const depth_str = std.fmt.allocPrint(testing.allocator, "{d}", .{depth}) catch "X";
+        defer testing.allocator.free(depth_str);
+        try current_path.appendSlice(depth_str);
+
+        std.fs.cwd().makePath(current_path.items) catch break;
+    }
+
+    const tree_config = TreeConfig{
+        .ignored_patterns = &[_][]const u8{},
+        .hidden_files = &[_][]const u8{},
+    };
+
+    const config = Config{
+        .max_depth = 10, // Limit depth to prevent infinite traversal
+        .tree_config = tree_config,
+    };
+
+    const walker = Walker.initQuiet(testing.allocator, config);
+    try walker.walk(test_dir);
+
+    std.debug.print("✅ Circular reference handling test passed!\n", .{});
+}
+
+// Test filesystem encoding issues
+test "filesystem encoding edge cases" {
+    const problematic_names = [_][]const u8{
+        "normal_file.txt",
+        "file with spaces.txt",
+        "file-with-hyphens.txt",
+        "file_with_underscores.txt",
+        "UPPERCASE.TXT",
+        "MiXeDcAsE.TxT",
+        "123numbers.txt",
+        "file.with.many.dots.txt",
+        "file,with,commas.txt",
+        "file;with;semicolons.txt",
+        "file(with)parentheses.txt",
+        "file[with]brackets.txt",
+        "file{with}braces.txt",
+        "file@with@at.txt",
+        "file#with#hash.txt",
+        "file$with$dollar.txt",
+        "file%with%percent.txt",
+        "file^with^caret.txt",
+        "file&with&ampersand.txt",
+        "file*with*asterisk.txt",
+        "file+with+plus.txt",
+        "file=with=equals.txt",
+    };
+
+    const tree_config = TreeConfig{
+        .ignored_patterns = &[_][]const u8{ "file with spaces.txt", "UPPERCASE.TXT" },
+        .hidden_files = &[_][]const u8{},
+    };
+
+    const filter = @import("../filter.zig").Filter.init(tree_config);
+
+    // Test that various encodings are handled correctly
+    for (problematic_names) |name| {
+        const should_ignore = std.mem.eql(u8, name, "file with spaces.txt") or
+            std.mem.eql(u8, name, "UPPERCASE.TXT");
+        try testing.expect(filter.shouldIgnore(name) == should_ignore);
+    }
+
+    std.debug.print("✅ Filesystem encoding edge cases test passed!\n", .{});
+}

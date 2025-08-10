@@ -1,1502 +1,209 @@
 const std = @import("std");
-const math = std.math;
+const types = @import("types.zig");
+const entities = @import("entities.zig");
+const behaviors = @import("behaviors.zig");
+const physics = @import("physics.zig");
+const input = @import("input.zig");
+const player_controller = @import("player.zig");
+const combat = @import("combat.zig");
+const portals = @import("portals.zig");
+const camera = @import("camera.zig");
+const effects = @import("effects.zig");
 
-// SDL C imports
+// SDL C imports for timing
 const c = @cImport({
     @cDefine("SDL_DISABLE_OLD_NAMES", {});
     @cInclude("SDL3/SDL.h");
-    @cDefine("SDL_MAIN_HANDLED", {});
-    @cInclude("SDL3/SDL_main.h");
 });
 
-// Game constants - ported from YAR
-const SCREEN_WIDTH: f32 = 1920;
-const SCREEN_HEIGHT: f32 = 1080;
-const DIAGONAL_FACTOR = @sqrt(0.5); // ~0.707
-const TARGET_FPS = 144;
-
-// Color cycling frequency for consistent rapid color changes
-const COLOR_CYCLE_FREQ = 4.0;
-
-// Border animation constants
-const ASPECT_RATIO = 16.0 / 9.0;
-
-// Player and movement constants
-const PLAYER_SPEED = 600.0;
-const BULLET_SPEED = 400.0;
-const ENEMY_SPEED = 100.0;
-const MAX_BULLETS = 20;
-const MAX_ENEMIES = 12;
-const MAX_OBSTACLES = 15;
-const MAX_PORTALS = 6;
-const MAX_LIFESTONES = 12;
-const NUM_SCENES = 7;
-
-// Performance constants
-const DEFAULT_ENEMY_RADIUS = 15.0;
-const BULLET_RADIUS = 5.0;
-const OVERWORLD_SCENE_INDEX = 0;
-const OVERWORLD_ENEMY_SPEED_FACTOR = 0.15;
-const ENEMY_RETURN_SPEED_FACTOR = 0.333;
-
-// Visual effect constants
-const PLAYER_SPAWN_EFFECT_RADIUS_MULTIPLIER = 3.0;
-const PLAYER_TRANSITION_EFFECT_RADIUS_MULTIPLIER = 2.5;
-const PLAYER_SPAWN_EFFECT_DURATION = 3.0;
-const PLAYER_TRANSITION_EFFECT_DURATION = 2.7;
-const PORTAL_AMBIENT_RADIUS_MULTIPLIER = 1.8;
-const LIFESTONE_EFFECT_RADIUS_MULTIPLIER = 2.2;
-
-// Iris wipe constants
-const IRIS_WIPE_DURATION = 1.5;
-const IRIS_WIPE_BAND_COUNT = 6;
-const IRIS_WIPE_BAND_WIDTH = 12.0;
-
-// Import Color type from shared types
-const Color = types.Color;
-
-const BLUE = Color{ .r = 0, .g = 70, .b = 200, .a = 255 };
-const GREEN = Color{ .r = 0, .g = 140, .b = 0, .a = 255 };
-const PURPLE = Color{ .r = 120, .g = 30, .b = 160, .a = 255 };
-const RED = Color{ .r = 200, .g = 30, .b = 30, .a = 255 };
-const YELLOW = Color{ .r = 220, .g = 160, .b = 0, .a = 255 };
-const ORANGE = Color{ .r = 200, .g = 100, .b = 0, .a = 255 };
-const GRAY = Color{ .r = 100, .g = 100, .b = 100, .a = 255 };
-const WHITE = Color{ .r = 230, .g = 230, .b = 230, .a = 255 };
-const DARK = Color{ .r = 20, .g = 20, .b = 30, .a = 255 };
-const OCEAN_BLUE = Color{ .r = 8, .g = 12, .b = 16, .a = 255 };
-const CYAN = Color{ .r = 0, .g = 200, .b = 200, .a = 255 };
-const CYAN_FADED = Color{ .r = 0, .g = 100, .b = 100, .a = 255 };
-
-// Bright outline variants
-const BLUE_BRIGHT = Color{ .r = 100, .g = 150, .b = 255, .a = 255 };
-const GREEN_BRIGHT = Color{ .r = 80, .g = 220, .b = 80, .a = 255 };
-const PURPLE_BRIGHT = Color{ .r = 180, .g = 100, .b = 240, .a = 255 };
-const RED_BRIGHT = Color{ .r = 255, .g = 100, .b = 100, .a = 255 };
-const YELLOW_BRIGHT = Color{ .r = 255, .g = 220, .b = 80, .a = 255 };
-const ORANGE_BRIGHT = Color{ .r = 255, .g = 180, .b = 80, .a = 255 };
-const GRAY_BRIGHT = Color{ .r = 180, .g = 180, .b = 180, .a = 255 };
-const WHITE_BRIGHT = Color{ .r = 255, .g = 255, .b = 255, .a = 255 };
-
-// Import shared types
-const types = @import("types.zig");
 const Vec2 = types.Vec2;
+const World = entities.World;
+const InputState = input.InputState;
 
-// Import visual effects system
-const visuals = @import("visuals.zig");
+pub const GameState = struct {
+    world: World,
+    input_state: InputState,
+    game_paused: bool,
+    quit_requested: bool,
 
-// Import border system
-const borders = @import("borders.zig");
-
-// Import HUD system
-const hud = @import("hud.zig");
-
-const EnemyState = enum {
-    alive,
-    dead,
-};
-
-const GameObject = struct {
-    position: Vec2,
-    velocity: Vec2,
-    radius: f32,
-    active: bool,
-    color: Color,
-    enemyState: EnemyState,
-};
-
-const ObstacleType = enum {
-    blocking,
-    deadly,
-};
-
-const CameraMode = enum {
-    fixed,
-    follow,
-};
-
-const SceneShape = enum {
-    circle,
-    triangle,
-    square,
-};
-
-const Portal = struct {
-    position: Vec2,
-    radius: f32,
-    active: bool,
-    destinationScene: u8,
-    shape: SceneShape,
-};
-
-const Lifestone = struct {
-    position: Vec2,
-    radius: f32,
-    active: bool,
-    attuned: bool,
-};
-
-const LifestoneResult = struct {
-    scene: u8,
-    position: Vec2,
-};
-
-const Obstacle = struct {
-    position: Vec2,
-    size: Vec2,
-    type: ObstacleType,
-    active: bool,
-};
-
-const Scene = struct {
-    enemies: [MAX_ENEMIES]GameObject,
-    originalEnemies: [MAX_ENEMIES]GameObject,
-    obstacles: [MAX_OBSTACLES]Obstacle,
-    portals: [MAX_PORTALS]Portal,
-    lifestones: [MAX_LIFESTONES]Lifestone,
-    shape: SceneShape,
-    name: []const u8,
-    background_color: Color,
-    unit_scale: f32,
-    camera_mode: CameraMode,
-};
-
-// Data structures for loading from ZON (same as YAR)
-const DataPortal = struct {
-    position: struct { x: f32, y: f32 },
-    radius: f32,
-    destination: u8,
-    shape: []const u8,
-};
-
-const DataObstacle = struct {
-    position: struct { x: f32, y: f32 },
-    size: struct { x: f32, y: f32 },
-    type: []const u8,
-};
-
-const DataEnemy = struct {
-    position: struct { x: f32, y: f32 },
-    radius: f32,
-};
-
-const DataLifestone = struct {
-    position: struct { x: f32, y: f32 },
-    radius: f32,
-};
-
-const DataScene = struct {
-    name: []const u8,
-    background_color: struct { r: u8, g: u8, b: u8 },
-    unit_scale: f32,
-    camera_mode: []const u8,
-    obstacles: []const DataObstacle,
-    enemies: []const DataEnemy,
-    portals: []const DataPortal,
-    lifestones: []const DataLifestone,
-};
-
-const GameData = struct {
-    screen_width: f32,
-    screen_height: f32,
-    player_start: struct {
-        scene: u8,
-        position: struct { x: f32, y: f32 },
-        radius: f32,
-    },
-    scenes: []const DataScene,
-};
-
-// Camera structure for SDL3 (simplified)
-const Camera2D = struct {
-    offset: Vec2,
-    target: Vec2,
-    rotation: f32,
-    zoom: f32,
-};
-
-// Viewport management for maintaining aspect ratio
-const Viewport = struct {
-    rect: c.SDL_Rect,
-    window_width: c_int,
-    window_height: c_int,
-
-    fn update(self: *Viewport, window: *c.SDL_Window) void {
-        _ = c.SDL_GetWindowSize(window, &self.window_width, &self.window_height);
-
-        const window_aspect_ratio = @as(f32, @floatFromInt(self.window_width)) / @as(f32, @floatFromInt(self.window_height));
-
-        if (window_aspect_ratio > ASPECT_RATIO) {
-            // Pillarboxing
-            const viewport_width = @as(c_int, @intFromFloat(@as(f32, @floatFromInt(self.window_height)) * ASPECT_RATIO));
-            const offset_x = @divTrunc(self.window_width - viewport_width, 2);
-
-            self.rect = c.SDL_Rect{
-                .x = offset_x,
-                .y = 0,
-                .w = viewport_width,
-                .h = self.window_height,
-            };
-        } else {
-            // Letterboxing
-            const viewport_height = @as(c_int, @intFromFloat(@as(f32, @floatFromInt(self.window_width)) / ASPECT_RATIO));
-            const offset_y = @divTrunc(self.window_height - viewport_height, 2);
-
-            self.rect = c.SDL_Rect{
-                .x = 0,
-                .y = offset_y,
-                .w = self.window_width,
-                .h = viewport_height,
-            };
-        }
-    }
-
-    fn windowToGameCoords(self: *const Viewport, window_x: f32, window_y: f32) Vec2 {
-        const viewport_x = window_x - @as(f32, @floatFromInt(self.rect.x));
-        const viewport_y = window_y - @as(f32, @floatFromInt(self.rect.y));
-
-        const scale_x = SCREEN_WIDTH / @as(f32, @floatFromInt(self.rect.w));
-        const scale_y = SCREEN_HEIGHT / @as(f32, @floatFromInt(self.rect.h));
-
-        return Vec2{
-            .x = viewport_x * scale_x,
-            .y = viewport_y * scale_y,
-        };
-    }
-};
-
-
-const GameState = struct {
-    player: GameObject,
-    bullets: [MAX_BULLETS]GameObject,
-    scenes: [NUM_SCENES]Scene,
-    currentScene: u8,
-    playerDead: bool,
-    allocator: std.mem.Allocator,
-    gameData: GameData,
-    isPaused: bool,
-    gameSpeed: f32,
-    aggroTarget: ?Vec2,
-    friendlyTarget: ?Vec2,
-    sceneTextBuffer: [128]u8,
-    fpsTextBuffer: [32]u8,
-    camera: Camera2D,
-
-    // HUD system for on-screen display
-    hud_system: hud.Hud,
-
-    // SDL-specific state
-    window: *c.SDL_Window,
-    renderer: *c.SDL_Renderer,
-    mouse_x: f32,
-    mouse_y: f32,
-    keys_down: std.StaticBitSet(512), // SDL_SCANCODE_COUNT
-    left_mouse_held: bool,
-
-    // Viewport for maintaining 16:9 aspect ratio with letterboxing/pillarboxing
-    viewport: Viewport,
-
-    // Pre-allocated drawing buffers for performance
-    circle_points: [200]c.SDL_FPoint,
-    rect_points: [4]c.SDL_FPoint,
-
-    // Pre-computed values for collision detection
-    player_radius_cache: f32,
+    // Visual effects system
+    effect_system: effects.EffectSystem,
 
     // Iris wipe effect for resurrection
     iris_wipe_active: bool,
     iris_wipe_start_time: u64,
 
-    // Visual effects system for entity highlighting
-    visual_system: visuals.VisualSystem,
-
-    // Color caching for performance
-    color_cache: ColorCache,
-
     const Self = @This();
 
-    pub fn deinit(self: *Self) void {
-        std.zon.parse.free(self.allocator, self.gameData);
-    }
-
-    pub fn init(allocator: std.mem.Allocator, window: *c.SDL_Window, renderer: *c.SDL_Renderer) !Self {
-        // Load game data from ZON file
-        const gameDataFile = @embedFile("game_data.zon");
-
-        // Convert to null-terminated string for ZON parser
-        const gameDataNullTerm = try allocator.dupeZ(u8, gameDataFile);
-        defer allocator.free(gameDataNullTerm);
-
-        const gameData = std.zon.parse.fromSlice(GameData, allocator, gameDataNullTerm, null, .{}) catch |err| {
-            std.debug.print("Failed to load game data: {}\n", .{err});
-            return err;
-        };
-
-        var game = Self{
-            .player = GameObject{
-                .position = Vec2{ .x = gameData.player_start.position.x, .y = gameData.player_start.position.y },
-                .velocity = Vec2{ .x = 0, .y = 0 },
-                .radius = gameData.player_start.radius,
-                .active = true,
-                .color = BLUE,
-                .enemyState = .alive,
-            },
-            .bullets = undefined,
-            .scenes = undefined,
-            .currentScene = gameData.player_start.scene,
-            .playerDead = false,
-            .allocator = allocator,
-            .gameData = gameData,
-            .isPaused = false,
-            .gameSpeed = 1.0,
-            .aggroTarget = null,
-            .friendlyTarget = null,
-            .sceneTextBuffer = undefined,
-            .fpsTextBuffer = undefined,
-            .hud_system = hud.Hud.init(),
-            .camera = Camera2D{
-                .offset = Vec2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 },
-                .target = Vec2{ .x = gameData.player_start.position.x, .y = gameData.player_start.position.y },
-                .rotation = 0.0,
-                .zoom = 1.0,
-            },
-            .window = window,
-            .renderer = renderer,
-            .mouse_x = 0,
-            .mouse_y = 0,
-            .keys_down = std.StaticBitSet(512).initEmpty(),
-            .left_mouse_held = false,
-            .viewport = Viewport{
-                .rect = undefined,
-                .window_width = 0,
-                .window_height = 0,
-            },
-            .circle_points = undefined,
-            .rect_points = undefined,
-            .player_radius_cache = 0,
+    pub fn init() Self {
+        return .{
+            .world = World.init(),
+            .input_state = InputState.init(),
+            .game_paused = false,
+            .quit_requested = false,
+            .effect_system = effects.EffectSystem.init(),
             .iris_wipe_active = false,
             .iris_wipe_start_time = 0,
-            .visual_system = visuals.VisualSystem.init(),
-            .color_cache = ColorCache{},
         };
+    }
 
-        // Initialize bullets
-        for (0..MAX_BULLETS) |i| {
-            game.bullets[i] = createGameObject(Vec2{ .x = 0, .y = 0 }, BULLET_RADIUS, false, YELLOW, .alive);
+    pub fn travelToZone(self: *Self, destination_zone: usize) void {
+        if (destination_zone < self.world.zones.len) {
+            self.world.current_zone = destination_zone;
+            self.world.zones[destination_zone].resetUnits();
+            // Clear bullets on zone travel
+            for (0..entities.MAX_BULLETS) |i| {
+                self.world.bullets[i].active = false;
+            }
+            // Clear ALL effects on zone travel to prevent persistence
+            self.effect_system.clear();
+            // Rebuild ambient effects for new zone
+            self.effect_system.refreshAmbientEffects(&self.world);
         }
+    }
 
-        // Initialize all scenes from data
-        for (0..NUM_SCENES) |sceneIndex| {
-            if (sceneIndex >= game.gameData.scenes.len) continue;
-
-            const dataScene = game.gameData.scenes[sceneIndex];
-            const shape: SceneShape = if (std.mem.eql(u8, dataScene.name, "Overworld"))
-                .circle
-            else switch (sceneIndex % 3) {
-                1, 4 => .circle,
-                2, 5 => .triangle,
-                0, 3, 6 => .square,
-                else => .circle,
-            };
-
-            const camera_mode: CameraMode = if (std.mem.eql(u8, dataScene.camera_mode, "follow"))
-                .follow
-            else
-                .fixed;
-
-            game.scenes[sceneIndex] = Scene{
-                .enemies = undefined,
-                .originalEnemies = undefined,
-                .obstacles = undefined,
-                .portals = undefined,
-                .lifestones = undefined,
-                .shape = shape,
-                .name = dataScene.name,
-                .background_color = Color{
-                    .r = dataScene.background_color.r,
-                    .g = dataScene.background_color.g,
-                    .b = dataScene.background_color.b,
-                    .a = 255,
-                },
-                .unit_scale = dataScene.unit_scale,
-                .camera_mode = camera_mode,
-            };
-
-            game.loadSceneFromData(@intCast(sceneIndex));
+    pub fn togglePause(self: *Self) void {
+        self.game_paused = !self.game_paused;
+        if (self.game_paused) {
+            std.debug.print("Game paused\n", .{});
+        } else {
+            std.debug.print("Game resumed\n", .{});
         }
+    }
 
-        // Initialize viewport
-        game.viewport.update(window);
+    pub fn requestQuit(self: *Self) void {
+        self.quit_requested = true;
+    }
 
-        // Initialize visual effects for starting scene and add reduced spawn effect (game start)
-        game.refreshSceneVisuals();
-        game.addPlayerTransitionEffect();
+    pub fn shouldQuit(self: *const Self) bool {
+        return self.quit_requested;
+    }
 
-        // Initialize player radius cache
-        game.updatePlayerRadiusCache();
+    pub fn isPaused(self: *const Self) bool {
+        return self.game_paused;
+    }
+
+    pub fn resetZone(self: *Self) void {
+        // Reset units in current zone to their original spawn state
+        self.world.resetCurrentZone();
+        std.debug.print("Zone units reset to original state\n", .{});
+    }
+
+    pub fn resetGame(self: *Self) void {
+        // Reset player to starting position and state
+        self.world.player.pos = self.world.player_start_pos;
+        self.world.player.vel = types.Vec2{ .x = 0, .y = 0 };
+        self.world.player.alive = true;
+        self.world.player.color = @import("constants.zig").COLOR_PLAYER_ALIVE;
         
-        // Initialize HUD timing
-        game.hud_system.fps_last_time = c.SDL_GetPerformanceCounter();
-
-        return game;
-    }
-
-    fn refreshSceneVisuals(self: *Self) void {
-        // Clear existing visual effects
-        self.visual_system.clear();
-
-        // Add permanent portal ambient effects
-        const current_scene = &self.scenes[self.currentScene];
-        self.visual_system.addPortalAmbientEffects(&current_scene.portals, MAX_PORTALS, self.currentScene);
-
-        // Add permanent lifestone effects
-        self.visual_system.addLifestoneEffects(&current_scene.lifestones, MAX_LIFESTONES);
-    }
-
-    fn addPlayerSpawnEffect(self: *Self) void {
-        // Unified player spawn effect for all entry points (dramatic ripple burst at drop site)
-        const playerRadius = self.gameData.player_start.radius * self.scenes[self.currentScene].unit_scale;
-        self.visual_system.addEffect(self.player.position, playerRadius * PLAYER_SPAWN_EFFECT_RADIUS_MULTIPLIER, visuals.VisualEffectType.player_spawn, PLAYER_SPAWN_EFFECT_DURATION); // 3 second total effect
-    }
-
-    fn addPlayerTransitionEffect(self: *Self) void {
-        // Subtle transition effect for scene changes and game start (bigger, slower rings)
-        const playerRadius = self.gameData.player_start.radius * self.scenes[self.currentScene].unit_scale;
-        self.visual_system.addEffect(self.player.position, playerRadius * PLAYER_TRANSITION_EFFECT_RADIUS_MULTIPLIER, visuals.VisualEffectType.player_transition, PLAYER_TRANSITION_EFFECT_DURATION); // 2.7 second total effect (0.3 delay + 2.4 lifetime)
-    }
-
-    fn createGameObject(position: Vec2, radius: f32, active: bool, color: Color, enemyState: EnemyState) GameObject {
-        return GameObject{
-            .position = position,
-            .velocity = Vec2{ .x = 0, .y = 0 },
-            .radius = radius,
-            .active = active,
-            .color = color,
-            .enemyState = enemyState,
-        };
-    }
-
-    fn createEnemyFromData(dataEnemy: ?DataEnemy, unitScale: f32) GameObject {
-        if (dataEnemy) |enemy| {
-            return createGameObject(Vec2{ .x = enemy.position.x, .y = enemy.position.y }, enemy.radius * unitScale, true, RED, .alive);
-        } else {
-            return createGameObject(Vec2{ .x = 0, .y = 0 }, DEFAULT_ENEMY_RADIUS, false, RED, .alive);
+        // Reset to starting zone
+        if (self.world.current_zone != 0) {
+            self.travelToZone(0);
         }
-    }
-
-    fn loadSceneFromData(self: *Self, sceneIndex: u8) void {
-        const dataScene = self.gameData.scenes[sceneIndex];
-
-        // Load enemies from data
-        for (0..MAX_ENEMIES) |i| {
-            const dataEnemy = if (i < dataScene.enemies.len) dataScene.enemies[i] else null;
-            const enemy = createEnemyFromData(dataEnemy, dataScene.unit_scale);
-            self.scenes[sceneIndex].enemies[i] = enemy;
-            self.scenes[sceneIndex].originalEnemies[i] = enemy;
-        }
-
-        // Load obstacles from data
-        for (0..MAX_OBSTACLES) |i| {
-            if (i < dataScene.obstacles.len) {
-                const dataObstacle = dataScene.obstacles[i];
-                const obstacleType: ObstacleType = if (std.mem.eql(u8, dataObstacle.type, "blocking"))
-                    .blocking
-                else
-                    .deadly;
-
-                self.scenes[sceneIndex].obstacles[i] = Obstacle{
-                    .position = Vec2{ .x = dataObstacle.position.x, .y = dataObstacle.position.y },
-                    .size = Vec2{ .x = dataObstacle.size.x, .y = dataObstacle.size.y },
-                    .type = obstacleType,
-                    .active = true,
-                };
-            } else {
-                self.scenes[sceneIndex].obstacles[i] = Obstacle{
-                    .position = Vec2{ .x = 0, .y = 0 },
-                    .size = Vec2{ .x = 0, .y = 0 },
-                    .type = .blocking,
-                    .active = false,
-                };
-            }
-        }
-
-        // Load portals from data
-        for (0..MAX_PORTALS) |i| {
-            if (i < dataScene.portals.len) {
-                const dataPortal = dataScene.portals[i];
-                const destinationShape: SceneShape = if (std.mem.eql(u8, dataPortal.shape, "circle"))
-                    .circle
-                else if (std.mem.eql(u8, dataPortal.shape, "triangle"))
-                    .triangle
-                else
-                    .square;
-
-                self.scenes[sceneIndex].portals[i] = Portal{
-                    .position = Vec2{ .x = dataPortal.position.x, .y = dataPortal.position.y },
-                    .radius = dataPortal.radius * dataScene.unit_scale,
-                    .active = true,
-                    .destinationScene = dataPortal.destination,
-                    .shape = destinationShape,
-                };
-            } else {
-                self.scenes[sceneIndex].portals[i] = Portal{
-                    .position = Vec2{ .x = 0, .y = 0 },
-                    .radius = 25.0 * dataScene.unit_scale,
-                    .active = false,
-                    .destinationScene = 0,
-                    .shape = .circle,
-                };
-            }
-        }
-
-        // Load lifestones from data
-        for (0..MAX_LIFESTONES) |i| {
-            if (i < dataScene.lifestones.len) {
-                const dataLifestone = dataScene.lifestones[i];
-                self.scenes[sceneIndex].lifestones[i] = Lifestone{
-                    .position = Vec2{ .x = dataLifestone.position.x, .y = dataLifestone.position.y },
-                    .radius = dataLifestone.radius * dataScene.unit_scale,
-                    .active = true,
-                    .attuned = false,
-                };
-            } else {
-                self.scenes[sceneIndex].lifestones[i] = Lifestone{
-                    .position = Vec2{ .x = 0, .y = 0 },
-                    .radius = 8.0 * dataScene.unit_scale,
-                    .active = false,
-                    .attuned = false,
-                };
-            }
-        }
-    }
-
-    // Encapsulated color caching system
-    const ColorCache = struct {
-        last_color: ?Color = null,
-
-        inline fn colorToSDL(color: Color) struct { r: u8, g: u8, b: u8, a: u8 } {
-            return .{ .r = color.r, .g = color.g, .b = color.b, .a = color.a };
-        }
-
-        fn setRenderColor(self: *@This(), renderer: *c.SDL_Renderer, color: Color) void {
-            // Only change SDL color state if different from last color
-            if (self.last_color == null or !std.meta.eql(self.last_color.?, color)) {
-                const sdl_color = colorToSDL(color);
-                _ = c.SDL_SetRenderDrawColor(renderer, sdl_color.r, sdl_color.g, sdl_color.b, sdl_color.a);
-                self.last_color = color;
-            }
-        }
-
-        fn reset(self: *@This()) void {
-            self.last_color = null;
-        }
-    };
-
-    pub fn setRenderColor(self: *Self, color: Color) void {
-        self.color_cache.setRenderColor(self.renderer, color);
-    }
-
-    pub fn drawPixel(self: *Self, x: f32, y: f32) void {
-        _ = c.SDL_RenderPoint(self.renderer, x, y);
-    }
-
-    fn updatePlayerRadiusCache(self: *Self) void {
-        self.player_radius_cache = self.gameData.player_start.radius * self.scenes[self.currentScene].unit_scale;
-    }
-
-    fn checkCircleRectCollision(self: *Self, circlePos: Vec2, radius: f32, rectPos: Vec2, rectSize: Vec2) bool {
-        _ = self;
-        const closestX = math.clamp(circlePos.x, rectPos.x, rectPos.x + rectSize.x);
-        const closestY = math.clamp(circlePos.y, rectPos.y, rectPos.y + rectSize.y);
-
-        const dx = circlePos.x - closestX;
-        const dy = circlePos.y - closestY;
-
-        return (dx * dx + dy * dy) <= (radius * radius);
-    }
-
-    fn isPositionBlocked(self: *Self, pos: Vec2, radius: f32) bool {
-        for (0..MAX_OBSTACLES) |i| {
-            if (self.scenes[self.currentScene].obstacles[i].active and self.scenes[self.currentScene].obstacles[i].type == .blocking) {
-                if (self.checkCircleRectCollision(pos, radius, self.scenes[self.currentScene].obstacles[i].position, self.scenes[self.currentScene].obstacles[i].size)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    fn restoreEnemiesInScene(self: *Self, sceneIndex: u8) void {
-        // Restore all enemies in the specified scene to their original state (bulk copy)
-        self.scenes[sceneIndex].enemies = self.scenes[sceneIndex].originalEnemies;
-    }
-
-    fn findNearestAttunedLifestone(self: *Self) ?LifestoneResult {
-        // 1. Check current scene first - prefer any lifestone in current scene
-        var nearestDistance: f32 = std.math.floatMax(f32);
-        var nearestLifestone: ?LifestoneResult = null;
-
-        for (0..MAX_LIFESTONES) |i| {
-            if (self.scenes[self.currentScene].lifestones[i].active and self.scenes[self.currentScene].lifestones[i].attuned) {
-                const dx = self.player.position.x - self.scenes[self.currentScene].lifestones[i].position.x;
-                const dy = self.player.position.y - self.scenes[self.currentScene].lifestones[i].position.y;
-                const distance = dx * dx + dy * dy;
-
-                if (distance < nearestDistance) {
-                    nearestDistance = distance;
-                    nearestLifestone = LifestoneResult{
-                        .scene = self.currentScene,
-                        .position = self.scenes[self.currentScene].lifestones[i].position,
-                    };
-                }
-            }
-        }
-
-        // If found in current scene, return it immediately
-        if (nearestLifestone != null) {
-            return nearestLifestone;
-        }
-
-        // 2-3. Breadth-first search through portal network
-        // We'll use simple arrays for BFS queue since scene count is small
-        var visited: [NUM_SCENES]bool = [_]bool{false} ** NUM_SCENES;
-        var queue: [NUM_SCENES]struct { scene: u8, entry_portal_pos: Vec2, depth: u32 } = undefined;
-        var queue_start: usize = 0;
-        var queue_end: usize = 0;
-
-        visited[self.currentScene] = true;
-
-        // 2. Start BFS: Add all portals from current scene to queue
-        for (0..MAX_PORTALS) |i| {
-            if (self.scenes[self.currentScene].portals[i].active) {
-                const portal = self.scenes[self.currentScene].portals[i];
-                const dest_scene = portal.destinationScene;
-
-                if (!visited[dest_scene]) {
-                    visited[dest_scene] = true;
-
-                    // Find the return portal in the destination scene that leads back to current scene
-                    var entry_portal_pos = Vec2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 };
-                    for (0..MAX_PORTALS) |j| {
-                        if (self.scenes[dest_scene].portals[j].active and
-                            self.scenes[dest_scene].portals[j].destinationScene == self.currentScene)
-                        {
-                            entry_portal_pos = self.scenes[dest_scene].portals[j].position;
-                            break;
-                        }
-                    }
-
-                    queue[queue_end] = .{
-                        .scene = dest_scene,
-                        .entry_portal_pos = entry_portal_pos, // Position of portal in destination scene
-                        .depth = 1,
-                    };
-                    queue_end += 1;
-                }
-            }
-        }
-
-        // BFS through scenes
-        while (queue_start < queue_end) {
-            const current = queue[queue_start];
-            queue_start += 1;
-
-            // Search for lifestones in this scene
-            for (0..MAX_LIFESTONES) |i| {
-                if (self.scenes[current.scene].lifestones[i].active and self.scenes[current.scene].lifestones[i].attuned) {
-                    // Calculate distance from portal entry point in this scene to the lifestone
-                    const lifestone_dx = current.entry_portal_pos.x - self.scenes[current.scene].lifestones[i].position.x;
-                    const lifestone_dy = current.entry_portal_pos.y - self.scenes[current.scene].lifestones[i].position.y;
-                    const lifestone_distance = lifestone_dx * lifestone_dx + lifestone_dy * lifestone_dy;
-
-                    // Add penalty based on depth (number of portal hops)
-                    const depth_penalty = @as(f32, @floatFromInt(current.depth)) * 100000.0;
-                    const total_distance = lifestone_distance + depth_penalty;
-
-                    if (total_distance < nearestDistance) {
-                        nearestDistance = total_distance;
-                        nearestLifestone = LifestoneResult{
-                            .scene = current.scene,
-                            .position = self.scenes[current.scene].lifestones[i].position,
-                        };
-                    }
-                }
-            }
-
-            // Add connected scenes to queue for next depth level
-            for (0..MAX_PORTALS) |i| {
-                if (self.scenes[current.scene].portals[i].active) {
-                    const portal = self.scenes[current.scene].portals[i];
-                    const dest_scene = portal.destinationScene;
-
-                    if (!visited[dest_scene] and queue_end < NUM_SCENES) {
-                        visited[dest_scene] = true;
-
-                        // Find the entry portal in the new destination scene
-                        var entry_portal_pos = Vec2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 };
-                        for (0..MAX_PORTALS) |j| {
-                            if (self.scenes[dest_scene].portals[j].active and
-                                self.scenes[dest_scene].portals[j].destinationScene == current.scene)
-                            {
-                                entry_portal_pos = self.scenes[dest_scene].portals[j].position;
-                                break;
-                            }
-                        }
-
-                        queue[queue_end] = .{
-                            .scene = dest_scene,
-                            .entry_portal_pos = entry_portal_pos,
-                            .depth = current.depth + 1,
-                        };
-                        queue_end += 1;
-                    }
-                }
-            }
-        }
-
-        return nearestLifestone;
-    }
-
-    fn updateCamera(self: *Self) void {
-        const currentScene = &self.scenes[self.currentScene];
-
-        if (currentScene.camera_mode == .follow) {
-            // Camera follows the player
-            self.camera.target = self.player.position;
-            // Set camera offset to center of screen for proper following
-            self.camera.offset = Vec2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 };
-        } else {
-            // Fixed camera - center the screen
-            self.camera.target = Vec2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 };
-            self.camera.offset = Vec2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 };
-        }
-    }
-
-    // Transform world coordinates to screen coordinates using camera
-    pub fn worldToScreen(self: *Self, worldPos: Vec2) Vec2 {
-        const currentScene = &self.scenes[self.currentScene];
-
-        if (currentScene.camera_mode == .fixed) {
-            // No camera transformation for fixed camera
-            return worldPos;
-        } else {
-            // Apply camera transformation for following camera
-            return Vec2{
-                .x = worldPos.x - self.camera.target.x + self.camera.offset.x,
-                .y = worldPos.y - self.camera.target.y + self.camera.offset.y,
-            };
-        }
-    }
-
-    // Transform screen coordinates to world coordinates using camera
-    fn screenToWorld(self: *Self, screenPos: Vec2) Vec2 {
-        const currentScene = &self.scenes[self.currentScene];
-
-        if (currentScene.camera_mode == .fixed) {
-            // No camera transformation for fixed camera
-            return screenPos;
-        } else {
-            // Reverse camera transformation for following camera
-            return Vec2{
-                .x = screenPos.x + self.camera.target.x - self.camera.offset.x,
-                .y = screenPos.y + self.camera.target.y - self.camera.offset.y,
-            };
-        }
-    }
-
-    pub fn restart(self: *Self) void {
-        // Reset player to starting position
-        self.player.position = Vec2{ .x = self.gameData.player_start.position.x, .y = self.gameData.player_start.position.y };
-        self.player.active = true;
-        self.currentScene = self.gameData.player_start.scene;
-
-        // Reset bullets
-        for (0..MAX_BULLETS) |i| {
-            self.bullets[i].active = false;
-        }
-
-        // Reload all scenes from data (restore original state)
-        for (0..NUM_SCENES) |sceneIndex| {
-            if (sceneIndex < self.gameData.scenes.len) {
-                self.loadSceneFromData(@intCast(sceneIndex));
-            }
-        }
-
-        self.playerDead = false;
-        self.isPaused = false;
-        self.aggroTarget = null; // Reset aggro target
-        self.friendlyTarget = null; // Reset friendly target
-
-        // Refresh visual effects for current scene and add reduced spawn effect (restart)
-        self.refreshSceneVisuals();
-        self.addPlayerTransitionEffect();
-
-        // Update cached player radius
-        self.updatePlayerRadiusCache();
-    }
-
-    pub fn resurrect(self: *Self) void {
-        // Start iris wipe effect (back in border system for simplicity)
-        self.iris_wipe_active = true;
-        self.iris_wipe_start_time = c.SDL_GetPerformanceCounter();
-
-        // Find nearest attuned lifestone
-        if (self.findNearestAttunedLifestone()) |nearestLifestone| {
-            // Teleport to nearest attuned lifestone
-            if (nearestLifestone.scene != self.currentScene) {
-                // Switch to the lifestone's scene
-                self.currentScene = nearestLifestone.scene;
-                // Update camera for new scene
-                self.updateCamera();
-                // Update cached player radius for new scene
-                self.updatePlayerRadiusCache();
-                // Restore enemies in the destination scene
-                self.restoreEnemiesInScene(nearestLifestone.scene);
-            }
-            self.player.position = nearestLifestone.position;
-        } else {
-            // Fallback to original spawn location if no lifestones are attuned
-            self.player.position = Vec2{ .x = self.gameData.player_start.position.x, .y = self.gameData.player_start.position.y };
-            self.currentScene = self.gameData.player_start.scene;
-        }
-
-        self.player.active = true;
-        self.playerDead = false;
-        self.isPaused = false;
-        // Don't reset aggroTarget/friendlyTarget - let enemies continue their current behavior
-
-        // Refresh visual effects for current scene and add appropriate player effect
-        self.refreshSceneVisuals();
-        if (self.findNearestAttunedLifestone() != null) {
-            // Found lifestone - dramatic spawn effect at lifestone
-            self.addPlayerSpawnEffect();
-        } else {
-            // No lifestone - subtle transition effect at original spawn
-            self.addPlayerTransitionEffect();
-        }
-
-        // Clear any active bullets
-        for (0..MAX_BULLETS) |i| {
-            self.bullets[i].active = false;
-        }
-    }
-
-    pub fn resetScene(self: *Self) void {
-        // Reset only the current scene enemies to their spawn positions
-        self.restoreEnemiesInScene(self.currentScene);
-
-        // Reset player to original spawn location
-        self.player.position = Vec2{ .x = self.gameData.player_start.position.x, .y = self.gameData.player_start.position.y };
-        self.player.active = true;
-
-        // Clear bullets
-        for (0..MAX_BULLETS) |i| {
-            self.bullets[i].active = false;
-        }
-
-        // Reset game state flags
-        self.playerDead = false;
-        self.isPaused = false;
-        self.aggroTarget = null; // Reset aggro target
-        self.friendlyTarget = null; // Reset friendly target
-    }
-
-    pub fn handleInput(self: *Self) void {
-        // TODO: Convert SDL input to YAR-style input handling
-        // Handle keyboard state
-        _ = self;
-    }
-
-    pub fn updatePlayer(self: *Self, deltaTime: f32) void {
-        if (self.isPaused) return;
-
-        // Set aggro target to player position (enemies will chase this)
-        self.aggroTarget = self.player.position;
-        var movement = Vec2{ .x = 0, .y = 0 };
-
-        // Mouse movement - ONLY when left mouse button is held down
-        if (self.left_mouse_held) {
-            const direction = Vec2{
-                .x = self.mouse_x - self.player.position.x,
-                .y = self.mouse_y - self.player.position.y,
-            };
-
-            const lengthSq = direction.x * direction.x + direction.y * direction.y;
-            const playerRadius = self.player_radius_cache;
-            const playerRadiusSq = playerRadius * playerRadius;
-            if (lengthSq > playerRadiusSq) { // Only move if mouse is outside player's radius
-                const length = math.sqrt(lengthSq);
-                movement.x = direction.x / length;
-                movement.y = direction.y / length;
-            }
-        }
-
-        // Keyboard movement (fallback/alternative)
-        if (self.keys_down.isSet(c.SDL_SCANCODE_W) or self.keys_down.isSet(c.SDL_SCANCODE_UP)) movement.y -= 1;
-        if (self.keys_down.isSet(c.SDL_SCANCODE_S) or self.keys_down.isSet(c.SDL_SCANCODE_DOWN)) movement.y += 1;
-        if (self.keys_down.isSet(c.SDL_SCANCODE_A) or self.keys_down.isSet(c.SDL_SCANCODE_LEFT)) movement.x -= 1;
-        if (self.keys_down.isSet(c.SDL_SCANCODE_D) or self.keys_down.isSet(c.SDL_SCANCODE_RIGHT)) movement.x += 1;
-
-        // Normalize diagonal movement for keyboard
-        if (movement.x != 0 and movement.y != 0 and !self.left_mouse_held) {
-            movement.x *= DIAGONAL_FACTOR;
-            movement.y *= DIAGONAL_FACTOR;
-        }
-
-        // Update position with collision checking (apply game speed)
-        const effectiveDeltaTime = deltaTime * self.gameSpeed;
-        const newX = self.player.position.x + movement.x * PLAYER_SPEED * effectiveDeltaTime;
-        const newY = self.player.position.y + movement.y * PLAYER_SPEED * effectiveDeltaTime;
-
-        // Get player radius with scene scaling
-        const playerRadius = self.gameData.player_start.radius * self.scenes[self.currentScene].unit_scale;
-
-        // Check X movement
-        const testPosX = Vec2{ .x = newX, .y = self.player.position.y };
-        if (!self.isPositionBlocked(testPosX, playerRadius)) {
-            self.player.position.x = newX;
-        }
-
-        // Check Y movement
-        const testPosY = Vec2{ .x = self.player.position.x, .y = newY };
-        if (!self.isPositionBlocked(testPosY, playerRadius)) {
-            self.player.position.y = newY;
-        }
-
-        // Keep player bounded based on camera mode
-        const currentScene = &self.scenes[self.currentScene];
-        if (currentScene.camera_mode == .fixed) {
-            // Fixed camera: keep player on screen
-            if (self.player.position.x < playerRadius)
-                self.player.position.x = playerRadius;
-            if (self.player.position.x > SCREEN_WIDTH - playerRadius)
-                self.player.position.x = SCREEN_WIDTH - playerRadius;
-            if (self.player.position.y < playerRadius)
-                self.player.position.y = playerRadius;
-            if (self.player.position.y > SCREEN_HEIGHT - playerRadius)
-                self.player.position.y = SCREEN_HEIGHT - playerRadius;
-        }
-        // Follow camera: no screen bounds, movement only limited by terrain (obstacles)
-    }
-
-    pub fn updateBullets(self: *Self, deltaTime: f32) void {
-        if (self.isPaused) return;
-        const effectiveDeltaTime = deltaTime * self.gameSpeed;
-
-        for (0..MAX_BULLETS) |i| {
-            if (self.bullets[i].active) {
-                self.bullets[i].position.x += self.bullets[i].velocity.x * effectiveDeltaTime;
-                self.bullets[i].position.y += self.bullets[i].velocity.y * effectiveDeltaTime;
-
-                // Deactivate if off screen
-                if (self.bullets[i].position.x < 0 or self.bullets[i].position.x > SCREEN_WIDTH or
-                    self.bullets[i].position.y < 0 or self.bullets[i].position.y > SCREEN_HEIGHT)
-                {
-                    self.bullets[i].active = false;
-                }
-            }
-        }
-    }
-
-    pub fn updateEnemies(self: *Self, deltaTime: f32) void {
-        if (self.isPaused) return;
-        for (0..MAX_ENEMIES) |i| {
-            if (self.scenes[self.currentScene].enemies[i].active and self.scenes[self.currentScene].enemies[i].enemyState == .alive) {
-                // Choose target: aggro target if set, otherwise go to spawn location
-                const target = if (self.aggroTarget) |aggroPos|
-                    aggroPos
-                else
-                    self.scenes[self.currentScene].originalEnemies[i].position;
-
-                // Move towards target
-                var direction = Vec2{
-                    .x = target.x - self.scenes[self.currentScene].enemies[i].position.x,
-                    .y = target.y - self.scenes[self.currentScene].enemies[i].position.y,
-                };
-
-                const length = math.sqrt(direction.x * direction.x + direction.y * direction.y);
-                if (length > 0) {
-                    direction.x /= length;
-                    direction.y /= length;
-                }
-
-                // Use different speeds for overworld vs dungeons, and slower when not aggro
-                var enemySpeed: f32 = if (self.currentScene == OVERWORLD_SCENE_INDEX) ENEMY_SPEED * OVERWORLD_ENEMY_SPEED_FACTOR else ENEMY_SPEED;
-                if (self.aggroTarget == null) {
-                    enemySpeed *= ENEMY_RETURN_SPEED_FACTOR;
-                }
-                const effectiveDeltaTime = deltaTime * self.gameSpeed;
-
-                // Check for obstacle collision before moving
-                const newX = self.scenes[self.currentScene].enemies[i].position.x + direction.x * enemySpeed * effectiveDeltaTime;
-                const newY = self.scenes[self.currentScene].enemies[i].position.y + direction.y * enemySpeed * effectiveDeltaTime;
-
-                // Check X movement
-                const testPosX = Vec2{ .x = newX, .y = self.scenes[self.currentScene].enemies[i].position.y };
-                if (!self.isPositionBlocked(testPosX, self.scenes[self.currentScene].enemies[i].radius)) {
-                    self.scenes[self.currentScene].enemies[i].position.x = newX;
-                }
-
-                // Check Y movement
-                const testPosY = Vec2{ .x = self.scenes[self.currentScene].enemies[i].position.x, .y = newY };
-                if (!self.isPositionBlocked(testPosY, self.scenes[self.currentScene].enemies[i].radius)) {
-                    self.scenes[self.currentScene].enemies[i].position.y = newY;
-                }
-            }
-        }
-    }
-
-    pub fn checkCollisions(self: *Self) void {
-        const currentScene = &self.scenes[self.currentScene];
-        const playerRadius = self.player_radius_cache;
-        const playerPos = self.player.position;
-
-        // Cache arrays for better performance
-        const bullets = &self.bullets;
-        const enemies = &currentScene.enemies;
-        const obstacles = &currentScene.obstacles;
-        const portals = &currentScene.portals;
-        const lifestones = &currentScene.lifestones;
-
-        // Player-Lifestone collisions (attunement)
-        for (0..MAX_LIFESTONES) |i| {
-            if (lifestones[i].active and !lifestones[i].attuned) {
-                const dx = playerPos.x - lifestones[i].position.x;
-                const dy = playerPos.y - lifestones[i].position.y;
-                const distanceSq = dx * dx + dy * dy;
-                const radiusSum = playerRadius + lifestones[i].radius;
-
-                if (distanceSq < radiusSum * radiusSum) {
-                    // Attune to this lifestone
-                    lifestones[i].attuned = true;
-                    // Refresh visual effects to update lifestone appearance
-                    self.refreshSceneVisuals();
-                }
-            }
-        }
-
-        // Bullet-Enemy collisions (current scene only)
-        for (0..MAX_BULLETS) |i| {
-            if (bullets[i].active) {
-                const bulletPos = bullets[i].position;
-                const bulletRadius = bullets[i].radius;
-
-                for (0..MAX_ENEMIES) |j| {
-                    if (enemies[j].active and enemies[j].enemyState == .alive) {
-                        const dx = bulletPos.x - enemies[j].position.x;
-                        const dy = bulletPos.y - enemies[j].position.y;
-                        const distanceSq = dx * dx + dy * dy;
-                        const radiusSum = bulletRadius + enemies[j].radius;
-
-                        if (distanceSq < radiusSum * radiusSum) {
-                            bullets[i].active = false;
-                            enemies[j].enemyState = .dead;
-                        }
-                    }
-                }
-            }
-        }
-
-        // Player-Enemy collisions (current scene only)
-        for (0..MAX_ENEMIES) |i| {
-            if (enemies[i].active and enemies[i].enemyState == .alive) {
-                const dx = playerPos.x - enemies[i].position.x;
-                const dy = playerPos.y - enemies[i].position.y;
-                const distanceSq = dx * dx + dy * dy;
-                const radiusSum = playerRadius + enemies[i].radius;
-
-                if (distanceSq < radiusSum * radiusSum) {
-                    self.playerDead = true;
-                    self.aggroTarget = null; // Clear aggro - enemies will return home
-                }
-            }
-        }
-
-        // Player-Portal collisions (scene switching)
-        for (0..MAX_PORTALS) |i| {
-            if (portals[i].active) {
-                const dx = playerPos.x - portals[i].position.x;
-                const dy = playerPos.y - portals[i].position.y;
-                const distanceSq = dx * dx + dy * dy;
-                // Use smaller collision radius for overworld portals to match visual size
-                const portalRadius = if (self.currentScene == OVERWORLD_SCENE_INDEX)
-                    portals[i].radius * 0.5
-                else
-                    portals[i].radius;
-                const radiusSum = playerRadius + portalRadius;
-
-                if (distanceSq < radiusSum * radiusSum) {
-                    const destinationScene = portals[i].destinationScene;
-                    self.currentScene = destinationScene;
-                    // Always place player at screen center
-                    self.player.position = Vec2{ .x = SCREEN_WIDTH / 2.0, .y = SCREEN_HEIGHT / 2.0 };
-                    // Update camera for new scene
-                    self.updateCamera();
-                    // Update cached player radius for new scene
-                    self.updatePlayerRadiusCache();
-                    // Restore enemies in the destination scene to their original positions
-                    self.restoreEnemiesInScene(destinationScene);
-
-                    // Refresh visual effects for new scene and add reduced spawn effect (portal transition)
-                    self.refreshSceneVisuals();
-                    self.addPlayerTransitionEffect();
-
-                    return; // Exit early to avoid processing more collisions
-                }
-            }
-        }
-
-        // Player-Deadly Obstacle collisions (current scene only)
-        for (0..MAX_OBSTACLES) |i| {
-            if (obstacles[i].active and obstacles[i].type == .deadly) {
-                if (self.checkCircleRectCollision(playerPos, playerRadius, obstacles[i].position, obstacles[i].size)) {
-                    self.playerDead = true;
-                    self.aggroTarget = null; // Clear aggro - enemies will return home
-                }
-            }
-        }
-
-        // Enemy-Deadly Obstacle collisions (current scene only)
-        for (0..MAX_ENEMIES) |i| {
-            if (enemies[i].active and enemies[i].enemyState == .alive) {
-                for (0..MAX_OBSTACLES) |j| {
-                    if (obstacles[j].active and obstacles[j].type == .deadly) {
-                        if (self.checkCircleRectCollision(enemies[i].position, enemies[i].radius, obstacles[j].position, obstacles[j].size)) {
-                            enemies[i].enemyState = .dead;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    pub fn fireBullet(self: *Self) void {
-        // TODO: Port bullet firing logic from YAR
-        // For now, simple bullet firing toward mouse
-        const direction = Vec2{
-            .x = self.mouse_x - self.player.position.x,
-            .y = self.mouse_y - self.player.position.y,
-        };
-
-        const length = math.sqrt(direction.x * direction.x + direction.y * direction.y);
-        if (length > 0) {
-            const normalizedX = direction.x / length;
-            const normalizedY = direction.y / length;
-
-            // Find inactive bullet
-            for (0..MAX_BULLETS) |i| {
-                if (!self.bullets[i].active) {
-                    self.bullets[i].position = self.player.position;
-                    self.bullets[i].velocity.x = normalizedX * BULLET_SPEED;
-                    self.bullets[i].velocity.y = normalizedY * BULLET_SPEED;
-                    self.bullets[i].active = true;
-                    break;
-                }
-            }
-        }
-    }
-
-    // SDL3-specific drawing methods - optimized circle drawing with batched lines
-    pub fn drawCircle(self: *Self, pos: Vec2, radius: f32, color: Color) void {
-        self.setRenderColor(color);
-
-        const center_x = pos.x;
-        const center_y = pos.y;
-        const r = radius;
-        const r_sq = r * r;
-
-        // Pre-compute and batch horizontal lines for better performance
-        const r_int: i32 = @intFromFloat(r);
-        var y: i32 = -r_int;
-        while (y <= r_int) : (y += 1) {
-            const y_f: f32 = @floatFromInt(y);
-            const y_sq = y_f * y_f;
-            if (y_sq <= r_sq) {
-                const half_width = @sqrt(r_sq - y_sq);
-                _ = c.SDL_RenderLine(self.renderer, center_x - half_width, center_y + y_f, center_x + half_width, center_y + y_f);
-            }
-        }
-    }
-
-    fn drawRect(self: *Self, pos: Vec2, size: Vec2, color: Color) void {
-        self.setRenderColor(color);
-
-        const rect = c.SDL_FRect{
-            .x = pos.x,
-            .y = pos.y,
-            .w = size.x,
-            .h = size.y,
-        };
-        _ = c.SDL_RenderFillRect(self.renderer, &rect);
-    }
-
-    pub fn draw(self: *Self) !void {
-        // First clear the entire window with black (for letterbox/pillarbox bars)
-        self.setRenderColor(Color{ .r = 0, .g = 0, .b = 0, .a = 255 });
-        _ = c.SDL_RenderClear(self.renderer);
-
-        // Set the viewport for 16:9 game content
-        _ = c.SDL_SetRenderViewport(self.renderer, &self.viewport.rect);
-
-        // Cache frequently used values
-        const currentScene = &self.scenes[self.currentScene];
-
-        // Clear game area with scene-specific background color
-        const background_color = if (self.currentScene == 0) OCEAN_BLUE else currentScene.background_color;
-        self.setRenderColor(background_color);
-        _ = c.SDL_RenderClear(self.renderer);
-        const playerRadius = self.gameData.player_start.radius * currentScene.unit_scale;
-        const playerColor = if (self.playerDead) GRAY else self.player.color;
-
-        // Draw player with scene-based scaling and camera transform
-        const playerScreenPos = self.worldToScreen(self.player.position);
-        self.drawCircle(playerScreenPos, playerRadius, playerColor);
-
-        // Draw bullets (always visible) with scene-based scaling and camera transform
-        for (0..MAX_BULLETS) |i| {
-            if (self.bullets[i].active) {
-                const bulletRadius = self.bullets[i].radius;
-                const bulletScreenPos = self.worldToScreen(self.bullets[i].position);
-                self.drawCircle(bulletScreenPos, bulletRadius, self.bullets[i].color);
-            }
-        }
-
-        // Draw all scene entities (unified for alive/dead states)
-        self.drawSceneEntities(currentScene);
-
-        // Draw HUD elements
-        self.hud_system.render(self);
-
-        // Draw state-based screen border
-        self.drawScreenBorder();
-
-        // Draw visual effects (includes screen-wide effects like iris wipe)
-        self.visual_system.render(self);
-
-        // Reset viewport to full window before presenting
-        _ = c.SDL_SetRenderViewport(self.renderer, null);
-
-        _ = c.SDL_RenderPresent(self.renderer);
-    }
-
-    fn drawSceneEntities(self: *Self, sceneData: *const Scene) void {
-        // Cache arrays to avoid repeated pointer dereferencing
-        const enemies = &sceneData.enemies;
-        const obstacles = &sceneData.obstacles;
-        const portals = &sceneData.portals;
-        const lifestones = &sceneData.lifestones;
-
-        // Batch enemies by color to reduce state changes
-        // Draw alive enemies first (red)
-        for (0..MAX_ENEMIES) |i| {
-            if (enemies[i].active and enemies[i].enemyState == .alive) {
-                const enemyScreenPos = self.worldToScreen(enemies[i].position);
-                self.drawCircle(enemyScreenPos, enemies[i].radius, enemies[i].color);
-            }
-        }
-
-        // Draw dead enemies (gray) - batched together
-        for (0..MAX_ENEMIES) |i| {
-            if (enemies[i].active and enemies[i].enemyState == .dead) {
-                const enemyScreenPos = self.worldToScreen(enemies[i].position);
-                self.drawCircle(enemyScreenPos, enemies[i].radius, GRAY);
-            }
-        }
-
-        // Batch obstacles by type to reduce state changes
-        // Draw blocking obstacles first (green)
-        for (0..MAX_OBSTACLES) |i| {
-            if (obstacles[i].active and obstacles[i].type == .blocking) {
-                const obstacleScreenPos = self.worldToScreen(obstacles[i].position);
-                self.drawRect(obstacleScreenPos, obstacles[i].size, GREEN);
-            }
-        }
-
-        // Draw deadly obstacles (orange)
-        for (0..MAX_OBSTACLES) |i| {
-            if (obstacles[i].active and obstacles[i].type == .deadly) {
-                const obstacleScreenPos = self.worldToScreen(obstacles[i].position);
-                self.drawRect(obstacleScreenPos, obstacles[i].size, ORANGE);
-            }
-        }
-
-        // Draw all portals together (purple) - already batched by color
-        for (0..MAX_PORTALS) |i| {
-            if (portals[i].active) {
-                const portalScreenPos = self.worldToScreen(portals[i].position);
-                // Make overworld portals visually smaller while keeping collision radius same
-                const visualRadius = if (self.currentScene == OVERWORLD_SCENE_INDEX)
-                    portals[i].radius * 0.5 // Half visual size for overworld portals
-                else
-                    portals[i].radius;
-                self.drawCircle(portalScreenPos, visualRadius, PURPLE);
-            }
-        }
-
-        // Draw lifestones - batch by attunement state
-        // Draw unattunmed lifestones first (faded cyan)
-        for (0..MAX_LIFESTONES) |i| {
-            if (lifestones[i].active and !lifestones[i].attuned) {
-                const lifestoneScreenPos = self.worldToScreen(lifestones[i].position);
-                self.drawCircle(lifestoneScreenPos, lifestones[i].radius, CYAN_FADED);
-            }
-        }
-
-        // Draw attuned lifestones (bright cyan)
-        for (0..MAX_LIFESTONES) |i| {
-            if (lifestones[i].active and lifestones[i].attuned) {
-                const lifestoneScreenPos = self.worldToScreen(lifestones[i].position);
-                self.drawCircle(lifestoneScreenPos, lifestones[i].radius, CYAN);
-            }
-        }
-    }
-
-
-
-    pub fn drawBorderWithOffset(self: *Self, color: Color, width: f32, offset: f32) void {
-        self.setRenderColor(color);
         
-        const rects = borders.calculateBorderRects(width, offset);
-        for (rects) |rect| {
-            const sdl_rect = c.SDL_FRect{ 
-                .x = rect.x, 
-                .y = rect.y, 
-                .w = rect.w, 
-                .h = rect.h 
-            };
-            _ = c.SDL_RenderFillRect(self.renderer, &sdl_rect);
-        }
+        // Reset all zones
+        self.world.resetAllZones();
+        
+        // Clear effects for clean slate
+        self.effect_system.clear();
+        self.effect_system.refreshAmbientEffects(&self.world);
+        
+        std.debug.print("Full game reset\n", .{});
     }
-
-    fn drawScreenBorder(self: *Self) void {
-        borders.drawScreenBorder(self);
-    }
-
-    // All core methods from YAR have been ported
 };
 
-// Main game loop entry point
-pub fn run(allocator: std.mem.Allocator, window: *c.SDL_Window, renderer: *c.SDL_Renderer) !void {
-    var game = try GameState.init(allocator, window, renderer);
-    defer game.deinit();
+pub fn updateGame(game_state: *GameState, cam: *const camera.Camera, deltaTime: f32) void {
+    if (game_state.game_paused) return;
 
-    // Use SDL high-resolution timer for better precision
-    var last_time = c.SDL_GetPerformanceCounter();
-    const frequency = c.SDL_GetPerformanceFrequency();
+    const world = &game_state.world;
+    const input_state = &game_state.input_state;
 
-    // Main game loop
-    while (true) {
-        const current_time = c.SDL_GetPerformanceCounter();
-        const delta_ticks = current_time - last_time;
-        const deltaTimeSec: f32 = @as(f32, @floatFromInt(delta_ticks)) / @as(f32, @floatFromInt(frequency));
-        last_time = current_time;
+    if (world.player.alive) {
+        player_controller.updatePlayer(&world.player, input_state, world.getCurrentZone(), cam, deltaTime);
+    }
 
-        // Handle events
-        var event: c.SDL_Event = undefined;
-        while (c.SDL_PollEvent(&event)) {
-            switch (event.type) {
-                c.SDL_EVENT_QUIT => return,
-                c.SDL_EVENT_WINDOW_RESIZED, c.SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED => {
-                    game.viewport.update(game.window);
-                },
-                c.SDL_EVENT_KEY_DOWN => {
-                    game.keys_down.set(event.key.scancode);
-                    switch (event.key.scancode) {
-                        c.SDL_SCANCODE_ESCAPE => return,
-                        c.SDL_SCANCODE_SPACE => game.isPaused = !game.isPaused,
-                        c.SDL_SCANCODE_R => {
-                            game.resurrect();
-                        },
-                        c.SDL_SCANCODE_T => {
-                            game.resetScene();
-                        },
-                        c.SDL_SCANCODE_Y => {
-                            game.restart();
-                        },
-                        c.SDL_SCANCODE_GRAVE => { // Backtick key
-                            game.hud_system.toggle();
-                        },
-                        else => {},
-                    }
-                },
-                c.SDL_EVENT_KEY_UP => {
-                    game.keys_down.unset(event.key.scancode);
-                },
-                c.SDL_EVENT_MOUSE_MOTION => {
-                    const screen_coords = game.viewport.windowToGameCoords(event.motion.x, event.motion.y);
-                    const world_coords = game.screenToWorld(screen_coords);
-                    game.mouse_x = world_coords.x;
-                    game.mouse_y = world_coords.y;
-                },
-                c.SDL_EVENT_MOUSE_BUTTON_DOWN => {
-                    switch (event.button.button) {
-                        c.SDL_BUTTON_LEFT => {
-                            if (game.playerDead and !game.isPaused) {
-                                game.resurrect();
-                            }
-                            // Always start holding left mouse button and update coordinates
-                            // (works for both resurrect case and normal movement)
-                            game.left_mouse_held = true;
-                            const screen_coords = game.viewport.windowToGameCoords(event.button.x, event.button.y);
-                            const world_coords = game.screenToWorld(screen_coords);
-                            game.mouse_x = world_coords.x;
-                            game.mouse_y = world_coords.y;
-                        },
-                        c.SDL_BUTTON_RIGHT => {
-                            if (!game.isPaused and !game.playerDead) {
-                                game.fireBullet();
-                            }
-                        },
-                        else => {},
-                    }
-                },
-                c.SDL_EVENT_MOUSE_BUTTON_UP => {
-                    switch (event.button.button) {
-                        c.SDL_BUTTON_LEFT => {
-                            // Stop holding left mouse button
-                            game.left_mouse_held = false;
-                        },
-                        else => {},
-                    }
-                },
-                else => {},
+    for (0..entities.MAX_BULLETS) |i| {
+        behaviors.updateBullet(&world.bullets[i], deltaTime);
+    }
+
+    const zone = world.getCurrentZoneMut();
+    for (0..zone.unit_count) |i| {
+        const unit = &zone.units[i];
+
+        if (!unit.active or !unit.alive) continue;
+
+        const old_pos = unit.pos;
+        behaviors.updateUnit(unit, world.player.pos, world.player.alive, deltaTime);
+
+        for (0..zone.obstacle_count) |j| {
+            const obstacle = &zone.obstacles[j];
+            if (!obstacle.active) continue;
+
+            if (physics.checkCircleRectCollision(unit.pos, unit.radius, obstacle.pos, obstacle.size)) {
+                if (obstacle.is_deadly) {
+                    combat.handleUnitDeathOnHazard(unit);
+                } else {
+                    unit.pos = old_pos;
+                }
+                break;
             }
         }
+    }
 
-        // Update HUD system (FPS counter, etc.)
-        const hud_time = c.SDL_GetPerformanceCounter();
-        const hud_frequency = c.SDL_GetPerformanceFrequency();
-        game.hud_system.updateFPS(hud_time, hud_frequency);
+    checkCollisions(game_state);
 
-        // Update game state
-        game.handleInput();
+    // Update visual effects
+    game_state.effect_system.update();
+}
 
-        // Always update camera, bullets, enemies, and visual effects
-        game.updateCamera();
-        game.updateBullets(deltaTimeSec);
-        game.updateEnemies(deltaTimeSec);
-        game.visual_system.update();
+pub fn checkCollisions(game_state: *GameState) void {
+    const world = &game_state.world;
+    const zone = world.getCurrentZoneMut();
+    const player = &world.player;
 
-        // Only update player when alive
-        if (!game.playerDead) {
-            game.updatePlayer(deltaTimeSec);
+    physics.processBulletCollisions(world);
+
+    if (!player.alive) return;
+
+    if (portals.checkPortalCollisions(game_state)) {
+        return;
+    }
+
+    for (0..zone.unit_count) |i| {
+        if (physics.checkPlayerUnitCollision(player, &zone.units[i])) {
+            combat.handlePlayerDeath(player);
+            return;
         }
+    }
 
-        // Only check collisions when alive and not paused
-        if (!game.playerDead and !game.isPaused) {
-            game.checkCollisions();
+    for (0..zone.lifestone_count) |i| {
+        if (!zone.lifestones[i].attuned and physics.checkPlayerLifestoneCollision(player, &zone.lifestones[i])) {
+            behaviors.attuneLifestone(&zone.lifestones[i]);
+            std.debug.print("Lifestone attuned!\n", .{});
+            // Add inner effect for newly attuned lifestone
+            // TODO more declaratively?
+            game_state.effect_system.addLifestoneInnerEffectOnly(zone.lifestones[i].pos, zone.lifestones[i].radius);
         }
+    }
 
-        // Render
-        try game.draw();
+    if (physics.collidesWithDeadlyObstacle(player.pos, player.radius, zone)) {
+        combat.handlePlayerDeathOnHazard(player);
+    }
+}
 
-        // Optional frame limiting to target FPS
-        const target_frame_time = frequency / TARGET_FPS;
-        const frame_time = c.SDL_GetPerformanceCounter() - current_time;
-        if (frame_time < target_frame_time) {
-            const delay_ticks = target_frame_time - frame_time;
-            const delay_ns = (delay_ticks * c.SDL_NS_PER_SECOND) / frequency;
-            c.SDL_DelayPrecise(delay_ns);
-        }
+pub fn handleFireBullet(game_state: *GameState, cam: *const camera.Camera) void {
+    if (game_state.world.player.alive and !game_state.game_paused) {
+        const world_mouse_pos = game_state.input_state.getWorldMousePos(cam);
+        combat.fireBulletAtMouse(&game_state.world, world_mouse_pos);
+    }
+}
+
+pub fn handleRespawn(game_state: *GameState) void {
+    if (!game_state.world.player.alive) {
+        // Start iris wipe effect
+        game_state.iris_wipe_active = true;
+        game_state.iris_wipe_start_time = c.SDL_GetPerformanceCounter();
+
+        combat.respawnPlayer(game_state);
     }
 }

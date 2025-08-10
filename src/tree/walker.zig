@@ -16,8 +16,17 @@ pub const Walker = struct {
         return Self{
             .allocator = allocator,
             .config = config,
-            .filter = Filter{},
+            .filter = Filter.init(config.tree_config),
             .formatter = Formatter{},
+        };
+    }
+
+    pub fn initQuiet(allocator: std.mem.Allocator, config: Config) Self {
+        return Self{
+            .allocator = allocator,
+            .config = config,
+            .filter = Filter.init(config.tree_config),
+            .formatter = Formatter{ .quiet = true },
         };
     }
 
@@ -82,28 +91,46 @@ pub const Walker = struct {
                 continue;
             }
 
-            const tree_entry = Entry{
-                .name = dir_entry.name,
-                .kind = dir_entry.kind,
-                .is_ignored = self.filter.shouldIgnore(dir_entry.name),
-                .is_depth_limited = if (self.config.max_depth) |depth|
-                    (current_depth + 1 >= depth and dir_entry.kind == .directory)
-                else
-                    false,
-            };
-
-            // Check if this entry should be ignored or depth limited
-            if (tree_entry.is_ignored or tree_entry.is_depth_limited) {
-                self.formatter.formatEntry(tree_entry, new_prefix, is_last_entry);
+            // Skip completely hidden files (not displayed at all)
+            if (self.filter.shouldHide(dir_entry.name)) {
                 continue;
             }
 
+            // Check both name-based and path-based ignore patterns
+            const is_ignored_by_name = self.filter.shouldIgnore(dir_entry.name);
             const full_path = std.fs.path.join(self.allocator, &.{ path, dir_entry.name }) catch {
                 continue;
             };
             defer self.allocator.free(full_path);
 
-            try self.walkRecursive(full_path, new_prefix, is_last_entry, current_depth + 1);
+            const is_ignored_by_path = self.filter.shouldIgnoreAtPath(full_path);
+            const is_ignored = is_ignored_by_name or is_ignored_by_path;
+
+            const is_depth_limited = if (self.config.max_depth) |depth|
+                (current_depth + 1 >= depth and dir_entry.kind == .directory)
+            else
+                false;
+
+            const tree_entry = Entry{
+                .name = dir_entry.name,
+                .kind = dir_entry.kind,
+                .is_ignored = is_ignored,
+                .is_depth_limited = is_depth_limited,
+            };
+
+            // Display entry if it should be shown (ignored entries show as [...])
+            if (tree_entry.is_ignored or tree_entry.is_depth_limited) {
+                self.formatter.formatEntry(tree_entry, new_prefix, is_last_entry);
+                continue; // Don't traverse into these directories (performance optimization)
+            }
+
+            // If it's a directory and not ignored, recurse into it
+            if (dir_entry.kind == .directory) {
+                try self.walkRecursive(full_path, new_prefix, is_last_entry, current_depth + 1);
+            } else {
+                // It's a file, just display it
+                self.formatter.formatEntry(tree_entry, new_prefix, is_last_entry);
+            }
         }
     }
 };

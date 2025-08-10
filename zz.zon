@@ -22,7 +22,6 @@
             ".zig-cache",
             "zig-out",
             // Project-specific patterns
-            "src/hex/shaders/compiled",
         },
 
         // Files to completely hide (not displayed at all)

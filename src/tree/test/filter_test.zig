@@ -10,7 +10,7 @@ test "pattern matching edge cases" {
             "exact_match",
             "node_modules",
             ".git",
-            "src/hex/shaders/compiled",
+            "src/tree/compiled",
         },
         .hidden_files = &[_][]const u8{ "Thumbs.db", ".DS_Store" },
     };
@@ -37,7 +37,7 @@ test "pattern matching edge cases" {
 test "path based pattern matching" {
     const tree_config = TreeConfig{
         .ignored_patterns = &[_][]const u8{
-            "src/hex/shaders/compiled",
+            "src/tree/compiled",
             "deep/nested/path",
         },
         .hidden_files = &[_][]const u8{},
@@ -46,14 +46,14 @@ test "path based pattern matching" {
     const filter = Filter.init(tree_config);
 
     // Test path-based matches
-    try testing.expect(filter.shouldIgnoreAtPath("project/src/hex/shaders/compiled"));
-    try testing.expect(filter.shouldIgnoreAtPath("/absolute/src/hex/shaders/compiled"));
-    try testing.expect(filter.shouldIgnoreAtPath("src/hex/shaders/compiled"));
+    try testing.expect(filter.shouldIgnoreAtPath("project/src/tree/compiled"));
+    try testing.expect(filter.shouldIgnoreAtPath("/absolute/src/tree/compiled"));
+    try testing.expect(filter.shouldIgnoreAtPath("src/tree/compiled"));
     try testing.expect(filter.shouldIgnoreAtPath("very/deep/nested/path"));
 
     // Test non-matches
-    try testing.expect(!filter.shouldIgnoreAtPath("src/hex/shaders"));
-    try testing.expect(!filter.shouldIgnoreAtPath("src/hex/shaders/source"));
+    try testing.expect(!filter.shouldIgnoreAtPath("src/tree"));
+    try testing.expect(!filter.shouldIgnoreAtPath("src/tree/test"));
     try testing.expect(!filter.shouldIgnoreAtPath("compiled"));
     try testing.expect(!filter.shouldIgnoreAtPath("deep/nested"));
 

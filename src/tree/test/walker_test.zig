@@ -31,16 +31,15 @@ test "basic ignored directories are not crawled" {
         file.close();
     }
 
-    // Create special case: src/hex/shaders/compiled
-    std.fs.cwd().makeDir(test_dir ++ "/src/hex") catch {};
-    std.fs.cwd().makeDir(test_dir ++ "/src/hex/shaders") catch {};
-    std.fs.cwd().makeDir(test_dir ++ "/src/hex/shaders/compiled") catch {};
-    const compiled_file = std.fs.cwd().createFile(test_dir ++ "/src/hex/shaders/compiled/test.spv", .{}) catch unreachable;
+    // Create special case: src/tree/compiled
+    std.fs.cwd().makeDir(test_dir ++ "/src/tree") catch {};
+    std.fs.cwd().makeDir(test_dir ++ "/src/tree/compiled") catch {};
+    const compiled_file = std.fs.cwd().createFile(test_dir ++ "/src/tree/compiled/test.spv", .{}) catch unreachable;
     compiled_file.close();
 
     // Setup configuration with ignored patterns
     const tree_config = TreeConfig{
-        .ignored_patterns = &[_][]const u8{ "node_modules", ".git", "target", "src/hex/shaders/compiled" },
+        .ignored_patterns = &[_][]const u8{ "node_modules", ".git", "target", "src/tree/compiled" },
         .hidden_files = &[_][]const u8{},
     };
 
@@ -151,7 +150,7 @@ test "basic ignored directories are not crawled" {
         test_dir ++ "/node_modules",
         test_dir ++ "/.git",
         test_dir ++ "/target",
-        test_dir ++ "/src/hex/shaders/compiled",
+        test_dir ++ "/src/tree/compiled",
     };
 
     std.debug.print("\nAccessed directories:\n", .{});
@@ -175,8 +174,7 @@ test "basic ignored directories are not crawled" {
         test_dir,
         test_dir ++ "/normal_dir",
         test_dir ++ "/src",
-        test_dir ++ "/src/hex",
-        test_dir ++ "/src/hex/shaders",
+        test_dir ++ "/src/tree",
     };
 
     for (expected_paths) |expected| {
@@ -213,9 +211,9 @@ test "nested path patterns are not crawled" {
 
     // Create complex nested structure
     const paths_to_create = [_][]const u8{
-        "src",                             "src/hex",                        "src/hex/shaders", "src/hex/shaders/compiled",
-        "src/hex/shaders/compiled/vulkan", "src/hex/shaders/compiled/d3d12", "src/tree",        "node_modules",
-        "node_modules/deep",               "node_modules/deep/nested",
+        "src",                    "src/cli",                   "src/tree", "src/tree/compiled",
+        "src/tree/compiled/test1", "src/tree/compiled/test2", "node_modules",
+        "node_modules/deep",       "node_modules/deep/nested",
     };
 
     for (paths_to_create) |path| {
@@ -231,7 +229,7 @@ test "nested path patterns are not crawled" {
     }
 
     const tree_config = TreeConfig{
-        .ignored_patterns = &[_][]const u8{ "node_modules", "src/hex/shaders/compiled" },
+        .ignored_patterns = &[_][]const u8{ "node_modules", "src/tree/compiled" },
         .hidden_files = &[_][]const u8{},
     };
 
@@ -244,9 +242,9 @@ test "nested path patterns are not crawled" {
         test_dir ++ "/node_modules",
         test_dir ++ "/node_modules/deep",
         test_dir ++ "/node_modules/deep/nested",
-        test_dir ++ "/src/hex/shaders/compiled",
-        test_dir ++ "/src/hex/shaders/compiled/vulkan",
-        test_dir ++ "/src/hex/shaders/compiled/d3d12",
+        test_dir ++ "/src/tree/compiled",
+        test_dir ++ "/src/tree/compiled/test1",
+        test_dir ++ "/src/tree/compiled/test2",
     };
 
     for (forbidden_paths) |forbidden| {
@@ -258,8 +256,7 @@ test "nested path patterns are not crawled" {
     // But verify allowed paths are accessed
     const allowed_paths = [_][]const u8{
         test_dir ++ "/src",
-        test_dir ++ "/src/hex",
-        test_dir ++ "/src/hex/shaders",
+        test_dir ++ "/src/cli",
         test_dir ++ "/src/tree",
     };
 
@@ -476,9 +473,8 @@ test "real project structure is handled correctly" {
 
     // Simulate real project structure like our zz project
     const project_structure = [_][]const u8{
-        "src",                    "src/cli",  "src/hex", "src/hex/shaders", "src/hex/shaders/compiled",
-        "src/hex/shaders/source", "src/tree", "zig-out", "zig-out/bin",     ".git",
-        ".zig-cache",
+        "src",       "src/cli", "src/tree", "src/tree/compiled", "src/tree/test",
+        "zig-out",   "zig-out/bin", ".git", ".zig-cache",
     };
 
     for (project_structure) |path| {
@@ -498,7 +494,7 @@ test "real project structure is handled correctly" {
 
     // Use realistic config (matches our defaults)
     const tree_config = TreeConfig{
-        .ignored_patterns = &[_][]const u8{ ".git", ".zig-cache", "zig-out", "src/hex/shaders/compiled" },
+        .ignored_patterns = &[_][]const u8{ ".git", ".zig-cache", "zig-out", "src/tree/compiled" },
         .hidden_files = &[_][]const u8{},
     };
 
@@ -512,7 +508,7 @@ test "real project structure is handled correctly" {
         test_dir ++ "/.zig-cache",
         test_dir ++ "/zig-out",
         test_dir ++ "/zig-out/bin",
-        test_dir ++ "/src/hex/shaders/compiled",
+        test_dir ++ "/src/tree/compiled",
     };
 
     for (should_be_ignored) |ignored| {
@@ -525,10 +521,8 @@ test "real project structure is handled correctly" {
     const should_be_crawled = [_][]const u8{
         test_dir ++ "/src",
         test_dir ++ "/src/cli",
-        test_dir ++ "/src/hex",
-        test_dir ++ "/src/hex/shaders",
-        test_dir ++ "/src/hex/shaders/source",
         test_dir ++ "/src/tree",
+        test_dir ++ "/src/tree/test",
     };
 
     for (should_be_crawled) |expected| {

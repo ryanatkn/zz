@@ -45,9 +45,8 @@ pub const Config = struct {
     fn getDefaultTreeConfig(allocator: std.mem.Allocator) !TreeConfig {
         // Default patterns - these are allocated and need to be freed by caller
         const ignored = try allocator.dupe([]const u8, &[_][]const u8{
-            ".git",                     ".svn", ".hg", "node_modules", "dist", "build",      "target",
-            "__pycache__",              "venv", "env", "tmp",          "temp", ".zig-cache", "zig-out",
-            "src/hex/shaders/compiled",
+            ".git",        ".svn", ".hg", "node_modules", "dist", "build",      "target",
+            "__pycache__", "venv", "env", "tmp",          "temp", ".zig-cache", "zig-out",
         });
 
         const hidden_files = try allocator.dupe([]const u8, &[_][]const u8{

@@ -42,7 +42,7 @@ A high-performance directory tree visualization tool with configurable filtering
 
 **Configuration System:**
 - `config.zig`: Loads settings from `zz.zon` with graceful fallbacks to defaults
-- Supports both name-based patterns (`node_modules`) and path-based patterns (`src/hex/shaders/compiled`)
+- Supports both name-based patterns (`node_modules`) and path-based patterns (`src/ignored/path`)
 - Single source of truth eliminates duplication between ignored patterns and stop-crawling lists
 
 **Filtering Engine:**
@@ -80,7 +80,7 @@ check_patterns -> skip_or_traverse -> display
 
 **Early Termination:**
 - Dot-prefixed directories (`.git`, `.cache`) auto-ignored
-- Path-based patterns (`src/hex/shaders/compiled`) caught early
+- Path-based patterns caught early
 - Depth limiting prevents infinite recursion
 
 ## Key Features
@@ -118,7 +118,7 @@ try walker.walk(directory_path);
 // zz.zon configuration
 .tree = .{
     .ignored_patterns = .{
-        ".git", "node_modules", "src/hex/shaders/compiled"  
+        ".git", "node_modules", "src/ignored/dir"  
     },
     .hidden_files = .{
         "Thumbs.db", ".DS_Store"

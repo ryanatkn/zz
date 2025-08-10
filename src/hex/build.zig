@@ -29,9 +29,35 @@ pub fn build(b: *std.Build) void {
     // This creates another `std.Build.Step.Compile`, but this one builds an executable
     // rather than a static library.
     const exe = b.addExecutable(.{
-        .name = "zz",
+        .name = "hex",
         .root_module = exe_mod,
     });
+
+    // Add SDL3 dependency for Hex game
+    const sdl_dep = b.dependency("sdl", .{
+        .target = target,
+        .optimize = optimize,
+    });
+    const sdl_lib = sdl_dep.artifact("SDL3");
+    exe.linkLibrary(sdl_lib);
+
+    // TODO are all of these needed?
+    // System libraries (platform-specific)
+    if (target.result.os.tag == .linux) {
+        exe.linkSystemLibrary("GL");
+        exe.linkSystemLibrary("m");
+        exe.linkSystemLibrary("pthread");
+        exe.linkSystemLibrary("dl");
+        exe.linkSystemLibrary("rt");
+        exe.linkSystemLibrary("X11");
+    } else if (target.result.os.tag == .windows) {
+        exe.linkSystemLibrary("opengl32");
+        exe.linkSystemLibrary("gdi32");
+        exe.linkSystemLibrary("user32");
+        exe.linkSystemLibrary("kernel32");
+    }
+    exe.linkLibC();
+
     // This declares intent for the executable to be installed into the
     // standard location when the user invokes the "install" step (the default
     // step when running `zig build`).
@@ -72,3 +98,69 @@ pub fn build(b: *std.Build) void {
     const test_step = b.step("test", "Run unit tests");
     test_step.dependOn(&run_exe_unit_tests.step);
 }
+
+// const std = @import("std");
+
+// pub fn build(b: *std.Build) void {
+//     const target = b.standardTargetOptions(.{});
+//     const optimize = b.standardOptimizeOption(.{});
+
+//     // SDL3 dependency
+//     const sdl = b.dependency("SDL3", .{
+//         .optimize = optimize,
+//         .target = target,
+//     });
+
+//     // Main executable
+//     const exe = b.addExecutable(.{
+//         .name = "hex",
+//         .root_source_file = b.path("main.zig"),
+//         .target = target,
+//         .optimize = optimize,
+//     });
+
+//     // Link SDL3
+//     exe.linkLibrary(sdl.artifact("SDL3"));
+
+//     // Install executable
+//     b.installArtifact(exe);
+
+//     // Run command
+//     const run_cmd = b.addRunArtifact(exe);
+//     run_cmd.step.dependOn(b.getInstallStep());
+
+//     if (b.args) |args| {
+//         run_cmd.addArgs(args);
+//     }
+
+//     const run_step = b.step("run", "Run the game");
+//     run_step.dependOn(&run_cmd.step);
+
+//     // Shader compilation step
+//     const compile_shaders = b.addSystemCommand(&.{
+//         "bash",
+//         "shaders/compile_shaders.sh",
+//     });
+//     compile_shaders.setCwd(b.path("."));
+
+//     const shaders_step = b.step("shaders", "Compile HLSL shaders to SPIRV/DXIL");
+//     shaders_step.dependOn(&compile_shaders.step);
+
+//     // Make run depend on shader compilation
+//     run_cmd.step.dependOn(&compile_shaders.step);
+
+//     // Test step (if we add tests later)
+//     const test_step = b.step("test", "Run unit tests");
+//     _ = test_step; // Currently no tests
+
+//     // Clean step for shaders
+//     const clean_shaders = b.addSystemCommand(&.{
+//         "bash",
+//         "shaders/compile_shaders.sh",
+//         "--clean",
+//     });
+//     clean_shaders.setCwd(b.path("."));
+
+//     const clean_step = b.step("clean-shaders", "Clean and rebuild all shaders");
+//     clean_step.dependOn(&clean_shaders.step);
+// }

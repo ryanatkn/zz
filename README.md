@@ -1,87 +1,58 @@
-# zz - Experimental Software Tools
+# zz - CLI Utilities
 
-A Zig project featuring CLI utilities and games with clean modular architecture.
+Fast command-line utilities written in Zig with zero dependencies.
 
 ## Quick Start
 
 ```bash
-# Install dependencies
+# Check requirements
 zig version  # Requires 0.14.1+
 
 # Build and run
+./zz         # Show current directory tree
 ./zz help    # Show available commands
-./zz tree    # Display directory structure  
-./zz hex     # Play the 2D action RPG
+./zz tree    # Display directory structure
 ```
 
 ## Features
 
 ### Tree Visualization
-- Recursive directory traversal with customizable depth
+- High-performance directory traversal
 - Smart filtering (hides build artifacts, cache directories)
 - Clean tree-style output formatting
-
-### Hex Game
-- **Hex** - GPU-accelerated 2D top-down action RPG built with SDL3 GPU API
-- **Graphics**: Procedural rendering with HLSL shaders, distance field anti-aliasing
-- **Performance**: Vulkan/D3D12 backend with procedural vertex generation
-- **Rendering**: No texture assets - pure algorithmic shape generation
-- **Controls**: Mouse hold-to-move + WASD for direct movement
-- **Architecture**: Complete SDL3 GPU pipeline with uniform buffers
-- **World**: Multiple entity types (enemies, obstacles, portals, lifestones)
-- **Development**: Debug mode for GPU shader testing
+- Configurable depth limits
+- .gitignore-style pattern matching
 
 ## Commands
 
 ```bash
 ./zz tree [directory] [depth]    # Show directory tree
-./zz hex                         # Launch 2D action RPG
 ./zz help                        # Display help
 ```
 
 ## Examples
 
 ```bash
-# Show current directory structure, 2 levels deep
+# Show current directory structure
+./zz tree
+
+# Show current directory, 2 levels deep
 ./zz tree . 2
 
 # Show src directory with default depth  
 ./zz tree src/
-
-# Play the Hex action RPG
-./zz hex
 ```
 
 ## Architecture
 
 - **`src/cli/`** - Command parsing and execution
-- **`src/tree/`** - Directory traversal and visualization  
-- **`src/hex/`** - GPU-accelerated 2D action RPG with HLSL shaders
+- **`src/tree/`** - Directory traversal and visualization
 
 ### Design Principles
-- Single binary with no external runtime dependencies
+- Single binary with no external dependencies
 - Direct function calls (no shell process spawning)
 - Clean separation of concerns across modules
-- Static linking with bundled libraries
-
-## Game Controls
-
-### Movement
-- **Hold Left Mouse**: Move player toward cursor continuously
-- **WASD**: Direct movement controls
-- **ESC**: Quit game
-
-### Game Elements
-- **Blue Circle**: Player character
-- **Red Circles**: Enemy entities
-- **Green Rectangles**: Blocking obstacles
-- **Orange Rectangles**: Deadly hazards
-- **Purple Circles**: Portal locations
-- **Cyan Circles**: Lifestone pickups
-
-### Development
-- Set `DEBUG_MODE = true` in `src/hex/main.zig` for GPU shader testing
-- Debug mode shows animated circle test with orbital motion
+- Pure Zig implementation
 
 ## Development
 
@@ -106,9 +77,7 @@ zig test src/tree/test.zig
 ## Requirements
 
 - Zig 0.14.1+
-- Linux (X11 libraries for graphics)
-- Vulkan or D3D12 support (SDL3 GPU API)
-- SDL_shadercross for HLSL shader compilation
+- Any OS (Linux, macOS, Windows)
 
 ## Technical Documentation
 

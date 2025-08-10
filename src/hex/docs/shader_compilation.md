@@ -84,7 +84,7 @@ We provide a smart build script at `src/hex/shaders/compile_shaders.sh` that han
 
 #### Sample Output:
 ```
-Working in directory: /home/desk/dev/zz/src/hex/shaders
+Working in directory: /home/desk/dev/hex/src/shaders
 🔧 Incremental build (use --clean for full rebuild)
 Compiling circle...
   ⏭️  Skipping circle (up to date)

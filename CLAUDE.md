@@ -1,6 +1,6 @@
-# zz - Experimental Software Tools
+# zz - CLI Utilities
 
-CLI utilities and games in Zig. Filesystem tree visualization + Hex 2D action RPG with modern GPU rendering.
+Fast command-line utilities written in Zig. Currently features high-performance filesystem tree visualization.
 
 Performance is a top priority, and we dont care about backwards compat -
 always try to get to the final best code. 
@@ -12,7 +12,7 @@ $ zig version
 0.14.1
 ```
 
-Dependencies: SDL3 (auto-fetched), SDL_shadercross (HLSL→SPIRV/DXIL compilation)
+No external dependencies - pure Zig implementation.
 
 ## Project Structure
 
@@ -27,17 +27,6 @@ Dependencies: SDL3 (auto-fetched), SDL_shadercross (HLSL→SPIRV/DXIL compilatio
     │   │   ├── help.zig               # Usage documentation and help text
     │   │   ├── main.zig               # CLI entry point and argument processing
     │   │   └── runner.zig             # Command dispatch and orchestration
-    │   ├── hex                        # Hex game module (GPU-accelerated 2D action RPG)
-    │   │   ├── shaders                # HLSL shader pipeline (procedural rendering)
-    │   │   │   ├── compiled [...]     # SPIRV/DXIL binaries (auto-generated, filtered)
-    │   │   │   ├── source             # HLSL source shaders
-    │   │   │   └── compile_shaders.sh # Automated shader compilation pipeline
-    │   │   ├── CLAUDE.md              # Detailed hex module documentation
-    │   │   ├── game_data.zon          # Data-driven game configuration
-    │   │   ├── main.zig               # Complete GPU game with debug modes
-    │   │   ├── simple_gpu_renderer.zig # Clean GPU rendering backend
-    │   │   ├── types.zig              # Shared data structures (GPU-compatible)
-    │   │   └── [other game files]     # Legacy and specialized game logic
     │   ├── tree                       # Tree visualization module (high-performance directory traversal)
     │   │   ├── config.zig             # Configuration loading and management
     │   │   ├── entry.zig              # File/directory data structures
@@ -54,7 +43,7 @@ Dependencies: SDL3 (auto-fetched), SDL_shadercross (HLSL→SPIRV/DXIL compilatio
     ├── CLAUDE.md                      # AI assistant development documentation
     ├── README.md                      # User-facing documentation and usage guide
     ├── build.zig                      # Zig build system configuration
-    ├── build.zig.zon                  # Package manifest and dependencies
+    ├── build.zig.zon                  # Package manifest
     ├── zz                             # Build wrapper script (auto-builds and runs)
     └── zz.zon                         # CLI configuration (tree filtering patterns)
 ```
@@ -62,17 +51,13 @@ Dependencies: SDL3 (auto-fetched), SDL_shadercross (HLSL→SPIRV/DXIL compilatio
 ## Commands
 
 ```bash
-$ ./zz tree [dir] [depth]    # Directory tree
-$ ./zz hex                   # 2D action RPG
-$ ./zz help                  # Command list
+$ ./zz tree [dir] [depth]    # Directory tree visualization
+$ ./zz help                  # Show available commands
 
 # Development workflow - use ./zz instead of zig build for auto-rebuild
-$ ./zz                       # Auto-builds and runs with default args
-$ ./zz hex                   # Auto-compiles shaders + builds + runs hex game
+$ ./zz                       # Auto-builds and runs with default args (tree .)
+$ ./zz tree src/             # Show source directory tree
 $ zig build                  # Manual build only (outputs to zig-out/bin/zz)
-
-# Manual shader compilation (./zz hex does this automatically)
-$ ./src/hex/shaders/compile_shaders.sh    # Recompile shaders to SPIRV/DXIL
 ```
 
 ## Testing
@@ -83,60 +68,14 @@ $ zig test src/tree/test.zig # Run tree module tests
 
 Comprehensive test suite covers configuration parsing, directory filtering, performance optimization, edge cases, and security patterns.
 
-## Hex Game - Modern GPU-Accelerated 2D RPG
-
-**Current Status:** ✅ Complete GPU-accelerated game with zone-based world
-
-**Architecture:** SDL3 GPU API with Vulkan/D3D12 backends, HLSL shaders compiled to SPIRV/DXIL
-
-**Design Philosophy:**
-- **Procedural-first:** All visuals generated algorithmically, no texture assets
-- **Performance-focused:** GPU instancing, batching, minimal state changes
-- **Code-driven:** Shapes, colors, effects defined in shaders and algorithms
-
-**Controls:** Mouse/WASD movement, right-click fire, Space pause, R respawn, ESC quit
-
-**Features:**
-- Procedural distance-field rendering for all shapes
-- GPU-accelerated visual effects system
-- Zone-based world with portal travel between areas
-- Data-driven configuration via ZON files
-- Complete gameplay: combat, lifestones, unit AI
-
-## GPU Performance Strategy
-
-**Rendering Pipeline:**
-- **Minimize draw calls:** Batch similar primitives using instanced rendering
-- **Reduce state changes:** Group by pipeline, then by uniform data, then by vertex data
-- **Procedural generation:** Generate geometry in vertex shaders to reduce bandwidth
-- **Distance field rendering:** High-quality circles/shapes without textures
-
-**Memory & Bandwidth:**
-- **Triple buffering:** Cycle GPU buffers to avoid CPU/GPU synchronization stalls
-- **Uniform buffers:** Small frame-constant data (camera, time, screen size)
-- **Instance buffers:** Large per-object data (positions, colors, radii)
-- **Align data structures:** Use `extern struct` for GPU compatibility
-
-**Shader Optimization:**
-- **Minimize branching:** Use `step()`, `mix()`, `smoothstep()` instead of if/else
-- **Precompute in CPU:** Pass complex calculations as uniforms, not recalculate per-pixel
-- **Pack data efficiently:** RGBA colors as float4, positions as Vec2, etc.
-
-**Algorithm Focus:**
-- Replace CPU collision detection with GPU parallel approaches where beneficial
-- Use squared distances to avoid expensive sqrt operations
-- Batch entities by type/behavior for SIMD-friendly processing
-
 ## Module Structure
 
 **Core Architecture:**
 - **CLI Module:** `src/cli/` - Command parsing, validation, and dispatch system
 - **Tree Module:** `src/tree/` - High-performance directory traversal with configurable filtering
-- **Hex Module:** `src/hex/` - GPU-accelerated 2D action RPG with zone-based world and procedural rendering
 
 **Key Components:**
 - **Configuration System:** `zz.zon` + fallback defaults for CLI behavior
-- **GPU Rendering Pipeline:** SDL3 GPU API + HLSL shaders → SPIRV/DXIL compilation
 - **Performance Optimizations:** Early directory skip, memory management, efficient traversal
 - **Modular Design:** Each module is self-contained with clean interfaces
 
@@ -146,30 +85,24 @@ Comprehensive test suite covers configuration parsing, directory filtering, perf
 3. Add handler in `src/cli/runner.zig`  
 4. Complex features get dedicated module with `run(allocator, args)` interface
 
-## GPU Development Notes
+## Tree Module Features
 
-**Working Features:**
-- ✅ Complete GPU rendering pipeline with camera system
-- ✅ HLSL shaders for procedural shapes and effects
-- ✅ Zone-based world with portal travel system
-- ✅ Full gameplay loop with combat and respawn mechanics
-- ✅ Data-driven zone configuration via ZON files
+**Performance Optimizations:**
+- Early directory skip for ignored paths
+- Efficient memory management with arena allocators
+- Parallel directory traversal capability
+- Smart filtering with .gitignore-style patterns
 
-**Key Success Factors:**
-- **Procedural vertex generation:** Use `SV_VertexID` instead of vertex buffers for basic shapes
-- **Minimal state:** Start with no uniforms, no vertex input, hardcoded data in shaders
-- **Follow SDL3 BasicTriangle pattern:** Proven working approach for pipeline creation
-
-**Architecture Highlights:**
-- Zone system: Merged environmental properties with entity storage
-- Travel metaphor: Players travel between zones via portals
-- Camera modes: Fixed (overworld) vs follow (dungeons)
-- Procedural rendering: All visuals generated algorithmically
+**Configuration:**
+- Load from `zz.zon` for persistent settings
+- Command-line arguments override config
+- Sensible defaults for common use cases
 
 ## Notes to LLMs
 
-- Game is fully functional - focus on performance and gameplay improvements
-- Prioritize procedural generation and performance over asset-based approaches
-- Focus on code-driven visuals and algorithmic generation
-- Test frequently with `./zz hex` to ensure each step works (user will run this, do not offer, instead just end your turn with instructions to do this)
-- Less is more
+- Focus on performance and clean code architecture
+- This is a CLI utilities project - no graphics or game functionality
+- Test frequently with `./zz` to ensure each step works
+- Less is more - avoid over-engineering
+- Performance is top priority - optimize for speed
+- Keep modules self-contained and focused on their specific purpose

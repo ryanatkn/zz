@@ -8,4 +8,5 @@ test {
     std.testing.refAllDeclsRecursive(@import("main.zig"));
     std.testing.refAllDeclsRecursive(@import("cli/args.zig"));
     std.testing.refAllDeclsRecursive(@import("tree/test.zig"));
+    std.testing.refAllDeclsRecursive(@import("prompt/test.zig"));
 }

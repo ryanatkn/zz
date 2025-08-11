@@ -178,6 +178,28 @@ test "complex glob patterns" {
     try std.testing.expect(!expander.matchPattern("test_other.zig", "*_{file,data}.{zig,txt}"));
 }
 
+test "nested brace patterns" {
+    var expander = GlobExpander.init(std.testing.allocator);
+    
+    // Test nested braces - simple case
+    try std.testing.expect(expander.matchPattern("test.zig", "*.{zig,{md,txt}}"));
+    try std.testing.expect(expander.matchPattern("test.md", "*.{zig,{md,txt}}"));
+    try std.testing.expect(expander.matchPattern("test.txt", "*.{zig,{md,txt}}"));
+    try std.testing.expect(!expander.matchPattern("test.rs", "*.{zig,{md,txt}}"));
+    
+    // More complex nested braces
+    try std.testing.expect(expander.matchPattern("a.zig", "*.{a,{b,{c,zig}}}"));
+    try std.testing.expect(expander.matchPattern("test.a", "*.{a,{b,{c,zig}}}"));
+    try std.testing.expect(expander.matchPattern("file.b", "*.{a,{b,{c,zig}}}"));
+    try std.testing.expect(expander.matchPattern("code.c", "*.{a,{b,{c,zig}}}"));
+    
+    // Triple nested
+    try std.testing.expect(expander.matchPattern("file.md", "{test,file}.{zig,{md,{txt,log}}}"));
+    try std.testing.expect(expander.matchPattern("test.txt", "{test,file}.{zig,{md,{txt,log}}}"));
+    try std.testing.expect(expander.matchPattern("file.log", "{test,file}.{zig,{md,{txt,log}}}"));
+    try std.testing.expect(!expander.matchPattern("other.md", "{test,file}.{zig,{md,{txt,log}}}"));
+}
+
 test "glob with dots" {
     // Dots in patterns
     try std.testing.expect(matchSimplePattern("..test", "..test"));

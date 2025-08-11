@@ -14,4 +14,10 @@ pub fn show(program_name: []const u8) void {
     std.debug.print("                                  --allow-empty-glob   Warn instead of error for empty globs\n", .{});
     std.debug.print("                                  --allow-missing      Warn instead of error for all missing\n", .{});
     std.debug.print("  help                          Show this help\n", .{});
+    std.debug.print("\nGlob Patterns:\n", .{});
+    std.debug.print("  *.zig                         Match all .zig files\n", .{});
+    std.debug.print("  src/**/*.zig                  Recursive match\n", .{});
+    std.debug.print("  *.{{zig,md}}                    Match multiple extensions\n", .{});
+    std.debug.print("  log[0-9].txt                  Character classes\n", .{});
+    std.debug.print("  file\\*.txt                    Escape special chars\n", .{});
 }

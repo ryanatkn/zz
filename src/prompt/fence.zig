@@ -40,3 +40,34 @@ test "detectFence basic" {
     defer allocator.free(fence3);
     try std.testing.expectEqualStrings("``````", fence3);
 }
+
+test "fence detection with various content" {
+    const allocator = std.testing.allocator;
+    
+    // Test empty content
+    const fence1 = try detectFence("", allocator);
+    defer allocator.free(fence1);
+    try std.testing.expectEqualStrings("```", fence1);
+    
+    // Test content with nested fences
+    const content2 = 
+        \\```zig
+        \\const a = 1;
+        \\```
+    ;
+    const fence2 = try detectFence(content2, allocator);
+    defer allocator.free(fence2);
+    try std.testing.expectEqualStrings("````", fence2);
+    
+    // Test content with multiple fence levels
+    const content3 = 
+        \\````markdown
+        \\```zig
+        \\const a = 1;
+        \\```
+        \\````
+    ;
+    const fence3 = try detectFence(content3, allocator);
+    defer allocator.free(fence3);
+    try std.testing.expectEqualStrings("`````", fence3);
+}

@@ -10,11 +10,20 @@ Fast command-line utilities written in Zig with zero dependencies for POSIX syst
 # Check requirements
 zig version  # Requires 0.14.1+
 
-# Build and run
-./zz         # Show current directory tree
-./zz help    # Show available commands
-./zz tree    # Display directory structure
-./zz prompt  # Generate LLM prompts from files
+# Build (defaults to Debug mode)
+zig build                      # Debug build (default)
+zig build -Doptimize=ReleaseFast  # Fast release build
+zig build -Doptimize=ReleaseSmall # Small binary size
+zig build --use-llvm           # Use LLVM backend
+
+# Run
+zig build run                  # Show help
+zig build run -- tree          # Show current directory tree
+zig build run -- help          # Show available commands
+zig build run -- prompt        # Generate LLM prompts
+
+# Or build and run directly
+zig build && ./zig-out/bin/zz tree
 ```
 
 ## Features
@@ -29,8 +38,13 @@ zig version  # Requires 0.14.1+
 
 ### Prompt Generation
 - Build LLM-optimized prompts from multiple files
-- Glob pattern support (`*.zig`, `**/*.zig`, `*.{zig,md}`)
-  - Note: Nested braces like `*.{zig,{md,txt}}` are not supported yet
+- Advanced glob pattern support:
+  - Basic wildcards: `*.zig`, `test?.zig`
+  - Recursive: `**/*.zig`
+  - Alternatives: `*.{zig,md}`
+  - Nested braces: `*.{zig,{md,txt}}` 
+  - Character classes: `log[0-9].txt`, `file[a-z].txt`, `test[!0-9].txt`
+  - Escape sequences: `file\*.txt` matches literal `file*.txt`
 - Smart code fence detection (handles nested backticks)
 - Automatic file deduplication
 - Markdown output with semantic XML tags
@@ -40,9 +54,9 @@ zig version  # Requires 0.14.1+
 ## Commands
 
 ```bash
-./zz tree [directory] [depth] [--format=FORMAT]  # Show directory tree
-./zz prompt [files...] [options]                # Generate LLM prompt
-./zz help                                        # Display help
+zz tree [directory] [depth] [--format=FORMAT]  # Show directory tree
+zz prompt [files...] [options]                 # Generate LLM prompt
+zz help                                         # Display help
 
 # Tree format options:
 #   --format=tree  (default) - Tree with box characters
@@ -59,29 +73,34 @@ zig version  # Requires 0.14.1+
 ## Examples
 
 ```bash
+# Build and install
+zig build
+
 # Show current directory structure (tree format)
-./zz tree
+zig build run -- tree
+# Or after building:
+./zig-out/bin/zz tree
 
 # Show as flat list instead of tree
-./zz tree --format=list
+zig build run -- tree --format=list
 
 # Show current directory, 2 levels deep
-./zz tree . 2
+zig build run -- tree . 2
 
 # Show src directory with default depth  
-./zz tree src/
+zig build run -- tree src/
 
 # Generate prompt from all Zig files
-./zz prompt "src/**/*.zig" > prompt.md
+zig build run -- prompt "src/**/*.zig" > prompt.md
 
 # Add text before/after files
-./zz prompt --prepend="Context:" --append="Question?" src/*.zig
+zig build run -- prompt --prepend="Context:" --append="Question?" src/*.zig
 
 # Multiple file types
-./zz prompt "*.{zig,md,txt}"
+zig build run -- prompt "*.{zig,md,txt}"
 
 # Error if no files provided (won't default to *.zig)
-./zz prompt  # Error: No input files specified
+zig build run -- prompt  # Error: No input files specified
 ```
 
 ## Architecture
@@ -99,27 +118,38 @@ zig version  # Requires 0.14.1+
 ## Development
 
 ```bash
-# Build only
-zig build
+# Build commands (default is Debug mode)
+zig build                       # Debug build (default)
+zig build -Doptimize=ReleaseFast # Fast release build  
+zig build -Doptimize=ReleaseSafe # Safe release (with runtime checks)
+zig build -Doptimize=ReleaseSmall # Smallest binary size
+zig build --use-llvm            # Use LLVM backend
 
-# Run directly  
+# Run directly after building
 ./zig-out/bin/zz [command]
 
-# Development build with debug info
-zig build -Doptimize=Debug
+# Run via build system
+zig build run                   # Show help
+zig build run -- tree           # Run tree command
+zig build run -- prompt "*.zig" # Run prompt command
 ```
 
 ### Testing
 
 ```bash
 # Run all tests
-zig test src/test.zig
+zig build test
 
 # Run tree module tests only
-zig test src/tree/test.zig
+zig build test-tree
 
 # Run prompt module tests only
-zig test src/prompt/test.zig
+zig build test-prompt
+
+# Alternative: run tests directly
+zig test src/test.zig           # All tests
+zig test src/tree/test.zig      # Tree module only
+zig test src/prompt/test.zig    # Prompt module only
 ```
 
 ## Requirements

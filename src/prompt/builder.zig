@@ -46,7 +46,8 @@ pub const PromptBuilder = struct {
         const stat = try file.stat();
         if (stat.size > max_file_size) {
             if (!self.quiet) {
-                std.debug.print("Warning: Skipping large file (>{d}MB): {s}\n", .{ max_file_size / (1024 * 1024), file_path });
+                const stderr = std.io.getStdErr().writer();
+                try stderr.print("Warning: Skipping large file (>{d}MB): {s}\n", .{ max_file_size / (1024 * 1024), file_path });
             }
             return;
         }
@@ -101,4 +102,78 @@ test "PromptBuilder basic" {
     
     try builder.addText("Test instructions");
     try std.testing.expect(builder.lines.items.len > 0);
+}
+
+test "prompt builder output format" {
+    const allocator = std.testing.allocator;
+    
+    var builder = PromptBuilder.init(allocator);
+    defer builder.deinit();
+    
+    // Add text
+    try builder.addText("Test instructions");
+    
+    // Write to buffer
+    var buf = std.ArrayList(u8).init(allocator);
+    defer buf.deinit();
+    
+    try builder.write(buf.writer());
+    
+    const output = buf.items;
+    try std.testing.expect(std.mem.indexOf(u8, output, "Test instructions") != null);
+}
+
+test "deduplication of file paths" {
+    const allocator = std.testing.allocator;
+    const GlobExpander = @import("glob.zig").GlobExpander;
+    
+    // Create temp directory structure for testing
+    var tmp_dir = std.testing.tmpDir(.{});
+    defer tmp_dir.cleanup();
+    
+    // Create test files
+    try tmp_dir.dir.writeFile(.{ .sub_path = "test1.zig", .data = "const a = 1;" });
+    try tmp_dir.dir.writeFile(.{ .sub_path = "test2.zig", .data = "const b = 2;" });
+    try tmp_dir.dir.makeDir("sub");
+    try tmp_dir.dir.writeFile(.{ .sub_path = "sub/test3.zig", .data = "const c = 3;" });
+    
+    // Get temp path
+    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
+    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
+    
+    // Test deduplication with multiple patterns that match same files
+    var expander = GlobExpander.init(allocator);
+    
+    // Create patterns that will match some of the same files
+    var patterns = [_][]const u8{
+        try std.fmt.allocPrint(allocator, "{s}/test1.zig", .{tmp_path}),
+        try std.fmt.allocPrint(allocator, "{s}/*.zig", .{tmp_path}),
+        try std.fmt.allocPrint(allocator, "{s}/test1.zig", .{tmp_path}), // Duplicate
+    };
+    defer for (patterns) |pattern| allocator.free(pattern);
+    
+    var file_paths = try expander.expandGlobs(&patterns);
+    defer {
+        for (file_paths.items) |path| {
+            allocator.free(path);
+        }
+        file_paths.deinit();
+    }
+    
+    // Deduplicate
+    var seen = std.StringHashMap(void).init(allocator);
+    defer seen.deinit();
+    
+    var unique_paths = std.ArrayList([]u8).init(allocator);
+    defer unique_paths.deinit();
+    
+    for (file_paths.items) |path| {
+        if (!seen.contains(path)) {
+            try seen.put(path, {});
+            try unique_paths.append(path);
+        }
+    }
+    
+    // Should have only 2 unique files (test1.zig and test2.zig)
+    try std.testing.expect(unique_paths.items.len == 2);
 }

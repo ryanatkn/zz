@@ -161,20 +161,21 @@ test "basic ignored directories are not crawled" {
         "/src/tree/compiled",
     };
 
-    std.debug.print("\nAccessed directories:\n", .{});
-    for (accessed_directories.items) |accessed_path| {
-        std.debug.print("  {s}\n", .{accessed_path});
-    }
+    // Debug output removed - uncomment for troubleshooting
+    // std.debug.print("\nAccessed directories:\n", .{});
+    // for (accessed_directories.items) |accessed_path| {
+    //     std.debug.print("  {s}\n", .{accessed_path});
+    // }
 
     // Check that forbidden directories were never accessed
     for (forbidden_suffixes) |suffix| {
         for (accessed_directories.items) |accessed| {
             if (std.mem.endsWith(u8, accessed, suffix)) {
-                std.debug.print("ERROR: Crawled into ignored directory: {s}\n", .{accessed});
+                // Found an ignored directory that was crawled
                 try testing.expect(false); // Fail the test
             }
         }
-        std.debug.print("✓ Correctly avoided paths ending with: {s}\n", .{suffix});
+        // Correctly avoided this suffix
     }
 
     // Verify that normal directories WERE accessed
@@ -199,10 +200,10 @@ test "basic ignored directories are not crawled" {
             }
         }
         if (!found) {
-            std.debug.print("ERROR: Expected to access path ending with: {s}\n", .{suffix});
+            // Expected to access this path but didn't
             try testing.expect(false);
         }
-        std.debug.print("✓ Correctly accessed path ending with: {s}\n", .{suffix});
+        // Correctly accessed this suffix
     }
 
     // Cleanup allocated paths
@@ -210,7 +211,7 @@ test "basic ignored directories are not crawled" {
         testing.allocator.free(path);
     }
 
-    std.debug.print("✅ Basic crawl behavior test passed!\n", .{});
+    // Test passed
 }
 
 // Test nested ignored patterns
@@ -289,7 +290,7 @@ test "nested path patterns are not crawled" {
         testing.allocator.free(path);
     }
 
-    std.debug.print("✅ Nested patterns test passed!\n", .{});
+    // Test passed
 }
 
 // Test dot-prefixed directories
@@ -336,7 +337,7 @@ test "dot-prefixed directories are not crawled" {
     for (accessed_directories.items) |accessed| {
         const basename = std.fs.path.basename(accessed);
         if (basename.len > 0 and basename[0] == '.') {
-            std.debug.print("ERROR: Crawled dot directory: {s}\n", .{accessed});
+            // Found a dot directory that was crawled
             try testing.expect(false);
         }
     }
@@ -356,7 +357,7 @@ test "dot-prefixed directories are not crawled" {
         testing.allocator.free(path);
     }
 
-    std.debug.print("✅ Dot-prefixed directories test passed!\n", .{});
+    // Test passed
 }
 
 // Test empty vs populated directories
@@ -415,7 +416,7 @@ test "empty and populated ignored directories are not crawled" {
         testing.allocator.free(path);
     }
 
-    std.debug.print("✅ Empty vs populated directories test passed!\n", .{});
+    // Test passed
 }
 
 // Test configuration edge cases
@@ -458,7 +459,7 @@ test "configuration fallbacks and edge cases" {
         testing.allocator.free(path);
     }
 
-    std.debug.print("✅ Configuration edge cases test passed!\n", .{});
+    // Test passed
 }
 
 // Test real project structure patterns
@@ -533,7 +534,7 @@ test "real project structure is handled correctly" {
             }
         }
         if (!found) {
-            std.debug.print("ERROR: Expected to find path ending with: {s}\n", .{suffix});
+            // Expected to find this path but didn't
             try testing.expect(false);
         }
     }
@@ -543,7 +544,7 @@ test "real project structure is handled correctly" {
         testing.allocator.free(path);
     }
 
-    std.debug.print("✅ Real project structure test passed!\n", .{});
+    // Test passed
 }
 
 // Helper function to create test walker (reduces code duplication)

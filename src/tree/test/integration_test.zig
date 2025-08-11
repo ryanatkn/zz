@@ -414,10 +414,13 @@ test "format error handling integration" {
     const result2 = Config.fromArgsQuiet(testing.allocator, @constCast(args_bad_flag[0..]));
     try testing.expectError(error.InvalidFlag, result2);
 
-    std.debug.print("✅ Format error handling integration test passed!\n", .{});
+    // Test passed
 }
 
-// Verify no test artifacts remain in working directory
+// Safety check: Verify no test artifacts leak into the actual working directory
+// This test intentionally uses std.fs.cwd() to check the real project directory,
+// not a temp directory. It ensures that all other tests properly use tmpDir()
+// and don't accidentally create files in the project root.
 test "no test artifacts in working directory" {
     // Check that no test directories are left in the current working directory
     var cwd = try std.fs.cwd().openDir(".", .{ .iterate = true });
@@ -441,7 +444,7 @@ test "no test artifacts in working directory" {
     while (try it.next()) |entry| {
         for (test_prefixes) |prefix| {
             if (std.mem.eql(u8, entry.name, prefix)) {
-                std.debug.print("ERROR: Found test artifact in working directory: {s}\n", .{entry.name});
+                // Test artifact found in working directory - tests are leaking!
                 return error.TestArtifactInWorkingDirectory;
             }
         }

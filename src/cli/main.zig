@@ -10,7 +10,7 @@ pub fn run(allocator: std.mem.Allocator) !void {
 
     if (args.len < 2) {
         Help.show(args[0]);
-        std.process.exit(1);
+        return; // Exit normally when showing help
     }
 
     const command = Command.fromString(args[1]) orelse {

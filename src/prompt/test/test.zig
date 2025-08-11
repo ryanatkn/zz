@@ -9,9 +9,9 @@ pub const flag_combinations = @import("flag_combinations_test.zig");
 pub const file_content = @import("file_content_test.zig");
 pub const security = @import("security_test.zig");
 pub const glob_edge = @import("glob_edge_test.zig");
+pub const nested_braces_integration = @import("nested_braces_integration_test.zig");
 
-// Also include the original tests
-pub const prompt_test = @import("../prompt_test.zig");
+// Also include the error tests
 pub const error_test = @import("../error_test.zig");
 
 test {
@@ -24,6 +24,6 @@ test {
     _ = file_content;
     _ = security;
     _ = glob_edge;
-    _ = prompt_test;
+    _ = nested_braces_integration;
     _ = error_test;
 }

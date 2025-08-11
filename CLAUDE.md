@@ -82,39 +82,51 @@ No external dependencies - pure Zig implementation.
     ├── README.md                      # User-facing documentation and usage guide
     ├── build.zig                      # Zig build system configuration
     ├── build.zig.zon                  # Package manifest
-    ├── zz                             # Build wrapper script (auto-builds and runs)
     └── zz.zon                         # CLI configuration (tree filtering patterns)
 ```
 
 ## Commands
 
 ```bash
-$ ./zz tree [dir] [depth] [--format=FORMAT]  # Directory tree visualization
-$ ./zz prompt [files...] [options]           # Build LLM prompts from files
-$ ./zz help                                  # Show available commands
+# Build commands (default is Debug mode)
+$ zig build                      # Debug build (default)
+$ zig build -Doptimize=ReleaseFast  # Fast release build
+$ zig build -Doptimize=ReleaseSafe  # Safe release (with runtime checks)
+$ zig build -Doptimize=ReleaseSmall # Smallest binary size
+$ zig build --use-llvm           # Use LLVM backend
+
+# Run commands
+$ zig build run -- tree [dir] [depth] [--format=FORMAT]  # Directory tree
+$ zig build run -- prompt [files...] [options]           # Build LLM prompts
+$ zig build run -- help                                  # Show available commands
+
+# Or after building:
+$ ./zig-out/bin/zz tree [dir] [depth] [--format=FORMAT]
+$ ./zig-out/bin/zz prompt [files...] [options]
+$ ./zig-out/bin/zz help
 
 # Tree format options
-$ ./zz tree --format=tree    # Tree format with box characters (default)
-$ ./zz tree --format=list    # List format with ./path prefixes
+$ zig build run -- tree --format=tree    # Tree format with box characters (default)
+$ zig build run -- tree --format=list    # List format with ./path prefixes
 
 # Prompt examples
-$ ./zz prompt src/*.zig                           # Add all .zig files in src/
-$ ./zz prompt "src/**/*.zig"                      # Recursive glob (quotes needed)
-$ ./zz prompt --prepend="Context:" --append="Request:" src/*.zig # Add text before/after
-$ ./zz prompt "*.{zig,md}" > prompt.md            # Multiple extensions, output to file
-$ ./zz prompt --allow-empty-glob "*.rs" "*.zig"  # Warn if *.rs matches nothing
-$ ./zz prompt --allow-missing file1.zig file2.zig # Warn if files don't exist
-
-# Development workflow - use ./zz instead of zig build for auto-rebuild
-$ ./zz                       # Auto-builds and runs with default args (tree .)
-$ ./zz tree src/             # Show source directory tree
-$ zig build                  # Manual build only (outputs to zig-out/bin/zz)
+$ zig build run -- prompt src/*.zig                           # Add all .zig files in src/
+$ zig build run -- prompt "src/**/*.zig"                      # Recursive glob (quotes needed)
+$ zig build run -- prompt --prepend="Context:" --append="Request:" src/*.zig # Add text before/after
+$ zig build run -- prompt "*.{zig,md}" > prompt.md            # Multiple extensions, output to file
+$ zig build run -- prompt --allow-empty-glob "*.rs" "*.zig"  # Warn if *.rs matches nothing
+$ zig build run -- prompt --allow-missing file1.zig file2.zig # Warn if files don't exist
 ```
 
 ## Testing
 
 ```bash
-$ zig test src/test.zig        # Run all tests (recommended)
+$ zig build test              # Run all tests (recommended)
+$ zig build test-tree         # Run tree module tests only
+$ zig build test-prompt       # Run prompt module tests only
+
+# Alternative: run tests directly
+$ zig test src/test.zig        # Run all tests
 $ zig test src/tree/test.zig   # Run tree module tests only
 $ zig test src/prompt/test.zig # Run prompt module tests only
 ```
@@ -145,10 +157,12 @@ Comprehensive test suite covers configuration parsing, directory filtering, perf
 - Basic wildcards: `*.zig`, `test?.zig`
 - Recursive patterns: `src/**/*.zig`
 - Alternatives: `*.{zig,md,txt}`
+- Nested braces: `*.{zig,{md,txt}}` expands to `*.zig`, `*.md`, `*.txt`
+- Character classes: `log[0-9].txt`, `file[a-zA-Z].txt`, `test[!0-9].txt`
+- Escape sequences: `file\*.txt` matches literal `file*.txt`
 - Hidden files: `.*` explicitly matches hidden files (`*` does not)
 - Symlinks: Symlinks to files are followed
 - Automatic deduplication of matched files
-- Note: Nested braces like `*.{zig,{md,txt}}` are not supported
 
 **Smart Code Fencing:**
 - Automatically detects appropriate fence length
@@ -194,7 +208,7 @@ Comprehensive test suite covers configuration parsing, directory filtering, perf
 
 - Focus on performance and clean architecture
 - This is a CLI utilities project - no graphics or game functionality
-- Test frequently with `./zz` to ensure each step works
+- Test frequently with `zig build run` to ensure each step works
 - Less is more - avoid over-engineering
 - Performance is top priority - optimize for speed
 - Keep modules self-contained and focused on their specific purpose

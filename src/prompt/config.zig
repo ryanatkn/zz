@@ -10,6 +10,10 @@ pub const Config = struct {
     
     const Self = @This();
     
+    const PREPEND_PREFIX = "--prepend=";
+    const APPEND_PREFIX = "--append=";
+    const SKIP_ARGS = 2; // Skip "zz prompt"
+    
     // Default patterns to ignore
     const default_ignored = [_][]const u8{
         ".git",
@@ -17,6 +21,27 @@ pub const Config = struct {
         "zig-out",
         "node_modules",
     };
+    
+    fn setTextOption(allocator: std.mem.Allocator, current_value: ?[]const u8, new_text: []const u8) !?[]const u8 {
+        if (current_value) |old| {
+            allocator.free(old);
+        }
+        return try allocator.dupe(u8, new_text);
+    }
+    
+    fn parseFlag(config: *Self, allocator: std.mem.Allocator, arg: []const u8) !void {
+        if (std.mem.startsWith(u8, arg, PREPEND_PREFIX)) {
+            const text = arg[PREPEND_PREFIX.len..];
+            config.prepend_text = try setTextOption(allocator, config.prepend_text, text);
+        } else if (std.mem.startsWith(u8, arg, APPEND_PREFIX)) {
+            const text = arg[APPEND_PREFIX.len..];
+            config.append_text = try setTextOption(allocator, config.append_text, text);
+        } else if (std.mem.eql(u8, arg, "--allow-empty-glob")) {
+            config.allow_empty_glob = true;
+        } else if (std.mem.eql(u8, arg, "--allow-missing")) {
+            config.allow_missing = true;
+        }
+    }
     
     pub fn fromArgs(allocator: std.mem.Allocator, args: [][:0]const u8) !Self {
         var config = Self{
@@ -30,25 +55,7 @@ pub const Config = struct {
         
         // Parse flags
         for (args) |arg| {
-            if (std.mem.startsWith(u8, arg, "--prepend=")) {
-                const text = arg[10..];
-                // Free old value if present
-                if (config.prepend_text) |old| {
-                    allocator.free(old);
-                }
-                config.prepend_text = try allocator.dupe(u8, text);
-            } else if (std.mem.startsWith(u8, arg, "--append=")) {
-                const text = arg[9..];
-                // Free old value if present
-                if (config.append_text) |old| {
-                    allocator.free(old);
-                }
-                config.append_text = try allocator.dupe(u8, text);
-            } else if (std.mem.eql(u8, arg, "--allow-empty-glob")) {
-                config.allow_empty_glob = true;
-            } else if (std.mem.eql(u8, arg, "--allow-missing")) {
-                config.allow_missing = true;
-            }
+            try parseFlag(&config, allocator, arg);
         }
         
         // TODO: Load from zz.zon if present
@@ -66,13 +73,16 @@ pub const Config = struct {
         }
     }
     
+    fn hasGlobChars(pattern: []const u8) bool {
+        return std.mem.indexOf(u8, pattern, "*") != null or 
+               std.mem.indexOf(u8, pattern, "?") != null;
+    }
+    
     pub fn shouldIgnore(self: Self, path: []const u8) bool {
         const glob = @import("glob.zig");
         
         for (self.ignored_patterns) |pattern| {
-            // Check if pattern contains glob characters
-            if (std.mem.indexOf(u8, pattern, "*") != null or 
-                std.mem.indexOf(u8, pattern, "?") != null) {
+            if (hasGlobChars(pattern)) {
                 // Extract filename for pattern matching
                 const filename = std.fs.path.basename(path);
                 if (glob.matchSimplePattern(filename, pattern)) {
@@ -92,7 +102,7 @@ pub const Config = struct {
         var patterns = std.ArrayList([]const u8).init(self.allocator);
         
         // Skip program name, command name, and flag args
-        var i: usize = 2; // Start after "zz prompt"
+        var i: usize = SKIP_ARGS;
         while (i < args.len) : (i += 1) {
             const arg = args[i];
             

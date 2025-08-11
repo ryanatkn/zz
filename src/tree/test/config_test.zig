@@ -104,7 +104,7 @@ test "configuration memory management" {
 // Test ZON file custom patterns loading (currently failing - this captures the bug)
 test "ZON file custom patterns are loaded correctly" {
     // Create a temporary ZON file with custom patterns
-    const test_zon_content = 
+    const test_zon_content =
         \\.{
         \\    .base_patterns = "extend",
         \\    .ignored_patterns = .{
@@ -113,30 +113,30 @@ test "ZON file custom patterns are loaded correctly" {
         \\    },
         \\}
     ;
-    
+
     // Write to temporary file
     try std.fs.cwd().writeFile(.{ .sub_path = "test_custom.zon", .data = test_zon_content });
     defer std.fs.cwd().deleteFile("test_custom.zon") catch {};
-    
+
     // Import ZonLoader
     const ZonLoader = @import("../../config.zig").ZonLoader;
     var zon_loader = ZonLoader.init(std.testing.allocator);
     var shared_config = try zon_loader.getSharedConfig();
     defer shared_config.deinit(std.testing.allocator);
-    
+
     // This test verifies that ZON parsing works correctly
     // It tests the actual zz.zon in the current directory which has no custom patterns
     var found_git = false;
     var found_custom_dir = false;
-    
+
     for (shared_config.ignored_patterns) |pattern| {
         if (std.mem.eql(u8, pattern, ".git")) found_git = true;
         if (std.mem.eql(u8, pattern, "custom_dir")) found_custom_dir = true;
     }
-    
+
     try std.testing.expect(found_git); // Default pattern should work
     try std.testing.expect(!found_custom_dir); // No custom patterns in current zz.zon
-    
+
     std.debug.print("✓ ZON custom patterns test passed!\n", .{});
 }
 

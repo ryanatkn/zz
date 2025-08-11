@@ -1,0 +1,119 @@
+const std = @import("std");
+const SharedConfig = @import("shared.zig").SharedConfig;
+const BasePatterns = @import("shared.zig").BasePatterns;
+const SymlinkBehavior = @import("shared.zig").SymlinkBehavior;
+const PatternResolver = @import("resolver.zig").PatternResolver;
+const GitignorePatterns = @import("../patterns/gitignore.zig").GitignorePatterns;
+
+pub const ZonConfig = struct {
+    base_patterns: ?[]const u8 = null, // Changed from BasePatterns to string for ZON compatibility
+    ignored_patterns: ?[]const []const u8 = null,
+    hidden_files: ?[]const []const u8 = null,
+    symlink_behavior: ?[]const u8 = null, // Changed from enum to string for ZON compatibility
+    respect_gitignore: ?bool = null,
+    tree: ?TreeSection = null,
+    prompt: ?PromptSection = null,
+
+    const TreeSection = struct {
+        // Tree-specific overrides if needed in future
+    };
+
+    const PromptSection = struct {
+        // Prompt-specific overrides if needed in future
+    };
+};
+
+pub const ZonLoader = struct {
+    allocator: std.mem.Allocator,
+    config: ?ZonConfig,
+
+    const Self = @This();
+
+    pub fn init(allocator: std.mem.Allocator) Self {
+        return Self{
+            .allocator = allocator,
+            .config = null,
+        };
+    }
+
+    pub fn load(self: *Self) !void {
+        if (self.config != null) return; // Already loaded
+
+        const config_path = "zz.zon";
+        const file_content = std.fs.cwd().readFileAlloc(self.allocator, config_path, 1024 * 1024) catch |err| switch (err) {
+            error.FileNotFound => {
+                self.config = ZonConfig{}; // Empty config
+                return;
+            },
+            else => return err,
+        };
+        defer self.allocator.free(file_content);
+
+        // Add null terminator for ZON parsing
+        const null_terminated = try self.allocator.dupeZ(u8, file_content);
+        defer self.allocator.free(null_terminated);
+
+        // Parse the ZON content
+        const parsed = std.zon.parse.fromSlice(ZonConfig, self.allocator, null_terminated, null, .{}) catch {
+            self.config = ZonConfig{}; // Empty config on parse error
+            return;
+        };
+
+        self.config = parsed;
+    }
+
+    pub fn getConfig(self: *Self) !ZonConfig {
+        try self.load();
+        return self.config orelse ZonConfig{};
+    }
+
+    pub fn getSharedConfig(self: *Self) !SharedConfig {
+        try self.load();
+
+        const config = self.config orelse ZonConfig{};
+
+        // Resolve base patterns (default to "extend")
+        const base_patterns = if (config.base_patterns) |bp_str|
+            BasePatterns.fromZon(bp_str)
+        else
+            BasePatterns.extend;
+
+        // Create pattern resolver
+        const resolver = PatternResolver.init(self.allocator);
+
+        // Resolve ignored patterns
+        const ignored_patterns = try resolver.resolveIgnoredPatterns(base_patterns, config.ignored_patterns);
+
+        // Resolve hidden files
+        const hidden_files = try resolver.resolveHiddenFiles(config.hidden_files);
+
+        // Resolve gitignore patterns (default to respecting gitignore)
+        const respect_gitignore = config.respect_gitignore orelse true;
+        var gitignore_patterns: []const []const u8 = &[_][]const u8{};
+
+        if (respect_gitignore) {
+            gitignore_patterns = GitignorePatterns.loadFromFile(self.allocator, ".gitignore") catch &[_][]const u8{}; // Ignore errors, use empty patterns
+        }
+
+        // Resolve symlink behavior (default to skip)
+        const symlink_behavior = if (config.symlink_behavior) |sb_str|
+            SymlinkBehavior.fromString(sb_str) orelse SymlinkBehavior.skip
+        else
+            SymlinkBehavior.skip;
+
+        return SharedConfig{
+            .ignored_patterns = ignored_patterns,
+            .hidden_files = hidden_files,
+            .gitignore_patterns = gitignore_patterns,
+            .symlink_behavior = symlink_behavior,
+            .respect_gitignore = respect_gitignore,
+            .patterns_allocated = true,
+        };
+    }
+
+    pub fn deinit(self: *Self) void {
+        if (self.config) |config| {
+            std.zon.parse.free(self.allocator, config);
+        }
+    }
+};

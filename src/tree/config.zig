@@ -127,7 +127,7 @@ pub const Config = struct {
         defer zon_loader.deinit();
 
         var config = try zon_loader.getSharedConfig();
-        
+
         // Override gitignore behavior if --no-gitignore flag is used
         if (no_gitignore) {
             config.respect_gitignore = false;

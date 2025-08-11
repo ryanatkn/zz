@@ -41,7 +41,7 @@ test "basic ignored directories are not crawled" {
     // Setup configuration with ignored patterns
     const ignored = [_][]const u8{ "node_modules", ".git", "target", "src/tree/compiled" };
     const hidden = [_][]const u8{};
-    
+
     const shared_config = SharedConfig{
         .ignored_patterns = &ignored,
         .hidden_files = &hidden,
@@ -76,7 +76,7 @@ test "basic ignored directories are not crawled" {
         pub fn walkWithTracking(self: Self, relative_path: []const u8) !void {
             mock_active = true;
             defer mock_active = false;
-            
+
             // Free previously allocated strings
             for (self.tracked_dirs.items) |path| {
                 testing.allocator.free(path);
@@ -255,7 +255,7 @@ test "nested path patterns are not crawled" {
 
     const ignored = [_][]const u8{ "node_modules", "src/tree/compiled" };
     const hidden = [_][]const u8{};
-    
+
     const shared_config = SharedConfig{
         .ignored_patterns = &ignored,
         .hidden_files = &hidden,
@@ -344,7 +344,7 @@ test "dot-prefixed directories are not crawled" {
 
     const ignored = [_][]const u8{}; // No explicit patterns - dots should be auto-ignored
     const hidden = [_][]const u8{};
-    
+
     const shared_config = SharedConfig{
         .ignored_patterns = &ignored,
         .hidden_files = &hidden,
@@ -415,7 +415,7 @@ test "empty and populated ignored directories are not crawled" {
 
     const ignored = [_][]const u8{ "empty_ignored", "populated_ignored" };
     const hidden = [_][]const u8{};
-    
+
     const shared_config = SharedConfig{
         .ignored_patterns = &ignored,
         .hidden_files = &hidden,
@@ -465,7 +465,7 @@ test "configuration fallbacks and edge cases" {
     // Test empty configuration
     const ignored = [_][]const u8{}; // Empty
     const hidden = [_][]const u8{}; // Empty
-    
+
     const shared_config = SharedConfig{
         .ignored_patterns = &ignored,
         .hidden_files = &hidden,
@@ -534,7 +534,7 @@ test "real project structure is handled correctly" {
     // Use realistic config (matches our defaults)
     const ignored = [_][]const u8{ ".git", ".zig-cache", "zig-out", "src/tree/compiled" };
     const hidden = [_][]const u8{};
-    
+
     const shared_config = SharedConfig{
         .ignored_patterns = &ignored,
         .hidden_files = &hidden,
@@ -616,7 +616,7 @@ fn createTestWalker(comptime shared_config: SharedConfig) type {
         pub fn walkWithTracking(self: Self, relative_path: []const u8) !void {
             mock_active = true;
             defer mock_active = false;
-            
+
             // Free previously allocated strings
             for (self.tracked_dirs.items) |path| {
                 testing.allocator.free(path);

@@ -1,257 +1,41 @@
 const std = @import("std");
+const PatternMatcher = @import("patterns/matcher.zig").PatternMatcher;
+const GitignorePatterns = @import("patterns/gitignore.zig").GitignorePatterns;
 
-pub const SymlinkBehavior = enum {
-    follow,
-    skip,
-    show,
+// Re-export public types for API compatibility
+pub const SharedConfig = @import("config/shared.zig").SharedConfig;
+pub const SymlinkBehavior = @import("config/shared.zig").SymlinkBehavior;
+pub const BasePatterns = @import("config/shared.zig").BasePatterns;
+pub const ZonLoader = @import("config/zon.zig").ZonLoader;
+pub const ZonConfig = @import("config/zon.zig").ZonConfig;
+pub const PatternResolver = @import("config/resolver.zig").PatternResolver;
 
-    pub fn fromString(str: []const u8) ?SymlinkBehavior {
-        if (std.mem.eql(u8, str, "follow")) return .follow;
-        if (std.mem.eql(u8, str, "skip")) return .skip;
-        if (std.mem.eql(u8, str, "show")) return .show;
-        return null;
-    }
-};
-
-pub const BasePatterns = union(enum) {
-    extend,
-    custom: []const []const u8,
-
-    pub fn fromZon(value: anytype) BasePatterns {
-        switch (@TypeOf(value)) {
-            []const u8 => {
-                if (std.mem.eql(u8, value, "extend")) return .extend;
-                return .extend; // Default fallback
-            },
-            []const []const u8 => return .{ .custom = value },
-            else => return .extend, // Default fallback
-        }
-    }
-};
-
-pub const SharedConfig = struct {
-    ignored_patterns: []const []const u8,
-    hidden_files: []const []const u8,
-    gitignore_patterns: []const []const u8,
-    symlink_behavior: SymlinkBehavior,
-    respect_gitignore: bool,
-    patterns_allocated: bool,
-
-    const Self = @This();
-
-    pub fn deinit(self: *Self, allocator: std.mem.Allocator) void {
-        if (self.patterns_allocated) {
-            for (self.ignored_patterns) |pattern| {
-                allocator.free(pattern);
-            }
-            for (self.hidden_files) |file| {
-                allocator.free(file);
-            }
-            for (self.gitignore_patterns) |pattern| {
-                allocator.free(pattern);
-            }
-            allocator.free(self.ignored_patterns);
-            allocator.free(self.hidden_files);
-            allocator.free(self.gitignore_patterns);
-        }
-    }
-};
-
-pub const ZonConfig = struct {
-    base_patterns: ?[]const u8 = null, // Changed from BasePatterns to string for ZON compatibility
-    ignored_patterns: ?[]const []const u8 = null,
-    hidden_files: ?[]const []const u8 = null,
-    symlink_behavior: ?[]const u8 = null, // Changed from enum to string for ZON compatibility
-    respect_gitignore: ?bool = null,
-    tree: ?TreeSection = null,
-    prompt: ?PromptSection = null,
-
-    const TreeSection = struct {
-        // Tree-specific overrides if needed in future
-    };
-
-    const PromptSection = struct {
-        // Prompt-specific overrides if needed in future
-    };
-};
-
-pub const PatternResolver = struct {
-    allocator: std.mem.Allocator,
-
-    const Self = @This();
-
-    pub fn init(allocator: std.mem.Allocator) Self {
-        return Self{ .allocator = allocator };
-    }
-
-    const default_ignored = [_][]const u8{
-        ".git",        ".svn", ".hg", "node_modules", "dist", "build",      "target",
-        "__pycache__", "venv", "env", "tmp",          "temp", ".zig-cache", "zig-out",
-    };
-
-    const default_hidden = [_][]const u8{ ".DS_Store", "Thumbs.db" };
-
-    pub fn resolveIgnoredPatterns(self: Self, base_patterns: BasePatterns, user_patterns: ?[]const []const u8) ![]const []const u8 {
-        switch (base_patterns) {
-            .extend => {
-                const user = user_patterns orelse &[_][]const u8{};
-
-                // Allocate space for defaults + user patterns
-                const total_len = default_ignored.len + user.len;
-                const result = try self.allocator.alloc([]const u8, total_len);
-
-                // Copy defaults
-                for (default_ignored, 0..) |pattern, i| {
-                    result[i] = try self.allocator.dupe(u8, pattern);
-                }
-
-                // Copy user patterns
-                for (user, 0..) |pattern, i| {
-                    result[default_ignored.len + i] = try self.allocator.dupe(u8, pattern);
-                }
-
-                return result;
-            },
-            .custom => |custom_patterns| {
-                // Use only custom patterns, no defaults
-                const result = try self.allocator.alloc([]const u8, custom_patterns.len);
-                for (custom_patterns, 0..) |pattern, i| {
-                    result[i] = try self.allocator.dupe(u8, pattern);
-                }
-                return result;
-            },
-        }
-    }
-
-    pub fn resolveHiddenFiles(self: Self, user_hidden: ?[]const []const u8) ![]const []const u8 {
-        const user = user_hidden orelse &[_][]const u8{};
-
-        // Always extend defaults for hidden files
-        const total_len = default_hidden.len + user.len;
-        const result = try self.allocator.alloc([]const u8, total_len);
-
-        // Copy defaults
-        for (default_hidden, 0..) |file, i| {
-            result[i] = try self.allocator.dupe(u8, file);
-        }
-
-        // Copy user hidden files
-        for (user, 0..) |file, i| {
-            result[default_hidden.len + i] = try self.allocator.dupe(u8, file);
-        }
-
-        return result;
-    }
-};
-
-// DRY helper functions for common config operations  
+// DRY helper functions for common config operations
 pub fn shouldIgnorePath(config: SharedConfig, path: []const u8) bool {
     // Built-in behavior: automatically ignore dot-prefixed directories/files
     const basename = std.fs.path.basename(path);
     if (basename.len > 0 and basename[0] == '.') {
         return true;
     }
-    
+
     // Check gitignore patterns first (if enabled)
-    if (config.respect_gitignore and GitignoreLoader.shouldIgnore(config.gitignore_patterns, path)) {
+    if (config.respect_gitignore and GitignorePatterns.shouldIgnore(config.gitignore_patterns, path)) {
         return true;
     }
-    
-    // Check user-configured patterns
+
+    // Check user-configured patterns using unified pattern matcher
     for (config.ignored_patterns) |pattern| {
-        if (hasGlobChars(pattern)) {
+        if (PatternMatcher.hasGlobChars(pattern)) {
             // Extract filename for pattern matching
             const filename = std.fs.path.basename(path);
-            if (matchSimplePattern(filename, pattern)) {
+            if (PatternMatcher.matchSimplePattern(filename, pattern)) {
                 return true;
             }
         } else {
-            // Check for exact component match (not leaky substring)
-            // Inline fast/slow path decision for better performance
-            if (std.mem.indexOf(u8, pattern, "/") == null) {
-                if (matchesSimpleComponentInline(path, pattern)) {
-                    return true;
-                }
-            } else {
-                if (matchesPathSegment(path, pattern)) {
-                    return true;
-                }
+            // Use unified pattern matcher (consolidates all duplicate functions)
+            if (PatternMatcher.matchesPattern(path, pattern)) {
+                return true;
             }
-        }
-    }
-    return false;
-}
-
-// Inline version of fast path for even better performance in hot loop
-inline fn matchesSimpleComponentInline(path: []const u8, pattern: []const u8) bool {
-    // Quick basename check first (most common case)
-    const basename = std.fs.path.basename(path);
-    if (std.mem.eql(u8, basename, pattern)) {
-        return true;
-    }
-    
-    // Only do component iteration if needed and path has separators
-    if (std.mem.indexOf(u8, path, "/") == null) {
-        return false; // Single component already checked
-    }
-    
-    // Check each path component
-    var parts = std.mem.splitScalar(u8, path, '/');
-    while (parts.next()) |part| {
-        if (std.mem.eql(u8, part, pattern)) {
-            return true;
-        }
-    }
-    
-    return false;
-}
-
-// Safe path component matching - optimized with fast/slow paths
-// Fast path for simple patterns (no slashes) - handles 90% of use cases efficiently
-// Slow path for complex path segment patterns - handles remaining 10%
-fn matchesPathComponent(path: []const u8, pattern: []const u8) bool {
-    // Fast path: Simple patterns without slashes (90% of use cases)
-    if (std.mem.indexOf(u8, pattern, "/") == null) {
-        return matchesSimpleComponent(path, pattern);
-    }
-    
-    // Slow path: Complex path segment patterns (10% of use cases)  
-    return matchesPathSegment(path, pattern);
-}
-
-// Fast path: Optimized matching for simple component patterns (no slashes)
-// This restores the original performance for the common case
-inline fn matchesSimpleComponent(path: []const u8, pattern: []const u8) bool {
-    // Quick basename check first (most common case)
-    const basename = std.fs.path.basename(path);
-    if (std.mem.eql(u8, basename, pattern)) {
-        return true;
-    }
-    
-    // Only do expensive component iteration if basename doesn't match
-    // and the path contains separators (optimization for single-component paths)
-    if (std.mem.indexOf(u8, path, "/") == null) {
-        return false; // Single component path already checked via basename
-    }
-    
-    // Check each path component for exact match
-    var parts = std.mem.splitScalar(u8, path, '/');
-    while (parts.next()) |part| {
-        if (std.mem.eql(u8, part, pattern)) {
-            return true;
-        }
-    }
-    
-    return false;
-}
-
-// Slow path: Complex matching for path segment patterns (with slashes)
-fn matchesPathSegment(path: []const u8, pattern: []const u8) bool {
-    // Check if path ends with the pattern
-    if (std.mem.endsWith(u8, path, pattern)) {
-        // Ensure it's a proper path boundary (not a substring)
-        if (path.len == pattern.len or path[path.len - pattern.len - 1] == '/') {
-            return true;
         }
     }
     return false;
@@ -270,254 +54,6 @@ pub fn handleSymlink(config: SharedConfig, path: []const u8) SymlinkBehavior {
     _ = path; // Path could be used for conditional symlink behavior in future
     return config.symlink_behavior;
 }
-
-// Helper function for glob pattern detection
-fn hasGlobChars(pattern: []const u8) bool {
-    return std.mem.indexOf(u8, pattern, "*") != null or
-        std.mem.indexOf(u8, pattern, "?") != null;
-}
-
-// Simple glob pattern matching (basic implementation)
-fn matchSimplePattern(text: []const u8, pattern: []const u8) bool {
-    // This is a simplified version - for full implementation,
-    // should delegate to the glob module's matching logic
-    if (std.mem.indexOf(u8, pattern, "*") == null and std.mem.indexOf(u8, pattern, "?") == null) {
-        return std.mem.eql(u8, text, pattern);
-    }
-
-    // Basic wildcard matching
-    if (std.mem.eql(u8, pattern, "*")) return true;
-
-    if (std.mem.startsWith(u8, pattern, "*.")) {
-        const ext = pattern[2..];
-        return std.mem.endsWith(u8, text, ext);
-    }
-
-    // For more complex patterns, this should use proper glob matching
-    return false;
-}
-
-/// GitignoreLoader parses .gitignore files and provides patterns for filtering
-pub const GitignoreLoader = struct {
-    allocator: std.mem.Allocator,
-    patterns: std.ArrayList([]const u8),
-    
-    const Self = @This();
-    
-    pub fn init(allocator: std.mem.Allocator) Self {
-        return Self{
-            .allocator = allocator,
-            .patterns = std.ArrayList([]const u8).init(allocator),
-        };
-    }
-    
-    pub fn deinit(self: *Self) void {
-        for (self.patterns.items) |pattern| {
-            self.allocator.free(pattern);
-        }
-        self.patterns.deinit();
-    }
-    
-    /// Load .gitignore patterns from current directory and parent directories
-    pub fn loadPatterns(self: *Self) ![]const []const u8 {
-        // Clear any existing patterns
-        for (self.patterns.items) |pattern| {
-            self.allocator.free(pattern);
-        }
-        self.patterns.clearRetainingCapacity();
-        
-        // Simple approach: just try to read .gitignore from current directory
-        // For now, don't walk up the directory tree to keep implementation simple
-        if (std.fs.cwd().readFileAlloc(self.allocator, ".gitignore", 1024 * 1024)) |content| {
-            defer self.allocator.free(content);
-            try self.parseGitignoreContent(content);
-        } else |_| {
-            // File doesn't exist or can't be read, use empty patterns
-        }
-        
-        // Return owned slice of patterns  
-        return try self.patterns.toOwnedSlice();
-    }
-    
-    /// Parse gitignore file content into patterns
-    fn parseGitignoreContent(self: *Self, content: []const u8) !void {
-        var lines = std.mem.splitScalar(u8, content, '\n');
-        while (lines.next()) |line| {
-            const trimmed = std.mem.trim(u8, line, " \t\r");
-            
-            // Skip empty lines and comments
-            if (trimmed.len == 0 or trimmed[0] == '#') {
-                continue;
-            }
-            
-            // Store the pattern (we'll handle negation and path logic in matching)
-            const pattern = try self.allocator.dupe(u8, trimmed);
-            try self.patterns.append(pattern);
-        }
-    }
-    
-    /// Check if a path matches gitignore patterns
-    pub fn shouldIgnore(patterns: []const []const u8, path: []const u8) bool {
-        var should_ignore = false;
-        
-        for (patterns) |pattern| {
-            // Handle negation patterns (!)
-            if (pattern.len > 0 and pattern[0] == '!') {
-                const negated_pattern = pattern[1..];
-                if (matchesGitignorePattern(path, negated_pattern)) {
-                    should_ignore = false; // Negation overrides
-                }
-            } else {
-                if (matchesGitignorePattern(path, pattern)) {
-                    should_ignore = true;
-                }
-            }
-        }
-        
-        return should_ignore;
-    }
-    
-    /// Match gitignore pattern (simplified implementation)
-    fn matchesGitignorePattern(path: []const u8, pattern: []const u8) bool {
-        // Directory-only patterns end with /
-        if (std.mem.endsWith(u8, pattern, "/")) {
-            // For now, treat as regular pattern without the /
-            const dir_pattern = pattern[0..pattern.len-1];
-            return matchesSimpleGitignorePattern(path, dir_pattern);
-        }
-        
-        // Absolute patterns start with /
-        if (std.mem.startsWith(u8, pattern, "/")) {
-            const abs_pattern = pattern[1..];
-            return std.mem.startsWith(u8, path, abs_pattern);
-        }
-        
-        // Relative patterns match anywhere in the path
-        return matchesSimpleGitignorePattern(path, pattern);
-    }
-    
-    /// Simple pattern matching for gitignore (basic wildcards)
-    fn matchesSimpleGitignorePattern(path: []const u8, pattern: []const u8) bool {
-        // Handle simple wildcards
-        if (std.mem.indexOf(u8, pattern, "*") != null) {
-            // Very basic wildcard support - full implementation would need proper glob matching
-            if (std.mem.eql(u8, pattern, "*")) return true;
-            
-            if (std.mem.startsWith(u8, pattern, "*.")) {
-                const ext = pattern[2..];
-                return std.mem.endsWith(u8, path, ext);
-            }
-        }
-        
-        // Exact match or path component match
-        const basename = std.fs.path.basename(path);
-        if (std.mem.eql(u8, basename, pattern)) {
-            return true;
-        }
-        
-        // Check if any path component matches
-        var parts = std.mem.splitScalar(u8, path, '/');
-        while (parts.next()) |part| {
-            if (std.mem.eql(u8, part, pattern)) {
-                return true;
-            }
-        }
-        
-        return false;
-    }
-};
-
-pub const ZonLoader = struct {
-    allocator: std.mem.Allocator,
-    config: ?ZonConfig,
-
-    const Self = @This();
-
-    pub fn init(allocator: std.mem.Allocator) Self {
-        return Self{
-            .allocator = allocator,
-            .config = null,
-        };
-    }
-
-    pub fn load(self: *Self) !void {
-        if (self.config != null) return; // Already loaded
-
-        const config_path = "zz.zon";
-        const file_content = std.fs.cwd().readFileAlloc(self.allocator, config_path, 1024 * 1024) catch |err| switch (err) {
-            error.FileNotFound => {
-                self.config = ZonConfig{}; // Empty config
-                return;
-            },
-            else => return err,
-        };
-        defer self.allocator.free(file_content);
-
-        // Add null terminator for ZON parsing
-        const null_terminated = try self.allocator.dupeZ(u8, file_content);
-        defer self.allocator.free(null_terminated);
-
-        // Parse the ZON content
-        const parsed = std.zon.parse.fromSlice(ZonConfig, self.allocator, null_terminated, null, .{}) catch {
-            self.config = ZonConfig{}; // Empty config on parse error
-            return;
-        };
-
-        self.config = parsed;
-    }
-
-    pub fn getSharedConfig(self: *Self) !SharedConfig {
-        try self.load();
-
-        const config = self.config orelse ZonConfig{};
-
-        // Resolve base patterns (default to "extend")
-        const base_patterns = if (config.base_patterns) |bp_str|
-            BasePatterns.fromZon(bp_str)
-        else
-            BasePatterns.extend;
-
-        // Create pattern resolver
-        const resolver = PatternResolver.init(self.allocator);
-
-        // Resolve ignored patterns
-        const ignored_patterns = try resolver.resolveIgnoredPatterns(base_patterns, config.ignored_patterns);
-
-        // Resolve hidden files
-        const hidden_files = try resolver.resolveHiddenFiles(config.hidden_files);
-
-        // Resolve gitignore patterns (default to respecting gitignore)
-        const respect_gitignore = config.respect_gitignore orelse true;
-        var gitignore_patterns: []const []const u8 = &[_][]const u8{};
-        
-        if (respect_gitignore) {
-            var gitignore_loader = GitignoreLoader.init(self.allocator);
-            defer gitignore_loader.deinit();
-            gitignore_patterns = gitignore_loader.loadPatterns() catch &[_][]const u8{}; // Ignore errors, use empty patterns
-        }
-
-        // Resolve symlink behavior (default to skip)
-        const symlink_behavior = if (config.symlink_behavior) |sb_str|
-            SymlinkBehavior.fromString(sb_str) orelse SymlinkBehavior.skip
-        else
-            SymlinkBehavior.skip;
-
-        return SharedConfig{
-            .ignored_patterns = ignored_patterns,
-            .hidden_files = hidden_files,
-            .gitignore_patterns = gitignore_patterns,
-            .symlink_behavior = symlink_behavior,
-            .respect_gitignore = respect_gitignore,
-            .patterns_allocated = true,
-        };
-    }
-
-    pub fn deinit(self: *Self) void {
-        if (self.config) |config| {
-            std.zon.parse.free(self.allocator, config);
-        }
-    }
-};
 
 // Tests for config functionality
 test "shouldIgnorePath edge cases" {
@@ -635,21 +171,21 @@ test "PatternResolver base patterns behavior" {
     try std.testing.expect(std.mem.eql(u8, custom[0], "only_this"));
 }
 
-test "matchesPathComponent edge cases" {
-    // Test exact component matches
-    try std.testing.expect(matchesPathComponent("node_modules", "node_modules"));
-    try std.testing.expect(matchesPathComponent("path/node_modules", "node_modules"));
-    try std.testing.expect(matchesPathComponent("node_modules/package", "node_modules"));
-    try std.testing.expect(matchesPathComponent("a/node_modules/b", "node_modules"));
+test "PatternMatcher unified pattern matching edge cases" {
+    // Test exact component matches - all delegated to unified pattern matcher
+    try std.testing.expect(PatternMatcher.matchesPattern("node_modules", "node_modules"));
+    try std.testing.expect(PatternMatcher.matchesPattern("path/node_modules", "node_modules"));
+    try std.testing.expect(PatternMatcher.matchesPattern("node_modules/package", "node_modules"));
+    try std.testing.expect(PatternMatcher.matchesPattern("a/node_modules/b", "node_modules"));
 
-    // Test non-matches (leaky patterns)
-    try std.testing.expect(!matchesPathComponent("my_node_modules", "node_modules"));
-    try std.testing.expect(!matchesPathComponent("node_modules_backup", "node_modules"));
-    try std.testing.expect(!matchesPathComponent("path/my_node_modules", "node_modules"));
-    try std.testing.expect(!matchesPathComponent("path/node_modules_backup", "node_modules"));
+    // Test non-matches (leaky patterns) - performance critical behavior preserved
+    try std.testing.expect(!PatternMatcher.matchesPattern("my_node_modules", "node_modules"));
+    try std.testing.expect(!PatternMatcher.matchesPattern("node_modules_backup", "node_modules"));
+    try std.testing.expect(!PatternMatcher.matchesPattern("path/my_node_modules", "node_modules"));
+    try std.testing.expect(!PatternMatcher.matchesPattern("path/node_modules_backup", "node_modules"));
 
     // Test empty and edge cases
-    try std.testing.expect(!matchesPathComponent("", "test"));
-    try std.testing.expect(!matchesPathComponent("test", ""));
-    try std.testing.expect(matchesPathComponent("test", "test"));
+    try std.testing.expect(!PatternMatcher.matchesPattern("", "test"));
+    try std.testing.expect(!PatternMatcher.matchesPattern("test", ""));
+    try std.testing.expect(PatternMatcher.matchesPattern("test", "test"));
 }

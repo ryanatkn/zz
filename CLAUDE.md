@@ -22,6 +22,10 @@ No external dependencies - pure Zig implementation.
 
 ## Project Structure
 
+```bash
+./zig-out/bin/zz tree
+```
+
 ```
 └── .
     ├── .claude [...]                  # Claude Code configuration directory
@@ -36,6 +40,13 @@ No external dependencies - pure Zig implementation.
     │   │   ├── help.zig               # Usage documentation and help text
     │   │   ├── main.zig               # CLI entry point and argument processing
     │   │   └── runner.zig             # Command dispatch and orchestration
+    │   ├── config                     # Configuration system (modular ZON parsing & pattern resolution)
+    │   │   ├── resolver.zig           # Pattern resolution with defaults and custom patterns
+    │   │   ├── shared.zig             # Core types and SharedConfig structure
+    │   │   └── zon.zig                # ZON file loading with integrated configuration
+    │   ├── patterns                   # Pattern matching engine (high-performance unified system)
+    │   │   ├── gitignore.zig          # Gitignore-specific pattern logic (stateless)
+    │   │   └── matcher.zig            # Unified pattern matcher with optimized fast/slow paths
     │   ├── prompt                     # Prompt generation module (LLM-optimized file aggregation)
     │   │   ├── test [...]             # Comprehensive test suite
     │   │   ├── builder.zig            # Core prompt building with smart fencing
@@ -56,13 +67,14 @@ No external dependencies - pure Zig implementation.
     │   │   ├── path_builder.zig       # Path manipulation utilities
     │   │   ├── test.zig               # Test runner for tree functionality
     │   │   └── walker.zig             # Core traversal algorithm with optimizations
-    │   ├── config.zig                 # Shared configuration system (ZON parsing, patterns)
+    │   ├── config.zig                 # Public API facade for configuration system
     │   ├── main.zig                   # Minimal application entry point
     │   └── test.zig                   # Main test runner for entire project
     ├── zig-out [...]                  # Build output directory (auto-generated)
     ├── .gitignore                     # Git ignore patterns
     ├── CLAUDE.md                      # AI assistant development documentation
     ├── README.md                      # User-facing documentation and usage guide
+    ├── REFACTORING_CONFIG.md          # Configuration system refactoring documentation
     ├── build.zig                      # Zig build system configuration
     ├── build.zig.zon                  # Package manifest
     └── zz.zon                         # CLI configuration (tree filtering patterns)
@@ -142,9 +154,16 @@ Comprehensive test suite covers configuration parsing, directory filtering, perf
 
 ## Configuration System
 
-**Shared Configuration Architecture:**
+**Modular Configuration Architecture:**
 - **Root-level config** in `zz.zon` - Single source of truth for cross-cutting concerns
-- **`src/config.zig`** - Shared ZON parsing, pattern resolution, and DRY helper functions
+- **`src/config/`** - Modular configuration system with clean separation of concerns:
+  - `shared.zig` - Core types and SharedConfig structure  
+  - `zon.zig` - ZON file loading with integrated configuration resolution
+  - `resolver.zig` - Pattern resolution with defaults and custom patterns
+- **`src/patterns/`** - High-performance unified pattern matching engine:
+  - `matcher.zig` - Optimized pattern matching with fast/slow paths (90/10 split)
+  - `gitignore.zig` - Stateless gitignore pattern logic
+- **`src/config.zig`** - Clean public API facade for backward compatibility
 - **Both tree and prompt modules** use the same underlying configuration system
 
 **Configuration Format:**
@@ -266,22 +285,16 @@ Comprehensive test suite covers configuration parsing, directory filtering, perf
     identify root causes and leave `// TODO` if you're stumped)
 - Less is more - avoid over-engineering
 
-**Current Status:** ✓ SharedConfig refactor completed successfully with performance optimization. All 158 tests passing (100% success rate). Both `tree` and `prompt` commands use shared configuration system with optimized pattern matching (3650ms performance vs original 4000ms regression).
+**Current Status:** ✓ **Modular configuration system refactoring completed successfully!** All 167 tests passing (100% success rate). Reduced config.zig from 655 → 192 lines (71% reduction) with modular architecture and preserved performance optimizations.
 
 ## Test Coverage
 
 The project has comprehensive test coverage including:
 - **Edge cases**: Empty inputs, special characters, Unicode, long filenames
 - **Security**: Path traversal, permission handling
-- **Performance**: Large files, deep recursion, memory stress tests
+- **Performance**: Large files, deep recursion, memory stress tests (166x speedup maintained)
 - **Integration**: End-to-end command testing, format combinations
 - **Glob patterns**: Wildcards, braces, recursive patterns, hidden files
+- **Pattern matching**: Unified pattern engine with performance-critical optimizations
 
-Run all tests with: `zig test src/test.zig`
-
-## Development Status
-
-- **Configuration System**: ✓ SharedConfig refactor complete with optimized performance
-- **Test Coverage**: ✓ 100% test success rate (158/158 tests passing)  
-- **Performance**: ✓ Pattern matching optimized with fast/slow path split
-- **Future Work**: See `REFACTORING_PLAN.md` for optional architecture improvements
+See `REFACTORING_CONFIG.md` for detailed refactoring documentation.

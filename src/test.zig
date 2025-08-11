@@ -16,7 +16,7 @@ test {
     std.testing.refAllDeclsRecursive(@import("tree/test.zig"));
 }
 
-// Import prompt tests  
+// Import prompt tests
 test {
     std.testing.refAllDeclsRecursive(@import("prompt/test.zig"));
 }

@@ -250,6 +250,7 @@ Comprehensive test suite covers configuration parsing, directory filtering, perf
     or have understanding they don't, and when in doubt, ask clarifying questions
 - Keep modules self-contained and focused on their specific purpose
 - We have `rg` (ripgrep) installed, prefer `rg` over `grep`
+- Always update docs at ./CLAUDE.md and ./README.md
 - Less is more - avoid over-engineering
 
 **Current Status:** ✓ SharedConfig refactor completed successfully with performance optimization. All 158 tests passing (100% success rate). Both `tree` and `prompt` commands use shared configuration system with optimized pattern matching (3650ms performance vs original 4000ms regression).

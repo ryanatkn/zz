@@ -7,20 +7,19 @@ const TreeConfig = @import("../config.zig").TreeConfig;
 
 // Test thread safety and concurrent access patterns
 test "multiple walker instances" {
-    const test_dir = "concurrent_test";
-    std.fs.cwd().makeDir(test_dir) catch {};
-    defer std.fs.cwd().deleteTree(test_dir) catch {};
+    var tmp_dir = std.testing.tmpDir(.{});
+    defer tmp_dir.cleanup();
 
     // Create test structure
     var i: u32 = 0;
     while (i < 10) : (i += 1) {
-        const dir_name = try std.fmt.allocPrint(testing.allocator, "{s}/dir_{d}", .{ test_dir, i });
+        const dir_name = try std.fmt.allocPrint(testing.allocator, "dir_{d}", .{i});
         defer testing.allocator.free(dir_name);
-        std.fs.cwd().makeDir(dir_name) catch {};
+        try tmp_dir.dir.makeDir(dir_name);
 
         const file_name = try std.fmt.allocPrint(testing.allocator, "{s}/file.txt", .{dir_name});
         defer testing.allocator.free(file_name);
-        const file = std.fs.cwd().createFile(file_name, .{}) catch continue;
+        const file = try tmp_dir.dir.createFile(file_name, .{});
         file.close();
     }
 
@@ -37,9 +36,12 @@ test "multiple walker instances" {
     const walker3 = Walker.initQuiet(testing.allocator, config);
 
     // All should work independently
-    try walker1.walk(test_dir);
-    try walker2.walk(test_dir);
-    try walker3.walk(test_dir);
+    const test_dir_path = try tmp_dir.dir.realpathAlloc(testing.allocator, ".");
+    defer testing.allocator.free(test_dir_path);
+    
+    try walker1.walk(test_dir_path);
+    try walker2.walk(test_dir_path);
+    try walker3.walk(test_dir_path);
 
     std.debug.print("✅ Multiple walker instances test passed!\n", .{});
 }

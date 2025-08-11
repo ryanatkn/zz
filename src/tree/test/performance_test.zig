@@ -6,18 +6,18 @@ const Config = @import("../config.zig").Config;
 const TreeConfig = @import("../config.zig").TreeConfig;
 
 // Helper to create test directory structure
-fn createTestStructure(base_dir: []const u8, dir_count: u32, files_per_dir: u32) !void {
+fn createTestStructure(dir: std.fs.Dir, dir_count: u32, files_per_dir: u32) !void {
     var dir_idx: u32 = 0;
     while (dir_idx < dir_count) : (dir_idx += 1) {
-        const dir_name = try std.fmt.allocPrint(testing.allocator, "{s}/dir_{d}", .{ base_dir, dir_idx });
+        const dir_name = try std.fmt.allocPrint(testing.allocator, "dir_{d}", .{dir_idx});
         defer testing.allocator.free(dir_name);
-        std.fs.cwd().makeDir(dir_name) catch continue;
+        try dir.makeDir(dir_name);
 
         var file_idx: u32 = 0;
         while (file_idx < files_per_dir) : (file_idx += 1) {
             const file_name = try std.fmt.allocPrint(testing.allocator, "{s}/file_{d}.txt", .{ dir_name, file_idx });
             defer testing.allocator.free(file_name);
-            const file = std.fs.cwd().createFile(file_name, .{}) catch continue;
+            const file = try dir.createFile(file_name, .{});
             file.close();
         }
     }
@@ -32,9 +32,11 @@ fn timeWalkerOperation(walker: Walker, path: []const u8) !i64 {
 
 // Performance benchmarks and stress tests for the tree module
 test "performance with large directory structure" {
-    const test_dir = "perf_large_structure";
-    std.fs.cwd().makeDir(test_dir) catch {};
-    defer std.fs.cwd().deleteTree(test_dir) catch {};
+    var tmp_dir = std.testing.tmpDir(.{});
+    defer tmp_dir.cleanup();
+    
+    const test_dir_path = try tmp_dir.dir.realpathAlloc(testing.allocator, ".");
+    defer testing.allocator.free(test_dir_path);
 
     // Create a moderately-sized directory structure (100 dirs, 300 files)
     const start_creation = std.time.milliTimestamp();
@@ -43,23 +45,23 @@ test "performance with large directory structure" {
     var file_count: u32 = 0;
 
     while (dir_count < 20) : (dir_count += 1) {
-        const dir_name = try std.fmt.allocPrint(testing.allocator, "{s}/dir_{d}", .{ test_dir, dir_count });
+        const dir_name = try std.fmt.allocPrint(testing.allocator, "dir_{d}", .{dir_count});
         defer testing.allocator.free(dir_name);
-        std.fs.cwd().makeDir(dir_name) catch continue;
+        try tmp_dir.dir.makeDir(dir_name);
 
         // Create subdirectories
         var subdir_count: u32 = 0;
         while (subdir_count < 5) : (subdir_count += 1) {
             const subdir_name = try std.fmt.allocPrint(testing.allocator, "{s}/subdir_{d}", .{ dir_name, subdir_count });
             defer testing.allocator.free(subdir_name);
-            std.fs.cwd().makeDir(subdir_name) catch continue;
+            try tmp_dir.dir.makePath(subdir_name);
 
             // Add files to subdirectory
             var file_in_subdir: u32 = 0;
             while (file_in_subdir < 3) : (file_in_subdir += 1) {
                 const file_name = try std.fmt.allocPrint(testing.allocator, "{s}/file_{d}.txt", .{ subdir_name, file_in_subdir });
                 defer testing.allocator.free(file_name);
-                const file = std.fs.cwd().createFile(file_name, .{}) catch continue;
+                const file = try tmp_dir.dir.createFile(file_name, .{});
                 file.close();
                 file_count += 1;
             }
@@ -82,7 +84,7 @@ test "performance with large directory structure" {
     const walker = Walker.initQuiet(testing.allocator, config);
 
     const start_traversal = std.time.milliTimestamp();
-    try walker.walk(test_dir);
+    try walker.walk(test_dir_path);
     const traversal_time = std.time.milliTimestamp() - start_traversal;
 
     // Performance expectations: should complete in reasonable time
@@ -93,23 +95,25 @@ test "performance with large directory structure" {
 
 // Test performance with many ignored directories
 test "performance with many ignored directories" {
-    const test_dir = "perf_ignored_dirs";
-    std.fs.cwd().makeDir(test_dir) catch {};
-    defer std.fs.cwd().deleteTree(test_dir) catch {};
+    var tmp_dir = std.testing.tmpDir(.{});
+    defer tmp_dir.cleanup();
+    
+    const test_dir_path = try tmp_dir.dir.realpathAlloc(testing.allocator, ".");
+    defer testing.allocator.free(test_dir_path);
 
     // Create some directories that should be ignored
     var ignored_count: u32 = 0;
     while (ignored_count < 8) : (ignored_count += 1) {
-        const dir_name = try std.fmt.allocPrint(testing.allocator, "{s}/node_modules_{d}", .{ test_dir, ignored_count });
+        const dir_name = try std.fmt.allocPrint(testing.allocator, "node_modules_{d}", .{ignored_count});
         defer testing.allocator.free(dir_name);
-        std.fs.cwd().makeDir(dir_name) catch continue;
+        try tmp_dir.dir.makeDir(dir_name);
 
         // Add files that should never be read
         var file_count: u32 = 0;
         while (file_count < 5) : (file_count += 1) {
             const file_name = try std.fmt.allocPrint(testing.allocator, "{s}/ignored_file_{d}.js", .{ dir_name, file_count });
             defer testing.allocator.free(file_name);
-            const file = std.fs.cwd().createFile(file_name, .{}) catch continue;
+            const file = try tmp_dir.dir.createFile(file_name, .{});
             file.close();
         }
     }
@@ -117,13 +121,13 @@ test "performance with many ignored directories" {
     // Also create some normal directories
     var normal_count: u32 = 0;
     while (normal_count < 10) : (normal_count += 1) {
-        const dir_name = try std.fmt.allocPrint(testing.allocator, "{s}/normal_dir_{d}", .{ test_dir, normal_count });
+        const dir_name = try std.fmt.allocPrint(testing.allocator, "normal_dir_{d}", .{normal_count});
         defer testing.allocator.free(dir_name);
-        std.fs.cwd().makeDir(dir_name) catch continue;
+        try tmp_dir.dir.makeDir(dir_name);
 
         const file_name = try std.fmt.allocPrint(testing.allocator, "{s}/normal_file.txt", .{dir_name});
         defer testing.allocator.free(file_name);
-        const file = std.fs.cwd().createFile(file_name, .{}) catch continue;
+        const file = try tmp_dir.dir.createFile(file_name, .{});
         file.close();
     }
 
@@ -140,7 +144,7 @@ test "performance with many ignored directories" {
     const walker = Walker.initQuiet(testing.allocator, config);
 
     const start_time = std.time.milliTimestamp();
-    try walker.walk(test_dir);
+    try walker.walk(test_dir_path);
     const end_time = std.time.milliTimestamp();
 
     const duration = end_time - start_time;
@@ -153,12 +157,14 @@ test "performance with many ignored directories" {
 
 // Test memory efficiency with deep nesting
 test "memory efficiency with deep nesting" {
-    const test_dir = "perf_deep_nesting";
-    std.fs.cwd().makeDir(test_dir) catch {};
-    defer std.fs.cwd().deleteTree(test_dir) catch {};
+    var tmp_dir = std.testing.tmpDir(.{});
+    defer tmp_dir.cleanup();
+    
+    const test_dir_path = try tmp_dir.dir.realpathAlloc(testing.allocator, ".");
+    defer testing.allocator.free(test_dir_path);
 
     // Create very deep directory structure
-    var current_path = try std.fmt.allocPrint(testing.allocator, "{s}", .{test_dir});
+    var current_path = try std.fmt.allocPrint(testing.allocator, ".", .{});
     defer testing.allocator.free(current_path);
 
     var depth: u32 = 0;
@@ -167,12 +173,12 @@ test "memory efficiency with deep nesting" {
         testing.allocator.free(current_path);
         current_path = next_path;
 
-        std.fs.cwd().makePath(current_path) catch break;
+        tmp_dir.dir.makePath(current_path) catch break;
 
         // Add a file at each level
         const file_path = try std.fmt.allocPrint(testing.allocator, "{s}/file.txt", .{current_path});
         defer testing.allocator.free(file_path);
-        const file = std.fs.cwd().createFile(file_path, .{}) catch continue;
+        const file = tmp_dir.dir.createFile(file_path, .{}) catch continue;
         file.close();
     }
 
@@ -188,7 +194,7 @@ test "memory efficiency with deep nesting" {
     const walker = Walker.initQuiet(testing.allocator, config);
 
     const start_time = std.time.milliTimestamp();
-    try walker.walk(test_dir);
+    try walker.walk(test_dir_path);
     const end_time = std.time.milliTimestamp();
 
     const duration = end_time - start_time;
@@ -201,39 +207,41 @@ test "memory efficiency with deep nesting" {
 
 // Test performance comparison: ignored vs not ignored
 test "performance comparison ignored vs not ignored" {
+    var tmp_dir = std.testing.tmpDir(.{});
+    defer tmp_dir.cleanup();
+    
     const test_dir_ignored = "perf_comparison_ignored";
     const test_dir_normal = "perf_comparison_normal";
 
     // Create identical directory structures
     for ([_][]const u8{ test_dir_ignored, test_dir_normal }) |base_dir| {
-        std.fs.cwd().makeDir(base_dir) catch {};
+        try tmp_dir.dir.makeDir(base_dir);
 
         // Create node_modules with many files
         const nm_path = try std.fmt.allocPrint(testing.allocator, "{s}/node_modules", .{base_dir});
         defer testing.allocator.free(nm_path);
-        std.fs.cwd().makeDir(nm_path) catch {};
+        try tmp_dir.dir.makeDir(nm_path);
 
         var file_count: u32 = 0;
         while (file_count < 1000) : (file_count += 1) {
             const file_name = try std.fmt.allocPrint(testing.allocator, "{s}/file_{d}.js", .{ nm_path, file_count });
             defer testing.allocator.free(file_name);
-            const file = std.fs.cwd().createFile(file_name, .{}) catch continue;
+            const file = try tmp_dir.dir.createFile(file_name, .{});
             file.close();
         }
 
         // Add normal directories
         const src_dir_path = try std.fmt.allocPrint(testing.allocator, "{s}/src", .{base_dir});
         defer testing.allocator.free(src_dir_path);
-        std.fs.cwd().makeDir(src_dir_path) catch {};
+        try tmp_dir.dir.makeDir(src_dir_path);
 
         const src_file_path = try std.fmt.allocPrint(testing.allocator, "{s}/src/main.zig", .{base_dir});
         defer testing.allocator.free(src_file_path);
-        const src_file = std.fs.cwd().createFile(src_file_path, .{}) catch unreachable;
+        const src_file = try tmp_dir.dir.createFile(src_file_path, .{});
         src_file.close();
     }
 
-    defer std.fs.cwd().deleteTree(test_dir_ignored) catch {};
-    defer std.fs.cwd().deleteTree(test_dir_normal) catch {};
+    // Cleanup handled by tmp_dir.cleanup()
 
     // Test with node_modules ignored
     const ignored_config = TreeConfig{
@@ -247,8 +255,11 @@ test "performance comparison ignored vs not ignored" {
 
     const walker_ignored = Walker.initQuiet(testing.allocator, config_ignored);
 
+    const test_dir_ignored_path = try tmp_dir.dir.realpathAlloc(testing.allocator, test_dir_ignored);
+    defer testing.allocator.free(test_dir_ignored_path);
+    
     const start_ignored = std.time.milliTimestamp();
-    try walker_ignored.walk(test_dir_ignored);
+    try walker_ignored.walk(test_dir_ignored_path);
     const time_ignored = std.time.milliTimestamp() - start_ignored;
 
     // Test without ignoring node_modules
@@ -263,8 +274,11 @@ test "performance comparison ignored vs not ignored" {
 
     const walker_normal = Walker.initQuiet(testing.allocator, config_normal);
 
+    const test_dir_normal_path = try tmp_dir.dir.realpathAlloc(testing.allocator, test_dir_normal);
+    defer testing.allocator.free(test_dir_normal_path);
+    
     const start_normal = std.time.milliTimestamp();
-    try walker_normal.walk(test_dir_normal);
+    try walker_normal.walk(test_dir_normal_path);
     const time_normal = std.time.milliTimestamp() - start_normal;
 
     // Ignored version should be significantly faster
@@ -283,9 +297,11 @@ test "performance comparison ignored vs not ignored" {
 
 // Test scalability with increasing directory sizes
 test "scalability with increasing directory sizes" {
+    var tmp_dir = std.testing.tmpDir(.{});
+    defer tmp_dir.cleanup();
+    
     const base_dir = "perf_scalability";
-    std.fs.cwd().makeDir(base_dir) catch {};
-    defer std.fs.cwd().deleteTree(base_dir) catch {};
+    try tmp_dir.dir.makeDir(base_dir);
 
     const tree_config = TreeConfig{
         .ignored_patterns = &[_][]const u8{".git"},
@@ -304,21 +320,24 @@ test "scalability with increasing directory sizes" {
 
     for (test_sizes) |size| {
         // Clean directory
-        std.fs.cwd().deleteTree(base_dir) catch {};
-        std.fs.cwd().makeDir(base_dir) catch {};
+        tmp_dir.dir.deleteTree(base_dir) catch {};
+        try tmp_dir.dir.makeDir(base_dir);
 
         // Create files
         var file_count: u32 = 0;
         while (file_count < size) : (file_count += 1) {
             const file_name = try std.fmt.allocPrint(testing.allocator, "{s}/file_{d}.txt", .{ base_dir, file_count });
             defer testing.allocator.free(file_name);
-            const file = std.fs.cwd().createFile(file_name, .{}) catch continue;
+            const file = try tmp_dir.dir.createFile(file_name, .{});
             file.close();
         }
 
         // Time traversal
+        const base_dir_path = try tmp_dir.dir.realpathAlloc(testing.allocator, base_dir);
+        defer testing.allocator.free(base_dir_path);
+        
         const start_time = std.time.milliTimestamp();
-        try walker.walk(base_dir);
+        try walker.walk(base_dir_path);
         const duration = std.time.milliTimestamp() - start_time;
 
         std.debug.print("Traversal of {d} files: {d}ms\n", .{ size, duration });
@@ -344,29 +363,31 @@ test "scalability with increasing directory sizes" {
 
 // Memory stress test
 test "memory stress test" {
+    var tmp_dir = std.testing.tmpDir(.{});
+    defer tmp_dir.cleanup();
+    
     const test_dir = "perf_memory_stress";
-    std.fs.cwd().makeDir(test_dir) catch {};
-    defer std.fs.cwd().deleteTree(test_dir) catch {};
+    try tmp_dir.dir.makeDir(test_dir);
 
     // Create a structure that could cause memory issues if not handled properly
     var level1: u32 = 0;
     while (level1 < 20) : (level1 += 1) {
         const l1_name = try std.fmt.allocPrint(testing.allocator, "{s}/level1_{d}", .{ test_dir, level1 });
         defer testing.allocator.free(l1_name);
-        std.fs.cwd().makeDir(l1_name) catch continue;
+        tmp_dir.dir.makeDir(l1_name) catch continue;
 
         var level2: u32 = 0;
         while (level2 < 3) : (level2 += 1) {
             const l2_name = try std.fmt.allocPrint(testing.allocator, "{s}/level2_{d}", .{ l1_name, level2 });
             defer testing.allocator.free(l2_name);
-            std.fs.cwd().makeDir(l2_name) catch continue;
+            tmp_dir.dir.makeDir(l2_name) catch continue;
 
             // Add files
             var file_idx: u32 = 0;
             while (file_idx < 2) : (file_idx += 1) {
                 const file_name = try std.fmt.allocPrint(testing.allocator, "{s}/file_{d}.txt", .{ l2_name, file_idx });
                 defer testing.allocator.free(file_name);
-                const file = std.fs.cwd().createFile(file_name, .{}) catch continue;
+                const file = try tmp_dir.dir.createFile(file_name, .{});
                 file.close();
             }
         }
@@ -382,12 +403,15 @@ test "memory stress test" {
     };
 
     // Run traversal multiple times to test memory handling
+    const test_dir_path = try tmp_dir.dir.realpathAlloc(testing.allocator, test_dir);
+    defer testing.allocator.free(test_dir_path);
+    
     var iteration: u32 = 0;
     while (iteration < 5) : (iteration += 1) {
         const walker = Walker.initQuiet(testing.allocator, config);
 
         const start_time = std.time.milliTimestamp();
-        try walker.walk(test_dir);
+        try walker.walk(test_dir_path);
         const duration = std.time.milliTimestamp() - start_time;
 
         std.debug.print("Memory stress iteration {d}: {d}ms\n", .{ iteration + 1, duration });

@@ -14,28 +14,28 @@ test "basic ignored directories are not crawled" {
     defer accessed_directories.deinit();
 
     // Create a temporary test directory structure
-    const test_dir = "test_crawl_behavior";
-    std.fs.cwd().makeDir(test_dir) catch {};
-    defer std.fs.cwd().deleteTree(test_dir) catch {};
+    var tmp_dir = std.testing.tmpDir(.{});
+    defer tmp_dir.cleanup();
+    
+    const test_dir_path = try tmp_dir.dir.realpathAlloc(testing.allocator, ".");
+    defer testing.allocator.free(test_dir_path);
 
     // Create subdirectories including ones that should be ignored
     const subdirs = [_][]const u8{ "normal_dir", "src", "node_modules", ".git", "target" };
     for (subdirs) |subdir| {
-        const full_path = try std.fmt.allocPrint(testing.allocator, "{s}/{s}", .{ test_dir, subdir });
-        defer testing.allocator.free(full_path);
-        std.fs.cwd().makeDir(full_path) catch {};
+        try tmp_dir.dir.makeDir(subdir);
 
         // Add some files in each directory so readdir() would find something
-        const test_file = try std.fmt.allocPrint(testing.allocator, "{s}/test.txt", .{full_path});
+        const test_file = try std.fmt.allocPrint(testing.allocator, "{s}/test.txt", .{subdir});
         defer testing.allocator.free(test_file);
-        const file = std.fs.cwd().createFile(test_file, .{}) catch continue;
+        const file = try tmp_dir.dir.createFile(test_file, .{});
         file.close();
     }
 
     // Create special case: src/tree/compiled
-    std.fs.cwd().makeDir(test_dir ++ "/src/tree") catch {};
-    std.fs.cwd().makeDir(test_dir ++ "/src/tree/compiled") catch {};
-    const compiled_file = std.fs.cwd().createFile(test_dir ++ "/src/tree/compiled/test.spv", .{}) catch unreachable;
+    try tmp_dir.dir.makePath("src/tree");
+    try tmp_dir.dir.makePath("src/tree/compiled");
+    const compiled_file = try tmp_dir.dir.createFile("src/tree/compiled/test.spv", .{});
     compiled_file.close();
 
     // Setup configuration with ignored patterns
@@ -52,31 +52,38 @@ test "basic ignored directories are not crawled" {
     const TestWalker = struct {
         base_walker: Walker,
         tracked_dirs: *std.ArrayList([]const u8),
+        root_dir: std.fs.Dir,
+        root_path: []const u8,
 
         const Self = @This();
 
-        pub fn init(allocator: std.mem.Allocator, cfg: Config, tracked_dirs: *std.ArrayList([]const u8)) Self {
+        pub fn init(allocator: std.mem.Allocator, cfg: Config, tracked_dirs: *std.ArrayList([]const u8), root_dir: std.fs.Dir, root_path: []const u8) Self {
             return Self{
                 .base_walker = Walker.init(allocator, cfg),
                 .tracked_dirs = tracked_dirs,
+                .root_dir = root_dir,
+                .root_path = root_path,
             };
         }
 
-        pub fn walkWithTracking(self: Self, path: []const u8) !void {
+        pub fn walkWithTracking(self: Self, relative_path: []const u8) !void {
             mock_active = true;
             defer mock_active = false;
             self.tracked_dirs.clearRetainingCapacity();
 
             // Use our custom recursive function that tracks access
-            try self.walkRecursiveWithTracking(path, "", true, 0);
+            try self.walkRecursiveWithTracking(relative_path, "", true, 0);
         }
 
-        fn walkRecursiveWithTracking(self: Self, path: []const u8, prefix: []const u8, is_last: bool, current_depth: u32) !void {
-            // Record that we're accessing this directory
-            const path_copy = try testing.allocator.dupe(u8, path);
-            try self.tracked_dirs.append(path_copy);
+        fn walkRecursiveWithTracking(self: Self, relative_path: []const u8, prefix: []const u8, is_last: bool, current_depth: u32) !void {
+            // Record that we're accessing this directory (store as absolute path for verification)
+            const abs_path = if (std.mem.eql(u8, relative_path, "."))
+                try testing.allocator.dupe(u8, self.root_path)
+            else
+                try std.fs.path.join(testing.allocator, &.{ self.root_path, relative_path });
+            try self.tracked_dirs.append(abs_path);
 
-            const basename = std.fs.path.basename(path);
+            const basename = std.fs.path.basename(relative_path);
             _ = basename;
             _ = prefix;
             _ = is_last; // Suppress unused warnings
@@ -86,8 +93,8 @@ test "basic ignored directories are not crawled" {
                 if (current_depth >= depth) return;
             }
 
-            // Try to open directory
-            const dir = std.fs.cwd().openDir(path, .{ .iterate = true }) catch |err| switch (err) {
+            // Try to open directory using the test directory handle
+            const dir = self.root_dir.openDir(relative_path, .{ .iterate = true }) catch |err| switch (err) {
                 error.NotDir => return,
                 error.InvalidUtf8 => return,
                 error.BadPathName => return,
@@ -122,7 +129,7 @@ test "basic ignored directories are not crawled" {
                 if (std.mem.indexOfScalar(u8, dir_entry.name, 0) != null) continue;
                 if (self.base_walker.filter.shouldHide(dir_entry.name)) continue;
 
-                const full_path = std.fs.path.join(self.base_walker.allocator, &.{ path, dir_entry.name }) catch continue;
+                const full_path = std.fs.path.join(self.base_walker.allocator, &.{ relative_path, dir_entry.name }) catch continue;
                 defer self.base_walker.allocator.free(full_path);
 
                 const is_ignored_by_name = self.base_walker.filter.shouldIgnore(dir_entry.name);
@@ -143,15 +150,15 @@ test "basic ignored directories are not crawled" {
     };
 
     // Run the walker with tracking
-    const test_walker = TestWalker.init(testing.allocator, config, &accessed_directories);
-    try test_walker.walkWithTracking(test_dir);
+    const test_walker = TestWalker.init(testing.allocator, config, &accessed_directories, tmp_dir.dir, test_dir_path);
+    try test_walker.walkWithTracking(".");
 
     // Verify results: ignored directories should NOT appear in accessed_directories
-    const forbidden_paths = [_][]const u8{
-        test_dir ++ "/node_modules",
-        test_dir ++ "/.git",
-        test_dir ++ "/target",
-        test_dir ++ "/src/tree/compiled",
+    const forbidden_suffixes = [_][]const u8{
+        "/node_modules",
+        "/.git",
+        "/target",
+        "/src/tree/compiled",
     };
 
     std.debug.print("\nAccessed directories:\n", .{});
@@ -160,37 +167,42 @@ test "basic ignored directories are not crawled" {
     }
 
     // Check that forbidden directories were never accessed
-    for (forbidden_paths) |forbidden| {
+    for (forbidden_suffixes) |suffix| {
         for (accessed_directories.items) |accessed| {
-            if (std.mem.eql(u8, accessed, forbidden)) {
-                std.debug.print("ERROR: Crawled into ignored directory: {s}\n", .{forbidden});
+            if (std.mem.endsWith(u8, accessed, suffix)) {
+                std.debug.print("ERROR: Crawled into ignored directory: {s}\n", .{accessed});
                 try testing.expect(false); // Fail the test
             }
         }
-        std.debug.print("✓ Correctly avoided: {s}\n", .{forbidden});
+        std.debug.print("✓ Correctly avoided paths ending with: {s}\n", .{suffix});
     }
 
     // Verify that normal directories WERE accessed
-    const expected_paths = [_][]const u8{
-        test_dir,
-        test_dir ++ "/normal_dir",
-        test_dir ++ "/src",
-        test_dir ++ "/src/tree",
+    const expected_suffixes = [_][]const u8{
+        "", // root
+        "/normal_dir",
+        "/src",
+        "/src/tree",
     };
 
-    for (expected_paths) |expected| {
+    for (expected_suffixes) |suffix| {
         var found = false;
         for (accessed_directories.items) |accessed| {
-            if (std.mem.eql(u8, accessed, expected)) {
+            if (suffix.len == 0) {
+                if (std.mem.eql(u8, accessed, test_dir_path)) {
+                    found = true;
+                    break;
+                }
+            } else if (std.mem.endsWith(u8, accessed, suffix)) {
                 found = true;
                 break;
             }
         }
         if (!found) {
-            std.debug.print("ERROR: Expected to access: {s}\n", .{expected});
+            std.debug.print("ERROR: Expected to access path ending with: {s}\n", .{suffix});
             try testing.expect(false);
         }
-        std.debug.print("✓ Correctly accessed: {s}\n", .{expected});
+        std.debug.print("✓ Correctly accessed path ending with: {s}\n", .{suffix});
     }
 
     // Cleanup allocated paths
@@ -206,9 +218,11 @@ test "nested path patterns are not crawled" {
     var accessed_directories = std.ArrayList([]const u8).init(testing.allocator);
     defer accessed_directories.deinit();
 
-    const test_dir = "test_nested_patterns";
-    std.fs.cwd().makeDir(test_dir) catch {};
-    defer std.fs.cwd().deleteTree(test_dir) catch {};
+    var tmp_dir = std.testing.tmpDir(.{});
+    defer tmp_dir.cleanup();
+    
+    const test_dir_path = try tmp_dir.dir.realpathAlloc(testing.allocator, ".");
+    defer testing.allocator.free(test_dir_path);
 
     // Create complex nested structure
     const paths_to_create = [_][]const u8{
@@ -218,14 +232,12 @@ test "nested path patterns are not crawled" {
     };
 
     for (paths_to_create) |path| {
-        const full_path = try std.fmt.allocPrint(testing.allocator, "{s}/{s}", .{ test_dir, path });
-        defer testing.allocator.free(full_path);
-        std.fs.cwd().makePath(full_path) catch {};
+        try tmp_dir.dir.makePath(path);
 
         // Add files to make directories "interesting" to crawl
-        const test_file = try std.fmt.allocPrint(testing.allocator, "{s}/test.txt", .{full_path});
+        const test_file = try std.fmt.allocPrint(testing.allocator, "{s}/test.txt", .{path});
         defer testing.allocator.free(test_file);
-        const file = std.fs.cwd().createFile(test_file, .{}) catch continue;
+        const file = try tmp_dir.dir.createFile(test_file, .{});
         file.close();
     }
 
@@ -235,36 +247,36 @@ test "nested path patterns are not crawled" {
     };
 
     const TestWalker = createTestWalker(tree_config);
-    const test_walker = TestWalker.init(testing.allocator, Config{ .tree_config = tree_config }, &accessed_directories);
-    try test_walker.walkWithTracking(test_dir);
+    const test_walker = TestWalker.init(testing.allocator, Config{ .tree_config = tree_config }, &accessed_directories, tmp_dir.dir, test_dir_path);
+    try test_walker.walkWithTracking(".");
 
     // Verify deep nested paths are not accessed
-    const forbidden_paths = [_][]const u8{
-        test_dir ++ "/node_modules",
-        test_dir ++ "/node_modules/deep",
-        test_dir ++ "/node_modules/deep/nested",
-        test_dir ++ "/src/tree/compiled",
-        test_dir ++ "/src/tree/compiled/test1",
-        test_dir ++ "/src/tree/compiled/test2",
+    const forbidden_suffixes = [_][]const u8{
+        "/node_modules",
+        "/node_modules/deep",
+        "/node_modules/deep/nested",
+        "/src/tree/compiled",
+        "/src/tree/compiled/test1",
+        "/src/tree/compiled/test2",
     };
 
-    for (forbidden_paths) |forbidden| {
+    for (forbidden_suffixes) |suffix| {
         for (accessed_directories.items) |accessed| {
-            try testing.expect(!std.mem.eql(u8, accessed, forbidden));
+            try testing.expect(!std.mem.endsWith(u8, accessed, suffix));
         }
     }
 
     // But verify allowed paths are accessed
-    const allowed_paths = [_][]const u8{
-        test_dir ++ "/src",
-        test_dir ++ "/src/cli",
-        test_dir ++ "/src/tree",
+    const allowed_suffixes = [_][]const u8{
+        "/src",
+        "/src/cli",
+        "/src/tree",
     };
 
-    for (allowed_paths) |allowed| {
+    for (allowed_suffixes) |suffix| {
         var found = false;
         for (accessed_directories.items) |accessed| {
-            if (std.mem.eql(u8, accessed, allowed)) {
+            if (std.mem.endsWith(u8, accessed, suffix)) {
                 found = true;
                 break;
             }
@@ -285,35 +297,30 @@ test "dot-prefixed directories are not crawled" {
     var accessed_directories = std.ArrayList([]const u8).init(testing.allocator);
     defer accessed_directories.deinit();
 
-    const test_dir = "test_dot_dirs";
-    std.fs.cwd().makeDir(test_dir) catch {};
-    defer std.fs.cwd().deleteTree(test_dir) catch {};
+    var tmp_dir = std.testing.tmpDir(.{});
+    defer tmp_dir.cleanup();
+    
+    const test_dir_path = try tmp_dir.dir.realpathAlloc(testing.allocator, ".");
+    defer testing.allocator.free(test_dir_path);
 
     const dot_dirs = [_][]const u8{ ".git", ".cache", ".config", ".hidden" };
     for (dot_dirs) |dot_dir| {
-        const full_path = try std.fmt.allocPrint(testing.allocator, "{s}/{s}", .{ test_dir, dot_dir });
-        defer testing.allocator.free(full_path);
-        std.fs.cwd().makeDir(full_path) catch {};
+        try tmp_dir.dir.makeDir(dot_dir);
 
         // Add nested structure inside dot dirs
-        const nested = try std.fmt.allocPrint(testing.allocator, "{s}/nested", .{full_path});
+        const nested = try std.fmt.allocPrint(testing.allocator, "{s}/nested", .{dot_dir});
         defer testing.allocator.free(nested);
-        std.fs.cwd().makeDir(nested) catch {};
+        try tmp_dir.dir.makePath(nested);
 
         const nested_file = try std.fmt.allocPrint(testing.allocator, "{s}/file.txt", .{nested});
         defer testing.allocator.free(nested_file);
-        const file = std.fs.cwd().createFile(nested_file, .{}) catch continue;
+        const file = try tmp_dir.dir.createFile(nested_file, .{});
         file.close();
     }
 
     // Also create normal directories
-    const normal_dir = try std.fmt.allocPrint(testing.allocator, "{s}/normal", .{test_dir});
-    defer testing.allocator.free(normal_dir);
-    std.fs.cwd().makeDir(normal_dir) catch {};
-
-    const normal_file = try std.fmt.allocPrint(testing.allocator, "{s}/file.txt", .{normal_dir});
-    defer testing.allocator.free(normal_file);
-    const file = std.fs.cwd().createFile(normal_file, .{}) catch unreachable;
+    try tmp_dir.dir.makeDir("normal");
+    const file = try tmp_dir.dir.createFile("normal/file.txt", .{});
     file.close();
 
     const tree_config = TreeConfig{
@@ -322,8 +329,8 @@ test "dot-prefixed directories are not crawled" {
     };
 
     const TestWalker = createTestWalker(tree_config);
-    const test_walker = TestWalker.init(testing.allocator, Config{ .tree_config = tree_config }, &accessed_directories);
-    try test_walker.walkWithTracking(test_dir);
+    const test_walker = TestWalker.init(testing.allocator, Config{ .tree_config = tree_config }, &accessed_directories, tmp_dir.dir, test_dir_path);
+    try test_walker.walkWithTracking(".");
 
     // Verify no dot directories were crawled
     for (accessed_directories.items) |accessed| {
@@ -357,34 +364,28 @@ test "empty and populated ignored directories are not crawled" {
     var accessed_directories = std.ArrayList([]const u8).init(testing.allocator);
     defer accessed_directories.deinit();
 
-    const test_dir = "test_empty_vs_populated";
-    std.fs.cwd().makeDir(test_dir) catch {};
-    defer std.fs.cwd().deleteTree(test_dir) catch {};
+    var tmp_dir = std.testing.tmpDir(.{});
+    defer tmp_dir.cleanup();
+    
+    const test_dir_path = try tmp_dir.dir.realpathAlloc(testing.allocator, ".");
+    defer testing.allocator.free(test_dir_path);
 
     // Create empty ignored directory
-    const empty_dir = try std.fmt.allocPrint(testing.allocator, "{s}/empty_ignored", .{test_dir});
-    defer testing.allocator.free(empty_dir);
-    std.fs.cwd().makeDir(empty_dir) catch {};
+    try tmp_dir.dir.makeDir("empty_ignored");
 
     // Create populated ignored directory with many files
-    const populated_dir = try std.fmt.allocPrint(testing.allocator, "{s}/populated_ignored", .{test_dir});
-    defer testing.allocator.free(populated_dir);
-    std.fs.cwd().makeDir(populated_dir) catch {};
+    try tmp_dir.dir.makeDir("populated_ignored");
     var i: u32 = 0;
     while (i < 20) : (i += 1) {
-        const filename = try std.fmt.allocPrint(testing.allocator, "{s}/file_{d}.txt", .{ populated_dir, i });
+        const filename = try std.fmt.allocPrint(testing.allocator, "populated_ignored/file_{d}.txt", .{i});
         defer testing.allocator.free(filename);
-        const file = std.fs.cwd().createFile(filename, .{}) catch continue;
+        const file = try tmp_dir.dir.createFile(filename, .{});
         file.close();
     }
 
     // Create subdirectories in populated ignored
-    const subdir1 = try std.fmt.allocPrint(testing.allocator, "{s}/subdir1", .{populated_dir});
-    defer testing.allocator.free(subdir1);
-    const subdir2 = try std.fmt.allocPrint(testing.allocator, "{s}/subdir2", .{populated_dir});
-    defer testing.allocator.free(subdir2);
-    std.fs.cwd().makeDir(subdir1) catch {};
-    std.fs.cwd().makeDir(subdir2) catch {};
+    try tmp_dir.dir.makePath("populated_ignored/subdir1");
+    try tmp_dir.dir.makePath("populated_ignored/subdir2");
 
     const tree_config = TreeConfig{
         .ignored_patterns = &[_][]const u8{ "empty_ignored", "populated_ignored" },
@@ -392,20 +393,20 @@ test "empty and populated ignored directories are not crawled" {
     };
 
     const TestWalker = createTestWalker(tree_config);
-    const test_walker = TestWalker.init(testing.allocator, Config{ .tree_config = tree_config }, &accessed_directories);
-    try test_walker.walkWithTracking(test_dir);
+    const test_walker = TestWalker.init(testing.allocator, Config{ .tree_config = tree_config }, &accessed_directories, tmp_dir.dir, test_dir_path);
+    try test_walker.walkWithTracking(".");
 
     // Verify neither empty nor populated ignored dirs were crawled
-    const forbidden_paths = [_][]const u8{
-        test_dir ++ "/empty_ignored",
-        test_dir ++ "/populated_ignored",
-        test_dir ++ "/populated_ignored/subdir1",
-        test_dir ++ "/populated_ignored/subdir2",
+    const forbidden_suffixes = [_][]const u8{
+        "/empty_ignored",
+        "/populated_ignored",
+        "/populated_ignored/subdir1",
+        "/populated_ignored/subdir2",
     };
 
-    for (forbidden_paths) |forbidden| {
+    for (forbidden_suffixes) |suffix| {
         for (accessed_directories.items) |accessed| {
-            try testing.expect(!std.mem.eql(u8, accessed, forbidden));
+            try testing.expect(!std.mem.endsWith(u8, accessed, suffix));
         }
     }
 
@@ -422,9 +423,11 @@ test "configuration fallbacks and edge cases" {
     var accessed_directories = std.ArrayList([]const u8).init(testing.allocator);
     defer accessed_directories.deinit();
 
-    const test_dir = "test_config_edge_cases";
-    std.fs.cwd().makeDir(test_dir) catch {};
-    defer std.fs.cwd().deleteTree(test_dir) catch {};
+    var tmp_dir = std.testing.tmpDir(.{});
+    defer tmp_dir.cleanup();
+    
+    const test_dir_path = try tmp_dir.dir.realpathAlloc(testing.allocator, ".");
+    defer testing.allocator.free(test_dir_path);
 
     // Test empty configuration
     const empty_config = TreeConfig{
@@ -432,18 +435,13 @@ test "configuration fallbacks and edge cases" {
         .hidden_files = &[_][]const u8{}, // Empty
     };
 
-    const crawled_dir = try std.fmt.allocPrint(testing.allocator, "{s}/should_be_crawled", .{test_dir});
-    defer testing.allocator.free(crawled_dir);
-    std.fs.cwd().makeDir(crawled_dir) catch {};
-
-    const crawled_file = try std.fmt.allocPrint(testing.allocator, "{s}/file.txt", .{crawled_dir});
-    defer testing.allocator.free(crawled_file);
-    const file = std.fs.cwd().createFile(crawled_file, .{}) catch unreachable;
+    try tmp_dir.dir.makeDir("should_be_crawled");
+    const file = try tmp_dir.dir.createFile("should_be_crawled/file.txt", .{});
     file.close();
 
     const TestWalker = createTestWalker(empty_config);
-    const test_walker = TestWalker.init(testing.allocator, Config{ .tree_config = empty_config }, &accessed_directories);
-    try test_walker.walkWithTracking(test_dir);
+    const test_walker = TestWalker.init(testing.allocator, Config{ .tree_config = empty_config }, &accessed_directories, tmp_dir.dir, test_dir_path);
+    try test_walker.walkWithTracking(".");
 
     // With empty config, normal dirs should be crawled
     var found = false;
@@ -468,9 +466,11 @@ test "real project structure is handled correctly" {
     var accessed_directories = std.ArrayList([]const u8).init(testing.allocator);
     defer accessed_directories.deinit();
 
-    const test_dir = "test_real_project";
-    std.fs.cwd().makeDir(test_dir) catch {};
-    defer std.fs.cwd().deleteTree(test_dir) catch {};
+    var tmp_dir = std.testing.tmpDir(.{});
+    defer tmp_dir.cleanup();
+    
+    const test_dir_path = try tmp_dir.dir.realpathAlloc(testing.allocator, ".");
+    defer testing.allocator.free(test_dir_path);
 
     // Simulate real project structure like our zz project
     const project_structure = [_][]const u8{
@@ -479,16 +479,14 @@ test "real project structure is handled correctly" {
     };
 
     for (project_structure) |path| {
-        const full_path = try std.fmt.allocPrint(testing.allocator, "{s}/{s}", .{ test_dir, path });
-        defer testing.allocator.free(full_path);
-        std.fs.cwd().makePath(full_path) catch {};
+        try tmp_dir.dir.makePath(path);
 
         // Add realistic files
         const extensions = [_][]const u8{ ".zig", ".md", ".txt" };
         for (extensions) |ext| {
-            const filename = try std.fmt.allocPrint(testing.allocator, "{s}/test{s}", .{ full_path, ext });
+            const filename = try std.fmt.allocPrint(testing.allocator, "{s}/test{s}", .{ path, ext });
             defer testing.allocator.free(filename);
-            const file = std.fs.cwd().createFile(filename, .{}) catch continue;
+            const file = try tmp_dir.dir.createFile(filename, .{});
             file.close();
         }
     }
@@ -500,42 +498,42 @@ test "real project structure is handled correctly" {
     };
 
     const TestWalker = createTestWalker(tree_config);
-    const test_walker = TestWalker.init(testing.allocator, Config{ .tree_config = tree_config }, &accessed_directories);
-    try test_walker.walkWithTracking(test_dir);
+    const test_walker = TestWalker.init(testing.allocator, Config{ .tree_config = tree_config }, &accessed_directories, tmp_dir.dir, test_dir_path);
+    try test_walker.walkWithTracking(".");
 
     // Verify ignored paths are not crawled
-    const should_be_ignored = [_][]const u8{
-        test_dir ++ "/.git",
-        test_dir ++ "/.zig-cache",
-        test_dir ++ "/zig-out",
-        test_dir ++ "/zig-out/bin",
-        test_dir ++ "/src/tree/compiled",
+    const should_be_ignored_suffixes = [_][]const u8{
+        "/.git",
+        "/.zig-cache",
+        "/zig-out",
+        "/zig-out/bin",
+        "/src/tree/compiled",
     };
 
-    for (should_be_ignored) |ignored| {
+    for (should_be_ignored_suffixes) |suffix| {
         for (accessed_directories.items) |accessed| {
-            try testing.expect(!std.mem.eql(u8, accessed, ignored));
+            try testing.expect(!std.mem.endsWith(u8, accessed, suffix));
         }
     }
 
     // Verify allowed paths are crawled
-    const should_be_crawled = [_][]const u8{
-        test_dir ++ "/src",
-        test_dir ++ "/src/cli",
-        test_dir ++ "/src/tree",
-        test_dir ++ "/src/tree/test",
+    const should_be_crawled_suffixes = [_][]const u8{
+        "/src",
+        "/src/cli",
+        "/src/tree",
+        "/src/tree/test",
     };
 
-    for (should_be_crawled) |expected| {
+    for (should_be_crawled_suffixes) |suffix| {
         var found = false;
         for (accessed_directories.items) |accessed| {
-            if (std.mem.eql(u8, accessed, expected)) {
+            if (std.mem.endsWith(u8, accessed, suffix)) {
                 found = true;
                 break;
             }
         }
         if (!found) {
-            std.debug.print("ERROR: Expected to find: {s}\n", .{expected});
+            std.debug.print("ERROR: Expected to find path ending with: {s}\n", .{suffix});
             try testing.expect(false);
         }
     }
@@ -554,28 +552,35 @@ fn createTestWalker(comptime tree_config: TreeConfig) type {
     return struct {
         base_walker: Walker,
         tracked_dirs: *std.ArrayList([]const u8),
+        root_dir: std.fs.Dir,
+        root_path: []const u8,
 
         const Self = @This();
 
-        pub fn init(allocator: std.mem.Allocator, cfg: Config, tracked_dirs: *std.ArrayList([]const u8)) Self {
+        pub fn init(allocator: std.mem.Allocator, cfg: Config, tracked_dirs: *std.ArrayList([]const u8), root_dir: std.fs.Dir, root_path: []const u8) Self {
             return Self{
                 .base_walker = Walker.init(allocator, cfg),
                 .tracked_dirs = tracked_dirs,
+                .root_dir = root_dir,
+                .root_path = root_path,
             };
         }
 
-        pub fn walkWithTracking(self: Self, path: []const u8) !void {
+        pub fn walkWithTracking(self: Self, relative_path: []const u8) !void {
             mock_active = true;
             defer mock_active = false;
             self.tracked_dirs.clearRetainingCapacity();
 
-            try self.walkRecursiveWithTracking(path, "", true, 0);
+            try self.walkRecursiveWithTracking(relative_path, "", true, 0);
         }
 
-        fn walkRecursiveWithTracking(self: Self, path: []const u8, prefix: []const u8, is_last: bool, current_depth: u32) !void {
-            // Record directory access
-            const path_copy = try testing.allocator.dupe(u8, path);
-            try self.tracked_dirs.append(path_copy);
+        fn walkRecursiveWithTracking(self: Self, relative_path: []const u8, prefix: []const u8, is_last: bool, current_depth: u32) !void {
+            // Record directory access (store as absolute path for verification)
+            const abs_path = if (std.mem.eql(u8, relative_path, "."))
+                try testing.allocator.dupe(u8, self.root_path)
+            else
+                try std.fs.path.join(testing.allocator, &.{ self.root_path, relative_path });
+            try self.tracked_dirs.append(abs_path);
 
             _ = prefix;
             _ = is_last; // Suppress unused warnings
@@ -585,7 +590,7 @@ fn createTestWalker(comptime tree_config: TreeConfig) type {
                 if (current_depth >= depth) return;
             }
 
-            const dir = std.fs.cwd().openDir(path, .{ .iterate = true }) catch return;
+            const dir = self.root_dir.openDir(relative_path, .{ .iterate = true }) catch return;
             var iter_dir = dir;
             defer iter_dir.close();
 
@@ -601,7 +606,7 @@ fn createTestWalker(comptime tree_config: TreeConfig) type {
                 if (std.mem.indexOfScalar(u8, dir_entry.name, 0) != null) continue;
                 if (self.base_walker.filter.shouldHide(dir_entry.name)) continue;
 
-                const full_path = std.fs.path.join(self.base_walker.allocator, &.{ path, dir_entry.name }) catch continue;
+                const full_path = std.fs.path.join(self.base_walker.allocator, &.{ relative_path, dir_entry.name }) catch continue;
                 defer self.base_walker.allocator.free(full_path);
 
                 const is_ignored_by_name = self.base_walker.filter.shouldIgnore(dir_entry.name);

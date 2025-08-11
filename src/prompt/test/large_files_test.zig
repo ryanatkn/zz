@@ -8,19 +8,22 @@ test "single large file warning" {
     var tmp_dir = std.testing.tmpDir(.{});
     defer tmp_dir.cleanup();
     
-    // Create a large file (over 10MB limit)
-    const large_size = 11 * 1024 * 1024; // 11MB
-    const large_content = try allocator.alloc(u8, large_size);
-    defer allocator.free(large_content);
-    @memset(large_content, 'a');
+    // Create a file that appears large without actually writing 11MB
+    // We'll create a sparse file or just a smaller file that still tests the logic
+    const file = try tmp_dir.dir.createFile("large.zig", .{});
+    defer file.close();
     
-    try tmp_dir.dir.writeFile(.{ .sub_path = "large.zig", .data = large_content });
+    // Use seekTo to make the file appear large without writing all the data
+    // This reduces SSD wear significantly
+    const large_size = 11 * 1024 * 1024; // 11MB
+    try file.seekTo(large_size - 1);
+    try file.writeAll("\n");
     
     var path_buf: [std.fs.max_path_bytes]u8 = undefined;
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
     
-    // Try to add the large file to prompt
-    var builder = PromptBuilder.init(allocator);
+    // Try to add the large file to prompt (using quiet mode to suppress warning)
+    var builder = PromptBuilder.initQuiet(allocator);
     defer builder.deinit();
     
     const large_path = try std.fmt.allocPrint(allocator, "{s}/large.zig", .{tmp_path});
@@ -28,8 +31,14 @@ test "single large file warning" {
     
     var files = [_][]u8{large_path};
     
-    // This should handle the large file gracefully (skip with warning)
+    // This should handle the large file gracefully (skip without warning in quiet mode)
     try builder.addFiles(&files);
+    
+    // Verify the file was skipped (output should be empty)
+    var output = std.ArrayList(u8).init(allocator);
+    defer output.deinit();
+    try builder.write(output.writer());
+    try std.testing.expect(output.items.len == 0);
 }
 
 test "many small files" {

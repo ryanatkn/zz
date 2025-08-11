@@ -7,17 +7,16 @@ const TreeConfig = @import("../config.zig").TreeConfig;
 
 // Test handling of various filesystem edge cases
 test "symlink handling" {
-    const test_dir = "symlink_test";
-    std.fs.cwd().makeDir(test_dir) catch {};
-    defer std.fs.cwd().deleteTree(test_dir) catch {};
+    var tmp_dir = std.testing.tmpDir(.{});
+    defer tmp_dir.cleanup();
 
     // Create a regular directory
-    std.fs.cwd().makeDir(test_dir ++ "/regular") catch {};
-    const file = std.fs.cwd().createFile(test_dir ++ "/regular/file.txt", .{}) catch unreachable;
+    try tmp_dir.dir.makeDir("regular");
+    const file = try tmp_dir.dir.createFile("regular/file.txt", .{});
     file.close();
 
     // Try to create a symlink (might fail on some systems/permissions)
-    std.fs.cwd().symLink("regular", test_dir ++ "/symlink", .{}) catch |err| switch (err) {
+    tmp_dir.dir.symLink("regular", "symlink", .{}) catch |err| switch (err) {
         error.AccessDenied, error.FileNotFound => {
             std.debug.print("Symlink test skipped (no permission/support)\n", .{});
             return;
@@ -35,7 +34,10 @@ test "symlink handling" {
     const walker = Walker.initQuiet(testing.allocator, config);
 
     // Should not crash on symlinks
-    walker.walk(test_dir) catch |err| switch (err) {
+    const test_dir_path = try tmp_dir.dir.realpathAlloc(testing.allocator, ".");
+    defer testing.allocator.free(test_dir_path);
+    
+    walker.walk(test_dir_path) catch |err| switch (err) {
         error.SymLinkLoop => {}, // Expected for some symlink scenarios
         else => return err,
     };
@@ -64,15 +66,14 @@ test "null byte injection protection" {
 test "circular reference handling" {
     // This is hard to test without actually creating circular references
     // But we can test that the walker doesn't crash on complex structures
-    const test_dir = "circular_test";
-    std.fs.cwd().makeDir(test_dir) catch {};
-    defer std.fs.cwd().deleteTree(test_dir) catch {};
+    var tmp_dir = std.testing.tmpDir(.{});
+    defer tmp_dir.cleanup();
 
     // Create a deep structure that might cause issues
     var current_path = std.ArrayList(u8).init(testing.allocator);
     defer current_path.deinit();
 
-    try current_path.appendSlice(test_dir);
+    try current_path.appendSlice(".");
 
     var depth: u32 = 0;
     while (depth < 50) : (depth += 1) {
@@ -81,7 +82,7 @@ test "circular reference handling" {
         defer testing.allocator.free(depth_str);
         try current_path.appendSlice(depth_str);
 
-        std.fs.cwd().makePath(current_path.items) catch break;
+        tmp_dir.dir.makePath(current_path.items) catch break;
     }
 
     const tree_config = TreeConfig{
@@ -95,7 +96,11 @@ test "circular reference handling" {
     };
 
     const walker = Walker.initQuiet(testing.allocator, config);
-    try walker.walk(test_dir);
+    
+    const test_dir_path = try tmp_dir.dir.realpathAlloc(testing.allocator, ".");
+    defer testing.allocator.free(test_dir_path);
+    
+    try walker.walk(test_dir_path);
 
     std.debug.print("✅ Circular reference handling test passed!\n", .{});
 }

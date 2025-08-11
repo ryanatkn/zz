@@ -5,6 +5,7 @@ pub const PromptBuilder = struct {
     allocator: std.mem.Allocator,
     lines: std.ArrayList([]const u8),
     arena: std.heap.ArenaAllocator,
+    quiet: bool,
     
     const Self = @This();
     const max_file_size = 10 * 1024 * 1024; // 10MB
@@ -14,6 +15,16 @@ pub const PromptBuilder = struct {
             .allocator = allocator,
             .lines = std.ArrayList([]const u8).init(allocator),
             .arena = std.heap.ArenaAllocator.init(allocator),
+            .quiet = false,
+        };
+    }
+    
+    pub fn initQuiet(allocator: std.mem.Allocator) Self {
+        return Self{
+            .allocator = allocator,
+            .lines = std.ArrayList([]const u8).init(allocator),
+            .arena = std.heap.ArenaAllocator.init(allocator),
+            .quiet = true,
         };
     }
     
@@ -34,7 +45,9 @@ pub const PromptBuilder = struct {
         
         const stat = try file.stat();
         if (stat.size > max_file_size) {
-            std.debug.print("Warning: Skipping large file (>{d}MB): {s}\n", .{ max_file_size / (1024 * 1024), file_path });
+            if (!self.quiet) {
+                std.debug.print("Warning: Skipping large file (>{d}MB): {s}\n", .{ max_file_size / (1024 * 1024), file_path });
+            }
             return;
         }
         

@@ -37,11 +37,13 @@ test "configuration loading with missing file" {
 
 // Test configuration with malformed file
 test "configuration loading with invalid file" {
+    var tmp_dir = std.testing.tmpDir(.{});
+    defer tmp_dir.cleanup();
+    
     // Create malformed zz.zon file
     const malformed_content = "this is not valid zig syntax {[}";
-    const file = std.fs.cwd().createFile("test_invalid.zon", .{}) catch unreachable;
+    const file = try tmp_dir.dir.createFile("test_invalid.zon", .{});
     defer file.close();
-    defer std.fs.cwd().deleteFile("test_invalid.zon") catch {};
 
     try file.writeAll(malformed_content);
 

@@ -3,10 +3,20 @@
 
 const std = @import("std");
 
+// Import all test modules - this ensures their test blocks are included
 test {
-    // Import all modules with tests - this will run all their test blocks
+    // Reference main modules to include their test blocks
     std.testing.refAllDeclsRecursive(@import("main.zig"));
     std.testing.refAllDeclsRecursive(@import("cli/args.zig"));
+    std.testing.refAllDeclsRecursive(@import("config.zig"));
+}
+
+// Import tree tests
+test {
     std.testing.refAllDeclsRecursive(@import("tree/test.zig"));
+}
+
+// Import prompt tests  
+test {
     std.testing.refAllDeclsRecursive(@import("prompt/test.zig"));
 }

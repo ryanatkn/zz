@@ -45,7 +45,9 @@ test "basic ignored directories are not crawled" {
     const shared_config = SharedConfig{
         .ignored_patterns = &ignored,
         .hidden_files = &hidden,
+        .gitignore_patterns = &[_][]const u8{},
         .symlink_behavior = .skip,
+        .respect_gitignore = false,
         .patterns_allocated = false,
     };
 
@@ -257,7 +259,9 @@ test "nested path patterns are not crawled" {
     const shared_config = SharedConfig{
         .ignored_patterns = &ignored,
         .hidden_files = &hidden,
+        .gitignore_patterns = &[_][]const u8{},
         .symlink_behavior = .skip,
+        .respect_gitignore = false,
         .patterns_allocated = false,
     };
 
@@ -344,7 +348,9 @@ test "dot-prefixed directories are not crawled" {
     const shared_config = SharedConfig{
         .ignored_patterns = &ignored,
         .hidden_files = &hidden,
+        .gitignore_patterns = &[_][]const u8{},
         .symlink_behavior = .skip,
+        .respect_gitignore = false,
         .patterns_allocated = false,
     };
 
@@ -413,7 +419,9 @@ test "empty and populated ignored directories are not crawled" {
     const shared_config = SharedConfig{
         .ignored_patterns = &ignored,
         .hidden_files = &hidden,
+        .gitignore_patterns = &[_][]const u8{},
         .symlink_behavior = .skip,
+        .respect_gitignore = false,
         .patterns_allocated = false,
     };
 
@@ -461,7 +469,9 @@ test "configuration fallbacks and edge cases" {
     const shared_config = SharedConfig{
         .ignored_patterns = &ignored,
         .hidden_files = &hidden,
+        .gitignore_patterns = &[_][]const u8{},
         .symlink_behavior = .skip,
+        .respect_gitignore = false,
         .patterns_allocated = false,
     };
 
@@ -528,7 +538,9 @@ test "real project structure is handled correctly" {
     const shared_config = SharedConfig{
         .ignored_patterns = &ignored,
         .hidden_files = &hidden,
+        .gitignore_patterns = &[_][]const u8{},
         .symlink_behavior = .skip,
+        .respect_gitignore = false,
         .patterns_allocated = false,
     };
 

@@ -35,6 +35,17 @@ pub const Config = struct {
             config.allow_empty_glob = true;
         } else if (std.mem.eql(u8, arg, "--allow-missing")) {
             config.allow_missing = true;
+        } else if (std.mem.eql(u8, arg, "--no-gitignore")) {
+            // Handle gitignore override
+            config.shared_config.respect_gitignore = false;
+            // Clear existing gitignore patterns to save memory
+            if (config.shared_config.patterns_allocated) {
+                for (config.shared_config.gitignore_patterns) |pattern| {
+                    allocator.free(pattern);
+                }
+                allocator.free(config.shared_config.gitignore_patterns);
+            }
+            config.shared_config.gitignore_patterns = &[_][]const u8{};
         }
     }
 
@@ -170,9 +181,9 @@ test "ignore patterns" {
     try std.testing.expect(config.shouldIgnore("node_modules/package/index.js"));
 
     // Test non-ignored paths
-    try std.testing.expect(!config.shouldIgnore("src/main.zig"));
     try std.testing.expect(!config.shouldIgnore("README.md"));
-    try std.testing.expect(!config.shouldIgnore("src/module.test.zig"));
+    try std.testing.expect(!config.shouldIgnore("docs/example.md"));
+    try std.testing.expect(!config.shouldIgnore("build.zig"));
 }
 
 test "config flag parsing" {

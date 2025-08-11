@@ -78,7 +78,9 @@ test "performance with large directory structure" {
     const shared_config = SharedConfig{
         .ignored_patterns = &ignored,
         .hidden_files = &hidden,
+        .gitignore_patterns = &[_][]const u8{},
         .symlink_behavior = .skip,
+        .respect_gitignore = false,
         .patterns_allocated = false,
     };
 
@@ -143,7 +145,9 @@ test "performance with many ignored directories" {
     const shared_config = SharedConfig{
         .ignored_patterns = &ignored,
         .hidden_files = &hidden,
+        .gitignore_patterns = &[_][]const u8{},
         .symlink_behavior = .skip,
+        .respect_gitignore = false,
         .patterns_allocated = false,
     };
 
@@ -198,7 +202,9 @@ test "memory efficiency with deep nesting" {
     const shared_config = SharedConfig{
         .ignored_patterns = &ignored,
         .hidden_files = &hidden,
+        .gitignore_patterns = &[_][]const u8{},
         .symlink_behavior = .skip,
+        .respect_gitignore = false,
         .patterns_allocated = false,
     };
 
@@ -265,7 +271,9 @@ test "performance comparison ignored vs not ignored" {
     const shared_config = SharedConfig{
         .ignored_patterns = &ignored,
         .hidden_files = &hidden,
+        .gitignore_patterns = &[_][]const u8{},
         .symlink_behavior = .skip,
+        .respect_gitignore = false,
         .patterns_allocated = false,
     };
 
@@ -289,7 +297,9 @@ test "performance comparison ignored vs not ignored" {
     const shared_config2 = SharedConfig{
         .ignored_patterns = &ignored2,
         .hidden_files = &hidden2,
+        .gitignore_patterns = &[_][]const u8{},
         .symlink_behavior = .skip,
+        .respect_gitignore = false,
         .patterns_allocated = false,
     };
 
@@ -334,7 +344,9 @@ test "scalability with increasing directory sizes" {
     const shared_config = SharedConfig{
         .ignored_patterns = &ignored,
         .hidden_files = &hidden,
+        .gitignore_patterns = &[_][]const u8{},
         .symlink_behavior = .skip,
+        .respect_gitignore = false,
         .patterns_allocated = false,
     };
 
@@ -429,7 +441,9 @@ test "memory stress test" {
     const shared_config = SharedConfig{
         .ignored_patterns = &ignored,
         .hidden_files = &hidden,
+        .gitignore_patterns = &[_][]const u8{},
         .symlink_behavior = .skip,
+        .respect_gitignore = false,
         .patterns_allocated = false,
     };
 

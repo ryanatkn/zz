@@ -29,7 +29,9 @@ test "multiple walker instances" {
     const shared_config = SharedConfig{
         .ignored_patterns = &ignored,
         .hidden_files = &hidden,
+        .gitignore_patterns = &[_][]const u8{},
         .symlink_behavior = .skip,
+        .respect_gitignore = false,
         .patterns_allocated = false,
     };
 
@@ -59,7 +61,9 @@ test "config immutability" {
     const shared_config = SharedConfig{
         .ignored_patterns = &ignored,
         .hidden_files = &hidden,
+        .gitignore_patterns = &[_][]const u8{},
         .symlink_behavior = .skip,
+        .respect_gitignore = false,
         .patterns_allocated = false,
     };
 
@@ -114,7 +118,9 @@ test "memory stress with config changes" {
         const shared_config = SharedConfig{
             .ignored_patterns = patterns,
             .hidden_files = &hidden,
+            .gitignore_patterns = &[_][]const u8{},
             .symlink_behavior = .skip,
+            .respect_gitignore = false,
             .patterns_allocated = false,
         };
 

@@ -90,6 +90,10 @@ zig build run -- tree . 2
 # Show src directory with default depth  
 zig build run -- tree src/
 
+# Gitignore support (respects .gitignore by default)
+zig build run -- tree              # Hides files matching .gitignore patterns
+zig build run -- tree --no-gitignore  # Shows all files including gitignored ones
+
 # Generate prompt from all Zig files
 zig build run -- prompt "src/**/*.zig" > prompt.md
 
@@ -98,6 +102,10 @@ zig build run -- prompt --prepend="Context:" --append="Question?" src/*.zig
 
 # Multiple file types
 zig build run -- prompt "*.{zig,md,txt}"
+
+# Prompt with gitignore support
+zig build run -- prompt "src/**/*.zig"  # Excludes gitignored files by default
+zig build run -- prompt "src/**/*.zig" --no-gitignore  # Includes all matching files
 
 # Error if no files provided (won't default to *.zig)
 zig build run -- prompt  # Error: No input files specified
@@ -125,6 +133,9 @@ Create a `zz.zon` file in any directory to customize behavior:
     
     // Symlink behavior: "skip", "follow", or "show"
     .symlink_behavior = "skip",
+    
+    // Gitignore support: true (default) or false
+    .respect_gitignore = true,
 }
 ```
 
@@ -136,6 +147,13 @@ Create a `zz.zon` file in any directory to customize behavior:
 - **Per-directory** - Config is respected from current working directory
 
 **Default ignore patterns:** `.git`, `node_modules`, `.zig-cache`, `zig-out`, `build`, `dist`, `target`, `__pycache__`, `venv`, `tmp`, etc.
+
+**Gitignore Integration:**
+- Automatically reads `.gitignore` files from the current directory
+- Files matching gitignore patterns are completely hidden (like `git ls-files` behavior)
+- Directories matching gitignore patterns show as `[...]` 
+- Use `--no-gitignore` flag or set `respect_gitignore = false` to disable
+- Supports basic gitignore syntax: wildcards (`*.tmp`), negation (`!important.tmp`), directory patterns (`build/`)
 
 ## Architecture
 

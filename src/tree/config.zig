@@ -38,7 +38,7 @@ pub const Config = struct {
         };
 
         const config = Self{
-            .shared_config = try loadSharedConfig(allocator),
+            .shared_config = try loadSharedConfig(allocator, parsed_args.no_gitignore),
             .max_depth = parsed_args.max_depth,
             .show_hidden = parsed_args.show_hidden,
             .format = parsed_args.format,
@@ -53,6 +53,7 @@ pub const Config = struct {
         max_depth: ?u32 = null,
         format: Format = .tree,
         show_hidden: bool = false,
+        no_gitignore: bool = false,
     };
 
     fn parseArgs(allocator: std.mem.Allocator, args: [][:0]const u8) ArgError!ParsedArgs {
@@ -76,6 +77,8 @@ pub const Config = struct {
                 result.format = Format.fromString(format_str) orelse return ArgError.InvalidFormat;
             } else if (std.mem.eql(u8, arg, "--show-hidden")) {
                 result.show_hidden = true;
+            } else if (std.mem.eql(u8, arg, "--no-gitignore")) {
+                result.no_gitignore = true;
             } else if (std.mem.startsWith(u8, arg, "-")) {
                 return ArgError.InvalidFlag;
             } else {
@@ -100,11 +103,13 @@ pub const Config = struct {
         std.debug.print("Options:\n", .{});
         std.debug.print("  --format=FORMAT               Output format: tree (default) or list\n", .{});
         std.debug.print("  --show-hidden                 Show hidden files\n", .{});
+        std.debug.print("  --no-gitignore                Disable .gitignore parsing (respects .gitignore by default)\n", .{});
         std.debug.print("\n", .{});
         std.debug.print("Examples:\n", .{});
-        std.debug.print("  {s} {s}                       # Tree of current directory\n", .{ program_name, command });
+        std.debug.print("  {s} {s}                       # Tree of current directory (respects .gitignore)\n", .{ program_name, command });
         std.debug.print("  {s} {s} src 2                 # Tree of src/ with max depth 2\n", .{ program_name, command });
         std.debug.print("  {s} {s} --format=list         # List format of current directory\n", .{ program_name, command });
+        std.debug.print("  {s} {s} --no-gitignore        # Tree ignoring .gitignore files\n", .{ program_name, command });
     }
 
     fn formatArgError(err: ArgError) []const u8 {
@@ -117,11 +122,26 @@ pub const Config = struct {
         };
     }
 
-    fn loadSharedConfig(allocator: std.mem.Allocator) !SharedConfig {
+    fn loadSharedConfig(allocator: std.mem.Allocator, no_gitignore: bool) !SharedConfig {
         var zon_loader = ZonLoader.init(allocator);
         defer zon_loader.deinit();
 
-        return try zon_loader.getSharedConfig();
+        var config = try zon_loader.getSharedConfig();
+        
+        // Override gitignore behavior if --no-gitignore flag is used
+        if (no_gitignore) {
+            config.respect_gitignore = false;
+            // Clear any existing gitignore patterns to save memory
+            if (config.patterns_allocated) {
+                for (config.gitignore_patterns) |pattern| {
+                    allocator.free(pattern);
+                }
+                allocator.free(config.gitignore_patterns);
+            }
+            config.gitignore_patterns = &[_][]const u8{};
+        }
+
+        return config;
     }
 
     pub fn deinit(self: *Self, allocator: std.mem.Allocator) void {

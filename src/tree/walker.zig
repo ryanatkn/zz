@@ -132,17 +132,21 @@ pub const Walker = struct {
             const relative_entry_path = try self.path_builder.buildPath(relative_path, dir_entry.name);
             defer self.allocator.free(relative_entry_path);
 
-            // Display entry if it should be shown (ignored entries show as [...])
+            // Handle ignored entries
             if (tree_entry.is_ignored or tree_entry.is_depth_limited) {
-                self.formatter.formatEntry(tree_entry, if (self.config.format == .list) relative_entry_path else new_prefix, is_last_entry);
-                continue; // Don't traverse into these directories (performance optimization)
+                if (dir_entry.kind == .directory) {
+                    // Ignored directories show as [...]
+                    self.formatter.formatEntry(tree_entry, if (self.config.format == .list) relative_entry_path else new_prefix, is_last_entry);
+                }
+                // Ignored files are completely skipped (like git behavior)
+                continue; // Don't traverse into ignored directories (performance optimization)
             }
 
             // If it's a directory and not ignored, recurse into it
             if (dir_entry.kind == .directory) {
                 try self.walkRecursive(full_path, new_prefix, relative_entry_path, is_last_entry, current_depth + 1);
             } else {
-                // It's a file, just display it
+                // It's a file and not ignored, display it
                 self.formatter.formatEntry(tree_entry, if (self.config.format == .list) relative_entry_path else new_prefix, is_last_entry);
             }
         }

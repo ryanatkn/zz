@@ -31,7 +31,9 @@ test "symlink handling" {
     const shared_config = SharedConfig{
         .ignored_patterns = &ignored,
         .hidden_files = &hidden,
+        .gitignore_patterns = &[_][]const u8{},
         .symlink_behavior = .skip,
+        .respect_gitignore = false,
         .patterns_allocated = false,
     };
 
@@ -58,7 +60,9 @@ test "null byte injection protection" {
     const shared_config = SharedConfig{
         .ignored_patterns = &ignored,
         .hidden_files = &hidden,
+        .gitignore_patterns = &[_][]const u8{},
         .symlink_behavior = .skip,
+        .respect_gitignore = false,
         .patterns_allocated = false,
     };
 
@@ -101,7 +105,9 @@ test "circular reference handling" {
     const shared_config = SharedConfig{
         .ignored_patterns = &ignored,
         .hidden_files = &hidden,
+        .gitignore_patterns = &[_][]const u8{},
         .symlink_behavior = .skip,
+        .respect_gitignore = false,
         .patterns_allocated = false,
     };
 
@@ -153,7 +159,9 @@ test "filesystem encoding edge cases" {
     const shared_config = SharedConfig{
         .ignored_patterns = &ignored,
         .hidden_files = &hidden,
+        .gitignore_patterns = &[_][]const u8{},
         .symlink_behavior = .skip,
+        .respect_gitignore = false,
         .patterns_allocated = false,
     };
 

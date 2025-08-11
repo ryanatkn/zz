@@ -32,7 +32,9 @@ pub const BasePatterns = union(enum) {
 pub const SharedConfig = struct {
     ignored_patterns: []const []const u8,
     hidden_files: []const []const u8,
+    gitignore_patterns: []const []const u8,
     symlink_behavior: SymlinkBehavior,
+    respect_gitignore: bool,
     patterns_allocated: bool,
 
     const Self = @This();
@@ -45,17 +47,22 @@ pub const SharedConfig = struct {
             for (self.hidden_files) |file| {
                 allocator.free(file);
             }
+            for (self.gitignore_patterns) |pattern| {
+                allocator.free(pattern);
+            }
             allocator.free(self.ignored_patterns);
             allocator.free(self.hidden_files);
+            allocator.free(self.gitignore_patterns);
         }
     }
 };
 
 pub const ZonConfig = struct {
-    base_patterns: ?BasePatterns = null,
+    base_patterns: ?[]const u8 = null, // Changed from BasePatterns to string for ZON compatibility
     ignored_patterns: ?[]const []const u8 = null,
     hidden_files: ?[]const []const u8 = null,
-    symlink_behavior: ?SymlinkBehavior = null,
+    symlink_behavior: ?[]const u8 = null, // Changed from enum to string for ZON compatibility
+    respect_gitignore: ?bool = null,
     tree: ?TreeSection = null,
     prompt: ?PromptSection = null,
 
@@ -137,11 +144,16 @@ pub const PatternResolver = struct {
     }
 };
 
-// DRY helper functions for common config operations
+// DRY helper functions for common config operations  
 pub fn shouldIgnorePath(config: SharedConfig, path: []const u8) bool {
     // Built-in behavior: automatically ignore dot-prefixed directories/files
     const basename = std.fs.path.basename(path);
     if (basename.len > 0 and basename[0] == '.') {
+        return true;
+    }
+    
+    // Check gitignore patterns first (if enabled)
+    if (config.respect_gitignore and GitignoreLoader.shouldIgnore(config.gitignore_patterns, path)) {
         return true;
     }
     
@@ -285,6 +297,136 @@ fn matchSimplePattern(text: []const u8, pattern: []const u8) bool {
     return false;
 }
 
+/// GitignoreLoader parses .gitignore files and provides patterns for filtering
+pub const GitignoreLoader = struct {
+    allocator: std.mem.Allocator,
+    patterns: std.ArrayList([]const u8),
+    
+    const Self = @This();
+    
+    pub fn init(allocator: std.mem.Allocator) Self {
+        return Self{
+            .allocator = allocator,
+            .patterns = std.ArrayList([]const u8).init(allocator),
+        };
+    }
+    
+    pub fn deinit(self: *Self) void {
+        for (self.patterns.items) |pattern| {
+            self.allocator.free(pattern);
+        }
+        self.patterns.deinit();
+    }
+    
+    /// Load .gitignore patterns from current directory and parent directories
+    pub fn loadPatterns(self: *Self) ![]const []const u8 {
+        // Clear any existing patterns
+        for (self.patterns.items) |pattern| {
+            self.allocator.free(pattern);
+        }
+        self.patterns.clearRetainingCapacity();
+        
+        // Simple approach: just try to read .gitignore from current directory
+        // For now, don't walk up the directory tree to keep implementation simple
+        if (std.fs.cwd().readFileAlloc(self.allocator, ".gitignore", 1024 * 1024)) |content| {
+            defer self.allocator.free(content);
+            try self.parseGitignoreContent(content);
+        } else |_| {
+            // File doesn't exist or can't be read, use empty patterns
+        }
+        
+        // Return owned slice of patterns  
+        return try self.patterns.toOwnedSlice();
+    }
+    
+    /// Parse gitignore file content into patterns
+    fn parseGitignoreContent(self: *Self, content: []const u8) !void {
+        var lines = std.mem.splitScalar(u8, content, '\n');
+        while (lines.next()) |line| {
+            const trimmed = std.mem.trim(u8, line, " \t\r");
+            
+            // Skip empty lines and comments
+            if (trimmed.len == 0 or trimmed[0] == '#') {
+                continue;
+            }
+            
+            // Store the pattern (we'll handle negation and path logic in matching)
+            const pattern = try self.allocator.dupe(u8, trimmed);
+            try self.patterns.append(pattern);
+        }
+    }
+    
+    /// Check if a path matches gitignore patterns
+    pub fn shouldIgnore(patterns: []const []const u8, path: []const u8) bool {
+        var should_ignore = false;
+        
+        for (patterns) |pattern| {
+            // Handle negation patterns (!)
+            if (pattern.len > 0 and pattern[0] == '!') {
+                const negated_pattern = pattern[1..];
+                if (matchesGitignorePattern(path, negated_pattern)) {
+                    should_ignore = false; // Negation overrides
+                }
+            } else {
+                if (matchesGitignorePattern(path, pattern)) {
+                    should_ignore = true;
+                }
+            }
+        }
+        
+        return should_ignore;
+    }
+    
+    /// Match gitignore pattern (simplified implementation)
+    fn matchesGitignorePattern(path: []const u8, pattern: []const u8) bool {
+        // Directory-only patterns end with /
+        if (std.mem.endsWith(u8, pattern, "/")) {
+            // For now, treat as regular pattern without the /
+            const dir_pattern = pattern[0..pattern.len-1];
+            return matchesSimpleGitignorePattern(path, dir_pattern);
+        }
+        
+        // Absolute patterns start with /
+        if (std.mem.startsWith(u8, pattern, "/")) {
+            const abs_pattern = pattern[1..];
+            return std.mem.startsWith(u8, path, abs_pattern);
+        }
+        
+        // Relative patterns match anywhere in the path
+        return matchesSimpleGitignorePattern(path, pattern);
+    }
+    
+    /// Simple pattern matching for gitignore (basic wildcards)
+    fn matchesSimpleGitignorePattern(path: []const u8, pattern: []const u8) bool {
+        // Handle simple wildcards
+        if (std.mem.indexOf(u8, pattern, "*") != null) {
+            // Very basic wildcard support - full implementation would need proper glob matching
+            if (std.mem.eql(u8, pattern, "*")) return true;
+            
+            if (std.mem.startsWith(u8, pattern, "*.")) {
+                const ext = pattern[2..];
+                return std.mem.endsWith(u8, path, ext);
+            }
+        }
+        
+        // Exact match or path component match
+        const basename = std.fs.path.basename(path);
+        if (std.mem.eql(u8, basename, pattern)) {
+            return true;
+        }
+        
+        // Check if any path component matches
+        var parts = std.mem.splitScalar(u8, path, '/');
+        while (parts.next()) |part| {
+            if (std.mem.eql(u8, part, pattern)) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+};
+
 pub const ZonLoader = struct {
     allocator: std.mem.Allocator,
     config: ?ZonConfig,
@@ -330,7 +472,10 @@ pub const ZonLoader = struct {
         const config = self.config orelse ZonConfig{};
 
         // Resolve base patterns (default to "extend")
-        const base_patterns = config.base_patterns orelse BasePatterns.extend;
+        const base_patterns = if (config.base_patterns) |bp_str|
+            BasePatterns.fromZon(bp_str)
+        else
+            BasePatterns.extend;
 
         // Create pattern resolver
         const resolver = PatternResolver.init(self.allocator);
@@ -341,13 +486,28 @@ pub const ZonLoader = struct {
         // Resolve hidden files
         const hidden_files = try resolver.resolveHiddenFiles(config.hidden_files);
 
-        // Resolve symlink behavior (default to skip - DISABLED by default)
-        const symlink_behavior = config.symlink_behavior orelse SymlinkBehavior.skip;
+        // Resolve gitignore patterns (default to respecting gitignore)
+        const respect_gitignore = config.respect_gitignore orelse true;
+        var gitignore_patterns: []const []const u8 = &[_][]const u8{};
+        
+        if (respect_gitignore) {
+            var gitignore_loader = GitignoreLoader.init(self.allocator);
+            defer gitignore_loader.deinit();
+            gitignore_patterns = gitignore_loader.loadPatterns() catch &[_][]const u8{}; // Ignore errors, use empty patterns
+        }
+
+        // Resolve symlink behavior (default to skip)
+        const symlink_behavior = if (config.symlink_behavior) |sb_str|
+            SymlinkBehavior.fromString(sb_str) orelse SymlinkBehavior.skip
+        else
+            SymlinkBehavior.skip;
 
         return SharedConfig{
             .ignored_patterns = ignored_patterns,
             .hidden_files = hidden_files,
+            .gitignore_patterns = gitignore_patterns,
             .symlink_behavior = symlink_behavior,
+            .respect_gitignore = respect_gitignore,
             .patterns_allocated = true,
         };
     }
@@ -380,7 +540,9 @@ test "shouldIgnorePath edge cases" {
     const config = SharedConfig{
         .ignored_patterns = ignored,
         .hidden_files = hidden,
+        .gitignore_patterns = &[_][]const u8{},
         .symlink_behavior = .skip,
+        .respect_gitignore = false,
         .patterns_allocated = true,
     };
 
@@ -423,7 +585,9 @@ test "shouldHideFile functionality" {
     const config = SharedConfig{
         .ignored_patterns = ignored,
         .hidden_files = hidden,
+        .gitignore_patterns = &[_][]const u8{},
         .symlink_behavior = .skip,
+        .respect_gitignore = false,
         .patterns_allocated = true,
     };
 

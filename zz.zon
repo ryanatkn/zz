@@ -1,28 +1,51 @@
-// zz CLI config
+// zz CLI Configuration
+//
+// This file shows all available configuration options with their defaults.
+// Uncomment and modify any settings you want to customize for this project.
 
 .{
-    // Base patterns behavior: "extend" (defaults + user) or provide custom array
-    .base_patterns = "extend",
-    
-    // Additional patterns to ignore (added to defaults when base_patterns = "extend")
-    .ignored_patterns = .{
-        // Add project-specific patterns here
-    },
-    
-    // Files to completely hide (not displayed at all)
-    .hidden_files = .{
-        // Add project-specific hidden files here
-    },
-    
-    // Symlink behavior: "skip" (default), "follow", or "show"
-    .symlink_behavior = "skip",
-    
-    // Command-specific overrides (optional)
-    .tree = .{
-        // Tree-specific settings go here if needed in future
-    },
-    
-    .prompt = .{
-        // Prompt-specific settings go here if needed in future
-    },
+    // Base patterns behavior: 
+    // - "extend": Use built-in defaults + your custom patterns (recommended)
+    // - Custom array: Use only your specified patterns, no defaults
+    // .base_patterns = "extend",
+
+    // Additional patterns to ignore (directories show as [...]  instead of expanding)
+    // When base_patterns = "extend", these are ADDED to the built-in defaults:
+    // Built-in defaults: ".git", ".svn", ".hg", "node_modules", "dist", "build", 
+    //                   "target", "__pycache__", "venv", "env", "tmp", "temp", 
+    //                   ".zig-cache", "zig-out"
+    // .ignored_patterns = .{
+    //     "logs",
+    //     "custom_build_dir", 
+    //     "coverage",
+    //     "artifacts",
+    // },
+
+    // Files to completely hide (not displayed at all in tree output)
+    // Built-in defaults: ".DS_Store", "Thumbs.db"
+    // .hidden_files = .{
+    //     "secret.key",
+    //     ".env.local", 
+    //     "*.tmp",
+    // },
+
+    // Symlink handling behavior:
+    // - "skip": Don't follow symlinks (default, prevents infinite loops)  
+    // - "follow": Follow symlinks (be careful of circular references)
+    // - "show": Show symlink itself but don't traverse into it
+    // .symlink_behavior = "skip",
+
+    // Gitignore integration (default: true)
+    // - true: Automatically respect .gitignore patterns (recommended)
+    // - false: Ignore .gitignore files, show all files  
+    // .respect_gitignore = true,
+
+    // Command-specific configuration sections (for future extensions)
+    // .tree = .{
+    //     // Tree-specific settings would go here
+    // },
+
+    // .prompt = .{  
+    //     // Prompt-specific settings would go here
+    // },
 }

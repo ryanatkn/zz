@@ -50,7 +50,9 @@ test "filter pattern matching works" {
     const shared_config = SharedConfig{
         .ignored_patterns = ignored,
         .hidden_files = hidden,
+        .gitignore_patterns = &[_][]const u8{},
         .symlink_behavior = .skip,
+        .respect_gitignore = false,
         .patterns_allocated = false,
     };
 
@@ -75,7 +77,9 @@ test "walker initialization works" {
     const shared_config = SharedConfig{
         .ignored_patterns = ignored,
         .hidden_files = hidden,
+        .gitignore_patterns = &[_][]const u8{},
         .symlink_behavior = .skip,
+        .respect_gitignore = false,
         .patterns_allocated = false,
     };
 

@@ -92,6 +92,12 @@ $ ./zig-out/bin/zz help
 $ zig build run -- tree --format=tree    # Tree format with box characters (default)
 $ zig build run -- tree --format=list    # List format with ./path prefixes
 
+# Gitignore support (enabled by default)
+$ zig build run -- tree                  # Respects .gitignore patterns (default)
+$ zig build run -- tree --no-gitignore   # Disable gitignore filtering
+$ zig build run -- prompt "*.zig"        # Respects .gitignore patterns (default)
+$ zig build run -- prompt "*.zig" --no-gitignore  # Include gitignore files
+
 # Prompt examples
 $ zig build run -- prompt src/*.zig                           # Add all .zig files in src/
 $ zig build run -- prompt "src/**/*.zig"                      # Recursive glob (quotes needed)
@@ -161,6 +167,9 @@ Comprehensive test suite covers configuration parsing, directory filtering, perf
     // Symlink behavior: "skip" (default), "follow", or "show"
     .symlink_behavior = "skip",
     
+    // Gitignore support: true (default) respects .gitignore files, false disables
+    .respect_gitignore = true,
+    
     // Command-specific overrides (optional)
     .tree = .{
         // Tree-specific settings go here if needed in future
@@ -178,6 +187,10 @@ Comprehensive test suite covers configuration parsing, directory filtering, perf
 - **Safe matching:** Exact path component matching prevents leaky substring matches
 - **Default ignored patterns:** `.git`, `node_modules`, `.zig-cache`, `zig-out`, build directories, etc.
 - **Default hidden files:** `.DS_Store`, `Thumbs.db`
+- **Gitignore integration:** Automatically reads and applies `.gitignore` patterns by default
+  - Files matching gitignore patterns are completely hidden (like `git ls-files` behavior)  
+  - Directories matching gitignore patterns show as `[...]`
+  - Use `--no-gitignore` flag to disable gitignore filtering
 
 **Cross-module DRY Helpers:**
 - `shouldIgnorePath()` - Shared ignore logic for both tree and prompt

@@ -33,7 +33,9 @@ pub fn build(b: *std.Build) void {
     });
 
     const test_step = b.step("test", "Run all tests");
-    test_step.dependOn(&b.addRunArtifact(test_all).step);
+    const run_test = b.addRunArtifact(test_all);
+    run_test.has_side_effects = true;
+    test_step.dependOn(&run_test.step);
 
     // Test tree module only
     const test_tree = b.addTest(.{

@@ -6,6 +6,6 @@ const std = @import("std");
 test {
     // Import all modules with tests - this will run all their test blocks
     std.testing.refAllDeclsRecursive(@import("main.zig"));
-    std.testing.refAllDeclsRecursive(@import("cli/args_test.zig"));
+    std.testing.refAllDeclsRecursive(@import("cli/args.zig"));
     std.testing.refAllDeclsRecursive(@import("tree/test.zig"));
 }

@@ -76,10 +76,6 @@ pub const Config = struct {
             if (std.mem.startsWith(u8, arg, "--format=")) {
                 const format_str = arg["--format=".len..];
                 result.format = Format.fromString(format_str) orelse return ArgError.InvalidFormat;
-            } else if (std.mem.eql(u8, arg, "-f") and i + 1 < args.len) {
-                i += 1;
-                const format_str = args[i];
-                result.format = Format.fromString(format_str) orelse return ArgError.InvalidFormat;
             } else if (std.mem.eql(u8, arg, "--show-hidden")) {
                 result.show_hidden = true;
             } else if (std.mem.startsWith(u8, arg, "-")) {
@@ -104,14 +100,13 @@ pub const Config = struct {
     fn printUsage(program_name: []const u8, command: []const u8) void {
         std.debug.print("Usage: {s} {s} [directory] [max_depth] [options]\n\n", .{ program_name, command });
         std.debug.print("Options:\n", .{});
-        std.debug.print("  --format=FORMAT, -f FORMAT    Output format: tree (default) or list\n", .{});
-        std.debug.print("  --show-hidden                  Show hidden files\n", .{});
+        std.debug.print("  --format=FORMAT               Output format: tree (default) or list\n", .{});
+        std.debug.print("  --show-hidden                 Show hidden files\n", .{});
         std.debug.print("\n", .{});
         std.debug.print("Examples:\n", .{});
         std.debug.print("  {s} {s}                       # Tree of current directory\n", .{ program_name, command });
         std.debug.print("  {s} {s} src 2                 # Tree of src/ with max depth 2\n", .{ program_name, command });
         std.debug.print("  {s} {s} --format=list         # List format of current directory\n", .{ program_name, command });
-        std.debug.print("  {s} {s} src -f list           # List format of src/\n", .{ program_name, command });
     }
 
     fn formatArgError(err: ArgError) []const u8 {

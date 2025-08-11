@@ -1,6 +1,6 @@
 # zz - CLI Utilities
 
-Fast command-line utilities written in Zig. Currently features high-performance filesystem tree visualization.
+Fast command-line utilities written in Zig. Currently features high-performance filesystem tree visualization and LLM prompt generation.
 
 Performance is a top priority, and we dont care about backwards compat -
 always try to get to the final best code. 
@@ -23,12 +23,20 @@ No external dependencies - pure Zig implementation.
     ├── .zig-cache [...]               # Zig build cache (filtered from tree output)
     ├── src                            # Source code (modular architecture)
     │   ├── cli                        # CLI interface module (command parsing & execution)
-    │   │   ├── args.zig               # Argument parsing utilities (deprecated - moved to tree)
-    │   │   ├── args_test.zig          # CLI argument parsing tests
+    │   │   ├── args.zig               # Argument parsing utilities
     │   │   ├── command.zig            # Command enumeration and string parsing
     │   │   ├── help.zig               # Usage documentation and help text
     │   │   ├── main.zig               # CLI entry point and argument processing
     │   │   └── runner.zig             # Command dispatch and orchestration
+    │   ├── prompt                     # Prompt generation module (LLM-optimized file aggregation)
+    │   │   ├── builder.zig            # Core prompt building with smart fencing
+    │   │   ├── config.zig             # Configuration and ignore patterns
+    │   │   ├── error_test.zig         # Error handling and flag parsing tests
+    │   │   ├── fence.zig              # Smart fence detection for code blocks
+    │   │   ├── glob.zig               # Glob pattern expansion and matching
+    │   │   ├── main.zig               # Prompt command entry point
+    │   │   ├── prompt_test.zig        # Core functionality tests
+    │   │   └── test.zig               # Test runner for prompt module
     │   ├── tree                       # Tree visualization module (high-performance directory traversal)
     │   │   ├── test                   # Comprehensive test suite
     │   │   │   ├── concurrency_test.zig    # Multi-instance and config lifecycle tests
@@ -66,12 +74,20 @@ No external dependencies - pure Zig implementation.
 
 ```bash
 $ ./zz tree [dir] [depth] [--format=FORMAT]  # Directory tree visualization
+$ ./zz prompt [files...] [options]           # Build LLM prompts from files
 $ ./zz help                                  # Show available commands
 
-# Format options
+# Tree format options
 $ ./zz tree --format=tree    # Tree format with box characters (default)
 $ ./zz tree --format=list    # List format with ./path prefixes
-$ ./zz tree -f list          # Short flag alternative
+
+# Prompt examples
+$ ./zz prompt src/*.zig                           # Add all .zig files in src/
+$ ./zz prompt "src/**/*.zig"                      # Recursive glob (quotes needed)
+$ ./zz prompt --prepend="Context:" --append="Request:" src/*.zig # Add text before/after
+$ ./zz prompt "*.{zig,md}" > prompt.md            # Multiple extensions, output to file
+$ ./zz prompt --allow-empty-glob "*.rs" "*.zig"  # Warn if *.rs matches nothing
+$ ./zz prompt --allow-missing file1.zig file2.zig # Warn if files don't exist
 
 # Development workflow - use ./zz instead of zig build for auto-rebuild
 $ ./zz                       # Auto-builds and runs with default args (tree .)
@@ -82,8 +98,9 @@ $ zig build                  # Manual build only (outputs to zig-out/bin/zz)
 ## Testing
 
 ```bash
-$ zig test src/test.zig      # Run all tests (recommended)
-$ zig test src/tree/test.zig # Run tree module tests only (for focused development)
+$ zig test src/test.zig        # Run all tests (recommended)
+$ zig test src/tree/test.zig   # Run tree module tests only
+$ zig test src/prompt/test.zig # Run prompt module tests only
 ```
 
 Comprehensive test suite covers configuration parsing, directory filtering, performance optimization, edge cases, and security patterns.
@@ -93,6 +110,7 @@ Comprehensive test suite covers configuration parsing, directory filtering, perf
 **Core Architecture:**
 - **CLI Module:** `src/cli/` - Command parsing, validation, and dispatch system
 - **Tree Module:** `src/tree/` - High-performance directory traversal with configurable filtering and multiple output formats
+- **Prompt Module:** `src/prompt/` - LLM prompt generation with glob support, smart fencing, and deduplication
 
 **Key Components:**
 - **Configuration System:** `zz.zon` + fallback defaults for CLI behavior
@@ -104,6 +122,29 @@ Comprehensive test suite covers configuration parsing, directory filtering, perf
 2. Update parsing and help text
 3. Add handler in `src/cli/runner.zig`  
 4. Complex features get dedicated module with `run(allocator, args)` interface
+
+## Prompt Module Features
+
+**Glob Pattern Support:**
+- Basic wildcards: `*.zig`, `test?.zig`
+- Recursive patterns: `src/**/*.zig`
+- Alternatives: `*.{zig,md,txt}`
+- Automatic deduplication of matched files
+
+**Smart Code Fencing:**
+- Automatically detects appropriate fence length
+- Handles nested code blocks correctly
+- Preserves syntax highlighting
+
+**Output Format:**
+- Markdown with semantic XML tags for LLM context
+- File paths in structured `<File path="...">` tags
+- Configurable ignore patterns via `zz.zon`
+
+**Error Handling:**
+- Strict by default: errors on missing files or empty globs
+- `--allow-empty-glob`: Warnings for non-matching glob patterns
+- `--allow-missing`: Warnings for all missing files
 
 ## Tree Module Features
 
@@ -130,7 +171,7 @@ Comprehensive test suite covers configuration parsing, directory filtering, perf
 
 ## Notes to LLMs
 
-- Focus on performance and clean code architecture
+- Focus on performance and clean architecture
 - This is a CLI utilities project - no graphics or game functionality
 - Test frequently with `./zz` to ensure each step works
 - Less is more - avoid over-engineering

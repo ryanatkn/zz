@@ -7,7 +7,7 @@ cd "$(dirname "$0")"
 
 # Handle wrapper flags
 skip_build=false
-debug_build=false
+debug_build=true
 app_args=()
 
 for arg in "$@"; do

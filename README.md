@@ -1,6 +1,6 @@
 # zz - CLI Utilities
 
-Fast command-line utilities written in Zig with zero dependencies.
+Fast command-line utilities written in Zig with zero dependencies. Features high-performance directory visualization and LLM prompt generation.
 
 ## Quick Start
 
@@ -12,6 +12,7 @@ zig version  # Requires 0.14.1+
 ./zz         # Show current directory tree
 ./zz help    # Show available commands
 ./zz tree    # Display directory structure
+./zz prompt  # Generate LLM prompts from files
 ```
 
 ## Features
@@ -24,16 +25,31 @@ zig version  # Requires 0.14.1+
 - Configurable depth limits
 - .gitignore-style pattern matching
 
+### Prompt Generation
+- Build LLM-optimized prompts from multiple files
+- Glob pattern support (`*.zig`, `**/*.zig`, `*.{zig,md}`)
+- Smart code fence detection (handles nested backticks)
+- Automatic file deduplication
+- Markdown output with semantic XML tags
+- Configurable ignore patterns
+
 ## Commands
 
 ```bash
 ./zz tree [directory] [depth] [--format=FORMAT]  # Show directory tree
+./zz prompt [files...] [options]                # Generate LLM prompt
 ./zz help                                        # Display help
 
-# Format options:
+# Tree format options:
 #   --format=tree  (default) - Tree with box characters
-#   --format=list            - Flat list with ./path prefixes  
-#   -f FORMAT                - Short flag alternative
+#   --format=list            - Flat list with ./path prefixes
+
+# Prompt options:
+#   --prepend=TEXT           - Add text before files
+#   --append=TEXT            - Add text after files
+#   --allow-empty-glob       - Warn instead of error for empty globs
+#   --allow-missing          - Warn instead of error for all missing files
+#   Supports glob patterns   - *.zig, **/*.zig, *.{zig,md}
 ```
 
 ## Examples
@@ -48,17 +64,24 @@ zig version  # Requires 0.14.1+
 # Show current directory, 2 levels deep
 ./zz tree . 2
 
-# Show src directory as list with depth limit
-./zz tree src/ 2 -f list
-
 # Show src directory with default depth  
 ./zz tree src/
+
+# Generate prompt from all Zig files
+./zz prompt "src/**/*.zig" > prompt.md
+
+# Add text before/after files
+./zz prompt --prepend="Context:" --append="Question?" src/*.zig
+
+# Multiple file types
+./zz prompt "*.{zig,md,txt}"
 ```
 
 ## Architecture
 
 - **`src/cli/`** - Command parsing and execution
 - **`src/tree/`** - Directory traversal and visualization
+- **`src/prompt/`** - LLM prompt generation with glob support
 
 ### Design Principles
 - Single binary with no external dependencies
@@ -85,8 +108,11 @@ zig build -Doptimize=Debug
 # Run all tests
 zig test src/test.zig
 
-# Run tree module tests only (for focused development)
+# Run tree module tests only
 zig test src/tree/test.zig
+
+# Run prompt module tests only
+zig test src/prompt/test.zig
 ```
 
 ## Requirements

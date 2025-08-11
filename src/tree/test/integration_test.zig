@@ -301,11 +301,7 @@ test "tree and list format produce different outputs" {
         try testing.expect(false); // Should not fail
     };
 
-    // Test short flag format
-    const args_short = [_][:0]const u8{ "tree", test_dir, "2", "-f", "list" };
-    tree_main.runQuiet(testing.allocator, @constCast(args_short[0..])) catch {
-        try testing.expect(false); // Should not fail
-    };
+    // Test that short flag was removed (should now use --format=list)
 
     std.debug.print("✅ Tree and list format integration test passed!\n", .{});
 }
@@ -332,7 +328,6 @@ test "format flags with depth and directory combinations" {
         .{ .args = &.{ "tree", test_dir, "--format=list" }, .description = "directory + list format" },
         .{ .args = &.{ "tree", test_dir, "1", "--format=list" }, .description = "directory + depth + list format" },
         .{ .args = &.{ "tree", "--format=tree", test_dir, "2" }, .description = "format first, then directory + depth" },
-        .{ .args = &.{ "tree", test_dir, "-f", "list", "1" }, .description = "directory + short flag + depth" },
         .{ .args = &.{ "tree", "--format=list", test_dir, "1" }, .description = "format first, then directory + depth" },
     };
 

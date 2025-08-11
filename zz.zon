@@ -30,4 +30,16 @@
             ".DS_Store",
         },
     },
+
+    // Prompt command configuration
+    .prompt = .{
+        // Patterns to ignore when building prompts
+        .ignored_patterns = .{
+            ".git",
+            ".zig-cache",
+            "zig-out",
+            "node_modules",
+            // Project-specific patterns
+        },
+    },
 }

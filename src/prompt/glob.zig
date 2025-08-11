@@ -116,7 +116,10 @@ pub const GlobExpander = struct {
             defer self.allocator.free(full_path);
             
             switch (entry.kind) {
-                .file => {
+                .file, .sym_link => {
+                    // Skip hidden files unless pattern explicitly starts with .
+                    if (entry.name[0] == '.' and pattern[0] != '.') continue;
+                    
                     if (self.matchPattern(entry.name, pattern)) {
                         const path_copy = try self.allocator.dupe(u8, full_path);
                         try results.append(path_copy);
@@ -150,7 +153,11 @@ pub const GlobExpander = struct {
         
         var iterator = dir.iterate();
         while (try iterator.next()) |entry| {
-            if (entry.kind != .file) continue;
+            // Accept both regular files and symlinks to files
+            if (entry.kind != .file and entry.kind != .sym_link) continue;
+            
+            // Skip hidden files unless pattern explicitly starts with .
+            if (entry.name[0] == '.' and file_pattern[0] != '.') continue;
             
             if (self.matchPattern(entry.name, file_pattern)) {
                 const full_path = if (std.mem.eql(u8, dir_path, "."))
@@ -176,7 +183,8 @@ pub const GlobExpander = struct {
                 while (iter.next()) |alt| {
                     var test_pattern_buf: [std.fs.max_path_bytes]u8 = undefined;
                     const test_pattern = std.fmt.bufPrint(&test_pattern_buf, "{s}{s}{s}", .{prefix, alt, suffix}) catch continue;
-                    if (matchSimplePattern(name, test_pattern)) return true;
+                    // Recursively handle remaining patterns (in case of nested braces)
+                    if (Self.matchPattern(.{.allocator = undefined}, name, test_pattern)) return true;
                 }
                 return false;
             }

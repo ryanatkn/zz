@@ -1,9 +1,15 @@
 # zz - CLI Utilities
 
-Fast command-line utilities written in Zig. Currently features high-performance filesystem tree visualization and LLM prompt generation.
+Fast command-line utilities written in Zig for POSIX systems. Currently features high-performance filesystem tree visualization and LLM prompt generation.
 
 Performance is a top priority, and we dont care about backwards compat -
 always try to get to the final best code. 
+
+## Platform Support
+
+- **Supported:** Linux, macOS, BSD, and other POSIX-compliant systems
+- **Not Supported:** Windows (no plans for Windows support)
+- All tests and features assume POSIX environment
 
 ## Environment
 
@@ -29,6 +35,16 @@ No external dependencies - pure Zig implementation.
     │   │   ├── main.zig               # CLI entry point and argument processing
     │   │   └── runner.zig             # Command dispatch and orchestration
     │   ├── prompt                     # Prompt generation module (LLM-optimized file aggregation)
+    │   │   ├── test                   # Comprehensive test suite for edge cases
+    │   │   │   ├── edge_cases_test.zig     # Empty inputs, directory handling
+    │   │   │   ├── file_content_test.zig   # Binary files, encoding, special content
+    │   │   │   ├── flag_combinations_test.zig # Flag parsing edge cases
+    │   │   │   ├── glob_edge_test.zig      # Complex glob patterns
+    │   │   │   ├── large_files_test.zig    # Performance and scale testing
+    │   │   │   ├── security_test.zig       # Path traversal, permissions
+    │   │   │   ├── special_chars_test.zig  # Unicode, spaces, special chars
+    │   │   │   ├── symlink_test.zig        # Symlinks, hidden files
+    │   │   │   └── test.zig                # Test suite runner
     │   │   ├── builder.zig            # Core prompt building with smart fencing
     │   │   ├── config.zig             # Configuration and ignore patterns
     │   │   ├── error_test.zig         # Error handling and flag parsing tests
@@ -129,7 +145,10 @@ Comprehensive test suite covers configuration parsing, directory filtering, perf
 - Basic wildcards: `*.zig`, `test?.zig`
 - Recursive patterns: `src/**/*.zig`
 - Alternatives: `*.{zig,md,txt}`
+- Hidden files: `.*` explicitly matches hidden files (`*` does not)
+- Symlinks: Symlinks to files are followed
 - Automatic deduplication of matched files
+- Note: Nested braces like `*.{zig,{md,txt}}` are not supported
 
 **Smart Code Fencing:**
 - Automatically detects appropriate fence length
@@ -142,9 +161,11 @@ Comprehensive test suite covers configuration parsing, directory filtering, perf
 - Configurable ignore patterns via `zz.zon`
 
 **Error Handling:**
+- No default pattern: errors if no files specified (no auto `*.zig`)
 - Strict by default: errors on missing files or empty globs
 - `--allow-empty-glob`: Warnings for non-matching glob patterns
 - `--allow-missing`: Warnings for all missing files
+- Text-only mode: `--prepend` or `--append` without files is valid
 
 ## Tree Module Features
 
@@ -177,3 +198,21 @@ Comprehensive test suite covers configuration parsing, directory filtering, perf
 - Less is more - avoid over-engineering
 - Performance is top priority - optimize for speed
 - Keep modules self-contained and focused on their specific purpose
+
+## Test Coverage
+
+The project has comprehensive test coverage including:
+- **Edge cases**: Empty inputs, special characters, Unicode, long filenames
+- **Security**: Path traversal, permission handling
+- **Performance**: Large files, deep recursion, memory stress tests
+- **Integration**: End-to-end command testing, format combinations
+- **Glob patterns**: Wildcards, braces, recursive patterns, hidden files
+
+Run all tests with: `zig test src/test.zig`
+
+## Known Issues & Future Work
+
+See the following documents for details:
+- `TEST_ISSUES.md` - Current test failures and glob implementation details
+- `GLOB_IMPROVEMENT_PLAN.md` - Planned improvements to glob pattern matching
+- `IMPROVE_TESTS.md` - Test coverage roadmap

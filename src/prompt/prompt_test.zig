@@ -146,15 +146,13 @@ test "config parsing" {
     try std.testing.expectEqualStrings("file1.zig", patterns3.items[0]);
     try std.testing.expectEqualStrings("file2.zig", patterns3.items[1]);
     
-    // Test default pattern when no files provided
+    // Test error when no files provided and no text flags
     var args4 = [_][:0]const u8{ "zz", "prompt" };
     var config4 = try Config.fromArgs(allocator, &args4);
     defer config4.deinit();
     
-    var patterns4 = try config4.getFilePatterns(&args4);
-    defer patterns4.deinit();
-    try std.testing.expect(patterns4.items.len == 1);
-    try std.testing.expectEqualStrings("*.zig", patterns4.items[0]);
+    const result = config4.getFilePatterns(&args4);
+    try std.testing.expectError(error.NoInputFiles, result);
 }
 
 test "prompt builder output format" {

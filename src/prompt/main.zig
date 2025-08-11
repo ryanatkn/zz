@@ -10,7 +10,14 @@ pub fn run(allocator: std.mem.Allocator, args: [][:0]const u8) !void {
     defer config.deinit();
     
     // Get file patterns from args
-    var patterns = try config.getFilePatterns(args);
+    var patterns = config.getFilePatterns(args) catch |err| {
+        if (err == error.NoInputFiles) {
+            const stderr = std.io.getStdErr().writer();
+            try stderr.print("Error: No input files specified. Use './zz prompt <files>' or provide --prepend/--append text.\n", .{});
+            return error.PatternsNotMatched;
+        }
+        return err;
+    };
     defer patterns.deinit();
     
     // Expand glob patterns to actual file paths with info

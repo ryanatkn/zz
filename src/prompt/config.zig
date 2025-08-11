@@ -32,9 +32,17 @@ pub const Config = struct {
         for (args) |arg| {
             if (std.mem.startsWith(u8, arg, "--prepend=")) {
                 const text = arg[10..];
+                // Free old value if present
+                if (config.prepend_text) |old| {
+                    allocator.free(old);
+                }
                 config.prepend_text = try allocator.dupe(u8, text);
             } else if (std.mem.startsWith(u8, arg, "--append=")) {
                 const text = arg[9..];
+                // Free old value if present
+                if (config.append_text) |old| {
+                    allocator.free(old);
+                }
                 config.append_text = try allocator.dupe(u8, text);
             } else if (std.mem.eql(u8, arg, "--allow-empty-glob")) {
                 config.allow_empty_glob = true;
@@ -96,9 +104,12 @@ pub const Config = struct {
             try patterns.append(arg);
         }
         
-        // If no patterns provided, use current directory's .zig files
+        // If no patterns provided and no text flags, this is an error
         if (patterns.items.len == 0) {
-            try patterns.append("*.zig");
+            if (self.prepend_text == null and self.append_text == null) {
+                return error.NoInputFiles;
+            }
+            // If we have text flags but no files, that's valid
         }
         
         return patterns;

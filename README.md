@@ -1,6 +1,8 @@
 # zz - CLI Utilities
 
-Fast command-line utilities written in Zig with zero dependencies. Features high-performance directory visualization and LLM prompt generation.
+Fast command-line utilities written in Zig with zero dependencies for POSIX systems. Features high-performance directory visualization and LLM prompt generation.
+
+**Platform Support:** Linux, macOS, BSD, and other POSIX-compliant systems. Windows is not supported.
 
 ## Quick Start
 
@@ -28,10 +30,12 @@ zig version  # Requires 0.14.1+
 ### Prompt Generation
 - Build LLM-optimized prompts from multiple files
 - Glob pattern support (`*.zig`, `**/*.zig`, `*.{zig,md}`)
+  - Note: Nested braces like `*.{zig,{md,txt}}` are not supported yet
 - Smart code fence detection (handles nested backticks)
 - Automatic file deduplication
 - Markdown output with semantic XML tags
 - Configurable ignore patterns
+- Hidden file handling (use `.*` to explicitly match hidden files)
 
 ## Commands
 
@@ -75,6 +79,9 @@ zig version  # Requires 0.14.1+
 
 # Multiple file types
 ./zz prompt "*.{zig,md,txt}"
+
+# Error if no files provided (won't default to *.zig)
+./zz prompt  # Error: No input files specified
 ```
 
 ## Architecture
@@ -118,7 +125,8 @@ zig test src/prompt/test.zig
 ## Requirements
 
 - Zig 0.14.1+
-- Any OS (Linux, macOS, Windows)
+- POSIX-compliant OS (Linux, macOS, BSD)
+- Not supported: Windows
 
 ## Technical Documentation
 

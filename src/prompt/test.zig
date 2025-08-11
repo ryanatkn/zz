@@ -8,4 +8,7 @@ test {
     _ = @import("main.zig");
     _ = @import("prompt_test.zig");
     _ = @import("error_test.zig");
+    
+    // Comprehensive test suite
+    _ = @import("test/test.zig");
 }

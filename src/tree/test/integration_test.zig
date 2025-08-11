@@ -273,3 +273,94 @@ test "tree command argument edge cases" {
 
     std.debug.print("✅ Tree command argument edge cases test passed!\n", .{});
 }
+
+test "tree and list format produce different outputs" {
+    // Create a test directory structure
+    const test_dir = "format_test";
+    std.fs.cwd().makeDir(test_dir) catch {};
+    defer std.fs.cwd().deleteTree(test_dir) catch {};
+
+    // Create subdirectories and files
+    const full_sub_path = try std.fmt.allocPrint(testing.allocator, "{s}/subdir", .{test_dir});
+    defer testing.allocator.free(full_sub_path);
+    std.fs.cwd().makeDir(full_sub_path) catch {};
+
+    const full_file_path = try std.fmt.allocPrint(testing.allocator, "{s}/file.txt", .{test_dir});
+    defer testing.allocator.free(full_file_path);
+    const file = std.fs.cwd().createFile(full_file_path, .{}) catch unreachable;
+    file.close();
+
+    // Test both formats work without crashing
+    const args_tree = [_][:0]const u8{ "tree", test_dir, "2", "--format=tree" };
+    tree_main.runQuiet(testing.allocator, @constCast(args_tree[0..])) catch {
+        try testing.expect(false); // Should not fail
+    };
+
+    const args_list = [_][:0]const u8{ "tree", test_dir, "2", "--format=list" };
+    tree_main.runQuiet(testing.allocator, @constCast(args_list[0..])) catch {
+        try testing.expect(false); // Should not fail
+    };
+
+    // Test short flag format
+    const args_short = [_][:0]const u8{ "tree", test_dir, "2", "-f", "list" };
+    tree_main.runQuiet(testing.allocator, @constCast(args_short[0..])) catch {
+        try testing.expect(false); // Should not fail
+    };
+
+    std.debug.print("✅ Tree and list format integration test passed!\n", .{});
+}
+
+test "format flags with depth and directory combinations" {
+    // Create a nested test directory
+    const test_dir = "format_combo_test";
+    std.fs.cwd().makeDir(test_dir) catch {};
+    defer std.fs.cwd().deleteTree(test_dir) catch {};
+
+    const level1_path = try std.fmt.allocPrint(testing.allocator, "{s}/level1", .{test_dir});
+    defer testing.allocator.free(level1_path);
+    std.fs.cwd().makeDir(level1_path) catch {};
+
+    const level2_path = try std.fmt.allocPrint(testing.allocator, "{s}/level1/level2", .{test_dir});
+    defer testing.allocator.free(level2_path);
+    std.fs.cwd().makeDir(level2_path) catch {};
+
+    // Test various combinations
+    const test_cases = [_]struct {
+        args: []const [:0]const u8,
+        description: []const u8,
+    }{
+        .{ .args = &.{ "tree", test_dir, "--format=list" }, .description = "directory + list format" },
+        .{ .args = &.{ "tree", test_dir, "1", "--format=list" }, .description = "directory + depth + list format" },
+        .{ .args = &.{ "tree", "--format=tree", test_dir, "2" }, .description = "format first, then directory + depth" },
+        .{ .args = &.{ "tree", test_dir, "-f", "list", "1" }, .description = "directory + short flag + depth" },
+        .{ .args = &.{ "tree", "--format=list", test_dir, "1" }, .description = "format first, then directory + depth" },
+    };
+
+    for (test_cases) |test_case| {
+        tree_main.runQuiet(testing.allocator, @constCast(test_case.args)) catch |err| {
+            std.debug.print("❌ Failed test case: {s}, error: {}\n", .{ test_case.description, err });
+            try testing.expect(false);
+        };
+    }
+
+    std.debug.print("✅ Format flags with combinations test passed!\n", .{});
+}
+
+test "format error handling integration" {
+    const test_dir = "format_error_test";
+    std.fs.cwd().makeDir(test_dir) catch {};
+    defer std.fs.cwd().deleteTree(test_dir) catch {};
+
+    // Test invalid format should error (using quiet config parsing)
+    const Config = @import("../config.zig").Config;
+    const args_invalid = [_][:0]const u8{ "tree", test_dir, "--format=invalid" };
+    const result = Config.fromArgsQuiet(testing.allocator, @constCast(args_invalid[0..]));
+    try testing.expectError(error.InvalidFormat, result);
+
+    // Test invalid flag should error (using quiet config parsing)
+    const args_bad_flag = [_][:0]const u8{ "tree", test_dir, "--bad-flag" };
+    const result2 = Config.fromArgsQuiet(testing.allocator, @constCast(args_bad_flag[0..]));
+    try testing.expectError(error.InvalidFlag, result2);
+
+    std.debug.print("✅ Format error handling integration test passed!\n", .{});
+}

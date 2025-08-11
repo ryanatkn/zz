@@ -15,12 +15,12 @@ pub fn runQuiet(allocator: std.mem.Allocator, args: [][:0]const u8) !void {
 }
 
 fn runWithQuiet(allocator: std.mem.Allocator, args: [][:0]const u8, quiet: bool) !void {
-    // Default to current directory if no path provided
-    const dir_path = if (args.len >= 2) args[1] else ".";
-
     // Create config from args (skip the "tree" command itself)
     var config = try Config.fromArgs(allocator, args);
     defer config.deinit(allocator);
+
+    // Directory path is now stored in config
+    const dir_path = config.directory_path;
 
     const walker = if (quiet)
         Walker.initQuiet(allocator, config)

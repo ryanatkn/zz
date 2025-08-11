@@ -4,12 +4,14 @@ const Config = @import("config.zig").Config;
 const Entry = @import("entry.zig").Entry;
 const Filter = @import("filter.zig").Filter;
 const Formatter = @import("formatter.zig").Formatter;
+const PathBuilder = @import("path_builder.zig").PathBuilder;
 
 pub const Walker = struct {
     allocator: std.mem.Allocator,
     config: Config,
     filter: Filter,
     formatter: Formatter,
+    path_builder: PathBuilder,
 
     const Self = @This();
 
@@ -18,7 +20,8 @@ pub const Walker = struct {
             .allocator = allocator,
             .config = config,
             .filter = Filter.init(config.tree_config),
-            .formatter = Formatter{},
+            .formatter = Formatter{ .format = config.format },
+            .path_builder = PathBuilder.init(allocator),
         };
     }
 
@@ -27,22 +30,31 @@ pub const Walker = struct {
             .allocator = allocator,
             .config = config,
             .filter = Filter.init(config.tree_config),
-            .formatter = Formatter{ .quiet = true },
+            .formatter = Formatter{ .quiet = true, .format = config.format },
+            .path_builder = PathBuilder.init(allocator),
         };
     }
 
     pub fn walk(self: Self, path: []const u8) !void {
-        try self.walkRecursive(path, "", true, 0);
+        // For list format, start with "." for current directory, otherwise use basename
+        const initial_relative = if (self.config.format == .list and std.mem.eql(u8, path, ".")) 
+            "." 
+        else 
+            PathBuilder.basename(path);
+            
+        try self.walkRecursive(path, "", initial_relative, true, 0);
     }
 
-    fn walkRecursive(self: Self, path: []const u8, prefix: []const u8, is_last: bool, current_depth: u32) !void {
-        const basename = std.fs.path.basename(path);
+    fn walkRecursive(self: Self, path: []const u8, prefix: []const u8, relative_path: []const u8, is_last: bool, current_depth: u32) !void {
+        const basename = PathBuilder.basename(path);
         const entry = Entry{
             .name = basename,
             .kind = .directory, // We'll assume directory for now, could be enhanced
         };
 
-        self.formatter.formatEntry(entry, prefix, is_last);
+        self.formatter.formatEntry(entry, 
+            if (self.config.format == .list) relative_path else prefix, 
+            is_last);
 
         // Check if we've reached max depth
         if (self.config.max_depth) |depth| {
@@ -82,9 +94,8 @@ pub const Walker = struct {
 
         for (entries.items, 0..) |dir_entry, i| {
             const is_last_entry = i == entries.items.len - 1;
-            const new_prefix_char = if (is_last) "    " else "│   ";
 
-            const new_prefix = try std.fmt.allocPrint(self.allocator, "{s}{s}", .{ prefix, new_prefix_char });
+            const new_prefix = try self.path_builder.buildTreePrefix(prefix, is_last);
             defer self.allocator.free(new_prefix);
 
             // Skip entries with null bytes or invalid characters
@@ -119,18 +130,26 @@ pub const Walker = struct {
                 .is_depth_limited = is_depth_limited,
             };
 
+            // Compute relative path for this entry (used for list format)
+            const relative_entry_path = try self.path_builder.buildPath(relative_path, dir_entry.name);
+            defer self.allocator.free(relative_entry_path);
+
             // Display entry if it should be shown (ignored entries show as [...])
             if (tree_entry.is_ignored or tree_entry.is_depth_limited) {
-                self.formatter.formatEntry(tree_entry, new_prefix, is_last_entry);
+                self.formatter.formatEntry(tree_entry, 
+                    if (self.config.format == .list) relative_entry_path else new_prefix, 
+                    is_last_entry);
                 continue; // Don't traverse into these directories (performance optimization)
             }
 
             // If it's a directory and not ignored, recurse into it
             if (dir_entry.kind == .directory) {
-                try self.walkRecursive(full_path, new_prefix, is_last_entry, current_depth + 1);
+                try self.walkRecursive(full_path, new_prefix, relative_entry_path, is_last_entry, current_depth + 1);
             } else {
                 // It's a file, just display it
-                self.formatter.formatEntry(tree_entry, new_prefix, is_last_entry);
+                self.formatter.formatEntry(tree_entry, 
+                    if (self.config.format == .list) relative_entry_path else new_prefix, 
+                    is_last_entry);
             }
         }
     }

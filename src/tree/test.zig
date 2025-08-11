@@ -20,6 +20,7 @@ test {
     std.testing.refAllDecls(@import("test/filter_test.zig"));
     std.testing.refAllDecls(@import("test/walker_test.zig"));
     std.testing.refAllDecls(@import("test/formatter_test.zig"));
+    std.testing.refAllDecls(@import("test/path_builder_test.zig"));
 
     // Specialized test modules
     std.testing.refAllDecls(@import("test/integration_test.zig"));
@@ -83,7 +84,7 @@ test "formatter handles entries correctly" {
 }
 
 test "tree module test suite summary" {
-    const test_modules = [_][]const u8{ "config", "filter", "walker", "formatter", "integration", "edge cases", "performance", "concurrency" };
+    const test_modules = [_][]const u8{ "config", "filter", "walker", "formatter", "path_builder", "integration", "edge cases", "performance", "concurrency" };
 
     std.debug.print("\n🌳 Tree module test suite completed\n", .{});
     const module_list = std.mem.join(std.heap.page_allocator, ", ", &test_modules) catch "modules";

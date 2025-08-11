@@ -18,6 +18,7 @@ zig version  # Requires 0.14.1+
 
 ### Tree Visualization
 - High-performance directory traversal
+- Multiple output formats (tree and list)
 - Smart filtering (hides build artifacts, cache directories)
 - Clean tree-style output formatting
 - Configurable depth limits
@@ -26,18 +27,29 @@ zig version  # Requires 0.14.1+
 ## Commands
 
 ```bash
-./zz tree [directory] [depth]    # Show directory tree
-./zz help                        # Display help
+./zz tree [directory] [depth] [--format=FORMAT]  # Show directory tree
+./zz help                                        # Display help
+
+# Format options:
+#   --format=tree  (default) - Tree with box characters
+#   --format=list            - Flat list with ./path prefixes  
+#   -f FORMAT                - Short flag alternative
 ```
 
 ## Examples
 
 ```bash
-# Show current directory structure
+# Show current directory structure (tree format)
 ./zz tree
+
+# Show as flat list instead of tree
+./zz tree --format=list
 
 # Show current directory, 2 levels deep
 ./zz tree . 2
+
+# Show src directory as list with depth limit
+./zz tree src/ 2 -f list
 
 # Show src directory with default depth  
 ./zz tree src/
@@ -70,7 +82,10 @@ zig build -Doptimize=Debug
 ### Testing
 
 ```bash
-# Run tree module tests
+# Run all tests
+zig test src/test.zig
+
+# Run tree module tests only (for focused development)
 zig test src/tree/test.zig
 ```
 

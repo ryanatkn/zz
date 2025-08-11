@@ -21,9 +21,8 @@ pub const Runner = struct {
                 Help.show(args[0]);
             },
             .tree => {
-                // Skip program name and command, pass remaining args to tree
-                const tree_args = args[1..];
-                try tree.run(self.allocator, tree_args);
+                // Pass full args to tree (it will handle its own parsing)
+                try tree.run(self.allocator, args);
             },
         }
     }

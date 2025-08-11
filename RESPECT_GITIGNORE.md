@@ -1,1 +1,0 @@
-we should respect .gitignore by default, and have an option to disable that

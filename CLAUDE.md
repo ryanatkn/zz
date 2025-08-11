@@ -244,17 +244,14 @@ Comprehensive test suite covers configuration parsing, directory filtering, perf
 - Command-line arguments override config
 - Sensible defaults for common use cases
 
-## Code Style
+## Notes to LLMs
 
 - We want idiomatic Zig, taking more after C than C++
 - Do not support backwards compatibility unless explicitly asked
-- Never re-export in modules
-
-## Notes to LLMs
-
+- Never deprecate or preserve backwards compatibility unless explicitly requested
+- Never re-export in modules unless explicitly justified with a comment or requested
 - Focus on performance and clean architecture
 - This is a CLI utilities project - no graphics or game functionality
-- Never deprecate or preserve backwards compatibility unless explicitly requested
 - Do not re-export identifiers from modules
 - Test frequently with `zig build run` to ensure each step works
 - Performance is top priority - optimize for speed

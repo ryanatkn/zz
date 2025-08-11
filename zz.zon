@@ -1,45 +1,28 @@
 // zz CLI config
 
 .{
-    // Tree command configuration
-    .tree = .{
-        // Directories to show as [...] and never traverse into
-        .ignored_patterns = .{
-            // Version control
-            ".git",
-            ".svn",
-            ".hg",
-            // Build and cache directories
-            "node_modules",
-            "dist",
-            "build",
-            "target",
-            "__pycache__",
-            "venv",
-            "env",
-            "tmp",
-            "temp",
-            ".zig-cache",
-            "zig-out",
-            // Project-specific patterns
-        },
-
-        // Files to completely hide (not displayed at all)
-        .hidden_files = .{
-            "Thumbs.db",
-            ".DS_Store",
-        },
+    // Base patterns behavior: "extend" (defaults + user) or provide custom array
+    .base_patterns = "extend",
+    
+    // Additional patterns to ignore (added to defaults when base_patterns = "extend")
+    .ignored_patterns = .{
+        // Add project-specific patterns here
     },
-
-    // Prompt command configuration
+    
+    // Files to completely hide (not displayed at all)
+    .hidden_files = .{
+        // Add project-specific hidden files here
+    },
+    
+    // Symlink behavior: "skip" (default), "follow", or "show"
+    .symlink_behavior = "skip",
+    
+    // Command-specific overrides (optional)
+    .tree = .{
+        // Tree-specific settings go here if needed in future
+    },
+    
     .prompt = .{
-        // Patterns to ignore when building prompts
-        .ignored_patterns = .{
-            ".git",
-            ".zig-cache",
-            "zig-out",
-            "node_modules",
-            // Project-specific patterns
-        },
+        // Prompt-specific settings go here if needed in future
     },
 }

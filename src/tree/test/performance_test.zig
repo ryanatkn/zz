@@ -3,7 +3,7 @@ const testing = std.testing;
 
 const Walker = @import("../walker.zig").Walker;
 const Config = @import("../config.zig").Config;
-const TreeConfig = @import("../config.zig").TreeConfig;
+const SharedConfig = @import("../../config.zig").SharedConfig;
 
 // Helper to create test directory structure
 fn createTestStructure(dir: std.fs.Dir, dir_count: u32, files_per_dir: u32) !void {
@@ -34,7 +34,7 @@ fn timeWalkerOperation(walker: Walker, path: []const u8) !i64 {
 test "performance with large directory structure" {
     var tmp_dir = std.testing.tmpDir(.{});
     defer tmp_dir.cleanup();
-    
+
     const test_dir_path = try tmp_dir.dir.realpathAlloc(testing.allocator, ".");
     defer testing.allocator.free(test_dir_path);
 
@@ -72,13 +72,18 @@ test "performance with large directory structure" {
     std.debug.print("Created test structure with ~{d} directories and ~{d} files in {d}ms\n", .{ dir_count * 5, file_count, creation_time });
 
     // Now benchmark the tree traversal
-    const tree_config = TreeConfig{
-        .ignored_patterns = &[_][]const u8{ ".git", "node_modules" }, // Minimal patterns
-        .hidden_files = &[_][]const u8{},
+    const ignored = [_][]const u8{ ".git", "node_modules" }; // Minimal patterns
+    const hidden = [_][]const u8{};
+
+    const shared_config = SharedConfig{
+        .ignored_patterns = &ignored,
+        .hidden_files = &hidden,
+        .symlink_behavior = .skip,
+        .patterns_allocated = false,
     };
 
     const config = Config{
-        .tree_config = tree_config,
+        .shared_config = shared_config,
     };
 
     const walker = Walker.initQuiet(testing.allocator, config);
@@ -90,14 +95,14 @@ test "performance with large directory structure" {
     // Performance expectations: should complete in reasonable time
     try testing.expect(traversal_time < 5000); // Less than 5 seconds
 
-    std.debug.print("✅ Large directory structure traversal completed in {d}ms\n", .{traversal_time});
+    std.debug.print("✓ Large directory structure traversal completed in {d}ms\n", .{traversal_time});
 }
 
 // Test performance with many ignored directories
 test "performance with many ignored directories" {
     var tmp_dir = std.testing.tmpDir(.{});
     defer tmp_dir.cleanup();
-    
+
     const test_dir_path = try tmp_dir.dir.realpathAlloc(testing.allocator, ".");
     defer testing.allocator.free(test_dir_path);
 
@@ -132,13 +137,18 @@ test "performance with many ignored directories" {
     }
 
     // Test with pattern that ignores most directories
-    const tree_config = TreeConfig{
-        .ignored_patterns = &[_][]const u8{ "node_modules_0", "node_modules_1", "node_modules_2", "node_modules_3", "node_modules_4", "node_modules_5" },
-        .hidden_files = &[_][]const u8{},
+    const ignored = [_][]const u8{ "node_modules_0", "node_modules_1", "node_modules_2", "node_modules_3", "node_modules_4", "node_modules_5" };
+    const hidden = [_][]const u8{};
+
+    const shared_config = SharedConfig{
+        .ignored_patterns = &ignored,
+        .hidden_files = &hidden,
+        .symlink_behavior = .skip,
+        .patterns_allocated = false,
     };
 
     const config = Config{
-        .tree_config = tree_config,
+        .shared_config = shared_config,
     };
 
     const walker = Walker.initQuiet(testing.allocator, config);
@@ -152,14 +162,14 @@ test "performance with many ignored directories" {
     // Should be fast because most directories are ignored and not traversed
     try testing.expect(duration < 1000); // Less than 1 second
 
-    std.debug.print("✅ Many ignored directories test completed in {d}ms\n", .{duration});
+    std.debug.print("✓ Many ignored directories test completed in {d}ms\n", .{duration});
 }
 
 // Test memory efficiency with deep nesting
 test "memory efficiency with deep nesting" {
     var tmp_dir = std.testing.tmpDir(.{});
     defer tmp_dir.cleanup();
-    
+
     const test_dir_path = try tmp_dir.dir.realpathAlloc(testing.allocator, ".");
     defer testing.allocator.free(test_dir_path);
 
@@ -182,13 +192,18 @@ test "memory efficiency with deep nesting" {
         file.close();
     }
 
-    const tree_config = TreeConfig{
-        .ignored_patterns = &[_][]const u8{},
-        .hidden_files = &[_][]const u8{},
+    const ignored = [_][]const u8{};
+    const hidden = [_][]const u8{};
+
+    const shared_config = SharedConfig{
+        .ignored_patterns = &ignored,
+        .hidden_files = &hidden,
+        .symlink_behavior = .skip,
+        .patterns_allocated = false,
     };
 
     const config = Config{
-        .tree_config = tree_config,
+        .shared_config = shared_config,
     };
 
     const walker = Walker.initQuiet(testing.allocator, config);
@@ -202,14 +217,14 @@ test "memory efficiency with deep nesting" {
     // Should handle deep nesting efficiently
     try testing.expect(duration < 2000); // Less than 2 seconds
 
-    std.debug.print("✅ Deep nesting test ({d} levels) completed in {d}ms\n", .{ depth, duration });
+    std.debug.print("✓ Deep nesting test ({d} levels) completed in {d}ms\n", .{ depth, duration });
 }
 
 // Test performance comparison: ignored vs not ignored
 test "performance comparison ignored vs not ignored" {
     var tmp_dir = std.testing.tmpDir(.{});
     defer tmp_dir.cleanup();
-    
+
     const test_dir_ignored = "perf_comparison_ignored";
     const test_dir_normal = "perf_comparison_normal";
 
@@ -244,39 +259,49 @@ test "performance comparison ignored vs not ignored" {
     // Cleanup handled by tmp_dir.cleanup()
 
     // Test with node_modules ignored
-    const ignored_config = TreeConfig{
-        .ignored_patterns = &[_][]const u8{"node_modules"},
-        .hidden_files = &[_][]const u8{},
+    const ignored = [_][]const u8{"node_modules"};
+    const hidden = [_][]const u8{};
+
+    const shared_config = SharedConfig{
+        .ignored_patterns = &ignored,
+        .hidden_files = &hidden,
+        .symlink_behavior = .skip,
+        .patterns_allocated = false,
     };
 
     const config_ignored = Config{
-        .tree_config = ignored_config,
+        .shared_config = shared_config,
     };
 
     const walker_ignored = Walker.initQuiet(testing.allocator, config_ignored);
 
     const test_dir_ignored_path = try tmp_dir.dir.realpathAlloc(testing.allocator, test_dir_ignored);
     defer testing.allocator.free(test_dir_ignored_path);
-    
+
     const start_ignored = std.time.milliTimestamp();
     try walker_ignored.walk(test_dir_ignored_path);
     const time_ignored = std.time.milliTimestamp() - start_ignored;
 
     // Test without ignoring node_modules
-    const normal_config = TreeConfig{
-        .ignored_patterns = &[_][]const u8{}, // No ignores
-        .hidden_files = &[_][]const u8{},
+    const ignored2 = [_][]const u8{}; // No ignores
+    const hidden2 = [_][]const u8{};
+
+    const shared_config2 = SharedConfig{
+        .ignored_patterns = &ignored2,
+        .hidden_files = &hidden2,
+        .symlink_behavior = .skip,
+        .patterns_allocated = false,
     };
 
     const config_normal = Config{
-        .tree_config = normal_config,
+        .shared_config = shared_config2,
     };
 
     const walker_normal = Walker.initQuiet(testing.allocator, config_normal);
 
     const test_dir_normal_path = try tmp_dir.dir.realpathAlloc(testing.allocator, test_dir_normal);
     defer testing.allocator.free(test_dir_normal_path);
-    
+
     const start_normal = std.time.milliTimestamp();
     try walker_normal.walk(test_dir_normal_path);
     const time_normal = std.time.milliTimestamp() - start_normal;
@@ -292,24 +317,29 @@ test "performance comparison ignored vs not ignored" {
     // Should see at least 2x speedup from ignoring large directories
     try testing.expect(speedup_ratio >= 2.0);
 
-    std.debug.print("✅ Performance comparison test passed (speedup: {d:.2}x)\n", .{speedup_ratio});
+    std.debug.print("✓ Performance comparison test passed (speedup: {d:.2}x)\n", .{speedup_ratio});
 }
 
 // Test scalability with increasing directory sizes
 test "scalability with increasing directory sizes" {
     var tmp_dir = std.testing.tmpDir(.{});
     defer tmp_dir.cleanup();
-    
+
     const base_dir = "perf_scalability";
     try tmp_dir.dir.makeDir(base_dir);
 
-    const tree_config = TreeConfig{
-        .ignored_patterns = &[_][]const u8{".git"},
-        .hidden_files = &[_][]const u8{},
+    const ignored = [_][]const u8{".git"};
+    const hidden = [_][]const u8{};
+
+    const shared_config = SharedConfig{
+        .ignored_patterns = &ignored,
+        .hidden_files = &hidden,
+        .symlink_behavior = .skip,
+        .patterns_allocated = false,
     };
 
     const config = Config{
-        .tree_config = tree_config,
+        .shared_config = shared_config,
     };
 
     const walker = Walker.initQuiet(testing.allocator, config);
@@ -335,7 +365,7 @@ test "scalability with increasing directory sizes" {
         // Time traversal
         const base_dir_path = try tmp_dir.dir.realpathAlloc(testing.allocator, base_dir);
         defer testing.allocator.free(base_dir_path);
-        
+
         const start_time = std.time.milliTimestamp();
         try walker.walk(base_dir_path);
         const duration = std.time.milliTimestamp() - start_time;
@@ -358,14 +388,14 @@ test "scalability with increasing directory sizes" {
         previous_time = duration;
     }
 
-    std.debug.print("✅ Scalability test passed - performance scales reasonably\n", .{});
+    std.debug.print("✓ Scalability test passed - performance scales reasonably\n", .{});
 }
 
 // Memory stress test
 test "memory stress test" {
     var tmp_dir = std.testing.tmpDir(.{});
     defer tmp_dir.cleanup();
-    
+
     const test_dir = "perf_memory_stress";
     try tmp_dir.dir.makeDir(test_dir);
 
@@ -393,19 +423,24 @@ test "memory stress test" {
         }
     }
 
-    const tree_config = TreeConfig{
-        .ignored_patterns = &[_][]const u8{},
-        .hidden_files = &[_][]const u8{},
+    const ignored = [_][]const u8{};
+    const hidden = [_][]const u8{};
+
+    const shared_config = SharedConfig{
+        .ignored_patterns = &ignored,
+        .hidden_files = &hidden,
+        .symlink_behavior = .skip,
+        .patterns_allocated = false,
     };
 
     const config = Config{
-        .tree_config = tree_config,
+        .shared_config = shared_config,
     };
 
     // Run traversal multiple times to test memory handling
     const test_dir_path = try tmp_dir.dir.realpathAlloc(testing.allocator, test_dir);
     defer testing.allocator.free(test_dir_path);
-    
+
     var iteration: u32 = 0;
     while (iteration < 5) : (iteration += 1) {
         const walker = Walker.initQuiet(testing.allocator, config);
@@ -417,5 +452,5 @@ test "memory stress test" {
         std.debug.print("Memory stress iteration {d}: {d}ms\n", .{ iteration + 1, duration });
     }
 
-    std.debug.print("✅ Memory stress test passed - no memory issues detected\n", .{});
+    std.debug.print("✓ Memory stress test passed - no memory issues detected\n", .{});
 }

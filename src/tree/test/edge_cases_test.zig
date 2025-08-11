@@ -3,7 +3,7 @@ const testing = std.testing;
 
 const Walker = @import("../walker.zig").Walker;
 const Config = @import("../config.zig").Config;
-const TreeConfig = @import("../config.zig").TreeConfig;
+const SharedConfig = @import("../../config.zig").SharedConfig;
 
 // Test handling of various filesystem edge cases
 test "symlink handling" {
@@ -25,41 +25,51 @@ test "symlink handling" {
     };
 
     // Test that walker handles symlinks gracefully
-    const tree_config = TreeConfig{
-        .ignored_patterns = &[_][]const u8{},
-        .hidden_files = &[_][]const u8{},
+    const ignored = [_][]const u8{};
+    const hidden = [_][]const u8{};
+
+    const shared_config = SharedConfig{
+        .ignored_patterns = &ignored,
+        .hidden_files = &hidden,
+        .symlink_behavior = .skip,
+        .patterns_allocated = false,
     };
 
-    const config = Config{ .tree_config = tree_config };
+    const config = Config{ .shared_config = shared_config };
     const walker = Walker.initQuiet(testing.allocator, config);
 
     // Should not crash on symlinks
     const test_dir_path = try tmp_dir.dir.realpathAlloc(testing.allocator, ".");
     defer testing.allocator.free(test_dir_path);
-    
+
     walker.walk(test_dir_path) catch |err| switch (err) {
         error.SymLinkLoop => {}, // Expected for some symlink scenarios
         else => return err,
     };
 
-    std.debug.print("✅ Symlink handling test passed!\n", .{});
+    std.debug.print("✓ Symlink handling test passed!\n", .{});
 }
 
 // Test null byte injection protection
 test "null byte injection protection" {
-    const tree_config = TreeConfig{
-        .ignored_patterns = &[_][]const u8{"test\x00injection"},
-        .hidden_files = &[_][]const u8{},
+    const ignored = [_][]const u8{"test\x00injection"};
+    const hidden = [_][]const u8{};
+
+    const shared_config = SharedConfig{
+        .ignored_patterns = &ignored,
+        .hidden_files = &hidden,
+        .symlink_behavior = .skip,
+        .patterns_allocated = false,
     };
 
-    const filter = @import("../filter.zig").Filter.init(tree_config);
+    const filter = @import("../filter.zig").Filter.init(shared_config);
 
     // Should handle null bytes safely
     try testing.expect(filter.shouldIgnore("test\x00injection"));
     try testing.expect(!filter.shouldIgnore("test"));
     try testing.expect(!filter.shouldIgnore("injection"));
 
-    std.debug.print("✅ Null byte injection protection test passed!\n", .{});
+    std.debug.print("✓ Null byte injection protection test passed!\n", .{});
 }
 
 // Test circular directory references (if possible to create)
@@ -85,24 +95,29 @@ test "circular reference handling" {
         tmp_dir.dir.makePath(current_path.items) catch break;
     }
 
-    const tree_config = TreeConfig{
-        .ignored_patterns = &[_][]const u8{},
-        .hidden_files = &[_][]const u8{},
+    const ignored = [_][]const u8{};
+    const hidden = [_][]const u8{};
+
+    const shared_config = SharedConfig{
+        .ignored_patterns = &ignored,
+        .hidden_files = &hidden,
+        .symlink_behavior = .skip,
+        .patterns_allocated = false,
     };
 
     const config = Config{
         .max_depth = 10, // Limit depth to prevent infinite traversal
-        .tree_config = tree_config,
+        .shared_config = shared_config,
     };
 
     const walker = Walker.initQuiet(testing.allocator, config);
-    
+
     const test_dir_path = try tmp_dir.dir.realpathAlloc(testing.allocator, ".");
     defer testing.allocator.free(test_dir_path);
-    
+
     try walker.walk(test_dir_path);
 
-    std.debug.print("✅ Circular reference handling test passed!\n", .{});
+    std.debug.print("✓ Circular reference handling test passed!\n", .{});
 }
 
 // Test filesystem encoding issues
@@ -132,12 +147,17 @@ test "filesystem encoding edge cases" {
         "file=with=equals.txt",
     };
 
-    const tree_config = TreeConfig{
-        .ignored_patterns = &[_][]const u8{ "file with spaces.txt", "UPPERCASE.TXT" },
-        .hidden_files = &[_][]const u8{},
+    const ignored = [_][]const u8{ "file with spaces.txt", "UPPERCASE.TXT" };
+    const hidden = [_][]const u8{};
+
+    const shared_config = SharedConfig{
+        .ignored_patterns = &ignored,
+        .hidden_files = &hidden,
+        .symlink_behavior = .skip,
+        .patterns_allocated = false,
     };
 
-    const filter = @import("../filter.zig").Filter.init(tree_config);
+    const filter = @import("../filter.zig").Filter.init(shared_config);
 
     // Test that various encodings are handled correctly
     for (problematic_names) |name| {
@@ -146,5 +166,5 @@ test "filesystem encoding edge cases" {
         try testing.expect(filter.shouldIgnore(name) == should_ignore);
     }
 
-    std.debug.print("✅ Filesystem encoding edge cases test passed!\n", .{});
+    std.debug.print("✓ Filesystem encoding edge cases test passed!\n", .{});
 }

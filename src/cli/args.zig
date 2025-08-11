@@ -26,13 +26,13 @@ pub const ArgParser = struct {
     pub fn parse(allocator: std.mem.Allocator, args: [][:0]const u8) ArgError!ParsedArgs {
         _ = allocator; // May need later for string duplication
         var result = ParsedArgs{};
-        
+
         var i: usize = 1; // Skip command name (args[0] is "tree")
         var positional_count: usize = 0;
-        
+
         while (i < args.len) {
             const arg = args[i];
-            
+
             if (std.mem.startsWith(u8, arg, "--format=")) {
                 const format_str = arg["--format=".len..];
                 result.format = Format.fromString(format_str) orelse return ArgError.InvalidFormat;
@@ -53,10 +53,10 @@ pub const ArgParser = struct {
                 }
                 positional_count += 1;
             }
-            
+
             i += 1;
         }
-        
+
         return result;
     }
 
@@ -93,11 +93,11 @@ test "CLI command parsing" {
     const tree_cmd = Command.fromString("tree");
     try testing.expect(tree_cmd != null);
     try testing.expect(tree_cmd.? == .tree);
-    
+
     const help_cmd = Command.fromString("help");
     try testing.expect(help_cmd != null);
     try testing.expect(help_cmd.? == .help);
-    
+
     const invalid_cmd = Command.fromString("invalid");
     try testing.expect(invalid_cmd == null);
 }
@@ -110,7 +110,7 @@ test "CLI runner initialization" {
 test "CLI help command dispatch" {
     const runner = Runner.init(testing.allocator);
     const args = [_][:0]const u8{ "zz", "help" };
-    
+
     try runner.run(.help, @constCast(args[0..]));
 }
 

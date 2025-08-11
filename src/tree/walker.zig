@@ -19,7 +19,7 @@ pub const Walker = struct {
         return Self{
             .allocator = allocator,
             .config = config,
-            .filter = Filter.init(config.tree_config),
+            .filter = Filter.init(config.shared_config),
             .formatter = Formatter{ .format = config.format },
             .path_builder = PathBuilder.init(allocator),
         };
@@ -29,7 +29,7 @@ pub const Walker = struct {
         return Self{
             .allocator = allocator,
             .config = config,
-            .filter = Filter.init(config.tree_config),
+            .filter = Filter.init(config.shared_config),
             .formatter = Formatter{ .quiet = true, .format = config.format },
             .path_builder = PathBuilder.init(allocator),
         };
@@ -37,11 +37,11 @@ pub const Walker = struct {
 
     pub fn walk(self: Self, path: []const u8) !void {
         // For list format, start with "." for current directory, otherwise use basename
-        const initial_relative = if (self.config.format == .list and std.mem.eql(u8, path, ".")) 
-            "." 
-        else 
+        const initial_relative = if (self.config.format == .list and std.mem.eql(u8, path, "."))
+            "."
+        else
             PathBuilder.basename(path);
-            
+
         try self.walkRecursive(path, "", initial_relative, true, 0);
     }
 
@@ -52,9 +52,7 @@ pub const Walker = struct {
             .kind = .directory, // We'll assume directory for now, could be enhanced
         };
 
-        self.formatter.formatEntry(entry, 
-            if (self.config.format == .list) relative_path else prefix, 
-            is_last);
+        self.formatter.formatEntry(entry, if (self.config.format == .list) relative_path else prefix, is_last);
 
         // Check if we've reached max depth
         if (self.config.max_depth) |depth| {
@@ -136,9 +134,7 @@ pub const Walker = struct {
 
             // Display entry if it should be shown (ignored entries show as [...])
             if (tree_entry.is_ignored or tree_entry.is_depth_limited) {
-                self.formatter.formatEntry(tree_entry, 
-                    if (self.config.format == .list) relative_entry_path else new_prefix, 
-                    is_last_entry);
+                self.formatter.formatEntry(tree_entry, if (self.config.format == .list) relative_entry_path else new_prefix, is_last_entry);
                 continue; // Don't traverse into these directories (performance optimization)
             }
 
@@ -147,9 +143,7 @@ pub const Walker = struct {
                 try self.walkRecursive(full_path, new_prefix, relative_entry_path, is_last_entry, current_depth + 1);
             } else {
                 // It's a file, just display it
-                self.formatter.formatEntry(tree_entry, 
-                    if (self.config.format == .list) relative_entry_path else new_prefix, 
-                    is_last_entry);
+                self.formatter.formatEntry(tree_entry, if (self.config.format == .list) relative_entry_path else new_prefix, is_last_entry);
             }
         }
     }

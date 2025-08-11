@@ -1,5 +1,6 @@
 const std = @import("std");
 const Format = @import("format.zig").Format;
+const SharedConfig = @import("../config.zig").SharedConfig;
 const ZonLoader = @import("../config.zig").ZonLoader;
 
 pub const ArgError = error{
@@ -10,18 +11,11 @@ pub const ArgError = error{
     ParseError,
 };
 
-pub const TreeConfig = struct {
-    ignored_patterns: []const []const u8, // Show as [...] and don't traverse
-    hidden_files: []const []const u8, // Don't show at all
-    // Track whether patterns were dynamically allocated and need to be freed
-    patterns_allocated: bool = false,
-};
-
 pub const Config = struct {
     max_depth: ?u32 = null,
     show_hidden: bool = false,
     format: Format = .tree,
-    tree_config: TreeConfig,
+    shared_config: SharedConfig,
     directory_path: []const u8 = ".",
 
     const Self = @This();
@@ -44,7 +38,7 @@ pub const Config = struct {
         };
 
         const config = Self{
-            .tree_config = try loadTreeConfig(allocator),
+            .shared_config = try loadSharedConfig(allocator),
             .max_depth = parsed_args.max_depth,
             .show_hidden = parsed_args.show_hidden,
             .format = parsed_args.format,
@@ -64,19 +58,19 @@ pub const Config = struct {
     fn parseArgs(allocator: std.mem.Allocator, args: [][:0]const u8) ArgError!ParsedArgs {
         _ = allocator; // May need later for string duplication
         var result = ParsedArgs{};
-        
+
         var i: usize = 0; // Start from first argument
-        
+
         // Skip until we find "tree" command
         while (i < args.len and !std.mem.eql(u8, args[i], "tree")) {
             i += 1;
         }
         i += 1; // Skip the "tree" command itself
         var positional_count: usize = 0;
-        
+
         while (i < args.len) {
             const arg = args[i];
-            
+
             if (std.mem.startsWith(u8, arg, "--format=")) {
                 const format_str = arg["--format=".len..];
                 result.format = Format.fromString(format_str) orelse return ArgError.InvalidFormat;
@@ -94,10 +88,10 @@ pub const Config = struct {
                 }
                 positional_count += 1;
             }
-            
+
             i += 1;
         }
-        
+
         return result;
     }
 
@@ -123,33 +117,14 @@ pub const Config = struct {
         };
     }
 
-    fn loadTreeConfig(allocator: std.mem.Allocator) !TreeConfig {
+    fn loadSharedConfig(allocator: std.mem.Allocator) !SharedConfig {
         var zon_loader = ZonLoader.init(allocator);
         defer zon_loader.deinit();
-        
-        const patterns = try zon_loader.getTreePatterns();
-        
-        return TreeConfig{
-            .ignored_patterns = patterns.ignored_patterns,
-            .hidden_files = patterns.hidden_files,
-            .patterns_allocated = patterns.patterns_allocated,
-        };
+
+        return try zon_loader.getSharedConfig();
     }
 
-
     pub fn deinit(self: *Self, allocator: std.mem.Allocator) void {
-        // Only free if patterns were dynamically allocated
-        if (self.tree_config.patterns_allocated) {
-            // Free individual pattern strings
-            for (self.tree_config.ignored_patterns) |pattern| {
-                allocator.free(pattern);
-            }
-            for (self.tree_config.hidden_files) |file| {
-                allocator.free(file);
-            }
-        }
-        // Always free the slices themselves
-        allocator.free(self.tree_config.ignored_patterns);
-        allocator.free(self.tree_config.hidden_files);
+        self.shared_config.deinit(allocator);
     }
 };

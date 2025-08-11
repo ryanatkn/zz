@@ -27,6 +27,8 @@ No external dependencies - pure Zig implementation.
     ├── .claude [...]                  # Claude Code configuration directory
     ├── .git [...]                     # Git repository metadata  
     ├── .zig-cache [...]               # Zig build cache (filtered from tree output)
+    ├── docs                           # Documentation
+    │   └── glob-patterns.md           # Glob pattern documentation
     ├── src                            # Source code (modular architecture)
     │   ├── cli                        # CLI interface module (command parsing & execution)
     │   │   ├── args.zig               # Argument parsing utilities
@@ -35,45 +37,26 @@ No external dependencies - pure Zig implementation.
     │   │   ├── main.zig               # CLI entry point and argument processing
     │   │   └── runner.zig             # Command dispatch and orchestration
     │   ├── prompt                     # Prompt generation module (LLM-optimized file aggregation)
-    │   │   ├── test                   # Comprehensive test suite for edge cases
-    │   │   │   ├── edge_cases_test.zig     # Empty inputs, directory handling
-    │   │   │   ├── file_content_test.zig   # Binary files, encoding, special content
-    │   │   │   ├── flag_combinations_test.zig # Flag parsing edge cases
-    │   │   │   ├── glob_edge_test.zig      # Complex glob patterns
-    │   │   │   ├── large_files_test.zig    # Performance and scale testing
-    │   │   │   ├── security_test.zig       # Path traversal, permissions
-    │   │   │   ├── special_chars_test.zig  # Unicode, spaces, special chars
-    │   │   │   ├── symlink_test.zig        # Symlinks, hidden files
-    │   │   │   └── test.zig                # Test suite runner
+    │   │   ├── test [...]             # Comprehensive test suite
     │   │   ├── builder.zig            # Core prompt building with smart fencing
-    │   │   ├── config.zig             # Configuration and ignore patterns
-    │   │   ├── error_test.zig         # Error handling and flag parsing tests
+    │   │   ├── config.zig             # Prompt-specific configuration
     │   │   ├── fence.zig              # Smart fence detection for code blocks
     │   │   ├── glob.zig               # Glob pattern expansion and matching
     │   │   ├── main.zig               # Prompt command entry point
-    │   │   ├── prompt_test.zig        # Core functionality tests
     │   │   └── test.zig               # Test runner for prompt module
     │   ├── tree                       # Tree visualization module (high-performance directory traversal)
-    │   │   ├── test                   # Comprehensive test suite
-    │   │   │   ├── concurrency_test.zig    # Multi-instance and config lifecycle tests
-    │   │   │   ├── config_test.zig         # Configuration parsing and memory management
-    │   │   │   ├── edge_cases_test.zig     # Unicode, symlinks, encoding edge cases
-    │   │   │   ├── filter_test.zig         # Pattern matching comprehensive tests
-    │   │   │   ├── formatter_test.zig      # Output formatting tests
-    │   │   │   ├── integration_test.zig    # End-to-end workflow tests
-    │   │   │   ├── path_builder_test.zig   # Path manipulation utility tests
-    │   │   │   ├── performance_test.zig    # Performance and scalability tests
-    │   │   │   └── walker_test.zig         # Core traversal algorithm tests
+    │   │   ├── test [...]             # Comprehensive test suite
     │   │   ├── CLAUDE.md              # Detailed tree module documentation
-    │   │   ├── config.zig             # Configuration loading and argument parsing
+    │   │   ├── config.zig             # Tree-specific configuration
     │   │   ├── entry.zig              # File/directory data structures
     │   │   ├── filter.zig             # Pattern matching and ignore logic
     │   │   ├── format.zig             # Output format enumeration (tree, list)
     │   │   ├── formatter.zig          # Multi-format output rendering
     │   │   ├── main.zig               # Tree command entry point
     │   │   ├── path_builder.zig       # Path manipulation utilities
-    │   │   ├── test.zig               # Test runner for basic functionality
+    │   │   ├── test.zig               # Test runner for tree functionality
     │   │   └── walker.zig             # Core traversal algorithm with optimizations
+    │   ├── config.zig                 # Shared configuration system (ZON parsing, patterns)
     │   ├── main.zig                   # Minimal application entry point
     │   └── test.zig                   # Main test runner for entire project
     ├── zig-out [...]                  # Build output directory (auto-generated)
@@ -141,15 +124,65 @@ Comprehensive test suite covers configuration parsing, directory filtering, perf
 - **Prompt Module:** `src/prompt/` - LLM prompt generation with glob support, smart fencing, and deduplication
 
 **Key Components:**
-- **Configuration System:** `zz.zon` + fallback defaults for CLI behavior
+- **Shared Configuration:** Root-level `zz.zon` with cross-cutting concerns (ignore patterns, hidden files, symlink behavior)
 - **Performance Optimizations:** Early directory skip, memory management, efficient traversal
-- **Modular Design:** Each module is self-contained with clean interfaces
+- **Modular Design:** Clean interfaces with shared utilities via `src/config.zig`
 
 **Adding New Commands:**
 1. Add to `Command` enum in `src/cli/command.zig`
 2. Update parsing and help text
 3. Add handler in `src/cli/runner.zig`  
 4. Complex features get dedicated module with `run(allocator, args)` interface
+
+## Configuration System
+
+**Shared Configuration Architecture:**
+- **Root-level config** in `zz.zon` - Single source of truth for cross-cutting concerns
+- **`src/config.zig`** - Shared ZON parsing, pattern resolution, and DRY helper functions
+- **Both tree and prompt modules** use the same underlying configuration system
+
+**Configuration Format:**
+```zon
+.{
+    // Base patterns behavior: "extend" (defaults + user) or provide custom array
+    .base_patterns = "extend",
+    
+    // Additional patterns to ignore (added to defaults when base_patterns = "extend")
+    .ignored_patterns = .{
+        "logs",
+        "custom_dir",
+    },
+    
+    // Files to completely hide (not displayed at all)
+    .hidden_files = .{
+        "custom.hidden",
+    },
+    
+    // Symlink behavior: "skip" (default), "follow", or "show"
+    .symlink_behavior = "skip",
+    
+    // Command-specific overrides (optional)
+    .tree = .{
+        // Tree-specific settings go here if needed in future
+    },
+    
+    .prompt = .{
+        // Prompt-specific settings go here if needed in future
+    },
+}
+```
+
+**Pattern Resolution:**
+- **"extend" mode:** Combines built-in defaults with your custom patterns
+- **Custom array mode:** Use only your specified patterns, no defaults
+- **Safe matching:** Exact path component matching prevents leaky substring matches
+- **Default ignored patterns:** `.git`, `node_modules`, `.zig-cache`, `zig-out`, build directories, etc.
+- **Default hidden files:** `.DS_Store`, `Thumbs.db`
+
+**Cross-module DRY Helpers:**
+- `shouldIgnorePath()` - Shared ignore logic for both tree and prompt
+- `shouldHideFile()` - Shared file hiding logic  
+- `handleSymlink()` - Shared symlink behavior
 
 ## Prompt Module Features
 
@@ -208,10 +241,18 @@ Comprehensive test suite covers configuration parsing, directory filtering, perf
 
 - Focus on performance and clean architecture
 - This is a CLI utilities project - no graphics or game functionality
+- Never deprecate or preserve backwards compatibility unless explicitly requested
+- Do not re-export identifiers from modules
 - Test frequently with `zig build run` to ensure each step works
-- Less is more - avoid over-engineering
 - Performance is top priority - optimize for speed
+- Address duplicated code and antipatterns
+- Push back against the developer when you think you are correct
+    or have understanding they don't, and when in doubt, ask clarifying questions
 - Keep modules self-contained and focused on their specific purpose
+- We have `rg` (ripgrep) installed, prefer `rg` over `grep`
+- Less is more - avoid over-engineering
+
+**Current Status:** ✓ SharedConfig refactor completed successfully with performance optimization. All 158 tests passing (100% success rate). Both `tree` and `prompt` commands use shared configuration system with optimized pattern matching (3650ms performance vs original 4000ms regression).
 
 ## Test Coverage
 
@@ -224,9 +265,9 @@ The project has comprehensive test coverage including:
 
 Run all tests with: `zig test src/test.zig`
 
-## Known Issues & Future Work
+## Development Status
 
-See the following documents for details:
-- `TEST_ISSUES.md` - Current test failures and glob implementation details
-- `GLOB_IMPROVEMENT_PLAN.md` - Planned improvements to glob pattern matching
-- `IMPROVE_TESTS.md` - Test coverage roadmap
+- **Configuration System**: ✓ SharedConfig refactor complete with optimized performance
+- **Test Coverage**: ✓ 100% test success rate (158/158 tests passing)  
+- **Performance**: ✓ Pattern matching optimized with fast/slow path split
+- **Future Work**: See `REFACTORING_PLAN.md` for optional architecture improvements

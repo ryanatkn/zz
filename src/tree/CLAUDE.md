@@ -135,14 +135,14 @@ zig test src/tree/test.zig  # Runs all 57 tests across 8 modules
 ```
 
 **Active Test Modules:**
-- ✅ **Configuration** - Loading, parsing, memory management, edge cases
-- ✅ **Filter** - Pattern matching, Unicode, security, performance
-- ✅ **Walker** - Directory traversal, ignore behavior, mock testing
-- ✅ **Formatter** - Output rendering, connectors, entry handling
-- ✅ **Integration** - End-to-end workflows with real directory structures
-- ✅ **Edge Cases** - Unicode, special characters, symlinks, encoding
-- ✅ **Performance** - Large structures, scalability, memory stress testing
-- ✅ **Concurrency** - Multi-instance, config immutability, lifecycle
+- ✓ **Configuration** - Loading, parsing, memory management, edge cases
+- ✓ **Filter** - Pattern matching, Unicode, security, performance
+- ✓ **Walker** - Directory traversal, ignore behavior, mock testing
+- ✓ **Formatter** - Output rendering, connectors, entry handling
+- ✓ **Integration** - End-to-end workflows with real directory structures
+- ✓ **Edge Cases** - Unicode, special characters, symlinks, encoding
+- ✓ **Performance** - Large structures, scalability, memory stress testing
+- ✓ **Concurrency** - Multi-instance, config immutability, lifecycle
 
 **Test Coverage:**
 - 57 comprehensive tests covering all functionality

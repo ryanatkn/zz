@@ -3,7 +3,7 @@ const testing = std.testing;
 
 const Walker = @import("../walker.zig").Walker;
 const Config = @import("../config.zig").Config;
-const TreeConfig = @import("../config.zig").TreeConfig;
+const SharedConfig = @import("../../config.zig").SharedConfig;
 
 // Mock filesystem operations to track directory access
 var mock_active = false;
@@ -16,7 +16,7 @@ test "basic ignored directories are not crawled" {
     // Create a temporary test directory structure
     var tmp_dir = std.testing.tmpDir(.{});
     defer tmp_dir.cleanup();
-    
+
     const test_dir_path = try tmp_dir.dir.realpathAlloc(testing.allocator, ".");
     defer testing.allocator.free(test_dir_path);
 
@@ -39,13 +39,18 @@ test "basic ignored directories are not crawled" {
     compiled_file.close();
 
     // Setup configuration with ignored patterns
-    const tree_config = TreeConfig{
-        .ignored_patterns = &[_][]const u8{ "node_modules", ".git", "target", "src/tree/compiled" },
-        .hidden_files = &[_][]const u8{},
+    const ignored = [_][]const u8{ "node_modules", ".git", "target", "src/tree/compiled" };
+    const hidden = [_][]const u8{};
+    
+    const shared_config = SharedConfig{
+        .ignored_patterns = &ignored,
+        .hidden_files = &hidden,
+        .symlink_behavior = .skip,
+        .patterns_allocated = false,
     };
 
     const config = Config{
-        .tree_config = tree_config,
+        .shared_config = shared_config,
     };
 
     // Create a custom walker that tracks directory access
@@ -69,9 +74,13 @@ test "basic ignored directories are not crawled" {
         pub fn walkWithTracking(self: Self, relative_path: []const u8) !void {
             mock_active = true;
             defer mock_active = false;
+            
+            // Free previously allocated strings
+            for (self.tracked_dirs.items) |path| {
+                testing.allocator.free(path);
+            }
             self.tracked_dirs.clearRetainingCapacity();
 
-            // Use our custom recursive function that tracks access
             try self.walkRecursiveWithTracking(relative_path, "", true, 0);
         }
 
@@ -221,7 +230,7 @@ test "nested path patterns are not crawled" {
 
     var tmp_dir = std.testing.tmpDir(.{});
     defer tmp_dir.cleanup();
-    
+
     const test_dir_path = try tmp_dir.dir.realpathAlloc(testing.allocator, ".");
     defer testing.allocator.free(test_dir_path);
 
@@ -242,13 +251,18 @@ test "nested path patterns are not crawled" {
         file.close();
     }
 
-    const tree_config = TreeConfig{
-        .ignored_patterns = &[_][]const u8{ "node_modules", "src/tree/compiled" },
-        .hidden_files = &[_][]const u8{},
+    const ignored = [_][]const u8{ "node_modules", "src/tree/compiled" };
+    const hidden = [_][]const u8{};
+    
+    const shared_config = SharedConfig{
+        .ignored_patterns = &ignored,
+        .hidden_files = &hidden,
+        .symlink_behavior = .skip,
+        .patterns_allocated = false,
     };
 
-    const TestWalker = createTestWalker(tree_config);
-    const test_walker = TestWalker.init(testing.allocator, Config{ .tree_config = tree_config }, &accessed_directories, tmp_dir.dir, test_dir_path);
+    const TestWalker = createTestWalker(shared_config);
+    const test_walker = TestWalker.init(testing.allocator, Config{ .shared_config = shared_config }, &accessed_directories, tmp_dir.dir, test_dir_path);
     try test_walker.walkWithTracking(".");
 
     // Verify deep nested paths are not accessed
@@ -300,7 +314,7 @@ test "dot-prefixed directories are not crawled" {
 
     var tmp_dir = std.testing.tmpDir(.{});
     defer tmp_dir.cleanup();
-    
+
     const test_dir_path = try tmp_dir.dir.realpathAlloc(testing.allocator, ".");
     defer testing.allocator.free(test_dir_path);
 
@@ -324,13 +338,18 @@ test "dot-prefixed directories are not crawled" {
     const file = try tmp_dir.dir.createFile("normal/file.txt", .{});
     file.close();
 
-    const tree_config = TreeConfig{
-        .ignored_patterns = &[_][]const u8{}, // No explicit patterns - dots should be auto-ignored
-        .hidden_files = &[_][]const u8{},
+    const ignored = [_][]const u8{}; // No explicit patterns - dots should be auto-ignored
+    const hidden = [_][]const u8{};
+    
+    const shared_config = SharedConfig{
+        .ignored_patterns = &ignored,
+        .hidden_files = &hidden,
+        .symlink_behavior = .skip,
+        .patterns_allocated = false,
     };
 
-    const TestWalker = createTestWalker(tree_config);
-    const test_walker = TestWalker.init(testing.allocator, Config{ .tree_config = tree_config }, &accessed_directories, tmp_dir.dir, test_dir_path);
+    const TestWalker = createTestWalker(shared_config);
+    const test_walker = TestWalker.init(testing.allocator, Config{ .shared_config = shared_config }, &accessed_directories, tmp_dir.dir, test_dir_path);
     try test_walker.walkWithTracking(".");
 
     // Verify no dot directories were crawled
@@ -367,7 +386,7 @@ test "empty and populated ignored directories are not crawled" {
 
     var tmp_dir = std.testing.tmpDir(.{});
     defer tmp_dir.cleanup();
-    
+
     const test_dir_path = try tmp_dir.dir.realpathAlloc(testing.allocator, ".");
     defer testing.allocator.free(test_dir_path);
 
@@ -388,13 +407,18 @@ test "empty and populated ignored directories are not crawled" {
     try tmp_dir.dir.makePath("populated_ignored/subdir1");
     try tmp_dir.dir.makePath("populated_ignored/subdir2");
 
-    const tree_config = TreeConfig{
-        .ignored_patterns = &[_][]const u8{ "empty_ignored", "populated_ignored" },
-        .hidden_files = &[_][]const u8{},
+    const ignored = [_][]const u8{ "empty_ignored", "populated_ignored" };
+    const hidden = [_][]const u8{};
+    
+    const shared_config = SharedConfig{
+        .ignored_patterns = &ignored,
+        .hidden_files = &hidden,
+        .symlink_behavior = .skip,
+        .patterns_allocated = false,
     };
 
-    const TestWalker = createTestWalker(tree_config);
-    const test_walker = TestWalker.init(testing.allocator, Config{ .tree_config = tree_config }, &accessed_directories, tmp_dir.dir, test_dir_path);
+    const TestWalker = createTestWalker(shared_config);
+    const test_walker = TestWalker.init(testing.allocator, Config{ .shared_config = shared_config }, &accessed_directories, tmp_dir.dir, test_dir_path);
     try test_walker.walkWithTracking(".");
 
     // Verify neither empty nor populated ignored dirs were crawled
@@ -426,22 +450,27 @@ test "configuration fallbacks and edge cases" {
 
     var tmp_dir = std.testing.tmpDir(.{});
     defer tmp_dir.cleanup();
-    
+
     const test_dir_path = try tmp_dir.dir.realpathAlloc(testing.allocator, ".");
     defer testing.allocator.free(test_dir_path);
 
     // Test empty configuration
-    const empty_config = TreeConfig{
-        .ignored_patterns = &[_][]const u8{}, // Empty
-        .hidden_files = &[_][]const u8{}, // Empty
+    const ignored = [_][]const u8{}; // Empty
+    const hidden = [_][]const u8{}; // Empty
+    
+    const shared_config = SharedConfig{
+        .ignored_patterns = &ignored,
+        .hidden_files = &hidden,
+        .symlink_behavior = .skip,
+        .patterns_allocated = false,
     };
 
     try tmp_dir.dir.makeDir("should_be_crawled");
     const file = try tmp_dir.dir.createFile("should_be_crawled/file.txt", .{});
     file.close();
 
-    const TestWalker = createTestWalker(empty_config);
-    const test_walker = TestWalker.init(testing.allocator, Config{ .tree_config = empty_config }, &accessed_directories, tmp_dir.dir, test_dir_path);
+    const TestWalker = createTestWalker(shared_config);
+    const test_walker = TestWalker.init(testing.allocator, Config{ .shared_config = shared_config }, &accessed_directories, tmp_dir.dir, test_dir_path);
     try test_walker.walkWithTracking(".");
 
     // With empty config, normal dirs should be crawled
@@ -469,7 +498,7 @@ test "real project structure is handled correctly" {
 
     var tmp_dir = std.testing.tmpDir(.{});
     defer tmp_dir.cleanup();
-    
+
     const test_dir_path = try tmp_dir.dir.realpathAlloc(testing.allocator, ".");
     defer testing.allocator.free(test_dir_path);
 
@@ -493,13 +522,18 @@ test "real project structure is handled correctly" {
     }
 
     // Use realistic config (matches our defaults)
-    const tree_config = TreeConfig{
-        .ignored_patterns = &[_][]const u8{ ".git", ".zig-cache", "zig-out", "src/tree/compiled" },
-        .hidden_files = &[_][]const u8{},
+    const ignored = [_][]const u8{ ".git", ".zig-cache", "zig-out", "src/tree/compiled" };
+    const hidden = [_][]const u8{};
+    
+    const shared_config = SharedConfig{
+        .ignored_patterns = &ignored,
+        .hidden_files = &hidden,
+        .symlink_behavior = .skip,
+        .patterns_allocated = false,
     };
 
-    const TestWalker = createTestWalker(tree_config);
-    const test_walker = TestWalker.init(testing.allocator, Config{ .tree_config = tree_config }, &accessed_directories, tmp_dir.dir, test_dir_path);
+    const TestWalker = createTestWalker(shared_config);
+    const test_walker = TestWalker.init(testing.allocator, Config{ .shared_config = shared_config }, &accessed_directories, tmp_dir.dir, test_dir_path);
     try test_walker.walkWithTracking(".");
 
     // Verify ignored paths are not crawled
@@ -548,8 +582,8 @@ test "real project structure is handled correctly" {
 }
 
 // Helper function to create test walker (reduces code duplication)
-fn createTestWalker(comptime tree_config: TreeConfig) type {
-    _ = tree_config; // Mark as used (comptime parameter)
+fn createTestWalker(comptime shared_config: SharedConfig) type {
+    _ = shared_config; // Mark as used (comptime parameter)
     return struct {
         base_walker: Walker,
         tracked_dirs: *std.ArrayList([]const u8),
@@ -570,6 +604,11 @@ fn createTestWalker(comptime tree_config: TreeConfig) type {
         pub fn walkWithTracking(self: Self, relative_path: []const u8) !void {
             mock_active = true;
             defer mock_active = false;
+            
+            // Free previously allocated strings
+            for (self.tracked_dirs.items) |path| {
+                testing.allocator.free(path);
+            }
             self.tracked_dirs.clearRetainingCapacity();
 
             try self.walkRecursiveWithTracking(relative_path, "", true, 0);

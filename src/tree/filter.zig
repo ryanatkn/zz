@@ -1,51 +1,32 @@
 const std = @import("std");
 
-const TreeConfig = @import("config.zig").TreeConfig;
+const SharedConfig = @import("../config.zig").SharedConfig;
+const shouldIgnorePath = @import("../config.zig").shouldIgnorePath;
+const shouldHideFile = @import("../config.zig").shouldHideFile;
 
 pub const Filter = struct {
-    tree_config: TreeConfig,
+    shared_config: SharedConfig,
 
     const Self = @This();
 
-    pub fn init(tree_config: TreeConfig) Self {
+    pub fn init(shared_config: SharedConfig) Self {
         return Self{
-            .tree_config = tree_config,
+            .shared_config = shared_config,
         };
     }
 
-    pub fn shouldIgnore(self: Self, name: []const u8) bool {
-        // Check ignored patterns (these show as [...] and stop crawling)
-        for (self.tree_config.ignored_patterns) |pattern| {
-            if (std.mem.eql(u8, name, pattern)) {
-                return true;
-            }
-        }
-
-        // Ignore all dot-prefixed directories and files (unless specifically configured)
-        if (name.len > 0 and name[0] == '.') {
-            return true;
-        }
-
-        return false;
+    pub fn shouldIgnore(self: Self, path: []const u8) bool {
+        // Use shared DRY helper function
+        return shouldIgnorePath(self.shared_config, path);
     }
 
     pub fn shouldIgnoreAtPath(self: Self, full_path: []const u8) bool {
-        // Check if the full path matches any ignored patterns
-        for (self.tree_config.ignored_patterns) |pattern| {
-            if (std.mem.endsWith(u8, full_path, pattern)) {
-                return true;
-            }
-        }
-        return false;
+        // Use shared helper which handles path-based patterns
+        return shouldIgnorePath(self.shared_config, full_path);
     }
 
     pub fn shouldHide(self: Self, name: []const u8) bool {
-        // Check if it's a completely hidden file (not displayed at all)
-        for (self.tree_config.hidden_files) |hidden| {
-            if (std.mem.eql(u8, name, hidden)) {
-                return true;
-            }
-        }
-        return false;
+        // Use shared DRY helper function
+        return shouldHideFile(self.shared_config, name);
     }
 };

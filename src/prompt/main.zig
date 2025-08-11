@@ -8,7 +8,7 @@ pub fn run(allocator: std.mem.Allocator, args: [][:0]const u8) !void {
     // Parse configuration from args
     var config = try Config.fromArgs(allocator, args);
     defer config.deinit();
-    
+
     // Get file patterns from args
     var patterns = config.getFilePatterns(args) catch |err| {
         if (err == error.NoInputFiles) {
@@ -19,7 +19,7 @@ pub fn run(allocator: std.mem.Allocator, args: [][:0]const u8) !void {
         return err;
     };
     defer patterns.deinit();
-    
+
     // Expand glob patterns to actual file paths with info
     var expander = GlobExpander.init(allocator);
     var pattern_results = try expander.expandPatternsWithInfo(patterns.items);
@@ -32,11 +32,11 @@ pub fn run(allocator: std.mem.Allocator, args: [][:0]const u8) !void {
         }
         pattern_results.deinit();
     }
-    
+
     // Check for patterns that matched no files
     const stderr = std.io.getStdErr().writer();
     var has_error = false;
-    
+
     for (pattern_results.items) |result| {
         if (result.files.items.len == 0) {
             if (result.is_glob) {
@@ -58,18 +58,18 @@ pub fn run(allocator: std.mem.Allocator, args: [][:0]const u8) !void {
             }
         }
     }
-    
+
     if (has_error) {
         return error.PatternsNotMatched;
     }
-    
+
     // Collect all files and deduplicate
     var seen = std.StringHashMap(void).init(allocator);
     defer seen.deinit();
-    
+
     var filtered_paths = std.ArrayList([]u8).init(allocator);
     defer filtered_paths.deinit();
-    
+
     for (pattern_results.items) |result| {
         for (result.files.items) |path| {
             if (!config.shouldIgnore(path)) {
@@ -81,24 +81,24 @@ pub fn run(allocator: std.mem.Allocator, args: [][:0]const u8) !void {
             }
         }
     }
-    
+
     // Build the prompt
     var builder = PromptBuilder.init(allocator);
     defer builder.deinit();
-    
+
     // Add prepend text if provided
     if (config.prepend_text) |text| {
         try builder.addText(text);
     }
-    
+
     // Add all files
     try builder.addFiles(filtered_paths.items);
-    
+
     // Add append text if provided
     if (config.append_text) |text| {
         try builder.addText(text);
     }
-    
+
     // Write to stdout
     const stdout = std.io.getStdOut().writer();
     try builder.write(stdout);

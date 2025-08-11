@@ -32,7 +32,7 @@ pub const Formatter = struct {
     fn formatList(self: Self, entry: Entry, path_from_root: []const u8) void {
         _ = self; // Suppress unused parameter warning
         _ = entry; // Entry details not needed for list format
-        
+
         // For list format, context contains the full relative path
         std.debug.print("./{s}\n", .{path_from_root});
     }

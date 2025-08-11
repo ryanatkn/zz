@@ -6,7 +6,7 @@ test {
     _ = @import("builder.zig");
     _ = @import("config.zig");
     _ = @import("main.zig");
-    
+
     // Comprehensive test suite
     _ = @import("test/test.zig");
 }

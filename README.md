@@ -31,10 +31,10 @@ zig build && ./zig-out/bin/zz tree
 ### Tree Visualization
 - High-performance directory traversal
 - Multiple output formats (tree and list)
-- Smart filtering (hides build artifacts, cache directories)
+- Smart filtering via shared configuration system
 - Clean tree-style output formatting
 - Configurable depth limits
-- .gitignore-style pattern matching
+- Safe pattern matching (no leaky substring matches)
 
 ### Prompt Generation
 - Build LLM-optimized prompts from multiple files
@@ -103,10 +103,45 @@ zig build run -- prompt "*.{zig,md,txt}"
 zig build run -- prompt  # Error: No input files specified
 ```
 
+## Configuration
+
+Create a `zz.zon` file in any directory to customize behavior:
+
+```zon
+.{
+    // Base patterns: "extend" (defaults + custom) or custom array
+    .base_patterns = "extend",
+    
+    // Additional ignore patterns (tree and prompt)
+    .ignored_patterns = .{
+        "logs",
+        "custom_build_dir",
+    },
+    
+    // Files to completely hide 
+    .hidden_files = .{
+        "secret.key",
+    },
+    
+    // Symlink behavior: "skip", "follow", or "show"
+    .symlink_behavior = "skip",
+}
+```
+
+**Key Features:**
+- **Root-level config** - Single source of truth shared by all commands
+- **Extend mode** - Add your patterns to sensible defaults
+- **Custom mode** - Use only your patterns (no defaults)
+- **Safe matching** - Exact path components only (no leaky substring matches)
+- **Per-directory** - Config is respected from current working directory
+
+**Default ignore patterns:** `.git`, `node_modules`, `.zig-cache`, `zig-out`, `build`, `dist`, `target`, `__pycache__`, `venv`, `tmp`, etc.
+
 ## Architecture
 
 - **`src/cli/`** - Command parsing and execution
-- **`src/tree/`** - Directory traversal and visualization
+- **`src/config.zig`** - Shared configuration system and ZON parsing
+- **`src/tree/`** - Directory traversal and visualization  
 - **`src/prompt/`** - LLM prompt generation with glob support
 
 ### Design Principles

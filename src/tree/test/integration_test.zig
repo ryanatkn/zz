@@ -14,7 +14,7 @@ fn getTmpPath(tmp_dir: *std.testing.TmpDir, allocator: std.mem.Allocator, sub_pa
 test "complete tree workflow with real directory" {
     var tmp_dir = testing.tmpDir(.{});
     defer tmp_dir.cleanup();
-    
+
     const test_dir = "integration_test_tree";
     try tmp_dir.dir.makeDir(test_dir);
 
@@ -69,7 +69,7 @@ test "complete tree workflow with real directory" {
     // Run the tree command with absolute path
     const path_z = try getTmpPath(&tmp_dir, testing.allocator, test_dir);
     defer testing.allocator.free(path_z);
-    
+
     const args = [_][:0]const u8{ "tree", path_z };
     tree_main.runQuiet(testing.allocator, @constCast(args[0..])) catch {
         try testing.expect(false); // Tree command should not fail
@@ -80,7 +80,7 @@ test "complete tree workflow with real directory" {
 test "tree command with depth limitation" {
     var tmp_dir = testing.tmpDir(.{});
     defer tmp_dir.cleanup();
-    
+
     const test_dir = "depth_test_tree";
     try tmp_dir.dir.makeDir(test_dir);
 
@@ -110,7 +110,7 @@ test "tree command with depth limitation" {
     // Test with depth limit
     const path_z = try getTmpPath(&tmp_dir, testing.allocator, test_dir);
     defer testing.allocator.free(path_z);
-    
+
     const args = [_][:0]const u8{ "tree", path_z, "3" };
     tree_main.runQuiet(testing.allocator, @constCast(args[0..])) catch {
         // Tree command with depth failed
@@ -131,10 +131,10 @@ test "tree command error handling" {
     // Test with invalid depth parameter
     var tmp_dir = testing.tmpDir(.{});
     defer tmp_dir.cleanup();
-    
+
     const test_dir = "error_test_tree";
     try tmp_dir.dir.makeDir(test_dir);
-    
+
     const path_z = try getTmpPath(&tmp_dir, testing.allocator, test_dir);
     defer testing.allocator.free(path_z);
 
@@ -144,14 +144,14 @@ test "tree command error handling" {
         try testing.expect(false);
     };
 
-    std.debug.print("✅ Tree command error handling test passed!\n", .{});
+    std.debug.print("✓ Tree command error handling test passed!\n", .{});
 }
 
 // Test tree command with permission issues (if possible)
 test "tree command with permission scenarios" {
     var tmp_dir = testing.tmpDir(.{});
     defer tmp_dir.cleanup();
-    
+
     const test_dir = "permission_test_tree";
     try tmp_dir.dir.makeDir(test_dir);
 
@@ -167,21 +167,21 @@ test "tree command with permission scenarios" {
 
     const path_z = try getTmpPath(&tmp_dir, testing.allocator, test_dir);
     defer testing.allocator.free(path_z);
-    
+
     const args = [_][:0]const u8{ "tree", path_z };
     tree_main.runQuiet(testing.allocator, @constCast(args[0..])) catch {
         // Tree command with permissions failed
         try testing.expect(false);
     };
 
-    std.debug.print("✅ Tree command with permission scenarios test passed!\n", .{});
+    std.debug.print("✓ Tree command with permission scenarios test passed!\n", .{});
 }
 
 // Test tree command with various file types
 test "tree command with various file types" {
     var tmp_dir = testing.tmpDir(.{});
     defer tmp_dir.cleanup();
-    
+
     const test_dir = "filetype_test_tree";
     try tmp_dir.dir.makeDir(test_dir);
 
@@ -214,21 +214,21 @@ test "tree command with various file types" {
 
     const path_z = try getTmpPath(&tmp_dir, testing.allocator, test_dir);
     defer testing.allocator.free(path_z);
-    
+
     const args = [_][:0]const u8{ "tree", path_z };
     tree_main.runQuiet(testing.allocator, @constCast(args[0..])) catch {
         // Tree command with file types failed
         try testing.expect(false);
     };
 
-    std.debug.print("✅ Tree command with various file types test passed!\n", .{});
+    std.debug.print("✓ Tree command with various file types test passed!\n", .{});
 }
 
 // Test tree command with empty directories
 test "tree command with empty directories" {
     var tmp_dir = testing.tmpDir(.{});
     defer tmp_dir.cleanup();
-    
+
     const test_dir = "empty_test_tree";
     try tmp_dir.dir.makeDir(test_dir);
 
@@ -247,14 +247,14 @@ test "tree command with empty directories" {
 
     const path_z = try getTmpPath(&tmp_dir, testing.allocator, test_dir);
     defer testing.allocator.free(path_z);
-    
+
     const args = [_][:0]const u8{ "tree", path_z };
     tree_main.runQuiet(testing.allocator, @constCast(args[0..])) catch {
         // Tree command with empty directories failed
         try testing.expect(false);
     };
 
-    std.debug.print("✅ Tree command with empty directories test passed!\n", .{});
+    std.debug.print("✓ Tree command with empty directories test passed!\n", .{});
 }
 
 // Test memory usage and cleanup
@@ -262,7 +262,7 @@ test "tree command memory usage" {
     // Test with a moderately large directory structure
     var tmp_dir = testing.tmpDir(.{});
     defer tmp_dir.cleanup();
-    
+
     const test_dir = "memory_test_tree";
     try tmp_dir.dir.makeDir(test_dir);
 
@@ -288,25 +288,25 @@ test "tree command memory usage" {
     // Run tree command - should handle memory efficiently
     const path_z = try getTmpPath(&tmp_dir, testing.allocator, test_dir);
     defer testing.allocator.free(path_z);
-    
+
     const args = [_][:0]const u8{ "tree", path_z };
     tree_main.runQuiet(testing.allocator, @constCast(args[0..])) catch {
         // Tree command memory test failed
         try testing.expect(false);
     };
 
-    std.debug.print("✅ Tree command memory usage test passed!\n", .{});
+    std.debug.print("✓ Tree command memory usage test passed!\n", .{});
 }
 
 // Test tree command argument edge cases
 test "tree command argument edge cases" {
     var tmp_dir = testing.tmpDir(.{});
     defer tmp_dir.cleanup();
-    
+
     // Test minimum arguments (current directory)
     const current_path_z = try getTmpPath(&tmp_dir, testing.allocator, ".");
     defer testing.allocator.free(current_path_z);
-    
+
     const args_current = [_][:0]const u8{ "tree", current_path_z };
     tree_main.runQuiet(testing.allocator, @constCast(args_current[0..])) catch {
         // Should work with current directory
@@ -315,7 +315,7 @@ test "tree command argument edge cases" {
     // Test with very large depth number
     const test_dir = "edge_args_test";
     try tmp_dir.dir.makeDir(test_dir);
-    
+
     const path_z = try getTmpPath(&tmp_dir, testing.allocator, test_dir);
     defer testing.allocator.free(path_z);
 
@@ -324,14 +324,14 @@ test "tree command argument edge cases" {
         // Should handle large depth gracefully
     };
 
-    std.debug.print("✅ Tree command argument edge cases test passed!\n", .{});
+    std.debug.print("✓ Tree command argument edge cases test passed!\n", .{});
 }
 
 test "tree and list format produce different outputs" {
     // Create a test directory structure
     var tmp_dir = testing.tmpDir(.{});
     defer tmp_dir.cleanup();
-    
+
     const test_dir = "format_test";
     try tmp_dir.dir.makeDir(test_dir);
 
@@ -356,14 +356,14 @@ test "tree and list format produce different outputs" {
         try testing.expect(false); // Should not fail
     };
 
-    std.debug.print("✅ Tree and list format integration test passed!\n", .{});
+    std.debug.print("✓ Tree and list format integration test passed!\n", .{});
 }
 
 test "format flags with depth and directory combinations" {
     // Create a nested test directory
     var tmp_dir = testing.tmpDir(.{});
     defer tmp_dir.cleanup();
-    
+
     const test_dir = "format_combo_test";
     try tmp_dir.dir.makeDir(test_dir);
     try tmp_dir.dir.makePath(test_dir ++ "/level1");
@@ -390,16 +390,16 @@ test "format flags with depth and directory combinations" {
         };
     }
 
-    std.debug.print("✅ Format flags with combinations test passed!\n", .{});
+    std.debug.print("✓ Format flags with combinations test passed!\n", .{});
 }
 
 test "format error handling integration" {
     var tmp_dir = testing.tmpDir(.{});
     defer tmp_dir.cleanup();
-    
+
     const test_dir = "format_error_test";
     try tmp_dir.dir.makeDir(test_dir);
-    
+
     const path_z = try getTmpPath(&tmp_dir, testing.allocator, test_dir);
     defer testing.allocator.free(path_z);
 
@@ -425,7 +425,7 @@ test "no test artifacts in working directory" {
     // Check that no test directories are left in the current working directory
     var cwd = try std.fs.cwd().openDir(".", .{ .iterate = true });
     defer cwd.close();
-    
+
     const test_prefixes = [_][]const u8{
         "integration_test_tree",
         "depth_test_tree",
@@ -439,7 +439,7 @@ test "no test artifacts in working directory" {
         "format_combo_test",
         "format_error_test",
     };
-    
+
     var it = cwd.iterate();
     while (try it.next()) |entry| {
         for (test_prefixes) |prefix| {

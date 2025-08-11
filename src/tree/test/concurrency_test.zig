@@ -3,7 +3,7 @@ const testing = std.testing;
 
 const Walker = @import("../walker.zig").Walker;
 const Config = @import("../config.zig").Config;
-const TreeConfig = @import("../config.zig").TreeConfig;
+const SharedConfig = @import("../../config.zig").SharedConfig;
 
 // Test thread safety and concurrent access patterns
 test "multiple walker instances" {
@@ -23,12 +23,17 @@ test "multiple walker instances" {
         file.close();
     }
 
-    const tree_config = TreeConfig{
-        .ignored_patterns = &[_][]const u8{},
-        .hidden_files = &[_][]const u8{},
+    const ignored = [_][]const u8{};
+    const hidden = [_][]const u8{};
+
+    const shared_config = SharedConfig{
+        .ignored_patterns = &ignored,
+        .hidden_files = &hidden,
+        .symlink_behavior = .skip,
+        .patterns_allocated = false,
     };
 
-    const config = Config{ .tree_config = tree_config };
+    const config = Config{ .shared_config = shared_config };
 
     // Create multiple walker instances (should be safe)
     const walker1 = Walker.initQuiet(testing.allocator, config);
@@ -38,34 +43,39 @@ test "multiple walker instances" {
     // All should work independently
     const test_dir_path = try tmp_dir.dir.realpathAlloc(testing.allocator, ".");
     defer testing.allocator.free(test_dir_path);
-    
+
     try walker1.walk(test_dir_path);
     try walker2.walk(test_dir_path);
     try walker3.walk(test_dir_path);
 
-    std.debug.print("✅ Multiple walker instances test passed!\n", .{});
+    std.debug.print("✓ Multiple walker instances test passed!\n", .{});
 }
 
 // Test configuration immutability
 test "config immutability" {
-    const tree_config = TreeConfig{
-        .ignored_patterns = &[_][]const u8{ "test1", "test2" },
-        .hidden_files = &[_][]const u8{"hidden1"},
+    const ignored = [_][]const u8{ "test1", "test2" };
+    const hidden = [_][]const u8{"hidden1"};
+
+    const shared_config = SharedConfig{
+        .ignored_patterns = &ignored,
+        .hidden_files = &hidden,
+        .symlink_behavior = .skip,
+        .patterns_allocated = false,
     };
 
-    const config = Config{ .tree_config = tree_config };
+    const config = Config{ .shared_config = shared_config };
 
     // Create multiple walkers with same config
     const walker1 = Walker.initQuiet(testing.allocator, config);
     const walker2 = Walker.initQuiet(testing.allocator, config);
 
     // Both should have the same configuration
-    try testing.expect(walker1.filter.tree_config.ignored_patterns.len == 2);
-    try testing.expect(walker2.filter.tree_config.ignored_patterns.len == 2);
-    try testing.expect(walker1.filter.tree_config.hidden_files.len == 1);
-    try testing.expect(walker2.filter.tree_config.hidden_files.len == 1);
+    try testing.expect(walker1.filter.shared_config.ignored_patterns.len == 2);
+    try testing.expect(walker2.filter.shared_config.ignored_patterns.len == 2);
+    try testing.expect(walker1.filter.shared_config.hidden_files.len == 1);
+    try testing.expect(walker2.filter.shared_config.hidden_files.len == 1);
 
-    std.debug.print("✅ Config immutability test passed!\n", .{});
+    std.debug.print("✓ Config immutability test passed!\n", .{});
 }
 
 // Test rapid creation/destruction of configs
@@ -77,14 +87,14 @@ test "rapid config lifecycle" {
         defer config.deinit(testing.allocator);
 
         // Verify config is valid each time
-        try testing.expect(config.tree_config.ignored_patterns.len > 0);
+        try testing.expect(config.shared_config.ignored_patterns.len > 0);
 
         // Create walker and immediately destroy
         const walker = Walker.initQuiet(testing.allocator, config);
         _ = walker; // Just creation/destruction cycle
     }
 
-    std.debug.print("✅ Rapid config lifecycle test passed!\n", .{});
+    std.debug.print("✓ Rapid config lifecycle test passed!\n", .{});
 }
 
 // Test memory behavior under stress
@@ -99,17 +109,21 @@ test "memory stress with config changes" {
     };
 
     for (patterns_sets) |patterns| {
-        const tree_config = TreeConfig{
+        const hidden = [_][]const u8{};
+
+        const shared_config = SharedConfig{
             .ignored_patterns = patterns,
-            .hidden_files = &[_][]const u8{},
+            .hidden_files = &hidden,
+            .symlink_behavior = .skip,
+            .patterns_allocated = false,
         };
 
-        const config = Config{ .tree_config = tree_config };
+        const config = Config{ .shared_config = shared_config };
         const walker = Walker.initQuiet(testing.allocator, config);
 
         // Verify walker works with different configs
         _ = walker;
     }
 
-    std.debug.print("✅ Memory stress with config changes test passed!\n", .{});
+    std.debug.print("✓ Memory stress with config changes test passed!\n", .{});
 }

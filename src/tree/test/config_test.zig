@@ -2,11 +2,11 @@ const std = @import("std");
 const testing = std.testing;
 
 const Config = @import("../config.zig").Config;
-const TreeConfig = @import("../config.zig").TreeConfig;
+const SharedConfig = @import("../../config.zig").SharedConfig;
 
 // Helper functions to reduce duplication
 fn expectConfigHasPattern(config: Config, pattern: []const u8) !void {
-    for (config.tree_config.ignored_patterns) |p| {
+    for (config.shared_config.ignored_patterns) |p| {
         if (std.mem.eql(u8, p, pattern)) return;
     }
     try testing.expect(false); // Pattern not found
@@ -19,27 +19,27 @@ test "configuration loading with missing file" {
     defer config.deinit(testing.allocator);
 
     // Should load default configuration when zz.zon is missing
-    try testing.expect(config.tree_config.ignored_patterns.len > 0);
-    try testing.expect(config.tree_config.hidden_files.len > 0);
+    try testing.expect(config.shared_config.ignored_patterns.len > 0);
+    try testing.expect(config.shared_config.hidden_files.len > 0);
 
     // Verify default patterns are present
     var found_git = false;
     var found_node_modules = false;
-    for (config.tree_config.ignored_patterns) |pattern| {
+    for (config.shared_config.ignored_patterns) |pattern| {
         if (std.mem.eql(u8, pattern, ".git")) found_git = true;
         if (std.mem.eql(u8, pattern, "node_modules")) found_node_modules = true;
     }
     try testing.expect(found_git);
     try testing.expect(found_node_modules);
 
-    std.debug.print("✅ Configuration loading with missing file test passed!\n", .{});
+    std.debug.print("✓ Configuration loading with missing file test passed!\n", .{});
 }
 
 // Test configuration with malformed file
 test "configuration loading with invalid file" {
     var tmp_dir = std.testing.tmpDir(.{});
     defer tmp_dir.cleanup();
-    
+
     // Create malformed zz.zon file
     const malformed_content = "this is not valid zig syntax {[}";
     const file = try tmp_dir.dir.createFile("test_invalid.zon", .{});
@@ -53,9 +53,9 @@ test "configuration loading with invalid file" {
     defer config.deinit(testing.allocator);
 
     // Verify fallback worked
-    try testing.expect(config.tree_config.ignored_patterns.len > 0);
+    try testing.expect(config.shared_config.ignored_patterns.len > 0);
 
-    std.debug.print("✅ Configuration loading with invalid file test passed!\n", .{});
+    std.debug.print("✓ Configuration loading with invalid file test passed!\n", .{});
 }
 
 // Test depth parameter parsing
@@ -82,7 +82,7 @@ test "max depth parameter parsing" {
 
     try testing.expect(config3.max_depth == null);
 
-    std.debug.print("✅ Max depth parameter parsing test passed!\n", .{});
+    std.debug.print("✓ Max depth parameter parsing test passed!\n", .{});
 }
 
 // Test configuration memory management
@@ -95,10 +95,10 @@ test "configuration memory management" {
         defer config.deinit(testing.allocator);
 
         // Verify config is valid each time
-        try testing.expect(config.tree_config.ignored_patterns.len > 0);
+        try testing.expect(config.shared_config.ignored_patterns.len > 0);
     }
 
-    std.debug.print("✅ Configuration memory management test passed!\n", .{});
+    std.debug.print("✓ Configuration memory management test passed!\n", .{});
 }
 
 // Test edge case command line arguments
@@ -120,5 +120,5 @@ test "edge case command line arguments" {
     defer config_zero.deinit(testing.allocator);
     try testing.expect(config_zero.max_depth.? == 0);
 
-    std.debug.print("✅ Edge case command line arguments test passed!\n", .{});
+    std.debug.print("✓ Edge case command line arguments test passed!\n", .{});
 }

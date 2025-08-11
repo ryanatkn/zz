@@ -6,11 +6,14 @@ pub const ArgError = error{
     MissingValue,
     InvalidFormat,
     OutOfMemory,
+    ParseError,
 };
 
 pub const TreeConfig = struct {
     ignored_patterns: []const []const u8, // Show as [...] and don't traverse
     hidden_files: []const []const u8, // Don't show at all
+    // Track whether patterns were dynamically allocated and need to be freed
+    patterns_allocated: bool = false,
 };
 
 pub const Config = struct {
@@ -115,6 +118,7 @@ pub const Config = struct {
             ArgError.MissingValue => "Missing value for flag",
             ArgError.InvalidFormat => "Invalid format. Use 'tree' or 'list'",
             ArgError.OutOfMemory => "Out of memory",
+            ArgError.ParseError => "Failed to parse configuration",
         };
     }
 
@@ -130,9 +134,11 @@ pub const Config = struct {
         };
         defer allocator.free(file_content);
 
-        // For now, just return default config - full .zon parsing is complex
-        // TODO: Implement actual .zon parsing if needed
-        return getDefaultTreeConfig(allocator);
+        // Parse the .zon file for tree configuration
+        return parseZonTreeConfig(allocator, file_content) catch {
+            // Fall back to defaults if parsing fails
+            return getDefaultTreeConfig(allocator);
+        };
     }
 
     fn getDefaultTreeConfig(allocator: std.mem.Allocator) !TreeConfig {
@@ -149,10 +155,68 @@ pub const Config = struct {
         return TreeConfig{
             .ignored_patterns = ignored,
             .hidden_files = hidden_files,
+            .patterns_allocated = false, // String literals, don't free
+        };
+    }
+
+    fn parseZonTreeConfig(allocator: std.mem.Allocator, content: []const u8) !TreeConfig {
+        // Add null terminator for ZON parsing
+        const null_terminated = try allocator.dupeZ(u8, content);
+        defer allocator.free(null_terminated);
+
+        // Define the expected structure - make fields optional since zz.zon might have other sections
+        const ZonConfig = struct {
+            tree: ?struct {
+                ignored_patterns: ?[]const []const u8 = null,
+                hidden_files: ?[]const []const u8 = null,
+            } = null,
+            // Allow other sections to exist without parsing them
+            prompt: ?struct {
+                ignored_patterns: ?[]const []const u8 = null,
+            } = null,
+        };
+
+        // Parse the ZON content
+        const parsed = std.zon.parse.fromSlice(ZonConfig, allocator, null_terminated, null, .{}) catch {
+            return error.ParseError;
+        };
+        defer std.zon.parse.free(allocator, parsed);
+
+        // Check if tree section exists
+        const tree_config = parsed.tree orelse return error.ParseError;
+
+        // Copy the patterns to owned memory
+        const source_ignored = tree_config.ignored_patterns orelse &[_][]const u8{};
+        const ignored_patterns = try allocator.alloc([]const u8, source_ignored.len);
+        for (source_ignored, 0..) |pattern, i| {
+            ignored_patterns[i] = try allocator.dupe(u8, pattern);
+        }
+
+        const source_hidden = tree_config.hidden_files orelse &[_][]const u8{};
+        const hidden_files = try allocator.alloc([]const u8, source_hidden.len);
+        for (source_hidden, 0..) |file, i| {
+            hidden_files[i] = try allocator.dupe(u8, file);
+        }
+
+        return TreeConfig{
+            .ignored_patterns = ignored_patterns,
+            .hidden_files = hidden_files,
+            .patterns_allocated = true, // Dynamically allocated, need to free
         };
     }
 
     pub fn deinit(self: *Self, allocator: std.mem.Allocator) void {
+        // Only free if patterns were dynamically allocated
+        if (self.tree_config.patterns_allocated) {
+            // Free individual pattern strings
+            for (self.tree_config.ignored_patterns) |pattern| {
+                allocator.free(pattern);
+            }
+            for (self.tree_config.hidden_files) |file| {
+                allocator.free(file);
+            }
+        }
+        // Always free the slices themselves
         allocator.free(self.tree_config.ignored_patterns);
         allocator.free(self.tree_config.hidden_files);
     }

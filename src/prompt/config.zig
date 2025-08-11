@@ -1,8 +1,10 @@
 const std = @import("std");
+const ZonLoader = @import("../config.zig").ZonLoader;
 
 pub const Config = struct {
     allocator: std.mem.Allocator,
     ignored_patterns: []const []const u8,
+    patterns_allocated: bool,
     prepend_text: ?[]const u8,
     append_text: ?[]const u8,
     allow_empty_glob: bool,
@@ -14,13 +16,6 @@ pub const Config = struct {
     const APPEND_PREFIX = "--append=";
     const SKIP_ARGS = 2; // Skip "zz prompt"
     
-    // Default patterns to ignore
-    const default_ignored = [_][]const u8{
-        ".git",
-        ".zig-cache", 
-        "zig-out",
-        "node_modules",
-    };
     
     fn setTextOption(allocator: std.mem.Allocator, current_value: ?[]const u8, new_text: []const u8) !?[]const u8 {
         if (current_value) |old| {
@@ -44,9 +39,15 @@ pub const Config = struct {
     }
     
     pub fn fromArgs(allocator: std.mem.Allocator, args: [][:0]const u8) !Self {
+        // Load patterns from ZON config
+        var zon_loader = ZonLoader.init(allocator);
+        defer zon_loader.deinit();
+        const patterns = try zon_loader.getPromptPatterns();
+        
         var config = Self{
             .allocator = allocator,
-            .ignored_patterns = &default_ignored,
+            .ignored_patterns = patterns,
+            .patterns_allocated = true,
             .prepend_text = null,
             .append_text = null,
             .allow_empty_glob = false,
@@ -58,13 +59,16 @@ pub const Config = struct {
             try parseFlag(&config, allocator, arg);
         }
         
-        // TODO: Load from zz.zon if present
-        // For now, just use defaults
-        
         return config;
     }
     
     pub fn deinit(self: *Self) void {
+        if (self.patterns_allocated) {
+            for (self.ignored_patterns) |pattern| {
+                self.allocator.free(pattern);
+            }
+            self.allocator.free(self.ignored_patterns);
+        }
         if (self.prepend_text) |text| {
             self.allocator.free(text);
         }
@@ -190,4 +194,42 @@ test "ignore patterns" {
     try std.testing.expect(!config.shouldIgnore("src/main.zig"));
     try std.testing.expect(!config.shouldIgnore("README.md"));
     try std.testing.expect(!config.shouldIgnore("src/module.test.zig"));
+}
+
+test "config flag parsing" {
+    const allocator = std.testing.allocator;
+    
+    // Test allow-empty-glob flag
+    var args1 = [_][:0]const u8{ "zz", "prompt", "--allow-empty-glob", "file.zig" };
+    var config1 = try Config.fromArgs(allocator, &args1);
+    defer config1.deinit();
+    
+    try std.testing.expect(config1.allow_empty_glob == true);
+    try std.testing.expect(config1.allow_missing == false);
+    try std.testing.expect(config1.prepend_text == null);
+    try std.testing.expect(config1.append_text == null);
+    
+    // Test allow-missing flag
+    var args2 = [_][:0]const u8{ "zz", "prompt", "--allow-missing", "file.zig" };
+    var config2 = try Config.fromArgs(allocator, &args2);
+    defer config2.deinit();
+    
+    try std.testing.expect(config2.allow_empty_glob == false);
+    try std.testing.expect(config2.allow_missing == true);
+    
+    // Test both flags
+    var args3 = [_][:0]const u8{ "zz", "prompt", "--allow-empty-glob", "--allow-missing", "file.zig" };
+    var config3 = try Config.fromArgs(allocator, &args3);
+    defer config3.deinit();
+    
+    try std.testing.expect(config3.allow_empty_glob == true);
+    try std.testing.expect(config3.allow_missing == true);
+    
+    // Test default (no flags)
+    var args4 = [_][:0]const u8{ "zz", "prompt", "file.zig" };
+    var config4 = try Config.fromArgs(allocator, &args4);
+    defer config4.deinit();
+    
+    try std.testing.expect(config4.allow_empty_glob == false);
+    try std.testing.expect(config4.allow_missing == false);
 }

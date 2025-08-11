@@ -11,9 +11,6 @@ pub const security = @import("security_test.zig");
 pub const glob_edge = @import("glob_edge_test.zig");
 pub const nested_braces_integration = @import("nested_braces_integration_test.zig");
 
-// Also include the error tests
-pub const error_test = @import("../error_test.zig");
-
 test {
     // Reference all test modules to ensure they run
     _ = edge_cases;
@@ -25,5 +22,4 @@ test {
     _ = security;
     _ = glob_edge;
     _ = nested_braces_integration;
-    _ = error_test;
 }

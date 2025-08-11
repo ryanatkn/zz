@@ -1,5 +1,6 @@
 const std = @import("std");
 const Format = @import("format.zig").Format;
+const ZonLoader = @import("../config.zig").ZonLoader;
 
 pub const ArgError = error{
     InvalidFlag,
@@ -123,87 +124,18 @@ pub const Config = struct {
     }
 
     fn loadTreeConfig(allocator: std.mem.Allocator) !TreeConfig {
-        // Try to read zz.zon configuration file
-        const config_path = "zz.zon";
-        const file_content = std.fs.cwd().readFileAlloc(allocator, config_path, 1024 * 1024) catch |err| switch (err) {
-            error.FileNotFound => {
-                // Return default configuration if file doesn't exist
-                return getDefaultTreeConfig(allocator);
-            },
-            else => return err,
-        };
-        defer allocator.free(file_content);
-
-        // Parse the .zon file for tree configuration
-        return parseZonTreeConfig(allocator, file_content) catch {
-            // Fall back to defaults if parsing fails
-            return getDefaultTreeConfig(allocator);
-        };
-    }
-
-    fn getDefaultTreeConfig(allocator: std.mem.Allocator) !TreeConfig {
-        // Default patterns - these are allocated and need to be freed by caller
-        const ignored = try allocator.dupe([]const u8, &[_][]const u8{
-            ".git",        ".svn", ".hg", "node_modules", "dist", "build",      "target",
-            "__pycache__", "venv", "env", "tmp",          "temp", ".zig-cache", "zig-out",
-        });
-
-        const hidden_files = try allocator.dupe([]const u8, &[_][]const u8{
-            "Thumbs.db", ".DS_Store",
-        });
-
+        var zon_loader = ZonLoader.init(allocator);
+        defer zon_loader.deinit();
+        
+        const patterns = try zon_loader.getTreePatterns();
+        
         return TreeConfig{
-            .ignored_patterns = ignored,
-            .hidden_files = hidden_files,
-            .patterns_allocated = false, // String literals, don't free
+            .ignored_patterns = patterns.ignored_patterns,
+            .hidden_files = patterns.hidden_files,
+            .patterns_allocated = patterns.patterns_allocated,
         };
     }
 
-    fn parseZonTreeConfig(allocator: std.mem.Allocator, content: []const u8) !TreeConfig {
-        // Add null terminator for ZON parsing
-        const null_terminated = try allocator.dupeZ(u8, content);
-        defer allocator.free(null_terminated);
-
-        // Define the expected structure - make fields optional since zz.zon might have other sections
-        const ZonConfig = struct {
-            tree: ?struct {
-                ignored_patterns: ?[]const []const u8 = null,
-                hidden_files: ?[]const []const u8 = null,
-            } = null,
-            // Allow other sections to exist without parsing them
-            prompt: ?struct {
-                ignored_patterns: ?[]const []const u8 = null,
-            } = null,
-        };
-
-        // Parse the ZON content
-        const parsed = std.zon.parse.fromSlice(ZonConfig, allocator, null_terminated, null, .{}) catch {
-            return error.ParseError;
-        };
-        defer std.zon.parse.free(allocator, parsed);
-
-        // Check if tree section exists
-        const tree_config = parsed.tree orelse return error.ParseError;
-
-        // Copy the patterns to owned memory
-        const source_ignored = tree_config.ignored_patterns orelse &[_][]const u8{};
-        const ignored_patterns = try allocator.alloc([]const u8, source_ignored.len);
-        for (source_ignored, 0..) |pattern, i| {
-            ignored_patterns[i] = try allocator.dupe(u8, pattern);
-        }
-
-        const source_hidden = tree_config.hidden_files orelse &[_][]const u8{};
-        const hidden_files = try allocator.alloc([]const u8, source_hidden.len);
-        for (source_hidden, 0..) |file, i| {
-            hidden_files[i] = try allocator.dupe(u8, file);
-        }
-
-        return TreeConfig{
-            .ignored_patterns = ignored_patterns,
-            .hidden_files = hidden_files,
-            .patterns_allocated = true, // Dynamically allocated, need to free
-        };
-    }
 
     pub fn deinit(self: *Self, allocator: std.mem.Allocator) void {
         // Only free if patterns were dynamically allocated

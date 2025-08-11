@@ -497,3 +497,60 @@ test "glob pattern expansion" {
     try std.testing.expect(expander.matchPattern("a.txt", "?.txt"));
     try std.testing.expect(!expander.matchPattern("ab.txt", "?.txt"));
 }
+
+test "glob pattern detection" {
+    // Test glob patterns
+    try std.testing.expect(GlobExpander.isGlobPattern("*.zig") == true);
+    try std.testing.expect(GlobExpander.isGlobPattern("src/**/*.zig") == true);
+    try std.testing.expect(GlobExpander.isGlobPattern("test?.zig") == true);
+    try std.testing.expect(GlobExpander.isGlobPattern("*.{zig,txt}") == true);
+    
+    // Test non-glob patterns
+    try std.testing.expect(GlobExpander.isGlobPattern("file.zig") == false);
+    try std.testing.expect(GlobExpander.isGlobPattern("src/main.zig") == false);
+    try std.testing.expect(GlobExpander.isGlobPattern("/absolute/path.txt") == false);
+}
+
+test "error on non-matching glob patterns" {
+    const allocator = std.testing.allocator;
+    var expander = GlobExpander.init(allocator);
+    
+    // Test that glob pattern with no matches returns empty
+    var patterns = [_][]const u8{"*.nonexistent_extension_xyz"};
+    var results = try expander.expandPatternsWithInfo(&patterns);
+    defer {
+        for (results.items) |*result| {
+            for (result.files.items) |path| {
+                allocator.free(path);
+            }
+            result.files.deinit();
+        }
+        results.deinit();
+    }
+    
+    try std.testing.expect(results.items.len == 1);
+    try std.testing.expect(results.items[0].files.items.len == 0);
+    try std.testing.expect(results.items[0].is_glob == true);
+}
+
+test "error on explicit missing files" {
+    const allocator = std.testing.allocator;
+    var expander = GlobExpander.init(allocator);
+    
+    // Test that explicit file path with no file returns empty
+    var patterns = [_][]const u8{"/nonexistent/path/to/file.zig"};
+    var results = try expander.expandPatternsWithInfo(&patterns);
+    defer {
+        for (results.items) |*result| {
+            for (result.files.items) |path| {
+                allocator.free(path);
+            }
+            result.files.deinit();
+        }
+        results.deinit();
+    }
+    
+    try std.testing.expect(results.items.len == 1);
+    try std.testing.expect(results.items[0].files.items.len == 0);
+    try std.testing.expect(results.items[0].is_glob == false);
+}

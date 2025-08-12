@@ -14,7 +14,7 @@ This document details the performance characteristics, optimizations, and benchm
 ### Baseline Performance (Debug Build)
 | Operation | Performance | Notes |
 |-----------|------------|--------|
-| Path Joining | ~47 μs/op | 20-30% faster than stdlib |
+| Path Joining | ~47 μs/op | Direct buffer manipulation |
 | String Pooling | ~145 ns/op | 95-100% cache efficiency |
 | Memory Pools | ~50 μs/op | ArrayList reuse |
 | Glob Patterns | ~25 ns/op | 75% fast-path hits |
@@ -29,7 +29,7 @@ Typically 3-5x faster than Debug build:
 
 ## Key Optimizations
 
-### 1. Path Operations (20-30% faster than stdlib)
+### 1. Path Operations (~47 μs/op)
 
 #### Before (stdlib approach):
 ```zig

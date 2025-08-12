@@ -1,17 +1,17 @@
-# zz Vision: The Ultimate POSIX CLI Swiss Army Knife
+# zz Vision: Fast Unix Tools for Modern Development
 
 ## Executive Summary
 
-`zz` is positioned to become the definitive high-performance CLI utility for natural language programming environments, prioritizing security, POSIX-first design, and Claude Code integration. The goal is to create a small but maximally powerful toolkit that bridges human intent with machine execution through carefully designed commands.
+`zz` provides fast, focused CLI utilities that embrace both Unix philosophy and modern development needs. Small binaries, zero dependencies, and no compromises on performance or developer experience. We're building the tools we want to use—combining old-school C discipline with TypeScript/Svelte web excellence and LLM assistance where it makes sense.
 
 ## Current State Analysis
 
 **Strengths:**
-- ✅ **Performance-First Architecture:** Optimized memory pools, string interning, filesystem abstraction
-- ✅ **Security-Focused:** Parameterized dependencies, comprehensive test coverage, no Windows support reduces attack surface
-- ✅ **Modular Design:** Clean separation of concerns with unified pattern matching
-- ✅ **Claude Code Integration:** Direct access via `.claude/config.json` allowedCommands
-- ✅ **Comprehensive Testing:** 190+ tests with 100% success rate, mock filesystem abstraction
+- Performance-first architecture with memory pools and string interning
+- Security through parameterized dependencies and comprehensive testing
+- Modular design with clean separation of concerns
+- Claude Code integration via `.claude/config.json`
+- 190+ tests passing with mock filesystem abstraction
 
 **Current Commands:**
 - `tree` - High-performance directory visualization 
@@ -19,10 +19,22 @@
 - `benchmark` - Performance measurement with baseline comparison
 - `help` - Usage information
 
-## Strategic Vision: Natural Language Programming Platform
+## Strategic Vision: Modular Tool Ecosystem
 
-### Phase 1: Core Intelligence Commands (Security-First)
-Commands that enhance natural language programming without introducing security risks:
+### Core Binary Strategy
+Keep `zz` small and fast. Future features live in separate binaries:
+```
+zz          # Core utilities (tree, prompt, benchmark) < 5MB
+zz-ts       # TypeScript parser and tools
+zz-web      # Web language utilities (Svelte, JSX, etc.)
+zz-llm      # LLM integration and AI assistance
+zz-analyze  # Static analysis and security tools
+```
+
+Each tool excellent at its job, composed Unix-style.
+
+### Phase 1: Core Intelligence Commands
+Commands that enhance development without bloat:
 
 #### `zz gather [pattern] [--context=TYPE]`
 **Purpose:** Intelligent codebase exploration for LLMs
@@ -84,22 +96,27 @@ zz diff config.old.zon config.zon --explain    # Configuration change explanatio
 zz diff --behavior-impact                      # Behavioral impact assessment
 ```
 
-### Phase 3: AI-Native Commands
+### Phase 3: Separate Binary Commands
 
-#### `zz reason [query] [--scope=SCOPE]`
-**Purpose:** AI-powered codebase reasoning (requires external AI integration)
+#### `zz-llm` - LLM Integration Tool
 ```bash
-zz reason "why is this slow?" --scope=performance
-zz reason "security implications" --scope=src/auth/
-zz reason "refactor suggestions" --scope=src/patterns/
+zz-llm explain src/main.zig              # Code explanation
+zz-llm suggest --fix "error message"     # Fix suggestions
+zz-llm review --diff HEAD~1              # AI code review
 ```
 
-#### `zz suggest [improvement] [--context=CONTEXT]`
-**Purpose:** Intelligent improvement suggestions
+#### `zz-ts` - TypeScript Tools
 ```bash
-zz suggest optimizations --context=performance
-zz suggest tests --context=coverage-gaps
-zz suggest refactoring --context=complexity
+zz-ts parse src/app.ts --ast             # AST generation
+zz-ts types --extract                    # Type extraction
+zz-ts imports --graph                    # Import analysis
+```
+
+#### `zz-web` - Web Framework Tools
+```bash
+zz-web components --svelte src/          # Component analysis
+zz-web bundle --analyze                  # Bundle size analysis
+zz-web deps --audit                      # Dependency audit
 ```
 
 ## Architecture Evolution
@@ -317,4 +334,11 @@ zz reason "why is authentication slow?" --scope=src/auth/
 zz suggest refactoring --target=src/patterns/ --context=complexity
 ```
 
-This vision maintains `zz`'s core philosophy—small, fast, secure, POSIX-first—while expanding its utility for natural language programming environments. Each new command builds on the existing architecture and maintains the same high standards for performance, security, and code quality.
+## Philosophy Summary
+
+We're not building a Swiss Army knife—we're building a set of precision tools. Each binary does one thing excellently. The core `zz` stays lean and fast. Web tools get their own binaries. LLM features live separately. Everything composes cleanly.
+
+Old-school discipline: Every byte counts, measure everything, no dependencies.
+Modern pragmatism: TypeScript/Svelte for great UX, LLMs for assistance, web tech where it shines.
+
+No compromises. No bloat. No emoji.

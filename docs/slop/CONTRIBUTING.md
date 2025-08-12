@@ -4,11 +4,13 @@ Thank you for your interest in contributing to zz! This guide will help you get 
 
 ## Development Philosophy
 
-- **Performance is paramount** - Every change should maintain or improve performance
-- **No backwards compatibility** - We iterate quickly toward the best solution
-- **Zero dependencies** - Pure Zig implementation only
-- **POSIX only** - No Windows support, optimize for Unix-like systems
-- **Less is more** - Avoid over-engineering, choose simple solutions
+- **Performance first** - Measure everything, optimize the hot path
+- **No backwards compatibility** - Break things when it improves them
+- **Zero dependencies** - If we can't write it, we don't need it
+- **POSIX only** - Unix is our home, no Windows compromises
+- **Less is more** - Simple > clever, always
+- **Old-school discipline** - K&R clarity, byte-counting mentality
+- **Modern pragmatism** - TypeScript/Svelte for web, LLMs as tools
 
 ## Getting Started
 
@@ -37,11 +39,12 @@ zig build benchmark
 ## Code Style
 
 ### General Guidelines
-- Follow idiomatic Zig patterns (more like C than C++)
-- Use descriptive names, no unnecessary abbreviations
-- Keep functions focused and small
-- Document complex algorithms
-- NO COMMENTS unless specifically needed for clarity
+- Write Zig like C, not C++ (simple, direct, obvious)
+- Names should be clear, not clever
+- Functions do one thing well
+- Document the why, not the what
+- Comments only when the code can't speak for itself
+- No emoji in code or commits (see TASTE.md)
 
 ### Formatting
 ```zig
@@ -344,4 +347,4 @@ By contributing, you agree that your contributions will be licensed under the sa
 
 Open an issue with the "question" label, and we'll be happy to help!
 
-Thank you for contributing to making zz faster and better! 🚀
+Thank you for contributing to making zz faster and better.

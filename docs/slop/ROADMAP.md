@@ -1,20 +1,25 @@
 # zz Development Roadmap
 
-## Current Status: Production Ready v1.0
-- ✅ **Core Commands:** `tree`, `prompt`, `benchmark`, `help`
-- ✅ **Performance Optimized:** 20-30% faster path operations, 40-60% glob speedup
-- ✅ **Comprehensive Testing:** 190+ tests, 100% success rate
-- ✅ **Security Architecture:** Filesystem abstraction, parameterized dependencies
-- ✅ **Claude Code Integration:** Direct access via `.claude/config.json`
+## Core Philosophy
+- **Small binaries:** Each tool under 5MB, composed Unix-style
+- **Zero dependencies:** We write what we need
+- **No compromises:** Fast for systems, excellent for web UX
+- **Measure everything:** Performance matters
 
-## Phase 1: Intelligence Commands (Q1 2024)
-**Goal:** Transform `zz` into an intelligent codebase exploration platform
+## Current Status: v1.0
+- Core commands: `tree`, `prompt`, `benchmark`
+- Path operations: ~47μs per operation
+- 190+ tests passing
+- Modular architecture with filesystem abstraction
 
-### 1.1 Core Intelligence Foundation
-**Priority: Critical** | **Effort: Medium** | **Risk: Low**
+## Phase 1: Core `zz` Enhancement
+**Goal:** Perfect the core utilities, maintain < 5MB binary
 
-#### `zz gather` Command
-**Rationale:** Natural extension of existing `prompt` command with enhanced intelligence
+### 1.1 Enhanced Pattern Matching
+**Priority: High** | **Effort: Low** | **Risk: None**
+
+#### Improved `prompt` and `tree`
+**Rationale:** Make existing commands more powerful without bloat
 ```bash
 zz gather "error handling" --context=patterns --format=markdown
 zz gather "TODO|FIXME" --context=issues --scope=src/
@@ -75,29 +80,43 @@ zz analyze dependencies --circular --format=mermaid
 - Resource limits to prevent DoS attacks
 - Input sanitization for all user patterns
 
-## Phase 2: Development Workflow Enhancement (Q2 2024)
-**Goal:** Streamline common development workflows with intelligent automation
+## Phase 2: Separate Binary Development
+**Goal:** Build focused tools that compose with `zz`
 
-### 2.1 Semantic Operations
-**Priority: High** | **Effort: High** | **Risk: Medium**
+### 2.1 `zz-ts` - TypeScript Parser
+**Priority: High** | **Effort: Medium** | **Binary: < 10MB**
 
-#### `zz trace` Command
-**Purpose:** Execution flow analysis without actual execution
 ```bash
-zz trace function_calls --from=main --format=mermaid
-zz trace data_flow --input=config --output=database
-zz trace dependencies --circular --suggest-fixes
+zz-ts parse file.ts --ast           # AST output
+zz-ts types --extract                # Type definitions
+zz-ts imports --resolve              # Import graph
 ```
 
-#### `zz diff` Command  
-**Purpose:** Semantic difference analysis
+**Implementation:** 
+- Zig-based TypeScript parser
+- Zero JS dependencies
+- Streams AST for large files
+- Composes with `zz prompt`
+
+### 2.2 `zz-web` - Web Framework Tools
+**Priority: Medium** | **Effort: Medium** | **Binary: < 8MB**
+
 ```bash
-zz diff HEAD~1 HEAD --semantic --explain
-zz diff config.old.zon config.zon --impact-analysis
-zz diff --behavior-changes --test-coverage
+zz-web svelte src/ --components     # Component analysis
+zz-web bundle --size                # Bundle analysis  
+zz-web deps --audit                 # Security audit
 ```
 
-### 2.2 Validation Framework
+### 2.3 `zz-llm` - LLM Integration
+**Priority: Low** | **Effort: High** | **Binary: < 15MB**
+
+```bash
+zz-llm explain main.zig             # Code explanation
+zz-llm suggest --fix error.txt      # Fix suggestions
+zz-llm review changes.diff          # Code review
+```
+
+**Note:** Optional binary, only for users who want LLM features
 **Priority: Medium** | **Effort: Medium** | **Risk: Low**
 
 #### `zz validate` Command
@@ -116,7 +135,7 @@ zz validate performance --baseline=production
 
 ## Short Term (Q1 2025)
 
-### 🎯 v0.2.0 - Enhanced User Experience
+### v0.2.0 - Enhanced User Experience
 **Target: 4-6 weeks**
 
 #### Interactive Mode
@@ -146,7 +165,7 @@ $ zz config init
 - Performance tuning recommendations
 - Migration from .gitignore
 
-### 🎯 v0.3.0 - Performance Optimizations
+### v0.3.0 - Performance Optimizations
 **Target: 8-10 weeks**
 
 #### Parallel Processing
@@ -169,7 +188,7 @@ $ zz config init
 
 ## Medium Term (Q2-Q3 2025)
 
-### 🎯 v0.4.0 - Extended Functionality
+### v0.4.0 - Extended Functionality
 **Target: 3-4 months**
 
 #### New Commands
@@ -233,14 +252,26 @@ $ zz watch --pattern="*.zig" --notify
 - Fish completions with suggestions
 - PowerShell completions (if Windows support added)
 
-### 🎯 v0.5.0 - Advanced Features
-**Target: 5-6 months**
+### Separate Binaries (When Needed)
+**Philosophy:** Each tool when it's ready, not on a schedule
 
-#### AI Integration
-- Local LLM integration for prompt enhancement
-- Code explanation generation
-- Automated documentation writing
-- Pattern learning from usage
+#### `zz-llm` Features (Separate Binary)
+- Code explanation via LLM
+- Fix suggestions
+- Review assistance
+- Completely optional
+
+#### `zz-ts` Features (Separate Binary)  
+- TypeScript parsing in Zig
+- Type extraction
+- Import resolution
+- Zero JS dependencies
+
+#### `zz-web` Features (Separate Binary)
+- Svelte component analysis
+- Bundle size tracking
+- Framework-specific tools
+- Clean composition with core `zz`
 
 #### Network Features
 - Remote directory trees over SSH
@@ -256,7 +287,7 @@ $ zz watch --pattern="*.zig" --notify
 
 ## Long Term (2026)
 
-### 🎯 v1.0.0 - Production Ready
+### v1.0.0 - Production Ready
 **Target: 12 months**
 
 #### Stability and Polish
@@ -277,7 +308,7 @@ $ zz watch --pattern="*.zig" --notify
 - Container-optimized builds
 - Embedded system support
 
-### 🎯 v2.0.0 - Next Generation
+### v2.0.0 - Next Generation
 **Target: 18-24 months**
 
 #### Revolutionary Features

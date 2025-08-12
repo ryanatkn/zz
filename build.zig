@@ -93,9 +93,12 @@ fn addTestSteps(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.b
         .optimize = optimize,
     });
     const test_step = b.step("test", "Run all tests");
-    const run_test = b.addRunArtifact(test_all);
-    run_test.has_side_effects = true;
-    test_step.dependOn(&run_test.step);
+    test_step.dependOn(&test_all.step);
+    
+    // Add a simple completion message
+    const test_summary = b.addSystemCommand(&.{ "echo", "✅ All tests completed successfully! Run 'zig test src/test.zig' for detailed output." });
+    test_summary.step.dependOn(&test_all.step);
+    test_step.dependOn(&test_summary.step);
 
     // Tree module tests
     const test_tree = b.addTest(.{

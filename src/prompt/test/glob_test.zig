@@ -15,7 +15,7 @@ test "glob pattern matching" {
 }
 
 test "glob alternatives" {
-    // Brace expansion requires filesystem context for the expander
+    // Enhanced test pattern: setup + immediate defer for guaranteed cleanup
     var ctx = test_helpers.MockTestContext.init(testing.allocator);
     defer ctx.deinit();
 

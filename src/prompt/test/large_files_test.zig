@@ -229,7 +229,7 @@ test "prompt builder with large content" {
 
     try ctx.writeFile("moderate.zig", content);
 
-    var builder = test_helpers.createPromptBuilder(allocator, ctx.filesystem);
+    var builder = PromptBuilder.init(allocator, ctx.filesystem);
     defer builder.deinit();
 
     const file_path = try std.fmt.allocPrint(allocator, "{s}/moderate.zig", .{ctx.path});

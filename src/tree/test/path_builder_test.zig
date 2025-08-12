@@ -11,7 +11,6 @@ test "path builder initialization" {
     const path_builder = PathBuilder.init(testing.allocator, ctx.filesystem);
     _ = path_builder; // Just verify it initializes
 
-    std.debug.print("✓ Path builder initialization test passed!\n", .{});
 }
 
 test "path builder buildPath functionality" {
@@ -35,7 +34,6 @@ test "path builder buildPath functionality" {
     defer testing.allocator.free(result3);
     try testing.expectEqualStrings("src/tree/config.zig", result3);
 
-    std.debug.print("✓ Path builder buildPath test passed!\n", .{});
 }
 
 test "path builder tree prefix functionality" {
@@ -59,7 +57,6 @@ test "path builder tree prefix functionality" {
     defer testing.allocator.free(result3);
     try testing.expectEqualStrings("│       ", result3);
 
-    std.debug.print("✓ Path builder tree prefix test passed!\n", .{});
 }
 
 test "path builder basename functionality" {
@@ -75,5 +72,4 @@ test "path builder basename functionality" {
     try testing.expectEqualStrings("dir", builder.basename("path/to/dir"));
     try testing.expectEqualStrings(".", builder.basename("."));
 
-    std.debug.print("✓ Path builder basename test passed!\n", .{});
 }

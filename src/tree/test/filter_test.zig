@@ -38,7 +38,6 @@ test "pattern matching edge cases" {
     // Test empty string
     try testing.expect(!filter.shouldIgnore(""));
 
-    std.debug.print("✓ Pattern matching edge cases test passed!\n", .{});
 }
 
 // Test path-based pattern matching
@@ -72,7 +71,6 @@ test "path based pattern matching" {
     try testing.expect(!filter.shouldIgnoreAtPath("compiled"));
     try testing.expect(!filter.shouldIgnoreAtPath("deep/nested"));
 
-    std.debug.print("✓ Path-based pattern matching test passed!\n", .{});
 }
 
 // Test dot-directory behavior
@@ -103,7 +101,6 @@ test "dot directory behavior" {
     try testing.expect(!filter.shouldIgnore("git")); // no dot prefix
     try testing.expect(!filter.shouldIgnore("a.git")); // dot in middle
 
-    std.debug.print("✓ Dot directory behavior test passed!\n", .{});
 }
 
 // Test hidden files functionality
@@ -131,7 +128,6 @@ test "hidden files functionality" {
     try testing.expect(!filter.shouldHide("normal.txt"));
     try testing.expect(!filter.shouldHide("Thumbs.db.backup")); // similar but not exact
 
-    std.debug.print("✓ Hidden files functionality test passed!\n", .{});
 }
 
 // Test case sensitivity
@@ -161,7 +157,6 @@ test "case sensitivity" {
     try testing.expect(!filter.shouldIgnore("Lowercase"));
     try testing.expect(!filter.shouldHide("hiddenfile.tmp"));
 
-    std.debug.print("✓ Case sensitivity test passed!\n", .{});
 }
 
 // Test unicode and special characters
@@ -195,7 +190,6 @@ test "unicode and special characters" {
     try testing.expect(!filter.shouldIgnore("файлы")); // Different unicode
     try testing.expect(!filter.shouldIgnore("special"));
 
-    std.debug.print("✓ Unicode and special characters test passed!\n", .{});
 }
 
 // Test empty configuration
@@ -220,7 +214,6 @@ test "empty configuration" {
     try testing.expect(!filter.shouldIgnore("node_modules"));
     try testing.expect(!filter.shouldHide("Thumbs.db"));
 
-    std.debug.print("✓ Empty configuration test passed!\n", .{});
 }
 
 // Test path traversal attack patterns
@@ -248,7 +241,6 @@ test "path traversal security" {
     try testing.expect(!filter.shouldIgnore("file..txt"));
     try testing.expect(!filter.shouldIgnore("my..config"));
 
-    std.debug.print("✓ Path traversal security test passed!\n", .{});
 }
 
 // Test extremely long filenames
@@ -277,7 +269,6 @@ test "long filename handling" {
     // Should not match longer pattern
     try testing.expect(!filter.shouldIgnore(&longer_filename));
 
-    std.debug.print("✓ Long filename handling test passed!\n", .{});
 }
 
 // Performance test with many patterns
@@ -331,8 +322,10 @@ test "performance with many patterns" {
     const end_time = std.time.milliTimestamp();
     const duration = end_time - start_time;
 
-    // TODO: Add performance profiling to identify bottleneck
-    std.debug.print("Performance test duration: {}ms (1k iterations with 100 patterns)\n", .{duration});
+    // Performance result (only show if test takes too long)
+    if (duration > 500) {
+        std.debug.print("⚠️  Performance test took {}ms (expected <500ms)\n", .{duration});
+    }
 
     // Should complete reasonably quickly (decreased requirements for faster tests)
     try testing.expect(duration < 2000);
@@ -345,5 +338,4 @@ test "performance with many patterns" {
         testing.allocator.free(hidden);
     }
 
-    std.debug.print("✓ Performance with many patterns test passed! ({d}ms)\n", .{duration});
 }

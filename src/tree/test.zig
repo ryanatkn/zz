@@ -1,5 +1,6 @@
 const std = @import("std");
 const testing = std.testing;
+const test_helpers = @import("../test_helpers.zig");
 const MockFilesystem = @import("../filesystem.zig").MockFilesystem;
 
 // Tree module test runner
@@ -13,27 +14,11 @@ const Walker = @import("walker.zig").Walker;
 const Formatter = @import("formatter.zig").Formatter;
 const Entry = @import("entry.zig").Entry;
 
-// Tree module test tracking
-var module_timer: ?std.time.Timer = null;
-var module_start_time: u64 = 0;
-
-fn startModuleTiming() void {
-    module_timer = std.time.Timer.start() catch return;
-    module_start_time = module_timer.?.read();
-}
-
-fn getModuleElapsed() f64 {
-    if (module_timer) |*timer| {
-        const elapsed = timer.read() - module_start_time;
-        return @as(f64, @floatFromInt(elapsed)) / 1_000_000.0;
-    }
-    return 0.0;
-}
+// Tree module test tracking using TestRunner
 
 // Initialize tree module testing
 test "tree module initialization" {
-    std.debug.print("\n=== Tree Module Tests ===\n", .{});
-    startModuleTiming();
+    test_helpers.TestRunner.setModule("Tree");
 }
 
 // Import comprehensive test modules - this includes all their test declarations
@@ -56,12 +41,11 @@ test {
 
 // Basic functionality tests
 test "config loading works" {
-    var mock_fs = MockFilesystem.init(testing.allocator);
-    defer mock_fs.deinit();
-    const filesystem = mock_fs.interface();
+    var ctx = test_helpers.MockTestContext.init(testing.allocator);
+    defer ctx.deinit();
 
     const args = [_][:0]const u8{"tree"};
-    var config = try Config.fromArgs(testing.allocator, filesystem, @constCast(args[0..]));
+    var config = try Config.fromArgs(testing.allocator, ctx.filesystem, @constCast(args[0..]));
     defer config.deinit(testing.allocator);
 
     try testing.expect(config.shared_config.ignored_patterns.len > 0);
@@ -93,12 +77,13 @@ test "filter pattern matching works" {
 }
 
 test "walker initialization works" {
-    const allocator = testing.allocator;
+    var ctx = test_helpers.MockTestContext.init(testing.allocator);
+    defer ctx.deinit();
 
-    const ignored = try allocator.dupe([]const u8, &[_][]const u8{});
-    defer allocator.free(ignored);
-    const hidden = try allocator.dupe([]const u8, &[_][]const u8{});
-    defer allocator.free(hidden);
+    const ignored = try testing.allocator.dupe([]const u8, &[_][]const u8{});
+    defer testing.allocator.free(ignored);
+    const hidden = try testing.allocator.dupe([]const u8, &[_][]const u8{});
+    defer testing.allocator.free(hidden);
 
     const shared_config = SharedConfig{
         .ignored_patterns = ignored,
@@ -111,13 +96,9 @@ test "walker initialization works" {
 
     const config = Config{ .shared_config = shared_config };
 
-    var mock_fs = MockFilesystem.init(allocator);
-    defer mock_fs.deinit();
-    const filesystem = mock_fs.interface();
-
     const WalkerOptions = @import("walker.zig").WalkerOptions;
     const options = WalkerOptions{
-        .filesystem = filesystem,
+        .filesystem = ctx.filesystem,
         .quiet = true,
     };
     const walker = Walker.initWithOptions(testing.allocator, config, options);
@@ -140,6 +121,5 @@ test "formatter handles entries correctly" {
 }
 
 test "tree module test summary" {
-    const elapsed_ms = getModuleElapsed();
-    std.debug.print("\n✓ Tree module completed in {d:.1}ms\n", .{elapsed_ms});
+    test_helpers.TestRunner.printSummary();
 }

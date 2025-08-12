@@ -5,20 +5,19 @@ const Walker = @import("../walker.zig").Walker;
 const WalkerOptions = @import("../walker.zig").WalkerOptions;
 const Config = @import("../config.zig").Config;
 const SharedConfig = @import("../../config.zig").SharedConfig;
-const RealFilesystem = @import("../../filesystem.zig").RealFilesystem;
+const test_helpers = @import("../../test_helpers.zig");
 
 // Test handling of various filesystem edge cases
 test "symlink handling" {
-    var tmp_dir = std.testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = try test_helpers.TmpDirTestContext.init(testing.allocator);
+    defer ctx.deinit();
 
     // Create a regular directory
-    try tmp_dir.dir.makeDir("regular");
-    const file = try tmp_dir.dir.createFile("regular/file.txt", .{});
-    file.close();
+    try ctx.makeDir("regular");
+    try ctx.writeFile("regular/file.txt", "content");
 
     // Try to create a symlink (might fail on some systems/permissions)
-    tmp_dir.dir.symLink("regular", "symlink", .{}) catch |err| switch (err) {
+    ctx.tmp_dir.dir.symLink("regular", "symlink", .{}) catch |err| switch (err) {
         error.AccessDenied, error.FileNotFound => {
             std.debug.print("Symlink test skipped (no permission/support)\n", .{});
             return;
@@ -40,23 +39,18 @@ test "symlink handling" {
     };
 
     const config = Config{ .shared_config = shared_config };
-    const filesystem = RealFilesystem.init();
     const walker_options = WalkerOptions{
-        .filesystem = filesystem,
+        .filesystem = ctx.filesystem,
         .quiet = true,
     };
     const walker = Walker.initWithOptions(testing.allocator, config, walker_options);
 
     // Should not crash on symlinks
-    const test_dir_path = try tmp_dir.dir.realpathAlloc(testing.allocator, ".");
-    defer testing.allocator.free(test_dir_path);
-
-    walker.walk(test_dir_path) catch |err| switch (err) {
+    walker.walk(".") catch |err| switch (err) {
         error.SymLinkLoop => {}, // Expected for some symlink scenarios
         else => return err,
     };
 
-    std.debug.print("✓ Symlink handling test passed!\n", .{});
 }
 
 // Test null byte injection protection
@@ -80,15 +74,14 @@ test "null byte injection protection" {
     try testing.expect(!filter.shouldIgnore("test"));
     try testing.expect(!filter.shouldIgnore("injection"));
 
-    std.debug.print("✓ Null byte injection protection test passed!\n", .{});
 }
 
 // Test circular directory references (if possible to create)
 test "circular reference handling" {
     // This is hard to test without actually creating circular references
     // But we can test that the walker doesn't crash on complex structures
-    var tmp_dir = std.testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = try test_helpers.TmpDirTestContext.init(testing.allocator);
+    defer ctx.deinit();
 
     // Create a deep structure that might cause issues
     var current_path = std.ArrayList(u8).init(testing.allocator);
@@ -103,7 +96,7 @@ test "circular reference handling" {
         defer testing.allocator.free(depth_str);
         try current_path.appendSlice(depth_str);
 
-        tmp_dir.dir.makePath(current_path.items) catch break;
+        ctx.tmp_dir.dir.makePath(current_path.items) catch break;
     }
 
     const ignored = [_][]const u8{};
@@ -123,19 +116,14 @@ test "circular reference handling" {
         .shared_config = shared_config,
     };
 
-    const filesystem = RealFilesystem.init();
     const walker_options = WalkerOptions{
-        .filesystem = filesystem,
+        .filesystem = ctx.filesystem,
         .quiet = true,
     };
     const walker = Walker.initWithOptions(testing.allocator, config, walker_options);
 
-    const test_dir_path = try tmp_dir.dir.realpathAlloc(testing.allocator, ".");
-    defer testing.allocator.free(test_dir_path);
+    try walker.walk(".");
 
-    try walker.walk(test_dir_path);
-
-    std.debug.print("✓ Circular reference handling test passed!\n", .{});
 }
 
 // Test filesystem encoding issues
@@ -186,5 +174,4 @@ test "filesystem encoding edge cases" {
         try testing.expect(filter.shouldIgnore(name) == should_ignore);
     }
 
-    std.debug.print("✓ Filesystem encoding edge cases test passed!\n", .{});
 }

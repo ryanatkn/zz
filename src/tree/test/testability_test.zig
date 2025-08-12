@@ -28,7 +28,6 @@ test "tree config forTesting creates minimal config" {
     try std.testing.expect(config.shared_config.gitignore_patterns.len == 0);
     try std.testing.expect(config.shared_config.patterns_allocated == false);
 
-    std.debug.print("✓ Tree config forTesting test passed!\n", .{});
 }
 
 test "tree runWithConfig with parameterized filesystem" {
@@ -62,7 +61,6 @@ test "tree runWithConfig with parameterized filesystem" {
         }
     };
 
-    std.debug.print("✓ Tree runWithConfig with parameterized filesystem test passed!\n", .{});
 }
 
 test "walker with mock filesystem" {
@@ -100,7 +98,6 @@ test "walker with mock filesystem" {
         }
     };
 
-    std.debug.print("✓ Walker with mock filesystem test passed!\n", .{});
 }
 
 test "tree testability integration" {
@@ -153,7 +150,6 @@ test "tree testability integration" {
         }
     };
 
-    std.debug.print("✓ Tree testability integration test passed!\n", .{});
 }
 
 test "mock filesystem basic operations" {
@@ -181,7 +177,6 @@ test "mock filesystem basic operations" {
     const result = fs_interface.statFile(allocator, "nonexistent.txt");
     try std.testing.expectError(error.FileNotFound, result);
 
-    std.debug.print("✓ Mock filesystem basic operations test passed!\n", .{});
 }
 
 test "filesystem abstraction interface consistency" {
@@ -207,5 +202,4 @@ test "filesystem abstraction interface consistency" {
     const stat = try mock_interface.statFile(allocator, "test.txt");
     try std.testing.expect(stat.kind == .file);
 
-    std.debug.print("✓ Filesystem abstraction interface consistency test passed!\n", .{});
 }

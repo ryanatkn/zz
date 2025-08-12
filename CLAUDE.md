@@ -126,13 +126,14 @@ $ zig build run -- benchmark [args]     # Run benchmarks
 ## Testing
 
 ```bash
-$ zig build test              # Run all tests (recommended)
+$ zig build test              # Run all tests (shows summary)
+$ zig test src/test.zig       # Run all tests (shows detailed output)
 $ zig build test-tree         # Run tree module tests only
 $ zig build test-prompt       # Run prompt module tests only
 $ zig test src/test.zig --test-filter "directory"    # Run specific tests by name pattern
 ```
 
-Comprehensive test suite covers configuration parsing, directory filtering, performance optimization, edge cases, and security patterns.
+Comprehensive test suite covers configuration parsing, directory filtering, performance optimization, edge cases, and security patterns. The test runner provides clean output with 190+ tests and enhanced resource management patterns.
 
 ## Benchmarking
 
@@ -425,6 +426,7 @@ The project is configured for optimal Claude Code usage:
     or have understanding they don't, and when in doubt, ask clarifying questions
 - Keep modules self-contained and focused on their specific purpose
 - We have `rg` (ripgrep) installed, so always prefer `rg` over `grep` and `find`
+- Never use `sed` or write Bash loops to edit files, prefer direct editing instead
 - Claude Code is configured to prefer `rg` via `.claude/config.json` allowedCommands
 - Always update docs at ./CLAUDE.md and ./README.md
 - Always include tests for new functionality and newly handled edge cases

@@ -4,6 +4,7 @@ const test_helpers = @import("../../test_helpers.zig");
 const Config = @import("../config.zig").Config;
 
 test "config parsing" {
+    // Enhanced test pattern: setup + immediate defer for guaranteed cleanup
     var ctx = try test_helpers.TmpDirTestContext.init(testing.allocator);
     defer ctx.deinit();
 

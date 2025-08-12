@@ -1,6 +1,12 @@
 const std = @import("std");
 const testing = std.testing;
+const test_helpers = @import("../../test_helpers.zig");
 const PatternMatcher = @import("../matcher.zig").PatternMatcher;
+
+// Initialize Patterns module testing
+test "Patterns module initialization" {
+    test_helpers.TestRunner.setModule("Patterns");
+}
 
 test "PatternMatcher.matchesPattern unified behavior" {
     // Test exact component matches
@@ -34,4 +40,9 @@ test "PatternMatcher.matchSimplePattern glob functionality" {
     try testing.expect(PatternMatcher.matchSimplePattern("anything", "*"));
     try testing.expect(!PatternMatcher.matchSimplePattern("test.md", "*.zig"));
     try testing.expect(PatternMatcher.matchSimplePattern("exact", "exact"));
+}
+
+// Patterns module test summary
+test "Patterns module test summary" {
+    test_helpers.TestRunner.printSummary();
 }

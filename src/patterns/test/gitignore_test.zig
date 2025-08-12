@@ -1,5 +1,6 @@
 const std = @import("std");
 const testing = std.testing;
+const test_helpers = @import("../../test_helpers.zig");
 const GitignorePatterns = @import("../gitignore.zig").GitignorePatterns;
 
 test "GitignorePatterns.parseContent basic parsing" {

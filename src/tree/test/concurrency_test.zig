@@ -51,7 +51,6 @@ test "multiple walker instances" {
     try walker2.walk(ctx.path);
     try walker3.walk(ctx.path);
 
-    std.debug.print("✓ Multiple walker instances test passed!\n", .{});
 }
 
 // Test configuration immutability
@@ -85,7 +84,6 @@ test "config immutability" {
     try testing.expect(walker1.filter.shared_config.hidden_files.len == 1);
     try testing.expect(walker2.filter.shared_config.hidden_files.len == 1);
 
-    std.debug.print("✓ Config immutability test passed!\n", .{});
 }
 
 // Test rapid creation/destruction of configs
@@ -108,7 +106,6 @@ test "rapid config lifecycle" {
         _ = walker; // Just creation/destruction cycle
     }
 
-    std.debug.print("✓ Rapid config lifecycle test passed!\n", .{});
 }
 
 // Test memory behavior under stress
@@ -145,5 +142,4 @@ test "memory stress with config changes" {
         _ = walker;
     }
 
-    std.debug.print("✓ Memory stress with config changes test passed!\n", .{});
 }

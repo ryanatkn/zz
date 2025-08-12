@@ -13,8 +13,9 @@ fn expectConfigHasPattern(config: Config, pattern: []const u8) !void {
     try testing.expect(false); // Pattern not found
 }
 
-// Test configuration loading and fallback behavior
+// Test configuration loading and fallback behavior  
 test "configuration loading with missing file" {
+    // Use simple call + defer pattern
     var ctx = test_helpers.MockTestContext.init(testing.allocator);
     defer ctx.deinit();
 
@@ -35,12 +36,11 @@ test "configuration loading with missing file" {
     }
     try testing.expect(found_git);
     try testing.expect(found_node_modules);
-
-    std.debug.print("✓ Configuration loading with missing file test passed!\n", .{});
 }
 
 // Test configuration with malformed file
 test "configuration loading with invalid file" {
+    // Use simple call + defer pattern
     var ctx = try test_helpers.TmpDirTestContext.init(testing.allocator);
     defer ctx.deinit();
 
@@ -55,12 +55,11 @@ test "configuration loading with invalid file" {
 
     // Verify fallback worked
     try testing.expect(config.shared_config.ignored_patterns.len > 0);
-
-    std.debug.print("✓ Configuration loading with invalid file test passed!\n", .{});
 }
 
 // Test depth parameter parsing
 test "max depth parameter parsing" {
+    // Use simple call + defer pattern
     var ctx = try test_helpers.TmpDirTestContext.init(testing.allocator);
     defer ctx.deinit();
 
@@ -85,8 +84,6 @@ test "max depth parameter parsing" {
     defer config3.deinit(testing.allocator);
 
     try testing.expect(config3.max_depth == null);
-
-    std.debug.print("✓ Max depth parameter parsing test passed!\n", .{});
 }
 
 // Test configuration memory management
@@ -105,7 +102,6 @@ test "configuration memory management" {
         try testing.expect(config.shared_config.ignored_patterns.len > 0);
     }
 
-    std.debug.print("✓ Configuration memory management test passed!\n", .{});
 }
 
 // Test ZON file custom patterns loading
@@ -168,7 +164,6 @@ test "ZON file custom patterns are loaded correctly" {
     }
     try std.testing.expect(found_custom_hidden);
 
-    std.debug.print("✓ ZON custom patterns test passed!\n", .{});
 }
 
 // Test edge case command line arguments
@@ -193,5 +188,4 @@ test "edge case command line arguments" {
     defer config_zero.deinit(testing.allocator);
     try testing.expect(config_zero.max_depth.? == 0);
 
-    std.debug.print("✓ Edge case command line arguments test passed!\n", .{});
 }

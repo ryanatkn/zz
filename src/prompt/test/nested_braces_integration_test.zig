@@ -64,7 +64,6 @@ test "nested braces with real files" {
     try testing.expect(found_md);
     try testing.expect(found_txt);
 
-    std.debug.print("✓ Nested braces integration test passed!\n", .{});
 }
 
 test "character classes with real files" {
@@ -115,7 +114,6 @@ test "character classes with real files" {
             std.mem.endsWith(u8, file, "log9.txt"));
     }
 
-    std.debug.print("✓ Character classes integration test passed!\n", .{});
 }
 
 test "escape sequences with real files" {
@@ -176,5 +174,4 @@ test "escape sequences with real files" {
     try testing.expectEqual(@as(usize, 1), results2.items[0].files.items.len);
     try testing.expect(std.mem.endsWith(u8, results2.items[0].files.items[0], "file[1].txt"));
 
-    std.debug.print("✓ Escape sequences integration test passed!\n", .{});
 }

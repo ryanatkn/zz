@@ -71,7 +71,10 @@ test "performance with large directory structure" {
     }
 
     const creation_time = std.time.milliTimestamp() - start_creation;
-    std.debug.print("Created test structure with ~{d} directories and ~{d} files in {d}ms\n", .{ dir_count * 5, file_count, creation_time });
+    // Only warn if structure creation is unusually slow
+    if (creation_time > 500) {
+        std.debug.print("⚠️  Test structure creation slow: {d}ms\n", .{creation_time});
+    }
 
     // Now benchmark the tree traversal
     const ignored = [_][]const u8{ ".git", "node_modules" }; // Minimal patterns
@@ -104,7 +107,10 @@ test "performance with large directory structure" {
     // Performance expectations: should complete in reasonable time
     try testing.expect(traversal_time < 5000); // Less than 5 seconds
 
-    std.debug.print("✓ Large directory structure traversal completed in {d}ms\n", .{traversal_time});
+    // Only warn if traversal is unusually slow
+    if (traversal_time > 1000) {
+        std.debug.print("⚠️  Large directory traversal slow: {d}ms\n", .{traversal_time});
+    }
 }
 
 // Test performance with many ignored directories
@@ -178,7 +184,10 @@ test "performance with many ignored directories" {
     // Should be fast because most directories are ignored and not traversed
     try testing.expect(duration < 1000); // Less than 1 second
 
-    std.debug.print("✓ Many ignored directories test completed in {d}ms\n", .{duration});
+    // Only warn if ignored directory handling is slow
+    if (duration > 200) {
+        std.debug.print("⚠️  Ignored directories test slow: {d}ms\n", .{duration});
+    }
 }
 
 // Test memory efficiency with deep nesting
@@ -240,7 +249,10 @@ test "memory efficiency with deep nesting" {
     // Should handle deep nesting efficiently
     try testing.expect(duration < 2000); // Less than 2 seconds
 
-    std.debug.print("✓ Deep nesting test ({d} levels) completed in {d}ms\n", .{ depth, duration });
+    // Only warn if deep nesting is slow
+    if (duration > 500) {
+        std.debug.print("⚠️  Deep nesting test ({d} levels) slow: {d}ms\n", .{ depth, duration });
+    }
 }
 
 // Test performance comparison: ignored vs not ignored
@@ -346,15 +358,17 @@ test "performance comparison ignored vs not ignored" {
     // Ignored version should be significantly faster
     const speedup_ratio = @as(f32, @floatFromInt(time_normal)) / @as(f32, @floatFromInt(time_ignored));
 
-    std.debug.print("Performance comparison:\n", .{});
-    std.debug.print("  With ignoring: {d}ms\n", .{time_ignored});
-    std.debug.print("  Without ignoring: {d}ms\n", .{time_normal});
-    std.debug.print("  Speedup: {d:.2}x\n", .{speedup_ratio});
-
     // Should see at least 2x speedup from ignoring large directories
     try testing.expect(speedup_ratio >= 2.0);
 
-    std.debug.print("✓ Performance comparison test passed (speedup: {d:.2}x)\n", .{speedup_ratio});
+    // Only show comparison if speedup is poor or timing is concerning
+    if (speedup_ratio < 3.0 or time_ignored > 200 or time_normal > 1000) {
+        std.debug.print("⚠️  Performance comparison:\n", .{});
+        std.debug.print("    With ignoring: {d}ms\n", .{time_ignored});
+        std.debug.print("    Without ignoring: {d}ms\n", .{time_normal});
+        std.debug.print("    Speedup: {d:.2}x (expected >3.0x)\n", .{speedup_ratio});
+    }
+
 }
 
 // Test scalability with increasing directory sizes
@@ -414,8 +428,6 @@ test "scalability with increasing directory sizes" {
         try walker.walk(base_dir_path);
         const duration = std.time.milliTimestamp() - start_time;
 
-        std.debug.print("Traversal of {d} files: {d}ms\n", .{ size, duration });
-
         // Check that performance scales reasonably (not exponentially)
         if (previous_time > 0 and previous_time >= 2 and duration >= 2) { // Only test if we have meaningful timing data
             const scale_factor = @as(f32, @floatFromInt(size)) / @as(f32, @floatFromInt(test_sizes[0]));
@@ -425,6 +437,7 @@ test "scalability with increasing directory sizes" {
             // Main goal is to detect exponential scaling, not precise timing
             if (time_factor > scale_factor * 5.0) { // Much more generous threshold
                 std.debug.print("⚠️  Performance scaling concern: time_factor={d:.2}, scale_factor={d:.2}\n", .{ time_factor, scale_factor });
+                std.debug.print("    Traversal of {d} files: {d}ms\n", .{ size, duration });
                 // Don't fail the test - just warn about potential performance issues
             }
         }
@@ -432,7 +445,6 @@ test "scalability with increasing directory sizes" {
         previous_time = duration;
     }
 
-    std.debug.print("✓ Scalability test passed - performance scales reasonably\n", .{});
 }
 
 // Memory stress test
@@ -500,8 +512,10 @@ test "memory stress test" {
         try walker.walk(test_dir_path);
         const duration = std.time.milliTimestamp() - start_time;
 
-        std.debug.print("Memory stress iteration {d}: {d}ms\n", .{ iteration + 1, duration });
+        // Only warn if memory stress test is slow
+        if (duration > 500) {
+            std.debug.print("⚠️  Memory stress iteration {d} slow: {d}ms\n", .{ iteration + 1, duration });
+        }
     }
 
-    std.debug.print("✓ Memory stress test passed - no memory issues detected\n", .{});
 }

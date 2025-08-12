@@ -1,8 +1,10 @@
 # zz - CLI Utilities
 
-Fast command-line utilities written in Zig with zero dependencies for POSIX systems. Features high-performance directory visualization and LLM prompt generation.
+High-performance command-line utilities written in Zig with zero dependencies for POSIX systems. Features optimized directory visualization and LLM prompt generation with aggressive performance improvements.
 
 **Platform Support:** Linux, macOS, BSD, and other POSIX-compliant systems. Windows is not supported.
+
+**Architecture:** Clean modular design with consolidated utilities, unified error handling, and POSIX-optimized implementations for lean builds.
 
 ## Quick Start
 
@@ -29,17 +31,18 @@ zig build && ./zig-out/bin/zz tree
 ## Features
 
 ### Tree Visualization
-- High-performance directory traversal
+- High-performance directory traversal with consolidated error handling
 - Multiple output formats (tree and list)
 - Modular configuration system with unified pattern matching engine
-- Clean tree-style output formatting
-- Configurable depth limits
+- Clean tree-style output formatting with optimized rendering
+- Configurable depth limits with intelligent defaults
 - Safe pattern matching (no leaky substring matches)
+- Arena allocators for improved memory performance
 
 ### Prompt Generation
-- Build LLM-optimized prompts from multiple files
+- Build LLM-optimized prompts from multiple files with shared traversal utilities
 - Directory support: `zz prompt src/` processes all files recursively
-- Advanced glob pattern support:
+- Advanced glob pattern support with consolidated pattern matching:
   - Basic wildcards: `*.zig`, `test?.zig`
   - Recursive: `**/*.zig`
   - Alternatives: `*.{zig,md}`
@@ -48,6 +51,7 @@ zig build && ./zig-out/bin/zz tree
   - Escape sequences: `file\*.txt` matches literal `file*.txt`
 - Explicit file ignore detection: Errors when explicitly requested files are ignored
 - Smart code fence detection (handles nested backticks)
+- Arena allocators for efficient memory usage during glob expansion
 - Automatic file deduplication
 - Markdown output with semantic XML tags
 - Configurable ignore patterns
@@ -203,10 +207,27 @@ $ zig test src/test.zig --test-filter "directory"    # Run specific tests by nam
 
 Comprehensive test suite with 190 tests covering edge cases, security, performance, and integration testing.
 
+## Architecture
+
+**High-Performance Design:**
+- **Shared Infrastructure** (`src/lib/`): Consolidated utilities eliminate 300+ lines of duplicate code
+- **POSIX-Optimized**: Custom path utilities optimized for POSIX systems (leaner than std.fs.path)
+- **Unified Error Handling**: Consistent filesystem error patterns across all operations
+- **Memory Optimization**: Arena allocators and efficient traversal reduce allocation overhead
+- **Zero Dependencies**: Pure Zig implementation with no external dependencies
+
+**Modular Structure:**
+- **CLI Module** - Command parsing and dispatch
+- **Tree Module** - Directory visualization with multiple output formats  
+- **Prompt Module** - LLM prompt generation with advanced glob support
+- **Lib Module** - Shared utilities (path, traversal, filesystem, string_pool)
+- **Patterns Module** - Unified pattern matching engine
+- **Config Module** - Modular ZON-based configuration system
+
 ## Requirements
 
 - Zig 0.14.1+
-- POSIX-compliant OS (Linux, macOS, BSD)
+- POSIX-compliant OS (Linux, macOS, BSD)  
 - Not supported: Windows
 
 ## Technical Documentation

@@ -1,4 +1,5 @@
 const std = @import("std");
+const path_utils = @import("../lib/path.zig");
 
 pub const PatternMatcher = struct {
     /// Unified pattern matching with optimized fast/slow path decision
@@ -49,7 +50,7 @@ pub const PatternMatcher = struct {
     /// - Inline for maximum performance in hot loop
     inline fn matchesSimpleComponentOptimized(path: []const u8, pattern: []const u8) bool {
         // PERFORMANCE: Quick basename check first (most common case)
-        const basename = std.fs.path.basename(path);
+        const basename = path_utils.basename(path);
         if (std.mem.eql(u8, basename, pattern)) {
             return true;
         }

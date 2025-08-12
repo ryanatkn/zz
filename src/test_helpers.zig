@@ -7,7 +7,7 @@ const Config = @import("config.zig").Config;
 const SharedConfig = @import("config.zig").SharedConfig;
 const GlobExpander = @import("prompt/glob.zig").GlobExpander;
 const PromptBuilder = @import("prompt/builder.zig").PromptBuilder;
-const path_utils = @import("utils/path.zig");
+const path_utils = @import("lib/path.zig");
 
 // ============================================================================
 // Core Test Context Types

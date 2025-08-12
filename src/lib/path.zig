@@ -1,5 +1,12 @@
 const std = @import("std");
 
+// POSIX-only path utilities - optimized for lean builds
+// We implement our own instead of std.fs.path because:
+// 1. std.fs.path includes Windows/cross-platform logic we don't need
+// 2. We can hardcode POSIX assumptions (/ separator) for better performance
+// 3. Smaller binary size without cross-platform overhead
+// 4. Predictable behavior - no runtime platform detection
+
 /// Check if a filename represents a hidden file (starts with '.')
 pub fn isHiddenFile(filename: []const u8) bool {
     return filename.len > 0 and filename[0] == '.';
@@ -73,6 +80,19 @@ pub fn dirname(path: []const u8) []const u8 {
         return path[0..idx];
     }
     return ".";
+}
+
+/// Get the extension of a path (everything after the last dot)
+pub fn extension(path: []const u8) []const u8 {
+    const base = basename(path);
+    if (std.mem.lastIndexOf(u8, base, ".")) |idx| {
+        if (idx == 0 or (idx == base.len - 1)) {
+            // Hidden file starting with . or file ending with .
+            return "";
+        }
+        return base[idx..];
+    }
+    return "";
 }
 
 /// Normalize a path by removing redundant separators and . components

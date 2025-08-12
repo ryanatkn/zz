@@ -1,6 +1,7 @@
 const std = @import("std");
 const fence = @import("fence.zig");
 const FilesystemInterface = @import("../filesystem.zig").FilesystemInterface;
+const path_utils = @import("../lib/path.zig");
 
 pub const PromptBuilder = struct {
     allocator: std.mem.Allocator,
@@ -62,7 +63,7 @@ pub const PromptBuilder = struct {
         const content = try file.readAll(self.arena.allocator(), stat.size);
 
         // Detect file extension for syntax highlighting
-        const ext = std.fs.path.extension(file_path);
+        const ext = path_utils.extension(file_path);
         const lang = if (ext.len > 0) ext[1..] else "";
 
         // Detect appropriate fence

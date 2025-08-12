@@ -1,5 +1,6 @@
 const std = @import("std");
 const DirHandle = @import("../filesystem.zig").DirHandle;
+const path_utils = @import("../lib/path.zig");
 
 pub const GitignorePatterns = struct {
     /// Parse gitignore file content into patterns (stateless)
@@ -79,7 +80,7 @@ pub const GitignorePatterns = struct {
         }
 
         // Exact match or path component match
-        const basename = std.fs.path.basename(path);
+        const basename = path_utils.basename(path);
         if (std.mem.eql(u8, basename, pattern)) {
             return true;
         }

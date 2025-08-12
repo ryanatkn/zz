@@ -6,6 +6,7 @@ const PatternResolver = @import("resolver.zig").PatternResolver;
 const GitignorePatterns = @import("../patterns/gitignore.zig").GitignorePatterns;
 const FilesystemInterface = @import("../filesystem.zig").FilesystemInterface;
 const DirHandle = @import("../filesystem.zig").DirHandle;
+const filesystem_utils = @import("../lib/filesystem.zig");
 
 pub const ZonConfig = struct {
     base_patterns: ?[]const u8 = null, // Changed from BasePatterns to string for ZON compatibility
@@ -47,46 +48,37 @@ pub const ZonLoader = struct {
         const cwd = self.filesystem.cwd();
         defer cwd.close();
 
-        const file_content = cwd.readFileAlloc(self.allocator, config_path, 1024 * 1024) catch |err| switch (err) {
-            error.FileNotFound => {
-                self.config = ZonConfig{}; // Empty config
-                return;
-            },
-            else => return err,
-        };
-        defer self.allocator.free(file_content);
-
-        try self.loadFromContent(file_content);
+        const file_content = try filesystem_utils.Operations.readConfigFile(cwd, self.allocator, config_path, 1024 * 1024);
+        if (file_content) |content| {
+            defer self.allocator.free(content);
+            try self.loadFromContent(content);
+        } else {
+            self.config = ZonConfig{}; // Empty config - file not found
+        }
     }
 
     pub fn loadFromDir(self: *Self, dir: std.fs.Dir, config_filename: []const u8) !void {
         if (self.config != null) return; // Already loaded
 
-        const file_content = dir.readFileAlloc(self.allocator, config_filename, 1024 * 1024) catch |err| switch (err) {
-            error.FileNotFound => {
-                self.config = ZonConfig{}; // Empty config
-                return;
-            },
-            else => return err,
-        };
-        defer self.allocator.free(file_content);
-
-        try self.loadFromContent(file_content);
+        const file_content = try filesystem_utils.Operations.readConfigFileFromStdDir(dir, self.allocator, config_filename, 1024 * 1024);
+        if (file_content) |content| {
+            defer self.allocator.free(content);
+            try self.loadFromContent(content);
+        } else {
+            self.config = ZonConfig{}; // Empty config - file not found
+        }
     }
 
     pub fn loadFromDirHandle(self: *Self, dir: DirHandle, config_filename: []const u8) !void {
         if (self.config != null) return; // Already loaded
 
-        const file_content = dir.readFileAlloc(self.allocator, config_filename, 1024 * 1024) catch |err| switch (err) {
-            error.FileNotFound => {
-                self.config = ZonConfig{}; // Empty config
-                return;
-            },
-            else => return err,
-        };
-        defer self.allocator.free(file_content);
-
-        try self.loadFromContent(file_content);
+        const file_content = try filesystem_utils.Operations.readConfigFile(dir, self.allocator, config_filename, 1024 * 1024);
+        if (file_content) |content| {
+            defer self.allocator.free(content);
+            try self.loadFromContent(content);
+        } else {
+            self.config = ZonConfig{}; // Empty config - file not found
+        }
     }
 
     pub fn loadFromContent(self: *Self, content: []const u8) !void {

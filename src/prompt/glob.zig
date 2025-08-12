@@ -4,8 +4,9 @@ const DirHandle = @import("../filesystem.zig").DirHandle;
 const SharedConfig = @import("../config.zig").SharedConfig;
 const shouldIgnorePath = @import("../config.zig").shouldIgnorePath;
 const shouldHideFile = @import("../config.zig").shouldHideFile;
-const path_utils = @import("../utils/path.zig");
+const path_utils = @import("../lib/path.zig");
 const glob_patterns = @import("../patterns/glob.zig");
+const traversal = @import("../lib/traversal.zig");
 
 // Configuration constants
 const MAX_GLOB_DEPTH = 20; // Maximum directory depth for ** patterns
@@ -445,83 +446,89 @@ pub const GlobExpander = struct {
         return results;
     }
 
-    /// Recursively search directories for matching files
-    fn searchRecursive(self: Self, results: *std.ArrayList([]u8), dir_path: []const u8, pattern: []const u8, depth: usize) !void {
-        if (depth > MAX_GLOB_DEPTH) return;
+    /// Context for pattern-based file collection
+    const PatternSearchContext = struct {
+        results: *std.ArrayList([]u8),
+        pattern: []const u8,
+        glob_expander: *const Self,
+    };
 
-        const dir = self.filesystem.openDir(self.allocator, dir_path, .{ .iterate = true }) catch |err| switch (err) {
-            error.FileNotFound, error.NotDir => return,
-            else => return err,
-        };
-        defer dir.close();
+    /// Callback for collecting files that match a pattern
+    fn patternFileCollector(allocator: std.mem.Allocator, file_path: []const u8, context_ptr: ?*anyopaque) !void {
+        const context: *PatternSearchContext = @ptrCast(@alignCast(context_ptr.?));
+        const filename = path_utils.basename(file_path);
 
-        var iter = try dir.iterate(self.allocator);
-        while (try iter.next(self.allocator)) |entry| {
-            const full_path = try path_utils.joinPath(self.allocator, dir_path, entry.name);
-            defer self.allocator.free(full_path);
-
-            // If pattern is empty, match all files (except hidden ones)
-            if (pattern.len == 0) {
-                if (entry.kind == .file and !isHiddenFile(entry.name)) {
-                    const owned = try self.allocator.dupe(u8, full_path);
-                    try results.append(owned);
-                }
-            } else if (entry.kind == .file) {
-                // Unix-like behavior: patterns not starting with '.' don't match hidden files
-                if (isHiddenFile(entry.name) and !patternMatchesHidden(pattern)) {
-                    // Skip this hidden file
-                } else if (self.matchPattern(entry.name, pattern)) {
-                    const owned = try self.allocator.dupe(u8, full_path);
-                    try results.append(owned);
-                }
+        // If pattern is empty, match all files (except hidden ones)
+        if (context.pattern.len == 0) {
+            if (!isHiddenFile(filename)) {
+                const owned = try allocator.dupe(u8, file_path);
+                try context.results.append(owned);
             }
-
-            // Recurse into directories (but skip ignored ones)
-            if (entry.kind == .directory) {
-                // Skip ignored directories (like hidden dirs starting with '.')
-                if (!shouldIgnorePath(self.config, full_path)) {
-                    try self.searchRecursive(results, full_path, pattern, depth + 1);
-                }
+        } else {
+            // Unix-like behavior: patterns not starting with '.' don't match hidden files
+            if (isHiddenFile(filename) and !patternMatchesHidden(context.pattern)) {
+                // Skip this hidden file
+            } else if (context.glob_expander.matchPattern(filename, context.pattern)) {
+                const owned = try allocator.dupe(u8, file_path);
+                try context.results.append(owned);
             }
         }
     }
 
-    /// Expand directory recursively, adding all files to the list
-    fn expandDirectoryRecursively(self: Self, files: *std.ArrayList([]u8), dir_path: []const u8) !void {
-        // Skip directories that match ignore patterns
-        if (shouldIgnorePath(self.config, dir_path)) {
-            return;
-        }
-
-        const dir = self.filesystem.openDir(self.allocator, dir_path, .{ .iterate = true }) catch |err| switch (err) {
-            error.FileNotFound, error.NotDir, error.AccessDenied => return,
-            else => return err,
+    /// Recursively search directories for matching files (using shared traversal)
+    fn searchRecursive(self: Self, results: *std.ArrayList([]u8), dir_path: []const u8, pattern: []const u8, depth: usize) !void {
+        // Use shared traversal utility with pattern matching
+        const context = PatternSearchContext{
+            .results = results,
+            .pattern = pattern,
+            .glob_expander = &self,
         };
-        defer dir.close();
 
-        var iter = try dir.iterate(self.allocator);
-        while (try iter.next(self.allocator)) |entry| {
-            const full_path = try path_utils.joinPath(self.allocator, dir_path, entry.name);
+        const traverser = traversal.DirectoryTraverser.init(
+            self.allocator,
+            self.filesystem,
+            self.config,
+            .{
+                .max_depth = if (depth >= MAX_GLOB_DEPTH) 0 else @intCast(MAX_GLOB_DEPTH - depth),
+                .include_hidden = false, // Let the callback handle hidden file logic
+                .on_file = patternFileCollector,
+                .context = @ptrCast(@constCast(&context)),
+            },
+        );
 
-            if (entry.kind == .file) {
-                // Skip hidden files if configured
-                if (shouldHideFile(self.config, entry.name)) {
-                    self.allocator.free(full_path);
-                    continue;
-                }
-                try files.append(full_path);
-            } else if (entry.kind == .directory) {
-                // Skip ignored directories - check full path for ignore patterns
-                if (!shouldIgnorePath(self.config, full_path)) {
-                    // Recursively expand subdirectories
-                    try self.expandDirectoryRecursively(files, full_path);
-                }
-                self.allocator.free(full_path);
-            } else {
-                // Not a file or directory, free the path
-                self.allocator.free(full_path);
-            }
-        }
+        try traverser.traverse(dir_path);
+    }
+
+    /// Context for directory expansion (all files)
+    const DirectoryExpansionContext = struct {
+        files: *std.ArrayList([]u8),
+    };
+
+    /// Callback for collecting all files in directory expansion
+    fn directoryFileCollector(allocator: std.mem.Allocator, file_path: []const u8, context_ptr: ?*anyopaque) !void {
+        const context: *DirectoryExpansionContext = @ptrCast(@alignCast(context_ptr.?));
+        const owned = try allocator.dupe(u8, file_path);
+        try context.files.append(owned);
+    }
+
+    /// Expand directory recursively, adding all files to the list (using shared traversal)
+    fn expandDirectoryRecursively(self: Self, files: *std.ArrayList([]u8), dir_path: []const u8) !void {
+        // Use shared traversal utility for all files
+        const context = DirectoryExpansionContext{ .files = files };
+
+        const traverser = traversal.DirectoryTraverser.init(
+            self.allocator,
+            self.filesystem,
+            self.config,
+            .{
+                .max_depth = null, // No depth limit for directory expansion
+                .include_hidden = false, // Respect configuration for hidden files
+                .on_file = directoryFileCollector,
+                .context = @ptrCast(@constCast(&context)),
+            },
+        );
+
+        try traverser.traverse(dir_path);
     }
 
     /// Match a string against a glob pattern (handles brace expansion)

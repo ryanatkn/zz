@@ -3,6 +3,7 @@ const FilesystemInterface = @import("interface.zig").FilesystemInterface;
 const DirHandle = @import("interface.zig").DirHandle;
 const FileHandle = @import("interface.zig").FileHandle;
 const DirIterator = @import("interface.zig").DirIterator;
+const path_utils = @import("../lib/path.zig");
 
 /// Real filesystem implementation for production use
 pub const RealFilesystem = struct {
@@ -45,17 +46,17 @@ pub const RealFilesystem = struct {
 
     fn pathJoin(ptr: *anyopaque, allocator: std.mem.Allocator, paths: []const []const u8) ![]u8 {
         _ = ptr;
-        return std.fs.path.join(allocator, paths);
+        return path_utils.joinPaths(allocator, paths);
     }
 
     fn pathBasename(ptr: *anyopaque, path: []const u8) []const u8 {
         _ = ptr;
-        return std.fs.path.basename(path);
+        return path_utils.basename(path);
     }
 
     fn pathExtension(ptr: *anyopaque, path: []const u8) []const u8 {
         _ = ptr;
-        return std.fs.path.extension(path);
+        return path_utils.extension(path);
     }
 };
 

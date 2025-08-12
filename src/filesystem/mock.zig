@@ -3,6 +3,7 @@ const FilesystemInterface = @import("interface.zig").FilesystemInterface;
 const DirHandle = @import("interface.zig").DirHandle;
 const FileHandle = @import("interface.zig").FileHandle;
 const DirIterator = @import("interface.zig").DirIterator;
+const path_utils = @import("../lib/path.zig");
 
 /// Mock filesystem for testing
 pub const MockFilesystem = struct {
@@ -110,17 +111,17 @@ pub const MockFilesystem = struct {
 
     fn pathJoin(ptr: *anyopaque, allocator: std.mem.Allocator, paths: []const []const u8) ![]u8 {
         _ = ptr;
-        return std.fs.path.join(allocator, paths);
+        return path_utils.joinPaths(allocator, paths);
     }
 
     fn pathBasename(ptr: *anyopaque, path: []const u8) []const u8 {
         _ = ptr;
-        return std.fs.path.basename(path);
+        return path_utils.basename(path);
     }
 
     fn pathExtension(ptr: *anyopaque, path: []const u8) []const u8 {
         _ = ptr;
-        return std.fs.path.extension(path);
+        return path_utils.extension(path);
     }
 };
 
@@ -165,7 +166,7 @@ const MockDirHandle = struct {
         const full_path = if (std.mem.eql(u8, self.path, "."))
             try allocator.dupe(u8, sub_path)
         else
-            try std.fs.path.join(allocator, &.{ self.path, sub_path });
+            try path_utils.joinPaths(allocator, &.{ self.path, sub_path });
         defer allocator.free(full_path);
 
         return MockDirHandle.init(allocator, self.filesystem, full_path);
@@ -183,7 +184,7 @@ const MockDirHandle = struct {
         const full_path = if (std.mem.eql(u8, self.path, "."))
             try allocator.dupe(u8, path)
         else
-            try std.fs.path.join(allocator, &.{ self.path, path });
+            try path_utils.joinPaths(allocator, &.{ self.path, path });
         defer allocator.free(full_path);
 
         const fs_interface = self.filesystem.interface();
@@ -196,7 +197,7 @@ const MockDirHandle = struct {
         const full_path = if (std.mem.eql(u8, self.path, "."))
             try allocator.dupe(u8, path)
         else
-            try std.fs.path.join(allocator, &.{ self.path, path });
+            try path_utils.joinPaths(allocator, &.{ self.path, path });
         defer allocator.free(full_path);
 
         const entry = self.filesystem.files.get(full_path) orelse return error.FileNotFound;
@@ -215,7 +216,7 @@ const MockDirHandle = struct {
         const full_path = if (std.mem.eql(u8, self.path, "."))
             try allocator.dupe(u8, path)
         else
-            try std.fs.path.join(allocator, &.{ self.path, path });
+            try path_utils.joinPaths(allocator, &.{ self.path, path });
         defer allocator.free(full_path);
 
         const entry = self.filesystem.files.get(full_path) orelse return error.FileNotFound;

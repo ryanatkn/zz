@@ -1,6 +1,7 @@
 const std = @import("std");
 const PatternMatcher = @import("patterns/matcher.zig").PatternMatcher;
 const GitignorePatterns = @import("patterns/gitignore.zig").GitignorePatterns;
+const path_utils = @import("lib/path.zig");
 
 // Re-export public types for API compatibility
 pub const SharedConfig = @import("config/shared.zig").SharedConfig;
@@ -13,7 +14,7 @@ pub const PatternResolver = @import("config/resolver.zig").PatternResolver;
 // DRY helper functions for common config operations
 pub fn shouldIgnorePath(config: SharedConfig, path: []const u8) bool {
     // Built-in behavior: automatically ignore dot-prefixed directories/files
-    const basename = std.fs.path.basename(path);
+    const basename = path_utils.basename(path);
     if (basename.len > 0 and basename[0] == '.') {
         return true;
     }
@@ -27,7 +28,7 @@ pub fn shouldIgnorePath(config: SharedConfig, path: []const u8) bool {
     for (config.ignored_patterns) |pattern| {
         if (PatternMatcher.hasGlobChars(pattern)) {
             // Extract filename for pattern matching
-            const filename = std.fs.path.basename(path);
+            const filename = path_utils.basename(path);
             if (PatternMatcher.matchSimplePattern(filename, pattern)) {
                 return true;
             }

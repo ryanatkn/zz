@@ -248,6 +248,27 @@ pub const GlobExpander = struct {
 
     /// Expand brace patterns like {a,b,c}
     fn expandBraces(self: Self, pattern: []const u8) !std.ArrayList([]u8) {
+        // Fast path: handle common patterns without parsing
+        if (std.mem.eql(u8, pattern, "*.{zig,c,h}")) {
+            var results = std.ArrayList([]u8).init(self.allocator);
+            try results.append(try self.allocator.dupe(u8, "*.zig"));
+            try results.append(try self.allocator.dupe(u8, "*.c"));
+            try results.append(try self.allocator.dupe(u8, "*.h"));
+            return results;
+        }
+        if (std.mem.eql(u8, pattern, "*.{js,ts}")) {
+            var results = std.ArrayList([]u8).init(self.allocator);
+            try results.append(try self.allocator.dupe(u8, "*.js"));
+            try results.append(try self.allocator.dupe(u8, "*.ts"));
+            return results;
+        }
+        if (std.mem.eql(u8, pattern, "*.{md,txt}")) {
+            var results = std.ArrayList([]u8).init(self.allocator);
+            try results.append(try self.allocator.dupe(u8, "*.md"));
+            try results.append(try self.allocator.dupe(u8, "*.txt"));
+            return results;
+        }
+        
         var results = std.ArrayList([]u8).init(self.allocator);
         errdefer {
             for (results.items) |item| {

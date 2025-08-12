@@ -1,5 +1,6 @@
 const std = @import("std");
 const FilesystemInterface = @import("../filesystem.zig").FilesystemInterface;
+const PathCache = @import("../lib/string_pool.zig").PathCache;
 
 pub const Config = @import("config.zig").Config;
 pub const Entry = @import("entry.zig").Entry;
@@ -38,9 +39,14 @@ fn runWithConfigInternal(config: *Config, allocator: std.mem.Allocator, filesyst
     // Directory path is now stored in config
     const dir_path = config.directory_path;
 
+    // Create path cache for performance optimization
+    var path_cache = try PathCache.init(allocator);
+    defer path_cache.deinit();
+
     const walker_options = WalkerOptions{
         .filesystem = filesystem,
         .quiet = quiet,
+        .path_cache = &path_cache,
     };
     const walker = Walker.initWithOptions(allocator, config.*, walker_options);
 

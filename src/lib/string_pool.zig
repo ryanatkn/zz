@@ -1,11 +1,11 @@
 const std = @import("std");
 
 /// String interning pool for reducing repeated allocations
-/// Optimized for common path patterns in filesystem operations
+/// Optimized for common path patterns in filesystem operations with stdlib optimizations
 pub const StringPool = struct {
     allocator: std.mem.Allocator,
     arena: std.heap.ArenaAllocator,
-    pool: std.StringHashMap([]const u8),
+    pool: std.StringHashMapUnmanaged([]const u8),
     
     // Performance counters
     hits: u64 = 0,
@@ -17,12 +17,12 @@ pub const StringPool = struct {
         return Self{
             .allocator = allocator,
             .arena = std.heap.ArenaAllocator.init(allocator),
-            .pool = std.StringHashMap([]const u8).init(allocator),
+            .pool = std.StringHashMapUnmanaged([]const u8){},
         };
     }
     
     pub fn deinit(self: *Self) void {
-        self.pool.deinit();
+        self.pool.deinit(self.allocator);
         self.arena.deinit();
     }
     
@@ -36,7 +36,7 @@ pub const StringPool = struct {
         
         // Create new interned string in arena
         const owned = try self.arena.allocator().dupe(u8, str);
-        try self.pool.put(owned, owned);
+        try self.pool.put(self.allocator, owned, owned);
         self.misses += 1;
         return owned;
     }
@@ -65,7 +65,7 @@ pub const StringPool = struct {
     
     /// Clear pool but keep arena (for reuse)
     pub fn clear(self: *Self) void {
-        self.pool.clearRetainingCapacity();
+        self.pool.clearRetainingCapacity(self.allocator);
         // Note: Arena memory is not freed - it will be reused for new strings
         self.resetStats();
     }
@@ -79,7 +79,8 @@ pub const StringPool = struct {
 /// Path string cache for commonly used paths
 pub const PathCache = struct {
     pool: StringPool,
-    common_paths: std.StringHashMap([]const u8),
+    common_paths: std.StringHashMapUnmanaged([]const u8),
+    allocator: std.mem.Allocator,
     
     const Self = @This();
     
@@ -105,20 +106,21 @@ pub const PathCache = struct {
     pub fn init(allocator: std.mem.Allocator) !Self {
         var self = Self{
             .pool = StringPool.init(allocator),
-            .common_paths = std.StringHashMap([]const u8).init(allocator),
+            .common_paths = std.StringHashMapUnmanaged([]const u8){},
+            .allocator = allocator,
         };
         
         // Pre-populate with common patterns
         for (COMMON_PATTERNS) |pattern| {
             const interned = try self.pool.intern(pattern);
-            try self.common_paths.put(pattern, interned);
+            try self.common_paths.put(allocator, pattern, interned);
         }
         
         return self;
     }
     
     pub fn deinit(self: *Self) void {
-        self.common_paths.deinit();
+        self.common_paths.deinit(self.allocator);
         self.pool.deinit();
     }
     

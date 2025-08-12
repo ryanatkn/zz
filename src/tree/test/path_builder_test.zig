@@ -8,10 +8,7 @@ test "path builder initialization" {
     var ctx = test_helpers.MockTestContext.init(testing.allocator);
     defer ctx.deinit();
 
-    const path_builder = PathBuilder{
-        .allocator = testing.allocator,
-        .filesystem = ctx.filesystem,
-    };
+    const path_builder = PathBuilder.init(testing.allocator, ctx.filesystem);
     _ = path_builder; // Just verify it initializes
 
     std.debug.print("✓ Path builder initialization test passed!\n", .{});
@@ -21,10 +18,7 @@ test "path builder buildPath functionality" {
     var ctx = test_helpers.MockTestContext.init(testing.allocator);
     defer ctx.deinit();
 
-    const path_builder = PathBuilder{
-        .allocator = testing.allocator,
-        .filesystem = ctx.filesystem,
-    };
+    const path_builder = PathBuilder.init(testing.allocator, ctx.filesystem);
 
     // Test building path with "." base
     const result1 = try path_builder.buildPath(".", "file.txt");
@@ -48,10 +42,7 @@ test "path builder tree prefix functionality" {
     var ctx = test_helpers.MockTestContext.init(testing.allocator);
     defer ctx.deinit();
 
-    const path_builder = PathBuilder{
-        .allocator = testing.allocator,
-        .filesystem = ctx.filesystem,
-    };
+    const path_builder = PathBuilder.init(testing.allocator, ctx.filesystem);
 
     // Test building prefix for last entry
     const result1 = try path_builder.buildTreePrefix("", true);
@@ -76,10 +67,7 @@ test "path builder basename functionality" {
     var ctx = test_helpers.MockTestContext.init(allocator);
     defer ctx.deinit();
 
-    const builder = PathBuilder{
-        .allocator = allocator,
-        .filesystem = ctx.filesystem,
-    };
+    const builder = PathBuilder.init(allocator, ctx.filesystem);
 
     // Test basename extraction
     try testing.expectEqualStrings("file.txt", builder.basename("path/to/file.txt"));

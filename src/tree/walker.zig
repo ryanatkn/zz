@@ -6,10 +6,12 @@ const Filter = @import("filter.zig").Filter;
 const Formatter = @import("formatter.zig").Formatter;
 const PathBuilder = @import("path_builder.zig").PathBuilder;
 const FilesystemInterface = @import("../filesystem.zig").FilesystemInterface;
+const PathCache = @import("../lib/string_pool.zig").PathCache;
 
 pub const WalkerOptions = struct {
     filesystem: FilesystemInterface,
     quiet: bool = false,
+    path_cache: ?*PathCache = null,
 };
 
 pub const Walker = struct {
@@ -19,6 +21,7 @@ pub const Walker = struct {
     formatter: Formatter,
     path_builder: PathBuilder,
     filesystem: FilesystemInterface,
+    path_cache: ?*PathCache,
 
     const Self = @This();
 
@@ -28,11 +31,9 @@ pub const Walker = struct {
             .config = config,
             .filter = Filter.init(config.shared_config),
             .formatter = Formatter{ .quiet = options.quiet, .format = config.format },
-            .path_builder = PathBuilder{
-                .allocator = allocator,
-                .filesystem = options.filesystem,
-            },
+            .path_builder = PathBuilder.initWithCache(allocator, options.filesystem, options.path_cache),
             .filesystem = options.filesystem,
+            .path_cache = options.path_cache,
         };
     }
 

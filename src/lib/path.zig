@@ -19,7 +19,20 @@ pub fn patternMatchesHidden(pattern: []const u8) bool {
 
 /// Join path components with '/' separator - simple two-component version
 pub fn joinPath(allocator: std.mem.Allocator, dir_path: []const u8, filename: []const u8) ![]u8 {
-    return std.fmt.allocPrint(allocator, "{s}/{s}", .{ dir_path, filename });
+    // Fast path: direct buffer manipulation instead of fmt.allocPrint
+    const total_len = dir_path.len + 1 + filename.len; // dir + '/' + filename
+    var result = try allocator.alloc(u8, total_len);
+    
+    // Copy directory path
+    @memcpy(result[0..dir_path.len], dir_path);
+    
+    // Add separator
+    result[dir_path.len] = '/';
+    
+    // Copy filename
+    @memcpy(result[dir_path.len + 1..][0..filename.len], filename);
+    
+    return result;
 }
 
 /// Join multiple path components with '/' separator

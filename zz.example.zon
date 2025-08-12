@@ -14,9 +14,12 @@
     // Built-in defaults: ".git", ".svn", ".hg", "node_modules", "dist", "build",
     //                   "target", "__pycache__", "venv", "env", "tmp", "temp",
     //                   ".zig-cache", "zig-out"
-    .ignored_patterns = .{
-        "docs/slop",
-    },
+    // .ignored_patterns = .{
+    //     "logs",
+    //     "custom_build_dir",
+    //     "coverage",
+    //     "artifacts",
+    // },
 
     // Files to completely hide (not displayed at all in tree output)
     // Built-in defaults: ".DS_Store", "Thumbs.db"

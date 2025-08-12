@@ -36,6 +36,7 @@ No external dependencies - pure Zig implementation.
     │   ├── baseline.md                # Performance baseline for comparison
     │   └── latest.md                  # Most recent benchmark results
     ├── docs                           # Documentation
+    │   ├── slop [...]                 # Generated documentation (ignored in tree output)
     │   └── glob-patterns.md           # Glob pattern documentation
     ├── src                            # Source code (modular architecture)
     │   ├── benchmark                  # Performance benchmarking module
@@ -95,9 +96,7 @@ No external dependencies - pure Zig implementation.
     │   ├── test.zig                   # Main test runner for entire project
     │   └── test_helpers.zig           # Shared test utilities
     ├── zig-out [...]                  # Build output directory (auto-generated)
-    ├── BENCHMARK_IMPROVEMENTS.md      # Future benchmark enhancements roadmap
     ├── CLAUDE.md                      # AI assistant development documentation
-    ├── PROPOSED_IMPROVEMENTS.md       # General project improvements roadmap
     ├── README.md                      # User-facing documentation and usage guide
     ├── build.zig                      # Zig build system configuration
     ├── build.zig.zon                  # Package manifest
@@ -390,6 +389,19 @@ const walker = Walker.initWithOptions(allocator, config, .{ .filesystem = mock_f
 - Command-line arguments override config
 - Sensible defaults for common use cases
 
+## Claude Code Configuration
+
+The project is configured for optimal Claude Code usage:
+
+**Tool Preferences (`.claude/config.json`):**
+- `rg:*` - Ripgrep is preferred over `grep`/`find` for all search operations
+- `zz:*` - Full access to project CLI for testing and development
+
+**Best Practices:**
+- Always use `rg` for text search instead of `grep` or `find`
+- Use `zz` commands for benchmarking and testing
+- Leverage Claude Code's native Grep tool which uses ripgrep internally
+
 ## Notes to LLMs
 
 - We want idiomatic Zig, taking more after C than C++
@@ -407,6 +419,7 @@ const walker = Walker.initWithOptions(allocator, config, .{ .filesystem = mock_f
     or have understanding they don't, and when in doubt, ask clarifying questions
 - Keep modules self-contained and focused on their specific purpose
 - We have `rg` (ripgrep) installed, so always prefer `rg` over `grep` and `find`
+- Claude Code is configured to prefer `rg` via `.claude/config.json` allowedCommands
 - Always update docs at ./CLAUDE.md and ./README.md
 - Always include tests for new functionality and newly handled edge cases
     (and please don't cheat on tests lol,
@@ -424,7 +437,7 @@ const walker = Walker.initWithOptions(allocator, config, .{ .filesystem = mock_f
 - **Reduced allocation overhead** - Memory pools for ArrayList and string reuse
 - **Better cache locality** - Stdlib HashMapUnmanaged integration
 
-**Architecture:** Complete filesystem abstraction with parameterized dependencies, unified pattern matching engine, comprehensive benchmarking suite, and modular command structure. See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed system design.
+**Architecture:** Complete filesystem abstraction with parameterized dependencies, unified pattern matching engine, comprehensive benchmarking suite, and modular command structure. See [docs/slop/ARCHITECTURE.md](docs/slop/ARCHITECTURE.md) for detailed system design.
 
 ## Test Coverage
 
@@ -440,8 +453,13 @@ The project has comprehensive test coverage including:
 
 ## Related Documentation
 
-- [ARCHITECTURE.md](ARCHITECTURE.md) - System design and module relationships
-- [PERFORMANCE.md](PERFORMANCE.md) - Optimization guide and benchmarks
-- [CONTRIBUTING.md](CONTRIBUTING.md) - How to contribute effectively
-- [DX_SUGGESTIONS.md](DX_SUGGESTIONS.md) - Developer experience improvements
-- [BENCHMARK_PROPOSALS.md](BENCHMARK_PROPOSALS.md) - Future benchmark plans
+Core documentation is organized in `docs/slop/` for additional reference:
+
+- [docs/slop/ARCHITECTURE.md](docs/slop/ARCHITECTURE.md) - System design and module relationships
+- [docs/slop/PERFORMANCE.md](docs/slop/PERFORMANCE.md) - Optimization guide and benchmarks
+- [docs/slop/CONTRIBUTING.md](docs/slop/CONTRIBUTING.md) - How to contribute effectively
+- [docs/slop/PATTERNS.md](docs/slop/PATTERNS.md) - Pattern matching implementation details
+- [docs/slop/TESTING.md](docs/slop/TESTING.md) - Testing strategy and coverage
+- [docs/slop/TROUBLESHOOTING.md](docs/slop/TROUBLESHOOTING.md) - Common issues and solutions
+
+**Note:** The `docs/slop/` directory is excluded from `zz tree` output via `zz.zon` configuration to keep tree views clean.

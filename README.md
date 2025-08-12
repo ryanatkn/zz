@@ -4,7 +4,7 @@ High-performance command-line utilities written in Zig with zero dependencies fo
 
 **Platform Support:** Linux, macOS, BSD, and other POSIX-compliant systems. Windows is not supported.
 
-**Architecture:** Clean modular design with filesystem abstraction, unified pattern matching, and aggressive performance optimizations. See [ARCHITECTURE.md](./ARCHITECTURE.md) for system design details.
+**Architecture:** Clean modular design with filesystem abstraction, unified pattern matching, and aggressive performance optimizations. See [docs/slop/ARCHITECTURE.md](./docs/slop/ARCHITECTURE.md) for system design details.
 
 ## Installation
 
@@ -178,11 +178,14 @@ Create a `zz.zon` file in any directory to customize behavior:
 ## Documentation
 
 - **[CLAUDE.md](CLAUDE.md)** - Development guide and implementation details
-- **[ARCHITECTURE.md](ARCHITECTURE.md)** - System design and module relationships
-- **[CONTRIBUTING.md](CONTRIBUTING.md)** - How to contribute to the project
-- **[PERFORMANCE.md](PERFORMANCE.md)** - Performance characteristics and optimization guide
-- **[DX_SUGGESTIONS.md](DX_SUGGESTIONS.md)** - Developer experience improvement proposals
-- **[BENCHMARK_PROPOSALS.md](BENCHMARK_PROPOSALS.md)** - Proposed benchmarks and improvements
+
+**Additional Documentation** (in `docs/slop/`, excluded from tree views):
+- **[docs/slop/ARCHITECTURE.md](docs/slop/ARCHITECTURE.md)** - System design and module relationships
+- **[docs/slop/CONTRIBUTING.md](docs/slop/CONTRIBUTING.md)** - How to contribute to the project
+- **[docs/slop/PERFORMANCE.md](docs/slop/PERFORMANCE.md)** - Performance characteristics and optimization guide
+- **[docs/slop/PATTERNS.md](docs/slop/PATTERNS.md)** - Pattern matching implementation details
+- **[docs/slop/TESTING.md](docs/slop/TESTING.md)** - Testing strategy and coverage
+- **[docs/slop/TROUBLESHOOTING.md](docs/slop/TROUBLESHOOTING.md)** - Common issues and solutions
 
 ## Requirements
 

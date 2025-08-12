@@ -146,7 +146,7 @@ Performance benchmarking is critical for maintaining and improving the efficienc
 
 ### CLI Usage (outputs to stdout)
 ```bash
-# Default: markdown format to stdout
+# Default: markdown format to stdout (2 seconds per benchmark)
 $ zz benchmark
 
 # Different output formats
@@ -154,10 +154,11 @@ $ zz benchmark --format=pretty             # Color terminal output with progress
 $ zz benchmark --format=json               # Machine-readable JSON
 $ zz benchmark --format=csv                # Spreadsheet-compatible CSV
 
-# Control what runs
+# Control timing and what runs
+$ zz benchmark --duration=1s               # Run each benchmark for 1 second
+$ zz benchmark --duration=500ms            # Run each benchmark for 500 milliseconds
 $ zz benchmark --only=path,string          # Run specific benchmarks
 $ zz benchmark --skip=glob                 # Skip specific benchmarks
-$ zz benchmark --iterations=50000          # More iterations for accuracy
 
 # Save results via shell redirect
 $ zz benchmark > results.md                # Save to any file
@@ -176,9 +177,9 @@ $ zig build benchmark                      # Save to latest.md, compare, show pr
 $ zig build benchmark-baseline             # Create/update baseline.md
 $ zig build benchmark-stdout               # Pretty output without saving
 
-# Release mode benchmarking
+# Release mode benchmarking (longer duration for more stable results)
 $ zig build -Doptimize=ReleaseFast
-$ ./zig-out/bin/zz benchmark --iterations=100000
+$ ./zig-out/bin/zz benchmark --duration=5s
 ```
 
 **Benchmark Features:**
@@ -194,9 +195,9 @@ $ ./zig-out/bin/zz benchmark --iterations=100000
 - String pooling: ~145ns per operation (95-100% cache efficiency)
 - Memory pools: ~50μs per allocation/release cycle
 - Glob patterns: ~25ns per operation (75% fast-path hit ratio)
-- Benchmark execution: ~800ms total (each benchmark targets ~200ms)
+- Benchmark execution: ~8 seconds total (each benchmark targets ~2 seconds)
 - Regression threshold: 20% (to account for Debug mode variance)
-- Auto-scaled iterations: Each benchmark runs enough iterations to reach ~200ms
+- Time-based execution: Each benchmark runs for a configurable duration (default: 2 seconds)
 
 **When to Run Benchmarks:**
 - Before and after implementing optimizations
@@ -394,8 +395,8 @@ const walker = Walker.initWithOptions(allocator, config, .{ .filesystem = mock_f
 The project is configured for optimal Claude Code usage:
 
 **Tool Preferences (`.claude/config.json`):**
-- `rg:*` - Ripgrep is preferred over `grep`/`find` for all search operations
-- `zz:*` - Full access to project CLI for testing and development
+- `rg:*` - Prefer ripgrep (`rg`) over `grep`/`find`/`cat`
+- `zz:*` - Full access to project CLI for testing and development and feature usage
 
 **Best Practices:**
 - Always use `rg` for text search instead of `grep` or `find`

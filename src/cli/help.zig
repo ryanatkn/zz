@@ -16,7 +16,7 @@ pub fn show(program_name: []const u8) void {
     std.debug.print("  benchmark [options]           Run performance benchmarks (outputs to stdout)\n", .{});
     std.debug.print("                                Options:\n", .{});
     std.debug.print("                                  --format=FORMAT      Output format: markdown (default), json, csv, pretty\n", .{});
-    std.debug.print("                                  --iterations=N       Base iterations (default: 1000, auto-scaled)\n", .{});
+    std.debug.print("                                  --duration=TIME      Duration per benchmark (default: 2s, formats: 1s, 500ms)\n", .{});
     std.debug.print("                                  --baseline=FILE      Compare with baseline file (default: benchmarks/baseline.md)\n", .{});
     std.debug.print("                                  --no-compare         Disable automatic baseline comparison\n", .{});
     std.debug.print("                                  --only=path,string   Run only specific benchmarks (comma-separated)\n", .{});

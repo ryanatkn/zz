@@ -1,6 +1,10 @@
 const std = @import("std");
-const Benchmark = @import("../lib/benchmark.zig").Benchmark;
-const BenchmarkResult = @import("../lib/benchmark.zig").BenchmarkResult;
+const benchmark_lib = @import("../lib/benchmark.zig");
+const Benchmark = benchmark_lib.Benchmark;
+const BenchmarkResult = benchmark_lib.BenchmarkResult;
+
+// Import formatTime function from benchmark lib for consistent formatting
+const formatTime = @import("../lib/benchmark.zig").formatTime;
 
 pub const OutputFormat = enum {
     markdown,
@@ -17,8 +21,11 @@ pub const OutputFormat = enum {
     }
 };
 
+// Default duration per benchmark (2 seconds = 2,000,000,000 nanoseconds)
+const DEFAULT_DURATION_NS: u64 = 2_000_000_000;
+
 const Options = struct {
-    iterations: usize = 1000,  // Base iterations (will be scaled per benchmark)
+    duration_ns: u64 = DEFAULT_DURATION_NS,  // Duration to run each benchmark
     format: OutputFormat = .markdown,
     baseline: ?[]const u8 = null, // Baseline file for comparison
     no_compare: bool = false, // Disable automatic comparison
@@ -33,6 +40,25 @@ const Options = struct {
     run_glob: bool = false,
 };
 
+/// Parse duration string (e.g., "1s", "500ms", "2000000000ns")
+fn parseDuration(duration_str: []const u8) !u64 {
+    if (std.mem.endsWith(u8, duration_str, "ns")) {
+        const num_str = duration_str[0..duration_str.len - 2];
+        return try std.fmt.parseInt(u64, num_str, 10);
+    } else if (std.mem.endsWith(u8, duration_str, "ms")) {
+        const num_str = duration_str[0..duration_str.len - 2];
+        const ms = try std.fmt.parseInt(u64, num_str, 10);
+        return ms * 1_000_000; // Convert to nanoseconds
+    } else if (std.mem.endsWith(u8, duration_str, "s")) {
+        const num_str = duration_str[0..duration_str.len - 1];
+        const s = try std.fmt.parseInt(u64, num_str, 10);
+        return s * 1_000_000_000; // Convert to nanoseconds
+    } else {
+        // Assume nanoseconds if no unit
+        return try std.fmt.parseInt(u64, duration_str, 10);
+    }
+}
+
 pub fn run(allocator: std.mem.Allocator, args: [][:0]const u8) !void {
     var options = Options{};
 
@@ -41,9 +67,13 @@ pub fn run(allocator: std.mem.Allocator, args: [][:0]const u8) !void {
     while (i < args.len) : (i += 1) {
         const arg = args[i];
 
-        if (std.mem.startsWith(u8, arg, "--iterations=")) {
-            const value = arg["--iterations=".len..];
-            options.iterations = try std.fmt.parseInt(usize, value, 10);
+        if (std.mem.startsWith(u8, arg, "--duration=")) {
+            const value = arg["--duration=".len..];
+            options.duration_ns = parseDuration(value) catch |err| {
+                std.debug.print("Invalid duration format: {s}\n", .{value});
+                std.debug.print("Valid formats: 1s, 500ms, 2000000000ns\n", .{});
+                return err;
+            };
         } else if (std.mem.startsWith(u8, arg, "--format=")) {
             const value = arg["--format=".len..];
             options.format = OutputFormat.fromString(value) orelse {
@@ -133,38 +163,34 @@ pub fn run(allocator: std.mem.Allocator, args: [][:0]const u8) !void {
         try warmUp(allocator);
     }
 
-    // Run selected benchmarks with scaled iterations to target ~200ms each
-    // Path Joining: ~47μs/op, need ~200 iterations for 200ms total
+    // Run selected benchmarks for the specified duration each
     if (options.run_all or options.run_path) {
-        const path_iterations = options.iterations / 5;  // 200 iterations at base 1000
-        try bench.benchmarkPathJoining(path_iterations, false);
+        try bench.benchmarkPathJoining(options.duration_ns, false);
     }
 
-    // String Pool: ~145ns/op, need ~200,000 iterations for 200ms total
     if (options.run_all or options.run_string_pool) {
-        const string_iterations = options.iterations * 200;  // 200,000 iterations at base 1000
-        try bench.benchmarkStringPool(string_iterations, false);
+        try bench.benchmarkStringPool(options.duration_ns, false);
     }
 
-    // Memory Pools: ~50μs/op, need ~4000 iterations for 200ms total
     if (options.run_all or options.run_memory_pools) {
-        const memory_iterations = options.iterations * 4;  // 4,000 iterations at base 1000
-        try bench.benchmarkMemoryPools(memory_iterations, false);
+        try bench.benchmarkMemoryPools(options.duration_ns, false);
     }
 
-    // Glob Patterns: ~25ns/op, need ~2,000,000 iterations for 200ms total
     if (options.run_all or options.run_glob) {
-        const glob_iterations = options.iterations * 2000;  // 2,000,000 iterations at base 1000
-        try bench.benchmarkGlobPatterns(glob_iterations, false);
+        try bench.benchmarkGlobPatterns(options.duration_ns, false);
     }
 
     // Output results in requested format to stdout
     const stdout = std.io.getStdOut().writer();
     const build_mode = "Debug"; // We can make this dynamic later if needed
     
+    // Format duration for display
+    var duration_buf: [64]u8 = undefined;
+    const formatted_duration = try formatTime(options.duration_ns, &duration_buf);
+    
     switch (options.format) {
-        .markdown => try bench.writeMarkdown(stdout, baseline_results, build_mode, options.iterations),
-        .json => try bench.writeJSON(stdout, build_mode, options.iterations),
+        .markdown => try bench.writeMarkdown(stdout, baseline_results, build_mode, formatted_duration),
+        .json => try bench.writeJSON(stdout, build_mode, formatted_duration),
         .csv => try bench.writeCSV(stdout),
         .pretty => try bench.writePretty(stdout, baseline_results),
     }

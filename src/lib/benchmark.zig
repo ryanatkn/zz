@@ -28,7 +28,7 @@ const Color = struct {
 };
 
 /// Format time in nanoseconds to human-readable units
-fn formatTime(ns: u64, buf: []u8) ![]const u8 {
+pub fn formatTime(ns: u64, buf: []u8) ![]const u8 {
     if (ns < 1000) {
         return try std.fmt.bufPrint(buf, "{} ns", .{ns});
     } else if (ns < 1_000_000) {
@@ -91,8 +91,8 @@ pub const Benchmark = struct {
         self.results.deinit();
     }
     
-    /// Benchmark path joining operations
-    pub fn benchmarkPathJoining(self: *Self, iterations: usize, verbose: bool) !void {
+    /// Benchmark path joining operations for target duration
+    pub fn benchmarkPathJoining(self: *Self, target_duration_ns: u64, verbose: bool) !void {
         if (verbose) {
             std.debug.print("\n=== Path Joining Benchmark ===\n", .{});
         }
@@ -100,11 +100,11 @@ pub const Benchmark = struct {
         const dirs = [_][]const u8{ "src", "test", "docs", "lib", "config" };
         const files = [_][]const u8{ "main.zig", "test.zig", "config.zig", "lib.zig" };
         
-        // Benchmark optimized joinPath
         var timer = try std.time.Timer.start();
         var total_allocations: usize = 0;
         
-        for (0..iterations) |_| {
+        // Run until we hit the target duration
+        while (timer.read() < target_duration_ns) {
             for (dirs) |dir| {
                 for (files) |file| {
                     const joined = try path_utils.joinPath(self.allocator, dir, file);
@@ -130,8 +130,8 @@ pub const Benchmark = struct {
         });
     }
     
-    /// Benchmark string pool effectiveness
-    pub fn benchmarkStringPool(self: *Self, iterations: usize, verbose: bool) !void {
+    /// Benchmark string pool effectiveness for target duration
+    pub fn benchmarkStringPool(self: *Self, target_duration_ns: u64, verbose: bool) !void {
         if (verbose) {
             std.debug.print("\n=== String Pool Benchmark ===\n", .{});
         }
@@ -144,11 +144,13 @@ pub const Benchmark = struct {
         };
         
         var timer = try std.time.Timer.start();
+        var total_ops: usize = 0;
         
-        // Test cache effectiveness
-        for (0..iterations) |_| {
+        // Run until we hit the target duration
+        while (timer.read() < target_duration_ns) {
             for (common_paths) |path| {
                 _ = try path_cache.getPath(path);
+                total_ops += 1;
             }
         }
         
@@ -156,7 +158,6 @@ pub const Benchmark = struct {
         const pool = path_cache.getStats();
         const pool_stats = pool.stats();
         
-        const total_ops = iterations * common_paths.len;
         if (verbose) {
             std.debug.print("  {} operations in {}ms\n", .{ total_ops, elapsed / 1_000_000 });
             std.debug.print("  Cache efficiency: {d:.1}% ({} hits, {} misses)\n", 
@@ -175,8 +176,8 @@ pub const Benchmark = struct {
         });
     }
     
-    /// Benchmark memory pools
-    pub fn benchmarkMemoryPools(self: *Self, iterations: usize, verbose: bool) !void {
+    /// Benchmark memory pools for target duration
+    pub fn benchmarkMemoryPools(self: *Self, target_duration_ns: u64, verbose: bool) !void {
         if (verbose) {
             std.debug.print("\n=== Memory Pools Benchmark ===\n", .{});
         }
@@ -185,15 +186,17 @@ pub const Benchmark = struct {
         defer pools.deinit();
         
         var timer = try std.time.Timer.start();
+        var iterations: usize = 0;
         
-        // Test ArrayList pooling
-        for (0..iterations) |_| {
+        // Run until we hit the target duration
+        while (timer.read() < target_duration_ns) {
             var list = try pools.createPathList();
             try list.append(try self.allocator.dupe(u8, "test"));
             for (list.items) |item| {
                 self.allocator.free(item);
             }
             pools.releasePathList(list);
+            iterations += 1;
         }
         
         const elapsed = timer.read();
@@ -212,8 +215,8 @@ pub const Benchmark = struct {
         });
     }
     
-    /// Benchmark glob pattern optimization
-    pub fn benchmarkGlobPatterns(self: *Self, iterations: usize, verbose: bool) !void {
+    /// Benchmark glob pattern optimization for target duration
+    pub fn benchmarkGlobPatterns(self: *Self, target_duration_ns: u64, verbose: bool) !void {
         if (verbose) {
             std.debug.print("\n=== Glob Pattern Benchmark ===\n", .{});
         }
@@ -226,12 +229,11 @@ pub const Benchmark = struct {
         };
         
         var timer = try std.time.Timer.start();
-        
-        // This would require integrating with GlobExpander
-        // For now, just measure pattern checking
         var fast_path_hits: usize = 0;
+        var total_patterns: usize = 0;
         
-        for (0..iterations) |_| {
+        // Run until we hit the target duration
+        while (timer.read() < target_duration_ns) {
             for (patterns) |pattern| {
                 // Simulate fast path checking
                 if (std.mem.eql(u8, pattern, "*.{zig,c,h}") or
@@ -239,11 +241,11 @@ pub const Benchmark = struct {
                     std.mem.eql(u8, pattern, "*.{md,txt}")) {
                     fast_path_hits += 1;
                 }
+                total_patterns += 1;
             }
         }
         
         const elapsed = timer.read();
-        const total_patterns = iterations * patterns.len;
         const fast_path_ratio = @as(f64, @floatFromInt(fast_path_hits)) / @as(f64, @floatFromInt(total_patterns));
         
         if (verbose) {
@@ -263,16 +265,18 @@ pub const Benchmark = struct {
         });
     }
     
-    /// Run all benchmarks
-    pub fn runAll(self: *Self, iterations: usize, verbose: bool) !void {
+    /// Run all benchmarks for target duration each
+    pub fn runAll(self: *Self, target_duration_ns: u64, verbose: bool) !void {
         if (verbose) {
-            std.debug.print("Running performance benchmarks with {} iterations...\n", .{iterations});
+            var duration_buf: [64]u8 = undefined;
+            const formatted_duration = try formatTime(target_duration_ns, &duration_buf);
+            std.debug.print("Running performance benchmarks for {} each...\n", .{formatted_duration});
         }
         
-        try self.benchmarkPathJoining(iterations, verbose);
-        try self.benchmarkStringPool(iterations, verbose);
-        try self.benchmarkMemoryPools(iterations, verbose);
-        try self.benchmarkGlobPatterns(iterations, verbose);
+        try self.benchmarkPathJoining(target_duration_ns, verbose);
+        try self.benchmarkStringPool(target_duration_ns, verbose);
+        try self.benchmarkMemoryPools(target_duration_ns, verbose);
+        try self.benchmarkGlobPatterns(target_duration_ns, verbose);
         
         if (verbose) {
             std.debug.print("\n=== Benchmark Complete ===\n", .{});
@@ -323,7 +327,7 @@ pub const Benchmark = struct {
         writer: anytype,
         baseline_results: ?[]const BenchmarkResult,
         build_mode: []const u8,
-        iterations: usize,
+        duration_per_benchmark: []const u8,
     ) !void {
         // Header
         try writer.print("# Benchmark Results\n\n", .{});
@@ -340,7 +344,7 @@ pub const Benchmark = struct {
             date_time.getDaySeconds().getSecondsIntoMinute(),
         });
         try writer.print("**Build:** {s}  \n", .{build_mode});
-        try writer.print("**Iterations:** {}  \n\n", .{iterations});
+        try writer.print("**Duration per benchmark:** {s}  \n\n", .{duration_per_benchmark});
         
         // Results table
         try writer.print("## Results\n\n", .{});
@@ -402,14 +406,14 @@ pub const Benchmark = struct {
         self: Self,
         writer: anytype,
         build_mode: []const u8,
-        iterations: usize,
+        duration_per_benchmark: []const u8,
     ) !void {
         const timestamp = std.time.timestamp();
         
         try writer.print("{{\n", .{});
         try writer.print("  \"timestamp\": {},\n", .{timestamp});
         try writer.print("  \"build_mode\": \"{s}\",\n", .{build_mode});
-        try writer.print("  \"iterations\": {},\n", .{iterations});
+        try writer.print("  \"duration_per_benchmark\": \"{s}\",\n", .{duration_per_benchmark});
         try writer.print("  \"results\": [\n", .{});
         
         for (self.results.items, 0..) |result, i| {

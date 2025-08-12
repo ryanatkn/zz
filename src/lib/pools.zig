@@ -156,7 +156,7 @@ fn ArrayListPool(comptime T: type) type {
         
         fn create(self: *Self) !std.ArrayList(T) {
             if (self.available.items.len > 0) {
-                var result = self.available.pop();
+                var result = self.available.pop() orelse unreachable;
                 result.clearRetainingCapacity(); // Reset but keep capacity
                 return result;
             }
@@ -180,7 +180,7 @@ fn ArrayListPool(comptime T: type) type {
 
 /// Wrapper function for convenient ArrayList([]u8) usage with RAII
 pub fn withPathList(pools: *MemoryPools, comptime func: anytype, args: anytype) !@TypeOf(func(std.ArrayList([]u8), args)) {
-    var list = try pools.createPathList();
+    const list = try pools.createPathList();
     defer pools.releasePathList(list);
     
     return try func(list, args);
@@ -188,7 +188,7 @@ pub fn withPathList(pools: *MemoryPools, comptime func: anytype, args: anytype) 
 
 /// Wrapper function for convenient ArrayList([]const u8) usage with RAII
 pub fn withConstPathList(pools: *MemoryPools, comptime func: anytype, args: anytype) !@TypeOf(func(std.ArrayList([]const u8), args)) {
-    var list = try pools.createConstPathList();
+    const list = try pools.createConstPathList();
     defer pools.releaseConstPathList(list);
     
     return try func(list, args);

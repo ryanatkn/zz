@@ -6,26 +6,34 @@ High-performance command-line utilities written in Zig with zero dependencies fo
 
 **Architecture:** Clean modular design with consolidated utilities, unified error handling, and POSIX-optimized implementations for lean builds.
 
+## Installation
+
+```bash
+# Install to ~/.zz/bin (recommended)
+zig build install-user
+
+# Install to custom location
+zig build install-user -Dprefix=~/my-tools
+
+# Production install (optimized)
+zig build install-user -Doptimize=ReleaseFast
+```
+
+Then add `~/.zz/bin` to your PATH:
+```bash
+echo 'export PATH="$PATH:~/.zz/bin"' >> ~/.bashrc
+source ~/.bashrc
+```
+
 ## Quick Start
 
 ```bash
 # Check requirements
 zig version  # Requires 0.14.1+
 
-# Build (defaults to Debug mode)
-zig build                      # Debug build (default)
-zig build -Doptimize=ReleaseFast  # Fast release build
-zig build -Doptimize=ReleaseSmall # Small binary size
-zig build --use-llvm           # Use LLVM backend
-
-# Run
-zig build run                  # Show help
-zig build run -- tree          # Show current directory tree
-zig build run -- help          # Show available commands
-zig build run -- prompt        # Generate LLM prompts
-
-# Or build and run directly
-zig build && ./zig-out/bin/zz tree
+# After installation
+zz tree                        # Show directory tree
+zz prompt "src/**/*.zig"       # Generate LLM prompt
 ```
 
 ## Features
@@ -62,6 +70,7 @@ zig build && ./zig-out/bin/zz tree
 ```bash
 zz tree [directory] [depth] [--format=FORMAT]  # Show directory tree
 zz prompt [files...] [options]                 # Generate LLM prompt
+zz benchmark [options]                          # Run performance benchmarks
 zz help                                         # Display help
 
 # Tree format options:
@@ -75,57 +84,32 @@ zz help                                         # Display help
 #   --allow-missing          - Warn instead of error for all missing files
 #   Supports glob patterns   - *.zig, **/*.zig, *.{zig,md}
 #   Supports directories     - src/, src/subdir/
+
+# Benchmark options:
+#   --iterations=N           - Number of iterations (default: 10000)
+#   --verbose                - Show detailed output and performance tips
+#   --path                   - Run only path joining benchmarks
+#   --string-pool            - Run only string pool benchmarks
+#   --memory-pools           - Run only memory pool benchmarks
+#   --glob                   - Run only glob pattern benchmarks
 ```
 
 ## Examples
 
 ```bash
-# Build and install
-zig build
+# Tree visualization
+zz tree                          # Current directory
+zz tree src/ 2                   # src directory, 2 levels deep
+zz tree --format=list            # Flat list format
 
-# Show current directory structure (tree format)
-zig build run -- tree
-# Or after building:
-./zig-out/bin/zz tree
+# LLM prompt generation
+zz prompt "src/**/*.zig"         # All Zig files recursively
+zz prompt src/ docs/             # Multiple directories  
+zz prompt "*.{zig,md}" --prepend="Context:" # Multiple types with prefix
 
-# Show as flat list instead of tree
-zig build run -- tree --format=list
-
-# Show current directory, 2 levels deep
-zig build run -- tree . 2
-
-# Show src directory with default depth  
-zig build run -- tree src/
-
-# Gitignore support (respects .gitignore by default)
-zig build run -- tree              # Hides files matching .gitignore patterns
-zig build run -- tree --no-gitignore  # Shows all files including gitignored ones
-
-# Generate prompt from all Zig files
-zig build run -- prompt "src/**/*.zig" > prompt.md
-
-# Process entire directory
-zig build run -- prompt src/
-zig build run -- prompt src/cli/ docs/
-
-# Add text before/after files
-zig build run -- prompt --prepend="Context:" --append="Question?" src/*.zig
-
-# Multiple file types
-zig build run -- prompt "*.{zig,md,txt}"
-
-# Mix directories and files
-zig build run -- prompt README.md src/ docs/*.md
-
-# Prompt with gitignore support
-zig build run -- prompt "src/**/*.zig"  # Excludes gitignored files by default
-zig build run -- prompt "src/**/*.zig" --no-gitignore  # Includes all matching files
-
-# Error if no files provided (won't default to *.zig)
-zig build run -- prompt  # Error: No input files specified
-
-# Explicit ignore detection (exits with code 1)
-zig build run -- prompt .gitignore  # Error: Explicitly requested file was ignored: .gitignore
+# Performance benchmarks
+zz benchmark                     # Run all benchmarks
+zz benchmark --verbose          # Detailed output
 ```
 
 **Exit Codes:**
@@ -176,53 +160,9 @@ Create a `zz.zon` file in any directory to customize behavior:
 - Use `--no-gitignore` flag or set `respect_gitignore = false` to disable
 - Supports basic gitignore syntax: wildcards (`*.tmp`), negation (`!important.tmp`), directory patterns (`build/`)
 
-## Architecture
-
-- **`src/cli/`** - Command parsing and execution
-- **`src/config/`** - Configuration system with pattern resolution
-- **`src/filesystem/`** - Filesystem abstraction layer for testing
-- **`src/patterns/`** - High-performance pattern matching engine  
-- **`src/tree/`** - Directory traversal and visualization  
-- **`src/prompt/`** - LLM prompt generation with glob support
-
-**Design:** Single binary, no dependencies, pure Zig implementation.
-
 ## Development
 
-```bash
-$ zig build                      # Debug build (default)
-$ zig build -Doptimize=ReleaseFast  # Fast release build
-$ zig build run -- tree         # Run tree command  
-$ zig build run -- prompt "*.zig"  # Run prompt command
-```
-
-### Testing
-
-```bash
-$ zig build test              # Run all tests (recommended)
-$ zig build test-tree         # Run tree module tests only
-$ zig build test-prompt       # Run prompt module tests only
-$ zig test src/test.zig --test-filter "directory"    # Run specific tests by name pattern
-```
-
-Comprehensive test suite with 190 tests covering edge cases, security, performance, and integration testing.
-
-## Architecture
-
-**High-Performance Design:**
-- **Shared Infrastructure** (`src/lib/`): Consolidated utilities eliminate 300+ lines of duplicate code
-- **POSIX-Optimized**: Custom path utilities optimized for POSIX systems (leaner than std.fs.path)
-- **Unified Error Handling**: Consistent filesystem error patterns across all operations
-- **Memory Optimization**: Arena allocators and efficient traversal reduce allocation overhead
-- **Zero Dependencies**: Pure Zig implementation with no external dependencies
-
-**Modular Structure:**
-- **CLI Module** - Command parsing and dispatch
-- **Tree Module** - Directory visualization with multiple output formats  
-- **Prompt Module** - LLM prompt generation with advanced glob support
-- **Lib Module** - Shared utilities (path, traversal, filesystem, string_pool)
-- **Patterns Module** - Unified pattern matching engine
-- **Config Module** - Modular ZON-based configuration system
+See **[CLAUDE.md](CLAUDE.md)** for detailed development documentation, architecture details, and performance guidelines.
 
 ## Requirements
 

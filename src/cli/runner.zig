@@ -5,6 +5,7 @@ const Command = @import("command.zig").Command;
 const Help = @import("help.zig");
 const tree = @import("../tree/main.zig");
 const prompt = @import("../prompt/main.zig");
+const benchmark = @import("../benchmark/main.zig");
 
 pub const Runner = struct {
     allocator: std.mem.Allocator,
@@ -42,6 +43,10 @@ pub const Runner = struct {
                     }
                     return err;
                 };
+            },
+            .benchmark => {
+                // Pass full args to benchmark module
+                try benchmark.run(self.allocator, args);
             },
         }
     }

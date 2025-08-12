@@ -13,6 +13,14 @@ pub fn show(program_name: []const u8) void {
     std.debug.print("                                  --append=TEXT        Add text after files\n", .{});
     std.debug.print("                                  --allow-empty-glob   Warn instead of error for empty globs\n", .{});
     std.debug.print("                                  --allow-missing      Warn instead of error for all missing\n", .{});
+    std.debug.print("  benchmark [options]           Run performance benchmarks\n", .{});
+    std.debug.print("                                Options:\n", .{});
+    std.debug.print("                                  --iterations=N       Number of iterations (default: 10000)\n", .{});
+    std.debug.print("                                  --verbose            Show detailed output\n", .{});
+    std.debug.print("                                  --path               Run path joining benchmarks\n", .{});
+    std.debug.print("                                  --string-pool        Run string pool benchmarks\n", .{});
+    std.debug.print("                                  --memory-pools       Run memory pool benchmarks\n", .{});
+    std.debug.print("                                  --glob               Run glob pattern benchmarks\n", .{});
     std.debug.print("  help                          Show this help\n", .{});
     std.debug.print("\nGlob Patterns:\n", .{});
     std.debug.print("  *.zig                         Match all .zig files\n", .{});

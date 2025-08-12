@@ -32,6 +32,7 @@ const Options = struct {
     only: ?[]const u8 = null, // Run only specific benchmarks (comma-separated)
     skip: ?[]const u8 = null, // Skip specific benchmarks (comma-separated)
     warmup: bool = false,
+    duration_multiplier: f64 = 1.0, // Multiplier for extending benchmark duration
     // For filtering
     run_all: bool = true,
     run_path: bool = false,
@@ -40,8 +41,29 @@ const Options = struct {
     run_glob: bool = false,
 };
 
+/// Get duration multiplier for a specific benchmark based on observed variance
+pub fn getVarianceMultiplier(benchmark_name: []const u8) f64 {
+    // Based on observed variance in benchmark results:
+    // - Path joining: moderate variance, 2x multiplier
+    // - Memory pools: high variance, 3x multiplier  
+    // - String pool: low variance, 1x multiplier
+    // - Glob patterns: low variance, 1x multiplier
+    if (std.mem.eql(u8, benchmark_name, "path")) return 2.0;
+    if (std.mem.eql(u8, benchmark_name, "memory")) return 3.0;
+    if (std.mem.eql(u8, benchmark_name, "string")) return 1.0;
+    if (std.mem.eql(u8, benchmark_name, "glob")) return 1.0;
+    return 1.0; // Default
+}
+
+/// Calculate effective duration for a benchmark considering duration multiplier
+pub fn getEffectiveDuration(base_duration_ns: u64, benchmark_name: []const u8, user_multiplier: f64) u64 {
+    const variance_multiplier = getVarianceMultiplier(benchmark_name);
+    const total_multiplier = variance_multiplier * user_multiplier;
+    return @intFromFloat(@as(f64, @floatFromInt(base_duration_ns)) * total_multiplier);
+}
+
 /// Parse duration string (e.g., "1s", "500ms", "2000000000ns")
-fn parseDuration(duration_str: []const u8) !u64 {
+pub fn parseDuration(duration_str: []const u8) !u64 {
     if (std.mem.endsWith(u8, duration_str, "ns")) {
         const num_str = duration_str[0..duration_str.len - 2];
         return try std.fmt.parseInt(u64, num_str, 10);
@@ -115,6 +137,17 @@ pub fn run(allocator: std.mem.Allocator, args: [][:0]const u8) !void {
             }
         } else if (std.mem.eql(u8, arg, "--warmup")) {
             options.warmup = true;
+        } else if (std.mem.startsWith(u8, arg, "--duration-multiplier=")) {
+            const value = arg["--duration-multiplier=".len..];
+            options.duration_multiplier = std.fmt.parseFloat(f64, value) catch |err| {
+                std.debug.print("Invalid duration multiplier: {s}\n", .{value});
+                std.debug.print("Must be a positive number (e.g., 1.0, 2.5, 3.0)\n", .{});
+                return err;
+            };
+            if (options.duration_multiplier <= 0) {
+                std.debug.print("Duration multiplier must be positive: {d}\n", .{options.duration_multiplier});
+                std.process.exit(1);
+            }
         } else {
             std.debug.print("Unknown benchmark option: {s}\n", .{arg});
             std.debug.print("Run 'zz help' for usage information\n", .{});
@@ -163,21 +196,25 @@ pub fn run(allocator: std.mem.Allocator, args: [][:0]const u8) !void {
         try warmUp(allocator);
     }
 
-    // Run selected benchmarks for the specified duration each
+    // Run selected benchmarks with extended durations
     if (options.run_all or options.run_path) {
-        try bench.benchmarkPathJoining(options.duration_ns, false);
+        const path_duration = getEffectiveDuration(options.duration_ns, "path", options.duration_multiplier);
+        try bench.benchmarkPathJoining(path_duration, false);
     }
 
     if (options.run_all or options.run_string_pool) {
-        try bench.benchmarkStringPool(options.duration_ns, false);
+        const string_duration = getEffectiveDuration(options.duration_ns, "string", options.duration_multiplier);
+        try bench.benchmarkStringPool(string_duration, false);
     }
 
     if (options.run_all or options.run_memory_pools) {
-        try bench.benchmarkMemoryPools(options.duration_ns, false);
+        const memory_duration = getEffectiveDuration(options.duration_ns, "memory", options.duration_multiplier);
+        try bench.benchmarkMemoryPools(memory_duration, false);
     }
 
     if (options.run_all or options.run_glob) {
-        try bench.benchmarkGlobPatterns(options.duration_ns, false);
+        const glob_duration = getEffectiveDuration(options.duration_ns, "glob", options.duration_multiplier);
+        try bench.benchmarkGlobPatterns(glob_duration, false);
     }
 
     // Output results in requested format to stdout

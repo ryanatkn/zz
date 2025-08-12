@@ -22,11 +22,13 @@ pub fn show(program_name: []const u8) void {
     std.debug.print("                                  --only=path,string   Run only specific benchmarks (comma-separated)\n", .{});
     std.debug.print("                                  --skip=glob,memory   Skip specific benchmarks (comma-separated)\n", .{});
     std.debug.print("                                  --warmup             Include warmup phase\n", .{});
+    std.debug.print("                                  --duration-multiplier=N  Extra multiplier for extending benchmark duration (default: 1.0)\n", .{});
     std.debug.print("                                Examples:\n", .{});
     std.debug.print("                                  zz benchmark                        # Markdown to stdout\n", .{});
     std.debug.print("                                  zz benchmark --format=pretty        # Pretty terminal output\n", .{});
     std.debug.print("                                  zz benchmark > baseline.md          # Save to file\n", .{});
     std.debug.print("                                  zz benchmark --only=path,string     # Run specific benchmarks\n", .{});
+    std.debug.print("                                  zz benchmark --duration-multiplier=2    # 2x longer duration for all benchmarks\n", .{});
     std.debug.print("  help                          Show this help\n", .{});
     std.debug.print("\nGlob Patterns:\n", .{});
     std.debug.print("  *.zig                         Match all .zig files\n", .{});

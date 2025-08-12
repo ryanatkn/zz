@@ -160,6 +160,10 @@ $ zz benchmark --duration=500ms            # Run each benchmark for 500 millisec
 $ zz benchmark --only=path,string          # Run specific benchmarks
 $ zz benchmark --skip=glob                 # Skip specific benchmarks
 
+# Duration control for more stable results
+$ zz benchmark --duration-multiplier=2.0   # 2x longer for all benchmarks
+$ zz benchmark --duration-multiplier=3.0   # 3x longer for all benchmarks
+
 # Save results via shell redirect
 $ zz benchmark > results.md                # Save to any file
 $ zz benchmark | grep "Path"               # Pipe to other tools
@@ -189,6 +193,7 @@ $ ./zig-out/bin/zz benchmark --duration=5s
 - Clean separation: CLI for data, build commands for workflow
 - Color-enhanced terminal output with progress bars
 - Human-readable time units (ns, μs, ms, s)
+- **Duration multiplier system** - Allows extending benchmark duration for more stable results
 
 **Performance Baselines (Debug build):**
 - Path operations: ~47μs per operation (20-30% faster than stdlib)

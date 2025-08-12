@@ -59,6 +59,9 @@ zz benchmark --format=csv > results.csv
 
 # Run specific benchmarks
 zz benchmark --only=path,string > quick-check.md
+
+# Extend duration for more stable results
+zz benchmark --duration-multiplier=2.0 > stable-results.md
 ```
 
 ## Understanding the Output
@@ -135,6 +138,9 @@ zz benchmark --baseline=benchmarks/v1.0-baseline.md
 
 # Disable comparison even if baseline exists
 zz benchmark --no-compare
+
+# Reduce variance for more reliable baseline comparisons
+zz benchmark --duration-multiplier=3.0 --baseline=benchmarks/stable-baseline.md
 ```
 
 ### Shell Functions
@@ -165,9 +171,10 @@ bench-watch() {
    ./zig-out/bin/zz benchmark
    ```
 
-2. **Use more iterations** for stable results:
+2. **Use duration multiplier** for stable results on all benchmarks:
    ```bash
-   zz benchmark --iterations=100000
+   zz benchmark --duration-multiplier=2.0  # 2x longer for all benchmarks
+   zz benchmark --duration-multiplier=3.0  # 3x longer for most stable results
    ```
 
 3. **Track history** in git:

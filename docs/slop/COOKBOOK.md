@@ -151,7 +151,7 @@ if (std.mem.eql(u8, name, "newthing")) options.run_new_thing = true;
 
 // Add to execution
 if (options.run_all or options.run_new_thing) {
-    const duration = getEffectiveDuration(options.duration_ns, "newthing", options.variance_multiplier);
+    const duration = getEffectiveDuration(options.duration_ns, "newthing", options.duration_multiplier);
     try bench.benchmarkNewThing(duration, false);
 }
 ```
@@ -349,7 +349,7 @@ defer zone.end();
 ### 4. Use Benchmark Variance
 ```bash
 # Run specific benchmark longer for stability
-zz benchmark --only=memory --variance-multiplier=5.0
+zz benchmark --only=memory --duration-multiplier=5.0
 ```
 
 ---
@@ -385,8 +385,8 @@ defer arena.deinit();
 # Problem: Unstable benchmark results
 zz benchmark --only=memory
 
-# Solution: Run longer with variance multiplier
-zz benchmark --only=memory --variance-multiplier=3.0
+# Solution: Run longer with duration multiplier
+zz benchmark --only=memory --duration-multiplier=3.0
 ```
 
 ---

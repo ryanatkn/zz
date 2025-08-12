@@ -67,7 +67,8 @@ zz prompt "src/**/*.zig"       # Generate LLM prompt
 - Multiple output formats: markdown, JSON, CSV, and pretty terminal display
 - Automatic baseline comparison with regression detection (20% threshold)
 - Human-readable time units (ns, μs, ms, s) with progress bars
-- Per-benchmark auto-scaling for consistent ~200ms runtime
+- **Variance multiplier system** - Automatically runs high-variance benchmarks longer for more stable results
+- Time-based execution with configurable duration per benchmark
 
 ## Commands
 
@@ -91,7 +92,8 @@ zz help                                         # Display help
 
 # Benchmark options (outputs to stdout):
 #   --format=FORMAT          - Output format: markdown (default), json, csv, pretty
-#   --iterations=N           - Base iterations (default: 1000, auto-scaled per benchmark)
+#   --duration=TIME          - Duration per benchmark (default: 2s, formats: 1s, 500ms)
+#   --duration-multiplier=N  - Extra multiplier for extending benchmark duration (default: 1.0)
 #   --baseline=FILE          - Compare with baseline (default: benchmarks/baseline.md)
 #   --no-compare             - Disable automatic baseline comparison
 #   --only=path,string       - Run only specific benchmarks (comma-separated)
@@ -118,6 +120,7 @@ zz benchmark --format=pretty                     # Pretty terminal output
 zz benchmark --format=json                       # JSON output
 zz benchmark > benchmarks/baseline.md            # Save baseline via redirect
 zz benchmark --only=path,string                  # Run specific benchmarks
+zz benchmark --duration-multiplier=2.0           # 2x longer for all benchmarks
 
 # Build commands (handle file management)
 zig build benchmark                              # Save to latest.md and show comparison

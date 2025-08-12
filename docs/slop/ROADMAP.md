@@ -296,7 +296,7 @@ $ zz watch --pattern="*.zig" --notify
 - Extensive test coverage (>90%)
 - Performance regression suite
 
-#### Enterprise Features
+#### Large-scale Features
 - LDAP/AD integration
 - Audit logging
 - Role-based configuration
@@ -311,7 +311,7 @@ $ zz watch --pattern="*.zig" --notify
 ### v2.0.0 - Next Generation
 **Target: 18-24 months**
 
-#### Revolutionary Features
+#### Advanced Features
 - **Semantic Understanding**
   - Understand code structure beyond syntax
   - Intelligent file grouping

@@ -5,7 +5,7 @@
 ## Current Work in Progress
 
 ### Active Development
-- **Benchmark variance handling** - Added variance multipliers to `src/benchmark/main.zig`
+- **Benchmark duration handling** - Added duration multipliers to `src/benchmark/main.zig`
   - Path operations: 2x duration multiplier (moderate variance)
   - Memory pools: 3x duration multiplier (high variance)
   - String pool: 1x (stable)
@@ -88,7 +88,7 @@
 
 ## Notes for Next Session
 
-- Benchmark variance multipliers implemented but need testing in practice
+- Benchmark duration multipliers implemented but need testing in practice
 - Philosophy docs complete, may need examples added over time
 - Consider adding `zz explain` command for code documentation generation
 

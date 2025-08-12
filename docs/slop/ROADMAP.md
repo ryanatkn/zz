@@ -1,31 +1,118 @@
-# zz Roadmap
+# zz Development Roadmap
 
-This document outlines the future direction and planned features for zz.
+## Current Status: Production Ready v1.0
+- ✅ **Core Commands:** `tree`, `prompt`, `benchmark`, `help`
+- ✅ **Performance Optimized:** 20-30% faster path operations, 40-60% glob speedup
+- ✅ **Comprehensive Testing:** 190+ tests, 100% success rate
+- ✅ **Security Architecture:** Filesystem abstraction, parameterized dependencies
+- ✅ **Claude Code Integration:** Direct access via `.claude/config.json`
 
-## Vision
+## Phase 1: Intelligence Commands (Q1 2024)
+**Goal:** Transform `zz` into an intelligent codebase exploration platform
 
-zz aims to be the fastest, most efficient CLI utility suite for developers, with a focus on:
-- **Performance**: Best-in-class speed for all operations
-- **Usability**: Intuitive commands with excellent error messages
-- **Extensibility**: Easy to add new commands and features
-- **Reliability**: Comprehensive testing and stable behavior
+### 1.1 Core Intelligence Foundation
+**Priority: Critical** | **Effort: Medium** | **Risk: Low**
 
-## Current State (v0.1.0)
+#### `zz gather` Command
+**Rationale:** Natural extension of existing `prompt` command with enhanced intelligence
+```bash
+zz gather "error handling" --context=patterns --format=markdown
+zz gather "TODO|FIXME" --context=issues --scope=src/
+zz gather imports --context=dependencies --depth=3
+```
 
-### ✅ Completed Features
-- High-performance tree visualization with multiple formats
-- LLM prompt generation with glob support
-- Comprehensive benchmarking suite with color output
-- Filesystem abstraction layer for testing
-- Pattern matching engine with fast-path optimization
-- Memory-efficient string pooling and arena allocation
-- Complete documentation suite
+**Implementation Plan:**
+1. **Week 1-2:** Core gather infrastructure
+   - Extend existing pattern matching system
+   - Add context-aware filtering (`patterns`, `issues`, `dependencies`)
+   - Implement semantic grouping and deduplication
 
-### 📊 Performance Achievements
-- Path operations: 20-30% faster than stdlib
-- Pattern matching: 40-60% speedup for common patterns
-- Memory usage: 15-25% reduction through string interning
-- Tree rendering: <50ms for 1000 files
+2. **Week 3:** Output formatting
+   - Markdown generation with semantic structure
+   - JSON output for machine consumption
+   - Integration with existing fence detection
+
+3. **Week 4:** Testing and optimization
+   - Comprehensive test suite following existing patterns
+   - Performance benchmarking integration
+   - Documentation and examples
+
+**Success Metrics:**
+- Sub-100ms response time for medium codebases (1K-10K files)
+- 95%+ relevant result accuracy for common patterns
+- Zero false positives for security-sensitive patterns
+
+### 1.2 Static Analysis Foundation
+**Priority: High** | **Effort: Medium** | **Risk: Medium**
+
+#### `zz analyze` Command
+**Rationale:** Defensive security analysis without code execution
+```bash
+zz analyze security --rules=owasp --scope=src/auth/
+zz analyze performance --baseline=benchmark.json
+zz analyze dependencies --circular --format=mermaid
+```
+
+**Implementation Plan:**
+1. **Week 1:** Analysis framework
+   - Abstract analyzer interface
+   - Plugin-style architecture for different analysis types
+   - Safe rule loading and validation
+
+2. **Week 2-3:** Core analyzers
+   - Security pattern detection (hardcoded credentials, XSS patterns, etc.)
+   - Performance anti-pattern detection
+   - Dependency cycle detection
+
+3. **Week 4:** Integration and testing
+   - Benchmark integration for performance analysis
+   - Comprehensive security test cases
+   - Documentation and safety guidelines
+
+**Security Considerations:**
+- Read-only analysis only - no code execution
+- Predefined rule sets only - no arbitrary rule injection
+- Resource limits to prevent DoS attacks
+- Input sanitization for all user patterns
+
+## Phase 2: Development Workflow Enhancement (Q2 2024)
+**Goal:** Streamline common development workflows with intelligent automation
+
+### 2.1 Semantic Operations
+**Priority: High** | **Effort: High** | **Risk: Medium**
+
+#### `zz trace` Command
+**Purpose:** Execution flow analysis without actual execution
+```bash
+zz trace function_calls --from=main --format=mermaid
+zz trace data_flow --input=config --output=database
+zz trace dependencies --circular --suggest-fixes
+```
+
+#### `zz diff` Command  
+**Purpose:** Semantic difference analysis
+```bash
+zz diff HEAD~1 HEAD --semantic --explain
+zz diff config.old.zon config.zon --impact-analysis
+zz diff --behavior-changes --test-coverage
+```
+
+### 2.2 Validation Framework
+**Priority: Medium** | **Effort: Medium** | **Risk: Low**
+
+#### `zz validate` Command
+**Purpose:** Multi-dimensional validation against best practices
+```bash
+zz validate security --rules=owasp-top-10
+zz validate architecture --rules=clean-arch
+zz validate performance --baseline=production
+```
+
+**Rule Categories:**
+- **Security rules:** OWASP patterns, common vulnerabilities
+- **Performance rules:** Anti-patterns, resource usage
+- **Architecture rules:** Layer violations, dependency direction
+- **Style rules:** Language-specific conventions
 
 ## Short Term (Q1 2025)
 

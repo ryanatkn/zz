@@ -113,7 +113,7 @@ test "glob with no matches in empty directory" {
     try std.testing.expect(results.items[0].is_glob == true);
 }
 
-test "directory as input file" {
+test "directory as input argument - empty directory" {
     const allocator = std.testing.allocator;
 
     // Create temp directory
@@ -127,7 +127,7 @@ test "directory as input file" {
 
     var expander = GlobExpander.init(allocator);
 
-    // Try to use directory as file
+    // Test directory support with empty directory
     const dir_path = try std.fmt.allocPrint(allocator, "{s}/subdir", .{tmp_path});
     defer allocator.free(dir_path);
 
@@ -143,10 +143,9 @@ test "directory as input file" {
         results.deinit();
     }
 
-    // Directory should be treated as a file and included
-    // (The prompt builder will handle checking if it's actually readable)
+    // Directory should now be supported - empty directory returns no files
     try std.testing.expect(results.items.len == 1);
-    try std.testing.expect(results.items[0].files.items.len == 1);
+    try std.testing.expect(results.items[0].files.items.len == 0);  // Empty directory
     try std.testing.expect(results.items[0].is_glob == false);
 }
 

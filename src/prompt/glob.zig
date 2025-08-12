@@ -92,15 +92,91 @@ pub const GlobExpander = struct {
             return;
         }
 
-        // No glob patterns, treat as literal file path
-        // Check if file exists
-        std.fs.cwd().access(pattern, .{}) catch {
-            // File doesn't exist, don't add to results
+        // No glob patterns, treat as literal file or directory path
+        // Check if path exists and what type it is
+        const stat = std.fs.cwd().statFile(pattern) catch {
+            // Path doesn't exist, don't add to results
             // The main loop will detect this as a missing pattern
             return;
         };
-        const path_copy = try self.allocator.dupe(u8, pattern);
-        try results.append(path_copy);
+
+        switch (stat.kind) {
+            .file, .sym_link => {
+                // It's a file, add it directly
+                const path_copy = try self.allocator.dupe(u8, pattern);
+                try results.append(path_copy);
+            },
+            .directory => {
+                // It's a directory, traverse it recursively
+                try self.expandDirectory(pattern, results);
+            },
+            else => {
+                // Other types (block device, etc.) - skip
+                return;
+            },
+        }
+    }
+
+    fn expandDirectory(self: Self, dir_path: []const u8, results: *std.ArrayList([]u8)) !void {
+        var dir = std.fs.cwd().openDir(dir_path, .{ .iterate = true }) catch |err| {
+            if (err == error.FileNotFound) return;
+            return err;
+        };
+        defer dir.close();
+
+        try self.walkDirForFiles(&dir, dir_path, results);
+    }
+
+    fn walkDirForFiles(self: Self, dir: *std.fs.Dir, base_path: []const u8, results: *std.ArrayList([]u8)) !void {
+        var iterator = dir.iterate();
+
+        while (try iterator.next()) |entry| {
+            const full_path = try std.fs.path.join(self.allocator, &.{ base_path, entry.name });
+            defer self.allocator.free(full_path);
+
+            switch (entry.kind) {
+                .file, .sym_link => {
+                    if (self.shouldIncludeFile(entry.name)) {
+                        const path_copy = try self.allocator.dupe(u8, full_path);
+                        try results.append(path_copy);
+                    }
+                },
+                .directory => {
+                    if (self.shouldTraverseDirectory(entry.name)) {
+                        var sub_dir = try dir.openDir(entry.name, .{ .iterate = true });
+                        defer sub_dir.close();
+                        try self.walkDirForFiles(&sub_dir, full_path, results);
+                    }
+                },
+                else => {},
+            }
+        }
+    }
+
+    fn shouldIncludeFile(self: Self, name: []const u8) bool {
+        _ = self;
+        // Skip hidden files unless explicitly requested
+        if (shouldSkipHiddenFile(name, "")) return false;
+        // Basic filtering - detailed ignore logic is handled in main.zig
+        // This prevents obvious files from being included in directory traversal
+        return true;
+    }
+
+    fn shouldTraverseDirectory(self: Self, name: []const u8) bool {
+        _ = self;
+        // Skip hidden directories
+        if (name.len > 0 and name[0] == '.') return false;
+        
+        // Skip common ignore patterns using DRY approach
+        const common_ignored = [_][]const u8{
+            "node_modules", "target", "build", "zig-out", ".zig-cache"
+        };
+        
+        for (common_ignored) |ignored| {
+            if (std.mem.eql(u8, name, ignored)) return false;
+        }
+        
+        return true;
     }
 
     fn expandRecursive(self: Self, prefix: []const u8, pattern: []const u8, results: *std.ArrayList([]u8)) !void {

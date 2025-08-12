@@ -5,15 +5,37 @@ pub const PromptBuilder = @import("builder.zig").PromptBuilder;
 pub const GlobExpander = @import("glob.zig").GlobExpander;
 
 pub fn run(allocator: std.mem.Allocator, args: [][:0]const u8) !void {
+    return runInternal(allocator, args, false);
+}
+
+pub fn runQuiet(allocator: std.mem.Allocator, args: [][:0]const u8) !void {
+    return runInternal(allocator, args, true);
+}
+
+pub fn runWithConfig(config: *Config, allocator: std.mem.Allocator, args: [][:0]const u8) !void {
+    return runWithConfigInternal(config, allocator, args, false);
+}
+
+pub fn runWithConfigQuiet(config: *Config, allocator: std.mem.Allocator, args: [][:0]const u8) !void {
+    return runWithConfigInternal(config, allocator, args, true);
+}
+
+fn runInternal(allocator: std.mem.Allocator, args: [][:0]const u8, quiet: bool) !void {
     // Parse configuration from args
     var config = try Config.fromArgs(allocator, args);
     defer config.deinit();
 
+    return runWithConfigInternal(&config, allocator, args, quiet);
+}
+
+fn runWithConfigInternal(config: *Config, allocator: std.mem.Allocator, args: [][:0]const u8, quiet: bool) !void {
     // Get file patterns from args
     var patterns = config.getFilePatterns(args) catch |err| {
         if (err == error.NoInputFiles) {
-            const stderr = std.io.getStdErr().writer();
-            try stderr.print("Error: No input files specified. Use './zz prompt <files>' or provide --prepend/--append text.\n", .{});
+            if (!quiet) {
+                const stderr = std.io.getStdErr().writer();
+                try stderr.print("Error: No input files specified. Use './zz prompt <files>' or provide --prepend/--append text.\n", .{});
+            }
             return error.PatternsNotMatched;
         }
         return err;
@@ -34,26 +56,43 @@ pub fn run(allocator: std.mem.Allocator, args: [][:0]const u8) !void {
     }
 
     // Check for patterns that matched no files
-    const stderr = std.io.getStdErr().writer();
     var has_error = false;
 
-    for (pattern_results.items) |result| {
-        if (result.files.items.len == 0) {
-            if (result.is_glob) {
-                // Glob pattern with no matches
-                if (config.allow_empty_glob or config.allow_missing) {
-                    try stderr.print("Warning: No files matched pattern: {s}\n", .{result.pattern});
+    if (!quiet) {
+        const stderr = std.io.getStdErr().writer();
+        for (pattern_results.items) |result| {
+            if (result.files.items.len == 0) {
+                if (result.is_glob) {
+                    // Glob pattern with no matches
+                    if (config.allow_empty_glob or config.allow_missing) {
+                        try stderr.print("Warning: No files matched pattern: {s}\n", .{result.pattern});
+                    } else {
+                        try stderr.print("Error: No files matched pattern: {s}\n", .{result.pattern});
+                        has_error = true;
+                    }
                 } else {
-                    try stderr.print("Error: No files matched pattern: {s}\n", .{result.pattern});
-                    has_error = true;
+                    // Explicit file that doesn't exist
+                    if (config.allow_missing) {
+                        try stderr.print("Warning: File not found: {s}\n", .{result.pattern});
+                    } else {
+                        try stderr.print("Error: File not found: {s}\n", .{result.pattern});
+                        has_error = true;
+                    }
                 }
-            } else {
-                // Explicit file that doesn't exist
-                if (config.allow_missing) {
-                    try stderr.print("Warning: File not found: {s}\n", .{result.pattern});
+            }
+        }
+    } else {
+        // In quiet mode, still need to check for errors but don't print messages
+        for (pattern_results.items) |result| {
+            if (result.files.items.len == 0) {
+                if (result.is_glob) {
+                    if (!(config.allow_empty_glob or config.allow_missing)) {
+                        has_error = true;
+                    }
                 } else {
-                    try stderr.print("Error: File not found: {s}\n", .{result.pattern});
-                    has_error = true;
+                    if (!config.allow_missing) {
+                        has_error = true;
+                    }
                 }
             }
         }
@@ -72,18 +111,35 @@ pub fn run(allocator: std.mem.Allocator, args: [][:0]const u8) !void {
 
     for (pattern_results.items) |result| {
         for (result.files.items) |path| {
-            if (!config.shouldIgnore(path)) {
-                // Check if we've already seen this path
-                if (!seen.contains(path)) {
-                    try seen.put(path, {});
-                    try filtered_paths.append(path);
+            if (config.shouldIgnore(path)) {
+                // Check if this was an explicitly requested file (not a glob pattern)
+                if (!result.is_glob) {
+                    // User explicitly requested this file but it's being ignored
+                    if (!quiet) {
+                        const stderr = std.io.getStdErr().writer();
+                        try stderr.print("Error: Explicitly requested file was ignored: {s}\n", .{path});
+                    }
+                    has_error = true;
                 }
+                // For glob patterns, we silently ignore filtered files
+                continue;
+            }
+            
+            // File is not ignored, check if we've already seen this path
+            if (!seen.contains(path)) {
+                try seen.put(path, {});
+                try filtered_paths.append(path);
             }
         }
     }
 
+    // Check for errors after processing all files
+    if (has_error) {
+        return error.PatternsNotMatched;
+    }
+
     // Build the prompt
-    var builder = PromptBuilder.init(allocator);
+    var builder = if (quiet) PromptBuilder.initQuiet(allocator) else PromptBuilder.init(allocator);
     defer builder.deinit();
 
     // Add prepend text if provided

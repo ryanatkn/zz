@@ -101,41 +101,67 @@ test "configuration memory management" {
     std.debug.print("✓ Configuration memory management test passed!\n", .{});
 }
 
-// Test ZON file custom patterns loading (currently failing - this captures the bug)
+// Test ZON file custom patterns loading
 test "ZON file custom patterns are loaded correctly" {
-    // Create a temporary ZON file with custom patterns
+    const allocator = std.testing.allocator;
+
+    // Create temporary directory with custom ZON content
+    var tmp_dir = std.testing.tmpDir(.{});
+    defer tmp_dir.cleanup();
+
+    // Create ZON content with custom patterns
     const test_zon_content =
         \\.{
         \\    .base_patterns = "extend",
         \\    .ignored_patterns = .{
         \\        "custom_dir",
-        \\        "src",
+        \\        "temp_files",
+        \\    },
+        \\    .hidden_files = .{
+        \\        "custom.hidden",
         \\    },
         \\}
     ;
 
-    // Write to temporary file
-    try std.fs.cwd().writeFile(.{ .sub_path = "test_custom.zon", .data = test_zon_content });
-    defer std.fs.cwd().deleteFile("test_custom.zon") catch {};
+    // Write ZON file to temp directory
+    try tmp_dir.dir.writeFile(.{ .sub_path = "test.zon", .data = test_zon_content });
 
-    // Import ZonLoader
+    // Load config from the temp directory
     const ZonLoader = @import("../../config.zig").ZonLoader;
-    var zon_loader = ZonLoader.init(std.testing.allocator);
-    var shared_config = try zon_loader.getSharedConfig();
-    defer shared_config.deinit(std.testing.allocator);
-
-    // This test verifies that ZON parsing works correctly
-    // It tests the actual zz.zon in the current directory which has no custom patterns
-    var found_git = false;
-    var found_custom_dir = false;
-
-    for (shared_config.ignored_patterns) |pattern| {
-        if (std.mem.eql(u8, pattern, ".git")) found_git = true;
-        if (std.mem.eql(u8, pattern, "custom_dir")) found_custom_dir = true;
+    var zon_loader = ZonLoader.init(allocator);
+    try zon_loader.loadFromDir(tmp_dir.dir, "test.zon");
+    var shared_config = try zon_loader.getSharedConfigFromDir(tmp_dir.dir);
+    defer {
+        shared_config.deinit(allocator);
+        zon_loader.deinit();
     }
 
-    try std.testing.expect(found_git); // Default pattern should work
-    try std.testing.expect(!found_custom_dir); // No custom patterns in current zz.zon
+    // Verify default patterns are still present (because we use "extend" mode)
+    var found_git = false;
+    var found_node_modules = false;
+    for (shared_config.ignored_patterns) |pattern| {
+        if (std.mem.eql(u8, pattern, ".git")) found_git = true;
+        if (std.mem.eql(u8, pattern, "node_modules")) found_node_modules = true;
+    }
+    try std.testing.expect(found_git);
+    try std.testing.expect(found_node_modules);
+
+    // Verify custom patterns are added
+    var found_custom_dir = false;
+    var found_temp_files = false;
+    for (shared_config.ignored_patterns) |pattern| {
+        if (std.mem.eql(u8, pattern, "custom_dir")) found_custom_dir = true;
+        if (std.mem.eql(u8, pattern, "temp_files")) found_temp_files = true;
+    }
+    try std.testing.expect(found_custom_dir);
+    try std.testing.expect(found_temp_files);
+
+    // Verify custom hidden files are added
+    var found_custom_hidden = false;
+    for (shared_config.hidden_files) |pattern| {
+        if (std.mem.eql(u8, pattern, "custom.hidden")) found_custom_hidden = true;
+    }
+    try std.testing.expect(found_custom_hidden);
 
     std.debug.print("✓ ZON custom patterns test passed!\n", .{});
 }

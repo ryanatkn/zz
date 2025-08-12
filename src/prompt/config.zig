@@ -17,6 +17,25 @@ pub const Config = struct {
     const APPEND_PREFIX = "--append=";
     const SKIP_ARGS = 2; // Skip "zz prompt"
 
+    /// Create a minimal config for testing (no filesystem operations)
+    pub fn forTesting(allocator: std.mem.Allocator) Self {
+        return Self{
+            .allocator = allocator,
+            .shared_config = SharedConfig{
+                .ignored_patterns = &[_][]const u8{}, // Empty patterns
+                .hidden_files = &[_][]const u8{},
+                .gitignore_patterns = &[_][]const u8{},
+                .symlink_behavior = .skip,
+                .respect_gitignore = false, // Don't use gitignore in tests
+                .patterns_allocated = false, // Static arrays, no cleanup needed
+            },
+            .prepend_text = null,
+            .append_text = null,
+            .allow_empty_glob = false,
+            .allow_missing = false,
+        };
+    }
+
     fn setTextOption(allocator: std.mem.Allocator, current_value: ?[]const u8, new_text: []const u8) !?[]const u8 {
         if (current_value) |old| {
             allocator.free(old);

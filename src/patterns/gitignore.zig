@@ -96,9 +96,14 @@ pub const GitignorePatterns = struct {
 
     /// Load gitignore patterns from file (stateless)
     pub fn loadFromFile(allocator: std.mem.Allocator, file_path: []const u8) ![][]const u8 {
-        // Simple approach: just try to read .gitignore from current directory
+        return loadFromDir(allocator, std.fs.cwd(), file_path);
+    }
+
+    /// Load gitignore patterns from a directory (stateless)
+    pub fn loadFromDir(allocator: std.mem.Allocator, dir: std.fs.Dir, file_path: []const u8) ![][]const u8 {
+        // Simple approach: just try to read .gitignore from the specified directory
         // For now, don't walk up the directory tree to keep implementation simple
-        if (std.fs.cwd().readFileAlloc(allocator, file_path, 1024 * 1024)) |content| {
+        if (dir.readFileAlloc(allocator, file_path, 1024 * 1024)) |content| {
             defer allocator.free(content);
             return try parseContent(allocator, content);
         } else |_| {

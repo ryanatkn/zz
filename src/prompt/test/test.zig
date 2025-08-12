@@ -10,6 +10,8 @@ pub const file_content = @import("file_content_test.zig");
 pub const security = @import("security_test.zig");
 pub const glob_edge = @import("glob_edge_test.zig");
 pub const nested_braces_integration = @import("nested_braces_integration_test.zig");
+pub const explicit_ignore = @import("explicit_ignore_test.zig");
+pub const directory_support = @import("directory_support_test.zig");
 
 test {
     // Reference all test modules to ensure they run
@@ -22,4 +24,6 @@ test {
     _ = security;
     _ = glob_edge;
     _ = nested_braces_integration;
+    _ = explicit_ignore;
+    _ = directory_support;
 }

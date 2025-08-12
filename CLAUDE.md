@@ -52,7 +52,7 @@ No external dependencies - pure Zig implementation.
     │   │   ├── builder.zig            # Core prompt building with smart fencing
     │   │   ├── config.zig             # Prompt-specific configuration
     │   │   ├── fence.zig              # Smart fence detection for code blocks
-    │   │   ├── glob.zig               # Glob pattern expansion and matching
+    │   │   ├── glob.zig               # Glob pattern expansion, matching, and directory traversal
     │   │   ├── main.zig               # Prompt command entry point
     │   │   └── test.zig               # Test runner for prompt module
     │   ├── tree                       # Tree visualization module (high-performance directory traversal)
@@ -229,6 +229,13 @@ Comprehensive test suite covers configuration parsing, directory filtering, perf
 - Symlinks: Symlinks to files are followed
 - Automatic deduplication of matched files
 
+**Directory Support:**
+- Direct directory arguments: `zz prompt src/` recursively processes all files
+- Respects ignore patterns during directory traversal
+- Skips hidden directories and common ignore patterns (node_modules, .git, etc.)
+- Performance-optimized with early directory skipping
+- Integrates seamlessly with glob patterns and explicit files
+
 **Smart Code Fencing:**
 - Automatically detects appropriate fence length
 - Handles nested code blocks correctly
@@ -242,9 +249,11 @@ Comprehensive test suite covers configuration parsing, directory filtering, perf
 **Error Handling:**
 - No default pattern: errors if no files specified (no auto `*.zig`)
 - Strict by default: errors on missing files or empty globs
+- Explicit file ignore detection: errors when explicitly requested files are ignored
 - `--allow-empty-glob`: Warnings for non-matching glob patterns
 - `--allow-missing`: Warnings for all missing files
 - Text-only mode: `--prepend` or `--append` without files is valid
+- Clear error messages distinguish between glob patterns (silent ignore) and explicit files (error)
 
 ## Tree Module Features
 
@@ -285,14 +294,14 @@ Comprehensive test suite covers configuration parsing, directory filtering, perf
     identify root causes and leave `// TODO` if you're stumped)
 - Less is more - avoid over-engineering
 
-**Current Status:** ✓ **Modular configuration system refactoring completed successfully!** All 167 tests passing (100% success rate). Reduced config.zig from 655 → 192 lines (71% reduction) with modular architecture and preserved performance optimizations.
+**Current Status:** ✓ **Production ready** - All 173 tests passing (100% success rate). Full feature set including directory traversal, explicit ignore detection, proper exit codes, and comprehensive pattern matching.
 
 ## Test Coverage
 
 The project has comprehensive test coverage including:
 - **Edge cases**: Empty inputs, special characters, Unicode, long filenames
 - **Security**: Path traversal, permission handling
-- **Performance**: Large files, deep recursion, memory stress tests (166x speedup maintained)
+- **Performance**: Large files, deep recursion, memory stress tests
 - **Integration**: End-to-end command testing, format combinations
 - **Glob patterns**: Wildcards, braces, recursive patterns, hidden files
 - **Pattern matching**: Unified pattern engine with performance-critical optimizations

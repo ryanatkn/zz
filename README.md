@@ -38,6 +38,7 @@ zig build && ./zig-out/bin/zz tree
 
 ### Prompt Generation
 - Build LLM-optimized prompts from multiple files
+- Directory support: `zz prompt src/` processes all files recursively
 - Advanced glob pattern support:
   - Basic wildcards: `*.zig`, `test?.zig`
   - Recursive: `**/*.zig`
@@ -45,6 +46,7 @@ zig build && ./zig-out/bin/zz tree
   - Nested braces: `*.{zig,{md,txt}}` 
   - Character classes: `log[0-9].txt`, `file[a-z].txt`, `test[!0-9].txt`
   - Escape sequences: `file\*.txt` matches literal `file*.txt`
+- Explicit file ignore detection: Errors when explicitly requested files are ignored
 - Smart code fence detection (handles nested backticks)
 - Automatic file deduplication
 - Markdown output with semantic XML tags
@@ -68,6 +70,7 @@ zz help                                         # Display help
 #   --allow-empty-glob       - Warn instead of error for empty globs
 #   --allow-missing          - Warn instead of error for all missing files
 #   Supports glob patterns   - *.zig, **/*.zig, *.{zig,md}
+#   Supports directories     - src/, src/subdir/
 ```
 
 ## Examples
@@ -97,11 +100,18 @@ zig build run -- tree --no-gitignore  # Shows all files including gitignored one
 # Generate prompt from all Zig files
 zig build run -- prompt "src/**/*.zig" > prompt.md
 
+# Process entire directory
+zig build run -- prompt src/
+zig build run -- prompt src/cli/ docs/
+
 # Add text before/after files
 zig build run -- prompt --prepend="Context:" --append="Question?" src/*.zig
 
 # Multiple file types
 zig build run -- prompt "*.{zig,md,txt}"
+
+# Mix directories and files
+zig build run -- prompt README.md src/ docs/*.md
 
 # Prompt with gitignore support
 zig build run -- prompt "src/**/*.zig"  # Excludes gitignored files by default
@@ -109,7 +119,14 @@ zig build run -- prompt "src/**/*.zig" --no-gitignore  # Includes all matching f
 
 # Error if no files provided (won't default to *.zig)
 zig build run -- prompt  # Error: No input files specified
+
+# Explicit ignore detection (exits with code 1)
+zig build run -- prompt .gitignore  # Error: Explicitly requested file was ignored: .gitignore
 ```
+
+**Exit Codes:**
+- `0` - Success
+- `1` - Error (missing files, ignored files, empty globs, etc.)
 
 ## Configuration
 
@@ -200,7 +217,7 @@ zig build run -- prompt "*.zig" # Run prompt command
 ### Testing
 
 ```bash
-# Run all tests (167 tests with 100% success rate)
+# Run all tests (173 tests with 100% success rate)
 zig build test
 
 # Run tree module tests only
@@ -210,12 +227,12 @@ zig build test-tree
 zig build test-prompt
 
 # Alternative: run tests directly
-zig test src/test.zig           # All 167 tests
+zig test src/test.zig           # All 173 tests
 zig test src/tree/test.zig      # Tree module tests
 zig test src/prompt/test.zig    # Prompt module tests
 ```
 
-**Test Coverage:** Comprehensive test suite with 167 tests covering edge cases, security, performance (166x speedup validation), integration testing, and pattern matching engine validation.
+**Test Coverage:** Comprehensive test suite with 173 tests covering edge cases, security, performance, integration testing, pattern matching engine validation, and exit code verification.
 
 ## Requirements
 

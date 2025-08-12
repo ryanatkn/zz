@@ -28,6 +28,7 @@ pub const ZonLoader = struct {
     config: ?ZonConfig,
 
     const Self = @This();
+    const DEFAULT_CONFIG_FILENAME = "zz.zon";
 
     pub fn init(allocator: std.mem.Allocator) Self {
         return Self{
@@ -36,10 +37,9 @@ pub const ZonLoader = struct {
         };
     }
 
-    pub fn load(self: *Self) !void {
+    pub fn loadFromFile(self: *Self, config_path: []const u8) !void {
         if (self.config != null) return; // Already loaded
 
-        const config_path = "zz.zon";
         const file_content = std.fs.cwd().readFileAlloc(self.allocator, config_path, 1024 * 1024) catch |err| switch (err) {
             error.FileNotFound => {
                 self.config = ZonConfig{}; // Empty config
@@ -49,8 +49,29 @@ pub const ZonLoader = struct {
         };
         defer self.allocator.free(file_content);
 
+        try self.loadFromContent(file_content);
+    }
+
+    pub fn loadFromDir(self: *Self, dir: std.fs.Dir, config_filename: []const u8) !void {
+        if (self.config != null) return; // Already loaded
+
+        const file_content = dir.readFileAlloc(self.allocator, config_filename, 1024 * 1024) catch |err| switch (err) {
+            error.FileNotFound => {
+                self.config = ZonConfig{}; // Empty config
+                return;
+            },
+            else => return err,
+        };
+        defer self.allocator.free(file_content);
+
+        try self.loadFromContent(file_content);
+    }
+
+    pub fn loadFromContent(self: *Self, content: []const u8) !void {
+        if (self.config != null) return; // Already loaded
+
         // Add null terminator for ZON parsing
-        const null_terminated = try self.allocator.dupeZ(u8, file_content);
+        const null_terminated = try self.allocator.dupeZ(u8, content);
         defer self.allocator.free(null_terminated);
 
         // Parse the ZON content
@@ -63,12 +84,21 @@ pub const ZonLoader = struct {
     }
 
     pub fn getConfig(self: *Self) !ZonConfig {
-        try self.load();
+        try self.loadFromFile(DEFAULT_CONFIG_FILENAME);
         return self.config orelse ZonConfig{};
     }
 
     pub fn getSharedConfig(self: *Self) !SharedConfig {
-        try self.load();
+        try self.loadFromFile(DEFAULT_CONFIG_FILENAME);
+        return self.getSharedConfigFromDirInternal(std.fs.cwd());
+    }
+
+    pub fn getSharedConfigFromDir(self: *Self, dir: std.fs.Dir) !SharedConfig {
+        try self.loadFromDir(dir, DEFAULT_CONFIG_FILENAME);
+        return self.getSharedConfigFromDirInternal(dir);
+    }
+
+    fn getSharedConfigFromDirInternal(self: *Self, dir: std.fs.Dir) !SharedConfig {
 
         const config = self.config orelse ZonConfig{};
 
@@ -92,7 +122,7 @@ pub const ZonLoader = struct {
         var gitignore_patterns: []const []const u8 = &[_][]const u8{};
 
         if (respect_gitignore) {
-            gitignore_patterns = GitignorePatterns.loadFromFile(self.allocator, ".gitignore") catch &[_][]const u8{}; // Ignore errors, use empty patterns
+            gitignore_patterns = GitignorePatterns.loadFromDir(self.allocator, dir, ".gitignore") catch &[_][]const u8{}; // Ignore errors, use empty patterns
         }
 
         // Resolve symlink behavior (default to skip)

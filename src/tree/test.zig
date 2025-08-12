@@ -13,6 +13,29 @@ const Walker = @import("walker.zig").Walker;
 const Formatter = @import("formatter.zig").Formatter;
 const Entry = @import("entry.zig").Entry;
 
+// Tree module test tracking
+var module_timer: ?std.time.Timer = null;
+var module_start_time: u64 = 0;
+
+fn startModuleTiming() void {
+    module_timer = std.time.Timer.start() catch return;
+    module_start_time = module_timer.?.read();
+}
+
+fn getModuleElapsed() f64 {
+    if (module_timer) |*timer| {
+        const elapsed = timer.read() - module_start_time;
+        return @as(f64, @floatFromInt(elapsed)) / 1_000_000.0;
+    }
+    return 0.0;
+}
+
+// Initialize tree module testing
+test "tree module initialization" {
+    std.debug.print("\n=== Tree Module Tests ===\n", .{});
+    startModuleTiming();
+}
+
 // Import comprehensive test modules - this includes all their test declarations
 // Note: These imports make all tests from each module available when running this file
 test {
@@ -42,7 +65,6 @@ test "config loading works" {
     defer config.deinit(testing.allocator);
 
     try testing.expect(config.shared_config.ignored_patterns.len > 0);
-    // Config loading test completed successfully
 }
 
 test "filter pattern matching works" {
@@ -68,8 +90,6 @@ test "filter pattern matching works" {
     try testing.expect(filter.shouldIgnore(".git"));
     try testing.expect(!filter.shouldIgnore("src"));
     try testing.expect(filter.shouldHide("Thumbs.db"));
-
-    // Filter pattern matching test completed successfully
 }
 
 test "walker initialization works" {
@@ -103,7 +123,6 @@ test "walker initialization works" {
     const walker = Walker.initWithOptions(testing.allocator, config, options);
 
     _ = walker; // Just verify it can be created
-    // Walker initialization test completed successfully
 }
 
 test "formatter handles entries correctly" {
@@ -118,15 +137,9 @@ test "formatter handles entries correctly" {
 
     _ = formatter;
     _ = entry; // Just verify structures work
-    // Formatter test completed successfully
 }
 
-test "tree module test suite summary" {
-    const test_modules = [_][]const u8{ "config", "filter", "walker", "formatter", "path_builder", "integration", "edge cases", "performance", "concurrency", "testability" };
-
-    std.debug.print("\nTree module test suite completed\n", .{});
-    const module_list = std.mem.join(std.heap.page_allocator, ", ", &test_modules) catch "modules";
-    defer if (!std.mem.eql(u8, module_list, "modules")) std.heap.page_allocator.free(module_list);
-
-    std.debug.print("✓ All {} test modules active ({s})\n", .{ test_modules.len, module_list });
+test "tree module test summary" {
+    const elapsed_ms = getModuleElapsed();
+    std.debug.print("\n✓ Tree module completed in {d:.1}ms\n", .{elapsed_ms});
 }

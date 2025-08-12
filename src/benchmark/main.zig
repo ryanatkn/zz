@@ -41,13 +41,13 @@ const Options = struct {
     run_glob: bool = false,
 };
 
-/// Get duration multiplier for a specific benchmark based on observed variance
-pub fn getVarianceMultiplier(benchmark_name: []const u8) f64 {
-    // Based on observed variance in benchmark results:
-    // - Path joining: moderate variance, 2x multiplier
-    // - Memory pools: high variance, 3x multiplier  
-    // - String pool: low variance, 1x multiplier
-    // - Glob patterns: low variance, 1x multiplier
+/// Get built-in duration multiplier for a specific benchmark type
+pub fn getBuiltinDurationMultiplier(benchmark_name: []const u8) f64 {
+    // Built-in duration multipliers based on benchmark characteristics:
+    // - Path joining: 2x multiplier (I/O dependent)
+    // - Memory pools: 3x multiplier (allocation dependent)
+    // - String pool: 1x multiplier (CPU bound, stable)
+    // - Glob patterns: 1x multiplier (CPU bound, stable)
     if (std.mem.eql(u8, benchmark_name, "path")) return 2.0;
     if (std.mem.eql(u8, benchmark_name, "memory")) return 3.0;
     if (std.mem.eql(u8, benchmark_name, "string")) return 1.0;
@@ -57,8 +57,8 @@ pub fn getVarianceMultiplier(benchmark_name: []const u8) f64 {
 
 /// Calculate effective duration for a benchmark considering duration multiplier
 pub fn getEffectiveDuration(base_duration_ns: u64, benchmark_name: []const u8, user_multiplier: f64) u64 {
-    const variance_multiplier = getVarianceMultiplier(benchmark_name);
-    const total_multiplier = variance_multiplier * user_multiplier;
+    const builtin_multiplier = getBuiltinDurationMultiplier(benchmark_name);
+    const total_multiplier = builtin_multiplier * user_multiplier;
     return @intFromFloat(@as(f64, @floatFromInt(base_duration_ns)) * total_multiplier);
 }
 

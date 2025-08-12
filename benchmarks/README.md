@@ -139,7 +139,7 @@ zz benchmark --baseline=benchmarks/v1.0-baseline.md
 # Disable comparison even if baseline exists
 zz benchmark --no-compare
 
-# Reduce variance for more reliable baseline comparisons
+# Extend duration for more reliable baseline comparisons
 zz benchmark --duration-multiplier=3.0 --baseline=benchmarks/stable-baseline.md
 ```
 

@@ -48,7 +48,6 @@ test "basic tree formatting" {
     _ = formatter;
     _ = file_entry;
 
-    std.debug.print("✓ Basic tree formatting test passed!\n", .{});
 }
 
 // Test ignored directory formatting
@@ -77,7 +76,6 @@ test "ignored directory formatting" {
 
     _ = formatter;
 
-    std.debug.print("✓ Ignored directory formatting test passed!\n", .{});
 }
 
 // Test tree connector characters
@@ -97,7 +95,6 @@ test "tree connector characters" {
 
     _ = formatter;
 
-    std.debug.print("✓ Tree connector characters test passed!\n", .{});
 }
 
 // Test entry name handling
@@ -124,7 +121,6 @@ test "entry name handling" {
 
     _ = formatter;
 
-    std.debug.print("✓ Entry name handling test passed!\n", .{});
 }
 
 // Test prefix handling
@@ -149,7 +145,6 @@ test "prefix handling" {
 
     _ = formatter;
 
-    std.debug.print("✓ Prefix handling test passed!\n", .{});
 }
 
 // Test color formatting for ignored entries
@@ -188,7 +183,6 @@ test "color formatting for ignored entries" {
 
     _ = formatter;
 
-    std.debug.print("✓ Color formatting for ignored entries test passed!\n", .{});
 }
 
 // Test formatter consistency
@@ -214,7 +208,6 @@ test "formatter consistency" {
 
     _ = formatter;
 
-    std.debug.print("✓ Formatter consistency test passed!\n", .{});
 }
 
 // Test edge cases
@@ -241,5 +234,4 @@ test "formatter edge cases" {
 
     _ = formatter;
 
-    std.debug.print("✓ Formatter edge cases test passed!\n", .{});
 }

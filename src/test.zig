@@ -2,6 +2,13 @@
 // Usage: zig test src/test.zig
 
 const std = @import("std");
+const test_helpers = @import("test_helpers.zig");
+
+// Initialize test runner with summary
+test "zz test suite initialization" {
+    test_helpers.setTestModule("ZZ Project");
+    test_helpers.TestRunner.resetStats();
+}
 
 // Import all test modules - this ensures their test blocks are included
 test {
@@ -28,4 +35,14 @@ test {
 // Import CLI tests
 test {
     std.testing.refAllDeclsRecursive(@import("cli/test.zig"));
+}
+
+// Import benchmark tests
+test {
+    std.testing.refAllDeclsRecursive(@import("benchmark/test.zig"));
+}
+
+// Print final test summary
+test "zz test suite summary" {
+    test_helpers.TestRunner.printSummary();
 }

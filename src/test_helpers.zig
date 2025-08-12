@@ -604,3 +604,121 @@ pub fn createPermissionTestStructure(ctx: *TmpDirTestContext) !void {
     // Note: Setting permissions requires platform-specific code
     // This is a placeholder for the structure
 }
+
+// ============================================================================
+// Universal Test Runner Infrastructure
+// ============================================================================
+
+/// Global test statistics for tracking across all test runs
+var global_test_stats: TestStats = TestStats{};
+
+/// Test statistics structure
+pub const TestStats = struct {
+    total_tests: u32 = 0,
+    passed_tests: u32 = 0,
+    failed_tests: u32 = 0,
+    total_time_ns: u64 = 0,
+    current_module: ?[]const u8 = null,
+    
+    pub fn reset(self: *TestStats) void {
+        self.* = TestStats{};
+    }
+    
+    pub fn addResult(self: *TestStats, passed: bool, elapsed_ns: u64) void {
+        self.total_tests += 1;
+        self.total_time_ns += elapsed_ns;
+        if (passed) {
+            self.passed_tests += 1;
+        } else {
+            self.failed_tests += 1;
+        }
+    }
+    
+    pub fn setModule(self: *TestStats, module_name: []const u8) void {
+        self.current_module = module_name;
+        std.debug.print("\n=== {s} Tests ===\n", .{module_name});
+    }
+    
+    pub fn printSummary(self: *const TestStats) void {
+        const total_ms = @as(f64, @floatFromInt(self.total_time_ns)) / 1_000_000.0;
+        std.debug.print("\n==================================================\n", .{});
+        std.debug.print("Test Summary:\n", .{});
+        std.debug.print("  Total:  {d} tests\n", .{self.total_tests});
+        std.debug.print("  Passed: {d} ✓\n", .{self.passed_tests});
+        if (self.failed_tests > 0) {
+            std.debug.print("  Failed: {d} ❌\n", .{self.failed_tests});
+        }
+        std.debug.print("  Time:   {d:.1}ms\n", .{total_ms});
+        std.debug.print("==================================================\n", .{});
+    }
+};
+
+/// Test runner context for managing individual test execution
+pub const TestRunner = struct {
+    allocator: std.mem.Allocator,
+    timer: ?std.time.Timer = null,
+    test_name: []const u8 = "",
+    
+    const Self = @This();
+    
+    pub fn init(allocator: std.mem.Allocator) Self {
+        return Self{
+            .allocator = allocator,
+        };
+    }
+    
+    /// Set the current module being tested
+    pub fn setModule(module_name: []const u8) void {
+        global_test_stats.setModule(module_name);
+    }
+    
+    /// Run a test with automatic timing and result tracking
+    pub fn runTest(self: *Self, test_name: []const u8, test_func: anytype) void {
+        self.test_name = test_name;
+        var timer = std.time.Timer.start() catch {
+            std.debug.print("❌ {s}: Timer initialization failed\n", .{test_name});
+            global_test_stats.addResult(false, 0);
+            return;
+        };
+        
+        const start_time = timer.read();
+        const result = test_func();
+        const elapsed = timer.read() - start_time;
+        
+        if (result) |_| {
+            const elapsed_ms = @as(f64, @floatFromInt(elapsed)) / 1_000_000.0;
+            std.debug.print("✓ {s} ({d:.1}ms)\n", .{ test_name, elapsed_ms });
+            global_test_stats.addResult(true, elapsed);
+        } else |err| {
+            const elapsed_ms = @as(f64, @floatFromInt(elapsed)) / 1_000_000.0;
+            std.debug.print("❌ {s}: {any} ({d:.1}ms)\n", .{ test_name, err, elapsed_ms });
+            global_test_stats.addResult(false, elapsed);
+        }
+    }
+    
+    /// Print final test summary
+    pub fn printSummary() void {
+        global_test_stats.printSummary();
+    }
+    
+    /// Reset global statistics (useful for testing the test system itself)
+    pub fn resetStats() void {
+        global_test_stats.reset();
+    }
+    
+    /// Get current statistics
+    pub fn getStats() TestStats {
+        return global_test_stats;
+    }
+};
+
+/// Convenience function for simple test execution
+pub fn runTest(test_name: []const u8, test_func: anytype) void {
+    var runner = TestRunner.init(std.testing.allocator);
+    runner.runTest(test_name, test_func);
+}
+
+/// Convenience function to set module name for test output
+pub fn setTestModule(module_name: []const u8) void {
+    TestRunner.setModule(module_name);
+}

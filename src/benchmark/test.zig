@@ -14,15 +14,15 @@ test "output format parsing" {
 }
 
 test "duration multiplier calculation" {
-    const getVarianceMultiplier = main.getVarianceMultiplier;
+    const getBuiltinDurationMultiplier = main.getBuiltinDurationMultiplier;
     const getEffectiveDuration = main.getEffectiveDuration;
     
-    // Test built-in variance multipliers for different benchmark types
-    try std.testing.expect(getVarianceMultiplier("path") == 2.0);
-    try std.testing.expect(getVarianceMultiplier("memory") == 3.0);
-    try std.testing.expect(getVarianceMultiplier("string") == 1.0);
-    try std.testing.expect(getVarianceMultiplier("glob") == 1.0);
-    try std.testing.expect(getVarianceMultiplier("unknown") == 1.0);
+    // Test built-in duration multipliers for different benchmark types
+    try std.testing.expect(getBuiltinDurationMultiplier("path") == 2.0);
+    try std.testing.expect(getBuiltinDurationMultiplier("memory") == 3.0);
+    try std.testing.expect(getBuiltinDurationMultiplier("string") == 1.0);
+    try std.testing.expect(getBuiltinDurationMultiplier("glob") == 1.0);
+    try std.testing.expect(getBuiltinDurationMultiplier("unknown") == 1.0);
     
     // Test effective duration calculation
     const base_duration: u64 = 1_000_000_000; // 1 second in nanoseconds

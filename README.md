@@ -67,7 +67,7 @@ zz prompt "src/**/*.zig"       # Generate LLM prompt
 - Multiple output formats: markdown, JSON, CSV, and pretty terminal display
 - Automatic baseline comparison with regression detection (20% threshold)
 - Human-readable time units (ns, μs, ms, s) with progress bars
-- **Variance multiplier system** - Automatically runs high-variance benchmarks longer for more stable results
+- **Duration multiplier system** - Allows extending benchmark duration for more stable results
 - Time-based execution with configurable duration per benchmark
 
 ## Commands

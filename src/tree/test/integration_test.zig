@@ -149,7 +149,6 @@ test "tree command error handling" {
         try testing.expect(false);
     };
 
-    std.debug.print("✓ Tree command error handling test passed!\n", .{});
 }
 
 // Test tree command with permission issues (if possible)
@@ -180,7 +179,6 @@ test "tree command with permission scenarios" {
         try testing.expect(false);
     };
 
-    std.debug.print("✓ Tree command with permission scenarios test passed!\n", .{});
 }
 
 // Test tree command with various file types
@@ -228,7 +226,6 @@ test "tree command with various file types" {
         try testing.expect(false);
     };
 
-    std.debug.print("✓ Tree command with various file types test passed!\n", .{});
 }
 
 // Test tree command with empty directories
@@ -262,7 +259,6 @@ test "tree command with empty directories" {
         try testing.expect(false);
     };
 
-    std.debug.print("✓ Tree command with empty directories test passed!\n", .{});
 }
 
 // Test memory usage and cleanup
@@ -304,7 +300,6 @@ test "tree command memory usage" {
         try testing.expect(false);
     };
 
-    std.debug.print("✓ Tree command memory usage test passed!\n", .{});
 }
 
 // Test tree command argument edge cases
@@ -335,7 +330,6 @@ test "tree command argument edge cases" {
         // Should handle large depth gracefully
     };
 
-    std.debug.print("✓ Tree command argument edge cases test passed!\n", .{});
 }
 
 test "tree and list format produce different outputs" {
@@ -369,7 +363,6 @@ test "tree and list format produce different outputs" {
         try testing.expect(false); // Should not fail
     };
 
-    std.debug.print("✓ Tree and list format integration test passed!\n", .{});
 }
 
 test "format flags with depth and directory combinations" {
@@ -404,7 +397,6 @@ test "format flags with depth and directory combinations" {
         };
     }
 
-    std.debug.print("✓ Format flags with combinations test passed!\n", .{});
 }
 
 test "format error handling integration" {

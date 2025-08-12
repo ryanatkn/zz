@@ -140,8 +140,8 @@ const Options = struct {
     run_new_thing: bool = false,
 };
 
-// Add to variance multiplier function
-fn getVarianceMultiplier(benchmark_name: []const u8) f64 {
+// Add to built-in duration multiplier function
+fn getBuiltinDurationMultiplier(benchmark_name: []const u8) f64 {
     if (std.mem.eql(u8, benchmark_name, "newthing")) return 1.5;
     // ...
 }

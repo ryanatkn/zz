@@ -52,7 +52,7 @@
 - `src/filesystem/` - Filesystem abstraction
 
 ### Active (expect changes)
-- `src/benchmark/` - Adding variance handling
+- `src/benchmark/` - Adding duration multiplier handling
 - `src/cli/help.zig` - Needs update for new benchmark flags
 
 ### Future Work (not started)
@@ -83,7 +83,7 @@
 
 ## Active Experiments
 
-- Testing variance-based duration multipliers for more stable benchmarks
+- Testing duration multipliers for more stable benchmarks
 - Considering progress bars for long operations (>2s)
 
 ## Notes for Next Session

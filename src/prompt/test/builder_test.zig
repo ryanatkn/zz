@@ -7,7 +7,7 @@ const GlobExpander = @import("../glob.zig").GlobExpander;
 test "PromptBuilder basic" {
     var ctx = try test_helpers.TmpDirTestContext.init(testing.allocator);
     defer ctx.deinit();
-    
+
     var builder = PromptBuilder.init(testing.allocator, ctx.filesystem);
     defer builder.deinit();
 

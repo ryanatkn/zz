@@ -4,25 +4,17 @@ const DirHandle = @import("../filesystem.zig").DirHandle;
 const SharedConfig = @import("../config.zig").SharedConfig;
 const shouldIgnorePath = @import("../config.zig").shouldIgnorePath;
 const shouldHideFile = @import("../config.zig").shouldHideFile;
+const path_utils = @import("../utils/path.zig");
+const glob_patterns = @import("../patterns/glob.zig");
 
 // Configuration constants
 const MAX_GLOB_DEPTH = 20; // Maximum directory depth for ** patterns
 const MAX_PATTERN_LENGTH = 4096; // Maximum pattern length to prevent DOS
 
-/// Check if a filename represents a hidden file (starts with '.')
-fn isHiddenFile(filename: []const u8) bool {
-    return filename.len > 0 and filename[0] == '.';
-}
-
-/// Check if a glob pattern explicitly matches hidden files (starts with '.')
-fn patternMatchesHidden(pattern: []const u8) bool {
-    return pattern.len > 0 and pattern[0] == '.';
-}
-
-/// Join directory path and filename with '/' separator
-fn joinPath(allocator: std.mem.Allocator, dir_path: []const u8, filename: []const u8) ![]u8 {
-    return std.fmt.allocPrint(allocator, "{s}/{s}", .{ dir_path, filename });
-}
+// Use path utilities from shared module
+const isHiddenFile = path_utils.isHiddenFile;
+const patternMatchesHidden = path_utils.patternMatchesHidden;
+const joinPath = path_utils.joinPath;
 
 /// Transfer ownership of paths from source to destination ArrayList
 fn transferPaths(source: []const []u8, dest: *std.ArrayList([]u8)) !void {
@@ -35,6 +27,7 @@ pub const GlobExpander = struct {
     allocator: std.mem.Allocator,
     filesystem: FilesystemInterface,
     config: SharedConfig,
+    arena: ?std.heap.ArenaAllocator = null, // Optional arena for temporary allocations
 
     const Self = @This();
 
@@ -55,8 +48,12 @@ pub const GlobExpander = struct {
         return false;
     }
 
-    /// Expand multiple glob patterns
+    /// Expand multiple glob patterns with arena optimization
     pub fn expandGlobs(self: Self, patterns: []const []const u8) !std.ArrayList([]u8) {
+        // Create arena for temporary allocations during expansion
+        var arena = std.heap.ArenaAllocator.init(self.allocator);
+        defer arena.deinit();
+
         var results = std.ArrayList([]u8).init(self.allocator);
         errdefer {
             for (results.items) |path| {
@@ -65,22 +62,34 @@ pub const GlobExpander = struct {
             results.deinit();
         }
 
+        // Create a temporary expander with arena for intermediate allocations
+        var temp_expander = Self{
+            .allocator = arena.allocator(),
+            .filesystem = self.filesystem,
+            .config = self.config,
+            .arena = arena,
+        };
+
         for (patterns) |pattern| {
-            var expanded = try self.expandSingleGlobOwned(pattern);
+            var expanded = try temp_expander.expandSingleGlobOwned(pattern);
             defer expanded.deinit();
 
-            // Transfer ownership by moving paths from expanded to results
-            try transferPaths(expanded.items, &results);
-            
-            // Clear the expanded list without freeing the strings (ownership transferred)
-            expanded.clearRetainingCapacity();
+            // Copy paths to final allocator (not arena)
+            for (expanded.items) |path| {
+                const owned_path = try self.allocator.dupe(u8, path);
+                try results.append(owned_path);
+            }
         }
 
         return results;
     }
 
-    /// Expand patterns with detailed information about each pattern
+    /// Expand patterns with detailed information about each pattern (arena optimized)
     pub fn expandPatternsWithInfo(self: Self, patterns: []const []const u8) !std.ArrayList(PatternResult) {
+        // Create arena for temporary allocations during expansion
+        var arena = std.heap.ArenaAllocator.init(self.allocator);
+        defer arena.deinit();
+
         var results = std.ArrayList(PatternResult).init(self.allocator);
         errdefer {
             for (results.items) |*result| {
@@ -92,19 +101,27 @@ pub const GlobExpander = struct {
             results.deinit();
         }
 
+        // Create a temporary expander with arena for intermediate allocations
+        var temp_expander = Self{
+            .allocator = arena.allocator(),
+            .filesystem = self.filesystem,
+            .config = self.config,
+            .arena = arena,
+        };
+
         for (patterns) |pattern| {
             const is_glob = isGlobPattern(pattern);
             var files = std.ArrayList([]u8).init(self.allocator);
-            
+
             if (is_glob) {
-                var expanded = try self.expandSingleGlobOwned(pattern);
+                var expanded = try temp_expander.expandSingleGlobOwned(pattern);
                 defer expanded.deinit();
 
-                // Transfer ownership by moving paths from expanded to files
-                try transferPaths(expanded.items, &files);
-                
-                // Clear the expanded list without freeing the strings (ownership transferred)
-                expanded.clearRetainingCapacity();
+                // Copy paths to final allocator (not arena)
+                for (expanded.items) |path| {
+                    const owned_path = try self.allocator.dupe(u8, path);
+                    try files.append(owned_path);
+                }
             } else {
                 // For non-glob patterns, check if file or directory exists
                 const stat = self.filesystem.statFile(self.allocator, pattern) catch |err| switch (err) {
@@ -119,7 +136,7 @@ pub const GlobExpander = struct {
                     },
                     else => return err,
                 };
-                
+
                 if (stat.kind == .file) {
                     const owned_path = try self.allocator.dupe(u8, pattern);
                     try files.append(owned_path);
@@ -139,12 +156,15 @@ pub const GlobExpander = struct {
         return results;
     }
 
-    /// Expand a single glob pattern, returning owned strings
-    fn expandSingleGlobOwned(self: Self, pattern: []const u8) !std.ArrayList([]u8) {
-        var results = std.ArrayList([]u8).init(self.allocator);
+    /// Expand a single glob pattern with ownership control
+    /// If owned=true, returns owned strings; if false, returns borrowed strings
+    fn expandSingleGlobGeneric(self: Self, pattern: []const u8, comptime owned: bool) !std.ArrayList(if (owned) []u8 else []const u8) {
+        var results = std.ArrayList(if (owned) []u8 else []const u8).init(self.allocator);
         errdefer {
-            for (results.items) |path| {
-                self.allocator.free(path);
+            if (owned) {
+                for (results.items) |path| {
+                    self.allocator.free(path);
+                }
             }
             results.deinit();
         }
@@ -160,26 +180,41 @@ pub const GlobExpander = struct {
             }
 
             for (expanded_patterns.items) |expanded_pattern| {
-                var pattern_results = try self.expandSingleGlobOwned(expanded_pattern);
+                var pattern_results = try self.expandSingleGlobGeneric(expanded_pattern, owned);
                 defer pattern_results.deinit();
-                
-                // Transfer ownership by moving paths from pattern_results to results
-                try transferPaths(pattern_results.items, &results);
-                
-                // Clear the pattern_results list without freeing the strings (ownership transferred)
-                pattern_results.clearRetainingCapacity();
+
+                if (owned) {
+                    // Transfer ownership by moving paths from pattern_results to results
+                    for (pattern_results.items) |path| {
+                        try results.append(path);
+                    }
+                    // Clear the pattern_results list without freeing the strings (ownership transferred)
+                    pattern_results.clearRetainingCapacity();
+                } else {
+                    for (pattern_results.items) |path| {
+                        try results.append(path);
+                    }
+                }
             }
             return results;
         }
 
         // Handle recursive patterns (**)
         if (std.mem.indexOf(u8, pattern, "**") != null) {
-            return self.expandRecursiveGlob(pattern);
+            if (owned) {
+                return self.expandRecursiveGlob(pattern);
+            } else {
+                return self.expandRecursiveGlobBorrowed(pattern);
+            }
         }
 
         // Handle simple glob patterns
         if (isGlobPattern(pattern)) {
-            return self.expandSimpleGlob(pattern);
+            if (owned) {
+                return self.expandSimpleGlob(pattern);
+            } else {
+                return self.expandSimpleGlobBorrowed(pattern);
+            }
         }
 
         // Not a glob pattern, return as-is if it exists
@@ -187,62 +222,27 @@ pub const GlobExpander = struct {
             error.FileNotFound => return results,
             else => return err,
         };
-        
+
         if (stat.kind == .file) {
-            const owned_path = try self.allocator.dupe(u8, pattern);
-            try results.append(owned_path);
+            if (owned) {
+                const owned_path = try self.allocator.dupe(u8, pattern);
+                try results.append(owned_path);
+            } else {
+                try results.append(pattern);
+            }
         }
-        
+
         return results;
+    }
+
+    /// Expand a single glob pattern, returning owned strings
+    fn expandSingleGlobOwned(self: Self, pattern: []const u8) !std.ArrayList([]u8) {
+        return self.expandSingleGlobGeneric(pattern, true);
     }
 
     /// Expand a single glob pattern (internal use - returns borrowed strings)
     fn expandSingleGlob(self: Self, pattern: []const u8) !std.ArrayList([]const u8) {
-        var results = std.ArrayList([]const u8).init(self.allocator);
-        errdefer results.deinit();
-
-        // Handle brace expansion first
-        if (std.mem.indexOf(u8, pattern, "{") != null) {
-            var expanded_patterns = try self.expandBraces(pattern);
-            defer {
-                for (expanded_patterns.items) |p| {
-                    self.allocator.free(p);
-                }
-                expanded_patterns.deinit();
-            }
-
-            for (expanded_patterns.items) |expanded_pattern| {
-                var pattern_results = try self.expandSingleGlob(expanded_pattern);
-                defer pattern_results.deinit();
-                
-                for (pattern_results.items) |path| {
-                    try results.append(path);
-                }
-            }
-            return results;
-        }
-
-        // Handle recursive patterns (**)
-        if (std.mem.indexOf(u8, pattern, "**") != null) {
-            return self.expandRecursiveGlobBorrowed(pattern);
-        }
-
-        // Handle simple glob patterns
-        if (isGlobPattern(pattern)) {
-            return self.expandSimpleGlobBorrowed(pattern);
-        }
-
-        // Not a glob pattern, return as-is if it exists
-        const stat = self.filesystem.statFile(self.allocator, pattern) catch |err| switch (err) {
-            error.FileNotFound => return results,
-            else => return err,
-        };
-        
-        if (stat.kind == .file) {
-            try results.append(pattern);
-        }
-        
-        return results;
+        return self.expandSingleGlobGeneric(pattern, false);
     }
 
     /// Expand brace patterns like {a,b,c}
@@ -290,7 +290,7 @@ pub const GlobExpander = struct {
         var current_start: usize = 0;
         var i: usize = 0;
         var brace_depth: usize = 0;
-        
+
         while (i < content.len) : (i += 1) {
             if (content[i] == '{') {
                 brace_depth += 1;
@@ -307,12 +307,12 @@ pub const GlobExpander = struct {
         for (alternatives.items) |alt| {
             const expanded = try std.fmt.allocPrint(self.allocator, "{s}{s}{s}", .{ prefix, alt, suffix });
             errdefer self.allocator.free(expanded);
-            
+
             // Recursively expand nested braces
             if (std.mem.indexOf(u8, expanded, "{") != null) {
                 var nested_results = try self.expandBraces(expanded);
                 self.allocator.free(expanded);
-                
+
                 for (nested_results.items) |nested| {
                     try results.append(nested);
                 }
@@ -354,13 +354,13 @@ pub const GlobExpander = struct {
             if (isHiddenFile(entry.name) and !patternMatchesHidden(file_pattern)) {
                 continue; // Skip hidden files when pattern doesn't explicitly match them
             }
-            
+
             if (self.matchPattern(entry.name, file_pattern)) {
                 const full_path = if (last_sep != null)
-                    try joinPath(self.allocator, dir_path, entry.name)
+                    try path_utils.joinPath(self.allocator, dir_path, entry.name)
                 else
                     try self.allocator.dupe(u8, entry.name);
-                
+
                 try results.append(full_path);
             }
         }
@@ -370,9 +370,11 @@ pub const GlobExpander = struct {
 
     /// Expand simple glob patterns (*, ?, []) - returns borrowed strings (internal use)
     fn expandSimpleGlobBorrowed(self: Self, pattern: []const u8) !std.ArrayList([]const u8) {
+        // Simply delegate to owned version and convert
+        // This is temporary - will be removed once we fully migrate to the generic version
         var results = std.ArrayList([]const u8).init(self.allocator);
         errdefer results.deinit();
-        
+
         var owned_results = try self.expandSimpleGlob(pattern);
         defer {
             for (owned_results.items) |path| {
@@ -380,11 +382,11 @@ pub const GlobExpander = struct {
             }
             owned_results.deinit();
         }
-        
+
         for (owned_results.items) |path| {
             try results.append(path);
         }
-        
+
         return results;
     }
 
@@ -400,14 +402,14 @@ pub const GlobExpander = struct {
 
         // Split pattern at **
         const star_star = std.mem.indexOf(u8, pattern, "**") orelse return results;
-        
-        const prefix = if (star_star > 0 and pattern[star_star - 1] == '/') 
+
+        const prefix = if (star_star > 0 and pattern[star_star - 1] == '/')
             pattern[0 .. star_star - 1]
         else if (star_star == 0)
             "."
         else
             pattern[0..star_star];
-            
+
         const suffix = if (star_star + 2 < pattern.len and pattern[star_star + 2] == '/')
             pattern[star_star + 3 ..]
         else if (star_star + 2 == pattern.len)
@@ -417,15 +419,17 @@ pub const GlobExpander = struct {
 
         // Recursively search directories
         try self.searchRecursive(&results, prefix, suffix, 0);
-        
+
         return results;
     }
 
     /// Expand recursive glob patterns (**) - returns borrowed strings (internal use)
     fn expandRecursiveGlobBorrowed(self: Self, pattern: []const u8) !std.ArrayList([]const u8) {
+        // Simply delegate to owned version and convert
+        // This is temporary - will be removed once we fully migrate to the generic version
         var results = std.ArrayList([]const u8).init(self.allocator);
         errdefer results.deinit();
-        
+
         var owned_results = try self.expandRecursiveGlob(pattern);
         defer {
             for (owned_results.items) |path| {
@@ -433,11 +437,11 @@ pub const GlobExpander = struct {
             }
             owned_results.deinit();
         }
-        
+
         for (owned_results.items) |path| {
             try results.append(path);
         }
-        
+
         return results;
     }
 
@@ -453,7 +457,7 @@ pub const GlobExpander = struct {
 
         var iter = try dir.iterate(self.allocator);
         while (try iter.next(self.allocator)) |entry| {
-            const full_path = try joinPath(self.allocator, dir_path, entry.name);
+            const full_path = try path_utils.joinPath(self.allocator, dir_path, entry.name);
             defer self.allocator.free(full_path);
 
             // If pattern is empty, match all files (except hidden ones)
@@ -497,8 +501,8 @@ pub const GlobExpander = struct {
 
         var iter = try dir.iterate(self.allocator);
         while (try iter.next(self.allocator)) |entry| {
-            const full_path = try joinPath(self.allocator, dir_path, entry.name);
-            
+            const full_path = try path_utils.joinPath(self.allocator, dir_path, entry.name);
+
             if (entry.kind == .file) {
                 // Skip hidden files if configured
                 if (shouldHideFile(self.config, entry.name)) {
@@ -533,121 +537,17 @@ pub const GlobExpander = struct {
             }
 
             for (expanded_patterns.items) |expanded_pattern| {
-                if (matchSimplePattern(str, expanded_pattern)) {
+                if (glob_patterns.matchSimplePattern(str, expanded_pattern)) {
                     return true;
                 }
             }
             return false;
         }
-        
+
         // No braces, use simple pattern matching
-        return matchSimplePattern(str, pattern);
+        return glob_patterns.matchSimplePattern(str, pattern);
     }
 };
 
-/// Match a string against a simple glob pattern (*, ?, [], {})
-pub fn matchSimplePattern(str: []const u8, pattern: []const u8) bool {
-    var s_idx: usize = 0;
-    var p_idx: usize = 0;
-    var star_idx: ?usize = null;
-    var star_match: ?usize = null;
-
-    while (s_idx < str.len) {
-        if (p_idx < pattern.len) {
-            if (pattern[p_idx] == '\\' and p_idx + 1 < pattern.len) {
-                // Escape sequence - match next character literally
-                if (str[s_idx] == pattern[p_idx + 1]) {
-                    s_idx += 1;
-                    p_idx += 2;
-                    continue;
-                }
-            } else if (pattern[p_idx] == '*') {
-                // Wildcard - save position for backtracking
-                star_idx = p_idx;
-                star_match = s_idx;
-                p_idx += 1;
-                continue;
-            } else if (pattern[p_idx] == '?') {
-                // Single character wildcard
-                s_idx += 1;
-                p_idx += 1;
-                continue;
-            } else if (pattern[p_idx] == '[') {
-                // Character class
-                const close = std.mem.indexOf(u8, pattern[p_idx + 1 ..], "]");
-                if (close) |end| {
-                    const class_content = pattern[p_idx + 1 .. p_idx + 1 + end];
-                    if (matchCharacterClass(str[s_idx], class_content)) {
-                        s_idx += 1;
-                        p_idx += end + 2;
-                        continue;
-                    }
-                } else {
-                    // No closing bracket, treat as literal
-                    if (str[s_idx] == pattern[p_idx]) {
-                        s_idx += 1;
-                        p_idx += 1;
-                        continue;
-                    }
-                }
-            } else if (str[s_idx] == pattern[p_idx]) {
-                // Exact match
-                s_idx += 1;
-                p_idx += 1;
-                continue;
-            }
-        }
-
-        // No match, try backtracking to last wildcard
-        if (star_idx) |star| {
-            p_idx = star + 1;
-            star_match = star_match.? + 1;
-            s_idx = star_match.?;
-        } else {
-            return false;
-        }
-    }
-
-    // Handle remaining pattern characters
-    while (p_idx < pattern.len and pattern[p_idx] == '*') {
-        p_idx += 1;
-    }
-
-    return p_idx == pattern.len;
-}
-
-/// Match a character against a character class pattern
-fn matchCharacterClass(char: u8, class_content: []const u8) bool {
-    if (class_content.len == 0) return false;
-
-    var negate = false;
-    var i: usize = 0;
-
-    // Check for negation
-    if (class_content[0] == '!' or class_content[0] == '^') {
-        negate = true;
-        i = 1;
-    }
-
-    var matched = false;
-    
-    while (i < class_content.len) {
-        if (i + 2 < class_content.len and class_content[i + 1] == '-') {
-            // Range
-            if (char >= class_content[i] and char <= class_content[i + 2]) {
-                matched = true;
-                break;
-            }
-            i += 3;
-        } else {
-            // Single character
-            if (char == class_content[i]) {
-                matched = true;
-                break;
-            }
-            i += 1;
-        }
-    }
-
-    return if (negate) !matched else matched;
-}
+/// Re-export the pattern matching function for backward compatibility
+pub const matchSimplePattern = glob_patterns.matchSimplePattern;

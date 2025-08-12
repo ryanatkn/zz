@@ -129,7 +129,7 @@ fn runWithConfigInternal(config: *Config, allocator: std.mem.Allocator, filesyst
                 // For glob patterns, we silently ignore filtered files
                 continue;
             }
-            
+
             // File is not ignored, check if we've already seen this path
             if (!seen.contains(path)) {
                 try seen.put(path, {});
@@ -144,9 +144,9 @@ fn runWithConfigInternal(config: *Config, allocator: std.mem.Allocator, filesyst
     }
 
     // Build the prompt
-    var builder = if (quiet) 
-        PromptBuilder.initQuiet(allocator, filesystem) 
-    else 
+    var builder = if (quiet)
+        PromptBuilder.initQuiet(allocator, filesystem)
+    else
         PromptBuilder.init(allocator, filesystem);
     defer builder.deinit();
 

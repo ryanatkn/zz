@@ -13,7 +13,7 @@ pub const GlobExpanderTestContext = struct {
     pub fn init(allocator: std.mem.Allocator) GlobExpanderTestContext {
         var mock_fs = MockFilesystem.init(allocator);
         const filesystem = mock_fs.interface();
-        
+
         return GlobExpanderTestContext{
             .allocator = allocator,
             .mock_fs = mock_fs,
@@ -131,7 +131,7 @@ pub const TestAssertions = struct {
     /// Assert that exactly the expected files are found (by suffix)
     pub fn assertExactFilesEndingWith(files: [][]const u8, expected_suffixes: []const []const u8) !void {
         try testing.expect(files.len == expected_suffixes.len);
-        
+
         for (expected_suffixes) |suffix| {
             try assertContainsFileEndingWith(files, suffix);
         }

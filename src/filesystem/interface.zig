@@ -6,12 +6,12 @@ pub const FilesystemInterface = struct {
     vtable: *const VTable,
 
     const VTable = struct {
-        openDir: *const fn(ptr: *anyopaque, allocator: std.mem.Allocator, path: []const u8, options: std.fs.Dir.OpenDirOptions) anyerror!DirHandle,
-        statFile: *const fn(ptr: *anyopaque, allocator: std.mem.Allocator, path: []const u8) anyerror!std.fs.File.Stat,
-        cwd: *const fn(ptr: *anyopaque) DirHandle,
-        pathJoin: *const fn(ptr: *anyopaque, allocator: std.mem.Allocator, paths: []const []const u8) anyerror![]u8,
-        pathBasename: *const fn(ptr: *anyopaque, path: []const u8) []const u8,
-        pathExtension: *const fn(ptr: *anyopaque, path: []const u8) []const u8,
+        openDir: *const fn (ptr: *anyopaque, allocator: std.mem.Allocator, path: []const u8, options: std.fs.Dir.OpenDirOptions) anyerror!DirHandle,
+        statFile: *const fn (ptr: *anyopaque, allocator: std.mem.Allocator, path: []const u8) anyerror!std.fs.File.Stat,
+        cwd: *const fn (ptr: *anyopaque) DirHandle,
+        pathJoin: *const fn (ptr: *anyopaque, allocator: std.mem.Allocator, paths: []const []const u8) anyerror![]u8,
+        pathBasename: *const fn (ptr: *anyopaque, path: []const u8) []const u8,
+        pathExtension: *const fn (ptr: *anyopaque, path: []const u8) []const u8,
     };
 
     pub fn openDir(self: FilesystemInterface, allocator: std.mem.Allocator, path: []const u8, options: std.fs.Dir.OpenDirOptions) !DirHandle {
@@ -45,12 +45,12 @@ pub const DirHandle = struct {
     vtable: *const DirVTable,
 
     const DirVTable = struct {
-        iterate: *const fn(ptr: *anyopaque, allocator: std.mem.Allocator) anyerror!DirIterator,
-        openDir: *const fn(ptr: *anyopaque, allocator: std.mem.Allocator, sub_path: []const u8, options: std.fs.Dir.OpenDirOptions) anyerror!DirHandle,
-        close: *const fn(ptr: *anyopaque) void,
-        statFile: *const fn(ptr: *anyopaque, allocator: std.mem.Allocator, path: []const u8) anyerror!std.fs.File.Stat,
-        readFileAlloc: *const fn(ptr: *anyopaque, allocator: std.mem.Allocator, path: []const u8, max_bytes: usize) anyerror![]u8,
-        openFile: *const fn(ptr: *anyopaque, allocator: std.mem.Allocator, path: []const u8, flags: std.fs.File.OpenFlags) anyerror!FileHandle,
+        iterate: *const fn (ptr: *anyopaque, allocator: std.mem.Allocator) anyerror!DirIterator,
+        openDir: *const fn (ptr: *anyopaque, allocator: std.mem.Allocator, sub_path: []const u8, options: std.fs.Dir.OpenDirOptions) anyerror!DirHandle,
+        close: *const fn (ptr: *anyopaque) void,
+        statFile: *const fn (ptr: *anyopaque, allocator: std.mem.Allocator, path: []const u8) anyerror!std.fs.File.Stat,
+        readFileAlloc: *const fn (ptr: *anyopaque, allocator: std.mem.Allocator, path: []const u8, max_bytes: usize) anyerror![]u8,
+        openFile: *const fn (ptr: *anyopaque, allocator: std.mem.Allocator, path: []const u8, flags: std.fs.File.OpenFlags) anyerror!FileHandle,
     };
 
     pub fn iterate(self: DirHandle, allocator: std.mem.Allocator) !DirIterator {
@@ -84,9 +84,9 @@ pub const FileHandle = struct {
     vtable: *const FileVTable,
 
     const FileVTable = struct {
-        close: *const fn(ptr: *anyopaque) void,
-        reader: *const fn(ptr: *anyopaque) std.io.AnyReader,
-        readAll: *const fn(ptr: *anyopaque, allocator: std.mem.Allocator, max_bytes: usize) anyerror![]u8,
+        close: *const fn (ptr: *anyopaque) void,
+        reader: *const fn (ptr: *anyopaque) std.io.AnyReader,
+        readAll: *const fn (ptr: *anyopaque, allocator: std.mem.Allocator, max_bytes: usize) anyerror![]u8,
     };
 
     pub fn close(self: FileHandle) void {
@@ -108,7 +108,7 @@ pub const DirIterator = struct {
     vtable: *const IteratorVTable,
 
     const IteratorVTable = struct {
-        next: *const fn(ptr: *anyopaque, allocator: std.mem.Allocator) anyerror!?std.fs.Dir.Entry,
+        next: *const fn (ptr: *anyopaque, allocator: std.mem.Allocator) anyerror!?std.fs.Dir.Entry,
     };
 
     pub fn next(self: DirIterator, allocator: std.mem.Allocator) !?std.fs.Dir.Entry {

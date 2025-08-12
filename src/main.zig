@@ -10,6 +10,6 @@ pub fn main() !void {
 
     // Create the filesystem once at the top level
     const filesystem = RealFilesystem.init();
-    
+
     try cli.run(allocator, filesystem);
 }

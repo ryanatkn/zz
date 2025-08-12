@@ -46,7 +46,7 @@ pub const ZonLoader = struct {
 
         const cwd = self.filesystem.cwd();
         defer cwd.close();
-        
+
         const file_content = cwd.readFileAlloc(self.allocator, config_path, 1024 * 1024) catch |err| switch (err) {
             error.FileNotFound => {
                 self.config = ZonConfig{}; // Empty config
@@ -128,7 +128,6 @@ pub const ZonLoader = struct {
     }
 
     fn getSharedConfigFromDirInternal(self: *Self, dir: std.fs.Dir) !SharedConfig {
-
         const config = self.config orelse ZonConfig{};
 
         // Resolve base patterns (default to "extend")

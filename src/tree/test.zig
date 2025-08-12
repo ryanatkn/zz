@@ -36,7 +36,7 @@ test "config loading works" {
     var mock_fs = MockFilesystem.init(testing.allocator);
     defer mock_fs.deinit();
     const filesystem = mock_fs.interface();
-    
+
     const args = [_][:0]const u8{"tree"};
     var config = try Config.fromArgs(testing.allocator, filesystem, @constCast(args[0..]));
     defer config.deinit(testing.allocator);
@@ -90,11 +90,11 @@ test "walker initialization works" {
     };
 
     const config = Config{ .shared_config = shared_config };
-    
+
     var mock_fs = MockFilesystem.init(allocator);
     defer mock_fs.deinit();
     const filesystem = mock_fs.interface();
-    
+
     const WalkerOptions = @import("walker.zig").WalkerOptions;
     const options = WalkerOptions{
         .filesystem = filesystem,

@@ -46,7 +46,7 @@ pub const PromptBuilder = struct {
     pub fn addFile(self: *Self, file_path: []const u8) !void {
         const cwd = self.filesystem.cwd();
         defer cwd.close();
-        
+
         const file = try cwd.openFile(self.allocator, file_path, .{});
         defer file.close();
 

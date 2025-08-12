@@ -95,7 +95,6 @@ pub const GitignorePatterns = struct {
         return false;
     }
 
-
     /// Load gitignore patterns from a directory (stateless)
     pub fn loadFromDir(allocator: std.mem.Allocator, dir: std.fs.Dir, file_path: []const u8) ![][]const u8 {
         // Simple approach: just try to read .gitignore from the specified directory

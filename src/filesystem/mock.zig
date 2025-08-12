@@ -8,7 +8,7 @@ const DirIterator = @import("interface.zig").DirIterator;
 pub const MockFilesystem = struct {
     allocator: std.mem.Allocator,
     files: std.StringHashMap(FileEntry),
-    
+
     const Self = @This();
 
     const FileEntry = struct {
@@ -69,12 +69,12 @@ pub const MockFilesystem = struct {
     fn openDir(ptr: *anyopaque, allocator: std.mem.Allocator, path: []const u8, options: std.fs.Dir.OpenDirOptions) !DirHandle {
         _ = options;
         const self: *Self = @ptrCast(@alignCast(ptr));
-        
+
         // Check if directory exists
         if (!self.files.contains(path)) {
             return error.FileNotFound;
         }
-        
+
         const entry = self.files.get(path).?;
         if (entry.kind != .directory) {
             return error.NotDir;
@@ -86,9 +86,9 @@ pub const MockFilesystem = struct {
     fn statFile(ptr: *anyopaque, allocator: std.mem.Allocator, path: []const u8) !std.fs.File.Stat {
         _ = allocator;
         const self: *Self = @ptrCast(@alignCast(ptr));
-        
+
         const entry = self.files.get(path) orelse return error.FileNotFound;
-        
+
         return std.fs.File.Stat{
             .kind = entry.kind,
             .size = entry.size,
@@ -139,7 +139,7 @@ const MockDirHandle = struct {
             .filesystem = filesystem,
             .path = try allocator.dupe(u8, path),
         };
-        
+
         return DirHandle{
             .ptr = self,
             .vtable = &.{
@@ -161,13 +161,13 @@ const MockDirHandle = struct {
     fn openDir(ptr: *anyopaque, allocator: std.mem.Allocator, sub_path: []const u8, options: std.fs.Dir.OpenDirOptions) !DirHandle {
         _ = options;
         const self: *Self = @ptrCast(@alignCast(ptr));
-        
+
         const full_path = if (std.mem.eql(u8, self.path, "."))
             try allocator.dupe(u8, sub_path)
         else
             try std.fs.path.join(allocator, &.{ self.path, sub_path });
         defer allocator.free(full_path);
-        
+
         return MockDirHandle.init(allocator, self.filesystem, full_path);
     }
 
@@ -179,29 +179,29 @@ const MockDirHandle = struct {
 
     fn statFile(ptr: *anyopaque, allocator: std.mem.Allocator, path: []const u8) !std.fs.File.Stat {
         const self: *Self = @ptrCast(@alignCast(ptr));
-        
+
         const full_path = if (std.mem.eql(u8, self.path, "."))
             try allocator.dupe(u8, path)
         else
             try std.fs.path.join(allocator, &.{ self.path, path });
         defer allocator.free(full_path);
-        
+
         const fs_interface = self.filesystem.interface();
         return fs_interface.statFile(allocator, full_path);
     }
 
     fn readFileAlloc(ptr: *anyopaque, allocator: std.mem.Allocator, path: []const u8, max_bytes: usize) ![]u8 {
         const self: *Self = @ptrCast(@alignCast(ptr));
-        
+
         const full_path = if (std.mem.eql(u8, self.path, "."))
             try allocator.dupe(u8, path)
         else
             try std.fs.path.join(allocator, &.{ self.path, path });
         defer allocator.free(full_path);
-        
+
         const entry = self.filesystem.files.get(full_path) orelse return error.FileNotFound;
         if (entry.kind != .file) return error.IsDir;
-        
+
         const size = @min(entry.content.len, max_bytes);
         const content = try allocator.alloc(u8, size);
         @memcpy(content, entry.content[0..size]);
@@ -211,16 +211,16 @@ const MockDirHandle = struct {
     fn openFile(ptr: *anyopaque, allocator: std.mem.Allocator, path: []const u8, flags: std.fs.File.OpenFlags) !FileHandle {
         _ = flags;
         const self: *Self = @ptrCast(@alignCast(ptr));
-        
+
         const full_path = if (std.mem.eql(u8, self.path, "."))
             try allocator.dupe(u8, path)
         else
             try std.fs.path.join(allocator, &.{ self.path, path });
         defer allocator.free(full_path);
-        
+
         const entry = self.filesystem.files.get(full_path) orelse return error.FileNotFound;
         if (entry.kind != .file) return error.IsDir;
-        
+
         return MockFileHandle.init(allocator, entry.content);
     }
 };
@@ -240,7 +240,7 @@ const MockFileHandle = struct {
             .content = content,
             .position = 0,
         };
-        
+
         return FileHandle{
             .ptr = self,
             .vtable = &.{
@@ -267,7 +267,7 @@ const MockFileHandle = struct {
         const remaining = self.content.len - self.position;
         const size = @min(remaining, max_bytes);
         const result = try allocator.alloc(u8, size);
-        @memcpy(result, self.content[self.position..self.position + size]);
+        @memcpy(result, self.content[self.position .. self.position + size]);
         self.position += size;
         return result;
     }
@@ -297,24 +297,24 @@ const MockDirIterator = struct {
         var iter = filesystem.files.iterator();
         while (iter.next()) |entry| {
             const entry_path = entry.key_ptr.*;
-            
+
             // Skip the parent path itself
             if (std.mem.eql(u8, entry_path, parent_path)) continue;
-            
+
             // Check if this entry is a direct child
             const relative_path = if (std.mem.eql(u8, parent_path, "."))
                 entry_path
             else if (std.mem.startsWith(u8, entry_path, parent_path) and entry_path.len > parent_path.len and entry_path[parent_path.len] == '/')
-                entry_path[parent_path.len + 1..]
+                entry_path[parent_path.len + 1 ..]
             else
                 continue;
-            
+
             // Only include direct children (no nested paths)
             if (std.mem.indexOf(u8, relative_path, "/") == null) {
                 try self.entries.append(try allocator.dupe(u8, relative_path));
             }
         }
-        
+
         return DirIterator{
             .ptr = self,
             .vtable = &.{
@@ -326,7 +326,7 @@ const MockDirIterator = struct {
     fn next(ptr: *anyopaque, allocator: std.mem.Allocator) !?std.fs.Dir.Entry {
         _ = allocator;
         const self: *Self = @ptrCast(@alignCast(ptr));
-        
+
         if (self.index >= self.entries.items.len) {
             // Clean up when done
             for (self.entries.items) |entry| {
@@ -337,19 +337,19 @@ const MockDirIterator = struct {
             self.allocator.destroy(self);
             return null;
         }
-        
+
         const entry_name = self.entries.items[self.index];
         self.index += 1;
-        
+
         // Get the full path to determine the kind
         const full_path = if (std.mem.eql(u8, self.parent_path, "."))
             entry_name
         else
             try std.fmt.allocPrint(self.allocator, "{s}/{s}", .{ self.parent_path, entry_name });
         defer if (!std.mem.eql(u8, self.parent_path, ".")) self.allocator.free(full_path);
-        
+
         const file_entry = self.filesystem.files.get(full_path) orelse return error.FileNotFound;
-        
+
         return std.fs.Dir.Entry{
             .name = entry_name,
             .kind = file_entry.kind,

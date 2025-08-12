@@ -5,7 +5,7 @@ const test_helpers = @import("../../test_helpers.zig");
 
 test "multiple prepend flags - last wins" {
     const allocator = std.testing.allocator;
-    
+
     var ctx = try test_helpers.TmpDirTestContext.init(allocator);
     defer ctx.deinit();
 
@@ -21,7 +21,7 @@ test "multiple prepend flags - last wins" {
 
 test "multiple append flags - last wins" {
     const allocator = std.testing.allocator;
-    
+
     var ctx = try test_helpers.TmpDirTestContext.init(allocator);
     defer ctx.deinit();
 
@@ -37,7 +37,7 @@ test "multiple append flags - last wins" {
 
 test "both allow flags together" {
     const allocator = std.testing.allocator;
-    
+
     var ctx = try test_helpers.TmpDirTestContext.init(allocator);
     defer ctx.deinit();
 
@@ -57,7 +57,7 @@ test "both allow flags together" {
 
 test "flags with empty values" {
     const allocator = std.testing.allocator;
-    
+
     var ctx = try test_helpers.TmpDirTestContext.init(allocator);
     defer ctx.deinit();
 
@@ -75,7 +75,7 @@ test "flags with empty values" {
 
 test "flags interspersed with files" {
     const allocator = std.testing.allocator;
-    
+
     var ctx = try test_helpers.TmpDirTestContext.init(allocator);
     defer ctx.deinit();
 
@@ -102,7 +102,7 @@ test "flags interspersed with files" {
 
 test "only text flags no files" {
     const allocator = std.testing.allocator;
-    
+
     var ctx = try test_helpers.TmpDirTestContext.init(allocator);
     defer ctx.deinit();
 
@@ -122,7 +122,7 @@ test "only text flags no files" {
 
 test "conflicting patterns same files" {
     const allocator = std.testing.allocator;
-    
+
     var ctx = try test_helpers.TmpDirTestContext.init(allocator);
     defer ctx.deinit();
 
@@ -161,7 +161,7 @@ test "conflicting patterns same files" {
 
 test "allow-empty-glob with glob and explicit file" {
     const allocator = std.testing.allocator;
-    
+
     var ctx = try test_helpers.TmpDirTestContext.init(allocator);
     defer ctx.deinit();
 
@@ -182,7 +182,7 @@ test "allow-empty-glob with glob and explicit file" {
 
 test "unicode in flag values" {
     const allocator = std.testing.allocator;
-    
+
     var ctx = try test_helpers.TmpDirTestContext.init(allocator);
     defer ctx.deinit();
 
@@ -199,7 +199,7 @@ test "unicode in flag values" {
 
 test "very long flag values" {
     const allocator = std.testing.allocator;
-    
+
     var ctx = try test_helpers.TmpDirTestContext.init(allocator);
     defer ctx.deinit();
 

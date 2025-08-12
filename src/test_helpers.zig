@@ -7,6 +7,7 @@ const Config = @import("config.zig").Config;
 const SharedConfig = @import("config.zig").SharedConfig;
 const GlobExpander = @import("prompt/glob.zig").GlobExpander;
 const PromptBuilder = @import("prompt/builder.zig").PromptBuilder;
+const path_utils = @import("utils/path.zig");
 
 // ============================================================================
 // Core Test Context Types
@@ -217,12 +218,12 @@ pub fn createPerformanceTestStructure(ctx: anytype, n_dirs: usize, n_files_per_d
     while (i < n_dirs) : (i += 1) {
         const dir_name = try std.fmt.allocPrint(ctx.allocator, "dir_{d}", .{i});
         defer ctx.allocator.free(dir_name);
-        
+
         if (T == MockTestContext) {
             try ctx.addDirectory(dir_name);
             var j: usize = 0;
             while (j < n_files_per_dir) : (j += 1) {
-                const file_name = try std.fmt.allocPrint(ctx.allocator, "{s}/file_{d}.txt", .{dir_name, j});
+                const file_name = try std.fmt.allocPrint(ctx.allocator, "{s}/file_{d}.txt", .{ dir_name, j });
                 defer ctx.allocator.free(file_name);
                 try ctx.addFile(file_name, "test content");
             }
@@ -230,7 +231,7 @@ pub fn createPerformanceTestStructure(ctx: anytype, n_dirs: usize, n_files_per_d
             try ctx.makeDir(dir_name);
             var j: usize = 0;
             while (j < n_files_per_dir) : (j += 1) {
-                const file_name = try std.fmt.allocPrint(ctx.allocator, "{s}/file_{d}.txt", .{dir_name, j});
+                const file_name = try std.fmt.allocPrint(ctx.allocator, "{s}/file_{d}.txt", .{ dir_name, j });
                 defer ctx.allocator.free(file_name);
                 try ctx.writeFile(file_name, "test content");
             }
@@ -244,114 +245,114 @@ pub fn createPerformanceTestStructure(ctx: anytype, n_dirs: usize, n_files_per_d
 
 pub fn zigMainContent() []const u8 {
     return 
-        \\const std = @import("std");
-        \\
-        \\pub fn main() !void {
-        \\    std.debug.print("Hello, world!\n", .{});
-        \\}
+    \\const std = @import("std");
+    \\
+    \\pub fn main() !void {
+    \\    std.debug.print("Hello, world!\n", .{});
+    \\}
     ;
 }
 
 pub fn zigLibContent() []const u8 {
     return 
-        \\const std = @import("std");
-        \\
-        \\pub fn add(a: i32, b: i32) i32 {
-        \\    return a + b;
-        \\}
-        \\
-        \\test "add" {
-        \\    try std.testing.expect(add(2, 3) == 5);
-        \\}
+    \\const std = @import("std");
+    \\
+    \\pub fn add(a: i32, b: i32) i32 {
+    \\    return a + b;
+    \\}
+    \\
+    \\test "add" {
+    \\    try std.testing.expect(add(2, 3) == 5);
+    \\}
     ;
 }
 
 pub fn zigTestContent() []const u8 {
     return 
-        \\const std = @import("std");
-        \\const testing = std.testing;
-        \\
-        \\test "basic test" {
-        \\    try testing.expect(true);
-        \\}
+    \\const std = @import("std");
+    \\const testing = std.testing;
+    \\
+    \\test "basic test" {
+    \\    try testing.expect(true);
+    \\}
     ;
 }
 
 pub fn buildZigContent() []const u8 {
     return 
-        \\const std = @import("std");
-        \\
-        \\pub fn build(b: *std.Build) void {
-        \\    const exe = b.addExecutable(.{
-        \\        .name = "test-app",
-        \\        .root_source_file = b.path("src/main.zig"),
-        \\        .target = b.standardTargetOptions(.{}),
-        \\        .optimize = b.standardOptimizeOption(.{}),
-        \\    });
-        \\    b.installArtifact(exe);
-        \\}
+    \\const std = @import("std");
+    \\
+    \\pub fn build(b: *std.Build) void {
+    \\    const exe = b.addExecutable(.{
+    \\        .name = "test-app",
+    \\        .root_source_file = b.path("src/main.zig"),
+    \\        .target = b.standardTargetOptions(.{}),
+    \\        .optimize = b.standardOptimizeOption(.{}),
+    \\    });
+    \\    b.installArtifact(exe);
+    \\}
     ;
 }
 
 pub fn buildZonContent() []const u8 {
     return 
-        \\.{
-        \\    .name = "test-app",
-        \\    .version = "0.1.0",
-        \\    .dependencies = .{},
-        \\    .paths = .{"."},
-        \\}
+    \\.{
+    \\    .name = "test-app",
+    \\    .version = "0.1.0",
+    \\    .dependencies = .{},
+    \\    .paths = .{"."},
+    \\}
     ;
 }
 
 pub fn packageJsonContent() []const u8 {
     return 
-        \\{
-        \\  "name": "test-app",
-        \\  "version": "1.0.0",
-        \\  "main": "index.js",
-        \\  "scripts": {
-        \\    "start": "node index.js",
-        \\    "test": "echo \"No tests\""
-        \\  }
-        \\}
+    \\{
+    \\  "name": "test-app",
+    \\  "version": "1.0.0",
+    \\  "main": "index.js",
+    \\  "scripts": {
+    \\    "start": "node index.js",
+    \\    "test": "echo \"No tests\""
+    \\  }
+    \\}
     ;
 }
 
 pub fn nodeIndexContent() []const u8 {
     return 
-        \\console.log('Hello from Node.js!');
-        \\require('./src/app');
+    \\console.log('Hello from Node.js!');
+    \\require('./src/app');
     ;
 }
 
 pub fn nodeAppContent() []const u8 {
     return 
-        \\module.exports = {
-        \\  run: () => console.log('App running')
-        \\};
+    \\module.exports = {
+    \\  run: () => console.log('App running')
+    \\};
     ;
 }
 
 pub fn gitignoreContent() []const u8 {
     return 
-        \\node_modules/
-        \\zig-out/
-        \\.zig-cache/
-        \\*.log
-        \\.DS_Store
-        \\Thumbs.db
+    \\node_modules/
+    \\zig-out/
+    \\.zig-cache/
+    \\*.log
+    \\.DS_Store
+    \\Thumbs.db
     ;
 }
 
 pub fn gitConfigContent() []const u8 {
     return 
-        \\[core]
-        \\    repositoryformatversion = 0
-        \\    filemode = true
-        \\[user]
-        \\    name = Test User
-        \\    email = test@example.com
+    \\[core]
+    \\    repositoryformatversion = 0
+    \\    filemode = true
+    \\[user]
+    \\    name = Test User
+    \\    email = test@example.com
     ;
 }
 
@@ -416,26 +417,21 @@ pub const AutoCleanupList = struct {
 // ============================================================================
 
 /// Run test with automatic mock filesystem setup/cleanup
-pub fn withMockFilesystem(allocator: std.mem.Allocator, testFn: fn(*MockTestContext) anyerror!void) !void {
+pub fn withMockFilesystem(allocator: std.mem.Allocator, testFn: fn (*MockTestContext) anyerror!void) !void {
     var ctx = MockTestContext.init(allocator);
     defer ctx.deinit();
     try testFn(&ctx);
 }
 
 /// Run test with automatic temp directory setup/cleanup
-pub fn withTmpDir(allocator: std.mem.Allocator, testFn: fn(*TmpDirTestContext) anyerror!void) !void {
+pub fn withTmpDir(allocator: std.mem.Allocator, testFn: fn (*TmpDirTestContext) anyerror!void) !void {
     var ctx = try TmpDirTestContext.init(allocator);
     defer ctx.deinit();
     try testFn(&ctx);
 }
 
 /// Run test with a configured Config object
-pub fn withConfig(
-    allocator: std.mem.Allocator,
-    filesystem: FilesystemInterface,
-    args: [][:0]const u8,
-    testFn: fn(*Config) anyerror!void
-) !void {
+pub fn withConfig(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: [][:0]const u8, testFn: fn (*Config) anyerror!void) !void {
     var config = try Config.fromArgs(allocator, filesystem, args);
     defer config.deinit();
     try testFn(&config);
@@ -488,7 +484,7 @@ pub fn createPromptBuilder(allocator: std.mem.Allocator, filesystem: FilesystemI
 /// Assert that a file exists in the filesystem
 pub fn expectFileExists(filesystem: FilesystemInterface, path: []const u8) !void {
     const stat = filesystem.statFile(path) catch |err| {
-        std.debug.print("Expected file '{s}' to exist, but got error: {}\n", .{path, err});
+        std.debug.print("Expected file '{s}' to exist, but got error: {}\n", .{ path, err });
         return error.FileNotFound;
     };
     try testing.expect(stat.kind == .file);
@@ -497,19 +493,14 @@ pub fn expectFileExists(filesystem: FilesystemInterface, path: []const u8) !void
 /// Assert that a directory exists in the filesystem
 pub fn expectDirectoryExists(filesystem: FilesystemInterface, path: []const u8) !void {
     const stat = filesystem.statFile(path) catch |err| {
-        std.debug.print("Expected directory '{s}' to exist, but got error: {}\n", .{path, err});
+        std.debug.print("Expected directory '{s}' to exist, but got error: {}\n", .{ path, err });
         return error.DirectoryNotFound;
     };
     try testing.expect(stat.kind == .directory);
 }
 
 /// Assert glob expansion matches expected files
-pub fn expectGlobMatches(
-    allocator: std.mem.Allocator,
-    expander: GlobExpander,
-    pattern: []const u8,
-    expected: []const []const u8
-) !void {
+pub fn expectGlobMatches(allocator: std.mem.Allocator, expander: GlobExpander, pattern: []const u8, expected: []const []const u8) !void {
     var patterns = [_][]const u8{pattern};
     var results = try expander.expandGlobs(&patterns);
     defer {
@@ -539,7 +530,7 @@ pub fn expectGlobMatches(
 pub fn expectPerformanceWithin(ctx: *PerformanceTestContext, max_ms: f64) !void {
     const elapsed = ctx.elapsedMs();
     if (elapsed > max_ms) {
-        std.debug.print("Performance test failed: {d:.2}ms > {d:.2}ms\n", .{elapsed, max_ms});
+        std.debug.print("Performance test failed: {d:.2}ms > {d:.2}ms\n", .{ elapsed, max_ms });
         return error.PerformanceTestFailed;
     }
 }
@@ -565,29 +556,8 @@ pub fn expectConfigPatterns(config: *const SharedConfig, expected_patterns: []co
 // Path Utilities (POSIX only)
 // ============================================================================
 
-/// Join paths for tests (POSIX only)
-pub fn joinPath(allocator: std.mem.Allocator, parts: []const []const u8) ![]u8 {
-    var total_len: usize = 0;
-    for (parts, 0..) |part, i| {
-        total_len += part.len;
-        if (i < parts.len - 1) {
-            total_len += 1; // for separator
-        }
-    }
-    
-    var result = try allocator.alloc(u8, total_len);
-    var offset: usize = 0;
-    for (parts, 0..) |part, i| {
-        @memcpy(result[offset..offset + part.len], part);
-        offset += part.len;
-        if (i < parts.len - 1) {
-            result[offset] = '/';
-            offset += 1;
-        }
-    }
-    
-    return result;
-}
+/// Join paths for tests (POSIX only) - now uses shared implementation
+pub const joinPath = path_utils.joinPaths;
 
 // ============================================================================
 // Specialized Test Scenarios
@@ -618,7 +588,7 @@ pub fn createSymlinkTestStructure(ctx: *TmpDirTestContext) !void {
     try ctx.writeFile("target.txt", "target content");
     try ctx.makeDir("target_dir");
     try ctx.writeFile("target_dir/file.txt", "nested file");
-    
+
     // Create symlinks
     try ctx.tmp_dir.dir.symLink("target.txt", "link_to_file.txt", .{});
     try ctx.tmp_dir.dir.symLink("target_dir", "link_to_dir", .{ .is_directory = true });
@@ -630,7 +600,7 @@ pub fn createPermissionTestStructure(ctx: *TmpDirTestContext) !void {
     try ctx.writeFile("readable.txt", "readable");
     try ctx.writeFile("writable.txt", "writable");
     try ctx.writeFile("executable.sh", "#!/bin/sh\necho test");
-    
+
     // Note: Setting permissions requires platform-specific code
     // This is a placeholder for the structure
 }

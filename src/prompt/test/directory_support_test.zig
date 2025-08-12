@@ -25,7 +25,7 @@ test "directory argument - basic functionality" {
 
     // Test directory expansion
     const filesystem = RealFilesystem.init();
-    
+
     const expander = test_helpers.createGlobExpander(allocator, filesystem);
     var patterns = [_][]const u8{tmp_path};
     var results = try expander.expandPatternsWithInfo(&patterns);
@@ -77,7 +77,7 @@ test "directory argument - nested structure" {
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
     const filesystem = RealFilesystem.init();
-    
+
     const expander = test_helpers.createGlobExpander(allocator, filesystem);
     var patterns = [_][]const u8{tmp_path};
     var results = try expander.expandPatternsWithInfo(&patterns);
@@ -125,14 +125,14 @@ test "directory argument - with ignore patterns" {
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
     const filesystem = RealFilesystem.init();
-    
+
     // Custom configuration with ignore patterns for this test
     const expander = GlobExpander{
         .allocator = allocator,
         .filesystem = filesystem,
         .config = SharedConfig{
             .ignored_patterns = &[_][]const u8{ "node_modules", ".git" }, // Include node_modules
-            .hidden_files = &[_][]const u8{ ".hidden" }, // Include .hidden files
+            .hidden_files = &[_][]const u8{".hidden"}, // Include .hidden files
             .gitignore_patterns = &[_][]const u8{},
             .symlink_behavior = .skip,
             .respect_gitignore = false, // Don't use gitignore in tests
@@ -167,7 +167,7 @@ test "directory argument - empty directory" {
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
     const filesystem = RealFilesystem.init();
-    
+
     const expander = test_helpers.createGlobExpander(allocator, filesystem);
     var patterns = [_][]const u8{tmp_path};
     var results = try expander.expandPatternsWithInfo(&patterns);
@@ -198,7 +198,7 @@ test "directory argument - mixed with files" {
 
     var path_buf: [std.fs.max_path_bytes]u8 = undefined;
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
-    
+
     // Create paths for individual file and subdirectory
     const root_file = try std.fmt.allocPrint(allocator, "{s}/root.zig", .{tmp_path});
     defer allocator.free(root_file);
@@ -207,7 +207,7 @@ test "directory argument - mixed with files" {
 
     // Test mixing explicit file and directory
     const filesystem = RealFilesystem.init();
-    
+
     const expander = test_helpers.createGlobExpander(allocator, filesystem);
     var patterns = [_][]const u8{ root_file, subdir_path };
     var results = try expander.expandPatternsWithInfo(&patterns);
@@ -223,11 +223,11 @@ test "directory argument - mixed with files" {
 
     // Should have 2 pattern results
     try testing.expect(results.items.len == 2);
-    
+
     // First pattern (explicit file) should have 1 file
     try testing.expect(results.items[0].files.items.len == 1);
     try testing.expect(std.mem.endsWith(u8, results.items[0].files.items[0], "root.zig"));
-    
+
     // Second pattern (directory) should have 1 file
     try testing.expect(results.items[1].files.items.len == 1);
     try testing.expect(std.mem.endsWith(u8, results.items[1].files.items[0], "sub.zig"));
@@ -248,7 +248,7 @@ test "directory argument - hidden files handling" {
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
     const filesystem = RealFilesystem.init();
-    
+
     // Custom configuration with hidden files for this test
     const expander = GlobExpander{
         .allocator = allocator,
@@ -300,9 +300,9 @@ test "directory vs glob pattern behavior" {
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
     const filesystem = RealFilesystem.init();
-    
+
     const expander = test_helpers.createGlobExpander(allocator, filesystem);
-    
+
     // Test directory (should get all files)
     var dir_patterns = [_][]const u8{tmp_path};
     var dir_results = try expander.expandPatternsWithInfo(&dir_patterns);

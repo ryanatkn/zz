@@ -7,7 +7,7 @@ const test_helpers = @import("../../test_helpers.zig");
 test "path builder initialization" {
     var ctx = test_helpers.MockTestContext.init(testing.allocator);
     defer ctx.deinit();
-    
+
     const path_builder = PathBuilder{
         .allocator = testing.allocator,
         .filesystem = ctx.filesystem,
@@ -20,7 +20,7 @@ test "path builder initialization" {
 test "path builder buildPath functionality" {
     var ctx = test_helpers.MockTestContext.init(testing.allocator);
     defer ctx.deinit();
-    
+
     const path_builder = PathBuilder{
         .allocator = testing.allocator,
         .filesystem = ctx.filesystem,
@@ -47,7 +47,7 @@ test "path builder buildPath functionality" {
 test "path builder tree prefix functionality" {
     var ctx = test_helpers.MockTestContext.init(testing.allocator);
     defer ctx.deinit();
-    
+
     const path_builder = PathBuilder{
         .allocator = testing.allocator,
         .filesystem = ctx.filesystem,
@@ -75,12 +75,12 @@ test "path builder basename functionality" {
     const allocator = testing.allocator;
     var ctx = test_helpers.MockTestContext.init(allocator);
     defer ctx.deinit();
-    
+
     const builder = PathBuilder{
         .allocator = allocator,
         .filesystem = ctx.filesystem,
     };
-    
+
     // Test basename extraction
     try testing.expectEqualStrings("file.txt", builder.basename("path/to/file.txt"));
     try testing.expectEqualStrings("file.txt", builder.basename("file.txt"));

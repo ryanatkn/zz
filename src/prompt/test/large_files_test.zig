@@ -5,7 +5,7 @@ const PromptBuilder = @import("../builder.zig").PromptBuilder;
 
 test "single large file warning" {
     const allocator = std.testing.allocator;
-    
+
     var ctx = try test_helpers.TmpDirTestContext.init(allocator);
     defer ctx.deinit();
 

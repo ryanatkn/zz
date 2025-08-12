@@ -11,7 +11,7 @@ pub const RealFilesystem = struct {
     pub fn init() FilesystemInterface {
         const self = std.heap.page_allocator.create(Self) catch unreachable;
         self.* = Self{};
-        
+
         return FilesystemInterface{
             .ptr = self,
             .vtable = &.{
@@ -72,7 +72,7 @@ const RealDirHandle = struct {
             .dir = dir,
             .owns_dir = true,
         };
-        
+
         return DirHandle{
             .ptr = self,
             .vtable = &.{
@@ -92,7 +92,7 @@ const RealDirHandle = struct {
             .dir = std.fs.cwd(),
             .owns_dir = false,
         };
-        
+
         return DirHandle{
             .ptr = self,
             .vtable = &.{
@@ -158,7 +158,7 @@ const RealFileHandle = struct {
         self.* = Self{
             .file = file,
         };
-        
+
         return FileHandle{
             .ptr = self,
             .vtable = &.{
@@ -197,7 +197,7 @@ const RealDirIterator = struct {
         self.* = Self{
             .iter = iter,
         };
-        
+
         return DirIterator{
             .ptr = self,
             .vtable = &.{

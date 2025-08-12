@@ -155,7 +155,7 @@ test "directory as input argument - empty directory" {
 
     // Directory should now be supported - empty directory returns no files
     try std.testing.expect(results.items.len == 1);
-    try std.testing.expect(results.items[0].files.items.len == 0);  // Empty directory
+    try std.testing.expect(results.items[0].files.items.len == 0); // Empty directory
     try std.testing.expect(results.items[0].is_glob == false);
 }
 

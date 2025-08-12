@@ -18,7 +18,7 @@ test "glob alternatives" {
     // Brace expansion requires filesystem context for the expander
     var ctx = test_helpers.MockTestContext.init(testing.allocator);
     defer ctx.deinit();
-    
+
     const expander = test_helpers.createGlobExpander(testing.allocator, ctx.filesystem);
 
     try testing.expect(expander.matchPattern("test.zig", "*.{zig,txt}"));
@@ -102,9 +102,9 @@ test "glob pattern expansion" {
     // Mixed test - simple patterns can be pure, but braces need expander
     var ctx = test_helpers.MockTestContext.init(testing.allocator);
     defer ctx.deinit();
-    
+
     const expander = test_helpers.createGlobExpander(testing.allocator, ctx.filesystem);
-    
+
     // Test simple wildcard matching (could be pure but keeping consistent)
     try testing.expect(expander.matchPattern("test.zig", "*.zig"));
     try testing.expect(expander.matchPattern("main.zig", "*.zig"));
@@ -137,7 +137,7 @@ test "error on non-matching glob patterns" {
     // Use MockTestContext for controlled filesystem state (empty directory)
     var ctx = test_helpers.MockTestContext.init(testing.allocator);
     defer ctx.deinit();
-    
+
     const expander = test_helpers.createGlobExpander(testing.allocator, ctx.filesystem);
 
     // Test that glob pattern with no matches returns empty
@@ -162,7 +162,7 @@ test "error on explicit missing files" {
     // Use MockTestContext for controlled filesystem state (test missing files)
     var ctx = test_helpers.MockTestContext.init(testing.allocator);
     defer ctx.deinit();
-    
+
     const expander = test_helpers.createGlobExpander(testing.allocator, ctx.filesystem);
 
     // Test that explicit file path with no file returns empty

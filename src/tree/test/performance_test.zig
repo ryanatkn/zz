@@ -490,11 +490,11 @@ test "memory stress test" {
     var iteration: u32 = 0;
     while (iteration < 5) : (iteration += 1) {
         const filesystem = RealFilesystem.init();
-    const walker_options = WalkerOptions{
-        .filesystem = filesystem,
-        .quiet = true,
-    };
-    const walker = Walker.initWithOptions(testing.allocator, config, walker_options);
+        const walker_options = WalkerOptions{
+            .filesystem = filesystem,
+            .quiet = true,
+        };
+        const walker = Walker.initWithOptions(testing.allocator, config, walker_options);
 
         const start_time = std.time.milliTimestamp();
         try walker.walk(test_dir_path);

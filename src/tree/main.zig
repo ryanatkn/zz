@@ -34,7 +34,7 @@ fn runInternal(allocator: std.mem.Allocator, filesystem: FilesystemInterface, ar
 
 fn runWithConfigInternal(config: *Config, allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: [][:0]const u8, quiet: bool) !void {
     _ = args; // May be needed for future functionality
-    
+
     // Directory path is now stored in config
     const dir_path = config.directory_path;
 

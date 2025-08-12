@@ -20,7 +20,7 @@ test "CLI command parsing" {
 test "CLI runner initialization" {
     var ctx = test_helpers.MockTestContext.init(testing.allocator);
     defer ctx.deinit();
-    
+
     const runner = Runner.init(testing.allocator, ctx.filesystem);
     _ = runner;
 }
@@ -28,7 +28,7 @@ test "CLI runner initialization" {
 test "CLI help command dispatch" {
     var ctx = test_helpers.MockTestContext.init(testing.allocator);
     defer ctx.deinit();
-    
+
     const runner = Runner.init(testing.allocator, ctx.filesystem);
     const args = [_][:0]const u8{ "zz", "help" };
 
@@ -38,7 +38,7 @@ test "CLI help command dispatch" {
 test "CLI command dispatch structure" {
     var ctx = test_helpers.MockTestContext.init(testing.allocator);
     defer ctx.deinit();
-    
+
     const runner = Runner.init(testing.allocator, ctx.filesystem);
     _ = runner;
 }

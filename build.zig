@@ -57,6 +57,27 @@ pub fn build(b: *std.Build) void {
     benchmark_run.addArg("benchmark");
     benchmark_run.step.dependOn(b.getInstallStep());
     benchmark_step.dependOn(&benchmark_run.step);
+    
+    // Benchmark save step - writes results to file
+    const benchmark_save_step = b.step("benchmark-save", "Run benchmarks and save to benchmarks/latest.md");
+    const save_run = b.addRunArtifact(exe);
+    save_run.addArgs(&.{ "benchmark", "--output=benchmarks/latest.md" });
+    save_run.step.dependOn(b.getInstallStep());
+    benchmark_save_step.dependOn(&save_run.step);
+    
+    // Benchmark compare step - compares with baseline
+    const benchmark_compare_step = b.step("benchmark-compare", "Compare benchmarks with baseline");
+    const compare_run = b.addRunArtifact(exe);
+    compare_run.addArgs(&.{ "benchmark", "--output=benchmarks/latest.md", "--compare=benchmarks/baseline.md" });
+    compare_run.step.dependOn(b.getInstallStep());
+    benchmark_compare_step.dependOn(&compare_run.step);
+    
+    // Benchmark baseline step - updates baseline
+    const benchmark_baseline_step = b.step("benchmark-baseline", "Save current benchmarks as baseline");
+    const baseline_run = b.addRunArtifact(exe);
+    baseline_run.addArgs(&.{ "benchmark", "--output=benchmarks/baseline.md", "--save-baseline" });
+    baseline_run.step.dependOn(b.getInstallStep());
+    benchmark_baseline_step.dependOn(&baseline_run.step);
 }
 
 // Helper functions

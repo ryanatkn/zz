@@ -148,7 +148,23 @@ $ zig build run -- benchmark --glob               # Glob pattern matching
 # Benchmark in release mode for realistic performance metrics
 $ zig build -Doptimize=ReleaseFast
 $ ./zig-out/bin/zz benchmark --iterations=100000
+
+# Save benchmark results to markdown
+$ zig build benchmark-save                        # Save to benchmarks/latest.md
+$ zig build benchmark-baseline                    # Save as benchmarks/baseline.md
+$ zig build benchmark-compare                     # Compare with baseline (exits 1 on regression)
+
+# Manual benchmark file operations
+$ zz benchmark --output=benchmarks/latest.md
+$ zz benchmark --output=benchmarks/latest.md --compare=benchmarks/baseline.md
+$ zz benchmark --save-baseline --output=benchmarks/baseline.md
 ```
+
+**Benchmark Output:**
+- Results saved as markdown tables in `benchmarks/` directory
+- Tracked in git for performance history
+- Automatic comparison with baseline showing percentage changes
+- Regression detection with configurable thresholds (default: 10%)
 
 **Performance Baselines (Debug build, 10k iterations):**
 - Path operations: ~50μs per operation (20-30% faster than stdlib)
@@ -161,6 +177,7 @@ $ ./zig-out/bin/zz benchmark --iterations=100000
 - When modifying core infrastructure (`src/lib/`)
 - To verify performance improvements are maintained
 - During development of new features that impact performance
+- In CI/CD to catch performance regressions
 
 ## Module Structure
 
@@ -367,7 +384,7 @@ const walker = Walker.initWithOptions(allocator, config, .{ .filesystem = mock_f
 - Always include tests for new functionality and newly handled edge cases
     (and please don't cheat on tests lol,
     identify root causes and leave `// TODO` if you're stumped)
-- Less is more - avoid over-engineering
+- Less is more - avoid over-engineering, and when in doubt, ask me or choose the simple option
 
 **Current Status:** ✓ **Production ready with aggressive performance optimizations and stdlib integrations** - All 190 tests passing (100% success rate). Full feature set with significant performance improvements:
 

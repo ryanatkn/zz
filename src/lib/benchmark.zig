@@ -209,4 +209,133 @@ pub const Benchmark = struct {
     pub fn getResults(self: Self) []const BenchmarkResult {
         return self.results.items;
     }
+    
+    /// Write results to markdown format
+    pub fn writeMarkdown(
+        self: Self,
+        writer: anytype,
+        baseline_results: ?[]const BenchmarkResult,
+        build_mode: []const u8,
+        iterations: usize,
+    ) !void {
+        // Header
+        try writer.print("# Benchmark Results\n\n", .{});
+        
+        // Metadata
+        const timestamp = std.time.timestamp();
+        const date_time = std.time.epoch.EpochSeconds{ .secs = @intCast(timestamp) };
+        try writer.print("**Date:** {d}-{d:0>2}-{d:0>2} {d:0>2}:{d:0>2}:{d:0>2}  \n", .{
+            date_time.getEpochDay().calculateYearDay().year,
+            date_time.getEpochDay().calculateYearDay().calculateMonthDay().month.numeric(),
+            date_time.getEpochDay().calculateYearDay().calculateMonthDay().day_index + 1,
+            date_time.getDaySeconds().getHoursIntoDay(),
+            date_time.getDaySeconds().getMinutesIntoHour(),
+            date_time.getDaySeconds().getSecondsIntoMinute(),
+        });
+        try writer.print("**Build:** {s}  \n", .{build_mode});
+        try writer.print("**Iterations:** {}  \n\n", .{iterations});
+        
+        // Results table
+        try writer.print("## Results\n\n", .{});
+        try writer.print("| Benchmark | Operations | Time (ms) | ns/op |", .{});
+        if (baseline_results != null) {
+            try writer.print(" Baseline | Change |", .{});
+        }
+        try writer.print("\n", .{});
+        
+        try writer.print("|-----------|------------|-----------|-------|", .{});
+        if (baseline_results != null) {
+            try writer.print("----------|--------|", .{});
+        }
+        try writer.print("\n", .{});
+        
+        // Data rows
+        for (self.results.items) |result| {
+            try writer.print("| {s} | {} | {} | {} |", .{
+                result.name,
+                result.total_operations,
+                result.elapsed_ns / 1_000_000,
+                result.ns_per_op,
+            });
+            
+            if (baseline_results) |baseline| {
+                // Find matching baseline
+                const baseline_result = for (baseline) |b| {
+                    if (std.mem.eql(u8, b.name, result.name)) break b;
+                } else null;
+                
+                if (baseline_result) |base| {
+                    const change = @as(f64, @floatFromInt(result.ns_per_op)) / 
+                                  @as(f64, @floatFromInt(base.ns_per_op)) - 1.0;
+                    const change_pct = change * 100.0;
+                    
+                    try writer.print(" {} | {s}{d:.1}% |", .{
+                        base.ns_per_op,
+                        if (change > 0) "+" else "",
+                        change_pct,
+                    });
+                } else {
+                    try writer.print(" - | N/A |", .{});
+                }
+            }
+            try writer.print("\n", .{});
+        }
+        
+        // Extra info section if any
+        try writer.print("\n## Notes\n\n", .{});
+        for (self.results.items) |result| {
+            if (result.extra_info) |info| {
+                try writer.print("- **{s}:** {s}\n", .{ result.name, info });
+            }
+        }
+    }
+    
+    /// Load benchmark results from markdown file
+    pub fn loadFromMarkdown(allocator: std.mem.Allocator, content: []const u8) ![]BenchmarkResult {
+        var results = std.ArrayList(BenchmarkResult).init(allocator);
+        errdefer results.deinit();
+        
+        var lines = std.mem.tokenizeScalar(u8, content, '\n');
+        var in_table = false;
+        var skip_header = true;
+        
+        while (lines.next()) |line| {
+            // Look for table start
+            if (!in_table) {
+                if (std.mem.indexOf(u8, line, "| Benchmark |") != null) {
+                    in_table = true;
+                    skip_header = true;
+                }
+                continue;
+            }
+            
+            // Skip header separator
+            if (skip_header and std.mem.indexOf(u8, line, "|---") != null) {
+                skip_header = false;
+                continue;
+            }
+            
+            // Parse data row
+            if (line[0] == '|') {
+                var parts = std.mem.tokenizeScalar(u8, line, '|');
+                
+                const name = std.mem.trim(u8, parts.next() orelse continue, " ");
+                const ops_str = std.mem.trim(u8, parts.next() orelse continue, " ");
+                _ = parts.next(); // Skip time_ms
+                const ns_op_str = std.mem.trim(u8, parts.next() orelse continue, " ");
+                
+                const ops = std.fmt.parseInt(usize, ops_str, 10) catch continue;
+                const ns_op = std.fmt.parseInt(u64, ns_op_str, 10) catch continue;
+                
+                try results.append(.{
+                    .name = try allocator.dupe(u8, name),
+                    .total_operations = ops,
+                    .elapsed_ns = ns_op * ops,
+                    .ns_per_op = ns_op,
+                });
+            }
+        }
+        
+        return results.toOwnedSlice();
+    }
 };

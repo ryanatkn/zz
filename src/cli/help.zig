@@ -16,6 +16,9 @@ pub fn show(program_name: []const u8) void {
     std.debug.print("  benchmark [options]           Run performance benchmarks\n", .{});
     std.debug.print("                                Options:\n", .{});
     std.debug.print("                                  --iterations=N       Number of iterations (default: 10000)\n", .{});
+    std.debug.print("                                  --output=FILE        Write results to markdown file\n", .{});
+    std.debug.print("                                  --compare=FILE       Compare with baseline file\n", .{});
+    std.debug.print("                                  --save-baseline      Save as benchmarks/baseline.md\n", .{});
     std.debug.print("                                  --verbose            Show detailed output\n", .{});
     std.debug.print("                                  --path               Run path joining benchmarks\n", .{});
     std.debug.print("                                  --string-pool        Run string pool benchmarks\n", .{});

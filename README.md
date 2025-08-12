@@ -87,6 +87,9 @@ zz help                                         # Display help
 
 # Benchmark options:
 #   --iterations=N           - Number of iterations (default: 10000)
+#   --output=FILE            - Write results to markdown file
+#   --compare=FILE           - Compare with baseline file
+#   --save-baseline          - Save as benchmarks/baseline.md
 #   --verbose                - Show detailed output and performance tips
 #   --path                   - Run only path joining benchmarks
 #   --string-pool            - Run only string pool benchmarks
@@ -108,8 +111,12 @@ zz prompt src/ docs/             # Multiple directories
 zz prompt "*.{zig,md}" --prepend="Context:" # Multiple types with prefix
 
 # Performance benchmarks
-zz benchmark                     # Run all benchmarks
-zz benchmark --verbose          # Detailed output
+zz benchmark                                     # Run all benchmarks
+zz benchmark --output=benchmarks/latest.md       # Save to file
+zz benchmark --compare=benchmarks/baseline.md    # Compare with baseline
+zig build benchmark-save                         # Quick save to latest.md
+zig build benchmark-compare                      # Quick compare (fails on regression)
+zig build benchmark-baseline                     # Update baseline
 ```
 
 **Exit Codes:**

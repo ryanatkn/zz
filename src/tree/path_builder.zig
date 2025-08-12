@@ -1,15 +1,11 @@
 const std = @import("std");
+const FilesystemInterface = @import("../filesystem.zig").FilesystemInterface;
 
 pub const PathBuilder = struct {
     allocator: std.mem.Allocator,
+    filesystem: FilesystemInterface,
 
     const Self = @This();
-
-    pub fn init(allocator: std.mem.Allocator) Self {
-        return Self{
-            .allocator = allocator,
-        };
-    }
 
     /// Build a relative path by joining base and name
     /// Caller owns the returned string and must free it
@@ -17,7 +13,7 @@ pub const PathBuilder = struct {
         if (std.mem.eql(u8, base, ".")) {
             return self.allocator.dupe(u8, name);
         }
-        return try std.fs.path.join(self.allocator, &.{ base, name });
+        return try self.filesystem.pathJoin(self.allocator, &.{ base, name });
     }
 
     /// Create tree prefix for the next level of indentation
@@ -28,7 +24,7 @@ pub const PathBuilder = struct {
     }
 
     /// Get the basename of a path (convenience wrapper)
-    pub fn basename(path: []const u8) []const u8 {
-        return std.fs.path.basename(path);
+    pub fn basename(self: Self, path: []const u8) []const u8 {
+        return self.filesystem.pathBasename(path);
     }
 };

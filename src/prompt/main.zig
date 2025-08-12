@@ -1,34 +1,35 @@
 const std = @import("std");
+const FilesystemInterface = @import("../filesystem.zig").FilesystemInterface;
 
 pub const Config = @import("config.zig").Config;
 pub const PromptBuilder = @import("builder.zig").PromptBuilder;
 pub const GlobExpander = @import("glob.zig").GlobExpander;
 
-pub fn run(allocator: std.mem.Allocator, args: [][:0]const u8) !void {
-    return runInternal(allocator, args, false);
+pub fn run(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: [][:0]const u8) !void {
+    return runInternal(allocator, filesystem, args, false);
 }
 
-pub fn runQuiet(allocator: std.mem.Allocator, args: [][:0]const u8) !void {
-    return runInternal(allocator, args, true);
+pub fn runQuiet(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: [][:0]const u8) !void {
+    return runInternal(allocator, filesystem, args, true);
 }
 
-pub fn runWithConfig(config: *Config, allocator: std.mem.Allocator, args: [][:0]const u8) !void {
-    return runWithConfigInternal(config, allocator, args, false);
+pub fn runWithConfig(config: *Config, allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: [][:0]const u8) !void {
+    return runWithConfigInternal(config, allocator, filesystem, args, false);
 }
 
-pub fn runWithConfigQuiet(config: *Config, allocator: std.mem.Allocator, args: [][:0]const u8) !void {
-    return runWithConfigInternal(config, allocator, args, true);
+pub fn runWithConfigQuiet(config: *Config, allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: [][:0]const u8) !void {
+    return runWithConfigInternal(config, allocator, filesystem, args, true);
 }
 
-fn runInternal(allocator: std.mem.Allocator, args: [][:0]const u8, quiet: bool) !void {
+fn runInternal(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: [][:0]const u8, quiet: bool) !void {
     // Parse configuration from args
-    var config = try Config.fromArgs(allocator, args);
+    var config = try Config.fromArgs(allocator, filesystem, args);
     defer config.deinit();
 
-    return runWithConfigInternal(&config, allocator, args, quiet);
+    return runWithConfigInternal(&config, allocator, filesystem, args, quiet);
 }
 
-fn runWithConfigInternal(config: *Config, allocator: std.mem.Allocator, args: [][:0]const u8, quiet: bool) !void {
+fn runWithConfigInternal(config: *Config, allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: [][:0]const u8, quiet: bool) !void {
     // Get file patterns from args
     var patterns = config.getFilePatterns(args) catch |err| {
         if (err == error.NoInputFiles) {
@@ -43,7 +44,11 @@ fn runWithConfigInternal(config: *Config, allocator: std.mem.Allocator, args: []
     defer patterns.deinit();
 
     // Expand glob patterns to actual file paths with info
-    var expander = GlobExpander.init(allocator);
+    const expander = GlobExpander{
+        .allocator = allocator,
+        .filesystem = filesystem,
+        .config = config.shared_config,
+    };
     var pattern_results = try expander.expandPatternsWithInfo(patterns.items);
     defer {
         for (pattern_results.items) |*result| {
@@ -139,7 +144,10 @@ fn runWithConfigInternal(config: *Config, allocator: std.mem.Allocator, args: []
     }
 
     // Build the prompt
-    var builder = if (quiet) PromptBuilder.initQuiet(allocator) else PromptBuilder.init(allocator);
+    var builder = if (quiet) 
+        PromptBuilder.initQuiet(allocator, filesystem) 
+    else 
+        PromptBuilder.init(allocator, filesystem);
     defer builder.deinit();
 
     // Add prepend text if provided

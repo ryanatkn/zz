@@ -1,6 +1,8 @@
 const std = @import("std");
+const test_helpers = @import("../../test_helpers.zig");
 const GlobExpander = @import("../glob.zig").GlobExpander;
 const Config = @import("../config.zig").Config;
+const RealFilesystem = @import("../../filesystem.zig").RealFilesystem;
 
 test "files with spaces in names" {
     const allocator = std.testing.allocator;
@@ -15,7 +17,8 @@ test "files with spaces in names" {
     var path_buf: [std.fs.max_path_bytes]u8 = undefined;
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
-    var expander = GlobExpander.init(allocator);
+    const filesystem = RealFilesystem.init();
+    const expander = test_helpers.createGlobExpander(allocator, filesystem);
 
     // Test explicit file with spaces
     const spaced_file = try std.fmt.allocPrint(allocator, "{s}/file with spaces.zig", .{tmp_path});
@@ -54,7 +57,8 @@ test "files with special characters" {
     var path_buf: [std.fs.max_path_bytes]u8 = undefined;
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
-    var expander = GlobExpander.init(allocator);
+    const filesystem = RealFilesystem.init();
+    const expander = test_helpers.createGlobExpander(allocator, filesystem);
 
     // Test glob matching with special char files
     const pattern = try std.fmt.allocPrint(allocator, "{s}/*.zig", .{tmp_path});
@@ -92,7 +96,8 @@ test "unicode filenames" {
     var path_buf: [std.fs.max_path_bytes]u8 = undefined;
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
-    var expander = GlobExpander.init(allocator);
+    const filesystem = RealFilesystem.init();
+    const expander = test_helpers.createGlobExpander(allocator, filesystem);
 
     // Test glob with unicode files
     const pattern = try std.fmt.allocPrint(allocator, "{s}/*.zig", .{tmp_path});
@@ -129,7 +134,8 @@ test "escaped characters in glob patterns" {
     var path_buf: [std.fs.max_path_bytes]u8 = undefined;
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
-    var expander = GlobExpander.init(allocator);
+    const filesystem = RealFilesystem.init();
+    const expander = test_helpers.createGlobExpander(allocator, filesystem);
 
     // Try to match literal file with * in name
     // Note: Currently our glob doesn't support escaping, so this will be treated as glob
@@ -173,7 +179,8 @@ test "very long filenames" {
     var path_buf: [std.fs.max_path_bytes]u8 = undefined;
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
-    var expander = GlobExpander.init(allocator);
+    const filesystem = RealFilesystem.init();
+    const expander = test_helpers.createGlobExpander(allocator, filesystem);
 
     // Match with glob
     const pattern = try std.fmt.allocPrint(allocator, "{s}/*.zig", .{tmp_path});
@@ -214,7 +221,8 @@ test "files with newlines and tabs in names" {
     var path_buf: [std.fs.max_path_bytes]u8 = undefined;
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
-    var expander = GlobExpander.init(allocator);
+    const filesystem = RealFilesystem.init();
+    const expander = test_helpers.createGlobExpander(allocator, filesystem);
 
     const pattern = try std.fmt.allocPrint(allocator, "{s}/*.zig", .{tmp_path});
     defer allocator.free(pattern);

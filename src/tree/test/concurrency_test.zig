@@ -2,25 +2,26 @@ const std = @import("std");
 const testing = std.testing;
 
 const Walker = @import("../walker.zig").Walker;
+const WalkerOptions = @import("../walker.zig").WalkerOptions;
 const Config = @import("../config.zig").Config;
 const SharedConfig = @import("../../config.zig").SharedConfig;
+const test_helpers = @import("../../test_helpers.zig");
 
 // Test thread safety and concurrent access patterns
 test "multiple walker instances" {
-    var tmp_dir = std.testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = try test_helpers.TmpDirTestContext.init(testing.allocator);
+    defer ctx.deinit();
 
     // Create test structure
     var i: u32 = 0;
     while (i < 10) : (i += 1) {
         const dir_name = try std.fmt.allocPrint(testing.allocator, "dir_{d}", .{i});
         defer testing.allocator.free(dir_name);
-        try tmp_dir.dir.makeDir(dir_name);
+        try ctx.makeDir(dir_name);
 
         const file_name = try std.fmt.allocPrint(testing.allocator, "{s}/file.txt", .{dir_name});
         defer testing.allocator.free(file_name);
-        const file = try tmp_dir.dir.createFile(file_name, .{});
-        file.close();
+        try ctx.writeFile(file_name, "test content");
     }
 
     const ignored = [_][]const u8{};
@@ -38,23 +39,26 @@ test "multiple walker instances" {
     const config = Config{ .shared_config = shared_config };
 
     // Create multiple walker instances (should be safe)
-    const walker1 = Walker.initQuiet(testing.allocator, config);
-    const walker2 = Walker.initQuiet(testing.allocator, config);
-    const walker3 = Walker.initQuiet(testing.allocator, config);
+    const opts1 = WalkerOptions{ .filesystem = ctx.filesystem, .quiet = true };
+    const walker1 = Walker.initWithOptions(testing.allocator, config, opts1);
+    const opts2 = WalkerOptions{ .filesystem = ctx.filesystem, .quiet = true };
+    const walker2 = Walker.initWithOptions(testing.allocator, config, opts2);
+    const opts3 = WalkerOptions{ .filesystem = ctx.filesystem, .quiet = true };
+    const walker3 = Walker.initWithOptions(testing.allocator, config, opts3);
 
     // All should work independently
-    const test_dir_path = try tmp_dir.dir.realpathAlloc(testing.allocator, ".");
-    defer testing.allocator.free(test_dir_path);
-
-    try walker1.walk(test_dir_path);
-    try walker2.walk(test_dir_path);
-    try walker3.walk(test_dir_path);
+    try walker1.walk(ctx.path);
+    try walker2.walk(ctx.path);
+    try walker3.walk(ctx.path);
 
     std.debug.print("✓ Multiple walker instances test passed!\n", .{});
 }
 
 // Test configuration immutability
 test "config immutability" {
+    var ctx = try test_helpers.TmpDirTestContext.init(testing.allocator);
+    defer ctx.deinit();
+
     const ignored = [_][]const u8{ "test1", "test2" };
     const hidden = [_][]const u8{"hidden1"};
 
@@ -70,8 +74,10 @@ test "config immutability" {
     const config = Config{ .shared_config = shared_config };
 
     // Create multiple walkers with same config
-    const walker1 = Walker.initQuiet(testing.allocator, config);
-    const walker2 = Walker.initQuiet(testing.allocator, config);
+    const opts1 = WalkerOptions{ .filesystem = ctx.filesystem, .quiet = true };
+    const walker1 = Walker.initWithOptions(testing.allocator, config, opts1);
+    const opts2 = WalkerOptions{ .filesystem = ctx.filesystem, .quiet = true };
+    const walker2 = Walker.initWithOptions(testing.allocator, config, opts2);
 
     // Both should have the same configuration
     try testing.expect(walker1.filter.shared_config.ignored_patterns.len == 2);
@@ -84,17 +90,21 @@ test "config immutability" {
 
 // Test rapid creation/destruction of configs
 test "rapid config lifecycle" {
+    var ctx = try test_helpers.TmpDirTestContext.init(testing.allocator);
+    defer ctx.deinit();
+
     var iteration: u32 = 0;
     while (iteration < 100) : (iteration += 1) {
-        var args = [_][]const u8{"tree"};
-        var config = try Config.fromArgs(testing.allocator, @ptrCast(&args));
+        var args = [_][:0]const u8{"tree"};
+        var config = try Config.fromArgs(testing.allocator, ctx.filesystem, @ptrCast(&args));
         defer config.deinit(testing.allocator);
 
         // Verify config is valid each time
         try testing.expect(config.shared_config.ignored_patterns.len > 0);
 
         // Create walker and immediately destroy
-        const walker = Walker.initQuiet(testing.allocator, config);
+        const opts_walk = WalkerOptions{ .filesystem = ctx.filesystem, .quiet = true };
+        const walker = Walker.initWithOptions(testing.allocator, config, opts_walk);
         _ = walker; // Just creation/destruction cycle
     }
 
@@ -103,6 +113,9 @@ test "rapid config lifecycle" {
 
 // Test memory behavior under stress
 test "memory stress with config changes" {
+    var ctx = try test_helpers.TmpDirTestContext.init(testing.allocator);
+    defer ctx.deinit();
+
     // Test many different config combinations
     const patterns_sets = [_][]const []const u8{
         &[_][]const u8{},
@@ -125,7 +138,8 @@ test "memory stress with config changes" {
         };
 
         const config = Config{ .shared_config = shared_config };
-        const walker = Walker.initQuiet(testing.allocator, config);
+        const opts_walk = WalkerOptions{ .filesystem = ctx.filesystem, .quiet = true };
+        const walker = Walker.initWithOptions(testing.allocator, config, opts_walk);
 
         // Verify walker works with different configs
         _ = walker;

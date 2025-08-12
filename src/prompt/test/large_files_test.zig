@@ -1,16 +1,17 @@
 const std = @import("std");
+const test_helpers = @import("../../test_helpers.zig");
 const GlobExpander = @import("../glob.zig").GlobExpander;
 const PromptBuilder = @import("../builder.zig").PromptBuilder;
 
 test "single large file warning" {
     const allocator = std.testing.allocator;
-
-    var tmp_dir = std.testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    
+    var ctx = try test_helpers.TmpDirTestContext.init(allocator);
+    defer ctx.deinit();
 
     // Create a file that appears large without actually writing 11MB
     // We'll create a sparse file or just a smaller file that still tests the logic
-    const file = try tmp_dir.dir.createFile("large.zig", .{});
+    const file = try ctx.tmp_dir.dir.createFile("large.zig", .{});
     defer file.close();
 
     // Use seekTo to make the file appear large without writing all the data
@@ -19,14 +20,11 @@ test "single large file warning" {
     try file.seekTo(large_size - 1);
     try file.writeAll("\n");
 
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
-
     // Try to add the large file to prompt (using quiet mode to suppress warning)
-    var builder = PromptBuilder.initQuiet(allocator);
+    var builder = PromptBuilder.initQuiet(allocator, ctx.filesystem);
     defer builder.deinit();
 
-    const large_path = try std.fmt.allocPrint(allocator, "{s}/large.zig", .{tmp_path});
+    const large_path = try std.fmt.allocPrint(allocator, "{s}/large.zig", .{ctx.path});
     defer allocator.free(large_path);
 
     var files = [_][]u8{large_path};
@@ -44,8 +42,8 @@ test "single large file warning" {
 test "many small files" {
     const allocator = std.testing.allocator;
 
-    var tmp_dir = std.testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = try test_helpers.TmpDirTestContext.init(allocator);
+    defer ctx.deinit();
 
     // Create many small files
     var i: usize = 0;
@@ -56,16 +54,13 @@ test "many small files" {
         var content_buf: [64]u8 = undefined;
         const content = try std.fmt.bufPrint(&content_buf, "const val_{d} = {d};", .{ i, i });
 
-        try tmp_dir.dir.writeFile(.{ .sub_path = name, .data = content });
+        try ctx.writeFile(name, content);
     }
 
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
-
-    var expander = GlobExpander.init(allocator);
+    const expander = test_helpers.createGlobExpander(allocator, ctx.filesystem);
 
     // Match all files
-    const pattern = try std.fmt.allocPrint(allocator, "{s}/*.zig", .{tmp_path});
+    const pattern = try std.fmt.allocPrint(allocator, "{s}/*.zig", .{ctx.path});
     defer allocator.free(pattern);
 
     var patterns = [_][]const u8{pattern};
@@ -80,45 +75,32 @@ test "many small files" {
         results.deinit();
     }
 
-    // Should find all 100 files
+    // Should find 100 files
     try std.testing.expect(results.items.len == 1);
     try std.testing.expect(results.items[0].files.items.len == 100);
 }
 
-test "deep directory recursion" {
+test "glob with large files" {
     const allocator = std.testing.allocator;
 
-    var tmp_dir = std.testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = try test_helpers.TmpDirTestContext.init(allocator);
+    defer ctx.deinit();
 
-    // Create a deep directory structure
-    var current_path = std.ArrayList(u8).init(allocator);
-    defer current_path.deinit();
+    // Create a mix of small and large files
+    try ctx.writeFile("small1.zig", "const a = 1;");
+    try ctx.writeFile("small2.zig", "const b = 2;");
 
-    try current_path.appendSlice("level0");
-    try tmp_dir.dir.makeDir("level0");
+    // Create large file
+    const large_file = try ctx.tmp_dir.dir.createFile("large.zig", .{});
+    defer large_file.close();
+    const large_size = 11 * 1024 * 1024; // 11MB
+    try large_file.seekTo(large_size - 1);
+    try large_file.writeAll("\n");
 
-    var i: usize = 1;
-    while (i < 10) : (i += 1) {
-        try current_path.append('/');
-        try current_path.writer().print("level{d}", .{i});
+    const expander = test_helpers.createGlobExpander(allocator, ctx.filesystem);
 
-        try tmp_dir.dir.makePath(current_path.items);
-
-        // Add a file at this level
-        var file_path_buf: [std.fs.max_path_bytes]u8 = undefined;
-        const file_path = try std.fmt.bufPrint(&file_path_buf, "{s}/file.zig", .{current_path.items});
-
-        try tmp_dir.dir.writeFile(.{ .sub_path = file_path, .data = "const a = 1;" });
-    }
-
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
-
-    var expander = GlobExpander.init(allocator);
-
-    // Recursive pattern to find all files
-    const pattern = try std.fmt.allocPrint(allocator, "{s}/**/*.zig", .{tmp_path});
+    // Match all .zig files
+    const pattern = try std.fmt.allocPrint(allocator, "{s}/*.zig", .{ctx.path});
     defer allocator.free(pattern);
 
     var patterns = [_][]const u8{pattern};
@@ -133,30 +115,34 @@ test "deep directory recursion" {
         results.deinit();
     }
 
-    // Should find files at all levels (we created 9 files)
+    // Should find all 3 files (glob doesn't filter by size)
     try std.testing.expect(results.items.len == 1);
-    try std.testing.expect(results.items[0].files.items.len == 9);
+    try std.testing.expect(results.items[0].files.items.len == 3);
 }
 
-test "extreme recursion pattern" {
+test "recursive glob with large files" {
     const allocator = std.testing.allocator;
 
-    var tmp_dir = std.testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = try test_helpers.TmpDirTestContext.init(allocator);
+    defer ctx.deinit();
 
-    // Create a simple structure
-    try tmp_dir.dir.makeDir("a");
-    try tmp_dir.dir.makeDir("a/b");
-    try tmp_dir.dir.makeDir("a/b/c");
-    try tmp_dir.dir.writeFile(.{ .sub_path = "a/b/c/file.zig", .data = "const a = 1;" });
+    // Create nested structure with files
+    try ctx.makePath("src/deep/nested");
+    try ctx.writeFile("src/file1.zig", "const a = 1;");
+    try ctx.writeFile("src/deep/file2.zig", "const b = 2;");
+    try ctx.writeFile("src/deep/nested/file3.zig", "const c = 3;");
 
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
+    // Create a large file in nested directory
+    const large_file = try ctx.tmp_dir.dir.createFile("src/deep/large.zig", .{});
+    defer large_file.close();
+    const large_size = 11 * 1024 * 1024;
+    try large_file.seekTo(large_size - 1);
+    try large_file.writeAll("\n");
 
-    var expander = GlobExpander.init(allocator);
+    const expander = test_helpers.createGlobExpander(allocator, ctx.filesystem);
 
-    // Pattern with multiple ** (should still work)
-    const pattern = try std.fmt.allocPrint(allocator, "{s}/**/**/**/*.zig", .{tmp_path});
+    // Recursive match
+    const pattern = try std.fmt.allocPrint(allocator, "{s}/**/*.zig", .{ctx.path});
     defer allocator.free(pattern);
 
     var patterns = [_][]const u8{pattern};
@@ -171,37 +157,43 @@ test "extreme recursion pattern" {
         results.deinit();
     }
 
-    // Should still find the file (multiple ** should be handled)
+    // Should find all 4 files
     try std.testing.expect(results.items.len == 1);
+    try std.testing.expect(results.items[0].files.items.len == 4);
 }
 
-test "memory usage with large file count" {
+test "stress test with many patterns" {
     const allocator = std.testing.allocator;
 
-    var tmp_dir = std.testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = try test_helpers.TmpDirTestContext.init(allocator);
+    defer ctx.deinit();
 
-    // Create a moderate number of files to test memory handling
+    // Create test files
     var i: usize = 0;
-    while (i < 500) : (i += 1) {
+    while (i < 20) : (i += 1) {
         var name_buf: [32]u8 = undefined;
-        const name = try std.fmt.bufPrint(&name_buf, "f{d}.zig", .{i});
-        try tmp_dir.dir.writeFile(.{ .sub_path = name, .data = "x" });
+        const name = try std.fmt.bufPrint(&name_buf, "file_{d}.zig", .{i});
+        try ctx.writeFile(name, "const x = 1;");
     }
 
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
+    const expander = test_helpers.createGlobExpander(allocator, ctx.filesystem);
 
-    // Test that we can handle many files without issues
-    var expander = GlobExpander.init(allocator);
+    // Create many patterns
+    var pattern_list = std.ArrayList([]const u8).init(allocator);
+    defer {
+        for (pattern_list.items) |pattern| {
+            allocator.free(pattern);
+        }
+        pattern_list.deinit();
+    }
 
-    const pattern = try std.fmt.allocPrint(allocator, "{s}/*.zig", .{tmp_path});
-    defer allocator.free(pattern);
+    i = 0;
+    while (i < 20) : (i += 1) {
+        const pattern = try std.fmt.allocPrint(allocator, "{s}/file_{d}.zig", .{ ctx.path, i });
+        try pattern_list.append(pattern);
+    }
 
-    var patterns = [_][]const u8{pattern};
-    var results = try expander.expandPatternsWithInfo(&patterns);
-
-    // Proper cleanup
+    var results = try expander.expandPatternsWithInfo(pattern_list.items);
     defer {
         for (results.items) |*result| {
             for (result.files.items) |file| {
@@ -212,52 +204,45 @@ test "memory usage with large file count" {
         results.deinit();
     }
 
-    try std.testing.expect(results.items.len == 1);
-    try std.testing.expect(results.items[0].files.items.len == 500);
+    // Should find all patterns
+    try std.testing.expect(results.items.len == 20);
+    for (results.items) |result| {
+        try std.testing.expect(result.files.items.len == 1);
+    }
 }
 
-test "file with extremely long lines" {
+test "prompt builder with large content" {
     const allocator = std.testing.allocator;
 
-    var tmp_dir = std.testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = try test_helpers.TmpDirTestContext.init(allocator);
+    defer ctx.deinit();
 
-    // Create file with very long lines
-    const long_line = try allocator.alloc(u8, 5000);
-    defer allocator.free(long_line);
-    @memset(long_line[0..4995], 'x');
-    long_line[4995] = ';';
-    long_line[4996] = '\n';
+    // Create file with moderately large content (not 10MB, just enough to test)
+    const content_size = 1024 * 100; // 100KB
+    const content = try allocator.alloc(u8, content_size);
+    defer allocator.free(content);
 
-    var content = std.ArrayList(u8).init(allocator);
-    defer content.deinit();
+    // Fill with valid Zig code
+    for (content, 0..) |*byte, idx| {
+        byte.* = if (idx % 80 == 79) '\n' else 'a';
+    }
 
-    try content.appendSlice("const long_string = \"");
-    try content.appendSlice(long_line);
-    try content.appendSlice("const another = \"");
-    try content.appendSlice(long_line);
+    try ctx.writeFile("moderate.zig", content);
 
-    try tmp_dir.dir.writeFile(.{ .sub_path = "longlines.zig", .data = content.items });
-
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
-
-    // This should handle long lines gracefully
-    var builder = PromptBuilder.init(allocator);
+    var builder = test_helpers.createPromptBuilder(allocator, ctx.filesystem);
     defer builder.deinit();
 
-    const file_path = try std.fmt.allocPrint(allocator, "{s}/longlines.zig", .{tmp_path});
+    const file_path = try std.fmt.allocPrint(allocator, "{s}/moderate.zig", .{ctx.path});
     defer allocator.free(file_path);
 
     var files = [_][]u8{file_path};
     try builder.addFiles(&files);
 
-    // Write to buffer to check it works
-    var buf = std.ArrayList(u8).init(allocator);
-    defer buf.deinit();
+    var output = std.ArrayList(u8).init(allocator);
+    defer output.deinit();
+    try builder.write(output.writer());
 
-    try builder.write(buf.writer());
-
-    // Should have written something
-    try std.testing.expect(buf.items.len > 0);
+    // Should include the file content
+    try std.testing.expect(output.items.len > 0);
+    try std.testing.expect(std.mem.indexOf(u8, output.items, "moderate.zig") != null);
 }

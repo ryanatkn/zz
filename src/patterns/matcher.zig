@@ -84,38 +84,3 @@ pub const PatternMatcher = struct {
         return false;
     }
 };
-
-// Tests for pattern matching functionality
-test "PatternMatcher.matchesPattern unified behavior" {
-    // Test exact component matches
-    try std.testing.expect(PatternMatcher.matchesPattern("node_modules", "node_modules"));
-    try std.testing.expect(PatternMatcher.matchesPattern("path/node_modules", "node_modules"));
-    try std.testing.expect(PatternMatcher.matchesPattern("node_modules/package", "node_modules"));
-    try std.testing.expect(PatternMatcher.matchesPattern("a/node_modules/b", "node_modules"));
-
-    // Test non-matches (leaky patterns)
-    try std.testing.expect(!PatternMatcher.matchesPattern("my_node_modules", "node_modules"));
-    try std.testing.expect(!PatternMatcher.matchesPattern("node_modules_backup", "node_modules"));
-    try std.testing.expect(!PatternMatcher.matchesPattern("path/my_node_modules", "node_modules"));
-    try std.testing.expect(!PatternMatcher.matchesPattern("path/node_modules_backup", "node_modules"));
-
-    // Test empty and edge cases
-    try std.testing.expect(!PatternMatcher.matchesPattern("", "test"));
-    try std.testing.expect(!PatternMatcher.matchesPattern("test", ""));
-    try std.testing.expect(PatternMatcher.matchesPattern("test", "test"));
-}
-
-test "PatternMatcher.hasGlobChars detection" {
-    try std.testing.expect(PatternMatcher.hasGlobChars("*.zig"));
-    try std.testing.expect(PatternMatcher.hasGlobChars("test?.txt"));
-    try std.testing.expect(PatternMatcher.hasGlobChars("a*b?c"));
-    try std.testing.expect(!PatternMatcher.hasGlobChars("normal.txt"));
-    try std.testing.expect(!PatternMatcher.hasGlobChars("node_modules"));
-}
-
-test "PatternMatcher.matchSimplePattern glob functionality" {
-    try std.testing.expect(PatternMatcher.matchSimplePattern("test.zig", "*.zig"));
-    try std.testing.expect(PatternMatcher.matchSimplePattern("anything", "*"));
-    try std.testing.expect(!PatternMatcher.matchSimplePattern("test.md", "*.zig"));
-    try std.testing.expect(PatternMatcher.matchSimplePattern("exact", "exact"));
-}

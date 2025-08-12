@@ -1,4 +1,5 @@
 const std = @import("std");
+const FilesystemInterface = @import("../filesystem.zig").FilesystemInterface;
 const SharedConfig = @import("../config.zig").SharedConfig;
 const ZonLoader = @import("../config.zig").ZonLoader;
 const shouldIgnorePath = @import("../config.zig").shouldIgnorePath;
@@ -68,9 +69,9 @@ pub const Config = struct {
         }
     }
 
-    pub fn fromArgs(allocator: std.mem.Allocator, args: [][:0]const u8) !Self {
+    pub fn fromArgs(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: [][:0]const u8) !Self {
         // Load shared config from ZON
-        var zon_loader = ZonLoader.init(allocator);
+        var zon_loader = ZonLoader.init(allocator, filesystem);
         defer zon_loader.deinit();
         const shared_config = try zon_loader.getSharedConfig();
 
@@ -138,107 +139,3 @@ pub const Config = struct {
         return patterns;
     }
 };
-
-test "config parsing" {
-    const allocator = std.testing.allocator;
-
-    // Test with --prepend flag
-    var args1 = [_][:0]const u8{ "zz", "prompt", "--prepend=Instructions here", "file.zig" };
-    var config1 = try Config.fromArgs(allocator, &args1);
-    defer config1.deinit();
-
-    try std.testing.expect(config1.prepend_text != null);
-    try std.testing.expectEqualStrings("Instructions here", config1.prepend_text.?);
-
-    var patterns1 = try config1.getFilePatterns(&args1);
-    defer patterns1.deinit();
-    try std.testing.expect(patterns1.items.len == 1);
-    try std.testing.expectEqualStrings("file.zig", patterns1.items[0]);
-
-    // Test with --append flag
-    var args2 = [_][:0]const u8{ "zz", "prompt", "--append=Follow-up text", "file.zig" };
-    var config2 = try Config.fromArgs(allocator, &args2);
-    defer config2.deinit();
-
-    try std.testing.expect(config2.append_text != null);
-    try std.testing.expectEqualStrings("Follow-up text", config2.append_text.?);
-
-    // Test without text flags
-    var args3 = [_][:0]const u8{ "zz", "prompt", "file1.zig", "file2.zig" };
-    var config3 = try Config.fromArgs(allocator, &args3);
-    defer config3.deinit();
-
-    try std.testing.expect(config3.prepend_text == null);
-    try std.testing.expect(config3.append_text == null);
-
-    var patterns3 = try config3.getFilePatterns(&args3);
-    defer patterns3.deinit();
-    try std.testing.expect(patterns3.items.len == 2);
-    try std.testing.expectEqualStrings("file1.zig", patterns3.items[0]);
-    try std.testing.expectEqualStrings("file2.zig", patterns3.items[1]);
-
-    // Test error when no files provided and no text flags
-    var args4 = [_][:0]const u8{ "zz", "prompt" };
-    var config4 = try Config.fromArgs(allocator, &args4);
-    defer config4.deinit();
-
-    const result = config4.getFilePatterns(&args4);
-    try std.testing.expectError(error.NoInputFiles, result);
-}
-
-test "ignore patterns" {
-    const allocator = std.testing.allocator;
-
-    var args = [_][:0]const u8{ "zz", "prompt" };
-    var config = try Config.fromArgs(allocator, &args);
-    defer config.deinit();
-
-    // Test default ignore patterns
-    try std.testing.expect(config.shouldIgnore(".git/config"));
-    try std.testing.expect(config.shouldIgnore("path/to/.zig-cache/file"));
-    try std.testing.expect(config.shouldIgnore("zig-out/bin/test"));
-    try std.testing.expect(config.shouldIgnore("node_modules/package/index.js"));
-
-    // Test non-ignored paths
-    try std.testing.expect(!config.shouldIgnore("README.md"));
-    try std.testing.expect(!config.shouldIgnore("docs/example.md"));
-    try std.testing.expect(!config.shouldIgnore("build.zig"));
-}
-
-test "config flag parsing" {
-    const allocator = std.testing.allocator;
-
-    // Test allow-empty-glob flag
-    var args1 = [_][:0]const u8{ "zz", "prompt", "--allow-empty-glob", "file.zig" };
-    var config1 = try Config.fromArgs(allocator, &args1);
-    defer config1.deinit();
-
-    try std.testing.expect(config1.allow_empty_glob == true);
-    try std.testing.expect(config1.allow_missing == false);
-    try std.testing.expect(config1.prepend_text == null);
-    try std.testing.expect(config1.append_text == null);
-
-    // Test allow-missing flag
-    var args2 = [_][:0]const u8{ "zz", "prompt", "--allow-missing", "file.zig" };
-    var config2 = try Config.fromArgs(allocator, &args2);
-    defer config2.deinit();
-
-    try std.testing.expect(config2.allow_empty_glob == false);
-    try std.testing.expect(config2.allow_missing == true);
-
-    // Test both flags
-    var args3 = [_][:0]const u8{ "zz", "prompt", "--allow-empty-glob", "--allow-missing", "file.zig" };
-    var config3 = try Config.fromArgs(allocator, &args3);
-    defer config3.deinit();
-
-    try std.testing.expect(config3.allow_empty_glob == true);
-    try std.testing.expect(config3.allow_missing == true);
-
-    // Test default (no flags)
-    var args4 = [_][:0]const u8{ "zz", "prompt", "file.zig" };
-    var config4 = try Config.fromArgs(allocator, &args4);
-    defer config4.deinit();
-
-    try std.testing.expect(config4.allow_empty_glob == false);
-    try std.testing.expect(config4.allow_missing == false);
-}

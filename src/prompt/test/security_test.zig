@@ -1,6 +1,8 @@
 const std = @import("std");
+const test_helpers = @import("../../test_helpers.zig");
 const GlobExpander = @import("../glob.zig").GlobExpander;
 const Config = @import("../config.zig").Config;
+const RealFilesystem = @import("../../filesystem.zig").RealFilesystem;
 
 test "path traversal with .." {
     const allocator = std.testing.allocator;
@@ -16,7 +18,8 @@ test "path traversal with .." {
     var path_buf: [std.fs.max_path_bytes]u8 = undefined;
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
-    var expander = GlobExpander.init(allocator);
+    const filesystem = RealFilesystem.init();
+    const expander = test_helpers.createGlobExpander(allocator, filesystem);
 
     // Try path traversal pattern
     const pattern = try std.fmt.allocPrint(allocator, "{s}/subdir/../*.zig", .{tmp_path});
@@ -50,7 +53,8 @@ test "absolute paths" {
     var path_buf: [std.fs.max_path_bytes]u8 = undefined;
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
-    var expander = GlobExpander.init(allocator);
+    const filesystem = RealFilesystem.init();
+    const expander = test_helpers.createGlobExpander(allocator, filesystem);
 
     // Use absolute path
     const abs_path = try std.fmt.allocPrint(allocator, "{s}/test.zig", .{tmp_path});
@@ -76,7 +80,8 @@ test "absolute paths" {
 test "home directory expansion not supported" {
     const allocator = std.testing.allocator;
 
-    var expander = GlobExpander.init(allocator);
+    const filesystem = RealFilesystem.init();
+    const expander = test_helpers.createGlobExpander(allocator, filesystem);
 
     // Try to use ~ for home directory
     var patterns = [_][]const u8{"~/file.zig"};
@@ -106,7 +111,8 @@ test "non-existent directory handling" {
     var path_buf: [std.fs.max_path_bytes]u8 = undefined;
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
-    var expander = GlobExpander.init(allocator);
+    const filesystem = RealFilesystem.init();
+    const expander = test_helpers.createGlobExpander(allocator, filesystem);
 
     // Try to access files in non-existent directory
     const pattern = try std.fmt.allocPrint(allocator, "{s}/nonexistent/*.zig", .{tmp_path});
@@ -132,7 +138,8 @@ test "non-existent directory handling" {
 test "attempt to read system files" {
     const allocator = std.testing.allocator;
 
-    var expander = GlobExpander.init(allocator);
+    const filesystem = RealFilesystem.init();
+    const expander = test_helpers.createGlobExpander(allocator, filesystem);
 
     // Try to access system files (these patterns should be handled safely)
     const patterns = [_][]const u8{
@@ -178,7 +185,8 @@ test "relative path outside project" {
     var project_dir = try std.fs.openDirAbsolute(project_path, .{});
     defer project_dir.close();
 
-    var expander = GlobExpander.init(allocator);
+    const filesystem = RealFilesystem.init();
+    const expander = test_helpers.createGlobExpander(allocator, filesystem);
 
     // Try to access file outside project with ..
     var patterns = [_][]const u8{"../outside.zig"};
@@ -209,7 +217,8 @@ test "extremely deep path traversal" {
     var path_buf: [std.fs.max_path_bytes]u8 = undefined;
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
-    var expander = GlobExpander.init(allocator);
+    const filesystem = RealFilesystem.init();
+    const expander = test_helpers.createGlobExpander(allocator, filesystem);
 
     // Try extremely deep path traversal that goes nowhere
     const pattern = try std.fmt.allocPrint(allocator, "{s}/a/b/c/../../../../../../../../../../*.zig", .{tmp_path});
@@ -242,7 +251,8 @@ test "empty path components" {
     var path_buf: [std.fs.max_path_bytes]u8 = undefined;
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
-    var expander = GlobExpander.init(allocator);
+    const filesystem = RealFilesystem.init();
+    const expander = test_helpers.createGlobExpander(allocator, filesystem);
 
     // Path with empty components (double slashes)
     const pattern = try std.fmt.allocPrint(allocator, "{s}//test.zig", .{tmp_path});

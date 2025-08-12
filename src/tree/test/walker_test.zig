@@ -2,8 +2,10 @@ const std = @import("std");
 const testing = std.testing;
 
 const Walker = @import("../walker.zig").Walker;
+const WalkerOptions = @import("../walker.zig").WalkerOptions;
 const Config = @import("../config.zig").Config;
 const SharedConfig = @import("../../config.zig").SharedConfig;
+const RealFilesystem = @import("../../filesystem.zig").RealFilesystem;
 
 // Mock filesystem operations to track directory access
 var mock_active = false;
@@ -65,8 +67,13 @@ test "basic ignored directories are not crawled" {
         const Self = @This();
 
         pub fn init(allocator: std.mem.Allocator, cfg: Config, tracked_dirs: *std.ArrayList([]const u8), root_dir: std.fs.Dir, root_path: []const u8) Self {
+            const filesystem = RealFilesystem.init();
+            const walker_options = WalkerOptions{
+                .filesystem = filesystem,
+                .quiet = false,
+            };
             return Self{
-                .base_walker = Walker.init(allocator, cfg),
+                .base_walker = Walker.initWithOptions(allocator, cfg, walker_options),
                 .tracked_dirs = tracked_dirs,
                 .root_dir = root_dir,
                 .root_path = root_path,
@@ -605,8 +612,13 @@ fn createTestWalker(comptime shared_config: SharedConfig) type {
         const Self = @This();
 
         pub fn init(allocator: std.mem.Allocator, cfg: Config, tracked_dirs: *std.ArrayList([]const u8), root_dir: std.fs.Dir, root_path: []const u8) Self {
+            const filesystem = RealFilesystem.init();
+            const walker_options = WalkerOptions{
+                .filesystem = filesystem,
+                .quiet = false,
+            };
             return Self{
-                .base_walker = Walker.init(allocator, cfg),
+                .base_walker = Walker.initWithOptions(allocator, cfg, walker_options),
                 .tracked_dirs = tracked_dirs,
                 .root_dir = root_dir,
                 .root_path = root_path,

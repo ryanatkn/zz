@@ -2,8 +2,10 @@ const std = @import("std");
 const testing = std.testing;
 
 const Walker = @import("../walker.zig").Walker;
+const WalkerOptions = @import("../walker.zig").WalkerOptions;
 const Config = @import("../config.zig").Config;
 const SharedConfig = @import("../../config.zig").SharedConfig;
+const RealFilesystem = @import("../../filesystem.zig").RealFilesystem;
 
 // Helper to create test directory structure
 fn createTestStructure(dir: std.fs.Dir, dir_count: u32, files_per_dir: u32) !void {
@@ -88,7 +90,12 @@ test "performance with large directory structure" {
         .shared_config = shared_config,
     };
 
-    const walker = Walker.initQuiet(testing.allocator, config);
+    const filesystem = RealFilesystem.init();
+    const walker_options = WalkerOptions{
+        .filesystem = filesystem,
+        .quiet = true,
+    };
+    const walker = Walker.initWithOptions(testing.allocator, config, walker_options);
 
     const start_traversal = std.time.milliTimestamp();
     try walker.walk(test_dir_path);
@@ -155,7 +162,12 @@ test "performance with many ignored directories" {
         .shared_config = shared_config,
     };
 
-    const walker = Walker.initQuiet(testing.allocator, config);
+    const filesystem = RealFilesystem.init();
+    const walker_options = WalkerOptions{
+        .filesystem = filesystem,
+        .quiet = true,
+    };
+    const walker = Walker.initWithOptions(testing.allocator, config, walker_options);
 
     const start_time = std.time.milliTimestamp();
     try walker.walk(test_dir_path);
@@ -212,7 +224,12 @@ test "memory efficiency with deep nesting" {
         .shared_config = shared_config,
     };
 
-    const walker = Walker.initQuiet(testing.allocator, config);
+    const filesystem = RealFilesystem.init();
+    const walker_options = WalkerOptions{
+        .filesystem = filesystem,
+        .quiet = true,
+    };
+    const walker = Walker.initWithOptions(testing.allocator, config, walker_options);
 
     const start_time = std.time.milliTimestamp();
     try walker.walk(test_dir_path);
@@ -281,7 +298,12 @@ test "performance comparison ignored vs not ignored" {
         .shared_config = shared_config,
     };
 
-    const walker_ignored = Walker.initQuiet(testing.allocator, config_ignored);
+    const fs_ignored = RealFilesystem.init();
+    const walker_opts_ignored = WalkerOptions{
+        .filesystem = fs_ignored,
+        .quiet = true,
+    };
+    const walker_ignored = Walker.initWithOptions(testing.allocator, config_ignored, walker_opts_ignored);
 
     const test_dir_ignored_path = try tmp_dir.dir.realpathAlloc(testing.allocator, test_dir_ignored);
     defer testing.allocator.free(test_dir_ignored_path);
@@ -307,7 +329,12 @@ test "performance comparison ignored vs not ignored" {
         .shared_config = shared_config2,
     };
 
-    const walker_normal = Walker.initQuiet(testing.allocator, config_normal);
+    const fs_normal = RealFilesystem.init();
+    const walker_opts_normal = WalkerOptions{
+        .filesystem = fs_normal,
+        .quiet = true,
+    };
+    const walker_normal = Walker.initWithOptions(testing.allocator, config_normal, walker_opts_normal);
 
     const test_dir_normal_path = try tmp_dir.dir.realpathAlloc(testing.allocator, test_dir_normal);
     defer testing.allocator.free(test_dir_normal_path);
@@ -354,7 +381,12 @@ test "scalability with increasing directory sizes" {
         .shared_config = shared_config,
     };
 
-    const walker = Walker.initQuiet(testing.allocator, config);
+    const filesystem = RealFilesystem.init();
+    const walker_options = WalkerOptions{
+        .filesystem = filesystem,
+        .quiet = true,
+    };
+    const walker = Walker.initWithOptions(testing.allocator, config, walker_options);
 
     // Test with increasing numbers of files
     const test_sizes = [_]u32{ 10, 25, 50, 75, 100 };
@@ -457,7 +489,12 @@ test "memory stress test" {
 
     var iteration: u32 = 0;
     while (iteration < 5) : (iteration += 1) {
-        const walker = Walker.initQuiet(testing.allocator, config);
+        const filesystem = RealFilesystem.init();
+    const walker_options = WalkerOptions{
+        .filesystem = filesystem,
+        .quiet = true,
+    };
+    const walker = Walker.initWithOptions(testing.allocator, config, walker_options);
 
         const start_time = std.time.milliTimestamp();
         try walker.walk(test_dir_path);

@@ -1,7 +1,10 @@
 const std = @import("std");
 const testing = std.testing;
+const test_helpers = @import("../../test_helpers.zig");
 const Config = @import("../config.zig").Config;
 const GlobExpander = @import("../glob.zig").GlobExpander;
+const SharedConfig = @import("../../config.zig").SharedConfig;
+const RealFilesystem = @import("../../filesystem.zig").RealFilesystem;
 const prompt_main = @import("../main.zig");
 
 test "directory argument - basic functionality" {
@@ -21,7 +24,9 @@ test "directory argument - basic functionality" {
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
     // Test directory expansion
-    var expander = GlobExpander.init(allocator);
+    const filesystem = RealFilesystem.init();
+    
+    const expander = test_helpers.createGlobExpander(allocator, filesystem);
     var patterns = [_][]const u8{tmp_path};
     var results = try expander.expandPatternsWithInfo(&patterns);
     defer {
@@ -71,7 +76,9 @@ test "directory argument - nested structure" {
     var path_buf: [std.fs.max_path_bytes]u8 = undefined;
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
-    var expander = GlobExpander.init(allocator);
+    const filesystem = RealFilesystem.init();
+    
+    const expander = test_helpers.createGlobExpander(allocator, filesystem);
     var patterns = [_][]const u8{tmp_path};
     var results = try expander.expandPatternsWithInfo(&patterns);
     defer {
@@ -117,7 +124,21 @@ test "directory argument - with ignore patterns" {
     var path_buf: [std.fs.max_path_bytes]u8 = undefined;
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
-    var expander = GlobExpander.init(allocator);
+    const filesystem = RealFilesystem.init();
+    
+    // Custom configuration with ignore patterns for this test
+    const expander = GlobExpander{
+        .allocator = allocator,
+        .filesystem = filesystem,
+        .config = SharedConfig{
+            .ignored_patterns = &[_][]const u8{ "node_modules", ".git" }, // Include node_modules
+            .hidden_files = &[_][]const u8{ ".hidden" }, // Include .hidden files
+            .gitignore_patterns = &[_][]const u8{},
+            .symlink_behavior = .skip,
+            .respect_gitignore = false, // Don't use gitignore in tests
+            .patterns_allocated = false,
+        },
+    };
     var patterns = [_][]const u8{tmp_path};
     var results = try expander.expandPatternsWithInfo(&patterns);
     defer {
@@ -145,7 +166,9 @@ test "directory argument - empty directory" {
     var path_buf: [std.fs.max_path_bytes]u8 = undefined;
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
-    var expander = GlobExpander.init(allocator);
+    const filesystem = RealFilesystem.init();
+    
+    const expander = test_helpers.createGlobExpander(allocator, filesystem);
     var patterns = [_][]const u8{tmp_path};
     var results = try expander.expandPatternsWithInfo(&patterns);
     defer {
@@ -183,7 +206,9 @@ test "directory argument - mixed with files" {
     defer allocator.free(subdir_path);
 
     // Test mixing explicit file and directory
-    var expander = GlobExpander.init(allocator);
+    const filesystem = RealFilesystem.init();
+    
+    const expander = test_helpers.createGlobExpander(allocator, filesystem);
     var patterns = [_][]const u8{ root_file, subdir_path };
     var results = try expander.expandPatternsWithInfo(&patterns);
     defer {
@@ -222,7 +247,21 @@ test "directory argument - hidden files handling" {
     var path_buf: [std.fs.max_path_bytes]u8 = undefined;
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
-    var expander = GlobExpander.init(allocator);
+    const filesystem = RealFilesystem.init();
+    
+    // Custom configuration with hidden files for this test
+    const expander = GlobExpander{
+        .allocator = allocator,
+        .filesystem = filesystem,
+        .config = SharedConfig{
+            .ignored_patterns = &[_][]const u8{}, // Empty ignore patterns
+            .hidden_files = &[_][]const u8{ ".hidden.zig", ".env" }, // Hide specific files
+            .gitignore_patterns = &[_][]const u8{},
+            .symlink_behavior = .skip,
+            .respect_gitignore = false, // Don't use gitignore in tests
+            .patterns_allocated = false,
+        },
+    };
     var patterns = [_][]const u8{tmp_path};
     var results = try expander.expandPatternsWithInfo(&patterns);
     defer {
@@ -260,7 +299,9 @@ test "directory vs glob pattern behavior" {
     var path_buf: [std.fs.max_path_bytes]u8 = undefined;
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
-    var expander = GlobExpander.init(allocator);
+    const filesystem = RealFilesystem.init();
+    
+    const expander = test_helpers.createGlobExpander(allocator, filesystem);
     
     // Test directory (should get all files)
     var dir_patterns = [_][]const u8{tmp_path};

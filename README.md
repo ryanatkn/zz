@@ -174,65 +174,34 @@ Create a `zz.zon` file in any directory to customize behavior:
 
 ## Architecture
 
-**Modular Design with Performance Focus:**
-
 - **`src/cli/`** - Command parsing and execution
-- **`src/config/`** - Modular configuration system:
-  - `shared.zig` - Core types and SharedConfig
-  - `zon.zig` - ZON file loading with integration  
-  - `resolver.zig` - Pattern resolution with defaults
-- **`src/patterns/`** - High-performance unified pattern matching:
-  - `matcher.zig` - Fast/slow path optimization (90/10 split)
-  - `gitignore.zig` - Stateless gitignore logic
-- **`src/config.zig`** - Clean public API facade for backward compatibility
+- **`src/config/`** - Configuration system with pattern resolution
+- **`src/filesystem/`** - Filesystem abstraction layer for testing
+- **`src/patterns/`** - High-performance pattern matching engine  
 - **`src/tree/`** - Directory traversal and visualization  
 - **`src/prompt/`** - LLM prompt generation with glob support
 
-### Design Principles
-- Single binary with no external dependencies
-- Direct function calls (no shell process spawning)  
-- Performance-critical code paths optimized with inline functions
-- Clean modular architecture with single responsibility
-- Pure Zig implementation with comprehensive test coverage
+**Design:** Single binary, no dependencies, pure Zig implementation.
 
 ## Development
 
 ```bash
-# Build commands (default is Debug mode)
-zig build                       # Debug build (default)
-zig build -Doptimize=ReleaseFast # Fast release build  
-zig build -Doptimize=ReleaseSafe # Safe release (with runtime checks)
-zig build -Doptimize=ReleaseSmall # Smallest binary size
-zig build --use-llvm            # Use LLVM backend
-
-# Run directly after building
-./zig-out/bin/zz [command]
-
-# Run via build system
-zig build run                   # Show help
-zig build run -- tree           # Run tree command
-zig build run -- prompt "*.zig" # Run prompt command
+$ zig build                      # Debug build (default)
+$ zig build -Doptimize=ReleaseFast  # Fast release build
+$ zig build run -- tree         # Run tree command  
+$ zig build run -- prompt "*.zig"  # Run prompt command
 ```
 
 ### Testing
 
 ```bash
-# Run all tests (173 tests with 100% success rate)
-zig build test
-
-# Run tree module tests only
-zig build test-tree
-
-# Run prompt module tests only
-zig build test-prompt
-
-# Alternative: run tests directly
-zig test src/test.zig           # All 173 tests
-zig test src/tree/test.zig      # Tree module tests
-zig test src/prompt/test.zig    # Prompt module tests
+$ zig build test              # Run all tests (recommended)
+$ zig build test-tree         # Run tree module tests only
+$ zig build test-prompt       # Run prompt module tests only
+$ zig test src/test.zig --test-filter "directory"    # Run specific tests by name pattern
 ```
 
-**Test Coverage:** Comprehensive test suite with 173 tests covering edge cases, security, performance, integration testing, pattern matching engine validation, and exit code verification.
+Comprehensive test suite with 190 tests covering edge cases, security, performance, and integration testing.
 
 ## Requirements
 

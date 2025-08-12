@@ -1,13 +1,17 @@
 const std = @import("std");
 const Config = @import("../config.zig").Config;
 const prompt_main = @import("../main.zig");
+const test_helpers = @import("../../test_helpers.zig");
 
 test "multiple prepend flags - last wins" {
     const allocator = std.testing.allocator;
+    
+    var ctx = try test_helpers.TmpDirTestContext.init(allocator);
+    defer ctx.deinit();
 
     var args = [_][:0]const u8{ "zz", "prompt", "--prepend=First", "--prepend=Second", "--prepend=Last", "file.zig" };
 
-    var config = try Config.fromArgs(allocator, &args);
+    var config = try Config.fromArgs(allocator, ctx.filesystem, &args);
     defer config.deinit();
 
     // Last prepend should win
@@ -17,10 +21,13 @@ test "multiple prepend flags - last wins" {
 
 test "multiple append flags - last wins" {
     const allocator = std.testing.allocator;
+    
+    var ctx = try test_helpers.TmpDirTestContext.init(allocator);
+    defer ctx.deinit();
 
     var args = [_][:0]const u8{ "zz", "prompt", "--append=First", "--append=Second", "--append=Last", "file.zig" };
 
-    var config = try Config.fromArgs(allocator, &args);
+    var config = try Config.fromArgs(allocator, ctx.filesystem, &args);
     defer config.deinit();
 
     // Last append should win
@@ -30,10 +37,13 @@ test "multiple append flags - last wins" {
 
 test "both allow flags together" {
     const allocator = std.testing.allocator;
+    
+    var ctx = try test_helpers.TmpDirTestContext.init(allocator);
+    defer ctx.deinit();
 
     var args = [_][:0]const u8{ "zz", "prompt", "--allow-empty-glob", "--allow-missing", "*.nonexistent", "missing.zig" };
 
-    var config = try Config.fromArgs(allocator, &args);
+    var config = try Config.fromArgs(allocator, ctx.filesystem, &args);
     defer config.deinit();
 
     try std.testing.expect(config.allow_empty_glob == true);
@@ -47,10 +57,13 @@ test "both allow flags together" {
 
 test "flags with empty values" {
     const allocator = std.testing.allocator;
+    
+    var ctx = try test_helpers.TmpDirTestContext.init(allocator);
+    defer ctx.deinit();
 
     var args = [_][:0]const u8{ "zz", "prompt", "--prepend=", "--append=", "file.zig" };
 
-    var config = try Config.fromArgs(allocator, &args);
+    var config = try Config.fromArgs(allocator, ctx.filesystem, &args);
     defer config.deinit();
 
     // Empty strings are valid
@@ -62,10 +75,13 @@ test "flags with empty values" {
 
 test "flags interspersed with files" {
     const allocator = std.testing.allocator;
+    
+    var ctx = try test_helpers.TmpDirTestContext.init(allocator);
+    defer ctx.deinit();
 
     var args = [_][:0]const u8{ "zz", "prompt", "file1.zig", "--prepend=Text", "file2.zig", "--allow-missing", "file3.zig", "--append=More", "file4.zig" };
 
-    var config = try Config.fromArgs(allocator, &args);
+    var config = try Config.fromArgs(allocator, ctx.filesystem, &args);
     defer config.deinit();
 
     // All flags should be parsed
@@ -86,10 +102,13 @@ test "flags interspersed with files" {
 
 test "only text flags no files" {
     const allocator = std.testing.allocator;
+    
+    var ctx = try test_helpers.TmpDirTestContext.init(allocator);
+    defer ctx.deinit();
 
     var args = [_][:0]const u8{ "zz", "prompt", "--prepend=Header", "--append=Footer" };
 
-    var config = try Config.fromArgs(allocator, &args);
+    var config = try Config.fromArgs(allocator, ctx.filesystem, &args);
     defer config.deinit();
 
     // Should not error since we have text flags
@@ -103,37 +122,34 @@ test "only text flags no files" {
 
 test "conflicting patterns same files" {
     const allocator = std.testing.allocator;
-
-    var tmp_dir = std.testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    
+    var ctx = try test_helpers.TmpDirTestContext.init(allocator);
+    defer ctx.deinit();
 
     // Create test files
-    try tmp_dir.dir.writeFile(.{ .sub_path = "test.zig", .data = "const a = 1;" });
-    try tmp_dir.dir.writeFile(.{ .sub_path = "main.zig", .data = "const b = 2;" });
-
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
+    try ctx.writeFile("test.zig", "const a = 1;");
+    try ctx.writeFile("main.zig", "const b = 2;");
 
     // Patterns that will match overlapping files
     var args_buf: [10][:0]const u8 = undefined;
     args_buf[0] = "zz";
     args_buf[1] = "prompt";
 
-    const pattern1 = try std.fmt.allocPrintZ(allocator, "{s}/*.zig", .{tmp_path});
+    const pattern1 = try std.fmt.allocPrintZ(allocator, "{s}/*.zig", .{ctx.path});
     defer allocator.free(pattern1);
     args_buf[2] = pattern1;
 
-    const pattern2 = try std.fmt.allocPrintZ(allocator, "{s}/test.zig", .{tmp_path});
+    const pattern2 = try std.fmt.allocPrintZ(allocator, "{s}/test.zig", .{ctx.path});
     defer allocator.free(pattern2);
     args_buf[3] = pattern2;
 
-    const pattern3 = try std.fmt.allocPrintZ(allocator, "{s}/main.zig", .{tmp_path});
+    const pattern3 = try std.fmt.allocPrintZ(allocator, "{s}/main.zig", .{ctx.path});
     defer allocator.free(pattern3);
     args_buf[4] = pattern3;
 
     const args = args_buf[0..5];
 
-    var config = try Config.fromArgs(allocator, args);
+    var config = try Config.fromArgs(allocator, ctx.filesystem, args);
     defer config.deinit();
 
     var patterns = try config.getFilePatterns(args);
@@ -145,6 +161,9 @@ test "conflicting patterns same files" {
 
 test "allow-empty-glob with glob and explicit file" {
     const allocator = std.testing.allocator;
+    
+    var ctx = try test_helpers.TmpDirTestContext.init(allocator);
+    defer ctx.deinit();
 
     var args = [_][:0]const u8{
         "zz",                 "prompt",
@@ -153,7 +172,7 @@ test "allow-empty-glob with glob and explicit file" {
         "/missing/file.zig", // Explicit missing file
     };
 
-    var config = try Config.fromArgs(allocator, &args);
+    var config = try Config.fromArgs(allocator, ctx.filesystem, &args);
     defer config.deinit();
 
     // allow-empty-glob only affects globs, not explicit files
@@ -163,10 +182,13 @@ test "allow-empty-glob with glob and explicit file" {
 
 test "unicode in flag values" {
     const allocator = std.testing.allocator;
+    
+    var ctx = try test_helpers.TmpDirTestContext.init(allocator);
+    defer ctx.deinit();
 
     var args = [_][:0]const u8{ "zz", "prompt", "--prepend=Hello 世界 🌍", "--append=مرحبا мир", "file.zig" };
 
-    var config = try Config.fromArgs(allocator, &args);
+    var config = try Config.fromArgs(allocator, ctx.filesystem, &args);
     defer config.deinit();
 
     try std.testing.expect(config.prepend_text != null);
@@ -177,6 +199,9 @@ test "unicode in flag values" {
 
 test "very long flag values" {
     const allocator = std.testing.allocator;
+    
+    var ctx = try test_helpers.TmpDirTestContext.init(allocator);
+    defer ctx.deinit();
 
     // Create a very long string for flag value
     const long_text = try allocator.alloc(u8, 1000);
@@ -188,7 +213,7 @@ test "very long flag values" {
 
     var args = [_][:0]const u8{ "zz", "prompt", prepend_arg, "file.zig" };
 
-    var config = try Config.fromArgs(allocator, &args);
+    var config = try Config.fromArgs(allocator, ctx.filesystem, &args);
     defer config.deinit();
 
     try std.testing.expect(config.prepend_text != null);

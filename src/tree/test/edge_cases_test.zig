@@ -2,8 +2,10 @@ const std = @import("std");
 const testing = std.testing;
 
 const Walker = @import("../walker.zig").Walker;
+const WalkerOptions = @import("../walker.zig").WalkerOptions;
 const Config = @import("../config.zig").Config;
 const SharedConfig = @import("../../config.zig").SharedConfig;
+const RealFilesystem = @import("../../filesystem.zig").RealFilesystem;
 
 // Test handling of various filesystem edge cases
 test "symlink handling" {
@@ -38,7 +40,12 @@ test "symlink handling" {
     };
 
     const config = Config{ .shared_config = shared_config };
-    const walker = Walker.initQuiet(testing.allocator, config);
+    const filesystem = RealFilesystem.init();
+    const walker_options = WalkerOptions{
+        .filesystem = filesystem,
+        .quiet = true,
+    };
+    const walker = Walker.initWithOptions(testing.allocator, config, walker_options);
 
     // Should not crash on symlinks
     const test_dir_path = try tmp_dir.dir.realpathAlloc(testing.allocator, ".");
@@ -116,7 +123,12 @@ test "circular reference handling" {
         .shared_config = shared_config,
     };
 
-    const walker = Walker.initQuiet(testing.allocator, config);
+    const filesystem = RealFilesystem.init();
+    const walker_options = WalkerOptions{
+        .filesystem = filesystem,
+        .quiet = true,
+    };
+    const walker = Walker.initWithOptions(testing.allocator, config, walker_options);
 
     const test_dir_path = try tmp_dir.dir.realpathAlloc(testing.allocator, ".");
     defer testing.allocator.free(test_dir_path);

@@ -1,4 +1,5 @@
 const std = @import("std");
+const DirHandle = @import("../filesystem.zig").DirHandle;
 
 pub const GitignorePatterns = struct {
     /// Parse gitignore file content into patterns (stateless)
@@ -94,10 +95,6 @@ pub const GitignorePatterns = struct {
         return false;
     }
 
-    /// Load gitignore patterns from file (stateless)
-    pub fn loadFromFile(allocator: std.mem.Allocator, file_path: []const u8) ![][]const u8 {
-        return loadFromDir(allocator, std.fs.cwd(), file_path);
-    }
 
     /// Load gitignore patterns from a directory (stateless)
     pub fn loadFromDir(allocator: std.mem.Allocator, dir: std.fs.Dir, file_path: []const u8) ![][]const u8 {
@@ -111,55 +108,17 @@ pub const GitignorePatterns = struct {
             return try allocator.alloc([]const u8, 0);
         }
     }
-};
 
-// Tests for gitignore functionality
-test "GitignorePatterns.parseContent basic parsing" {
-    const allocator = std.testing.allocator;
-
-    const content =
-        \\# This is a comment
-        \\node_modules
-        \\*.log
-        \\
-        \\temp/
-        \\!important.log
-    ;
-
-    const patterns = try GitignorePatterns.parseContent(allocator, content);
-    defer {
-        for (patterns) |pattern| {
-            allocator.free(pattern);
+    /// Load gitignore patterns from a directory using filesystem interface
+    pub fn loadFromDirHandle(allocator: std.mem.Allocator, dir: DirHandle, file_path: []const u8) ![][]const u8 {
+        // Simple approach: just try to read .gitignore from the specified directory
+        // For now, don't walk up the directory tree to keep implementation simple
+        if (dir.readFileAlloc(allocator, file_path, 1024 * 1024)) |content| {
+            defer allocator.free(content);
+            return try parseContent(allocator, content);
+        } else |_| {
+            // File doesn't exist or can't be read, return empty patterns
+            return try allocator.alloc([]const u8, 0);
         }
-        allocator.free(patterns);
     }
-
-    try std.testing.expect(patterns.len == 4);
-    try std.testing.expectEqualStrings("node_modules", patterns[0]);
-    try std.testing.expectEqualStrings("*.log", patterns[1]);
-    try std.testing.expectEqualStrings("temp/", patterns[2]);
-    try std.testing.expectEqualStrings("!important.log", patterns[3]);
-}
-
-test "GitignorePatterns.shouldIgnore pattern logic" {
-    const patterns = [_][]const u8{ "node_modules", "*.log", "!important.log" };
-
-    try std.testing.expect(GitignorePatterns.shouldIgnore(&patterns, "node_modules"));
-    try std.testing.expect(GitignorePatterns.shouldIgnore(&patterns, "path/to/node_modules"));
-    try std.testing.expect(GitignorePatterns.shouldIgnore(&patterns, "test.log"));
-    try std.testing.expect(!GitignorePatterns.shouldIgnore(&patterns, "important.log")); // Negated
-    try std.testing.expect(!GitignorePatterns.shouldIgnore(&patterns, "test.txt"));
-}
-
-test "GitignorePatterns.matchesPattern unified matching" {
-    // Directory patterns
-    try std.testing.expect(GitignorePatterns.matchesPattern("temp", "temp/"));
-
-    // Absolute patterns
-    try std.testing.expect(GitignorePatterns.matchesPattern("build/output", "/build"));
-    try std.testing.expect(!GitignorePatterns.matchesPattern("src/build", "/build"));
-
-    // Relative patterns
-    try std.testing.expect(GitignorePatterns.matchesPattern("any/path/node_modules", "node_modules"));
-    try std.testing.expect(GitignorePatterns.matchesPattern("test.log", "*.log"));
-}
+};

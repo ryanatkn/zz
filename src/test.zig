@@ -7,7 +7,6 @@ const std = @import("std");
 test {
     // Reference main modules to include their test blocks
     std.testing.refAllDeclsRecursive(@import("main.zig"));
-    std.testing.refAllDeclsRecursive(@import("cli/args.zig"));
     std.testing.refAllDeclsRecursive(@import("config.zig"));
 }
 
@@ -19,4 +18,14 @@ test {
 // Import prompt tests
 test {
     std.testing.refAllDeclsRecursive(@import("prompt/test.zig"));
+}
+
+// Import patterns tests
+test {
+    std.testing.refAllDeclsRecursive(@import("patterns/test.zig"));
+}
+
+// Import CLI tests
+test {
+    std.testing.refAllDeclsRecursive(@import("cli/test.zig"));
 }

@@ -1,6 +1,8 @@
 const std = @import("std");
+const test_helpers = @import("../../test_helpers.zig");
 const Config = @import("../config.zig").Config;
 const GlobExpander = @import("../glob.zig").GlobExpander;
+const RealFilesystem = @import("../../filesystem.zig").RealFilesystem;
 const prompt_main = @import("../main.zig");
 
 test "explicit file ignored by gitignore should error" {
@@ -21,13 +23,10 @@ test "explicit file ignored by gitignore should error" {
 
     const file_path = try std.fmt.allocPrint(allocator, "{s}/debug.log", .{tmp_path});
     defer allocator.free(file_path);
-
-    // Change to temp directory for gitignore to work
-    var tmp_cwd = try std.fs.cwd().openDir(tmp_path, .{});
-    defer tmp_cwd.close();
     
     // The glob expander correctly finds the file (it doesn't handle ignore logic)
-    var expander = GlobExpander.init(allocator);
+    const filesystem = RealFilesystem.init();
+    const expander = test_helpers.createGlobExpander(allocator, filesystem);
     var patterns = [_][]const u8{file_path};
     var results = try expander.expandPatternsWithInfo(&patterns);
     defer {
@@ -68,7 +67,8 @@ test "explicit file ignored by custom patterns should error" {
     defer allocator.free(file_path_z);
     
     var args = [_][:0]const u8{ "zz", "prompt", file_path_z };
-    var config = try Config.fromArgs(allocator, &args);
+    const filesystem = RealFilesystem.init();
+    var config = try Config.fromArgs(allocator, filesystem, &args);
     defer config.deinit();
 
     // This file should be ignored by default patterns (.git)
@@ -157,6 +157,7 @@ test "no input files returns correct error code" {
     
     // Test with no input files using quiet mode to suppress expected error message
     var args = [_][:0]const u8{ "zz", "prompt" };
-    const result = prompt_main.runQuiet(allocator, &args);
+    const filesystem = RealFilesystem.init();
+    const result = prompt_main.runQuiet(allocator, filesystem, &args);
     try std.testing.expectError(error.PatternsNotMatched, result);
 }

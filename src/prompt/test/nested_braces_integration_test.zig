@@ -1,6 +1,8 @@
 const std = @import("std");
 const testing = std.testing;
+const test_helpers = @import("../../test_helpers.zig");
 const GlobExpander = @import("../glob.zig").GlobExpander;
+const RealFilesystem = @import("../../filesystem.zig").RealFilesystem;
 
 test "nested braces with real files" {
     const allocator = testing.allocator;
@@ -19,7 +21,8 @@ test "nested braces with real files" {
     var path_buf: [std.fs.max_path_bytes]u8 = undefined;
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
-    var expander = GlobExpander.init(allocator);
+    const filesystem = RealFilesystem.init();
+    const expander = test_helpers.createGlobExpander(allocator, filesystem);
 
     // Test nested braces pattern: *.{zig,{md,txt}}
     // Should match: test.zig, test.md, test.txt
@@ -80,7 +83,8 @@ test "character classes with real files" {
     var path_buf: [std.fs.max_path_bytes]u8 = undefined;
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
-    var expander = GlobExpander.init(allocator);
+    const filesystem = RealFilesystem.init();
+    const expander = test_helpers.createGlobExpander(allocator, filesystem);
 
     // Test character class pattern: log[0-9].txt
     // Should match: log0.txt, log5.txt, log9.txt
@@ -129,7 +133,8 @@ test "escape sequences with real files" {
     var path_buf: [std.fs.max_path_bytes]u8 = undefined;
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
-    var expander = GlobExpander.init(allocator);
+    const filesystem = RealFilesystem.init();
+    const expander = test_helpers.createGlobExpander(allocator, filesystem);
 
     // Test escaped asterisk: file\*.txt
     // Should match only: file*.txt

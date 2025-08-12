@@ -1,5 +1,7 @@
 const std = @import("std");
+const test_helpers = @import("../../test_helpers.zig");
 const GlobExpander = @import("../glob.zig").GlobExpander;
+const RealFilesystem = @import("../../filesystem.zig").RealFilesystem;
 const matchSimplePattern = @import("../glob.zig").matchSimplePattern;
 
 test "match everything recursively with **" {
@@ -20,7 +22,8 @@ test "match everything recursively with **" {
     var path_buf: [std.fs.max_path_bytes]u8 = undefined;
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
-    var expander = GlobExpander.init(allocator);
+    const filesystem = RealFilesystem.init();
+    const expander = test_helpers.createGlobExpander(allocator, filesystem);
 
     // ** should match everything recursively
     const pattern = try std.fmt.allocPrint(allocator, "{s}/**", .{tmp_path});
@@ -53,7 +56,8 @@ test "trailing slash in pattern" {
     var path_buf: [std.fs.max_path_bytes]u8 = undefined;
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
-    var expander = GlobExpander.init(allocator);
+    const filesystem = RealFilesystem.init();
+    const expander = test_helpers.createGlobExpander(allocator, filesystem);
 
     // Pattern with trailing slash
     const pattern = try std.fmt.allocPrint(allocator, "{s}/", .{tmp_path});
@@ -87,7 +91,8 @@ test "empty alternatives in braces" {
     var path_buf: [std.fs.max_path_bytes]u8 = undefined;
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
-    var expander = GlobExpander.init(allocator);
+    const filesystem = RealFilesystem.init();
+    const expander = test_helpers.createGlobExpander(allocator, filesystem);
 
     // Pattern with empty alternative
     const pattern = try std.fmt.allocPrint(allocator, "{s}/{s}.zig", .{ tmp_path, "{,test}" });
@@ -110,7 +115,8 @@ test "empty alternatives in braces" {
 }
 
 test "unmatched braces" {
-    var expander = GlobExpander.init(std.testing.allocator);
+    const filesystem = RealFilesystem.init();
+    const expander = test_helpers.createGlobExpander(std.testing.allocator, filesystem);
 
     // Unmatched opening brace
     try std.testing.expect(!expander.matchPattern("test.zig", "*.{zig"));
@@ -162,7 +168,8 @@ test "star edge cases" {
 }
 
 test "complex glob patterns" {
-    var expander = GlobExpander.init(std.testing.allocator);
+    const filesystem = RealFilesystem.init();
+    const expander = test_helpers.createGlobExpander(std.testing.allocator, filesystem);
 
     // Complex alternatives
     try std.testing.expect(expander.matchPattern("main.zig", "{main,test,lib}.{zig,rs,go}"));
@@ -178,7 +185,8 @@ test "complex glob patterns" {
 }
 
 test "nested brace patterns" {
-    var expander = GlobExpander.init(std.testing.allocator);
+    const filesystem = RealFilesystem.init();
+    const expander = test_helpers.createGlobExpander(std.testing.allocator, filesystem);
 
     // Test nested braces - simple case
     try std.testing.expect(expander.matchPattern("test.zig", "*.{zig,{md,txt}}"));

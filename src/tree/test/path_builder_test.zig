@@ -2,16 +2,29 @@ const std = @import("std");
 const testing = std.testing;
 
 const PathBuilder = @import("../path_builder.zig").PathBuilder;
+const test_helpers = @import("../../test_helpers.zig");
 
 test "path builder initialization" {
-    const path_builder = PathBuilder.init(testing.allocator);
+    var ctx = test_helpers.MockTestContext.init(testing.allocator);
+    defer ctx.deinit();
+    
+    const path_builder = PathBuilder{
+        .allocator = testing.allocator,
+        .filesystem = ctx.filesystem,
+    };
     _ = path_builder; // Just verify it initializes
 
     std.debug.print("✓ Path builder initialization test passed!\n", .{});
 }
 
 test "path builder buildPath functionality" {
-    const path_builder = PathBuilder.init(testing.allocator);
+    var ctx = test_helpers.MockTestContext.init(testing.allocator);
+    defer ctx.deinit();
+    
+    const path_builder = PathBuilder{
+        .allocator = testing.allocator,
+        .filesystem = ctx.filesystem,
+    };
 
     // Test building path with "." base
     const result1 = try path_builder.buildPath(".", "file.txt");
@@ -32,7 +45,13 @@ test "path builder buildPath functionality" {
 }
 
 test "path builder tree prefix functionality" {
-    const path_builder = PathBuilder.init(testing.allocator);
+    var ctx = test_helpers.MockTestContext.init(testing.allocator);
+    defer ctx.deinit();
+    
+    const path_builder = PathBuilder{
+        .allocator = testing.allocator,
+        .filesystem = ctx.filesystem,
+    };
 
     // Test building prefix for last entry
     const result1 = try path_builder.buildTreePrefix("", true);
@@ -53,11 +72,20 @@ test "path builder tree prefix functionality" {
 }
 
 test "path builder basename functionality" {
+    const allocator = testing.allocator;
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
+    
+    const builder = PathBuilder{
+        .allocator = allocator,
+        .filesystem = ctx.filesystem,
+    };
+    
     // Test basename extraction
-    try testing.expectEqualStrings("file.txt", PathBuilder.basename("path/to/file.txt"));
-    try testing.expectEqualStrings("file.txt", PathBuilder.basename("file.txt"));
-    try testing.expectEqualStrings("dir", PathBuilder.basename("path/to/dir"));
-    try testing.expectEqualStrings(".", PathBuilder.basename("."));
+    try testing.expectEqualStrings("file.txt", builder.basename("path/to/file.txt"));
+    try testing.expectEqualStrings("file.txt", builder.basename("file.txt"));
+    try testing.expectEqualStrings("dir", builder.basename("path/to/dir"));
+    try testing.expectEqualStrings(".", builder.basename("."));
 
     std.debug.print("✓ Path builder basename test passed!\n", .{});
 }

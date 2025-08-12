@@ -5,6 +5,12 @@ const Entry = @import("entry.zig").Entry;
 const Filter = @import("filter.zig").Filter;
 const Formatter = @import("formatter.zig").Formatter;
 const PathBuilder = @import("path_builder.zig").PathBuilder;
+const FilesystemInterface = @import("../filesystem.zig").FilesystemInterface;
+
+pub const WalkerOptions = struct {
+    filesystem: FilesystemInterface,
+    quiet: bool = false,
+};
 
 pub const Walker = struct {
     allocator: std.mem.Allocator,
@@ -12,26 +18,21 @@ pub const Walker = struct {
     filter: Filter,
     formatter: Formatter,
     path_builder: PathBuilder,
+    filesystem: FilesystemInterface,
 
     const Self = @This();
 
-    pub fn init(allocator: std.mem.Allocator, config: Config) Self {
+    pub fn initWithOptions(allocator: std.mem.Allocator, config: Config, options: WalkerOptions) Self {
         return Self{
             .allocator = allocator,
             .config = config,
             .filter = Filter.init(config.shared_config),
-            .formatter = Formatter{ .format = config.format },
-            .path_builder = PathBuilder.init(allocator),
-        };
-    }
-
-    pub fn initQuiet(allocator: std.mem.Allocator, config: Config) Self {
-        return Self{
-            .allocator = allocator,
-            .config = config,
-            .filter = Filter.init(config.shared_config),
-            .formatter = Formatter{ .quiet = true, .format = config.format },
-            .path_builder = PathBuilder.init(allocator),
+            .formatter = Formatter{ .quiet = options.quiet, .format = config.format },
+            .path_builder = PathBuilder{
+                .allocator = allocator,
+                .filesystem = options.filesystem,
+            },
+            .filesystem = options.filesystem,
         };
     }
 
@@ -40,13 +41,13 @@ pub const Walker = struct {
         const initial_relative = if (self.config.format == .list and std.mem.eql(u8, path, "."))
             "."
         else
-            PathBuilder.basename(path);
+            self.path_builder.basename(path);
 
         try self.walkRecursive(path, "", initial_relative, true, 0);
     }
 
     fn walkRecursive(self: Self, path: []const u8, prefix: []const u8, relative_path: []const u8, is_last: bool, current_depth: u32) !void {
-        const basename = PathBuilder.basename(path);
+        const basename = self.path_builder.basename(path);
         const entry = Entry{
             .name = basename,
             .kind = .directory, // We'll assume directory for now, could be enhanced
@@ -61,7 +62,7 @@ pub const Walker = struct {
             }
         }
 
-        const dir = std.fs.cwd().openDir(path, .{ .iterate = true }) catch |err| switch (err) {
+        const dir = self.filesystem.openDir(self.allocator, path, .{ .iterate = true }) catch |err| switch (err) {
             error.NotDir => return,
             error.InvalidUtf8 => return,
             error.BadPathName => return,
@@ -76,8 +77,8 @@ pub const Walker = struct {
         var entries = std.ArrayList(std.fs.Dir.Entry).init(self.allocator);
         defer entries.deinit();
 
-        var iterator = iter_dir.iterate();
-        while (try iterator.next()) |dir_entry| {
+        var iterator = try iter_dir.iterate(self.allocator);
+        while (try iterator.next(self.allocator)) |dir_entry| {
             try entries.append(dir_entry);
         }
 
@@ -108,7 +109,7 @@ pub const Walker = struct {
 
             // Check both name-based and path-based ignore patterns
             const is_ignored_by_name = self.filter.shouldIgnore(dir_entry.name);
-            const full_path = std.fs.path.join(self.allocator, &.{ path, dir_entry.name }) catch {
+            const full_path = self.filesystem.pathJoin(self.allocator, &.{ path, dir_entry.name }) catch {
                 continue;
             };
             defer self.allocator.free(full_path);

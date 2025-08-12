@@ -1,5 +1,7 @@
 const std = @import("std");
+const test_helpers = @import("../../test_helpers.zig");
 const PromptBuilder = @import("../builder.zig").PromptBuilder;
+const RealFilesystem = @import("../../filesystem.zig").RealFilesystem;
 const fence = @import("../fence.zig");
 
 test "file with no newlines" {
@@ -15,7 +17,8 @@ test "file with no newlines" {
     var path_buf: [std.fs.max_path_bytes]u8 = undefined;
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
-    var builder = PromptBuilder.init(allocator);
+    const filesystem = RealFilesystem.init();
+    var builder = PromptBuilder.init(allocator, filesystem);
     defer builder.deinit();
 
     const file_path = try std.fmt.allocPrint(allocator, "{s}/nonewline.zig", .{tmp_path});
@@ -58,7 +61,8 @@ test "file with only backticks" {
     // Should detect a fence longer than the longest in content
     try std.testing.expect(detected_fence.len >= 7);
 
-    var builder = PromptBuilder.init(allocator);
+    const filesystem = RealFilesystem.init();
+    var builder = PromptBuilder.init(allocator, filesystem);
     defer builder.deinit();
 
     const file_path = try std.fmt.allocPrint(allocator, "{s}/backticks.md", .{tmp_path});
@@ -87,7 +91,8 @@ test "empty file" {
     var path_buf: [std.fs.max_path_bytes]u8 = undefined;
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
-    var builder = PromptBuilder.init(allocator);
+    const filesystem = RealFilesystem.init();
+    var builder = PromptBuilder.init(allocator, filesystem);
     defer builder.deinit();
 
     const file_path = try std.fmt.allocPrint(allocator, "{s}/empty.zig", .{tmp_path});
@@ -124,7 +129,8 @@ test "binary file incorrectly named .zig" {
     var path_buf: [std.fs.max_path_bytes]u8 = undefined;
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
-    var builder = PromptBuilder.init(allocator);
+    const filesystem = RealFilesystem.init();
+    var builder = PromptBuilder.init(allocator, filesystem);
     defer builder.deinit();
 
     const file_path = try std.fmt.allocPrint(allocator, "{s}/binary.zig", .{tmp_path});
@@ -156,7 +162,8 @@ test "file with null bytes" {
     var path_buf: [std.fs.max_path_bytes]u8 = undefined;
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
-    var builder = PromptBuilder.init(allocator);
+    const filesystem = RealFilesystem.init();
+    var builder = PromptBuilder.init(allocator, filesystem);
     defer builder.deinit();
 
     const file_path = try std.fmt.allocPrint(allocator, "{s}/nulls.txt", .{tmp_path});
@@ -187,7 +194,8 @@ test "file with mixed line endings" {
     var path_buf: [std.fs.max_path_bytes]u8 = undefined;
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
-    var builder = PromptBuilder.init(allocator);
+    const filesystem = RealFilesystem.init();
+    var builder = PromptBuilder.init(allocator, filesystem);
     defer builder.deinit();
 
     const file_path = try std.fmt.allocPrint(allocator, "{s}/mixed.txt", .{tmp_path});
@@ -223,7 +231,8 @@ test "file with unicode and special chars" {
     var path_buf: [std.fs.max_path_bytes]u8 = undefined;
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
-    var builder = PromptBuilder.init(allocator);
+    const filesystem = RealFilesystem.init();
+    var builder = PromptBuilder.init(allocator, filesystem);
     defer builder.deinit();
 
     const file_path = try std.fmt.allocPrint(allocator, "{s}/unicode.zig", .{tmp_path});
@@ -260,7 +269,8 @@ test "file with control characters" {
     var path_buf: [std.fs.max_path_bytes]u8 = undefined;
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
-    var builder = PromptBuilder.init(allocator);
+    const filesystem = RealFilesystem.init();
+    var builder = PromptBuilder.init(allocator, filesystem);
     defer builder.deinit();
 
     const file_path = try std.fmt.allocPrint(allocator, "{s}/control.txt", .{tmp_path});

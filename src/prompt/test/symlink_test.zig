@@ -1,5 +1,7 @@
 const std = @import("std");
+const test_helpers = @import("../../test_helpers.zig");
 const GlobExpander = @import("../glob.zig").GlobExpander;
+const RealFilesystem = @import("../../filesystem.zig").RealFilesystem;
 
 test "symlink to file" {
     const allocator = std.testing.allocator;
@@ -16,7 +18,8 @@ test "symlink to file" {
     var path_buf: [std.fs.max_path_bytes]u8 = undefined;
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
-    var expander = GlobExpander.init(allocator);
+    const filesystem = RealFilesystem.init();
+    const expander = test_helpers.createGlobExpander(allocator, filesystem);
 
     // Test that glob finds both the original and the link
     const pattern = try std.fmt.allocPrint(allocator, "{s}/*.zig", .{tmp_path});
@@ -56,7 +59,8 @@ test "symlink to directory" {
     var path_buf: [std.fs.max_path_bytes]u8 = undefined;
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
-    var expander = GlobExpander.init(allocator);
+    const filesystem = RealFilesystem.init();
+    const expander = test_helpers.createGlobExpander(allocator, filesystem);
 
     // Test recursive pattern through symlinked directory
     const pattern = try std.fmt.allocPrint(allocator, "{s}/**/*.zig", .{tmp_path});
@@ -92,7 +96,8 @@ test "broken symlink" {
     var path_buf: [std.fs.max_path_bytes]u8 = undefined;
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
-    var expander = GlobExpander.init(allocator);
+    const filesystem = RealFilesystem.init();
+    const expander = test_helpers.createGlobExpander(allocator, filesystem);
 
     // Test explicit broken symlink
     const broken_path = try std.fmt.allocPrint(allocator, "{s}/broken_link.zig", .{tmp_path});
@@ -133,7 +138,8 @@ test "circular symlinks" {
     var path_buf: [std.fs.max_path_bytes]u8 = undefined;
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
-    var expander = GlobExpander.init(allocator);
+    const filesystem = RealFilesystem.init();
+    const expander = test_helpers.createGlobExpander(allocator, filesystem);
 
     // This should not cause infinite recursion
     const pattern = try std.fmt.allocPrint(allocator, "{s}/**/*.zig", .{tmp_path});
@@ -171,7 +177,8 @@ test "hidden files and directories" {
     var path_buf: [std.fs.max_path_bytes]u8 = undefined;
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
-    var expander = GlobExpander.init(allocator);
+    const filesystem = RealFilesystem.init();
+    const expander = test_helpers.createGlobExpander(allocator, filesystem);
 
     // Test that * doesn't match hidden files by default
     const pattern1 = try std.fmt.allocPrint(allocator, "{s}/*.zig", .{tmp_path});

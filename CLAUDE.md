@@ -43,16 +43,20 @@ No external dependencies - pure Zig implementation.
     │   ├── config                     # Configuration system (modular ZON parsing & pattern resolution)
     │   │   ├── resolver.zig           # Pattern resolution with defaults and custom patterns
     │   │   ├── shared.zig             # Core types and SharedConfig structure
-    │   │   └── zon.zig                # ZON file loading with integrated configuration
+    │   │   └── zon.zig                # ZON file loading with filesystem abstraction
+    │   ├── filesystem                 # Filesystem abstraction layer (parameterized for testing)
+    │   │   ├── interface.zig          # Abstract filesystem interfaces (FilesystemInterface, DirHandle, FileHandle)
+    │   │   ├── mock.zig               # Mock filesystem implementation for testing
+    │   │   └── real.zig               # Real filesystem implementation for production
     │   ├── patterns                   # Pattern matching engine (high-performance unified system)
-    │   │   ├── gitignore.zig          # Gitignore-specific pattern logic (stateless)
+    │   │   ├── gitignore.zig          # Gitignore-specific pattern logic with filesystem abstraction
     │   │   └── matcher.zig            # Unified pattern matcher with optimized fast/slow paths
     │   ├── prompt                     # Prompt generation module (LLM-optimized file aggregation)
     │   │   ├── test [...]             # Comprehensive test suite
-    │   │   ├── builder.zig            # Core prompt building with smart fencing
+    │   │   ├── builder.zig            # Core prompt building with filesystem abstraction
     │   │   ├── config.zig             # Prompt-specific configuration
     │   │   ├── fence.zig              # Smart fence detection for code blocks
-    │   │   ├── glob.zig               # Glob pattern expansion, matching, and directory traversal
+    │   │   ├── glob.zig               # Glob pattern expansion with filesystem abstraction
     │   │   ├── main.zig               # Prompt command entry point
     │   │   └── test.zig               # Test runner for prompt module
     │   ├── tree                       # Tree visualization module (high-performance directory traversal)
@@ -64,9 +68,9 @@ No external dependencies - pure Zig implementation.
     │   │   ├── format.zig             # Output format enumeration (tree, list)
     │   │   ├── formatter.zig          # Multi-format output rendering
     │   │   ├── main.zig               # Tree command entry point
-    │   │   ├── path_builder.zig       # Path manipulation utilities
+    │   │   ├── path_builder.zig       # Path utilities with filesystem abstraction
     │   │   ├── test.zig               # Test runner for tree functionality
-    │   │   └── walker.zig             # Core traversal algorithm with optimizations
+    │   │   └── walker.zig             # Core traversal with filesystem abstraction
     │   ├── config.zig                 # Public API facade for configuration system
     │   ├── main.zig                   # Minimal application entry point
     │   └── test.zig                   # Main test runner for entire project
@@ -125,11 +129,7 @@ $ zig build run -- prompt --allow-missing file1.zig file2.zig # Warn if files do
 $ zig build test              # Run all tests (recommended)
 $ zig build test-tree         # Run tree module tests only
 $ zig build test-prompt       # Run prompt module tests only
-
-# Alternative: run tests directly
-$ zig test src/test.zig        # Run all tests
-$ zig test src/tree/test.zig   # Run tree module tests only
-$ zig test src/prompt/test.zig # Run prompt module tests only
+$ zig test src/test.zig --test-filter "directory"    # Run specific tests by name pattern
 ```
 
 Comprehensive test suite covers configuration parsing, directory filtering, performance optimization, edge cases, and security patterns.
@@ -151,6 +151,36 @@ Comprehensive test suite covers configuration parsing, directory filtering, perf
 2. Update parsing and help text
 3. Add handler in `src/cli/runner.zig`  
 4. Complex features get dedicated module with `run(allocator, args)` interface
+
+## Filesystem Abstraction Layer
+
+**Architecture:**
+- **`src/filesystem/`** - Complete filesystem abstraction with parameterized dependencies for testing
+  - `interface.zig` - Abstract interfaces: `FilesystemInterface`, `DirHandle`, `FileHandle`, `DirIterator`
+  - `real.zig` - Production implementation using actual filesystem operations
+  - `mock.zig` - Test implementation with in-memory filesystem simulation
+- **Parameterized Dependencies:** All modules accept `FilesystemInterface` parameter for testability
+- **Zero Performance Impact:** Interfaces use vtables with static dispatch where possible
+
+**Usage Example:**
+```zig
+// Production code uses real filesystem
+const filesystem = RealFilesystem.init();
+const walker = Walker.initWithOptions(allocator, config, .{ .filesystem = filesystem });
+
+// Tests use mock filesystem
+var mock_fs = MockFilesystem.init(allocator);
+defer mock_fs.deinit();
+try mock_fs.addDirectory("src");
+try mock_fs.addFile("src/main.zig", "const std = @import(\"std\");");
+const walker = Walker.initWithOptions(allocator, config, .{ .filesystem = mock_fs.interface() });
+```
+
+**Benefits:**
+- Complete test isolation without real I/O
+- Deterministic testing with controlled filesystem state
+- Ability to test error conditions (permission denied, disk full, etc.)
+- No test artifacts in working directory
 
 ## Configuration System
 
@@ -294,7 +324,7 @@ Comprehensive test suite covers configuration parsing, directory filtering, perf
     identify root causes and leave `// TODO` if you're stumped)
 - Less is more - avoid over-engineering
 
-**Current Status:** ✓ **Production ready** - All 173 tests passing (100% success rate). Full feature set including directory traversal, explicit ignore detection, proper exit codes, and comprehensive pattern matching.
+**Current Status:** ✓ **Production ready with complete filesystem abstraction** - All 190 tests passing (100% success rate). Full feature set including directory traversal, explicit ignore detection, proper exit codes, comprehensive pattern matching, complete filesystem abstraction with parameterized dependencies for testing, and Unix-like hidden file behavior.
 
 ## Test Coverage
 
@@ -305,5 +335,7 @@ The project has comprehensive test coverage including:
 - **Integration**: End-to-end command testing, format combinations
 - **Glob patterns**: Wildcards, braces, recursive patterns, hidden files
 - **Pattern matching**: Unified pattern engine with performance-critical optimizations
+- **Filesystem abstraction**: Mock filesystem testing for complete test isolation
+- **Parameterized dependencies**: All modules testable with mock filesystems
 
 See `REFACTORING_CONFIG.md` for detailed refactoring documentation.

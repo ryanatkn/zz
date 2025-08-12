@@ -1,4 +1,5 @@
 const std = @import("std");
+const FilesystemInterface = @import("../filesystem.zig").FilesystemInterface;
 const Format = @import("format.zig").Format;
 const SharedConfig = @import("../config.zig").SharedConfig;
 const ZonLoader = @import("../config.zig").ZonLoader;
@@ -20,15 +21,34 @@ pub const Config = struct {
 
     const Self = @This();
 
-    pub fn fromArgs(allocator: std.mem.Allocator, args: [][:0]const u8) !Self {
-        return fromArgsWithQuiet(allocator, args, false);
+    /// Create a minimal config for testing (no filesystem operations)
+    pub fn forTesting(allocator: std.mem.Allocator) Self {
+        _ = allocator; // May be needed for future functionality
+        return Self{
+            .max_depth = null,
+            .show_hidden = false,
+            .format = .tree,
+            .shared_config = SharedConfig{
+                .ignored_patterns = &[_][]const u8{}, // Empty patterns
+                .hidden_files = &[_][]const u8{},
+                .gitignore_patterns = &[_][]const u8{},
+                .symlink_behavior = .skip,
+                .respect_gitignore = false, // Don't use gitignore in tests
+                .patterns_allocated = false, // Static arrays, no cleanup needed
+            },
+            .directory_path = ".",
+        };
     }
 
-    pub fn fromArgsQuiet(allocator: std.mem.Allocator, args: [][:0]const u8) !Self {
-        return fromArgsWithQuiet(allocator, args, true);
+    pub fn fromArgs(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: [][:0]const u8) !Self {
+        return fromArgsWithQuiet(allocator, filesystem, args, false);
     }
 
-    fn fromArgsWithQuiet(allocator: std.mem.Allocator, args: [][:0]const u8, quiet: bool) !Self {
+    pub fn fromArgsQuiet(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: [][:0]const u8) !Self {
+        return fromArgsWithQuiet(allocator, filesystem, args, true);
+    }
+
+    fn fromArgsWithQuiet(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: [][:0]const u8, quiet: bool) !Self {
         const parsed_args = parseArgs(allocator, args) catch |err| {
             if (!quiet) {
                 std.debug.print("Error: {s}\n", .{formatArgError(err)});
@@ -38,7 +58,7 @@ pub const Config = struct {
         };
 
         const config = Self{
-            .shared_config = try loadSharedConfig(allocator, parsed_args.no_gitignore),
+            .shared_config = try loadSharedConfig(allocator, filesystem, parsed_args.no_gitignore),
             .max_depth = parsed_args.max_depth,
             .show_hidden = parsed_args.show_hidden,
             .format = parsed_args.format,
@@ -122,8 +142,8 @@ pub const Config = struct {
         };
     }
 
-    fn loadSharedConfig(allocator: std.mem.Allocator, no_gitignore: bool) !SharedConfig {
-        var zon_loader = ZonLoader.init(allocator);
+    fn loadSharedConfig(allocator: std.mem.Allocator, filesystem: FilesystemInterface, no_gitignore: bool) !SharedConfig {
+        var zon_loader = ZonLoader.init(allocator, filesystem);
         defer zon_loader.deinit();
 
         var config = try zon_loader.getSharedConfig();

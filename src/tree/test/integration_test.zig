@@ -2,6 +2,7 @@ const std = @import("std");
 const testing = std.testing;
 
 const tree_main = @import("../main.zig");
+const RealFilesystem = @import("../../filesystem.zig").RealFilesystem;
 
 // Helper to get absolute path from tmp dir
 fn getTmpPath(tmp_dir: *std.testing.TmpDir, allocator: std.mem.Allocator, sub_path: []const u8) ![:0]u8 {
@@ -71,7 +72,8 @@ test "complete tree workflow with real directory" {
     defer testing.allocator.free(path_z);
 
     const args = [_][:0]const u8{ "tree", path_z };
-    tree_main.runQuiet(testing.allocator, @constCast(args[0..])) catch {
+    const filesystem = RealFilesystem.init();
+    tree_main.runQuiet(testing.allocator, filesystem, @constCast(args[0..])) catch {
         try testing.expect(false); // Tree command should not fail
     };
 }
@@ -112,7 +114,8 @@ test "tree command with depth limitation" {
     defer testing.allocator.free(path_z);
 
     const args = [_][:0]const u8{ "tree", path_z, "3" };
-    tree_main.runQuiet(testing.allocator, @constCast(args[0..])) catch {
+    const filesystem = RealFilesystem.init();
+    tree_main.runQuiet(testing.allocator, filesystem, @constCast(args[0..])) catch {
         // Tree command with depth failed
         try testing.expect(false);
     };
@@ -124,7 +127,8 @@ test "tree command error handling" {
     const args_nonexistent = [_][:0]const u8{ "tree", "this_directory_does_not_exist" };
 
     // Should handle gracefully and not crash
-    tree_main.runQuiet(testing.allocator, @constCast(args_nonexistent[0..])) catch {
+    const fs_nonexist = RealFilesystem.init();
+    tree_main.runQuiet(testing.allocator, fs_nonexist, @constCast(args_nonexistent[0..])) catch {
         // Expected to fail - directory does not exist
     };
 
@@ -139,7 +143,8 @@ test "tree command error handling" {
     defer testing.allocator.free(path_z);
 
     const args_invalid_depth = [_][:0]const u8{ "tree", path_z, "not_a_number" };
-    tree_main.runQuiet(testing.allocator, @constCast(args_invalid_depth[0..])) catch {
+    const fs_invalid = RealFilesystem.init();
+    tree_main.runQuiet(testing.allocator, fs_invalid, @constCast(args_invalid_depth[0..])) catch {
         // Tree command with invalid depth failed - expected
         try testing.expect(false);
     };
@@ -169,7 +174,8 @@ test "tree command with permission scenarios" {
     defer testing.allocator.free(path_z);
 
     const args = [_][:0]const u8{ "tree", path_z };
-    tree_main.runQuiet(testing.allocator, @constCast(args[0..])) catch {
+    const filesystem = RealFilesystem.init();
+    tree_main.runQuiet(testing.allocator, filesystem, @constCast(args[0..])) catch {
         // Tree command with permissions failed
         try testing.expect(false);
     };
@@ -216,7 +222,8 @@ test "tree command with various file types" {
     defer testing.allocator.free(path_z);
 
     const args = [_][:0]const u8{ "tree", path_z };
-    tree_main.runQuiet(testing.allocator, @constCast(args[0..])) catch {
+    const filesystem = RealFilesystem.init();
+    tree_main.runQuiet(testing.allocator, filesystem, @constCast(args[0..])) catch {
         // Tree command with file types failed
         try testing.expect(false);
     };
@@ -249,7 +256,8 @@ test "tree command with empty directories" {
     defer testing.allocator.free(path_z);
 
     const args = [_][:0]const u8{ "tree", path_z };
-    tree_main.runQuiet(testing.allocator, @constCast(args[0..])) catch {
+    const filesystem = RealFilesystem.init();
+    tree_main.runQuiet(testing.allocator, filesystem, @constCast(args[0..])) catch {
         // Tree command with empty directories failed
         try testing.expect(false);
     };
@@ -290,7 +298,8 @@ test "tree command memory usage" {
     defer testing.allocator.free(path_z);
 
     const args = [_][:0]const u8{ "tree", path_z };
-    tree_main.runQuiet(testing.allocator, @constCast(args[0..])) catch {
+    const filesystem = RealFilesystem.init();
+    tree_main.runQuiet(testing.allocator, filesystem, @constCast(args[0..])) catch {
         // Tree command memory test failed
         try testing.expect(false);
     };
@@ -308,7 +317,8 @@ test "tree command argument edge cases" {
     defer testing.allocator.free(current_path_z);
 
     const args_current = [_][:0]const u8{ "tree", current_path_z };
-    tree_main.runQuiet(testing.allocator, @constCast(args_current[0..])) catch {
+    const fs_current = RealFilesystem.init();
+    tree_main.runQuiet(testing.allocator, fs_current, @constCast(args_current[0..])) catch {
         // Should work with current directory
     };
 
@@ -320,7 +330,8 @@ test "tree command argument edge cases" {
     defer testing.allocator.free(path_z);
 
     const args_large_depth = [_][:0]const u8{ "tree", path_z, "999999" };
-    tree_main.runQuiet(testing.allocator, @constCast(args_large_depth[0..])) catch {
+    const fs_large = RealFilesystem.init();
+    tree_main.runQuiet(testing.allocator, fs_large, @constCast(args_large_depth[0..])) catch {
         // Should handle large depth gracefully
     };
 
@@ -347,12 +358,14 @@ test "tree and list format produce different outputs" {
 
     // Test both formats work without crashing
     const args_tree = [_][:0]const u8{ "tree", path_z, "2", "--format=tree" };
-    tree_main.runQuiet(testing.allocator, @constCast(args_tree[0..])) catch {
+    const fs_tree = RealFilesystem.init();
+    tree_main.runQuiet(testing.allocator, fs_tree, @constCast(args_tree[0..])) catch {
         try testing.expect(false); // Should not fail
     };
 
     const args_list = [_][:0]const u8{ "tree", path_z, "2", "--format=list" };
-    tree_main.runQuiet(testing.allocator, @constCast(args_list[0..])) catch {
+    const fs_list = RealFilesystem.init();
+    tree_main.runQuiet(testing.allocator, fs_list, @constCast(args_list[0..])) catch {
         try testing.expect(false); // Should not fail
     };
 
@@ -384,7 +397,8 @@ test "format flags with depth and directory combinations" {
     };
 
     for (test_cases) |test_case| {
-        tree_main.runQuiet(testing.allocator, @constCast(test_case.args)) catch |err| {
+        const fs_case = RealFilesystem.init();
+        tree_main.runQuiet(testing.allocator, fs_case, @constCast(test_case.args)) catch |err| {
             std.debug.print("❌ Failed test case: {s}, error: {}\n", .{ test_case.description, err });
             try testing.expect(false);
         };
@@ -405,13 +419,14 @@ test "format error handling integration" {
 
     // Test invalid format should error (using quiet config parsing)
     const Config = @import("../config.zig").Config;
+    const filesystem = RealFilesystem.init();
     const args_invalid = [_][:0]const u8{ "tree", path_z, "--format=invalid" };
-    const result = Config.fromArgsQuiet(testing.allocator, @constCast(args_invalid[0..]));
+    const result = Config.fromArgsQuiet(testing.allocator, filesystem, @constCast(args_invalid[0..]));
     try testing.expectError(error.InvalidFormat, result);
 
     // Test invalid flag should error (using quiet config parsing)
     const args_bad_flag = [_][:0]const u8{ "tree", path_z, "--bad-flag" };
-    const result2 = Config.fromArgsQuiet(testing.allocator, @constCast(args_bad_flag[0..]));
+    const result2 = Config.fromArgsQuiet(testing.allocator, filesystem, @constCast(args_bad_flag[0..]));
     try testing.expectError(error.InvalidFlag, result2);
 
     // Test passed

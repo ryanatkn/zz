@@ -1,10 +1,11 @@
 const std = @import("std");
+const FilesystemInterface = @import("../filesystem.zig").FilesystemInterface;
 
 pub const Command = @import("command.zig").Command;
 pub const Help = @import("help.zig");
 pub const Runner = @import("runner.zig").Runner;
 
-pub fn run(allocator: std.mem.Allocator) !void {
+pub fn run(allocator: std.mem.Allocator, filesystem: FilesystemInterface) !void {
     const args = try std.process.argsAlloc(allocator);
     defer std.process.argsFree(allocator, args);
 
@@ -19,6 +20,6 @@ pub fn run(allocator: std.mem.Allocator) !void {
         std.process.exit(1);
     };
 
-    const runner = Runner.init(allocator);
+    const runner = Runner.init(allocator, filesystem);
     try runner.run(command, @ptrCast(args));
 }

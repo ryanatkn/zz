@@ -1,17 +1,17 @@
 # Benchmark Results
 
-**Date:** 2025-08-12 18:46:36  
+**Date:** 2025-08-12 20:07:56  
 **Build:** Debug  
-**Iterations:** 10000  
+**Iterations:** 1000  
 
 ## Results
 
-| Benchmark | Operations | Time (ms) | ns/op |
-|-----------|------------|-----------|-------|
-| Path Joining | 200000 | 10377 | 51887 |
-| String Pool | 70000 | 10 | 145 |
-| Memory Pools | 10000 | 501 | 50183 |
-| Glob Patterns | 40000 | 0 | 23 |
+| Benchmark | Operations | Time (ms) | ns/op | Baseline | Change |
+|-----------|------------|-----------|-------|----------|--------|
+| Path Joining | 4000 | 214 | 53659 | - | N/A |
+| String Pool | 1400000 | 197 | 141 | - | N/A |
+| Memory Pools | 4000 | 206 | 51602 | - | N/A |
+| Glob Patterns | 8000000 | 208 | 26 | - | N/A |
 
 ## Notes
 

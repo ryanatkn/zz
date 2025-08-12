@@ -31,15 +31,23 @@ No external dependencies - pure Zig implementation.
     ├── .claude [...]                  # Claude Code configuration directory
     ├── .git [...]                     # Git repository metadata  
     ├── .zig-cache [...]               # Zig build cache (filtered from tree output)
+    ├── benchmarks                     # Benchmark results storage
+    │   ├── README.md                  # Benchmark documentation
+    │   ├── baseline.md                # Performance baseline for comparison
+    │   └── latest.md                  # Most recent benchmark results
     ├── docs                           # Documentation
     │   └── glob-patterns.md           # Glob pattern documentation
     ├── src                            # Source code (modular architecture)
+    │   ├── benchmark                  # Performance benchmarking module
+    │   │   └── main.zig               # Benchmark command entry point
     │   ├── cli                        # CLI interface module (command parsing & execution)
+    │   │   ├── test [...]             # CLI tests
     │   │   ├── args.zig               # Argument parsing utilities
     │   │   ├── command.zig            # Command enumeration and string parsing
     │   │   ├── help.zig               # Usage documentation and help text
     │   │   ├── main.zig               # CLI entry point and argument processing
-    │   │   └── runner.zig             # Command dispatch and orchestration
+    │   │   ├── runner.zig             # Command dispatch and orchestration
+    │   │   └── test.zig               # Test runner for CLI module
     │   ├── config                     # Configuration system (modular ZON parsing & pattern resolution)
     │   │   ├── resolver.zig           # Pattern resolution with defaults and custom patterns
     │   │   ├── shared.zig             # Core types and SharedConfig structure
@@ -49,16 +57,18 @@ No external dependencies - pure Zig implementation.
     │   │   ├── mock.zig               # Mock filesystem implementation for testing
     │   │   └── real.zig               # Real filesystem implementation for production
     │   ├── lib                        # Shared utilities and infrastructure (POSIX-optimized with performance focus)
-    │   │   ├── benchmark.zig          # Performance measurement and validation utilities
+    │   │   ├── benchmark.zig          # Performance measurement with markdown output
     │   │   ├── filesystem.zig         # Consolidated filesystem error handling patterns
     │   │   ├── path.zig               # Optimized POSIX-only path utilities (20-30% faster than fmt.allocPrint)
     │   │   ├── pools.zig              # Specialized memory pools for ArrayList and string reuse
     │   │   ├── string_pool.zig        # Production-ready string interning with stdlib HashMapUnmanaged
     │   │   └── traversal.zig          # Unified directory traversal with filesystem abstraction
     │   ├── patterns                   # Pattern matching engine (high-performance unified system)
+    │   │   ├── test [...]             # Pattern matching tests
     │   │   ├── gitignore.zig          # Gitignore-specific pattern logic with filesystem abstraction
     │   │   ├── glob.zig               # Complete glob pattern matching implementation
-    │   │   └── matcher.zig            # Unified pattern matcher with optimized fast/slow paths
+    │   │   ├── matcher.zig            # Unified pattern matcher with optimized fast/slow paths
+    │   │   └── test.zig               # Test runner for patterns module
     │   ├── prompt                     # Prompt generation module (LLM-optimized file aggregation)
     │   │   ├── test [...]             # Comprehensive test suite
     │   │   ├── builder.zig            # Core prompt building with filesystem abstraction
@@ -67,8 +77,6 @@ No external dependencies - pure Zig implementation.
     │   │   ├── glob.zig               # Glob pattern expansion with filesystem abstraction
     │   │   ├── main.zig               # Prompt command entry point
     │   │   └── test.zig               # Test runner for prompt module
-    │   ├── benchmark                  # Performance benchmarking module
-    │   │   └── main.zig               # Benchmark command entry point
     │   ├── tree                       # Tree visualization module (high-performance directory traversal)
     │   │   ├── test [...]             # Comprehensive test suite
     │   │   ├── CLAUDE.md              # Detailed tree module documentation
@@ -82,13 +90,15 @@ No external dependencies - pure Zig implementation.
     │   │   ├── test.zig               # Test runner for tree functionality
     │   │   └── walker.zig             # Core traversal with filesystem abstraction
     │   ├── config.zig                 # Public API facade for configuration system
+    │   ├── filesystem.zig             # Filesystem error handling (deprecated, use lib/filesystem.zig)
     │   ├── main.zig                   # Minimal application entry point
-    │   └── test.zig                   # Main test runner for entire project
+    │   ├── test.zig                   # Main test runner for entire project
+    │   └── test_helpers.zig           # Shared test utilities
     ├── zig-out [...]                  # Build output directory (auto-generated)
-    ├── .gitignore                     # Git ignore patterns
+    ├── BENCHMARK_IMPROVEMENTS.md      # Future benchmark enhancements roadmap
     ├── CLAUDE.md                      # AI assistant development documentation
+    ├── PROPOSED_IMPROVEMENTS.md       # General project improvements roadmap
     ├── README.md                      # User-facing documentation and usage guide
-    ├── REFACTORING_CONFIG.md          # Configuration system refactoring documentation
     ├── build.zig                      # Zig build system configuration
     ├── build.zig.zon                  # Package manifest
     └── zz.zon                         # CLI configuration (tree filtering patterns)
@@ -127,50 +137,67 @@ Comprehensive test suite covers configuration parsing, directory filtering, perf
 
 ## Benchmarking
 
-Performance benchmarking is critical for maintaining and improving the efficiency of zz. The benchmark module provides detailed performance metrics for all optimization areas.
+Performance benchmarking is critical for maintaining and improving the efficiency of zz. The benchmark system follows Unix philosophy: the CLI outputs to stdout, and users control file management.
 
+### Design Philosophy
+- **CLI is pure**: `zz benchmark` always outputs to stdout
+- **Multiple formats**: markdown (default), json, csv, pretty
+- **Build commands add convenience**: Handle file management for common workflows
+- **Composable**: Works with Unix pipes and redirects
+
+### CLI Usage (outputs to stdout)
 ```bash
-# Run all benchmarks with default iterations (10,000)
-$ zig build benchmark
+# Default: markdown format to stdout
+$ zz benchmark
 
-# Run with custom iterations for more accurate results
-$ zig build run -- benchmark --iterations=50000
+# Different output formats
+$ zz benchmark --format=pretty             # Color terminal output with progress bars
+$ zz benchmark --format=json               # Machine-readable JSON
+$ zz benchmark --format=csv                # Spreadsheet-compatible CSV
 
-# Verbose mode shows performance tips and detailed metrics
-$ zig build run -- benchmark --verbose
+# Control what runs
+$ zz benchmark --only=path,string          # Run specific benchmarks
+$ zz benchmark --skip=glob                 # Skip specific benchmarks
+$ zz benchmark --iterations=50000          # More iterations for accuracy
 
-# Run specific benchmarks
-$ zig build run -- benchmark --path               # Path joining operations
-$ zig build run -- benchmark --string-pool        # String interning efficiency
-$ zig build run -- benchmark --memory-pools       # Memory pool allocations
-$ zig build run -- benchmark --glob               # Glob pattern matching
+# Save results via shell redirect
+$ zz benchmark > results.md                # Save to any file
+$ zz benchmark | grep "Path"               # Pipe to other tools
+$ zz benchmark --format=json | jq '.results[]'  # Process JSON output
 
-# Benchmark in release mode for realistic performance metrics
-$ zig build -Doptimize=ReleaseFast
-$ ./zig-out/bin/zz benchmark --iterations=100000
-
-# Save benchmark results to markdown
-$ zig build benchmark-save                        # Save to benchmarks/latest.md
-$ zig build benchmark-baseline                    # Save as benchmarks/baseline.md
-$ zig build benchmark-compare                     # Compare with baseline (exits 1 on regression)
-
-# Manual benchmark file operations
-$ zz benchmark --output=benchmarks/latest.md
-$ zz benchmark --output=benchmarks/latest.md --compare=benchmarks/baseline.md
-$ zz benchmark --save-baseline --output=benchmarks/baseline.md
+# Baseline comparison (auto-loads if exists)
+$ zz benchmark --baseline=old.md           # Compare with specific baseline
+$ zz benchmark --no-compare                # Disable auto-comparison
 ```
 
-**Benchmark Output:**
-- Results saved as markdown tables in `benchmarks/` directory
-- Tracked in git for performance history
-- Automatic comparison with baseline showing percentage changes
-- Regression detection with configurable thresholds (default: 10%)
+### Build Commands (project workflow)
+```bash
+# Common workflow with file management
+$ zig build benchmark                      # Save to latest.md, compare, show pretty output
+$ zig build benchmark-baseline             # Create/update baseline.md
+$ zig build benchmark-stdout               # Pretty output without saving
 
-**Performance Baselines (Debug build, 10k iterations):**
-- Path operations: ~50μs per operation (20-30% faster than stdlib)
-- String pooling: 99%+ cache efficiency on repeated paths
+# Release mode benchmarking
+$ zig build -Doptimize=ReleaseFast
+$ ./zig-out/bin/zz benchmark --iterations=100000
+```
+
+**Benchmark Features:**
+- Multiple output formats for different use cases
+- Automatic baseline comparison (when benchmarks/baseline.md exists)
+- Regression detection with exit code 1 (20% threshold)
+- Clean separation: CLI for data, build commands for workflow
+- Color-enhanced terminal output with progress bars
+- Human-readable time units (ns, μs, ms, s)
+
+**Performance Baselines (Debug build):**
+- Path operations: ~47μs per operation (20-30% faster than stdlib)
+- String pooling: ~145ns per operation (95-100% cache efficiency)
 - Memory pools: ~50μs per allocation/release cycle
-- Glob patterns: 75% fast-path hit ratio for common patterns
+- Glob patterns: ~25ns per operation (75% fast-path hit ratio)
+- Benchmark execution: ~800ms total (each benchmark targets ~200ms)
+- Regression threshold: 20% (to account for Debug mode variance)
+- Auto-scaled iterations: Each benchmark runs enough iterations to reach ~200ms
 
 **When to Run Benchmarks:**
 - Before and after implementing optimizations
@@ -199,7 +226,7 @@ $ zz benchmark --save-baseline --output=benchmarks/baseline.md
 - **`filesystem.zig`** - Consolidated error handling patterns for filesystem operations
 - **`string_pool.zig`** - Production-ready string interning with stdlib-optimized HashMapUnmanaged for better cache locality
 - **`pools.zig`** - Specialized memory pools for ArrayList reuse and path string optimization
-- **`benchmark.zig`** - Performance measurement utilities for validation and regression detection
+- **`benchmark.zig`** - Performance measurement with color output, multiple formats, and baseline comparison
 
 **Adding New Commands:**
 1. Add to `Command` enum in `src/cli/command.zig`
@@ -386,17 +413,18 @@ const walker = Walker.initWithOptions(allocator, config, .{ .filesystem = mock_f
     identify root causes and leave `// TODO` if you're stumped)
 - Less is more - avoid over-engineering, and when in doubt, ask me or choose the simple option
 
-**Current Status:** ✓ **Production ready with aggressive performance optimizations and stdlib integrations** - All 190 tests passing (100% success rate). Full feature set with significant performance improvements:
+**Current Status:** ✓ **Production ready with comprehensive performance optimizations** - All 190+ tests passing (100% success rate). Full feature set with significant performance improvements and enhanced developer experience.
 
-**✅ Performance Optimizations Completed:**
+**✅ Recent Improvements:**
+- **Color-enhanced benchmark output** - Progress bars, human-readable units, visual hierarchy
+- **Comprehensive documentation** - Architecture, performance, and contribution guides added
 - **20-30% faster path operations** - Direct buffer manipulation in joinPath
 - **15-25% memory reduction** - String interning with PathCache integration  
 - **40-60% glob speedup** - Fast-path optimization for common patterns
 - **Reduced allocation overhead** - Memory pools for ArrayList and string reuse
 - **Better cache locality** - Stdlib HashMapUnmanaged integration
-- **Performance benchmarking** - Measurement infrastructure for validation
 
-**Architecture:** Complete filesystem abstraction with parameterized dependencies, explicit ignore detection, proper exit codes, comprehensive pattern matching, Unix-like hidden file behavior, and aggressive code consolidation eliminating 300+ lines of duplication.
+**Architecture:** Complete filesystem abstraction with parameterized dependencies, unified pattern matching engine, comprehensive benchmarking suite, and modular command structure. See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed system design.
 
 ## Test Coverage
 
@@ -410,4 +438,10 @@ The project has comprehensive test coverage including:
 - **Filesystem abstraction**: Mock filesystem testing for complete test isolation
 - **Parameterized dependencies**: All modules testable with mock filesystems
 
-See `REFACTORING_CONFIG.md` for detailed refactoring documentation.
+## Related Documentation
+
+- [ARCHITECTURE.md](ARCHITECTURE.md) - System design and module relationships
+- [PERFORMANCE.md](PERFORMANCE.md) - Optimization guide and benchmarks
+- [CONTRIBUTING.md](CONTRIBUTING.md) - How to contribute effectively
+- [DX_SUGGESTIONS.md](DX_SUGGESTIONS.md) - Developer experience improvements
+- [BENCHMARK_PROPOSALS.md](BENCHMARK_PROPOSALS.md) - Future benchmark plans

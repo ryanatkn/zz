@@ -1,10 +1,10 @@
 # zz - CLI Utilities
 
-High-performance command-line utilities written in Zig with zero dependencies for POSIX systems. Features optimized directory visualization and LLM prompt generation with aggressive performance improvements.
+High-performance command-line utilities written in Zig with zero dependencies for POSIX systems. Features optimized directory visualization, LLM prompt generation, and comprehensive performance benchmarking.
 
 **Platform Support:** Linux, macOS, BSD, and other POSIX-compliant systems. Windows is not supported.
 
-**Architecture:** Clean modular design with consolidated utilities, unified error handling, and POSIX-optimized implementations for lean builds.
+**Architecture:** Clean modular design with filesystem abstraction, unified pattern matching, and aggressive performance optimizations. See [ARCHITECTURE.md](./ARCHITECTURE.md) for system design details.
 
 ## Installation
 
@@ -48,22 +48,26 @@ zz prompt "src/**/*.zig"       # Generate LLM prompt
 - Arena allocators for improved memory performance
 
 ### Prompt Generation
-- Build LLM-optimized prompts from multiple files with shared traversal utilities
+- Build LLM-optimized prompts from multiple files with intelligent aggregation
 - Directory support: `zz prompt src/` processes all files recursively
-- Advanced glob pattern support with consolidated pattern matching:
+- Advanced glob pattern support with 40-60% fast-path optimization:
   - Basic wildcards: `*.zig`, `test?.zig`
   - Recursive: `**/*.zig`
   - Alternatives: `*.{zig,md}`
   - Nested braces: `*.{zig,{md,txt}}` 
   - Character classes: `log[0-9].txt`, `file[a-z].txt`, `test[!0-9].txt`
   - Escape sequences: `file\*.txt` matches literal `file*.txt`
-- Explicit file ignore detection: Errors when explicitly requested files are ignored
 - Smart code fence detection (handles nested backticks)
-- Arena allocators for efficient memory usage during glob expansion
 - Automatic file deduplication
 - Markdown output with semantic XML tags
-- Configurable ignore patterns
 - Hidden file handling (use `.*` to explicitly match hidden files)
+
+### Performance Benchmarking
+- Comprehensive performance measurement suite with color-coded output
+- Multiple output formats: markdown, JSON, CSV, and pretty terminal display
+- Automatic baseline comparison with regression detection (20% threshold)
+- Human-readable time units (ns, μs, ms, s) with progress bars
+- Per-benchmark auto-scaling for consistent ~200ms runtime
 
 ## Commands
 
@@ -85,16 +89,14 @@ zz help                                         # Display help
 #   Supports glob patterns   - *.zig, **/*.zig, *.{zig,md}
 #   Supports directories     - src/, src/subdir/
 
-# Benchmark options:
-#   --iterations=N           - Number of iterations (default: 10000)
-#   --output=FILE            - Write results to markdown file
-#   --compare=FILE           - Compare with baseline file
-#   --save-baseline          - Save as benchmarks/baseline.md
-#   --verbose                - Show detailed output and performance tips
-#   --path                   - Run only path joining benchmarks
-#   --string-pool            - Run only string pool benchmarks
-#   --memory-pools           - Run only memory pool benchmarks
-#   --glob                   - Run only glob pattern benchmarks
+# Benchmark options (outputs to stdout):
+#   --format=FORMAT          - Output format: markdown (default), json, csv, pretty
+#   --iterations=N           - Base iterations (default: 1000, auto-scaled per benchmark)
+#   --baseline=FILE          - Compare with baseline (default: benchmarks/baseline.md)
+#   --no-compare             - Disable automatic baseline comparison
+#   --only=path,string       - Run only specific benchmarks (comma-separated)
+#   --skip=glob,memory       - Skip specific benchmarks
+#   --warmup                 - Include warmup phase
 ```
 
 ## Examples
@@ -110,14 +112,20 @@ zz prompt "src/**/*.zig"         # All Zig files recursively
 zz prompt src/ docs/             # Multiple directories  
 zz prompt "*.{zig,md}" --prepend="Context:" # Multiple types with prefix
 
-# Performance benchmarks
-zz benchmark                                     # Run all benchmarks
-zz benchmark --output=benchmarks/latest.md       # Save to file
-zz benchmark --compare=benchmarks/baseline.md    # Compare with baseline
-zig build benchmark-save                         # Quick save to latest.md
-zig build benchmark-compare                      # Quick compare (fails on regression)
-zig build benchmark-baseline                     # Update baseline
+# Performance benchmarks (CLI outputs to stdout)
+zz benchmark                                     # Markdown to stdout
+zz benchmark --format=pretty                     # Pretty terminal output
+zz benchmark --format=json                       # JSON output
+zz benchmark > benchmarks/baseline.md            # Save baseline via redirect
+zz benchmark --only=path,string                  # Run specific benchmarks
+
+# Build commands (handle file management)
+zig build benchmark                              # Save to latest.md and show comparison
+zig build benchmark-baseline                     # Create new baseline
+zig build benchmark-stdout                       # Pretty output without saving
 ```
+
+See [CLAUDE.md](./CLAUDE.md) for more details.
 
 **Exit Codes:**
 - `0` - Success
@@ -167,9 +175,14 @@ Create a `zz.zon` file in any directory to customize behavior:
 - Use `--no-gitignore` flag or set `respect_gitignore = false` to disable
 - Supports basic gitignore syntax: wildcards (`*.tmp`), negation (`!important.tmp`), directory patterns (`build/`)
 
-## Development
+## Documentation
 
-See **[CLAUDE.md](CLAUDE.md)** for detailed development documentation, architecture details, and performance guidelines.
+- **[CLAUDE.md](CLAUDE.md)** - Development guide and implementation details
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - System design and module relationships
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - How to contribute to the project
+- **[PERFORMANCE.md](PERFORMANCE.md)** - Performance characteristics and optimization guide
+- **[DX_SUGGESTIONS.md](DX_SUGGESTIONS.md)** - Developer experience improvement proposals
+- **[BENCHMARK_PROPOSALS.md](BENCHMARK_PROPOSALS.md)** - Proposed benchmarks and improvements
 
 ## Requirements
 

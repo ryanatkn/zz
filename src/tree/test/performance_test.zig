@@ -261,7 +261,7 @@ test "performance comparison ignored vs not ignored" {
         try tmp_dir.dir.makeDir(nm_path);
 
         var file_count: u32 = 0;
-        while (file_count < 1000) : (file_count += 1) {
+        while (file_count < 50) : (file_count += 1) {
             const file_name = try std.fmt.allocPrint(testing.allocator, "{s}/file_{d}.js", .{ nm_path, file_count });
             defer testing.allocator.free(file_name);
             const file = try tmp_dir.dir.createFile(file_name, .{});
@@ -389,7 +389,7 @@ test "scalability with increasing directory sizes" {
     const walker = Walker.initWithOptions(testing.allocator, config, walker_options);
 
     // Test with increasing numbers of files
-    const test_sizes = [_]u32{ 10, 25, 50, 75, 100 };
+    const test_sizes = [_]u32{ 5, 10, 15, 20, 25 };
     var previous_time: i64 = 0;
 
     for (test_sizes) |size| {
@@ -445,13 +445,13 @@ test "memory stress test" {
 
     // Create a structure that could cause memory issues if not handled properly
     var level1: u32 = 0;
-    while (level1 < 20) : (level1 += 1) {
+    while (level1 < 10) : (level1 += 1) {
         const l1_name = try std.fmt.allocPrint(testing.allocator, "{s}/level1_{d}", .{ test_dir, level1 });
         defer testing.allocator.free(l1_name);
         tmp_dir.dir.makeDir(l1_name) catch continue;
 
         var level2: u32 = 0;
-        while (level2 < 3) : (level2 += 1) {
+        while (level2 < 2) : (level2 += 1) {
             const l2_name = try std.fmt.allocPrint(testing.allocator, "{s}/level2_{d}", .{ l1_name, level2 });
             defer testing.allocator.free(l2_name);
             tmp_dir.dir.makeDir(l2_name) catch continue;

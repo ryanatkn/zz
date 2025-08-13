@@ -38,7 +38,7 @@ We chose to focus on doing one thing excellently rather than many things adequat
 ### How do I install zz?
 ```bash
 # From source (recommended)
-git clone https://github.com/yourusername/zz.git
+git clone https://github.com/ryanatkn/zz.git
 cd zz
 zig build install-user
 

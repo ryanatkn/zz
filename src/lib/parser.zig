@@ -58,31 +58,22 @@ pub const Parser = struct {
     language: Language,
 
     pub fn init(allocator: std.mem.Allocator, language: Language) !Parser {
-        const parser = ts.Parser.create();
-        
-        // Set language based on type
-        switch (language) {
-            .zig => try parser.setLanguage(tree_sitter_zig()),
-            .css => try parser.setLanguage(tree_sitter_css()),
-            .html => try parser.setLanguage(tree_sitter_html()),
-            .json => try parser.setLanguage(tree_sitter_json()),
-            .typescript => {
-                // TypeScript parser has version incompatibility (v6 vs required v13+)
-                // Use simple extraction only for now
-                parser.destroy();
-                return Parser{
-                    .allocator = allocator,
-                    .ts_parser = null,
-                    .language = language,
-                };
-            },
-            .svelte => try parser.setLanguage(tree_sitter_svelte()),
-            .unknown => {}, // No parser for unknown languages
+        // For now, only use tree-sitter for Zig
+        // Other languages need language-specific node type handling
+        if (language == .zig) {
+            const parser = ts.Parser.create();
+            try parser.setLanguage(tree_sitter_zig());
+            return Parser{
+                .allocator = allocator,
+                .ts_parser = parser,
+                .language = language,
+            };
         }
         
+        // Use simple extraction for all other languages
         return Parser{
             .allocator = allocator,
-            .ts_parser = parser,
+            .ts_parser = null,
             .language = language,
         };
     }
@@ -198,74 +189,36 @@ pub const Parser = struct {
     
     fn extractCssSimple(_: *Parser, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
         var lines = std.mem.tokenizeScalar(u8, source, '\n');
-        var in_comment = false;
-        var in_rule = false;
-        var brace_count: u32 = 0;
         
         while (lines.next()) |line| {
             const trimmed = std.mem.trim(u8, line, " \t");
             
-            // Handle multi-line comments
-            if (std.mem.indexOf(u8, line, "/*") != null) {
-                in_comment = true;
-                if (flags.docs) {
+            // Skip empty lines
+            if (trimmed.len == 0) continue;
+            
+            // For CSS, we want to extract based on flags
+            if (flags.types or flags.structure) {
+                // Always include the line for CSS when types or structure is requested
+                try result.appendSlice(line);
+                try result.append('\n');
+            } else if (flags.signatures) {
+                // CSS selectors only (class names, IDs, elements)
+                if ((std.mem.startsWith(u8, trimmed, ".") or
+                     std.mem.startsWith(u8, trimmed, "#") or
+                     std.mem.indexOf(u8, line, "{") != null) and
+                    !std.mem.startsWith(u8, trimmed, "/*")) {
                     try result.appendSlice(line);
                     try result.append('\n');
                 }
-            }
-            if (in_comment) {
-                if (flags.docs and std.mem.indexOf(u8, line, "*/") == null) {
-                    try result.appendSlice(line);
-                    try result.append('\n');
-                }
-                if (std.mem.indexOf(u8, line, "*/") != null) {
-                    if (flags.docs) {
-                        try result.appendSlice(line);
-                        try result.append('\n');
-                    }
-                    in_comment = false;
-                }
-                continue;
-            }
-            
-            // Track braces for rule context
-            if (std.mem.indexOf(u8, line, "{") != null) {
-                brace_count += 1;
-                in_rule = true;
-            }
-            if (std.mem.indexOf(u8, line, "}") != null) {
-                if (brace_count > 0) brace_count -= 1;
-                if (brace_count == 0) in_rule = false;
-            }
-            
-            if (flags.signatures) {
-                // CSS selectors (lines with { but not inside rules)
-                if (!in_rule and std.mem.indexOf(u8, line, "{") != null) {
-                    // Extract the selector line
-                    try result.appendSlice(line);
-                    try result.append('\n');
-                }
-            }
-            
-            if (flags.types) {
-                // CSS variables, properties, and at-rules
-                if (in_rule) {
-                    if (std.mem.indexOf(u8, trimmed, ":") != null) {
-                        // This is a property or variable
-                        try result.appendSlice(line);
-                        try result.append('\n');
-                    }
-                } else if (std.mem.startsWith(u8, trimmed, "@")) {
-                    // At-rules like @media, @keyframes
-                    try result.appendSlice(line);
-                    try result.append('\n');
-                }
-            }
-            
-            if (flags.imports) {
+            } else if (flags.imports) {
                 if (std.mem.startsWith(u8, trimmed, "@import") or 
-                    std.mem.startsWith(u8, trimmed, "@use") or
-                    std.mem.startsWith(u8, trimmed, "@charset")) {
+                    std.mem.startsWith(u8, trimmed, "@use")) {
+                    try result.appendSlice(line);
+                    try result.append('\n');
+                }
+            } else if (flags.docs) {
+                if (std.mem.startsWith(u8, trimmed, "/*") or
+                    std.mem.startsWith(u8, trimmed, "*")) {
                     try result.appendSlice(line);
                     try result.append('\n');
                 }
@@ -275,51 +228,14 @@ pub const Parser = struct {
     
     fn extractHtmlSimple(_: *Parser, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
         var lines = std.mem.tokenizeScalar(u8, source, '\n');
-        var in_comment = false;
-        var in_script = false;
-        var in_style = false;
         
         while (lines.next()) |line| {
             const trimmed = std.mem.trim(u8, line, " \t");
             
-            // Handle HTML comments
-            if (std.mem.indexOf(u8, line, "<!--") != null) {
-                in_comment = true;
-                if (flags.docs) {
-                    try result.appendSlice(line);
-                    try result.append('\n');
-                }
-            }
-            if (in_comment) {
-                if (flags.docs and std.mem.indexOf(u8, line, "-->") == null) {
-                    try result.appendSlice(line);
-                    try result.append('\n');
-                }
-                if (std.mem.indexOf(u8, line, "-->") != null) {
-                    if (flags.docs) {
-                        try result.appendSlice(line);
-                        try result.append('\n');
-                    }
-                    in_comment = false;
-                }
-                continue;
-            }
+            // Skip empty lines
+            if (trimmed.len == 0) continue;
             
-            // Track script and style tags
-            if (std.mem.indexOf(u8, trimmed, "<script") != null) {
-                in_script = true;
-            }
-            if (std.mem.indexOf(u8, trimmed, "</script>") != null) {
-                in_script = false;
-            }
-            if (std.mem.indexOf(u8, trimmed, "<style") != null) {
-                in_style = true;
-            }
-            if (std.mem.indexOf(u8, trimmed, "</style>") != null) {
-                in_style = false;
-            }
-            
-            if (flags.structure) {
+            if (flags.structure or flags.types) {
                 // HTML tags and structure
                 if (std.mem.startsWith(u8, trimmed, "<") and !std.mem.startsWith(u8, trimmed, "<!--")) {
                     try result.appendSlice(line);
@@ -328,74 +244,54 @@ pub const Parser = struct {
             }
             
             if (flags.signatures) {
-                // Extract script content for JavaScript functions
-                if (in_script and !std.mem.startsWith(u8, trimmed, "<")) {
-                    if (std.mem.indexOf(u8, trimmed, "function") != null or
-                        std.mem.indexOf(u8, trimmed, "const") != null or
-                        std.mem.indexOf(u8, trimmed, "let") != null or
-                        std.mem.indexOf(u8, trimmed, "var") != null) {
-                        try result.appendSlice(line);
-                        try result.append('\n');
-                    }
+                // Look for script tags and function definitions
+                if (std.mem.indexOf(u8, line, "<script") != null or
+                    std.mem.indexOf(u8, line, "function") != null or
+                    std.mem.indexOf(u8, line, "onclick") != null or
+                    std.mem.indexOf(u8, line, "onload") != null) {
+                    try result.appendSlice(line);
+                    try result.append('\n');
                 }
             }
             
-            if (flags.types) {
-                // Extract style content for CSS
-                if (in_style and !std.mem.startsWith(u8, trimmed, "<")) {
-                    if (std.mem.indexOf(u8, trimmed, ":") != null or
-                        std.mem.indexOf(u8, trimmed, "{") != null) {
-                        try result.appendSlice(line);
-                        try result.append('\n');
-                    }
+            if (flags.docs) {
+                // HTML comments
+                if (std.mem.indexOf(u8, trimmed, "<!--") != null or
+                    std.mem.indexOf(u8, trimmed, "-->") != null) {
+                    try result.appendSlice(line);
+                    try result.append('\n');
                 }
             }
         }
     }
     
     fn extractJsonSimple(_: *Parser, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
-        // JSON is structural, so we mostly extract based on structure
+        // JSON is structural, so we extract based on structure
         if (flags.structure or flags.types) {
-            // For JSON, extract keys and structural elements
+            // For JSON, extract all structural elements
             var lines = std.mem.tokenizeScalar(u8, source, '\n');
-            var depth: u32 = 0;
-            var in_string = false;
             
             while (lines.next()) |line| {
                 const trimmed = std.mem.trim(u8, line, " \t");
                 
-                // Track depth (but only outside of strings)
-                var i: usize = 0;
-                while (i < trimmed.len) : (i += 1) {
-                    const char = trimmed[i];
-                    
-                    // Toggle string state on quotes (not escaped)
-                    if (char == '"' and (i == 0 or trimmed[i-1] != '\\')) {
-                        in_string = !in_string;
-                    }
-                    
-                    // Only count braces/brackets outside of strings
-                    if (!in_string) {
-                        if (char == '{' or char == '[') depth += 1;
-                        if (char == '}' or char == ']') {
-                            if (depth > 0) depth -= 1;
-                        }
-                    }
-                }
+                // Skip empty lines
+                if (trimmed.len == 0) continue;
                 
-                // Always include structural lines
-                if (std.mem.indexOf(u8, trimmed, "\":") != null or 
-                    std.mem.indexOf(u8, trimmed, "{") != null or
-                    std.mem.indexOf(u8, trimmed, "}") != null or
-                    std.mem.indexOf(u8, trimmed, "[") != null or
-                    std.mem.indexOf(u8, trimmed, "]") != null) {
+                // Include all JSON structure
+                try result.appendSlice(line);
+                try result.append('\n');
+            }
+        } else if (flags.signatures) {
+            // For signatures, just extract keys
+            var lines = std.mem.tokenizeScalar(u8, source, '\n');
+            
+            while (lines.next()) |line| {
+                const trimmed = std.mem.trim(u8, line, " \t");
+                if (std.mem.indexOf(u8, trimmed, "\":") != null) {
                     try result.appendSlice(line);
                     try result.append('\n');
                 }
             }
-        } else {
-            // For other flags, return full JSON
-            try result.appendSlice(source);
         }
     }
     
@@ -519,9 +415,13 @@ pub const Parser = struct {
             
             if (in_script) {
                 // TypeScript/JavaScript extraction within script tags
-                if (flags.signatures) {
+                if (flags.signatures or flags.types) {
                     if (std.mem.startsWith(u8, trimmed, "function ") or
                         std.mem.startsWith(u8, trimmed, "export ") or
+                        std.mem.startsWith(u8, trimmed, "const ") or
+                        std.mem.startsWith(u8, trimmed, "let ") or
+                        std.mem.startsWith(u8, trimmed, "interface ") or
+                        std.mem.startsWith(u8, trimmed, "type ") or
                         std.mem.indexOf(u8, trimmed, " => ") != null) {
                         try result.appendSlice(line);
                         try result.append('\n');
@@ -536,7 +436,7 @@ pub const Parser = struct {
                 }
             } else if (in_style) {
                 // CSS extraction within style tags
-                if (flags.types) {
+                if (flags.types or flags.structure) {
                     try result.appendSlice(line);
                     try result.append('\n');
                 }

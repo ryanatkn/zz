@@ -50,11 +50,11 @@ test "Parser initialization for each language" {
         defer parser.deinit();
         
         try testing.expectEqual(lang, parser.language);
-        // TypeScript uses simple extraction only due to version incompatibility
-        if (lang == .typescript) {
-            try testing.expect(parser.ts_parser == null);
-        } else {
+        // Only Zig uses tree-sitter for now, others use simple extraction
+        if (lang == .zig) {
             try testing.expect(parser.ts_parser != null);
+        } else {
+            try testing.expect(parser.ts_parser == null);
         }
     }
     

@@ -23,7 +23,7 @@ Thank you for your interest in contributing to zz! This guide will help you get 
 ### Setup
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/zz.git
+git clone https://github.com/ryanatkn/zz.git
 cd zz
 
 # Build the project

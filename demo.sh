@@ -117,4 +117,4 @@ echo "• String pooling: ~145ns per operation"
 echo "• Pattern matching: ~25ns per operation"
 echo
 echo -e "${CYAN}For more information, see README.md${NC}"
-echo -e "${CYAN}Repository: https://github.com/yourusername/zz${NC}"
+echo -e "${CYAN}Repository: https://github.com/ryanatkn/zz${NC}"

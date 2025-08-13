@@ -6,6 +6,12 @@ const VisitResult = @import("../ast.zig").VisitResult;
 const AstWalker = @import("../ast_walker.zig").AstWalker;
 
 pub fn extractSimple(source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
+    // If no specific flags are set or full flag is set, return complete source
+    if (flags.isDefault() or flags.full) {
+        try result.appendSlice(source);
+        return;
+    }
+    
     var lines = std.mem.tokenizeScalar(u8, source, '\n');
     
     while (lines.next()) |line| {
@@ -14,32 +20,47 @@ pub fn extractSimple(source: []const u8, flags: ExtractionFlags, result: *std.Ar
         // Skip empty lines
         if (trimmed.len == 0) continue;
         
-        // For CSS, we want to extract based on flags
+        var should_include = false;
+        
+        // Check each flag and include relevant content
         if (flags.types or flags.structure) {
-            // Always include the line for CSS when types or structure is requested
-            try result.appendSlice(line);
-            try result.append('\n');
-        } else if (flags.signatures) {
-            // CSS selectors only (class names, IDs, elements)
+            // Include CSS rules, declarations, and at-rules
+            if (std.mem.indexOf(u8, line, "{") != null or
+                std.mem.indexOf(u8, line, "}") != null or
+                std.mem.indexOf(u8, line, ":") != null or
+                std.mem.startsWith(u8, trimmed, "@")) {
+                should_include = true;
+            }
+        }
+        
+        if (flags.signatures) {
+            // CSS selectors only (class names, IDs, elements before opening brace)
             if ((std.mem.startsWith(u8, trimmed, ".") or
                  std.mem.startsWith(u8, trimmed, "#") or
                  std.mem.indexOf(u8, line, "{") != null) and
                 !std.mem.startsWith(u8, trimmed, "/*")) {
-                try result.appendSlice(line);
-                try result.append('\n');
+                should_include = true;
             }
-        } else if (flags.imports) {
+        }
+        
+        if (flags.imports) {
             if (std.mem.startsWith(u8, trimmed, "@import") or 
                 std.mem.startsWith(u8, trimmed, "@use")) {
-                try result.appendSlice(line);
-                try result.append('\n');
+                should_include = true;
             }
-        } else if (flags.docs) {
+        }
+        
+        if (flags.docs) {
             if (std.mem.startsWith(u8, trimmed, "/*") or
-                std.mem.startsWith(u8, trimmed, "*")) {
-                try result.appendSlice(line);
-                try result.append('\n');
+                std.mem.startsWith(u8, trimmed, "*") or
+                std.mem.indexOf(u8, line, "*/") != null) {
+                should_include = true;
             }
+        }
+        
+        if (should_include) {
+            try result.appendSlice(line);
+            try result.append('\n');
         }
     }
 }

@@ -6,6 +6,7 @@ const Help = @import("help.zig");
 const tree = @import("../tree/main.zig");
 const prompt = @import("../prompt/main.zig");
 const benchmark = @import("../benchmark/main.zig");
+const ErrorHelpers = @import("../lib/error_helpers.zig").ErrorHelpers;
 
 pub const Runner = struct {
     allocator: std.mem.Allocator,
@@ -29,7 +30,12 @@ pub const Runner = struct {
             },
             .tree => {
                 // Pass full args and filesystem to tree
-                try tree.run(self.allocator, self.filesystem, args);
+                tree.run(self.allocator, self.filesystem, args) catch |err| {
+                    const stderr = std.io.getStdErr().writer();
+                    const error_msg = ErrorHelpers.errorToMessage(err);
+                    stderr.print("Tree command failed: {s}\n", .{error_msg}) catch {};
+                    return err;
+                };
             },
             .prompt => {
                 // Pass full args and filesystem to prompt
@@ -48,7 +54,12 @@ pub const Runner = struct {
             },
             .benchmark => {
                 // Pass full args to benchmark module
-                try benchmark.run(self.allocator, args);
+                benchmark.run(self.allocator, args) catch |err| {
+                    const stderr = std.io.getStdErr().writer();
+                    const error_msg = ErrorHelpers.errorToMessage(err);
+                    stderr.print("Benchmark command failed: {s}\n", .{error_msg}) catch {};
+                    return err;
+                };
             },
         }
     }

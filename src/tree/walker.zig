@@ -5,8 +5,9 @@ const Entry = @import("entry.zig").Entry;
 const Filter = @import("filter.zig").Filter;
 const Formatter = @import("formatter.zig").Formatter;
 const PathBuilder = @import("path_builder.zig").PathBuilder;
-const FilesystemInterface = @import("../filesystem.zig").FilesystemInterface;
+const FilesystemInterface = @import("../filesystem/interface.zig").FilesystemInterface;
 const PathCache = @import("../lib/string_pool.zig").PathCache;
+const ErrorHelpers = @import("../lib/error_helpers.zig").ErrorHelpers;
 
 pub const WalkerOptions = struct {
     filesystem: FilesystemInterface,
@@ -68,9 +69,24 @@ pub const Walker = struct {
             error.InvalidUtf8 => return,
             error.BadPathName => return,
             error.FileNotFound => return,
-            error.AccessDenied => return,
-            error.SymLinkLoop => return,
-            else => return err,
+            error.AccessDenied => {
+                if (!self.formatter.quiet) {
+                    ErrorHelpers.handleFsError(err, "Open directory", path);
+                }
+                return;
+            },
+            error.SymLinkLoop => {
+                if (!self.formatter.quiet) {
+                    ErrorHelpers.handleFsError(err, "Open directory", path);
+                }
+                return;
+            },
+            else => {
+                if (!self.formatter.quiet) {
+                    ErrorHelpers.handleFsError(err, "Open directory", path);
+                }
+                return err;
+            },
         };
         var iter_dir = dir;
         defer iter_dir.close();

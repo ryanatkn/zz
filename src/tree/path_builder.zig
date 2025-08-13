@@ -1,5 +1,5 @@
 const std = @import("std");
-const FilesystemInterface = @import("../filesystem.zig").FilesystemInterface;
+const FilesystemInterface = @import("../filesystem/interface.zig").FilesystemInterface;
 const PathCache = @import("../lib/string_pool.zig").PathCache;
 
 pub const PathBuilder = struct {

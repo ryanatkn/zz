@@ -5,6 +5,12 @@ const NodeVisitor = @import("../ast.zig").NodeVisitor;
 const VisitResult = @import("../ast.zig").VisitResult;
 
 pub fn extractSimple(source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
+    // If no specific flags are set or full flag is set, return complete source
+    if (flags.isDefault() or flags.full) {
+        try result.appendSlice(source);
+        return;
+    }
+    
     var lines = std.mem.tokenizeScalar(u8, source, '\n');
     var in_script = false;
     var in_style = false;

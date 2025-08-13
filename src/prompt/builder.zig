@@ -1,6 +1,6 @@
 const std = @import("std");
 const fence = @import("fence.zig");
-const FilesystemInterface = @import("../filesystem.zig").FilesystemInterface;
+const FilesystemInterface = @import("../filesystem/interface.zig").FilesystemInterface;
 const path_utils = @import("../lib/path.zig");
 const Parser = @import("../lib/parser.zig").Parser;
 const Language = @import("../lib/parser.zig").Language;
@@ -11,6 +11,7 @@ const AstCacheKey = @import("../lib/cache.zig").AstCacheKey;
 const WorkerPool = @import("../lib/parallel.zig").WorkerPool;
 const Task = @import("../lib/parallel.zig").Task;
 const TaskPriority = @import("../lib/parallel.zig").TaskPriority;
+const ErrorHelpers = @import("../lib/error_helpers.zig").ErrorHelpers;
 
 pub const PromptBuilder = struct {
     allocator: std.mem.Allocator,
@@ -119,7 +120,16 @@ pub const PromptBuilder = struct {
         const cwd = self.filesystem.cwd();
         defer cwd.close();
 
-        const file = try cwd.openFile(self.allocator, file_path, .{});
+        const file = cwd.openFile(self.allocator, file_path, .{}) catch |err| {
+            if (!self.quiet) {
+                const stderr = std.io.getStdErr().writer();
+                const prefixed_path = try path_utils.addRelativePrefix(self.allocator, file_path);
+                defer self.allocator.free(prefixed_path);
+                const error_msg = ErrorHelpers.errorToMessage(err);
+                try stderr.print("Error reading file {s}: {s}\n", .{ prefixed_path, error_msg });
+            }
+            return err;
+        };
         defer file.close();
 
         const stat = try cwd.statFile(self.allocator, file_path);
@@ -382,7 +392,17 @@ fn processFileSafe(builder: *PromptBuilder, file_path: []const u8, result: *File
     const cwd = builder.filesystem.cwd();
     defer cwd.close();
 
-    const file = try cwd.openFile(builder.allocator, file_path, .{});
+    const file = cwd.openFile(builder.allocator, file_path, .{}) catch |err| {
+        const error_msg = ErrorHelpers.errorToMessage(err);
+        if (!builder.quiet) {
+            const stderr = std.io.getStdErr().writer();
+            const prefixed_path = path_utils.addRelativePrefix(builder.allocator, file_path) catch return;
+            defer builder.allocator.free(prefixed_path);
+            stderr.print("Error reading file {s}: {s}\n", .{ prefixed_path, error_msg }) catch {};
+        }
+        result.error_message = try builder.allocator.dupe(u8, error_msg);
+        return;
+    };
     defer file.close();
 
     const stat = try cwd.statFile(builder.allocator, file_path);

@@ -6,6 +6,12 @@ const VisitResult = @import("../ast.zig").VisitResult;
 const AstWalker = @import("../ast_walker.zig").AstWalker;
 
 pub fn extractSimple(source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
+    // If no specific flags are set or full flag is set, return complete source
+    if (flags.isDefault() or flags.full) {
+        try result.appendSlice(source);
+        return;
+    }
+    
     var lines = std.mem.tokenizeScalar(u8, source, '\n');
     
     while (lines.next()) |line| {
@@ -14,22 +20,34 @@ pub fn extractSimple(source: []const u8, flags: ExtractionFlags, result: *std.Ar
         // Skip empty lines
         if (trimmed.len == 0) continue;
         
+        var should_include = false;
+        
         if (flags.structure or flags.types) {
-            // HTML tags and structure
+            // HTML tags and structure (including doctype, html, head, body)
             if (std.mem.startsWith(u8, trimmed, "<") and !std.mem.startsWith(u8, trimmed, "<!--")) {
-                try result.appendSlice(line);
-                try result.append('\n');
+                should_include = true;
             }
         }
         
         if (flags.signatures) {
-            // Look for script tags and function definitions
+            // Look for script tags and function definitions  
             if (std.mem.indexOf(u8, line, "<script") != null or
                 std.mem.indexOf(u8, line, "function") != null or
                 std.mem.indexOf(u8, line, "onclick") != null or
-                std.mem.indexOf(u8, line, "onload") != null) {
-                try result.appendSlice(line);
-                try result.append('\n');
+                std.mem.indexOf(u8, line, "onload") != null or
+                std.mem.indexOf(u8, line, "onchange") != null or
+                std.mem.indexOf(u8, line, "onsubmit") != null) {
+                should_include = true;
+            }
+        }
+        
+        if (flags.imports) {
+            // Look for link and script imports
+            if (std.mem.indexOf(u8, line, "<link") != null or
+                std.mem.indexOf(u8, line, "<script") != null or
+                std.mem.indexOf(u8, line, "href=") != null or
+                std.mem.indexOf(u8, line, "src=") != null) {
+                should_include = true;
             }
         }
         
@@ -37,9 +55,13 @@ pub fn extractSimple(source: []const u8, flags: ExtractionFlags, result: *std.Ar
             // HTML comments
             if (std.mem.indexOf(u8, trimmed, "<!--") != null or
                 std.mem.indexOf(u8, trimmed, "-->") != null) {
-                try result.appendSlice(line);
-                try result.append('\n');
+                should_include = true;
             }
+        }
+        
+        if (should_include) {
+            try result.appendSlice(line);
+            try result.append('\n');
         }
     }
 }

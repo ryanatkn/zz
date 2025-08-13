@@ -8,6 +8,12 @@ const TypeExtractor = @import("../ast.zig").TypeExtractor;
 const DependencyAnalyzer = @import("../ast.zig").DependencyAnalyzer;
 
 pub fn extractSimple(source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
+    // If no specific flags are set or full flag is set, return complete source
+    if (flags.isDefault() or flags.full) {
+        try result.appendSlice(source);
+        return;
+    }
+    
     var lines = std.mem.tokenizeScalar(u8, source, '\n');
     var in_type = false;
     var brace_count: u32 = 0;

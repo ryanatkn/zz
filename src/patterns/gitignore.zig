@@ -1,5 +1,5 @@
 const std = @import("std");
-const DirHandle = @import("../filesystem.zig").DirHandle;
+const DirHandle = @import("../filesystem/interface.zig").DirHandle;
 const path_utils = @import("../lib/path.zig");
 
 pub const GitignorePatterns = struct {

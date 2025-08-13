@@ -4,8 +4,8 @@ const BasePatterns = @import("shared.zig").BasePatterns;
 const SymlinkBehavior = @import("shared.zig").SymlinkBehavior;
 const PatternResolver = @import("resolver.zig").PatternResolver;
 const GitignorePatterns = @import("../patterns/gitignore.zig").GitignorePatterns;
-const FilesystemInterface = @import("../filesystem.zig").FilesystemInterface;
-const DirHandle = @import("../filesystem.zig").DirHandle;
+const FilesystemInterface = @import("../filesystem/interface.zig").FilesystemInterface;
+const DirHandle = @import("../filesystem/interface.zig").DirHandle;
 const filesystem_utils = @import("../lib/filesystem.zig");
 
 pub const ZonConfig = struct {

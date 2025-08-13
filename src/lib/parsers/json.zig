@@ -5,31 +5,59 @@ const NodeVisitor = @import("../ast.zig").NodeVisitor;
 const VisitResult = @import("../ast.zig").VisitResult;
 
 pub fn extractSimple(source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
-    // JSON is structural, so we extract based on structure
-    if (flags.structure or flags.types) {
-        // For JSON, extract all structural elements
-        var lines = std.mem.tokenizeScalar(u8, source, '\n');
+    // If no specific flags are set or full flag is set, return complete source
+    if (flags.isDefault() or flags.full) {
+        try result.appendSlice(source);
+        return;
+    }
+    
+    var lines = std.mem.tokenizeScalar(u8, source, '\n');
+    
+    while (lines.next()) |line| {
+        const trimmed = std.mem.trim(u8, line, " \t");
         
-        while (lines.next()) |line| {
-            const trimmed = std.mem.trim(u8, line, " \t");
-            
-            // Skip empty lines
-            if (trimmed.len == 0) continue;
-            
-            // Include all JSON structure
+        // Skip empty lines
+        if (trimmed.len == 0) continue;
+        
+        var should_include = false;
+        
+        if (flags.structure or flags.types) {
+            // Include JSON structural elements: objects, arrays, and key-value pairs
+            if (std.mem.indexOf(u8, trimmed, "{") != null or
+                std.mem.indexOf(u8, trimmed, "}") != null or
+                std.mem.indexOf(u8, trimmed, "[") != null or
+                std.mem.indexOf(u8, trimmed, "]") != null or
+                std.mem.indexOf(u8, trimmed, "\":") != null) {
+                should_include = true;
+            }
+        }
+        
+        if (flags.signatures) {
+            // Extract JSON keys (lines with key-value patterns)
+            if (std.mem.indexOf(u8, trimmed, "\":") != null) {
+                should_include = true;
+            }
+        }
+        
+        if (flags.imports) {
+            // JSON doesn't have imports, but we can look for references or $ref patterns
+            if (std.mem.indexOf(u8, line, "$ref") != null or
+                std.mem.indexOf(u8, line, "\"@") != null) {
+                should_include = true;
+            }
+        }
+        
+        if (flags.docs) {
+            // JSON doesn't have comments in standard JSON, but some variants do
+            if (std.mem.indexOf(u8, trimmed, "//") != null or
+                std.mem.indexOf(u8, trimmed, "/*") != null) {
+                should_include = true;
+            }
+        }
+        
+        if (should_include) {
             try result.appendSlice(line);
             try result.append('\n');
-        }
-    } else if (flags.signatures) {
-        // For signatures, just extract keys
-        var lines = std.mem.tokenizeScalar(u8, source, '\n');
-        
-        while (lines.next()) |line| {
-            const trimmed = std.mem.trim(u8, line, " \t");
-            if (std.mem.indexOf(u8, trimmed, "\":") != null) {
-                try result.appendSlice(line);
-                try result.append('\n');
-            }
         }
     }
 }

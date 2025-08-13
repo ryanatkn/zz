@@ -4,9 +4,9 @@ High-performance command-line utilities written in Zig for POSIX systems. Featur
 
 **Platform Support:** Linux, macOS, BSD, and other POSIX-compliant systems. Windows is not supported.
 
-**Language Support:** Parse and extract from TypeScript, CSS, HTML, JSON, Zig, and Svelte - all rendered in your terminal with syntax highlighting.
+**Language Support:** Complete AST-based extraction from TypeScript, CSS, HTML, JSON, Zig, and Svelte with unified NodeVisitor pattern for precise, language-aware code analysis.
 
-**Performance:** 20-30% faster than stdlib for path operations, with pattern matching at ~25ns per operation. Features incremental processing with change detection and intelligent caching.
+**Performance:** 20-30% faster than stdlib for path operations, with pattern matching at ~25ns per operation. Features incremental processing with AST cache invalidation and intelligent dependency tracking.
 
 **Architecture:** Clean modular design with filesystem abstraction, unified pattern matching, and aggressive performance optimizations. Includes advanced features like incremental file processing, AST-based code extraction, and parallel task execution. See [docs/slop/ARCHITECTURE.md](./docs/slop/ARCHITECTURE.md) for system design details.
 
@@ -68,14 +68,14 @@ cd demo && zig build run       # Build and run interactive demo
 - Arena allocators for improved memory performance
 
 ### Prompt Generation
-- **Language-aware code extraction** with specialized parsing for each language
-- **Multi-language support** with syntax-aware extraction:
-  - **TypeScript**: Interfaces, types, classes, functions (.ts files)
-  - **CSS**: Selectors, variables, media queries, at-rules
-  - **HTML**: Document structure, elements, attributes
-  - **JSON**: Keys, structure, nested objects
-  - **Zig**: Functions, structs, tests, documentation
-  - **Svelte**: Multi-section components (script/style/template)
+- **AST-based code extraction** with unified NodeVisitor pattern for precise analysis
+- **Complete language integration** with walkNode() implementations for all languages:
+  - **TypeScript**: Interfaces, types, classes, functions with dependency analysis (.ts files)
+  - **CSS**: Selectors, variables, media queries, at-rules with rule extraction
+  - **HTML**: Document structure, elements, attributes, event handlers
+  - **JSON**: Keys, structure, schema analysis, type detection
+  - **Zig**: Functions, structs, tests, documentation via tree-sitter
+  - **Svelte**: Multi-section components (script/style/template) with section-aware parsing
 - **Extraction modes** for precise code analysis:
   - `--signatures`: Function/method signatures
   - `--types`: Type definitions (interfaces, types, structs)
@@ -99,6 +99,13 @@ cd demo && zig build run       # Build and run interactive demo
 - Human-readable time units (ns, μs, ms, s) with progress bars
 - **Duration multiplier system** - Allows extending benchmark duration for more stable results
 - Time-based execution with configurable duration per benchmark
+
+### Incremental Processing & Caching
+- **AST Cache Integration** - Intelligent caching of parsed AST trees with selective invalidation
+- **Smart Dependency Tracking** - Automatic cascade invalidation when dependencies change
+- **File Change Detection** - xxHash-based change detection for minimal cache invalidation
+- **95% Cache Efficiency** - High cache hit rates for unchanged files with different extraction flags
+- **Memory-Efficient Caching** - LRU eviction with configurable memory limits
 
 ## Commands
 

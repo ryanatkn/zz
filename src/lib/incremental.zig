@@ -1,5 +1,7 @@
 const std = @import("std");
 const filesystem_utils = @import("filesystem.zig");
+const AstCache = @import("cache.zig").AstCache;
+const AstCacheKey = @import("cache.zig").AstCacheKey;
 
 /// File state for incremental processing
 pub const FileState = struct {
@@ -263,6 +265,7 @@ pub const FileTracker = struct {
     files: std.HashMap([]const u8, FileState, std.hash_map.StringContext, 80),
     dependency_graph: DependencyGraph,
     change_detector: ChangeDetector,
+    ast_cache: ?*AstCache, // Optional AST cache for invalidation
 
     pub fn init(allocator: std.mem.Allocator) FileTracker {
         return FileTracker{
@@ -270,6 +273,17 @@ pub const FileTracker = struct {
             .files = std.HashMap([]const u8, FileState, std.hash_map.StringContext, 80).init(allocator),
             .dependency_graph = DependencyGraph.init(allocator),
             .change_detector = ChangeDetector.init(allocator),
+            .ast_cache = null,
+        };
+    }
+
+    pub fn initWithAstCache(allocator: std.mem.Allocator, ast_cache: *AstCache) FileTracker {
+        return FileTracker{
+            .allocator = allocator,
+            .files = std.HashMap([]const u8, FileState, std.hash_map.StringContext, 80).init(allocator),
+            .dependency_graph = DependencyGraph.init(allocator),
+            .change_detector = ChangeDetector.init(allocator),
+            .ast_cache = ast_cache,
         };
     }
 
@@ -294,6 +308,11 @@ pub const FileTracker = struct {
             .new, .content => {
                 if (change.new_state) |new_state| {
                     const key = try self.allocator.dupe(u8, file_path);
+                    
+                    // Invalidate AST cache entries for this file
+                    if (self.ast_cache) |cache| {
+                        try self.invalidateAstCacheForFile(cache, file_path);
+                    }
                     
                     // Remove old state if it exists
                     if (self.files.fetchRemove(key)) |old_entry| {
@@ -344,6 +363,50 @@ pub const FileTracker = struct {
                 try result.append(file_path);
             }
         }
+    }
+
+    /// Invalidate AST cache entries for a file
+    fn invalidateAstCacheForFile(self: *FileTracker, cache: *AstCache, file_path: []const u8) !void {
+        // Get the file's current hash (if it exists)
+        if (self.files.get(file_path)) |file_state| {
+            // Invalidate all cache entries for this file by removing entries with matching file hash
+            try cache.invalidateByFileHash(file_state.hash);
+        }
+    }
+
+    /// Invalidate AST cache entries for multiple files
+    pub fn invalidateAstCacheForFiles(self: *FileTracker, file_paths: []const []const u8) !void {
+        if (self.ast_cache) |cache| {
+            for (file_paths) |file_path| {
+                try self.invalidateAstCacheForFile(cache, file_path);
+            }
+        }
+    }
+
+    /// Get or create AST cache key for a file with extraction flags
+    pub fn getAstCacheKey(self: *FileTracker, file_path: []const u8, extraction_flags_hash: u64) ?AstCacheKey {
+        if (self.files.get(file_path)) |file_state| {
+            return AstCacheKey.init(
+                file_state.hash,
+                1, // parser version - could be made configurable
+                extraction_flags_hash
+            );
+        }
+        return null;
+    }
+
+    /// Cascade invalidation for dependent files
+    pub fn cascadeInvalidation(self: *FileTracker, changed_file: []const u8) !void {
+        if (self.ast_cache == null) return;
+        
+        var dependents = std.ArrayList([]const u8).init(self.allocator);
+        defer dependents.deinit();
+        
+        // Get all files that depend on the changed file
+        try self.dependency_graph.getDependents(changed_file, &dependents);
+        
+        // Invalidate cache for all dependent files
+        try self.invalidateAstCacheForFiles(dependents.items);
     }
 };
 

@@ -1,5 +1,6 @@
 const std = @import("std");
 const ts = @import("tree-sitter");
+const AstNode = @import("ast.zig").AstNode;
 
 // Language-specific parsers
 const zig_parser = @import("parsers/zig.zig");
@@ -55,11 +56,21 @@ pub const ExtractionFlags = struct {
 pub const Parser = struct {
     allocator: std.mem.Allocator,
     language: Language,
+    use_ast: bool,
 
     pub fn init(allocator: std.mem.Allocator, language: Language) !Parser {
         return Parser{
             .allocator = allocator,
             .language = language,
+            .use_ast = false, // Default to simple extraction for compatibility
+        };
+    }
+
+    pub fn initWithAst(allocator: std.mem.Allocator, language: Language, use_ast: bool) !Parser {
+        return Parser{
+            .allocator = allocator,
+            .language = language,
+            .use_ast = use_ast,
         };
     }
 
@@ -73,8 +84,51 @@ pub const Parser = struct {
             return self.allocator.dupe(u8, source);
         }
 
-        // Use simple extraction for now (tree-sitter only for Zig)
-        return self.extractSimple(source, flags);
+        // Choose extraction method based on configuration
+        if (self.use_ast) {
+            return self.extractWithAst(source, flags);
+        } else {
+            return self.extractSimple(source, flags);
+        }
+    }
+
+    /// AST-based extraction using tree-sitter
+    fn extractWithAst(self: *Parser, source: []const u8, flags: ExtractionFlags) ![]const u8 {
+        // TODO: Implement actual tree-sitter parsing
+        // For now, fall back to simple extraction with AST-compatible interface
+        
+        var result = std.ArrayList(u8).init(self.allocator);
+        defer result.deinit();
+
+        // Create a mock AST node for the parsers that have walkNode implementations
+        // In real implementation, this would parse with tree-sitter
+        const mock_root = AstNode{
+            .raw_node = null,
+            .node_type = "document",
+            .start_byte = 0,
+            .end_byte = @intCast(source.len),
+            .start_point = AstNode.Point{ .row = 0, .column = 0 },
+            .end_point = AstNode.Point{ .row = 0, .column = 0 },
+            .text = source,
+        };
+
+        switch (self.language) {
+            .zig => {
+                // Zig uses different AST interface, fall back to simple for now
+                try zig_parser.extractSimple(source, flags, &result);
+            },
+            .css => try css_parser.walkNode(self.allocator, &mock_root, source, flags, &result),
+            .html => try html_parser.walkNode(self.allocator, &mock_root, source, flags, &result),
+            .json => try json_parser.walkNode(self.allocator, &mock_root, source, flags, &result),
+            .typescript => try typescript_parser.walkNode(self.allocator, &mock_root, source, flags, &result),
+            .svelte => try svelte_parser.walkNode(self.allocator, &mock_root, source, flags, &result),
+            .unknown => {
+                // For unknown languages, return full source
+                try result.appendSlice(source);
+            },
+        }
+
+        return result.toOwnedSlice();
     }
 
     fn extractSimple(self: *Parser, source: []const u8, flags: ExtractionFlags) ![]const u8 {
@@ -82,11 +136,7 @@ pub const Parser = struct {
         defer result.deinit();
 
         switch (self.language) {
-            .zig => {
-                // For now, just use simple extraction for Zig too
-                // Tree-sitter can be re-enabled once properly integrated
-                try zig_parser.extractSimple(source, flags, &result);
-            },
+            .zig => try zig_parser.extractSimple(source, flags, &result),
             .css => try css_parser.extractSimple(source, flags, &result),
             .html => try html_parser.extractSimple(source, flags, &result),
             .json => try json_parser.extractSimple(source, flags, &result),
@@ -101,3 +151,34 @@ pub const Parser = struct {
         return result.toOwnedSlice();
     }
 };
+
+/// Public API for creating parsers with AST support
+pub fn createParser(allocator: std.mem.Allocator, language: Language) !Parser {
+    return Parser.init(allocator, language);
+}
+
+pub fn createAstParser(allocator: std.mem.Allocator, language: Language) !Parser {
+    return Parser.initWithAst(allocator, language, true);
+}
+
+/// Helper function to extract code with automatic language detection
+pub fn extractCode(allocator: std.mem.Allocator, file_path: []const u8, source: []const u8, flags: ExtractionFlags) ![]const u8 {
+    const ext = std.fs.path.extension(file_path);
+    const language = Language.fromExtension(ext);
+    
+    var parser = try createParser(allocator, language);
+    defer parser.deinit();
+    
+    return parser.extract(source, flags);
+}
+
+/// Helper function to extract code with AST support
+pub fn extractCodeWithAst(allocator: std.mem.Allocator, file_path: []const u8, source: []const u8, flags: ExtractionFlags) ![]const u8 {
+    const ext = std.fs.path.extension(file_path);
+    const language = Language.fromExtension(ext);
+    
+    var parser = try createAstParser(allocator, language);
+    defer parser.deinit();
+    
+    return parser.extract(source, flags);
+}

@@ -186,6 +186,48 @@ pub const AstCache = struct {
     pub fn getCurrentMemoryMB(self: *AstCache) f64 {
         return @as(f64, @floatFromInt(self.current_memory_bytes)) / (1024.0 * 1024.0);
     }
+
+    /// Invalidate all cache entries for a specific file hash
+    pub fn invalidateByFileHash(self: *AstCache, file_hash: u64) !void {
+        var keys_to_remove = std.ArrayList(AstCacheKey).init(self.allocator);
+        defer keys_to_remove.deinit();
+        
+        // Find all keys with matching file hash
+        var iter = self.cache.iterator();
+        while (iter.next()) |entry| {
+            if (entry.key_ptr.file_hash == file_hash) {
+                try keys_to_remove.append(entry.key_ptr.*);
+            }
+        }
+        
+        // Remove all matching entries
+        for (keys_to_remove.items) |key| {
+            if (self.cache.fetchRemove(key)) |removed| {
+                self.current_memory_bytes -= removed.value.content.len;
+                var mutable_value = removed.value;
+                mutable_value.deinit(self.allocator);
+                self.stats.evictions += 1;
+            }
+        }
+    }
+
+    /// Invalidate all cache entries for multiple file hashes
+    pub fn invalidateByFileHashes(self: *AstCache, file_hashes: []const u64) !void {
+        for (file_hashes) |file_hash| {
+            try self.invalidateByFileHash(file_hash);
+        }
+    }
+
+    /// Clear all cache entries
+    pub fn clear(self: *AstCache) void {
+        var iter = self.cache.iterator();
+        while (iter.next()) |entry| {
+            entry.value_ptr.deinit(self.allocator);
+        }
+        self.cache.clearAndFree();
+        self.current_memory_bytes = 0;
+        self.stats.evictions += self.cache.count();
+    }
 };
 
 /// Parser instance for language-specific parsing

@@ -140,7 +140,7 @@ pub fn walkNode(allocator: std.mem.Allocator, root: *const AstNode, source: []co
         const imports = dep_analyzer.getImports();
         
         for (imports) |import| {
-            try result.writer().print("import {} from '{s}';\n", .{import.imports, import.module_path});
+            try result.writer().print("import {s} from '{s}';\n", .{import.imports, import.module_path});
         }
     }
     

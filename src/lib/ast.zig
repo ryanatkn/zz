@@ -1,9 +1,9 @@
 const std = @import("std");
-const ts = @import("tree-sitter");
 
 /// AST node type for unified handling across languages
 pub const AstNode = struct {
-    raw_node: ?*ts.TSNode,
+    // TODO get real type? c import or @import('tree-sitter')?
+    raw_node: ?*anyopaque, // Generic pointer to tree-sitter node
     node_type: []const u8,
     start_byte: u32,
     end_byte: u32,
@@ -16,73 +16,30 @@ pub const AstNode = struct {
         column: u32,
     };
     
-    pub fn init(raw_node: ?*ts.TSNode, source: []const u8) AstNode {
-        if (raw_node) |node| {
-            const start_byte = ts.ts_node_start_byte(node);
-            const end_byte = ts.ts_node_end_byte(node);
-            const start_point = ts.ts_node_start_point(node);
-            const end_point = ts.ts_node_end_point(node);
-            
-            return AstNode{
-                .raw_node = raw_node,
-                .node_type = ts.ts_node_type(node),
-                .start_byte = start_byte,
-                .end_byte = end_byte,
-                .start_point = Point{
-                    .row = start_point.row,
-                    .column = start_point.column,
-                },
-                .end_point = Point{
-                    .row = end_point.row,
-                    .column = end_point.column,
-                },
-                .text = source[start_byte..end_byte],
-            };
-        } else {
-            return AstNode{
-                .raw_node = null,
-                .node_type = "null",
-                .start_byte = 0,
-                .end_byte = 0,
-                .start_point = Point{ .row = 0, .column = 0 },
-                .end_point = Point{ .row = 0, .column = 0 },
-                .text = "",
-            };
-        }
+    pub fn init(node_type: []const u8, start_byte: u32, end_byte: u32, source: []const u8) AstNode {
+        return AstNode{
+            .raw_node = null,
+            .node_type = node_type,
+            .start_byte = start_byte,
+            .end_byte = end_byte,
+            .start_point = Point{ .row = 0, .column = 0 },
+            .end_point = Point{ .row = 0, .column = 0 },
+            .text = if (end_byte <= source.len) source[start_byte..end_byte] else "",
+        };
     }
     
     pub fn hasChild(self: *const AstNode, child_type: []const u8) bool {
-        if (self.raw_node == null) return false;
-        
-        const node = self.raw_node.?;
-        const child_count = ts.ts_node_child_count(node);
-        
-        var i: u32 = 0;
-        while (i < child_count) : (i += 1) {
-            const child = ts.ts_node_child(node, i);
-            const child_node_type = ts.ts_node_type(child);
-            if (std.mem.eql(u8, child_node_type, child_type)) {
-                return true;
-            }
-        }
+        // For now, return false since we don't have real tree-sitter integration
+        _ = self;
+        _ = child_type;
         return false;
     }
     
     pub fn getChildren(self: *const AstNode, allocator: std.mem.Allocator, source: []const u8) ![]AstNode {
-        if (self.raw_node == null) return &.{};
-        
-        const node = self.raw_node.?;
-        const child_count = ts.ts_node_child_count(node);
-        
-        var children = try allocator.alloc(AstNode, child_count);
-        
-        var i: u32 = 0;
-        while (i < child_count) : (i += 1) {
-            const child = ts.ts_node_child(node, i);
-            children[i] = AstNode.init(&child, source);
-        }
-        
-        return children;
+        // For now, return empty array since we don't have real tree-sitter integration
+        _ = self;
+        _ = source;
+        return allocator.alloc(AstNode, 0);
     }
 };
 

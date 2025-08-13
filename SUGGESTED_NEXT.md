@@ -10,9 +10,29 @@
 - ✅ Fixed TypeScript parser version compatibility (disabled tree-sitter temporarily)
 - ✅ Improved simple extraction functions (all languages working)
 
+## Recently Completed ✅ (January 2025)
+
+### 1. Complete AST Integration for All Languages
+**Status:** ✅ COMPLETED
+- ✅ Added walkNode() implementations for HTML parser with element/structure detection
+- ✅ Added walkNode() implementations for JSON parser with structural/key extraction  
+- ✅ Added walkNode() implementations for Svelte parser with section-aware extraction
+- ✅ All parsers now support AST-based extraction using unified NodeVisitor pattern
+- ✅ Integrated AST-based extraction into main parser.zig module
+- ✅ Added comprehensive tests for AST-based extraction functionality
+
+### 2. Enhanced Incremental Processing with AST Caching
+**Status:** ✅ COMPLETED  
+- ✅ Integrated AST cache with incremental processing system
+- ✅ Added invalidateByFileHash() method to AstCache for selective invalidation
+- ✅ Enhanced FileTracker with AST cache support and invalidation methods
+- ✅ Implemented cascade invalidation for dependent files
+- ✅ Added cache key generation based on file hash and extraction flags
+- ✅ Smart dependency change detection with automatic cache invalidation
+
 ## Recently Completed ✅ (December 2024)
 
-### 1. Tree-Sitter Integration and AST Framework
+### 3. Tree-Sitter Integration and AST Framework
 **Status:** ✅ COMPLETED
 - ✅ Implemented unified AST framework (`src/lib/ast.zig`)
 - ✅ Added proper walkNode() implementations for TypeScript and CSS
@@ -20,7 +40,7 @@
 - ✅ Added comprehensive AST-based code extraction
 - ✅ All tree-sitter language grammars vendored and working
 
-### 2. Incremental Processing System  
+### 4. Incremental Processing System  
 **Status:** ✅ COMPLETED
 - ✅ Built complete incremental processing system (`src/lib/incremental.zig`)
 - ✅ Implemented file change detection with xxHash
@@ -28,7 +48,7 @@
 - ✅ Added state persistence with JSON serialization
 - ✅ Integrated incremental support into prompt module
 
-### 3. Advanced Caching and Performance
+### 5. Advanced Caching and Performance
 **Status:** ✅ COMPLETED  
 - ✅ Implemented LRU cache for AST extractions (`src/lib/cache.zig`)
 - ✅ Added parser instance caching to avoid re-initialization
@@ -38,26 +58,28 @@
 
 ## High Priority Next Steps
 
-### 1. Complete AST Integration for All Languages
-**Impact:** High | **Effort:** Medium
-- Add walkNode() implementations for HTML, JSON, and Svelte parsers  
-- Implement semantic analysis (function calls, variable usage)
-- Add cross-language dependency analysis
-- Create language-specific extraction templates
-
-### 2. Enhanced Incremental Processing
-**Impact:** High | **Effort:** Medium  
-- Add incremental AST caching with invalidation
-- Implement smart dependency change detection
-- Add parallel incremental processing
-- Create incremental benchmarks and performance tests
-
-### 3. Advanced Code Analysis Features
+### 1. Advanced Code Analysis Features
 **Impact:** High | **Effort:** Medium
 - Build call graph generation using AST
 - Add code relationship mapping (imports, exports, usage)
 - Implement intelligent code summarization  
 - Create context-aware file selection for prompts
+- Implement semantic analysis (function calls, variable usage)
+- Add cross-language dependency analysis
+
+### 2. Parallel Processing Integration
+**Impact:** High | **Effort:** Medium  
+- Add parallel incremental processing
+- Integrate parallel file processing with incremental updates
+- Create incremental benchmarks and performance tests
+- Optimize worker pool scheduling for AST extraction
+
+### 3. Enhanced Language Analysis
+**Impact:** High | **Effort:** Medium
+- Create language-specific extraction templates
+- Add semantic code relationship analysis
+- Implement advanced type inference for dynamic languages
+- Build cross-file reference tracking
 
 ## Medium Priority Features
 

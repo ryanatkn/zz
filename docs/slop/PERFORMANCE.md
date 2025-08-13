@@ -102,7 +102,7 @@ pub fn expandPattern(self: *GlobExpander, pattern: []const u8) !void {
 
 **Optimized patterns:**
 - `*.{zig,c,h}` - Common source files
-- `*.{js,ts,jsx,tsx}` - JavaScript/TypeScript
+- `*.{js,ts,jsx,tsx}` - JS/TypeScript
 - `*.{md,txt,doc}` - Documentation
 - `**/*.zig` - Recursive Zig files
 

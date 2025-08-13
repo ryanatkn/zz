@@ -18,7 +18,9 @@ $ zig version
 0.14.1
 ```
 
-No external dependencies - pure Zig implementation.
+**Dependencies:** 
+- Tree-sitter for language-aware code parsing and extraction
+- Integrated via Zig package manager (build.zig.zon)
 
 ## Project Structure
 
@@ -126,14 +128,16 @@ $ zig build run -- benchmark [args]     # Run benchmarks
 ## Testing
 
 ```bash
-$ zig build test              # Run all tests (shows summary)
-$ zig test src/test.zig       # Run all tests (shows detailed output)
-$ zig build test-tree         # Run tree module tests only
-$ zig build test-prompt       # Run prompt module tests only
-$ zig test src/test.zig --test-filter "directory"    # Run specific tests by name pattern
+$ zig test src/test.zig                                # Run all tests (clean output)
+$ zig test src/test.zig --test-filter "directory"     # Run specific tests by name pattern
+$ zig build test-tree                                  # Run tree module tests only
+$ zig build test-prompt                                # Run prompt module tests only
+
+# Verbose output (detailed timing and progress)
+$ TEST_VERBOSE=1 zig test src/test.zig                 # Environment variable (CI/development)
 ```
 
-Comprehensive test suite covers configuration parsing, directory filtering, performance optimization, edge cases, and security patterns. The test runner provides clean output with 190+ tests and enhanced resource management patterns.
+Comprehensive test suite covers configuration parsing, directory filtering, performance optimization, edge cases, and security patterns. The test runner provides clean output with 206 tests and enhanced resource management patterns.
 
 ## Benchmarking
 
@@ -151,7 +155,7 @@ Performance benchmarking is critical for maintaining and improving the efficienc
 $ zz benchmark
 
 # Different output formats
-$ zz benchmark --format=pretty             # Color terminal output with progress bars
+$ zz benchmark --format=pretty             # Clean color terminal output with status indicators
 $ zz benchmark --format=json               # Machine-readable JSON
 $ zz benchmark --format=csv                # Spreadsheet-compatible CSV
 
@@ -192,16 +196,18 @@ $ ./zig-out/bin/zz benchmark --duration=5s
 - Automatic baseline comparison (when benchmarks/baseline.md exists)
 - Regression detection with exit code 1 (20% threshold)
 - Clean separation: CLI for data, build commands for workflow
-- Color-enhanced terminal output with progress bars
+- Clean color-enhanced terminal output with status indicators
 - Human-readable time units (ns, μs, ms, s)
 - **Duration multiplier system** - Allows extending benchmark duration for more stable results
 
+> TODO verify these
 **Performance Baselines (Debug build):**
 - Path operations: ~47μs per operation (20-30% faster than stdlib)
 - String pooling: ~145ns per operation (95-100% cache efficiency)
 - Memory pools: ~50μs per allocation/release cycle
 - Glob patterns: ~25ns per operation (75% fast-path hit ratio)
-- Benchmark execution: ~8 seconds total (each benchmark targets ~2 seconds)
+- Code extraction: ~92μs per extraction (4 modes: full, signatures, types, combined)
+- Benchmark execution: ~10 seconds total (5 benchmarks with varied durations based on multipliers)
 - Regression threshold: 20% (to account for Debug mode variance)
 - Time-based execution: Each benchmark runs for a configurable duration (default: 2 seconds)
 
@@ -337,16 +343,26 @@ const walker = Walker.initWithOptions(allocator, config, .{ .filesystem = mock_f
 
 ## Prompt Module Features
 
+**Intelligent Code Extraction:**
+- **Language-aware parsing** using tree-sitter for precise extraction
+- **Extraction flags** for surgical precision:
+  - `--signatures`: Function/method signatures
+  - `--types`: Type definitions and structures
+  - `--docs`: Documentation comments
+  - `--imports`: Import/require statements
+  - `--errors`: Error handling patterns
+  - `--tests`: Test functions and blocks
+  - `--full`: Complete source (default for backward compatibility)
+- **Composable extraction:** Combine flags like `--signatures --errors`
+- **Language detection:** Automatic based on file extension
+- **Extensible:** Ready for 100+ languages via tree-sitter grammars
+
 **Glob Pattern Support with Performance Optimizations:**
 - Basic wildcards: `*.zig`, `test?.zig`
 - Recursive patterns: `src/**/*.zig`
 - **Optimized alternatives:** `*.{zig,md,txt}` with fast-path expansion
 - **Fast-path common patterns:** `*.{zig,c,h}`, `*.{js,ts}`, `*.{md,txt}` pre-optimized (40-60% faster)
-- Nested braces: `*.{zig,{md,txt}}` expands to `*.zig`, `*.md`, `*.txt`
 - Character classes: `log[0-9].txt`, `file[a-zA-Z].txt`, `test[!0-9].txt`
-- Escape sequences: `file\*.txt` matches literal `file*.txt`
-- Hidden files: `.*` explicitly matches hidden files (`*` does not)
-- Symlinks: Symlinks to files are followed
 - Automatic deduplication of matched files
 
 **Directory Support:**
@@ -434,7 +450,7 @@ The project is configured for optimal Claude Code usage:
     identify root causes and leave `// TODO` if you're stumped)
 - Less is more - avoid over-engineering, and when in doubt, ask me or choose the simple option
 
-**Current Status:** ✓ **Production ready with comprehensive performance optimizations** - All 190+ tests passing (100% success rate). Full feature set with significant performance improvements and enhanced developer experience.
+**Current Status:** ✓ **Production ready with comprehensive performance optimizations** - All 206 tests passing (100% success rate). Full feature set with significant performance improvements and enhanced developer experience.
 
 **✅ Recent Improvements:**
 - **Color-enhanced benchmark output** - Progress bars, human-readable units, visual hierarchy

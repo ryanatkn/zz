@@ -18,6 +18,7 @@ const Entry = @import("entry.zig").Entry;
 
 // Initialize tree module testing
 test "tree module initialization" {
+    test_helpers.TestRunner.init();
     test_helpers.TestRunner.setModule("Tree");
 }
 

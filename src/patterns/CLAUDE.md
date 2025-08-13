@@ -39,7 +39,7 @@ pub fn matchesPattern(path: []const u8, pattern: []const u8) bool {
 
 **Common patterns skip parsing:**
 - `*.{zig,c,h}` - C/Zig development
-- `*.{js,ts}` - JavaScript/TypeScript
+- `*.{js,ts}` - JS/TypeScript
 - `*.{md,txt}` - Documentation
 
 ### Exact Component Matching

@@ -2,6 +2,7 @@ const std = @import("std");
 const test_helpers = @import("../../test_helpers.zig");
 const GlobExpander = @import("../glob.zig").GlobExpander;
 const PromptBuilder = @import("../builder.zig").PromptBuilder;
+const ExtractionFlags = @import("../../lib/parser.zig").ExtractionFlags;
 
 test "single large file warning" {
     const allocator = std.testing.allocator;
@@ -21,7 +22,8 @@ test "single large file warning" {
     try file.writeAll("\n");
 
     // Try to add the large file to prompt (using quiet mode to suppress warning)
-    var builder = PromptBuilder.initQuiet(allocator, ctx.filesystem);
+    const extraction_flags = ExtractionFlags{};
+    var builder = PromptBuilder.initQuiet(allocator, ctx.filesystem, extraction_flags);
     defer builder.deinit();
 
     const large_path = try std.fmt.allocPrint(allocator, "{s}/large.zig", .{ctx.path});
@@ -229,7 +231,8 @@ test "prompt builder with large content" {
 
     try ctx.writeFile("moderate.zig", content);
 
-    var builder = PromptBuilder.init(allocator, ctx.filesystem);
+    const extraction_flags2 = ExtractionFlags{};
+    var builder = PromptBuilder.init(allocator, ctx.filesystem, extraction_flags2);
     defer builder.deinit();
 
     const file_path = try std.fmt.allocPrint(allocator, "{s}/moderate.zig", .{ctx.path});

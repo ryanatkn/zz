@@ -39,6 +39,7 @@ const Options = struct {
     run_string_pool: bool = false,
     run_memory_pools: bool = false,
     run_glob: bool = false,
+    run_extraction: bool = false,
 };
 
 /// Get built-in duration multiplier for a specific benchmark type
@@ -47,11 +48,13 @@ pub fn getBuiltinDurationMultiplier(benchmark_name: []const u8) f64 {
     // - Path joining: 2x multiplier (I/O dependent)
     // - Memory pools: 3x multiplier (allocation dependent)
     // - String pool: 1x multiplier (CPU bound, stable)
-    // - Glob patterns: 1x multiplier (CPU bound, stable)
+    // - Glob patterns: 2x multiplier (pattern matching variability)
+    // - Extraction: 1x multiplier (CPU bound, stable)
     if (std.mem.eql(u8, benchmark_name, "path")) return 2.0;
     if (std.mem.eql(u8, benchmark_name, "memory")) return 3.0;
     if (std.mem.eql(u8, benchmark_name, "string")) return 1.0;
-    if (std.mem.eql(u8, benchmark_name, "glob")) return 1.0;
+    if (std.mem.eql(u8, benchmark_name, "glob")) return 2.0;
+    if (std.mem.eql(u8, benchmark_name, "extraction")) return 1.0;
     return 1.0; // Default
 }
 
@@ -117,6 +120,7 @@ pub fn run(allocator: std.mem.Allocator, args: [][:0]const u8) !void {
                 if (std.mem.eql(u8, name, "string") or std.mem.eql(u8, name, "string-pool")) options.run_string_pool = true;
                 if (std.mem.eql(u8, name, "memory") or std.mem.eql(u8, name, "memory-pools")) options.run_memory_pools = true;
                 if (std.mem.eql(u8, name, "glob")) options.run_glob = true;
+                if (std.mem.eql(u8, name, "extraction") or std.mem.eql(u8, name, "extract")) options.run_extraction = true;
             }
         } else if (std.mem.startsWith(u8, arg, "--skip=")) {
             options.skip = arg["--skip=".len..];
@@ -125,6 +129,7 @@ pub fn run(allocator: std.mem.Allocator, args: [][:0]const u8) !void {
             options.run_string_pool = true;
             options.run_memory_pools = true;
             options.run_glob = true;
+            options.run_extraction = true;
             options.run_all = false;
             
             // Parse the skip list and disable those benchmarks
@@ -134,6 +139,7 @@ pub fn run(allocator: std.mem.Allocator, args: [][:0]const u8) !void {
                 if (std.mem.eql(u8, name, "string") or std.mem.eql(u8, name, "string-pool")) options.run_string_pool = false;
                 if (std.mem.eql(u8, name, "memory") or std.mem.eql(u8, name, "memory-pools")) options.run_memory_pools = false;
                 if (std.mem.eql(u8, name, "glob")) options.run_glob = false;
+                if (std.mem.eql(u8, name, "extraction") or std.mem.eql(u8, name, "extract")) options.run_extraction = false;
             }
         } else if (std.mem.eql(u8, arg, "--warmup")) {
             options.warmup = true;
@@ -215,6 +221,11 @@ pub fn run(allocator: std.mem.Allocator, args: [][:0]const u8) !void {
     if (options.run_all or options.run_glob) {
         const glob_duration = getEffectiveDuration(options.duration_ns, "glob", options.duration_multiplier);
         try bench.benchmarkGlobPatterns(glob_duration, false);
+    }
+
+    if (options.run_all or options.run_extraction) {
+        const extraction_duration = getEffectiveDuration(options.duration_ns, "extraction", options.duration_multiplier);
+        try bench.benchmarkExtraction(extraction_duration, false);
     }
 
     // Output results in requested format to stdout

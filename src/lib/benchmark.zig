@@ -43,29 +43,6 @@ pub fn formatTime(ns: u64, buf: []u8) ![]const u8 {
     }
 }
 
-/// Generate a simple ASCII progress bar
-fn makeProgressBar(value: f64, width: usize, buf: []u8) []const u8 {
-    const filled = @min(width, @as(usize, @intFromFloat(value * @as(f64, @floatFromInt(width)))));
-    const empty = width - filled;
-    
-    var i: usize = 0;
-    buf[i] = '[';
-    i += 1;
-    
-    for (0..filled) |_| {
-        buf[i] = '=';
-        i += 1;
-    }
-    for (0..empty) |_| {
-        buf[i] = '-';
-        i += 1;
-    }
-    
-    buf[i] = ']';
-    i += 1;
-    
-    return buf[0..i];
-}
 
 /// Simple benchmark utilities for measuring optimization impact
 pub const Benchmark = struct {
@@ -265,6 +242,85 @@ pub const Benchmark = struct {
         });
     }
     
+    /// Benchmark code extraction performance
+    pub fn benchmarkExtraction(self: *Self, target_duration_ns: u64, verbose: bool) !void {
+        if (verbose) {
+            std.debug.print("\n📋 Benchmarking Code Extraction...\n", .{});
+        }
+        
+        const Parser = @import("parser.zig").Parser;
+        const ExtractionFlags = @import("parser.zig").ExtractionFlags;
+        
+        // Sample Zig code for extraction
+        const sample_code = 
+            \\const std = @import("std");
+            \\
+            \\/// Documentation for MyStruct
+            \\pub const MyStruct = struct {
+            \\    value: u32,
+            \\    name: []const u8,
+            \\};
+            \\
+            \\pub fn processData(data: []const u8) !void {
+            \\    if (data.len == 0) return error.EmptyData;
+            \\    // Process the data
+            \\    std.debug.print("Processing: {s}\n", .{data});
+            \\}
+            \\
+            \\test "processData test" {
+            \\    try processData("test");
+            \\}
+            \\
+            \\fn privateHelper() void {
+            \\    // Helper function
+            \\}
+        ;
+        
+        const start = std.time.nanoTimestamp();
+        var total_extractions: usize = 0;
+        
+        // Test different extraction modes
+        const extraction_modes = [_]struct { 
+            name: []const u8, 
+            flags: ExtractionFlags 
+        }{
+            .{ .name = "full", .flags = ExtractionFlags{ .full = true } },
+            .{ .name = "signatures", .flags = ExtractionFlags{ .signatures = true } },
+            .{ .name = "types", .flags = ExtractionFlags{ .types = true } },
+            .{ .name = "combined", .flags = ExtractionFlags{ .signatures = true, .types = true, .docs = true } },
+        };
+        
+        while (@as(u64, @intCast(std.time.nanoTimestamp() - start)) < target_duration_ns) {
+            for (extraction_modes) |mode| {
+                var parser = try Parser.init(self.allocator, .zig);
+                defer parser.deinit();
+                
+                const extracted = try parser.extract(sample_code, mode.flags);
+                defer self.allocator.free(extracted);
+                
+                total_extractions += 1;
+            }
+        }
+        
+        const elapsed = @as(u64, @intCast(std.time.nanoTimestamp() - start));
+        
+        if (verbose) {
+            std.debug.print("  {} extractions in {}ms\n", .{ total_extractions, elapsed / 1_000_000 });
+            std.debug.print("  Extraction modes tested: full, signatures, types, combined\n", .{});
+        }
+        
+        var extra_info_buf: [256]u8 = undefined;
+        const extra_info = try std.fmt.bufPrint(&extra_info_buf, "4 extraction modes", .{});
+        
+        try self.results.append(.{
+            .name = "Code Extraction",
+            .total_operations = total_extractions,
+            .elapsed_ns = elapsed,
+            .ns_per_op = elapsed / total_extractions,
+            .extra_info = try self.allocator.dupe(u8, extra_info),
+        });
+    }
+    
     /// Run all benchmarks for target duration each
     pub fn runAll(self: *Self, target_duration_ns: u64, verbose: bool) !void {
         if (verbose) {
@@ -277,6 +333,7 @@ pub const Benchmark = struct {
         try self.benchmarkStringPool(target_duration_ns, verbose);
         try self.benchmarkMemoryPools(target_duration_ns, verbose);
         try self.benchmarkGlobPatterns(target_duration_ns, verbose);
+        try self.benchmarkExtraction(target_duration_ns, verbose);
         
         if (verbose) {
             std.debug.print("\n=== Benchmark Complete ===\n", .{});
@@ -469,10 +526,8 @@ pub const Benchmark = struct {
         var regressed_count: usize = 0;
         var new_count: usize = 0;
         
-        // Track max values for progress bars
-        var max_ns_per_op: u64 = 0;
+        // Calculate total runtime
         for (self.results.items) |result| {
-            max_ns_per_op = @max(max_ns_per_op, result.ns_per_op);
             total_time += result.elapsed_ns;
         }
         
@@ -480,13 +535,8 @@ pub const Benchmark = struct {
         for (self.results.items) |result| {
             var time_buf: [64]u8 = undefined;
             var baseline_buf: [64]u8 = undefined;
-            var bar_buf: [32]u8 = undefined;
             
             const formatted_time = try formatTime(result.ns_per_op, &time_buf);
-            
-            // Mini progress bar showing relative performance
-            const relative_perf = @as(f64, @floatFromInt(result.ns_per_op)) / @as(f64, @floatFromInt(max_ns_per_op));
-            const bar = makeProgressBar(relative_perf, 10, &bar_buf);
             
             if (baseline_results) |baseline| {
                 const baseline_result = for (baseline) |b| {
@@ -500,65 +550,66 @@ pub const Benchmark = struct {
                     
                     const formatted_baseline = try formatTime(base.ns_per_op, &baseline_buf);
                     
+                    var total_runtime_buf: [64]u8 = undefined;
+                    const formatted_total_runtime = try formatTime(result.elapsed_ns, &total_runtime_buf);
+                    
                     if (change > 0.05) {
                         regressed_count += 1;
-                        try writer.print("{s}{s}⚠ {s: <20}{s} {s: >12} {s} {s}({s}{d:.1}% vs {s}){s}\n", .{
+                        try writer.print("{s}⚠ {s: <20} {s: >8} → {s}{s: >8}{s} {s}{s}{d:.1}% in {s}{s}\n", .{
                             Color.bright_yellow,
-                            Color.bold,
                             result.name,
-                            Color.reset,
+                            formatted_baseline,
+                            Color.bright_yellow,
                             formatted_time,
-                            bar,
-                            Color.gray,
+                            Color.reset,
+                            Color.dim,
                             if (change > 0) "+" else "",
                             change_pct,
-                            formatted_baseline,
+                            formatted_total_runtime,
                             Color.reset,
                         });
                     } else if (change < -0.01) {
                         improved_count += 1;
-                        try writer.print("{s}{s}✓ {s: <20}{s} {s: >12} {s} {s}({s}{d:.1}% vs {s}){s}\n", .{
+                        try writer.print("{s}✓ {s: <20} {s: >8} → {s}{s: >8}{s} {s}{s}{d:.1}% in {s}{s}\n", .{
                             Color.bright_green,
-                            Color.bold,
                             result.name,
-                            Color.reset,
+                            formatted_baseline,
+                            Color.bright_green,
                             formatted_time,
-                            bar,
-                            Color.gray,
+                            Color.reset,
+                            Color.dim,
                             if (change > 0) "+" else "",
                             change_pct,
-                            formatted_baseline,
+                            formatted_total_runtime,
                             Color.reset,
                         });
                     } else {
-                        try writer.print("  {s: <20} {s: >12} {s} {s}({s}{d:.1}% vs {s}){s}\n", .{
+                        try writer.print("  {s: <20} {s: >8} → {s: >8} {s}{s}{d:.1}% in {s}{s}\n", .{
                             result.name,
+                            formatted_baseline,
                             formatted_time,
-                            bar,
-                            Color.gray,
+                            Color.dim,
                             if (change > 0) "+" else "",
                             change_pct,
-                            formatted_baseline,
+                            formatted_total_runtime,
                             Color.reset,
                         });
                     }
                 } else {
                     new_count += 1;
-                    try writer.print("{s}? {s: <20}{s} {s: >12} {s} {s}(new benchmark){s}\n", .{
+                    try writer.print("{s}? {s: <20}{s} {s: >12} {s}(new benchmark){s}\n", .{
                         Color.cyan,
                         result.name,
                         Color.reset,
                         formatted_time,
-                        bar,
-                        Color.gray,
+                        Color.dim,
                         Color.reset,
                     });
                 }
             } else {
-                try writer.print("  {s: <20} {s: >12} {s}\n", .{
+                try writer.print("  {s: <20} {s: >12}\n", .{
                     result.name,
                     formatted_time,
-                    bar,
                 });
             }
         }

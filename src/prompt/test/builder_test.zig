@@ -3,12 +3,14 @@ const testing = std.testing;
 const test_helpers = @import("../../test_helpers.zig");
 const PromptBuilder = @import("../builder.zig").PromptBuilder;
 const GlobExpander = @import("../glob.zig").GlobExpander;
+const ExtractionFlags = @import("../../lib/parser.zig").ExtractionFlags;
 
 test "PromptBuilder basic" {
     var ctx = try test_helpers.TmpDirTestContext.init(testing.allocator);
     defer ctx.deinit();
 
-    var builder = PromptBuilder.init(testing.allocator, ctx.filesystem);
+    const extraction_flags = ExtractionFlags{};
+    var builder = PromptBuilder.init(testing.allocator, ctx.filesystem, extraction_flags);
     defer builder.deinit();
 
     try builder.addText("Test instructions");
@@ -19,7 +21,8 @@ test "prompt builder output format" {
     var ctx = try test_helpers.TmpDirTestContext.init(testing.allocator);
     defer ctx.deinit();
 
-    var builder = PromptBuilder.init(testing.allocator, ctx.filesystem);
+    const extraction_flags = ExtractionFlags{};
+    var builder = PromptBuilder.init(testing.allocator, ctx.filesystem, extraction_flags);
     defer builder.deinit();
 
     // Add text

@@ -11,7 +11,7 @@ Simple, functional command dispatch with decentralized argument parsing.
 - `main.zig` - Entry point, basic validation, command recognition
 - `args.zig` - **Deprecated/unused** - centralized parsing exists but modules parse independently
 - `command.zig` - Command enum with string conversion
-- `help.zig` - Static help text display
+- `help.zig` - Static help text display with detailed command options
 - `runner.zig` - Command dispatch via switch statement
 - `test.zig` - Basic smoke tests
 
@@ -59,7 +59,24 @@ pub fn run(allocator: Allocator, filesystem: FilesystemInterface, args: [][:0]co
 
 ## Help System
 
-**Static Display:** Hardcoded usage patterns for all commands
+**Static Display:** Hardcoded usage patterns for all commands with comprehensive option documentation
+**Command Descriptions:**
+- Tree: Directory visualization with format options
+- Prompt: "Build LLM prompts with intelligent code extraction" (updated from "Build LLM prompts from files")
+- Benchmark: Performance testing with multiple output formats
+
+**Prompt Command Help Features:**
+- **Standard Options:** `--prepend`, `--append`, `--allow-empty-glob`, `--allow-missing`
+- **Extraction Flags Section:** 8 specialized code extraction options:
+  - `--signatures`: Extract function/method signatures
+  - `--types`: Extract type definitions  
+  - `--docs`: Extract documentation comments
+  - `--structure`: Extract code structure
+  - `--imports`: Extract import statements
+  - `--errors`: Extract error handling code
+  - `--tests`: Extract test functions
+  - `--full`: Extract complete source (default)
+
 **Triggers:** No args, `help` command, unknown command
 
 ## Architectural Decisions
@@ -67,7 +84,7 @@ pub fn run(allocator: Allocator, filesystem: FilesystemInterface, args: [][:0]co
 1. **Decentralized parsing** - Each module owns its argument logic
 2. **Filesystem abstraction** - All commands receive interface for testability
 3. **Simple dispatch** - Basic switch rather than registry/plugin system
-4. **Static help** - Hardcoded rather than dynamic generation
+4. **Static help** - Hardcoded comprehensive help with detailed option documentation rather than dynamic generation
 5. **Mixed error strategy** - Pragmatic but inconsistent
 
 ## Test Coverage
@@ -79,5 +96,6 @@ pub fn run(allocator: Allocator, filesystem: FilesystemInterface, args: [][:0]co
 
 - Centralize argument parsing using existing `args.zig`
 - Standardize error handling across modules
-- Dynamic help generation from command definitions
+- Dynamic help generation from command definitions (current static help is comprehensive but hardcoded)
 - Command registry pattern for extensibility
+- Consider help text organization as extraction flags grow

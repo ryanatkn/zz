@@ -1,6 +1,6 @@
 # zz - CLI Utilities
 
-High-performance command-line utilities written in Zig with zero dependencies for POSIX systems. Features optimized directory visualization, LLM prompt generation, and comprehensive performance benchmarking.
+High-performance command-line utilities written in Zig for POSIX systems. Features optimized directory visualization, intelligent LLM prompt generation with language-aware code extraction, and comprehensive performance benchmarking.
 
 **Platform Support:** Linux, macOS, BSD, and other POSIX-compliant systems. Windows is not supported.
 
@@ -48,19 +48,21 @@ zz prompt "src/**/*.zig"       # Generate LLM prompt
 - Arena allocators for improved memory performance
 
 ### Prompt Generation
-- Build LLM-optimized prompts from multiple files with intelligent aggregation
+- **Intelligent code extraction** with language-aware parsing via tree-sitter
+- **Extraction modes** for precise control over output:
+  - `--signatures`: Function/method signatures only
+  - `--types`: Type definitions and structures
+  - `--docs`: Documentation comments
+  - `--imports`: Import statements
+  - `--errors`: Error handling code
+  - `--tests`: Test functions
+  - `--full`: Complete source (default)
+- **Combine flags** for custom extraction: `zz prompt src/ --signatures --errors`
 - Directory support: `zz prompt src/` processes all files recursively
-- Advanced glob pattern support with 40-60% fast-path optimization:
-  - Basic wildcards: `*.zig`, `test?.zig`
-  - Recursive: `**/*.zig`
-  - Alternatives: `*.{zig,md}`
-  - Nested braces: `*.{zig,{md,txt}}` 
-  - Character classes: `log[0-9].txt`, `file[a-z].txt`, `test[!0-9].txt`
-  - Escape sequences: `file\*.txt` matches literal `file*.txt`
+- Advanced glob pattern support with 40-60% fast-path optimization
 - Smart code fence detection (handles nested backticks)
 - Automatic file deduplication
 - Markdown output with semantic XML tags
-- Hidden file handling (use `.*` to explicitly match hidden files)
 
 ### Performance Benchmarking
 - Comprehensive performance measurement suite with color-coded output
@@ -195,6 +197,13 @@ Create a `zz.zon` file in any directory to customize behavior:
 - Zig 0.14.1+
 - POSIX-compliant OS (Linux, macOS, BSD)  
 - Not supported: Windows
+
+## Dependencies
+
+`zz` uses minimal, strategic dependencies:
+- **Tree-sitter** - Industry-standard parsing library for language-aware code extraction
+  - Enables intelligent code analysis across 100+ languages
+  - Managed automatically via Zig package manager
 
 ## Technical Documentation
 

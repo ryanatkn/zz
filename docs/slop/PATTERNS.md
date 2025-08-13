@@ -173,7 +173,7 @@ paste main.txt opt.txt | column -t
 ### Per-Project Configuration
 
 ```zon
-// Web project (JavaScript/TypeScript)
+// Web project (JS/TypeScript)
 .{
     .base_patterns = "extend",
     .ignored_patterns = .{
@@ -262,7 +262,7 @@ alias benchbase='zig build benchmark-baseline'
 
 # Project-specific trees
 pyt() { zz tree --no-gitignore "$@"; }  # Python with all files
-jst() { zz tree --ignore=node_modules "$@"; }  # JavaScript
+jst() { zz tree --ignore=node_modules "$@"; }  # JS
 rst() { zz tree --ignore=target "$@"; }  # Rust
 ```
 

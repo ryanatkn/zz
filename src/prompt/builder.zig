@@ -2,6 +2,9 @@ const std = @import("std");
 const fence = @import("fence.zig");
 const FilesystemInterface = @import("../filesystem.zig").FilesystemInterface;
 const path_utils = @import("../lib/path.zig");
+const Parser = @import("../lib/parser.zig").Parser;
+const Language = @import("../lib/parser.zig").Language;
+const ExtractionFlags = @import("../lib/parser.zig").ExtractionFlags;
 
 pub const PromptBuilder = struct {
     allocator: std.mem.Allocator,
@@ -9,27 +12,30 @@ pub const PromptBuilder = struct {
     arena: std.heap.ArenaAllocator,
     quiet: bool,
     filesystem: FilesystemInterface,
+    extraction_flags: ExtractionFlags,
 
     const Self = @This();
     const max_file_size = 10 * 1024 * 1024; // 10MB
 
-    pub fn init(allocator: std.mem.Allocator, filesystem: FilesystemInterface) Self {
+    pub fn init(allocator: std.mem.Allocator, filesystem: FilesystemInterface, extraction_flags: ExtractionFlags) Self {
         return Self{
             .allocator = allocator,
             .lines = std.ArrayList([]const u8).init(allocator),
             .arena = std.heap.ArenaAllocator.init(allocator),
             .quiet = false,
             .filesystem = filesystem,
+            .extraction_flags = extraction_flags,
         };
     }
 
-    pub fn initQuiet(allocator: std.mem.Allocator, filesystem: FilesystemInterface) Self {
+    pub fn initQuiet(allocator: std.mem.Allocator, filesystem: FilesystemInterface, extraction_flags: ExtractionFlags) Self {
         return Self{
             .allocator = allocator,
             .lines = std.ArrayList([]const u8).init(allocator),
             .arena = std.heap.ArenaAllocator.init(allocator),
             .quiet = true,
             .filesystem = filesystem,
+            .extraction_flags = extraction_flags,
         };
     }
 
@@ -66,8 +72,19 @@ pub const PromptBuilder = struct {
         const ext = path_utils.extension(file_path);
         const lang = if (ext.len > 0) ext[1..] else "";
 
+        // Determine language and extract content based on flags
+        const language = Language.fromExtension(ext);
+        var parser = try Parser.init(self.arena.allocator(), language);
+        defer parser.deinit();
+        
+        const extracted_content = try parser.extract(content, self.extraction_flags);
+        // extracted_content is allocated by parser using arena allocator, no need to free
+
+        // Use extracted content instead of raw content
+        const display_content = extracted_content;
+
         // Detect appropriate fence
-        const fence_str = try fence.detectFence(content, self.arena.allocator());
+        const fence_str = try fence.detectFence(display_content, self.arena.allocator());
 
         // Add file with XML-style tags and markdown code fence
         const header = try std.fmt.allocPrint(self.arena.allocator(), "<File path=\"{s}\">", .{file_path});
@@ -79,7 +96,7 @@ pub const PromptBuilder = struct {
         try self.lines.append(fence_start);
 
         // Add content line by line
-        var iter = std.mem.splitScalar(u8, content, '\n');
+        var iter = std.mem.splitScalar(u8, display_content, '\n');
         while (iter.next()) |line| {
             // Only add non-empty lines or preserve empty lines in code blocks
             try self.lines.append(line);

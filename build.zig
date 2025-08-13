@@ -44,6 +44,13 @@ pub fn build(b: *std.Build) void {
         .use_lld = use_llvm,
     });
 
+    // Add tree-sitter dependency
+    const tree_sitter = b.dependency("tree_sitter", .{
+        .target = target,
+        .optimize = optimize,
+    });
+    exe.root_module.addImport("tree-sitter", tree_sitter.module("tree-sitter"));
+
     // Default build step (builds to zig-out/)
     b.installArtifact(exe);
     
@@ -86,12 +93,19 @@ pub fn build(b: *std.Build) void {
 // Helper functions
 
 fn addTestSteps(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.builtin.OptimizeMode) void {
+    // Get tree-sitter dependency for tests
+    const tree_sitter = b.dependency("tree_sitter", .{
+        .target = target,
+        .optimize = optimize,
+    });
+
     // All tests
     const test_all = b.addTest(.{
         .root_source_file = b.path("src/test.zig"),
         .target = target,
         .optimize = optimize,
     });
+    test_all.root_module.addImport("tree-sitter", tree_sitter.module("tree-sitter"));
     const test_step = b.step("test", "Run all tests");
     test_step.dependOn(&test_all.step);
     
@@ -106,6 +120,7 @@ fn addTestSteps(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.b
         .target = target,
         .optimize = optimize,
     });
+    test_tree.root_module.addImport("tree-sitter", tree_sitter.module("tree-sitter"));
     const test_tree_step = b.step("test-tree", "Run tree module tests");
     test_tree_step.dependOn(&b.addRunArtifact(test_tree).step);
 
@@ -115,6 +130,7 @@ fn addTestSteps(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.b
         .target = target,
         .optimize = optimize,
     });
+    test_prompt.root_module.addImport("tree-sitter", tree_sitter.module("tree-sitter"));
     const test_prompt_step = b.step("test-prompt", "Run prompt module tests");
     test_prompt_step.dependOn(&b.addRunArtifact(test_prompt).step);
 

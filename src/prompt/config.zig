@@ -3,6 +3,7 @@ const FilesystemInterface = @import("../filesystem.zig").FilesystemInterface;
 const SharedConfig = @import("../config.zig").SharedConfig;
 const ZonLoader = @import("../config.zig").ZonLoader;
 const shouldIgnorePath = @import("../config.zig").shouldIgnorePath;
+const ExtractionFlags = @import("../lib/parser.zig").ExtractionFlags;
 
 pub const Config = struct {
     allocator: std.mem.Allocator,
@@ -11,6 +12,7 @@ pub const Config = struct {
     append_text: ?[]const u8,
     allow_empty_glob: bool,
     allow_missing: bool,
+    extraction_flags: ExtractionFlags,
 
     const Self = @This();
 
@@ -34,6 +36,7 @@ pub const Config = struct {
             .append_text = null,
             .allow_empty_glob = false,
             .allow_missing = false,
+            .extraction_flags = ExtractionFlags{},
         };
     }
 
@@ -55,6 +58,22 @@ pub const Config = struct {
             config.allow_empty_glob = true;
         } else if (std.mem.eql(u8, arg, "--allow-missing")) {
             config.allow_missing = true;
+        } else if (std.mem.eql(u8, arg, "--signatures")) {
+            config.extraction_flags.signatures = true;
+        } else if (std.mem.eql(u8, arg, "--types")) {
+            config.extraction_flags.types = true;
+        } else if (std.mem.eql(u8, arg, "--docs")) {
+            config.extraction_flags.docs = true;
+        } else if (std.mem.eql(u8, arg, "--structure")) {
+            config.extraction_flags.structure = true;
+        } else if (std.mem.eql(u8, arg, "--imports")) {
+            config.extraction_flags.imports = true;
+        } else if (std.mem.eql(u8, arg, "--errors")) {
+            config.extraction_flags.errors = true;
+        } else if (std.mem.eql(u8, arg, "--tests")) {
+            config.extraction_flags.tests = true;
+        } else if (std.mem.eql(u8, arg, "--full")) {
+            config.extraction_flags.full = true;
         } else if (std.mem.eql(u8, arg, "--no-gitignore")) {
             // Handle gitignore override
             config.shared_config.respect_gitignore = false;
@@ -82,12 +101,16 @@ pub const Config = struct {
             .append_text = null,
             .allow_empty_glob = false,
             .allow_missing = false,
+            .extraction_flags = ExtractionFlags{},
         };
 
         // Parse flags
         for (args) |arg| {
             try parseFlag(&config, allocator, arg);
         }
+
+        // Set default extraction mode if none specified
+        config.extraction_flags.setDefault();
 
         return config;
     }

@@ -9,7 +9,7 @@
   - Path operations: 2x duration multiplier (moderate variance)
   - Memory pools: 3x duration multiplier (high variance)
   - String pool: 1x (stable)
-  - Glob patterns: 1x (stable)
+  - Glob patterns: 2x (pattern matching variability)
 
 ### Recent Changes
 - **2024-01-12**: Updated docs/slop philosophy docs

@@ -38,7 +38,7 @@ BenchmarkResult = struct {
 - Path operations: **2x** (I/O dependent)
 - Memory pools: **3x** (allocation dependent)  
 - String pool: **1x** (CPU bound)
-- Glob patterns: **1x** (CPU bound)
+- Glob patterns: **2x** (pattern matching variability)
 
 **Effective Duration:** `base_duration * builtin_multiplier * user_multiplier`
 
@@ -47,9 +47,10 @@ BenchmarkResult = struct {
 **Markdown:** Header → Results table → Baseline comparison → Notes
 **JSON:** Flat object with metadata + results array
 **CSV:** Simple header + data rows (no baseline)
-**Pretty:** Unicode boxes, progress bars, color coding:
-- Green ✓: improvements < -1%
-- Yellow ⚠: regressions > +5%
+**Pretty:** Clean terminal output with color coding:
+- Green ✓: improvements > -1% (highlighted current time)
+- Yellow ⚠: regressions > +5% (highlighted current time)  
+- Neutral: small changes (no special highlighting)
 - Cyan ?: new benchmarks
 
 ## Baseline Comparison
@@ -81,6 +82,7 @@ zz benchmark [options]
 | String pooling | ~145ns/op | 95-100% cache efficiency |
 | Memory pools | ~50μs/cycle | ArrayList reuse |
 | Glob patterns | ~25ns/op | 75% fast-path ratio |
+| Code extraction | ~92μs/op | 4 extraction modes (full, signatures, types, combined) |
 
 ## Implementation Details
 

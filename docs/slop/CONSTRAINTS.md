@@ -115,7 +115,7 @@ Things aligned with our future:
 - Simple build system
 - C ABI when needed
 
-**Future bridge:** When we need JavaScript interop, we'll compile to WASM or use C ABI, not embed V8.
+**Future bridge:** When we need JS interop, we'll compile to WASM or use C ABI, not embed V8.
 
 ### Style Constraints
 ```zig

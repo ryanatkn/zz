@@ -145,9 +145,9 @@ fn runWithConfigInternal(config: *Config, allocator: std.mem.Allocator, filesyst
 
     // Build the prompt
     var builder = if (quiet)
-        PromptBuilder.initQuiet(allocator, filesystem)
+        PromptBuilder.initQuiet(allocator, filesystem, config.extraction_flags)
     else
-        PromptBuilder.init(allocator, filesystem);
+        PromptBuilder.init(allocator, filesystem, config.extraction_flags);
     defer builder.deinit();
 
     // Add prepend text if provided

@@ -111,13 +111,52 @@ pub fn createGlobExpander(allocator: std.mem.Allocator, filesystem: FilesystemIn
 /// Test runner for module organization and clean output
 /// Usage: test_helpers.TestRunner.setModule("ModuleName"); ... test_helpers.TestRunner.printSummary();
 pub const TestRunner = struct {
-    /// Set the current module being tested (creates visual section header)
-    pub fn setModule(module_name: []const u8) void {
-        std.debug.print("\n=== {s} Tests ===\n", .{module_name});
+    var verbose: bool = false;
+
+    /// Enable verbose test output (set via environment variable TEST_VERBOSE=1)
+    pub fn init() void {
+        if (std.process.getEnvVarOwned(std.heap.page_allocator, "TEST_VERBOSE")) |value| {
+            defer std.heap.page_allocator.free(value);
+            verbose = std.mem.eql(u8, value, "1") or std.mem.eql(u8, value, "true");
+        } else |_| {
+            verbose = false;
+        }
     }
 
-    /// Print test completion (clean, no verbose output)
+    /// Set the current module being tested (creates visual section header)
+    pub fn setModule(module_name: []const u8) void {
+        if (verbose) {
+            std.debug.print("\n🧪 === {s} Tests ===\n", .{module_name});
+        } else {
+            std.debug.print("\n=== {s} Tests ===\n", .{module_name});
+        }
+    }
+
+    /// Print test completion (clean, no verbose output by default)
     pub fn printSummary() void {
-        // Clean module completion - no verbose output
+        // Clean module completion - Zig already provides test counts
+    }
+
+    /// Optional: Helper for timing specific test operations (not individual tests)
+    pub fn timeOperation(comptime operation_name: []const u8, operation_fn: anytype) !void {
+        if (!verbose) {
+            return operation_fn();
+        }
+
+        const start = std.time.nanoTimestamp();
+        std.debug.print("  ▶️  Running: {s}\n", .{operation_name});
+        
+        operation_fn() catch |err| {
+            std.debug.print("  ❌ Failed: {s} - {}\n", .{ operation_name, err });
+            return err;
+        };
+        
+        const end = std.time.nanoTimestamp();
+        const duration_ms = @as(f64, @floatFromInt(@as(u64, @intCast(end - start)))) / 1_000_000.0;
+        if (duration_ms >= 10.0) {
+            std.debug.print("  ✅ Completed: {s} ({d:.1}ms)\n", .{ operation_name, duration_ms });
+        } else {
+            std.debug.print("  ✅ Completed: {s} ({d:.2}ms)\n", .{ operation_name, duration_ms });
+        }
     }
 };

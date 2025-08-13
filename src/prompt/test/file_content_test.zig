@@ -1,7 +1,8 @@
 const std = @import("std");
 const test_helpers = @import("../../test_helpers.zig");
 const PromptBuilder = @import("../builder.zig").PromptBuilder;
-const RealFilesystem = @import("../../filesystem.zig").RealFilesystem;
+const ExtractionFlags = @import("../../lib/parser.zig").ExtractionFlags;
+const RealFilesystem = @import("../../filesystem/real.zig").RealFilesystem;
 const fence = @import("../fence.zig");
 
 test "file with no newlines" {
@@ -18,7 +19,8 @@ test "file with no newlines" {
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
     const filesystem = RealFilesystem.init();
-    var builder = PromptBuilder.init(allocator, filesystem);
+    const extraction_flags = ExtractionFlags{};
+    var builder = PromptBuilder.init(allocator, filesystem, extraction_flags);
     defer builder.deinit();
 
     const file_path = try std.fmt.allocPrint(allocator, "{s}/nonewline.zig", .{tmp_path});
@@ -62,7 +64,8 @@ test "file with only backticks" {
     try std.testing.expect(detected_fence.len >= 7);
 
     const filesystem = RealFilesystem.init();
-    var builder = PromptBuilder.init(allocator, filesystem);
+    const extraction_flags = ExtractionFlags{};
+    var builder = PromptBuilder.init(allocator, filesystem, extraction_flags);
     defer builder.deinit();
 
     const file_path = try std.fmt.allocPrint(allocator, "{s}/backticks.md", .{tmp_path});
@@ -92,7 +95,8 @@ test "empty file" {
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
     const filesystem = RealFilesystem.init();
-    var builder = PromptBuilder.init(allocator, filesystem);
+    const extraction_flags = ExtractionFlags{};
+    var builder = PromptBuilder.init(allocator, filesystem, extraction_flags);
     defer builder.deinit();
 
     const file_path = try std.fmt.allocPrint(allocator, "{s}/empty.zig", .{tmp_path});
@@ -130,7 +134,8 @@ test "binary file incorrectly named .zig" {
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
     const filesystem = RealFilesystem.init();
-    var builder = PromptBuilder.init(allocator, filesystem);
+    const extraction_flags = ExtractionFlags{};
+    var builder = PromptBuilder.init(allocator, filesystem, extraction_flags);
     defer builder.deinit();
 
     const file_path = try std.fmt.allocPrint(allocator, "{s}/binary.zig", .{tmp_path});
@@ -163,7 +168,8 @@ test "file with null bytes" {
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
     const filesystem = RealFilesystem.init();
-    var builder = PromptBuilder.init(allocator, filesystem);
+    const extraction_flags = ExtractionFlags{};
+    var builder = PromptBuilder.init(allocator, filesystem, extraction_flags);
     defer builder.deinit();
 
     const file_path = try std.fmt.allocPrint(allocator, "{s}/nulls.txt", .{tmp_path});
@@ -195,7 +201,8 @@ test "file with mixed line endings" {
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
     const filesystem = RealFilesystem.init();
-    var builder = PromptBuilder.init(allocator, filesystem);
+    const extraction_flags = ExtractionFlags{};
+    var builder = PromptBuilder.init(allocator, filesystem, extraction_flags);
     defer builder.deinit();
 
     const file_path = try std.fmt.allocPrint(allocator, "{s}/mixed.txt", .{tmp_path});
@@ -232,7 +239,8 @@ test "file with unicode and special chars" {
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
     const filesystem = RealFilesystem.init();
-    var builder = PromptBuilder.init(allocator, filesystem);
+    const extraction_flags = ExtractionFlags{};
+    var builder = PromptBuilder.init(allocator, filesystem, extraction_flags);
     defer builder.deinit();
 
     const file_path = try std.fmt.allocPrint(allocator, "{s}/unicode.zig", .{tmp_path});
@@ -270,7 +278,8 @@ test "file with control characters" {
     const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
 
     const filesystem = RealFilesystem.init();
-    var builder = PromptBuilder.init(allocator, filesystem);
+    const extraction_flags = ExtractionFlags{};
+    var builder = PromptBuilder.init(allocator, filesystem, extraction_flags);
     defer builder.deinit();
 
     const file_path = try std.fmt.allocPrint(allocator, "{s}/control.txt", .{tmp_path});

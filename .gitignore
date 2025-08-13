@@ -2,4 +2,10 @@
 .zig-cache/
 zig-out/
 .claude/
-tmp/
+
+# Dependency backup system
+.backups
+
+# Temporary files
+*.tmp
+.tmp*

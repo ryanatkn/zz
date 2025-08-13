@@ -8,6 +8,7 @@ pub fn extractSimple(source: []const u8, flags: ExtractionFlags, result: *std.Ar
     
     while (lines.next()) |line| {
         const trimmed = std.mem.trim(u8, line, " \t");
+        var line_extracted = false;
         
         // Track braces for multi-line types
         if (std.mem.indexOf(u8, line, "{") != null) {
@@ -23,27 +24,8 @@ pub fn extractSimple(source: []const u8, flags: ExtractionFlags, result: *std.Ar
             if (brace_count == 0) in_type = false;
         }
         
-        if (flags.signatures) {
-            if (std.mem.startsWith(u8, trimmed, "function ") or
-                std.mem.startsWith(u8, trimmed, "export function ") or
-                std.mem.startsWith(u8, trimmed, "async function ") or
-                std.mem.startsWith(u8, trimmed, "export async function ") or
-                std.mem.startsWith(u8, trimmed, "const ") or
-                std.mem.startsWith(u8, trimmed, "export const ") or
-                std.mem.indexOf(u8, trimmed, " => ") != null) {
-                // Extract until the opening brace or semicolon
-                if (std.mem.indexOf(u8, line, "{")) |brace_pos| {
-                    try result.appendSlice(line[0..brace_pos + 1]);
-                    try result.append('\n');
-                } else {
-                    try result.appendSlice(line);
-                    try result.append('\n');
-                }
-            }
-        }
-        
-        if (flags.types) {
-            // Extract type definitions and their content
+        // Check types first (highest priority)
+        if (flags.types and !line_extracted) {
             if (in_type or
                 std.mem.startsWith(u8, trimmed, "interface ") or
                 std.mem.startsWith(u8, trimmed, "type ") or
@@ -55,24 +37,54 @@ pub fn extractSimple(source: []const u8, flags: ExtractionFlags, result: *std.Ar
                 std.mem.startsWith(u8, trimmed, "export class ")) {
                 try result.appendSlice(line);
                 try result.append('\n');
+                line_extracted = true;
             }
         }
         
-        if (flags.docs) {
+        // Check signatures second (avoid overlap with types)
+        if (flags.signatures and !line_extracted) {
+            if (std.mem.startsWith(u8, trimmed, "function ") or
+                std.mem.startsWith(u8, trimmed, "export function ") or
+                std.mem.startsWith(u8, trimmed, "async function ") or
+                std.mem.startsWith(u8, trimmed, "export async function ") or
+                std.mem.startsWith(u8, trimmed, "const ") or
+                std.mem.startsWith(u8, trimmed, "export const ") or
+                std.mem.startsWith(u8, trimmed, "constructor(") or
+                std.mem.startsWith(u8, trimmed, "async ") or  // class methods like "async getUser("
+                std.mem.indexOf(u8, trimmed, " => ") != null or
+                // Method signatures: look for pattern like "methodName(" or "async methodName("
+                (std.mem.indexOf(u8, trimmed, "(") != null and 
+                 std.mem.indexOf(u8, trimmed, ":") != null and 
+                 std.mem.indexOf(u8, trimmed, "{") != null and
+                 !std.mem.startsWith(u8, trimmed, "if") and
+                 !std.mem.startsWith(u8, trimmed, "for") and
+                 !std.mem.startsWith(u8, trimmed, "while"))) {
+                // For signatures, always include the full line to preserve readability
+                try result.appendSlice(line);
+                try result.append('\n');
+                line_extracted = true;
+            }
+        }
+        
+        // Check docs
+        if (flags.docs and !line_extracted) {
             if (std.mem.startsWith(u8, trimmed, "/**") or
                 std.mem.startsWith(u8, trimmed, "*") or
                 std.mem.startsWith(u8, trimmed, "//")) {
                 try result.appendSlice(line);
                 try result.append('\n');
+                line_extracted = true;
             }
         }
         
-        if (flags.imports) {
+        // Check imports (usually mutually exclusive but check anyway)
+        if (flags.imports and !line_extracted) {
             if (std.mem.startsWith(u8, trimmed, "import ") or
                 std.mem.startsWith(u8, trimmed, "export ") or
                 std.mem.startsWith(u8, trimmed, "require(")) {
                 try result.appendSlice(line);
                 try result.append('\n');
+                line_extracted = true;
             }
         }
     }

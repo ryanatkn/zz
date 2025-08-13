@@ -65,11 +65,17 @@ MemoryPools    // Coordinated management
 - **Depth limiting:** MAX_TRAVERSAL_DEPTH = 20
 - **Pattern integration:** Built-in glob support
 - **Early skip:** Ignored directories never opened
+- **Initial directory handling:** Special treatment for starting directory to allow "." traversal
 
 **Key API:**
 ```zig
 DirectoryTraverser.collectFiles() // Build file lists with patterns
 ```
+
+**Implementation Details:**
+- `traverseRecursiveInternal` accepts `is_initial` flag to skip ignore checks on starting directory
+- Ensures "." can be used as starting point for directory traversal
+- Subdirectories still respect ignore patterns normally
 
 ## filesystem.zig - Error Handling
 

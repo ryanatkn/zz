@@ -66,16 +66,18 @@ pub const DirectoryTraverser = struct {
             .traverser = &self,
         };
 
-        try self.traverseRecursive(start_path, 0, &context, fileCollector, null);
+        // Don't check ignore patterns for the initial directory
+        try self.traverseRecursiveInternal(start_path, 0, &context, fileCollector, null, true);
         return results;
     }
 
     /// Traverse a directory recursively, calling provided callbacks for files/directories
     pub fn traverse(self: Self, start_path: []const u8) !void {
-        try self.traverseRecursive(start_path, 0, self.options.context, self.options.on_file, self.options.on_directory);
+        // Don't check ignore patterns for the initial directory
+        try self.traverseRecursiveInternal(start_path, 0, self.options.context, self.options.on_file, self.options.on_directory, true);
     }
 
-    /// Core recursive traversal implementation
+    /// Public wrapper for recursive traversal (for backward compatibility)
     fn traverseRecursive(
         self: Self,
         dir_path: []const u8,
@@ -83,6 +85,20 @@ pub const DirectoryTraverser = struct {
         context: ?*anyopaque,
         file_callback: ?FileCallback,
         dir_callback: ?DirectoryCallback,
+    ) !void {
+        // When called from subdirectories, check ignore patterns
+        try self.traverseRecursiveInternal(dir_path, depth, context, file_callback, dir_callback, false);
+    }
+
+    /// Core recursive traversal implementation
+    fn traverseRecursiveInternal(
+        self: Self,
+        dir_path: []const u8,
+        depth: u32,
+        context: ?*anyopaque,
+        file_callback: ?FileCallback,
+        dir_callback: ?DirectoryCallback,
+        is_initial: bool,
     ) !void {
         // Check depth limit
         if (self.options.max_depth) |max_depth| {
@@ -92,8 +108,8 @@ pub const DirectoryTraverser = struct {
         // Safety check for infinite recursion
         if (depth > MAX_TRAVERSAL_DEPTH) return;
 
-        // Skip directories that match ignore patterns
-        if (shouldIgnorePath(self.config, dir_path)) {
+        // Skip directories that match ignore patterns (but not the initial directory)
+        if (!is_initial and shouldIgnorePath(self.config, dir_path)) {
             return;
         }
 
@@ -138,7 +154,7 @@ pub const DirectoryTraverser = struct {
             // Handle directories - recurse if not ignored
             else if (entry.kind == .directory) {
                 if (!shouldIgnorePath(self.config, full_path)) {
-                    try self.traverseRecursive(full_path, depth + 1, context, file_callback, dir_callback);
+                    try self.traverseRecursiveInternal(full_path, depth + 1, context, file_callback, dir_callback, false);
                 }
             }
             // Handle symlinks if following them
@@ -151,7 +167,7 @@ pub const DirectoryTraverser = struct {
                             try callback(self.allocator, full_path, context);
                         }
                     } else if (s.kind == .directory and !shouldIgnorePath(self.config, full_path)) {
-                        try self.traverseRecursive(full_path, depth + 1, context, file_callback, dir_callback);
+                        try self.traverseRecursiveInternal(full_path, depth + 1, context, file_callback, dir_callback, false);
                     }
                 }
             }

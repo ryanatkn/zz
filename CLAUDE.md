@@ -18,9 +18,10 @@ $ zig version
 0.14.1
 ```
 
-**Dependencies:** 
-- Tree-sitter for language-aware code parsing and extraction
-- Integrated via Zig package manager (build.zig.zon)
+**Vendored Dependencies:** 
+- All tree-sitter libraries vendored in `deps/` for reliability
+- Update with `./scripts/update-deps.sh` (data-driven, declarative)
+- See `deps/README.md` for vendoring strategy and rationale
 
 ## Project Structure
 
@@ -37,6 +38,11 @@ $ zig version
     │   ├── README.md                  # Benchmark documentation
     │   ├── baseline.md                # Performance baseline for comparison
     │   └── latest.md                  # Most recent benchmark results
+    ├── deps                           # Vendored dependencies
+    │   ├── tree-sitter                # Core tree-sitter library (v0.25.0)
+    │   ├── zig-tree-sitter            # Zig bindings for tree-sitter
+    │   ├── tree-sitter-zig            # Zig language grammar
+    │   └── zig-spec                   # Zig language specification reference
     ├── docs                           # Documentation
     │   ├── slop [...]                 # Generated documentation (ignored in tree output)
     │   └── glob-patterns.md           # Glob pattern documentation
@@ -61,7 +67,9 @@ $ zig version
     │   │   └── real.zig               # Real filesystem implementation for production
     │   ├── lib                        # Shared utilities and infrastructure (POSIX-optimized with performance focus)
     │   │   ├── benchmark.zig          # Performance measurement with markdown output
+    │   │   ├── c.zig                  # Centralized C imports for language grammars
     │   │   ├── filesystem.zig         # Consolidated filesystem error handling patterns
+    │   │   ├── parser.zig             # AST-based code extraction with tree-sitter
     │   │   ├── path.zig               # Optimized POSIX-only path utilities (20-30% faster than fmt.allocPrint)
     │   │   ├── pools.zig              # Specialized memory pools for ArrayList and string reuse
     │   │   ├── string_pool.zig        # Production-ready string interning with stdlib HashMapUnmanaged
@@ -133,16 +141,18 @@ $ zz help                        # Same as --help
 ## Testing
 
 ```bash
-$ zig test src/test.zig                                # Run all tests (clean output)
-$ zig test src/test.zig --test-filter "directory"     # Run specific tests by name pattern
-$ zig build test-tree                                  # Run tree module tests only
-$ zig build test-prompt                                # Run prompt module tests only
+$ zig build test                                       # Run all tests with output
 
-# Verbose output (detailed timing and progress)
-$ TEST_VERBOSE=1 zig test src/test.zig                 # Environment variable (CI/development)
+# Note: Direct `zig test src/test.zig` will NOT work due to tree-sitter module dependencies
+# Always use `zig build test` which properly configures modules and links libraries
 ```
 
-Comprehensive test suite covers configuration parsing, directory filtering, performance optimization, edge cases, and security patterns. The test runner provides clean output with 206 tests and enhanced resource management patterns.
+Comprehensive test suite covers configuration parsing, directory filtering, performance optimization, edge cases, security patterns, and AST-based extraction. 
+
+**Current test status:** ✅ **All 209 tests passing (100% pass rate)**
+- Fixed mock filesystem directory iteration for "." paths
+- Fixed traversal to not skip initial directory in recursive operations
+- All tree-sitter integration and core features working correctly
 
 ## Benchmarking
 
@@ -348,19 +358,20 @@ const walker = Walker.initWithOptions(allocator, config, .{ .filesystem = mock_f
 
 ## Prompt Module Features
 
-**Intelligent Code Extraction:**
-- **Language-aware parsing** using tree-sitter for precise extraction
-- **Extraction flags** for surgical precision:
-  - `--signatures`: Function/method signatures
-  - `--types`: Type definitions and structures
-  - `--docs`: Documentation comments
-  - `--imports`: Import/require statements
-  - `--errors`: Error handling patterns
-  - `--tests`: Test functions and blocks
+**AST-Based Code Extraction (Production Ready):**
+- **Real tree-sitter AST parsing** for Zig language (not text matching!)
+- **Extraction flags** with precise AST node traversal:
+  - `--signatures`: Function/method signatures via AST
+  - `--types`: Type definitions (structs, enums, unions) via AST
+  - `--docs`: Documentation comments via AST nodes
+  - `--imports`: Import statements (text-based currently)
+  - `--errors`: Error handling patterns (text-based currently)
+  - `--tests`: Test blocks via AST
   - `--full`: Complete source (default for backward compatibility)
-- **Composable extraction:** Combine flags like `--signatures --errors`
+- **Composable extraction:** Combine flags like `--signatures --types`
 - **Language detection:** Automatic based on file extension
-- **Extensible:** Ready for 100+ languages via tree-sitter grammars
+- **Graceful fallback:** Falls back to text extraction for unsupported languages
+- **Extensible:** Architecture ready for TypeScript, Rust, Go, Python grammars
 
 **Glob Pattern Support with Performance Optimizations:**
 - Basic wildcards: `*.zig`, `test?.zig`
@@ -430,6 +441,39 @@ The project is configured for optimal Claude Code usage:
 - Use `zz` commands for benchmarking and testing
 - Leverage Claude Code's native Grep tool which uses ripgrep internally
 
+## Development Workflow
+
+**Managing Vendored Dependencies:**
+
+The project uses vendored dependencies for tree-sitter libraries to ensure reliable, reproducible builds without network access.
+
+```bash
+# Check current state (idempotent - safe to run anytime)
+./scripts/update-deps.sh
+
+# Force update all dependencies
+./scripts/update-deps.sh --force
+
+# Force update specific dependency
+./scripts/update-deps.sh --force-dep tree-sitter
+
+# View help and available dependencies
+./scripts/update-deps.sh --help
+```
+
+**Script Features:**
+- **Idempotent:** Only updates when versions change or files are missing
+- **Efficient:** Skips up-to-date dependencies, uses shallow git clones
+- **Clean:** Removes `.git` directories and incompatible build files
+- **Versioned:** Creates `.version` files for tracking
+
+**After updating dependencies:**
+```bash
+zig build test           # Verify everything works
+git add deps/            # Commit vendored code
+git commit -m "Update vendored dependencies"
+```
+
 ## Notes to LLMs
 
 - We want idiomatic Zig, taking more after C than C++
@@ -455,16 +499,19 @@ The project is configured for optimal Claude Code usage:
     identify root causes and leave `// TODO` if you're stumped)
 - Less is more - avoid over-engineering, and when in doubt, ask me or choose the simple option
 
-**Current Status:** ✓ **Production ready with comprehensive performance optimizations** - All 206 tests passing (100% success rate). Full feature set with significant performance improvements and enhanced developer experience.
+**Current Status:** ✓ **Production ready with AST-based code extraction** - All 209 tests passing (100% success rate). Real tree-sitter integration providing precise, language-aware code extraction.
 
 **✓ Recent Improvements:**
-- **Color-enhanced benchmark output** - Progress bars, human-readable units, visual hierarchy
-- **Comprehensive documentation** - Architecture, performance, and contribution guides added
+- **Fixed mock filesystem** - Proper path normalization and "." directory handling
+- **Fixed directory traversal** - Initial directory no longer skipped by ignore patterns
+- **Tree-sitter AST integration** - Real syntax tree parsing for precise extraction
+- **Vendored dependencies** - All tree-sitter libraries in `deps/` for reliability
+- **AST node traversal** - Extract functions, types, docs, tests via syntax tree
+- **Graceful fallback** - Falls back to text extraction on parse errors
+- **Color-enhanced benchmark output** - Progress bars, human-readable units
 - **20-30% faster path operations** - Direct buffer manipulation in joinPath
 - **15-25% memory reduction** - String interning with PathCache integration  
 - **40-60% glob speedup** - Fast-path optimization for common patterns
-- **Reduced allocation overhead** - Memory pools for ArrayList and string reuse
-- **Better cache locality** - Stdlib HashMapUnmanaged integration
 
 **Architecture:** Complete filesystem abstraction with parameterized dependencies, unified pattern matching engine, comprehensive benchmarking suite, and modular command structure. See [docs/slop/ARCHITECTURE.md](docs/slop/ARCHITECTURE.md) for detailed system design.
 

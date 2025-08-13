@@ -29,25 +29,19 @@ src/
 
 ### All Tests
 ```bash
-# Run all tests
+# Run all tests (REQUIRED - configures tree-sitter modules)
 zig build test
 
-# Run with verbose output
-zig build test --verbose
-
-# Run with specific allocator
-zig build test -- --test-allocator
+# Note: Direct `zig test src/test.zig` will NOT work due to tree-sitter dependencies
+# Always use `zig build test` which properly configures modules and links libraries
 ```
 
 ### Module-Specific Tests
 ```bash
-# Test specific modules
+# Test specific modules (via build system)
 zig build test-tree
 zig build test-prompt
 zig build test-patterns
-
-# Or directly with zig test
-zig test src/tree/test.zig
 zig test src/prompt/test.zig
 ```
 
@@ -234,21 +228,31 @@ pub fn withTimeout(comptime ms: u64, fn_to_test: anytype) !void {
 
 ### Mock Objects
 ```zig
-pub const MockAllocator = struct {
-    // Track allocations for testing
-    allocations: std.ArrayList([]u8),
-    failures_remaining: u32,
+pub const MockFilesystem = struct {
+    // In-memory filesystem for testing
+    files: std.StringHashMap(FileEntry),
     
-    pub fn allocator(self: *MockAllocator) Allocator {
-        // Return allocator that can simulate failures
+    pub fn addFile(self: *MockFilesystem, path: []const u8, content: []const u8) !void {
+        // Add file to mock filesystem
+    }
+    
+    pub fn addDirectory(self: *MockFilesystem, path: []const u8) !void {
+        // Add directory to mock filesystem
+    }
+    
+    pub fn interface(self: *MockFilesystem) FilesystemInterface {
+        // Return filesystem interface for use in tests
     }
 };
 
-pub const MockWriter = struct {
-    buffer: std.ArrayList(u8),
+pub const MockTestContext = struct {
+    // Convenient test context with mock filesystem
+    allocator: std.mem.Allocator,
+    mock_fs: *MockFilesystem,
+    filesystem: FilesystemInterface,
     
-    pub fn writer(self: *MockWriter) Writer {
-        // Return writer that captures output
+    pub fn init(allocator: std.mem.Allocator) MockTestContext {
+        // Initialize with "." directory already created
     }
 };
 ```

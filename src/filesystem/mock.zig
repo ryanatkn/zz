@@ -71,17 +71,23 @@ pub const MockFilesystem = struct {
         _ = options;
         const self: *Self = @ptrCast(@alignCast(ptr));
 
+        // Normalize the path by removing leading "./"
+        const normalized_path = if (std.mem.startsWith(u8, path, "./"))
+            path[2..]
+        else
+            path;
+
         // Check if directory exists
-        if (!self.files.contains(path)) {
+        if (!self.files.contains(normalized_path)) {
             return error.FileNotFound;
         }
 
-        const entry = self.files.get(path).?;
+        const entry = self.files.get(normalized_path).?;
         if (entry.kind != .directory) {
             return error.NotDir;
         }
 
-        return MockDirHandle.init(allocator, self, path);
+        return MockDirHandle.init(allocator, self, normalized_path);
     }
 
     fn statFile(ptr: *anyopaque, allocator: std.mem.Allocator, path: []const u8) !std.fs.File.Stat {
@@ -163,11 +169,21 @@ const MockDirHandle = struct {
         _ = options;
         const self: *Self = @ptrCast(@alignCast(ptr));
 
-        const full_path = if (std.mem.eql(u8, self.path, "."))
-            try allocator.dupe(u8, sub_path)
+        // Normalize the sub_path by removing leading "./"
+        const normalized_sub = if (std.mem.startsWith(u8, sub_path, "./"))
+            sub_path[2..]
         else
-            try path_utils.joinPaths(allocator, &.{ self.path, sub_path });
+            sub_path;
+
+        const full_path = if (std.mem.eql(u8, self.path, "."))
+            try allocator.dupe(u8, normalized_sub)
+        else
+            try path_utils.joinPaths(allocator, &.{ self.path, normalized_sub });
         defer allocator.free(full_path);
+
+        // Check if the directory exists
+        const entry = self.filesystem.files.get(full_path) orelse return error.FileNotFound;
+        if (entry.kind != .directory) return error.NotDir;
 
         return MockDirHandle.init(allocator, self.filesystem, full_path);
     }
@@ -303,16 +319,22 @@ const MockDirIterator = struct {
             if (std.mem.eql(u8, entry_path, parent_path)) continue;
 
             // Check if this entry is a direct child
-            const relative_path = if (std.mem.eql(u8, parent_path, "."))
-                entry_path
-            else if (std.mem.startsWith(u8, entry_path, parent_path) and entry_path.len > parent_path.len and entry_path[parent_path.len] == '/')
-                entry_path[parent_path.len + 1 ..]
-            else
-                continue;
-
-            // Only include direct children (no nested paths)
-            if (std.mem.indexOf(u8, relative_path, "/") == null) {
-                try self.entries.append(try allocator.dupe(u8, relative_path));
+            if (std.mem.eql(u8, parent_path, ".")) {
+                // For "." directory, any entry without "/" is a direct child
+                if (std.mem.indexOf(u8, entry_path, "/") == null) {
+                    // Skip the "." directory entry itself
+                    if (!std.mem.eql(u8, entry_path, ".")) {
+                        try self.entries.append(try allocator.dupe(u8, entry_path));
+                    }
+                }
+            } else if (std.mem.startsWith(u8, entry_path, parent_path) and 
+                       entry_path.len > parent_path.len and 
+                       entry_path[parent_path.len] == '/') {
+                const relative_path = entry_path[parent_path.len + 1 ..];
+                // Only include direct children (no nested paths)
+                if (std.mem.indexOf(u8, relative_path, "/") == null) {
+                    try self.entries.append(try allocator.dupe(u8, relative_path));
+                }
             }
         }
 
@@ -327,7 +349,7 @@ const MockDirIterator = struct {
     fn next(ptr: *anyopaque, allocator: std.mem.Allocator) !?std.fs.Dir.Entry {
         _ = allocator;
         const self: *Self = @ptrCast(@alignCast(ptr));
-
+        
         if (self.index >= self.entries.items.len) {
             // Clean up when done
             for (self.entries.items) |entry| {

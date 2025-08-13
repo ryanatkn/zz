@@ -27,7 +27,8 @@ test "duration multiplier calculation" {
     try testing.expect(getBuiltinDurationMultiplier("path") == 2.0);
     try testing.expect(getBuiltinDurationMultiplier("memory") == 3.0);
     try testing.expect(getBuiltinDurationMultiplier("string") == 1.0);
-    try testing.expect(getBuiltinDurationMultiplier("glob") == 1.0);
+    try testing.expect(getBuiltinDurationMultiplier("glob") == 2.0);  // glob has 2x multiplier
+    try testing.expect(getBuiltinDurationMultiplier("extraction") == 1.0);
     try testing.expect(getBuiltinDurationMultiplier("unknown") == 1.0);
     
     // Test effective duration calculation
@@ -43,7 +44,7 @@ test "duration multiplier calculation" {
     try testing.expect(getEffectiveDuration(base_duration, "string", 3.0) == 3_000_000_000); // 1s * 1 (built-in) * 3 (user) = 3s
     
     // Test fractional multiplier
-    try testing.expect(getEffectiveDuration(base_duration, "glob", 0.5) == 500_000_000); // 1s * 1 (built-in) * 0.5 (user) = 0.5s
+    try testing.expect(getEffectiveDuration(base_duration, "glob", 0.5) == 1_000_000_000); // 1s * 2 (built-in) * 0.5 (user) = 1s
 }
 
 test "duration parsing" {

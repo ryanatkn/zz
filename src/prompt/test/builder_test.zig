@@ -86,10 +86,10 @@ test "deduplication of file paths" {
 }
 
 test "prompt builder outputs relative paths with ./ prefix" {
-    var ctx = try test_helpers.TmpDirTestContext.init(testing.allocator);
+    var ctx = test_helpers.MockTestContext.init(testing.allocator);
     defer ctx.deinit();
     
-    try ctx.writeFile("test.zig", "const a = 1;");
+    try ctx.addFile("test.zig", "const a = 1;");
     
     const extraction_flags = ExtractionFlags{};
     var builder = PromptBuilder.init(testing.allocator, ctx.filesystem, extraction_flags);

@@ -14,13 +14,14 @@ const GlobExpander = @import("prompt/glob.zig").GlobExpander;
 /// Usage: var ctx = test_helpers.MockTestContext.init(testing.allocator); defer ctx.deinit();
 pub const MockTestContext = struct {
     allocator: std.mem.Allocator,
-    mock_fs: MockFilesystem,
+    mock_fs: *MockFilesystem,
     filesystem: FilesystemInterface,
 
     const Self = @This();
 
     pub fn init(allocator: std.mem.Allocator) Self {
-        var mock_fs = MockFilesystem.init(allocator);
+        const mock_fs = allocator.create(MockFilesystem) catch @panic("Failed to allocate mock filesystem");
+        mock_fs.* = MockFilesystem.init(allocator);
         // Ensure current directory exists for cwd() calls
         mock_fs.addDirectory(".") catch {};
         return Self{
@@ -32,6 +33,7 @@ pub const MockTestContext = struct {
 
     pub fn deinit(self: *Self) void {
         self.mock_fs.deinit();
+        self.allocator.destroy(self.mock_fs);
     }
 
     pub fn addFile(self: *Self, path: []const u8, content: []const u8) !void {

@@ -1,14 +1,26 @@
 # zz - CLI Utilities
 
-High-performance command-line utilities written in Zig for POSIX systems. Features optimized directory visualization, intelligent LLM prompt generation with language-aware code extraction, and comprehensive performance benchmarking.
+High-performance command-line utilities written in Zig for POSIX systems. Features optimized directory visualization, intelligent LLM prompt generation with **AST-based code extraction via tree-sitter**, and comprehensive performance benchmarking.
 
 **Platform Support:** Linux, macOS, BSD, and other POSIX-compliant systems. Windows is not supported.
 
-**Architecture:** Clean modular design with filesystem abstraction, unified pattern matching, and aggressive performance optimizations. See [docs/slop/ARCHITECTURE.md](./docs/slop/ARCHITECTURE.md) for system design details.
+**Architecture:** Clean modular design with filesystem abstraction, unified pattern matching, tree-sitter AST integration, and aggressive performance optimizations. See [docs/slop/ARCHITECTURE.md](./docs/slop/ARCHITECTURE.md) for system design details.
+
+## Requirements
+
+- Zig 0.14.1 or later
+- POSIX-compliant operating system (Linux, macOS, BSD)
+- Git (for cloning the repository)
+
+All dependencies are vendored in the `deps/` directory for reliability and reproducibility. See [deps/README.md](deps/README.md) for details.
 
 ## Installation
 
 ```bash
+# Clone with vendored dependencies
+git clone https://github.com/ryanatkn/zz.git
+cd zz
+
 # Install to ~/.zz/bin (recommended)
 zig build install-user
 
@@ -48,16 +60,17 @@ zz prompt "src/**/*.zig"       # Generate LLM prompt
 - Arena allocators for improved memory performance
 
 ### Prompt Generation
-- **Intelligent code extraction** with language-aware parsing via tree-sitter
-- **Extraction modes** for precise control over output:
-  - `--signatures`: Function/method signatures only
-  - `--types`: Type definitions and structures
-  - `--docs`: Documentation comments
-  - `--imports`: Import statements
-  - `--errors`: Error handling code
-  - `--tests`: Test functions
+- **AST-based code extraction** using tree-sitter for precise, language-aware parsing
+- **Extraction modes** with real syntax tree traversal (Zig language supported):
+  - `--signatures`: Function/method signatures via AST nodes
+  - `--types`: Type definitions (structs, enums, unions) via AST
+  - `--docs`: Documentation comments via AST parsing
+  - `--imports`: Import statements (text-based fallback)
+  - `--errors`: Error handling code (text-based fallback)
+  - `--tests`: Test blocks via AST nodes
   - `--full`: Complete source (default)
-- **Combine flags** for custom extraction: `zz prompt src/ --signatures --errors`
+- **Combine flags** for custom extraction: `zz prompt src/ --signatures --types`
+- **Graceful fallback** to text-based extraction for unsupported languages
 - Directory support: `zz prompt src/` processes all files recursively
 - Advanced glob pattern support with 40-60% fast-path optimization
 - Smart code fence detection (handles nested backticks)
@@ -115,10 +128,16 @@ zz tree src/ 2                   # src directory, 2 levels deep
 zz tree --format=list            # Flat list format
 zz tree -f list                  # Same as above using short flag
 
-# LLM prompt generation
+# LLM prompt generation with AST extraction
 zz prompt "src/**/*.zig"         # All Zig files recursively
 zz prompt src/ docs/             # Multiple directories  
 zz prompt "*.{zig,md}" --prepend="Context:" # Multiple types with prefix
+
+# Precise AST-based extraction (Zig language)
+zz prompt src/*.zig --signatures         # Extract only function signatures
+zz prompt src/*.zig --types              # Extract type definitions
+zz prompt src/*.zig --signatures --types # Combine extraction modes
+zz prompt src/*.zig --tests              # Extract test blocks
 
 # Performance benchmarks (CLI outputs to stdout)
 zz benchmark                                     # Markdown to stdout

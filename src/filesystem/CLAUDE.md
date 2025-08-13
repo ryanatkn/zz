@@ -41,14 +41,27 @@ DirIterator {
 - `FileEntry` - Contains `kind`, `size`, `content`
 - Hierarchical simulation via path prefixes
 
+**Path Normalization:**
+- Automatically strips leading `./` from paths for consistent lookups
+- Handles both `"src"` and `"./src"` as the same directory
+- Ensures compatibility with different path styles in tests
+
 **Directory Iteration Logic:**
 ```zig
-// Filter for direct children only
-if (std.mem.startsWith(u8, entry_path, parent_path) and
-    entry_path.len > parent_path.len and
-    entry_path[parent_path.len] == '/' and
-    std.mem.indexOf(u8, relative_path, "/") == null) {
-    // Direct child
+// Special handling for "." directory
+if (std.mem.eql(u8, parent_path, ".")) {
+    // Any entry without "/" is a direct child
+    if (std.mem.indexOf(u8, entry_path, "/") == null) {
+        // Direct child of current directory
+    }
+} else {
+    // Standard hierarchical check for subdirectories
+    if (std.mem.startsWith(u8, entry_path, parent_path) and
+        entry_path.len > parent_path.len and
+        entry_path[parent_path.len] == '/' and
+        std.mem.indexOf(u8, relative_path, "/") == null) {
+        // Direct child
+    }
 }
 ```
 

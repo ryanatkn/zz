@@ -1,9 +1,8 @@
 const std = @import("std");
-// Using Zig tree-sitter bindings for the base API
 const ts = @import("tree-sitter");
-// When we add language grammars, we'll import them via c.zig:
-// const c = @import("c.zig");
-// const ts_zig = c.ts_zig;
+
+// Extern function provided by tree-sitter-zig C library
+extern fn tree_sitter_zig() callconv(.C) *ts.Language;
 
 pub const Language = enum {
     zig,
@@ -58,9 +57,17 @@ pub const Parser = struct {
     language: Language,
 
     pub fn init(allocator: std.mem.Allocator, language: Language) !Parser {
+        const parser = ts.Parser.create();
+        
+        // Set language based on type
+        if (language == .zig) {
+            try parser.setLanguage(tree_sitter_zig());
+        }
+        // TODO: Add other languages as we get their grammars
+        
         return Parser{
             .allocator = allocator,
-            .ts_parser = null, // Will be initialized when needed
+            .ts_parser = parser,
             .language = language,
         };
     }
@@ -77,8 +84,16 @@ pub const Parser = struct {
             return self.allocator.dupe(u8, source);
         }
 
-        // TODO: Implement tree-sitter based extraction
-        // For now, fall back to simple extraction
+        // Try AST-based extraction for supported languages
+        if (self.ts_parser != null and self.language == .zig) {
+            return self.extractWithTreeSitter(source, flags) catch |err| {
+                // Fall back to simple extraction on error
+                std.debug.print("Tree-sitter extraction failed: {}, falling back to simple\n", .{err});
+                return self.extractSimple(source, flags);
+            };
+        }
+        
+        // Fall back to simple extraction for unsupported languages
         return self.extractSimple(source, flags);
     }
 
@@ -157,6 +172,79 @@ pub const Parser = struct {
                     try result.append('\n');
                 }
             }
+        }
+    }
+    
+    fn extractWithTreeSitter(self: *Parser, source: []const u8, flags: ExtractionFlags) ![]const u8 {
+        const parser = self.ts_parser orelse return error.NoParser;
+        
+        // Parse the source code
+        const tree = parser.parseString(source, null) orelse return error.ParseFailed;
+        defer tree.destroy();
+        
+        const root = tree.rootNode();
+        
+        var result = std.ArrayList(u8).init(self.allocator);
+        defer result.deinit();
+        
+        // Walk the tree and extract based on flags
+        try self.walkNode(root, source, flags, &result);
+        
+        return result.toOwnedSlice();
+    }
+    
+    fn walkNode(self: *Parser, node: ts.Node, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
+        const node_type = node.kind();
+        
+        // Extract based on node type and flags
+        if (flags.signatures) {
+            if (std.mem.eql(u8, node_type, "function_declaration")) {
+                const start = node.startByte();
+                const end = node.endByte();
+                try result.appendSlice(source[start..end]);
+                try result.append('\n');
+                return; // Don't recurse into function bodies for signatures
+            }
+        }
+        
+        if (flags.types) {
+            if (std.mem.eql(u8, node_type, "struct_declaration") or 
+                std.mem.eql(u8, node_type, "enum_declaration") or
+                std.mem.eql(u8, node_type, "union_declaration")) {
+                const start = node.startByte();
+                const end = node.endByte();
+                try result.appendSlice(source[start..end]);
+                try result.append('\n');
+                return; // Don't recurse into type bodies
+            }
+        }
+        
+        if (flags.docs) {
+            if (std.mem.eql(u8, node_type, "doc_comment") or
+                std.mem.eql(u8, node_type, "container_doc_comment")) {
+                const start = node.startByte();
+                const end = node.endByte();
+                try result.appendSlice(source[start..end]);
+                try result.append('\n');
+            }
+        }
+        
+        if (flags.tests) {
+            if (std.mem.eql(u8, node_type, "test_declaration")) {
+                const start = node.startByte();
+                const end = node.endByte();
+                try result.appendSlice(source[start..end]);
+                try result.append('\n');
+                return; // Don't recurse into test bodies
+            }
+        }
+        
+        // Recurse into children
+        const child_count = node.childCount();
+        var i: u32 = 0;
+        while (i < child_count) : (i += 1) {
+            const child = node.child(i) orelse continue;
+            try self.walkNode(child, source, flags, result);
         }
     }
 };

@@ -44,7 +44,7 @@ $ zig version
     │   ├── tree-sitter-zig            # Zig language grammar
     │   └── zig-spec                   # Zig language specification reference
     ├── docs                           # Documentation
-    │   ├── slop [...]                 # Generated documentation (ignored in tree output)
+    │   ├── archive [...]              # Archived task documentation (ignored in tree output)
     │   └── glob-patterns.md           # Glob pattern documentation
     ├── src                            # Source code (modular architecture)
     │   ├── benchmark                  # Performance benchmarking module
@@ -511,6 +511,13 @@ git commit -m "Update vendored dependencies"
     identify root causes and leave `// TODO` if you're stumped)
 - Less is more - avoid over-engineering, and when in doubt, ask me or choose the simple option
 
+**Task Documentation Workflow:**
+- **Active task documentation** should be placed in root directory with `TASK_*.md` prefix for high visibility
+- **Permanent documentation** (README.md, CLAUDE.md) remains unprefixed in root
+- **Completed task documentation** should be moved to `docs/archive/` with meaningful names (e.g., `2025_01_parser_improvements.md`)
+- **Always commit task documentation** to git both during work and when archiving
+- This workflow ensures active work is visible while maintaining a historical record of completed tasks
+
 **Current Status:** ✓ **Production ready with AST-based code extraction** - All 209 tests passing (100% success rate). Real tree-sitter integration providing precise, language-aware code extraction.
 
 **✓ Recent Improvements:**
@@ -525,7 +532,7 @@ git commit -m "Update vendored dependencies"
 - **15-25% memory reduction** - String interning with PathCache integration  
 - **40-60% glob speedup** - Fast-path optimization for common patterns
 
-**Architecture:** Complete filesystem abstraction with parameterized dependencies, unified pattern matching engine, comprehensive benchmarking suite, and modular command structure. See [docs/slop/ARCHITECTURE.md](docs/slop/ARCHITECTURE.md) for detailed system design.
+**Architecture:** Complete filesystem abstraction with parameterized dependencies, unified pattern matching engine, comprehensive benchmarking suite, and modular command structure. See [docs/archive/ARCHITECTURE.md](docs/archive/ARCHITECTURE.md) for detailed system design.
 
 ## Test Coverage
 
@@ -541,13 +548,13 @@ The project has comprehensive test coverage including:
 
 ## Related Documentation
 
-Core documentation is organized in `docs/slop/` for additional reference:
+Core documentation is organized in `docs/archive/` for additional reference:
 
-- [docs/slop/ARCHITECTURE.md](docs/slop/ARCHITECTURE.md) - System design and module relationships
-- [docs/slop/PERFORMANCE.md](docs/slop/PERFORMANCE.md) - Optimization guide and benchmarks
-- [docs/slop/CONTRIBUTING.md](docs/slop/CONTRIBUTING.md) - How to contribute effectively
-- [docs/slop/PATTERNS.md](docs/slop/PATTERNS.md) - Pattern matching implementation details
-- [docs/slop/TESTING.md](docs/slop/TESTING.md) - Testing strategy and coverage
-- [docs/slop/TROUBLESHOOTING.md](docs/slop/TROUBLESHOOTING.md) - Common issues and solutions
+- [docs/archive/ARCHITECTURE.md](docs/archive/ARCHITECTURE.md) - System design and module relationships
+- [docs/archive/PERFORMANCE.md](docs/archive/PERFORMANCE.md) - Optimization guide and benchmarks
+- [docs/archive/CONTRIBUTING.md](docs/archive/CONTRIBUTING.md) - How to contribute effectively
+- [docs/archive/PATTERNS.md](docs/archive/PATTERNS.md) - Pattern matching implementation details
+- [docs/archive/TESTING.md](docs/archive/TESTING.md) - Testing strategy and coverage
+- [docs/archive/TROUBLESHOOTING.md](docs/archive/TROUBLESHOOTING.md) - Common issues and solutions
 
-**Note:** The `docs/slop/` directory is excluded from `zz tree` output via `zz.zon` configuration to keep tree views clean.
+**Note:** The `docs/archive/` directory is excluded from `zz tree` output via `zz.zon` configuration to keep tree views clean.

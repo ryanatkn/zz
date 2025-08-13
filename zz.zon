@@ -15,7 +15,7 @@
     //                   "target", "__pycache__", "venv", "env", "tmp", "temp",
     //                   ".zig-cache", "zig-out"
     .ignored_patterns = .{
-        "docs/slop",
+        "docs/archive",
     },
 
     // Files to completely hide (not displayed at all in tree output)

@@ -34,3 +34,8 @@ test {
 test {
     std.testing.refAllDeclsRecursive(@import("benchmark/test.zig"));
 }
+
+// Import lib tests (including parser tests)
+test {
+    std.testing.refAllDeclsRecursive(@import("lib/test.zig"));
+}

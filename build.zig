@@ -81,9 +81,96 @@ pub fn build(b: *std.Build) void {
     tree_sitter_zig_lib.addIncludePath(b.path("deps/tree-sitter/lib/include"));
     tree_sitter_zig_lib.linkLibC();
     
+    // Add tree-sitter-css grammar C library
+    const tree_sitter_css_lib = b.addStaticLibrary(.{
+        .name = "tree-sitter-css",
+        .target = target,
+        .optimize = optimize,
+    });
+    tree_sitter_css_lib.addCSourceFiles(.{
+        .files = &.{
+            "deps/tree-sitter-css/src/parser.c",
+            "deps/tree-sitter-css/src/scanner.c",
+        },
+        .flags = &.{"-std=c11"},
+    });
+    tree_sitter_css_lib.addIncludePath(b.path("deps/tree-sitter-css/src"));
+    tree_sitter_css_lib.addIncludePath(b.path("deps/tree-sitter/lib/include"));
+    tree_sitter_css_lib.linkLibC();
+    
+    // Add tree-sitter-html grammar C library
+    const tree_sitter_html_lib = b.addStaticLibrary(.{
+        .name = "tree-sitter-html",
+        .target = target,
+        .optimize = optimize,
+    });
+    tree_sitter_html_lib.addCSourceFiles(.{
+        .files = &.{
+            "deps/tree-sitter-html/src/parser.c",
+            "deps/tree-sitter-html/src/scanner.c",
+        },
+        .flags = &.{"-std=c11"},
+    });
+    tree_sitter_html_lib.addIncludePath(b.path("deps/tree-sitter-html/src"));
+    tree_sitter_html_lib.addIncludePath(b.path("deps/tree-sitter/lib/include"));
+    tree_sitter_html_lib.linkLibC();
+    
+    // Add tree-sitter-json grammar C library
+    const tree_sitter_json_lib = b.addStaticLibrary(.{
+        .name = "tree-sitter-json",
+        .target = target,
+        .optimize = optimize,
+    });
+    tree_sitter_json_lib.addCSourceFile(.{
+        .file = b.path("deps/tree-sitter-json/src/parser.c"),
+        .flags = &.{"-std=c11"},
+    });
+    tree_sitter_json_lib.addIncludePath(b.path("deps/tree-sitter-json/src"));
+    tree_sitter_json_lib.addIncludePath(b.path("deps/tree-sitter/lib/include"));
+    tree_sitter_json_lib.linkLibC();
+    
+    // Add tree-sitter-typescript grammar C library
+    const tree_sitter_typescript_lib = b.addStaticLibrary(.{
+        .name = "tree-sitter-typescript",
+        .target = target,
+        .optimize = optimize,
+    });
+    tree_sitter_typescript_lib.addCSourceFiles(.{
+        .files = &.{
+            "deps/tree-sitter-typescript/src/parser.c",
+            "deps/tree-sitter-typescript/src/scanner.c",
+        },
+        .flags = &.{"-std=c11"},
+    });
+    tree_sitter_typescript_lib.addIncludePath(b.path("deps/tree-sitter-typescript/src"));
+    tree_sitter_typescript_lib.addIncludePath(b.path("deps/tree-sitter/lib/include"));
+    tree_sitter_typescript_lib.linkLibC();
+    
+    // Add tree-sitter-svelte grammar C library
+    const tree_sitter_svelte_lib = b.addStaticLibrary(.{
+        .name = "tree-sitter-svelte",
+        .target = target,
+        .optimize = optimize,
+    });
+    tree_sitter_svelte_lib.addCSourceFiles(.{
+        .files = &.{
+            "deps/tree-sitter-svelte/src/parser.c",
+            "deps/tree-sitter-svelte/src/scanner.c",
+        },
+        .flags = &.{"-std=c11"},
+    });
+    tree_sitter_svelte_lib.addIncludePath(b.path("deps/tree-sitter-svelte/src"));
+    tree_sitter_svelte_lib.addIncludePath(b.path("deps/tree-sitter/lib/include"));
+    tree_sitter_svelte_lib.linkLibC();
+    
     exe.root_module.addImport("tree-sitter", tree_sitter_module);
     exe.linkLibrary(tree_sitter_lib);
     exe.linkLibrary(tree_sitter_zig_lib);
+    exe.linkLibrary(tree_sitter_css_lib);
+    exe.linkLibrary(tree_sitter_html_lib);
+    exe.linkLibrary(tree_sitter_json_lib);
+    exe.linkLibrary(tree_sitter_typescript_lib);
+    exe.linkLibrary(tree_sitter_svelte_lib);
     exe.linkLibC();
 
     // Default build step (builds to zig-out/)
@@ -162,6 +249,88 @@ fn addTestSteps(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.b
     tree_sitter_zig_lib.addIncludePath(b.path("deps/tree-sitter-zig/src"));
     tree_sitter_zig_lib.addIncludePath(b.path("deps/tree-sitter/lib/include"));
     tree_sitter_zig_lib.linkLibC();
+    
+    // Build tree-sitter-css grammar library for tests
+    const tree_sitter_css_lib = b.addStaticLibrary(.{
+        .name = "tree-sitter-css",
+        .target = target,
+        .optimize = optimize,
+    });
+    tree_sitter_css_lib.addCSourceFiles(.{
+        .files = &.{
+            "deps/tree-sitter-css/src/parser.c",
+            "deps/tree-sitter-css/src/scanner.c",
+        },
+        .flags = &.{"-std=c11"},
+    });
+    tree_sitter_css_lib.addIncludePath(b.path("deps/tree-sitter-css/src"));
+    tree_sitter_css_lib.addIncludePath(b.path("deps/tree-sitter/lib/include"));
+    tree_sitter_css_lib.linkLibC();
+    
+    // Build tree-sitter-html grammar library for tests
+    const tree_sitter_html_lib = b.addStaticLibrary(.{
+        .name = "tree-sitter-html",
+        .target = target,
+        .optimize = optimize,
+    });
+    tree_sitter_html_lib.addCSourceFiles(.{
+        .files = &.{
+            "deps/tree-sitter-html/src/parser.c",
+            "deps/tree-sitter-html/src/scanner.c",
+        },
+        .flags = &.{"-std=c11"},
+    });
+    tree_sitter_html_lib.addIncludePath(b.path("deps/tree-sitter-html/src"));
+    tree_sitter_html_lib.addIncludePath(b.path("deps/tree-sitter/lib/include"));
+    tree_sitter_html_lib.linkLibC();
+    
+    // Build tree-sitter-json grammar library for tests
+    const tree_sitter_json_lib = b.addStaticLibrary(.{
+        .name = "tree-sitter-json",
+        .target = target,
+        .optimize = optimize,
+    });
+    tree_sitter_json_lib.addCSourceFile(.{
+        .file = b.path("deps/tree-sitter-json/src/parser.c"),
+        .flags = &.{"-std=c11"},
+    });
+    tree_sitter_json_lib.addIncludePath(b.path("deps/tree-sitter-json/src"));
+    tree_sitter_json_lib.addIncludePath(b.path("deps/tree-sitter/lib/include"));
+    tree_sitter_json_lib.linkLibC();
+    
+    // Build tree-sitter-typescript grammar library for tests
+    const tree_sitter_typescript_lib = b.addStaticLibrary(.{
+        .name = "tree-sitter-typescript",
+        .target = target,
+        .optimize = optimize,
+    });
+    tree_sitter_typescript_lib.addCSourceFiles(.{
+        .files = &.{
+            "deps/tree-sitter-typescript/src/parser.c",
+            "deps/tree-sitter-typescript/src/scanner.c",
+        },
+        .flags = &.{"-std=c11"},
+    });
+    tree_sitter_typescript_lib.addIncludePath(b.path("deps/tree-sitter-typescript/src"));
+    tree_sitter_typescript_lib.addIncludePath(b.path("deps/tree-sitter/lib/include"));
+    tree_sitter_typescript_lib.linkLibC();
+    
+    // Build tree-sitter-svelte grammar library for tests
+    const tree_sitter_svelte_lib = b.addStaticLibrary(.{
+        .name = "tree-sitter-svelte",
+        .target = target,
+        .optimize = optimize,
+    });
+    tree_sitter_svelte_lib.addCSourceFiles(.{
+        .files = &.{
+            "deps/tree-sitter-svelte/src/parser.c",
+            "deps/tree-sitter-svelte/src/scanner.c",
+        },
+        .flags = &.{"-std=c11"},
+    });
+    tree_sitter_svelte_lib.addIncludePath(b.path("deps/tree-sitter-svelte/src"));
+    tree_sitter_svelte_lib.addIncludePath(b.path("deps/tree-sitter/lib/include"));
+    tree_sitter_svelte_lib.linkLibC();
 
     // All tests
     const test_all = b.addTest(.{
@@ -172,6 +341,11 @@ fn addTestSteps(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.b
     test_all.root_module.addImport("tree-sitter", tree_sitter_module);
     test_all.linkLibrary(tree_sitter_lib);
     test_all.linkLibrary(tree_sitter_zig_lib);
+    test_all.linkLibrary(tree_sitter_css_lib);
+    test_all.linkLibrary(tree_sitter_html_lib);
+    test_all.linkLibrary(tree_sitter_json_lib);
+    test_all.linkLibrary(tree_sitter_typescript_lib);
+    test_all.linkLibrary(tree_sitter_svelte_lib);
     test_all.linkLibC();
     
     // Create test step

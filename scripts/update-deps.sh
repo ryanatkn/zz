@@ -13,6 +13,11 @@ declare -A DEPS=(
     ["zig-tree-sitter"]="https://github.com/tree-sitter/zig-tree-sitter.git"
     ["tree-sitter-zig"]="https://github.com/maxxnino/tree-sitter-zig.git"
     ["zig-spec"]="https://github.com/ziglang/zig-spec.git"
+    ["tree-sitter-svelte"]="https://github.com/tree-sitter-grammars/tree-sitter-svelte.git"
+    ["tree-sitter-css"]="https://github.com/tree-sitter/tree-sitter-css.git"
+    ["tree-sitter-typescript"]="https://github.com/tree-sitter/tree-sitter-typescript.git"
+    ["tree-sitter-json"]="https://github.com/tree-sitter/tree-sitter-json.git"
+    ["tree-sitter-html"]="https://github.com/tree-sitter/tree-sitter-html.git"
 )
 
 declare -A VERSIONS=(
@@ -20,6 +25,11 @@ declare -A VERSIONS=(
     ["zig-tree-sitter"]="v0.25.0"
     ["tree-sitter-zig"]="main"
     ["zig-spec"]="main"
+    ["tree-sitter-svelte"]="v1.0.2"
+    ["tree-sitter-css"]="v0.23.0"
+    ["tree-sitter-typescript"]="v0.7.0"
+    ["tree-sitter-json"]="v0.24.8"
+    ["tree-sitter-html"]="v0.23.0"
 )
 
 # Files to remove from each dependency (incompatible with our build)
@@ -28,6 +38,11 @@ declare -A REMOVE_FILES=(
     ["zig-tree-sitter"]="build.zig build.zig.zon"
     ["tree-sitter-zig"]="build.zig build.zig.zon"
     ["zig-spec"]=""
+    ["tree-sitter-svelte"]="build.zig build.zig.zon"
+    ["tree-sitter-css"]="build.zig build.zig.zon"
+    ["tree-sitter-typescript"]="build.zig build.zig.zon"
+    ["tree-sitter-json"]="build.zig build.zig.zon"
+    ["tree-sitter-html"]="build.zig build.zig.zon"
 )
 
 # Patches to apply (if any)

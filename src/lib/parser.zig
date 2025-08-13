@@ -1,29 +1,30 @@
 const std = @import("std");
 const ts = @import("tree-sitter");
 
-// Extern function provided by tree-sitter-zig C library
+// Extern functions provided by tree-sitter C libraries
 extern fn tree_sitter_zig() callconv(.C) *ts.Language;
+extern fn tree_sitter_css() callconv(.C) *ts.Language;
+extern fn tree_sitter_html() callconv(.C) *ts.Language;
+extern fn tree_sitter_json() callconv(.C) *ts.Language;
+extern fn tree_sitter_typescript() callconv(.C) *ts.Language;
+extern fn tree_sitter_svelte() callconv(.C) *ts.Language;
 
 pub const Language = enum {
     zig,
+    css,
+    html,
+    json,
     typescript,
-    javascript,
-    rust,
-    go,
-    python,
-    c,
-    cpp,
+    svelte,
     unknown,
 
     pub fn fromExtension(ext: []const u8) Language {
         if (std.mem.eql(u8, ext, ".zig")) return .zig;
-        if (std.mem.eql(u8, ext, ".ts") or std.mem.eql(u8, ext, ".tsx")) return .typescript;
-        if (std.mem.eql(u8, ext, ".js") or std.mem.eql(u8, ext, ".jsx")) return .javascript;
-        if (std.mem.eql(u8, ext, ".rs")) return .rust;
-        if (std.mem.eql(u8, ext, ".go")) return .go;
-        if (std.mem.eql(u8, ext, ".py")) return .python;
-        if (std.mem.eql(u8, ext, ".c") or std.mem.eql(u8, ext, ".h")) return .c;
-        if (std.mem.eql(u8, ext, ".cpp") or std.mem.eql(u8, ext, ".cc") or std.mem.eql(u8, ext, ".hpp")) return .cpp;
+        if (std.mem.eql(u8, ext, ".css")) return .css;
+        if (std.mem.eql(u8, ext, ".html") or std.mem.eql(u8, ext, ".htm")) return .html;
+        if (std.mem.eql(u8, ext, ".json")) return .json;
+        if (std.mem.eql(u8, ext, ".ts")) return .typescript;
+        if (std.mem.eql(u8, ext, ".svelte")) return .svelte;
         return .unknown;
     }
 };
@@ -60,10 +61,15 @@ pub const Parser = struct {
         const parser = ts.Parser.create();
         
         // Set language based on type
-        if (language == .zig) {
-            try parser.setLanguage(tree_sitter_zig());
+        switch (language) {
+            .zig => try parser.setLanguage(tree_sitter_zig()),
+            .css => try parser.setLanguage(tree_sitter_css()),
+            .html => try parser.setLanguage(tree_sitter_html()),
+            .json => try parser.setLanguage(tree_sitter_json()),
+            .typescript => try parser.setLanguage(tree_sitter_typescript()), // TODO: Fix TypeScript parser version compatibility
+            .svelte => try parser.setLanguage(tree_sitter_svelte()),
+            .unknown => {}, // No parser for unknown languages
         }
-        // TODO: Add other languages as we get their grammars
         
         return Parser{
             .allocator = allocator,
@@ -85,7 +91,7 @@ pub const Parser = struct {
         }
 
         // Try AST-based extraction for supported languages
-        if (self.ts_parser != null and self.language == .zig) {
+        if (self.ts_parser != null and self.language != .unknown) {
             return self.extractWithTreeSitter(source, flags) catch |err| {
                 // Fall back to simple extraction on error
                 std.debug.print("Tree-sitter extraction failed: {}, falling back to simple\n", .{err});
@@ -101,11 +107,17 @@ pub const Parser = struct {
         var result = std.ArrayList(u8).init(self.allocator);
         defer result.deinit();
 
-        if (self.language == .zig) {
-            try self.extractZigSimple(source, flags, &result);
-        } else {
-            // For other languages, return full source for now
-            try result.appendSlice(source);
+        switch (self.language) {
+            .zig => try self.extractZigSimple(source, flags, &result),
+            .css => try self.extractCssSimple(source, flags, &result),
+            .html => try self.extractHtmlSimple(source, flags, &result),
+            .json => try self.extractJsonSimple(source, flags, &result),
+            .typescript => try self.extractTypeScriptSimple(source, flags, &result),
+            .svelte => try self.extractSvelteSimple(source, flags, &result),
+            .unknown => {
+                // For unknown languages, return full source
+                try result.appendSlice(source);
+            },
         }
 
         return result.toOwnedSlice();
@@ -170,6 +182,235 @@ pub const Parser = struct {
                 if (std.mem.startsWith(u8, trimmed, "test")) {
                     try result.appendSlice(line);
                     try result.append('\n');
+                }
+            }
+        }
+    }
+    
+    fn extractCssSimple(_: *Parser, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
+        var lines = std.mem.tokenizeScalar(u8, source, '\n');
+        
+        while (lines.next()) |line| {
+            const trimmed = std.mem.trim(u8, line, " \t");
+            
+            if (flags.signatures) {
+                // CSS selectors
+                if (std.mem.indexOf(u8, line, "{") != null and !std.mem.startsWith(u8, trimmed, "/*")) {
+                    try result.appendSlice(line);
+                    try result.append('\n');
+                }
+            }
+            
+            if (flags.types) {
+                // CSS variables and properties
+                if (std.mem.startsWith(u8, trimmed, "--") or std.mem.indexOf(u8, trimmed, ":") != null) {
+                    try result.appendSlice(line);
+                    try result.append('\n');
+                }
+            }
+            
+            if (flags.docs) {
+                if (std.mem.startsWith(u8, trimmed, "/*") or std.mem.startsWith(u8, trimmed, "*")) {
+                    try result.appendSlice(line);
+                    try result.append('\n');
+                }
+            }
+            
+            if (flags.imports) {
+                if (std.mem.startsWith(u8, trimmed, "@import") or std.mem.startsWith(u8, trimmed, "@use")) {
+                    try result.appendSlice(line);
+                    try result.append('\n');
+                }
+            }
+        }
+    }
+    
+    fn extractHtmlSimple(_: *Parser, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
+        var lines = std.mem.tokenizeScalar(u8, source, '\n');
+        
+        while (lines.next()) |line| {
+            const trimmed = std.mem.trim(u8, line, " \t");
+            
+            if (flags.structure) {
+                // HTML tags
+                if (std.mem.startsWith(u8, trimmed, "<") and !std.mem.startsWith(u8, trimmed, "<!--")) {
+                    try result.appendSlice(line);
+                    try result.append('\n');
+                }
+            }
+            
+            if (flags.docs) {
+                if (std.mem.startsWith(u8, trimmed, "<!--")) {
+                    try result.appendSlice(line);
+                    try result.append('\n');
+                }
+            }
+        }
+    }
+    
+    fn extractJsonSimple(_: *Parser, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
+        // JSON is structural, so we mostly extract based on structure
+        if (flags.structure or flags.types) {
+            // For JSON, return the structure without values for types
+            var lines = std.mem.tokenizeScalar(u8, source, '\n');
+            var brace_level: i32 = 0;
+            
+            while (lines.next()) |line| {
+                const trimmed = std.mem.trim(u8, line, " \t");
+                
+                if (std.mem.indexOf(u8, trimmed, "{") != null) brace_level += 1;
+                if (std.mem.indexOf(u8, trimmed, "}") != null) brace_level -= 1;
+                
+                // Include lines with keys
+                if (std.mem.indexOf(u8, trimmed, "\":") != null or 
+                    std.mem.indexOf(u8, trimmed, "{") != null or
+                    std.mem.indexOf(u8, trimmed, "}") != null or
+                    std.mem.indexOf(u8, trimmed, "[") != null or
+                    std.mem.indexOf(u8, trimmed, "]") != null) {
+                    try result.appendSlice(line);
+                    try result.append('\n');
+                }
+            }
+        } else {
+            // For other flags, return full JSON
+            try result.appendSlice(source);
+        }
+    }
+    
+    fn extractTypeScriptSimple(_: *Parser, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
+        var lines = std.mem.tokenizeScalar(u8, source, '\n');
+        
+        while (lines.next()) |line| {
+            const trimmed = std.mem.trim(u8, line, " \t");
+            
+            if (flags.signatures) {
+                if (std.mem.startsWith(u8, trimmed, "function ") or
+                    std.mem.startsWith(u8, trimmed, "export function ") or
+                    std.mem.startsWith(u8, trimmed, "async function ") or
+                    std.mem.indexOf(u8, trimmed, " => ") != null) {
+                    // Extract until the opening brace
+                    if (std.mem.indexOf(u8, line, "{")) |brace_pos| {
+                        try result.appendSlice(line[0..brace_pos + 1]);
+                        try result.append('\n');
+                    } else {
+                        try result.appendSlice(line);
+                        try result.append('\n');
+                    }
+                }
+            }
+            
+            if (flags.types) {
+                if (std.mem.startsWith(u8, trimmed, "interface ") or
+                    std.mem.startsWith(u8, trimmed, "type ") or
+                    std.mem.startsWith(u8, trimmed, "enum ") or
+                    std.mem.startsWith(u8, trimmed, "class ") or
+                    std.mem.startsWith(u8, trimmed, "export interface ") or
+                    std.mem.startsWith(u8, trimmed, "export type ") or
+                    std.mem.startsWith(u8, trimmed, "export enum ") or
+                    std.mem.startsWith(u8, trimmed, "export class ")) {
+                    try result.appendSlice(line);
+                    try result.append('\n');
+                }
+            }
+            
+            if (flags.docs) {
+                if (std.mem.startsWith(u8, trimmed, "/**") or
+                    std.mem.startsWith(u8, trimmed, "*") or
+                    std.mem.startsWith(u8, trimmed, "//")) {
+                    try result.appendSlice(line);
+                    try result.append('\n');
+                }
+            }
+            
+            if (flags.imports) {
+                if (std.mem.startsWith(u8, trimmed, "import ") or
+                    std.mem.startsWith(u8, trimmed, "export ")) {
+                    try result.appendSlice(line);
+                    try result.append('\n');
+                }
+            }
+        }
+    }
+    
+    fn extractSvelteSimple(_: *Parser, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
+        var lines = std.mem.tokenizeScalar(u8, source, '\n');
+        var in_script = false;
+        var in_style = false;
+        
+        while (lines.next()) |line| {
+            const trimmed = std.mem.trim(u8, line, " \t");
+            
+            // Track script and style sections
+            if (std.mem.startsWith(u8, trimmed, "<script")) {
+                in_script = true;
+                if (flags.imports or flags.signatures) {
+                    try result.appendSlice(line);
+                    try result.append('\n');
+                }
+                continue;
+            }
+            if (std.mem.startsWith(u8, trimmed, "</script>")) {
+                in_script = false;
+                if (flags.imports or flags.signatures) {
+                    try result.appendSlice(line);
+                    try result.append('\n');
+                }
+                continue;
+            }
+            if (std.mem.startsWith(u8, trimmed, "<style")) {
+                in_style = true;
+                if (flags.types) {
+                    try result.appendSlice(line);
+                    try result.append('\n');
+                }
+                continue;
+            }
+            if (std.mem.startsWith(u8, trimmed, "</style>")) {
+                in_style = false;
+                if (flags.types) {
+                    try result.appendSlice(line);
+                    try result.append('\n');
+                }
+                continue;
+            }
+            
+            if (in_script) {
+                // TypeScript/JavaScript extraction within script tags
+                if (flags.signatures) {
+                    if (std.mem.startsWith(u8, trimmed, "function ") or
+                        std.mem.startsWith(u8, trimmed, "export ") or
+                        std.mem.indexOf(u8, trimmed, " => ") != null) {
+                        try result.appendSlice(line);
+                        try result.append('\n');
+                    }
+                }
+                
+                if (flags.imports) {
+                    if (std.mem.startsWith(u8, trimmed, "import ")) {
+                        try result.appendSlice(line);
+                        try result.append('\n');
+                    }
+                }
+            } else if (in_style) {
+                // CSS extraction within style tags
+                if (flags.types) {
+                    try result.appendSlice(line);
+                    try result.append('\n');
+                }
+            } else {
+                // HTML template extraction
+                if (flags.structure) {
+                    if (std.mem.startsWith(u8, trimmed, "<") and !std.mem.startsWith(u8, trimmed, "<!--")) {
+                        try result.appendSlice(line);
+                        try result.append('\n');
+                    }
+                }
+                
+                if (flags.docs) {
+                    if (std.mem.startsWith(u8, trimmed, "<!--")) {
+                        try result.appendSlice(line);
+                        try result.append('\n');
+                    }
                 }
             }
         }

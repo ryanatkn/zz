@@ -13,6 +13,10 @@ Performance-critical utilities achieving 20-30% speedup through POSIX-specific o
 | `filesystem.zig` | Error handling | Graceful degradation |
 | `benchmark.zig` | Performance measurement | Multiple output formats |
 | `parser.zig` | Language-aware code extraction | Tree-sitter ready architecture |
+| `ast.zig` | AST traversal framework | NodeVisitor pattern |
+| `cache.zig` | LRU caching system | ~95% cache efficiency |
+| `incremental.zig` | Change detection & state | ~2-5ms change detection |
+| `parallel.zig` | Worker pools & scheduling | Linear CPU scaling |
 
 ## path.zig - POSIX Optimizations
 

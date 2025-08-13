@@ -321,6 +321,259 @@ pub const Benchmark = struct {
         });
     }
     
+    /// Benchmark cache system performance
+    pub fn benchmarkCacheSystem(self: *Self, target_duration_ns: u64, verbose: bool) !void {
+        if (verbose) {
+            std.debug.print("\n=== Cache System Benchmark ===\n", .{});
+        }
+        
+        const CacheSystem = @import("cache.zig").CacheSystem;
+        const AstCacheKey = @import("cache.zig").AstCacheKey;
+        
+        var cache_system = CacheSystem.init(self.allocator);
+        defer cache_system.deinit();
+        
+        var timer = try std.time.Timer.start();
+        var cache_operations: usize = 0;
+        
+        // Sample content for caching
+        const sample_content = "pub fn test() void {}";
+        
+        // Run cache operations
+        while (timer.read() < target_duration_ns) {
+            // Create cache key
+            const key = AstCacheKey.init(12345, 1, 67890);
+            
+            // Try cache lookup (miss)
+            _ = cache_system.ast_cache.get(key);
+            
+            // Store in cache
+            try cache_system.ast_cache.put(key, sample_content);
+            
+            // Lookup again (hit)
+            _ = cache_system.ast_cache.get(key);
+            
+            cache_operations += 3; // lookup + put + lookup
+        }
+        
+        const elapsed = timer.read();
+        const cache_stats = cache_system.getAstStats();
+        
+        if (verbose) {
+            std.debug.print("  {} cache operations in {}ms\n", .{ cache_operations, elapsed / 1_000_000 });
+            std.debug.print("  Hit rate: {d:.1}% ({} hits, {} misses)\n", 
+                .{ cache_stats.efficiency(), cache_stats.hits, cache_stats.misses });
+        }
+        
+        var extra_info_buf: [256]u8 = undefined;
+        const extra_info = try std.fmt.bufPrint(&extra_info_buf, "Hit rate: {d:.1}%", .{cache_stats.efficiency()});
+        
+        try self.results.append(.{
+            .name = "Cache System",
+            .total_operations = cache_operations,
+            .elapsed_ns = elapsed,
+            .ns_per_op = elapsed / cache_operations,
+            .extra_info = try self.allocator.dupe(u8, extra_info),
+        });
+    }
+    
+    /// Benchmark incremental file tracking
+    pub fn benchmarkIncremental(self: *Self, target_duration_ns: u64, verbose: bool) !void {
+        if (verbose) {
+            std.debug.print("\n=== Incremental File Tracking Benchmark ===\n", .{});
+        }
+        
+        const FileTracker = @import("incremental.zig").FileTracker;
+        
+        var tracker = FileTracker.init(self.allocator);
+        defer tracker.deinit();
+        
+        // Create temporary test files
+        var tmp_dir = std.testing.tmpDir(.{});
+        defer tmp_dir.cleanup();
+        
+        const test_files = [_][]const u8{ "file1.zig", "file2.zig", "file3.zig" };
+        for (test_files) |filename| {
+            try tmp_dir.dir.writeFile(.{ .sub_path = filename, .data = "test content" });
+        }
+        
+        var timer = try std.time.Timer.start();
+        var tracking_operations: usize = 0;
+        
+        // Get absolute paths
+        var file_paths: [test_files.len][]u8 = undefined;
+        for (test_files, 0..) |filename, i| {
+            file_paths[i] = try tmp_dir.dir.realpathAlloc(self.allocator, filename);
+        }
+        defer {
+            for (file_paths) |path| {
+                self.allocator.free(path);
+            }
+        }
+        
+        // Run tracking operations
+        while (timer.read() < target_duration_ns) {
+            for (file_paths) |file_path| {
+                try tracker.trackFile(file_path);
+                _ = tracker.getFileState(file_path);
+                tracking_operations += 2; // track + get
+            }
+        }
+        
+        const elapsed = timer.read();
+        
+        if (verbose) {
+            std.debug.print("  {} tracking operations in {}ms\n", .{ tracking_operations, elapsed / 1_000_000 });
+            std.debug.print("  Files tracked: {}\n", .{test_files.len});
+        }
+        
+        var extra_info_buf: [256]u8 = undefined;
+        const extra_info = try std.fmt.bufPrint(&extra_info_buf, "{} test files", .{test_files.len});
+        
+        try self.results.append(.{
+            .name = "Incremental Tracking",
+            .total_operations = tracking_operations,
+            .elapsed_ns = elapsed,
+            .ns_per_op = elapsed / tracking_operations,
+            .extra_info = try self.allocator.dupe(u8, extra_info),
+        });
+    }
+    
+    /// Benchmark parallel processing performance
+    pub fn benchmarkParallelProcessing(self: *Self, target_duration_ns: u64, verbose: bool) !void {
+        if (verbose) {
+            std.debug.print("\n=== Parallel Processing Benchmark ===\n", .{});
+        }
+        
+        const WorkerPool = @import("parallel.zig").WorkerPool;
+        const Task = @import("parallel.zig").Task;
+        
+        // Create worker pool with 4 workers
+        var pool = try WorkerPool.init(self.allocator, 4);
+        defer pool.deinit();
+        
+        try pool.start();
+        defer pool.stop();
+        
+        var timer = try std.time.Timer.start();
+        var parallel_tasks: usize = 0;
+        
+        // Simple task function
+        const SimpleTaskFn = struct {
+            fn execute(task: *Task, context: ?*anyopaque) !void {
+                _ = task;
+                _ = context;
+                // Simulate some work
+                var sum: u64 = 0;
+                for (0..1000) |i| {
+                    sum += i;
+                }
+                // Prevent optimization
+                std.mem.doNotOptimizeAway(sum);
+            }
+        }.execute;
+        
+        // Submit tasks until duration reached
+        while (timer.read() < target_duration_ns) {
+            const task_id = try pool.submitTask(.normal, SimpleTaskFn, null, &.{});
+            _ = task_id;
+            parallel_tasks += 1;
+            
+            // Small delay to prevent overwhelming the queue
+            if (parallel_tasks % 100 == 0) {
+                std.time.sleep(1_000_000); // 1ms
+            }
+        }
+        
+        // Wait for completion
+        pool.waitForCompletion();
+        
+        const elapsed = timer.read();
+        const stats = pool.getWorkerStats();
+        
+        if (verbose) {
+            std.debug.print("  {} tasks submitted in {}ms\n", .{ parallel_tasks, elapsed / 1_000_000 });
+            std.debug.print("  Completed tasks: {}\n", .{stats.total_completed_tasks});
+            std.debug.print("  Workers: {}\n", .{stats.worker_count});
+        }
+        
+        var extra_info_buf: [256]u8 = undefined;
+        const extra_info = try std.fmt.bufPrint(&extra_info_buf, "{} workers", .{stats.worker_count});
+        
+        try self.results.append(.{
+            .name = "Parallel Processing",
+            .total_operations = parallel_tasks,
+            .elapsed_ns = elapsed,
+            .ns_per_op = elapsed / parallel_tasks,
+            .extra_info = try self.allocator.dupe(u8, extra_info),
+        });
+    }
+    
+    /// Benchmark AST node visitor performance
+    pub fn benchmarkAstTraversal(self: *Self, target_duration_ns: u64, verbose: bool) !void {
+        if (verbose) {
+            std.debug.print("\n=== AST Traversal Benchmark ===\n", .{});
+        }
+        
+        const AstNode = @import("ast.zig").AstNode;
+        const NodeVisitor = @import("ast.zig").NodeVisitor;
+        const VisitResult = @import("ast.zig").VisitResult;
+        
+        // Create a mock AST node for traversal
+        const sample_source = "pub fn test() void { const x = 42; return; }";
+        const mock_node = AstNode{
+            .raw_node = null,
+            .node_type = "function",
+            .start_byte = 0,
+            .end_byte = @intCast(sample_source.len),
+            .start_point = AstNode.Point{ .row = 0, .column = 0 },
+            .end_point = AstNode.Point{ .row = 0, .column = @intCast(sample_source.len) },
+            .text = sample_source,
+        };
+        
+        var timer = try std.time.Timer.start();
+        var traversal_operations: usize = 0;
+        
+        // Visitor function that counts nodes
+        const CounterVisitor = struct {
+            fn visit(visitor: *NodeVisitor, node: *const AstNode, context: ?*anyopaque) !VisitResult {
+                _ = visitor;
+                _ = node;
+                if (context) |ctx| {
+                    const counter: *usize = @ptrCast(@alignCast(ctx));
+                    counter.* += 1;
+                }
+                return VisitResult.continue_traversal;
+            }
+        }.visit;
+        
+        // Run traversals
+        while (timer.read() < target_duration_ns) {
+            var node_count: usize = 0;
+            var visitor = NodeVisitor.init(self.allocator, CounterVisitor, &node_count);
+            try visitor.traverse(&mock_node, sample_source);
+            traversal_operations += 1;
+        }
+        
+        const elapsed = timer.read();
+        
+        if (verbose) {
+            std.debug.print("  {} AST traversals in {}ms\n", .{ traversal_operations, elapsed / 1_000_000 });
+            std.debug.print("  Sample AST size: {} bytes\n", .{sample_source.len});
+        }
+        
+        var extra_info_buf: [256]u8 = undefined;
+        const extra_info = try std.fmt.bufPrint(&extra_info_buf, "{} bytes AST", .{sample_source.len});
+        
+        try self.results.append(.{
+            .name = "AST Traversal",
+            .total_operations = traversal_operations,
+            .elapsed_ns = elapsed,
+            .ns_per_op = elapsed / traversal_operations,
+            .extra_info = try self.allocator.dupe(u8, extra_info),
+        });
+    }
+    
     /// Run all benchmarks for target duration each
     pub fn runAll(self: *Self, target_duration_ns: u64, verbose: bool) !void {
         if (verbose) {
@@ -334,6 +587,10 @@ pub const Benchmark = struct {
         try self.benchmarkMemoryPools(target_duration_ns, verbose);
         try self.benchmarkGlobPatterns(target_duration_ns, verbose);
         try self.benchmarkExtraction(target_duration_ns, verbose);
+        try self.benchmarkCacheSystem(target_duration_ns, verbose);
+        try self.benchmarkIncremental(target_duration_ns, verbose);
+        try self.benchmarkParallelProcessing(target_duration_ns, verbose);
+        try self.benchmarkAstTraversal(target_duration_ns, verbose);
         
         if (verbose) {
             std.debug.print("\n=== Benchmark Complete ===\n", .{});

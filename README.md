@@ -6,9 +6,9 @@ High-performance command-line utilities written in Zig for POSIX systems. Featur
 
 **Language Support:** Parse and extract from TypeScript, CSS, HTML, JSON, Zig, and Svelte - all rendered in your terminal with syntax highlighting.
 
-**Performance:** 20-30% faster than stdlib for path operations, with pattern matching at ~25ns per operation.
+**Performance:** 20-30% faster than stdlib for path operations, with pattern matching at ~25ns per operation. Features incremental processing with change detection and intelligent caching.
 
-**Architecture:** Clean modular design with filesystem abstraction, unified pattern matching, and aggressive performance optimizations. See [docs/slop/ARCHITECTURE.md](./docs/slop/ARCHITECTURE.md) for system design details.
+**Architecture:** Clean modular design with filesystem abstraction, unified pattern matching, and aggressive performance optimizations. Includes advanced features like incremental file processing, AST-based code extraction, and parallel task execution. See [docs/slop/ARCHITECTURE.md](./docs/slop/ARCHITECTURE.md) for system design details.
 
 ## Requirements
 

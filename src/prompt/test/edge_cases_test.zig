@@ -3,16 +3,17 @@ const test_helpers = @import("../../test_helpers.zig");
 const Config = @import("../config.zig").Config;
 const GlobExpander = @import("../glob.zig").GlobExpander;
 const SharedConfig = @import("../../config.zig").SharedConfig;
-const RealFilesystem = @import("../../filesystem.zig").RealFilesystem;
 const prompt_main = @import("../main.zig");
 
 test "empty input scenarios - no files specified" {
     const allocator = std.testing.allocator;
-    const filesystem = RealFilesystem.init();
+    
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
 
     // Test with no arguments at all (should error)
     var args_empty = [_][:0]const u8{ "zz", "prompt" };
-    var config_empty = try Config.fromArgs(allocator, filesystem, &args_empty);
+    var config_empty = try Config.fromArgs(allocator, ctx.filesystem, &args_empty);
     defer config_empty.deinit();
 
     // Should return error when no files and no text flags
@@ -22,11 +23,13 @@ test "empty input scenarios - no files specified" {
 
 test "empty input scenarios - only prepend text" {
     const allocator = std.testing.allocator;
-    const filesystem = RealFilesystem.init();
+    
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
 
     // Test with only prepend text (should be valid)
     var args = [_][:0]const u8{ "zz", "prompt", "--prepend=Some text" };
-    var config = try Config.fromArgs(allocator, filesystem, &args);
+    var config = try Config.fromArgs(allocator, ctx.filesystem, &args);
     defer config.deinit();
 
     var patterns = try config.getFilePatterns(&args);
@@ -39,11 +42,13 @@ test "empty input scenarios - only prepend text" {
 
 test "empty input scenarios - only append text" {
     const allocator = std.testing.allocator;
-    const filesystem = RealFilesystem.init();
+    
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
 
     // Test with only append text (should be valid)
     var args = [_][:0]const u8{ "zz", "prompt", "--append=Some text" };
-    var config = try Config.fromArgs(allocator, filesystem, &args);
+    var config = try Config.fromArgs(allocator, ctx.filesystem, &args);
     defer config.deinit();
 
     var patterns = try config.getFilePatterns(&args);
@@ -56,11 +61,13 @@ test "empty input scenarios - only append text" {
 
 test "empty input scenarios - empty string pattern" {
     const allocator = std.testing.allocator;
-    const filesystem = RealFilesystem.init();
+    
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
 
     // Test with empty string as pattern
     var args = [_][:0]const u8{ "zz", "prompt", "" };
-    var config = try Config.fromArgs(allocator, filesystem, &args);
+    var config = try Config.fromArgs(allocator, ctx.filesystem, &args);
     defer config.deinit();
 
     var patterns = try config.getFilePatterns(&args);
@@ -73,11 +80,13 @@ test "empty input scenarios - empty string pattern" {
 
 test "empty text flags" {
     const allocator = std.testing.allocator;
-    const filesystem = RealFilesystem.init();
+    
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
 
     // Test with empty prepend and append
     var args = [_][:0]const u8{ "zz", "prompt", "--prepend=", "--append=", "test.zig" };
-    var config = try Config.fromArgs(allocator, filesystem, &args);
+    var config = try Config.fromArgs(allocator, ctx.filesystem, &args);
     defer config.deinit();
 
     // Empty strings should still be captured
@@ -90,20 +99,16 @@ test "empty text flags" {
 test "glob with no matches in empty directory" {
     const allocator = std.testing.allocator;
 
-    // Create a temporary empty directory
-    var tmp_dir = std.testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
+    
+    // Add an empty directory to mock filesystem
+    try ctx.addDirectory("empty_dir");
 
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
-
-    const filesystem = RealFilesystem.init();
-    const expander = test_helpers.createGlobExpander(allocator, filesystem);
+    const expander = test_helpers.createGlobExpander(allocator, ctx.filesystem);
 
     // Try to match files in empty directory
-    const pattern = try std.fmt.allocPrint(allocator, "{s}/*.zig", .{tmp_path});
-    defer allocator.free(pattern);
-
+    const pattern = "empty_dir/*.zig";
     var patterns = [_][]const u8{pattern};
     var results = try expander.expandPatternsWithInfo(&patterns);
     defer {
@@ -125,22 +130,16 @@ test "glob with no matches in empty directory" {
 test "directory as input argument - empty directory" {
     const allocator = std.testing.allocator;
 
-    // Create temp directory
-    var tmp_dir = std.testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
+    
+    // Create empty subdirectory
+    try ctx.addDirectory("subdir");
 
-    try tmp_dir.dir.makeDir("subdir");
-
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
-
-    const filesystem = RealFilesystem.init();
-    const expander = test_helpers.createGlobExpander(allocator, filesystem);
+    const expander = test_helpers.createGlobExpander(allocator, ctx.filesystem);
 
     // Test directory support with empty directory
-    const dir_path = try std.fmt.allocPrint(allocator, "{s}/subdir", .{tmp_path});
-    defer allocator.free(dir_path);
-
+    const dir_path = "subdir";
     var patterns = [_][]const u8{dir_path};
     var results = try expander.expandPatternsWithInfo(&patterns);
     defer {
@@ -162,8 +161,10 @@ test "directory as input argument - empty directory" {
 test "multiple empty glob patterns" {
     const allocator = std.testing.allocator;
 
-    const filesystem = RealFilesystem.init();
-    const expander = test_helpers.createGlobExpander(allocator, filesystem);
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
+    
+    const expander = test_helpers.createGlobExpander(allocator, ctx.filesystem);
 
     // Multiple patterns that match nothing
     var patterns = [_][]const u8{

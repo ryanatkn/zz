@@ -2,34 +2,25 @@ const std = @import("std");
 const testing = std.testing;
 const test_helpers = @import("../../test_helpers.zig");
 const GlobExpander = @import("../glob.zig").GlobExpander;
-const RealFilesystem = @import("../../filesystem.zig").RealFilesystem;
 
 test "nested braces with real files" {
     const allocator = testing.allocator;
 
-    // Create temp directory for test
-    var tmp_dir = testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
 
     // Create test files
-    try tmp_dir.dir.writeFile(.{ .sub_path = "test.zig", .data = "// Zig file\n" });
-    try tmp_dir.dir.writeFile(.{ .sub_path = "test.md", .data = "# Markdown file\n" });
-    try tmp_dir.dir.writeFile(.{ .sub_path = "test.txt", .data = "Text file\n" });
-    try tmp_dir.dir.writeFile(.{ .sub_path = "test.rs", .data = "// Rust file\n" });
+    try ctx.addFile("test.zig", "// Zig file\n");
+    try ctx.addFile("test.md", "# Markdown file\n");
+    try ctx.addFile("test.txt", "Text file\n");
+    try ctx.addFile("test.rs", "// Rust file\n");
 
-    // Get the temp directory path
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
-
-    const filesystem = RealFilesystem.init();
-    const expander = test_helpers.createGlobExpander(allocator, filesystem);
+    const expander = test_helpers.createGlobExpander(allocator, ctx.filesystem);
 
     // Test nested braces pattern: *.{zig,{md,txt}}
     // Should match: test.zig, test.md, test.txt
     // Should NOT match: test.rs
-    const pattern = try std.fmt.allocPrint(allocator, "{s}/*.{{zig,{{md,txt}}}}", .{tmp_path});
-    defer allocator.free(pattern);
-
+    const pattern = "*.{zig,{md,txt}}";
     var patterns = [_][]const u8{pattern};
     var results = try expander.expandPatternsWithInfo(&patterns);
     defer {
@@ -69,28 +60,22 @@ test "nested braces with real files" {
 test "character classes with real files" {
     const allocator = testing.allocator;
 
-    var tmp_dir = testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
 
     // Create numbered log files
-    try tmp_dir.dir.writeFile(.{ .sub_path = "log0.txt", .data = "Log 0\n" });
-    try tmp_dir.dir.writeFile(.{ .sub_path = "log5.txt", .data = "Log 5\n" });
-    try tmp_dir.dir.writeFile(.{ .sub_path = "log9.txt", .data = "Log 9\n" });
-    try tmp_dir.dir.writeFile(.{ .sub_path = "loga.txt", .data = "Log A\n" });
-    try tmp_dir.dir.writeFile(.{ .sub_path = "logZ.txt", .data = "Log Z\n" });
+    try ctx.addFile("log0.txt", "Log 0\n");
+    try ctx.addFile("log5.txt", "Log 5\n");
+    try ctx.addFile("log9.txt", "Log 9\n");
+    try ctx.addFile("loga.txt", "Log A\n");
+    try ctx.addFile("logZ.txt", "Log Z\n");
 
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
-
-    const filesystem = RealFilesystem.init();
-    const expander = test_helpers.createGlobExpander(allocator, filesystem);
+    const expander = test_helpers.createGlobExpander(allocator, ctx.filesystem);
 
     // Test character class pattern: log[0-9].txt
     // Should match: log0.txt, log5.txt, log9.txt
     // Should NOT match: loga.txt, logZ.txt
-    const pattern = try std.fmt.allocPrint(allocator, "{s}/log[0-9].txt", .{tmp_path});
-    defer allocator.free(pattern);
-
+    const pattern = "log[0-9].txt";
     var patterns = [_][]const u8{pattern};
     var results = try expander.expandPatternsWithInfo(&patterns);
     defer {
@@ -119,26 +104,20 @@ test "character classes with real files" {
 test "escape sequences with real files" {
     const allocator = testing.allocator;
 
-    var tmp_dir = testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
 
     // Create files with special characters in names
-    try tmp_dir.dir.writeFile(.{ .sub_path = "file*.txt", .data = "File with asterisk\n" });
-    try tmp_dir.dir.writeFile(.{ .sub_path = "file?.txt", .data = "File with question\n" });
-    try tmp_dir.dir.writeFile(.{ .sub_path = "file[1].txt", .data = "File with brackets\n" });
-    try tmp_dir.dir.writeFile(.{ .sub_path = "file123.txt", .data = "Normal file\n" });
+    try ctx.addFile("file*.txt", "File with asterisk\n");
+    try ctx.addFile("file?.txt", "File with question\n");
+    try ctx.addFile("file[1].txt", "File with brackets\n");
+    try ctx.addFile("file123.txt", "Normal file\n");
 
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
-
-    const filesystem = RealFilesystem.init();
-    const expander = test_helpers.createGlobExpander(allocator, filesystem);
+    const expander = test_helpers.createGlobExpander(allocator, ctx.filesystem);
 
     // Test escaped asterisk: file\*.txt
     // Should match only: file*.txt
-    const pattern1 = try std.fmt.allocPrint(allocator, "{s}/file\\*.txt", .{tmp_path});
-    defer allocator.free(pattern1);
-
+    const pattern1 = "file\\*.txt";
     var patterns1 = [_][]const u8{pattern1};
     var results1 = try expander.expandPatternsWithInfo(&patterns1);
     defer {
@@ -156,9 +135,7 @@ test "escape sequences with real files" {
 
     // Test escaped brackets: file\[1\].txt
     // Should match only: file[1].txt
-    const pattern2 = try std.fmt.allocPrint(allocator, "{s}/file\\[1\\].txt", .{tmp_path});
-    defer allocator.free(pattern2);
-
+    const pattern2 = "file\\[1\\].txt";
     var patterns2 = [_][]const u8{pattern2};
     var results2 = try expander.expandPatternsWithInfo(&patterns2);
     defer {

@@ -1,5 +1,6 @@
 const std = @import("std");
 const FilesystemInterface = @import("../filesystem.zig").FilesystemInterface;
+const path_utils = @import("../lib/path.zig");
 
 pub const Config = @import("config.zig").Config;
 pub const PromptBuilder = @import("builder.zig").PromptBuilder;
@@ -70,17 +71,25 @@ fn runWithConfigInternal(config: *Config, allocator: std.mem.Allocator, filesyst
                 if (result.is_glob) {
                     // Glob pattern with no matches
                     if (config.allow_empty_glob or config.allow_missing) {
-                        try stderr.print("Warning: No files matched pattern: {s}\n", .{result.pattern});
+                        const prefixed = try path_utils.addRelativePrefix(allocator, result.pattern);
+                        defer allocator.free(prefixed);
+                        try stderr.print("Warning: No files matched pattern: {s}\n", .{prefixed});
                     } else {
-                        try stderr.print("Error: No files matched pattern: {s}\n", .{result.pattern});
+                        const prefixed = try path_utils.addRelativePrefix(allocator, result.pattern);
+                        defer allocator.free(prefixed);
+                        try stderr.print("Error: No files matched pattern: {s}\n", .{prefixed});
                         has_error = true;
                     }
                 } else {
                     // Explicit file that doesn't exist
                     if (config.allow_missing) {
-                        try stderr.print("Warning: File not found: {s}\n", .{result.pattern});
+                        const prefixed = try path_utils.addRelativePrefix(allocator, result.pattern);
+                        defer allocator.free(prefixed);
+                        try stderr.print("Warning: File not found: {s}\n", .{prefixed});
                     } else {
-                        try stderr.print("Error: File not found: {s}\n", .{result.pattern});
+                        const prefixed = try path_utils.addRelativePrefix(allocator, result.pattern);
+                        defer allocator.free(prefixed);
+                        try stderr.print("Error: File not found: {s}\n", .{prefixed});
                         has_error = true;
                     }
                 }
@@ -122,7 +131,9 @@ fn runWithConfigInternal(config: *Config, allocator: std.mem.Allocator, filesyst
                     // User explicitly requested this file but it's being ignored
                     if (!quiet) {
                         const stderr = std.io.getStdErr().writer();
-                        try stderr.print("Error: Explicitly requested file was ignored: {s}\n", .{path});
+                        const prefixed = try path_utils.addRelativePrefix(allocator, path);
+                        defer allocator.free(prefixed);
+                        try stderr.print("Error: Explicitly requested file was ignored: {s}\n", .{prefixed});
                     }
                     has_error = true;
                 }

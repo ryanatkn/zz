@@ -61,7 +61,7 @@ We're old-school C developers at heart—every byte matters, simplicity is elega
 - **Consistent terminology** - Pick terms and stick with them
 - **No marketing speak** - "optimized" not "blazing fast"
 - **Avoid redundancy** - Don't say "successfully completed" just say "completed"
-- **State facts** - "190 tests passing" not "✅ Comprehensive test coverage!"
+- **State facts** - "190 tests passing" not "✓ Comprehensive test coverage!"
 
 ### Exception: Security APIs
 The ONE place we want attention-grabbing names:

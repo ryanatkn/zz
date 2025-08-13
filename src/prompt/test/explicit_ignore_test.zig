@@ -2,32 +2,23 @@ const std = @import("std");
 const test_helpers = @import("../../test_helpers.zig");
 const Config = @import("../config.zig").Config;
 const GlobExpander = @import("../glob.zig").GlobExpander;
-const RealFilesystem = @import("../../filesystem.zig").RealFilesystem;
 const prompt_main = @import("../main.zig");
 
 test "explicit file ignored by gitignore should error" {
     const allocator = std.testing.allocator;
 
-    // Create temp directory with .gitignore
-    var tmp_dir = std.testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
 
     // Create .gitignore file that ignores *.log files
-    try tmp_dir.dir.writeFile(.{ .sub_path = ".gitignore", .data = "*.log\n" });
+    try ctx.addFile(".gitignore", "*.log\n");
 
     // Create a file that will be ignored by gitignore
-    try tmp_dir.dir.writeFile(.{ .sub_path = "debug.log", .data = "log content" });
-
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
-
-    const file_path = try std.fmt.allocPrint(allocator, "{s}/debug.log", .{tmp_path});
-    defer allocator.free(file_path);
+    try ctx.addFile("debug.log", "log content");
 
     // The glob expander correctly finds the file (it doesn't handle ignore logic)
-    const filesystem = RealFilesystem.init();
-    const expander = test_helpers.createGlobExpander(allocator, filesystem);
-    var patterns = [_][]const u8{file_path};
+    const expander = test_helpers.createGlobExpander(allocator, ctx.filesystem);
+    var patterns = [_][]const u8{"debug.log"};
     var results = try expander.expandPatternsWithInfo(&patterns);
     defer {
         for (results.items) |*result| {
@@ -48,27 +39,18 @@ test "explicit file ignored by gitignore should error" {
 test "explicit file ignored by custom patterns should error" {
     const allocator = std.testing.allocator;
 
-    // Create temp directory and file that will be ignored by default patterns
-    var tmp_dir = std.testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
 
     // Create a file in .git directory (which is in default ignore patterns)
-    try tmp_dir.dir.makeDir(".git");
-    try tmp_dir.dir.writeFile(.{ .sub_path = ".git/config", .data = "git config content" });
+    try ctx.addDirectory(".git");
+    try ctx.addFile(".git/config", "git config content");
 
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
-
-    const file_path = try std.fmt.allocPrint(allocator, "{s}/.git/config", .{tmp_path});
-    defer allocator.free(file_path);
+    const file_path = ".git/config";
 
     // Create config args that explicitly include this file
-    const file_path_z = try std.fmt.allocPrintZ(allocator, "{s}", .{file_path});
-    defer allocator.free(file_path_z);
-
-    var args = [_][:0]const u8{ "zz", "prompt", file_path_z };
-    const filesystem = RealFilesystem.init();
-    var config = try Config.fromArgs(allocator, filesystem, &args);
+    var args = [_][:0]const u8{ "zz", "prompt", ".git/config" };
+    var config = try Config.fromArgs(allocator, ctx.filesystem, &args);
     defer config.deinit();
 
     // This file should be ignored by default patterns (.git)
@@ -155,9 +137,11 @@ test "missing file returns correct error code" {
 test "no input files returns correct error code" {
     const allocator = std.testing.allocator;
 
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
+
     // Test with no input files using quiet mode to suppress expected error message
     var args = [_][:0]const u8{ "zz", "prompt" };
-    const filesystem = RealFilesystem.init();
-    const result = prompt_main.runQuiet(allocator, filesystem, &args);
+    const result = prompt_main.runQuiet(allocator, ctx.filesystem, &args);
     try std.testing.expectError(error.PatternsNotMatched, result);
 }

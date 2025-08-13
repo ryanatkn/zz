@@ -11,7 +11,9 @@ zz <command> [options] [arguments]
 | `tree` | Show directory structure | `zz tree src/` |
 | `prompt` | Generate LLM prompts | `zz prompt "*.zig"` |
 | `benchmark` | Run performance tests | `zz benchmark --format=pretty` |
-| `help` | Show help information | `zz help` |
+| `help` | Show detailed help | `zz help` |
+| `-h` | Show brief help | `zz -h` |
+| `--help` | Show detailed help | `zz --help` |
 
 ## Tree Command
 
@@ -21,12 +23,14 @@ zz tree                    # Current directory
 zz tree src/              # Specific directory
 zz tree . 3               # Limit depth to 3
 zz tree --format=list     # List format output
+zz tree -f list           # Same as above (short flag)
 ```
 
 ### Options
 | Option | Description | Example |
 |--------|-------------|---------|
-| `--format=FORMAT` | Output format (tree/list) | `--format=list` |
+| `--format=FORMAT`, `-f FORMAT` | Output format (tree/list) | `--format=list`, `-f tree` |
+| `--show-hidden` | Show hidden files | `zz tree --show-hidden` |
 | `--no-gitignore` | Include gitignored files | `zz tree --no-gitignore` |
 | `[depth]` | Maximum depth | `zz tree . 2` |
 

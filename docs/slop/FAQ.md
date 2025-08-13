@@ -20,11 +20,11 @@ zz is designed for maximum performance:
 
 ### What platforms are supported?
 zz supports all POSIX-compliant systems:
-- ✅ Linux (all distributions)
-- ✅ macOS (10.15+)
-- ✅ FreeBSD, OpenBSD, NetBSD
-- ✅ Other Unix-like systems
-- ❌ Windows (no plans for support)
+- ✓ Linux (all distributions)
+- ✓ macOS (10.15+)
+- ✓ FreeBSD, OpenBSD, NetBSD
+- ✓ Other Unix-like systems
+- 🞪 Windows (no plans for support)
 
 ### Why no Windows support?
 zz is optimized specifically for POSIX systems. Supporting Windows would require:

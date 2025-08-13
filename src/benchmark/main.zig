@@ -1,5 +1,6 @@
 const std = @import("std");
 const benchmark_lib = @import("../lib/benchmark.zig");
+const path_utils = @import("../lib/path.zig");
 const Benchmark = benchmark_lib.Benchmark;
 const BenchmarkResult = benchmark_lib.BenchmarkResult;
 
@@ -183,7 +184,9 @@ pub fn run(allocator: std.mem.Allocator, args: [][:0]const u8) !void {
             // Only error if explicitly specified
             if (options.baseline != null) {
                 if (err == error.FileNotFound) {
-                    std.debug.print("Baseline file not found: {s}\n", .{baseline_path});
+                    const prefixed_path = try path_utils.addRelativePrefix(allocator, baseline_path);
+                    defer allocator.free(prefixed_path);
+                    std.debug.print("Baseline file not found: {s}\n", .{prefixed_path});
                 } else {
                     std.debug.print("Error reading baseline: {}\n", .{err});
                 }

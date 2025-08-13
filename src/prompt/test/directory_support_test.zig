@@ -4,30 +4,22 @@ const test_helpers = @import("../../test_helpers.zig");
 const Config = @import("../config.zig").Config;
 const GlobExpander = @import("../glob.zig").GlobExpander;
 const SharedConfig = @import("../../config.zig").SharedConfig;
-const RealFilesystem = @import("../../filesystem.zig").RealFilesystem;
 const prompt_main = @import("../main.zig");
 
 test "directory argument - basic functionality" {
     const allocator = testing.allocator;
 
-    // Create temp directory for test
-    var tmp_dir = testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
 
     // Create test files in directory
-    try tmp_dir.dir.writeFile(.{ .sub_path = "test1.zig", .data = "const a = 1;" });
-    try tmp_dir.dir.writeFile(.{ .sub_path = "test2.zig", .data = "const b = 2;" });
-    try tmp_dir.dir.writeFile(.{ .sub_path = "README.md", .data = "# Test" });
-
-    // Get the temp directory path
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
+    try ctx.addFile("test1.zig", "const a = 1;");
+    try ctx.addFile("test2.zig", "const b = 2;");
+    try ctx.addFile("README.md", "# Test");
 
     // Test directory expansion
-    const filesystem = RealFilesystem.init();
-
-    const expander = test_helpers.createGlobExpander(allocator, filesystem);
-    var patterns = [_][]const u8{tmp_path};
+    const expander = test_helpers.createGlobExpander(allocator, ctx.filesystem);
+    var patterns = [_][]const u8{"."};
     var results = try expander.expandPatternsWithInfo(&patterns);
     defer {
         for (results.items) |*result| {
@@ -63,23 +55,18 @@ test "directory argument - basic functionality" {
 test "directory argument - nested structure" {
     const allocator = testing.allocator;
 
-    var tmp_dir = testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
 
     // Create nested directory structure
-    try tmp_dir.dir.makeDir("src");
-    try tmp_dir.dir.makeDir("src/cli");
-    try tmp_dir.dir.writeFile(.{ .sub_path = "main.zig", .data = "const main = 1;" });
-    try tmp_dir.dir.writeFile(.{ .sub_path = "src/lib.zig", .data = "const lib = 1;" });
-    try tmp_dir.dir.writeFile(.{ .sub_path = "src/cli/args.zig", .data = "const args = 1;" });
+    try ctx.addDirectory("src");
+    try ctx.addDirectory("src/cli");
+    try ctx.addFile("main.zig", "const main = 1;");
+    try ctx.addFile("src/lib.zig", "const lib = 1;");
+    try ctx.addFile("src/cli/args.zig", "const args = 1;");
 
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
-
-    const filesystem = RealFilesystem.init();
-
-    const expander = test_helpers.createGlobExpander(allocator, filesystem);
-    var patterns = [_][]const u8{tmp_path};
+    const expander = test_helpers.createGlobExpander(allocator, ctx.filesystem);
+    var patterns = [_][]const u8{"."};
     var results = try expander.expandPatternsWithInfo(&patterns);
     defer {
         for (results.items) |*result| {
@@ -112,24 +99,19 @@ test "directory argument - nested structure" {
 test "directory argument - with ignore patterns" {
     const allocator = testing.allocator;
 
-    var tmp_dir = testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
 
     // Create files, including ones that should be ignored
-    try tmp_dir.dir.makeDir("node_modules");
-    try tmp_dir.dir.writeFile(.{ .sub_path = "main.zig", .data = "const main = 1;" });
-    try tmp_dir.dir.writeFile(.{ .sub_path = "node_modules/package.json", .data = "{}" });
-    try tmp_dir.dir.writeFile(.{ .sub_path = ".hidden", .data = "hidden" });
-
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
-
-    const filesystem = RealFilesystem.init();
+    try ctx.addDirectory("node_modules");
+    try ctx.addFile("main.zig", "const main = 1;");
+    try ctx.addFile("node_modules/package.json", "{}");
+    try ctx.addFile(".hidden", "hidden");
 
     // Custom configuration with ignore patterns for this test
     const expander = GlobExpander{
         .allocator = allocator,
-        .filesystem = filesystem,
+        .filesystem = ctx.filesystem,
         .config = SharedConfig{
             .ignored_patterns = &[_][]const u8{ "node_modules", ".git" }, // Include node_modules
             .hidden_files = &[_][]const u8{".hidden"}, // Include .hidden files
@@ -139,7 +121,7 @@ test "directory argument - with ignore patterns" {
             .patterns_allocated = false,
         },
     };
-    var patterns = [_][]const u8{tmp_path};
+    var patterns = [_][]const u8{"."};
     var results = try expander.expandPatternsWithInfo(&patterns);
     defer {
         for (results.items) |*result| {
@@ -159,17 +141,12 @@ test "directory argument - with ignore patterns" {
 test "directory argument - empty directory" {
     const allocator = testing.allocator;
 
-    var tmp_dir = testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
 
-    // Don't create any files, leave directory empty
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
-
-    const filesystem = RealFilesystem.init();
-
-    const expander = test_helpers.createGlobExpander(allocator, filesystem);
-    var patterns = [_][]const u8{tmp_path};
+    // Don't create any files, leave directory empty (only the default "." exists)
+    const expander = test_helpers.createGlobExpander(allocator, ctx.filesystem);
+    var patterns = [_][]const u8{"."};
     var results = try expander.expandPatternsWithInfo(&patterns);
     defer {
         for (results.items) |*result| {
@@ -188,28 +165,17 @@ test "directory argument - empty directory" {
 test "directory argument - mixed with files" {
     const allocator = testing.allocator;
 
-    var tmp_dir = testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
 
     // Create directory structure
-    try tmp_dir.dir.makeDir("subdir");
-    try tmp_dir.dir.writeFile(.{ .sub_path = "root.zig", .data = "const root = 1;" });
-    try tmp_dir.dir.writeFile(.{ .sub_path = "subdir/sub.zig", .data = "const sub = 1;" });
-
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
-
-    // Create paths for individual file and subdirectory
-    const root_file = try std.fmt.allocPrint(allocator, "{s}/root.zig", .{tmp_path});
-    defer allocator.free(root_file);
-    const subdir_path = try std.fmt.allocPrint(allocator, "{s}/subdir", .{tmp_path});
-    defer allocator.free(subdir_path);
+    try ctx.addDirectory("subdir");
+    try ctx.addFile("root.zig", "const root = 1;");
+    try ctx.addFile("subdir/sub.zig", "const sub = 1;");
 
     // Test mixing explicit file and directory
-    const filesystem = RealFilesystem.init();
-
-    const expander = test_helpers.createGlobExpander(allocator, filesystem);
-    var patterns = [_][]const u8{ root_file, subdir_path };
+    const expander = test_helpers.createGlobExpander(allocator, ctx.filesystem);
+    var patterns = [_][]const u8{ "root.zig", "subdir" };
     var results = try expander.expandPatternsWithInfo(&patterns);
     defer {
         for (results.items) |*result| {
@@ -236,23 +202,18 @@ test "directory argument - mixed with files" {
 test "directory argument - hidden files handling" {
     const allocator = testing.allocator;
 
-    var tmp_dir = testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
 
     // Create regular and hidden files
-    try tmp_dir.dir.writeFile(.{ .sub_path = "visible.zig", .data = "const visible = 1;" });
-    try tmp_dir.dir.writeFile(.{ .sub_path = ".hidden.zig", .data = "const hidden = 1;" });
-    try tmp_dir.dir.writeFile(.{ .sub_path = ".env", .data = "SECRET=value" });
-
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
-
-    const filesystem = RealFilesystem.init();
+    try ctx.addFile("visible.zig", "const visible = 1;");
+    try ctx.addFile(".hidden.zig", "const hidden = 1;");
+    try ctx.addFile(".env", "SECRET=value");
 
     // Custom configuration with hidden files for this test
     const expander = GlobExpander{
         .allocator = allocator,
-        .filesystem = filesystem,
+        .filesystem = ctx.filesystem,
         .config = SharedConfig{
             .ignored_patterns = &[_][]const u8{}, // Empty ignore patterns
             .hidden_files = &[_][]const u8{ ".hidden.zig", ".env" }, // Hide specific files
@@ -262,7 +223,7 @@ test "directory argument - hidden files handling" {
             .patterns_allocated = false,
         },
     };
-    var patterns = [_][]const u8{tmp_path};
+    var patterns = [_][]const u8{"."};
     var results = try expander.expandPatternsWithInfo(&patterns);
     defer {
         for (results.items) |*result| {
@@ -288,23 +249,18 @@ test "directory argument - hidden files handling" {
 test "directory vs glob pattern behavior" {
     const allocator = testing.allocator;
 
-    var tmp_dir = testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
 
     // Create test files
-    try tmp_dir.dir.writeFile(.{ .sub_path = "test1.zig", .data = "const a = 1;" });
-    try tmp_dir.dir.writeFile(.{ .sub_path = "test2.zig", .data = "const b = 2;" });
-    try tmp_dir.dir.writeFile(.{ .sub_path = "README.md", .data = "# Test" });
+    try ctx.addFile("test1.zig", "const a = 1;");
+    try ctx.addFile("test2.zig", "const b = 2;");
+    try ctx.addFile("README.md", "# Test");
 
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
-
-    const filesystem = RealFilesystem.init();
-
-    const expander = test_helpers.createGlobExpander(allocator, filesystem);
+    const expander = test_helpers.createGlobExpander(allocator, ctx.filesystem);
 
     // Test directory (should get all files)
-    var dir_patterns = [_][]const u8{tmp_path};
+    var dir_patterns = [_][]const u8{"."};
     var dir_results = try expander.expandPatternsWithInfo(&dir_patterns);
     defer {
         for (dir_results.items) |*result| {
@@ -317,8 +273,7 @@ test "directory vs glob pattern behavior" {
     }
 
     // Test glob pattern (should get only .zig files)
-    const glob_pattern = try std.fmt.allocPrint(allocator, "{s}/*.zig", .{tmp_path});
-    defer allocator.free(glob_pattern);
+    const glob_pattern = "*.zig";
     var glob_patterns = [_][]const u8{glob_pattern};
     var glob_results = try expander.expandPatternsWithInfo(&glob_patterns);
     defer {

@@ -53,7 +53,7 @@ pub fn build(b: *std.Build) void {
 
     // Default build step (builds to zig-out/)
     b.installArtifact(exe);
-    
+
     // Custom install step (installs to user location)
     const install_user_step = b.step("install-user", "Install zz to ~/.zz/bin (or custom --prefix)");
     install_user_step.dependOn(addCustomInstall(b, exe, install_prefix));
@@ -70,18 +70,16 @@ pub fn build(b: *std.Build) void {
 
     // Benchmark step - save to latest.md and compare
     const benchmark_step = b.step("benchmark", "Run benchmarks, save to latest.md, compare with baseline");
-    const benchmark_cmd = b.addSystemCommand(&.{ "sh", "-c", 
-        "./zig-out/bin/zz benchmark > benchmarks/latest.md && ./zig-out/bin/zz benchmark --format=pretty" });
+    const benchmark_cmd = b.addSystemCommand(&.{ "sh", "-c", "./zig-out/bin/zz benchmark > benchmarks/latest.md && ./zig-out/bin/zz benchmark --format=pretty" });
     benchmark_cmd.step.dependOn(b.getInstallStep());
     benchmark_step.dependOn(&benchmark_cmd.step);
-    
+
     // Benchmark baseline step - saves new baseline
     const benchmark_baseline_step = b.step("benchmark-baseline", "Save current benchmarks as baseline");
-    const baseline_cmd = b.addSystemCommand(&.{ "sh", "-c", 
-        "mkdir -p benchmarks && ./zig-out/bin/zz benchmark > benchmarks/baseline.md && echo 'Baseline saved to benchmarks/baseline.md'" });
+    const baseline_cmd = b.addSystemCommand(&.{ "sh", "-c", "mkdir -p benchmarks && ./zig-out/bin/zz benchmark > benchmarks/baseline.md && echo 'Baseline saved to benchmarks/baseline.md'" });
     baseline_cmd.step.dependOn(b.getInstallStep());
     benchmark_baseline_step.dependOn(&baseline_cmd.step);
-    
+
     // Benchmark stdout step - just show pretty output
     const benchmark_stdout_step = b.step("benchmark-stdout", "Run benchmarks and show pretty output");
     const stdout_run = b.addRunArtifact(exe);
@@ -108,9 +106,9 @@ fn addTestSteps(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.b
     test_all.root_module.addImport("tree-sitter", tree_sitter.module("tree-sitter"));
     const test_step = b.step("test", "Run all tests");
     test_step.dependOn(&test_all.step);
-    
+
     // Add a simple completion message
-    const test_summary = b.addSystemCommand(&.{ "echo", "✅ All tests completed successfully! Run 'zig test src/test.zig' for detailed output." });
+    const test_summary = b.addSystemCommand(&.{ "echo", "✓ All tests completed successfully! Run 'zig test src/test.zig' for detailed output." });
     test_summary.step.dependOn(&test_all.step);
     test_step.dependOn(&test_summary.step);
 
@@ -146,25 +144,25 @@ fn addTestSteps(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.b
 
 fn addCustomInstall(b: *std.Build, exe: *std.Build.Step.Compile, prefix: []const u8) *std.Build.Step {
     const allocator = b.allocator;
-    
+
     // Expand ~ to home directory
     const expanded_prefix = if (std.mem.startsWith(u8, prefix, "~"))
         expandHomeDirectory(allocator, prefix) catch prefix
     else
         b.dupe(prefix);
-    
+
     // Create installation directory path
     const install_dir = std.fs.path.join(allocator, &.{ expanded_prefix, bin_subdir }) catch @panic("OOM");
     const target_path = std.fs.path.join(allocator, &.{ install_dir, executable_name }) catch @panic("OOM");
     const source_path = "./zig-out/bin/zz";
-    
+
     // Create directory first
     const mkdir_step = b.addSystemCommand(&.{ "mkdir", "-p", install_dir });
-    
+
     // Build the executable first
     const build_step = b.addInstallArtifact(exe, .{});
     build_step.step.dependOn(&mkdir_step.step);
-    
+
     // Check if we need to copy and create appropriate feedback
     const install_script = std.fmt.allocPrint(allocator,
         \\if [ ! -f "{s}" ] || [ "{s}" -nt "{s}" ]; then
@@ -173,27 +171,19 @@ fn addCustomInstall(b: *std.Build, exe: *std.Build.Step.Compile, prefix: []const
         \\else
         \\  printf '{s}'
         \\fi
-    , .{ 
-        target_path, source_path, target_path, source_path, target_path,
-        std.fmt.allocPrint(allocator, success_message_template, .{ 
-            executable_name, install_dir, executable_name, executable_name, install_dir 
-        }) catch @panic("OOM"),
-        std.fmt.allocPrint(allocator, already_uptodate_message_template, .{ 
-            executable_name, install_dir, executable_name, executable_name, install_dir 
-        }) catch @panic("OOM")
-    }) catch @panic("OOM");
-    
+    , .{ target_path, source_path, target_path, source_path, target_path, std.fmt.allocPrint(allocator, success_message_template, .{ executable_name, install_dir, executable_name, executable_name, install_dir }) catch @panic("OOM"), std.fmt.allocPrint(allocator, already_uptodate_message_template, .{ executable_name, install_dir, executable_name, executable_name, install_dir }) catch @panic("OOM") }) catch @panic("OOM");
+
     const install_step = b.addSystemCommand(&.{ "sh", "-c", install_script });
     install_step.step.dependOn(&build_step.step);
-    
+
     return &install_step.step;
 }
 
 fn expandHomeDirectory(allocator: std.mem.Allocator, path: []const u8) ![]const u8 {
     if (!std.mem.startsWith(u8, path, "~")) return path;
-    
+
     const home_dir = std.posix.getenv("HOME") orelse return path;
-    
+
     if (path.len == 1) {
         // Just "~"
         return allocator.dupe(u8, home_dir);
@@ -201,7 +191,7 @@ fn expandHomeDirectory(allocator: std.mem.Allocator, path: []const u8) ![]const 
         // "~/ ..."
         return std.fmt.allocPrint(allocator, "{s}{s}", .{ home_dir, path[1..] });
     }
-    
+
     // "~user" - not supported, return as-is
     return path;
 }

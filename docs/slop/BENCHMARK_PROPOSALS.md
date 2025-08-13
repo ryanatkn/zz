@@ -4,7 +4,7 @@ This document outlines proposed benchmarks and systematic improvements for the z
 
 ## Current Benchmark Coverage
 
-✅ **Existing Benchmarks:**
+✓ **Existing Benchmarks:**
 1. **Path Joining** - Tests optimized POSIX path operations (~47μs/op)
 2. **String Pool** - Tests string interning cache efficiency (~145ns/op)
 3. **Memory Pools** - Tests ArrayList pooling performance (~50μs/op)

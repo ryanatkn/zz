@@ -145,18 +145,18 @@ pub const TestRunner = struct {
 
         const start = std.time.nanoTimestamp();
         std.debug.print("  ▶️  Running: {s}\n", .{operation_name});
-        
+
         operation_fn() catch |err| {
-            std.debug.print("  ❌ Failed: {s} - {}\n", .{ operation_name, err });
+            std.debug.print("  🞪 Failed: {s} - {}\n", .{ operation_name, err });
             return err;
         };
-        
+
         const end = std.time.nanoTimestamp();
         const duration_ms = @as(f64, @floatFromInt(@as(u64, @intCast(end - start)))) / 1_000_000.0;
         if (duration_ms >= 10.0) {
-            std.debug.print("  ✅ Completed: {s} ({d:.1}ms)\n", .{ operation_name, duration_ms });
+            std.debug.print("  ✓ Completed: {s} ({d:.1}ms)\n", .{ operation_name, duration_ms });
         } else {
-            std.debug.print("  ✅ Completed: {s} ({d:.2}ms)\n", .{ operation_name, duration_ms });
+            std.debug.print("  ✓ Completed: {s} ({d:.2}ms)\n", .{ operation_name, duration_ms });
         }
     }
 };

@@ -378,10 +378,10 @@ src/lib/test/
 ### Development Roadmap
 
 **Phase 1 (Current): Text-Based Foundation**
-- ✅ Language detection from file extensions
-- ✅ Configurable extraction with ExtractionFlags
-- ✅ Multi-language text-based extraction
-- ✅ Integration with prompt module
+- ✓ Language detection from file extensions
+- ✓ Configurable extraction with ExtractionFlags
+- ✓ Multi-language text-based extraction
+- ✓ Integration with prompt module
 
 **Phase 2 (Next): Tree-Sitter Integration**
 - 🔄 Tree-sitter language parsers integration

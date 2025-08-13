@@ -123,6 +123,11 @@ $ zig build --use-llvm           # Use LLVM backend
 $ zig build run -- tree [args]          # Run tree command in development
 $ zig build run -- prompt [args]        # Run prompt command in development
 $ zig build run -- benchmark [args]     # Run benchmarks
+
+# Help commands
+$ zz -h                          # Brief help overview
+$ zz --help                      # Detailed help with all options
+$ zz help                        # Same as --help
 ```
 
 ## Testing
@@ -452,7 +457,7 @@ The project is configured for optimal Claude Code usage:
 
 **Current Status:** ✓ **Production ready with comprehensive performance optimizations** - All 206 tests passing (100% success rate). Full feature set with significant performance improvements and enhanced developer experience.
 
-**✅ Recent Improvements:**
+**✓ Recent Improvements:**
 - **Color-enhanced benchmark output** - Progress bars, human-readable units, visual hierarchy
 - **Comprehensive documentation** - Architecture, performance, and contribution guides added
 - **20-30% faster path operations** - Direct buffer manipulation in joinPath

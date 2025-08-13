@@ -2,32 +2,24 @@ const std = @import("std");
 const test_helpers = @import("../../test_helpers.zig");
 const PromptBuilder = @import("../builder.zig").PromptBuilder;
 const ExtractionFlags = @import("../../lib/parser.zig").ExtractionFlags;
-const RealFilesystem = @import("../../filesystem/real.zig").RealFilesystem;
 const fence = @import("../fence.zig");
 
 test "file with no newlines" {
     const allocator = std.testing.allocator;
 
-    var tmp_dir = std.testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
 
     // Create file without any newlines
     const content = "const a = 1; const b = 2; const c = 3;";
-    try tmp_dir.dir.writeFile(.{ .sub_path = "nonewline.zig", .data = content });
+    try ctx.addFile("nonewline.zig", content);
 
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
-
-    const filesystem = RealFilesystem.init();
     const extraction_flags = ExtractionFlags{};
-    var builder = PromptBuilder.init(allocator, filesystem, extraction_flags);
+    var builder = PromptBuilder.init(allocator, ctx.filesystem, extraction_flags);
     defer builder.deinit();
 
-    const file_path = try std.fmt.allocPrint(allocator, "{s}/nonewline.zig", .{tmp_path});
-    defer allocator.free(file_path);
-
-    var files = [_][]u8{file_path};
-    try builder.addFiles(&files);
+    const file_path = "nonewline.zig";
+    try builder.addFile(file_path);
 
     // Should handle file without newlines
     var buf = std.ArrayList(u8).init(allocator);
@@ -41,8 +33,8 @@ test "file with no newlines" {
 test "file with only backticks" {
     const allocator = std.testing.allocator;
 
-    var tmp_dir = std.testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
 
     // Create file with various backtick patterns
     const content =
@@ -51,10 +43,7 @@ test "file with only backticks" {
         \\`````
         \\``````
     ;
-    try tmp_dir.dir.writeFile(.{ .sub_path = "backticks.md", .data = content });
-
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
+    try ctx.addFile("backticks.md", content);
 
     // Test fence detection with this content
     const detected_fence = try fence.detectFence(content, allocator);
@@ -63,16 +52,12 @@ test "file with only backticks" {
     // Should detect a fence longer than the longest in content
     try std.testing.expect(detected_fence.len >= 7);
 
-    const filesystem = RealFilesystem.init();
     const extraction_flags = ExtractionFlags{};
-    var builder = PromptBuilder.init(allocator, filesystem, extraction_flags);
+    var builder = PromptBuilder.init(allocator, ctx.filesystem, extraction_flags);
     defer builder.deinit();
 
-    const file_path = try std.fmt.allocPrint(allocator, "{s}/backticks.md", .{tmp_path});
-    defer allocator.free(file_path);
-
-    var files = [_][]u8{file_path};
-    try builder.addFiles(&files);
+    const file_path = "backticks.md";
+    try builder.addFile(file_path);
 
     // Should handle the file correctly
     var buf = std.ArrayList(u8).init(allocator);
@@ -85,25 +70,18 @@ test "file with only backticks" {
 test "empty file" {
     const allocator = std.testing.allocator;
 
-    var tmp_dir = std.testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
 
     // Create empty file
-    try tmp_dir.dir.writeFile(.{ .sub_path = "empty.zig", .data = "" });
+    try ctx.addFile("empty.zig", "");
 
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
-
-    const filesystem = RealFilesystem.init();
     const extraction_flags = ExtractionFlags{};
-    var builder = PromptBuilder.init(allocator, filesystem, extraction_flags);
+    var builder = PromptBuilder.init(allocator, ctx.filesystem, extraction_flags);
     defer builder.deinit();
 
-    const file_path = try std.fmt.allocPrint(allocator, "{s}/empty.zig", .{tmp_path});
-    defer allocator.free(file_path);
-
-    var files = [_][]u8{file_path};
-    try builder.addFiles(&files);
+    const file_path = "empty.zig";
+    try builder.addFile(file_path);
 
     // Should handle empty file
     var buf = std.ArrayList(u8).init(allocator);
@@ -118,8 +96,8 @@ test "empty file" {
 test "binary file incorrectly named .zig" {
     const allocator = std.testing.allocator;
 
-    var tmp_dir = std.testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
 
     // Create binary content
     var binary_data: [256]u8 = undefined;
@@ -128,23 +106,16 @@ test "binary file incorrectly named .zig" {
         binary_data[i] = @intCast(i);
     }
 
-    try tmp_dir.dir.writeFile(.{ .sub_path = "binary.zig", .data = &binary_data });
+    try ctx.addFile("binary.zig", &binary_data);
 
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
-
-    const filesystem = RealFilesystem.init();
     const extraction_flags = ExtractionFlags{};
-    var builder = PromptBuilder.init(allocator, filesystem, extraction_flags);
+    var builder = PromptBuilder.init(allocator, ctx.filesystem, extraction_flags);
     defer builder.deinit();
 
-    const file_path = try std.fmt.allocPrint(allocator, "{s}/binary.zig", .{tmp_path});
-    defer allocator.free(file_path);
-
-    var files = [_][]u8{file_path};
+    const file_path = "binary.zig";
 
     // Should handle binary file (may skip or show as binary)
-    try builder.addFiles(&files);
+    try builder.addFile(file_path);
 
     var buf = std.ArrayList(u8).init(allocator);
     defer buf.deinit();
@@ -157,28 +128,21 @@ test "binary file incorrectly named .zig" {
 test "file with null bytes" {
     const allocator = std.testing.allocator;
 
-    var tmp_dir = std.testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
 
     // Create file with null bytes
     const content = "before\x00null\x00after";
-    try tmp_dir.dir.writeFile(.{ .sub_path = "nulls.txt", .data = content });
+    try ctx.addFile("nulls.txt", content);
 
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
-
-    const filesystem = RealFilesystem.init();
     const extraction_flags = ExtractionFlags{};
-    var builder = PromptBuilder.init(allocator, filesystem, extraction_flags);
+    var builder = PromptBuilder.init(allocator, ctx.filesystem, extraction_flags);
     defer builder.deinit();
 
-    const file_path = try std.fmt.allocPrint(allocator, "{s}/nulls.txt", .{tmp_path});
-    defer allocator.free(file_path);
-
-    var files = [_][]u8{file_path};
+    const file_path = "nulls.txt";
 
     // Should handle file with nulls
-    try builder.addFiles(&files);
+    try builder.addFile(file_path);
 
     var buf = std.ArrayList(u8).init(allocator);
     defer buf.deinit();
@@ -190,26 +154,19 @@ test "file with null bytes" {
 test "file with mixed line endings" {
     const allocator = std.testing.allocator;
 
-    var tmp_dir = std.testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
 
     // Create file with mixed line endings (Unix, Windows, old Mac)
     const content = "line1\nline2\r\nline3\rline4\n\rline5";
-    try tmp_dir.dir.writeFile(.{ .sub_path = "mixed.txt", .data = content });
+    try ctx.addFile("mixed.txt", content);
 
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
-
-    const filesystem = RealFilesystem.init();
     const extraction_flags = ExtractionFlags{};
-    var builder = PromptBuilder.init(allocator, filesystem, extraction_flags);
+    var builder = PromptBuilder.init(allocator, ctx.filesystem, extraction_flags);
     defer builder.deinit();
 
-    const file_path = try std.fmt.allocPrint(allocator, "{s}/mixed.txt", .{tmp_path});
-    defer allocator.free(file_path);
-
-    var files = [_][]u8{file_path};
-    try builder.addFiles(&files);
+    const file_path = "mixed.txt";
+    try builder.addFile(file_path);
 
     var buf = std.ArrayList(u8).init(allocator);
     defer buf.deinit();
@@ -221,8 +178,8 @@ test "file with mixed line endings" {
 test "file with unicode and special chars" {
     const allocator = std.testing.allocator;
 
-    var tmp_dir = std.testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
 
     // Create file with various unicode
     const content =
@@ -233,21 +190,14 @@ test "file with unicode and special chars" {
         \\const math = "∑ ∏ ∫ √ ∞";
         \\const symbols = "© ® ™ € £ ¥";
     ;
-    try tmp_dir.dir.writeFile(.{ .sub_path = "unicode.zig", .data = content });
+    try ctx.addFile("unicode.zig", content);
 
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
-
-    const filesystem = RealFilesystem.init();
     const extraction_flags = ExtractionFlags{};
-    var builder = PromptBuilder.init(allocator, filesystem, extraction_flags);
+    var builder = PromptBuilder.init(allocator, ctx.filesystem, extraction_flags);
     defer builder.deinit();
 
-    const file_path = try std.fmt.allocPrint(allocator, "{s}/unicode.zig", .{tmp_path});
-    defer allocator.free(file_path);
-
-    var files = [_][]u8{file_path};
-    try builder.addFiles(&files);
+    const file_path = "unicode.zig";
+    try builder.addFile(file_path);
 
     var buf = std.ArrayList(u8).init(allocator);
     defer buf.deinit();
@@ -262,8 +212,8 @@ test "file with unicode and special chars" {
 test "file with control characters" {
     const allocator = std.testing.allocator;
 
-    var tmp_dir = std.testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
 
     // Create file with control characters
     var content: [32]u8 = undefined;
@@ -272,23 +222,16 @@ test "file with control characters" {
         content[i] = @intCast(i);
     }
 
-    try tmp_dir.dir.writeFile(.{ .sub_path = "control.txt", .data = &content });
+    try ctx.addFile("control.txt", &content);
 
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
-
-    const filesystem = RealFilesystem.init();
     const extraction_flags = ExtractionFlags{};
-    var builder = PromptBuilder.init(allocator, filesystem, extraction_flags);
+    var builder = PromptBuilder.init(allocator, ctx.filesystem, extraction_flags);
     defer builder.deinit();
 
-    const file_path = try std.fmt.allocPrint(allocator, "{s}/control.txt", .{tmp_path});
-    defer allocator.free(file_path);
-
-    var files = [_][]u8{file_path};
+    const file_path = "control.txt";
 
     // Should handle control characters
-    try builder.addFiles(&files);
+    try builder.addFile(file_path);
 
     var buf = std.ArrayList(u8).init(allocator);
     defer buf.deinit();

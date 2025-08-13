@@ -92,8 +92,16 @@ pub const Config = struct {
         while (i < args.len) {
             const arg = args[i];
 
-            if (std.mem.startsWith(u8, arg, "--format=")) {
-                const format_str = arg["--format=".len..];
+            // Handle format flags (both long and short forms)
+            if (std.mem.startsWith(u8, arg, "--format=") or std.mem.startsWith(u8, arg, "-f=")) {
+                const prefix_len = if (std.mem.startsWith(u8, arg, "--format=")) "--format=".len else "-f=".len;
+                const format_str = arg[prefix_len..];
+                result.format = Format.fromString(format_str) orelse return ArgError.InvalidFormat;
+            } else if (std.mem.eql(u8, arg, "-f")) {
+                // Handle -f flag that expects next argument as format
+                if (i + 1 >= args.len) return ArgError.MissingValue;
+                i += 1;
+                const format_str = args[i];
                 result.format = Format.fromString(format_str) orelse return ArgError.InvalidFormat;
             } else if (std.mem.eql(u8, arg, "--show-hidden")) {
                 result.show_hidden = true;
@@ -121,7 +129,7 @@ pub const Config = struct {
     fn printUsage(program_name: []const u8, command: []const u8) void {
         std.debug.print("Usage: {s} {s} [directory] [max_depth] [options]\n\n", .{ program_name, command });
         std.debug.print("Options:\n", .{});
-        std.debug.print("  --format=FORMAT               Output format: tree (default) or list\n", .{});
+        std.debug.print("  --format=FORMAT, -f FORMAT   Output format: tree (default) or list\n", .{});
         std.debug.print("  --show-hidden                 Show hidden files\n", .{});
         std.debug.print("  --no-gitignore                Disable .gitignore parsing (respects .gitignore by default)\n", .{});
         std.debug.print("\n", .{});
@@ -129,6 +137,7 @@ pub const Config = struct {
         std.debug.print("  {s} {s}                       # Tree of current directory (respects .gitignore)\n", .{ program_name, command });
         std.debug.print("  {s} {s} src 2                 # Tree of src/ with max depth 2\n", .{ program_name, command });
         std.debug.print("  {s} {s} --format=list         # List format of current directory\n", .{ program_name, command });
+        std.debug.print("  {s} {s} -f list               # Same as above using short flag\n", .{ program_name, command });
         std.debug.print("  {s} {s} --no-gitignore        # Tree ignoring .gitignore files\n", .{ program_name, command });
     }
 

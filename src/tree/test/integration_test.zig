@@ -5,7 +5,6 @@ const tree_main = @import("../main.zig");
 const test_helpers = @import("../../test_helpers.zig");
 const RealFilesystem = @import("../../filesystem.zig").RealFilesystem;
 
-
 // Integration tests for the complete tree module workflow
 test "complete tree workflow with real directory" {
     var ctx = try test_helpers.TmpDirTestContext.init(testing.allocator);
@@ -107,7 +106,7 @@ test "tree command error handling" {
     // Use TmpDirTestContext for more robust error handling
     var tmp_ctx = try test_helpers.TmpDirTestContext.init(testing.allocator);
     defer tmp_ctx.deinit();
-    
+
     const args_nonexistent = [_][:0]const u8{ "tree", "this_directory_does_not_exist" };
 
     // Should handle gracefully and not crash
@@ -124,7 +123,6 @@ test "tree command error handling" {
         // Tree command with invalid depth failed - expected
         try testing.expect(false);
     };
-
 }
 
 // Test tree command with permission issues (if possible)
@@ -147,7 +145,6 @@ test "tree command with permission scenarios" {
         // Tree command with permissions failed
         try testing.expect(false);
     };
-
 }
 
 // Test tree command with various file types
@@ -198,7 +195,6 @@ test "tree command with various file types" {
         // Tree command with file types failed
         try testing.expect(false);
     };
-
 }
 
 // Test tree command with empty directories
@@ -235,7 +231,6 @@ test "tree command with empty directories" {
         // Tree command with empty directories failed
         try testing.expect(false);
     };
-
 }
 
 // Test memory usage and cleanup
@@ -280,7 +275,6 @@ test "tree command memory usage" {
         // Tree command memory test failed
         try testing.expect(false);
     };
-
 }
 
 // Test tree command argument edge cases
@@ -316,7 +310,6 @@ test "tree command argument edge cases" {
     tree_main.runQuiet(testing.allocator, fs_large, @constCast(args_large_depth[0..])) catch {
         // Should handle large depth gracefully
     };
-
 }
 
 test "tree and list format produce different outputs" {
@@ -355,7 +348,6 @@ test "tree and list format produce different outputs" {
     tree_main.runQuiet(testing.allocator, fs_list, @constCast(args_list[0..])) catch {
         try testing.expect(false); // Should not fail
     };
-
 }
 
 test "format flags with depth and directory combinations" {
@@ -376,7 +368,7 @@ test "format flags with depth and directory combinations" {
     // Test various combinations
     const path_z_combo_sentinel = try testing.allocator.dupeZ(u8, path_z);
     defer testing.allocator.free(path_z_combo_sentinel);
-    
+
     const test_cases = [_]struct {
         args: []const [:0]const u8,
         description: []const u8,
@@ -390,11 +382,10 @@ test "format flags with depth and directory combinations" {
     for (test_cases) |test_case| {
         const fs_case = RealFilesystem.init();
         tree_main.runQuiet(testing.allocator, fs_case, @constCast(test_case.args)) catch |err| {
-            std.debug.print("❌ Failed test case: {s}, error: {}\n", .{ test_case.description, err });
+            std.debug.print("🞪 Failed test case: {s}, error: {}\n", .{ test_case.description, err });
             try testing.expect(false);
         };
     }
-
 }
 
 test "format error handling integration" {

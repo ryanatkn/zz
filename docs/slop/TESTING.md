@@ -483,22 +483,22 @@ test "isolated test" {
 ## Best Practices
 
 ### Do's
-- ✅ Write tests before fixing bugs
-- ✅ Test edge cases and error conditions
-- ✅ Use descriptive test names
-- ✅ Keep tests focused and small
-- ✅ Use test helpers for common operations
-- ✅ Test both success and failure paths
-- ✅ Use mock objects for external dependencies
+- ✓ Write tests before fixing bugs
+- ✓ Test edge cases and error conditions
+- ✓ Use descriptive test names
+- ✓ Keep tests focused and small
+- ✓ Use test helpers for common operations
+- ✓ Test both success and failure paths
+- ✓ Use mock objects for external dependencies
 
 ### Don'ts
-- ❌ Don't test implementation details
-- ❌ Don't use real filesystem when mock will do
-- ❌ Don't ignore flaky tests
-- ❌ Don't write slow tests without need
-- ❌ Don't test standard library functions
-- ❌ Don't use global state in tests
-- ❌ Don't skip error handling tests
+- 🞪 Don't test implementation details
+- 🞪 Don't use real filesystem when mock will do
+- 🞪 Don't ignore flaky tests
+- 🞪 Don't write slow tests without need
+- 🞪 Don't test standard library functions
+- 🞪 Don't use global state in tests
+- 🞪 Don't skip error handling tests
 
 ## Test Checklist
 

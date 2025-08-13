@@ -60,6 +60,11 @@ pub fn run(allocator: Allocator, filesystem: FilesystemInterface, args: [][:0]co
 ## Help System
 
 **Static Display:** Hardcoded usage patterns for all commands with comprehensive option documentation
+
+**Help Modes:**
+- **Brief Help (`-h`):** Concise command overview with basic syntax
+- **Detailed Help (`--help`, `help`):** Full documentation with all options and examples
+
 **Command Descriptions:**
 - Tree: Directory visualization with format options
 - Prompt: "Build LLM prompts with intelligent code extraction" (updated from "Build LLM prompts from files")
@@ -77,7 +82,9 @@ pub fn run(allocator: Allocator, filesystem: FilesystemInterface, args: [][:0]co
   - `--tests`: Extract test functions
   - `--full`: Extract complete source (default)
 
-**Triggers:** No args, `help` command, unknown command
+**Triggers:** 
+- Brief help: `-h` flag, no args, unknown command
+- Detailed help: `--help` flag, `help` command
 
 ## Architectural Decisions
 
@@ -89,8 +96,8 @@ pub fn run(allocator: Allocator, filesystem: FilesystemInterface, args: [][:0]co
 
 ## Test Coverage
 
-✅ Command parsing, runner init, help dispatch, basic structure
-❌ Edge cases, error propagation, integration, complex arguments
+✓ Command parsing, runner init, help dispatch, basic structure
+🞪 Edge cases, error propagation, integration, complex arguments
 
 ## Future Improvements
 

@@ -2,28 +2,21 @@ const std = @import("std");
 const test_helpers = @import("../../test_helpers.zig");
 const GlobExpander = @import("../glob.zig").GlobExpander;
 const Config = @import("../config.zig").Config;
-const RealFilesystem = @import("../../filesystem.zig").RealFilesystem;
 
 test "files with spaces in names" {
     const allocator = std.testing.allocator;
 
-    // Create temp directory with files containing spaces
-    var tmp_dir = std.testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
 
-    try tmp_dir.dir.writeFile(.{ .sub_path = "file with spaces.zig", .data = "const a = 1;" });
-    try tmp_dir.dir.writeFile(.{ .sub_path = "another file.zig", .data = "const b = 2;" });
+    // Create files containing spaces
+    try ctx.addFile("file with spaces.zig", "const a = 1;");
+    try ctx.addFile("another file.zig", "const b = 2;");
 
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
-
-    const filesystem = RealFilesystem.init();
-    const expander = test_helpers.createGlobExpander(allocator, filesystem);
+    const expander = test_helpers.createGlobExpander(allocator, ctx.filesystem);
 
     // Test explicit file with spaces
-    const spaced_file = try std.fmt.allocPrint(allocator, "{s}/file with spaces.zig", .{tmp_path});
-    defer allocator.free(spaced_file);
-
+    const spaced_file = "file with spaces.zig";
     var patterns = [_][]const u8{spaced_file};
     var results = try expander.expandPatternsWithInfo(&patterns);
     defer {
@@ -38,32 +31,26 @@ test "files with spaces in names" {
 
     try std.testing.expect(results.items.len == 1);
     try std.testing.expect(results.items[0].files.items.len == 1);
-    try std.testing.expect(std.mem.indexOf(u8, results.items[0].files.items[0], "file with spaces.zig") != null);
+    try std.testing.expectEqualStrings("file with spaces.zig", results.items[0].files.items[0]);
 }
 
 test "files with special characters" {
     const allocator = std.testing.allocator;
 
-    var tmp_dir = std.testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
 
     // Create files with various special characters
-    try tmp_dir.dir.writeFile(.{ .sub_path = "file[1].zig", .data = "const a = 1;" });
-    try tmp_dir.dir.writeFile(.{ .sub_path = "file(2).zig", .data = "const b = 2;" });
-    try tmp_dir.dir.writeFile(.{ .sub_path = "file-3.zig", .data = "const c = 3;" });
-    try tmp_dir.dir.writeFile(.{ .sub_path = "file_4.zig", .data = "const d = 4;" });
-    try tmp_dir.dir.writeFile(.{ .sub_path = "file.test.zig", .data = "const e = 5;" });
+    try ctx.addFile("file[1].zig", "const a = 1;");
+    try ctx.addFile("file(2).zig", "const b = 2;");
+    try ctx.addFile("file-3.zig", "const c = 3;");
+    try ctx.addFile("file_4.zig", "const d = 4;");
+    try ctx.addFile("file.test.zig", "const e = 5;");
 
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
-
-    const filesystem = RealFilesystem.init();
-    const expander = test_helpers.createGlobExpander(allocator, filesystem);
+    const expander = test_helpers.createGlobExpander(allocator, ctx.filesystem);
 
     // Test glob matching with special char files
-    const pattern = try std.fmt.allocPrint(allocator, "{s}/*.zig", .{tmp_path});
-    defer allocator.free(pattern);
-
+    const pattern = "*.zig";
     var patterns = [_][]const u8{pattern};
     var results = try expander.expandPatternsWithInfo(&patterns);
     defer {
@@ -84,25 +71,19 @@ test "files with special characters" {
 test "unicode filenames" {
     const allocator = std.testing.allocator;
 
-    var tmp_dir = std.testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
 
     // Create files with unicode characters
-    try tmp_dir.dir.writeFile(.{ .sub_path = "файл.zig", .data = "const a = 1;" });
-    try tmp_dir.dir.writeFile(.{ .sub_path = "文件.zig", .data = "const b = 2;" });
-    try tmp_dir.dir.writeFile(.{ .sub_path = "ملف.zig", .data = "const c = 3;" });
-    try tmp_dir.dir.writeFile(.{ .sub_path = "😀.zig", .data = "const d = 4;" });
+    try ctx.addFile("файл.zig", "const a = 1;");
+    try ctx.addFile("文件.zig", "const b = 2;");
+    try ctx.addFile("ملف.zig", "const c = 3;");
+    try ctx.addFile("😀.zig", "const d = 4;");
 
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
-
-    const filesystem = RealFilesystem.init();
-    const expander = test_helpers.createGlobExpander(allocator, filesystem);
+    const expander = test_helpers.createGlobExpander(allocator, ctx.filesystem);
 
     // Test glob with unicode files
-    const pattern = try std.fmt.allocPrint(allocator, "{s}/*.zig", .{tmp_path});
-    defer allocator.free(pattern);
-
+    const pattern = "*.zig";
     var patterns = [_][]const u8{pattern};
     var results = try expander.expandPatternsWithInfo(&patterns);
     defer {
@@ -123,25 +104,19 @@ test "unicode filenames" {
 test "escaped characters in glob patterns" {
     const allocator = std.testing.allocator;
 
-    var tmp_dir = std.testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
 
     // Create files that look like they have glob chars
-    try tmp_dir.dir.writeFile(.{ .sub_path = "file*.zig", .data = "const a = 1;" });
-    try tmp_dir.dir.writeFile(.{ .sub_path = "file?.zig", .data = "const b = 2;" });
-    try tmp_dir.dir.writeFile(.{ .sub_path = "normal.zig", .data = "const c = 3;" });
+    try ctx.addFile("file*.zig", "const a = 1;");
+    try ctx.addFile("file?.zig", "const b = 2;");
+    try ctx.addFile("normal.zig", "const c = 3;");
 
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
-
-    const filesystem = RealFilesystem.init();
-    const expander = test_helpers.createGlobExpander(allocator, filesystem);
+    const expander = test_helpers.createGlobExpander(allocator, ctx.filesystem);
 
     // Try to match literal file with * in name
     // Note: Currently our glob doesn't support escaping, so this will be treated as glob
-    const pattern = try std.fmt.allocPrint(allocator, "{s}/file*.zig", .{tmp_path});
-    defer allocator.free(pattern);
-
+    const pattern = "file*.zig";
     var patterns = [_][]const u8{pattern};
     var results = try expander.expandPatternsWithInfo(&patterns);
     defer {
@@ -162,8 +137,8 @@ test "escaped characters in glob patterns" {
 test "very long filenames" {
     const allocator = std.testing.allocator;
 
-    var tmp_dir = std.testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
 
     // Create a file with a very long name (but within filesystem limits)
     // Use a conservative length that should work on most systems
@@ -174,18 +149,12 @@ test "very long filenames" {
     @memset(long_name[0..96], 'a');
     @memcpy(long_name[96..100], ".zig");
 
-    try tmp_dir.dir.writeFile(.{ .sub_path = long_name, .data = "const a = 1;" });
+    try ctx.addFile(long_name, "const a = 1;");
 
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
-
-    const filesystem = RealFilesystem.init();
-    const expander = test_helpers.createGlobExpander(allocator, filesystem);
+    const expander = test_helpers.createGlobExpander(allocator, ctx.filesystem);
 
     // Match with glob
-    const pattern = try std.fmt.allocPrint(allocator, "{s}/*.zig", .{tmp_path});
-    defer allocator.free(pattern);
-
+    const pattern = "*.zig";
     var patterns = [_][]const u8{pattern};
     var results = try expander.expandPatternsWithInfo(&patterns);
     defer {
@@ -205,28 +174,15 @@ test "very long filenames" {
 test "files with newlines and tabs in names" {
     const allocator = std.testing.allocator;
 
-    var tmp_dir = std.testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
 
-    // Most filesystems don't allow newlines in filenames, but tabs might work
-    // Try creating a file with tab character
-    tmp_dir.dir.writeFile(.{ .sub_path = "file\ttab.zig", .data = "const a = 1;" }) catch |err| {
-        // Some filesystems might not support this
-        if (err == error.InvalidFileName or err == error.BadPathName) {
-            return;
-        }
-        return err;
-    };
+    // Mock filesystem can handle tab characters in names
+    try ctx.addFile("file\ttab.zig", "const a = 1;");
 
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
+    const expander = test_helpers.createGlobExpander(allocator, ctx.filesystem);
 
-    const filesystem = RealFilesystem.init();
-    const expander = test_helpers.createGlobExpander(allocator, filesystem);
-
-    const pattern = try std.fmt.allocPrint(allocator, "{s}/*.zig", .{tmp_path});
-    defer allocator.free(pattern);
-
+    const pattern = "*.zig";
     var patterns = [_][]const u8{pattern};
     var results = try expander.expandPatternsWithInfo(&patterns);
     defer {

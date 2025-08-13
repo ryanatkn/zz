@@ -242,7 +242,7 @@ cg_annotate cachegrind.out.*
 ## Performance Anti-Patterns to Avoid
 
 ### 1. Repeated Allocations in Loops
-❌ **Bad:**
+🞪 **Bad:**
 ```zig
 for (items) |item| {
     const formatted = try std.fmt.allocPrint(allocator, "{s}", .{item});
@@ -250,7 +250,7 @@ for (items) |item| {
 }
 ```
 
-✅ **Good:**
+✓ **Good:**
 ```zig
 var buffer: [1024]u8 = undefined;
 for (items) |item| {
@@ -259,7 +259,7 @@ for (items) |item| {
 ```
 
 ### 2. String Concatenation
-❌ **Bad:**
+🞪 **Bad:**
 ```zig
 var result = try allocator.dupe(u8, "");
 for (parts) |part| {
@@ -269,7 +269,7 @@ for (parts) |part| {
 }
 ```
 
-✅ **Good:**
+✓ **Good:**
 ```zig
 var list = std.ArrayList(u8).init(allocator);
 defer list.deinit();
@@ -280,7 +280,7 @@ const result = try list.toOwnedSlice();
 ```
 
 ### 3. Unnecessary Copies
-❌ **Bad:**
+🞪 **Bad:**
 ```zig
 fn processPath(allocator: Allocator, path: []const u8) ![]const u8 {
     const copy = try allocator.dupe(u8, path);
@@ -289,7 +289,7 @@ fn processPath(allocator: Allocator, path: []const u8) ![]const u8 {
 }
 ```
 
-✅ **Good:**
+✓ **Good:**
 ```zig
 fn processPath(path: []const u8) []const u8 {
     // Use path directly when possible
@@ -298,7 +298,7 @@ fn processPath(path: []const u8) []const u8 {
 ```
 
 ### 4. Inefficient Pattern Matching
-❌ **Bad:**
+🞪 **Bad:**
 ```zig
 for (patterns) |pattern| {
     const regex = try compileRegex(pattern);  // Recompiled every time
@@ -306,7 +306,7 @@ for (patterns) |pattern| {
 }
 ```
 
-✅ **Good:**
+✓ **Good:**
 ```zig
 // Compile once, reuse
 const compiled_patterns = try compileAllPatterns(patterns);

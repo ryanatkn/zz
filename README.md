@@ -75,14 +75,17 @@ zz prompt "src/**/*.zig"       # Generate LLM prompt
 ## Commands
 
 ```bash
-zz tree [directory] [depth] [--format=FORMAT]  # Show directory tree
-zz prompt [files...] [options]                 # Generate LLM prompt
-zz benchmark [options]                          # Run performance benchmarks
-zz help                                         # Display help
+zz tree [directory] [depth] [options]  # Show directory tree
+zz prompt [files...] [options]         # Generate LLM prompt
+zz benchmark [options]                  # Run performance benchmarks
+zz help                                 # Display detailed help
+zz --help                               # Display detailed help
+zz -h                                   # Display brief help
 
 # Tree format options:
-#   --format=tree  (default) - Tree with box characters
-#   --format=list            - Flat list with ./path prefixes
+#   --format=FORMAT, -f FORMAT  - Output format: tree (default) or list
+#   --show-hidden               - Show hidden files
+#   --no-gitignore              - Disable .gitignore parsing
 
 # Prompt options:
 #   --prepend=TEXT           - Add text before files
@@ -110,6 +113,7 @@ zz help                                         # Display help
 zz tree                          # Current directory
 zz tree src/ 2                   # src directory, 2 levels deep
 zz tree --format=list            # Flat list format
+zz tree -f list                  # Same as above using short flag
 
 # LLM prompt generation
 zz prompt "src/**/*.zig"         # All Zig files recursively

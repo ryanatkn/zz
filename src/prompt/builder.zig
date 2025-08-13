@@ -61,7 +61,9 @@ pub const PromptBuilder = struct {
         if (stat.size > max_file_size) {
             if (!self.quiet) {
                 const stderr = std.io.getStdErr().writer();
-                try stderr.print("Warning: Skipping large file (>{d}MB): {s}\n", .{ max_file_size / (1024 * 1024), file_path });
+                const prefixed_path = try path_utils.addRelativePrefix(self.allocator, file_path);
+                defer self.allocator.free(prefixed_path);
+                try stderr.print("Warning: Skipping large file (>{d}MB): {s}\n", .{ max_file_size / (1024 * 1024), prefixed_path });
             }
             return;
         }
@@ -87,7 +89,8 @@ pub const PromptBuilder = struct {
         const fence_str = try fence.detectFence(display_content, self.arena.allocator());
 
         // Add file with XML-style tags and markdown code fence
-        const header = try std.fmt.allocPrint(self.arena.allocator(), "<File path=\"{s}\">", .{file_path});
+        const prefixed_path = try path_utils.addRelativePrefix(self.arena.allocator(), file_path);
+        const header = try std.fmt.allocPrint(self.arena.allocator(), "<File path=\"{s}\">", .{prefixed_path});
         try self.lines.append("");
         try self.lines.append(header);
         try self.lines.append("");

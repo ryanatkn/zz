@@ -84,3 +84,56 @@ test "deduplication of file paths" {
     // Should have only 2 unique files (test1.zig and test2.zig)
     try testing.expect(unique_paths.items.len == 2);
 }
+
+test "prompt builder outputs relative paths with ./ prefix" {
+    var ctx = try test_helpers.TmpDirTestContext.init(testing.allocator);
+    defer ctx.deinit();
+    
+    try ctx.writeFile("test.zig", "const a = 1;");
+    
+    const extraction_flags = ExtractionFlags{};
+    var builder = PromptBuilder.init(testing.allocator, ctx.filesystem, extraction_flags);
+    defer builder.deinit();
+    
+    try builder.addFile("test.zig");
+    
+    var buf = std.ArrayList(u8).init(testing.allocator);
+    defer buf.deinit();
+    
+    try builder.write(buf.writer());
+    
+    const output = buf.items;
+    
+    // Should contain ./test.zig in the XML tag
+    try testing.expect(std.mem.indexOf(u8, output, "<File path=\"./test.zig\">") != null);
+}
+
+test "prompt builder preserves absolute paths" {
+    var ctx = try test_helpers.TmpDirTestContext.init(testing.allocator);
+    defer ctx.deinit();
+    
+    try ctx.writeFile("test.zig", "const a = 1;");
+    
+    const extraction_flags = ExtractionFlags{};
+    var builder = PromptBuilder.init(testing.allocator, ctx.filesystem, extraction_flags);
+    defer builder.deinit();
+    
+    // Add file with absolute path (using the temporary directory path)
+    const abs_path = try std.fmt.allocPrint(testing.allocator, "{s}/test.zig", .{ctx.path});
+    defer testing.allocator.free(abs_path);
+    
+    try builder.addFile(abs_path);
+    
+    var buf = std.ArrayList(u8).init(testing.allocator);
+    defer buf.deinit();
+    
+    try builder.write(buf.writer());
+    
+    const output = buf.items;
+    
+    // Absolute paths should remain unchanged
+    const expected_tag = try std.fmt.allocPrint(testing.allocator, "<File path=\"{s}\">", .{abs_path});
+    defer testing.allocator.free(expected_tag);
+    
+    try testing.expect(std.mem.indexOf(u8, output, expected_tag) != null);
+}

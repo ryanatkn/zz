@@ -1,34 +1,27 @@
 const std = @import("std");
 const test_helpers = @import("../../test_helpers.zig");
 const GlobExpander = @import("../glob.zig").GlobExpander;
-const RealFilesystem = @import("../../filesystem.zig").RealFilesystem;
 const matchSimplePattern = @import("../glob.zig").matchSimplePattern;
 
 test "match everything recursively with **" {
     const allocator = std.testing.allocator;
 
-    var tmp_dir = std.testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
 
     // Create nested structure
-    try tmp_dir.dir.makeDir("a");
-    try tmp_dir.dir.makeDir("a/b");
-    try tmp_dir.dir.makeDir("a/b/c");
-    try tmp_dir.dir.writeFile(.{ .sub_path = "root.txt", .data = "1" });
-    try tmp_dir.dir.writeFile(.{ .sub_path = "a/level1.txt", .data = "2" });
-    try tmp_dir.dir.writeFile(.{ .sub_path = "a/b/level2.txt", .data = "3" });
-    try tmp_dir.dir.writeFile(.{ .sub_path = "a/b/c/level3.txt", .data = "4" });
+    try ctx.addDirectory("a");
+    try ctx.addDirectory("a/b");
+    try ctx.addDirectory("a/b/c");
+    try ctx.addFile("root.txt", "1");
+    try ctx.addFile("a/level1.txt", "2");
+    try ctx.addFile("a/b/level2.txt", "3");
+    try ctx.addFile("a/b/c/level3.txt", "4");
 
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
-
-    const filesystem = RealFilesystem.init();
-    const expander = test_helpers.createGlobExpander(allocator, filesystem);
+    const expander = test_helpers.createGlobExpander(allocator, ctx.filesystem);
 
     // ** should match everything recursively
-    const pattern = try std.fmt.allocPrint(allocator, "{s}/**", .{tmp_path});
-    defer allocator.free(pattern);
-
+    const pattern = "**";
     var patterns = [_][]const u8{pattern};
     var results = try expander.expandPatternsWithInfo(&patterns);
     defer {
@@ -48,21 +41,15 @@ test "match everything recursively with **" {
 test "trailing slash in pattern" {
     const allocator = std.testing.allocator;
 
-    var tmp_dir = std.testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
 
-    try tmp_dir.dir.writeFile(.{ .sub_path = "test.zig", .data = "const a = 1;" });
+    try ctx.addFile("test.zig", "const a = 1;");
 
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
+    const expander = test_helpers.createGlobExpander(allocator, ctx.filesystem);
 
-    const filesystem = RealFilesystem.init();
-    const expander = test_helpers.createGlobExpander(allocator, filesystem);
-
-    // Pattern with trailing slash
-    const pattern = try std.fmt.allocPrint(allocator, "{s}/", .{tmp_path});
-    defer allocator.free(pattern);
-
+    // Pattern with trailing slash - treat as current directory
+    const pattern = "./";
     var patterns = [_][]const u8{pattern};
     var results = try expander.expandPatternsWithInfo(&patterns);
     defer {
@@ -82,22 +69,16 @@ test "trailing slash in pattern" {
 test "empty alternatives in braces" {
     const allocator = std.testing.allocator;
 
-    var tmp_dir = std.testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
+    var ctx = test_helpers.MockTestContext.init(allocator);
+    defer ctx.deinit();
 
-    try tmp_dir.dir.writeFile(.{ .sub_path = ".zig", .data = "const a = 1;" });
-    try tmp_dir.dir.writeFile(.{ .sub_path = "test.zig", .data = "const b = 2;" });
+    try ctx.addFile(".zig", "const a = 1;");
+    try ctx.addFile("test.zig", "const b = 2;");
 
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const tmp_path = try tmp_dir.dir.realpath(".", &path_buf);
-
-    const filesystem = RealFilesystem.init();
-    const expander = test_helpers.createGlobExpander(allocator, filesystem);
+    const expander = test_helpers.createGlobExpander(allocator, ctx.filesystem);
 
     // Pattern with empty alternative
-    const pattern = try std.fmt.allocPrint(allocator, "{s}/{s}.zig", .{ tmp_path, "{,test}" });
-    defer allocator.free(pattern);
-
+    const pattern = "{,test}.zig";
     var patterns = [_][]const u8{pattern};
     var results = try expander.expandPatternsWithInfo(&patterns);
     defer {
@@ -115,8 +96,10 @@ test "empty alternatives in braces" {
 }
 
 test "unmatched braces" {
-    const filesystem = RealFilesystem.init();
-    const expander = test_helpers.createGlobExpander(std.testing.allocator, filesystem);
+    var ctx = test_helpers.MockTestContext.init(std.testing.allocator);
+    defer ctx.deinit();
+    
+    const expander = test_helpers.createGlobExpander(std.testing.allocator, ctx.filesystem);
 
     // Unmatched opening brace
     try std.testing.expect(!expander.matchPattern("test.zig", "*.{zig"));
@@ -168,8 +151,10 @@ test "star edge cases" {
 }
 
 test "complex glob patterns" {
-    const filesystem = RealFilesystem.init();
-    const expander = test_helpers.createGlobExpander(std.testing.allocator, filesystem);
+    var ctx = test_helpers.MockTestContext.init(std.testing.allocator);
+    defer ctx.deinit();
+    
+    const expander = test_helpers.createGlobExpander(std.testing.allocator, ctx.filesystem);
 
     // Complex alternatives
     try std.testing.expect(expander.matchPattern("main.zig", "{main,test,lib}.{zig,rs,go}"));
@@ -185,8 +170,10 @@ test "complex glob patterns" {
 }
 
 test "nested brace patterns" {
-    const filesystem = RealFilesystem.init();
-    const expander = test_helpers.createGlobExpander(std.testing.allocator, filesystem);
+    var ctx = test_helpers.MockTestContext.init(std.testing.allocator);
+    defer ctx.deinit();
+    
+    const expander = test_helpers.createGlobExpander(std.testing.allocator, ctx.filesystem);
 
     // Test nested braces - simple case
     try std.testing.expect(expander.matchPattern("test.zig", "*.{zig,{md,txt}}"));

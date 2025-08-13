@@ -1,12 +1,29 @@
 const std = @import("std");
 
+/// Show brief help (for -h flag)
+pub fn showBrief(program_name: []const u8) void {
+    std.debug.print("zz - CLI Utilities\n\n", .{});
+    std.debug.print("Usage: {s} <command> [args...]\n\n", .{program_name});
+    std.debug.print("Commands:\n", .{});
+    std.debug.print("  tree [dir] [depth]    Show directory tree\n", .{});
+    std.debug.print("  prompt [files...]     Build LLM prompts from files\n", .{});
+    std.debug.print("  benchmark [options]   Run performance benchmarks\n", .{});
+    std.debug.print("  help                  Show detailed help\n", .{});
+    std.debug.print("\n", .{});
+    std.debug.print("Use '{s} --help' or '{s} help' for detailed information\n", .{program_name, program_name});
+}
+
+/// Show detailed help (for --help flag and help command)
 pub fn show(program_name: []const u8) void {
     std.debug.print("zz - CLI Utilities\n\n", .{});
     std.debug.print("Usage: {s} <command> [args...]\n\n", .{program_name});
     std.debug.print("Commands:\n", .{});
-    std.debug.print("  tree [directory] [max_depth] [--format=FORMAT]\n", .{});
+    std.debug.print("  tree [directory] [max_depth] [options]\n", .{});
     std.debug.print("                                Show directory tree (defaults to current dir)\n", .{});
-    std.debug.print("                                FORMAT: tree (default) or list\n", .{});
+    std.debug.print("                                Options:\n", .{});
+    std.debug.print("                                  --format=FORMAT, -f FORMAT   Output format: tree (default) or list\n", .{});
+    std.debug.print("                                  --show-hidden                 Show hidden files\n", .{});
+    std.debug.print("                                  --no-gitignore                Disable .gitignore parsing\n", .{});
     std.debug.print("  prompt [files...] [options]  Build LLM prompts with intelligent code extraction\n", .{});
     std.debug.print("                                Options:\n", .{});
     std.debug.print("                                  --prepend=TEXT       Add text before files\n", .{});

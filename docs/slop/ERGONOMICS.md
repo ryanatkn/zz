@@ -42,7 +42,7 @@ Error: Invalid glob pattern: *.{zig,
 ```
 ERROR: An error occurred during file system traversal operation
 Error: ENOENT
-Error: ❌ Oopsie! Something went wrong! 😢
+Error: 🞪 Oopsie! Something went wrong! 😢
 Fatal: Unhandled exception in module tree.walker at line 47
 ```
 

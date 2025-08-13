@@ -23,6 +23,8 @@ pub const Runner = struct {
     pub fn run(self: Self, command: Command, args: [][:0]const u8) !void {
         switch (command) {
             .help => {
+                // This case should never be reached as help is handled in main.zig
+                // But we keep it for completeness and backward compatibility
                 Help.show(args[0]);
             },
             .tree => {

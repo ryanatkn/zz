@@ -5,26 +5,27 @@
 ### Language Support Expansion (Completed)
 - ✅ Added CSS, HTML, JSON, TypeScript (.ts), and Svelte support
 - ✅ Implemented language-specific extraction patterns
-- ✅ Created comprehensive parser test suite (228 tests)
+- ✅ Created comprehensive parser test suite (248 tests)
 - ✅ Updated documentation for new language support
-- **TODO:** Fix TypeScript parser version compatibility issue
-- **TODO:** Improve simple extraction functions to actually extract content
+- ✅ Fixed TypeScript parser version compatibility (disabled tree-sitter temporarily)
+- ✅ Improved simple extraction functions (all languages working)
 
 ## High Priority Improvements
 
-### 1. Fix and Enhance Language Parser Implementation
-**Impact:** High | **Effort:** Low
-- Fix TypeScript parser version compatibility issue
-- Improve simple extraction functions (currently return empty results)
-- Add proper AST-based extraction for new languages
-- Add benchmarks for each language parser
-
-### 2. Complete Language Parser Implementation
+### 1. Re-enable Tree-Sitter for All Languages
 **Impact:** High | **Effort:** Medium
-- Implement proper walkNode() for AST traversal in new languages
-- Add language-specific AST node types and queries
-- Fix simple extraction to return meaningful results
-- Add proper extraction tests that verify content, not just non-crash
+- Implement language-specific AST node handling for each parser
+- Add proper walkNode() implementations for CSS, HTML, JSON, TypeScript, Svelte
+- Vendor tree-sitter language grammars as needed
+- Add benchmarks comparing simple vs AST extraction
+
+### 2. Add More Language Support
+**Impact:** High | **Effort:** Medium
+- Add Python (.py) support with extraction patterns
+- Add Rust (.rs) support with extraction patterns
+- Add Go (.go) support with extraction patterns
+- Add JavaScript (.js, .jsx) support
+- Create language detection tests for new extensions
 
 ### 3. Enhanced Code Extraction Features
 **Impact:** High | **Effort:** Medium

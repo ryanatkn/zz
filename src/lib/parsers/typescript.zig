@@ -27,6 +27,7 @@ pub fn extractSimple(source: []const u8, flags: ExtractionFlags, result: *std.Ar
             if (std.mem.startsWith(u8, trimmed, "function ") or
                 std.mem.startsWith(u8, trimmed, "export function ") or
                 std.mem.startsWith(u8, trimmed, "async function ") or
+                std.mem.startsWith(u8, trimmed, "export async function ") or
                 std.mem.startsWith(u8, trimmed, "const ") or
                 std.mem.startsWith(u8, trimmed, "export const ") or
                 std.mem.indexOf(u8, trimmed, " => ") != null) {

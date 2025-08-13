@@ -55,43 +55,43 @@ clear
 
 # Demo 1: Tree visualization of sample files
 demo_step "1. Directory Tree Visualization" \
-    "./zig-out/bin/zz tree demo-samples --no-gitignore"
+    "./zig-out/bin/zz tree examples --no-gitignore"
 
 # Demo 2: List format
 demo_step "2. List Format Output" \
-    "./zig-out/bin/zz tree demo-samples --format=list"
+    "./zig-out/bin/zz tree examples --format=list"
 
 # Demo 3: Show sample TypeScript file
 echo -e "${BOLD}${BLUE}═══ 3. Sample TypeScript File ═══${NC}"
-echo -e "${CYAN}Showing first 15 lines of demo-samples/app.ts:${NC}"
-head -15 demo-samples/app.ts
+echo -e "${CYAN}Showing first 15 lines of examples/app.ts:${NC}"
+head -15 examples/app.ts
 echo -e "${CYAN}...${NC}"
 read -p "Press Enter to parse this file..."
 echo
 
 # Demo 4: Extract TypeScript signatures and types
 demo_step "4. Extract TypeScript Signatures & Types" \
-    "./zig-out/bin/zz prompt demo-samples/app.ts --signatures --types"
+    "./zig-out/bin/zz prompt examples/app.ts --signatures --types"
 
 # Demo 5: Extract CSS selectors and properties
 demo_step "5. Extract CSS Structure" \
-    "./zig-out/bin/zz prompt demo-samples/styles.css --types | head -30"
+    "./zig-out/bin/zz prompt examples/styles.css --types | head -30"
 
 # Demo 6: Extract HTML structure
 demo_step "6. Extract HTML Structure" \
-    "./zig-out/bin/zz prompt demo-samples/index.html --structure | head -30"
+    "./zig-out/bin/zz prompt examples/index.html --structure | head -30"
 
 # Demo 7: Extract Svelte component sections
 demo_step "7. Parse Svelte Component (Multi-Section)" \
-    "./zig-out/bin/zz prompt demo-samples/component.svelte --signatures --types | head -40"
+    "./zig-out/bin/zz prompt examples/component.svelte --signatures --types | head -40"
 
 # Demo 8: JSON structure extraction
 demo_step "8. Extract JSON Structure" \
-    "./zig-out/bin/zz prompt demo-samples/config.json --structure"
+    "./zig-out/bin/zz prompt examples/config.json --structure"
 
 # Demo 9: Glob patterns
 demo_step "9. Use Glob Patterns" \
-    "./zig-out/bin/zz prompt 'demo-samples/*.{ts,css,html}' --signatures | head -40"
+    "./zig-out/bin/zz prompt 'examples/*.{ts,css,html}' --signatures | head -40"
 
 # Demo 10: Performance benchmark
 echo -e "${BOLD}${BLUE}═══ 10. Performance Benchmarks ═══${NC}"

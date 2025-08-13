@@ -1,4 +1,4 @@
-# Demo Sample Files
+# Example Files
 
 This directory contains sample files in various languages to demonstrate zz's parsing capabilities.
 
@@ -19,7 +19,7 @@ From the project root:
 ```
 
 This will:
-1. Show directory tree visualization
+1. Show directory tree visualization of this examples directory
 2. Parse each file type with appropriate extraction flags
 3. Demonstrate glob pattern matching
 4. Display performance benchmarks
@@ -28,14 +28,14 @@ This will:
 
 ```bash
 # Extract TypeScript interfaces and functions
-zz prompt demo-samples/app.ts --signatures --types
+zz prompt examples/app.ts --signatures --types
 
 # Extract CSS variables and selectors
-zz prompt demo-samples/styles.css --types
+zz prompt examples/styles.css --types
 
 # Extract HTML structure
-zz prompt demo-samples/index.html --structure
+zz prompt examples/index.html --structure
 
 # Parse all files with glob patterns
-zz prompt 'demo-samples/*.{ts,css,html}' --signatures
+zz prompt 'examples/*.{ts,css,html}' --signatures
 ```

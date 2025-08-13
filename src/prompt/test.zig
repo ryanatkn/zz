@@ -37,8 +37,7 @@ test {
     std.testing.refAllDecls(@import("test/nested_braces_integration_test.zig"));
     std.testing.refAllDecls(@import("test/explicit_ignore_test.zig"));
     std.testing.refAllDecls(@import("test/directory_support_test.zig"));
-    // TODO: Fix module path issue with extraction_test.zig
-    // std.testing.refAllDecls(@import("test/extraction_test.zig"));
+    // Extraction tests are now in lib/test/extraction_test.zig
 }
 
 // Basic functionality tests

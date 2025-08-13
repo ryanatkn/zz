@@ -660,3 +660,16 @@ Core documentation is organized in `docs/archive/` for additional reference:
 - [docs/archive/TROUBLESHOOTING.md](docs/archive/TROUBLESHOOTING.md) - Common issues and solutions
 
 **Note:** The `docs/archive/` directory is excluded from `zz tree` output via `zz.zon` configuration to keep tree views clean.
+
+## Notes for Contributors
+
+When selecting tasks:
+1. Start with high impact, low effort items
+2. Ensure backward compatibility
+3. Add tests for all new features
+4. Update documentation immediately
+5. Benchmark performance impacts
+6. Consider POSIX compatibility
+7. Keep the Unix philosophy in mind
+
+Remember: Performance is a feature, every cycle counts.

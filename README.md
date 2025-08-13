@@ -266,15 +266,6 @@ The demo showcases:
 - POSIX-compliant OS (Linux, macOS, BSD)  
 - Not supported: Windows
 
-## Performance Highlights
-
-Benchmarks show significant performance improvements over standard library:
-- **Path operations**: ~47μs per operation (20-30% faster than stdlib)
-- **String pooling**: ~145ns per operation (95-100% cache efficiency)
-- **Pattern matching**: ~25ns per operation (75% fast-path hit ratio)
-- **Code extraction**: ~92μs per extraction (multiple language support)
-- **Memory usage**: 15-25% reduction through string interning
-
 Run `zz benchmark --format=pretty` to see live performance metrics in your terminal.
 
 ## Technical Documentation

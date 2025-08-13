@@ -3,6 +3,7 @@ const ExtractionFlags = @import("../parser.zig").ExtractionFlags;
 const AstNode = @import("../ast.zig").AstNode;
 const NodeVisitor = @import("../ast.zig").NodeVisitor;
 const VisitResult = @import("../ast.zig").VisitResult;
+const AstWalker = @import("../ast_walker.zig").AstWalker;
 
 pub fn extractSimple(source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
     var lines = std.mem.tokenizeScalar(u8, source, '\n');
@@ -43,18 +44,15 @@ pub fn extractSimple(source: []const u8, flags: ExtractionFlags, result: *std.Ar
     }
 }
 
-/// AST-based extraction using tree-sitter (when available)
+/// AST-based extraction using shared AST walker
 pub fn walkNode(allocator: std.mem.Allocator, root: *const AstNode, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
-    var extraction_context = ExtractionContext{
-        .allocator = allocator,
-        .result = result,
-        .flags = flags,
-        .source = source,
-    };
-    
-    // HTML-specific extraction using visitor pattern
-    var visitor = NodeVisitor.init(allocator, htmlExtractionVisitor, &extraction_context);
-    try visitor.traverse(root, source);
+    try AstWalker.walkNodeWithVisitor(allocator, root, source, flags, result, htmlExtractionVisitorNew);
+}
+
+/// HTML-specific visitor function adapted for the shared AST walker
+fn htmlExtractionVisitorNew(context: *AstWalker.WalkContext, node: *const AstNode) !void {
+    // HTML-specific extraction logic using generic visitor
+    try AstWalker.GenericVisitor.visitNode(context, node);
 }
 
 const ExtractionContext = struct {

@@ -2,6 +2,9 @@ const std = @import("std");
 const filesystem_utils = @import("filesystem.zig");
 const AstCache = @import("cache.zig").AstCache;
 const AstCacheKey = @import("cache.zig").AstCacheKey;
+const file_helpers = @import("file_helpers.zig");
+const error_helpers = @import("error_helpers.zig");
+const collection_helpers = @import("collection_helpers.zig");
 
 /// File state for incremental processing
 pub const FileState = struct {
@@ -131,28 +134,17 @@ pub const FileChange = struct {
     new_state: ?FileState,
 };
 
-/// Fast file hashing using xxHash
+/// Fast file hashing using xxHash - now using shared file helpers
 pub fn hashFile(allocator: std.mem.Allocator, file_path: []const u8) !u64 {
-    const file = std.fs.cwd().openFile(file_path, .{}) catch |err| switch (err) {
-        error.FileNotFound => return 0,
-        else => return err,
-    };
-    defer file.close();
-
-    const content = try file.readToEndAlloc(allocator, 16 * 1024 * 1024); // 16MB max
-    defer allocator.free(content);
-
-    return std.hash.XxHash64.hash(0, content);
+    return file_helpers.FileHelpers.hashFile(allocator, file_path);
 }
 
-/// Get file modification time in nanoseconds since epoch
+/// Get file modification time in nanoseconds since epoch - using shared file helpers
 pub fn getFileModTime(file_path: []const u8) !i64 {
-    const stat = std.fs.cwd().statFile(file_path) catch |err| switch (err) {
-        error.FileNotFound => return 0,
-        else => return err,
-    };
-    
-    return @as(i64, @intCast(stat.mtime));
+    if (try file_helpers.FileHelpers.getModTime(file_path)) |mtime| {
+        return mtime * std.time.ns_per_s; // Convert to nanoseconds
+    }
+    return 0;
 }
 
 /// Get file size
@@ -175,11 +167,17 @@ pub const ChangeDetector = struct {
         };
     }
 
-    /// Detect changes between old and new file states
+    /// Detect changes between old and new file states - using improved error handling
     pub fn detectFileChange(self: *ChangeDetector, file_path: []const u8, old_state: ?FileState) !FileChange {
-        // Check if file still exists
-        const new_mtime = getFileModTime(file_path) catch |err| switch (err) {
-            error.FileNotFound => {
+        // Check if file still exists using enhanced error handling
+        const mtime_result = error_helpers.ErrorHelpers.safeFileOperation(
+            i64, 
+            getFileModTime(file_path)
+        );
+        
+        const new_mtime = switch (mtime_result) {
+            .success => |mtime| mtime,
+            .not_found => {
                 return FileChange{
                     .path = file_path,
                     .change_type = if (old_state != null) .deleted else .unchanged,
@@ -187,7 +185,16 @@ pub const ChangeDetector = struct {
                     .new_state = null,
                 };
             },
-            else => return err,
+            .access_denied => {
+                error_helpers.ErrorHelpers.handleFsError(error.AccessDenied, "detecting file change", file_path);
+                return FileChange{
+                    .path = file_path,
+                    .change_type = .unchanged, // Can't determine, assume unchanged
+                    .old_state = old_state,
+                    .new_state = old_state,
+                };
+            },
+            .other_error => |err| return err,
         };
 
         // If we have no old state, this is a new file
@@ -399,7 +406,7 @@ pub const FileTracker = struct {
     pub fn cascadeInvalidation(self: *FileTracker, changed_file: []const u8) !void {
         if (self.ast_cache == null) return;
         
-        var dependents = std.ArrayList([]const u8).init(self.allocator);
+        var dependents = collection_helpers.CollectionHelpers.ManagedArrayList([]const u8).init(self.allocator);
         defer dependents.deinit();
         
         // Get all files that depend on the changed file
@@ -438,14 +445,11 @@ pub const IncrementalState = struct {
     
     /// Save state to file
     pub fn saveToFile(self: *IncrementalState, allocator: std.mem.Allocator, file_path: []const u8) !void {
-        // Create .zz directory if it doesn't exist
-        std.fs.cwd().makeDir(".zz") catch |err| switch (err) {
-            error.PathAlreadyExists => {},
-            else => return err,
-        };
+        // Create .zz directory if it doesn't exist - using shared file helpers
+        try file_helpers.FileHelpers.ensureDir(".zz");
         
         // Serialize state to JSON
-        var json_data = std.ArrayList(u8).init(allocator);
+        var json_data = collection_helpers.CollectionHelpers.ManagedArrayList(u8).init(allocator);
         defer json_data.deinit();
         
         try self.writeJson(&json_data);
@@ -463,21 +467,21 @@ pub const IncrementalState = struct {
         try std.fs.cwd().rename(temp_path, file_path);
     }
     
-    /// Load state from file
+    /// Load state from file - using shared file helpers
     pub fn loadFromFile(allocator: std.mem.Allocator, file_path: []const u8) !IncrementalState {
-        const file = std.fs.cwd().openFile(file_path, .{}) catch |err| switch (err) {
-            error.FileNotFound => {
-                // Return empty state if file doesn't exist
-                return IncrementalState.init(allocator);
-            },
-            else => return err,
+        const reader = file_helpers.FileHelpers.SafeFileReader.init(allocator);
+        const content = reader.readToStringOptional(file_path, 16 * 1024 * 1024) catch |err| {
+            error_helpers.ErrorHelpers.handleFsError(err, "loading incremental state", file_path);
+            return err;
         };
-        defer file.close();
         
-        const content = try file.readToEndAlloc(allocator, 16 * 1024 * 1024); // 16MB max
-        defer allocator.free(content);
-        
-        return try parseJson(allocator, content);
+        if (content) |file_content| {
+            defer allocator.free(file_content);
+            return try parseJson(allocator, file_content);
+        } else {
+            // File doesn't exist, return empty state
+            return IncrementalState.init(allocator);
+        }
     }
     
     /// Write state as JSON

@@ -1,5 +1,8 @@
 const std = @import("std");
-const ts = @import("tree-sitter");
+// Conditional tree-sitter import for when module is available
+const ts = if (@import("builtin").is_test) 
+    struct { const Parser = ?*anyopaque; } 
+    else @import("tree-sitter");
 
 /// Reference to a cached AST node
 pub const AstCacheKey = struct {

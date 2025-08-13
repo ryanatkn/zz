@@ -5,10 +5,146 @@ const RealFilesystem = @import("filesystem.zig").RealFilesystem;
 const FilesystemInterface = @import("filesystem.zig").FilesystemInterface;
 const SharedConfig = @import("config.zig").SharedConfig;
 const GlobExpander = @import("prompt/glob.zig").GlobExpander;
+const collection_helpers = @import("lib/collection_helpers.zig");
+const error_helpers = @import("lib/error_helpers.zig");
+const file_helpers = @import("lib/file_helpers.zig");
 
 // ============================================================================
 // Core Test Context Types - The Essential Test Infrastructure
 // ============================================================================
+
+/// Test scope management for automatic setup and teardown
+/// Usage: try testScope(testing.allocator, testFunction);
+pub fn testScope(
+    allocator: std.mem.Allocator,
+    comptime testFn: anytype
+) !void {
+    const TestArgs = @TypeOf(testFn);
+    const args_info = @typeInfo(TestArgs).Fn;
+    
+    if (args_info.params.len == 1) {
+        // Function expects MockTestContext
+        var ctx = MockTestContext.init(allocator);
+        defer ctx.deinit();
+        try testFn(ctx);
+    } else if (args_info.params.len == 2) {
+        // Function expects allocator and context
+        var ctx = MockTestContext.init(allocator);
+        defer ctx.deinit();
+        try testFn(allocator, ctx);
+    } else {
+        @compileError("testScope expects function with 1 or 2 parameters");
+    }
+}
+
+/// Fluent test context builder
+pub const TestContextBuilder = struct {
+    allocator: std.mem.Allocator,
+    use_mock_fs: bool = true,
+    files: collection_helpers.CollectionHelpers.StringListBuilder,
+    dirs: collection_helpers.CollectionHelpers.StringListBuilder,
+    
+    pub fn init(allocator: std.mem.Allocator) TestContextBuilder {
+        return .{
+            .allocator = allocator,
+            .files = collection_helpers.CollectionHelpers.StringListBuilder.init(allocator),
+            .dirs = collection_helpers.CollectionHelpers.StringListBuilder.init(allocator),
+        };
+    }
+    
+    pub fn withFile(self: *TestContextBuilder, path: []const u8, content: []const u8) *TestContextBuilder {
+        _ = self.files.addFmt("{s}:{s}", .{ path, content }) catch unreachable;
+        return self;
+    }
+    
+    pub fn withDir(self: *TestContextBuilder, path: []const u8) *TestContextBuilder {
+        _ = self.dirs.addDupe(path) catch unreachable;
+        return self;
+    }
+    
+    pub fn withRealFS(self: *TestContextBuilder) *TestContextBuilder {
+        var builder = self.*;
+        builder.use_mock_fs = false;
+        return &builder;
+    }
+    
+    pub fn build(self: *TestContextBuilder) !TestContext {
+        if (self.use_mock_fs) {
+            var ctx = MockTestContext.init(self.allocator);
+            
+            // Add directories first
+            for (self.dirs.builder.list.items()) |dir| {
+                try ctx.addDirectory(dir);
+            }
+            
+            // Add files
+            for (self.files.builder.list.items()) |file_spec| {
+                const colon_pos = std.mem.indexOf(u8, file_spec, ":") orelse continue;
+                const path = file_spec[0..colon_pos];
+                const content = file_spec[colon_pos + 1..];
+                try ctx.addFile(path, content);
+            }
+            
+            return TestContext{ .mock = ctx };
+        } else {
+            var ctx = try TmpDirTestContext.init(self.allocator);
+            
+            // Add directories first
+            for (self.dirs.builder.list.items()) |dir| {
+                try ctx.makeDir(dir);
+            }
+            
+            // Add files
+            for (self.files.builder.list.items()) |file_spec| {
+                const colon_pos = std.mem.indexOf(u8, file_spec, ":") orelse continue;
+                const path = file_spec[0..colon_pos];
+                const content = file_spec[colon_pos + 1..];
+                try ctx.writeFile(path, content);
+            }
+            
+            return TestContext{ .tmp = ctx };
+        }
+    }
+    
+    pub fn deinit(self: *TestContextBuilder) void {
+        self.files.deinit();
+        self.dirs.deinit();
+    }
+};
+
+/// Union context for either mock or real filesystem tests
+pub const TestContext = union(enum) {
+    mock: MockTestContext,
+    tmp: TmpDirTestContext,
+    
+    pub fn deinit(self: *TestContext) void {
+        switch (self.*) {
+            .mock => |*ctx| ctx.deinit(),
+            .tmp => |*ctx| ctx.deinit(),
+        }
+    }
+    
+    pub fn filesystem(self: *const TestContext) FilesystemInterface {
+        return switch (self.*) {
+            .mock => |*ctx| ctx.filesystem,
+            .tmp => |*ctx| ctx.filesystem,
+        };
+    }
+};
+
+/// Fluent helper for MockTestContext creation
+pub fn withMockFS(allocator: std.mem.Allocator) TestContextBuilder {
+    var builder = TestContextBuilder.init(allocator);
+    builder.use_mock_fs = true;
+    return builder;
+}
+
+/// Fluent helper for TmpDirTestContext creation
+pub fn withTmpDir(allocator: std.mem.Allocator) TestContextBuilder {
+    var builder = TestContextBuilder.init(allocator);
+    builder.use_mock_fs = false;
+    return builder;
+}
 
 /// Test context with mock filesystem and automatic cleanup
 /// Usage: var ctx = test_helpers.MockTestContext.init(testing.allocator); defer ctx.deinit();
@@ -273,5 +409,127 @@ pub const TestRunner = struct {
         } else {
             std.debug.print("  ✓ Completed: {s} ({d:.2}ms)\n", .{ operation_name, duration_ms });
         }
+    }
+};
+
+// ============================================================================
+// Enhanced Assertion Helpers - Better Error Messages and Context
+// ============================================================================
+
+/// Enhanced assertion helpers with better error messages and context
+pub const Assertions = struct {
+    
+    /// Assert string contains substring with context
+    pub fn expectStringContains(actual: []const u8, expected_substring: []const u8) !void {
+        if (std.mem.indexOf(u8, actual, expected_substring) == null) {
+            std.debug.print("\n❌ String does not contain expected substring\n");
+            std.debug.print("Expected to find: '{s}'\n", .{expected_substring});
+            std.debug.print("Actual string: '{s}'\n", .{actual});
+            return testing.expectError("String does not contain expected substring");
+        }
+    }
+    
+    /// Assert string does not contain substring
+    pub fn expectStringNotContains(actual: []const u8, unexpected_substring: []const u8) !void {
+        if (std.mem.indexOf(u8, actual, unexpected_substring) != null) {
+            std.debug.print("\n❌ String contains unexpected substring\n");
+            std.debug.print("Should not contain: '{s}'\n", .{unexpected_substring});
+            std.debug.print("Actual string: '{s}'\n", .{actual});
+            return testing.expectError("String contains unexpected substring");
+        }
+    }
+    
+    /// Assert slice contains item with better error reporting
+    pub fn expectSliceContains(comptime T: type, slice: []const T, item: T) !void {
+        if (std.mem.indexOfScalar(T, slice, item) == null) {
+            std.debug.print("\n❌ Slice does not contain expected item\n");
+            std.debug.print("Looking for: {any}\n", .{item});
+            std.debug.print("Slice contents: {any}\n", .{slice});
+            return testing.expectError("Slice does not contain expected item");
+        }
+    }
+    
+    /// Assert approximate equality for floating point numbers
+    pub fn expectApproxEqual(actual: f64, expected: f64, tolerance: f64) !void {
+        const diff = @abs(actual - expected);
+        if (diff > tolerance) {
+            std.debug.print("\n❌ Values not approximately equal\n");
+            std.debug.print("Actual: {d}\n", .{actual});
+            std.debug.print("Expected: {d}\n", .{expected});
+            std.debug.print("Difference: {d} (tolerance: {d})\n", .{diff, tolerance});
+            return testing.expectError("Values not approximately equal");
+        }
+    }
+    
+    /// Assert file exists and is readable
+    pub fn expectFileExists(file_path: []const u8) !void {
+        std.fs.cwd().access(file_path, .{}) catch |err| switch (err) {
+            error.FileNotFound => {
+                std.debug.print("\n❌ File does not exist: {s}\n", .{file_path});
+                return testing.expectError("File does not exist");
+            },
+            error.AccessDenied => {
+                std.debug.print("\n❌ File access denied: {s}\n", .{file_path});
+                return testing.expectError("File access denied");
+            },
+            else => return err,
+        };
+    }
+    
+    /// Assert file contains expected content
+    pub fn expectFileContains(allocator: std.mem.Allocator, file_path: []const u8, expected_content: []const u8) !void {
+        const content = std.fs.cwd().readFileAlloc(allocator, file_path, 1024 * 1024) catch |err| {
+            std.debug.print("\n❌ Could not read file: {s} - {}\n", .{file_path, err});
+            return err;
+        };
+        defer allocator.free(content);
+        
+        try expectStringContains(content, expected_content);
+    }
+    
+    /// Assert collection has expected length
+    pub fn expectLength(comptime T: type, collection: []const T, expected_length: usize) !void {
+        if (collection.len != expected_length) {
+            std.debug.print("\n❌ Collection length mismatch\n");
+            std.debug.print("Expected length: {d}\n", .{expected_length});
+            std.debug.print("Actual length: {d}\n", .{collection.len});
+            if (collection.len < 20) { // Don't print huge collections
+                std.debug.print("Collection contents: {any}\n", .{collection});
+            }
+            return testing.expectError("Collection length mismatch");
+        }
+    }
+};
+
+/// Builder for creating test file structures
+pub const FileStructureBuilder = struct {
+    allocator: std.mem.Allocator,
+    files: collection_helpers.CollectionHelpers.StringListBuilder,
+    
+    pub fn init(allocator: std.mem.Allocator) FileStructureBuilder {
+        return .{
+            .allocator = allocator,
+            .files = collection_helpers.CollectionHelpers.StringListBuilder.init(allocator),
+        };
+    }
+    
+    pub fn addZigFile(self: *FileStructureBuilder, path: []const u8, functions: []const []const u8) !*FileStructureBuilder {
+        var content = collection_helpers.CollectionHelpers.ManagedArrayList(u8).init(self.allocator);
+        defer content.deinit();
+        
+        try content.appendSlice("const std = @import(\"std\");\n\n");
+        for (functions) |func| {
+            try content.appendSlice("pub fn ");
+            try content.appendSlice(func);
+            try content.appendSlice("() void {}\n\n");
+        }
+        
+        _ = try self.files.addDupe(path);
+        _ = try self.files.addDupe(content.items());
+        return self;
+    }
+    
+    pub fn deinit(self: *FileStructureBuilder) void {
+        self.files.deinit();
     }
 };

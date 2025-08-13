@@ -17,6 +17,12 @@ Performance-critical utilities achieving 20-30% speedup through POSIX-specific o
 | `cache.zig` | LRU caching system | ~95% cache efficiency |
 | `incremental.zig` | Change detection & state | ~2-5ms change detection |
 | `parallel.zig` | Worker pools & scheduling | Linear CPU scaling |
+| `file_helpers.zig` | Consolidated file operations | Eliminated 15+ patterns |
+| `error_helpers.zig` | Standardized error handling | Eliminated 20+ switch statements |
+| `collection_helpers.zig` | Memory-managed collections | Eliminated 30+ ArrayList patterns |
+| `ast_walker.zig` | Unified AST traversal | Consolidated 5+ walkNode implementations |
+| `code_analysis.zig` | Advanced code analysis | Call graphs & dependency analysis |
+| `semantic_analysis.zig` | Intelligent code summarization | LLM context optimization |
 
 ## path.zig - POSIX Optimizations
 
@@ -407,14 +413,124 @@ src/lib/test/
 
 The parser module represents a significant advancement in zz's code analysis capabilities, providing a foundation for intelligent code extraction that will greatly enhance LLM prompt generation quality and efficiency.
 
+## file_helpers.zig - Consolidated File Operations
+
+**DRY Achievement:** Eliminated 15+ duplicate file reading patterns across the codebase.
+
+**Core Components:**
+```zig
+SafeFileReader     // RAII file reading with automatic cleanup
+hashFile()         // xxHash-based file content hashing  
+getModTime()       // Cross-platform modification time
+ensureDir()        // Directory creation with parent support
+```
+
+**Features:**
+- **RAII Pattern:** Automatic file handle cleanup with defer
+- **Optional vs Required:** Clear distinction between optional and error-on-missing
+- **Standardized Errors:** Consistent error handling across all file operations
+- **Buffer Management:** Reusable buffers with size limits
+- **Performance:** Direct syscalls where possible, avoiding allocations
+
+## error_helpers.zig - Standardized Error Handling
+
+**DRY Achievement:** Eliminated 20+ switch statement patterns for error classification.
+
+**Core Components:**
+```zig
+Result(T)              // Unified success/error return types
+safeFileOperation()    // Common error handling wrapper
+gracefulOpenFile()     // Consistent file access with error classification
+```
+
+**Error Categories:**
+- **Safe to ignore:** FileNotFound, AccessDenied, NotDir
+- **Must propagate:** OutOfMemory, SystemResources  
+- **Config-specific:** Missing config files use defaults
+
+## collection_helpers.zig - Memory-Managed Collections  
+
+**DRY Achievement:** Eliminated 30+ ArrayList initialization patterns with unified memory management.
+
+**Core Components:**
+```zig
+ManagedArrayList(T)    // RAII ArrayList with automatic cleanup
+ArrayListBuilder(T)    // Fluent builder pattern for collections
+ScopedAllocation(T)    // Automatic memory management for slices
+StringListBuilder      // Specialized string collection handling
+```
+
+**Features:**
+- **RAII Cleanup:** Automatic memory management with defer patterns
+- **Fluent Interface:** Builder pattern for readable collection construction
+- **Capacity Retention:** Smart capacity management for performance
+- **Helper Operations:** deduplicate(), filter(), map(), joinStrings()
+- **Safe Popping:** popSafe() returns optional instead of panicking
+
+## ast_walker.zig - Unified AST Traversal
+
+**DRY Achievement:** Consolidated 5+ identical walkNode implementations into shared infrastructure.
+
+**Core Components:**
+```zig
+WalkContext        // Shared context for all AST operations
+BaseWalker         // Common traversal logic for all parsers
+GenericVisitor     // Language-agnostic node processing
+shouldExtract()    // Unified flag-based node filtering
+```
+
+**Features:**
+- **Unified Interface:** All parsers use the same walkNode signature
+- **Flag-Based Extraction:** Consistent shouldExtract() logic for all languages
+- **Visitor Pattern:** Extensible node processing with visitor functions
+- **Context Sharing:** Reduce parameter passing with shared WalkContext
+- **Language Agnostic:** Generic patterns work across all supported languages
+
+## code_analysis.zig - Advanced Code Analysis
+
+**Features:** Call graph generation, dependency analysis, and code metrics for intelligent LLM context.
+
+**Core Components:**
+```zig
+CallGraphBuilder       // Generate function dependency graphs
+DependencyAnalyzer     // Track import/module relationships  
+MetricsCalculator      // Code complexity analysis
+```
+
+**Capabilities:**
+- **Function Dependencies:** Build call graphs showing function relationships
+- **Module Dependencies:** Track import/export relationships across files
+- **Complexity Metrics:** Cyclomatic complexity, depth analysis, code size
+- **LLM Optimization:** Identify most relevant code for prompts
+
+## semantic_analysis.zig - Intelligent Code Summarization
+
+**Features:** File relevance scoring and intelligent code summarization for optimal LLM context selection.
+
+**Core Components:**
+```zig
+FileRelevance      // Scoring system for LLM context selection
+CodeSummarizer     // Extract key code insights
+ContextSelector    // Choose relevant files for prompts
+```
+
+**Capabilities:**
+- **Relevance Scoring:** Rank files by importance for LLM context
+- **Smart Summarization:** Extract key insights from code structure
+- **Context Selection:** Choose optimal files within token limits
+- **Cross-Reference:** Track relationships between code elements
+
 ## Cross-Module Integration
 
-- **Shared patterns:** Error handling used across all modules
-- **Path utilities:** Replace stdlib for performance
-- **Traversal:** Supports both tree and prompt
-- **Memory management:** Reduces allocation pressure  
-- **Performance validation:** Measures optimization effectiveness
-- **Code extraction:** Parser integrates with prompt for intelligent content generation
+- **DRY Helper Modules:** Eliminated ~500 lines of duplicate code through 6 shared modules
+- **Shared patterns:** Error handling used across all modules via error_helpers.zig
+- **Path utilities:** Replace stdlib for performance with path.zig optimizations
+- **Traversal:** Supports both tree and prompt with unified traversal.zig
+- **Memory management:** Reduces allocation pressure via collection_helpers.zig
+- **Performance validation:** Measures optimization effectiveness through benchmark.zig
+- **Code extraction:** Parser integrates with prompt via ast_walker.zig for intelligent content generation
+- **File operations:** Consistent file I/O patterns through file_helpers.zig
+- **Advanced analysis:** Code analysis and semantic analysis provide LLM optimization
 
 ## Architectural Decisions
 

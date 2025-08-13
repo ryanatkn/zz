@@ -4,6 +4,8 @@ High-performance command-line utilities written in Zig for POSIX systems. Featur
 
 **Platform Support:** Linux, macOS, BSD, and other POSIX-compliant systems. Windows is not supported.
 
+**Language Support:** Zig, CSS, HTML, JSON, TypeScript (.ts), and Svelte with tree-sitter AST parsing.
+
 **Architecture:** Clean modular design with filesystem abstraction, unified pattern matching, tree-sitter AST integration, and aggressive performance optimizations. See [docs/slop/ARCHITECTURE.md](./docs/slop/ARCHITECTURE.md) for system design details.
 
 ## Requirements
@@ -61,16 +63,24 @@ zz prompt "src/**/*.zig"       # Generate LLM prompt
 
 ### Prompt Generation
 - **AST-based code extraction** using tree-sitter for precise, language-aware parsing
-- **Extraction modes** with real syntax tree traversal (Zig language supported):
+- **Multi-language support** with specialized extraction patterns:
+  - **Zig**: Functions, structs, tests, documentation via AST
+  - **CSS**: Selectors, properties, variables, media queries
+  - **HTML**: Elements, attributes, semantic structure
+  - **JSON**: Structure validation, key extraction
+  - **TypeScript**: Functions, interfaces, types, imports (.ts files)
+  - **Svelte**: Components with script/style/template sections
+- **Extraction modes** with real syntax tree traversal:
   - `--signatures`: Function/method signatures via AST nodes
   - `--types`: Type definitions (structs, enums, unions) via AST
   - `--docs`: Documentation comments via AST parsing
-  - `--imports`: Import statements (text-based fallback)
-  - `--errors`: Error handling code (text-based fallback)
+  - `--imports`: Import statements
+  - `--errors`: Error handling code
   - `--tests`: Test blocks via AST nodes
+  - `--structure`: Structural elements (HTML/JSON)
   - `--full`: Complete source (default)
 - **Combine flags** for custom extraction: `zz prompt src/ --signatures --types`
-- **Graceful fallback** to text-based extraction for unsupported languages
+- **Graceful fallback** to text-based extraction on parse errors
 - Directory support: `zz prompt src/` processes all files recursively
 - Advanced glob pattern support with 40-60% fast-path optimization
 - Smart code fence detection (handles nested backticks)

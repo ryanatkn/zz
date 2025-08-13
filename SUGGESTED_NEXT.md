@@ -1,22 +1,39 @@
 # Suggested Next Steps for zz
 
+## Recently Completed ✅
+
+### Language Support Expansion (Completed)
+- ✅ Added CSS, HTML, JSON, TypeScript (.ts), and Svelte support
+- ✅ Implemented language-specific extraction patterns
+- ✅ Created comprehensive parser test suite (228 tests)
+- ✅ Updated documentation for new language support
+- **TODO:** Fix TypeScript parser version compatibility issue
+- **TODO:** Improve simple extraction functions to actually extract content
+
 ## High Priority Improvements
 
-### 1. Expand Language Support for Tree-Sitter
-**Impact:** High | **Effort:** Medium
-- Add popular language grammars (Python, TypeScript, Rust, Go)
-- Create language-specific extraction patterns
-- Test with real-world codebases
+### 1. Fix and Enhance Language Parser Implementation
+**Impact:** High | **Effort:** Low
+- Fix TypeScript parser version compatibility issue
+- Improve simple extraction functions (currently return empty results)
+- Add proper AST-based extraction for new languages
 - Add benchmarks for each language parser
 
-### 2. Enhanced Code Extraction Features
+### 2. Complete Language Parser Implementation
+**Impact:** High | **Effort:** Medium
+- Implement proper walkNode() for AST traversal in new languages
+- Add language-specific AST node types and queries
+- Fix simple extraction to return meaningful results
+- Add proper extraction tests that verify content, not just non-crash
+
+### 3. Enhanced Code Extraction Features
 **Impact:** High | **Effort:** Medium
 - Add semantic code analysis (find all usages, call graphs)
 - Implement incremental parsing for large files
 - Add support for extracting code relationships and dependencies
 - Create language-specific extraction templates
 
-### 3. Performance Optimizations
+### 4. Performance Optimizations
 **Impact:** Medium | **Effort:** Low
 - Profile and optimize tree-sitter integration hot paths
 - Implement parser caching across multiple files

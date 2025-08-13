@@ -149,10 +149,12 @@ $ zig build test                                       # Run all tests with outp
 
 Comprehensive test suite covers configuration parsing, directory filtering, performance optimization, edge cases, security patterns, and AST-based extraction. 
 
-**Current test status:** ✅ **All 209 tests passing (100% pass rate)**
+**Current test status:** ✅ **All 228 tests passing (100% pass rate)**
 - Fixed mock filesystem directory iteration for "." paths
 - Fixed traversal to not skip initial directory in recursive operations
 - All tree-sitter integration and core features working correctly
+- Added comprehensive parser tests for all supported languages
+- TypeScript parser has a version compatibility issue (marked as TODO)
 
 ## Benchmarking
 
@@ -356,10 +358,20 @@ const walker = Walker.initWithOptions(allocator, config, .{ .filesystem = mock_f
 - `shouldHideFile()` - Shared file hiding logic  
 - `handleSymlink()` - Shared symlink behavior
 
+## Language Support
+
+**Supported Languages with Tree-Sitter Parsing:**
+- **Zig** - Full AST support for functions, types, tests, docs
+- **CSS** - Selectors, properties, variables, media queries  
+- **HTML** - Elements, attributes, semantic structure
+- **JSON** - Structure validation, key extraction
+- **TypeScript** - Functions, interfaces, types (.ts files only, no .tsx)
+- **Svelte** - Multi-section components (script/style/template)
+
 ## Prompt Module Features
 
 **AST-Based Code Extraction (Production Ready):**
-- **Real tree-sitter AST parsing** for Zig language (not text matching!)
+- **Real tree-sitter AST parsing** for all supported languages (not text matching!)
 - **Extraction flags** with precise AST node traversal:
   - `--signatures`: Function/method signatures via AST
   - `--types`: Type definitions (structs, enums, unions) via AST

@@ -1,5 +1,4 @@
 const std = @import("std");
-const filesystem_utils = @import("filesystem.zig");
 const AstCache = @import("cache.zig").AstCache;
 const AstCacheKey = @import("cache.zig").AstCacheKey;
 const file_helpers = @import("file_helpers.zig");

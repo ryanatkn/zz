@@ -12,7 +12,7 @@
   - Glob patterns: 2x (pattern matching variability)
 
 ### Recent Changes
-- **2024-01-12**: Updated docs/slop philosophy docs
+- **2024-01-12**: Updated docs/archive philosophy docs
   - Removed marketing language and emoji
   - Added TASTE.md, ANTIPATTERNS.md, ERGONOMICS.md, CONSTRAINTS.md, SIGNALS.md
   - Aligned with "old-school C discipline + modern pragmatism" philosophy

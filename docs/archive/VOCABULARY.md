@@ -1,5 +1,7 @@
 # Natural Language Programming Vocabulary
 
+> **Archived:** Historical design document. The `zz gather` concept was superseded by `zz prompt` extraction flags.
+
 ## Executive Summary
 
 This vocabulary defines terms that facilitate efficient communication between humans and AI in natural language programming environments. These terms are designed to convey complex intentions with minimal cognitive overhead, supporting the development of `zz` and related CLI tools.

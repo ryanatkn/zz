@@ -1,5 +1,7 @@
 # zz Ecosystem: Tool Integration and Extensions
 
+> **Archived:** Historical strategy document. References to `zz gather` represent concepts that evolved into `zz prompt` functionality.
+
 ## Overview
 
 The `zz` ecosystem is designed around the philosophy of **small, composable, secure tools** that excel in natural language programming environments. Each tool in the ecosystem follows POSIX-first design principles with Claude Code integration as a primary use case.

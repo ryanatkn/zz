@@ -45,9 +45,7 @@ Every command is designed for safe AI access:
                 "rg:*",
                 "zz:tree",
                 "zz:prompt:*",
-                "zz:benchmark:--format=*",
-                "zz:gather:*",
-                "zz:analyze:security"
+                "zz:benchmark:--format=*"
             ],
             "blockedCommands": [
                 "zz:*:--unsafe",
@@ -80,14 +78,16 @@ zz tree --format=list | head -20         # Flat list for processing
 zz prompt "src/**/*.zig" --prepend="This project structure:"
 ```
 
-#### Pattern Discovery and Analysis  
+#### Language-Aware Code Analysis  
 ```bash
-# Find specific patterns across codebase
-zz gather "error handling" --context=patterns --format=markdown
-zz gather "TODO|FIXME|XXX" --context=issues --scope=src/
+# Extract function signatures and types for analysis
+zz prompt "src/**/*.zig" --signatures --types --prepend="API Analysis:"
 
-# Analyze dependencies and relationships
-zz gather imports --context=dependencies --depth=3 --format=json
+# Get structured code overview 
+zz prompt "src/**/*.{zig,h}" --structure --imports --prepend="Architecture Overview:"
+
+# Extract documentation and comments
+zz prompt "src/**/*.zig" --docs --prepend="Documentation Review:"
 ```
 
 #### Performance Investigation
@@ -106,26 +106,26 @@ zz benchmark --baseline=benchmarks/baseline.md --format=markdown
 # Generate comprehensive context for LLM
 zz prompt "src/**/*.zig" \
     --prepend="# Zig Codebase Analysis" \
-    --append="Please analyze this codebase for:"
+    --append="<Instructions>Please analyze this codebase for:</Instructions>"
 
 # Focused analysis on specific components
 zz prompt "src/tree/**/*.zig" \
     --prepend="# Tree Module Analysis" \
-    --append="Focus on performance optimizations"
+    --append="<Final_Instructions>Focus on performance optimizations<Final_Instructions>"
 ```
 
 #### Documentation Generation Context
 ```bash
-# Gather all public APIs
-zz gather "pub fn|pub const|pub struct" \
-    --context=functions \
-    --format=markdown \
-    --scope=src/
+# Generate API documentation from all Zig files
+zz prompt "src/**/*.zig" \
+    --signatures --types \
+    --prepend="# API Documentation" \
+    --append="Focus on public interfaces"
 
-# Extract configuration patterns
-zz gather "Config|config|\.zon" \
-    --context=config \
-    --format=structured
+# Extract configuration patterns and structures
+zz prompt "**/*.zon" "src/config/**/*.zig" \
+    --types --docs \
+    --prepend="# Configuration Reference"
 ```
 
 ### AI-Assisted Development Workflows
@@ -143,15 +143,16 @@ zz benchmark --only=affected-modules --compare-baseline
 
 #### Feature Implementation Context
 ```bash
-# Gather related patterns before implementing new features
-zz gather "similar_feature_pattern" \
-    --context=implementations \
-    --format=examples
-
-# Understand current architecture
+# Analyze existing implementations for patterns
 zz prompt "src/lib/**/*.zig" \
-    --prepend="# Current Architecture" \
+    --signatures --types \
+    --prepend="# Current Architecture Patterns" \
     --append="I want to add a new feature that:"
+
+# Extract relevant interfaces and abstractions
+zz prompt "src/*/interface.zig" "src/*/*_interface.zig" \
+    --types --docs \
+    --prepend="# Available Interfaces and Abstractions"
 ```
 
 ## Advanced Integration Patterns
@@ -170,20 +171,22 @@ echo "## Core Modules" && zz prompt "src/*/main.zig"
 echo "## Performance Profile" && zz benchmark --format=pretty
 
 # Step 4: Technical debt analysis
-echo "## Technical Debt" && zz gather "TODO|FIXME" --context=issues
+echo "## Technical Debt" && rg "TODO|FIXME" --with-filename
 ```
 
 #### Security Review Workflow
 ```bash
 # Security-focused analysis
-zz gather "password|secret|key|token" \
-    --context=security \
-    --format=audit
+rg "password|secret|key|token" \
+    --ignore-case \
+    --with-filename \
+    --context=2
 
-zz analyze security \
-    --rules=owasp \
-    --scope=src/ \
-    --format=report
+# Extract security-sensitive patterns
+zz prompt "src/**/*.zig" \
+    --full \
+    --prepend="# Security Review" \
+    --append="Focus on security patterns, secrets, and sensitive data handling"
 ```
 
 ### Claude Code Automation Patterns
@@ -205,13 +208,13 @@ Claude Code can choose optimal commands based on context:
 
 ```bash
 # For documentation tasks:
-zz gather "pub fn" --context=api --format=docs
+zz prompt "src/**/*.zig" --signatures --docs --prepend="# API Documentation"
 
 # For debugging:
-zz gather "error|fail|panic" --context=issues --format=debug
+rg "error|fail|panic" --context=3 --with-filename
 
 # For performance work:
-zz benchmark --include=relevant-modules --format=analysis
+zz benchmark --format=pretty
 ```
 
 ## Output Format Optimization
@@ -331,19 +334,20 @@ $ zz benchmark
 $ zz prompt "*.typo"
 # AI: "No files found. Did you mean: zz prompt '*.zig' (45 files available)?"
 
-$ zz gather "nonexistent_pattern"  
-# AI: "Pattern not found. Analyzing codebase for similar patterns..."
-# AI: "Found related patterns: error_handling, exception_handling, failure_modes"
+# AI provides alternative search patterns
+$ rg "nonexistent_pattern"
+# AI: "Pattern not found. Try these alternatives:"
+# AI: "rg 'error.*handling' --ignore-case"
 ```
 
 #### Interactive Workflow Guidance
 ```bash
 # AI guides through complex workflows
-$ zz analyze security
+$ rg "password|secret|key" --context=3
 # AI: "Security analysis complete. Next steps:"
-# AI: "1. Review findings: zz gather 'security_issues' --format=detailed"
-# AI: "2. Generate fix recommendations: zz suggest security-fixes"
-# AI: "3. Validate fixes: zz validate security --rules=updated"
+# AI: "1. Review findings with: zz prompt 'src/**/*.zig' --full --prepend='Security Review'"
+# AI: "2. Check configuration: zz prompt '**/*.zon' --types"
+# AI: "3. Validate with tests: zig build test"
 ```
 
 ### Advanced AI Integration (Future)
@@ -376,7 +380,7 @@ zz tree --format=list | grep "\.zig$" | head -20 | xargs zz prompt
 zz prompt "*.zig" || zz tree --format=list | grep "\.zig$" | head -5
 
 # Informative alternatives
-zz gather "pattern" --context=strict || zz gather "pattern" --context=fuzzy
+rg "pattern" || rg "pattern" --ignore-case
 ```
 
 ### Performance Awareness
@@ -385,7 +389,223 @@ zz gather "pattern" --context=strict || zz gather "pattern" --context=fuzzy
 zz prompt "src/**/*.zig" --max-files=100
 
 # Progress indication for long operations
-zz analyze dependencies --progress --timeout=30s
+zz benchmark --format=pretty
 ```
+
+## Parameterized I/O Architecture for Async Readiness
+
+### Overview
+
+The zz codebase is being systematically refactored to use parameterized I/O patterns, preparing for Zig's upcoming async implementation. This architectural approach treats I/O operations as injectable dependencies, similar to how allocators are handled in the Zig ecosystem.
+
+### Filesystem Abstraction Pattern
+
+**Core Interface Design:**
+```zig
+// Abstract filesystem interface that can be implemented by different backends
+pub const FilesystemInterface = struct {
+    openFileFn: *const fn (self: *const anyopaque, path: []const u8) anyerror!FileHandle,
+    openDirFn: *const fn (self: *const anyopaque, path: []const u8) anyerror!DirHandle,
+    createFileFn: *const fn (self: *const anyopaque, path: []const u8) anyerror!FileHandle,
+    // ... other I/O operations
+};
+
+// All I/O operations accept filesystem interface as parameter
+pub fn traverseDirectory(
+    allocator: std.mem.Allocator,
+    filesystem: FilesystemInterface,  // Parameterized I/O
+    path: []const u8
+) !void {
+    const dir = try filesystem.openDir(path);
+    defer dir.close();
+    // ... traversal logic using filesystem interface
+}
+```
+
+**Benefits for Async Transition:**
+- **Clean separation:** I/O operations isolated from business logic
+- **Injectable backends:** Real filesystem, mock filesystem, async filesystem
+- **Testing isolation:** Complete test independence from real I/O
+- **Future compatibility:** Ready for async I/O when Zig supports it
+
+### I/O Helper Module Architecture
+
+**Centralized I/O Operations (`src/lib/io_helpers.zig`):**
+```zig
+pub const IOHelpers = struct {
+    // Buffered writers with automatic resource management
+    pub const StdoutWriter = struct { /* RAII stdout */ };
+    pub const StderrWriter = struct { /* RAII stderr */ };
+    
+    // Progress reporting for long operations
+    pub const ProgressReporter = struct { /* Terminal progress */ };
+    
+    // Color output with TTY detection
+    pub const Colors = struct { /* ANSI colors */ };
+    
+    // File operations with error handling
+    pub fn writeToFile(file_path: []const u8, content: []const u8) !void;
+    pub fn safeWriteToFile(allocator: std.mem.Allocator, file_path: []const u8, content: []const u8) !void;
+};
+```
+
+**Async-Ready Patterns:**
+- **Resource management:** RAII patterns ensure proper cleanup in async contexts
+- **Buffered operations:** Reduce syscall overhead for async I/O
+- **Progress reporting:** Non-blocking progress updates for async operations
+- **Error context:** Rich error information for async debugging
+
+### Module Integration with Parameterized I/O
+
+**Tree Module Integration:**
+```zig
+// Tree walker accepts filesystem interface
+pub const Walker = struct {
+    allocator: std.mem.Allocator,
+    filesystem: FilesystemInterface,  // Injected I/O dependency
+    config: Config,
+    
+    pub fn initWithOptions(
+        allocator: std.mem.Allocator,
+        config: Config,
+        options: struct {
+            filesystem: FilesystemInterface,
+        }
+    ) Walker {
+        return Walker{
+            .allocator = allocator,
+            .filesystem = options.filesystem,
+            .config = config,
+        };
+    }
+};
+```
+
+**Prompt Module Integration:**
+```zig
+// Prompt builder uses injected filesystem
+pub const PromptBuilder = struct {
+    allocator: std.mem.Allocator,
+    filesystem: FilesystemInterface,  // Parameterized I/O
+    
+    pub fn addFileContent(self: *PromptBuilder, file_path: []const u8) !void {
+        const file = try self.filesystem.openFile(file_path);
+        defer file.close();
+        // ... read and process file content
+    }
+};
+```
+
+### Testing Benefits of Parameterized I/O
+
+**Mock Filesystem for Tests:**
+```zig
+// Complete in-memory filesystem for testing
+var mock_fs = MockFilesystem.init(testing.allocator);
+defer mock_fs.deinit();
+
+// Set up test filesystem state
+try mock_fs.addDirectory("src");
+try mock_fs.addFile("src/main.zig", "pub fn main() !void {}");
+
+// Test with mock filesystem (no real I/O)
+const walker = Walker.initWithOptions(testing.allocator, config, .{
+    .filesystem = mock_fs.interface(),
+});
+```
+
+**Isolation and Determinism:**
+- **No real I/O:** Tests run without touching filesystem
+- **Deterministic state:** Controlled filesystem state for reproducible tests
+- **Error simulation:** Test error conditions without real filesystem failures
+- **Performance:** Tests run faster without real I/O overhead
+
+### Future Async Integration Points
+
+**Async I/O Interface (Future):**
+```zig
+// Future async filesystem interface
+pub const AsyncFilesystemInterface = struct {
+    openFileAsync: *const fn (self: *const anyopaque, path: []const u8) callconv(.Async) anyerror!FileHandle,
+    readFileAsync: *const fn (self: *const anyopaque, file: FileHandle) callconv(.Async) anyerror![]u8,
+    // ... async operations
+};
+
+// Modules ready for async transition
+pub fn traverseDirectoryAsync(
+    allocator: std.mem.Allocator,
+    filesystem: AsyncFilesystemInterface,  // Async I/O
+    path: []const u8
+) callconv(.Async) !void {
+    const dir = try filesystem.openDirAsync(path);
+    defer dir.close();
+    // ... async traversal logic
+}
+```
+
+**Async Benefits:**
+- **Concurrent I/O:** Multiple file operations in parallel
+- **Scalability:** Handle large codebases efficiently
+- **Responsiveness:** Non-blocking operations for interactive use
+- **Resource efficiency:** Better CPU utilization during I/O waits
+
+### Conditional Imports for Async Readiness
+
+**Environment-Aware I/O (`src/lib/conditional_imports.zig`):**
+```zig
+pub const ConditionalImports = struct {
+    // I/O backend selection based on environment
+    pub const IOBackend = if (builtin.is_test) 
+        struct {
+            // Mock I/O for tests
+            pub const Filesystem = MockFilesystem;
+            pub const useAsync = false;
+        }
+    else if (builtin.mode == .Debug)
+        struct {
+            // Debug I/O with extra checks
+            pub const Filesystem = RealFilesystem;
+            pub const useAsync = false;
+        }
+    else
+        struct {
+            // Production I/O (async when available)
+            pub const Filesystem = RealFilesystem;
+            pub const useAsync = true;  // Future: enable async
+        };
+};
+```
+
+### Performance Implications
+
+**Current Synchronous Performance:**
+- **Overhead:** Minimal vtable dispatch overhead (~1-2ns per call)
+- **Memory:** Interface pointers add ~8 bytes per I/O object
+- **Compilation:** Zero-cost abstraction with compile-time interface resolution
+
+**Expected Async Performance:**
+- **Concurrency:** Parallel file operations for large codebases
+- **Latency:** Better responsiveness during I/O-heavy operations
+- **Throughput:** Higher overall throughput with async batching
+
+### Integration with Existing Tools
+
+**Claude Code Compatibility:**
+- **Transparent operation:** Existing `zz` commands work unchanged
+- **Enhanced testing:** Better test coverage with mock filesystem
+- **Future features:** Async operations will be opt-in enhancements
+
+**Development Workflow:**
+```bash
+# Current usage (unchanged)
+zz tree src/
+zz prompt "src/**/*.zig" --signatures
+
+# Future async usage (when available)
+zz tree src/ --async              # Concurrent directory traversal
+zz prompt "**/*.zig" --async      # Parallel file processing
+```
+
+This parameterized I/O architecture ensures that zz is ready for Zig's async future while maintaining current performance and functionality. The abstraction layer provides excellent testing capabilities and clear separation of concerns, making the codebase more maintainable and adaptable to future Zig language evolution.
 
 This integration guide ensures that `zz` provides maximum value in Claude Code environments while maintaining security, performance, and usability standards. Every feature is designed to enhance AI-assisted development workflows while preserving human control and oversight.

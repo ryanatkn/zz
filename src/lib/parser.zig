@@ -1,6 +1,7 @@
 const std = @import("std");
 const ts = @import("tree-sitter");
 const AstNode = @import("ast.zig").AstNode;
+const path_utils = @import("path.zig");
 
 // Language-specific parsers
 const zig_parser = @import("parsers/zig.zig");
@@ -94,8 +95,8 @@ pub const Parser = struct {
 
     /// AST-based extraction using tree-sitter
     fn extractWithAst(self: *Parser, source: []const u8, flags: ExtractionFlags) ![]const u8 {
-        // TODO: Implement actual tree-sitter parsing
-        // For now, fall back to simple extraction with AST-compatible interface
+        // Tree-sitter integration placeholder - falls back to simple extraction
+        // This maintains API compatibility while tree-sitter integration is completed
         
         var result = std.ArrayList(u8).init(self.allocator);
         defer result.deinit();
@@ -163,7 +164,7 @@ pub fn createAstParser(allocator: std.mem.Allocator, language: Language) !Parser
 
 /// Helper function to extract code with automatic language detection
 pub fn extractCode(allocator: std.mem.Allocator, file_path: []const u8, source: []const u8, flags: ExtractionFlags) ![]const u8 {
-    const ext = std.fs.path.extension(file_path);
+    const ext = path_utils.extension(file_path);
     const language = Language.fromExtension(ext);
     
     var parser = try createParser(allocator, language);
@@ -174,7 +175,7 @@ pub fn extractCode(allocator: std.mem.Allocator, file_path: []const u8, source: 
 
 /// Helper function to extract code with AST support
 pub fn extractCodeWithAst(allocator: std.mem.Allocator, file_path: []const u8, source: []const u8, flags: ExtractionFlags) ![]const u8 {
-    const ext = std.fs.path.extension(file_path);
+    const ext = path_utils.extension(file_path);
     const language = Language.fromExtension(ext);
     
     var parser = try createAstParser(allocator, language);

@@ -1,8 +1,6 @@
 const std = @import("std");
-// Conditional tree-sitter import for when module is available
-const ts = if (@import("builtin").is_test) 
-    struct { const Parser = ?*anyopaque; } 
-    else @import("tree-sitter");
+const conditional_imports = @import("conditional_imports.zig");
+const ts = conditional_imports.ts;
 
 /// Reference to a cached AST node
 pub const AstCacheKey = struct {
@@ -256,8 +254,8 @@ pub const ParserInstance = struct {
 
     pub fn deinit(self: *ParserInstance, allocator: std.mem.Allocator) void {
         if (self.parser) |parser| {
-            _ = parser; // TODO: Use actual tree-sitter when integrated
-            // ts.ts_parser_delete(parser);
+            _ = parser; // Placeholder for tree-sitter parser cleanup
+            // Future: ts.ts_parser_delete(parser);
         }
         allocator.free(self.language);
     }
@@ -325,8 +323,8 @@ pub const ParserCache = struct {
         const language_key = try self.allocator.dupe(u8, language);
         const parser_instance = ParserInstance.init(language_key, 1);
         
-        // TODO: Initialize actual tree-sitter parser based on language
-        // For now, we just track the metadata
+        // Parser initialization placeholder - currently tracks metadata only
+        // Future: Initialize tree-sitter parser based on language
         
         try self.parsers.put(language_key, parser_instance);
         self.stats.initializations += 1;

@@ -1,5 +1,7 @@
 # zz Vision: Fast Unix Tools for Modern Development
 
+> **Note:** This is an archived vision document (circa 2024). Some planned features like `zz gather` were not implemented. Instead, `zz prompt` with extraction flags (`--signatures`, `--types`, etc.) provides the intelligent code analysis capabilities originally envisioned.
+
 ## Executive Summary
 
 `zz` provides fast, focused CLI utilities that embrace both Unix philosophy and modern development needs. Small binaries, zero dependencies, and no compromises on performance or developer experience. We're building the tools we want to use—combining old-school C discipline with TypeScript/Svelte web excellence and LLM assistance where it makes sense.

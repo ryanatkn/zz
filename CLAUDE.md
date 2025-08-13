@@ -51,7 +51,6 @@ $ zig version
     │   │   └── main.zig               # Benchmark command entry point
     │   ├── cli                        # CLI interface module (command parsing & execution)
     │   │   ├── test [...]             # CLI tests
-    │   │   ├── args.zig               # Argument parsing utilities
     │   │   ├── command.zig            # Command enumeration and string parsing
     │   │   ├── help.zig               # Usage documentation and help text
     │   │   ├── main.zig               # CLI entry point and argument processing
@@ -101,7 +100,7 @@ $ zig version
     │   │   ├── test.zig               # Test runner for tree functionality
     │   │   └── walker.zig             # Core traversal with filesystem abstraction
     │   ├── config.zig                 # Public API facade for configuration system
-    │   ├── filesystem.zig             # Filesystem error handling (deprecated, use lib/filesystem.zig)
+    │   ├── filesystem.zig             # Filesystem abstraction API entry point
     │   ├── main.zig                   # Minimal application entry point
     │   ├── test.zig                   # Main test runner for entire project
     │   └── test_helpers.zig           # Shared test utilities
@@ -149,7 +148,7 @@ $ zig build test                                       # Run all tests with outp
 
 Comprehensive test suite covers configuration parsing, directory filtering, performance optimization, edge cases, security patterns, and AST-based extraction. 
 
-**Current test status:** ✅ **All 228 tests passing (100% pass rate)**
+**Current test status:** ✅ **All 302 tests passing (100% pass rate)**
 - Fixed mock filesystem directory iteration for "." paths
 - Fixed traversal to not skip initial directory in recursive operations
 - All tree-sitter integration and core features working correctly
@@ -217,13 +216,12 @@ $ ./zig-out/bin/zz benchmark --duration=5s
 - Human-readable time units (ns, μs, ms, s)
 - **Duration multiplier system** - Allows extending benchmark duration for more stable results
 
-> TODO verify these
-**Performance Baselines (Debug build):**
-- Path operations: ~47μs per operation (20-30% faster than stdlib)
-- String pooling: ~145ns per operation (95-100% cache efficiency)
-- Memory pools: ~50μs per allocation/release cycle
-- Glob patterns: ~25ns per operation (75% fast-path hit ratio)
-- Code extraction: ~92μs per extraction (4 modes: full, signatures, types, combined)
+**Performance Baselines (Release build, 2025-08-13):**
+- Path operations: ~11μs per operation (78% improvement, 20-30% faster than stdlib)
+- String pooling: ~11ns per operation (100% cache efficiency)
+- Memory pools: ~11μs per allocation/release cycle
+- Glob patterns: ~4ns per operation (75% fast-path hit ratio)
+- Code extraction: ~21μs per extraction (4 modes: full, signatures, types, combined)
 - Benchmark execution: ~10 seconds total (5 benchmarks with varied durations based on multipliers)
 - Regression threshold: 20% (to account for Debug mode variance)
 - Time-based execution: Each benchmark runs for a configurable duration (default: 2 seconds)

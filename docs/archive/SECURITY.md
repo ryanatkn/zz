@@ -1,5 +1,7 @@
 # zz Security Architecture and Guidelines
 
+> **Archived:** Historical security document. References to `zz gather` represent concepts implemented in `zz prompt`.
+
 ## Security Philosophy
 
 `zz` is designed with **security-first principles** for natural language programming environments where AI assistants have direct access to system commands. Every feature is evaluated through a security lens before implementation.

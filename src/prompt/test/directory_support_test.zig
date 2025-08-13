@@ -63,7 +63,7 @@ test "directory argument - nested structure" {
     try ctx.addDirectory("src/cli");
     try ctx.addFile("main.zig", "const main = 1;");
     try ctx.addFile("src/lib.zig", "const lib = 1;");
-    try ctx.addFile("src/cli/args.zig", "const args = 1;");
+    try ctx.addFile("src/cli/runner.zig", "const runner = 1;");
 
     const expander = test_helpers.createGlobExpander(allocator, ctx.filesystem);
     var patterns = [_][]const u8{"."};
@@ -83,17 +83,17 @@ test "directory argument - nested structure" {
 
     var found_main = false;
     var found_lib = false;
-    var found_args = false;
+    var found_runner = false;
 
     for (results.items[0].files.items) |file| {
         if (std.mem.endsWith(u8, file, "main.zig")) found_main = true;
         if (std.mem.endsWith(u8, file, "lib.zig")) found_lib = true;
-        if (std.mem.endsWith(u8, file, "args.zig")) found_args = true;
+        if (std.mem.endsWith(u8, file, "runner.zig")) found_runner = true;
     }
 
     try testing.expect(found_main);
     try testing.expect(found_lib);
-    try testing.expect(found_args);
+    try testing.expect(found_runner);
 }
 
 test "directory argument - with ignore patterns" {

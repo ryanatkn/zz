@@ -8,7 +8,7 @@ High-performance command-line utilities written in Zig for POSIX systems. Featur
 
 **Performance:** 20-30% faster than stdlib for path operations, with pattern matching at ~25ns per operation. Features incremental processing with AST cache invalidation and intelligent dependency tracking.
 
-**Architecture:** Clean modular design with filesystem abstraction, unified pattern matching, and aggressive performance optimizations. Includes advanced features like incremental file processing, AST-based code extraction, and parallel task execution. See [docs/slop/ARCHITECTURE.md](./docs/slop/ARCHITECTURE.md) for system design details.
+**Architecture:** Clean modular design with filesystem abstraction, unified pattern matching, and aggressive performance optimizations. Includes advanced features like incremental file processing, AST-based code extraction, and parallel task execution. See [docs/archive/ARCHITECTURE.md](./docs/archive/ARCHITECTURE.md) for system design details.
 
 ## Requirements
 
@@ -252,13 +252,13 @@ The demo showcases:
 - **[CLAUDE.md](CLAUDE.md)** - Development guide and implementation details
 - **[demo/README.md](demo/README.md)** - Interactive demo documentation
 
-**Additional Documentation** (in `docs/slop/`, excluded from tree views):
-- **[docs/slop/ARCHITECTURE.md](docs/slop/ARCHITECTURE.md)** - System design and module relationships
-- **[docs/slop/CONTRIBUTING.md](docs/slop/CONTRIBUTING.md)** - How to contribute to the project
-- **[docs/slop/PERFORMANCE.md](docs/slop/PERFORMANCE.md)** - Performance characteristics and optimization guide
-- **[docs/slop/PATTERNS.md](docs/slop/PATTERNS.md)** - Pattern matching implementation details
-- **[docs/slop/TESTING.md](docs/slop/TESTING.md)** - Testing strategy and coverage
-- **[docs/slop/TROUBLESHOOTING.md](docs/slop/TROUBLESHOOTING.md)** - Common issues and solutions
+**Additional Documentation** (in `docs/archive/`, excluded from tree views):
+- **[docs/archive/ARCHITECTURE.md](docs/archive/ARCHITECTURE.md)** - System design and module relationships
+- **[docs/archive/CONTRIBUTING.md](docs/archive/CONTRIBUTING.md)** - How to contribute to the project
+- **[docs/archive/PERFORMANCE.md](docs/archive/PERFORMANCE.md)** - Performance characteristics and optimization guide
+- **[docs/archive/PATTERNS.md](docs/archive/PATTERNS.md)** - Pattern matching implementation details
+- **[docs/archive/TESTING.md](docs/archive/TESTING.md)** - Testing strategy and coverage
+- **[docs/archive/TROUBLESHOOTING.md](docs/archive/TROUBLESHOOTING.md)** - Common issues and solutions
 
 ## Requirements
 

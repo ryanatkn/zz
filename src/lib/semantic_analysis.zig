@@ -3,6 +3,7 @@ const CodeAnalysis = @import("code_analysis.zig").CodeAnalysis;
 const collection_helpers = @import("collection_helpers.zig");
 const file_helpers = @import("file_helpers.zig");
 const error_helpers = @import("error_helpers.zig");
+const path_utils = @import("path.zig");
 
 /// Intelligent code analysis and summarization for optimal LLM context generation
 pub const SemanticAnalysis = struct {
@@ -138,8 +139,8 @@ pub const SemanticAnalysis = struct {
         fn determineFileRole(self: *CodeSummarizer, file_path: []const u8) FileRole {
             _ = self;
             
-            const basename = std.fs.path.basename(file_path);
-            const dirname = std.fs.path.dirname(file_path) orelse "";
+            const basename = path_utils.basename(file_path);
+            const dirname = path_utils.dirname(file_path);
             
             // Entry points
             if (std.mem.eql(u8, basename, "main.zig") or
@@ -387,7 +388,7 @@ pub const SemanticAnalysis = struct {
             try summary.appendSlice(try std.fmt.allocPrint(
                 self.allocator, 
                 "### {s} (Score: {d:.2})\n",
-                .{ std.fs.path.basename(relevance.file_path), relevance.totalScore() }
+                .{ path_utils.basename(relevance.file_path), relevance.totalScore() }
             ));
             
             // Role and basic info

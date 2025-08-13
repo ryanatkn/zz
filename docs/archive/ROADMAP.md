@@ -1,5 +1,7 @@
 # zz Development Roadmap
 
+> **Archived:** This roadmap represents historical plans. Many features like `zz gather` were superseded by `zz prompt` with extraction flags.
+
 ## Core Philosophy
 - **Small binaries:** Each tool under 5MB, composed Unix-style
 - **Zero dependencies:** We write what we need

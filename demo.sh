@@ -85,13 +85,17 @@ demo_step "6. Extract HTML Structure" \
 demo_step "7. Parse Svelte Component (Multi-Section)" \
     "./zig-out/bin/zz prompt examples/component.svelte --signatures --types | head -40"
 
+# Demo 7.5: Svelte 5 Runes with TypeScript
+demo_step "7.5. Parse Svelte 5 Runes (Modern Reactive TypeScript)" \
+    "./zig-out/bin/zz prompt examples/runes.svelte.ts --signatures --types | head -40"
+
 # Demo 8: JSON structure extraction
 demo_step "8. Extract JSON Structure" \
     "./zig-out/bin/zz prompt examples/config.json --structure"
 
 # Demo 9: Glob patterns
 demo_step "9. Use Glob Patterns" \
-    "./zig-out/bin/zz prompt 'examples/*.{ts,css,html}' --signatures | head -40"
+    "./zig-out/bin/zz prompt 'examples/*.{ts,css,html,svelte}' --signatures | head -40"
 
 # Demo 10: Performance benchmark
 echo -e "${BOLD}${BLUE}═══ 10. Performance Benchmarks ═══${NC}"
@@ -106,7 +110,7 @@ echo
 echo -e "${BOLD}Key Features Demonstrated:${NC}"
 echo "✓ Terminal-only rendering with clean output"
 echo "✓ Fast directory traversal with pattern matching"
-echo "✓ Language-aware code extraction (TS, CSS, HTML, JSON, Svelte)"
+echo "✓ Language-aware code extraction (TS, CSS, HTML, JSON, Svelte, Svelte+TS)"
 echo "✓ Multiple extraction modes (signatures, types, structure)"
 echo "✓ Glob pattern support for file selection"
 echo "✓ Performance benchmarking capabilities"

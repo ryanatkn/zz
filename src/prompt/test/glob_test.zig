@@ -5,6 +5,7 @@ const GlobExpander = @import("../glob.zig").GlobExpander;
 const matchSimplePattern = @import("../glob.zig").matchSimplePattern;
 
 test "glob pattern matching" {
+    test_helpers.TestRunner.recordTest("glob pattern matching");
     try testing.expect(matchSimplePattern("test.zig", "*.zig"));
     try testing.expect(matchSimplePattern("main.zig", "*.zig"));
     try testing.expect(!matchSimplePattern("test.txt", "*.zig"));

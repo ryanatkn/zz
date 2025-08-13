@@ -1,7 +1,12 @@
 // Svelte 5 Reactive Component with TypeScript
 // Using runes for reactive state management
 
+// @ts-expect-error
 import { type Snippet } from 'svelte';
+
+declare const $state: any;
+declare const $derived: any;
+declare const $effect: any;
 
 // Type definitions
 interface TodoItem {
@@ -28,12 +33,12 @@ interface TodoListProps {
 // Main component class with reactive state
 export class TodoList {
     // Reactive state using $state rune
-    todos = $state<TodoItem[]>([]);
-    filter = $state<'all' | 'active' | 'completed'>('all');
+    todos: TodoItem[] = $state([]);
+    filter: 'all' | 'active' | 'completed' = $state('all');
     newTodoText = $state('');
     
     // Derived state using $derived rune
-    filteredTodos = $derived(() => {
+    filteredTodos = $derived.by(() => {
         switch (this.filter) {
             case 'active':
                 return this.todos.filter(t => !t.completed);
@@ -44,7 +49,7 @@ export class TodoList {
         }
     });
     
-    stats = $derived<TodoStats>(() => {
+    stats: TodoStats = $derived.by(() => {
         const total = this.todos.length;
         const completed = this.todos.filter(t => t.completed).length;
         return {
@@ -53,18 +58,6 @@ export class TodoList {
             pending: total - completed,
             completionRate: total > 0 ? (completed / total) * 100 : 0
         };
-    });
-    
-    // Effects using $effect rune
-    $effect(() => {
-        console.log(`Todo count changed: ${this.todos.length}`);
-    });
-    
-    $effect.pre(() => {
-        // Runs before DOM updates
-        if (this.stats.completionRate === 100) {
-            console.log('All todos completed!');
-        }
     });
     
     // Methods
@@ -103,6 +96,18 @@ export class TodoList {
         // Watch for stats changes
         $effect(() => {
             props.onStatsChange?.(this.stats);
+        });
+
+        // Effects using $effect rune
+        $effect(() => {
+            console.log(`Todo count changed: ${this.todos.length}`);
+        });
+        
+        $effect.pre(() => {
+            // Runs before DOM updates
+            if (this.stats.completionRate === 100) {
+                console.log('All todos completed!');
+            }
         });
     }
 }

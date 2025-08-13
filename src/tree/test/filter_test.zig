@@ -1,11 +1,13 @@
 const std = @import("std");
 const testing = std.testing;
+const test_helpers = @import("../../test_helpers.zig");
 
 const Filter = @import("../filter.zig").Filter;
 const SharedConfig = @import("../../config.zig").SharedConfig;
 
 // Test pattern matching edge cases
 test "pattern matching edge cases" {
+    test_helpers.TestRunner.recordTest("pattern matching edge cases");
     const ignored = [_][]const u8{
         "exact_match",
         "node_modules",
@@ -42,6 +44,7 @@ test "pattern matching edge cases" {
 
 // Test path-based pattern matching
 test "path based pattern matching" {
+    test_helpers.TestRunner.recordTest("path based pattern matching");
     const ignored = [_][]const u8{
         "src/tree/compiled",
         "deep/nested/path",
@@ -75,6 +78,7 @@ test "path based pattern matching" {
 
 // Test dot-directory behavior
 test "dot directory behavior" {
+    test_helpers.TestRunner.recordTest("dot directory behavior");
     const ignored = [_][]const u8{}; // No explicit patterns
     const hidden = [_][]const u8{};
 
@@ -105,6 +109,7 @@ test "dot directory behavior" {
 
 // Test hidden files functionality
 test "hidden files functionality" {
+    test_helpers.TestRunner.recordTest("hidden files functionality");
     const ignored = [_][]const u8{};
     const hidden = [_][]const u8{ "Thumbs.db", ".DS_Store", "desktop.ini" };
 
@@ -132,6 +137,7 @@ test "hidden files functionality" {
 
 // Test case sensitivity
 test "case sensitivity" {
+    test_helpers.TestRunner.recordTest("case sensitivity");
     const ignored = [_][]const u8{ "CaseSensitive", "lowercase" };
     const hidden = [_][]const u8{"HiddenFile.tmp"};
 
@@ -161,6 +167,7 @@ test "case sensitivity" {
 
 // Test unicode and special characters
 test "unicode and special characters" {
+    test_helpers.TestRunner.recordTest("unicode and special characters");
     const ignored = [_][]const u8{
         "файл", // Cyrillic
         "ファイル", // Japanese
@@ -194,6 +201,7 @@ test "unicode and special characters" {
 
 // Test empty configuration
 test "empty configuration" {
+    test_helpers.TestRunner.recordTest("empty configuration");
     const ignored = [_][]const u8{}; // Empty
     const hidden = [_][]const u8{}; // Empty
 
@@ -218,6 +226,7 @@ test "empty configuration" {
 
 // Test path traversal attack patterns
 test "path traversal security" {
+    test_helpers.TestRunner.recordTest("path traversal security");
     const ignored = [_][]const u8{ "../", "../../", ".." };
     const hidden = [_][]const u8{};
 
@@ -245,6 +254,7 @@ test "path traversal security" {
 
 // Test extremely long filenames
 test "long filename handling" {
+    test_helpers.TestRunner.recordTest("long filename handling");
     // Create very long pattern and filename
     var long_pattern = [_]u8{'a'} ** 1000;
     var longer_filename = [_]u8{'a'} ** 1001;
@@ -273,6 +283,7 @@ test "long filename handling" {
 
 // Performance test with many patterns
 test "performance with many patterns" {
+    test_helpers.TestRunner.recordTest("performance with many patterns");
     // Create large pattern arrays
     var ignored_patterns = std.ArrayList([]const u8).init(testing.allocator);
     defer ignored_patterns.deinit();

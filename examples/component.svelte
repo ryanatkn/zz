@@ -2,7 +2,8 @@
   // Svelte Component with TypeScript
   import { onMount, createEventDispatcher } from 'svelte';
   import { fade, slide } from 'svelte/transition';
-  import type { User } from './types';
+  // @ts-expect-error
+  import type { User } from './types.ts';
   
   // Component Props
   export let user: User;

@@ -1,0 +1,39 @@
+{
+  "name": "zz-demo-app",
+  "version": "1.0.0",
+  "description": "Demo application for zz CLI parser showcase",
+  "author": {
+    "name": "Developer",
+    "email": "dev@example.com",
+    "url": "https://github.com/username/zz"
+  },
+  "config": {
+    "apiUrl": "https://api.example.com/v1",
+    "timeout": 5000,
+    "retries": 3,
+    "cache": {
+      "enabled": true,
+      "ttl": 3600,
+      "maxSize": "100MB"
+    },
+    "features": {
+      "darkMode": true,
+      "notifications": false,
+      "analytics": true,
+      "experimental": {
+        "aiAssist": false,
+        "betaFeatures": []
+      }
+    }
+  },
+  "dependencies": {
+    "typescript": "^5.0.0",
+    "svelte": "^4.0.0",
+    "vite": "^5.0.0"
+  },
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview"
+  }
+}

@@ -185,6 +185,7 @@ $ zig build run -- tree [args]          # Run tree command in development
 $ zig build run -- prompt [args]        # Run prompt command in development
 $ zig build run -- benchmark [args]     # Run benchmarks
 $ zig build run -- format [args]        # Run formatter in development
+$ zig build run -- demo [args]          # Run demo in development
 
 # Help commands
 $ zz -h                          # Brief help overview
@@ -289,6 +290,7 @@ $ ./zig-out/bin/zz benchmark --duration=5s
 - **Tree Module:** `src/tree/` - Directory traversal with configurable filtering and multiple output formats
 - **Prompt Module:** `src/prompt/` - LLM prompt generation with glob support, smart fencing, and deduplication
 - **Format Module:** `src/format/` - Language-aware code formatting with configurable styles
+- **Demo Module:** `src/demo.zig` - Interactive demonstration of zz capabilities with terminal output
 - **Benchmark Module:** `src/benchmark/` - Performance measurement and regression detection
 - **Config Module:** `src/config/` - Configuration system with ZON parsing and pattern resolution
 - **Lib Module:** `src/lib/` - Consolidated infrastructure and utilities (Phase 5 reorganization)
@@ -343,10 +345,18 @@ $ ./zig-out/bin/zz benchmark --duration=5s
 
 **Adding New Commands:**
 1. Add to `Command` enum in `src/cli/command.zig`
-2. Update parsing and help text
+2. Update parsing and help text in `src/cli/help.zig`
 3. Add handler in `src/cli/runner.zig`  
 4. Complex features get dedicated module with `run(allocator, args)` interface
 5. Use shared utilities from `src/lib/` for common operations
+
+**Demo Module Features:**
+- **Interactive Mode:** Full terminal experience with colors, animations, and user interaction
+- **Non-interactive Mode:** Clean text output suitable for documentation and CI
+- **File Output:** `--output=<file>` flag to write demo content to files
+- **Terminal Integration:** Uses `src/lib/terminal.zig` for consistent terminal handling
+- **Language Showcase:** Demonstrates AST extraction across TypeScript, CSS, HTML, JSON, and Svelte
+- **Enhanced Animation:** Benchmark progress uses subtle pulse effect with bold styling for better visibility
 
 ## Filesystem Abstraction Layer
 
@@ -377,6 +387,7 @@ const walker = Walker.initWithOptions(allocator, config, .{ .filesystem = mock_f
 - Deterministic testing with controlled filesystem state
 - Ability to test error conditions (permission denied, disk full, etc.)
 - No test artifacts in working directory
+- Ready for async Zig
 
 ## Configuration System
 

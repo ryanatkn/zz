@@ -5,6 +5,7 @@ pub const Command = enum {
     prompt,
     benchmark,
     format,
+    demo,
     help,
 
     const Self = @This();
@@ -14,6 +15,7 @@ pub const Command = enum {
         if (std.mem.eql(u8, cmd, "prompt")) return .prompt;
         if (std.mem.eql(u8, cmd, "benchmark")) return .benchmark;
         if (std.mem.eql(u8, cmd, "format")) return .format;
+        if (std.mem.eql(u8, cmd, "demo")) return .demo;
         if (std.mem.eql(u8, cmd, "help")) return .help;
         return null;
     }

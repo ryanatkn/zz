@@ -89,12 +89,12 @@ pub const TestContextBuilder = struct {
             var ctx = try TmpDirTestContext.init(self.allocator);
 
             // Add directories first
-            for (self.dirs.builder.list.items()) |dir| {
+            for (self.dirs.items) |dir| {
                 try ctx.makeDir(dir);
             }
 
             // Add files
-            for (self.files.builder.list.items()) |file_spec| {
+            for (self.files.items) |file_spec| {
                 const colon_pos = std.mem.indexOf(u8, file_spec, ":") orelse continue;
                 const path = file_spec[0..colon_pos];
                 const content = file_spec[colon_pos + 1 ..];
@@ -550,20 +550,20 @@ pub const Assertions = struct {
     /// Assert string contains substring with context
     pub fn expectStringContains(actual: []const u8, expected_substring: []const u8) !void {
         if (std.mem.indexOf(u8, actual, expected_substring) == null) {
-            std.debug.print("\n❌ String does not contain expected substring\n");
+            std.debug.print("\n❌ String does not contain expected substring\n", .{});
             std.debug.print("Expected to find: '{s}'\n", .{expected_substring});
             std.debug.print("Actual string: '{s}'\n", .{actual});
-            return testing.expectError("String does not contain expected substring");
+            return testing.expect(false);
         }
     }
 
     /// Assert string does not contain substring
     pub fn expectStringNotContains(actual: []const u8, unexpected_substring: []const u8) !void {
         if (std.mem.indexOf(u8, actual, unexpected_substring) != null) {
-            std.debug.print("\n❌ String contains unexpected substring\n");
+            std.debug.print("\n❌ String contains unexpected substring\n", .{});
             std.debug.print("Should not contain: '{s}'\n", .{unexpected_substring});
             std.debug.print("Actual string: '{s}'\n", .{actual});
-            return testing.expectError("String contains unexpected substring");
+            return testing.expect(false);
         }
     }
 
@@ -581,11 +581,11 @@ pub const Assertions = struct {
     pub fn expectApproxEqual(actual: f64, expected: f64, tolerance: f64) !void {
         const diff = @abs(actual - expected);
         if (diff > tolerance) {
-            std.debug.print("\n❌ Values not approximately equal\n");
+            std.debug.print("\n❌ Values not approximately equal\n", .{});
             std.debug.print("Actual: {d}\n", .{actual});
             std.debug.print("Expected: {d}\n", .{expected});
             std.debug.print("Difference: {d} (tolerance: {d})\n", .{ diff, tolerance });
-            return testing.expectError("Values not approximately equal");
+            return testing.expect(false);
         }
     }
 
@@ -594,11 +594,11 @@ pub const Assertions = struct {
         std.fs.cwd().access(file_path, .{}) catch |err| switch (err) {
             error.FileNotFound => {
                 std.debug.print("\n❌ File does not exist: {s}\n", .{file_path});
-                return testing.expectError("File does not exist");
+                return testing.expect(false);
             },
-            error.AccessDenied => {
+            error.PermissionDenied => {
                 std.debug.print("\n❌ File access denied: {s}\n", .{file_path});
-                return testing.expectError("File access denied");
+                return testing.expect(false);
             },
             else => return err,
         };
@@ -680,8 +680,8 @@ pub const FileStructureBuilder = struct {
             try content.appendSlice("() void {}\n\n");
         }
 
-        _ = try self.files.addDupe(path);
-        _ = try self.files.addDupe(content.items());
+        try self.files.append(try self.allocator.dupe(u8, path));
+        try self.files.append(try self.allocator.dupe(u8, content.items));
         return self;
     }
 

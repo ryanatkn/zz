@@ -9,6 +9,7 @@ pub fn showBrief(program_name: []const u8) void {
     std.debug.print("  prompt [files...]     Build LLM prompts from files\n", .{});
     std.debug.print("  benchmark [options]   Run performance benchmarks\n", .{});
     std.debug.print("  format [files...]     Format code files\n", .{});
+    std.debug.print("  demo [options]        Interactive demo of zz capabilities\n", .{});
     std.debug.print("  help                  Show detailed help\n", .{});
     std.debug.print("\n", .{});
     std.debug.print("Use '{s} --help' or '{s} help' for detailed information\n", .{ program_name, program_name });
@@ -70,6 +71,15 @@ pub fn show(program_name: []const u8) void {
     std.debug.print("                                  zz format src/*.zig --check         # Check if files are formatted\n", .{});
     std.debug.print("                                  zz format config.json --write       # Format file in-place\n", .{});
     std.debug.print("                                  echo '{{\"a\":1}}' | zz format --stdin  # Format stdin JSON\n", .{});
+    std.debug.print("  demo [options]                Interactive demonstration of zz capabilities\n", .{});
+    std.debug.print("                                Options:\n", .{});
+    std.debug.print("                                  --non-interactive, -n              Run in non-interactive mode (for docs)\n", .{});
+    std.debug.print("                                  --output=FILE, --output FILE       Write output to file (non-interactive mode)\n", .{});
+    std.debug.print("                                  --help, -h                         Show demo help\n", .{});
+    std.debug.print("                                Examples:\n", .{});
+    std.debug.print("                                  zz demo                            # Interactive terminal demo\n", .{});
+    std.debug.print("                                  zz demo --non-interactive          # Clean output for documentation\n", .{});
+    std.debug.print("                                  zz demo --output=demo.md -n        # Save demo output to file\n", .{});
     std.debug.print("  help                          Show this help\n", .{});
     std.debug.print("\nGlob Patterns:\n", .{});
     std.debug.print("  *.zig                         Match all .zig files\n", .{});

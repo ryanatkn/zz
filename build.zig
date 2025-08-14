@@ -208,6 +208,42 @@ pub fn build(b: *std.Build) void {
     stdout_run.addArgs(&.{ "benchmark", "--format=pretty" });
     stdout_run.step.dependOn(b.getInstallStep());
     benchmark_stdout_step.dependOn(&stdout_run.step);
+    
+    // Demo run step (interactive) - now uses main zz binary
+    const demo_step = b.step("demo", "Run interactive demo");
+    const demo_run = b.addRunArtifact(exe);
+    demo_run.addArg("demo");
+    demo_run.step.dependOn(b.getInstallStep());
+    demo_step.dependOn(&demo_run.step);
+    
+    // Demo non-interactive step (for testing)
+    const demo_ni_step = b.step("demo-non-interactive", "Run demo in non-interactive mode");
+    const demo_ni_run = b.addRunArtifact(exe);
+    demo_ni_run.addArgs(&.{ "demo", "--non-interactive" });
+    demo_ni_run.step.dependOn(b.getInstallStep());
+    demo_ni_step.dependOn(&demo_ni_run.step);
+    
+    // README updater tool
+    const readme_updater = b.addExecutable(.{
+        .name = "readme-updater",
+        .root_source_file = b.path("src/tools/readme_updater.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    b.installArtifact(readme_updater);
+    
+    // Update README step - now uses main zz binary
+    const update_readme_step = b.step("update-readme", "Update README.md with demo output");
+    
+    // Pipe demo output to readme updater
+    const update_readme_cmd = b.addSystemCommand(&.{ 
+        "sh", "-c", 
+        "./zig-out/bin/zz demo --non-interactive | ./zig-out/bin/readme-updater" 
+    });
+    update_readme_cmd.step.dependOn(b.getInstallStep());
+    update_readme_cmd.step.dependOn(&b.addInstallArtifact(readme_updater, .{}).step);
+    
+    update_readme_step.dependOn(&update_readme_cmd.step);
 }
 
 // Helper functions

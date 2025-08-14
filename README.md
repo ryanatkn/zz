@@ -52,9 +52,7 @@ zz tree                        # Show directory tree
 zz prompt "src/**/*.zig"       # Generate LLM prompt
 zz benchmark --format=pretty   # Run performance benchmarks
 zz format config.json          # Format code files
-
-# Interactive terminal demo
-cd demo && zig build run       # Build and run interactive demo
+zz demo                        # Run interactive terminal demo
 ```
 
 ## Features
@@ -264,13 +262,14 @@ Create a `zz.zon` file in any directory to customize behavior:
 Experience zz's capabilities with our interactive terminal demo:
 
 ```bash
-# Build and run the interactive demo
-cd demo
-zig build run
+# Run the interactive demo
+zz demo
 
-# Navigate with arrow keys or j/k
-# Select options with Enter/Space
-# Exit with q or ESC
+# Run in non-interactive mode (for documentation)
+zz demo --non-interactive
+
+# Save demo output to file
+zz demo --output=demo.md -n
 ```
 
 The demo showcases:
@@ -283,7 +282,6 @@ The demo showcases:
 ## Documentation
 
 - **[CLAUDE.md](CLAUDE.md)** - Development guide and implementation details
-- **[demo/README.md](demo/README.md)** - Interactive demo documentation
 
 **Additional Documentation** (in `docs/archive/`, excluded from tree views):
 - **[docs/archive/ARCHITECTURE.md](docs/archive/ARCHITECTURE.md)** - System design and module relationships
@@ -304,6 +302,98 @@ Run `zz benchmark --format=pretty` to see live performance metrics in your termi
 ## Technical Documentation
 
 For detailed architecture documentation, development guidelines, and implementation details, see **[CLAUDE.md](CLAUDE.md)**.
+
+## Demo
+
+Sample terminal session showcasing zz's capabilities:
+
+## 1. Directory Tree Visualization
+Display the structure of the examples directory
+
+```console
+$ zz tree examples --no-gitignore
+
+```
+
+## 2. List Format Output
+Show files in a flat list format
+
+```console
+$ zz tree examples --format=list
+
+```
+
+## 3. TypeScript Code Extraction
+Extract signatures and types from TypeScript
+
+```console
+$ zz prompt examples/app.ts --signatures --types
+
+<File path="./examples/app.ts">
+
+```ts
+interface User {
+    id: number;
+    name: string;
+    email: string;
+    role: UserRole;
+    createdAt: Date;
+}
+type UserRole = 'admin' | 'editor' | 'viewer';
+interface ApiResponse<T> {
+    data: T;
+    status: number;
+    message?: string;
+}
+class UserService {
+    private db: Database;
+    private logger: Logger;
+    
+    constructor(database: Database) {
+        this.db = database;
+        this.logger = new Logger('UserService');
+    }
+    
+    async getUser(id: number): Promise<User> {
+        this.logger.info(`Fetching user ${id}`);
+        return await this.db.findOne<User>('users', { id });
+    }
+    
+    async createUser(data: Partial<User>): Promise<ApiResponse<User>> {
+        try {
+            const user = await this.db.insert<User>('users', {
+                ...data,
+                createdAt: new Date()
+            });
+            
+            return {
+                data: user,
+                status: 201,
+                message: 'User created successfully'
+            };
+        } catch (error) {
+            this.logger.error('Failed to create user', error);
+            throw error;
+        }
+    }
+    
+    async updateUserRole(userId: number, role: UserRole): Promise<void> {
+        await this.db.update('users', { id: userId }, { role });
+    }
+}
+
+```
+
+</File>
+
+```
+
+## 4. CSS Structure Extraction
+Extract CSS selectors and properties
+
+```console
+$ zz prompt examples/styles.css --types
+
 
 ## License
 

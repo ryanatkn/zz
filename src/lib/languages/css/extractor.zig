@@ -12,9 +12,23 @@ pub fn extract(_: std.mem.Allocator, source: []const u8, flags: ExtractionFlags,
         return;
     }
 
-    // For types flag, return full source (CSS doesn't have traditional types)
+    // For types flag, extract selectors and rules (CSS "types" are selectors)
     if (flags.types) {
-        try result.appendSlice(source);
+        // Simple approach: include lines with { or starting with CSS selector characters
+        var lines = std.mem.splitScalar(u8, source, '\n');
+        while (lines.next()) |line| {
+            const trimmed = std.mem.trim(u8, line, " \t");
+            if (trimmed.len == 0) continue;
+            
+            // Include lines with { (rules) or starting with ., #, @, etc.
+            if (std.mem.indexOf(u8, trimmed, "{") != null or
+                std.mem.startsWith(u8, trimmed, ".") or
+                std.mem.startsWith(u8, trimmed, "#") or
+                std.mem.startsWith(u8, trimmed, "@")) {
+                try result.appendSlice(line);
+                try result.append('\n');
+            }
+        }
         return;
     }
 
@@ -51,27 +65,22 @@ fn extractSelectors(source: []const u8, result: *std.ArrayList(u8)) !void {
             continue;
         }
 
+        var should_include = false;
+
         // Check for @rules (media queries, keyframes, etc.)
         if (std.mem.startsWith(u8, trimmed, "@")) {
-            if (line_processing.extractBeforeBrace(trimmed)) |selector| {
-                try builders.appendLine(result, selector);
-            } else {
-                try builders.appendLine(result, trimmed);
-            }
-            continue;
+            should_include = true;
         }
 
-        // Check for CSS selectors (lines ending with { or containing selector patterns)
+        // Check for CSS selectors (lines containing { or starting with selector patterns)
         if (std.mem.indexOf(u8, trimmed, "{") != null) {
-            if (line_processing.extractBeforeBrace(trimmed)) |selector| {
-                try builders.appendLine(result, selector);
-            }
-            continue;
+            should_include = true;
+        } else if (text_patterns.startsWithAny(trimmed, &text_patterns.Patterns.css_selectors)) {
+            should_include = true;
         }
 
-        // Check if line starts with selector patterns
-        if (text_patterns.startsWithAny(trimmed, &text_patterns.Patterns.css_selectors)) {
-            try builders.appendLine(result, trimmed);
+        if (should_include) {
+            try builders.appendLine(result, line);
         }
     }
 }

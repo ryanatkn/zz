@@ -13,8 +13,29 @@ pub fn extract(allocator: std.mem.Allocator, source: []const u8, flags: Extracti
         return;
     }
     
+    // Handle structure flag specifically for HTML
+    if (flags.structure) {
+        var lines = std.mem.splitScalar(u8, source, '\n');
+        while (lines.next()) |line| {
+            const trimmed = std.mem.trim(u8, line, " \t");
+            
+            // Include DOCTYPE, main HTML tags, and structural elements
+            if (std.mem.startsWith(u8, trimmed, "<!DOCTYPE") or
+                std.mem.startsWith(u8, trimmed, "<html") or
+                std.mem.startsWith(u8, trimmed, "<head") or
+                std.mem.startsWith(u8, trimmed, "<body") or
+                std.mem.startsWith(u8, trimmed, "<title") or
+                std.mem.startsWith(u8, trimmed, "<div") or
+                std.mem.startsWith(u8, trimmed, "</")) {
+                try result.appendSlice(line);
+                try result.append('\n');
+            }
+        }
+        return;
+    }
+    
     // If no specific flags are set, return full source (backward compatibility)
-    if (!flags.signatures and !flags.types and !flags.imports and !flags.docs and !flags.tests and !flags.structure) {
+    if (!flags.signatures and !flags.types and !flags.imports and !flags.docs and !flags.tests) {
         try result.appendSlice(source);
         return;
     }

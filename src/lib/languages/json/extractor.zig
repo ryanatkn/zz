@@ -1,7 +1,7 @@
 const std = @import("std");
 const ExtractionFlags = @import("../../language/flags.zig").ExtractionFlags;
 
-/// Extract JSON code using tree-sitter AST
+/// Extract JSON code using pattern-based extraction
 pub fn extract(_: std.mem.Allocator, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
     // JSON is primarily data, so most extraction just returns the source
     if (flags.full) {
@@ -9,13 +9,32 @@ pub fn extract(_: std.mem.Allocator, source: []const u8, flags: ExtractionFlags,
         return;
     }
     
-    // For specific flags, we could use tree-sitter to extract structure
-    // but JSON is simple enough that returning source is usually what's wanted
-    if (flags.types or flags.structure or flags.signatures) {
+    // For signatures flag in JSON, extract key-value pairs
+    if (flags.signatures) {
+        try extractJsonKeys(source, result);
+        return;
+    }
+    
+    // For other specific flags, return source (JSON is mostly structured data)
+    if (flags.types or flags.structure or flags.imports or flags.docs or flags.tests) {
         try result.appendSlice(source);
         return;
     }
     
-    // For other flags, return source (JSON doesn't have functions, imports, etc.)
-    try result.appendSlice(source);
+    // Default: return empty for unsupported extraction types
+}
+
+/// Extract JSON key-value pairs for signatures flag
+fn extractJsonKeys(source: []const u8, result: *std.ArrayList(u8)) !void {
+    var lines = std.mem.splitScalar(u8, source, '\n');
+    
+    while (lines.next()) |line| {
+        const trimmed = std.mem.trim(u8, line, " \t");
+        
+        // Look for JSON key patterns: "key": 
+        if (std.mem.indexOf(u8, trimmed, "\":") != null and std.mem.startsWith(u8, trimmed, "\"")) {
+            try result.appendSlice(line);
+            try result.append('\n');
+        }
+    }
 }

@@ -81,7 +81,7 @@ fn extractWithPatterns(source: []const u8, flags: ExtractionFlags, result: *std.
         if (should_include) {
             try builders.appendLine(result, line);
             if (starts_block) {
-                block_tracker.startBlock();
+                block_tracker.processLine(line);
             }
         }
     }

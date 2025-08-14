@@ -85,8 +85,8 @@ pub const Formatter = struct {
     }
 
     fn formatJson(self: *Self, source: []const u8) FormatterError![]const u8 {
-        const JsonLanguage = @import("../languages/json.zig").JsonLanguage;
-        return JsonLanguage.format(self.allocator, source, self.options) catch |err| switch (err) {
+        const json_format = @import("../languages/json/formatter.zig").format;
+        return json_format(self.allocator, source, self.options) catch |err| switch (err) {
             error.OutOfMemory => return FormatterError.OutOfMemory,
             else => return FormatterError.FormattingFailed,
         };
@@ -103,15 +103,15 @@ pub const Formatter = struct {
     }
 
     fn formatCss(self: *Self, source: []const u8) FormatterError![]const u8 {
-        const CssLanguage = @import("../languages/css.zig").CssLanguage;
-        return CssLanguage.format(self.allocator, source, self.options) catch {
+        const css_format = @import("../languages/css/formatter.zig").format;
+        return css_format(self.allocator, source, self.options) catch {
             return FormatterError.FormattingFailed;
         };
     }
 
     fn formatTypeScript(self: *Self, source: []const u8) FormatterError![]const u8 {
-        const TypeScriptLanguage = @import("../languages/typescript.zig").TypeScriptLanguage;
-        return TypeScriptLanguage.format(self.allocator, source, self.options) catch {
+        const ts_format = @import("../languages/typescript/formatter.zig").format;
+        return ts_format(self.allocator, source, self.options) catch {
             return FormatterError.FormattingFailed;
         };
     }

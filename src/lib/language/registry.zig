@@ -7,13 +7,42 @@ const ExtractionContext = @import("../tree_sitter/visitor.zig").ExtractionContex
 const FormatterOptions = @import("../parsing/formatter.zig").FormatterOptions;
 const TreeSitterParser = @import("../tree_sitter/parser.zig").TreeSitterParser;
 
-// Language implementations
-const JsonLanguage = @import("../languages/json/main.zig").JsonLanguage;
-const TypeScriptLanguage = @import("../languages/typescript.zig").TypeScriptLanguage;
-const CssLanguage = @import("../languages/css/main.zig").CssLanguage;
-const HtmlLanguage = @import("../languages/html/main.zig").HtmlLanguage;
-const ZigLanguage = @import("../languages/zig.zig").ZigLanguage;
-const SvelteLanguage = @import("../languages/svelte.zig").SvelteLanguage;
+// Language implementations - import individual modules directly
+// JSON
+const json_extractor = @import("../languages/json/extractor.zig");
+const json_formatter = @import("../languages/json/formatter.zig");
+const json_grammar = @import("../languages/json/grammar.zig");
+const json_visitor = @import("../languages/json/visitor.zig");
+
+// TypeScript
+const ts_extractor = @import("../languages/typescript/extractor.zig");
+const ts_formatter = @import("../languages/typescript/formatter.zig");
+const ts_grammar = @import("../languages/typescript/grammar.zig");
+const ts_visitor = @import("../languages/typescript/visitor.zig");
+
+// CSS
+const css_extractor = @import("../languages/css/extractor.zig");
+const css_formatter = @import("../languages/css/formatter.zig");
+const css_grammar = @import("../languages/css/grammar.zig");
+const css_visitor = @import("../languages/css/visitor.zig");
+
+// HTML
+const html_extractor = @import("../languages/html/extractor.zig");
+const html_formatter = @import("../languages/html/formatter.zig");
+const html_grammar = @import("../languages/html/grammar.zig");
+const html_visitor = @import("../languages/html/visitor.zig");
+
+// Zig
+const zig_extractor = @import("../languages/zig/extractor.zig");
+const zig_formatter = @import("../languages/zig/formatter.zig");
+const zig_grammar = @import("../languages/zig/grammar.zig");
+const zig_visitor = @import("../languages/zig/visitor.zig");
+
+// Svelte
+const svelte_extractor = @import("../languages/svelte/extractor.zig");
+const svelte_formatter = @import("../languages/svelte/formatter.zig");
+const svelte_grammar = @import("../languages/svelte/grammar.zig");
+const svelte_visitor = @import("../languages/svelte/visitor.zig");
 
 /// Language implementation interface
 pub const LanguageImpl = struct {
@@ -59,57 +88,56 @@ pub const LanguageRegistry = struct {
     fn registerBuiltinLanguages(self: *LanguageRegistry) !void {
         // JSON
         try self.implementations.put(Language.json, LanguageImpl{
-            .name = JsonLanguage.language_name,
-            .grammar = JsonLanguage.grammar,
-            .extract = JsonLanguage.extract,
-            .visitor = JsonLanguage.visitor,
-            .format = JsonLanguage.format,
+            .name = "json",
+            .grammar = json_grammar.grammar,
+            .extract = json_extractor.extract,
+            .visitor = json_visitor.visitor,
+            .format = json_formatter.format,
         });
 
         // TypeScript (and JavaScript)
-        const ts_impl = LanguageImpl{
-            .name = TypeScriptLanguage.language_name,
-            .grammar = TypeScriptLanguage.grammar,
-            .extract = TypeScriptLanguage.extract,
-            .visitor = TypeScriptLanguage.visitor,
-            .format = TypeScriptLanguage.format,
-        };
-        try self.implementations.put(Language.typescript, ts_impl);
+        try self.implementations.put(Language.typescript, LanguageImpl{
+            .name = "typescript",
+            .grammar = ts_grammar.grammar,
+            .extract = ts_extractor.extract,
+            .visitor = ts_visitor.visitor,
+            .format = ts_formatter.format,
+        });
 
         // CSS
         try self.implementations.put(Language.css, LanguageImpl{
-            .name = CssLanguage.language_name,
-            .grammar = CssLanguage.grammar,
-            .extract = CssLanguage.extract,
-            .visitor = CssLanguage.visitor,
-            .format = CssLanguage.format,
+            .name = "css",
+            .grammar = css_grammar.grammar,
+            .extract = css_extractor.extract,
+            .visitor = css_visitor.visitor,
+            .format = css_formatter.format,
         });
 
         // HTML
         try self.implementations.put(Language.html, LanguageImpl{
-            .name = HtmlLanguage.language_name,
-            .grammar = HtmlLanguage.grammar,
-            .extract = HtmlLanguage.extract,
-            .visitor = HtmlLanguage.visitor,
-            .format = HtmlLanguage.format,
+            .name = "html",
+            .grammar = html_grammar.grammar,
+            .extract = html_extractor.extract,
+            .visitor = html_visitor.visitor,
+            .format = html_formatter.format,
         });
 
         // Zig
         try self.implementations.put(Language.zig, LanguageImpl{
-            .name = ZigLanguage.language_name,
-            .grammar = ZigLanguage.grammar,
-            .extract = ZigLanguage.extract,
-            .visitor = ZigLanguage.visitor,
-            .format = ZigLanguage.format,
+            .name = "zig",
+            .grammar = zig_grammar.grammar,
+            .extract = zig_extractor.extract,
+            .visitor = zig_visitor.visitor,
+            .format = zig_formatter.format,
         });
 
         // Svelte
         try self.implementations.put(Language.svelte, LanguageImpl{
-            .name = SvelteLanguage.language_name,
-            .grammar = SvelteLanguage.grammar,
-            .extract = SvelteLanguage.extract,
-            .visitor = SvelteLanguage.visitor,
-            .format = SvelteLanguage.format,
+            .name = "svelte",
+            .grammar = svelte_grammar.grammar,
+            .extract = svelte_extractor.extract,
+            .visitor = svelte_visitor.visitor,
+            .format = svelte_formatter.format,
         });
     }
 

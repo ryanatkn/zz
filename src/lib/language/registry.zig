@@ -8,10 +8,10 @@ const FormatterOptions = @import("../parsing/formatter.zig").FormatterOptions;
 const TreeSitterParser = @import("../tree_sitter/parser.zig").TreeSitterParser;
 
 // Language implementations
-const JsonLanguage = @import("../languages/json.zig").JsonLanguage;
+const JsonLanguage = @import("../languages/json/main.zig").JsonLanguage;
 const TypeScriptLanguage = @import("../languages/typescript.zig").TypeScriptLanguage;
-const CssLanguage = @import("../languages/css.zig").CssLanguage;
-const HtmlLanguage = @import("../languages/html.zig").HtmlLanguage;
+const CssLanguage = @import("../languages/css/main.zig").CssLanguage;
+const HtmlLanguage = @import("../languages/html/main.zig").HtmlLanguage;
 const ZigLanguage = @import("../languages/zig.zig").ZigLanguage;
 const SvelteLanguage = @import("../languages/svelte.zig").SvelteLanguage;
 

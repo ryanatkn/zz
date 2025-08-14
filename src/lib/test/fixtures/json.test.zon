@@ -1,0 +1,216 @@
+.{
+    .language = "json",
+    .parser_tests = .{
+        .{
+            .name = "simple_object",
+            .source = 
+                \\{
+                \\  "name": "example",
+                \\  "version": "1.0.0",
+                \\  "description": "A simple JSON object"
+                \\}
+            ,
+            .extraction_tests = .{
+                .{
+                    .flags = .{ .full = true },
+                    .expected = 
+                        \\{
+                        \\  "name": "example",
+                        \\  "version": "1.0.0",
+                        \\  "description": "A simple JSON object"
+                        \\}
+                    ,
+                },
+                .{
+                    .flags = .{ .signatures = true },
+                    .expected = 
+                        \\"name": "example"
+                        \\"version": "1.0.0"
+                        \\"description": "A simple JSON object"
+                    ,
+                },
+                .{
+                    .flags = .{ .structure = true },
+                    .expected = 
+                        \\{
+                        \\  "name": "example",
+                        \\  "version": "1.0.0",
+                        \\  "description": "A simple JSON object"
+                        \\}
+                    ,
+                },
+            },
+        },
+        .{
+            .name = "nested_structure",
+            .source = 
+                \\{
+                \\  "user": {
+                \\    "id": 123,
+                \\    "profile": {
+                \\      "name": "John Doe",
+                \\      "preferences": ["theme-dark", "notifications-on"]
+                \\    }
+                \\  },
+                \\  "settings": {
+                \\    "auto_save": true,
+                \\    "timeout": 5000
+                \\  }
+                \\}
+            ,
+            .extraction_tests = .{
+                .{
+                    .flags = .{ .signatures = true },
+                    .expected = 
+                        \\"user": {
+                        \\"id": 123
+                        \\"profile": {
+                        \\"name": "John Doe"
+                        \\"preferences": ["theme-dark", "notifications-on"]
+                        \\"settings": {
+                        \\"auto_save": true
+                        \\"timeout": 5000
+                    ,
+                },
+                .{
+                    .flags = .{ .structure = true },
+                    .expected = 
+                        \\{
+                        \\  "user": {
+                        \\    "id": 123,
+                        \\    "profile": {
+                        \\      "name": "John Doe",
+                        \\      "preferences": ["theme-dark", "notifications-on"]
+                        \\    }
+                        \\  },
+                        \\  "settings": {
+                        \\    "auto_save": true,
+                        \\    "timeout": 5000
+                        \\  }
+                        \\}
+                    ,
+                },
+            },
+        },
+        .{
+            .name = "array_structure",
+            .source = 
+                \\[
+                \\  {"name": "item1", "value": 10},
+                \\  {"name": "item2", "value": 20},
+                \\  {"name": "item3", "value": 30}
+                \\]
+            ,
+            .extraction_tests = .{
+                .{
+                    .flags = .{ .structure = true },
+                    .expected = 
+                        \\[
+                        \\  {"name": "item1", "value": 10},
+                        \\  {"name": "item2", "value": 20},
+                        \\  {"name": "item3", "value": 30}
+                        \\]
+                    ,
+                },
+            },
+        },
+    },
+    .formatter_tests = .{
+        .{
+            .name = "minified_to_pretty",
+            .source = 
+                \\{"name":"test","version":"1.0.0","scripts":{"build":"zig build","test":"zig test"}}
+            ,
+            .expected = 
+                \\{
+                \\    "name": "test",
+                \\    "version": "1.0.0",
+                \\    "scripts": {
+                \\        "build": "zig build",
+                \\        "test": "zig test"
+                \\    }
+                \\}
+            ,
+            .options = .{
+                .indent_size = 4,
+                .indent_style = "space",
+            },
+        },
+        .{
+            .name = "tab_indentation",
+            .source = 
+                \\{"config":{"debug":true,"port":8080}}
+            ,
+            .expected = 
+                \\{
+                \\\t"config": {
+                \\\t\t"debug": true,
+                \\\t\t"port": 8080
+                \\\t}
+                \\}
+            ,
+            .options = .{
+                .indent_size = 1,
+                .indent_style = "tab",
+            },
+        },
+        .{
+            .name = "sorted_keys",
+            .source = 
+                \\{"version":"1.0.0","name":"test","author":"dev"}
+            ,
+            .expected = 
+                \\{
+                \\    "author": "dev",
+                \\    "name": "test",
+                \\    "version": "1.0.0"
+                \\}
+            ,
+            .options = .{
+                .sort_keys = true,
+            },
+        },
+        .{
+            .name = "trailing_comma",
+            .source = 
+                \\{"a":1,"b":2}
+            ,
+            .expected = 
+                \\{
+                \\    "a": 1,
+                \\    "b": 2,
+                \\}
+            ,
+            .options = .{
+                .trailing_comma = true,
+            },
+        },
+        .{
+            .name = "compact_arrays",
+            .source = 
+                \\{"numbers":[1,2,3],"flags":[true,false]}
+            ,
+            .expected = 
+                \\{
+                \\    "numbers": [1, 2, 3],
+                \\    "flags": [true, false]
+                \\}
+            ,
+            .options = .{},
+        },
+        .{
+            .name = "line_width_enforcement",
+            .source = 
+                \\{"very_long_key_name_that_exceeds_line_width":"very_long_value_that_also_exceeds_the_specified_line_width"}
+            ,
+            .expected = 
+                \\{
+                \\    "very_long_key_name_that_exceeds_line_width": "very_long_value_that_also_exceeds_the_specified_line_width"
+                \\}
+            ,
+            .options = .{
+                .line_width = 50,
+            },
+        },
+    },
+}

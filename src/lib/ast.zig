@@ -27,7 +27,7 @@ pub const Language = enum {
         if (std.mem.eql(u8, ext, ".css")) return .css;
         if (std.mem.eql(u8, ext, ".html") or std.mem.eql(u8, ext, ".htm")) return .html;
         if (std.mem.eql(u8, ext, ".json")) return .json;
-        if (std.mem.eql(u8, ext, ".ts") or std.mem.eql(u8, ext, ".tsx")) return .typescript;
+        if (std.mem.eql(u8, ext, ".ts")) return .typescript;
         if (std.mem.eql(u8, ext, ".svelte")) return .svelte;
         if (std.mem.eql(u8, ext, ".c") or std.mem.eql(u8, ext, ".h")) return .c;
         if (std.mem.eql(u8, ext, ".cpp") or std.mem.eql(u8, ext, ".cc") or std.mem.eql(u8, ext, ".hpp")) return .cpp;
@@ -232,7 +232,11 @@ pub const Extractor = struct {
         // Dispatch to language-specific text extraction
         switch (self.language) {
             .zig => try self.extractZigText(source, flags, &result),
+            .css => try self.extractCssText(source, flags, &result),
+            .html => try self.extractHtmlText(source, flags, &result),
+            .json => try self.extractJsonText(source, flags, &result),
             .typescript => try self.extractTypeScriptText(source, flags, &result),
+            .svelte => try self.extractSvelteText(source, flags, &result),
             .python => try self.extractPythonText(source, flags, &result),
             .rust => try self.extractRustText(source, flags, &result),
             .go => try self.extractGoText(source, flags, &result),
@@ -254,18 +258,27 @@ pub const Extractor = struct {
             const trimmed = std.mem.trim(u8, line, " \t");
             
             // Functions
-            if (flags.signatures and std.mem.startsWith(u8, trimmed, "pub fn ")) {
-                try result.appendSlice(line);
-                try result.append('\n');
+            if (flags.signatures) {
+                if (std.mem.startsWith(u8, trimmed, "pub fn ") or
+                    std.mem.startsWith(u8, trimmed, "fn ")) {
+                    try result.appendSlice(line);
+                    try result.append('\n');
+                }
             }
             
             // Types
-            if (flags.types and (std.mem.startsWith(u8, trimmed, "pub const ") or
-                                 std.mem.startsWith(u8, trimmed, "const ") or
-                                 std.mem.startsWith(u8, trimmed, "pub struct") or
-                                 std.mem.startsWith(u8, trimmed, "pub enum"))) {
-                try result.appendSlice(line);
-                try result.append('\n');
+            if (flags.types) {
+                if (std.mem.startsWith(u8, trimmed, "pub const ") or
+                    std.mem.startsWith(u8, trimmed, "const ") or
+                    std.mem.startsWith(u8, trimmed, "pub struct") or
+                    std.mem.startsWith(u8, trimmed, "struct ") or
+                    std.mem.startsWith(u8, trimmed, "pub enum") or
+                    std.mem.startsWith(u8, trimmed, "enum ") or
+                    std.mem.startsWith(u8, trimmed, "pub var ") or
+                    std.mem.startsWith(u8, trimmed, "var ")) {
+                    try result.appendSlice(line);
+                    try result.append('\n');
+                }
             }
             
             // Imports
@@ -285,32 +298,77 @@ pub const Extractor = struct {
     fn extractTypeScriptText(self: Extractor, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
         _ = self;
         var lines = std.mem.splitScalar(u8, source, '\n');
+        var in_block = false;
+        var block_depth: i32 = 0;
         
         while (lines.next()) |line| {
             const trimmed = std.mem.trim(u8, line, " \t");
             
-            // Functions
-            if (flags.signatures and (std.mem.startsWith(u8, trimmed, "function ") or
-                                      std.mem.startsWith(u8, trimmed, "export function ") or
-                                      std.mem.indexOf(u8, trimmed, "=>") != null)) {
+            // Track block depth for multi-line interfaces/types
+            if (in_block) {
                 try result.appendSlice(line);
                 try result.append('\n');
+                
+                // Count braces to track nesting
+                for (line) |c| {
+                    if (c == '{') block_depth += 1;
+                    if (c == '}') block_depth -= 1;
+                }
+                
+                if (block_depth <= 0) {
+                    in_block = false;
+                    block_depth = 0;
+                }
+                continue;
             }
             
-            // Types
-            if (flags.types and (std.mem.startsWith(u8, trimmed, "interface ") or
-                                 std.mem.startsWith(u8, trimmed, "type ") or
-                                 std.mem.startsWith(u8, trimmed, "class ") or
-                                 std.mem.startsWith(u8, trimmed, "enum "))) {
-                try result.appendSlice(line);
-                try result.append('\n');
+            // Functions
+            if (flags.signatures) {
+                if (std.mem.startsWith(u8, trimmed, "function ") or
+                    std.mem.startsWith(u8, trimmed, "export function ") or
+                    std.mem.startsWith(u8, trimmed, "export async function ") or
+                    std.mem.startsWith(u8, trimmed, "async function ") or
+                    std.mem.indexOf(u8, trimmed, "=>") != null) {
+                    try result.appendSlice(line);
+                    try result.append('\n');
+                }
+            }
+            
+            // Types - need to capture full interface/type blocks
+            if (flags.types) {
+                if (std.mem.startsWith(u8, trimmed, "interface ") or
+                    std.mem.startsWith(u8, trimmed, "export interface ") or
+                    std.mem.startsWith(u8, trimmed, "type ") or
+                    std.mem.startsWith(u8, trimmed, "export type ") or
+                    std.mem.startsWith(u8, trimmed, "class ") or
+                    std.mem.startsWith(u8, trimmed, "export class ") or
+                    std.mem.startsWith(u8, trimmed, "enum ") or
+                    std.mem.startsWith(u8, trimmed, "export enum ")) {
+                    try result.appendSlice(line);
+                    try result.append('\n');
+                    
+                    // Check if this starts a block
+                    if (std.mem.indexOf(u8, line, "{") != null) {
+                        in_block = true;
+                        for (line) |c| {
+                            if (c == '{') block_depth += 1;
+                            if (c == '}') block_depth -= 1;
+                        }
+                        if (block_depth <= 0) {
+                            in_block = false;
+                            block_depth = 0;
+                        }
+                    }
+                }
             }
             
             // Imports
-            if (flags.imports and (std.mem.startsWith(u8, trimmed, "import ") or
-                                  std.mem.startsWith(u8, trimmed, "export "))) {
-                try result.appendSlice(line);
-                try result.append('\n');
+            if (flags.imports) {
+                if (std.mem.startsWith(u8, trimmed, "import ") or
+                    std.mem.startsWith(u8, trimmed, "export ")) {
+                    try result.appendSlice(line);
+                    try result.append('\n');
+                }
             }
         }
     }
@@ -388,6 +446,169 @@ pub const Extractor = struct {
             if (flags.imports and std.mem.startsWith(u8, trimmed, "import ")) {
                 try result.appendSlice(line);
                 try result.append('\n');
+            }
+        }
+    }
+    
+    fn extractCssText(self: Extractor, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
+        _ = self;
+        
+        // For CSS, structure extraction includes entire rules
+        if (flags.structure or flags.types) {
+            try result.appendSlice(source);
+            return;
+        }
+        
+        // Extract selectors for signatures flag
+        if (flags.signatures) {
+            var lines = std.mem.splitScalar(u8, source, '\n');
+            while (lines.next()) |line| {
+                const trimmed = std.mem.trim(u8, line, " \t");
+                // Check for CSS selectors (ends with '{')
+                if (std.mem.indexOf(u8, trimmed, "{") != null and
+                    !std.mem.startsWith(u8, trimmed, "@")) {
+                    try result.appendSlice(line);
+                    try result.append('\n');
+                }
+            }
+            return;
+        }
+        
+        // Extract imports
+        if (flags.imports) {
+            var lines = std.mem.splitScalar(u8, source, '\n');
+            while (lines.next()) |line| {
+                const trimmed = std.mem.trim(u8, line, " \t");
+                if (std.mem.startsWith(u8, trimmed, "@import") or
+                    std.mem.startsWith(u8, trimmed, "@use")) {
+                    try result.appendSlice(line);
+                    try result.append('\n');
+                }
+            }
+            return;
+        }
+        
+        try result.appendSlice(source);
+    }
+    
+    fn extractHtmlText(self: Extractor, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
+        _ = self;
+        
+        // HTML doesn't have traditional code constructs
+        if (flags.structure) {
+            try result.appendSlice(source);
+            return;
+        }
+        
+        if (flags.docs) {
+            // Extract comments
+            var i: usize = 0;
+            while (i < source.len) : (i += 1) {
+                if (std.mem.startsWith(u8, source[i..], "<!--")) {
+                    const end = std.mem.indexOf(u8, source[i..], "-->");
+                    if (end) |e| {
+                        try result.appendSlice(source[i..i + e + 3]);
+                        try result.append('\n');
+                        i += e + 2;
+                    }
+                }
+            }
+            return;
+        }
+        
+        try result.appendSlice(source);
+    }
+    
+    fn extractJsonText(self: Extractor, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
+        _ = self;
+        _ = flags;
+        
+        // JSON is pure data, return as-is for any extraction
+        try result.appendSlice(source);
+    }
+    
+    fn extractSvelteText(self: Extractor, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
+        _ = self;
+        
+        // For structure flag, return full source
+        if (flags.structure) {
+            try result.appendSlice(source);
+            return;
+        }
+        
+        // Extract script sections for code-related flags
+        if (flags.signatures or flags.imports) {
+            // Find <script> tags and extract JavaScript/TypeScript content
+            var i: usize = 0;
+            while (i < source.len) {
+                if (std.mem.indexOf(u8, source[i..], "<script")) |script_start| {
+                    i += script_start;
+                    if (std.mem.indexOf(u8, source[i..], ">")) |tag_end| {
+                        const content_start = i + tag_end + 1;
+                        if (std.mem.indexOf(u8, source[content_start..], "</script>")) |script_end| {
+                            const script_content = source[content_start..content_start + script_end];
+                            
+                            // Extract imports
+                            if (flags.imports) {
+                                var lines = std.mem.splitScalar(u8, script_content, '\n');
+                                while (lines.next()) |line| {
+                                    const trimmed = std.mem.trim(u8, line, " \t");
+                                    if (std.mem.startsWith(u8, trimmed, "import ")) {
+                                        try result.appendSlice(line);
+                                        try result.append('\n');
+                                    }
+                                }
+                            }
+                            
+                            // Extract function signatures
+                            if (flags.signatures) {
+                                var lines = std.mem.splitScalar(u8, script_content, '\n');
+                                while (lines.next()) |line| {
+                                    const trimmed = std.mem.trim(u8, line, " \t");
+                                    if (std.mem.indexOf(u8, trimmed, "function ") != null) {
+                                        try result.appendSlice(line);
+                                        try result.append('\n');
+                                    }
+                                }
+                            }
+                            
+                            i = content_start + script_end + 9; // Skip past </script>
+                            continue;
+                        }
+                    }
+                }
+                break;
+            }
+        }
+        
+        // Extract style sections for types flag
+        if (flags.types) {
+            // Find <style> tags
+            var i: usize = 0;
+            while (i < source.len) {
+                if (std.mem.indexOf(u8, source[i..], "<style")) |style_start| {
+                    i += style_start;
+                    if (std.mem.indexOf(u8, source[i..], ">")) |tag_end| {
+                        const content_start = i + tag_end + 1;
+                        if (std.mem.indexOf(u8, source[content_start..], "</style>")) |style_end| {
+                            const style_content = source[content_start..content_start + style_end];
+                            
+                            // Extract CSS rules
+                            var lines = std.mem.splitScalar(u8, style_content, '\n');
+                            while (lines.next()) |line| {
+                                const trimmed = std.mem.trim(u8, line, " \t");
+                                if (std.mem.indexOf(u8, trimmed, "{") != null) {
+                                    try result.appendSlice(line);
+                                    try result.append('\n');
+                                }
+                            }
+                            
+                            i = content_start + style_end + 8; // Skip past </style>
+                            continue;
+                        }
+                    }
+                }
+                break;
             }
         }
     }

@@ -27,7 +27,12 @@ pub const TreeSitterParser = struct {
     pub fn init(allocator: std.mem.Allocator, language: Language) !Self {
         const parser = ts.Parser.create();
         const ts_language = try getTreeSitterLanguage(language);
-        try parser.setLanguage(ts_language);
+        
+        // Try to set language, but handle version incompatibility gracefully
+        parser.setLanguage(ts_language) catch |err| {
+            parser.destroy();
+            return err;
+        };
         
         return Self{
             .allocator = allocator,

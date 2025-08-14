@@ -1,0 +1,398 @@
+.{
+    .language = "svelte",
+    .parser_tests = .{
+        .{
+            .name = "basic_component",
+            .source = 
+                \\<script>
+                \\    export let name = 'World';
+                \\    export let count = 0;
+                \\    
+                \\    function increment() {
+                \\        count += 1;
+                \\    }
+                \\</script>
+                \\
+                \\<style>
+                \\    .container {
+                \\        padding: 1rem;
+                \\        text-align: center;
+                \\    }
+                \\    
+                \\    button {
+                \\        background: #ff3e00;
+                \\        color: white;
+                \\        border: none;
+                \\        padding: 0.5rem 1rem;
+                \\        border-radius: 0.25rem;
+                \\        cursor: pointer;
+                \\    }
+                \\</style>
+                \\
+                \\<div class="container">
+                \\    <h1>Hello {name}!</h1>
+                \\    <p>Count: {count}</p>
+                \\    <button on:click={increment}>
+                \\        Click me
+                \\    </button>
+                \\</div>
+            ,
+            .extraction_tests = .{
+                .{
+                    .flags = .{ .full = true },
+                    .expected = 
+                        \\<script>
+                        \\    export let name = 'World';
+                        \\    export let count = 0;
+                        \\    
+                        \\    function increment() {
+                        \\        count += 1;
+                        \\    }
+                        \\</script>
+                        \\
+                        \\<style>
+                        \\    .container {
+                        \\        padding: 1rem;
+                        \\        text-align: center;
+                        \\    }
+                        \\    
+                        \\    button {
+                        \\        background: #ff3e00;
+                        \\        color: white;
+                        \\        border: none;
+                        \\        padding: 0.5rem 1rem;
+                        \\        border-radius: 0.25rem;
+                        \\        cursor: pointer;
+                        \\    }
+                        \\</style>
+                        \\
+                        \\<div class="container">
+                        \\    <h1>Hello {name}!</h1>
+                        \\    <p>Count: {count}</p>
+                        \\    <button on:click={increment}>
+                        \\        Click me
+                        \\    </button>
+                        \\</div>
+                    ,
+                },
+                .{
+                    .flags = .{ .signatures = true },
+                    .expected = 
+                        \\export let name = 'World';
+                        \\export let count = 0;
+                        \\function increment()
+                    ,
+                },
+                .{
+                    .flags = .{ .structure = true },
+                    .expected = 
+                        \\<script>
+                        \\    export let name = 'World';
+                        \\    export let count = 0;
+                        \\    function increment() {
+                        \\        count += 1;
+                        \\    }
+                        \\</script>
+                        \\<style>
+                        \\    .container {
+                        \\        padding: 1rem;
+                        \\        text-align: center;
+                        \\    }
+                        \\    button {
+                        \\        background: #ff3e00;
+                        \\        color: white;
+                        \\        border: none;
+                        \\        padding: 0.5rem 1rem;
+                        \\        border-radius: 0.25rem;
+                        \\        cursor: pointer;
+                        \\    }
+                        \\</style>
+                        \\<div class="container">
+                        \\    <h1>Hello {name}!</h1>
+                        \\    <p>Count: {count}</p>
+                        \\    <button on:click={increment}>
+                        \\        Click me
+                        \\    </button>
+                        \\</div>
+                    ,
+                },
+            },
+        },
+        .{
+            .name = "reactive_statements",
+            .source = 
+                \\<script>
+                \\    export let items = [];
+                \\    
+                \\    let searchTerm = '';
+                \\    let sortBy = 'name';
+                \\    
+                \\    $: filteredItems = items.filter(item => 
+                \\        item.name.toLowerCase().includes(searchTerm.toLowerCase())
+                \\    );
+                \\    
+                \\    $: sortedItems = filteredItems.sort((a, b) => {
+                \\        if (sortBy === 'name') return a.name.localeCompare(b.name);
+                \\        if (sortBy === 'date') return new Date(a.date) - new Date(b.date);
+                \\        return 0;
+                \\    });
+                \\    
+                \\    $: console.log('Items updated:', sortedItems.length);
+                \\</script>
+                \\
+                \\<input bind:value={searchTerm} placeholder="Search items..." />
+                \\<select bind:value={sortBy}>
+                \\    <option value="name">Sort by Name</option>
+                \\    <option value="date">Sort by Date</option>
+                \\</select>
+                \\
+                \\{#each sortedItems as item (item.id)}
+                \\    <div class="item">
+                \\        <h3>{item.name}</h3>
+                \\        <p>{item.description}</p>
+                \\    </div>
+                \\{/each}
+            ,
+            .extraction_tests = .{
+                .{
+                    .flags = .{ .signatures = true },
+                    .expected = 
+                        \\export let items = [];
+                        \\let searchTerm = '';
+                        \\let sortBy = 'name';
+                        \\$: filteredItems = items.filter(item =>
+                        \\$: sortedItems = filteredItems.sort((a, b) => {
+                        \\$: console.log('Items updated:', sortedItems.length);
+                    ,
+                },
+            },
+        },
+        .{
+            .name = "slots_and_props",
+            .source = 
+                \\<script>
+                \\    export let title;
+                \\    export let subtitle = '';
+                \\    export let variant = 'default';
+                \\    export let disabled = false;
+                \\    
+                \\    import { createEventDispatcher } from 'svelte';
+                \\    const dispatch = createEventDispatcher();
+                \\    
+                \\    function handleClick(event) {
+                \\        if (!disabled) {
+                \\            dispatch('click', {
+                \\                event,
+                \\                variant
+                \\            });
+                \\        }
+                \\    }
+                \\</script>
+                \\
+                \\<style>
+                \\    .card {
+                \\        border: 1px solid #ccc;
+                \\        border-radius: 0.5rem;
+                \\        padding: 1rem;
+                \\    }
+                \\    
+                \\    .card.disabled {
+                \\        opacity: 0.5;
+                \\        cursor: not-allowed;
+                \\    }
+                \\    
+                \\    .card.primary {
+                \\        border-color: #007bff;
+                \\        background: #f8f9fa;
+                \\    }
+                \\</style>
+                \\
+                \\<div 
+                \\    class="card {variant} {disabled ? 'disabled' : ''}"
+                \\    on:click={handleClick}
+                \\    role="button"
+                \\    tabindex={disabled ? -1 : 0}
+                \\>
+                \\    <header>
+                \\        <h2>{title}</h2>
+                \\        {#if subtitle}
+                \\            <p class="subtitle">{subtitle}</p>
+                \\        {/if}
+                \\    </header>
+                \\    
+                \\    <main>
+                \\        <slot>
+                \\            <!-- Default content goes here -->
+                \\            <p>No content provided</p>
+                \\        </slot>
+                \\    </main>
+                \\    
+                \\    <footer>
+                \\        <slot name="footer">
+                \\            <!-- Named slot for footer content -->
+                \\        </slot>
+                \\    </footer>
+                \\</div>
+            ,
+            .extraction_tests = .{
+                .{
+                    .flags = .{ .imports = true },
+                    .expected = 
+                        \\import { createEventDispatcher } from 'svelte';
+                    ,
+                },
+                .{
+                    .flags = .{ .signatures = true },
+                    .expected = 
+                        \\export let title;
+                        \\export let subtitle = '';
+                        \\export let variant = 'default';
+                        \\export let disabled = false;
+                        \\const dispatch = createEventDispatcher();
+                        \\function handleClick(event)
+                    ,
+                },
+            },
+        },
+    },
+    .formatter_tests = .{
+        .{
+            .name = "basic_component_formatting",
+            .source = 
+                \\<script>export let name='World';function greet(){alert('Hello '+name+'!');}</script><div><h1>Hello {name}!</h1><button on:click={greet}>Greet</button></div>
+            ,
+            .expected = 
+                \\<script>
+                \\    export let name = 'World';
+                \\    
+                \\    function greet() {
+                \\        alert('Hello ' + name + '!');
+                \\    }
+                \\</script>
+                \\
+                \\<div>
+                \\    <h1>Hello {name}!</h1>
+                \\    <button on:click={greet}>Greet</button>
+                \\</div>
+            ,
+            .options = .{
+                .indent_size = 4,
+            },
+        },
+        .{
+            .name = "style_section_formatting",
+            .source = 
+                \\<style>.container{padding:1rem;background:#f5f5f5;}.button{background:#007bff;color:white;border:none;padding:0.5rem 1rem;}</style>
+            ,
+            .expected = 
+                \\<style>
+                \\    .container {
+                \\        padding: 1rem;
+                \\        background: #f5f5f5;
+                \\    }
+                \\    
+                \\    .button {
+                \\        background: #007bff;
+                \\        color: white;
+                \\        border: none;
+                \\        padding: 0.5rem 1rem;
+                \\    }
+                \\</style>
+            ,
+            .options = .{
+                .indent_size = 4,
+            },
+        },
+        .{
+            .name = "reactive_statements_formatting",
+            .source = 
+                \\<script>let count=0;$: doubled=count*2;$: console.log('Count:',count,'Doubled:',doubled);</script>
+            ,
+            .expected = 
+                \\<script>
+                \\    let count = 0;
+                \\    
+                \\    $: doubled = count * 2;
+                \\    $: console.log('Count:', count, 'Doubled:', doubled);
+                \\</script>
+            ,
+            .options = .{
+                .indent_size = 4,
+            },
+        },
+        .{
+            .name = "complex_template_formatting",
+            .source = 
+                \\<div>{#if user}<p>Welcome, {user.name}!</p>{#if user.isAdmin}<button>Admin Panel</button>{/if}{:else}<p>Please log in</p>{/if}{#each items as item, index}<div class="item-{index}"><h3>{item.title}</h3><p>{item.description}</p></div>{/each}</div>
+            ,
+            .expected = 
+                \\<div>
+                \\    {#if user}
+                \\        <p>Welcome, {user.name}!</p>
+                \\        {#if user.isAdmin}
+                \\            <button>Admin Panel</button>
+                \\        {/if}
+                \\    {:else}
+                \\        <p>Please log in</p>
+                \\    {/if}
+                \\    
+                \\    {#each items as item, index}
+                \\        <div class="item-{index}">
+                \\            <h3>{item.title}</h3>
+                \\            <p>{item.description}</p>
+                \\        </div>
+                \\    {/each}
+                \\</div>
+            ,
+            .options = .{
+                .indent_size = 4,
+                .line_width = 80,
+            },
+        },
+        .{
+            .name = "slot_formatting",
+            .source = 
+                \\<div class="modal"><slot name="header"><h2>Default Header</h2></slot><main><slot>Default content</slot></main><footer><slot name="footer"></slot></footer></div>
+            ,
+            .expected = 
+                \\<div class="modal">
+                \\    <slot name="header">
+                \\        <h2>Default Header</h2>
+                \\    </slot>
+                \\    
+                \\    <main>
+                \\        <slot>Default content</slot>
+                \\    </main>
+                \\    
+                \\    <footer>
+                \\        <slot name="footer"></slot>
+                \\    </footer>
+                \\</div>
+            ,
+            .options = .{
+                .indent_size = 4,
+            },
+        },
+        .{
+            .name = "attribute_formatting",
+            .source = 
+                \\<button class="btn btn-primary"disabled={loading}on:click={handleSubmit}aria-label="Submit form"data-testid="submit-button">Submit</button>
+            ,
+            .expected = 
+                \\<button 
+                \\    class="btn btn-primary"
+                \\    disabled={loading}
+                \\    on:click={handleSubmit}
+                \\    aria-label="Submit form"
+                \\    data-testid="submit-button"
+                \\>
+                \\    Submit
+                \\</button>
+            ,
+            .options = .{
+                .line_width = 40,
+                .indent_size = 4,
+            },
+        },
+    },
+}

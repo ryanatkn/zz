@@ -18,7 +18,10 @@ pub const AstFormatter = struct {
     const Self = @This();
     
     pub fn init(allocator: std.mem.Allocator, language: Language, options: FormatterOptions) !Self {
-        const parser = try TreeSitterParser.init(allocator, language);
+        const parser = TreeSitterParser.init(allocator, language) catch {
+            // Tree-sitter initialization failed (version incompatibility, unsupported language, etc.)
+            return error.UnsupportedLanguage;
+        };
         
         return Self{
             .allocator = allocator,
@@ -30,7 +33,10 @@ pub const AstFormatter = struct {
     }
     
     pub fn initWithCache(allocator: std.mem.Allocator, language: Language, options: FormatterOptions, cache: *AstCache) !Self {
-        const parser = try TreeSitterParser.init(allocator, language);
+        const parser = TreeSitterParser.init(allocator, language) catch {
+            // Tree-sitter initialization failed (version incompatibility, unsupported language, etc.)
+            return error.UnsupportedLanguage;
+        };
         
         return Self{
             .allocator = allocator,

@@ -7,6 +7,7 @@ const GitignorePatterns = @import("../patterns/gitignore.zig").GitignorePatterns
 const FilesystemInterface = @import("../filesystem/interface.zig").FilesystemInterface;
 const DirHandle = @import("../filesystem/interface.zig").DirHandle;
 const filesystem_utils = @import("../lib/filesystem.zig");
+const ZonParser = @import("../lib/zon_parser.zig").ZonParser;
 
 pub const IndentStyle = enum {
     space,
@@ -118,17 +119,8 @@ pub const ZonLoader = struct {
     pub fn loadFromContent(self: *Self, content: []const u8) !void {
         if (self.config != null) return; // Already loaded
 
-        // Add null terminator for ZON parsing
-        const null_terminated = try self.allocator.dupeZ(u8, content);
-        defer self.allocator.free(null_terminated);
-
-        // Parse the ZON content
-        const parsed = std.zon.parse.fromSlice(ZonConfig, self.allocator, null_terminated, null, .{}) catch {
-            self.config = ZonConfig{}; // Empty config on parse error
-            return;
-        };
-
-        self.config = parsed;
+        // Use shared ZON parser utility with graceful error handling
+        self.config = ZonParser.parseFromSliceWithDefault(ZonConfig, self.allocator, content, ZonConfig{});
     }
 
     pub fn getConfig(self: *Self) !ZonConfig {
@@ -293,7 +285,7 @@ pub const ZonLoader = struct {
 
     pub fn deinit(self: *Self) void {
         if (self.config) |config| {
-            std.zon.parse.free(self.allocator, config);
+            ZonParser.free(self.allocator, config);
         }
     }
 };

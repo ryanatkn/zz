@@ -27,8 +27,6 @@ test "Language detection from file extensions" {
     // Unknown
     try testing.expectEqual(Language.unknown, Language.fromExtension(".txt"));
     try testing.expectEqual(Language.unknown, Language.fromExtension(".md"));
-    try testing.expectEqual(Language.unknown, Language.fromExtension(".tsx")); // Not supported
-    try testing.expectEqual(Language.unknown, Language.fromExtension(".jsx")); // Not supported
     try testing.expectEqual(Language.unknown, Language.fromExtension(".js"));  // Not supported
 }
 

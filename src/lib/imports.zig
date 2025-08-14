@@ -121,7 +121,7 @@ pub const Extractor = struct {
             const trimmed = std.mem.trim(u8, line, " \t");
             
             // Extract @import statements
-            if (std.mem.startsWith(u8, trimmed, "@import(")) {
+            if (std.mem.indexOf(u8, trimmed, "@import(") != null) {
                 if (self.parseZigImport(file_path, trimmed, line_num)) |import| {
                     try imports.append(import);
                 } else |_| {
@@ -246,12 +246,12 @@ pub const Extractor = struct {
     
     // Parsing helpers
     fn parseZigImport(self: *Extractor, file_path: []const u8, line: []const u8, line_num: u32) !Import {
-        // @import("path")
-        const start = std.mem.indexOf(u8, line, "\"") orelse return error.NoQuote;
-        const end = std.mem.lastIndexOf(u8, line, "\"") orelse return error.NoQuote;
-        if (start >= end) return error.InvalidQuotes;
+        // Handle both: @import("path") and const name = @import("path")
+        const import_pos = std.mem.indexOf(u8, line, "@import(") orelse return error.NoImport;
+        const after_import = line[import_pos + 8..]; // Skip "@import("
         
-        const path = try self.allocator.dupe(u8, line[start + 1 .. end]);
+        const quote_end = std.mem.indexOf(u8, after_import, "\")") orelse return error.NoQuote;
+        const path = try self.allocator.dupe(u8, after_import[0..quote_end]);
         const kind = if (std.mem.startsWith(u8, path, "./") or std.mem.startsWith(u8, path, "../")) 
             ImportKind.relative 
         else if (std.mem.startsWith(u8, path, "std")) 

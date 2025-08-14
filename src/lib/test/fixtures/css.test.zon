@@ -1,0 +1,291 @@
+.{
+    .language = "css",
+    .parser_tests = .{
+        .{
+            .name = "simple_selectors",
+            .source = 
+                \\.container {
+                \\    display: flex;
+                \\    gap: 1rem;
+                \\}
+                \\
+                \\.button {
+                \\    padding: 0.5rem 1rem;
+                \\    border: none;
+                \\}
+            ,
+            .extraction_tests = .{
+                .{
+                    .flags = .{ .full = true },
+                    .expected = 
+                        \\.container {
+                        \\    display: flex;
+                        \\    gap: 1rem;
+                        \\}
+                        \\
+                        \\.button {
+                        \\    padding: 0.5rem 1rem;
+                        \\    border: none;
+                        \\}
+                    ,
+                },
+                .{
+                    .flags = .{ .signatures = true },
+                    .expected = 
+                        \\.container
+                        \\.button
+                    ,
+                },
+                .{
+                    .flags = .{ .structure = true },
+                    .expected = 
+                        \\.container {
+                        \\    display: flex;
+                        \\    gap: 1rem;
+                        \\}
+                        \\.button {
+                        \\    padding: 0.5rem 1rem;
+                        \\    border: none;
+                        \\}
+                    ,
+                },
+            },
+        },
+        .{
+            .name = "media_queries",
+            .source = 
+                \\@media (max-width: 768px) {
+                \\    .container {
+                \\        flex-direction: column;
+                \\    }
+                \\    
+                \\    .button {
+                \\        width: 100%;
+                \\    }
+                \\}
+                \\
+                \\@media print {
+                \\    .no-print {
+                \\        display: none;
+                \\    }
+                \\}
+            ,
+            .extraction_tests = .{
+                .{
+                    .flags = .{ .signatures = true },
+                    .expected = 
+                        \\@media (max-width: 768px)
+                        \\.container
+                        \\.button
+                        \\@media print
+                        \\.no-print
+                    ,
+                },
+                .{
+                    .flags = .{ .structure = true },
+                    .expected = 
+                        \\@media (max-width: 768px) {
+                        \\    .container {
+                        \\        flex-direction: column;
+                        \\    }
+                        \\    .button {
+                        \\        width: 100%;
+                        \\    }
+                        \\}
+                        \\@media print {
+                        \\    .no-print {
+                        \\        display: none;
+                        \\    }
+                        \\}
+                    ,
+                },
+            },
+        },
+        .{
+            .name = "css_variables",
+            .source = 
+                \\:root {
+                \\    --primary-color: #007bff;
+                \\    --secondary-color: #6c757d;
+                \\    --font-size: 16px;
+                \\}
+                \\
+                \\.theme-dark {
+                \\    --primary-color: #0d6efd;
+                \\    --bg-color: #212529;
+                \\}
+            ,
+            .extraction_tests = .{
+                .{
+                    .flags = .{ .types = true },
+                    .expected = 
+                        \\:root {
+                        \\    --primary-color: #007bff;
+                        \\    --secondary-color: #6c757d;
+                        \\    --font-size: 16px;
+                        \\}
+                        \\.theme-dark {
+                        \\    --primary-color: #0d6efd;
+                        \\    --bg-color: #212529;
+                        \\}
+                    ,
+                },
+            },
+        },
+        .{
+            .name = "complex_selectors",
+            .source = 
+                \\.nav > ul li:first-child {
+                \\    margin-left: 0;
+                \\}
+                \\
+                \\.card:hover .card-body {
+                \\    transform: translateY(-2px);
+                \\}
+                \\
+                \\input[type="text"]:focus {
+                \\    border-color: var(--primary-color);
+                \\}
+            ,
+            .extraction_tests = .{
+                .{
+                    .flags = .{ .signatures = true },
+                    .expected = 
+                        \\.nav > ul li:first-child
+                        \\.card:hover .card-body
+                        \\input[type="text"]:focus
+                    ,
+                },
+            },
+        },
+    },
+    .formatter_tests = .{
+        .{
+            .name = "minified_to_pretty",
+            .source = 
+                \\.container{display:flex;gap:1rem}.button{padding:0.5rem 1rem;border:none}
+            ,
+            .expected = 
+                \\.container {
+                \\    display: flex;
+                \\    gap: 1rem;
+                \\}
+                \\
+                \\.button {
+                \\    padding: 0.5rem 1rem;
+                \\    border: none;
+                \\}
+            ,
+            .options = .{
+                .indent_size = 4,
+                .indent_style = "space",
+            },
+        },
+        .{
+            .name = "tab_indentation",
+            .source = 
+                \\.nav {
+                \\    display: flex;
+                \\    justify-content: space-between;
+                \\}
+            ,
+            .expected = 
+                \\.nav {
+                \\\tdisplay: flex;
+                \\\tjustify-content: space-between;
+                \\}
+            ,
+            .options = .{
+                .indent_size = 1,
+                .indent_style = "tab",
+            },
+        },
+        .{
+            .name = "media_query_formatting",
+            .source = 
+                \\@media (max-width: 768px){.container{flex-direction:column;}.button{width:100%;}}
+            ,
+            .expected = 
+                \\@media (max-width: 768px) {
+                \\    .container {
+                \\        flex-direction: column;
+                \\    }
+                \\    
+                \\    .button {
+                \\        width: 100%;
+                \\    }
+                \\}
+            ,
+            .options = .{
+                .indent_size = 4,
+                .line_width = 80,
+            },
+        },
+        .{
+            .name = "property_alignment",
+            .source = 
+                \\.card {
+                \\padding: 1rem;
+                \\margin: 0.5rem;
+                \\border-radius: 0.25rem;
+                \\box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                \\}
+            ,
+            .expected = 
+                \\.card {
+                \\    padding:      1rem;
+                \\    margin:       0.5rem;
+                \\    border-radius: 0.25rem;
+                \\    box-shadow:   0 2px 4px rgba(0, 0, 0, 0.1);
+                \\}
+            ,
+            .options = .{
+                .indent_size = 4,
+            },
+        },
+        .{
+            .name = "preserve_comments",
+            .source = 
+                \\/* Main navigation styles */
+                \\.nav {
+                \\    display: flex; /* Use flexbox layout */
+                \\    gap: 1rem;
+                \\}
+                \\
+                \\/* Button component */
+                \\.button {
+                \\    padding: 0.5rem 1rem;
+                \\}
+            ,
+            .expected = 
+                \\/* Main navigation styles */
+                \\.nav {
+                \\    display: flex; /* Use flexbox layout */
+                \\    gap: 1rem;
+                \\}
+                \\
+                \\/* Button component */
+                \\.button {
+                \\    padding: 0.5rem 1rem;
+                \\}
+            ,
+            .options = .{},
+        },
+        .{
+            .name = "css_variables_formatting",
+            .source = 
+                \\:root{--primary:#007bff;--secondary:#6c757d;--font-size:16px;}
+            ,
+            .expected = 
+                \\:root {
+                \\    --primary:   #007bff;
+                \\    --secondary: #6c757d;
+                \\    --font-size: 16px;
+                \\}
+            ,
+            .options = .{
+                .indent_size = 4,
+            },
+        },
+    },
+}

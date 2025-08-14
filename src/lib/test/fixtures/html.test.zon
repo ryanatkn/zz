@@ -1,0 +1,302 @@
+.{
+    .language = "html",
+    .parser_tests = .{
+        .{
+            .name = "basic_elements",
+            .source = 
+                \\<!DOCTYPE html>
+                \\<html lang="en">
+                \\<head>
+                \\    <meta charset="UTF-8">
+                \\    <title>Test Page</title>
+                \\</head>
+                \\<body>
+                \\    <header>
+                \\        <h1>Welcome</h1>
+                \\    </header>
+                \\    <main>
+                \\        <p>Content goes here</p>
+                \\    </main>
+                \\</body>
+                \\</html>
+            ,
+            .extraction_tests = .{
+                .{
+                    .flags = .{ .full = true },
+                    .expected = 
+                        \\<!DOCTYPE html>
+                        \\<html lang="en">
+                        \\<head>
+                        \\    <meta charset="UTF-8">
+                        \\    <title>Test Page</title>
+                        \\</head>
+                        \\<body>
+                        \\    <header>
+                        \\        <h1>Welcome</h1>
+                        \\    </header>
+                        \\    <main>
+                        \\        <p>Content goes here</p>
+                        \\    </main>
+                        \\</body>
+                        \\</html>
+                    ,
+                },
+                .{
+                    .flags = .{ .structure = true },
+                    .expected = 
+                        \\<!DOCTYPE html>
+                        \\<html lang="en">
+                        \\<head>
+                        \\<meta charset="UTF-8">
+                        \\<title>Test Page</title>
+                        \\</head>
+                        \\<body>
+                        \\<header>
+                        \\<h1>Welcome</h1>
+                        \\</header>
+                        \\<main>
+                        \\<p>Content goes here</p>
+                        \\</main>
+                        \\</body>
+                        \\</html>
+                    ,
+                },
+                .{
+                    .flags = .{ .signatures = true },
+                    .expected = 
+                        \\<html lang="en">
+                        \\<head>
+                        \\<meta charset="UTF-8">
+                        \\<title>
+                        \\<body>
+                        \\<header>
+                        \\<h1>
+                        \\<main>
+                        \\<p>
+                    ,
+                },
+            },
+        },
+        .{
+            .name = "form_elements",
+            .source = 
+                \\<form action="/submit" method="post">
+                \\    <div class="form-group">
+                \\        <label for="name">Name:</label>
+                \\        <input type="text" id="name" name="name" required>
+                \\    </div>
+                \\    <div class="form-group">
+                \\        <label for="email">Email:</label>
+                \\        <input type="email" id="email" name="email" required>
+                \\    </div>
+                \\    <div class="form-group">
+                \\        <label for="message">Message:</label>
+                \\        <textarea id="message" name="message" rows="4"></textarea>
+                \\    </div>
+                \\    <button type="submit">Send</button>
+                \\</form>
+            ,
+            .extraction_tests = .{
+                .{
+                    .flags = .{ .structure = true },
+                    .expected = 
+                        \\<form action="/submit" method="post">
+                        \\<div class="form-group">
+                        \\<label for="name">Name:</label>
+                        \\<input type="text" id="name" name="name" required>
+                        \\</div>
+                        \\<div class="form-group">
+                        \\<label for="email">Email:</label>
+                        \\<input type="email" id="email" name="email" required>
+                        \\</div>
+                        \\<div class="form-group">
+                        \\<label for="message">Message:</label>
+                        \\<textarea id="message" name="message" rows="4"></textarea>
+                        \\</div>
+                        \\<button type="submit">Send</button>
+                        \\</form>
+                    ,
+                },
+            },
+        },
+        .{
+            .name = "void_elements",
+            .source = 
+                \\<div>
+                \\    <img src="image.jpg" alt="Description" />
+                \\    <br>
+                \\    <hr />
+                \\    <input type="text" value="test">
+                \\    <meta name="description" content="Test page">
+                \\</div>
+            ,
+            .extraction_tests = .{
+                .{
+                    .flags = .{ .signatures = true },
+                    .expected = 
+                        \\<div>
+                        \\<img src="image.jpg" alt="Description" />
+                        \\<br>
+                        \\<hr />
+                        \\<input type="text" value="test">
+                        \\<meta name="description" content="Test page">
+                    ,
+                },
+            },
+        },
+        .{
+            .name = "event_handlers",
+            .source = 
+                \\<button onclick="handleClick()" onmouseover="highlight()">
+                \\    Click me
+                \\</button>
+                \\<div onload="init()" data-action="save">
+                \\    Content
+                \\</div>
+                \\<form onsubmit="return validate()">
+                \\    <input onchange="updatePreview()" type="text">
+                \\</form>
+            ,
+            .extraction_tests = .{
+                .{
+                    .flags = .{ .imports = true },
+                    .expected = 
+                        \\onclick="handleClick()"
+                        \\onmouseover="highlight()"
+                        \\onload="init()"
+                        \\onsubmit="return validate()"
+                        \\onchange="updatePreview()"
+                    ,
+                },
+            },
+        },
+    },
+    .formatter_tests = .{
+        .{
+            .name = "basic_indentation",
+            .source = 
+                \\<div><p>Hello <strong>world</strong></p><span>Test</span></div>
+            ,
+            .expected = 
+                \\<div>
+                \\    <p>
+                \\        Hello <strong>world</strong>
+                \\    </p>
+                \\    <span>Test</span>
+                \\</div>
+            ,
+            .options = .{
+                .indent_size = 4,
+                .indent_style = "space",
+            },
+        },
+        .{
+            .name = "tab_indentation",
+            .source = 
+                \\<article><header><h1>Title</h1></header><section><p>Content</p></section></article>
+            ,
+            .expected = 
+                \\<article>
+                \\\t<header>
+                \\\t\t<h1>Title</h1>
+                \\\t</header>
+                \\\t<section>
+                \\\t\t<p>Content</p>
+                \\\t</section>
+                \\</article>
+            ,
+            .options = .{
+                .indent_size = 1,
+                .indent_style = "tab",
+            },
+        },
+        .{
+            .name = "attribute_formatting",
+            .source = 
+                \\<input type="text" id="username" name="username" class="form-control" placeholder="Enter username" required aria-label="Username">
+            ,
+            .expected = 
+                \\<input 
+                \\    type="text" 
+                \\    id="username" 
+                \\    name="username" 
+                \\    class="form-control" 
+                \\    placeholder="Enter username" 
+                \\    required 
+                \\    aria-label="Username"
+                \\>
+            ,
+            .options = .{
+                .line_width = 50,
+            },
+        },
+        .{
+            .name = "preserve_inline_elements",
+            .source = 
+                \\<p>This is <strong>important</strong> text with <a href="/link">a link</a> and <em>emphasis</em>.</p>
+            ,
+            .expected = 
+                \\<p>
+                \\    This is <strong>important</strong> text with <a href="/link">a link</a> and <em>emphasis</em>.
+                \\</p>
+            ,
+            .options = .{},
+        },
+        .{
+            .name = "void_element_formatting",
+            .source = 
+                \\<div><img src="test.jpg" alt="Test"/><br><hr/><input type="text" value="test"></div>
+            ,
+            .expected = 
+                \\<div>
+                \\    <img src="test.jpg" alt="Test" />
+                \\    <br>
+                \\    <hr />
+                \\    <input type="text" value="test">
+                \\</div>
+            ,
+            .options = .{},
+        },
+        .{
+            .name = "complex_nesting",
+            .source = 
+                \\<html><head><title>Test</title><meta charset="UTF-8"></head><body><div class="container"><header><nav><ul><li><a href="/">Home</a></li><li><a href="/about">About</a></li></ul></nav></header><main><section><article><h1>Article Title</h1><p>Article content goes here.</p></article></section></main></div></body></html>
+            ,
+            .expected = 
+                \\<html>
+                \\    <head>
+                \\        <title>Test</title>
+                \\        <meta charset="UTF-8">
+                \\    </head>
+                \\    <body>
+                \\        <div class="container">
+                \\            <header>
+                \\                <nav>
+                \\                    <ul>
+                \\                        <li>
+                \\                            <a href="/">Home</a>
+                \\                        </li>
+                \\                        <li>
+                \\                            <a href="/about">About</a>
+                \\                        </li>
+                \\                    </ul>
+                \\                </nav>
+                \\            </header>
+                \\            <main>
+                \\                <section>
+                \\                    <article>
+                \\                        <h1>Article Title</h1>
+                \\                        <p>Article content goes here.</p>
+                \\                    </article>
+                \\                </section>
+                \\            </main>
+                \\        </div>
+                \\    </body>
+                \\</html>
+            ,
+            .options = .{
+                .indent_size = 4,
+            },
+        },
+    },
+}

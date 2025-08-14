@@ -7,7 +7,7 @@ const ParserTest = @import("fixture_loader.zig").ParserTest;
 const FormatterTest = @import("fixture_loader.zig").FormatterTest;
 const ExtractionTest = @import("fixture_loader.zig").ExtractionTest;
 const Extractor = @import("../extractor.zig").Extractor;
-const Language = @import("../language.zig").Language;
+const Language = @import("../language/detection.zig").Language;
 const Formatter = @import("../formatter.zig").Formatter;
 
 /// Comprehensive test runner for all language fixtures

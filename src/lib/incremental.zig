@@ -5,7 +5,7 @@ const imports_mod = @import("imports.zig");
 const ImportInfo = imports_mod.Import;
 const ExtractionResult = imports_mod.ExtractionResult;
 const TreeSitterParser = @import("tree_sitter_parser.zig").TreeSitterParser;
-const Language = @import("language.zig").Language;
+const Language = @import("language/detection.zig").Language;
 const io = @import("io.zig");
 const errors = @import("errors.zig");
 

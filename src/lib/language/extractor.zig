@@ -1,14 +1,17 @@
 const std = @import("std");
-const Language = @import("language/detection.zig").Language;
-const ExtractionFlags = @import("language/flags.zig").ExtractionFlags;
+const detection = @import("detection.zig");
+const flags_mod = @import("flags.zig");
+
+const Language = detection.Language;
+const ExtractionFlags = flags_mod.ExtractionFlags;
 
 // Language-specific extractors
-const zig_extractor = @import("extractors/zig.zig");
-const css_extractor = @import("extractors/css.zig");
-const html_extractor = @import("extractors/html.zig");
-const json_extractor = @import("extractors/json.zig");
-const typescript_extractor = @import("extractors/typescript.zig");
-const svelte_extractor = @import("extractors/svelte.zig");
+const zig_extractor = @import("../extractors/zig.zig");
+const css_extractor = @import("../extractors/css.zig");
+const html_extractor = @import("../extractors/html.zig");
+const json_extractor = @import("../extractors/json.zig");
+const typescript_extractor = @import("../extractors/typescript.zig");
+const svelte_extractor = @import("../extractors/svelte.zig");
 
 /// Main extractor coordinator
 pub const Extractor = struct {
@@ -33,8 +36,8 @@ pub const Extractor = struct {
     }
     
     /// Main extraction entry point
-    pub fn extract(self: Extractor, source: []const u8, flags: ExtractionFlags) ![]const u8 {
-        var mutable_flags = flags;
+    pub fn extract(self: Extractor, source: []const u8, extraction_flags: ExtractionFlags) ![]const u8 {
+        var mutable_flags = extraction_flags;
         mutable_flags.setDefault();
         
         // Return full source if requested
@@ -51,34 +54,34 @@ pub const Extractor = struct {
     }
     
     /// AST-based extraction using tree-sitter
-    fn extractWithAst(self: Extractor, source: []const u8, flags: ExtractionFlags) ![]const u8 {
+    fn extractWithAst(self: Extractor, source: []const u8, extraction_flags: ExtractionFlags) ![]const u8 {
         // Try to use tree-sitter parser
-        const TreeSitterParser = @import("language/tree_sitter.zig").TreeSitterParser;
-        var parser = TreeSitterParser.init(self.allocator, self.language) catch {
+        const tree_sitter = @import("tree_sitter.zig");
+        var parser = tree_sitter.TreeSitterParser.init(self.allocator, self.language) catch {
             // Fall back to text extraction if tree-sitter fails
-            return self.extractText(source, flags);
+            return self.extractText(source, extraction_flags);
         };
         defer parser.deinit();
         
-        return parser.extract(source, flags) catch {
+        return parser.extract(source, extraction_flags) catch {
             // Fall back on parse errors
-            return self.extractText(source, flags);
+            return self.extractText(source, extraction_flags);
         };
     }
     
     /// Text-based extraction (fallback)
-    fn extractText(self: Extractor, source: []const u8, flags: ExtractionFlags) ![]const u8 {
+    fn extractText(self: Extractor, source: []const u8, extraction_flags: ExtractionFlags) ![]const u8 {
         var result = std.ArrayList(u8).init(self.allocator);
         defer result.deinit();
         
         // Dispatch to language-specific text extraction
         switch (self.language) {
-            .zig => try zig_extractor.extract(source, flags, &result),
-            .css => try css_extractor.extract(source, flags, &result),
-            .html => try html_extractor.extract(source, flags, &result),
-            .json => try json_extractor.extract(source, flags, &result),
-            .typescript => try typescript_extractor.extract(source, flags, &result),
-            .svelte => try svelte_extractor.extract(source, flags, &result),
+            .zig => try zig_extractor.extract(source, extraction_flags, &result),
+            .css => try css_extractor.extract(source, extraction_flags, &result),
+            .html => try html_extractor.extract(source, extraction_flags, &result),
+            .json => try json_extractor.extract(source, extraction_flags, &result),
+            .typescript => try typescript_extractor.extract(source, extraction_flags, &result),
+            .svelte => try svelte_extractor.extract(source, extraction_flags, &result),
             .unknown => {
                 // Generic extraction or full source
                 try result.appendSlice(source);
@@ -104,12 +107,11 @@ pub fn extractCode(
     allocator: std.mem.Allocator,
     file_path: []const u8,
     source: []const u8,
-    flags: ExtractionFlags,
+    extraction_flags: ExtractionFlags,
 ) ![]const u8 {
-    const detectLanguage = @import("language/detection.zig").detectLanguage;
-    const language = detectLanguage(file_path);
+    const language = detection.detectLanguage(file_path);
     var extractor = createExtractor(allocator, language);
-    return extractor.extract(source, flags);
+    return extractor.extract(source, extraction_flags);
 }
 
 test "basic text extraction" {

@@ -1,8 +1,8 @@
 const std = @import("std");
 const testing = std.testing;
 const Extractor = @import("../extractor.zig").Extractor;
-const Language = @import("../language.zig").Language;
-const ExtractionFlags = @import("../extraction_flags.zig").ExtractionFlags;
+const Language = @import("../language/detection.zig").Language;
+const ExtractionFlags = @import("../language/flags.zig").ExtractionFlags;
 
 test "Language detection from file extensions" {
     // Zig

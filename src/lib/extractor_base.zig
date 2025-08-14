@@ -1,8 +1,9 @@
 const std = @import("std");
-const ExtractionFlags = @import("extraction_flags.zig").ExtractionFlags;
-const line_utils = @import("line_utils.zig");
-const patterns = @import("text_patterns.zig");
-const ResultBuilder = @import("result_builder.zig").ResultBuilder;
+const ExtractionFlags = @import("language/flags.zig").ExtractionFlags;
+const line_processing = @import("text/line_processing.zig");
+const patterns = @import("text/patterns.zig");
+const builders = @import("text/builders.zig");
+const ResultBuilder = builders.ResultBuilder;
 
 /// Base extractor functionality shared across all language extractors
 /// Provides common extraction patterns to eliminate duplication
@@ -41,7 +42,7 @@ pub fn extractWithPatterns(
     defer result.* = builder.buffer;
     
     var lines = std.mem.splitScalar(u8, source, '\n');
-    var block_tracker = line_utils.BlockTracker.init();
+    var block_tracker = line_processing.BlockTracker.init();
     
     while (lines.next()) |line| {
         const trimmed = std.mem.trim(u8, line, " \t");
@@ -143,7 +144,7 @@ pub fn extractByPrefixes(
     var builder = ResultBuilder{ .buffer = result.* };
     defer result.* = builder.buffer;
     
-    try line_utils.extractLinesWithPrefixes(source, prefixes, builder.list());
+    try line_processing.extractLinesWithPrefixes(source, prefixes, builder.list());
 }
 
 /// Extract lines containing specific patterns
@@ -171,7 +172,7 @@ pub fn extractNonEmpty(
     var builder = ResultBuilder{ .buffer = result.* };
     defer result.* = builder.buffer;
     
-    try line_utils.filterNonEmpty(source, builder.list());
+    try line_processing.filterNonEmpty(source, builder.list());
 }
 
 /// Create language patterns for Zig

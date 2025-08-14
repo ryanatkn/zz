@@ -8,7 +8,7 @@ const FilesystemInterface = @import("../filesystem/interface.zig").FilesystemInt
 const DirHandle = @import("../filesystem/interface.zig").DirHandle;
 const filesystem_utils = @import("../lib/filesystem.zig");
 const ZonParser = @import("../lib/zon_parser.zig").ZonParser;
-const zon_memory = @import("../lib/zon_memory.zig");
+const zon_memory = @import("../lib/memory/zon.zig");
 const ManagedZonConfig = zon_memory.ManagedZonConfig;
 
 pub const IndentStyle = enum {

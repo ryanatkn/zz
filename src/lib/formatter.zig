@@ -1,5 +1,5 @@
 const std = @import("std");
-const Language = @import("language.zig").Language;
+const Language = @import("language/detection.zig").Language;
 const AstFormatter = @import("ast_formatter.zig").AstFormatter;
 
 pub const IndentStyle = enum {

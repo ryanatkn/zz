@@ -2,7 +2,7 @@ const std = @import("std");
 const testing = std.testing;
 const CachedFormatterManager = @import("../cached_formatter.zig").CachedFormatterManager;
 const FormatterOptions = @import("../formatter.zig").FormatterOptions;
-const Language = @import("../language.zig").Language;
+const Language = @import("../language/detection.zig").Language;
 
 test "cached formatter manager initialization" {
     var manager = CachedFormatterManager.init(testing.allocator, 100) catch |err| {

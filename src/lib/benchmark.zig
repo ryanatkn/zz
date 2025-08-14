@@ -1,7 +1,7 @@
 const std = @import("std");
 const path_utils = @import("path.zig");
-const PathCache = @import("memory.zig").PathCache;
-const ListPool = @import("memory.zig").ListPool;
+const PathCache = @import("memory/pools.zig").PathCache;
+const ListPool = @import("memory/pools.zig").ListPool;
 
 /// Benchmark result structure
 pub const BenchmarkResult = struct {
@@ -247,7 +247,7 @@ pub const Benchmark = struct {
             std.debug.print("\n📋 Benchmarking Code Extraction...\n", .{});
         }
         
-        const ExtractionFlags = @import("extraction_flags.zig").ExtractionFlags;
+        const ExtractionFlags = @import("language/flags.zig").ExtractionFlags;
         
         // Sample Zig code for extraction
         const sample_code = 

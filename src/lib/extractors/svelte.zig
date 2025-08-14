@@ -1,6 +1,7 @@
 const std = @import("std");
-const ExtractionFlags = @import("../extraction_flags.zig").ExtractionFlags;
-const patterns = @import("../text_patterns.zig");
+const ExtractionFlags = @import("../language/flags.zig").ExtractionFlags;
+const patterns = @import("../text/patterns.zig");
+const builders = @import("../text/builders.zig");
 
 pub fn extract(source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
     // For structure flag, return full source
@@ -20,12 +21,9 @@ pub fn extract(source: []const u8, flags: ExtractionFlags, result: *std.ArrayLis
             // Find the closing > of the opening tag
             if (std.mem.indexOf(u8, script_content, ">")) |tag_end| {
                 const actual_content = script_content[tag_end + 1..];
-                try result.appendSlice("<script>");
-                try result.append('\n');
+                try builders.appendLine(result, "<script>");
                 try result.appendSlice(actual_content);
-                try result.append('\n');
-                try result.appendSlice("</script>");
-                try result.append('\n');
+                try builders.appendLine(result, "</script>");
             }
         }
     }
@@ -41,12 +39,9 @@ pub fn extract(source: []const u8, flags: ExtractionFlags, result: *std.ArrayLis
             // Find the closing > of the opening tag
             if (std.mem.indexOf(u8, style_content, ">")) |tag_end| {
                 const actual_content = style_content[tag_end + 1..];
-                try result.appendSlice("<style>");
-                try result.append('\n');
+                try builders.appendLine(result, "<style>");
                 try result.appendSlice(actual_content);
-                try result.append('\n');
-                try result.appendSlice("</style>");
-                try result.append('\n');
+                try builders.appendLine(result, "</style>");
             }
         }
     }

@@ -1,13 +1,14 @@
 const std = @import("std");
-const ExtractionFlags = @import("../extraction_flags.zig").ExtractionFlags;
-const line_utils = @import("../line_utils.zig");
-const patterns = @import("../text_patterns.zig");
+const ExtractionFlags = @import("../language/flags.zig").ExtractionFlags;
+const line_processing = @import("../text/line_processing.zig");
+const patterns = @import("../text/patterns.zig");
+const builders = @import("../text/builders.zig");
 
 pub fn extract(source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
     // For CSS, structure extraction includes entire rules
     if (flags.structure) {
-        // Use line_utils for filtering empty lines
-        try line_utils.filterNonEmpty(source, result);
+        // Use line_processing for filtering empty lines
+        try line_processing.filterNonEmpty(source, result);
         return;
     }
     
@@ -25,18 +26,16 @@ pub fn extract(source: []const u8, flags: ExtractionFlags, result: *std.ArrayLis
             
             // Check for @media queries using patterns
             if (std.mem.startsWith(u8, trimmed, "@media")) {
-                // Use line_utils helper for extracting before brace
-                if (line_utils.extractBeforeBrace(trimmed)) |selector| {
-                    try result.appendSlice(selector);
-                    try result.append('\n');
+                // Use line_processing helper for extracting before brace
+                if (line_processing.extractBeforeBrace(trimmed)) |selector| {
+                    try builders.appendLine(result, selector);
                 }
             }
             // Check for CSS selectors (ends with '{')
             else if (std.mem.indexOf(u8, trimmed, "{") != null) {
-                // Use line_utils helper for extracting before brace
-                if (line_utils.extractBeforeBrace(trimmed)) |selector| {
-                    try result.appendSlice(selector);
-                    try result.append('\n');
+                // Use line_processing helper for extracting before brace
+                if (line_processing.extractBeforeBrace(trimmed)) |selector| {
+                    try builders.appendLine(result, selector);
                 }
             }
         }
@@ -46,7 +45,7 @@ pub fn extract(source: []const u8, flags: ExtractionFlags, result: *std.ArrayLis
     // Extract imports using patterns utilities
     if (flags.imports) {
         const import_prefixes = [_][]const u8{ "@import", "@use" };
-        try line_utils.extractLinesWithPrefixes(source, &import_prefixes, result);
+        try line_processing.extractLinesWithPrefixes(source, &import_prefixes, result);
         return;
     }
     

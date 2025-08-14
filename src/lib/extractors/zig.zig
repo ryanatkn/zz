@@ -1,7 +1,7 @@
 const std = @import("std");
-const ExtractionFlags = @import("../extraction_flags.zig").ExtractionFlags;
+const ExtractionFlags = @import("../language/flags.zig").ExtractionFlags;
 const extractor_base = @import("../extractor_base.zig");
-const ResultBuilder = @import("../result_builder.zig").ResultBuilder;
+// ResultBuilder now accessed through extractor_base
 
 pub fn extract(source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
     // Special handling for Zig imports (uses @import which needs custom logic)

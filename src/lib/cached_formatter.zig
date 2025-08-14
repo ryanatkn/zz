@@ -3,7 +3,7 @@ const AstFormatter = @import("ast_formatter.zig").AstFormatter;
 const AstCache = @import("cache.zig").AstCache;
 const AstCacheKey = @import("cache.zig").AstCacheKey;
 const FormatterOptions = @import("formatter.zig").FormatterOptions;
-const Language = @import("language.zig").Language;
+const Language = @import("language/detection.zig").Language;
 const FileTracker = @import("incremental.zig").FileTracker;
 
 /// A formatter manager that coordinates AST formatters with shared caching

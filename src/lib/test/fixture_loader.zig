@@ -1,10 +1,10 @@
 const std = @import("std");
-const Language = @import("../language.zig").Language;
-const ExtractionFlags = @import("../extraction_flags.zig").ExtractionFlags;
+const Language = @import("../language/detection.zig").Language;
+const ExtractionFlags = @import("../language/flags.zig").ExtractionFlags;
 const FormatterOptions = @import("../formatter.zig").FormatterOptions;
 const IndentStyle = @import("../formatter.zig").IndentStyle;
 const ZonParser = @import("../zon_parser.zig").ZonParser;
-const ArenaZonParser = @import("../zon_memory.zig").ArenaZonParser;
+const ArenaZonParser = @import("../memory/zon.zig").ArenaZonParser;
 
 /// A single test case for parser extraction
 pub const ExtractionTest = struct {

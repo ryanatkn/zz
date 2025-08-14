@@ -611,7 +611,7 @@ git commit -m "Update vendored dependencies"
 - We want idiomatic Zig, taking more after C than C++
 - Do not support backwards compatibility unless explicitly asked
 - Never deprecate or preserve backwards compatibility unless explicitly requested
-- Never re-export in modules unless explicitly justified with a comment or requested
+- Never re-export in modules unless explicitly justified with a comment or requested (do not ever use the facade pattern, it's a code smell to us)
 - Focus on performance and clean architecture
 - This is a CLI utilities project - no graphics or game functionality
 - Do not re-export identifiers from modules

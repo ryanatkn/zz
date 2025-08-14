@@ -254,6 +254,269 @@
                 },
             },
         },
+        .{
+            .name = "svelte_5_runes",
+            .source =
+            \\<script>
+            \\    // Svelte 5 state management
+            \\    let count = $state(0);
+            \\    let name = $state('world');
+            \\    let items = $state([]);
+            \\    
+            \\    // Derived state
+            \\    const doubled = $derived(count * 2);
+            \\    const greeting = $derived(`Hello ${name}!`);
+            \\    
+            \\    // Complex derived state
+            \\    const summary = $derived.by(() => {
+            \\        let total = 0;
+            \\        for (const item of items) {
+            \\            total += item.value;
+            \\        }
+            \\        return `Total: ${total}`;
+            \\    });
+            \\    
+            \\    // Effects
+            \\    $effect(() => {
+            \\        console.log('Count changed:', count);
+            \\    });
+            \\    
+            \\    $effect(() => {
+            \\        document.title = `Count: ${count}`;
+            \\        return () => {
+            \\            console.log('Cleanup');
+            \\        };
+            \\    });
+            \\    
+            \\    // Props
+            \\    let { theme = 'light', size = 'medium' } = $props();
+            \\    
+            \\    // Bindable props
+            \\    let { value = $bindable('') } = $props();
+            \\    
+            \\    function increment() {
+            \\        count++;
+            \\    }
+            \\</script>
+            \\
+            \\<div class="counter">
+            \\    <h1>{greeting}</h1>
+            \\    <p>Count: {count}</p>
+            \\    <p>Doubled: {doubled}</p>
+            \\    <p>{summary}</p>
+            \\    <button onclick={increment}>+</button>
+            \\    <input bind:value />
+            \\</div>
+            ,
+            .extraction_tests = .{
+                .{
+                    .flags = .{ .signatures = true },
+                    .expected =
+                    \\<script>
+                    \\let count = $state(0);
+                    \\let name = $state('world');
+                    \\let items = $state([]);
+                    \\const doubled = $derived(count * 2);
+                    \\const greeting = $derived(`Hello ${name}!`);
+                    \\const summary = $derived.by(() => {
+                    \\$effect(() => {
+                    \\$effect(() => {
+                    \\let { theme = 'light', size = 'medium' } = $props();
+                    \\let { value = $bindable('') } = $props();
+                    \\function increment()
+                    \\</script>
+                    ,
+                },
+                .{
+                    .flags = .{ .types = true },
+                    .expected =
+                    \\<script>
+                    \\let count = $state(0);
+                    \\let name = $state('world');
+                    \\let items = $state([]);
+                    \\const doubled = $derived(count * 2);
+                    \\const greeting = $derived(`Hello ${name}!`);
+                    \\const summary = $derived.by(() => {
+                    \\let { theme = 'light', size = 'medium' } = $props();
+                    \\let { value = $bindable('') } = $props();
+                    \\</script>
+                    ,
+                },
+            },
+        },
+        .{
+            .name = "svelte_5_snippets",
+            .source =
+            \\<script>
+            \\    let { items = [] } = $props();
+            \\    
+            \\    function handleClick(item) {
+            \\        console.log('Clicked:', item);
+            \\    }
+            \\</script>
+            \\
+            \\{#snippet item_card(item)}
+            \\    <div class="card">
+            \\        <h3>{item.title}</h3>
+            \\        <p>{item.description}</p>
+            \\        <button onclick={() => handleClick(item)}>
+            \\            Select
+            \\        </button>
+            \\    </div>
+            \\{/snippet}
+            \\
+            \\{#snippet empty_state()}
+            \\    <div class="empty">
+            \\        <p>No items found</p>
+            \\    </div>
+            \\{/snippet}
+            \\
+            \\<div class="container">
+            \\    {#if items.length > 0}
+            \\        {#each items as item}
+            \\            {@render item_card(item)}
+            \\        {/each}
+            \\    {:else}
+            \\        {@render empty_state()}
+            \\    {/if}
+            \\</div>
+            ,
+            .extraction_tests = .{
+                .{
+                    .flags = .{ .structure = true },
+                    .expected =
+                    \\<script>
+                    \\    let { items = [] } = $props();
+                    \\    function handleClick(item) {
+                    \\        console.log('Clicked:', item);
+                    \\    }
+                    \\</script>
+                    \\{#snippet item_card(item)}
+                    \\    <div class="card">
+                    \\        <h3>{item.title}</h3>
+                    \\        <p>{item.description}</p>
+                    \\        <button onclick={() => handleClick(item)}>
+                    \\            Select
+                    \\        </button>
+                    \\    </div>
+                    \\{/snippet}
+                    \\{#snippet empty_state()}
+                    \\    <div class="empty">
+                    \\        <p>No items found</p>
+                    \\    </div>
+                    \\{/snippet}
+                    \\<div class="container">
+                    \\    {#if items.length > 0}
+                    \\        {#each items as item}
+                    \\            {@render item_card(item)}
+                    \\        {/each}
+                    \\    {:else}
+                    \\        {@render empty_state()}
+                    \\    {/if}
+                    \\</div>
+                    ,
+                },
+            },
+        },
+        .{
+            .name = "svelte_5_error_boundaries",
+            .source =
+            \\<script>
+            \\    let { dangerous = false } = $props();
+            \\    
+            \\    function throwError() {
+            \\        throw new Error('Something went wrong!');
+            \\    }
+            \\</script>
+            \\
+            \\<svelte:boundary>
+            \\    {#if dangerous}
+            \\        <button onclick={throwError}>Break things</button>
+            \\    {:else}
+            \\        <p>Everything is fine</p>
+            \\    {/if}
+            \\    
+            \\    {#snippet failed(error, reset)}
+            \\        <div class="error">
+            \\            <h2>Error occurred</h2>
+            \\            <p>{error.message}</p>
+            \\            <button onclick={reset}>Try again</button>
+            \\        </div>
+            \\    {/snippet}
+            \\</svelte:boundary>
+            ,
+            .extraction_tests = .{
+                .{
+                    .flags = .{ .structure = true },
+                    .expected =
+                    \\<script>
+                    \\    let { dangerous = false } = $props();
+                    \\    function throwError() {
+                    \\        throw new Error('Something went wrong!');
+                    \\    }
+                    \\</script>
+                    \\<svelte:boundary>
+                    \\    {#if dangerous}
+                    \\        <button onclick={throwError}>Break things</button>
+                    \\    {:else}
+                    \\        <p>Everything is fine</p>
+                    \\    {/if}
+                    \\    {#snippet failed(error, reset)}
+                    \\        <div class="error">
+                    \\            <h2>Error occurred</h2>
+                    \\            <p>{error.message}</p>
+                    \\            <button onclick={reset}>Try again</button>
+                    \\        </div>
+                    \\    {/snippet}
+                    \\</svelte:boundary>
+                    ,
+                },
+            },
+        },
+        .{
+            .name = "svelte_5_async_await",
+            .source =
+            \\<script>
+            \\    let count = $state(0);
+            \\    
+            \\    async function fetchData(id) {
+            \\        const response = await fetch(`/api/data/${id}`);
+            \\        return response.json();
+            \\    }
+            \\    
+            \\    const data = $derived(await fetchData(count));
+            \\</script>
+            \\
+            \\<svelte:boundary>
+            \\    <h1>Data: {await data.title}</h1>
+            \\    <p>{await data.description}</p>
+            \\    
+            \\    {#if await data.hasItems}
+            \\        <ul>
+            \\            {#each await data.items as item}
+            \\                <li>{item.name}</li>
+            \\            {/each}
+            \\        </ul>
+            \\    {/if}
+            \\    
+            \\    {#snippet pending()}
+            \\        <div class="loading">Loading...</div>
+            \\    {/snippet}
+            \\</svelte:boundary>
+            ,
+            .extraction_tests = .{
+                .{
+                    .flags = .{ .signatures = true },
+                    .expected =
+                    \\<script>
+                    \\let count = $state(0);
+                    \\async function fetchData(id)
+                    \\const data = $derived(await fetchData(count));
+                    \\</script>
+                    ,
+                },
+            },
+        },
     },
     .formatter_tests = .{
         .{
@@ -391,6 +654,104 @@
             ,
             .options = .{
                 .line_width = 40,
+                .indent_size = 4,
+            },
+        },
+        .{
+            .name = "svelte_5_runes_formatting",
+            .source =
+            \\<script>let count=$state(0);const doubled=$derived(count*2);$effect(()=>{console.log(count);});let{theme='light'}=$props();let{value=$bindable('')}=$props();</script>
+            ,
+            .expected =
+            \\<script>
+            \\    let count = $state(0);
+            \\    const doubled = $derived(count * 2);
+            \\    
+            \\    $effect(() => {
+            \\        console.log(count);
+            \\    });
+            \\    
+            \\    let { theme = 'light' } = $props();
+            \\    let { value = $bindable('') } = $props();
+            \\</script>
+            ,
+            .options = .{
+                .indent_size = 4,
+            },
+        },
+        .{
+            .name = "svelte_5_snippets_formatting",
+            .source =
+            \\{#snippet card(item)}<div class="card"><h3>{item.title}</h3><button onclick={()=>select(item)}>Select</button></div>{/snippet}{#each items as item}{@render card(item)}{/each}
+            ,
+            .expected =
+            \\{#snippet card(item)}
+            \\    <div class="card">
+            \\        <h3>{item.title}</h3>
+            \\        <button onclick={() => select(item)}>Select</button>
+            \\    </div>
+            \\{/snippet}
+            \\
+            \\{#each items as item}
+            \\    {@render card(item)}
+            \\{/each}
+            ,
+            .options = .{
+                .indent_size = 4,
+            },
+        },
+        .{
+            .name = "svelte_5_event_handlers_formatting",
+            .source =
+            \\<button onclick={handleClick}disabled={loading}class="btn {variant}">Click me</button><input oninput={handleInput}onchange={handleChange}bind:value={text}/>
+            ,
+            .expected =
+            \\<button 
+            \\    onclick={handleClick} 
+            \\    disabled={loading} 
+            \\    class="btn {variant}"
+            \\>
+            \\    Click me
+            \\</button>
+            \\
+            \\<input 
+            \\    oninput={handleInput} 
+            \\    onchange={handleChange} 
+            \\    bind:value={text} 
+            \\/>
+            ,
+            .options = .{
+                .line_width = 60,
+                .indent_size = 4,
+            },
+        },
+        .{
+            .name = "svelte_5_async_formatting",
+            .source =
+            \\<script>const data=$derived(await fetchData(id));</script><svelte:boundary><h1>{await data.title}</h1>{#if await data.hasItems}<ul>{#each await data.items as item}<li>{item.name}</li>{/each}</ul>{/if}{#snippet pending()}<div class="loading">Loading...</div>{/snippet}</svelte:boundary>
+            ,
+            .expected =
+            \\<script>
+            \\    const data = $derived(await fetchData(id));
+            \\</script>
+            \\
+            \\<svelte:boundary>
+            \\    <h1>{await data.title}</h1>
+            \\    
+            \\    {#if await data.hasItems}
+            \\        <ul>
+            \\            {#each await data.items as item}
+            \\                <li>{item.name}</li>
+            \\            {/each}
+            \\        </ul>
+            \\    {/if}
+            \\    
+            \\    {#snippet pending()}
+            \\        <div class="loading">Loading...</div>
+            \\    {/snippet}
+            \\</svelte:boundary>
+            ,
+            .options = .{
                 .indent_size = 4,
             },
         },

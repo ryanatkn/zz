@@ -57,7 +57,7 @@ test "prompt builder initialization works" {
     defer ctx.deinit();
 
     const extraction_flags = @import("../lib/language/flags.zig").ExtractionFlags{};
-    var builder = PromptBuilder.init(testing.allocator, ctx.filesystem, extraction_flags);
+    var builder = try PromptBuilder.initForTest(testing.allocator, ctx.filesystem, extraction_flags);
     defer builder.deinit();
 
     try builder.addText("Test content");

@@ -11,7 +11,7 @@ test "PromptBuilder basic" {
     defer ctx.deinit();
 
     const extraction_flags = ExtractionFlags{};
-    var builder = PromptBuilder.init(testing.allocator, ctx.filesystem, extraction_flags);
+    var builder = try PromptBuilder.initForTest(testing.allocator, ctx.filesystem, extraction_flags);
     defer builder.deinit();
 
     try builder.addText("Test instructions");
@@ -23,7 +23,7 @@ test "prompt builder output format" {
     defer ctx.deinit();
 
     const extraction_flags = ExtractionFlags{};
-    var builder = PromptBuilder.init(testing.allocator, ctx.filesystem, extraction_flags);
+    var builder = try PromptBuilder.initForTest(testing.allocator, ctx.filesystem, extraction_flags);
     defer builder.deinit();
 
     // Add text
@@ -93,7 +93,7 @@ test "prompt builder outputs relative paths with ./ prefix" {
     try ctx.addFile("test.zig", "const a = 1;");
 
     const extraction_flags = ExtractionFlags{};
-    var builder = PromptBuilder.init(testing.allocator, ctx.filesystem, extraction_flags);
+    var builder = try PromptBuilder.initForTest(testing.allocator, ctx.filesystem, extraction_flags);
     defer builder.deinit();
 
     try builder.addFile("test.zig");
@@ -116,7 +116,7 @@ test "prompt builder preserves absolute paths" {
     try ctx.writeFile("test.zig", "const a = 1;");
 
     const extraction_flags = ExtractionFlags{};
-    var builder = PromptBuilder.init(testing.allocator, ctx.filesystem, extraction_flags);
+    var builder = try PromptBuilder.initForTest(testing.allocator, ctx.filesystem, extraction_flags);
     defer builder.deinit();
 
     // Add file with absolute path (using the temporary directory path)

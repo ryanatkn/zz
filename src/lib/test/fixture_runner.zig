@@ -6,7 +6,8 @@ const LanguageFixtures = @import("fixture_loader.zig").LanguageFixtures;
 const ParserTest = @import("fixture_loader.zig").ParserTest;
 const FormatterTest = @import("fixture_loader.zig").FormatterTest;
 const ExtractionTest = @import("fixture_loader.zig").ExtractionTest;
-const Extractor = @import("../language/extractor.zig").Extractor;
+const extractor_mod = @import("../language/extractor.zig");
+const Extractor = extractor_mod.Extractor;
 const Language = @import("../language/detection.zig").Language;
 const Formatter = @import("../parsing/formatter.zig").Formatter;
 
@@ -64,7 +65,11 @@ pub const FixtureRunner = struct {
             return;
         }
 
-        const extractor = Extractor.init(self.allocator, lang_fixtures.language);
+        var extractor = try extractor_mod.createTestExtractor(self.allocator);
+        defer {
+            extractor.registry.deinit();
+            self.allocator.destroy(extractor.registry);
+        }
         std.log.debug("runLanguageParserTests: Created extractor for {s}", .{@tagName(lang_fixtures.language)});
 
         for (lang_fixtures.parser_tests, 0..) |parser_test, i| {
@@ -210,7 +215,11 @@ test "minimal JSON fixture test" {
         const test_case = json_fixtures.parser_tests[0];
         std.log.info("Testing parser case: '{s}'", .{test_case.name});
 
-        const extractor = Extractor.init(testing.allocator);
+        var extractor = try extractor_mod.createTestExtractor(testing.allocator);
+        defer {
+            extractor.registry.deinit();
+            testing.allocator.destroy(extractor.registry);
+        }
         if (test_case.extraction_tests.len > 0) {
             const extraction_test = test_case.extraction_tests[0];
             const actual = try extractor.extract(.json, test_case.source, extraction_test.flags);

@@ -90,13 +90,10 @@ pub const Extractor = struct {
 
     /// Handle unsupported languages with basic extraction
     fn extractUnsupportedLanguage(self: *const Extractor, source: []const u8, extraction_flags: ExtractionFlags) ![]const u8 {
-        if (extraction_flags.full or extraction_flags.isDefault()) {
-            // Return full source if no specific extraction is requested
-            return self.allocator.dupe(u8, source);
-        }
-        
-        // For unsupported languages with specific flags, return empty or do basic pattern matching
-        return self.allocator.alloc(u8, 0);
+        // For unknown languages, always return full source
+        // We can't do meaningful extraction without language knowledge
+        _ = extraction_flags; // Unused for unknown languages
+        return self.allocator.dupe(u8, source);
     }
 
     /// Format source code using language-specific formatter
@@ -120,16 +117,37 @@ pub const Extractor = struct {
     }
 };
 
-/// Create an extractor with default settings
+/// Create an extractor with default settings (production use)
+/// 
+/// Uses the global language registry for efficient memory usage.
+/// Safe for production code but should not be used in tests
+/// to avoid global state and memory leaks.
+/// 
+/// For tests, use createTestExtractor() instead.
 pub fn createExtractor(allocator: std.mem.Allocator) Extractor {
     return Extractor.init(allocator);
 }
 
 /// Create test-safe extractor with local registry
+/// 
+/// Use this in tests to avoid memory leaks from the global registry.
+/// The test extractor creates its own registry that must be cleaned up:
+/// 
+/// ```zig
+/// var extractor = try createTestExtractor(allocator);
+/// defer {
+///     extractor.registry.deinit();
+///     allocator.destroy(extractor.registry);
+/// }
+/// ```
+/// 
+/// For production code, use createExtractor() which uses the global registry.
 pub fn createTestExtractor(allocator: std.mem.Allocator) !Extractor {
     const registry = try allocator.create(registry_mod.LanguageRegistry);
     registry.* = registry_mod.LanguageRegistry.init(allocator);
-    return Extractor.initWithRegistry(allocator, registry);
+    var extractor = Extractor.initWithRegistry(allocator, registry);
+    extractor.prefer_ast = false; // Test extractor should use pattern-based for compatibility
+    return extractor;
 }
 
 /// Create an AST-first extractor (same as default)
@@ -236,26 +254,26 @@ test "Extractor unsupported language handling" {
 test "Pattern vs AST extraction preferences" {
     const allocator = std.testing.allocator;
     
-    // Test AST-first extractor
-    var ast_extractor = try createTestExtractor(allocator);
+    // Test pattern-first extractor (test default)
+    var pattern_extractor = try createTestExtractor(allocator);
     defer {
-        ast_extractor.registry.deinit();
-        allocator.destroy(ast_extractor.registry);
+        pattern_extractor.registry.deinit();
+        allocator.destroy(pattern_extractor.registry);
     }
-    try std.testing.expect(ast_extractor.prefer_ast == true);
-    
-    // Test pattern-only extractor  
-    var pattern_registry = try allocator.create(registry_mod.LanguageRegistry);
-    pattern_registry.* = registry_mod.LanguageRegistry.init(allocator);
-    defer {
-        pattern_registry.deinit();
-        allocator.destroy(pattern_registry);
-    }
-    var pattern_extractor = Extractor.initWithRegistry(allocator, pattern_registry);
-    pattern_extractor.prefer_ast = false;
     try std.testing.expect(pattern_extractor.prefer_ast == false);
     
+    // Test AST-enabled extractor
+    var ast_registry = try allocator.create(registry_mod.LanguageRegistry);
+    ast_registry.* = registry_mod.LanguageRegistry.init(allocator);
+    defer {
+        ast_registry.deinit();
+        allocator.destroy(ast_registry);
+    }
+    var ast_extractor = Extractor.initWithRegistry(allocator, ast_registry);
+    ast_extractor.prefer_ast = true;
+    try std.testing.expect(ast_extractor.prefer_ast == true);
+    
     // Test preference changes
-    ast_extractor.setPreferAST(false);
-    try std.testing.expect(ast_extractor.prefer_ast == false);
+    pattern_extractor.setPreferAST(true);
+    try std.testing.expect(pattern_extractor.prefer_ast == true);
 }

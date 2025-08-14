@@ -29,7 +29,7 @@ test "extraction flags - signatures only" {
     try ctx.writeFile("test.zig", test_content);
 
     const extraction_flags = ExtractionFlags{ .signatures = true };
-    var builder = PromptBuilder.init(testing.allocator, ctx.filesystem, extraction_flags);
+    var builder = try PromptBuilder.initForTest(testing.allocator, ctx.filesystem, extraction_flags);
     defer builder.deinit();
 
     try builder.addFile("test.zig");
@@ -72,7 +72,7 @@ test "extraction flags - types only" {
     try ctx.writeFile("test.zig", test_content);
 
     const extraction_flags = ExtractionFlags{ .types = true };
-    var builder = PromptBuilder.init(testing.allocator, ctx.filesystem, extraction_flags);
+    var builder = try PromptBuilder.initForTest(testing.allocator, ctx.filesystem, extraction_flags);
     defer builder.deinit();
 
     try builder.addFile("test.zig");
@@ -124,7 +124,7 @@ test "extraction flags - combined extraction" {
         .docs = true,
         .tests = true,
     };
-    var builder = PromptBuilder.init(testing.allocator, ctx.filesystem, extraction_flags);
+    var builder = try PromptBuilder.initForTest(testing.allocator, ctx.filesystem, extraction_flags);
     defer builder.deinit();
 
     try builder.addFile("test.zig");
@@ -181,7 +181,7 @@ test "extraction flags - error handling extraction" {
     try ctx.writeFile("test.zig", test_content);
 
     const extraction_flags = ExtractionFlags{ .errors = true };
-    var builder = PromptBuilder.init(testing.allocator, ctx.filesystem, extraction_flags);
+    var builder = try PromptBuilder.initForTest(testing.allocator, ctx.filesystem, extraction_flags);
     defer builder.deinit();
 
     try builder.addFile("test.zig");
@@ -207,7 +207,7 @@ test "extraction flags - default is full source" {
 
     // No extraction flags set - should default to full
     const extraction_flags = ExtractionFlags{};
-    var builder = PromptBuilder.init(testing.allocator, ctx.filesystem, extraction_flags);
+    var builder = try PromptBuilder.initForTest(testing.allocator, ctx.filesystem, extraction_flags);
     defer builder.deinit();
 
     try builder.addFile("test.zig");
@@ -252,7 +252,7 @@ test "extraction flags - non-Zig files fall back to full" {
 
     // Request signatures for a markdown file - should fall back to full content
     const extraction_flags = ExtractionFlags{ .signatures = true };
-    var builder = PromptBuilder.init(testing.allocator, ctx.filesystem, extraction_flags);
+    var builder = try PromptBuilder.initForTest(testing.allocator, ctx.filesystem, extraction_flags);
     defer builder.deinit();
 
     try builder.addFile("test.md");

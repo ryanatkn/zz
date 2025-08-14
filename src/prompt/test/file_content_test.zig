@@ -15,7 +15,7 @@ test "file with no newlines" {
     try ctx.addFile("nonewline.zig", content);
 
     const extraction_flags = ExtractionFlags{};
-    var builder = PromptBuilder.init(allocator, ctx.filesystem, extraction_flags);
+    var builder = try PromptBuilder.initForTest(allocator, ctx.filesystem, extraction_flags);
     defer builder.deinit();
 
     const file_path = "nonewline.zig";
@@ -53,7 +53,7 @@ test "file with only backticks" {
     try std.testing.expect(detected_fence.len >= 7);
 
     const extraction_flags = ExtractionFlags{};
-    var builder = PromptBuilder.init(allocator, ctx.filesystem, extraction_flags);
+    var builder = try PromptBuilder.initForTest(allocator, ctx.filesystem, extraction_flags);
     defer builder.deinit();
 
     const file_path = "backticks.md";
@@ -77,7 +77,7 @@ test "empty file" {
     try ctx.addFile("empty.zig", "");
 
     const extraction_flags = ExtractionFlags{};
-    var builder = PromptBuilder.init(allocator, ctx.filesystem, extraction_flags);
+    var builder = try PromptBuilder.initForTest(allocator, ctx.filesystem, extraction_flags);
     defer builder.deinit();
 
     const file_path = "empty.zig";
@@ -109,7 +109,7 @@ test "binary file incorrectly named .zig" {
     try ctx.addFile("binary.zig", &binary_data);
 
     const extraction_flags = ExtractionFlags{};
-    var builder = PromptBuilder.init(allocator, ctx.filesystem, extraction_flags);
+    var builder = try PromptBuilder.initForTest(allocator, ctx.filesystem, extraction_flags);
     defer builder.deinit();
 
     const file_path = "binary.zig";
@@ -136,7 +136,7 @@ test "file with null bytes" {
     try ctx.addFile("nulls.txt", content);
 
     const extraction_flags = ExtractionFlags{};
-    var builder = PromptBuilder.init(allocator, ctx.filesystem, extraction_flags);
+    var builder = try PromptBuilder.initForTest(allocator, ctx.filesystem, extraction_flags);
     defer builder.deinit();
 
     const file_path = "nulls.txt";
@@ -162,7 +162,7 @@ test "file with mixed line endings" {
     try ctx.addFile("mixed.txt", content);
 
     const extraction_flags = ExtractionFlags{};
-    var builder = PromptBuilder.init(allocator, ctx.filesystem, extraction_flags);
+    var builder = try PromptBuilder.initForTest(allocator, ctx.filesystem, extraction_flags);
     defer builder.deinit();
 
     const file_path = "mixed.txt";
@@ -193,7 +193,7 @@ test "file with unicode and special chars" {
     try ctx.addFile("unicode.zig", content);
 
     const extraction_flags = ExtractionFlags{};
-    var builder = PromptBuilder.init(allocator, ctx.filesystem, extraction_flags);
+    var builder = try PromptBuilder.initForTest(allocator, ctx.filesystem, extraction_flags);
     defer builder.deinit();
 
     const file_path = "unicode.zig";
@@ -225,7 +225,7 @@ test "file with control characters" {
     try ctx.addFile("control.txt", &content);
 
     const extraction_flags = ExtractionFlags{};
-    var builder = PromptBuilder.init(allocator, ctx.filesystem, extraction_flags);
+    var builder = try PromptBuilder.initForTest(allocator, ctx.filesystem, extraction_flags);
     defer builder.deinit();
 
     const file_path = "control.txt";

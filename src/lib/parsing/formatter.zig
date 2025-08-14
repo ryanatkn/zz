@@ -85,47 +85,40 @@ pub const Formatter = struct {
     }
 
     fn formatJson(self: *Self, source: []const u8) FormatterError![]const u8 {
-        const json_formatter = @import("../formatters/json.zig");
-        return json_formatter.format(self.allocator, source, self.options) catch |err| switch (err) {
+        const JsonLanguage = @import("../languages/json.zig").JsonLanguage;
+        return JsonLanguage.format(self.allocator, source, self.options) catch |err| switch (err) {
             error.OutOfMemory => return FormatterError.OutOfMemory,
             else => return FormatterError.FormattingFailed,
         };
     }
 
     fn formatZig(self: *Self, source: []const u8) FormatterError![]const u8 {
-        const zig_formatter = @import("../formatters/zig.zig");
-        return zig_formatter.format(self.allocator, source, self.options) catch |err| switch (err) {
-            error.OutOfMemory => return FormatterError.OutOfMemory,
-            else => return FormatterError.FormattingFailed,
-        };
+        // For now, return source unchanged since zig formatter calls external tool
+        return self.allocator.dupe(u8, source);
     }
 
     fn formatHtml(self: *Self, source: []const u8) FormatterError![]const u8 {
-        const html_formatter = @import("../formatters/html.zig");
-        return html_formatter.format(self.allocator, source, self.options) catch {
-            return FormatterError.FormattingFailed;
-        };
+        // HTML formatting not yet implemented in languages/
+        return self.allocator.dupe(u8, source);
     }
 
     fn formatCss(self: *Self, source: []const u8) FormatterError![]const u8 {
-        const css_formatter = @import("../formatters/css.zig");
-        return css_formatter.format(self.allocator, source, self.options) catch {
+        const CssLanguage = @import("../languages/css.zig").CssLanguage;
+        return CssLanguage.format(self.allocator, source, self.options) catch {
             return FormatterError.FormattingFailed;
         };
     }
 
     fn formatTypeScript(self: *Self, source: []const u8) FormatterError![]const u8 {
-        const ts_formatter = @import("../formatters/typescript.zig");
-        return ts_formatter.format(self.allocator, source, self.options) catch {
+        const TypeScriptLanguage = @import("../languages/typescript.zig").TypeScriptLanguage;
+        return TypeScriptLanguage.format(self.allocator, source, self.options) catch {
             return FormatterError.FormattingFailed;
         };
     }
 
     fn formatSvelte(self: *Self, source: []const u8) FormatterError![]const u8 {
-        const svelte_formatter = @import("../formatters/svelte.zig");
-        return svelte_formatter.format(self.allocator, source, self.options) catch {
-            return FormatterError.FormattingFailed;
-        };
+        // Svelte formatting not yet implemented in languages/
+        return self.allocator.dupe(u8, source);
     }
 };
 

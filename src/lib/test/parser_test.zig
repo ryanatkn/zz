@@ -43,15 +43,15 @@ test "Parser initialization for each language" {
         .svelte,
     };
 
+    const parser = Extractor.init(allocator);
+    
     for (languages) |lang| {
-        const parser = Extractor.init(allocator, lang);
-        try testing.expectEqual(lang, parser.language);
-        // Parser initialization should always succeed for supported languages
+        // Test that each language is supported
+        try testing.expect(parser.isLanguageSupported(lang));
     }
 
-    // Test unknown language
-    const unknown_parser = Extractor.init(allocator, .unknown);
-    try testing.expectEqual(Language.unknown, unknown_parser.language);
+    // Test unknown language is not supported
+    try testing.expect(!parser.isLanguageSupported(.unknown));
 }
 
 test "ExtractionFlags default behavior" {
@@ -68,7 +68,7 @@ test "ExtractionFlags default behavior" {
 
 test "Zig code extraction with signatures flag" {
     const allocator = testing.allocator;
-    const parser = Extractor.init(allocator, .zig);
+    const parser = Extractor.init(allocator);
 
     const source =
         \\pub fn main() void {
@@ -81,7 +81,7 @@ test "Zig code extraction with signatures flag" {
     ;
 
     const flags = ExtractionFlags{ .signatures = true };
-    const result = try parser.extract(source, flags);
+    const result = try parser.extract(.zig, source, flags);
     defer allocator.free(result);
 
     // Verify that Zig function signatures are extracted
@@ -92,7 +92,7 @@ test "Zig code extraction with signatures flag" {
 
 test "CSS code extraction with types flag" {
     const allocator = testing.allocator;
-    const parser = Extractor.init(allocator, .css);
+    const parser = Extractor.init(allocator);
 
     const source =
         \\.container {
@@ -105,7 +105,7 @@ test "CSS code extraction with types flag" {
     ;
 
     const flags = ExtractionFlags{ .types = true };
-    const result = try parser.extract(source, flags);
+    const result = try parser.extract(.css, source, flags);
     defer allocator.free(result);
 
     // Verify that CSS structural elements are extracted
@@ -117,7 +117,7 @@ test "CSS code extraction with types flag" {
 
 test "HTML code extraction with structure flag" {
     const allocator = testing.allocator;
-    const parser = Extractor.init(allocator, .html);
+    const parser = Extractor.init(allocator);
 
     const source =
         \\<!DOCTYPE html>
@@ -133,7 +133,7 @@ test "HTML code extraction with structure flag" {
     ;
 
     const flags = ExtractionFlags{ .structure = true };
-    const result = try parser.extract(source, flags);
+    const result = try parser.extract(.html, source, flags);
     defer allocator.free(result);
 
     // Verify that HTML structural elements are extracted
@@ -146,7 +146,7 @@ test "HTML code extraction with structure flag" {
 
 test "JSON code extraction with structure flag" {
     const allocator = testing.allocator;
-    const parser = Extractor.init(allocator, .json);
+    const parser = Extractor.init(allocator);
 
     const source =
         \\{
@@ -159,7 +159,7 @@ test "JSON code extraction with structure flag" {
     ;
 
     const flags = ExtractionFlags{ .structure = true };
-    const result = try parser.extract(source, flags);
+    const result = try parser.extract(.json, source, flags);
     defer allocator.free(result);
 
     // Verify that JSON structural elements are extracted
@@ -172,7 +172,7 @@ test "JSON code extraction with structure flag" {
 
 test "TypeScript code extraction with types and signatures" {
     const allocator = testing.allocator;
-    const parser = Extractor.init(allocator, .typescript);
+    const parser = Extractor.init(allocator);
 
     const source =
         \\interface User {
@@ -188,7 +188,7 @@ test "TypeScript code extraction with types and signatures" {
     ;
 
     const flags = ExtractionFlags{ .types = true, .signatures = true };
-    const result = try parser.extract(source, flags);
+    const result = try parser.extract(.typescript, source, flags);
     defer allocator.free(result);
 
     // Verify extraction doesn't crash and returns content
@@ -197,7 +197,7 @@ test "TypeScript code extraction with types and signatures" {
 
 test "Svelte code extraction with mixed content" {
     const allocator = testing.allocator;
-    const parser = Extractor.init(allocator, .svelte);
+    const parser = Extractor.init(allocator);
 
     const source =
         \\<script>
@@ -228,7 +228,7 @@ test "Svelte code extraction with mixed content" {
         .structure = true,
         .types = true,
     };
-    const result = try parser.extract(source, flags);
+    const result = try parser.extract(.svelte, source, flags);
     defer allocator.free(result);
 
     // Verify that Svelte components are extracted
@@ -241,11 +241,11 @@ test "Svelte code extraction with mixed content" {
 
 test "Empty file extraction" {
     const allocator = testing.allocator;
-    const parser = Extractor.init(allocator, .zig);
+    const parser = Extractor.init(allocator);
 
     const source = "";
     const flags = ExtractionFlags{ .signatures = true };
-    const result = try parser.extract(source, flags);
+    const result = try parser.extract(.zig, source, flags);
     defer allocator.free(result);
 
     try testing.expectEqualStrings("", result);
@@ -253,11 +253,11 @@ test "Empty file extraction" {
 
 test "Full extraction flag returns complete source" {
     const allocator = testing.allocator;
-    const parser = Extractor.init(allocator, .css); // Use CSS instead of TypeScript
+    const parser = Extractor.init(allocator); // Use CSS instead of TypeScript
 
     const source = "body { margin: 0; padding: 0; }";
     const flags = ExtractionFlags{ .full = true };
-    const result = try parser.extract(source, flags);
+    const result = try parser.extract(.css, source, flags);
     defer allocator.free(result);
 
     try testing.expectEqualStrings(source, result);
@@ -265,11 +265,11 @@ test "Full extraction flag returns complete source" {
 
 test "Default extraction returns full source" {
     const allocator = testing.allocator;
-    const parser = Extractor.init(allocator, .css);
+    const parser = Extractor.init(allocator);
 
     const source = "body { margin: 0; }";
     const flags = ExtractionFlags{};
-    const result = try parser.extract(source, flags);
+    const result = try parser.extract(.css, source, flags);
     defer allocator.free(result);
 
     try testing.expectEqualStrings(source, result);
@@ -283,7 +283,7 @@ test "Combined extraction flags" {
 
 test "Large file extraction performance" {
     const allocator = testing.allocator;
-    const parser = Extractor.init(allocator, .css); // Use CSS instead of TypeScript
+    const parser = Extractor.init(allocator); // Use CSS instead of TypeScript
 
     // Generate a large CSS source file
     var source = std.ArrayList(u8).init(allocator);
@@ -299,7 +299,7 @@ test "Large file extraction performance" {
     }
 
     const flags = ExtractionFlags{ .signatures = true };
-    const result = try parser.extract(source.items, flags);
+    const result = try parser.extract(.css, source.items, flags);
     defer allocator.free(result);
 
     // Verify that CSS selectors are extracted for performance tests
@@ -308,7 +308,7 @@ test "Large file extraction performance" {
 
 test "Malformed code graceful handling" {
     const allocator = testing.allocator;
-    const parser = Extractor.init(allocator, .css);
+    const parser = Extractor.init(allocator);
 
     // Malformed CSS
     const source =
@@ -321,7 +321,7 @@ test "Malformed code graceful handling" {
 
     const flags = ExtractionFlags{ .types = true };
     // Should not crash, should fall back to simple extraction
-    const result = try parser.extract(source, flags);
+    const result = try parser.extract(.css, source, flags);
     defer allocator.free(result);
 
     // Verify extraction handles malformed code gracefully
@@ -330,11 +330,11 @@ test "Malformed code graceful handling" {
 
 test "Unknown language extraction" {
     const allocator = testing.allocator;
-    const parser = Extractor.init(allocator, .unknown);
+    const parser = Extractor.init(allocator);
 
     const source = "Some random text\nWith multiple lines";
     const flags = ExtractionFlags{ .signatures = true };
-    const result = try parser.extract(source, flags);
+    const result = try parser.extract(.unknown, source, flags);
     defer allocator.free(result);
 
     // Should return full source for unknown language
@@ -347,11 +347,11 @@ test "Memory cleanup after extraction" {
     // Run multiple extractions to test memory management
     var i: usize = 0;
     while (i < 10) : (i += 1) {
-        const parser = Extractor.init(allocator, .css); // Use CSS instead of TypeScript
+        const parser = Extractor.init(allocator); // Use CSS instead of TypeScript
 
         const source = ".test { color: blue; }";
         const flags = ExtractionFlags{ .signatures = true };
-        const result = try parser.extract(source, flags);
+        const result = try parser.extract(.css, source, flags);
         defer allocator.free(result);
 
         try testing.expect(result.len >= 0);

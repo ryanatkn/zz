@@ -20,6 +20,12 @@ pub const Language = enum {
         return .unknown;
     }
 
+    /// Detect language from file path
+    pub fn fromPath(file_path: []const u8) Language {
+        const ext = std.fs.path.extension(file_path);
+        return fromExtension(ext);
+    }
+
     pub fn toString(self: Language) []const u8 {
         return switch (self) {
             .zig => "zig",

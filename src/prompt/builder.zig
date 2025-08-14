@@ -138,10 +138,11 @@ pub const PromptBuilder = struct {
 
         // Determine language and extract content based on flags
         const language = Language.fromExtension(ext);
-        const parser = extractor_mod.createExtractor(self.arena.allocator(), language);
+        var parser = extractor_mod.createExtractor(self.allocator);
+        defer parser.deinit();
 
-        const extracted_content = try parser.extract(content, self.extraction_flags);
-        // extracted_content is allocated by parser using arena allocator, no need to free
+        const extracted_content = try parser.extract(language, content, self.extraction_flags);
+        defer self.allocator.free(extracted_content);
 
         // Use extracted content instead of raw content
         const display_content = extracted_content;
@@ -398,9 +399,10 @@ fn processFileSafe(builder: *PromptBuilder, file_path: []const u8, result: *File
     const lang = if (ext.len > 0) ext[1..] else "";
 
     const language = Language.fromExtension(ext);
-    const parser = extractor_mod.createExtractor(temp_allocator, language);
+    var parser = extractor_mod.createExtractor(temp_allocator);
+    defer parser.deinit();
 
-    const extracted_content = try parser.extract(content, builder.extraction_flags);
+    const extracted_content = try parser.extract(language, content, builder.extraction_flags);
     const fence_str = try fence.detectFence(extracted_content, temp_allocator);
 
     // Build result lines

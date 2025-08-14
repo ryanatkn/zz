@@ -283,9 +283,9 @@ pub const Benchmark = struct {
         while (@as(u64, @intCast(std.time.nanoTimestamp() - start)) < target_duration_ns) {
             for (extraction_modes) |mode| {
                 const extractor_mod = @import("language/extractor.zig");
-                var parser = extractor_mod.createExtractor(self.allocator, .zig);
+                const parser = extractor_mod.createExtractor(self.allocator);
 
-                const extracted = try parser.extract(sample_code, mode.flags);
+                const extracted = try parser.extract(.zig, sample_code, mode.flags);
                 defer self.allocator.free(extracted);
 
                 total_extractions += 1;

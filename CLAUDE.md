@@ -769,4 +769,5 @@ When selecting tasks:
     (and please don't cheat on tests lol,
     identify root causes and leave `// TODO` if you're stumped)
 - Remember: Performance is a feature, every cycle counts.
+- Leave `// TODO terse explanation` when you encounter unknowns and work that cannot be completed in the current pass
 - Less is more - avoid over-engineering, and when in doubt, ask me or choose the simple option

@@ -1,5 +1,6 @@
 const std = @import("std");
-const AstNode = @import("../parsing/ast.zig").AstNode;
+const ast = @import("../parsing/ast.zig");
+const AstNode = ast.AstNode;
 const ExtractionFlags = @import("../language/flags.zig").ExtractionFlags;
 const collections = @import("../core/collections.zig");
 const io = @import("../core/io.zig");

@@ -10,7 +10,7 @@ const ExtractionFlags = @import("../language/flags.zig").ExtractionFlags;
 
 test "Zig: extract function signatures" {
     const allocator = testing.allocator;
-    const parser = Extractor.init(allocator, .zig);
+    const parser = Extractor.init(allocator);
 
     const source =
         \\pub fn main() void {
@@ -25,7 +25,7 @@ test "Zig: extract function signatures" {
     ;
 
     const flags = ExtractionFlags{ .signatures = true };
-    const result = try parser.extract(source, flags);
+    const result = try parser.extract(.zig, source, flags);
     defer allocator.free(result);
 
     // Should contain function signatures
@@ -44,7 +44,7 @@ test "Zig: extract types and constants" {
 
 test "Zig: extract imports" {
     const allocator = testing.allocator;
-    const parser = Extractor.init(allocator, .zig);
+    const parser = Extractor.init(allocator);
 
     const source =
         \\const std = @import("std");
@@ -57,7 +57,7 @@ test "Zig: extract imports" {
     ;
 
     const flags = ExtractionFlags{ .imports = true };
-    const result = try parser.extract(source, flags);
+    const result = try parser.extract(.zig, source, flags);
     defer allocator.free(result);
 
     // Should contain all imports
@@ -72,7 +72,7 @@ test "Zig: extract imports" {
 
 test "CSS: extract with types flag" {
     const allocator = testing.allocator;
-    const parser = Extractor.init(allocator, .css);
+    const parser = Extractor.init(allocator);
 
     const source =
         \\:root {
@@ -93,7 +93,7 @@ test "CSS: extract with types flag" {
     ;
 
     const flags = ExtractionFlags{ .types = true };
-    const result = try parser.extract(source, flags);
+    const result = try parser.extract(.css, source, flags);
     defer allocator.free(result);
 
     // With types flag, CSS returns everything (all structure)
@@ -105,7 +105,7 @@ test "CSS: extract with types flag" {
 
 test "CSS: extract selectors only with signatures" {
     const allocator = testing.allocator;
-    const parser = Extractor.init(allocator, .css);
+    const parser = Extractor.init(allocator);
 
     const source =
         \\.btn {
@@ -123,7 +123,7 @@ test "CSS: extract selectors only with signatures" {
     ;
 
     const flags = ExtractionFlags{ .signatures = true };
-    const result = try parser.extract(source, flags);
+    const result = try parser.extract(.css, source, flags);
     defer allocator.free(result);
 
     // Should contain selectors (without the opening brace)
@@ -134,7 +134,7 @@ test "CSS: extract selectors only with signatures" {
 
 test "CSS: extract imports" {
     const allocator = testing.allocator;
-    const parser = Extractor.init(allocator, .css);
+    const parser = Extractor.init(allocator);
 
     const source =
         \\@import url('fonts.css');
@@ -147,7 +147,7 @@ test "CSS: extract imports" {
     ;
 
     const flags = ExtractionFlags{ .imports = true };
-    const result = try parser.extract(source, flags);
+    const result = try parser.extract(.css, source, flags);
     defer allocator.free(result);
 
     // Should contain imports
@@ -164,7 +164,7 @@ test "CSS: extract imports" {
 
 test "HTML: extract structure" {
     const allocator = testing.allocator;
-    const parser = Extractor.init(allocator, .html);
+    const parser = Extractor.init(allocator);
 
     const source =
         \\<!DOCTYPE html>
@@ -181,7 +181,7 @@ test "HTML: extract structure" {
     ;
 
     const flags = ExtractionFlags{ .structure = true };
-    const result = try parser.extract(source, flags);
+    const result = try parser.extract(.html, source, flags);
     defer allocator.free(result);
 
     // Should contain all HTML tags
@@ -196,7 +196,7 @@ test "HTML: extract structure" {
 
 test "HTML: extract script functions with signatures" {
     const allocator = testing.allocator;
-    const parser = Extractor.init(allocator, .html);
+    const parser = Extractor.init(allocator);
 
     const source =
         \\<html>
@@ -214,7 +214,7 @@ test "HTML: extract script functions with signatures" {
     ;
 
     const flags = ExtractionFlags{ .signatures = true };
-    const result = try parser.extract(source, flags);
+    const result = try parser.extract(.html, source, flags);
     defer allocator.free(result);
 
     // Should contain script tags and functions
@@ -226,7 +226,7 @@ test "HTML: extract script functions with signatures" {
 
 test "HTML: extract comments with docs flag" {
     const allocator = testing.allocator;
-    const parser = Extractor.init(allocator, .html);
+    const parser = Extractor.init(allocator);
 
     const source =
         \\<html>
@@ -241,7 +241,7 @@ test "HTML: extract comments with docs flag" {
     ;
 
     const flags = ExtractionFlags{ .docs = true };
-    const result = try parser.extract(source, flags);
+    const result = try parser.extract(.html, source, flags);
     defer allocator.free(result);
 
     // Should contain comments
@@ -259,7 +259,7 @@ test "HTML: extract comments with docs flag" {
 
 test "JSON: extract structure" {
     const allocator = testing.allocator;
-    const parser = Extractor.init(allocator, .json);
+    const parser = Extractor.init(allocator);
 
     const source =
         \\{
@@ -277,7 +277,7 @@ test "JSON: extract structure" {
     ;
 
     const flags = ExtractionFlags{ .structure = true };
-    const result = try parser.extract(source, flags);
+    const result = try parser.extract(.json, source, flags);
     defer allocator.free(result);
 
     // With structure flag, JSON returns everything
@@ -290,7 +290,7 @@ test "JSON: extract structure" {
 
 test "JSON: extract keys only with signatures" {
     const allocator = testing.allocator;
-    const parser = Extractor.init(allocator, .json);
+    const parser = Extractor.init(allocator);
 
     const source =
         \\{
@@ -303,7 +303,7 @@ test "JSON: extract keys only with signatures" {
     ;
 
     const flags = ExtractionFlags{ .signatures = true };
-    const result = try parser.extract(source, flags);
+    const result = try parser.extract(.json, source, flags);
     defer allocator.free(result);
 
     // Should contain lines with keys
@@ -318,7 +318,7 @@ test "JSON: extract keys only with signatures" {
 
 test "TypeScript: extract interfaces and types" {
     const allocator = testing.allocator;
-    const parser = Extractor.init(allocator, .typescript);
+    const parser = Extractor.init(allocator);
 
     const source =
         \\interface User {
@@ -339,7 +339,7 @@ test "TypeScript: extract interfaces and types" {
     ;
 
     const flags = ExtractionFlags{ .types = true };
-    const result = try parser.extract(source, flags);
+    const result = try parser.extract(.typescript, source, flags);
     defer allocator.free(result);
 
     // Should contain interfaces and types
@@ -353,7 +353,7 @@ test "TypeScript: extract interfaces and types" {
 
 test "TypeScript: extract function signatures" {
     const allocator = testing.allocator;
-    const parser = Extractor.init(allocator, .typescript);
+    const parser = Extractor.init(allocator);
 
     const source =
         \\function regularFunction(x: number): string {
@@ -376,7 +376,7 @@ test "TypeScript: extract function signatures" {
     ;
 
     const flags = ExtractionFlags{ .signatures = true };
-    const result = try parser.extract(source, flags);
+    const result = try parser.extract(.typescript, source, flags);
     defer allocator.free(result);
 
     // Should contain function signatures
@@ -391,7 +391,7 @@ test "TypeScript: extract function signatures" {
 
 test "TypeScript: extract imports" {
     const allocator = testing.allocator;
-    const parser = Extractor.init(allocator, .typescript);
+    const parser = Extractor.init(allocator);
 
     const source =
         \\import { Component } from 'react';
@@ -405,7 +405,7 @@ test "TypeScript: extract imports" {
     ;
 
     const flags = ExtractionFlags{ .imports = true };
-    const result = try parser.extract(source, flags);
+    const result = try parser.extract(.typescript, source, flags);
     defer allocator.free(result);
 
     // Should contain imports and exports
@@ -424,7 +424,7 @@ test "TypeScript: extract imports" {
 
 test "Svelte: extract script section with signatures" {
     const allocator = testing.allocator;
-    const parser = Extractor.init(allocator, .svelte);
+    const parser = Extractor.init(allocator);
 
     const source =
         \\<script lang="ts">
@@ -448,7 +448,7 @@ test "Svelte: extract script section with signatures" {
     ;
 
     const flags = ExtractionFlags{ .signatures = true };
-    const result = try parser.extract(source, flags);
+    const result = try parser.extract(.svelte, source, flags);
     defer allocator.free(result);
 
     // Should contain script tags and functions
@@ -464,7 +464,7 @@ test "Svelte: extract script section with signatures" {
 
 test "Svelte: extract style section with types" {
     const allocator = testing.allocator;
-    const parser = Extractor.init(allocator, .svelte);
+    const parser = Extractor.init(allocator);
 
     const source =
         \\<script>
@@ -490,7 +490,7 @@ test "Svelte: extract style section with types" {
     ;
 
     const flags = ExtractionFlags{ .types = true };
-    const result = try parser.extract(source, flags);
+    const result = try parser.extract(.svelte, source, flags);
     defer allocator.free(result);
 
     // Should contain style section
@@ -505,7 +505,7 @@ test "Svelte: extract style section with types" {
 
 test "Svelte: extract template structure" {
     const allocator = testing.allocator;
-    const parser = Extractor.init(allocator, .svelte);
+    const parser = Extractor.init(allocator);
 
     const source =
         \\<script>
@@ -526,7 +526,7 @@ test "Svelte: extract template structure" {
     ;
 
     const flags = ExtractionFlags{ .structure = true };
-    const result = try parser.extract(source, flags);
+    const result = try parser.extract(.svelte, source, flags);
     defer allocator.free(result);
 
     // Should contain HTML template structure
@@ -543,7 +543,7 @@ test "Svelte: extract template structure" {
 
 test "Multiple flags combined" {
     const allocator = testing.allocator;
-    const parser = Extractor.init(allocator, .typescript);
+    const parser = Extractor.init(allocator);
 
     const source =
         \\import { lib } from 'library';
@@ -563,7 +563,7 @@ test "Multiple flags combined" {
         .types = true,
         .imports = true,
     };
-    const result = try parser.extract(source, flags);
+    const result = try parser.extract(.typescript, source, flags);
     defer allocator.free(result);
 
     // Should contain all requested elements
@@ -578,10 +578,10 @@ test "Empty source handling" {
     const languages = [_]Language{ .zig, .css, .html, .json, .typescript, .svelte };
 
     for (languages) |lang| {
-        const parser = Extractor.init(allocator, lang);
+        const parser = Extractor.init(allocator);
 
         const flags = ExtractionFlags{ .signatures = true };
-        const result = try parser.extract("", flags);
+        const result = try parser.extract(lang, "", flags);
         defer allocator.free(result);
 
         // Should handle empty source gracefully
@@ -591,7 +591,7 @@ test "Empty source handling" {
 
 test "Default flags behavior (full extraction)" {
     const allocator = testing.allocator;
-    const parser = Extractor.init(allocator, .css);
+    const parser = Extractor.init(allocator);
 
     const source = ".class { color: red; }";
 
@@ -599,7 +599,7 @@ test "Default flags behavior (full extraction)" {
     var flags = ExtractionFlags{};
     flags.setDefault();
 
-    const result = try parser.extract(source, flags);
+    const result = try parser.extract(.css, source, flags);
     defer allocator.free(result);
 
     // Should return full source
@@ -614,7 +614,7 @@ test "AST-based CSS extraction" {
     const allocator = testing.allocator;
     const createExtractor = @import("../language/extractor.zig").createExtractor;
 
-    var parser = createExtractor(allocator, .css);
+    var parser = createExtractor(allocator);
 
     const source =
         \\.container {
@@ -633,7 +633,7 @@ test "AST-based CSS extraction" {
     ;
 
     const flags = ExtractionFlags{ .signatures = true };
-    const result = try parser.extract(source, flags);
+    const result = try parser.extract(.css, source, flags);
     defer allocator.free(result);
 
     // Should use AST-based extraction but fall back to simple since we have a mock AST
@@ -645,7 +645,7 @@ test "AST-based HTML extraction" {
     const allocator = testing.allocator;
     const createExtractor = @import("../language/extractor.zig").createExtractor;
 
-    var parser = createExtractor(allocator, .html);
+    var parser = createExtractor(allocator);
 
     const source =
         \\<!DOCTYPE html>
@@ -662,7 +662,7 @@ test "AST-based HTML extraction" {
     ;
 
     const flags = ExtractionFlags{ .structure = true };
-    const result = try parser.extract(source, flags);
+    const result = try parser.extract(.html, source, flags);
     defer allocator.free(result);
 
     // Should use AST-based extraction with mock data
@@ -674,7 +674,7 @@ test "AST-based JSON extraction" {
     const allocator = testing.allocator;
     const createExtractor = @import("../language/extractor.zig").createExtractor;
 
-    var parser = createExtractor(allocator, .json);
+    var parser = createExtractor(allocator);
 
     const source =
         \\{
@@ -690,7 +690,7 @@ test "AST-based JSON extraction" {
     ;
 
     const flags = ExtractionFlags{ .signatures = true };
-    const result = try parser.extract(source, flags);
+    const result = try parser.extract(.json, source, flags);
     defer allocator.free(result);
 
     // Should use AST-based extraction with mock data
@@ -701,7 +701,7 @@ test "AST-based Svelte extraction" {
     const allocator = testing.allocator;
     const createExtractor = @import("../language/extractor.zig").createExtractor;
 
-    var parser = createExtractor(allocator, .svelte);
+    var parser = createExtractor(allocator);
 
     const source =
         \\<script>
@@ -726,7 +726,7 @@ test "AST-based Svelte extraction" {
     ;
 
     const flags = ExtractionFlags{ .signatures = true };
-    const result = try parser.extract(source, flags);
+    const result = try parser.extract(.svelte, source, flags);
     defer allocator.free(result);
 
     // Should use AST-based extraction with mock data
@@ -738,17 +738,17 @@ test "AST vs Simple extraction comparison" {
     const createExtractor = @import("../language/extractor.zig").createExtractor;
 
     // Test with CSS
-    const simple_parser = createExtractor(allocator, .css);
+    const simple_parser = createExtractor(allocator);
 
-    const ast_parser = createExtractor(allocator, .css);
+    const ast_parser = createExtractor(allocator);
 
     const source = ".test { color: red; }";
     const flags = ExtractionFlags{ .signatures = true };
 
-    const simple_result = try simple_parser.extract(source, flags);
+    const simple_result = try simple_parser.extract(.css, source, flags);
     defer allocator.free(simple_result);
 
-    const ast_result = try ast_parser.extract(source, flags);
+    const ast_result = try ast_parser.extract(.css, source, flags);
     defer allocator.free(ast_result);
 
     // For now, AST extraction uses mock data
@@ -757,22 +757,24 @@ test "AST vs Simple extraction comparison" {
     try testing.expect(ast_result.len >= 0);
 }
 
-test "AST helper functions work correctly" {
+test "extractor helper functions work correctly" {
     const allocator = testing.allocator;
-    const extractCode = @import("../language/extractor.zig").extractCode;
+    const extractFromFile = @import("../language/extractor.zig").extractFromFile;
 
+    // Create a temporary CSS file for testing  
+    const temp_path = "test_temp.css";
     const source = ".container { margin: 0; }";
+    
+    // Write test file
+    try std.fs.cwd().writeFile(.{ .sub_path = temp_path, .data = source });
+    defer std.fs.cwd().deleteFile(temp_path) catch {};
+
     const flags = ExtractionFlags{ .structure = true };
 
-    // Test simple extraction helper
-    const simple_result = try extractCode(allocator, "test.css", source, flags);
-    defer allocator.free(simple_result);
+    // Test file extraction helper
+    const result = try extractFromFile(allocator, temp_path, flags);
+    defer allocator.free(result);
 
-    // Test AST extraction helper
-    const ast_result = try extractCode(allocator, "test.css", source, flags);
-    defer allocator.free(ast_result);
-
-    // Both should work (AST uses mock data for now)
-    try testing.expect(simple_result.len >= 0);
-    try testing.expect(ast_result.len >= 0);
+    // Should work with file-based extraction
+    try testing.expect(result.len >= 0);
 }

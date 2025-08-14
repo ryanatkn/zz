@@ -1,9 +1,11 @@
 const std = @import("std");
-const terminal = @import("../lib/terminal.zig");
+const colors = @import("../lib/terminal/colors.zig");
+const control = @import("../lib/terminal/control.zig");
+const animation = @import("../lib/terminal/animation.zig");
 
 // Re-export for backwards compatibility
-pub const Color = terminal.colors.Color;
-pub const Control = terminal.control.Control;
+pub const Color = colors.Color;
+pub const Control = control.Control;
 
 /// Terminal interface for interactive operations
 pub const Terminal = struct {
@@ -177,25 +179,25 @@ pub const Terminal = struct {
     /// Show animated spinner during long operations
     pub fn showSpinner(self: *Terminal, frame: usize, message: []const u8) !void {
         if (!self.is_interactive) return;
-        try terminal.animation.Animation.showSpinner(self.writer, frame, message, self.use_color);
+        try animation.Animation.showSpinner(self.writer, frame, message, self.use_color);
     }
     
     /// Show animated dots during operations
     pub fn showDots(self: *Terminal, frame: usize, message: []const u8) !void {
         if (!self.is_interactive) return;
-        try terminal.animation.Animation.showDots(self.writer, frame, message, self.use_color);
+        try animation.Animation.showDots(self.writer, frame, message, self.use_color);
     }
     
     /// Show animated pulse effect
     pub fn showPulse(self: *Terminal, frame: usize, symbol: []const u8, message: []const u8) !void {
         if (!self.is_interactive) return;
-        try terminal.animation.Animation.showPulse(self.writer, frame, symbol, message, self.use_color);
+        try animation.Animation.showPulse(self.writer, frame, symbol, message, self.use_color);
     }
     
     /// Clear current line (for cleaning up animations)
     pub fn clearLine(self: *Terminal) !void {
         if (!self.is_interactive) return;
-        try terminal.animation.Animation.clearLine(self.writer);
+        try animation.Animation.clearLine(self.writer);
     }
     
     pub fn printStep(self: *Terminal, step_num: usize, title: []const u8) !void {

@@ -210,10 +210,10 @@ test "minimal JSON fixture test" {
         const test_case = json_fixtures.parser_tests[0];
         std.log.info("Testing parser case: '{s}'", .{test_case.name});
 
-        const extractor = Extractor.init(testing.allocator, .json);
+        const extractor = Extractor.init(testing.allocator);
         if (test_case.extraction_tests.len > 0) {
             const extraction_test = test_case.extraction_tests[0];
-            const actual = try extractor.extract(test_case.source, extraction_test.flags);
+            const actual = try extractor.extract(.json, test_case.source, extraction_test.flags);
             defer testing.allocator.free(actual);
 
             std.log.info("Extraction successful, got {} bytes", .{actual.len});

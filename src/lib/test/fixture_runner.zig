@@ -178,13 +178,41 @@ pub const FixtureStats = struct {
     }
 };
 
-// Comprehensive test suite using fixtures
-test "fixture-based parser tests" {
-    // TODO: CSS parser test 'simple_selectors' is failing - needs investigation
-    // The CSS extractor is not extracting all selectors correctly
-    // TODO: ZON parser memory leak - we're not freeing ZON data to avoid segfault
-    // See fixture_loader.zig:187 for detailed explanation
-    return error.SkipZigTest;
+// Comprehensive Svelte fixture test - tests ALL test cases and extraction tests
+test "comprehensive Svelte fixture test" {
+    const loader = FixtureLoader.init(testing.allocator);
+    var svelte_fixtures = loader.loadLanguage(.svelte) catch |err| {
+        std.log.err("Failed to load Svelte fixtures: {}", .{err});
+        return err;
+    };
+    defer svelte_fixtures.deinit(testing.allocator);
+
+    // Create extractor once for all tests
+    var extractor = try extractor_mod.createTestExtractor(testing.allocator);
+    defer {
+        extractor.registry.deinit();
+        testing.allocator.destroy(extractor.registry);
+    }
+
+    // Test ALL parser test cases
+    for (svelte_fixtures.parser_tests) |test_case| {
+        // Test ALL extraction tests for this parser test case
+        for (test_case.extraction_tests, 0..) |extraction_test, j| {
+            const actual = try extractor.extract(.svelte, test_case.source, extraction_test.flags);
+            defer testing.allocator.free(actual);
+
+            // Perform the actual comparison
+            if (!std.mem.eql(u8, actual, extraction_test.expected)) {
+                std.log.err("Svelte fixture test '{s}' extraction test {}/{} failed!", .{ test_case.name, j + 1, test_case.extraction_tests.len });
+                std.log.err("Flags: {}", .{extraction_test.flags});
+                std.log.err("Expected:\n{s}", .{extraction_test.expected});
+                std.log.err("Actual:\n{s}", .{actual});
+                return error.TestFailed;
+            }
+        }
+    }
+
+    // All tests passed - no output needed
 }
 
 test "fixture-based formatter tests" {

@@ -5,7 +5,7 @@ const ExtractionContext = @import("../../tree_sitter/visitor.zig").ExtractionCon
 /// AST-based extraction visitor for Svelte
 pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
     const node_type = node.kind;
-    
+
     // Script sections (for signatures flag)
     if (context.flags.signatures) {
         if (std.mem.eql(u8, node_type, "script_element") or
@@ -18,7 +18,7 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
             return;
         }
     }
-    
+
     // Style sections (for types flag)
     if (context.flags.types) {
         if (std.mem.eql(u8, node_type, "style_element") or
@@ -31,7 +31,7 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
             return;
         }
     }
-    
+
     // Template structure (for structure flag)
     if (context.flags.structure) {
         if (std.mem.eql(u8, node_type, "element") or
@@ -46,7 +46,7 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
             return;
         }
     }
-    
+
     // Imports (for imports flag)
     if (context.flags.imports) {
         if (std.mem.eql(u8, node_type, "import_statement") or
@@ -57,7 +57,7 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
             return;
         }
     }
-    
+
     // Comments for docs
     if (context.flags.docs) {
         if (std.mem.eql(u8, node_type, "comment") or
@@ -67,7 +67,7 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
             return;
         }
     }
-    
+
     // Full source
     if (context.flags.full) {
         try context.appendNode(node);

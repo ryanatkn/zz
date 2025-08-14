@@ -9,7 +9,7 @@ pub const Query = struct {
     // This will allow queries like:
     // (function_definition name: (identifier) @function.name)
     // for precise node matching across languages
-    
+
     pub fn placeholder() void {
         // Placeholder implementation
         // Future: Create queries for extracting specific patterns

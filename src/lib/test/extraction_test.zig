@@ -475,131 +475,22 @@ test "TypeScript: extract imports" {
 // Svelte Language Tests
 // ============================================================================
 
-test "Svelte: extract script section with signatures" {
-    const allocator = testing.allocator;
-    var parser = try extractor_mod.createTestExtractor(allocator);
-    defer {
-        parser.registry.deinit();
-        allocator.destroy(parser.registry);
-    }
-
-    const source =
-        \\<script lang="ts">
-        \\  import { onMount } from 'svelte';
-        \\  
-        \\  export let name: string;
-        \\  let count = 0;
-        \\  
-        \\  function increment() {
-        \\    count += 1;
-        \\  }
-        \\  
-        \\  const doubled = () => count * 2;
-        \\</script>
-        \\
-        \\<style>
-        \\  .container { padding: 1rem; }
-        \\</style>
-        \\
-        \\<div>Not included</div>
-    ;
-
-    const flags = ExtractionFlags{ .signatures = true };
-    const result = try parser.extract(.svelte, source, flags);
-    defer allocator.free(result);
-
-    // Should contain script tags and functions
-    try testing.expect(std.mem.indexOf(u8, result, "<script") != null);
-    try testing.expect(std.mem.indexOf(u8, result, "</script>") != null);
-    try testing.expect(std.mem.indexOf(u8, result, "export let name") != null);
-    try testing.expect(std.mem.indexOf(u8, result, "function increment") != null);
-    try testing.expect(std.mem.indexOf(u8, result, "const doubled") != null);
-    // Should NOT contain style or template
-    try testing.expect(std.mem.indexOf(u8, result, ".container") == null);
-    try testing.expect(std.mem.indexOf(u8, result, "<div>") == null);
+test "Svelte: extract script section with signatures (DISABLED - replaced by comprehensive fixture test)" {
+    // DISABLED: This hardcoded test is replaced by comprehensive fixture-based testing
+    // See fixture_runner.zig "comprehensive Svelte fixture test"
+    return error.SkipZigTest;
 }
 
-test "Svelte: extract style section with types" {
-    const allocator = testing.allocator;
-    var parser = try extractor_mod.createTestExtractor(allocator);
-    defer {
-        parser.registry.deinit();
-        allocator.destroy(parser.registry);
-    }
-
-    const source =
-        \\<script>
-        \\  let value = 0;
-        \\</script>
-        \\
-        \\<style>
-        \\  :global(body) {
-        \\    margin: 0;
-        \\  }
-        \\  
-        \\  .card {
-        \\    background: white;
-        \\    border-radius: 8px;
-        \\  }
-        \\  
-        \\  @media (max-width: 600px) {
-        \\    .card { padding: 0.5rem; }
-        \\  }
-        \\</style>
-        \\
-        \\<div class="card">Content</div>
-    ;
-
-    const flags = ExtractionFlags{ .types = true };
-    const result = try parser.extract(.svelte, source, flags);
-    defer allocator.free(result);
-
-    // Should contain style section
-    try testing.expect(std.mem.indexOf(u8, result, "<style>") != null);
-    try testing.expect(std.mem.indexOf(u8, result, "</style>") != null);
-    try testing.expect(std.mem.indexOf(u8, result, ":global(body)") != null);
-    try testing.expect(std.mem.indexOf(u8, result, ".card") != null);
-    try testing.expect(std.mem.indexOf(u8, result, "@media") != null);
-    // Should also contain script types (let declarations)
-    try testing.expect(std.mem.indexOf(u8, result, "let value") != null);
+test "Svelte: extract style section with types (DISABLED - replaced by comprehensive fixture test)" {
+    // DISABLED: This hardcoded test is replaced by comprehensive fixture-based testing
+    // See fixture_runner.zig "comprehensive Svelte fixture test"
+    return error.SkipZigTest;
 }
 
-test "Svelte: extract template structure" {
-    const allocator = testing.allocator;
-    var parser = try extractor_mod.createTestExtractor(allocator);
-    defer {
-        parser.registry.deinit();
-        allocator.destroy(parser.registry);
-    }
-
-    const source =
-        \\<script>
-        \\  export let items = [];
-        \\</script>
-        \\
-        \\<main>
-        \\  <h1>Title</h1>
-        \\  {#if items.length > 0}
-        \\    <ul>
-        \\      {#each items as item}
-        \\        <li>{item}</li>
-        \\      {/each}
-        \\    </ul>
-        \\  {/if}
-        \\  <button on:click={handleClick}>Click me</button>
-        \\</main>
-    ;
-
-    const flags = ExtractionFlags{ .structure = true };
-    const result = try parser.extract(.svelte, source, flags);
-    defer allocator.free(result);
-
-    // Should contain HTML template structure
-    try testing.expect(std.mem.indexOf(u8, result, "<main>") != null);
-    try testing.expect(std.mem.indexOf(u8, result, "<h1>") != null);
-    try testing.expect(std.mem.indexOf(u8, result, "<ul>") != null);
-    try testing.expect(std.mem.indexOf(u8, result, "<li>") != null);
-    try testing.expect(std.mem.indexOf(u8, result, "<button") != null);
+test "Svelte: extract template structure (DISABLED - replaced by comprehensive fixture test)" {
+    // DISABLED: This hardcoded test is replaced by comprehensive fixture-based testing
+    // See fixture_runner.zig "comprehensive Svelte fixture test"
+    return error.SkipZigTest;
 }
 
 // ============================================================================
@@ -648,10 +539,10 @@ test "Empty source handling" {
 
     for (languages) |lang| {
         var parser = try extractor_mod.createTestExtractor(allocator);
-    defer {
-        parser.registry.deinit();
-        allocator.destroy(parser.registry);
-    }
+        defer {
+            parser.registry.deinit();
+            allocator.destroy(parser.registry);
+        }
 
         const flags = ExtractionFlags{ .signatures = true };
         const result = try parser.extract(lang, "", flags);
@@ -780,42 +671,10 @@ test "AST-based JSON extraction" {
     try testing.expect(result.len >= 0); // Accept any result for now
 }
 
-test "AST-based Svelte extraction" {
-    const allocator = testing.allocator;
-    var parser = try extractor_mod.createTestExtractor(allocator);
-    defer {
-        parser.registry.deinit();
-        allocator.destroy(parser.registry);
-    }
-
-    const source =
-        \\<script>
-        \\    export let name = 'world';
-        \\    
-        \\    function greet() {
-        \\        return `Hello ${name}!`;
-        \\    }
-        \\    
-        \\    $: greeting = greet();
-        \\</script>
-        \\
-        \\<style>
-        \\    .greeting {
-        \\        color: purple;
-        \\    }
-        \\</style>
-        \\
-        \\<div class="greeting">
-        \\    {greeting}
-        \\</div>
-    ;
-
-    const flags = ExtractionFlags{ .signatures = true };
-    const result = try parser.extract(.svelte, source, flags);
-    defer allocator.free(result);
-
-    // Should use AST-based extraction with mock data
-    try testing.expect(result.len >= 0); // Accept any result for now
+test "AST-based Svelte extraction (DISABLED - replaced by comprehensive fixture test)" {
+    // DISABLED: This hardcoded test is replaced by comprehensive fixture-based testing
+    // See fixture_runner.zig "comprehensive Svelte fixture test"
+    return error.SkipZigTest;
 }
 
 test "AST vs Simple extraction comparison" {
@@ -852,10 +711,10 @@ test "AST vs Simple extraction comparison" {
 test "extractor helper functions work correctly" {
     const allocator = testing.allocator;
 
-    // Create a temporary CSS file for testing  
+    // Create a temporary CSS file for testing
     const temp_path = "test_temp.css";
     const source = ".container { margin: 0; }";
-    
+
     // Write test file
     try std.fs.cwd().writeFile(.{ .sub_path = temp_path, .data = source });
     defer std.fs.cwd().deleteFile(temp_path) catch {};

@@ -17,7 +17,7 @@ const DemoArgs = struct {
 
 pub fn run(allocator: std.mem.Allocator, args: [][:0]const u8) !void {
     const demo_args = try parseArgs(allocator, args);
-    
+
     switch (demo_args.mode) {
         .interactive => try runInteractive(allocator),
         .non_interactive => {
@@ -34,11 +34,11 @@ pub fn run(allocator: std.mem.Allocator, args: [][:0]const u8) !void {
 fn parseArgs(allocator: std.mem.Allocator, args: [][:0]const u8) !DemoArgs {
     _ = allocator;
     var demo_args = DemoArgs{};
-    
+
     var i: usize = 2; // Skip program name and "demo" subcommand
     while (i < args.len) : (i += 1) {
         const arg = args[i];
-        
+
         if (std.mem.eql(u8, arg, "--non-interactive") or std.mem.eql(u8, arg, "-n")) {
             demo_args.mode = .non_interactive;
         } else if (std.mem.eql(u8, arg, "--help") or std.mem.eql(u8, arg, "-h")) {
@@ -55,7 +55,7 @@ fn parseArgs(allocator: std.mem.Allocator, args: [][:0]const u8) !DemoArgs {
             std.process.exit(1);
         }
     }
-    
+
     return demo_args;
 }
 
@@ -87,19 +87,19 @@ fn showHelp() !void {
 
 fn runInteractive(allocator: std.mem.Allocator) !void {
     var term = terminal.Terminal.init(true);
-    
+
     // Check if zz binary exists
     runner.checkZzBinary() catch {
         try term.printError("Error: zz binary not found. Please run 'zig build' first.\n");
         return;
     };
-    
+
     // Clear screen and show header
     try term.clearScreen();
     try term.drawBox("zz CLI Terminal Demo", 60);
     try term.printInfo("\nFast Command-Line Utilities for POSIX Systems\n");
     try term.newline();
-    
+
     // Introduction
     try term.printBold("This demo showcases zz's capabilities:\n");
     try term.print("• High-performance directory tree visualization\n", .{});
@@ -107,33 +107,33 @@ fn runInteractive(allocator: std.mem.Allocator) !void {
     try term.print("• LLM-optimized prompt generation\n", .{});
     try term.print("• Multiple output formats (tree, list)\n", .{});
     try term.print("• Gitignore integration\n", .{});
-    
+
     try term.waitForEnter();
     try term.clearScreen();
-    
+
     // Run through each demo step
     for (steps.demo_steps, 1..) |step, step_num| {
         try term.printStep(step_num, step.title);
         try term.printDim(step.description);
         try term.newline();
-        
+
         // Show file preview if requested
         if (step.show_file_preview and step.file_to_preview != null) {
             try showFilePreview(&term, allocator, step.file_to_preview.?, step.preview_lines);
             try term.waitForKey("\nPress Enter to parse this file...");
             try term.newline();
         }
-        
+
         // Format and display the command
         const cmd_line = try runner.formatCommandLine(allocator, step.command, step.args);
         defer allocator.free(cmd_line);
         try term.printCommand(cmd_line);
         try term.newline();
-        
+
         // Execute the command with animation
         var result = try runner.executeCommandWithAnimation(allocator, step.command, step.args, &term);
         defer result.deinit();
-        
+
         // Display the output (truncated if needed)
         if (step.max_lines) |max| {
             const truncated = try runner.truncateOutput(allocator, result.stdout, max);
@@ -142,51 +142,51 @@ fn runInteractive(allocator: std.mem.Allocator) !void {
         } else {
             try term.printOutput(result.stdout);
         }
-        
+
         if (result.exit_code != 0 and result.stderr.len > 0) {
             try term.printError("Error output:\n");
             try term.printOutput(result.stderr);
         }
-        
+
         try term.waitForEnter();
-        
+
         // Clear for next step (except last one)
         if (step_num < steps.demo_steps.len) {
             try term.clearScreen();
         }
     }
-    
+
     // Show summary
     try showSummary(&term);
 }
 
 fn runNonInteractive(allocator: std.mem.Allocator) !void {
     var term = terminal.Terminal.init(false);
-    
+
     // Check if zz binary exists
     runner.checkZzBinary() catch {
         std.debug.print("Error: zz binary not found. Please run 'zig build' first.\n", .{});
         return;
     };
-    
+
     // Simple header
     try term.print("# zz CLI Demo Output\n\n", .{});
-    
+
     // Run through each demo step
     for (steps.demo_steps, 1..) |step, step_num| {
         // Print step header
         try term.print("## {}. {s}\n", .{ step_num, step.title });
         try term.print("{s}\n\n", .{step.description});
-        
+
         // Format and display the command
         const cmd_line = try runner.formatCommandLine(allocator, step.command, step.args);
         defer allocator.free(cmd_line);
         try term.print("```console\n$ {s}\n", .{cmd_line});
-        
+
         // Execute the command
         var result = try runner.executeCommand(allocator, step.command, step.args);
         defer result.deinit();
-        
+
         // Display the output (truncated if needed)
         if (step.max_lines) |max| {
             const truncated = try runner.truncateOutput(allocator, result.stdout, max);
@@ -195,10 +195,10 @@ fn runNonInteractive(allocator: std.mem.Allocator) !void {
         } else {
             try term.printOutput(result.stdout);
         }
-        
+
         try term.print("```\n\n", .{});
     }
-    
+
     // Simple summary
     try term.print("## Summary\n\n", .{});
     try term.print("Key features demonstrated:\n", .{});
@@ -206,7 +206,7 @@ fn runNonInteractive(allocator: std.mem.Allocator) !void {
         try term.print("- {s}\n", .{feature});
     }
     try term.newline();
-    
+
     try term.print("Performance highlights:\n", .{});
     for (steps.summary.performance) |perf| {
         try term.print("- {s}: {s}\n", .{ perf.name, perf.value });
@@ -216,33 +216,33 @@ fn runNonInteractive(allocator: std.mem.Allocator) !void {
 fn runNonInteractiveToFile(allocator: std.mem.Allocator, output_path: []const u8) !void {
     const file = try std.fs.cwd().createFile(output_path, .{});
     defer file.close();
-    
+
     // Check if zz binary exists
     runner.checkZzBinary() catch {
         try file.writer().print("Error: zz binary not found. Please run 'zig build' first.\n", .{});
         return;
     };
-    
+
     const writer = file.writer();
-    
+
     // Simple header
     try writer.print("# zz CLI Demo Output\n\n", .{});
-    
+
     // Run through each demo step
     for (steps.demo_steps, 1..) |step, step_num| {
         // Print step header
         try writer.print("## {}. {s}\n", .{ step_num, step.title });
         try writer.print("{s}\n\n", .{step.description});
-        
+
         // Format and display the command
         const cmd_line = try runner.formatCommandLine(allocator, step.command, step.args);
         defer allocator.free(cmd_line);
         try writer.print("```console\n$ {s}\n", .{cmd_line});
-        
+
         // Execute the command
         var result = try runner.executeCommand(allocator, step.command, step.args);
         defer result.deinit();
-        
+
         // Display the output (truncated if needed)
         if (step.max_lines) |max| {
             const truncated = try runner.truncateOutput(allocator, result.stdout, max);
@@ -251,10 +251,10 @@ fn runNonInteractiveToFile(allocator: std.mem.Allocator, output_path: []const u8
         } else {
             try writer.print("{s}", .{result.stdout});
         }
-        
+
         try writer.print("```\n\n", .{});
     }
-    
+
     // Simple summary
     try writer.print("## Summary\n\n", .{});
     try writer.print("Key features demonstrated:\n", .{});
@@ -262,12 +262,12 @@ fn runNonInteractiveToFile(allocator: std.mem.Allocator, output_path: []const u8
         try writer.print("- {s}\n", .{feature});
     }
     try writer.print("\n", .{});
-    
+
     try writer.print("Performance highlights:\n", .{});
     for (steps.summary.performance) |perf| {
         try writer.print("- {s}: {s}\n", .{ perf.name, perf.value });
     }
-    
+
     std.debug.print("Demo output written to: {s}\n", .{output_path});
 }
 
@@ -278,11 +278,11 @@ fn showFilePreview(term: *terminal.Terminal, allocator: std.mem.Allocator, file_
         return;
     };
     defer allocator.free(content);
-    
+
     try term.printInfo("Sample file: ");
     try term.print("{s}\n", .{file_path});
     try term.printDim("Showing first lines:\n\n");
-    
+
     // Show first N lines
     var lines_shown: usize = 0;
     var iter = std.mem.tokenizeAny(u8, content, "\n");
@@ -300,19 +300,19 @@ fn showSummary(term: *terminal.Terminal) !void {
     try term.newline();
     try term.drawBox("Demo Complete!", 60);
     try term.newline();
-    
+
     try term.printSuccess("✓ Key Features Demonstrated:\n");
     for (steps.summary.features) |feature| {
         try term.print("  • {s}\n", .{feature});
     }
     try term.newline();
-    
+
     try term.printInfo("Performance Highlights:\n");
     for (steps.summary.performance) |perf| {
         try term.print("  • {s}: {s}\n", .{ perf.name, perf.value });
     }
     try term.newline();
-    
+
     try term.printDim("For more information, see README.md\n");
     try term.print("Repository: {s}\n", .{steps.summary.repository});
 }

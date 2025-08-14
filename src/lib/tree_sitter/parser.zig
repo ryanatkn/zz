@@ -57,9 +57,9 @@ pub const TreeSitterParser = struct {
     /// Parse source code and return wrapped tree
     pub fn parse(self: *TreeSitterParser, source: []const u8, language: Language) !ParseResult {
         const parser = try self.cache.getParser(language);
-        
+
         const tree = parser.parseString(source, null) orelse return ParseError.ParseFailed;
-        
+
         return ParseResult{
             .tree = tree,
             .root_node = Node.fromTsNode(tree.rootNode(), source),
@@ -70,9 +70,9 @@ pub const TreeSitterParser = struct {
     /// Parse with existing tree for incremental parsing
     pub fn parseIncremental(self: *TreeSitterParser, source: []const u8, language: Language, old_tree: *ts.Tree) !ParseResult {
         const parser = try self.cache.getParser(language);
-        
+
         const tree = parser.parseString(source, old_tree) orelse return ParseError.ParseFailed;
-        
+
         return ParseResult{
             .tree = tree,
             .root_node = Node.fromTsNode(tree.rootNode(), source),

@@ -5,7 +5,7 @@ const ExtractionContext = @import("../../tree_sitter/visitor.zig").ExtractionCon
 /// AST-based extraction visitor for TypeScript
 pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
     const node_type = node.kind;
-    
+
     // Functions and methods
     if (context.flags.signatures) {
         if (std.mem.eql(u8, node_type, "function_declaration") or
@@ -17,7 +17,7 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
             return;
         }
     }
-    
+
     // Types and interfaces
     if (context.flags.types) {
         if (std.mem.eql(u8, node_type, "interface_declaration") or
@@ -29,7 +29,7 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
             return;
         }
     }
-    
+
     // Imports and exports
     if (context.flags.imports) {
         if (std.mem.eql(u8, node_type, "import_statement") or
@@ -39,7 +39,7 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
             return;
         }
     }
-    
+
     // Tests
     if (context.flags.tests) {
         if (std.mem.eql(u8, node_type, "call_expression")) {
@@ -53,7 +53,7 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
             }
         }
     }
-    
+
     // Full source
     if (context.flags.full) {
         try context.appendNode(node);

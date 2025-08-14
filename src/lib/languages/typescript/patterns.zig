@@ -5,29 +5,10 @@ pub const patterns = extractor_base.LanguagePatterns{
     .functions = &.{
         "function ",
         "async function ",
-        "const " // for arrow functions
+        "const ", // for arrow functions
     },
-    .types = &.{
-        "interface ",
-        "type ",
-        "class ",
-        "enum ",
-        "declare "
-    },
-    .imports = &.{
-        "import ",
-        "export ",
-        "require(",
-        "from '",
-        "from \""
-    },
-    .docs = &.{
-        "/**",
-        "//"
-    },
-    .structure = &.{
-        "module ",
-        "namespace ",
-        "declare "
-    },
+    .types = &.{ "interface ", "type ", "class ", "enum ", "declare " },
+    .imports = &.{ "import ", "export ", "require(", "from '", "from \"" },
+    .docs = &.{ "/**", "//" },
+    .structure = &.{ "module ", "namespace ", "declare " },
 };

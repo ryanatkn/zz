@@ -123,13 +123,13 @@ pub const PromptBuilder = struct {
     pub fn deinit(self: *Self) void {
         self.lines.deinit();
         self.arena.deinit();
-        
+
         // Clean up extractor registry if we own it
         if (self.owns_extractor_registry) {
             self.extractor.registry.deinit();
             self.allocator.destroy(self.extractor.registry);
         }
-        
+
         self.extractor.deinit();
     }
 

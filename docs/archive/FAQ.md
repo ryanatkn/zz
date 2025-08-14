@@ -315,7 +315,7 @@ zig build test
 zig build test-tree
 
 # With filter
-zig test src/test.zig --test-filter "pattern"
+zig build test -Dtest-filter="pattern"
 ```
 
 ### How do I debug zz?

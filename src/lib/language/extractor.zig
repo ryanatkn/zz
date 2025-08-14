@@ -36,7 +36,7 @@ pub const Extractor = struct {
     pub fn setPreferAST(self: *Extractor, prefer_ast: bool) void {
         self.prefer_ast = prefer_ast;
     }
-    
+
     /// Clean up extractor resources
     pub fn deinit(self: *Extractor) void {
         _ = self;
@@ -118,21 +118,21 @@ pub const Extractor = struct {
 };
 
 /// Create an extractor with default settings (production use)
-/// 
+///
 /// Uses the global language registry for efficient memory usage.
 /// Safe for production code but should not be used in tests
 /// to avoid global state and memory leaks.
-/// 
+///
 /// For tests, use createTestExtractor() instead.
 pub fn createExtractor(allocator: std.mem.Allocator) Extractor {
     return Extractor.init(allocator);
 }
 
 /// Create test-safe extractor with local registry
-/// 
+///
 /// Use this in tests to avoid memory leaks from the global registry.
 /// The test extractor creates its own registry that must be cleaned up:
-/// 
+///
 /// ```zig
 /// var extractor = try createTestExtractor(allocator);
 /// defer {
@@ -140,7 +140,7 @@ pub fn createExtractor(allocator: std.mem.Allocator) Extractor {
 ///     allocator.destroy(extractor.registry);
 /// }
 /// ```
-/// 
+///
 /// For production code, use createExtractor() which uses the global registry.
 pub fn createTestExtractor(allocator: std.mem.Allocator) !Extractor {
     const registry = try allocator.create(registry_mod.LanguageRegistry);
@@ -180,7 +180,7 @@ pub fn extractFromFile(
 
     // Detect language from file extension
     const language = detection.Language.fromPath(file_path);
-    
+
     // Extract
     const extractor = createExtractor(allocator);
     return extractor.extract(language, source, extraction_flags);
@@ -202,7 +202,7 @@ pub fn formatFile(
 
     // Detect language from file extension
     const language = detection.Language.fromPath(file_path);
-    
+
     // Format
     const extractor = createExtractor(allocator);
     return extractor.format(language, source, options);
@@ -231,7 +231,7 @@ test "Extractor basic functionality" {
     const json_flags = ExtractionFlags{ .full = true };
     const json_result = try extractor.extract(.json, json_source, json_flags);
     defer allocator.free(json_result);
-    
+
     try std.testing.expect(std.mem.eql(u8, json_result, json_source));
 }
 
@@ -247,13 +247,13 @@ test "Extractor unsupported language handling" {
     const flags = ExtractionFlags{ .full = true };
     const result = try extractor.extract(.unknown, source, flags);
     defer allocator.free(result);
-    
+
     try std.testing.expect(std.mem.eql(u8, result, source));
 }
 
 test "Pattern vs AST extraction preferences" {
     const allocator = std.testing.allocator;
-    
+
     // Test pattern-first extractor (test default)
     var pattern_extractor = try createTestExtractor(allocator);
     defer {
@@ -261,7 +261,7 @@ test "Pattern vs AST extraction preferences" {
         allocator.destroy(pattern_extractor.registry);
     }
     try std.testing.expect(pattern_extractor.prefer_ast == false);
-    
+
     // Test AST-enabled extractor
     var ast_registry = try allocator.create(registry_mod.LanguageRegistry);
     ast_registry.* = registry_mod.LanguageRegistry.init(allocator);
@@ -272,7 +272,7 @@ test "Pattern vs AST extraction preferences" {
     var ast_extractor = Extractor.initWithRegistry(allocator, ast_registry);
     ast_extractor.prefer_ast = true;
     try std.testing.expect(ast_extractor.prefer_ast == true);
-    
+
     // Test preference changes
     pattern_extractor.setPreferAST(true);
     try std.testing.expect(pattern_extractor.prefer_ast == true);

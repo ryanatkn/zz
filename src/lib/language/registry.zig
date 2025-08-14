@@ -48,18 +48,18 @@ const svelte_visitor = @import("../languages/svelte/visitor.zig");
 pub const LanguageImpl = struct {
     /// Language name for debugging/logging
     name: []const u8,
-    
+
     /// Get tree-sitter grammar
-    grammar: *const fn() *ts.Language,
-    
+    grammar: *const fn () *ts.Language,
+
     /// Extract code using patterns or AST
-    extract: *const fn(allocator: std.mem.Allocator, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) anyerror!void,
-    
+    extract: *const fn (allocator: std.mem.Allocator, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) anyerror!void,
+
     /// AST visitor function
-    visitor: *const fn(context: *ExtractionContext, node: *const Node) anyerror!void,
-    
+    visitor: *const fn (context: *ExtractionContext, node: *const Node) anyerror!void,
+
     /// Format source code
-    format: *const fn(allocator: std.mem.Allocator, source: []const u8, options: FormatterOptions) anyerror![]const u8,
+    format: *const fn (allocator: std.mem.Allocator, source: []const u8, options: FormatterOptions) anyerror![]const u8,
 };
 
 /// Language registry for managing all supported languages
@@ -72,10 +72,10 @@ pub const LanguageRegistry = struct {
             .implementations = std.HashMap(Language, LanguageImpl, std.hash_map.AutoContext(Language), std.hash_map.default_max_load_percentage).init(allocator),
             .tree_sitter_parser = TreeSitterParser.init(allocator),
         };
-        
+
         // Register built-in languages
         registry.registerBuiltinLanguages() catch unreachable;
-        
+
         return registry;
     }
 
@@ -206,7 +206,7 @@ pub const LanguageRegistry = struct {
         self: *LanguageRegistry,
         context: *ExtractionContext,
         node: *const Node,
-        visitor_fn: *const fn(context: *ExtractionContext, node: *const Node) anyerror!void,
+        visitor_fn: *const fn (context: *ExtractionContext, node: *const Node) anyerror!void,
     ) !void {
         // Visit current node
         try visitor_fn(context, node);
@@ -281,12 +281,12 @@ var registry_allocator: ?std.mem.Allocator = null;
 pub fn getGlobalRegistry(allocator: std.mem.Allocator) *LanguageRegistry {
     registry_mutex.lock();
     defer registry_mutex.unlock();
-    
+
     if (global_registry == null) {
         global_registry = LanguageRegistry.init(allocator);
         registry_allocator = allocator;
     }
-    
+
     return &global_registry.?;
 }
 
@@ -294,7 +294,7 @@ pub fn getGlobalRegistry(allocator: std.mem.Allocator) *LanguageRegistry {
 pub fn deinitGlobalRegistry() void {
     registry_mutex.lock();
     defer registry_mutex.unlock();
-    
+
     if (global_registry) |*registry| {
         registry.deinit();
         global_registry = null;
@@ -333,7 +333,7 @@ test "LanguageRegistry extraction" {
 
     const json_source = "{\"key\": \"value\"}";
     const flags = ExtractionFlags{ .full = true };
-    
+
     var result = std.ArrayList(u8).init(allocator);
     defer result.deinit();
 

@@ -11,21 +11,21 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
             try context.appendNode(node);
         }
     }
-    
+
     if (context.flags.signatures) {
         // Extract object keys only
         if (isKey(node.kind)) {
             try context.appendNode(node);
         }
     }
-    
+
     if (context.flags.types) {
         // Extract type information (arrays, objects, primitives)
         if (isTypedValue(node.kind)) {
             try context.appendNode(node);
         }
     }
-    
+
     if (context.flags.full) {
         // Extract everything
         try context.appendNode(node);

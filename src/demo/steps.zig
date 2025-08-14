@@ -105,7 +105,7 @@ pub const summary = struct {
         "Glob pattern support for file selection",
         "Performance benchmarking capabilities",
     };
-    
+
     pub const performance = [_]struct {
         name: []const u8,
         value: []const u8,
@@ -114,7 +114,7 @@ pub const summary = struct {
         .{ .name = "String pooling", .value = "~145ns per operation" },
         .{ .name = "Pattern matching", .value = "~25ns per operation" },
     };
-    
+
     pub const repository = "https://github.com/ryanatkn/zz";
 };
 

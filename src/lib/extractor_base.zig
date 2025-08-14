@@ -140,7 +140,7 @@ pub fn extractWithPatterns(
 
         if (should_include) {
             try builder.appendLine(line);
-            
+
             // Process the line for block tracking if it starts a block
             if (starts_block) {
                 block_tracker.processLine(line);
@@ -154,7 +154,7 @@ pub fn extractWithPatterns(
                         // Multi-line signature - track parentheses
                         var paren_tracker = line_processing.BlockTracker.initWithChars('(', ')');
                         paren_tracker.processLine(line);
-                        
+
                         // Continue reading until we close all parentheses
                         while (lines.next()) |next_line| {
                             try builder.appendLine(next_line);

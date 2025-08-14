@@ -27,13 +27,13 @@ pub fn extract(allocator: std.mem.Allocator, source: []const u8, flags: Extracti
         try result.appendSlice(source);
         return;
     }
-    
+
     // If no specific flags are set, return full source (backward compatibility)
     if (flags.isDefault()) {
         try result.appendSlice(source);
         return;
     }
-    
+
     // Use section-aware extraction for better results
     try extractWithSectionTracking(allocator, source, flags, result);
 }
@@ -43,22 +43,21 @@ fn extractWithSectionTracking(_: std.mem.Allocator, source: []const u8, flags: E
     var context = SvelteContext{};
     var lines = std.mem.splitScalar(u8, source, '\n');
     var need_newline = false;
-    
+
     while (lines.next()) |line| {
         var should_include = false;
-        
+
         // Check for section boundaries first (before updating context)
         if (isSectionBoundary(line)) {
-            if ((std.mem.indexOf(u8, line, "<script") != null and (flags.signatures or flags.imports or flags.types)) or
-                (std.mem.indexOf(u8, line, "<style") != null and (flags.types or flags.structure)) or
-                (std.mem.indexOf(u8, line, "</script>") != null and (flags.signatures or flags.imports or flags.types)) or
-                (std.mem.indexOf(u8, line, "</style>") != null and (flags.types or flags.structure)) or
-                flags.structure)
+            // Only include section tags for structure extraction, not for signatures/imports/types alone
+            if (flags.structure or
+                (std.mem.indexOf(u8, line, "<style") != null and flags.types and !flags.signatures) or
+                (std.mem.indexOf(u8, line, "</style>") != null and flags.types and !flags.signatures))
             {
                 should_include = true;
             }
         }
-        
+
         // Check content within sections (use current context before updating)
         if (!should_include) {
             switch (context.current_section) {
@@ -82,15 +81,40 @@ fn extractWithSectionTracking(_: std.mem.Allocator, source: []const u8, flags: E
                 },
             }
         }
-        
+
         // Update section tracking AFTER checking inclusion
         updateSectionContext(&context, line);
-        
+
         if (should_include) {
             if (need_newline) {
                 try result.append('\n');
             }
-            try result.appendSlice(line);
+
+            // For signatures and similar extractions, trim indentation and clean up syntax
+            if (flags.signatures and !flags.structure) {
+                var trimmed = std.mem.trim(u8, line, " \t");
+
+                // For function signatures, remove opening brace if present
+                if ((std.mem.startsWith(u8, trimmed, "function ") or
+                    std.mem.startsWith(u8, trimmed, "export function ")) and
+                    std.mem.endsWith(u8, trimmed, " {"))
+                {
+                    // Remove the " {" suffix to get just the signature
+                    trimmed = trimmed[0 .. trimmed.len - 2];
+                } else if ((std.mem.startsWith(u8, trimmed, "function ") or
+                    std.mem.startsWith(u8, trimmed, "export function ")) and
+                    std.mem.endsWith(u8, trimmed, "{"))
+                {
+                    // Remove the "{" suffix (no space before brace)
+                    trimmed = trimmed[0 .. trimmed.len - 1];
+                    // Also trim any trailing whitespace
+                    trimmed = std.mem.trimRight(u8, trimmed, " \t");
+                }
+
+                try result.appendSlice(trimmed);
+            } else {
+                try result.appendSlice(line);
+            }
             need_newline = true;
         }
     }
@@ -110,7 +134,7 @@ fn updateSectionContext(context: *SvelteContext, line: []const u8) void {
             context.in_script_block = false;
         }
     }
-    // Check for style section boundaries  
+    // Check for style section boundaries
     else if (std.mem.indexOf(u8, line, "<style") != null) {
         context.current_section = .style;
         context.in_style_block = true;
@@ -131,10 +155,10 @@ fn updateSectionContext(context: *SvelteContext, line: []const u8) void {
 /// Check if a script line should be included
 fn shouldIncludeScriptLine(line: []const u8, flags: ExtractionFlags) bool {
     const trimmed = std.mem.trim(u8, line, " \t");
-    
+
     // Don't include section boundaries here - handled separately
     if (isSectionBoundary(line)) return false;
-    
+
     if (flags.signatures) {
         // Svelte 5 runes
         if (std.mem.indexOf(u8, trimmed, "$state") != null or
@@ -145,24 +169,29 @@ fn shouldIncludeScriptLine(line: []const u8, flags: ExtractionFlags) bool {
         {
             return true;
         }
-        
-        // Function declarations
+
+        // Function signatures
         if (std.mem.startsWith(u8, trimmed, "function ") or
-            std.mem.startsWith(u8, trimmed, "export function ") or
-            std.mem.startsWith(u8, trimmed, "const ") or
+            std.mem.startsWith(u8, trimmed, "export function "))
+        {
+            return true;
+        }
+
+        // Variable declarations (these are always single-line signatures)
+        if (std.mem.startsWith(u8, trimmed, "const ") or
             std.mem.startsWith(u8, trimmed, "let ") or
             std.mem.startsWith(u8, trimmed, "export let ") or
             std.mem.startsWith(u8, trimmed, "export const "))
         {
             return true;
         }
-        
+
         // Svelte 4 reactive statements
         if (std.mem.startsWith(u8, trimmed, "$:")) {
             return true;
         }
     }
-    
+
     if (flags.types) {
         // Variable declarations that define types/state
         if (std.mem.startsWith(u8, trimmed, "let ") or
@@ -172,7 +201,7 @@ fn shouldIncludeScriptLine(line: []const u8, flags: ExtractionFlags) bool {
         {
             return true;
         }
-        
+
         // Svelte 5 state declarations
         if (std.mem.indexOf(u8, trimmed, "$state") != null or
             std.mem.indexOf(u8, trimmed, "$derived") != null)
@@ -180,7 +209,7 @@ fn shouldIncludeScriptLine(line: []const u8, flags: ExtractionFlags) bool {
             return true;
         }
     }
-    
+
     if (flags.imports) {
         if (std.mem.startsWith(u8, trimmed, "import ") or
             std.mem.startsWith(u8, trimmed, "export "))
@@ -188,21 +217,20 @@ fn shouldIncludeScriptLine(line: []const u8, flags: ExtractionFlags) bool {
             return true;
         }
     }
-    
+
     return false;
 }
 
-/// Check if a style line should be included  
+/// Check if a style line should be included
 fn shouldIncludeStyleLine(line: []const u8, flags: ExtractionFlags) bool {
     const trimmed = std.mem.trim(u8, line, " \t");
-    
+
     // Don't include section boundaries here - handled separately
     if (isSectionBoundary(line)) return false;
-    
+
     if (flags.types) {
         // CSS selectors and rules
-        if (trimmed.len > 0 and (
-            std.mem.indexOf(u8, trimmed, "{") != null or
+        if (trimmed.len > 0 and (std.mem.indexOf(u8, trimmed, "{") != null or
             std.mem.indexOf(u8, trimmed, "}") != null or
             std.mem.indexOf(u8, trimmed, ":global") != null or
             std.mem.indexOf(u8, trimmed, "@media") != null or
@@ -213,22 +241,21 @@ fn shouldIncludeStyleLine(line: []const u8, flags: ExtractionFlags) bool {
             return true;
         }
     }
-    
+
     return flags.structure; // Include all for structure
 }
 
 /// Check if a template line should be included
 fn shouldIncludeTemplateLine(line: []const u8, flags: ExtractionFlags) bool {
     const trimmed = std.mem.trim(u8, line, " \t");
-    
+
     if (flags.structure) {
         // HTML elements and Svelte control flow
-        if (trimmed.len > 0 and (
-            std.mem.indexOf(u8, trimmed, "<") != null or
-            std.mem.indexOf(u8, trimmed, "{#") != null or  // Control flow blocks
-            std.mem.indexOf(u8, trimmed, "{:") != null or  // Else blocks  
-            std.mem.indexOf(u8, trimmed, "{/") != null or  // End blocks
-            std.mem.indexOf(u8, trimmed, "{@") != null or  // Render statements
+        if (trimmed.len > 0 and (std.mem.indexOf(u8, trimmed, "<") != null or
+            std.mem.indexOf(u8, trimmed, "{#") != null or // Control flow blocks
+            std.mem.indexOf(u8, trimmed, "{:") != null or // Else blocks
+            std.mem.indexOf(u8, trimmed, "{/") != null or // End blocks
+            std.mem.indexOf(u8, trimmed, "{@") != null or // Render statements
             std.mem.indexOf(u8, trimmed, "bind:") != null or
             std.mem.indexOf(u8, trimmed, "on:") != null or
             std.mem.indexOf(u8, trimmed, "onclick") != null))
@@ -236,39 +263,28 @@ fn shouldIncludeTemplateLine(line: []const u8, flags: ExtractionFlags) bool {
             return true;
         }
     }
-    
+
     return false;
 }
 
 /// Check if line is a section boundary
 fn isSectionBoundary(line: []const u8) bool {
     return std.mem.indexOf(u8, line, "<script") != null or
-           std.mem.indexOf(u8, line, "</script>") != null or
-           std.mem.indexOf(u8, line, "<style") != null or
-           std.mem.indexOf(u8, line, "</style>") != null;
+        std.mem.indexOf(u8, line, "</script>") != null or
+        std.mem.indexOf(u8, line, "<style") != null or
+        std.mem.indexOf(u8, line, "</style>") != null;
 }
 
 /// Get Svelte-specific extraction patterns (legacy support)
 fn getSveltePatterns() LanguagePatterns {
     // Enhanced patterns for comprehensive Svelte 5 support
-    const function_patterns = [_][]const u8{ 
-        "function ", "export function ", "const ", "let ", "export let ", "export const ",
-        "$state", "$derived", "$effect", "$props", "$bindable", "$:"
-    };
-    const type_patterns = [_][]const u8{ 
-        "<style", "</style>", ":global", "@media", "@import", ".", "#"
-    };
+    const function_patterns = [_][]const u8{ "function ", "export function ", "const ", "let ", "export let ", "export const ", "$state", "$derived", "$effect", "$props", "$bindable", "$:" };
+    const type_patterns = [_][]const u8{ "<style", "</style>", ":global", "@media", "@import", ".", "#" };
     const import_patterns = [_][]const u8{ "import ", "export " };
     const doc_patterns = [_][]const u8{ "<!--", "//" };
     const test_patterns: []const []const u8 = &[_][]const u8{}; // No tests in Svelte
-    const structure_patterns = [_][]const u8{ 
-        "<script", "</script>", "<style", "</style>", "<div", "<p", "<section", "<main",
-        "<header", "<footer", "<nav", "<article", "<aside", "<h1", "<h2", "<h3", "<h4", "<h5", "<h6",
-        "<button", "<input", "<form", "<ul", "<ol", "<li", "<table", "<tr", "<td", "<th",
-        "{#if", "{:else", "{/if", "{#each", "{/each", "{#await", "{/await", 
-        "{#snippet", "{@render", "<slot", "bind:", "on:", "onclick"
-    };
-    
+    const structure_patterns = [_][]const u8{ "<script", "</script>", "<style", "</style>", "<div", "<p", "<section", "<main", "<header", "<footer", "<nav", "<article", "<aside", "<h1", "<h2", "<h3", "<h4", "<h5", "<h6", "<button", "<input", "<form", "<ul", "<ol", "<li", "<table", "<tr", "<td", "<th", "{#if", "{:else", "{/if", "{#each", "{/each", "{#await", "{/await", "{#snippet", "{@render", "<slot", "bind:", "on:", "onclick" };
+
     return LanguagePatterns{
         .functions = function_patterns[0..],
         .types = type_patterns[0..],
@@ -283,7 +299,7 @@ fn getSveltePatterns() LanguagePatterns {
 /// Legacy custom extraction logic for fallback
 fn svelteCustomExtract(line: []const u8, flags: ExtractionFlags) bool {
     const trimmed = std.mem.trim(u8, line, " \t");
-    
+
     // Svelte 5 runes
     if (flags.signatures) {
         if (std.mem.indexOf(u8, trimmed, "$state") != null or
@@ -295,7 +311,7 @@ fn svelteCustomExtract(line: []const u8, flags: ExtractionFlags) bool {
             return true;
         }
     }
-    
+
     // Control flow blocks
     if (flags.structure) {
         if (std.mem.indexOf(u8, trimmed, "{#") != null or
@@ -306,6 +322,6 @@ fn svelteCustomExtract(line: []const u8, flags: ExtractionFlags) bool {
             return true;
         }
     }
-    
+
     return false;
 }

@@ -49,7 +49,7 @@ test "Parser initialization for each language" {
         parser.registry.deinit();
         allocator.destroy(parser.registry);
     }
-    
+
     for (languages) |lang| {
         // Test that each language is supported
         try testing.expect(parser.isLanguageSupported(lang));
@@ -402,10 +402,10 @@ test "Memory cleanup after extraction" {
     var i: usize = 0;
     while (i < 10) : (i += 1) {
         var parser = try createTestExtractor(allocator);
-    defer {
-        parser.registry.deinit();
-        allocator.destroy(parser.registry);
-    } // Use CSS instead of TypeScript
+        defer {
+            parser.registry.deinit();
+            allocator.destroy(parser.registry);
+        } // Use CSS instead of TypeScript
 
         const source = ".test { color: blue; }";
         const flags = ExtractionFlags{ .signatures = true };

@@ -6,7 +6,7 @@ pub const CommandResult = struct {
     stderr: []u8,
     exit_code: u8,
     allocator: std.mem.Allocator,
-    
+
     pub fn deinit(self: *CommandResult) void {
         self.allocator.free(self.stdout);
         self.allocator.free(self.stderr);
@@ -32,19 +32,19 @@ pub fn executeCommandWithAnimation(
     // Build the full command args
     var argv = std.ArrayList([]const u8).init(allocator);
     defer argv.deinit();
-    
+
     // Use the built zz binary
     try argv.append("./zig-out/bin/zz");
     try argv.append(command);
     for (args) |arg| {
         try argv.append(arg);
     }
-    
+
     // Create the child process
     var child = std.process.Child.init(argv.items, allocator);
     child.stdout_behavior = .Pipe;
     child.stderr_behavior = .Pipe;
-    
+
     // Show stylized message for long-running commands
     if (terminal) |term| {
         if (std.mem.eql(u8, command, "benchmark")) {
@@ -55,26 +55,26 @@ pub fn executeCommandWithAnimation(
             try term.writer.writeAll("\n");
         }
     }
-    
+
     // Spawn and wait for completion
     try child.spawn();
-    
+
     // Read stdout
     const stdout = try child.stdout.?.reader().readAllAlloc(allocator, 1024 * 1024);
     errdefer allocator.free(stdout);
-    
+
     // Read stderr
     const stderr = try child.stderr.?.reader().readAllAlloc(allocator, 1024 * 1024);
     errdefer allocator.free(stderr);
-    
+
     // Wait for the process to finish
     const result = try child.wait();
-    
+
     const exit_code = switch (result) {
         .Exited => |code| code,
         else => 255,
     };
-    
+
     return CommandResult{
         .stdout = stdout,
         .stderr = stderr,
@@ -82,7 +82,6 @@ pub fn executeCommandWithAnimation(
         .allocator = allocator,
     };
 }
-
 
 /// Execute a command with a timeout
 pub fn executeCommandWithTimeout(
@@ -105,12 +104,12 @@ pub fn executeSimple(
 ) ![]u8 {
     const result = try executeCommand(allocator, command, args);
     defer allocator.free(result.stderr);
-    
+
     if (result.exit_code != 0) {
         allocator.free(result.stdout);
         return error.CommandFailed;
     }
-    
+
     return result.stdout;
 }
 
@@ -122,13 +121,13 @@ pub fn formatCommandLine(
 ) ![]u8 {
     var cmd_line = std.ArrayList(u8).init(allocator);
     errdefer cmd_line.deinit();
-    
+
     try cmd_line.appendSlice("zz ");
     try cmd_line.appendSlice(command);
-    
+
     for (args) |arg| {
         try cmd_line.append(' ');
-        
+
         // Quote args with spaces or special characters
         const needs_quoting = std.mem.indexOfAny(u8, arg, " \t\n'\"\\$") != null;
         if (needs_quoting) {
@@ -139,7 +138,7 @@ pub fn formatCommandLine(
             try cmd_line.appendSlice(arg);
         }
     }
-    
+
     return cmd_line.toOwnedSlice();
 }
 
@@ -152,10 +151,10 @@ pub fn truncateOutput(
     if (max_lines == 0) {
         return allocator.dupe(u8, output);
     }
-    
+
     var line_count: usize = 0;
     var last_newline: usize = 0;
-    
+
     for (output, 0..) |char, i| {
         if (char == '\n') {
             line_count += 1;
@@ -163,13 +162,13 @@ pub fn truncateOutput(
                 const suffix = "\n...";
                 const truncated = try allocator.alloc(u8, i + suffix.len);
                 @memcpy(truncated[0..i], output[0..i]);
-                @memcpy(truncated[i..i + suffix.len], suffix);
+                @memcpy(truncated[i .. i + suffix.len], suffix);
                 return truncated;
             }
             last_newline = i;
         }
     }
-    
+
     return allocator.dupe(u8, output);
 }
 
@@ -183,12 +182,12 @@ pub fn checkZzBinary() !void {
         return err;
     };
     defer file.close();
-    
+
     const stat = try file.stat();
     if (stat.kind != .file) {
         return error.NotAFile;
     }
-    
+
     // Check if executable (Unix-specific)
     // On POSIX systems, check execute permission
     // This is a simplified check - proper implementation would use stat mode
@@ -198,7 +197,7 @@ pub fn checkZzBinary() !void {
 pub const BatchResult = struct {
     outputs: []CommandResult,
     allocator: std.mem.Allocator,
-    
+
     pub fn deinit(self: *BatchResult) void {
         for (self.outputs) |*output| {
             output.deinit();
@@ -221,14 +220,13 @@ pub fn executeBatch(
         }
         allocator.free(outputs);
     }
-    
+
     for (commands, 0..) |cmd, i| {
         outputs[i] = try executeCommand(allocator, cmd.command, cmd.args);
     }
-    
+
     return BatchResult{
         .outputs = outputs,
         .allocator = allocator,
     };
 }
-

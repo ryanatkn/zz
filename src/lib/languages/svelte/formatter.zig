@@ -7,19 +7,19 @@ pub fn format(allocator: std.mem.Allocator, source: []const u8, options: Formatt
     // For now, return basic formatting with consistent indentation
     var builder = LineBuilder.init(allocator, options);
     defer builder.deinit();
-    
+
     var lines = std.mem.splitScalar(u8, source, '\n');
     var in_script = false;
     var in_style = false;
-    
+
     while (lines.next()) |line| {
         const trimmed = std.mem.trim(u8, line, " \t\r\n");
-        
+
         if (trimmed.len == 0) {
             try builder.newline();
             continue;
         }
-        
+
         // Track sections
         if (std.mem.startsWith(u8, trimmed, "<script")) {
             in_script = true;
@@ -30,7 +30,7 @@ pub fn format(allocator: std.mem.Allocator, source: []const u8, options: Formatt
         } else if (std.mem.startsWith(u8, trimmed, "</style>")) {
             in_style = false;
         }
-        
+
         // Basic indentation for HTML-like content
         if (!in_script and !in_style) {
             if (std.mem.startsWith(u8, trimmed, "<") and !std.mem.startsWith(u8, trimmed, "</")) {
@@ -56,6 +56,6 @@ pub fn format(allocator: std.mem.Allocator, source: []const u8, options: Formatt
             try builder.newline();
         }
     }
-    
+
     return builder.toOwnedSlice();
 }

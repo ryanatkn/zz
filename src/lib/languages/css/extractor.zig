@@ -6,19 +6,19 @@ const LanguagePatterns = @import("../../extractor_base.zig").LanguagePatterns;
 /// Extract CSS code using patterns
 pub fn extract(allocator: std.mem.Allocator, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
     _ = allocator; // Not needed for pattern-based extraction
-    
+
     // If full flag is set, return full source
     if (flags.full) {
         try result.appendSlice(source);
         return;
     }
-    
+
     // If no specific flags are set, return full source (backward compatibility)
     if (flags.isDefault()) {
         try result.appendSlice(source);
         return;
     }
-    
+
     // Use pattern-based extraction for CSS
     const patterns = getCSSPatterns();
     try extractWithPatterns(source, flags, result, patterns);
@@ -32,7 +32,7 @@ fn getCSSPatterns() LanguagePatterns {
     const doc_patterns: []const []const u8 = &[_][]const u8{}; // Comments handled elsewhere
     const test_patterns: []const []const u8 = &[_][]const u8{}; // No tests in CSS
     const structure_patterns = [_][]const u8{ ".", "#", ":", "@", ":root" };
-    
+
     return LanguagePatterns{
         .functions = function_patterns,
         .types = type_patterns[0..],
@@ -56,14 +56,13 @@ fn cssCustomExtract(line: []const u8, flags: ExtractionFlags) bool {
             return true;
         }
     }
-    
+
     // Extract selectors (for signatures flag)
     if (flags.signatures) {
         if (std.mem.indexOf(u8, line, "{") != null) {
             return true;
         }
     }
-    
+
     return false;
 }
-

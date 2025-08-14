@@ -13,20 +13,20 @@ pub fn extract(_: std.mem.Allocator, source: []const u8, flags: ExtractionFlags,
 fn extractWithPatterns(source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
     var lines = std.mem.splitScalar(u8, source, '\n');
     var block_tracker = line_processing.BlockTracker.init();
-    
+
     while (lines.next()) |line| {
         const trimmed = std.mem.trim(u8, line, " \t");
-        
+
         // Track block depth for multi-line interfaces/types
         if (block_tracker.isInBlock()) {
             try builders.appendLine(result, line);
             block_tracker.processLine(line);
             continue;
         }
-        
+
         var should_include = false;
         var starts_block = false;
-        
+
         // Functions
         if (flags.signatures) {
             if (text_patterns.startsWithAny(trimmed, &text_patterns.Patterns.ts_functions) or
@@ -35,7 +35,7 @@ fn extractWithPatterns(source: []const u8, flags: ExtractionFlags, result: *std.
                 should_include = true;
             }
         }
-        
+
         // Types and interfaces
         if (flags.types) {
             if (text_patterns.startsWithAny(trimmed, &text_patterns.Patterns.ts_types)) {
@@ -45,14 +45,14 @@ fn extractWithPatterns(source: []const u8, flags: ExtractionFlags, result: *std.
                 }
             }
         }
-        
+
         // Imports
         if (flags.imports) {
             if (text_patterns.startsWithAny(trimmed, &text_patterns.Patterns.ts_imports)) {
                 should_include = true;
             }
         }
-        
+
         // Documentation comments
         if (flags.docs) {
             if (std.mem.startsWith(u8, trimmed, "/**") or
@@ -61,7 +61,7 @@ fn extractWithPatterns(source: []const u8, flags: ExtractionFlags, result: *std.
                 should_include = true;
             }
         }
-        
+
         // Tests
         if (flags.tests) {
             if (std.mem.indexOf(u8, trimmed, "test(") != null or
@@ -72,12 +72,12 @@ fn extractWithPatterns(source: []const u8, flags: ExtractionFlags, result: *std.
                 should_include = true;
             }
         }
-        
+
         // Full source
         if (flags.full) {
             should_include = true;
         }
-        
+
         if (should_include) {
             try builders.appendLine(result, line);
             if (starts_block) {

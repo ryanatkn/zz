@@ -15,23 +15,23 @@ pub fn formatForReadme(
 ) ![]u8 {
     var result = std.ArrayList(u8).init(allocator);
     errdefer result.deinit();
-    
+
     // Add markdown code block wrapper
     try result.appendSlice("```console\n");
-    
+
     // Strip ANSI colors and clean up the output
     const cleaned = try stripAnsiCodes(allocator, raw_output);
     defer allocator.free(cleaned);
-    
+
     try result.appendSlice(cleaned);
-    
+
     // Ensure proper newline before closing
     if (!std.mem.endsWith(u8, cleaned, "\n")) {
         try result.append('\n');
     }
-    
+
     try result.appendSlice("```");
-    
+
     return result.toOwnedSlice();
 }
 
@@ -39,7 +39,7 @@ pub fn formatForReadme(
 pub fn stripAnsiCodes(allocator: std.mem.Allocator, text: []const u8) ![]u8 {
     var result = std.ArrayList(u8).init(allocator);
     errdefer result.deinit();
-    
+
     var i: usize = 0;
     while (i < text.len) {
         if (i + 1 < text.len and text[i] == '\x1b' and text[i + 1] == '[') {
@@ -58,7 +58,7 @@ pub fn stripAnsiCodes(allocator: std.mem.Allocator, text: []const u8) ![]u8 {
             i += 1;
         }
     }
-    
+
     return result.toOwnedSlice();
 }
 
@@ -71,13 +71,13 @@ pub fn formatCommand(
 ) ![]u8 {
     var result = std.ArrayList(u8).init(allocator);
     errdefer result.deinit();
-    
+
     try result.appendSlice(prefix);
     try result.appendSlice(command);
-    
+
     for (args) |arg| {
         try result.append(' ');
-        
+
         // Quote arguments that contain spaces or special characters
         const needs_quoting = std.mem.indexOfAny(u8, arg, " \t\n'\"\\$*?[]{}();&|<>") != null;
         if (needs_quoting) {
@@ -95,7 +95,7 @@ pub fn formatCommand(
             try result.appendSlice(arg);
         }
     }
-    
+
     return result.toOwnedSlice();
 }
 
@@ -108,7 +108,7 @@ pub fn wrapText(
 ) ![]u8 {
     var result = std.ArrayList(u8).init(allocator);
     errdefer result.deinit();
-    
+
     var lines = std.mem.tokenize(u8, text, "\n");
     while (lines.next()) |line| {
         if (line.len <= max_width) {
@@ -123,7 +123,7 @@ pub fn wrapText(
             var pos: usize = 0;
             while (pos < line.len) {
                 const end = @min(pos + max_width - indent, line.len);
-                
+
                 // Try to break at a word boundary
                 var break_pos = end;
                 if (end < line.len) {
@@ -136,23 +136,23 @@ pub fn wrapText(
                         }
                     }
                 }
-                
+
                 // Add indentation
                 for (0..indent) |_| {
                     try result.append(' ');
                 }
-                
+
                 // Add the line segment
                 try result.appendSlice(line[pos..break_pos]);
                 try result.append('\n');
-                
+
                 // Skip past any spaces at the break point
                 pos = break_pos;
                 while (pos < line.len and line[pos] == ' ') : (pos += 1) {}
             }
         }
     }
-    
+
     return result.toOwnedSlice();
 }
 
@@ -165,7 +165,7 @@ pub fn formatAsMarkdownSection(
 ) ![]u8 {
     var result = std.ArrayList(u8).init(allocator);
     errdefer result.deinit();
-    
+
     // Add markdown heading
     for (0..level) |_| {
         try result.append('#');
@@ -174,10 +174,10 @@ pub fn formatAsMarkdownSection(
     try result.appendSlice(title);
     try result.append('\n');
     try result.append('\n');
-    
+
     // Add content
     try result.appendSlice(content);
-    
+
     // Ensure proper spacing
     if (!std.mem.endsWith(u8, content, "\n\n")) {
         if (!std.mem.endsWith(u8, content, "\n")) {
@@ -185,7 +185,7 @@ pub fn formatAsMarkdownSection(
         }
         try result.append('\n');
     }
-    
+
     return result.toOwnedSlice();
 }
 
@@ -197,11 +197,11 @@ pub fn cleanTerminalOutput(
     // Strip ANSI codes
     const no_ansi = try stripAnsiCodes(allocator, output);
     defer allocator.free(no_ansi);
-    
+
     // Remove excessive blank lines
     var result = std.ArrayList(u8).init(allocator);
     errdefer result.deinit();
-    
+
     var blank_count: usize = 0;
     var lines = std.mem.tokenize(u8, no_ansi, "\n");
     while (lines.next()) |line| {
@@ -217,6 +217,6 @@ pub fn cleanTerminalOutput(
             try result.append('\n');
         }
     }
-    
+
     return result.toOwnedSlice();
 }

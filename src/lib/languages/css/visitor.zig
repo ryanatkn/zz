@@ -5,7 +5,7 @@ const ExtractionContext = @import("../../tree_sitter/visitor.zig").ExtractionCon
 /// AST-based extraction visitor for CSS
 pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
     const node_type = node.kind;
-    
+
     // Selectors (for signatures flag)
     if (context.flags.signatures) {
         if (std.mem.eql(u8, node_type, "rule_set") or
@@ -17,7 +17,7 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
             return;
         }
     }
-    
+
     // At-rules and imports
     if (context.flags.imports) {
         if (std.mem.eql(u8, node_type, "import_statement") or
@@ -28,7 +28,7 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
             return;
         }
     }
-    
+
     // Structure elements (media queries, keyframes)
     if (context.flags.structure or context.flags.types) {
         if (std.mem.eql(u8, node_type, "media_statement") or
@@ -41,7 +41,7 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
             return;
         }
     }
-    
+
     // Comments for docs
     if (context.flags.docs) {
         if (std.mem.eql(u8, node_type, "comment")) {
@@ -49,7 +49,7 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
             return;
         }
     }
-    
+
     // Full source
     if (context.flags.full) {
         try context.appendNode(node);

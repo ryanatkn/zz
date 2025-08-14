@@ -275,6 +275,7 @@ pub const LanguageInfo = struct {
 /// Global language registry instance
 var global_registry: ?LanguageRegistry = null;
 var registry_mutex: std.Thread.Mutex = std.Thread.Mutex{};
+var registry_allocator: ?std.mem.Allocator = null;
 
 /// Get the global language registry (thread-safe singleton)
 pub fn getGlobalRegistry(allocator: std.mem.Allocator) *LanguageRegistry {
@@ -283,6 +284,7 @@ pub fn getGlobalRegistry(allocator: std.mem.Allocator) *LanguageRegistry {
     
     if (global_registry == null) {
         global_registry = LanguageRegistry.init(allocator);
+        registry_allocator = allocator;
     }
     
     return &global_registry.?;
@@ -296,7 +298,13 @@ pub fn deinitGlobalRegistry() void {
     if (global_registry) |*registry| {
         registry.deinit();
         global_registry = null;
+        registry_allocator = null;
     }
+}
+
+/// Test-safe registry cleanup (for test environments)
+pub fn cleanupGlobalRegistry() void {
+    deinitGlobalRegistry();
 }
 
 // Tests

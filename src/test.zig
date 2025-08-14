@@ -2,6 +2,7 @@
 // Usage: zig test src/test.zig
 
 const std = @import("std");
+const extractor = @import("lib/language/extractor.zig");
 
 // Import all test modules - this ensures their test blocks are included
 test {
@@ -44,3 +45,7 @@ test {
 test {
     std.testing.refAllDeclsRecursive(@import("format/test.zig"));
 }
+
+// NOTE: This would be ideal but Zig test runner doesn't guarantee test execution order
+// For now, tests must accept the memory leak until we can use std.testing.allocator.deinit()
+// in a post-test hook or move all tests to use local registries

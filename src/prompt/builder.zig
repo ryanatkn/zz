@@ -20,6 +20,8 @@ pub const PromptBuilder = struct {
     quiet: bool,
     filesystem: FilesystemInterface,
     extraction_flags: ExtractionFlags,
+    extractor: extractor_mod.Extractor,
+    owns_extractor_registry: bool, // Track if we need to clean up the registry
 
     // Incremental and caching support
     file_tracker: ?*FileTracker,
@@ -38,6 +40,26 @@ pub const PromptBuilder = struct {
             .quiet = false,
             .filesystem = filesystem,
             .extraction_flags = extraction_flags,
+            .extractor = extractor_mod.createExtractor(allocator),
+            .owns_extractor_registry = false, // Uses global registry
+            .file_tracker = null,
+            .cache_system = null,
+            .worker_pool = null,
+            .enable_parallel = false,
+        };
+    }
+
+    /// Initialize with test-safe extractor (for tests)
+    pub fn initForTest(allocator: std.mem.Allocator, filesystem: FilesystemInterface, extraction_flags: ExtractionFlags) !Self {
+        return Self{
+            .allocator = allocator,
+            .lines = std.ArrayList([]const u8).init(allocator),
+            .arena = std.heap.ArenaAllocator.init(allocator),
+            .quiet = false,
+            .filesystem = filesystem,
+            .extraction_flags = extraction_flags,
+            .extractor = try extractor_mod.createTestExtractor(allocator),
+            .owns_extractor_registry = true, // Owns local registry
             .file_tracker = null,
             .cache_system = null,
             .worker_pool = null,
@@ -53,6 +75,8 @@ pub const PromptBuilder = struct {
             .quiet = true,
             .filesystem = filesystem,
             .extraction_flags = extraction_flags,
+            .extractor = extractor_mod.createExtractor(allocator),
+            .owns_extractor_registry = false, // Uses global registry
             .file_tracker = null,
             .cache_system = null,
             .worker_pool = null,
@@ -69,6 +93,8 @@ pub const PromptBuilder = struct {
             .quiet = false,
             .filesystem = filesystem,
             .extraction_flags = extraction_flags,
+            .extractor = extractor_mod.createExtractor(allocator),
+            .owns_extractor_registry = false, // Uses global registry
             .file_tracker = file_tracker,
             .cache_system = cache_system,
             .worker_pool = null,
@@ -85,6 +111,8 @@ pub const PromptBuilder = struct {
             .quiet = false,
             .filesystem = filesystem,
             .extraction_flags = extraction_flags,
+            .extractor = extractor_mod.createExtractor(allocator),
+            .owns_extractor_registry = false, // Uses global registry
             .file_tracker = file_tracker,
             .cache_system = cache_system,
             .worker_pool = worker_pool,
@@ -95,6 +123,14 @@ pub const PromptBuilder = struct {
     pub fn deinit(self: *Self) void {
         self.lines.deinit();
         self.arena.deinit();
+        
+        // Clean up extractor registry if we own it
+        if (self.owns_extractor_registry) {
+            self.extractor.registry.deinit();
+            self.allocator.destroy(self.extractor.registry);
+        }
+        
+        self.extractor.deinit();
     }
 
     pub fn addText(self: *Self, text: []const u8) !void {
@@ -138,10 +174,7 @@ pub const PromptBuilder = struct {
 
         // Determine language and extract content based on flags
         const language = Language.fromExtension(ext);
-        var parser = extractor_mod.createExtractor(self.allocator);
-        defer parser.deinit();
-
-        const extracted_content = try parser.extract(language, content, self.extraction_flags);
+        const extracted_content = try self.extractor.extract(language, content, self.extraction_flags);
         defer self.allocator.free(extracted_content);
 
         // Use extracted content instead of raw content
@@ -163,8 +196,9 @@ pub const PromptBuilder = struct {
         // Add content line by line
         var iter = std.mem.splitScalar(u8, display_content, '\n');
         while (iter.next()) |line| {
-            // Only add non-empty lines or preserve empty lines in code blocks
-            try self.lines.append(line);
+            // Copy line to arena allocator to avoid use-after-free
+            const line_copy = try self.arena.allocator().dupe(u8, line);
+            try self.lines.append(line_copy);
         }
 
         try self.lines.append(fence_str);

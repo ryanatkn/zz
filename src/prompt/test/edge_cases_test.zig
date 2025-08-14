@@ -1,5 +1,5 @@
 const std = @import("std");
-const test_helpers = @import("../../test_helpers.zig");
+const test_helpers = @import("../../lib/test/helpers.zig");
 const Config = @import("../config.zig").Config;
 const GlobExpander = @import("../glob.zig").GlobExpander;
 const SharedConfig = @import("../../config.zig").SharedConfig;
@@ -7,7 +7,7 @@ const prompt_main = @import("../main.zig");
 
 test "empty input scenarios - no files specified" {
     const allocator = std.testing.allocator;
-    
+
     var ctx = test_helpers.MockTestContext.init(allocator);
     defer ctx.deinit();
 
@@ -23,7 +23,7 @@ test "empty input scenarios - no files specified" {
 
 test "empty input scenarios - only prepend text" {
     const allocator = std.testing.allocator;
-    
+
     var ctx = test_helpers.MockTestContext.init(allocator);
     defer ctx.deinit();
 
@@ -42,7 +42,7 @@ test "empty input scenarios - only prepend text" {
 
 test "empty input scenarios - only append text" {
     const allocator = std.testing.allocator;
-    
+
     var ctx = test_helpers.MockTestContext.init(allocator);
     defer ctx.deinit();
 
@@ -61,7 +61,7 @@ test "empty input scenarios - only append text" {
 
 test "empty input scenarios - empty string pattern" {
     const allocator = std.testing.allocator;
-    
+
     var ctx = test_helpers.MockTestContext.init(allocator);
     defer ctx.deinit();
 
@@ -80,7 +80,7 @@ test "empty input scenarios - empty string pattern" {
 
 test "empty text flags" {
     const allocator = std.testing.allocator;
-    
+
     var ctx = test_helpers.MockTestContext.init(allocator);
     defer ctx.deinit();
 
@@ -101,7 +101,7 @@ test "glob with no matches in empty directory" {
 
     var ctx = test_helpers.MockTestContext.init(allocator);
     defer ctx.deinit();
-    
+
     // Add an empty directory to mock filesystem
     try ctx.addDirectory("empty_dir");
 
@@ -132,7 +132,7 @@ test "directory as input argument - empty directory" {
 
     var ctx = test_helpers.MockTestContext.init(allocator);
     defer ctx.deinit();
-    
+
     // Create empty subdirectory
     try ctx.addDirectory("subdir");
 
@@ -163,7 +163,7 @@ test "multiple empty glob patterns" {
 
     var ctx = test_helpers.MockTestContext.init(allocator);
     defer ctx.deinit();
-    
+
     const expander = test_helpers.createGlobExpander(allocator, ctx.filesystem);
 
     // Multiple patterns that match nothing

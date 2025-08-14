@@ -1,8 +1,8 @@
 const std = @import("std");
-const FilesystemInterface = @import("../filesystem/interface.zig").FilesystemInterface;
-const SharedConfig = @import("../config.zig").SharedConfig;
-const shouldIgnorePath = @import("../config.zig").shouldIgnorePath;
-const shouldHideFile = @import("../config.zig").shouldHideFile;
+const FilesystemInterface = @import("filesystem.zig").FilesystemInterface;
+const SharedConfig = @import("../../config.zig").SharedConfig;
+const shouldIgnorePath = @import("../../config.zig").shouldIgnorePath;
+const shouldHideFile = @import("../../config.zig").shouldHideFile;
 const path_utils = @import("path.zig");
 const filesystem_utils = @import("filesystem.zig");
 
@@ -191,7 +191,7 @@ fn fileCollector(allocator: std.mem.Allocator, file_path: []const u8, context_pt
         const filename = path_utils.basename(file_path);
         
         // Import glob patterns for matching - this creates a dependency but avoids duplication
-        const glob_patterns = @import("../patterns/glob.zig");
+        const glob_patterns = @import("../parsing/glob.zig");
         if (!glob_patterns.matchSimplePattern(filename, pattern)) {
             return; // File doesn't match pattern
         }

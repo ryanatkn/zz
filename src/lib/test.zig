@@ -10,7 +10,7 @@ test {
     // Cached formatter tests
     _ = @import("test/cached_formatter_test.zig");
     // ZON parser utility tests
-    _ = @import("zon_parser.zig");
+    _ = @import("parsing/zon_parser.zig");
     // Comprehensive fixture-based tests
     _ = @import("test/fixture_loader.zig");
     // Fixture runner tests (with defensive error handling and logging)

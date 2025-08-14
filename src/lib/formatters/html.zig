@@ -1,6 +1,6 @@
 const std = @import("std");
-const FormatterOptions = @import("../formatter.zig").FormatterOptions;
-const LineBuilder = @import("../formatter.zig").LineBuilder;
+const FormatterOptions = @import("../parsing/formatter.zig").FormatterOptions;
+const LineBuilder = @import("../parsing/formatter.zig").LineBuilder;
 
 pub fn format(allocator: std.mem.Allocator, source: []const u8, options: FormatterOptions) ![]const u8 {
     // For now, basic indentation fixing

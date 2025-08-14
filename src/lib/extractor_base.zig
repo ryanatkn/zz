@@ -175,52 +175,8 @@ pub fn extractNonEmpty(
     try line_processing.filterNonEmpty(source, builder.list());
 }
 
-/// Create language patterns for Zig
-pub fn zigPatterns() LanguagePatterns {
-    return .{
-        .functions = &patterns.Patterns.zig_functions,
-        .types = &patterns.Patterns.zig_types,
-        .docs = &patterns.Patterns.zig_docs,
-        .tests = &[_][]const u8{"test "},
-        .imports = null, // Zig uses custom logic for @import
-    };
-}
-
-/// Create language patterns for TypeScript/JavaScript
-pub fn typeScriptPatterns() LanguagePatterns {
-    return .{
-        .functions = &patterns.Patterns.ts_functions,
-        .types = &patterns.Patterns.ts_types,
-        .imports = &patterns.Patterns.ts_imports,
-        .docs = &[_][]const u8{"/**", "//"},
-    };
-}
-
-/// Create language patterns for CSS
-pub fn cssPatterns() LanguagePatterns {
-    return .{
-        .functions = &patterns.Patterns.css_selectors,
-        .structure = &patterns.Patterns.css_at_rules,
-        .imports = &[_][]const u8{"@import", "@use"},
-        .docs = &[_][]const u8{"/*"},
-    };
-}
-
-/// Create language patterns for HTML
-pub fn htmlPatterns() LanguagePatterns {
-    return .{
-        .structure = &[_][]const u8{"<", ">"},
-        .imports = &[_][]const u8{"<link", "<script"},
-        .docs = &[_][]const u8{"<!--"},
-    };
-}
-
-/// Create language patterns for JSON
-pub fn jsonPatterns() LanguagePatterns {
-    return .{
-        .structure = &patterns.Patterns.json_structural,
-    };
-}
+// Language-specific pattern functions moved to individual extractor modules
+// Each extractor (css.zig, html.zig, etc.) now owns its patterns
 
 test "extractWithPatterns for Zig" {
     const allocator = std.testing.allocator;
@@ -236,7 +192,17 @@ test "extractWithPatterns for Zig" {
     defer result.deinit();
     
     const flags = ExtractionFlags{ .signatures = true };
-    const zig_patterns = zigPatterns();
+    // Create test patterns inline instead of using removed zigPatterns()
+    const zig_functions = [_][]const u8{ "pub fn ", "fn ", "test " };
+    const zig_patterns = LanguagePatterns{
+        .functions = &zig_functions,
+        .types = null,
+        .docs = null,
+        .tests = null,
+        .imports = null,
+        .structure = null,
+        .custom_extract = null,
+    };
     
     try extractWithPatterns(source, flags, &result, zig_patterns);
     

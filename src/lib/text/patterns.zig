@@ -312,30 +312,8 @@ pub fn extractTagName(tag: []const u8) ?[]const u8 {
     return if (end > start) tag[start..end] else null;
 }
 
-/// Check if line is likely a function/method signature
-pub fn isFunctionSignature(text: []const u8, lang: Language) bool {
-    const trimmed = std.mem.trim(u8, text, " \t");
-    
-    return switch (lang) {
-        .zig => startsWithAny(trimmed, &[_][]const u8{ "pub fn", "fn", "test" }),
-        .typescript, .javascript => startsWithAny(trimmed, &Patterns.ts_functions) or
-                                   std.mem.indexOf(u8, trimmed, "=>") != null,
-        .css => false,
-        .html => false,
-        else => false,
-    };
-}
-
-pub const Language = enum {
-    zig,
-    typescript,
-    javascript,
-    css,
-    html,
-    json,
-    svelte,
-    unknown,
-};
+// Language patterns moved to individual extractor modules
+// Each language (css.zig, html.zig, etc.) now owns its patterns
 
 test "startsWithAny" {
     const text = "export function test()";

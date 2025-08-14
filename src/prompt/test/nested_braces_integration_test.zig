@@ -1,6 +1,6 @@
 const std = @import("std");
 const testing = std.testing;
-const test_helpers = @import("../../test_helpers.zig");
+const test_helpers = @import("../../lib/test/helpers.zig");
 const GlobExpander = @import("../glob.zig").GlobExpander;
 
 test "nested braces with real files" {
@@ -54,7 +54,6 @@ test "nested braces with real files" {
     try testing.expect(found_zig);
     try testing.expect(found_md);
     try testing.expect(found_txt);
-
 }
 
 test "character classes with real files" {
@@ -98,7 +97,6 @@ test "character classes with real files" {
             std.mem.endsWith(u8, file, "log5.txt") or
             std.mem.endsWith(u8, file, "log9.txt"));
     }
-
 }
 
 test "escape sequences with real files" {
@@ -150,5 +148,4 @@ test "escape sequences with real files" {
 
     try testing.expectEqual(@as(usize, 1), results2.items[0].files.items.len);
     try testing.expect(std.mem.endsWith(u8, results2.items[0].files.items[0], "file[1].txt"));
-
 }

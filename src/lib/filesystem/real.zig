@@ -3,7 +3,7 @@ const FilesystemInterface = @import("interface.zig").FilesystemInterface;
 const DirHandle = @import("interface.zig").DirHandle;
 const FileHandle = @import("interface.zig").FileHandle;
 const DirIterator = @import("interface.zig").DirIterator;
-const path_utils = @import("../lib/path.zig");
+const path_utils = @import("../core/path.zig");
 
 /// Real filesystem implementation for production use
 pub const RealFilesystem = struct {

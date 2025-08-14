@@ -5,7 +5,7 @@ const Walker = @import("../walker.zig").Walker;
 const WalkerOptions = @import("../walker.zig").WalkerOptions;
 const Config = @import("../config.zig").Config;
 const SharedConfig = @import("../../config.zig").SharedConfig;
-const RealFilesystem = @import("../../filesystem/real.zig").RealFilesystem;
+const RealFilesystem = @import("../../lib/filesystem/real.zig").RealFilesystem;
 
 // Helper to create test directory structure
 fn createTestStructure(dir: std.fs.Dir, dir_count: u32, files_per_dir: u32) !void {

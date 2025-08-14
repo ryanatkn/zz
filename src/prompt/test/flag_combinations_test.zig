@@ -1,7 +1,7 @@
 const std = @import("std");
 const Config = @import("../config.zig").Config;
 const prompt_main = @import("../main.zig");
-const test_helpers = @import("../../test_helpers.zig");
+const test_helpers = @import("../../lib/test/helpers.zig");
 
 test "multiple prepend flags - last wins" {
     const allocator = std.testing.allocator;

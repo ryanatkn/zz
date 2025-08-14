@@ -1,7 +1,7 @@
 const std = @import("std");
 const testing = std.testing;
 const main = @import("main.zig");
-const test_helpers = @import("../test_helpers.zig");
+const test_helpers = @import("../lib/test/helpers.zig");
 
 test "benchmark module initialization" {
     test_helpers.TestRunner.setModule("Benchmark");

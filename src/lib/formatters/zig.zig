@@ -1,5 +1,5 @@
 const std = @import("std");
-const FormatterOptions = @import("../formatter.zig").FormatterOptions;
+const FormatterOptions = @import("../parsing/formatter.zig").FormatterOptions;
 
 pub fn format(allocator: std.mem.Allocator, source: []const u8, options: FormatterOptions) ![]const u8 {
     _ = options;

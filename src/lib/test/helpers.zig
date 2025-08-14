@@ -1,13 +1,13 @@
 const std = @import("std");
 const testing = std.testing;
-const MockFilesystem = @import("filesystem/mock.zig").MockFilesystem;
-const RealFilesystem = @import("filesystem/real.zig").RealFilesystem;
-const FilesystemInterface = @import("filesystem/interface.zig").FilesystemInterface;
-const SharedConfig = @import("config.zig").SharedConfig;
-const GlobExpander = @import("prompt/glob.zig").GlobExpander;
-const collections = @import("lib/collections.zig");
-const errors = @import("lib/errors.zig");
-const io = @import("lib/io.zig");
+const MockFilesystem = @import("../filesystem/mock.zig").MockFilesystem;
+const RealFilesystem = @import("../filesystem/real.zig").RealFilesystem;
+const FilesystemInterface = @import("../core/filesystem.zig").FilesystemInterface;
+const SharedConfig = @import("../../config.zig").SharedConfig;
+const GlobExpander = @import("../../prompt/glob.zig").GlobExpander;
+const collections = @import("../core/collections.zig");
+const errors = @import("../core/errors.zig");
+const io = @import("../core/io.zig");
 
 // ============================================================================
 // Core Test Context Types - The Essential Test Infrastructure

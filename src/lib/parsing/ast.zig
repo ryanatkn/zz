@@ -1,6 +1,6 @@
 const std = @import("std");
 const ts = @import("tree-sitter");
-const ExtractionFlags = @import("language/flags.zig").ExtractionFlags;
+const ExtractionFlags = @import("../language/flags.zig").ExtractionFlags;
 
 /// AST Node abstraction for both tree-sitter and synthetic nodes
 pub const Node = struct {

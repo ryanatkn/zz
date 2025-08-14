@@ -1,6 +1,6 @@
 const std = @import("std");
-const FilesystemInterface = @import("../filesystem/interface.zig").FilesystemInterface;
-const DirHandle = @import("../filesystem/interface.zig").DirHandle;
+pub const FilesystemInterface = @import("../filesystem/interface.zig").FilesystemInterface;
+pub const DirHandle = @import("../filesystem/interface.zig").DirHandle;
 
 /// Common error handling patterns for filesystem operations
 pub const ErrorHandling = struct {

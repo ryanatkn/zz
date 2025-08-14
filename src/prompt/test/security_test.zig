@@ -1,8 +1,8 @@
 const std = @import("std");
-const test_helpers = @import("../../test_helpers.zig");
+const test_helpers = @import("../../lib/test/helpers.zig");
 const GlobExpander = @import("../glob.zig").GlobExpander;
 const Config = @import("../config.zig").Config;
-const RealFilesystem = @import("../../filesystem/real.zig").RealFilesystem;
+const RealFilesystem = @import("../../lib/filesystem/real.zig").RealFilesystem;
 
 test "path traversal with .." {
     const allocator = std.testing.allocator;

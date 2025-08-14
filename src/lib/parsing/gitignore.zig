@@ -1,6 +1,6 @@
 const std = @import("std");
-const DirHandle = @import("../filesystem/interface.zig").DirHandle;
-const path_utils = @import("../lib/path.zig");
+const DirHandle = @import("../core/filesystem.zig").DirHandle;
+const path_utils = @import("../core/path.zig");
 
 pub const GitignorePatterns = struct {
     /// Parse gitignore file content into patterns (stateless)

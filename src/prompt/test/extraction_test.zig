@@ -1,6 +1,6 @@
 const std = @import("std");
 const testing = std.testing;
-const test_helpers = @import("../../test_helpers.zig");
+const test_helpers = @import("../../lib/test/helpers.zig");
 const PromptBuilder = @import("../builder.zig").PromptBuilder;
 const ExtractionFlags = @import("../../lib/language/flags.zig").ExtractionFlags;
 const Config = @import("../config.zig").Config;
@@ -25,7 +25,7 @@ test "extraction flags - signatures only" {
         \\    hello();
         \\}
     ;
-    
+
     try ctx.writeFile("test.zig", test_content);
 
     const extraction_flags = ExtractionFlags{ .signatures = true };
@@ -33,18 +33,18 @@ test "extraction flags - signatures only" {
     defer builder.deinit();
 
     try builder.addFile("test.zig");
-    
+
     // Check that signatures were extracted
     var found_hello = false;
     var found_main = false;
     var found_private = false;
-    
+
     for (builder.lines.items) |line| {
         if (std.mem.indexOf(u8, line, "pub fn hello") != null) found_hello = true;
         if (std.mem.indexOf(u8, line, "pub fn main") != null) found_main = true;
         if (std.mem.indexOf(u8, line, "fn privateFunc") != null) found_private = true;
     }
-    
+
     try testing.expect(found_hello);
     try testing.expect(found_main);
     try testing.expect(found_private); // Currently extracts all functions, not just public
@@ -68,7 +68,7 @@ test "extraction flags - types only" {
         \\
         \\pub var global_setting: bool = false;
     ;
-    
+
     try ctx.writeFile("test.zig", test_content);
 
     const extraction_flags = ExtractionFlags{ .types = true };
@@ -76,17 +76,17 @@ test "extraction flags - types only" {
     defer builder.deinit();
 
     try builder.addFile("test.zig");
-    
+
     var found_config = false;
     var found_internal = false;
     var found_global = false;
-    
+
     for (builder.lines.items) |line| {
         if (std.mem.indexOf(u8, line, "pub const Config") != null) found_config = true;
         if (std.mem.indexOf(u8, line, "const Internal") != null) found_internal = true;
         if (std.mem.indexOf(u8, line, "pub var global_setting") != null) found_global = true;
     }
-    
+
     try testing.expect(found_config);
     try testing.expect(found_internal);
     try testing.expect(found_global);
@@ -114,11 +114,11 @@ test "extraction flags - combined extraction" {
         \\    try process(s);
         \\}
     ;
-    
+
     try ctx.writeFile("test.zig", test_content);
 
     // Combine multiple extraction flags
-    const extraction_flags = ExtractionFlags{ 
+    const extraction_flags = ExtractionFlags{
         .signatures = true,
         .types = true,
         .docs = true,
@@ -128,19 +128,19 @@ test "extraction flags - combined extraction" {
     defer builder.deinit();
 
     try builder.addFile("test.zig");
-    
+
     var found_struct = false;
     var found_function = false;
     var found_docs = false;
     var found_test = false;
-    
+
     for (builder.lines.items) |line| {
         if (std.mem.indexOf(u8, line, "pub const MyStruct") != null) found_struct = true;
         if (std.mem.indexOf(u8, line, "pub fn process") != null) found_function = true;
         if (std.mem.indexOf(u8, line, "/// Documentation") != null) found_docs = true;
         if (std.mem.indexOf(u8, line, "test \"process test\"") != null) found_test = true;
     }
-    
+
     try testing.expect(found_struct);
     try testing.expect(found_function);
     try testing.expect(found_docs);
@@ -177,7 +177,7 @@ test "extraction flags - error handling extraction" {
         \\    }
         \\}
     ;
-    
+
     try ctx.writeFile("test.zig", test_content);
 
     const extraction_flags = ExtractionFlags{ .errors = true };
@@ -185,15 +185,15 @@ test "extraction flags - error handling extraction" {
     defer builder.deinit();
 
     try builder.addFile("test.zig");
-    
+
     var found_try = false;
     var found_error_switch = false;
-    
+
     for (builder.lines.items) |line| {
         if (std.mem.indexOf(u8, line, "try") != null) found_try = true;
         if (std.mem.indexOf(u8, line, "error.OutOfMemory") != null) found_error_switch = true;
     }
-    
+
     try testing.expect(found_try);
     try testing.expect(found_error_switch);
 }
@@ -211,12 +211,12 @@ test "extraction flags - default is full source" {
     defer builder.deinit();
 
     try builder.addFile("test.zig");
-    
+
     var found_content = false;
     for (builder.lines.items) |line| {
         if (std.mem.indexOf(u8, line, "const x = 42") != null) found_content = true;
     }
-    
+
     try testing.expect(found_content);
 }
 
@@ -256,12 +256,12 @@ test "extraction flags - non-Zig files fall back to full" {
     defer builder.deinit();
 
     try builder.addFile("test.md");
-    
+
     var found_content = false;
     for (builder.lines.items) |line| {
         if (std.mem.indexOf(u8, line, "# Markdown File") != null) found_content = true;
     }
-    
+
     // Should include full content since extraction isn't supported for markdown yet
     try testing.expect(found_content);
 }

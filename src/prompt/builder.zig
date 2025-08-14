@@ -1,17 +1,17 @@
 const std = @import("std");
 const fence = @import("fence.zig");
-const FilesystemInterface = @import("../filesystem/interface.zig").FilesystemInterface;
-const path_utils = @import("../lib/path.zig");
+const FilesystemInterface = @import("../lib/core/filesystem.zig").FilesystemInterface;
+const path_utils = @import("../lib/core/path.zig");
 const Language = @import("../lib/language/detection.zig").Language;
 const ExtractionFlags = @import("../lib/language/flags.zig").ExtractionFlags;
-const extractor_mod = @import("../lib/extractor.zig");
-const FileTracker = @import("../lib/incremental.zig").FileTracker;
-const CacheSystem = @import("../lib/cache.zig").CacheSystem;
-const AstCacheKey = @import("../lib/cache.zig").AstCacheKey;
+const extractor_mod = @import("../lib/language/extractor.zig");
+const FileTracker = @import("../lib/analysis/incremental.zig").FileTracker;
+const CacheSystem = @import("../lib/analysis/cache.zig").CacheSystem;
+const AstCacheKey = @import("../lib/analysis/cache.zig").AstCacheKey;
 const WorkerPool = @import("../lib/parallel.zig").WorkerPool;
 const Task = @import("../lib/parallel.zig").Task;
 const TaskPriority = @import("../lib/parallel.zig").TaskPriority;
-const errors = @import("../lib/errors.zig");
+const errors = @import("../lib/core/errors.zig");
 
 pub const PromptBuilder = struct {
     allocator: std.mem.Allocator,

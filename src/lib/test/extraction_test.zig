@@ -1,6 +1,6 @@
 const std = @import("std");
 const testing = std.testing;
-const Extractor = @import("../extractor.zig").Extractor;
+const Extractor = @import("../language/extractor.zig").Extractor;
 const Language = @import("../language/detection.zig").Language;
 const ExtractionFlags = @import("../language/flags.zig").ExtractionFlags;
 
@@ -612,7 +612,7 @@ test "Default flags behavior (full extraction)" {
 
 test "AST-based CSS extraction" {
     const allocator = testing.allocator;
-    const createExtractor = @import("../extractor.zig").createExtractor;
+    const createExtractor = @import("../language/extractor.zig").createExtractor;
     
     var parser = createExtractor(allocator, .css);
     
@@ -643,7 +643,7 @@ test "AST-based CSS extraction" {
 
 test "AST-based HTML extraction" {
     const allocator = testing.allocator;
-    const createExtractor = @import("../extractor.zig").createExtractor;
+    const createExtractor = @import("../language/extractor.zig").createExtractor;
     
     var parser = createExtractor(allocator, .html);
     
@@ -672,7 +672,7 @@ test "AST-based HTML extraction" {
 
 test "AST-based JSON extraction" {
     const allocator = testing.allocator;
-    const createExtractor = @import("../extractor.zig").createExtractor;
+    const createExtractor = @import("../language/extractor.zig").createExtractor;
     
     var parser = createExtractor(allocator, .json);
     
@@ -699,7 +699,7 @@ test "AST-based JSON extraction" {
 
 test "AST-based Svelte extraction" {
     const allocator = testing.allocator;
-    const createExtractor = @import("../extractor.zig").createExtractor;
+    const createExtractor = @import("../language/extractor.zig").createExtractor;
     
     var parser = createExtractor(allocator, .svelte);
     
@@ -735,7 +735,7 @@ test "AST-based Svelte extraction" {
 
 test "AST vs Simple extraction comparison" {
     const allocator = testing.allocator;
-    const createExtractor = @import("../extractor.zig").createExtractor;
+    const createExtractor = @import("../language/extractor.zig").createExtractor;
     
     // Test with CSS
     const simple_parser = createExtractor(allocator, .css);
@@ -759,7 +759,7 @@ test "AST vs Simple extraction comparison" {
 
 test "AST helper functions work correctly" {
     const allocator = testing.allocator;
-    const extractCode = @import("../extractor.zig").extractCode;
+    const extractCode = @import("../language/extractor.zig").extractCode;
     
     const source = ".container { margin: 0; }";
     const flags = ExtractionFlags{ .structure = true };

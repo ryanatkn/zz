@@ -1,6 +1,6 @@
 const std = @import("std");
 const testing = std.testing;
-const test_helpers = @import("../test_helpers.zig");
+const test_helpers = @import("../lib/test/helpers.zig");
 
 // Prompt module test runner
 // Usage: zig test src/prompt/test.zig

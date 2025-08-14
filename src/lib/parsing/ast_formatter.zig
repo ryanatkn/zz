@@ -1,11 +1,11 @@
 const std = @import("std");
 const ts = @import("tree-sitter");
-const TreeSitterParser = @import("tree_sitter_parser.zig").TreeSitterParser;
+const TreeSitterParser = @import("../language/tree_sitter.zig").TreeSitterParser;
 const FormatterOptions = @import("formatter.zig").FormatterOptions;
 const LineBuilder = @import("formatter.zig").LineBuilder;
-const Language = @import("language/detection.zig").Language;
-const AstCache = @import("cache.zig").AstCache;
-const AstCacheKey = @import("cache.zig").AstCacheKey;
+const Language = @import("../language/detection.zig").Language;
+const AstCache = @import("../analysis/cache.zig").AstCache;
+const AstCacheKey = @import("../analysis/cache.zig").AstCacheKey;
 
 /// Base class for AST-powered formatters using tree-sitter
 pub const AstFormatter = struct {

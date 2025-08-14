@@ -2,8 +2,8 @@ const std = @import("std");
 const testing = std.testing;
 
 const tree_main = @import("../main.zig");
-const test_helpers = @import("../../test_helpers.zig");
-const RealFilesystem = @import("../../filesystem/real.zig").RealFilesystem;
+const test_helpers = @import("../../lib/test/helpers.zig");
+const RealFilesystem = @import("../../lib/filesystem/real.zig").RealFilesystem;
 
 // Integration tests for the complete tree module workflow
 test "complete tree workflow with real directory" {

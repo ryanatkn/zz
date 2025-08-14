@@ -5,7 +5,7 @@ const Walker = @import("../walker.zig").Walker;
 const WalkerOptions = @import("../walker.zig").WalkerOptions;
 const Config = @import("../config.zig").Config;
 const SharedConfig = @import("../../config.zig").SharedConfig;
-const test_helpers = @import("../../test_helpers.zig");
+const test_helpers = @import("../../lib/test/helpers.zig");
 
 // Test handling of various filesystem edge cases
 test "symlink handling" {

@@ -1,6 +1,6 @@
 const std = @import("std");
 const testing = std.testing;
-const Extractor = @import("../extractor.zig").Extractor;
+const Extractor = @import("../language/extractor.zig").Extractor;
 const Language = @import("../language/detection.zig").Language;
 const ExtractionFlags = @import("../language/flags.zig").ExtractionFlags;
 

@@ -20,9 +20,9 @@ test {
     std.testing.refAllDeclsRecursive(@import("prompt/test.zig"));
 }
 
-// Import patterns tests
+// Import lib tests
 test {
-    std.testing.refAllDeclsRecursive(@import("patterns/test.zig"));
+    std.testing.refAllDeclsRecursive(@import("lib/test/helpers.zig"));
 }
 
 // Import CLI tests

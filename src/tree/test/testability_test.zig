@@ -5,7 +5,7 @@ const Config = @import("../config.zig").Config;
 const tree_main = @import("../main.zig");
 const Walker = @import("../walker.zig").Walker;
 const WalkerOptions = @import("../walker.zig").WalkerOptions;
-const MockFilesystem = @import("../../filesystem/mock.zig").MockFilesystem;
+const MockFilesystem = @import("../../lib/filesystem/mock.zig").MockFilesystem;
 
 test "tree config forTesting creates minimal config" {
     const allocator = std.testing.allocator;

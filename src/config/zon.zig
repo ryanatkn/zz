@@ -3,11 +3,11 @@ const SharedConfig = @import("shared.zig").SharedConfig;
 const BasePatterns = @import("shared.zig").BasePatterns;
 const SymlinkBehavior = @import("shared.zig").SymlinkBehavior;
 const PatternResolver = @import("resolver.zig").PatternResolver;
-const GitignorePatterns = @import("../patterns/gitignore.zig").GitignorePatterns;
-const FilesystemInterface = @import("../filesystem/interface.zig").FilesystemInterface;
-const DirHandle = @import("../filesystem/interface.zig").DirHandle;
-const filesystem_utils = @import("../lib/filesystem.zig");
-const ZonParser = @import("../lib/zon_parser.zig").ZonParser;
+const GitignorePatterns = @import("../lib/parsing/gitignore.zig").GitignorePatterns;
+const FilesystemInterface = @import("../lib/core/filesystem.zig").FilesystemInterface;
+const DirHandle = @import("../lib/core/filesystem.zig").DirHandle;
+const filesystem_utils = @import("../lib/core/filesystem.zig");
+const ZonParser = @import("../lib/parsing/zon_parser.zig").ZonParser;
 const zon_memory = @import("../lib/memory/zon.zig");
 const ManagedZonConfig = zon_memory.ManagedZonConfig;
 

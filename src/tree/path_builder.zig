@@ -1,6 +1,6 @@
 const std = @import("std");
-const FilesystemInterface = @import("../filesystem/interface.zig").FilesystemInterface;
-const PathCache = @import("../lib/memory.zig").PathCache;
+const FilesystemInterface = @import("../lib/core/filesystem.zig").FilesystemInterface;
+const PathCache = @import("../lib/memory/pools.zig").PathCache;
 
 pub const PathBuilder = struct {
     allocator: std.mem.Allocator,

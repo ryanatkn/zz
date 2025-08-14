@@ -1,7 +1,7 @@
 const std = @import("std");
 const testing = std.testing;
-const test_helpers = @import("../test_helpers.zig");
-const MockFilesystem = @import("../filesystem/mock.zig").MockFilesystem;
+const test_helpers = @import("../lib/test/helpers.zig");
+const MockFilesystem = @import("../lib/filesystem/mock.zig").MockFilesystem;
 
 // Tree module test runner
 // Usage: zig test src/tree/test.zig

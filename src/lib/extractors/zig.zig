@@ -9,8 +9,21 @@ pub fn extract(source: []const u8, flags: ExtractionFlags, result: *std.ArrayLis
     const handle_imports = flags.imports;
     modified_flags.imports = false;
     
-    // Use base extractor with Zig patterns
-    var patterns = extractor_base.zigPatterns();
+    // Use base extractor with local Zig patterns
+    const zig_functions = [_][]const u8{ "pub fn ", "fn ", "export fn ", "inline fn ", "test " };
+    const zig_types = [_][]const u8{ "struct", "enum", "union", "error", "packed struct", "extern struct", "opaque" };
+    const zig_docs = [_][]const u8{ "///", "//!" };
+    const zig_imports = [_][]const u8{ "@import(", "const std = " };
+    
+    var patterns = extractor_base.LanguagePatterns{
+        .functions = &zig_functions,
+        .types = &zig_types,
+        .docs = &zig_docs,
+        .imports = &zig_imports,
+        .tests = &zig_functions, // tests use same patterns as functions
+        .structure = null,
+        .custom_extract = null,
+    };
     
     // Add custom extraction for @import
     if (handle_imports) {

@@ -1,6 +1,6 @@
 const std = @import("std");
 const benchmark_lib = @import("../lib/benchmark.zig");
-const path_utils = @import("../lib/path.zig");
+const path_utils = @import("../lib/core/path.zig");
 const Benchmark = benchmark_lib.Benchmark;
 const BenchmarkResult = benchmark_lib.BenchmarkResult;
 

@@ -1,6 +1,6 @@
 const std = @import("std");
 const testing = std.testing;
-const MockFilesystem = @import("../../filesystem/mock.zig").MockFilesystem;
+const MockFilesystem = @import("../../lib/filesystem/mock.zig").MockFilesystem;
 const main = @import("../main.zig");
 
 test "format command basic functionality" {

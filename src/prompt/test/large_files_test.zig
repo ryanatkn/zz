@@ -1,5 +1,5 @@
 const std = @import("std");
-const test_helpers = @import("../../test_helpers.zig");
+const test_helpers = @import("../../lib/test/helpers.zig");
 const GlobExpander = @import("../glob.zig").GlobExpander;
 const PromptBuilder = @import("../builder.zig").PromptBuilder;
 const ExtractionFlags = @import("../../lib/language/flags.zig").ExtractionFlags;

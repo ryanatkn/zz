@@ -1,10 +1,10 @@
 const std = @import("std");
 const AstFormatter = @import("ast_formatter.zig").AstFormatter;
-const AstCache = @import("cache.zig").AstCache;
-const AstCacheKey = @import("cache.zig").AstCacheKey;
+const AstCache = @import("../analysis/cache.zig").AstCache;
+const AstCacheKey = @import("../analysis/cache.zig").AstCacheKey;
 const FormatterOptions = @import("formatter.zig").FormatterOptions;
-const Language = @import("language/detection.zig").Language;
-const FileTracker = @import("incremental.zig").FileTracker;
+const Language = @import("../language/detection.zig").Language;
+const FileTracker = @import("../analysis/incremental.zig").FileTracker;
 
 /// A formatter manager that coordinates AST formatters with shared caching
 pub const CachedFormatterManager = struct {
@@ -130,7 +130,7 @@ pub const CachedFormatterManager = struct {
     }
     
     /// Get cache statistics
-    pub fn getCacheStats(self: *Self) @import("cache.zig").AstCache.CacheStats {
+    pub fn getCacheStats(self: *Self) AstCache.CacheStats {
         return self.cache.getStats();
     }
     

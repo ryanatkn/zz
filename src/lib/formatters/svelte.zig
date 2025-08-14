@@ -1,6 +1,6 @@
 const std = @import("std");
-const FormatterOptions = @import("../formatter.zig").FormatterOptions;
-const AstFormatter = @import("../ast_formatter.zig").AstFormatter;
+const FormatterOptions = @import("../parsing/formatter.zig").FormatterOptions;
+const AstFormatter = @import("../parsing/ast_formatter.zig").AstFormatter;
 const Language = @import("../language/detection.zig").Language;
 
 pub fn format(allocator: std.mem.Allocator, source: []const u8, options: FormatterOptions) ![]const u8 {

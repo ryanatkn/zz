@@ -1,12 +1,12 @@
 const std = @import("std");
-const FilesystemInterface = @import("../filesystem/interface.zig").FilesystemInterface;
-const DirHandle = @import("../filesystem/interface.zig").DirHandle;
+const FilesystemInterface = @import("../lib/core/filesystem.zig").FilesystemInterface;
+const DirHandle = @import("../lib/core/filesystem.zig").DirHandle;
 const SharedConfig = @import("../config.zig").SharedConfig;
 const shouldIgnorePath = @import("../config.zig").shouldIgnorePath;
 const shouldHideFile = @import("../config.zig").shouldHideFile;
-const path_utils = @import("../lib/path.zig");
-const glob_patterns = @import("../patterns/glob.zig");
-const traversal = @import("../lib/traversal.zig");
+const path_utils = @import("../lib/core/path.zig");
+const glob_patterns = @import("../lib/parsing/glob.zig");
+const traversal = @import("../lib/core/traversal.zig");
 
 // Configuration constants
 const MAX_GLOB_DEPTH = 20; // Maximum directory depth for ** patterns

@@ -1,5 +1,5 @@
 const std = @import("std");
-const test_helpers = @import("../../test_helpers.zig");
+const test_helpers = @import("../../lib/test/helpers.zig");
 const GlobExpander = @import("../glob.zig").GlobExpander;
 const matchSimplePattern = @import("../glob.zig").matchSimplePattern;
 
@@ -98,7 +98,7 @@ test "empty alternatives in braces" {
 test "unmatched braces" {
     var ctx = test_helpers.MockTestContext.init(std.testing.allocator);
     defer ctx.deinit();
-    
+
     const expander = test_helpers.createGlobExpander(std.testing.allocator, ctx.filesystem);
 
     // Unmatched opening brace
@@ -153,7 +153,7 @@ test "star edge cases" {
 test "complex glob patterns" {
     var ctx = test_helpers.MockTestContext.init(std.testing.allocator);
     defer ctx.deinit();
-    
+
     const expander = test_helpers.createGlobExpander(std.testing.allocator, ctx.filesystem);
 
     // Complex alternatives
@@ -172,7 +172,7 @@ test "complex glob patterns" {
 test "nested brace patterns" {
     var ctx = test_helpers.MockTestContext.init(std.testing.allocator);
     defer ctx.deinit();
-    
+
     const expander = test_helpers.createGlobExpander(std.testing.allocator, ctx.filesystem);
 
     // Test nested braces - simple case

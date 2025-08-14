@@ -1,5 +1,5 @@
 const std = @import("std");
-const FilesystemInterface = @import("../filesystem/interface.zig").FilesystemInterface;
+const FilesystemInterface = @import("../lib/core/filesystem.zig").FilesystemInterface;
 
 const Command = @import("command.zig").Command;
 const Help = @import("help.zig");
@@ -7,7 +7,7 @@ const tree = @import("../tree/main.zig");
 const prompt = @import("../prompt/main.zig");
 const benchmark = @import("../benchmark/main.zig");
 const format = @import("../format/main.zig");
-const errors = @import("../lib/errors.zig");
+const errors = @import("../lib/core/errors.zig");
 
 pub const Runner = struct {
     allocator: std.mem.Allocator,

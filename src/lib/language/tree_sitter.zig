@@ -2,7 +2,7 @@ const std = @import("std");
 const ts = @import("tree-sitter");
 const detection = @import("detection.zig");
 const flags_mod = @import("flags.zig");
-const imports_mod = @import("../imports.zig");
+const imports_mod = @import("../parsing/imports.zig");
 
 const Language = detection.Language;
 const ExtractionFlags = flags_mod.ExtractionFlags;
@@ -355,7 +355,7 @@ pub fn createTreeSitterParser(allocator: std.mem.Allocator, language: Language) 
 
 /// Helper function to extract with automatic language detection
 pub fn extractWithTreeSitter(allocator: std.mem.Allocator, file_path: []const u8, source: []const u8, extraction_flags: ExtractionFlags) ![]const u8 {
-    const path_utils = @import("../path.zig");
+    const path_utils = @import("../core/path.zig");
     const ext = path_utils.extension(file_path);
     const language = Language.fromExtension(ext);
     

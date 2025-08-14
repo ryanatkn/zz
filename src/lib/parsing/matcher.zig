@@ -1,5 +1,5 @@
 const std = @import("std");
-const path_utils = @import("../lib/path.zig");
+const path_utils = @import("../core/path.zig");
 
 pub const PatternMatcher = struct {
     /// Unified pattern matching with optimized fast/slow path decision

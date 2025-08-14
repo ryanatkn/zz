@@ -3,7 +3,7 @@ const testing = std.testing;
 
 const Config = @import("../config.zig").Config;
 const SharedConfig = @import("../../config.zig").SharedConfig;
-const test_helpers = @import("../../test_helpers.zig");
+const test_helpers = @import("../../lib/test/helpers.zig");
 
 // Helper functions to reduce duplication
 fn expectConfigHasPattern(config: Config, pattern: []const u8) !void {

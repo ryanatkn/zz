@@ -1,9 +1,9 @@
 const std = @import("std");
-const AstNode = @import("ast.zig").AstNode;
-const ExtractionFlags = @import("language/flags.zig").ExtractionFlags;
-const collections = @import("collections.zig");
-const io = @import("io.zig");
-const errors = @import("errors.zig");
+const AstNode = @import("../parsing/ast.zig").AstNode;
+const ExtractionFlags = @import("../language/flags.zig").ExtractionFlags;
+const collections = @import("../core/collections.zig");
+const io = @import("../core/io.zig");
+const errors = @import("../core/errors.zig");
 
 /// Advanced code analysis features for intelligent code understanding and LLM context generation
 pub const CodeAnalysis = struct {

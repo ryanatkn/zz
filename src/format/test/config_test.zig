@@ -4,7 +4,7 @@ const ZonLoader = @import("../../config/zon.zig").ZonLoader;
 const FormatConfigOptions = @import("../../config/zon.zig").FormatConfigOptions;
 const IndentStyle = @import("../../config/zon.zig").IndentStyle;
 const QuoteStyle = @import("../../config/zon.zig").QuoteStyle;
-const MockFilesystem = @import("../../filesystem/mock.zig").MockFilesystem;
+const MockFilesystem = @import("../../lib/filesystem/mock.zig").MockFilesystem;
 
 test "format config loading from zz.zon" {
     var mock_fs = MockFilesystem.init(testing.allocator);

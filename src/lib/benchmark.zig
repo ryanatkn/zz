@@ -1,5 +1,5 @@
 const std = @import("std");
-const path_utils = @import("path.zig");
+const path_utils = @import("core/path.zig");
 const PathCache = @import("memory/pools.zig").PathCache;
 const ListPool = @import("memory/pools.zig").ListPool;
 
@@ -290,7 +290,7 @@ pub const Benchmark = struct {
         
         while (@as(u64, @intCast(std.time.nanoTimestamp() - start)) < target_duration_ns) {
             for (extraction_modes) |mode| {
-                const extractor_mod = @import("extractor.zig");
+                const extractor_mod = @import("language/extractor.zig");
                 var parser = extractor_mod.createExtractor(self.allocator, .zig);
                 
                 const extracted = try parser.extract(sample_code, mode.flags);
@@ -325,8 +325,8 @@ pub const Benchmark = struct {
             std.debug.print("\n=== Cache System Benchmark ===\n", .{});
         }
         
-        const CacheSystem = @import("cache.zig").CacheSystem;
-        const AstCacheKey = @import("cache.zig").AstCacheKey;
+        const CacheSystem = @import("analysis/cache.zig").CacheSystem;
+        const AstCacheKey = @import("analysis/cache.zig").AstCacheKey;
         
         var cache_system = CacheSystem.init(self.allocator);
         defer cache_system.deinit();
@@ -381,7 +381,7 @@ pub const Benchmark = struct {
             std.debug.print("\n=== Incremental File Tracking Benchmark ===\n", .{});
         }
         
-        const FileTracker = @import("incremental.zig").FileTracker;
+        const FileTracker = @import("analysis/incremental.zig").FileTracker;
         
         var tracker = FileTracker.init(self.allocator);
         defer tracker.deinit();
@@ -513,9 +513,9 @@ pub const Benchmark = struct {
             std.debug.print("\n=== AST Traversal Benchmark ===\n", .{});
         }
         
-        const AstNode = @import("ast.zig").AstNode;
-        const NodeVisitor = @import("ast.zig").NodeVisitor;
-        const VisitResult = @import("ast.zig").VisitResult;
+        const AstNode = @import("parsing/ast.zig").AstNode;
+        const NodeVisitor = @import("parsing/ast.zig").NodeVisitor;
+        const VisitResult = @import("parsing/ast.zig").VisitResult;
         
         // Create a mock AST node for traversal
         const sample_source = "pub fn test() void { const x = 42; return; }";

@@ -1,9 +1,9 @@
 const std = @import("std");
-const CodeAnalysis = @import("code_analysis.zig").CodeAnalysis;
-const collections = @import("collections.zig");
-const io = @import("io.zig");
-const errors = @import("errors.zig");
-const path_utils = @import("path.zig");
+const CodeAnalysis = @import("code.zig").CodeAnalysis;
+const collections = @import("../core/collections.zig");
+const io = @import("../core/io.zig");
+const errors = @import("../core/errors.zig");
+const path_utils = @import("../core/path.zig");
 
 /// Intelligent code analysis and summarization for optimal LLM context generation
 pub const SemanticAnalysis = struct {

@@ -8,7 +8,7 @@ High-performance command-line utilities written in Zig for POSIX systems. Featur
 
 **Performance:** Optimized path operations and pattern matching. Features incremental processing with AST cache invalidation and intelligent dependency tracking.
 
-**Architecture:** Clean modular design with filesystem abstraction, unified pattern matching, and aggressive performance optimizations. Includes advanced features like incremental file processing, AST-based code extraction, and parallel task execution. See [docs/archive/ARCHITECTURE.md](./docs/archive/ARCHITECTURE.md) for system design details.
+**Architecture:** Organized `src/lib/` subdirectories for maximum code reuse. Features filesystem abstraction at `lib/filesystem/`, unified pattern matching, and aggressive performance optimizations. Includes advanced features like incremental file processing, AST-based code extraction, and parallel task execution. See [docs/archive/ARCHITECTURE.md](./docs/archive/ARCHITECTURE.md) for system design details.
 
 ## Requirements
 

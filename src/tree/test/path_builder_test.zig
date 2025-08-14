@@ -2,7 +2,7 @@ const std = @import("std");
 const testing = std.testing;
 
 const PathBuilder = @import("../path_builder.zig").PathBuilder;
-const test_helpers = @import("../../test_helpers.zig");
+const test_helpers = @import("../../lib/test/helpers.zig");
 
 test "path builder initialization" {
     var ctx = test_helpers.MockTestContext.init(testing.allocator);

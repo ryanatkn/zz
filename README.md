@@ -1,6 +1,6 @@
-# zz - CLI Utilities
+# zz
 
-High-performance command-line utilities written in Zig for POSIX systems. Features optimized directory visualization, intelligent LLM prompt generation with language-aware code extraction, and comprehensive performance benchmarking. **100% terminal-based** - no web technologies required.
+High-performance command-line utilities written in Zig for POSIX systems. Features intelligent LLM prompt generation with language-aware code extraction, optimized directory visualization, and comprehensive performance benchmarking. **100% terminal-based** - no web technologies required.
 
 **Platform Support:** Linux, macOS, BSD, and other POSIX-compliant systems. Windows is not supported.
 
@@ -302,6 +302,15 @@ Run `zz benchmark --format=pretty` to see live performance metrics in your termi
 ## Technical Documentation
 
 For detailed architecture documentation, development guidelines, and implementation details, see **[CLAUDE.md](CLAUDE.md)**.
+
+## Contributing
+
+Issues and discussions are welcome, but reviewing code is time consuming,
+so I will likely reject many well-meaning PRs, and re-implement if I agree with the idea.
+So if you don't mind the rejection and just care about getting the change in,
+PRs are very much encouraged! They are excellent for concrete discussion.
+Not every PR needs an issue but it's usually
+preferred to reference one or more issues and discussions.
 
 ## Demo
 

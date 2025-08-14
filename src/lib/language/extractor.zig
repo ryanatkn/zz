@@ -19,7 +19,7 @@ pub const Extractor = struct {
         return Extractor{
             .allocator = allocator,
             .registry = registry_mod.getGlobalRegistry(allocator),
-            .prefer_ast = true, // Default to AST-based extraction
+            .prefer_ast = false, // Default to pattern-based extraction for now
         };
     }
 
@@ -28,7 +28,7 @@ pub const Extractor = struct {
         return Extractor{
             .allocator = allocator,
             .registry = registry,
-            .prefer_ast = true,
+            .prefer_ast = false, // Default to pattern-based extraction for now
         };
     }
 

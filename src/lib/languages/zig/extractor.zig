@@ -26,20 +26,21 @@ pub fn extract(allocator: std.mem.Allocator, source: []const u8, flags: Extracti
 
 /// Get Zig-specific extraction patterns
 fn getZigPatterns() LanguagePatterns {
-    const function_patterns = [_][]const u8{ "pub fn ", "fn ", "export fn ", "extern fn " };
-    const type_patterns = [_][]const u8{ "const ", "var ", "struct {", "enum {", "union {", "error{" };
-    const import_patterns = [_][]const u8{ "@import(", "@cImport(" };
+    const function_patterns = [_][]const u8{ "pub fn ", "fn ", "export fn ", "extern fn ", "test " };
+    const type_patterns = [_][]const u8{ "const ", "var ", "struct {", "enum {", "union {", "error{", "pub const ", "pub var " };
+    // For imports, we'll use custom logic since they can be in const declarations
+    const import_patterns: []const []const u8 = &[_][]const u8{};
     const doc_patterns = [_][]const u8{ "///" };
     const test_patterns = [_][]const u8{ "test " };
     const structure_patterns = [_][]const u8{ "pub const ", "pub var ", "pub fn ", "struct", "enum", "union" };
     
     return LanguagePatterns{
-        .functions = &function_patterns,
-        .types = &type_patterns,
-        .imports = &import_patterns,
-        .docs = &doc_patterns,
-        .tests = &test_patterns,
-        .structure = &structure_patterns,
+        .functions = function_patterns[0..],
+        .types = type_patterns[0..],
+        .imports = import_patterns[0..],
+        .docs = doc_patterns[0..],
+        .tests = test_patterns[0..],
+        .structure = structure_patterns[0..],
         .custom_extract = zigCustomExtract,
     };
 }
@@ -47,6 +48,15 @@ fn getZigPatterns() LanguagePatterns {
 /// Custom extraction logic for Zig-specific patterns
 fn zigCustomExtract(line: []const u8, flags: ExtractionFlags) bool {
     const trimmed = std.mem.trim(u8, line, " \t");
+    
+    // Extract imports (lines containing @import or @cImport)
+    if (flags.imports) {
+        if (std.mem.indexOf(u8, line, "@import(") != null or
+            std.mem.indexOf(u8, line, "@cImport(") != null)
+        {
+            return true;
+        }
+    }
     
     // Extract error definitions
     if (flags.errors) {
@@ -64,6 +74,17 @@ fn zigCustomExtract(line: []const u8, flags: ExtractionFlags) bool {
     if (flags.structure) {
         if (std.mem.startsWith(u8, trimmed, "comptime") or
             std.mem.indexOf(u8, trimmed, "@") != null)
+        {
+            return true;
+        }
+    }
+    
+    // Include more function-like patterns for signatures
+    if (flags.signatures) {
+        // Catch async functions, function pointers, etc.
+        if (std.mem.indexOf(u8, trimmed, "async fn") != null or
+            std.mem.indexOf(u8, trimmed, "*const fn") != null or
+            std.mem.indexOf(u8, trimmed, "*fn") != null)
         {
             return true;
         }

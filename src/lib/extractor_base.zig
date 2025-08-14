@@ -64,6 +64,10 @@ pub fn extractWithPatterns(
             if (language_patterns.functions) |func_patterns| {
                 if (patterns.startsWithAny(trimmed, func_patterns)) {
                     should_include = true;
+                    // For signatures, check if this function has a body (starts a block)
+                    if (std.mem.indexOf(u8, line, "{") != null) {
+                        starts_block = true;
+                    }
                 }
             }
         }
@@ -104,6 +108,10 @@ pub fn extractWithPatterns(
             if (language_patterns.tests) |test_patterns| {
                 if (patterns.startsWithAny(trimmed, test_patterns)) {
                     should_include = true;
+                    // Test blocks often have braces too
+                    if (std.mem.indexOf(u8, line, "{") != null) {
+                        starts_block = true;
+                    }
                 }
             }
         }
@@ -115,6 +123,10 @@ pub fn extractWithPatterns(
                     patterns.containsAny(line, struct_patterns))
                 {
                     should_include = true;
+                    // Structure definitions usually have braces
+                    if (std.mem.indexOf(u8, line, "{") != null) {
+                        starts_block = true;
+                    }
                 }
             }
         }
@@ -128,8 +140,31 @@ pub fn extractWithPatterns(
 
         if (should_include) {
             try builder.appendLine(line);
+            
+            // Process the line for block tracking if it starts a block
             if (starts_block) {
                 block_tracker.processLine(line);
+            } else {
+                // For signatures without bodies, check if it's a multi-line signature
+                // by looking for opening parenthesis without closing on same line
+                if (flags.signatures and std.mem.indexOf(u8, line, "(") != null) {
+                    const open_parens = std.mem.count(u8, line, "(");
+                    const close_parens = std.mem.count(u8, line, ")");
+                    if (open_parens > close_parens) {
+                        // Multi-line signature - track parentheses
+                        var paren_tracker = line_processing.BlockTracker.initWithChars('(', ')');
+                        paren_tracker.processLine(line);
+                        
+                        // Continue reading until we close all parentheses
+                        while (lines.next()) |next_line| {
+                            try builder.appendLine(next_line);
+                            paren_tracker.processLine(next_line);
+                            if (!paren_tracker.isInBlock()) {
+                                break;
+                            }
+                        }
+                    }
+                }
             }
         }
     }

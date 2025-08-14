@@ -7,7 +7,7 @@ const tree = @import("../tree/main.zig");
 const prompt = @import("../prompt/main.zig");
 const benchmark = @import("../benchmark/main.zig");
 const format = @import("../format/main.zig");
-const ErrorHelpers = @import("../lib/error_helpers.zig").ErrorHelpers;
+const errors = @import("../lib/errors.zig");
 
 pub const Runner = struct {
     allocator: std.mem.Allocator,
@@ -33,7 +33,7 @@ pub const Runner = struct {
                 // Pass full args and filesystem to tree
                 tree.run(self.allocator, self.filesystem, args) catch |err| {
                     const stderr = std.io.getStdErr().writer();
-                    const error_msg = ErrorHelpers.errorToMessage(err);
+                    const error_msg = errors.getMessage(err);
                     stderr.print("Tree command failed: {s}\n", .{error_msg}) catch {};
                     return err;
                 };
@@ -57,7 +57,7 @@ pub const Runner = struct {
                 // Pass full args to benchmark module
                 benchmark.run(self.allocator, args) catch |err| {
                     const stderr = std.io.getStdErr().writer();
-                    const error_msg = ErrorHelpers.errorToMessage(err);
+                    const error_msg = errors.getMessage(err);
                     stderr.print("Benchmark command failed: {s}\n", .{error_msg}) catch {};
                     return err;
                 };
@@ -66,7 +66,7 @@ pub const Runner = struct {
                 // Pass full args and filesystem to format module
                 format.run(self.allocator, self.filesystem, args) catch |err| {
                     const stderr = std.io.getStdErr().writer();
-                    const error_msg = ErrorHelpers.errorToMessage(err);
+                    const error_msg = errors.getMessage(err);
                     stderr.print("Format command failed: {s}\n", .{error_msg}) catch {};
                     return err;
                 };

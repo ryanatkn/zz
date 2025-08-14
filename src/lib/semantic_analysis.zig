@@ -1,8 +1,8 @@
 const std = @import("std");
 const CodeAnalysis = @import("code_analysis.zig").CodeAnalysis;
-const collection_helpers = @import("collection_helpers.zig");
-const file_helpers = @import("file_helpers.zig");
-const error_helpers = @import("error_helpers.zig");
+const collections = @import("collections.zig");
+const io = @import("io.zig");
+const errors = @import("errors.zig");
 const path_utils = @import("path.zig");
 
 /// Intelligent code analysis and summarization for optimal LLM context generation
@@ -74,14 +74,12 @@ pub const SemanticAnalysis = struct {
         allocator: std.mem.Allocator,
         call_graph: CodeAnalysis.CallGraphBuilder,
         dependency_analyzer: CodeAnalysis.DependencyAnalyzer,
-        file_reader: file_helpers.FileHelpers.SafeFileReader,
         
         pub fn init(allocator: std.mem.Allocator) CodeSummarizer {
             return .{
                 .allocator = allocator,
                 .call_graph = CodeAnalysis.CallGraphBuilder.init(allocator),
                 .dependency_analyzer = CodeAnalysis.DependencyAnalyzer.init(allocator),
-                .file_reader = file_helpers.FileHelpers.SafeFileReader.init(allocator),
             };
         }
         
@@ -92,7 +90,7 @@ pub const SemanticAnalysis = struct {
         
         /// Analyze a codebase and determine file roles and importance
         pub fn analyzeCodebase(self: *CodeSummarizer, file_paths: []const []const u8) ![]FileRelevance {
-            var relevance_scores = collection_helpers.CollectionHelpers.ManagedArrayList(FileRelevance).init(self.allocator);
+            var relevance_scores = std.ArrayList(FileRelevance).init(self.allocator);
             defer relevance_scores.deinit();
             
             // First pass: Analyze all files to build dependency graph
@@ -281,7 +279,7 @@ pub const SemanticAnalysis = struct {
         fn calculateRecencyScore(self: *CodeSummarizer, file_path: []const u8) !f32 {
             _ = self;
             
-            const mod_time = file_helpers.FileHelpers.getModTime(file_path) catch {
+            const mod_time = io.FileHelpers.getModTime(file_path) catch {
                 return 0.3; // Default score for files we can't stat
             };
             
@@ -333,7 +331,7 @@ pub const SemanticAnalysis = struct {
             max_files: u32,
             max_chars: u32
         ) ![]u8 {
-            var summary = collection_helpers.CollectionHelpers.ManagedArrayList(u8).init(self.allocator);
+            var summary = std.ArrayList(u8).init(self.allocator);
             defer summary.deinit();
             
             try summary.appendSlice("# Codebase Summary\n\n");
@@ -381,7 +379,7 @@ pub const SemanticAnalysis = struct {
         
         /// Generate summary for individual file
         fn generateFileSummary(self: *CodeSummarizer, relevance: FileRelevance) ![]u8 {
-            var summary = collection_helpers.CollectionHelpers.ManagedArrayList(u8).init(self.allocator);
+            var summary = std.ArrayList(u8).init(self.allocator);
             defer summary.deinit();
             
             // File header
@@ -425,7 +423,7 @@ pub const SemanticAnalysis = struct {
         
         /// Extract key functions, types, or classes from file content
         fn extractKeyElements(self: *CodeSummarizer, content: []const u8, max_elements: u32) ![][]const u8 {
-            var elements = collection_helpers.CollectionHelpers.ManagedArrayList([]const u8).init(self.allocator);
+            var elements = std.ArrayList([]const u8).init(self.allocator);
             defer elements.deinit();
             
             var lines = std.mem.splitScalar(u8, content, '\n');
@@ -469,7 +467,7 @@ pub const SemanticAnalysis = struct {
             query_intent: QueryIntent,
             token_budget: u32
         ) ![][]const u8 {
-            var selected = collection_helpers.CollectionHelpers.ManagedArrayList([]const u8).init(allocator);
+            var selected = std.ArrayList([]const u8).init(allocator);
             defer selected.deinit();
             
             var used_tokens: u32 = 0;

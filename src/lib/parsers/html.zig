@@ -1,9 +1,9 @@
 const std = @import("std");
-const ExtractionFlags = @import("../parser.zig").ExtractionFlags;
+const ExtractionFlags = @import("../ast.zig").ExtractionFlags;
 const AstNode = @import("../ast.zig").AstNode;
 const NodeVisitor = @import("../ast.zig").NodeVisitor;
 const VisitResult = @import("../ast.zig").VisitResult;
-const AstWalker = @import("../ast_walker.zig").AstWalker;
+const AstWalker = @import("../ast.zig").AstWalker;
 
 pub fn extractSimple(source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
     // If no specific flags are set or full flag is set, return complete source

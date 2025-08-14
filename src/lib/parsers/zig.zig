@@ -1,6 +1,6 @@
 const std = @import("std");
 const ts = @import("tree-sitter");
-const ExtractionFlags = @import("../parser.zig").ExtractionFlags;
+const ExtractionFlags = @import("../ast.zig").ExtractionFlags;
 const AstNode = @import("../ast.zig").AstNode;
 
 extern fn tree_sitter_zig() callconv(.C) *ts.Language;

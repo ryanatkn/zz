@@ -1,8 +1,8 @@
 const std = @import("std");
 const testing = std.testing;
-const Parser = @import("../parser.zig").Parser;
-const Language = @import("../parser.zig").Language;
-const ExtractionFlags = @import("../parser.zig").ExtractionFlags;
+const Extractor = @import("../ast.zig").Extractor;
+const Language = @import("../ast.zig").Language;
+const ExtractionFlags = @import("../ast.zig").ExtractionFlags;
 
 // ============================================================================
 // Zig Language Tests
@@ -10,8 +10,7 @@ const ExtractionFlags = @import("../parser.zig").ExtractionFlags;
 
 test "Zig: extract function signatures" {
     const allocator = testing.allocator;
-    var parser = try Parser.init(allocator, .zig);
-    defer parser.deinit();
+    const parser = Extractor.init(allocator, .zig);
     
     const source =
         \\pub fn main() void {
@@ -38,8 +37,7 @@ test "Zig: extract function signatures" {
 
 test "Zig: extract types and constants" {
     const allocator = testing.allocator;
-    var parser = try Parser.init(allocator, .zig);
-    defer parser.deinit();
+    const parser = Extractor.init(allocator, .zig);
     
     const source =
         \\pub const MyStruct = struct {
@@ -66,8 +64,7 @@ test "Zig: extract types and constants" {
 
 test "Zig: extract imports" {
     const allocator = testing.allocator;
-    var parser = try Parser.init(allocator, .zig);
-    defer parser.deinit();
+    const parser = Extractor.init(allocator, .zig);
     
     const source =
         \\const std = @import("std");
@@ -95,8 +92,7 @@ test "Zig: extract imports" {
 
 test "CSS: extract with types flag" {
     const allocator = testing.allocator;
-    var parser = try Parser.init(allocator, .css);
-    defer parser.deinit();
+    const parser = Extractor.init(allocator, .css);
     
     const source =
         \\:root {
@@ -129,8 +125,7 @@ test "CSS: extract with types flag" {
 
 test "CSS: extract selectors only with signatures" {
     const allocator = testing.allocator;
-    var parser = try Parser.init(allocator, .css);
-    defer parser.deinit();
+    const parser = Extractor.init(allocator, .css);
     
     const source =
         \\.btn {
@@ -159,8 +154,7 @@ test "CSS: extract selectors only with signatures" {
 
 test "CSS: extract imports" {
     const allocator = testing.allocator;
-    var parser = try Parser.init(allocator, .css);
-    defer parser.deinit();
+    const parser = Extractor.init(allocator, .css);
     
     const source =
         \\@import url('fonts.css');
@@ -190,8 +184,7 @@ test "CSS: extract imports" {
 
 test "HTML: extract structure" {
     const allocator = testing.allocator;
-    var parser = try Parser.init(allocator, .html);
-    defer parser.deinit();
+    const parser = Extractor.init(allocator, .html);
     
     const source =
         \\<!DOCTYPE html>
@@ -223,8 +216,7 @@ test "HTML: extract structure" {
 
 test "HTML: extract script functions with signatures" {
     const allocator = testing.allocator;
-    var parser = try Parser.init(allocator, .html);
-    defer parser.deinit();
+    const parser = Extractor.init(allocator, .html);
     
     const source =
         \\<html>
@@ -254,8 +246,7 @@ test "HTML: extract script functions with signatures" {
 
 test "HTML: extract comments with docs flag" {
     const allocator = testing.allocator;
-    var parser = try Parser.init(allocator, .html);
-    defer parser.deinit();
+    const parser = Extractor.init(allocator, .html);
     
     const source =
         \\<html>
@@ -288,8 +279,7 @@ test "HTML: extract comments with docs flag" {
 
 test "JSON: extract structure" {
     const allocator = testing.allocator;
-    var parser = try Parser.init(allocator, .json);
-    defer parser.deinit();
+    const parser = Extractor.init(allocator, .json);
     
     const source =
         \\{
@@ -320,8 +310,7 @@ test "JSON: extract structure" {
 
 test "JSON: extract keys only with signatures" {
     const allocator = testing.allocator;
-    var parser = try Parser.init(allocator, .json);
-    defer parser.deinit();
+    const parser = Extractor.init(allocator, .json);
     
     const source =
         \\{
@@ -349,8 +338,7 @@ test "JSON: extract keys only with signatures" {
 
 test "TypeScript: extract interfaces and types" {
     const allocator = testing.allocator;
-    var parser = try Parser.init(allocator, .typescript);
-    defer parser.deinit();
+    const parser = Extractor.init(allocator, .typescript);
     
     const source =
         \\interface User {
@@ -385,8 +373,7 @@ test "TypeScript: extract interfaces and types" {
 
 test "TypeScript: extract function signatures" {
     const allocator = testing.allocator;
-    var parser = try Parser.init(allocator, .typescript);
-    defer parser.deinit();
+    const parser = Extractor.init(allocator, .typescript);
     
     const source =
         \\function regularFunction(x: number): string {
@@ -424,8 +411,7 @@ test "TypeScript: extract function signatures" {
 
 test "TypeScript: extract imports" {
     const allocator = testing.allocator;
-    var parser = try Parser.init(allocator, .typescript);
-    defer parser.deinit();
+    const parser = Extractor.init(allocator, .typescript);
     
     const source =
         \\import { Component } from 'react';
@@ -458,8 +444,7 @@ test "TypeScript: extract imports" {
 
 test "Svelte: extract script section with signatures" {
     const allocator = testing.allocator;
-    var parser = try Parser.init(allocator, .svelte);
-    defer parser.deinit();
+    const parser = Extractor.init(allocator, .svelte);
     
     const source =
         \\<script lang="ts">
@@ -499,8 +484,7 @@ test "Svelte: extract script section with signatures" {
 
 test "Svelte: extract style section with types" {
     const allocator = testing.allocator;
-    var parser = try Parser.init(allocator, .svelte);
-    defer parser.deinit();
+    const parser = Extractor.init(allocator, .svelte);
     
     const source =
         \\<script>
@@ -541,8 +525,7 @@ test "Svelte: extract style section with types" {
 
 test "Svelte: extract template structure" {
     const allocator = testing.allocator;
-    var parser = try Parser.init(allocator, .svelte);
-    defer parser.deinit();
+    const parser = Extractor.init(allocator, .svelte);
     
     const source =
         \\<script>
@@ -580,8 +563,7 @@ test "Svelte: extract template structure" {
 
 test "Multiple flags combined" {
     const allocator = testing.allocator;
-    var parser = try Parser.init(allocator, .typescript);
-    defer parser.deinit();
+    const parser = Extractor.init(allocator, .typescript);
     
     const source =
         \\import { lib } from 'library';
@@ -616,8 +598,7 @@ test "Empty source handling" {
     const languages = [_]Language{ .zig, .css, .html, .json, .typescript, .svelte };
     
     for (languages) |lang| {
-        var parser = try Parser.init(allocator, lang);
-        defer parser.deinit();
+        const parser = Extractor.init(allocator, lang);
         
         const flags = ExtractionFlags{ .signatures = true };
         const result = try parser.extract("", flags);
@@ -630,8 +611,7 @@ test "Empty source handling" {
 
 test "Default flags behavior (full extraction)" {
     const allocator = testing.allocator;
-    var parser = try Parser.init(allocator, .css);
-    defer parser.deinit();
+    const parser = Extractor.init(allocator, .css);
     
     const source = ".class { color: red; }";
     
@@ -652,10 +632,9 @@ test "Default flags behavior (full extraction)" {
 
 test "AST-based CSS extraction" {
     const allocator = testing.allocator;
-    const createAstParser = @import("../parser.zig").createAstParser;
+    const createExtractor = @import("../ast.zig").createExtractor;
     
-    var parser = try createAstParser(allocator, .css);
-    defer parser.deinit();
+    var parser = createExtractor(allocator, .css);
     
     const source =
         \\.container {
@@ -684,10 +663,9 @@ test "AST-based CSS extraction" {
 
 test "AST-based HTML extraction" {
     const allocator = testing.allocator;
-    const createAstParser = @import("../parser.zig").createAstParser;
+    const createExtractor = @import("../ast.zig").createExtractor;
     
-    var parser = try createAstParser(allocator, .html);
-    defer parser.deinit();
+    var parser = createExtractor(allocator, .html);
     
     const source =
         \\<!DOCTYPE html>
@@ -714,10 +692,9 @@ test "AST-based HTML extraction" {
 
 test "AST-based JSON extraction" {
     const allocator = testing.allocator;
-    const createAstParser = @import("../parser.zig").createAstParser;
+    const createExtractor = @import("../ast.zig").createExtractor;
     
-    var parser = try createAstParser(allocator, .json);
-    defer parser.deinit();
+    var parser = createExtractor(allocator, .json);
     
     const source =
         \\{
@@ -742,10 +719,9 @@ test "AST-based JSON extraction" {
 
 test "AST-based Svelte extraction" {
     const allocator = testing.allocator;
-    const createAstParser = @import("../parser.zig").createAstParser;
+    const createExtractor = @import("../ast.zig").createExtractor;
     
-    var parser = try createAstParser(allocator, .svelte);
-    defer parser.deinit();
+    var parser = createExtractor(allocator, .svelte);
     
     const source =
         \\<script>
@@ -779,15 +755,12 @@ test "AST-based Svelte extraction" {
 
 test "AST vs Simple extraction comparison" {
     const allocator = testing.allocator;
-    const createParser = @import("../parser.zig").createParser;
-    const createAstParser = @import("../parser.zig").createAstParser;
+    const createExtractor = @import("../ast.zig").createExtractor;
     
     // Test with CSS
-    var simple_parser = try createParser(allocator, .css);
-    defer simple_parser.deinit();
+    const simple_parser = createExtractor(allocator, .css);
     
-    var ast_parser = try createAstParser(allocator, .css);
-    defer ast_parser.deinit();
+    const ast_parser = createExtractor(allocator, .css);
     
     const source = ".test { color: red; }";
     const flags = ExtractionFlags{ .signatures = true };
@@ -806,8 +779,7 @@ test "AST vs Simple extraction comparison" {
 
 test "AST helper functions work correctly" {
     const allocator = testing.allocator;
-    const extractCode = @import("../parser.zig").extractCode;
-    const extractCodeWithAst = @import("../parser.zig").extractCodeWithAst;
+    const extractCode = @import("../ast.zig").extractCode;
     
     const source = ".container { margin: 0; }";
     const flags = ExtractionFlags{ .structure = true };
@@ -817,7 +789,7 @@ test "AST helper functions work correctly" {
     defer allocator.free(simple_result);
     
     // Test AST extraction helper
-    const ast_result = try extractCodeWithAst(allocator, "test.css", source, flags);
+    const ast_result = try extractCode(allocator, "test.css", source, flags);
     defer allocator.free(ast_result);
     
     // Both should work (AST uses mock data for now)

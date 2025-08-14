@@ -169,8 +169,8 @@ pub const Extractor = struct {
             
             // Extract export statements
             if (std.mem.startsWith(u8, trimmed, "export ")) {
-                if (self.parseTypeScriptExport(file_path, trimmed, line_num)) |export| {
-                    try exports.append(export);
+                if (self.parseTypeScriptExport(file_path, trimmed, line_num)) |export_item| {
+                    try exports.append(export_item);
                 } else |_| {}
             }
         }
@@ -418,7 +418,7 @@ pub const Resolver = struct {
     cache: std.StringHashMap([]const u8),
     
     pub fn initOwning(allocator: std.mem.Allocator, project_root: []const u8, search_paths: []const []const u8) !Resolver {
-        var owned_root = try allocator.dupe(u8, project_root);
+        const owned_root = try allocator.dupe(u8, project_root);
         var owned_paths = try allocator.alloc([]const u8, search_paths.len);
         
         for (search_paths, 0..) |path, i| {
@@ -437,18 +437,31 @@ pub const Resolver = struct {
         return Resolver{
             .allocator = allocator,
             .project_root = project_root,
-            .search_paths = search_paths,
+            .search_paths = @constCast(search_paths),
             .cache = std.StringHashMap([]const u8).init(allocator),
         };
     }
     
     pub fn deinit(self: *Resolver) void {
-        // Only free if we own the data (check if we allocated it)
-        if (self.search_paths.len > 0) {
-            // Assume if we have search paths, we might own them
-            // In practice, caller should track ownership
+        // Clean up cache entries
+        var iter = self.cache.iterator();
+        while (iter.next()) |entry| {
+            self.allocator.free(entry.value_ptr.*);
         }
+        self.cache.deinit();
+    }
+    
+    pub fn deinitOwning(self: *Resolver) void {
+        // Free owned project root
+        self.allocator.free(self.project_root);
         
+        // Free owned search paths
+        for (self.search_paths) |path| {
+            self.allocator.free(path);
+        }
+        self.allocator.free(self.search_paths);
+        
+        // Clean up cache entries
         var iter = self.cache.iterator();
         while (iter.next()) |entry| {
             self.allocator.free(entry.value_ptr.*);

@@ -1,6 +1,6 @@
 const std = @import("std");
 const FilesystemInterface = @import("../filesystem/interface.zig").FilesystemInterface;
-const Language = @import("../lib/parser.zig").Language;
+const Language = @import("../lib/ast.zig").Language;
 const Formatter = @import("../lib/formatter.zig").Formatter;
 const FormatterOptions = @import("../lib/formatter.zig").FormatterOptions;
 const FormatterError = @import("../lib/formatter.zig").FormatterError;

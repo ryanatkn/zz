@@ -1,6 +1,4 @@
 const std = @import("std");
-const conditional_imports = @import("conditional_imports.zig");
-const ts = conditional_imports.ts;
 
 /// Reference to a cached AST node
 pub const AstCacheKey = struct {
@@ -234,7 +232,7 @@ pub const AstCache = struct {
 /// Parser instance for language-specific parsing
 pub const ParserInstance = struct {
     language: []const u8,
-    parser: ?*ts.Parser,
+    parser: ?*anyopaque, // Placeholder for future tree-sitter Parser pointer
     version: u32,
     created_at: i64,
     last_used: i64,
@@ -255,7 +253,7 @@ pub const ParserInstance = struct {
     pub fn deinit(self: *ParserInstance, allocator: std.mem.Allocator) void {
         if (self.parser) |parser| {
             _ = parser; // Placeholder for tree-sitter parser cleanup
-            // Future: ts.ts_parser_delete(parser);
+            // Future: tree-sitter parser deletion
         }
         allocator.free(self.language);
     }

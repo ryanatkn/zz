@@ -2,7 +2,7 @@ const std = @import("std");
 const testing = std.testing;
 const AstFormatter = @import("../../lib/ast_formatter.zig").AstFormatter;
 const FormatterOptions = @import("../../lib/formatter.zig").FormatterOptions;
-const Language = @import("../../lib/parser.zig").Language;
+const Language = @import("../../lib/ast.zig").Language;
 
 // TypeScript formatting tests
 test "TypeScript function formatting" {

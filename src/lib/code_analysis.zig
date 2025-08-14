@@ -1,9 +1,9 @@
 const std = @import("std");
 const AstNode = @import("ast.zig").AstNode;
-const ExtractionFlags = @import("parser.zig").ExtractionFlags;
-const collection_helpers = @import("collection_helpers.zig");
-const file_helpers = @import("file_helpers.zig");
-const error_helpers = @import("error_helpers.zig");
+const ExtractionFlags = @import("ast.zig").ExtractionFlags;
+const collections = @import("collections.zig");
+const io = @import("io.zig");
+const errors = @import("errors.zig");
 
 /// Advanced code analysis features for intelligent code understanding and LLM context generation
 pub const CodeAnalysis = struct {
@@ -82,14 +82,12 @@ pub const CodeAnalysis = struct {
     /// Call graph builder for analyzing function relationships
     pub const CallGraphBuilder = struct {
         allocator: std.mem.Allocator,
-        relationships: collection_helpers.CollectionHelpers.ManagedArrayList(CallRelationship),
-        file_reader: file_helpers.FileHelpers.SafeFileReader,
+        relationships: std.ArrayList(CallRelationship),
         
         pub fn init(allocator: std.mem.Allocator) CallGraphBuilder {
             return .{
                 .allocator = allocator,
-                .relationships = collection_helpers.CollectionHelpers.ManagedArrayList(CallRelationship).init(allocator),
-                .file_reader = file_helpers.FileHelpers.SafeFileReader.init(allocator),
+                .relationships = std.ArrayList(CallRelationship).init(allocator),
             };
         }
         
@@ -105,8 +103,8 @@ pub const CodeAnalysis = struct {
         
         /// Analyze a file and extract function call relationships
         pub fn analyzeFile(self: *CallGraphBuilder, file_path: []const u8) !void {
-            const content = self.file_reader.readToStringOptional(file_path, 10 * 1024 * 1024) catch |err| {
-                error_helpers.ErrorHelpers.handleFsError(err, "reading file for call analysis", file_path);
+            const content = io.readFile(self.allocator, file_path) catch |err| {
+                try errors.handleFileError(err);
                 return;
             };
             
@@ -282,7 +280,7 @@ pub const CodeAnalysis = struct {
         
         /// Get all functions called by a specific function
         pub fn getCalledBy(self: *const CallGraphBuilder, function_name: []const u8) ![]CallRelationship {
-            var results = collection_helpers.CollectionHelpers.ManagedArrayList(CallRelationship).init(self.allocator);
+            var results = std.ArrayList(CallRelationship).init(self.allocator);
             defer results.deinit();
             
             for (self.relationships.items()) |rel| {
@@ -296,7 +294,7 @@ pub const CodeAnalysis = struct {
         
         /// Get all functions that call a specific function
         pub fn getCalling(self: *const CallGraphBuilder, function_name: []const u8) ![]CallRelationship {
-            var results = collection_helpers.CollectionHelpers.ManagedArrayList(CallRelationship).init(self.allocator);
+            var results = std.ArrayList(CallRelationship).init(self.allocator);
             defer results.deinit();
             
             for (self.relationships.items()) |rel| {
@@ -310,7 +308,7 @@ pub const CodeAnalysis = struct {
         
         /// Export call graph as DOT format for visualization
         pub fn exportDot(self: *const CallGraphBuilder, allocator: std.mem.Allocator) ![]u8 {
-            var result = collection_helpers.CollectionHelpers.ManagedArrayList(u8).init(allocator);
+            var result = std.ArrayList(u8).init(allocator);
             defer result.deinit();
             
             try result.appendSlice("digraph CallGraph {\n");
@@ -345,14 +343,12 @@ pub const CodeAnalysis = struct {
     /// Dependency analyzer for import/export relationships
     pub const DependencyAnalyzer = struct {
         allocator: std.mem.Allocator,
-        dependencies: collection_helpers.CollectionHelpers.ManagedArrayList(DependencyRelationship),
-        file_reader: file_helpers.FileHelpers.SafeFileReader,
+        dependencies: std.ArrayList(DependencyRelationship),
         
         pub fn init(allocator: std.mem.Allocator) DependencyAnalyzer {
             return .{
                 .allocator = allocator,
-                .dependencies = collection_helpers.CollectionHelpers.ManagedArrayList(DependencyRelationship).init(allocator),
-                .file_reader = file_helpers.FileHelpers.SafeFileReader.init(allocator),
+                .dependencies = std.ArrayList(DependencyRelationship).init(allocator),
             };
         }
         
@@ -370,8 +366,8 @@ pub const CodeAnalysis = struct {
         
         /// Analyze imports in a file
         pub fn analyzeFile(self: *DependencyAnalyzer, file_path: []const u8) !void {
-            const content = self.file_reader.readToStringOptional(file_path, 10 * 1024 * 1024) catch |err| {
-                error_helpers.ErrorHelpers.handleFsError(err, "reading file for dependency analysis", file_path);
+            const content = io.readFile(self.allocator, file_path) catch |err| {
+                try errors.handleFileError(err);
                 return;
             };
             
@@ -486,7 +482,7 @@ pub const CodeAnalysis = struct {
         
         /// Get all files that depend on a specific file
         pub fn getDependents(self: *const DependencyAnalyzer, file_path: []const u8) ![]DependencyRelationship {
-            var results = collection_helpers.CollectionHelpers.ManagedArrayList(DependencyRelationship).init(self.allocator);
+            var results = std.ArrayList(DependencyRelationship).init(self.allocator);
             defer results.deinit();
             
             for (self.dependencies.items()) |dep| {
@@ -500,7 +496,7 @@ pub const CodeAnalysis = struct {
         
         /// Get all dependencies of a specific file
         pub fn getDependencies(self: *const DependencyAnalyzer, file_path: []const u8) ![]DependencyRelationship {
-            var results = collection_helpers.CollectionHelpers.ManagedArrayList(DependencyRelationship).init(self.allocator);
+            var results = std.ArrayList(DependencyRelationship).init(self.allocator);
             defer results.deinit();
             
             for (self.dependencies.items()) |dep| {

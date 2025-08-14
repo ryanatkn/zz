@@ -11,7 +11,7 @@ const AstCacheKey = @import("../lib/cache.zig").AstCacheKey;
 const WorkerPool = @import("../lib/parallel.zig").WorkerPool;
 const Task = @import("../lib/parallel.zig").Task;
 const TaskPriority = @import("../lib/parallel.zig").TaskPriority;
-const ErrorHelpers = @import("../lib/error_helpers.zig").ErrorHelpers;
+const errors = @import("../lib/errors.zig");
 
 pub const PromptBuilder = struct {
     allocator: std.mem.Allocator,
@@ -125,7 +125,7 @@ pub const PromptBuilder = struct {
                 const stderr = std.io.getStdErr().writer();
                 const prefixed_path = try path_utils.addRelativePrefix(self.allocator, file_path);
                 defer self.allocator.free(prefixed_path);
-                const error_msg = ErrorHelpers.errorToMessage(err);
+                const error_msg = errors.getMessage(err);
                 try stderr.print("Error reading file {s}: {s}\n", .{ prefixed_path, error_msg });
             }
             return err;
@@ -151,7 +151,7 @@ pub const PromptBuilder = struct {
 
         // Determine language and extract content based on flags
         const language = Language.fromExtension(ext);
-        var parser = ast.createExtractor(self.arena.allocator(), language);
+        const parser = ast.createExtractor(self.arena.allocator(), language);
         
         const extracted_content = try parser.extract(content, self.extraction_flags);
         // extracted_content is allocated by parser using arena allocator, no need to free
@@ -392,7 +392,7 @@ fn processFileSafe(builder: *PromptBuilder, file_path: []const u8, result: *File
     defer cwd.close();
 
     const file = cwd.openFile(builder.allocator, file_path, .{}) catch |err| {
-        const error_msg = ErrorHelpers.errorToMessage(err);
+        const error_msg = errors.getMessage(err);
         if (!builder.quiet) {
             const stderr = std.io.getStdErr().writer();
             const prefixed_path = path_utils.addRelativePrefix(builder.allocator, file_path) catch return;
@@ -418,8 +418,7 @@ fn processFileSafe(builder: *PromptBuilder, file_path: []const u8, result: *File
     const lang = if (ext.len > 0) ext[1..] else "";
 
     const language = Language.fromExtension(ext);
-    var parser = ast.createExtractor(temp_allocator, language);
-    defer parser.deinit();
+    const parser = ast.createExtractor(temp_allocator, language);
     
     const extracted_content = try parser.extract(content, builder.extraction_flags);
     const fence_str = try fence.detectFence(extracted_content, temp_allocator);

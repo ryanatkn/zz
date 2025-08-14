@@ -21,7 +21,7 @@ pub const FileState = struct {
     
     // Enhanced import tracking with AST analysis
     imports_detailed: []ImportInfo,     // Detailed AST-extracted imports
-    exports_detailed: []@import("import_extractor.zig").ExportInfo, // Detailed exports
+    exports_detailed: []imports_mod.Export, // Detailed exports
     resolved_dependencies: [][]const u8, // Resolved file paths this file depends on
     unresolved_dependencies: [][]const u8, // External/unresolved dependencies
     dependents: [][]const u8,       // Files that depend on this file
@@ -145,7 +145,7 @@ pub const DependencyGraph = struct {
     
     // Enhanced AST-based analysis
     import_extractor: imports_mod.Extractor,
-    import_resolver: ImportResolver,
+    import_resolver: imports_mod.Resolver,
     
     // Circular dependency tracking
     circular_dependencies: std.ArrayList([][]const u8),
@@ -169,28 +169,28 @@ pub const DependencyGraph = struct {
     };
 
     pub fn init(allocator: std.mem.Allocator, project_root: []const u8) !DependencyGraph {
-        const resolver_config = try ResolverConfig.default(allocator, project_root);
+        const search_paths = [_][]const u8{"src", "lib", "deps"};
         
         return DependencyGraph{
             .allocator = allocator,
             .dependents = std.HashMap([]const u8, std.ArrayList([]const u8), std.hash_map.StringContext, 80).init(allocator),
             .dependencies = std.HashMap([]const u8, std.ArrayList([]const u8), std.hash_map.StringContext, 80).init(allocator),
             .import_extractor = imports_mod.Extractor.init(allocator),
-            .import_resolver = ImportResolver.init(allocator, resolver_config),
+            .import_resolver = try imports_mod.Resolver.initOwning(allocator, project_root, &search_paths),
             .circular_dependencies = std.ArrayList([][]const u8).init(allocator),
             .stats = DependencyStats{},
         };
     }
     
-    pub fn initWithCache(allocator: std.mem.Allocator, project_root: []const u8, cache: *AstCache) !DependencyGraph {
-        const resolver_config = try ResolverConfig.default(allocator, project_root);
+    pub fn initWithCache(allocator: std.mem.Allocator, project_root: []const u8, _: *AstCache) !DependencyGraph {
+        const search_paths = [_][]const u8{"src", "lib", "deps"};
         
         return DependencyGraph{
             .allocator = allocator,
             .dependents = std.HashMap([]const u8, std.ArrayList([]const u8), std.hash_map.StringContext, 80).init(allocator),
             .dependencies = std.HashMap([]const u8, std.ArrayList([]const u8), std.hash_map.StringContext, 80).init(allocator),
-            .import_extractor = imports_mod.Extractor.initWithCache(allocator, cache),
-            .import_resolver = ImportResolver.init(allocator, resolver_config),
+            .import_extractor = imports_mod.Extractor.init(allocator),
+            .import_resolver = try imports_mod.Resolver.initOwning(allocator, project_root, &search_paths),
             .circular_dependencies = std.ArrayList([][]const u8).init(allocator),
             .stats = DependencyStats{},
         };
@@ -219,8 +219,8 @@ pub const DependencyGraph = struct {
         }
         self.dependencies.deinit();
         
-        // Clean up AST-based analysis components
-        self.import_resolver.deinit();
+        // Clean up AST-based analysis components (uses initOwning so need deinitOwning)
+        self.import_resolver.deinitOwning();
         
         // Clean up circular dependencies
         for (self.circular_dependencies.items) |circular_chain| {
@@ -440,9 +440,9 @@ pub const DependencyGraph = struct {
         var duplicated = try self.allocator.alloc(ImportInfo, imports.len);
         
         for (imports, 0..) |import_info, i| {
-            var symbols = try self.allocator.alloc(@import("import_extractor.zig").ImportedSymbol, import_info.symbols.len);
+            var symbols = try self.allocator.alloc([]const u8, import_info.symbols.len);
             for (import_info.symbols, 0..) |symbol, j| {
-                symbols[j] = @import("import_extractor.zig").ImportedSymbol{
+                symbols[j] = []const u8{
                     .name = try self.allocator.dupe(u8, symbol.name),
                     .alias = if (symbol.alias) |alias| try self.allocator.dupe(u8, alias) else null,
                     .is_type = symbol.is_type,
@@ -468,13 +468,13 @@ pub const DependencyGraph = struct {
     }
     
     /// Create deep copies of exports for file state
-    fn duplicateExports(self: *DependencyGraph, exports: []const @import("import_extractor.zig").ExportInfo) ![]@import("import_extractor.zig").ExportInfo {
-        var duplicated = try self.allocator.alloc(@import("import_extractor.zig").ExportInfo, exports.len);
+    fn duplicateExports(self: *DependencyGraph, exports: []const imports_mod.Export) ![]imports_mod.Export {
+        var duplicated = try self.allocator.alloc(imports_mod.Export, exports.len);
         
         for (exports, 0..) |export_info, i| {
-            var symbols = try self.allocator.alloc(@import("import_extractor.zig").ImportedSymbol, export_info.symbols.len);
+            var symbols = try self.allocator.alloc([]const u8, export_info.symbols.len);
             for (export_info.symbols, 0..) |symbol, j| {
-                symbols[j] = @import("import_extractor.zig").ImportedSymbol{
+                symbols[j] = []const u8{
                     .name = try self.allocator.dupe(u8, symbol.name),
                     .alias = if (symbol.alias) |alias| try self.allocator.dupe(u8, alias) else null,
                     .is_type = symbol.is_type,
@@ -482,7 +482,7 @@ pub const DependencyGraph = struct {
                 };
             }
             
-            duplicated[i] = @import("import_extractor.zig").ExportInfo{
+            duplicated[i] = imports_mod.Export{
                 .source_file = try self.allocator.dupe(u8, export_info.source_file),
                 .export_path = if (export_info.export_path) |path| try self.allocator.dupe(u8, path) else null,
                 .symbols = symbols,
@@ -529,7 +529,8 @@ pub const FileChange = struct {
 
 /// Fast file hashing using xxHash - now using shared file helpers
 pub fn hashFile(allocator: std.mem.Allocator, file_path: []const u8) !u64 {
-    return io.hashFile(allocator, file_path);
+    _ = allocator;
+    return io.hashFile(file_path);
 }
 
 /// Get file modification time in nanoseconds since epoch - using shared file helpers

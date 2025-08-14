@@ -191,7 +191,7 @@ pub const Extractor = struct {
     }
     
     /// Main extraction entry point
-    pub fn extract(self: *Extractor, source: []const u8, flags: ExtractionFlags) ![]const u8 {
+    pub fn extract(self: Extractor, source: []const u8, flags: ExtractionFlags) ![]const u8 {
         var mutable_flags = flags;
         mutable_flags.setDefault();
         
@@ -209,7 +209,7 @@ pub const Extractor = struct {
     }
     
     /// AST-based extraction using tree-sitter
-    fn extractWithAst(self: *Extractor, source: []const u8, flags: ExtractionFlags) ![]const u8 {
+    fn extractWithAst(self: Extractor, source: []const u8, flags: ExtractionFlags) ![]const u8 {
         // Try to use tree-sitter parser
         const TreeSitterParser = @import("tree_sitter_parser.zig").TreeSitterParser;
         var parser = TreeSitterParser.init(self.allocator, self.language) catch {
@@ -225,7 +225,7 @@ pub const Extractor = struct {
     }
     
     /// Text-based extraction (fallback)
-    fn extractText(self: *Extractor, source: []const u8, flags: ExtractionFlags) ![]const u8 {
+    fn extractText(self: Extractor, source: []const u8, flags: ExtractionFlags) ![]const u8 {
         var result = std.ArrayList(u8).init(self.allocator);
         defer result.deinit();
         
@@ -246,7 +246,7 @@ pub const Extractor = struct {
     }
     
     // Simple text-based extraction implementations
-    fn extractZigText(self: *Extractor, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
+    fn extractZigText(self: Extractor, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
         _ = self;
         var lines = std.mem.splitScalar(u8, source, '\n');
         
@@ -282,7 +282,7 @@ pub const Extractor = struct {
         }
     }
     
-    fn extractTypeScriptText(self: *Extractor, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
+    fn extractTypeScriptText(self: Extractor, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
         _ = self;
         var lines = std.mem.splitScalar(u8, source, '\n');
         
@@ -315,7 +315,7 @@ pub const Extractor = struct {
         }
     }
     
-    fn extractPythonText(self: *Extractor, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
+    fn extractPythonText(self: Extractor, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
         _ = self;
         var lines = std.mem.splitScalar(u8, source, '\n');
         
@@ -340,7 +340,7 @@ pub const Extractor = struct {
         }
     }
     
-    fn extractRustText(self: *Extractor, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
+    fn extractRustText(self: Extractor, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
         _ = self;
         var lines = std.mem.splitScalar(u8, source, '\n');
         
@@ -367,7 +367,7 @@ pub const Extractor = struct {
         }
     }
     
-    fn extractGoText(self: *Extractor, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
+    fn extractGoText(self: Extractor, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
         _ = self;
         var lines = std.mem.splitScalar(u8, source, '\n');
         
@@ -548,3 +548,82 @@ test "basic text extraction" {
     defer testing.allocator.free(tests);
     try testing.expect(std.mem.indexOf(u8, tests, "test \"example\"") != null);
 }
+
+// ============================================================================
+// AST Walker - Unified traversal for all parsers
+// ============================================================================
+
+pub const AstWalker = struct {
+    pub const WalkContext = struct {
+        allocator: std.mem.Allocator,
+        result: *std.ArrayList(u8),
+        flags: ExtractionFlags,
+        source: []const u8,
+    };
+    
+    pub fn walkNodeWithVisitor(
+        allocator: std.mem.Allocator,
+        root: *const Node,
+        source: []const u8,
+        flags: ExtractionFlags,
+        result: *std.ArrayList(u8),
+        visitor_fn: fn(*WalkContext, *const Node) anyerror!void
+    ) !void {
+        var context = WalkContext{
+            .allocator = allocator,
+            .result = result,
+            .flags = flags,
+            .source = source,
+        };
+        
+        try walkNodeRecursive(&context, root, visitor_fn);
+    }
+    
+    fn walkNodeRecursive(
+        context: *WalkContext,
+        node: *const Node,
+        visitor_fn: fn(*WalkContext, *const Node) anyerror!void
+    ) !void {
+        try visitor_fn(context, node);
+        
+        // Recurse into children
+        for (node.children) |child| {
+            try walkNodeRecursive(context, &child, visitor_fn);
+        }
+    }
+    
+    pub const GenericVisitor = struct {
+        pub fn visitNode(context: *WalkContext, node: *const Node) !void {
+            // Default implementation - extract text if node matches flags
+            if (shouldExtractNode(context.flags, node.kind)) {
+                try context.result.appendSlice(node.text);
+                try context.result.append('\n');
+            }
+        }
+    };
+    
+    fn shouldExtractNode(flags: ExtractionFlags, kind: []const u8) bool {
+        if (flags.full) return true;
+        
+        if (flags.signatures and (std.mem.eql(u8, kind, "function") or 
+                                  std.mem.eql(u8, kind, "method"))) {
+            return true;
+        }
+        
+        if (flags.types and (std.mem.eql(u8, kind, "class") or
+                             std.mem.eql(u8, kind, "interface") or
+                             std.mem.eql(u8, kind, "struct"))) {
+            return true;
+        }
+        
+        if (flags.imports and std.mem.eql(u8, kind, "import")) {
+            return true;
+        }
+        
+        if (flags.tests and std.mem.eql(u8, kind, "test")) {
+            return true;
+        }
+        
+        return false;
+    }
+};

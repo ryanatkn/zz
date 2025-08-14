@@ -126,23 +126,22 @@ pub const Benchmark = struct {
         // Run until we hit the target duration
         while (timer.read() < target_duration_ns) {
             for (common_paths) |path| {
-                _ = try path_cache.getPath(path);
+                _ = try path_cache.get(path);
                 total_ops += 1;
             }
         }
         
         const elapsed = timer.read();
-        const pool = path_cache.getStats();
-        const pool_stats = pool.stats();
+        const efficiency = path_cache.intern.efficiency();
         
         if (verbose) {
             std.debug.print("  {} operations in {}ms\n", .{ total_ops, elapsed / 1_000_000 });
             std.debug.print("  Cache efficiency: {d:.1}% ({} hits, {} misses)\n", 
-                .{ pool_stats.efficiency * 100, pool_stats.hits, pool_stats.misses });
+                .{ efficiency * 100, path_cache.intern.hits, path_cache.intern.misses });
         }
         
         var extra_info_buf: [256]u8 = undefined;
-        const extra_info = try std.fmt.bufPrint(&extra_info_buf, "Cache efficiency: {d:.1}%", .{pool_stats.efficiency * 100});
+        const extra_info = try std.fmt.bufPrint(&extra_info_buf, "Cache efficiency: {d:.1}%", .{efficiency * 100});
         
         try self.results.append(.{
             .name = "String Pool",

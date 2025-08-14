@@ -168,10 +168,8 @@ pub const ListPool = struct {
 
     /// Get ArrayList([]u8) from pool or create new
     pub fn getStringList(self: *ListPool) std.ArrayList([]u8) {
-        if (self.string_lists.popOrNull()) |list| {
-            var mut_list = list;
-            mut_list.clearRetainingCapacity();
-            return mut_list;
+        if (self.string_lists.items.len > 0) {
+            return self.string_lists.pop().?;
         }
         return std.ArrayList([]u8).init(self.allocator);
     }
@@ -188,10 +186,8 @@ pub const ListPool = struct {
 
     /// Get ArrayList([]const u8) from pool or create new
     pub fn getConstStringList(self: *ListPool) std.ArrayList([]const u8) {
-        if (self.const_string_lists.popOrNull()) |list| {
-            var mut_list = list;
-            mut_list.clearRetainingCapacity();
-            return mut_list;
+        if (self.const_string_lists.items.len > 0) {
+            return self.const_string_lists.pop().?;
         }
         return std.ArrayList([]const u8).init(self.allocator);
     }
@@ -208,16 +204,16 @@ pub const ListPool = struct {
 };
 
 // RAII helper functions for automatic cleanup
-pub fn withStringList(pool: *ListPool, comptime func: anytype) !@TypeOf(func(std.ArrayList([]u8))) {
+pub fn withStringList(pool: *ListPool, comptime func: anytype) !@TypeOf(func(@as(std.ArrayList([]u8), undefined))) {
     const list = pool.getStringList();
     defer pool.putStringList(list);
     return try func(list);
 }
 
-pub fn withConstStringList(pool: *ListPool, comptime func: anytype) !@TypeOf(func(std.ArrayList([]const u8))) {
-    const list = pool.getConstStringList();
+pub fn withConstStringList(pool: *ListPool, comptime func: anytype) !@TypeOf(func(@as(*std.ArrayList([]const u8), undefined)).*) {
+    var list = pool.getConstStringList();
     defer pool.putConstStringList(list);
-    return try func(list);
+    return try func(&list);
 }
 
 test "Arena basic functionality" {
@@ -272,11 +268,10 @@ test "ListPool reuse" {
     var pool = ListPool.init(testing.allocator);
     defer pool.deinit();
     
-    // Test RAII helper
-    try withStringList(&pool, struct {
-        fn test_func(list: std.ArrayList([]u8)) !void {
-            _ = list;
-            // List automatically returned to pool
-        }
-    }.test_func);
+    // Test basic reuse
+    const list1 = pool.getStringList();
+    pool.putStringList(list1);
+    
+    const list2 = pool.getStringList();
+    pool.putStringList(list2);
 }

@@ -29,7 +29,7 @@ pub const PathBuilder = struct {
         if (std.mem.eql(u8, base, ".")) {
             // Use cache for single component paths if available
             if (self.path_cache) |cache| {
-                const cached = try cache.getPath(name);
+                const cached = try cache.get(name);
                 return try self.allocator.dupe(u8, cached);
             }
             return self.allocator.dupe(u8, name);
@@ -37,7 +37,7 @@ pub const PathBuilder = struct {
         
         // Use cache for path building if available  
         if (self.path_cache) |cache| {
-            const cached = try cache.buildPath(base, name);
+            const cached = try cache.build(base, name);
             return try self.allocator.dupe(u8, cached);
         }
         

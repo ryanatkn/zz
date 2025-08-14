@@ -6,25 +6,47 @@ Parser reliability has been restored, error handling enhanced, and test quality 
 
 ## Recently Completed ✅
 
+### Week 2 Aggressive Refactoring (2025-08-14)
+- **✅ Language Infrastructure Refactored** - ast.zig + errors.zig consolidated with unified APIs
+- **✅ ~50% Code Reduction Achieved** - 10+ old modules → 6 clean new modules
+- **✅ All Compilation Errors Fixed** - Project builds cleanly after aggressive refactoring
+- **✅ 96.2% Test Pass Rate** - 330/343 tests passing, hanging test issue resolved
+- **✅ Eliminated Anti-patterns** - ManagedArrayList gone, JavaScript cruft removed
+
+### Previous Achievements  
 - **Code Formatter Implementation** - Language-aware pretty printing for JSON, CSS, HTML, Zig
 - **Parser Simple Extraction Fixed** - All languages now correctly extract content based on flags
 - **Enhanced Error Messages** - Deployed ErrorHelpers in 5+ critical user touchpoints
 - **Test Quality Improved** - Tests validate actual extraction content vs crash testing
 - **Filesystem Import Standardization** - Core modules updated (10 test files remain)
 
-## Immediate Priorities
+## Immediate Priorities (Post-Refactoring)
 
-### 1. Complete Real Tree-sitter Integration
+### 1. Fix Remaining Test Failures
+**Impact:** High | **Effort:** Low  
+- 13 failing tests (mostly tree-sitter version compatibility)
+- 2 memory leaks in incremental file tracker
+- Quick wins to achieve 100% test pass rate
+- Foundation stability before new features
+
+### 2. Complete Real Tree-sitter Integration
 **Impact:** High | **Effort:** High
 - Replace mock AST with actual tree-sitter node wrappers
-- Infrastructure exists in `ast.zig`, needs real implementation
+- Infrastructure ready in refactored `ast.zig` with unified Extractor API
 - Enable true semantic analysis beyond text matching
 - Enhance formatter quality with proper AST-based formatting
 - Current: Simple extraction works, AST extraction is mocked
 
-### 2. Formatter Enhancements
+### 3. Delete Obsolete Files
+**Impact:** Medium | **Effort:** Low
+- Remove old modules replaced by Week 1-2 refactoring
+- Clean up collection_helpers, pools, string_pool, file_helpers, etc.
+- Reduce codebase clutter and confusion
+- Document migration path for any external dependencies
+
+### 4. Formatter Enhancements
 **Impact:** High | **Effort:** Medium
-- Fix memory leak in glob expansion
+- Fix memory leak in glob expansion (now easier with new memory.zig)
 - Add configuration support via `zz.zon`
 - Implement TypeScript formatter with tree-sitter
 - Add Python formatter (high demand)
@@ -163,20 +185,27 @@ Current baselines (Release mode, 2025-08-13):
 ### On Reliability
 With parser extraction now fully functional, error handling enhanced, and formatting capabilities added, the focus shifts to leveraging this reliable foundation for advanced features. The mock AST infrastructure awaits real tree-sitter integration to unlock semantic analysis capabilities and improve formatting quality.
 
-## Next Sprint Focus
+## Next Sprint Focus (Post Week 2 Refactoring)
 
 **Recommended sequence:**
-1. Fix formatter memory leak (quick win)
-2. Add formatter configuration support (user value)
-3. Complete filesystem import migration (consistency)
-4. Build integration test suite (validate current state)
-5. Begin real tree-sitter integration (high value)
-6. Add Python language support with formatter (user demand)
-7. Profile and optimize hot paths (performance)
+1. Fix remaining 13 test failures (foundation stability)
+2. Fix 2 memory leaks in incremental tracker (quick win)
+3. Delete obsolete files from refactoring (cleanup)
+4. Fix formatter memory leak using new memory.zig (quick win)
+5. Add formatter configuration support (user value)
+6. Build integration test suite (validate refactored state)
+7. Begin real tree-sitter integration with new ast.zig (high value)
+8. Add Python language support with formatter (user demand)
+9. Profile and optimize with new infrastructure (performance)
 
 ## Technical Debt
 
 ### Addressed ✅
+- **Week 2 Refactoring** - ~50% code reduction, eliminated anti-patterns
+- **Ownership patterns** - Clear initOwning/initBorrowing semantics
+- **Memory management** - Arena allocators, proper defer patterns
+- **Collection anti-patterns** - ManagedArrayList eliminated
+- **JavaScript cruft** - Language-agnostic imports/exports
 - Parser simple extraction (fixed)
 - Error message quality (enhanced)
 - Test validation depth (improved)
@@ -184,11 +213,14 @@ With parser extraction now fully functional, error handling enhanced, and format
 - Basic formatting implementation (completed)
 
 ### Remaining
+- 13 failing tests (tree-sitter version compatibility)
+- 2 memory leaks in incremental tracker
+- Obsolete files from refactoring need deletion
 - Mock AST to real tree-sitter
 - Test file import consistency
 - Centralized argument parsing
 - Full incremental processing
-- Formatter memory leak
+- Formatter memory leak (easier to fix with new memory.zig)
 - TypeScript/Svelte formatter implementation
 - Format configuration system
 

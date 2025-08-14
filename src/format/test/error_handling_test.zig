@@ -2,7 +2,7 @@ const std = @import("std");
 const testing = std.testing;
 const AstFormatter = @import("../../lib/ast_formatter.zig").AstFormatter;
 const Formatter = @import("../../lib/formatter.zig").Formatter;
-const Language = @import("../../lib/parser.zig").Language;
+const Language = @import("../../lib/ast.zig").Language;
 
 // Malformed TypeScript tests
 test "malformed TypeScript function" {

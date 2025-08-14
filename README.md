@@ -6,7 +6,7 @@ High-performance command-line utilities written in Zig for POSIX systems. Featur
 
 **Language Support:** Complete AST-based extraction from TypeScript, CSS, HTML, JSON, Zig, and Svelte with unified NodeVisitor pattern for precise, language-aware code analysis.
 
-**Performance:** 20-30% faster than stdlib for path operations, with pattern matching at ~25ns per operation. Features incremental processing with AST cache invalidation and intelligent dependency tracking.
+**Performance:** Optimized path operations and pattern matching. Features incremental processing with AST cache invalidation and intelligent dependency tracking.
 
 **Architecture:** Clean modular design with filesystem abstraction, unified pattern matching, and aggressive performance optimizations. Includes advanced features like incremental file processing, AST-based code extraction, and parallel task execution. See [docs/archive/ARCHITECTURE.md](./docs/archive/ARCHITECTURE.md) for system design details.
 
@@ -51,6 +51,7 @@ zig version  # Requires 0.14.1+
 zz tree                        # Show directory tree
 zz prompt "src/**/*.zig"       # Generate LLM prompt
 zz benchmark --format=pretty   # Run performance benchmarks
+zz format config.json          # Format code files
 
 # Interactive terminal demo
 cd demo && zig build run       # Build and run interactive demo
@@ -87,10 +88,27 @@ cd demo && zig build run       # Build and run interactive demo
   - `--full`: Complete source (default)
 - **Combine flags** for custom extraction: `zz prompt src/ --signatures --types`
 - Directory support: `zz prompt src/` processes all files recursively
-- Advanced glob pattern support with 40-60% fast-path optimization
+- Advanced glob pattern support with fast-path optimization
 - Smart code fence detection (handles nested backticks)
 - Automatic file deduplication
 - Markdown output with semantic XML tags for LLM context
+
+### Code Formatting
+- **Language-aware pretty printing** for multiple file types
+- **Supported languages**:
+  - **Zig**: Uses `zig fmt` for native formatting
+  - **JSON**: Intelligent indentation, key sorting, trailing commas
+  - **HTML**: Tag indentation, attribute formatting
+  - **CSS**: Selector formatting, property alignment
+  - **TypeScript**: Basic formatting (Svelte: basic support)
+- **Flexible options**:
+  - `--write`: Format files in-place
+  - `--check`: Check if files are formatted (exit 1 if not)
+  - `--stdin`: Read from stdin, write to stdout
+  - `--indent-size=N`: Spaces for indentation (default: 4)
+  - `--indent-style=space|tab`: Indentation style
+  - `--line-width=N`: Maximum line width (default: 100)
+- **Glob pattern support**: Format multiple files with patterns
 
 ### Performance Benchmarking
 - Comprehensive performance measurement suite with color-coded output
@@ -130,6 +148,14 @@ zz -h                                   # Display brief help
 #   Supports glob patterns   - *.zig, **/*.zig, *.{zig,md}
 #   Supports directories     - src/, src/subdir/
 
+# Format options:
+#   --write, -w              - Format files in-place
+#   --check                  - Check if files are formatted (exit 1 if not)
+#   --stdin                  - Read from stdin, write to stdout
+#   --indent-size=N          - Number of spaces for indentation (default: 4)
+#   --indent-style=STYLE     - Use spaces or tabs (default: space)
+#   --line-width=N           - Maximum line width (default: 100)
+
 # Benchmark options (outputs to stdout):
 #   --format=FORMAT          - Output format: markdown (default), json, csv, pretty
 #   --duration=TIME          - Duration per benchmark (default: 2s, formats: 1s, 500ms)
@@ -161,6 +187,13 @@ zz prompt style.css --types              # Extract CSS variables and selectors
 zz prompt index.html --structure         # Extract HTML document structure
 zz prompt config.json --structure        # Extract JSON keys and structure
 zz prompt component.svelte --signatures  # Extract Svelte component exports
+
+# Code formatting
+zz format config.json                    # Format and output to stdout
+zz format config.json --write            # Format file in-place
+zz format "src/**/*.json" --check        # Check if JSON files are formatted
+echo '{"a":1}' | zz format --stdin       # Format from stdin
+zz format "*.css" --indent-size=2        # Format CSS with 2-space indent
 
 # Performance benchmarks (CLI outputs to stdout)
 zz benchmark                                     # Markdown to stdout

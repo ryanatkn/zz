@@ -6,6 +6,7 @@ const Help = @import("help.zig");
 const tree = @import("../tree/main.zig");
 const prompt = @import("../prompt/main.zig");
 const benchmark = @import("../benchmark/main.zig");
+const format = @import("../format/main.zig");
 const ErrorHelpers = @import("../lib/error_helpers.zig").ErrorHelpers;
 
 pub const Runner = struct {
@@ -58,6 +59,15 @@ pub const Runner = struct {
                     const stderr = std.io.getStdErr().writer();
                     const error_msg = ErrorHelpers.errorToMessage(err);
                     stderr.print("Benchmark command failed: {s}\n", .{error_msg}) catch {};
+                    return err;
+                };
+            },
+            .format => {
+                // Pass full args and filesystem to format module
+                format.run(self.allocator, self.filesystem, args) catch |err| {
+                    const stderr = std.io.getStdErr().writer();
+                    const error_msg = ErrorHelpers.errorToMessage(err);
+                    stderr.print("Format command failed: {s}\n", .{error_msg}) catch {};
                     return err;
                 };
             },

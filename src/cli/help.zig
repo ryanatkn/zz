@@ -8,6 +8,7 @@ pub fn showBrief(program_name: []const u8) void {
     std.debug.print("  tree [dir] [depth]    Show directory tree\n", .{});
     std.debug.print("  prompt [files...]     Build LLM prompts from files\n", .{});
     std.debug.print("  benchmark [options]   Run performance benchmarks\n", .{});
+    std.debug.print("  format [files...]     Format code files\n", .{});
     std.debug.print("  help                  Show detailed help\n", .{});
     std.debug.print("\n", .{});
     std.debug.print("Use '{s} --help' or '{s} help' for detailed information\n", .{program_name, program_name});
@@ -55,6 +56,20 @@ pub fn show(program_name: []const u8) void {
     std.debug.print("                                  zz benchmark > baseline.md          # Save to file\n", .{});
     std.debug.print("                                  zz benchmark --only=path,string     # Run specific benchmarks\n", .{});
     std.debug.print("                                  zz benchmark --duration-multiplier=2    # 2x longer duration for all benchmarks\n", .{});
+    std.debug.print("  format [files...] [options]  Format code files with language-aware pretty printing\n", .{});
+    std.debug.print("                                Options:\n", .{});
+    std.debug.print("                                  --write, -w          Format files in-place\n", .{});
+    std.debug.print("                                  --check              Check if files are formatted (exit 1 if not)\n", .{});
+    std.debug.print("                                  --stdin              Read from stdin, write to stdout\n", .{});
+    std.debug.print("                                  --indent-size=N      Number of spaces for indentation (default: 4)\n", .{});
+    std.debug.print("                                  --indent-style=STYLE Use spaces or tabs (default: space)\n", .{});
+    std.debug.print("                                  --line-width=N       Maximum line width (default: 100)\n", .{});
+    std.debug.print("                                Supported languages:\n", .{});
+    std.debug.print("                                  Zig (using zig fmt), JSON, HTML, CSS, TypeScript (basic), Svelte (basic)\n", .{});
+    std.debug.print("                                Examples:\n", .{});
+    std.debug.print("                                  zz format src/*.zig --check         # Check if files are formatted\n", .{});
+    std.debug.print("                                  zz format config.json --write       # Format file in-place\n", .{});
+    std.debug.print("                                  echo '{{\"a\":1}}' | zz format --stdin  # Format stdin JSON\n", .{});
     std.debug.print("  help                          Show this help\n", .{});
     std.debug.print("\nGlob Patterns:\n", .{});
     std.debug.print("  *.zig                         Match all .zig files\n", .{});

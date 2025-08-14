@@ -5,7 +5,7 @@ const Walker = @import("../walker.zig").Walker;
 const WalkerOptions = @import("../walker.zig").WalkerOptions;
 const Config = @import("../config.zig").Config;
 const SharedConfig = @import("../../config.zig").SharedConfig;
-const RealFilesystem = @import("../../filesystem.zig").RealFilesystem;
+const RealFilesystem = @import("../../filesystem/real.zig").RealFilesystem;
 
 // Mock filesystem operations to track directory access
 var mock_active = false;

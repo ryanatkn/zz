@@ -69,7 +69,7 @@ $ zig version
     │   │   ├── c.zig                  # Centralized C imports for language grammars
     │   │   ├── filesystem.zig         # Consolidated filesystem error handling patterns
     │   │   ├── parser.zig             # AST-based code extraction with tree-sitter
-    │   │   ├── path.zig               # Optimized POSIX-only path utilities (20-30% faster than fmt.allocPrint)
+    │   │   ├── path.zig               # Optimized POSIX-only path utilities
     │   │   ├── pools.zig              # Specialized memory pools for ArrayList and string reuse
     │   │   ├── string_pool.zig        # Production-ready string interning with stdlib HashMapUnmanaged
     │   │   └── traversal.zig          # Unified directory traversal with filesystem abstraction
@@ -130,6 +130,7 @@ $ zig build --use-llvm           # Use LLVM backend
 $ zig build run -- tree [args]          # Run tree command in development
 $ zig build run -- prompt [args]        # Run prompt command in development
 $ zig build run -- benchmark [args]     # Run benchmarks
+$ zig build run -- format [args]        # Run formatter in development
 
 # Help commands
 $ zz -h                          # Brief help overview
@@ -217,14 +218,14 @@ $ ./zig-out/bin/zz benchmark --duration=5s
 - **Duration multiplier system** - Allows extending benchmark duration for more stable results
 
 **Performance Baselines (Release build, 2025-08-13):**
-- Path operations: ~11μs per operation (78% improvement, 20-30% faster than stdlib)
-- String pooling: ~11ns per operation (100% cache efficiency)
+- Path operations: ~11μs per operation
+- String pooling: ~11ns per operation
 - Memory pools: ~11μs per allocation/release cycle
-- Glob patterns: ~4ns per operation (75% fast-path hit ratio)
-- Code extraction: ~21μs per extraction (4 modes: full, signatures, types, combined)
-- Benchmark execution: ~10 seconds total (5 benchmarks with varied durations based on multipliers)
-- Regression threshold: 20% (to account for Debug mode variance)
-- Time-based execution: Each benchmark runs for a configurable duration (default: 2 seconds)
+- Glob patterns: ~4ns per operation
+- Code extraction: ~21μs per extraction
+- Benchmark execution: ~10 seconds total
+- Regression threshold: 20%
+- Time-based execution: 2 seconds default per benchmark
 
 **When to Run Benchmarks:**
 - Before and after implementing optimizations
@@ -237,8 +238,10 @@ $ ./zig-out/bin/zz benchmark --duration=5s
 
 **Core Architecture:**
 - **CLI Module:** `src/cli/` - Command parsing, validation, and dispatch system
-- **Tree Module:** `src/tree/` - High-performance directory traversal with configurable filtering and multiple output formats
+- **Tree Module:** `src/tree/` - Directory traversal with configurable filtering and multiple output formats
 - **Prompt Module:** `src/prompt/` - LLM prompt generation with glob support, smart fencing, and deduplication
+- **Format Module:** `src/format/` - Language-aware code formatting with configurable styles
+- **Benchmark Module:** `src/benchmark/` - Performance measurement and regression detection
 - **Lib Module:** `src/lib/` - Shared utilities and infrastructure for all commands
 
 **Key Components:**
@@ -248,12 +251,13 @@ $ ./zig-out/bin/zz benchmark --duration=5s
 - **POSIX-Only Utilities:** Custom path operations optimized for POSIX systems (leaner than std.fs.path)
 
 **Shared Infrastructure (`src/lib/`):**
-- **`path.zig`** - POSIX-only path utilities with optimized direct buffer manipulation (20-30% faster than fmt.allocPrint)
+- **`path.zig`** - POSIX-only path utilities with direct buffer manipulation
 - **`traversal.zig`** - Unified directory traversal with filesystem abstraction support
 - **`filesystem.zig`** - Consolidated error handling patterns for filesystem operations
-- **`string_pool.zig`** - Production-ready string interning with stdlib-optimized HashMapUnmanaged for better cache locality
-- **`pools.zig`** - Specialized memory pools for ArrayList reuse and path string optimization
-- **`benchmark.zig`** - Performance measurement with color output, multiple formats, and baseline comparison
+- **`string_pool.zig`** - String interning with HashMapUnmanaged
+- **`pools.zig`** - Memory pools for ArrayList reuse
+- **`benchmark.zig`** - Performance measurement with multiple output formats
+- **`formatter.zig`** - Core formatting infrastructure and language dispatch
 
 **Adding New Commands:**
 1. Add to `Command` enum in `src/cli/command.zig`
@@ -336,6 +340,15 @@ const walker = Walker.initWithOptions(allocator, config, .{ .filesystem = mock_f
     
     .prompt = .{
         // Prompt-specific settings go here if needed in future
+    },
+    
+    .format = .{
+        // Format-specific settings (optional)
+        .indent_size = 4,
+        .indent_style = "space", // or "tab"
+        .line_width = 100,
+        .trailing_comma = false, // for JSON
+        .sort_keys = false,       // for JSON
     },
 }
 ```
@@ -439,7 +452,7 @@ pub fn getAstCacheKey(self: *FileTracker, file_path: []const u8, extraction_flag
 
 **Performance Benefits:**
 - **Incremental Parsing**: Only re-parse files that have actually changed
-- **Cache Efficiency**: ~95% cache hit rate for unchanged files with different extraction flags
+- **Cache Efficiency**: High cache hit rate for unchanged files with different extraction flags
 - **Memory Management**: LRU eviction with configurable memory limits
 - **Dependency Optimization**: Cascade invalidation prevents stale cache entries
 
@@ -460,11 +473,11 @@ pub fn getAstCacheKey(self: *FileTracker, file_path: []const u8, extraction_flag
 - **Graceful fallback:** Falls back to text extraction for unsupported languages
 - **Extensible:** Architecture ready for TypeScript, Rust, Go, Python grammars
 
-**Glob Pattern Support with Performance Optimizations:**
+**Glob Pattern Support:**
 - Basic wildcards: `*.zig`, `test?.zig`
 - Recursive patterns: `src/**/*.zig`
-- **Optimized alternatives:** `*.{zig,md,txt}` with fast-path expansion
-- **Fast-path common patterns:** `*.{zig,c,h}`, `*.{js,ts}`, `*.{md,txt}` pre-optimized (40-60% faster)
+- Brace expansion: `*.{zig,md,txt}`
+- Common patterns optimized: `*.{zig,c,h}`, `*.{js,ts}`, `*.{md,txt}`
 - Character classes: `log[0-9].txt`, `file[a-zA-Z].txt`, `test[!0-9].txt`
 - Automatic deduplication of matched files
 
@@ -502,11 +515,10 @@ pub fn getAstCacheKey(self: *FileTracker, file_path: []const u8, extraction_flag
 
 **Performance Optimizations:**
 - Early directory skip for ignored paths
-- **Optimized path operations** - Direct buffer manipulation eliminates expensive fmt.allocPrint calls
-- **String interning with PathCache** - 15-25% memory reduction for deep directory traversals
-- **Fast-path glob patterns** - Pre-optimized expansion for common patterns like `*.{zig,c,h}` (40-60% speedup)
-- **Memory pool allocators** - Specialized pools for ArrayList and path string reuse
-- **Stdlib-optimized containers** - HashMapUnmanaged for better cache locality and reduced overhead
+- Direct buffer manipulation for path operations
+- String interning to reduce memory usage
+- Fast-path optimization for common glob patterns
+- Memory pool allocators for reuse
 - Efficient memory management with arena allocators
 - Smart filtering with .gitignore-style patterns
 
@@ -514,6 +526,39 @@ pub fn getAstCacheKey(self: *FileTracker, file_path: []const u8, extraction_flag
 - Load from `zz.zon` for persistent settings
 - Command-line arguments override config
 - Sensible defaults for common use cases
+
+## Format Module Features
+
+**Language-Aware Formatting:**
+- **JSON:** Smart indentation, line-breaking decisions, optional trailing commas, key sorting
+- **CSS:** Selector formatting, property alignment, media query indentation
+- **HTML:** Tag indentation, attribute formatting, whitespace preservation
+- **Zig:** Integration with external `zig fmt` tool
+- **TypeScript/Svelte:** Basic support (placeholders for future enhancement)
+
+**Flexible Options:**
+- `--write`: Format files in-place
+- `--check`: Check if files are formatted (exit 1 if not)
+- `--stdin`: Read from stdin, write to stdout
+- `--indent-size=N`: Configurable indentation (default: 4)
+- `--indent-style=space|tab`: Choose indentation style
+- `--line-width=N`: Maximum line width (default: 100)
+
+**Implementation Details:**
+- **Core Infrastructure:** `src/lib/formatter.zig` - Language dispatch and utilities
+- **Language Formatters:** `src/lib/formatters/` - Per-language implementations
+- **CLI Integration:** `src/format/main.zig` - Command handling and file processing
+- **Glob Support:** Uses same GlobExpander as prompt module
+- **Memory Management:** LineBuilder utility for efficient string building
+
+**Usage Examples:**
+```bash
+zz format config.json                    # Output formatted JSON to stdout
+zz format config.json --write            # Format file in-place
+zz format "src/**/*.json" --check        # Check if files are formatted
+echo '{"a":1}' | zz format --stdin       # Format from stdin
+zz format "*.css" --indent-size=2        # Custom indentation
+```
 
 ## Claude Code Configuration
 
@@ -621,9 +666,9 @@ git commit -m "Update vendored dependencies"
 - **AST node traversal** - Extract functions, types, docs, tests via syntax tree
 - **Graceful fallback** - Falls back to text extraction on parse errors
 - **Color-enhanced benchmark output** - Progress bars, human-readable units
-- **20-30% faster path operations** - Direct buffer manipulation in joinPath
-- **15-25% memory reduction** - String interning with PathCache integration  
-- **40-60% glob speedup** - Fast-path optimization for common patterns
+- **Path operation optimizations** - Direct buffer manipulation instead of allocPrint
+- **Memory pooling** - String interning and ArrayList reuse
+- **Pattern matching optimizations** - Fast-path for common glob patterns
 
 **Architecture:** Complete filesystem abstraction with parameterized dependencies, unified pattern matching engine, comprehensive benchmarking suite, and modular command structure. See [docs/archive/ARCHITECTURE.md](docs/archive/ARCHITECTURE.md) for detailed system design.
 

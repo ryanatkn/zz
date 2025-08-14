@@ -1,13 +1,13 @@
 # Lib Module - Shared Infrastructure
 
-Performance-critical utilities achieving 20-30% speedup through POSIX-specific optimizations.
+Performance-critical utilities optimized for POSIX systems.
 
 ## Component Overview
 
 | File | Purpose | Performance Impact |
 |------|---------|-------------------|
-| `path.zig` | POSIX path operations | ~47μs/op (20-30% faster) |
-| `string_pool.zig` | String interning | ~145ns/op (95-100% efficiency) |
+| `path.zig` | POSIX path operations | ~47μs/op |
+| `string_pool.zig` | String interning | ~145ns/op |
 | `pools.zig` | Memory pool management | ~50μs/cycle |
 | `traversal.zig` | Directory traversal | Early skip optimization |
 | `filesystem.zig` | Error handling | Graceful degradation |
@@ -49,8 +49,8 @@ isHiddenFile()  // Dot-file detection
 - **Pre-populated cache:** Common paths (src, test, node_modules)
 
 **PathCache Features:**
-- 95-100% cache efficiency for common patterns
-- 15-25% memory reduction in deep traversals
+- High cache efficiency for common patterns
+- Reduced memory usage in deep traversals
 - Specialized `internPath()` for dir/name combinations
 
 ## pools.zig - Memory Management

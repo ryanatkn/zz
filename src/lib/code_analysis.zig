@@ -118,7 +118,7 @@ pub const CodeAnalysis = struct {
         
         /// Extract function calls from source code using pattern matching
         fn extractCallRelationships(self: *CallGraphBuilder, file_path: []const u8, content: []const u8) !void {
-            var lines = std.mem.split(u8, content, "\n");
+            var lines = std.mem.splitScalar(u8, content, '\n');
             var line_number: u32 = 1;
             var current_function: ?[]const u8 = null;
             
@@ -383,7 +383,7 @@ pub const CodeAnalysis = struct {
         
         /// Extract import statements from source code
         fn extractImports(self: *DependencyAnalyzer, file_path: []const u8, content: []const u8) !void {
-            var lines = std.mem.split(u8, content, "\n");
+            var lines = std.mem.splitScalar(u8, content, '\n');
             var line_number: u32 = 1;
             
             while (lines.next()) |line| {
@@ -548,7 +548,7 @@ pub const CodeAnalysis = struct {
                 .nesting_depth = 0,
             };
             
-            var lines = std.mem.split(u8, content, "\n");
+            var lines = std.mem.splitScalar(u8, content, '\n');
             while (lines.next()) |line| {
                 metrics.lines_of_code += 1;
                 

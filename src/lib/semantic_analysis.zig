@@ -428,7 +428,7 @@ pub const SemanticAnalysis = struct {
             var elements = collection_helpers.CollectionHelpers.ManagedArrayList([]const u8).init(self.allocator);
             defer elements.deinit();
             
-            var lines = std.mem.split(u8, content, "\n");
+            var lines = std.mem.splitScalar(u8, content, '\n');
             var count: u32 = 0;
             
             while (lines.next()) |line| {

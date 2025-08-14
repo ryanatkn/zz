@@ -56,9 +56,9 @@ pub const AstFormatter = struct {
         if (self.cache) |cache| {
             if (file_path) |path| {
                 const cache_key = self.createCacheKey(source, path);
-                if (cache.get(cache_key)) |cached| {
+                if (cache.get(cache_key)) |cached_content| {
                     // Cache hit - return cached result
-                    return self.allocator.dupe(u8, cached.content);
+                    return self.allocator.dupe(u8, cached_content);
                 }
             }
         }
@@ -437,6 +437,29 @@ pub const AstFormatter = struct {
         }
         
         return true;
+    }
+    
+    /// Create a cache key for the given source and formatter options
+    fn createCacheKey(self: *Self, source: []const u8, file_path: []const u8) AstCacheKey {
+        _ = file_path; // Currently unused, but kept for future file-specific caching
+        // Hash the source content
+        var hasher = std.hash.XxHash64.init(0);
+        hasher.update(source);
+        const file_hash = hasher.final();
+        
+        // Hash the formatter options to ensure cache invalidation on option changes
+        hasher = std.hash.XxHash64.init(0);
+        hasher.update(std.mem.asBytes(&self.options.indent_size));
+        hasher.update(std.mem.asBytes(&self.options.indent_style));
+        hasher.update(std.mem.asBytes(&self.options.line_width));
+        hasher.update(std.mem.asBytes(&self.options.preserve_newlines));
+        hasher.update(std.mem.asBytes(&self.options.trailing_comma));
+        hasher.update(std.mem.asBytes(&self.options.sort_keys));
+        hasher.update(std.mem.asBytes(&self.options.quote_style));
+        hasher.update(std.mem.asBytes(&self.options.use_ast));
+        const options_hash = hasher.final();
+        
+        return AstCacheKey.init(file_hash, 1, options_hash);
     }
 };
 

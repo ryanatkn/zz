@@ -7,4 +7,6 @@ test {
     _ = @import("test/parser_test.zig");
     // Extraction tests for all languages
     _ = @import("test/extraction_test.zig");
+    // Cached formatter tests
+    _ = @import("test/cached_formatter_test.zig");
 }

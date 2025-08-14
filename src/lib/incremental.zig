@@ -1,51 +1,201 @@
 const std = @import("std");
 const AstCache = @import("cache.zig").AstCache;
 const AstCacheKey = @import("cache.zig").AstCacheKey;
+const ImportExtractor = @import("import_extractor.zig").ImportExtractor;
+const ImportInfo = @import("import_extractor.zig").ImportInfo;
+const ExtractionResult = @import("import_extractor.zig").ExtractionResult;
+const ImportResolver = @import("import_resolver.zig").ImportResolver;
+const ResolverConfig = @import("import_resolver.zig").ResolverConfig;
+const ResolutionResult = @import("import_resolver.zig").ResolutionResult;
+const TreeSitterParser = @import("tree_sitter_parser.zig").TreeSitterParser;
+const Language = @import("parser.zig").Language;
 const file_helpers = @import("file_helpers.zig");
 const error_helpers = @import("error_helpers.zig");
 const collection_helpers = @import("collection_helpers.zig");
 
-/// File state for incremental processing
+/// Enhanced file state for incremental processing with detailed import analysis
 pub const FileState = struct {
     path: []const u8,
-    hash: u64,              // Content hash using xxHash
-    mtime: i64,             // Modification time (nanoseconds since epoch)
-    size: usize,            // File size in bytes
-    ast_cache_key: ?u64,    // Reference to cached AST
-    imports: [][]const u8,  // What this file imports
-    exports: [][]const u8,  // What this file exports
-    dependents: [][]const u8, // Files that depend on this
-
+    hash: u64,                      // Content hash using xxHash
+    mtime: i64,                     // Modification time (nanoseconds since epoch)
+    size: usize,                    // File size in bytes
+    language: Language,             // Detected programming language
+    ast_cache_key: ?u64,            // Reference to cached AST
+    
+    // Enhanced import tracking with AST analysis
+    imports_detailed: []ImportInfo,     // Detailed AST-extracted imports
+    exports_detailed: []@import("import_extractor.zig").ExportInfo, // Detailed exports
+    resolved_dependencies: [][]const u8, // Resolved file paths this file depends on
+    unresolved_dependencies: [][]const u8, // External/unresolved dependencies
+    dependents: [][]const u8,       // Files that depend on this file
+    
+    // Legacy fields for backward compatibility
+    imports: [][]const u8,          // Simple import paths (derived from imports_detailed)
+    exports: [][]const u8,          // Simple export names (derived from exports_detailed)
+    
+    // Import analysis metadata
+    import_hash: ?u64,              // Hash of import structure for change detection
+    last_import_analysis: i64,      // When imports were last analyzed
+    
     pub fn deinit(self: *FileState, allocator: std.mem.Allocator) void {
         allocator.free(self.path);
-        for (self.imports) |import| {
-            allocator.free(import);
+        
+        // Clean up detailed imports
+        for (self.imports_detailed) |*import_info| {
+            import_info.deinit(allocator);
         }
-        allocator.free(self.imports);
-        for (self.exports) |export_name| {
-            allocator.free(export_name);
+        allocator.free(self.imports_detailed);
+        
+        // Clean up detailed exports
+        for (self.exports_detailed) |*export_info| {
+            export_info.deinit(allocator);
         }
-        allocator.free(self.exports);
+        allocator.free(self.exports_detailed);
+        
+        // Clean up resolved dependencies
+        for (self.resolved_dependencies) |dependency| {
+            allocator.free(dependency);
+        }
+        allocator.free(self.resolved_dependencies);
+        
+        // Clean up unresolved dependencies
+        for (self.unresolved_dependencies) |dependency| {
+            allocator.free(dependency);
+        }
+        allocator.free(self.unresolved_dependencies);
+        
+        // Clean up dependents
         for (self.dependents) |dependent| {
             allocator.free(dependent);
         }
         allocator.free(self.dependents);
+        
+        // Clean up legacy fields
+        for (self.imports) |import| {
+            allocator.free(import);
+        }
+        allocator.free(self.imports);
+        
+        for (self.exports) |export_name| {
+            allocator.free(export_name);
+        }
+        allocator.free(self.exports);
+    }
+    
+    /// Update legacy import/export fields from detailed analysis
+    pub fn updateLegacyFields(self: *FileState, allocator: std.mem.Allocator) !void {
+        // Free existing legacy fields
+        for (self.imports) |import| {
+            allocator.free(import);
+        }
+        allocator.free(self.imports);
+        
+        for (self.exports) |export_name| {
+            allocator.free(export_name);
+        }
+        allocator.free(self.exports);
+        
+        // Create new legacy fields from detailed analysis
+        var import_paths = collection_helpers.CollectionHelpers.ManagedArrayList([]const u8).init(allocator);
+        defer import_paths.deinit();
+        
+        for (self.imports_detailed) |import_info| {
+            try import_paths.append(try allocator.dupe(u8, import_info.import_path));
+        }
+        self.imports = try import_paths.toOwnedSlice();
+        
+        var export_names = collection_helpers.CollectionHelpers.ManagedArrayList([]const u8).init(allocator);
+        defer export_names.deinit();
+        
+        for (self.exports_detailed) |export_info| {
+            if (export_info.is_default) {
+                try export_names.append(try allocator.dupe(u8, "default"));
+            }
+            // Add more export name extraction logic as needed
+        }
+        self.exports = try export_names.toOwnedSlice();
+    }
+    
+    /// Check if imports have changed by comparing hash
+    pub fn importsChanged(self: FileState, new_import_hash: u64) bool {
+        return self.import_hash == null or self.import_hash.? != new_import_hash;
+    }
+    
+    /// Get all dependency file paths (resolved + unresolved)
+    pub fn getAllDependencies(self: FileState, allocator: std.mem.Allocator) ![][]const u8 {
+        var all_deps = collection_helpers.CollectionHelpers.ManagedArrayList([]const u8).init(allocator);
+        defer all_deps.deinit();
+        
+        for (self.resolved_dependencies) |dep| {
+            try all_deps.append(try allocator.dupe(u8, dep));
+        }
+        
+        for (self.unresolved_dependencies) |dep| {
+            try all_deps.append(try allocator.dupe(u8, dep));
+        }
+        
+        return all_deps.toOwnedSlice();
     }
 };
 
-/// Dependency graph for tracking file relationships
+/// Enhanced dependency graph with AST-based import analysis
 pub const DependencyGraph = struct {
     allocator: std.mem.Allocator,
     // path -> set of paths that depend on it
     dependents: std.HashMap([]const u8, std.ArrayList([]const u8), std.hash_map.StringContext, 80),
     // path -> set of paths it depends on
     dependencies: std.HashMap([]const u8, std.ArrayList([]const u8), std.hash_map.StringContext, 80),
+    
+    // Enhanced AST-based analysis
+    import_extractor: ImportExtractor,
+    import_resolver: ImportResolver,
+    
+    // Circular dependency tracking
+    circular_dependencies: std.ArrayList([][]const u8),
+    
+    // Statistics
+    stats: DependencyStats,
+    
+    pub const DependencyStats = struct {
+        total_files: u64 = 0,
+        total_dependencies: u64 = 0,
+        resolved_dependencies: u64 = 0,
+        unresolved_dependencies: u64 = 0,
+        circular_dependency_count: u64 = 0,
+        ast_analysis_time_ns: u64 = 0,
+        resolution_time_ns: u64 = 0,
+        
+        pub fn resolutionRate(self: DependencyStats) f64 {
+            if (self.total_dependencies == 0) return 0.0;
+            return @as(f64, @floatFromInt(self.resolved_dependencies)) / @as(f64, @floatFromInt(self.total_dependencies));
+        }
+    };
 
-    pub fn init(allocator: std.mem.Allocator) DependencyGraph {
+    pub fn init(allocator: std.mem.Allocator, project_root: []const u8) !DependencyGraph {
+        const resolver_config = try ResolverConfig.default(allocator, project_root);
+        
         return DependencyGraph{
             .allocator = allocator,
             .dependents = std.HashMap([]const u8, std.ArrayList([]const u8), std.hash_map.StringContext, 80).init(allocator),
             .dependencies = std.HashMap([]const u8, std.ArrayList([]const u8), std.hash_map.StringContext, 80).init(allocator),
+            .import_extractor = ImportExtractor.init(allocator),
+            .import_resolver = ImportResolver.init(allocator, resolver_config),
+            .circular_dependencies = std.ArrayList([][]const u8).init(allocator),
+            .stats = DependencyStats{},
+        };
+    }
+    
+    pub fn initWithCache(allocator: std.mem.Allocator, project_root: []const u8, cache: *AstCache) !DependencyGraph {
+        const resolver_config = try ResolverConfig.default(allocator, project_root);
+        
+        return DependencyGraph{
+            .allocator = allocator,
+            .dependents = std.HashMap([]const u8, std.ArrayList([]const u8), std.hash_map.StringContext, 80).init(allocator),
+            .dependencies = std.HashMap([]const u8, std.ArrayList([]const u8), std.hash_map.StringContext, 80).init(allocator),
+            .import_extractor = ImportExtractor.initWithCache(allocator, cache),
+            .import_resolver = ImportResolver.init(allocator, resolver_config),
+            .circular_dependencies = std.ArrayList([][]const u8).init(allocator),
+            .stats = DependencyStats{},
         };
     }
 
@@ -71,6 +221,18 @@ pub const DependencyGraph = struct {
             entry.value_ptr.deinit();
         }
         self.dependencies.deinit();
+        
+        // Clean up AST-based analysis components
+        self.import_resolver.deinit();
+        
+        // Clean up circular dependencies
+        for (self.circular_dependencies.items) |circular_chain| {
+            for (circular_chain) |file_path| {
+                self.allocator.free(file_path);
+            }
+            self.allocator.free(circular_chain);
+        }
+        self.circular_dependencies.deinit();
     }
 
     /// Add a dependency relationship: from_file depends on to_file
@@ -114,6 +276,241 @@ pub const DependencyGraph = struct {
                 try self.getDependentsRecursive(dependent, visited, result);
             }
         }
+    }
+    
+    /// Analyze file with AST-based import extraction and resolution
+    pub fn analyzeFile(self: *DependencyGraph, file_path: []const u8, source: []const u8) !FileState {
+        const start_time = std.time.nanoTimestamp();
+        
+        // Extract imports and exports using AST analysis
+        const extraction_result = try self.import_extractor.extract(file_path, source);
+        defer extraction_result.deinit(self.allocator);
+        
+        const ast_analysis_time = std.time.nanoTimestamp() - start_time;
+        self.stats.ast_analysis_time_ns += @intCast(ast_analysis_time);
+        
+        const resolution_start = std.time.nanoTimestamp();
+        
+        // Resolve import paths to actual files
+        var resolved_dependencies = collection_helpers.CollectionHelpers.ManagedArrayList([]const u8).init(self.allocator);
+        defer resolved_dependencies.deinit();
+        
+        var unresolved_dependencies = collection_helpers.CollectionHelpers.ManagedArrayList([]const u8).init(self.allocator);
+        defer unresolved_dependencies.deinit();
+        
+        for (extraction_result.imports) |import_info| {
+            const resolution = try self.import_resolver.resolve(file_path, import_info.import_path, import_info.import_type);
+            defer resolution.deinit(self.allocator);
+            
+            if (resolution.isResolved()) {
+                if (resolution.resolved_path) |resolved_path| {
+                    try resolved_dependencies.append(try self.allocator.dupe(u8, resolved_path));
+                    self.stats.resolved_dependencies += 1;
+                }
+            } else {
+                try unresolved_dependencies.append(try self.allocator.dupe(u8, import_info.import_path));
+                self.stats.unresolved_dependencies += 1;
+            }
+            
+            self.stats.total_dependencies += 1;
+        }
+        
+        const resolution_time = std.time.nanoTimestamp() - resolution_start;
+        self.stats.resolution_time_ns += @intCast(resolution_time);
+        
+        // Detect language from file extension
+        const language = Language.fromExtension(std.fs.path.extension(file_path));
+        
+        // Calculate import hash for change detection
+        const import_hash = self.calculateImportHash(extraction_result.imports);
+        
+        // Create detailed file state
+        var file_state = FileState{
+            .path = try self.allocator.dupe(u8, file_path),
+            .hash = try hashFile(self.allocator, file_path),
+            .mtime = try getFileModTime(file_path),
+            .size = try getFileSize(file_path),
+            .language = language,
+            .ast_cache_key = null,
+            .imports_detailed = try self.duplicateImports(extraction_result.imports),
+            .exports_detailed = try self.duplicateExports(extraction_result.exports),
+            .resolved_dependencies = try resolved_dependencies.toOwnedSlice(),
+            .unresolved_dependencies = try unresolved_dependencies.toOwnedSlice(),
+            .dependents = &.{},
+            .imports = &.{}, // Will be updated by updateLegacyFields
+            .exports = &.{}, // Will be updated by updateLegacyFields
+            .import_hash = import_hash,
+            .last_import_analysis = std.time.nanoTimestamp(),
+        };
+        
+        // Update legacy fields for backward compatibility
+        try file_state.updateLegacyFields(self.allocator);
+        
+        self.stats.total_files += 1;
+        
+        return file_state;
+    }
+    
+    /// Batch analyze multiple files for better performance
+    pub fn analyzeFiles(self: *DependencyGraph, file_paths: []const []const u8) ![]FileState {
+        var file_states = try self.allocator.alloc(FileState, file_paths.len);
+        
+        for (file_paths, 0..) |file_path, i| {
+            const source = file_helpers.FileHelpers.readFileRequired(self.allocator, file_path) catch {
+                // Skip files that can't be read
+                continue;
+            };
+            defer self.allocator.free(source);
+            
+            file_states[i] = try self.analyzeFile(file_path, source);
+        }
+        
+        return file_states;
+    }
+    
+    /// Update dependency graph with analyzed file
+    pub fn updateWithFileState(self: *DependencyGraph, file_state: FileState) !void {
+        // Add dependencies to the graph
+        for (file_state.resolved_dependencies) |dependency| {
+            try self.addDependency(file_state.path, dependency);
+        }
+        
+        // Check for circular dependencies
+        try self.detectCircularDependencies(file_state.path);
+    }
+    
+    /// Detect circular dependencies starting from a file
+    fn detectCircularDependencies(self: *DependencyGraph, start_file: []const u8) !void {
+        var visited = std.HashMap([]const u8, void, std.hash_map.StringContext, 80).init(self.allocator);
+        defer visited.deinit();
+        
+        var path_stack = std.ArrayList([]const u8).init(self.allocator);
+        defer path_stack.deinit();
+        
+        try self.detectCircularDependenciesRecursive(start_file, &visited, &path_stack);
+    }
+    
+    fn detectCircularDependenciesRecursive(self: *DependencyGraph, file_path: []const u8, visited: *std.HashMap([]const u8, void, std.hash_map.StringContext, 80), path_stack: *std.ArrayList([]const u8)) !void {
+        // Check if we've seen this file in the current path
+        for (path_stack.items) |stack_file| {
+            if (std.mem.eql(u8, stack_file, file_path)) {
+                // Found circular dependency - record it
+                var circular_chain = try self.allocator.alloc([]const u8, path_stack.items.len + 1);
+                
+                for (path_stack.items, 0..) |stack_item, i| {
+                    circular_chain[i] = try self.allocator.dupe(u8, stack_item);
+                }
+                circular_chain[path_stack.items.len] = try self.allocator.dupe(u8, file_path);
+                
+                try self.circular_dependencies.append(circular_chain);
+                self.stats.circular_dependency_count += 1;
+                return;
+            }
+        }
+        
+        if (visited.contains(file_path)) return;
+        try visited.put(file_path, {});
+        try path_stack.append(file_path);
+        
+        // Check dependencies
+        if (self.dependencies.get(file_path)) |deps| {
+            for (deps.items) |dependency| {
+                try self.detectCircularDependenciesRecursive(dependency, visited, path_stack);
+            }
+        }
+        
+        _ = path_stack.pop();
+    }
+    
+    /// Calculate hash of import structure for change detection
+    fn calculateImportHash(self: *DependencyGraph, imports: []const ImportInfo) u64 {
+        _ = self;
+        var hasher = std.hash.XxHash64.init(0);
+        
+        for (imports) |import_info| {
+            hasher.update(import_info.import_path);
+            hasher.update(std.mem.asBytes(&import_info.import_type));
+            hasher.update(std.mem.asBytes(&import_info.line_number));
+            hasher.update(std.mem.asBytes(&import_info.is_dynamic));
+            hasher.update(std.mem.asBytes(&import_info.is_type_only));
+        }
+        
+        return hasher.final();
+    }
+    
+    /// Create deep copies of imports for file state
+    fn duplicateImports(self: *DependencyGraph, imports: []const ImportInfo) ![]ImportInfo {
+        var duplicated = try self.allocator.alloc(ImportInfo, imports.len);
+        
+        for (imports, 0..) |import_info, i| {
+            var symbols = try self.allocator.alloc(@import("import_extractor.zig").ImportedSymbol, import_info.symbols.len);
+            for (import_info.symbols, 0..) |symbol, j| {
+                symbols[j] = @import("import_extractor.zig").ImportedSymbol{
+                    .name = try self.allocator.dupe(u8, symbol.name),
+                    .alias = if (symbol.alias) |alias| try self.allocator.dupe(u8, alias) else null,
+                    .is_type = symbol.is_type,
+                    .line_number = symbol.line_number,
+                };
+            }
+            
+            duplicated[i] = ImportInfo{
+                .source_file = try self.allocator.dupe(u8, import_info.source_file),
+                .import_path = try self.allocator.dupe(u8, import_info.import_path),
+                .resolved_path = if (import_info.resolved_path) |path| try self.allocator.dupe(u8, path) else null,
+                .import_type = import_info.import_type,
+                .symbols = symbols,
+                .default_import = if (import_info.default_import) |default| try self.allocator.dupe(u8, default) else null,
+                .namespace_import = if (import_info.namespace_import) |namespace| try self.allocator.dupe(u8, namespace) else null,
+                .line_number = import_info.line_number,
+                .is_dynamic = import_info.is_dynamic,
+                .is_type_only = import_info.is_type_only,
+            };
+        }
+        
+        return duplicated;
+    }
+    
+    /// Create deep copies of exports for file state
+    fn duplicateExports(self: *DependencyGraph, exports: []const @import("import_extractor.zig").ExportInfo) ![]@import("import_extractor.zig").ExportInfo {
+        var duplicated = try self.allocator.alloc(@import("import_extractor.zig").ExportInfo, exports.len);
+        
+        for (exports, 0..) |export_info, i| {
+            var symbols = try self.allocator.alloc(@import("import_extractor.zig").ImportedSymbol, export_info.symbols.len);
+            for (export_info.symbols, 0..) |symbol, j| {
+                symbols[j] = @import("import_extractor.zig").ImportedSymbol{
+                    .name = try self.allocator.dupe(u8, symbol.name),
+                    .alias = if (symbol.alias) |alias| try self.allocator.dupe(u8, alias) else null,
+                    .is_type = symbol.is_type,
+                    .line_number = symbol.line_number,
+                };
+            }
+            
+            duplicated[i] = @import("import_extractor.zig").ExportInfo{
+                .source_file = try self.allocator.dupe(u8, export_info.source_file),
+                .export_path = if (export_info.export_path) |path| try self.allocator.dupe(u8, path) else null,
+                .symbols = symbols,
+                .is_default = export_info.is_default,
+                .is_namespace = export_info.is_namespace,
+                .line_number = export_info.line_number,
+            };
+        }
+        
+        return duplicated;
+    }
+    
+    /// Get dependency analysis statistics
+    pub fn getStats(self: *DependencyGraph) DependencyStats {
+        return self.stats;
+    }
+    
+    /// Check if there are circular dependencies
+    pub fn hasCircularDependencies(self: *DependencyGraph) bool {
+        return self.circular_dependencies.items.len > 0;
+    }
+    
+    /// Get all circular dependency chains
+    pub fn getCircularDependencies(self: *DependencyGraph) []const [][]const u8 {
+        return self.circular_dependencies.items;
     }
 };
 
@@ -211,10 +608,17 @@ pub const ChangeDetector = struct {
                     .hash = new_hash,
                     .mtime = new_mtime,
                     .size = new_size,
+                    .language = .unknown,
                     .ast_cache_key = null,
+                    .imports_detailed = &.{},
+                    .exports_detailed = &.{},
+                    .resolved_dependencies = &.{},
+                    .unresolved_dependencies = &.{},
+                    .dependents = &.{},
                     .imports = &.{},
                     .exports = &.{},
-                    .dependents = &.{},
+                    .import_hash = null,
+                    .last_import_analysis = 0,
                 },
             };
         }
@@ -256,10 +660,17 @@ pub const ChangeDetector = struct {
                 .hash = new_hash,
                 .mtime = new_mtime,
                 .size = new_size,
+                .language = .unknown,
                 .ast_cache_key = null, // Will be updated after parsing
-                .imports = &.{},       // Will be updated after analysis
-                .exports = &.{},       // Will be updated after analysis  
-                .dependents = &.{},    // Will be updated after analysis
+                .imports_detailed = &.{},      // Will be updated after analysis
+                .exports_detailed = &.{},      // Will be updated after analysis
+                .resolved_dependencies = &.{}, // Will be updated after analysis
+                .unresolved_dependencies = &.{}, // Will be updated after analysis
+                .dependents = &.{},            // Will be updated after analysis
+                .imports = &.{},               // Will be updated after analysis
+                .exports = &.{},               // Will be updated after analysis  
+                .import_hash = null,           // Will be updated after analysis
+                .last_import_analysis = 0,     // Will be updated after analysis
             },
         };
     }
@@ -277,7 +688,7 @@ pub const FileTracker = struct {
         return FileTracker{
             .allocator = allocator,
             .files = std.HashMap([]const u8, FileState, std.hash_map.StringContext, 80).init(allocator),
-            .dependency_graph = DependencyGraph.init(allocator),
+            .dependency_graph = DependencyGraph.init(allocator, ".") catch unreachable,
             .change_detector = ChangeDetector.init(allocator),
             .ast_cache = null,
         };
@@ -287,7 +698,7 @@ pub const FileTracker = struct {
         return FileTracker{
             .allocator = allocator,
             .files = std.HashMap([]const u8, FileState, std.hash_map.StringContext, 80).init(allocator),
-            .dependency_graph = DependencyGraph.init(allocator),
+            .dependency_graph = DependencyGraph.init(allocator, ".") catch unreachable,
             .change_detector = ChangeDetector.init(allocator),
             .ast_cache = ast_cache,
         };
@@ -426,7 +837,7 @@ pub const IncrementalState = struct {
     pub fn init(allocator: std.mem.Allocator) IncrementalState {
         return IncrementalState{
             .files = std.HashMap([]const u8, FileState, std.hash_map.StringContext, 80).init(allocator),
-            .dependency_graph = DependencyGraph.init(allocator),
+            .dependency_graph = DependencyGraph.init(allocator, ".") catch unreachable,
             .cache_version = 1,
             .last_run = @as(i64, @intCast(std.time.nanoTimestamp())),
         };
@@ -672,7 +1083,7 @@ test "dependency graph" {
     const testing = std.testing;
     const allocator = testing.allocator;
 
-    var graph = DependencyGraph.init(allocator);
+    var graph = DependencyGraph.init(allocator, ".") catch unreachable;
     defer graph.deinit();
 
     try graph.addDependency("a.zig", "b.zig");

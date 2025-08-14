@@ -2,6 +2,10 @@ const std = @import("std");
 const ts = @import("tree-sitter");
 const ExtractionFlags = @import("parser.zig").ExtractionFlags;
 const Language = @import("parser.zig").Language;
+const ImportExtractor = @import("import_extractor.zig").ImportExtractor;
+const ImportInfo = @import("import_extractor.zig").ImportInfo;
+const ExtractionResult = @import("import_extractor.zig").ExtractionResult;
+const collection_helpers = @import("collection_helpers.zig");
 
 // Language-specific tree-sitter grammars
 extern fn tree_sitter_zig() callconv(.C) *ts.Language;
@@ -63,6 +67,457 @@ pub const TreeSitterParser = struct {
         try self.walkAndExtract(root, source, flags, &result);
         
         return result.toOwnedSlice();
+    }
+    
+    /// Extract imports and exports from source using AST analysis
+    /// This provides a unified interface that leverages ImportExtractor but uses this parser
+    pub fn extractImports(self: *Self, file_path: []const u8, source: []const u8) !ExtractionResult {
+        var import_extractor = ImportExtractor.init(self.allocator);
+        
+        // Use the ImportExtractor but with our tree-sitter parser for enhanced accuracy
+        switch (self.language) {
+            .typescript, .javascript => return self.extractTypeScriptImports(file_path, source),
+            .zig => return self.extractZigImports(file_path, source),
+            .css => return self.extractCssImports(file_path, source),
+            .svelte => return self.extractSvelteImports(file_path, source),
+            else => return import_extractor.extract(file_path, source),
+        }
+    }
+    
+    /// Extract TypeScript/JavaScript imports using AST
+    fn extractTypeScriptImports(self: *Self, file_path: []const u8, source: []const u8) !ExtractionResult {
+        const tree = self.parse(source) catch {
+            // Fallback to text-based extraction if parsing fails
+            var import_extractor = ImportExtractor.init(self.allocator);
+            return import_extractor.extractTypeScriptFallback(file_path, source);
+        };
+        defer tree.destroy();
+        
+        var imports = collection_helpers.CollectionHelpers.ManagedArrayList(ImportInfo).init(self.allocator);
+        defer imports.deinit();
+        
+        var exports = collection_helpers.CollectionHelpers.ManagedArrayList(@import("import_extractor.zig").ExportInfo).init(self.allocator);
+        defer exports.deinit();
+        
+        // Walk AST to find import/export nodes
+        try self.walkForImports(tree.rootNode(), source, file_path, &imports, &exports);
+        
+        return ExtractionResult{
+            .imports = try imports.toOwnedSlice(),
+            .exports = try exports.toOwnedSlice(),
+        };
+    }
+    
+    /// Extract Zig imports using AST
+    fn extractZigImports(self: *Self, file_path: []const u8, source: []const u8) !ExtractionResult {
+        const tree = self.parse(source) catch {
+            // Fallback to text-based extraction if parsing fails
+            var import_extractor = ImportExtractor.init(self.allocator);
+            return import_extractor.extractZigFallback(file_path, source);
+        };
+        defer tree.destroy();
+        
+        var imports = collection_helpers.CollectionHelpers.ManagedArrayList(ImportInfo).init(self.allocator);
+        defer imports.deinit();
+        
+        // Zig doesn't have exports in the traditional sense
+        const exports = try self.allocator.alloc(@import("import_extractor.zig").ExportInfo, 0);
+        
+        try self.walkForZigImports(tree.rootNode(), source, file_path, &imports);
+        
+        return ExtractionResult{
+            .imports = try imports.toOwnedSlice(),
+            .exports = exports,
+        };
+    }
+    
+    /// Extract CSS imports using AST
+    fn extractCssImports(self: *Self, file_path: []const u8, source: []const u8) !ExtractionResult {
+        const tree = self.parse(source) catch {
+            return ExtractionResult{ .imports = &.{}, .exports = &.{} };
+        };
+        defer tree.destroy();
+        
+        var imports = collection_helpers.CollectionHelpers.ManagedArrayList(ImportInfo).init(self.allocator);
+        defer imports.deinit();
+        
+        try self.walkForCssImports(tree.rootNode(), source, file_path, &imports);
+        
+        return ExtractionResult{
+            .imports = try imports.toOwnedSlice(),
+            .exports = &.{},
+        };
+    }
+    
+    /// Extract Svelte imports using AST (section-aware)
+    fn extractSvelteImports(self: *Self, file_path: []const u8, source: []const u8) !ExtractionResult {
+        const tree = self.parse(source) catch {
+            // Fallback to text-based extraction if parsing fails
+            var import_extractor = ImportExtractor.init(self.allocator);
+            return import_extractor.extractSvelte(file_path, source);
+        };
+        defer tree.destroy();
+        
+        var all_imports = collection_helpers.CollectionHelpers.ManagedArrayList(ImportInfo).init(self.allocator);
+        defer all_imports.deinit();
+        
+        var all_exports = collection_helpers.CollectionHelpers.ManagedArrayList(@import("import_extractor.zig").ExportInfo).init(self.allocator);
+        defer all_exports.deinit();
+        
+        // Extract from script sections within Svelte
+        try self.walkForSvelteImports(tree.rootNode(), source, file_path, &all_imports, &all_exports);
+        
+        return ExtractionResult{
+            .imports = try all_imports.toOwnedSlice(),
+            .exports = try all_exports.toOwnedSlice(),
+        };
+    }
+    
+    // AST walking methods for import extraction
+    
+    fn walkForImports(self: *Self, node: ts.Node, source: []const u8, file_path: []const u8,
+                     imports: *collection_helpers.CollectionHelpers.ManagedArrayList(ImportInfo),
+                     exports: *collection_helpers.CollectionHelpers.ManagedArrayList(@import("import_extractor.zig").ExportInfo)) !void {
+        const node_type = node.kind();
+        
+        // Handle import statements
+        if (std.mem.eql(u8, node_type, "import_statement") or
+            std.mem.eql(u8, node_type, "import_declaration")) {
+            if (self.parseTypeScriptImportNode(node, source, file_path)) |import_info| {
+                try imports.append(import_info);
+            } else |_| {
+                // Ignore parse errors for individual imports
+            }
+        }
+        // Handle export statements
+        else if (std.mem.eql(u8, node_type, "export_statement") or
+                 std.mem.eql(u8, node_type, "export_declaration")) {
+            if (self.parseTypeScriptExportNode(node, source, file_path)) |export_info| {
+                try exports.append(export_info);
+            } else |_| {
+                // Ignore parse errors for individual exports
+            }
+        }
+        
+        // Recurse into children
+        const child_count = node.childCount();
+        var i: u32 = 0;
+        while (i < child_count) : (i += 1) {
+            if (node.child(i)) |child| {
+                try self.walkForImports(child, source, file_path, imports, exports);
+            }
+        }
+    }
+    
+    fn walkForZigImports(self: *Self, node: ts.Node, source: []const u8, file_path: []const u8,
+                        imports: *collection_helpers.CollectionHelpers.ManagedArrayList(ImportInfo)) !void {
+        const node_type = node.kind();
+        
+        // Look for @import calls in builtin function calls
+        if (std.mem.eql(u8, node_type, "builtin_call") or
+            std.mem.eql(u8, node_type, "function_call")) {
+            const text = self.getNodeText(node, source);
+            if (std.mem.indexOf(u8, text, "@import") != null) {
+                if (self.parseZigImportNode(node, source, file_path)) |import_info| {
+                    try imports.append(import_info);
+                } else |_| {
+                    // Ignore parse errors
+                }
+            }
+        }
+        
+        // Recurse into children
+        const child_count = node.childCount();
+        var i: u32 = 0;
+        while (i < child_count) : (i += 1) {
+            if (node.child(i)) |child| {
+                try self.walkForZigImports(child, source, file_path, imports);
+            }
+        }
+    }
+    
+    fn walkForCssImports(self: *Self, node: ts.Node, source: []const u8, file_path: []const u8,
+                        imports: *collection_helpers.CollectionHelpers.ManagedArrayList(ImportInfo)) !void {
+        const node_type = node.kind();
+        
+        // Look for @import at-rules
+        if (std.mem.eql(u8, node_type, "at_rule") or
+            std.mem.eql(u8, node_type, "import_statement")) {
+            const text = self.getNodeText(node, source);
+            if (std.mem.indexOf(u8, text, "@import") != null) {
+                if (self.parseCssImportNode(node, source, file_path)) |import_info| {
+                    try imports.append(import_info);
+                } else |_| {
+                    // Ignore parse errors
+                }
+            }
+        }
+        
+        // Recurse into children
+        const child_count = node.childCount();
+        var i: u32 = 0;
+        while (i < child_count) : (i += 1) {
+            if (node.child(i)) |child| {
+                try self.walkForCssImports(child, source, file_path, imports);
+            }
+        }
+    }
+    
+    fn walkForSvelteImports(self: *Self, node: ts.Node, source: []const u8, file_path: []const u8,
+                           imports: *collection_helpers.CollectionHelpers.ManagedArrayList(ImportInfo),
+                           exports: *collection_helpers.CollectionHelpers.ManagedArrayList(@import("import_extractor.zig").ExportInfo)) !void {
+        const node_type = node.kind();
+        
+        // Look for script elements and parse their content
+        if (std.mem.eql(u8, node_type, "script_element")) {
+            // Extract script content and parse as TypeScript
+            if (self.extractScriptContent(node, source)) |script_content| {
+                defer self.allocator.free(script_content);
+                
+                // Create a temporary TypeScript parser for script content
+                var ts_parser = TreeSitterParser.init(self.allocator, .typescript) catch return;
+                defer ts_parser.deinit();
+                
+                const script_result = ts_parser.extractTypeScriptImports(file_path, script_content) catch return;
+                defer script_result.deinit(self.allocator);
+                
+                try imports.appendSlice(script_result.imports);
+                try exports.appendSlice(script_result.exports);
+            }
+        }
+        
+        // Recurse into children for other content
+        const child_count = node.childCount();
+        var i: u32 = 0;
+        while (i < child_count) : (i += 1) {
+            if (node.child(i)) |child| {
+                try self.walkForSvelteImports(child, source, file_path, imports, exports);
+            }
+        }
+    }
+    
+    // Node parsing methods for specific import types
+    
+    fn parseTypeScriptImportNode(self: *Self, node: ts.Node, source: []const u8, file_path: []const u8) !ImportInfo {
+        const line_number = self.getLineNumber(node, source);
+        
+        // Extract import path from the import statement
+        const import_path = self.extractImportPathFromNode(node, source) catch return error.NoImportPath;
+        
+        var import_info = ImportInfo{
+            .source_file = try self.allocator.dupe(u8, file_path),
+            .import_path = import_path,
+            .resolved_path = null,
+            .import_type = .named_import, // Default, will be refined
+            .symbols = &.{},
+            .default_import = null,
+            .namespace_import = null,
+            .line_number = line_number,
+            .is_dynamic = false,
+            .is_type_only = false,
+        };
+        
+        // Analyze import clause for type and symbols
+        if (node.childByFieldName("import_clause")) |import_clause| {
+            try self.parseImportClause(import_clause, source, &import_info);
+        }
+        
+        return import_info;
+    }
+    
+    fn parseTypeScriptExportNode(self: *Self, node: ts.Node, source: []const u8, file_path: []const u8) !@import("import_extractor.zig").ExportInfo {
+        const line_number = self.getLineNumber(node, source);
+        const node_text = self.getNodeText(node, source);
+        
+        var export_info = @import("import_extractor.zig").ExportInfo{
+            .source_file = try self.allocator.dupe(u8, file_path),
+            .export_path = null,
+            .symbols = &.{},
+            .is_default = std.mem.indexOf(u8, node_text, "default") != null,
+            .is_namespace = std.mem.indexOf(u8, node_text, "* ") != null,
+            .line_number = line_number,
+        };
+        
+        // Extract re-export path if this is a re-export
+        if (std.mem.indexOf(u8, node_text, "from") != null) {
+            export_info.export_path = self.extractImportPathFromNode(node, source) catch null;
+        }
+        
+        return export_info;
+    }
+    
+    fn parseZigImportNode(self: *Self, node: ts.Node, source: []const u8, file_path: []const u8) !ImportInfo {
+        const node_text = self.getNodeText(node, source);
+        const line_number = self.getLineNumber(node, source);
+        
+        // Extract import path from @import("path")
+        const import_path = self.extractZigImportPath(node_text) catch return error.InvalidZigImport;
+        
+        return ImportInfo{
+            .source_file = try self.allocator.dupe(u8, file_path),
+            .import_path = import_path,
+            .resolved_path = null,
+            .import_type = .zig_import,
+            .symbols = &.{},
+            .default_import = null,
+            .namespace_import = null,
+            .line_number = line_number,
+            .is_dynamic = false,
+            .is_type_only = false,
+        };
+    }
+    
+    fn parseCssImportNode(self: *Self, node: ts.Node, source: []const u8, file_path: []const u8) !ImportInfo {
+        const node_text = self.getNodeText(node, source);
+        const line_number = self.getLineNumber(node, source);
+        
+        // Extract import path from @import url("path") or @import "path"
+        const import_path = self.extractCssImportPath(node_text) catch return error.InvalidCssImport;
+        
+        return ImportInfo{
+            .source_file = try self.allocator.dupe(u8, file_path),
+            .import_path = import_path,
+            .resolved_path = null,
+            .import_type = .side_effect_import,
+            .symbols = &.{},
+            .default_import = null,
+            .namespace_import = null,
+            .line_number = line_number,
+            .is_dynamic = false,
+            .is_type_only = false,
+        };
+    }
+    
+    // Utility methods for import parsing
+    
+    fn extractImportPathFromNode(self: *Self, node: ts.Node, source: []const u8) ![]const u8 {
+        // Look for string literal containing the import path
+        const child_count = node.childCount();
+        var i: u32 = 0;
+        while (i < child_count) : (i += 1) {
+            if (node.child(i)) |child| {
+                const child_type = child.kind();
+                if (std.mem.eql(u8, child_type, "string_literal") or
+                    std.mem.eql(u8, child_type, "string")) {
+                    const text = self.getNodeText(child, source);
+                    // Remove quotes
+                    if (text.len >= 2 and (text[0] == '"' or text[0] == '\'')) {
+                        return self.allocator.dupe(u8, text[1..text.len-1]);
+                    }
+                    return self.allocator.dupe(u8, text);
+                }
+                
+                // Recursively search in child nodes
+                if (self.extractImportPathFromNode(child, source)) |path| {
+                    return path;
+                } else |_| {
+                    // Continue searching
+                }
+            }
+        }
+        
+        return error.NoImportPath;
+    }
+    
+    fn extractZigImportPath(self: *Self, node_text: []const u8) ![]const u8 {
+        const start = std.mem.indexOf(u8, node_text, "\"");
+        const end = if (start) |_| std.mem.lastIndexOf(u8, node_text, "\"") else null;
+        
+        if (start == null or end == null or start.? >= end.?) {
+            return error.InvalidZigImport;
+        }
+        
+        const import_path = node_text[start.? + 1..end.?];
+        return self.allocator.dupe(u8, import_path);
+    }
+    
+    fn extractCssImportPath(self: *Self, node_text: []const u8) ![]const u8 {
+        // Parse @import url("path") or @import "path"
+        if (std.mem.indexOf(u8, node_text, "url(")) |url_start| {
+            const start = std.mem.indexOf(u8, node_text[url_start..], "\"");
+            const end = if (start) |s| std.mem.indexOf(u8, node_text[url_start + s + 1..], "\"") else null;
+            
+            if (start != null and end != null) {
+                const full_start = url_start + start.? + 1;
+                const full_end = full_start + end.?;
+                return self.allocator.dupe(u8, node_text[full_start..full_end]);
+            }
+        } else {
+            // Direct string import
+            const start = std.mem.indexOf(u8, node_text, "\"");
+            const end = if (start) |_| std.mem.lastIndexOf(u8, node_text, "\"") else null;
+            
+            if (start != null and end != null and start.? < end.?) {
+                return self.allocator.dupe(u8, node_text[start.? + 1..end.?]);
+            }
+        }
+        
+        return error.InvalidCssImport;
+    }
+    
+    fn parseImportClause(self: *Self, import_clause: ts.Node, source: []const u8, import_info: *ImportInfo) !void {
+        const clause_text = self.getNodeText(import_clause, source);
+        
+        // Check for type-only import
+        if (std.mem.indexOf(u8, clause_text, "type ") != null) {
+            import_info.is_type_only = true;
+        }
+        
+        // Determine import type based on clause content
+        if (std.mem.indexOf(u8, clause_text, "{") == null and std.mem.indexOf(u8, clause_text, "*") == null) {
+            // Default import
+            import_info.import_type = .default_import;
+            const trimmed = std.mem.trim(u8, clause_text, " \t\n");
+            if (trimmed.len > 0) {
+                import_info.default_import = try self.allocator.dupe(u8, trimmed);
+            }
+        } else if (std.mem.indexOf(u8, clause_text, "*") != null) {
+            // Namespace import
+            import_info.import_type = .namespace_import;
+            if (std.mem.indexOf(u8, clause_text, " as ")) |as_pos| {
+                const name_start = as_pos + 4;
+                const name = std.mem.trim(u8, clause_text[name_start..], " \t\n");
+                if (name.len > 0) {
+                    import_info.namespace_import = try self.allocator.dupe(u8, name);
+                }
+            }
+        } else {
+            // Named imports
+            import_info.import_type = .named_import;
+            // Note: Full symbol extraction would require more sophisticated parsing
+            // For now, we mark it as named import type
+        }
+    }
+    
+    fn extractScriptContent(self: *Self, script_node: ts.Node, source: []const u8) ?[]const u8 {
+        // Find text content within script tags
+        const child_count = script_node.childCount();
+        var i: u32 = 0;
+        while (i < child_count) : (i += 1) {
+            if (script_node.child(i)) |child| {
+                const child_type = child.kind();
+                if (std.mem.eql(u8, child_type, "raw_text") or
+                    std.mem.eql(u8, child_type, "text")) {
+                    const content = self.getNodeText(child, source);
+                    return self.allocator.dupe(u8, content) catch null;
+                }
+            }
+        }
+        return null;
+    }
+    
+    fn getLineNumber(self: *Self, node: ts.Node, source: []const u8) u32 {
+        _ = self;
+        const start_byte = node.startByte();
+        var line_number: u32 = 1;
+        
+        for (source[0..@min(start_byte, source.len)]) |char| {
+            if (char == '\n') {
+                line_number += 1;
+            }
+        }
+        
+        return line_number;
     }
     
     /// Walk AST and extract based on language and flags

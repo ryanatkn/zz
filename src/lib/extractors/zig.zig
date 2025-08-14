@@ -8,13 +8,13 @@ pub fn extract(source: []const u8, flags: ExtractionFlags, result: *std.ArrayLis
     var modified_flags = flags;
     const handle_imports = flags.imports;
     modified_flags.imports = false;
-    
+
     // Use base extractor with local Zig patterns
     const zig_functions = [_][]const u8{ "pub fn ", "fn ", "export fn ", "inline fn ", "test " };
     const zig_types = [_][]const u8{ "struct", "enum", "union", "error", "packed struct", "extern struct", "opaque" };
     const zig_docs = [_][]const u8{ "///", "//!" };
     const zig_imports = [_][]const u8{ "@import(", "const std = " };
-    
+
     var patterns = extractor_base.LanguagePatterns{
         .functions = &zig_functions,
         .types = &zig_types,
@@ -24,12 +24,12 @@ pub fn extract(source: []const u8, flags: ExtractionFlags, result: *std.ArrayLis
         .structure = null,
         .custom_extract = null,
     };
-    
+
     // Add custom extraction for @import
     if (handle_imports) {
         patterns.custom_extract = zigImportExtractor;
     }
-    
+
     try extractor_base.extractWithPatterns(source, modified_flags, result, patterns);
 }
 

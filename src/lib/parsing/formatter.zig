@@ -50,7 +50,7 @@ pub const Formatter = struct {
                 // Fall back to traditional formatters on AST failure
             }
         }
-        
+
         // Dispatch to language-specific formatter
         return switch (self.language) {
             .json => try self.formatJson(source),
@@ -62,7 +62,7 @@ pub const Formatter = struct {
             .unknown => FormatterError.UnsupportedLanguage,
         };
     }
-    
+
     /// Check if this language supports AST-based formatting
     fn supportsAstFormatting(self: *Self) bool {
         return switch (self.language) {
@@ -71,14 +71,14 @@ pub const Formatter = struct {
             .unknown => false,
         };
     }
-    
+
     /// AST-based formatting
     fn formatWithAst(self: *Self, source: []const u8) FormatterError![]const u8 {
         var ast_formatter = AstFormatter.init(self.allocator, self.language, self.options) catch {
             return FormatterError.FormattingFailed;
         };
         defer ast_formatter.deinit();
-        
+
         return ast_formatter.format(source) catch {
             return FormatterError.FormattingFailed;
         };
@@ -147,14 +147,14 @@ pub fn getIndentString(options: FormatterOptions) []const u8 {
 pub fn createIndent(allocator: std.mem.Allocator, level: u32, options: FormatterOptions) ![]const u8 {
     const indent_str = getIndentString(options);
     const total_len = indent_str.len * level;
-    
+
     var result = try allocator.alloc(u8, total_len);
     var i: u32 = 0;
     while (i < level) : (i += 1) {
         const start = i * indent_str.len;
-        @memcpy(result[start..start + indent_str.len], indent_str);
+        @memcpy(result[start .. start + indent_str.len], indent_str);
     }
-    
+
     return result;
 }
 

@@ -47,7 +47,6 @@ test "basic tree formatting" {
     // This test verifies the formatter structure exists and can be created
     _ = formatter;
     _ = file_entry;
-
 }
 
 // Test ignored directory formatting
@@ -75,7 +74,6 @@ test "ignored directory formatting" {
     try testing.expect(depth_limited_entry.is_depth_limited);
 
     _ = formatter;
-
 }
 
 // Test tree connector characters
@@ -94,7 +92,6 @@ test "tree connector characters" {
     try testing.expect(!std.mem.eql(u8, last_connector, non_last_connector));
 
     _ = formatter;
-
 }
 
 // Test entry name handling
@@ -120,7 +117,6 @@ test "entry name handling" {
     }
 
     _ = formatter;
-
 }
 
 // Test prefix handling
@@ -144,7 +140,6 @@ test "prefix handling" {
     }
 
     _ = formatter;
-
 }
 
 // Test color formatting for ignored entries
@@ -182,7 +177,6 @@ test "color formatting for ignored entries" {
     try testing.expect(!normal_dir.is_ignored and !normal_dir.is_depth_limited);
 
     _ = formatter;
-
 }
 
 // Test formatter consistency
@@ -207,7 +201,6 @@ test "formatter consistency" {
     _ = prefix;
 
     _ = formatter;
-
 }
 
 // Test edge cases
@@ -233,5 +226,4 @@ test "formatter edge cases" {
     }
 
     _ = formatter;
-
 }

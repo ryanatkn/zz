@@ -39,7 +39,6 @@ test "pattern matching edge cases" {
 
     // Test empty string
     try testing.expect(!filter.shouldIgnore(""));
-
 }
 
 // Test path-based pattern matching
@@ -73,7 +72,6 @@ test "path based pattern matching" {
     try testing.expect(!filter.shouldIgnoreAtPath("src/tree/test"));
     try testing.expect(!filter.shouldIgnoreAtPath("compiled"));
     try testing.expect(!filter.shouldIgnoreAtPath("deep/nested"));
-
 }
 
 // Test dot-directory behavior
@@ -162,7 +160,6 @@ test "case sensitivity" {
     try testing.expect(!filter.shouldIgnore("LOWERCASE"));
     try testing.expect(!filter.shouldIgnore("Lowercase"));
     try testing.expect(!filter.shouldHide("hiddenfile.tmp"));
-
 }
 
 // Test unicode and special characters
@@ -196,7 +193,6 @@ test "unicode and special characters" {
     // Test non-matches
     try testing.expect(!filter.shouldIgnore("файлы")); // Different unicode
     try testing.expect(!filter.shouldIgnore("special"));
-
 }
 
 // Test empty configuration
@@ -221,7 +217,6 @@ test "empty configuration" {
     try testing.expect(!filter.shouldIgnore("anything_else"));
     try testing.expect(!filter.shouldIgnore("node_modules"));
     try testing.expect(!filter.shouldHide("Thumbs.db"));
-
 }
 
 // Test path traversal attack patterns
@@ -249,7 +244,6 @@ test "path traversal security" {
     // But allow normal paths with .. in the name
     try testing.expect(!filter.shouldIgnore("file..txt"));
     try testing.expect(!filter.shouldIgnore("my..config"));
-
 }
 
 // Test extremely long filenames
@@ -278,7 +272,6 @@ test "long filename handling" {
     try testing.expect(filter.shouldIgnore(&long_pattern));
     // Should not match longer pattern
     try testing.expect(!filter.shouldIgnore(&longer_filename));
-
 }
 
 // Performance test with many patterns
@@ -348,5 +341,4 @@ test "performance with many patterns" {
     for (hidden_files.items) |hidden| {
         testing.allocator.free(hidden);
     }
-
 }

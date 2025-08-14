@@ -268,7 +268,7 @@ pub const GlobExpander = struct {
             try results.append(try self.allocator.dupe(u8, "*.txt"));
             return results;
         }
-        
+
         var results = std.ArrayList([]u8).init(self.allocator);
         errdefer {
             for (results.items) |item| {

@@ -13,7 +13,7 @@ fn expectConfigHasPattern(config: Config, pattern: []const u8) !void {
     try testing.expect(false); // Pattern not found
 }
 
-// Test configuration loading and fallback behavior  
+// Test configuration loading and fallback behavior
 test "configuration loading with missing file" {
     // Use simple call + defer pattern
     var ctx = test_helpers.MockTestContext.init(testing.allocator);
@@ -101,7 +101,6 @@ test "configuration memory management" {
         // Verify config is valid each time
         try testing.expect(config.shared_config.ignored_patterns.len > 0);
     }
-
 }
 
 // Test ZON file custom patterns loading
@@ -163,7 +162,6 @@ test "ZON file custom patterns are loaded correctly" {
         if (std.mem.eql(u8, pattern, "custom.hidden")) found_custom_hidden = true;
     }
     try std.testing.expect(found_custom_hidden);
-
 }
 
 // Test edge case command line arguments
@@ -187,5 +185,4 @@ test "edge case command line arguments" {
     var config_zero = try Config.fromArgs(testing.allocator, ctx.filesystem, @constCast(args_zero[0..]));
     defer config_zero.deinit(testing.allocator);
     try testing.expect(config_zero.max_depth.? == 0);
-
 }

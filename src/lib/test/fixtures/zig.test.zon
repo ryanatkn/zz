@@ -3,259 +3,259 @@
     .parser_tests = .{
         .{
             .name = "functions_and_structs",
-            .source = 
-                \\const std = @import("std");
-                \\const testing = std.testing;
-                \\
-                \\pub const User = struct {
-                \\    id: u32,
-                \\    name: []const u8,
-                \\    email: ?[]const u8 = null,
-                \\    
-                \\    pub fn init(id: u32, name: []const u8) User {
-                \\        return User{
-                \\            .id = id,
-                \\            .name = name,
-                \\        };
-                \\    }
-                \\    
-                \\    pub fn deinit(self: *User, allocator: std.mem.Allocator) void {
-                \\        if (self.email) |email| {
-                \\            allocator.free(email);
-                \\        }
-                \\    }
-                \\};
-                \\
-                \\fn createUser(allocator: std.mem.Allocator, name: []const u8) !User {
-                \\    const user = User.init(1, name);
-                \\    return user;
-                \\}
+            .source =
+            \\const std = @import("std");
+            \\const testing = std.testing;
+            \\
+            \\pub const User = struct {
+            \\    id: u32,
+            \\    name: []const u8,
+            \\    email: ?[]const u8 = null,
+            \\    
+            \\    pub fn init(id: u32, name: []const u8) User {
+            \\        return User{
+            \\            .id = id,
+            \\            .name = name,
+            \\        };
+            \\    }
+            \\    
+            \\    pub fn deinit(self: *User, allocator: std.mem.Allocator) void {
+            \\        if (self.email) |email| {
+            \\            allocator.free(email);
+            \\        }
+            \\    }
+            \\};
+            \\
+            \\fn createUser(allocator: std.mem.Allocator, name: []const u8) !User {
+            \\    const user = User.init(1, name);
+            \\    return user;
+            \\}
             ,
             .extraction_tests = .{
                 .{
                     .flags = .{ .full = true },
-                    .expected = 
-                        \\const std = @import("std");
-                        \\const testing = std.testing;
-                        \\
-                        \\pub const User = struct {
-                        \\    id: u32,
-                        \\    name: []const u8,
-                        \\    email: ?[]const u8 = null,
-                        \\    
-                        \\    pub fn init(id: u32, name: []const u8) User {
-                        \\        return User{
-                        \\            .id = id,
-                        \\            .name = name,
-                        \\        };
-                        \\    }
-                        \\    
-                        \\    pub fn deinit(self: *User, allocator: std.mem.Allocator) void {
-                        \\        if (self.email) |email| {
-                        \\            allocator.free(email);
-                        \\        }
-                        \\    }
-                        \\};
-                        \\
-                        \\fn createUser(allocator: std.mem.Allocator, name: []const u8) !User {
-                        \\    const user = User.init(1, name);
-                        \\    return user;
-                        \\}
+                    .expected =
+                    \\const std = @import("std");
+                    \\const testing = std.testing;
+                    \\
+                    \\pub const User = struct {
+                    \\    id: u32,
+                    \\    name: []const u8,
+                    \\    email: ?[]const u8 = null,
+                    \\    
+                    \\    pub fn init(id: u32, name: []const u8) User {
+                    \\        return User{
+                    \\            .id = id,
+                    \\            .name = name,
+                    \\        };
+                    \\    }
+                    \\    
+                    \\    pub fn deinit(self: *User, allocator: std.mem.Allocator) void {
+                    \\        if (self.email) |email| {
+                    \\            allocator.free(email);
+                    \\        }
+                    \\    }
+                    \\};
+                    \\
+                    \\fn createUser(allocator: std.mem.Allocator, name: []const u8) !User {
+                    \\    const user = User.init(1, name);
+                    \\    return user;
+                    \\}
                     ,
                 },
                 .{
                     .flags = .{ .signatures = true },
-                    .expected = 
-                        \\pub fn init(id: u32, name: []const u8) User
-                        \\pub fn deinit(self: *User, allocator: std.mem.Allocator) void
-                        \\fn createUser(allocator: std.mem.Allocator, name: []const u8) !User
+                    .expected =
+                    \\pub fn init(id: u32, name: []const u8) User
+                    \\pub fn deinit(self: *User, allocator: std.mem.Allocator) void
+                    \\fn createUser(allocator: std.mem.Allocator, name: []const u8) !User
                     ,
                 },
                 .{
                     .flags = .{ .types = true },
-                    .expected = 
-                        \\pub const User = struct {
-                        \\    id: u32,
-                        \\    name: []const u8,
-                        \\    email: ?[]const u8 = null,
-                        \\};
+                    .expected =
+                    \\pub const User = struct {
+                    \\    id: u32,
+                    \\    name: []const u8,
+                    \\    email: ?[]const u8 = null,
+                    \\};
                     ,
                 },
                 .{
                     .flags = .{ .imports = true },
-                    .expected = 
-                        \\const std = @import("std");
-                        \\const testing = std.testing;
+                    .expected =
+                    \\const std = @import("std");
+                    \\const testing = std.testing;
                     ,
                 },
             },
         },
         .{
             .name = "enums_and_unions",
-            .source = 
-                \\const Status = enum {
-                \\    pending,
-                \\    processing,
-                \\    completed,
-                \\    failed,
-                \\    
-                \\    pub fn toString(self: Status) []const u8 {
-                \\        return switch (self) {
-                \\            .pending => "pending",
-                \\            .processing => "processing", 
-                \\            .completed => "completed",
-                \\            .failed => "failed",
-                \\        };
-                \\    }
-                \\};
-                \\
-                \\const Result = union(enum) {
-                \\    success: []const u8,
-                \\    error_code: u32,
-                \\    
-                \\    pub fn isSuccess(self: Result) bool {
-                \\        return switch (self) {
-                \\            .success => true,
-                \\            .error_code => false,
-                \\        };
-                \\    }
-                \\};
+            .source =
+            \\const Status = enum {
+            \\    pending,
+            \\    processing,
+            \\    completed,
+            \\    failed,
+            \\    
+            \\    pub fn toString(self: Status) []const u8 {
+            \\        return switch (self) {
+            \\            .pending => "pending",
+            \\            .processing => "processing", 
+            \\            .completed => "completed",
+            \\            .failed => "failed",
+            \\        };
+            \\    }
+            \\};
+            \\
+            \\const Result = union(enum) {
+            \\    success: []const u8,
+            \\    error_code: u32,
+            \\    
+            \\    pub fn isSuccess(self: Result) bool {
+            \\        return switch (self) {
+            \\            .success => true,
+            \\            .error_code => false,
+            \\        };
+            \\    }
+            \\};
             ,
             .extraction_tests = .{
                 .{
                     .flags = .{ .types = true },
-                    .expected = 
-                        \\const Status = enum {
-                        \\    pending,
-                        \\    processing,
-                        \\    completed,
-                        \\    failed,
-                        \\};
-                        \\const Result = union(enum) {
-                        \\    success: []const u8,
-                        \\    error_code: u32,
-                        \\};
+                    .expected =
+                    \\const Status = enum {
+                    \\    pending,
+                    \\    processing,
+                    \\    completed,
+                    \\    failed,
+                    \\};
+                    \\const Result = union(enum) {
+                    \\    success: []const u8,
+                    \\    error_code: u32,
+                    \\};
                     ,
                 },
                 .{
                     .flags = .{ .signatures = true },
-                    .expected = 
-                        \\pub fn toString(self: Status) []const u8
-                        \\pub fn isSuccess(self: Result) bool
+                    .expected =
+                    \\pub fn toString(self: Status) []const u8
+                    \\pub fn isSuccess(self: Result) bool
                     ,
                 },
             },
         },
         .{
             .name = "tests_and_comptime",
-            .source = 
-                \\const expect = @import("std").testing.expect;
-                \\
-                \\fn fibonacci(n: u32) u32 {
-                \\    if (n <= 1) return n;
-                \\    return fibonacci(n - 1) + fibonacci(n - 2);
-                \\}
-                \\
-                \\test "fibonacci calculation" {
-                \\    try expect(fibonacci(0) == 0);
-                \\    try expect(fibonacci(1) == 1);
-                \\    try expect(fibonacci(5) == 5);
-                \\    try expect(fibonacci(10) == 55);
-                \\}
-                \\
-                \\test "fibonacci performance" {
-                \\    const start = std.time.nanoTimestamp();
-                \\    const result = fibonacci(20);
-                \\    const end = std.time.nanoTimestamp();
-                \\    
-                \\    try expect(result == 6765);
-                \\    try expect(end - start < 1000000); // Less than 1ms
-                \\}
-                \\
-                \\fn genericMax(comptime T: type, a: T, b: T) T {
-                \\    return if (a > b) a else b;
-                \\}
-                \\
-                \\comptime {
-                \\    const result = genericMax(u32, 10, 20);
-                \\    @compileLog("Max result:", result);
-                \\}
+            .source =
+            \\const expect = @import("std").testing.expect;
+            \\
+            \\fn fibonacci(n: u32) u32 {
+            \\    if (n <= 1) return n;
+            \\    return fibonacci(n - 1) + fibonacci(n - 2);
+            \\}
+            \\
+            \\test "fibonacci calculation" {
+            \\    try expect(fibonacci(0) == 0);
+            \\    try expect(fibonacci(1) == 1);
+            \\    try expect(fibonacci(5) == 5);
+            \\    try expect(fibonacci(10) == 55);
+            \\}
+            \\
+            \\test "fibonacci performance" {
+            \\    const start = std.time.nanoTimestamp();
+            \\    const result = fibonacci(20);
+            \\    const end = std.time.nanoTimestamp();
+            \\    
+            \\    try expect(result == 6765);
+            \\    try expect(end - start < 1000000); // Less than 1ms
+            \\}
+            \\
+            \\fn genericMax(comptime T: type, a: T, b: T) T {
+            \\    return if (a > b) a else b;
+            \\}
+            \\
+            \\comptime {
+            \\    const result = genericMax(u32, 10, 20);
+            \\    @compileLog("Max result:", result);
+            \\}
             ,
             .extraction_tests = .{
                 .{
                     .flags = .{ .tests = true },
-                    .expected = 
-                        \\test "fibonacci calculation" {
-                        \\    try expect(fibonacci(0) == 0);
-                        \\    try expect(fibonacci(1) == 1);
-                        \\    try expect(fibonacci(5) == 5);
-                        \\    try expect(fibonacci(10) == 55);
-                        \\}
-                        \\test "fibonacci performance" {
-                        \\    const start = std.time.nanoTimestamp();
-                        \\    const result = fibonacci(20);
-                        \\    const end = std.time.nanoTimestamp();
-                        \\    try expect(result == 6765);
-                        \\    try expect(end - start < 1000000); // Less than 1ms
-                        \\}
+                    .expected =
+                    \\test "fibonacci calculation" {
+                    \\    try expect(fibonacci(0) == 0);
+                    \\    try expect(fibonacci(1) == 1);
+                    \\    try expect(fibonacci(5) == 5);
+                    \\    try expect(fibonacci(10) == 55);
+                    \\}
+                    \\test "fibonacci performance" {
+                    \\    const start = std.time.nanoTimestamp();
+                    \\    const result = fibonacci(20);
+                    \\    const end = std.time.nanoTimestamp();
+                    \\    try expect(result == 6765);
+                    \\    try expect(end - start < 1000000); // Less than 1ms
+                    \\}
                     ,
                 },
                 .{
                     .flags = .{ .signatures = true },
-                    .expected = 
-                        \\fn fibonacci(n: u32) u32
-                        \\fn genericMax(comptime T: type, a: T, b: T) T
+                    .expected =
+                    \\fn fibonacci(n: u32) u32
+                    \\fn genericMax(comptime T: type, a: T, b: T) T
                     ,
                 },
             },
         },
         .{
             .name = "error_handling",
-            .source = 
-                \\const Error = error{
-                \\    InvalidInput,
-                \\    OutOfMemory,
-                \\    NetworkError,
-                \\};
-                \\
-                \\fn parseNumber(input: []const u8) Error!u32 {
-                \\    if (input.len == 0) return Error.InvalidInput;
-                \\    
-                \\    return std.fmt.parseInt(u32, input, 10) catch |err| switch (err) {
-                \\        error.InvalidCharacter => Error.InvalidInput,
-                \\        error.Overflow => Error.InvalidInput,
-                \\    };
-                \\}
-                \\
-                \\fn processData(allocator: std.mem.Allocator, data: []const u8) ![]u32 {
-                \\    var result = std.ArrayList(u32).init(allocator);
-                \\    defer result.deinit();
-                \\    
-                \\    var lines = std.mem.split(u8, data, "\n");
-                \\    while (lines.next()) |line| {
-                \\        const number = parseNumber(line) catch continue;
-                \\        try result.append(number);
-                \\    }
-                \\    
-                \\    return result.toOwnedSlice();
-                \\}
+            .source =
+            \\const Error = error{
+            \\    InvalidInput,
+            \\    OutOfMemory,
+            \\    NetworkError,
+            \\};
+            \\
+            \\fn parseNumber(input: []const u8) Error!u32 {
+            \\    if (input.len == 0) return Error.InvalidInput;
+            \\    
+            \\    return std.fmt.parseInt(u32, input, 10) catch |err| switch (err) {
+            \\        error.InvalidCharacter => Error.InvalidInput,
+            \\        error.Overflow => Error.InvalidInput,
+            \\    };
+            \\}
+            \\
+            \\fn processData(allocator: std.mem.Allocator, data: []const u8) ![]u32 {
+            \\    var result = std.ArrayList(u32).init(allocator);
+            \\    defer result.deinit();
+            \\    
+            \\    var lines = std.mem.split(u8, data, "\n");
+            \\    while (lines.next()) |line| {
+            \\        const number = parseNumber(line) catch continue;
+            \\        try result.append(number);
+            \\    }
+            \\    
+            \\    return result.toOwnedSlice();
+            \\}
             ,
             .extraction_tests = .{
                 .{
                     .flags = .{ .errors = true },
-                    .expected = 
-                        \\const Error = error{
-                        \\    InvalidInput,
-                        \\    OutOfMemory,
-                        \\    NetworkError,
-                        \\};
-                        \\fn parseNumber(input: []const u8) Error!u32 {
-                        \\    return std.fmt.parseInt(u32, input, 10) catch |err| switch (err) {
-                        \\        error.InvalidCharacter => Error.InvalidInput,
-                        \\        error.Overflow => Error.InvalidInput,
-                        \\    };
-                        \\}
-                        \\    const number = parseNumber(line) catch continue;
+                    .expected =
+                    \\const Error = error{
+                    \\    InvalidInput,
+                    \\    OutOfMemory,
+                    \\    NetworkError,
+                    \\};
+                    \\fn parseNumber(input: []const u8) Error!u32 {
+                    \\    return std.fmt.parseInt(u32, input, 10) catch |err| switch (err) {
+                    \\        error.InvalidCharacter => Error.InvalidInput,
+                    \\        error.Overflow => Error.InvalidInput,
+                    \\    };
+                    \\}
+                    \\    const number = parseNumber(line) catch continue;
                     ,
                 },
             },
@@ -264,15 +264,15 @@
     .formatter_tests = .{
         .{
             .name = "basic_zig_formatting",
-            .source = 
-                \\const std=@import("std");pub fn main()void{std.debug.print("Hello, World!\n",.{});}
+            .source =
+            \\const std=@import("std");pub fn main()void{std.debug.print("Hello, World!\n",.{});}
             ,
-            .expected = 
-                \\const std = @import("std");
-                \\
-                \\pub fn main() void {
-                \\    std.debug.print("Hello, World!\n", .{});
-                \\}
+            .expected =
+            \\const std = @import("std");
+            \\
+            \\pub fn main() void {
+            \\    std.debug.print("Hello, World!\n", .{});
+            \\}
             ,
             .options = .{
                 .indent_size = 4,
@@ -281,27 +281,27 @@
         },
         .{
             .name = "struct_formatting",
-            .source = 
-                \\const Point=struct{x:f32,y:f32,pub fn init(x:f32,y:f32)Point{return Point{.x=x,.y=y};}pub fn distance(self:Point,other:Point)f32{const dx=self.x-other.x;const dy=self.y-other.y;return@sqrt(dx*dx+dy*dy);}};
+            .source =
+            \\const Point=struct{x:f32,y:f32,pub fn init(x:f32,y:f32)Point{return Point{.x=x,.y=y};}pub fn distance(self:Point,other:Point)f32{const dx=self.x-other.x;const dy=self.y-other.y;return@sqrt(dx*dx+dy*dy);}};
             ,
-            .expected = 
-                \\const Point = struct {
-                \\    x: f32,
-                \\    y: f32,
-                \\
-                \\    pub fn init(x: f32, y: f32) Point {
-                \\        return Point{
-                \\            .x = x,
-                \\            .y = y,
-                \\        };
-                \\    }
-                \\
-                \\    pub fn distance(self: Point, other: Point) f32 {
-                \\        const dx = self.x - other.x;
-                \\        const dy = self.y - other.y;
-                \\        return @sqrt(dx * dx + dy * dy);
-                \\    }
-                \\};
+            .expected =
+            \\const Point = struct {
+            \\    x: f32,
+            \\    y: f32,
+            \\
+            \\    pub fn init(x: f32, y: f32) Point {
+            \\        return Point{
+            \\            .x = x,
+            \\            .y = y,
+            \\        };
+            \\    }
+            \\
+            \\    pub fn distance(self: Point, other: Point) f32 {
+            \\        const dx = self.x - other.x;
+            \\        const dy = self.y - other.y;
+            \\        return @sqrt(dx * dx + dy * dy);
+            \\    }
+            \\};
             ,
             .options = .{
                 .indent_size = 4,
@@ -310,43 +310,43 @@
         },
         .{
             .name = "test_formatting",
-            .source = 
-                \\test"addition test"{const expect=@import("std").testing.expect;try expect(2+2==4);try expect(10-5==5);}
+            .source =
+            \\test"addition test"{const expect=@import("std").testing.expect;try expect(2+2==4);try expect(10-5==5);}
             ,
-            .expected = 
-                \\test "addition test" {
-                \\    const expect = @import("std").testing.expect;
-                \\    try expect(2 + 2 == 4);
-                \\    try expect(10 - 5 == 5);
-                \\}
+            .expected =
+            \\test "addition test" {
+            \\    const expect = @import("std").testing.expect;
+            \\    try expect(2 + 2 == 4);
+            \\    try expect(10 - 5 == 5);
+            \\}
             ,
             .options = .{},
         },
         .{
             .name = "enum_union_formatting",
-            .source = 
-                \\const Color=enum{red,green,blue,pub fn toString(self:Color)[]const u8{return switch(self){.red=>"red",.green=>"green",.blue=>"blue",};}};const Value=union(enum){int:i32,float:f64,string:[]const u8,};
+            .source =
+            \\const Color=enum{red,green,blue,pub fn toString(self:Color)[]const u8{return switch(self){.red=>"red",.green=>"green",.blue=>"blue",};}};const Value=union(enum){int:i32,float:f64,string:[]const u8,};
             ,
-            .expected = 
-                \\const Color = enum {
-                \\    red,
-                \\    green,
-                \\    blue,
-                \\
-                \\    pub fn toString(self: Color) []const u8 {
-                \\        return switch (self) {
-                \\            .red => "red",
-                \\            .green => "green",
-                \\            .blue => "blue",
-                \\        };
-                \\    }
-                \\};
-                \\
-                \\const Value = union(enum) {
-                \\    int: i32,
-                \\    float: f64,
-                \\    string: []const u8,
-                \\};
+            .expected =
+            \\const Color = enum {
+            \\    red,
+            \\    green,
+            \\    blue,
+            \\
+            \\    pub fn toString(self: Color) []const u8 {
+            \\        return switch (self) {
+            \\            .red => "red",
+            \\            .green => "green",
+            \\            .blue => "blue",
+            \\        };
+            \\    }
+            \\};
+            \\
+            \\const Value = union(enum) {
+            \\    int: i32,
+            \\    float: f64,
+            \\    string: []const u8,
+            \\};
             ,
             .options = .{
                 .indent_size = 4,
@@ -354,19 +354,19 @@
         },
         .{
             .name = "multiline_function_params",
-            .source = 
-                \\fn processUserData(allocator:std.mem.Allocator,user_id:u32,name:[]const u8,email:?[]const u8,options:ProcessOptions)!ProcessResult{return ProcessResult{};}
+            .source =
+            \\fn processUserData(allocator:std.mem.Allocator,user_id:u32,name:[]const u8,email:?[]const u8,options:ProcessOptions)!ProcessResult{return ProcessResult{};}
             ,
-            .expected = 
-                \\fn processUserData(
-                \\    allocator: std.mem.Allocator,
-                \\    user_id: u32,
-                \\    name: []const u8,
-                \\    email: ?[]const u8,
-                \\    options: ProcessOptions,
-                \\) !ProcessResult {
-                \\    return ProcessResult{};
-                \\}
+            .expected =
+            \\fn processUserData(
+            \\    allocator: std.mem.Allocator,
+            \\    user_id: u32,
+            \\    name: []const u8,
+            \\    email: ?[]const u8,
+            \\    options: ProcessOptions,
+            \\) !ProcessResult {
+            \\    return ProcessResult{};
+            \\}
             ,
             .options = .{
                 .line_width = 50,
@@ -375,23 +375,23 @@
         },
         .{
             .name = "comptime_and_generics",
-            .source = 
-                \\fn ArrayList(comptime T:type)type{return struct{items:[]T,allocator:std.mem.Allocator,pub fn init(allocator:std.mem.Allocator)@This(){return @This(){.items=&[_]T{},.allocator=allocator,};};}
+            .source =
+            \\fn ArrayList(comptime T:type)type{return struct{items:[]T,allocator:std.mem.Allocator,pub fn init(allocator:std.mem.Allocator)@This(){return @This(){.items=&[_]T{},.allocator=allocator,};};}
             ,
-            .expected = 
-                \\fn ArrayList(comptime T: type) type {
-                \\    return struct {
-                \\        items: []T,
-                \\        allocator: std.mem.Allocator,
-                \\
-                \\        pub fn init(allocator: std.mem.Allocator) @This() {
-                \\            return @This(){
-                \\                .items = &[_]T{},
-                \\                .allocator = allocator,
-                \\            };
-                \\        }
-                \\    };
-                \\}
+            .expected =
+            \\fn ArrayList(comptime T: type) type {
+            \\    return struct {
+            \\        items: []T,
+            \\        allocator: std.mem.Allocator,
+            \\
+            \\        pub fn init(allocator: std.mem.Allocator) @This() {
+            \\            return @This(){
+            \\                .items = &[_]T{},
+            \\                .allocator = allocator,
+            \\            };
+            \\        }
+            \\    };
+            \\}
             ,
             .options = .{
                 .indent_size = 4,

@@ -10,7 +10,7 @@
 // });
 //
 // pub const ts_typescript = @cImport({
-//     @cInclude("tree-sitter-typescript.h");  
+//     @cInclude("tree-sitter-typescript.h");
 // });
 //
 // pub const ts_rust = @cImport({

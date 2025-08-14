@@ -133,7 +133,7 @@ pub const Config = struct {
             "--no-gitignore                Disable .gitignore parsing",
             "--help, -h                    Show this help message",
         };
-        
+
         Args.printUsage(stderr, command, "Show directory tree with configurable filtering", &options) catch {};
     }
 

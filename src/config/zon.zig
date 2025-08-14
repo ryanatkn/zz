@@ -236,17 +236,16 @@ pub const ZonLoader = struct {
     }
 
     pub fn getFormatConfig(self: *Self) !FormatConfigOptions {
-        
         try self.loadFromFile(DEFAULT_CONFIG_FILENAME);
         const config = if (self.config) |*managed| managed.get() else ZonConfig{};
-        
+
         var options = FormatConfigOptions{};
-        
+
         if (config.format) |format_section| {
             if (format_section.indent_size) |size| {
                 options.indent_size = size;
             }
-            
+
             if (format_section.indent_style) |style_str| {
                 if (std.mem.eql(u8, style_str, "tab")) {
                     options.indent_style = .tab;
@@ -254,23 +253,23 @@ pub const ZonLoader = struct {
                     options.indent_style = .space;
                 }
             }
-            
+
             if (format_section.line_width) |width| {
                 options.line_width = width;
             }
-            
+
             if (format_section.preserve_newlines) |preserve| {
                 options.preserve_newlines = preserve;
             }
-            
+
             if (format_section.trailing_comma) |trailing| {
                 options.trailing_comma = trailing;
             }
-            
+
             if (format_section.sort_keys) |sort| {
                 options.sort_keys = sort;
             }
-            
+
             if (format_section.quote_style) |quote_str| {
                 if (std.mem.eql(u8, quote_str, "single")) {
                     options.quote_style = .single;
@@ -280,12 +279,12 @@ pub const ZonLoader = struct {
                     options.quote_style = .preserve;
                 }
             }
-            
+
             if (format_section.use_ast) |use_ast| {
                 options.use_ast = use_ast;
             }
         }
-        
+
         return options;
     }
 

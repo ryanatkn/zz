@@ -33,7 +33,6 @@ test "path builder buildPath functionality" {
     const result3 = try path_builder.buildPath("src/tree", "config.zig");
     defer testing.allocator.free(result3);
     try testing.expectEqualStrings("src/tree/config.zig", result3);
-
 }
 
 test "path builder tree prefix functionality" {
@@ -56,7 +55,6 @@ test "path builder tree prefix functionality" {
     const result3 = try path_builder.buildTreePrefix("│   ", true);
     defer testing.allocator.free(result3);
     try testing.expectEqualStrings("│       ", result3);
-
 }
 
 test "path builder basename functionality" {
@@ -71,5 +69,4 @@ test "path builder basename functionality" {
     try testing.expectEqualStrings("file.txt", builder.basename("file.txt"));
     try testing.expectEqualStrings("dir", builder.basename("path/to/dir"));
     try testing.expectEqualStrings(".", builder.basename("."));
-
 }

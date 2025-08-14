@@ -10,7 +10,7 @@ pub fn format(allocator: std.mem.Allocator, source: []const u8, options: Formatt
         return allocator.dupe(u8, source);
     };
     defer ast_formatter.deinit();
-    
+
     return ast_formatter.format(source) catch {
         // If AST formatting fails, return source as-is
         return allocator.dupe(u8, source);

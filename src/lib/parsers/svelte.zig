@@ -10,14 +10,14 @@ pub fn extractSimple(source: []const u8, flags: ExtractionFlags, result: *std.Ar
         try result.appendSlice(source);
         return;
     }
-    
+
     var lines = std.mem.tokenizeScalar(u8, source, '\n');
     var in_script = false;
     var in_style = false;
-    
+
     while (lines.next()) |line| {
         const trimmed = std.mem.trim(u8, line, " \t");
-        
+
         // Track script and style sections
         if (std.mem.startsWith(u8, trimmed, "<script")) {
             in_script = true;
@@ -51,7 +51,7 @@ pub fn extractSimple(source: []const u8, flags: ExtractionFlags, result: *std.Ar
             }
             continue;
         }
-        
+
         if (in_script) {
             // TypeScript/JavaScript extraction within script tags
             if (flags.signatures or flags.types) {
@@ -61,12 +61,13 @@ pub fn extractSimple(source: []const u8, flags: ExtractionFlags, result: *std.Ar
                     std.mem.startsWith(u8, trimmed, "let ") or
                     std.mem.startsWith(u8, trimmed, "interface ") or
                     std.mem.startsWith(u8, trimmed, "type ") or
-                    std.mem.indexOf(u8, trimmed, " => ") != null) {
+                    std.mem.indexOf(u8, trimmed, " => ") != null)
+                {
                     try result.appendSlice(line);
                     try result.append('\n');
                 }
             }
-            
+
             if (flags.imports) {
                 if (std.mem.startsWith(u8, trimmed, "import ")) {
                     try result.appendSlice(line);
@@ -87,7 +88,7 @@ pub fn extractSimple(source: []const u8, flags: ExtractionFlags, result: *std.Ar
                     try result.append('\n');
                 }
             }
-            
+
             if (flags.docs) {
                 if (std.mem.startsWith(u8, trimmed, "<!--")) {
                     try result.appendSlice(line);
@@ -107,7 +108,7 @@ pub fn walkNode(allocator: std.mem.Allocator, root: *const AstNode, source: []co
         .source = source,
         .current_section = .template, // Start in template section
     };
-    
+
     // Svelte-specific extraction using visitor pattern
     var visitor = NodeVisitor.init(allocator, svelteExtractionVisitor, &extraction_context);
     try visitor.traverse(root, source);
@@ -130,10 +131,10 @@ const ExtractionContext = struct {
 /// Visitor function for Svelte extraction
 fn svelteExtractionVisitor(visitor: *NodeVisitor, node: *const AstNode, context: ?*anyopaque) !VisitResult {
     _ = visitor;
-    
+
     if (context) |ctx| {
         const extraction_ctx: *ExtractionContext = @ptrCast(@alignCast(ctx));
-        
+
         // Update current section based on node type
         if (isScriptElement(node.node_type)) {
             extraction_ctx.current_section = .script;
@@ -142,7 +143,7 @@ fn svelteExtractionVisitor(visitor: *NodeVisitor, node: *const AstNode, context:
         } else if (isTemplateElement(node.node_type)) {
             extraction_ctx.current_section = .template;
         }
-        
+
         // Extract based on current section and flags
         switch (extraction_ctx.current_section) {
             .script => try extractScriptContent(extraction_ctx, node),
@@ -150,7 +151,7 @@ fn svelteExtractionVisitor(visitor: *NodeVisitor, node: *const AstNode, context:
             .template => try extractTemplateContent(extraction_ctx, node),
         }
     }
-    
+
     return VisitResult.continue_traversal;
 }
 
@@ -163,7 +164,7 @@ fn extractScriptContent(ctx: *ExtractionContext, node: *const AstNode) !void {
             try ctx.result.append('\n');
         }
     }
-    
+
     if (ctx.flags.imports) {
         // Extract import statements
         if (isImport(node.node_type)) {
@@ -193,7 +194,7 @@ fn extractTemplateContent(ctx: *ExtractionContext, node: *const AstNode) !void {
             try ctx.result.append('\n');
         }
     }
-    
+
     if (ctx.flags.docs) {
         // Extract HTML comments
         if (isComment(node.node_type)) {
@@ -206,84 +207,84 @@ fn extractTemplateContent(ctx: *ExtractionContext, node: *const AstNode) !void {
 /// Check if node represents a script element
 pub fn isScriptElement(node_type: []const u8) bool {
     return std.mem.eql(u8, node_type, "script_element") or
-           std.mem.eql(u8, node_type, "raw_text") and 
-           std.mem.indexOf(u8, node_type, "script") != null;
+        std.mem.eql(u8, node_type, "raw_text") and
+            std.mem.indexOf(u8, node_type, "script") != null;
 }
 
 /// Check if node represents a style element
 pub fn isStyleElement(node_type: []const u8) bool {
     return std.mem.eql(u8, node_type, "style_element") or
-           std.mem.eql(u8, node_type, "raw_text") and 
-           std.mem.indexOf(u8, node_type, "style") != null;
+        std.mem.eql(u8, node_type, "raw_text") and
+            std.mem.indexOf(u8, node_type, "style") != null;
 }
 
 /// Check if node represents a template element
 pub fn isTemplateElement(node_type: []const u8) bool {
     return std.mem.eql(u8, node_type, "element") or
-           std.mem.eql(u8, node_type, "fragment") or
-           std.mem.eql(u8, node_type, "text");
+        std.mem.eql(u8, node_type, "fragment") or
+        std.mem.eql(u8, node_type, "text");
 }
 
 /// Check if node represents a function
 pub fn isFunction(node_type: []const u8) bool {
     return std.mem.eql(u8, node_type, "function_declaration") or
-           std.mem.eql(u8, node_type, "function_expression") or
-           std.mem.eql(u8, node_type, "arrow_function") or
-           std.mem.eql(u8, node_type, "method_definition");
+        std.mem.eql(u8, node_type, "function_expression") or
+        std.mem.eql(u8, node_type, "arrow_function") or
+        std.mem.eql(u8, node_type, "method_definition");
 }
 
 /// Check if node represents a variable declaration
 pub fn isVariable(node_type: []const u8) bool {
     return std.mem.eql(u8, node_type, "variable_declaration") or
-           std.mem.eql(u8, node_type, "lexical_declaration") or
-           std.mem.eql(u8, node_type, "variable_declarator");
+        std.mem.eql(u8, node_type, "lexical_declaration") or
+        std.mem.eql(u8, node_type, "variable_declarator");
 }
 
 /// Check if node represents a type definition
 pub fn isTypeDefinition(node_type: []const u8) bool {
     return std.mem.eql(u8, node_type, "interface_declaration") or
-           std.mem.eql(u8, node_type, "type_alias_declaration") or
-           std.mem.eql(u8, node_type, "enum_declaration");
+        std.mem.eql(u8, node_type, "type_alias_declaration") or
+        std.mem.eql(u8, node_type, "enum_declaration");
 }
 
 /// Check if node represents an import statement
 pub fn isImport(node_type: []const u8) bool {
     return std.mem.eql(u8, node_type, "import_statement") or
-           std.mem.eql(u8, node_type, "import_declaration");
+        std.mem.eql(u8, node_type, "import_declaration");
 }
 
 /// Check if node represents a CSS rule
 pub fn isCssRule(node_type: []const u8) bool {
     return std.mem.eql(u8, node_type, "rule_set") or
-           std.mem.eql(u8, node_type, "at_rule") or
-           std.mem.eql(u8, node_type, "declaration");
+        std.mem.eql(u8, node_type, "at_rule") or
+        std.mem.eql(u8, node_type, "declaration");
 }
 
 /// Check if node represents a CSS selector
 pub fn isCssSelector(node_type: []const u8) bool {
     return std.mem.eql(u8, node_type, "selectors") or
-           std.mem.eql(u8, node_type, "class_selector") or
-           std.mem.eql(u8, node_type, "id_selector") or
-           std.mem.eql(u8, node_type, "tag_name");
+        std.mem.eql(u8, node_type, "class_selector") or
+        std.mem.eql(u8, node_type, "id_selector") or
+        std.mem.eql(u8, node_type, "tag_name");
 }
 
 /// Check if node represents an HTML element
 pub fn isElement(node_type: []const u8) bool {
     return std.mem.eql(u8, node_type, "element") or
-           std.mem.eql(u8, node_type, "start_tag") or
-           std.mem.eql(u8, node_type, "end_tag") or
-           std.mem.eql(u8, node_type, "self_closing_tag");
+        std.mem.eql(u8, node_type, "start_tag") or
+        std.mem.eql(u8, node_type, "end_tag") or
+        std.mem.eql(u8, node_type, "self_closing_tag");
 }
 
 /// Check if node represents a Svelte directive
 pub fn isSvelteDirective(node_type: []const u8) bool {
     return std.mem.eql(u8, node_type, "directive") or
-           std.mem.eql(u8, node_type, "if_block") or
-           std.mem.eql(u8, node_type, "each_block") or
-           std.mem.eql(u8, node_type, "await_block") or
-           std.mem.eql(u8, node_type, "slot") or
-           std.mem.eql(u8, node_type, "component") or
-           std.mem.startsWith(u8, node_type, "svelte:");
+        std.mem.eql(u8, node_type, "if_block") or
+        std.mem.eql(u8, node_type, "each_block") or
+        std.mem.eql(u8, node_type, "await_block") or
+        std.mem.eql(u8, node_type, "slot") or
+        std.mem.eql(u8, node_type, "component") or
+        std.mem.startsWith(u8, node_type, "svelte:");
 }
 
 /// Check if node represents a comment
@@ -299,7 +300,7 @@ pub fn extractProps(allocator: std.mem.Allocator, root: *const AstNode, source: 
         .source = source,
         .in_script = false,
     };
-    
+
     var visitor = NodeVisitor.init(allocator, extractPropsVisitor, &context);
     try visitor.traverse(root, source);
 }
@@ -314,25 +315,26 @@ const PropsContext = struct {
 /// Visitor function for extracting Svelte component props
 fn extractPropsVisitor(visitor: *NodeVisitor, node: *const AstNode, context: ?*anyopaque) !VisitResult {
     _ = visitor;
-    
+
     if (context) |ctx| {
         const props_ctx: *PropsContext = @ptrCast(@alignCast(ctx));
-        
+
         // Track script sections
         if (isScriptElement(node.node_type)) {
             props_ctx.in_script = true;
         }
-        
+
         // Look for export declarations in script sections (Svelte props)
-        if (props_ctx.in_script and 
+        if (props_ctx.in_script and
             (std.mem.eql(u8, node.node_type, "export_statement") or
-             (std.mem.eql(u8, node.node_type, "variable_declaration") and
-              std.mem.startsWith(u8, node.text, "export")))) {
+                (std.mem.eql(u8, node.node_type, "variable_declaration") and
+                    std.mem.startsWith(u8, node.text, "export"))))
+        {
             try props_ctx.result.appendSlice(node.text);
             try props_ctx.result.append('\n');
         }
     }
-    
+
     return VisitResult.continue_traversal;
 }
 
@@ -343,7 +345,7 @@ pub fn extractReactiveStatements(allocator: std.mem.Allocator, root: *const AstN
         .result = result,
         .source = source,
     };
-    
+
     var visitor = NodeVisitor.init(allocator, extractReactiveVisitor, &context);
     try visitor.traverse(root, source);
 }
@@ -357,38 +359,39 @@ const ReactiveContext = struct {
 /// Visitor function for extracting reactive statements
 fn extractReactiveVisitor(visitor: *NodeVisitor, node: *const AstNode, context: ?*anyopaque) !VisitResult {
     _ = visitor;
-    
+
     if (context) |ctx| {
         const reactive_ctx: *ReactiveContext = @ptrCast(@alignCast(ctx));
-        
+
         // Look for reactive statements (lines starting with $:)
         if (std.mem.eql(u8, node.node_type, "labeled_statement") and
-            std.mem.startsWith(u8, node.text, "$:")) {
+            std.mem.startsWith(u8, node.text, "$:"))
+        {
             try reactive_ctx.result.appendSlice(node.text);
             try reactive_ctx.result.append('\n');
         }
     }
-    
+
     return VisitResult.continue_traversal;
 }
 
 test "svelte script element detection" {
     const testing = std.testing;
-    
+
     try testing.expect(isScriptElement("script_element"));
     try testing.expect(!isScriptElement("style_element"));
 }
 
 test "svelte style element detection" {
     const testing = std.testing;
-    
+
     try testing.expect(isStyleElement("style_element"));
     try testing.expect(!isStyleElement("script_element"));
 }
 
 test "svelte function detection" {
     const testing = std.testing;
-    
+
     try testing.expect(isFunction("function_declaration"));
     try testing.expect(isFunction("arrow_function"));
     try testing.expect(!isFunction("variable_declaration"));
@@ -396,7 +399,7 @@ test "svelte function detection" {
 
 test "svelte directive detection" {
     const testing = std.testing;
-    
+
     try testing.expect(isSvelteDirective("if_block"));
     try testing.expect(isSvelteDirective("each_block"));
     try testing.expect(!isSvelteDirective("element"));
@@ -404,7 +407,7 @@ test "svelte directive detection" {
 
 test "svelte variable detection" {
     const testing = std.testing;
-    
+
     try testing.expect(isVariable("variable_declaration"));
     try testing.expect(isVariable("lexical_declaration"));
     try testing.expect(!isVariable("function_declaration"));

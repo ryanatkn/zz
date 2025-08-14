@@ -5,7 +5,7 @@ pub const AstCacheKey = struct {
     file_hash: u64,
     parser_version: u32,
     extraction_flags_hash: u64,
-    
+
     pub fn init(file_hash: u64, parser_version: u32, extraction_flags_hash: u64) AstCacheKey {
         return AstCacheKey{
             .file_hash = file_hash,
@@ -16,8 +16,8 @@ pub const AstCacheKey = struct {
 
     pub fn eql(self: AstCacheKey, other: AstCacheKey) bool {
         return self.file_hash == other.file_hash and
-               self.parser_version == other.parser_version and
-               self.extraction_flags_hash == other.extraction_flags_hash;
+            self.parser_version == other.parser_version and
+            self.extraction_flags_hash == other.extraction_flags_hash;
     }
 
     pub fn hash(self: AstCacheKey) u64 {
@@ -35,7 +35,7 @@ pub const CachedExtraction = struct {
     created_at: i64,
     access_count: u32,
     last_accessed: i64,
-    
+
     pub fn deinit(self: *CachedExtraction, allocator: std.mem.Allocator) void {
         allocator.free(self.content);
     }
@@ -55,7 +55,7 @@ pub const AstCache = struct {
             _ = self;
             return key.hash();
         }
-        
+
         pub fn eql(self: @This(), a: AstCacheKey, b: AstCacheKey) bool {
             _ = self;
             return a.eql(b);
@@ -67,13 +67,13 @@ pub const AstCache = struct {
         misses: u64 = 0,
         evictions: u64 = 0,
         memory_pressure_evictions: u64 = 0,
-        
+
         pub fn hitRate(self: CacheStats) f64 {
             const total = self.hits + self.misses;
             if (total == 0) return 0.0;
             return @as(f64, @floatFromInt(self.hits)) / @as(f64, @floatFromInt(total));
         }
-        
+
         pub fn efficiency(self: CacheStats) f64 {
             return self.hitRate() * 100.0;
         }
@@ -101,7 +101,7 @@ pub const AstCache = struct {
     /// Get cached extraction if available
     pub fn get(self: *AstCache, key: AstCacheKey) ?[]const u8 {
         const now = @as(i64, @intCast(std.time.nanoTimestamp()));
-        
+
         if (self.cache.getPtr(key)) |cached| {
             self.stats.hits += 1;
             cached.access_count += 1;
@@ -117,13 +117,13 @@ pub const AstCache = struct {
     pub fn put(self: *AstCache, key: AstCacheKey, content: []const u8) !void {
         const now = @as(i64, @intCast(std.time.nanoTimestamp()));
         const content_size = content.len;
-        
+
         // Make room if needed
         try self.makeRoom(content_size);
-        
+
         // Clone content for cache storage
         const cached_content = try self.allocator.dupe(u8, content);
-        
+
         const cached = CachedExtraction{
             .content = cached_content,
             .created_at = now,
@@ -148,7 +148,7 @@ pub const AstCache = struct {
             try self.evictLru();
             self.stats.evictions += 1;
         }
-        
+
         // Check if we need to evict for memory limit
         while (self.current_memory_bytes + needed_bytes > self.max_memory_bytes and self.cache.count() > 0) {
             try self.evictLru();
@@ -190,7 +190,7 @@ pub const AstCache = struct {
     pub fn invalidateByFileHash(self: *AstCache, file_hash: u64) !void {
         var keys_to_remove = std.ArrayList(AstCacheKey).init(self.allocator);
         defer keys_to_remove.deinit();
-        
+
         // Find all keys with matching file hash
         var iter = self.cache.iterator();
         while (iter.next()) |entry| {
@@ -198,7 +198,7 @@ pub const AstCache = struct {
                 try keys_to_remove.append(entry.key_ptr.*);
             }
         }
-        
+
         // Remove all matching entries
         for (keys_to_remove.items) |key| {
             if (self.cache.fetchRemove(key)) |removed| {
@@ -237,7 +237,7 @@ pub const ParserInstance = struct {
     created_at: i64,
     last_used: i64,
     usage_count: u32,
-    
+
     pub fn init(language: []const u8, version: u32) ParserInstance {
         const now = @as(i64, @intCast(std.time.nanoTimestamp()));
         return ParserInstance{
@@ -317,16 +317,16 @@ pub const ParserCache = struct {
     fn createParser(self: *ParserCache, language: []const u8) !?*ParserInstance {
         // Make room if needed
         try self.makeRoom();
-        
+
         const language_key = try self.allocator.dupe(u8, language);
         const parser_instance = ParserInstance.init(language_key, 1);
-        
+
         // Parser initialization placeholder - currently tracks metadata only
         // Future: Initialize tree-sitter parser based on language
-        
+
         try self.parsers.put(language_key, parser_instance);
         self.stats.initializations += 1;
-        
+
         return self.parsers.getPtr(language_key);
     }
 
@@ -369,7 +369,7 @@ pub const CacheSystem = struct {
     allocator: std.mem.Allocator,
     parser_cache: ParserCache,
     ast_cache: AstCache,
-    
+
     pub fn init(allocator: std.mem.Allocator) CacheSystem {
         return CacheSystem{
             .allocator = allocator,
@@ -377,31 +377,27 @@ pub const CacheSystem = struct {
             .ast_cache = AstCache.init(allocator, 1000, 100), // Max 1000 entries, 100MB
         };
     }
-    
+
     pub fn deinit(self: *CacheSystem) void {
         self.parser_cache.deinit();
         self.ast_cache.deinit();
     }
-    
+
     pub fn getParserStats(self: *CacheSystem) ParserCache.ParserCacheStats {
         return self.parser_cache.getStats();
     }
-    
+
     pub fn getAstStats(self: *CacheSystem) AstCache.CacheStats {
         return self.ast_cache.getStats();
     }
-    
+
     /// Get cached extraction or compute if missing
-    pub fn getOrComputeExtraction(
-        self: *CacheSystem, 
-        key: AstCacheKey, 
-        compute_fn: *const fn(allocator: std.mem.Allocator) anyerror![]const u8
-    ) ![]const u8 {
+    pub fn getOrComputeExtraction(self: *CacheSystem, key: AstCacheKey, compute_fn: *const fn (allocator: std.mem.Allocator) anyerror![]const u8) ![]const u8 {
         // Try cache first
         if (self.ast_cache.get(key)) |cached| {
             return cached;
         }
-        
+
         // Compute and cache result
         const result = try compute_fn(self.allocator);
         try self.ast_cache.put(key, result);
@@ -460,7 +456,7 @@ test "cache system integration" {
 
     const parser_stats = system.getParserStats();
     const ast_stats = system.getAstStats();
-    
+
     try testing.expect(parser_stats.hits == 0);
     try testing.expect(ast_stats.hits == 0);
 }

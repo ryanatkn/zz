@@ -149,12 +149,12 @@ pub fn handleFileError(err: anyerror) !void {
         // Silently ignore
         return;
     }
-    
+
     if (isCritical(err)) {
         // Must propagate
         return err;
     }
-    
+
     // Log and continue
     std.debug.print("Warning: {s}\n", .{getMessage(err)});
 }
@@ -166,22 +166,22 @@ pub fn tryWithRetry(
     max_retries: u32,
 ) !T {
     var retries: u32 = 0;
-    
+
     while (retries < max_retries) : (retries += 1) {
         const result = operation() catch |err| {
             if (!shouldRetry(err) or retries == max_retries - 1) {
                 return err;
             }
-            
+
             // Wait before retry (exponential backoff)
             const delay_ms = std.math.pow(u32, 2, retries) * 100;
             std.time.sleep(delay_ms * std.time.ns_per_ms);
             continue;
         };
-        
+
         return result;
     }
-    
+
     return error.MaxRetriesExceeded;
 }
 
@@ -225,23 +225,23 @@ pub fn deleteFile(path: []const u8) !void {
 
 test "error classification" {
     const testing = std.testing;
-    
+
     try testing.expect(isIgnorable(error.FileNotFound));
     try testing.expect(isIgnorable(error.AccessDenied));
     try testing.expect(!isIgnorable(error.OutOfMemory));
-    
+
     try testing.expect(isCritical(error.OutOfMemory));
     try testing.expect(isCritical(error.SystemResources));
     try testing.expect(!isCritical(error.FileNotFound));
-    
+
     try testing.expect(shouldRetry(error.SystemResources));
     try testing.expect(shouldRetry(error.DeviceBusy));
     try testing.expect(!shouldRetry(error.FileNotFound));
-    
+
     try testing.expect(isFilesystemError(error.FileNotFound));
     try testing.expect(isFilesystemError(error.NotDir));
     try testing.expect(!isFilesystemError(error.OutOfMemory));
-    
+
     try testing.expect(isNetworkError(error.ConnectionRefused));
     try testing.expect(isNetworkError(error.BrokenPipe));
     try testing.expect(!isNetworkError(error.FileNotFound));
@@ -249,7 +249,7 @@ test "error classification" {
 
 test "error messages" {
     const testing = std.testing;
-    
+
     try testing.expectEqualStrings("File not found", getMessage(error.FileNotFound));
     try testing.expectEqualStrings("Out of memory", getMessage(error.OutOfMemory));
     try testing.expectEqualStrings("Unknown error", getMessage(error.InvalidCharacter));
@@ -257,24 +257,24 @@ test "error messages" {
 
 test "error formatting" {
     const testing = std.testing;
-    
+
     const msg = try format(testing.allocator, error.FileNotFound, "config.json");
     defer testing.allocator.free(msg);
-    
+
     try testing.expectEqualStrings("config.json: File not found", msg);
 }
 
 test "file operations" {
     const testing = std.testing;
-    
+
     // Test opening non-existent file
     const file = try openFile("non_existent_file.txt");
     try testing.expect(file == null);
-    
+
     // Test creating directory that may already exist
     try makeDir("/tmp/test_dir");
     try makeDir("/tmp/test_dir"); // Should not error
-    
+
     // Test deleting non-existent file
     try deleteFile("/tmp/non_existent_file.txt"); // Should not error
 }

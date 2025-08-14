@@ -7,28 +7,27 @@ const ResultBuilder = builders.ResultBuilder;
 
 /// Base extractor functionality shared across all language extractors
 /// Provides common extraction patterns to eliminate duplication
-
 pub const LanguagePatterns = struct {
     /// Patterns for function/method signatures
     functions: ?[]const []const u8 = null,
-    
+
     /// Patterns for type definitions
     types: ?[]const []const u8 = null,
-    
+
     /// Patterns for imports/includes
     imports: ?[]const []const u8 = null,
-    
+
     /// Patterns for documentation comments
     docs: ?[]const []const u8 = null,
-    
+
     /// Patterns for test definitions
     tests: ?[]const []const u8 = null,
-    
+
     /// Patterns for structure (language-specific)
     structure: ?[]const []const u8 = null,
-    
+
     /// Custom extraction function for complex patterns
-    custom_extract: ?*const fn(line: []const u8, flags: ExtractionFlags) bool = null,
+    custom_extract: ?*const fn (line: []const u8, flags: ExtractionFlags) bool = null,
 };
 
 /// Extract code using language patterns
@@ -40,26 +39,26 @@ pub fn extractWithPatterns(
 ) !void {
     var builder = ResultBuilder{ .buffer = result.* };
     defer result.* = builder.buffer;
-    
+
     var lines = std.mem.splitScalar(u8, source, '\n');
     var block_tracker = line_processing.BlockTracker.init();
-    
+
     while (lines.next()) |line| {
         const trimmed = std.mem.trim(u8, line, " \t");
-        
+
         // Skip empty lines unless in a block
         if (trimmed.len == 0 and !block_tracker.isInBlock()) continue;
-        
+
         // Handle multi-line blocks
         if (block_tracker.isInBlock()) {
             try builder.appendLine(line);
             block_tracker.processLine(line);
             continue;
         }
-        
+
         var should_include = false;
         var starts_block = false;
-        
+
         // Check function patterns
         if (flags.signatures) {
             if (language_patterns.functions) |func_patterns| {
@@ -68,7 +67,7 @@ pub fn extractWithPatterns(
                 }
             }
         }
-        
+
         // Check type patterns
         if (flags.types) {
             if (language_patterns.types) |type_patterns| {
@@ -81,7 +80,7 @@ pub fn extractWithPatterns(
                 }
             }
         }
-        
+
         // Check import patterns
         if (flags.imports) {
             if (language_patterns.imports) |import_patterns| {
@@ -90,7 +89,7 @@ pub fn extractWithPatterns(
                 }
             }
         }
-        
+
         // Check documentation patterns
         if (flags.docs) {
             if (language_patterns.docs) |doc_patterns| {
@@ -99,7 +98,7 @@ pub fn extractWithPatterns(
                 }
             }
         }
-        
+
         // Check test patterns
         if (flags.tests) {
             if (language_patterns.tests) |test_patterns| {
@@ -108,24 +107,25 @@ pub fn extractWithPatterns(
                 }
             }
         }
-        
+
         // Check structure patterns
         if (flags.structure) {
             if (language_patterns.structure) |struct_patterns| {
                 if (patterns.startsWithAny(trimmed, struct_patterns) or
-                    patterns.containsAny(line, struct_patterns)) {
+                    patterns.containsAny(line, struct_patterns))
+                {
                     should_include = true;
                 }
             }
         }
-        
+
         // Custom extraction logic
         if (language_patterns.custom_extract) |custom| {
             if (custom(line, flags)) {
                 should_include = true;
             }
         }
-        
+
         if (should_include) {
             try builder.appendLine(line);
             if (starts_block) {
@@ -143,7 +143,7 @@ pub fn extractByPrefixes(
 ) !void {
     var builder = ResultBuilder{ .buffer = result.* };
     defer result.* = builder.buffer;
-    
+
     try line_processing.extractLinesWithPrefixes(source, prefixes, builder.list());
 }
 
@@ -155,7 +155,7 @@ pub fn extractContaining(
 ) !void {
     var builder = ResultBuilder{ .buffer = result.* };
     defer result.* = builder.buffer;
-    
+
     var lines = std.mem.splitScalar(u8, source, '\n');
     while (lines.next()) |line| {
         if (patterns.containsAny(line, substrings)) {
@@ -171,7 +171,7 @@ pub fn extractNonEmpty(
 ) !void {
     var builder = ResultBuilder{ .buffer = result.* };
     defer result.* = builder.buffer;
-    
+
     try line_processing.filterNonEmpty(source, builder.list());
 }
 
@@ -187,10 +187,10 @@ test "extractWithPatterns for Zig" {
         \\fn private() void {}
         \\test "example" {}
     ;
-    
+
     var result = std.ArrayList(u8).init(allocator);
     defer result.deinit();
-    
+
     const flags = ExtractionFlags{ .signatures = true };
     // Create test patterns inline instead of using removed zigPatterns()
     const zig_functions = [_][]const u8{ "pub fn ", "fn ", "test " };
@@ -203,9 +203,9 @@ test "extractWithPatterns for Zig" {
         .structure = null,
         .custom_extract = null,
     };
-    
+
     try extractWithPatterns(source, flags, &result, zig_patterns);
-    
+
     const output = result.items;
     try std.testing.expect(std.mem.indexOf(u8, output, "pub fn test()") != null);
     try std.testing.expect(std.mem.indexOf(u8, output, "fn private()") != null);
@@ -219,13 +219,13 @@ test "extractByPrefixes" {
         \\export function test() {}
         \\let x = 10;
     ;
-    
+
     var result = std.ArrayList(u8).init(allocator);
     defer result.deinit();
-    
+
     const prefixes = [_][]const u8{ "import", "export" };
     try extractByPrefixes(source, &prefixes, &result);
-    
+
     const output = result.items;
     try std.testing.expect(std.mem.indexOf(u8, output, "import foo") != null);
     try std.testing.expect(std.mem.indexOf(u8, output, "export function") != null);

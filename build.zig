@@ -50,7 +50,7 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
     });
-    
+
     // Build tree-sitter core library
     const tree_sitter_lib = b.addStaticLibrary(.{
         .name = "tree-sitter",
@@ -61,12 +61,12 @@ pub fn build(b: *std.Build) void {
         .files = &.{
             "deps/tree-sitter/lib/src/lib.c",
         },
-        .flags = &.{"-std=c11", "-D_DEFAULT_SOURCE", "-D_BSD_SOURCE"},
+        .flags = &.{ "-std=c11", "-D_DEFAULT_SOURCE", "-D_BSD_SOURCE" },
     });
     tree_sitter_lib.addIncludePath(b.path("deps/tree-sitter/lib/include"));
     tree_sitter_lib.addIncludePath(b.path("deps/tree-sitter/lib/src"));
     tree_sitter_lib.linkLibC();
-    
+
     // Add tree-sitter-zig grammar C library
     const tree_sitter_zig_lib = b.addStaticLibrary(.{
         .name = "tree-sitter-zig",
@@ -80,7 +80,7 @@ pub fn build(b: *std.Build) void {
     tree_sitter_zig_lib.addIncludePath(b.path("deps/tree-sitter-zig/src"));
     tree_sitter_zig_lib.addIncludePath(b.path("deps/tree-sitter/lib/include"));
     tree_sitter_zig_lib.linkLibC();
-    
+
     // Add tree-sitter-css grammar C library
     const tree_sitter_css_lib = b.addStaticLibrary(.{
         .name = "tree-sitter-css",
@@ -97,7 +97,7 @@ pub fn build(b: *std.Build) void {
     tree_sitter_css_lib.addIncludePath(b.path("deps/tree-sitter-css/src"));
     tree_sitter_css_lib.addIncludePath(b.path("deps/tree-sitter/lib/include"));
     tree_sitter_css_lib.linkLibC();
-    
+
     // Add tree-sitter-html grammar C library
     const tree_sitter_html_lib = b.addStaticLibrary(.{
         .name = "tree-sitter-html",
@@ -114,7 +114,7 @@ pub fn build(b: *std.Build) void {
     tree_sitter_html_lib.addIncludePath(b.path("deps/tree-sitter-html/src"));
     tree_sitter_html_lib.addIncludePath(b.path("deps/tree-sitter/lib/include"));
     tree_sitter_html_lib.linkLibC();
-    
+
     // Add tree-sitter-json grammar C library
     const tree_sitter_json_lib = b.addStaticLibrary(.{
         .name = "tree-sitter-json",
@@ -128,7 +128,7 @@ pub fn build(b: *std.Build) void {
     tree_sitter_json_lib.addIncludePath(b.path("deps/tree-sitter-json/src"));
     tree_sitter_json_lib.addIncludePath(b.path("deps/tree-sitter/lib/include"));
     tree_sitter_json_lib.linkLibC();
-    
+
     // Add tree-sitter-typescript grammar C library
     const tree_sitter_typescript_lib = b.addStaticLibrary(.{
         .name = "tree-sitter-typescript",
@@ -145,7 +145,7 @@ pub fn build(b: *std.Build) void {
     tree_sitter_typescript_lib.addIncludePath(b.path("deps/tree-sitter-typescript/src"));
     tree_sitter_typescript_lib.addIncludePath(b.path("deps/tree-sitter/lib/include"));
     tree_sitter_typescript_lib.linkLibC();
-    
+
     // Add tree-sitter-svelte grammar C library
     const tree_sitter_svelte_lib = b.addStaticLibrary(.{
         .name = "tree-sitter-svelte",
@@ -162,7 +162,7 @@ pub fn build(b: *std.Build) void {
     tree_sitter_svelte_lib.addIncludePath(b.path("deps/tree-sitter-svelte/src"));
     tree_sitter_svelte_lib.addIncludePath(b.path("deps/tree-sitter/lib/include"));
     tree_sitter_svelte_lib.linkLibC();
-    
+
     exe.root_module.addImport("tree-sitter", tree_sitter_module);
     exe.linkLibrary(tree_sitter_lib);
     exe.linkLibrary(tree_sitter_zig_lib);
@@ -219,7 +219,7 @@ fn addTestSteps(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.b
         .target = target,
         .optimize = optimize,
     });
-    
+
     // Build tree-sitter core library for tests
     const tree_sitter_lib = b.addStaticLibrary(.{
         .name = "tree-sitter",
@@ -230,12 +230,12 @@ fn addTestSteps(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.b
         .files = &.{
             "deps/tree-sitter/lib/src/lib.c",
         },
-        .flags = &.{"-std=c11", "-D_DEFAULT_SOURCE", "-D_BSD_SOURCE"},
+        .flags = &.{ "-std=c11", "-D_DEFAULT_SOURCE", "-D_BSD_SOURCE" },
     });
     tree_sitter_lib.addIncludePath(b.path("deps/tree-sitter/lib/include"));
     tree_sitter_lib.addIncludePath(b.path("deps/tree-sitter/lib/src"));
     tree_sitter_lib.linkLibC();
-    
+
     // Build tree-sitter-zig grammar library for tests
     const tree_sitter_zig_lib = b.addStaticLibrary(.{
         .name = "tree-sitter-zig",
@@ -249,7 +249,7 @@ fn addTestSteps(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.b
     tree_sitter_zig_lib.addIncludePath(b.path("deps/tree-sitter-zig/src"));
     tree_sitter_zig_lib.addIncludePath(b.path("deps/tree-sitter/lib/include"));
     tree_sitter_zig_lib.linkLibC();
-    
+
     // Build tree-sitter-css grammar library for tests
     const tree_sitter_css_lib = b.addStaticLibrary(.{
         .name = "tree-sitter-css",
@@ -266,7 +266,7 @@ fn addTestSteps(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.b
     tree_sitter_css_lib.addIncludePath(b.path("deps/tree-sitter-css/src"));
     tree_sitter_css_lib.addIncludePath(b.path("deps/tree-sitter/lib/include"));
     tree_sitter_css_lib.linkLibC();
-    
+
     // Build tree-sitter-html grammar library for tests
     const tree_sitter_html_lib = b.addStaticLibrary(.{
         .name = "tree-sitter-html",
@@ -283,7 +283,7 @@ fn addTestSteps(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.b
     tree_sitter_html_lib.addIncludePath(b.path("deps/tree-sitter-html/src"));
     tree_sitter_html_lib.addIncludePath(b.path("deps/tree-sitter/lib/include"));
     tree_sitter_html_lib.linkLibC();
-    
+
     // Build tree-sitter-json grammar library for tests
     const tree_sitter_json_lib = b.addStaticLibrary(.{
         .name = "tree-sitter-json",
@@ -297,7 +297,7 @@ fn addTestSteps(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.b
     tree_sitter_json_lib.addIncludePath(b.path("deps/tree-sitter-json/src"));
     tree_sitter_json_lib.addIncludePath(b.path("deps/tree-sitter/lib/include"));
     tree_sitter_json_lib.linkLibC();
-    
+
     // Build tree-sitter-typescript grammar library for tests
     const tree_sitter_typescript_lib = b.addStaticLibrary(.{
         .name = "tree-sitter-typescript",
@@ -314,7 +314,7 @@ fn addTestSteps(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.b
     tree_sitter_typescript_lib.addIncludePath(b.path("deps/tree-sitter-typescript/src"));
     tree_sitter_typescript_lib.addIncludePath(b.path("deps/tree-sitter/lib/include"));
     tree_sitter_typescript_lib.linkLibC();
-    
+
     // Build tree-sitter-svelte grammar library for tests
     const tree_sitter_svelte_lib = b.addStaticLibrary(.{
         .name = "tree-sitter-svelte",
@@ -347,10 +347,10 @@ fn addTestSteps(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.b
     test_all.linkLibrary(tree_sitter_typescript_lib);
     test_all.linkLibrary(tree_sitter_svelte_lib);
     test_all.linkLibC();
-    
+
     // Create test step
     const test_step = b.step("test", "Run all tests");
-    
+
     // Run tests and show output
     const run_test = b.addRunArtifact(test_all);
     test_step.dependOn(&run_test.step);

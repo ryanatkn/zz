@@ -21,33 +21,33 @@ pub fn walkNode(allocator: std.mem.Allocator, root: *const AstNode, source: []co
 /// Recursive tree-sitter node walking for CSS
 fn walkNodeRecursive(node: ts.Node, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
     const node_type = node.kind();
-    
+
     if (flags.signatures) {
         if (isSelector(node_type)) {
             try appendNodeText(node, source, result);
             return; // Don't traverse into selector details
         }
     }
-    
+
     if (flags.types or flags.structure) {
         if (isRule(node_type) or isAtRule(node_type)) {
             try appendNodeText(node, source, result);
             return;
         }
     }
-    
+
     if (flags.imports) {
         if (isImportRule(node_type)) {
             try appendNodeText(node, source, result);
         }
     }
-    
+
     if (flags.docs) {
         if (isComment(node_type)) {
             try appendNodeText(node, source, result);
         }
     }
-    
+
     // Recurse into children
     const child_count = node.childCount();
     var i: u32 = 0;
@@ -78,10 +78,10 @@ const ExtractionContext = struct {
 /// Visitor function for CSS extraction
 fn cssExtractionVisitor(visitor: *NodeVisitor, node: *const AstNode, context: ?*anyopaque) !VisitResult {
     _ = visitor;
-    
+
     if (context) |ctx| {
         const extraction_ctx: *ExtractionContext = @ptrCast(@alignCast(ctx));
-        
+
         // Extract based on node type and flags
         if (extraction_ctx.flags.signatures) {
             // Extract selectors
@@ -91,7 +91,7 @@ fn cssExtractionVisitor(visitor: *NodeVisitor, node: *const AstNode, context: ?*
                 return VisitResult.skip_children; // Don't traverse into selector details
             }
         }
-        
+
         if (extraction_ctx.flags.types or extraction_ctx.flags.structure) {
             // Extract rules, at-rules, and declarations
             if (isRule(node.node_type) or isAtRule(node.node_type)) {
@@ -100,7 +100,7 @@ fn cssExtractionVisitor(visitor: *NodeVisitor, node: *const AstNode, context: ?*
                 return VisitResult.skip_children;
             }
         }
-        
+
         if (extraction_ctx.flags.imports) {
             // Extract import statements
             if (isImportRule(node.node_type)) {
@@ -108,7 +108,7 @@ fn cssExtractionVisitor(visitor: *NodeVisitor, node: *const AstNode, context: ?*
                 try extraction_ctx.result.append('\n');
             }
         }
-        
+
         if (extraction_ctx.flags.docs) {
             // Extract comments
             if (isComment(node.node_type)) {
@@ -117,43 +117,43 @@ fn cssExtractionVisitor(visitor: *NodeVisitor, node: *const AstNode, context: ?*
             }
         }
     }
-    
+
     return VisitResult.continue_traversal;
 }
 
 /// Check if node represents a CSS selector
 pub fn isSelector(node_type: []const u8) bool {
     return std.mem.eql(u8, node_type, "selectors") or
-           std.mem.eql(u8, node_type, "class_selector") or
-           std.mem.eql(u8, node_type, "id_selector") or
-           std.mem.eql(u8, node_type, "tag_name") or
-           std.mem.eql(u8, node_type, "universal_selector") or
-           std.mem.eql(u8, node_type, "attribute_selector") or
-           std.mem.eql(u8, node_type, "pseudo_class_selector") or
-           std.mem.eql(u8, node_type, "pseudo_element_selector");
+        std.mem.eql(u8, node_type, "class_selector") or
+        std.mem.eql(u8, node_type, "id_selector") or
+        std.mem.eql(u8, node_type, "tag_name") or
+        std.mem.eql(u8, node_type, "universal_selector") or
+        std.mem.eql(u8, node_type, "attribute_selector") or
+        std.mem.eql(u8, node_type, "pseudo_class_selector") or
+        std.mem.eql(u8, node_type, "pseudo_element_selector");
 }
 
 /// Check if node represents a CSS rule
 pub fn isRule(node_type: []const u8) bool {
     return std.mem.eql(u8, node_type, "rule_set") or
-           std.mem.eql(u8, node_type, "declaration") or
-           std.mem.eql(u8, node_type, "property_name") or
-           std.mem.eql(u8, node_type, "value");
+        std.mem.eql(u8, node_type, "declaration") or
+        std.mem.eql(u8, node_type, "property_name") or
+        std.mem.eql(u8, node_type, "value");
 }
 
 /// Check if node represents a CSS at-rule
 pub fn isAtRule(node_type: []const u8) bool {
     return std.mem.eql(u8, node_type, "at_rule") or
-           std.mem.eql(u8, node_type, "media_query") or
-           std.mem.eql(u8, node_type, "keyframes_statement") or
-           std.mem.eql(u8, node_type, "supports_statement");
+        std.mem.eql(u8, node_type, "media_query") or
+        std.mem.eql(u8, node_type, "keyframes_statement") or
+        std.mem.eql(u8, node_type, "supports_statement");
 }
 
 /// Check if node represents a CSS import rule
 pub fn isImportRule(node_type: []const u8) bool {
     return std.mem.eql(u8, node_type, "import_statement") or
-           std.mem.eql(u8, node_type, "at_rule") and 
-           std.mem.startsWith(u8, node_type, "@import");
+        std.mem.eql(u8, node_type, "at_rule") and
+            std.mem.startsWith(u8, node_type, "@import");
 }
 
 /// Check if node represents a CSS comment
@@ -168,7 +168,7 @@ pub fn extractVariables(allocator: std.mem.Allocator, root: *const AstNode, sour
         .result = result,
         .source = source,
     };
-    
+
     var visitor = NodeVisitor.init(allocator, extractVariablesVisitor, &context);
     try visitor.traverse(root, source);
 }
@@ -182,18 +182,19 @@ const VariableContext = struct {
 /// Visitor function for extracting CSS variables
 fn extractVariablesVisitor(visitor: *NodeVisitor, node: *const AstNode, context: ?*anyopaque) !VisitResult {
     _ = visitor;
-    
+
     if (context) |ctx| {
         const var_ctx: *VariableContext = @ptrCast(@alignCast(ctx));
-        
+
         // Look for CSS custom properties (variables)
         if (std.mem.eql(u8, node.node_type, "property_name") and
-            std.mem.startsWith(u8, node.text, "--")) {
+            std.mem.startsWith(u8, node.text, "--"))
+        {
             try var_ctx.result.appendSlice(node.text);
             try var_ctx.result.append('\n');
         }
     }
-    
+
     return VisitResult.continue_traversal;
 }
 
@@ -204,7 +205,7 @@ pub fn extractMediaQueries(allocator: std.mem.Allocator, root: *const AstNode, s
         .result = result,
         .source = source,
     };
-    
+
     var visitor = NodeVisitor.init(allocator, extractMediaQueriesVisitor, &context);
     try visitor.traverse(root, source);
 }
@@ -218,26 +219,27 @@ const MediaQueryContext = struct {
 /// Visitor function for extracting media queries
 fn extractMediaQueriesVisitor(visitor: *NodeVisitor, node: *const AstNode, context: ?*anyopaque) !VisitResult {
     _ = visitor;
-    
+
     if (context) |ctx| {
         const media_ctx: *MediaQueryContext = @ptrCast(@alignCast(ctx));
-        
+
         // Look for media query nodes
         if (std.mem.eql(u8, node.node_type, "media_query") or
             (std.mem.eql(u8, node.node_type, "at_rule") and
-             std.mem.startsWith(u8, node.text, "@media"))) {
+                std.mem.startsWith(u8, node.text, "@media")))
+        {
             try media_ctx.result.appendSlice(node.text);
             try media_ctx.result.append('\n');
             return VisitResult.skip_children;
         }
     }
-    
+
     return VisitResult.continue_traversal;
 }
 
 test "css selector detection" {
     const testing = std.testing;
-    
+
     try testing.expect(isSelector("class_selector"));
     try testing.expect(isSelector("id_selector"));
     try testing.expect(isSelector("tag_name"));
@@ -246,7 +248,7 @@ test "css selector detection" {
 
 test "css rule detection" {
     const testing = std.testing;
-    
+
     try testing.expect(isRule("rule_set"));
     try testing.expect(isRule("declaration"));
     try testing.expect(!isRule("class_selector"));
@@ -254,7 +256,7 @@ test "css rule detection" {
 
 test "css at-rule detection" {
     const testing = std.testing;
-    
+
     try testing.expect(isAtRule("at_rule"));
     try testing.expect(isAtRule("media_query"));
     try testing.expect(!isAtRule("rule_set"));
@@ -262,7 +264,7 @@ test "css at-rule detection" {
 
 test "css comment detection" {
     const testing = std.testing;
-    
+
     try testing.expect(isComment("comment"));
     try testing.expect(!isComment("declaration"));
 }

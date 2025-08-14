@@ -12,7 +12,7 @@ const MAX_TRAVERSAL_DEPTH = 20; // Maximum directory depth for traversal
 /// Callback function type for handling discovered files during traversal
 pub const FileCallback = *const fn (allocator: std.mem.Allocator, file_path: []const u8, context: ?*anyopaque) anyerror!void;
 
-/// Callback function type for handling discovered directories during traversal  
+/// Callback function type for handling discovered directories during traversal
 pub const DirectoryCallback = *const fn (allocator: std.mem.Allocator, dir_path: []const u8, context: ?*anyopaque) anyerror!void;
 
 /// Configuration for directory traversal behavior
@@ -119,12 +119,7 @@ pub const DirectoryTraverser = struct {
         }
 
         // Open directory for iteration using consolidated error handling
-        const dir = try filesystem_utils.Operations.openDirSafely(
-            self.filesystem, 
-            self.allocator, 
-            dir_path, 
-            .{ .iterate = true }
-        );
+        const dir = try filesystem_utils.Operations.openDirSafely(self.filesystem, self.allocator, dir_path, .{ .iterate = true });
         const dir_handle = dir orelse return; // Safe to ignore common errors
         defer dir_handle.close();
 
@@ -189,7 +184,7 @@ fn fileCollector(allocator: std.mem.Allocator, file_path: []const u8, context_pt
     // If a pattern is specified, check if the file matches
     if (context.pattern) |pattern| {
         const filename = path_utils.basename(file_path);
-        
+
         // Import glob patterns for matching - this creates a dependency but avoids duplication
         const glob_patterns = @import("../parsing/glob.zig");
         if (!glob_patterns.matchSimplePattern(filename, pattern)) {

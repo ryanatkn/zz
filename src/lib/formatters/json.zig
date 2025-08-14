@@ -15,7 +15,7 @@ pub fn format(allocator: std.mem.Allocator, source: []const u8, options: Formatt
     defer builder.deinit();
 
     try formatValue(&builder, parsed.value, options);
-    
+
     return builder.toOwnedSlice();
 }
 
@@ -55,7 +55,7 @@ fn formatArray(builder: *LineBuilder, array: std.json.Array, options: FormatterO
     const single_line = is_simple and !wouldExceedLineWidth(builder, array, options);
 
     try builder.append("[");
-    
+
     if (!single_line) {
         try builder.newline();
         builder.indent();
@@ -86,7 +86,7 @@ fn formatArray(builder: *LineBuilder, array: std.json.Array, options: FormatterO
         try builder.newline();
         try builder.appendIndent();
     }
-    
+
     try builder.append("]");
 }
 
@@ -118,7 +118,7 @@ fn formatObject(builder: *LineBuilder, object: std.json.ObjectMap, options: Form
     const single_line = is_simple and !wouldExceedObjectLineWidth(builder, object, options);
 
     try builder.append("{");
-    
+
     if (!single_line) {
         try builder.newline();
         builder.indent();
@@ -157,7 +157,7 @@ fn formatObject(builder: *LineBuilder, object: std.json.ObjectMap, options: Form
         try builder.newline();
         try builder.appendIndent();
     }
-    
+
     try builder.append("}");
 }
 
@@ -188,7 +188,7 @@ fn writeEscapedString(builder: *LineBuilder, str: []const u8) !void {
 
 fn isSimpleArray(array: std.json.Array) bool {
     if (array.items.len > 5) return false;
-    
+
     for (array.items) |item| {
         switch (item) {
             .null, .bool, .integer, .float, .number_string => {},
@@ -198,17 +198,17 @@ fn isSimpleArray(array: std.json.Array) bool {
             .array, .object => return false,
         }
     }
-    
+
     return true;
 }
 
 fn isSimpleObject(object: std.json.ObjectMap) bool {
     if (object.count() > 3) return false;
-    
+
     var it = object.iterator();
     while (it.next()) |entry| {
         if (entry.key_ptr.*.len > 20) return false;
-        
+
         switch (entry.value_ptr.*) {
             .null, .bool, .integer, .float, .number_string => {},
             .string => |s| {
@@ -217,7 +217,7 @@ fn isSimpleObject(object: std.json.ObjectMap) bool {
             .array, .object => return false,
         }
     }
-    
+
     return true;
 }
 
@@ -225,10 +225,10 @@ fn wouldExceedLineWidth(builder: *LineBuilder, array: std.json.Array, options: F
     _ = options;
     // Estimate the line width
     var estimated_width = builder.current_line_length + 2; // [ and ]
-    
+
     for (array.items, 0..) |item, i| {
         if (i > 0) estimated_width += 2; // ", "
-        
+
         switch (item) {
             .null => estimated_width += 4,
             .bool => |b| estimated_width += if (b) 4 else 5,
@@ -239,7 +239,7 @@ fn wouldExceedLineWidth(builder: *LineBuilder, array: std.json.Array, options: F
             else => return true, // Complex types always multi-line
         }
     }
-    
+
     return estimated_width > builder.options.line_width;
 }
 
@@ -247,14 +247,14 @@ fn wouldExceedObjectLineWidth(builder: *LineBuilder, object: std.json.ObjectMap,
     _ = options;
     // Estimate the line width
     var estimated_width = builder.current_line_length + 2; // { and }
-    
+
     var it = object.iterator();
     var i: usize = 0;
     while (it.next()) |entry| : (i += 1) {
         if (i > 0) estimated_width += 2; // ", "
-        
-        estimated_width += @intCast(entry.key_ptr.*.len + 4); // "key": 
-        
+
+        estimated_width += @intCast(entry.key_ptr.*.len + 4); // "key":
+
         switch (entry.value_ptr.*) {
             .null => estimated_width += 4,
             .bool => |b| estimated_width += if (b) 4 else 5,
@@ -265,6 +265,6 @@ fn wouldExceedObjectLineWidth(builder: *LineBuilder, object: std.json.ObjectMap,
             else => return true,
         }
     }
-    
+
     return estimated_width > builder.options.line_width;
 }

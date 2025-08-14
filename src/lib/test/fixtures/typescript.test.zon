@@ -3,205 +3,205 @@
     .parser_tests = .{
         .{
             .name = "functions_and_interfaces",
-            .source = 
-                \\interface User {
-                \\    id: number;
-                \\    name: string;
-                \\    email?: string;
-                \\}
-                \\
-                \\function createUser(name: string, email?: string): User {
-                \\    return {
-                \\        id: Math.random(),
-                \\        name,
-                \\        email
-                \\    };
-                \\}
-                \\
-                \\const getUserById = async (id: number): Promise<User | null> => {
-                \\    const response = await fetch(`/api/users/${id}`);
-                \\    return response.json();
-                \\};
+            .source =
+            \\interface User {
+            \\    id: number;
+            \\    name: string;
+            \\    email?: string;
+            \\}
+            \\
+            \\function createUser(name: string, email?: string): User {
+            \\    return {
+            \\        id: Math.random(),
+            \\        name,
+            \\        email
+            \\    };
+            \\}
+            \\
+            \\const getUserById = async (id: number): Promise<User | null> => {
+            \\    const response = await fetch(`/api/users/${id}`);
+            \\    return response.json();
+            \\};
             ,
             .extraction_tests = .{
                 .{
                     .flags = .{ .full = true },
-                    .expected = 
-                        \\interface User {
-                        \\    id: number;
-                        \\    name: string;
-                        \\    email?: string;
-                        \\}
-                        \\
-                        \\function createUser(name: string, email?: string): User {
-                        \\    return {
-                        \\        id: Math.random(),
-                        \\        name,
-                        \\        email
-                        \\    };
-                        \\}
-                        \\
-                        \\const getUserById = async (id: number): Promise<User | null> => {
-                        \\    const response = await fetch(`/api/users/${id}`);
-                        \\    return response.json();
-                        \\};
+                    .expected =
+                    \\interface User {
+                    \\    id: number;
+                    \\    name: string;
+                    \\    email?: string;
+                    \\}
+                    \\
+                    \\function createUser(name: string, email?: string): User {
+                    \\    return {
+                    \\        id: Math.random(),
+                    \\        name,
+                    \\        email
+                    \\    };
+                    \\}
+                    \\
+                    \\const getUserById = async (id: number): Promise<User | null> => {
+                    \\    const response = await fetch(`/api/users/${id}`);
+                    \\    return response.json();
+                    \\};
                     ,
                 },
                 .{
                     .flags = .{ .signatures = true },
-                    .expected = 
-                        \\function createUser(name: string, email?: string): User
-                        \\const getUserById = async (id: number): Promise<User | null> =>
+                    .expected =
+                    \\function createUser(name: string, email?: string): User
+                    \\const getUserById = async (id: number): Promise<User | null> =>
                     ,
                 },
                 .{
                     .flags = .{ .types = true },
-                    .expected = 
-                        \\interface User {
-                        \\    id: number;
-                        \\    name: string;
-                        \\    email?: string;
-                        \\}
+                    .expected =
+                    \\interface User {
+                    \\    id: number;
+                    \\    name: string;
+                    \\    email?: string;
+                    \\}
                     ,
                 },
             },
         },
         .{
             .name = "classes_and_generics",
-            .source = 
-                \\class DataStore<T> {
-                \\    private items: T[] = [];
-                \\    
-                \\    constructor(private name: string) {}
-                \\    
-                \\    add(item: T): void {
-                \\        this.items.push(item);
-                \\    }
-                \\    
-                \\    getAll(): T[] {
-                \\        return [...this.items];
-                \\    }
-                \\    
-                \\    findById(id: string): T | undefined {
-                \\        return this.items.find((item: any) => item.id === id);
-                \\    }
-                \\}
-                \\
-                \\type EventHandler<T = any> = (event: T) => void;
-                \\
-                \\enum Status {
-                \\    PENDING = "pending",
-                \\    COMPLETED = "completed",
-                \\    FAILED = "failed"
-                \\}
+            .source =
+            \\class DataStore<T> {
+            \\    private items: T[] = [];
+            \\    
+            \\    constructor(private name: string) {}
+            \\    
+            \\    add(item: T): void {
+            \\        this.items.push(item);
+            \\    }
+            \\    
+            \\    getAll(): T[] {
+            \\        return [...this.items];
+            \\    }
+            \\    
+            \\    findById(id: string): T | undefined {
+            \\        return this.items.find((item: any) => item.id === id);
+            \\    }
+            \\}
+            \\
+            \\type EventHandler<T = any> = (event: T) => void;
+            \\
+            \\enum Status {
+            \\    PENDING = "pending",
+            \\    COMPLETED = "completed",
+            \\    FAILED = "failed"
+            \\}
             ,
             .extraction_tests = .{
                 .{
                     .flags = .{ .types = true },
-                    .expected = 
-                        \\class DataStore<T> {
-                        \\    private items: T[] = [];
-                        \\    constructor(private name: string) {}
-                        \\}
-                        \\type EventHandler<T = any> = (event: T) => void;
-                        \\enum Status {
-                        \\    PENDING = "pending",
-                        \\    COMPLETED = "completed",
-                        \\    FAILED = "failed"
-                        \\}
+                    .expected =
+                    \\class DataStore<T> {
+                    \\    private items: T[] = [];
+                    \\    constructor(private name: string) {}
+                    \\}
+                    \\type EventHandler<T = any> = (event: T) => void;
+                    \\enum Status {
+                    \\    PENDING = "pending",
+                    \\    COMPLETED = "completed",
+                    \\    FAILED = "failed"
+                    \\}
                     ,
                 },
                 .{
                     .flags = .{ .signatures = true },
-                    .expected = 
-                        \\constructor(private name: string)
-                        \\add(item: T): void
-                        \\getAll(): T[]
-                        \\findById(id: string): T | undefined
+                    .expected =
+                    \\constructor(private name: string)
+                    \\add(item: T): void
+                    \\getAll(): T[]
+                    \\findById(id: string): T | undefined
                     ,
                 },
             },
         },
         .{
             .name = "imports_and_exports",
-            .source = 
-                \\import { Component, useEffect, useState } from 'react';
-                \\import type { User, ApiResponse } from './types';
-                \\import * as utils from '../utils';
-                \\import config from '../config.json';
-                \\
-                \\export interface Props {
-                \\    userId: string;
-                \\    onUpdate?: (user: User) => void;
-                \\}
-                \\
-                \\export const UserProfile: Component<Props> = ({ userId, onUpdate }) => {
-                \\    const [user, setUser] = useState<User | null>(null);
-                \\    
-                \\    useEffect(() => {
-                \\        loadUser();
-                \\    }, [userId]);
-                \\    
-                \\    return <div>{user?.name}</div>;
-                \\};
-                \\
-                \\export default UserProfile;
+            .source =
+            \\import { Component, useEffect, useState } from 'react';
+            \\import type { User, ApiResponse } from './types';
+            \\import * as utils from '../utils';
+            \\import config from '../config.json';
+            \\
+            \\export interface Props {
+            \\    userId: string;
+            \\    onUpdate?: (user: User) => void;
+            \\}
+            \\
+            \\export const UserProfile: Component<Props> = ({ userId, onUpdate }) => {
+            \\    const [user, setUser] = useState<User | null>(null);
+            \\    
+            \\    useEffect(() => {
+            \\        loadUser();
+            \\    }, [userId]);
+            \\    
+            \\    return <div>{user?.name}</div>;
+            \\};
+            \\
+            \\export default UserProfile;
             ,
             .extraction_tests = .{
                 .{
                     .flags = .{ .imports = true },
-                    .expected = 
-                        \\import { Component, useEffect, useState } from 'react';
-                        \\import type { User, ApiResponse } from './types';
-                        \\import * as utils from '../utils';
-                        \\import config from '../config.json';
-                        \\export interface Props {
-                        \\export const UserProfile: Component<Props> =
-                        \\export default UserProfile;
+                    .expected =
+                    \\import { Component, useEffect, useState } from 'react';
+                    \\import type { User, ApiResponse } from './types';
+                    \\import * as utils from '../utils';
+                    \\import config from '../config.json';
+                    \\export interface Props {
+                    \\export const UserProfile: Component<Props> =
+                    \\export default UserProfile;
                     ,
                 },
                 .{
                     .flags = .{ .signatures = true },
-                    .expected = 
-                        \\export const UserProfile: Component<Props> = ({ userId, onUpdate }) =>
+                    .expected =
+                    \\export const UserProfile: Component<Props> = ({ userId, onUpdate }) =>
                     ,
                 },
             },
         },
         .{
             .name = "advanced_types",
-            .source = 
-                \\type StringOrNumber = string | number;
-                \\type KeyValuePair<T> = {
-                \\    [K in keyof T]: T[K];
-                \\};
-                \\
-                \\interface Repository<T extends { id: string }> {
-                \\    find(id: string): Promise<T | null>;
-                \\    save(entity: T): Promise<T>;
-                \\    delete(id: string): Promise<void>;
-                \\}
-                \\
-                \\type PartialUser = Partial<User>;
-                \\type RequiredUser = Required<User>;
-                \\type UserKeys = keyof User;
+            .source =
+            \\type StringOrNumber = string | number;
+            \\type KeyValuePair<T> = {
+            \\    [K in keyof T]: T[K];
+            \\};
+            \\
+            \\interface Repository<T extends { id: string }> {
+            \\    find(id: string): Promise<T | null>;
+            \\    save(entity: T): Promise<T>;
+            \\    delete(id: string): Promise<void>;
+            \\}
+            \\
+            \\type PartialUser = Partial<User>;
+            \\type RequiredUser = Required<User>;
+            \\type UserKeys = keyof User;
             ,
             .extraction_tests = .{
                 .{
                     .flags = .{ .types = true },
-                    .expected = 
-                        \\type StringOrNumber = string | number;
-                        \\type KeyValuePair<T> = {
-                        \\    [K in keyof T]: T[K];
-                        \\};
-                        \\interface Repository<T extends { id: string }> {
-                        \\    find(id: string): Promise<T | null>;
-                        \\    save(entity: T): Promise<T>;
-                        \\    delete(id: string): Promise<void>;
-                        \\}
-                        \\type PartialUser = Partial<User>;
-                        \\type RequiredUser = Required<User>;
-                        \\type UserKeys = keyof User;
+                    .expected =
+                    \\type StringOrNumber = string | number;
+                    \\type KeyValuePair<T> = {
+                    \\    [K in keyof T]: T[K];
+                    \\};
+                    \\interface Repository<T extends { id: string }> {
+                    \\    find(id: string): Promise<T | null>;
+                    \\    save(entity: T): Promise<T>;
+                    \\    delete(id: string): Promise<void>;
+                    \\}
+                    \\type PartialUser = Partial<User>;
+                    \\type RequiredUser = Required<User>;
+                    \\type UserKeys = keyof User;
                     ,
                 },
             },
@@ -210,17 +210,17 @@
     .formatter_tests = .{
         .{
             .name = "function_formatting",
-            .source = 
-                \\function longFunctionName(param1:string,param2:number,param3?:boolean):Promise<User|null>{return Promise.resolve(null);}
+            .source =
+            \\function longFunctionName(param1:string,param2:number,param3?:boolean):Promise<User|null>{return Promise.resolve(null);}
             ,
-            .expected = 
-                \\function longFunctionName(
-                \\    param1: string,
-                \\    param2: number,
-                \\    param3?: boolean
-                \\): Promise<User | null> {
-                \\    return Promise.resolve(null);
-                \\}
+            .expected =
+            \\function longFunctionName(
+            \\    param1: string,
+            \\    param2: number,
+            \\    param3?: boolean
+            \\): Promise<User | null> {
+            \\    return Promise.resolve(null);
+            \\}
             ,
             .options = .{
                 .line_width = 50,
@@ -229,19 +229,19 @@
         },
         .{
             .name = "interface_formatting",
-            .source = 
-                \\interface User{id:number;name:string;email?:string;profile:{bio:string;avatar?:string;};}
+            .source =
+            \\interface User{id:number;name:string;email?:string;profile:{bio:string;avatar?:string;};}
             ,
-            .expected = 
-                \\interface User {
-                \\    id: number;
-                \\    name: string;
-                \\    email?: string;
-                \\    profile: {
-                \\        bio: string;
-                \\        avatar?: string;
-                \\    };
-                \\}
+            .expected =
+            \\interface User {
+            \\    id: number;
+            \\    name: string;
+            \\    email?: string;
+            \\    profile: {
+            \\        bio: string;
+            \\        avatar?: string;
+            \\    };
+            \\}
             ,
             .options = .{
                 .indent_size = 4,
@@ -250,17 +250,17 @@
         },
         .{
             .name = "arrow_function_formatting",
-            .source = 
-                \\const processUsers=(users:User[])=>users.filter(user=>user.email).map(user=>({...user,processed:true}));
+            .source =
+            \\const processUsers=(users:User[])=>users.filter(user=>user.email).map(user=>({...user,processed:true}));
             ,
-            .expected = 
-                \\const processUsers = (users: User[]) =>
-                \\    users
-                \\        .filter(user => user.email)
-                \\        .map(user => ({
-                \\            ...user,
-                \\            processed: true
-                \\        }));
+            .expected =
+            \\const processUsers = (users: User[]) =>
+            \\    users
+            \\        .filter(user => user.email)
+            \\        .map(user => ({
+            \\            ...user,
+            \\            processed: true
+            \\        }));
             ,
             .options = .{
                 .line_width = 60,
@@ -269,20 +269,20 @@
         },
         .{
             .name = "generic_type_formatting",
-            .source = 
-                \\class Repository<T extends BaseEntity>{private items:Map<string,T>=new Map();async find<K extends keyof T>(key:K,value:T[K]):Promise<T[]>{return[];}}
+            .source =
+            \\class Repository<T extends BaseEntity>{private items:Map<string,T>=new Map();async find<K extends keyof T>(key:K,value:T[K]):Promise<T[]>{return[];}}
             ,
-            .expected = 
-                \\class Repository<T extends BaseEntity> {
-                \\    private items: Map<string, T> = new Map();
-                \\    
-                \\    async find<K extends keyof T>(
-                \\        key: K,
-                \\        value: T[K]
-                \\    ): Promise<T[]> {
-                \\        return [];
-                \\    }
-                \\}
+            .expected =
+            \\class Repository<T extends BaseEntity> {
+            \\    private items: Map<string, T> = new Map();
+            \\    
+            \\    async find<K extends keyof T>(
+            \\        key: K,
+            \\        value: T[K]
+            \\    ): Promise<T[]> {
+            \\        return [];
+            \\    }
+            \\}
             ,
             .options = .{
                 .indent_size = 4,
@@ -291,24 +291,24 @@
         },
         .{
             .name = "import_export_formatting",
-            .source = 
-                \\import{Component,useState,useEffect}from'react';import type{User,Props}from'./types';export{UserProfile,UserCard}from'./components';export default UserProfile;
+            .source =
+            \\import{Component,useState,useEffect}from'react';import type{User,Props}from'./types';export{UserProfile,UserCard}from'./components';export default UserProfile;
             ,
-            .expected = 
-                \\import {
-                \\    Component,
-                \\    useState,
-                \\    useEffect
-                \\} from 'react';
-                \\import type {
-                \\    User,
-                \\    Props
-                \\} from './types';
-                \\export {
-                \\    UserProfile,
-                \\    UserCard
-                \\} from './components';
-                \\export default UserProfile;
+            .expected =
+            \\import {
+            \\    Component,
+            \\    useState,
+            \\    useEffect
+            \\} from 'react';
+            \\import type {
+            \\    User,
+            \\    Props
+            \\} from './types';
+            \\export {
+            \\    UserProfile,
+            \\    UserCard
+            \\} from './components';
+            \\export default UserProfile;
             ,
             .options = .{
                 .line_width = 40,
@@ -317,19 +317,19 @@
         },
         .{
             .name = "trailing_comma_option",
-            .source = 
-                \\interface Config {
-                \\    host: string;
-                \\    port: number;
-                \\    ssl: boolean;
-                \\}
+            .source =
+            \\interface Config {
+            \\    host: string;
+            \\    port: number;
+            \\    ssl: boolean;
+            \\}
             ,
-            .expected = 
-                \\interface Config {
-                \\    host: string,
-                \\    port: number,
-                \\    ssl: boolean,
-                \\}
+            .expected =
+            \\interface Config {
+            \\    host: string,
+            \\    port: number,
+            \\    ssl: boolean,
+            \\}
             ,
             .options = .{
                 .trailing_comma = true,

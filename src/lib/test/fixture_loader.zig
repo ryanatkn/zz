@@ -32,14 +32,14 @@ pub const LanguageFixtures = struct {
     language: Language,
     parser_tests: []const ParserTest,
     formatter_tests: []const FormatterTest,
-    
+
     pub fn deinit(self: *LanguageFixtures, allocator: std.mem.Allocator) void {
         // Free all nested allocations
         for (self.parser_tests) |test_case| {
             // Free strings in each parser test
             allocator.free(test_case.name);
             allocator.free(test_case.source);
-            
+
             // Free strings in each extraction test
             for (test_case.extraction_tests) |extraction_test| {
                 allocator.free(extraction_test.expected);
@@ -47,7 +47,7 @@ pub const LanguageFixtures = struct {
             allocator.free(test_case.extraction_tests);
         }
         allocator.free(self.parser_tests);
-        
+
         // Free all strings in formatter tests
         for (self.formatter_tests) |test_case| {
             allocator.free(test_case.name);
@@ -62,7 +62,7 @@ pub const LanguageFixtures = struct {
 pub const TestFixtures = struct {
     languages: []LanguageFixtures,
     allocator: std.mem.Allocator,
-    
+
     pub fn deinit(self: *TestFixtures) void {
         for (self.languages) |*lang_fixtures| {
             lang_fixtures.deinit(self.allocator);
@@ -74,17 +74,17 @@ pub const TestFixtures = struct {
 /// Fixture loader for ZON test files
 pub const FixtureLoader = struct {
     allocator: std.mem.Allocator,
-    
+
     pub fn init(allocator: std.mem.Allocator) FixtureLoader {
         return FixtureLoader{ .allocator = allocator };
     }
-    
+
     /// Load all language test fixtures
     pub fn loadAll(self: FixtureLoader) !TestFixtures {
         const languages = [_]Language{ .css, .html, .json, .typescript, .svelte, .zig };
         var fixtures_list = std.ArrayList(LanguageFixtures).init(self.allocator);
         defer fixtures_list.deinit();
-        
+
         for (languages) |lang| {
             if (self.loadLanguage(lang)) |lang_fixtures| {
                 try fixtures_list.append(lang_fixtures);
@@ -94,13 +94,13 @@ pub const FixtureLoader = struct {
                 return err;
             }
         }
-        
+
         return TestFixtures{
             .languages = try fixtures_list.toOwnedSlice(),
             .allocator = self.allocator,
         };
     }
-    
+
     /// Load fixtures for a specific language
     pub fn loadLanguage(self: FixtureLoader, language: Language) !LanguageFixtures {
         const filename = switch (language) {
@@ -112,57 +112,57 @@ pub const FixtureLoader = struct {
             .zig => "zig.test.zon",
             else => return error.UnsupportedLanguage,
         };
-        
+
         var path_buf: [256]u8 = undefined;
         const fixture_path = try std.fmt.bufPrint(&path_buf, "src/lib/test/fixtures/{s}", .{filename});
-        
+
         const file_content = try std.fs.cwd().readFileAlloc(self.allocator, fixture_path, 1024 * 1024);
         defer self.allocator.free(file_content);
-        
+
         return self.parseZonFixture(file_content, language);
     }
-    
+
     /// Parse a ZON fixture file into structured test data
     fn parseZonFixture(self: FixtureLoader, content: []const u8, language: Language) !LanguageFixtures {
         std.log.debug("parseZonFixture: Starting for language {}", .{language});
-        
+
         // Use arena ZON parser for automatic cleanup of all parsed data
         var arena_parser = ArenaZonParser.init(self.allocator);
         defer arena_parser.deinit(); // This cleans up all ZON-parsed data automatically
-        
+
         const data = try arena_parser.parseFromSlice(TestFixtureData, content);
         std.log.debug("parseZonFixture: Successfully parsed ZON, copying data...", .{});
-        
+
         // TODO: The core issue is that std.zon.parse allocates strings that we're
         // trying to duplicate AND free. When we call ZonParser.free(), it tries
         // to free the original strings, but if we've already duplicated them,
         // we're essentially double-managing the memory.
-        
+
         // Convert parsed data to our internal format
         var parser_tests = std.ArrayList(ParserTest).init(self.allocator);
         defer parser_tests.deinit();
-        
+
         for (data.parser_tests) |test_data| {
             var extraction_tests = std.ArrayList(ExtractionTest).init(self.allocator);
             defer extraction_tests.deinit();
-            
+
             for (test_data.extraction_tests) |extraction_data| {
                 try extraction_tests.append(ExtractionTest{
                     .flags = parseExtractionFlags(extraction_data.flags),
                     .expected = try self.allocator.dupe(u8, extraction_data.expected),
                 });
             }
-            
+
             try parser_tests.append(ParserTest{
                 .name = try self.allocator.dupe(u8, test_data.name),
                 .source = try self.allocator.dupe(u8, test_data.source),
                 .extraction_tests = try extraction_tests.toOwnedSlice(),
             });
         }
-        
+
         var formatter_tests = std.ArrayList(FormatterTest).init(self.allocator);
         defer formatter_tests.deinit();
-        
+
         for (data.formatter_tests) |test_data| {
             try formatter_tests.append(FormatterTest{
                 .name = try self.allocator.dupe(u8, test_data.name),
@@ -171,13 +171,13 @@ pub const FixtureLoader = struct {
                 .options = parseFormatterOptions(test_data.options),
             });
         }
-        
+
         const result = LanguageFixtures{
             .language = language,
             .parser_tests = try parser_tests.toOwnedSlice(),
             .formatter_tests = try formatter_tests.toOwnedSlice(),
         };
-        
+
         // FIXED: Memory management now handled by ArenaZonParser.
         // The issue is that std.zon.parse.free() has complex logic for
         // freeing nested structures, and we're duplicating strings from it.
@@ -189,9 +189,9 @@ pub const FixtureLoader = struct {
         //
         // For now, accept the memory leak in tests to maintain stability.
         // ZonParser.free(self.allocator, data);
-        
+
         std.log.debug("parseZonFixture: Completed, returning result (ZON data cleaned up by arena)", .{});
-        
+
         return result;
     }
 };
@@ -260,7 +260,7 @@ fn parseFormatterOptions(data: FormatterOptionsData) FormatterOptions {
         .tab
     else
         .space;
-    
+
     return FormatterOptions{
         .indent_size = @intCast(data.indent_size),
         .indent_style = indent_style,
@@ -273,7 +273,7 @@ fn parseFormatterOptions(data: FormatterOptionsData) FormatterOptions {
 test "fixture loader initialization" {
     const testing = std.testing;
     const loader = FixtureLoader.init(testing.allocator);
-    
+
     // Basic initialization test
     try testing.expect(loader.allocator.ptr == testing.allocator.ptr);
 }

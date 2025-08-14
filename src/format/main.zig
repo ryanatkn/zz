@@ -28,7 +28,7 @@ const FormatArgs = struct {
 fn configToFormatterOptions(config: FormatConfigOptions) FormatterOptions {
     const config_indent_style = @import("../config/zon.zig").IndentStyle;
     const config_quote_style = @import("../config/zon.zig").QuoteStyle;
-    
+
     return FormatterOptions{
         .indent_size = config.indent_size,
         .indent_style = switch (config.indent_style) {
@@ -52,10 +52,10 @@ pub fn run(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: 
     // Load configuration from zz.zon
     var zon_loader = ZonLoader.init(allocator, filesystem);
     defer zon_loader.deinit();
-    
+
     const config_options = zon_loader.getFormatConfig() catch FormatConfigOptions{}; // Use defaults on error
     const formatter_options = configToFormatterOptions(config_options);
-    
+
     var format_args = try parseArgs(allocator, args, formatter_options);
     defer format_args.deinit();
 
@@ -105,7 +105,7 @@ pub fn run(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: 
     for (format_args.files.items, 0..) |pattern, i| {
         patterns_array[i] = pattern;
     }
-    
+
     var results = try expander.expandPatternsWithInfo(patterns_array);
     defer results.deinit();
 
@@ -116,12 +116,12 @@ pub fn run(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: 
             }
             result.files.deinit();
         }
-        
+
         for (result.files.items) |file| {
             const file_copy = try allocator.dupe(u8, file);
             try all_files.append(file_copy);
         }
-        
+
         // If no files matched and it wasn't a glob, add as-is for error reporting
         if (result.files.items.len == 0 and !result.is_glob) {
             const file_copy = try allocator.dupe(u8, result.pattern);
@@ -237,33 +237,36 @@ fn formatStdin(allocator: std.mem.Allocator, options: FormatterOptions) !void {
 fn detectLanguageFromContent(content: []const u8) Language {
     // Simple heuristics for language detection
     const trimmed = std.mem.trim(u8, content, " \t\n\r");
-    
+
     // JSON detection
     if ((trimmed.len > 0 and trimmed[0] == '{') or trimmed[0] == '[') {
         // Likely JSON
         return .json;
     }
-    
+
     // HTML detection
     if (std.mem.indexOf(u8, content, "<!DOCTYPE") != null or
-        std.mem.indexOf(u8, content, "<html") != null) {
+        std.mem.indexOf(u8, content, "<html") != null)
+    {
         return .html;
     }
-    
+
     // CSS detection
     if (std.mem.indexOf(u8, content, "{") != null and
         (std.mem.indexOf(u8, content, "color:") != null or
-         std.mem.indexOf(u8, content, "background:") != null or
-         std.mem.indexOf(u8, content, "margin:") != null)) {
+            std.mem.indexOf(u8, content, "background:") != null or
+            std.mem.indexOf(u8, content, "margin:") != null))
+    {
         return .css;
     }
-    
+
     // Zig detection
     if (std.mem.indexOf(u8, content, "const std = @import") != null or
-        std.mem.indexOf(u8, content, "pub fn") != null) {
+        std.mem.indexOf(u8, content, "pub fn") != null)
+    {
         return .zig;
     }
-    
+
     return .unknown;
 }
 
@@ -334,6 +337,6 @@ fn printFormatHelp() !void {
         "--line-width=N           Maximum line width (default: 100)",
         "--help, -h               Show this help message",
     };
-    
+
     try Args.printUsage(stderr, "format", "Format code files with language-aware pretty printing", &options);
 }

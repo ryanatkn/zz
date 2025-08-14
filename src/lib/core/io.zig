@@ -35,13 +35,13 @@ pub fn writeFile(path: []const u8, data: []const u8) !void {
 pub fn writeFileAtomic(allocator: std.mem.Allocator, path: []const u8, data: []const u8) !void {
     const temp_path = try std.fmt.allocPrint(allocator, "{s}.tmp", .{path});
     defer allocator.free(temp_path);
-    
+
     {
         const file = try std.fs.cwd().createFile(temp_path, .{});
         defer file.close();
         try file.writeAll(data);
     }
-    
+
     try std.fs.cwd().rename(temp_path, path);
 }
 
@@ -55,7 +55,7 @@ pub fn hashFile(path: []const u8) !u64 {
 
     var hasher = std.hash.XxHash64.init(0);
     var buffer: [4096]u8 = undefined;
-    
+
     while (true) {
         const bytes_read = file.readAll(buffer[0..]) catch |err| switch (err) {
             error.BrokenPipe => break,
@@ -64,7 +64,7 @@ pub fn hashFile(path: []const u8) !u64 {
         if (bytes_read == 0) break;
         hasher.update(buffer[0..bytes_read]);
     }
-    
+
     return hasher.final();
 }
 
@@ -132,26 +132,26 @@ pub fn printStderr(comptime format: []const u8, args: anytype) !void {
 /// Buffered stdout writer
 pub const BufferedStdout = struct {
     writer: std.io.BufferedWriter(4096, std.fs.File.Writer),
-    
+
     pub fn init() BufferedStdout {
         const stdout = std.io.getStdOut().writer();
         return BufferedStdout{
             .writer = std.io.bufferedWriter(stdout),
         };
     }
-    
+
     pub fn write(self: *BufferedStdout, bytes: []const u8) !void {
         try self.writer.writer().writeAll(bytes);
     }
-    
+
     pub fn print(self: *BufferedStdout, comptime format: []const u8, args: anytype) !void {
         try self.writer.writer().print(format, args);
     }
-    
+
     pub fn flush(self: *BufferedStdout) !void {
         try self.writer.flush();
     }
-    
+
     pub fn deinit(self: *BufferedStdout) void {
         self.flush() catch {};
     }
@@ -160,26 +160,26 @@ pub const BufferedStdout = struct {
 /// Buffered stderr writer
 pub const BufferedStderr = struct {
     writer: std.io.BufferedWriter(4096, std.fs.File.Writer),
-    
+
     pub fn init() BufferedStderr {
         const stderr = std.io.getStdErr().writer();
         return BufferedStderr{
             .writer = std.io.bufferedWriter(stderr),
         };
     }
-    
+
     pub fn write(self: *BufferedStderr, bytes: []const u8) !void {
         try self.writer.writer().writeAll(bytes);
     }
-    
+
     pub fn print(self: *BufferedStderr, comptime format: []const u8, args: anytype) !void {
         try self.writer.writer().print(format, args);
     }
-    
+
     pub fn flush(self: *BufferedStderr) !void {
         try self.writer.flush();
     }
-    
+
     pub fn deinit(self: *BufferedStderr) void {
         self.flush() catch {};
     }
@@ -235,7 +235,7 @@ pub const Progress = struct {
     current: usize,
     last_percent: u8,
     writer: BufferedStdout,
-    
+
     pub fn init(total: usize) Progress {
         return Progress{
             .total = total,
@@ -244,23 +244,23 @@ pub const Progress = struct {
             .writer = BufferedStdout.init(),
         };
     }
-    
+
     pub fn update(self: *Progress, current: usize) !void {
         self.current = current;
         const percent = if (self.total > 0) @as(u8, @intCast((current * 100) / self.total)) else 0;
-        
+
         if (percent != self.last_percent) {
             try self.writer.print("\rProgress: {d}% ({d}/{d})", .{ percent, current, self.total });
             try self.writer.flush();
             self.last_percent = percent;
         }
     }
-    
+
     pub fn finish(self: *Progress) !void {
         try self.writer.write("\n");
         try self.writer.flush();
     }
-    
+
     pub fn deinit(self: *Progress) void {
         self.writer.deinit();
     }
@@ -282,20 +282,20 @@ pub fn getEnvVar(allocator: std.mem.Allocator, name: []const u8, default_value: 
 pub fn isEnvVarTrue(allocator: std.mem.Allocator, name: []const u8) bool {
     const value = std.process.getEnvVarOwned(allocator, name) catch return false;
     defer allocator.free(value);
-    
-    return std.mem.eql(u8, value, "1") or 
-           std.mem.eql(u8, value, "true") or 
-           std.mem.eql(u8, value, "TRUE") or
-           std.mem.eql(u8, value, "yes") or
-           std.mem.eql(u8, value, "YES");
+
+    return std.mem.eql(u8, value, "1") or
+        std.mem.eql(u8, value, "true") or
+        std.mem.eql(u8, value, "TRUE") or
+        std.mem.eql(u8, value, "yes") or
+        std.mem.eql(u8, value, "YES");
 }
 
 test "file operations" {
     const testing = std.testing;
-    
+
     // Test file existence
     try testing.expect(!fileExists("non_existent_file.txt"));
-    
+
     // Test hash of non-existent file
     const hash = try hashFile("non_existent_file.txt");
     try testing.expect(hash == 0);
@@ -304,10 +304,10 @@ test "file operations" {
 test "buffered writers" {
     var stdout = BufferedStdout.init();
     defer stdout.deinit();
-    
+
     var stderr = BufferedStderr.init();
     defer stderr.deinit();
-    
+
     // Just test they can be created
 }
 
@@ -320,11 +320,11 @@ test "progress reporter" {
 
 test "environment variables" {
     const testing = std.testing;
-    
+
     const value = try getEnvVar(testing.allocator, "NONEXISTENT_VAR", "default");
     defer testing.allocator.free(value);
     try testing.expectEqualStrings("default", value);
-    
+
     try testing.expect(!isEnvVarTrue(testing.allocator, "NONEXISTENT_VAR"));
 }
 

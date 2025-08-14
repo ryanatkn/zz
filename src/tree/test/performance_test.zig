@@ -368,7 +368,6 @@ test "performance comparison ignored vs not ignored" {
         std.debug.print("    Without ignoring: {d}ms\n", .{time_normal});
         std.debug.print("    Speedup: {d:.2}x (expected >3.0x)\n", .{speedup_ratio});
     }
-
 }
 
 // Test scalability with increasing directory sizes
@@ -444,7 +443,6 @@ test "scalability with increasing directory sizes" {
 
         previous_time = duration;
     }
-
 }
 
 // Memory stress test
@@ -517,5 +515,4 @@ test "memory stress test" {
             std.debug.print("⚠️  Memory stress iteration {d} slow: {d}ms\n", .{ iteration + 1, duration });
         }
     }
-
 }

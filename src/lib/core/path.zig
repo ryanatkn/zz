@@ -22,16 +22,16 @@ pub fn joinPath(allocator: std.mem.Allocator, dir_path: []const u8, filename: []
     // Fast path: direct buffer manipulation instead of fmt.allocPrint
     const total_len = dir_path.len + 1 + filename.len; // dir + '/' + filename
     var result = try allocator.alloc(u8, total_len);
-    
+
     // Copy directory path
     @memcpy(result[0..dir_path.len], dir_path);
-    
+
     // Add separator
     result[dir_path.len] = '/';
-    
+
     // Copy filename
-    @memcpy(result[dir_path.len + 1..][0..filename.len], filename);
-    
+    @memcpy(result[dir_path.len + 1 ..][0..filename.len], filename);
+
     return result;
 }
 
@@ -146,59 +146,59 @@ pub fn addRelativePrefix(allocator: std.mem.Allocator, path: []const u8) ![]u8 {
     if (path.len == 0) {
         return try allocator.dupe(u8, "./");
     }
-    
+
     // Single dot remains as-is
     if (std.mem.eql(u8, path, ".")) {
         return try allocator.dupe(u8, ".");
     }
-    
+
     // Absolute paths (starting with /) remain unchanged
     if (path[0] == '/') {
         return try allocator.dupe(u8, path);
     }
-    
+
     // Already prefixed with ./
     if (path.len >= 2 and path[0] == '.' and path[1] == '/') {
         return try allocator.dupe(u8, path);
     }
-    
+
     // Parent directory references remain unchanged
     if (path.len >= 3 and path[0] == '.' and path[1] == '.' and path[2] == '/') {
         return try allocator.dupe(u8, path);
     }
-    
+
     // Add ./ prefix
     return try std.fmt.allocPrint(allocator, "./{s}", .{path});
 }
 
 test "addRelativePrefix basic cases" {
     const allocator = std.testing.allocator;
-    
+
     // Basic relative path
     const result1 = try addRelativePrefix(allocator, "src/file.zig");
     defer allocator.free(result1);
     try std.testing.expectEqualStrings("./src/file.zig", result1);
-    
+
     // Already prefixed
     const result2 = try addRelativePrefix(allocator, "./src/file.zig");
     defer allocator.free(result2);
     try std.testing.expectEqualStrings("./src/file.zig", result2);
-    
+
     // Absolute path (unchanged)
     const result3 = try addRelativePrefix(allocator, "/etc/passwd");
     defer allocator.free(result3);
     try std.testing.expectEqualStrings("/etc/passwd", result3);
-    
+
     // Empty path
     const result4 = try addRelativePrefix(allocator, "");
     defer allocator.free(result4);
     try std.testing.expectEqualStrings("./", result4);
-    
+
     // Single dot
     const result5 = try addRelativePrefix(allocator, ".");
     defer allocator.free(result5);
     try std.testing.expectEqualStrings(".", result5);
-    
+
     // Path starting with ../
     const result6 = try addRelativePrefix(allocator, "../parent/file.zig");
     defer allocator.free(result6);

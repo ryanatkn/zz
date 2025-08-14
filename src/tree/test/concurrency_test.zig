@@ -50,7 +50,6 @@ test "multiple walker instances" {
     try walker1.walk(ctx.path);
     try walker2.walk(ctx.path);
     try walker3.walk(ctx.path);
-
 }
 
 // Test configuration immutability
@@ -83,7 +82,6 @@ test "config immutability" {
     try testing.expect(walker2.filter.shared_config.ignored_patterns.len == 2);
     try testing.expect(walker1.filter.shared_config.hidden_files.len == 1);
     try testing.expect(walker2.filter.shared_config.hidden_files.len == 1);
-
 }
 
 // Test rapid creation/destruction of configs
@@ -105,7 +103,6 @@ test "rapid config lifecycle" {
         const walker = Walker.initWithOptions(testing.allocator, config, opts_walk);
         _ = walker; // Just creation/destruction cycle
     }
-
 }
 
 // Test memory behavior under stress
@@ -141,5 +138,4 @@ test "memory stress with config changes" {
         // Verify walker works with different configs
         _ = walker;
     }
-
 }

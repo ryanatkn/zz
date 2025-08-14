@@ -12,9 +12,9 @@ pub const ExtractionFlags = struct {
     full: bool = false,
 
     pub fn isDefault(self: ExtractionFlags) bool {
-        return !self.signatures and !self.types and !self.docs and 
-               !self.structure and !self.imports and !self.errors and 
-               !self.tests and !self.full;
+        return !self.signatures and !self.types and !self.docs and
+            !self.structure and !self.imports and !self.errors and
+            !self.tests and !self.full;
     }
 
     pub fn setDefault(self: *ExtractionFlags) void {
@@ -26,13 +26,13 @@ pub const ExtractionFlags = struct {
 
 test "extraction flags" {
     const testing = std.testing;
-    
+
     var flags = ExtractionFlags{};
     try testing.expect(flags.isDefault());
-    
+
     flags.setDefault();
     try testing.expect(flags.full);
-    
+
     flags = ExtractionFlags{ .signatures = true };
     try testing.expect(!flags.isDefault());
 }

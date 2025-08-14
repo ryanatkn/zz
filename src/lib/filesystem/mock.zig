@@ -327,9 +327,10 @@ const MockDirIterator = struct {
                         try self.entries.append(try allocator.dupe(u8, entry_path));
                     }
                 }
-            } else if (std.mem.startsWith(u8, entry_path, parent_path) and 
-                       entry_path.len > parent_path.len and 
-                       entry_path[parent_path.len] == '/') {
+            } else if (std.mem.startsWith(u8, entry_path, parent_path) and
+                entry_path.len > parent_path.len and
+                entry_path[parent_path.len] == '/')
+            {
                 const relative_path = entry_path[parent_path.len + 1 ..];
                 // Only include direct children (no nested paths)
                 if (std.mem.indexOf(u8, relative_path, "/") == null) {
@@ -349,7 +350,7 @@ const MockDirIterator = struct {
     fn next(ptr: *anyopaque, allocator: std.mem.Allocator) !?std.fs.Dir.Entry {
         _ = allocator;
         const self: *Self = @ptrCast(@alignCast(ptr));
-        
+
         if (self.index >= self.entries.items.len) {
             // Clean up when done
             for (self.entries.items) |entry| {

@@ -43,21 +43,20 @@ pub fn formatTime(ns: u64, buf: []u8) ![]const u8 {
     }
 }
 
-
 /// Simple benchmark utilities for measuring optimization impact
 pub const Benchmark = struct {
     allocator: std.mem.Allocator,
     results: std.ArrayList(BenchmarkResult),
-    
+
     const Self = @This();
-    
+
     pub fn init(allocator: std.mem.Allocator) Self {
-        return Self{ 
+        return Self{
             .allocator = allocator,
             .results = std.ArrayList(BenchmarkResult).init(allocator),
         };
     }
-    
+
     pub fn deinit(self: *Self) void {
         // Free any allocated extra_info strings
         for (self.results.items) |result| {
@@ -67,19 +66,19 @@ pub const Benchmark = struct {
         }
         self.results.deinit();
     }
-    
+
     /// Benchmark path joining operations for target duration
     pub fn benchmarkPathJoining(self: *Self, target_duration_ns: u64, verbose: bool) !void {
         if (verbose) {
             std.debug.print("\n=== Path Joining Benchmark ===\n", .{});
         }
-        
+
         const dirs = [_][]const u8{ "src", "test", "docs", "lib", "config" };
         const files = [_][]const u8{ "main.zig", "test.zig", "config.zig", "lib.zig" };
-        
+
         var timer = try std.time.Timer.start();
         var total_allocations: usize = 0;
-        
+
         // Run until we hit the target duration
         while (timer.read() < target_duration_ns) {
             for (dirs) |dir| {
@@ -90,15 +89,14 @@ pub const Benchmark = struct {
                 }
             }
         }
-        
+
         const elapsed = timer.read();
         const ns_per_op = elapsed / total_allocations;
-        
+
         if (verbose) {
-            std.debug.print("  {} operations in {}ms ({} ns/op)\n", 
-                .{ total_allocations, elapsed / 1_000_000, ns_per_op });
+            std.debug.print("  {} operations in {}ms ({} ns/op)\n", .{ total_allocations, elapsed / 1_000_000, ns_per_op });
         }
-        
+
         try self.results.append(.{
             .name = "Path Joining",
             .total_operations = total_allocations,
@@ -106,23 +104,21 @@ pub const Benchmark = struct {
             .ns_per_op = ns_per_op,
         });
     }
-    
+
     /// Benchmark string pool effectiveness for target duration
     pub fn benchmarkStringPool(self: *Self, target_duration_ns: u64, verbose: bool) !void {
         if (verbose) {
             std.debug.print("\n=== String Pool Benchmark ===\n", .{});
         }
-        
+
         var path_cache = try PathCache.init(self.allocator);
         defer path_cache.deinit();
-        
-        const common_paths = [_][]const u8{ 
-            "src", "test", "lib", "docs", "config", "main.zig", "test.zig" 
-        };
-        
+
+        const common_paths = [_][]const u8{ "src", "test", "lib", "docs", "config", "main.zig", "test.zig" };
+
         var timer = try std.time.Timer.start();
         var total_ops: usize = 0;
-        
+
         // Run until we hit the target duration
         while (timer.read() < target_duration_ns) {
             for (common_paths) |path| {
@@ -130,19 +126,18 @@ pub const Benchmark = struct {
                 total_ops += 1;
             }
         }
-        
+
         const elapsed = timer.read();
         const efficiency = path_cache.intern.efficiency();
-        
+
         if (verbose) {
             std.debug.print("  {} operations in {}ms\n", .{ total_ops, elapsed / 1_000_000 });
-            std.debug.print("  Cache efficiency: {d:.1}% ({} hits, {} misses)\n", 
-                .{ efficiency * 100, path_cache.intern.hits, path_cache.intern.misses });
+            std.debug.print("  Cache efficiency: {d:.1}% ({} hits, {} misses)\n", .{ efficiency * 100, path_cache.intern.hits, path_cache.intern.misses });
         }
-        
+
         var extra_info_buf: [256]u8 = undefined;
         const extra_info = try std.fmt.bufPrint(&extra_info_buf, "Cache efficiency: {d:.1}%", .{efficiency * 100});
-        
+
         try self.results.append(.{
             .name = "String Pool",
             .total_operations = total_ops,
@@ -151,19 +146,19 @@ pub const Benchmark = struct {
             .extra_info = try self.allocator.dupe(u8, extra_info),
         });
     }
-    
+
     /// Benchmark memory pools for target duration
     pub fn benchmarkMemoryPools(self: *Self, target_duration_ns: u64, verbose: bool) !void {
         if (verbose) {
             std.debug.print("\n=== Memory Pools Benchmark ===\n", .{});
         }
-        
+
         var pools = ListPool.init(self.allocator);
         defer pools.deinit();
-        
+
         var timer = try std.time.Timer.start();
         var iterations: usize = 0;
-        
+
         // Run until we hit the target duration
         while (timer.read() < target_duration_ns) {
             var list = pools.getConstStringList();
@@ -174,15 +169,14 @@ pub const Benchmark = struct {
             pools.putConstStringList(list);
             iterations += 1;
         }
-        
+
         const elapsed = timer.read();
         const ns_per_op = elapsed / iterations;
-        
+
         if (verbose) {
-            std.debug.print("  {} operations in {}ms ({} ns/op)\n", 
-                .{ iterations, elapsed / 1_000_000, ns_per_op });
+            std.debug.print("  {} operations in {}ms ({} ns/op)\n", .{ iterations, elapsed / 1_000_000, ns_per_op });
         }
-        
+
         try self.results.append(.{
             .name = "Memory Pools",
             .total_operations = iterations,
@@ -190,48 +184,49 @@ pub const Benchmark = struct {
             .ns_per_op = ns_per_op,
         });
     }
-    
+
     /// Benchmark glob pattern optimization for target duration
     pub fn benchmarkGlobPatterns(self: *Self, target_duration_ns: u64, verbose: bool) !void {
         if (verbose) {
             std.debug.print("\n=== Glob Pattern Benchmark ===\n", .{});
         }
-        
+
         const patterns = [_][]const u8{
             "*.{zig,c,h}",
             "*.{js,ts}",
             "*.{md,txt}",
             "src/**/*.zig",
         };
-        
+
         var timer = try std.time.Timer.start();
         var fast_path_hits: usize = 0;
         var total_patterns: usize = 0;
-        
+
         // Run until we hit the target duration
         while (timer.read() < target_duration_ns) {
             for (patterns) |pattern| {
                 // Simulate fast path checking
                 if (std.mem.eql(u8, pattern, "*.{zig,c,h}") or
                     std.mem.eql(u8, pattern, "*.{js,ts}") or
-                    std.mem.eql(u8, pattern, "*.{md,txt}")) {
+                    std.mem.eql(u8, pattern, "*.{md,txt}"))
+                {
                     fast_path_hits += 1;
                 }
                 total_patterns += 1;
             }
         }
-        
+
         const elapsed = timer.read();
         const fast_path_ratio = @as(f64, @floatFromInt(fast_path_hits)) / @as(f64, @floatFromInt(total_patterns));
-        
+
         if (verbose) {
             std.debug.print("  {} patterns in {}ms\n", .{ total_patterns, elapsed / 1_000_000 });
-            std.debug.print("  Fast path hit ratio: {d:.1}%\n", .{ fast_path_ratio * 100 });
+            std.debug.print("  Fast path hit ratio: {d:.1}%\n", .{fast_path_ratio * 100});
         }
-        
+
         var extra_info_buf: [256]u8 = undefined;
         const extra_info = try std.fmt.bufPrint(&extra_info_buf, "Fast path hit ratio: {d:.1}%", .{fast_path_ratio * 100});
-        
+
         try self.results.append(.{
             .name = "Glob Patterns",
             .total_operations = total_patterns,
@@ -240,17 +235,17 @@ pub const Benchmark = struct {
             .extra_info = try self.allocator.dupe(u8, extra_info),
         });
     }
-    
+
     /// Benchmark code extraction performance
     pub fn benchmarkExtraction(self: *Self, target_duration_ns: u64, verbose: bool) !void {
         if (verbose) {
             std.debug.print("\n📋 Benchmarking Code Extraction...\n", .{});
         }
-        
+
         const ExtractionFlags = @import("language/flags.zig").ExtractionFlags;
-        
+
         // Sample Zig code for extraction
-        const sample_code = 
+        const sample_code =
             \\const std = @import("std");
             \\
             \\/// Documentation for MyStruct
@@ -273,43 +268,40 @@ pub const Benchmark = struct {
             \\    // Helper function
             \\}
         ;
-        
+
         const start = std.time.nanoTimestamp();
         var total_extractions: usize = 0;
-        
+
         // Test different extraction modes
-        const extraction_modes = [_]struct { 
-            name: []const u8, 
-            flags: ExtractionFlags 
-        }{
+        const extraction_modes = [_]struct { name: []const u8, flags: ExtractionFlags }{
             .{ .name = "full", .flags = ExtractionFlags{ .full = true } },
             .{ .name = "signatures", .flags = ExtractionFlags{ .signatures = true } },
             .{ .name = "types", .flags = ExtractionFlags{ .types = true } },
             .{ .name = "combined", .flags = ExtractionFlags{ .signatures = true, .types = true, .docs = true } },
         };
-        
+
         while (@as(u64, @intCast(std.time.nanoTimestamp() - start)) < target_duration_ns) {
             for (extraction_modes) |mode| {
                 const extractor_mod = @import("language/extractor.zig");
                 var parser = extractor_mod.createExtractor(self.allocator, .zig);
-                
+
                 const extracted = try parser.extract(sample_code, mode.flags);
                 defer self.allocator.free(extracted);
-                
+
                 total_extractions += 1;
             }
         }
-        
+
         const elapsed = @as(u64, @intCast(std.time.nanoTimestamp() - start));
-        
+
         if (verbose) {
             std.debug.print("  {} extractions in {}ms\n", .{ total_extractions, elapsed / 1_000_000 });
             std.debug.print("  Extraction modes tested: full, signatures, types, combined\n", .{});
         }
-        
+
         var extra_info_buf: [256]u8 = undefined;
         const extra_info = try std.fmt.bufPrint(&extra_info_buf, "4 extraction modes", .{});
-        
+
         try self.results.append(.{
             .name = "Code Extraction",
             .total_operations = total_extractions,
@@ -318,54 +310,53 @@ pub const Benchmark = struct {
             .extra_info = try self.allocator.dupe(u8, extra_info),
         });
     }
-    
+
     /// Benchmark cache system performance
     pub fn benchmarkCacheSystem(self: *Self, target_duration_ns: u64, verbose: bool) !void {
         if (verbose) {
             std.debug.print("\n=== Cache System Benchmark ===\n", .{});
         }
-        
+
         const CacheSystem = @import("analysis/cache.zig").CacheSystem;
         const AstCacheKey = @import("analysis/cache.zig").AstCacheKey;
-        
+
         var cache_system = CacheSystem.init(self.allocator);
         defer cache_system.deinit();
-        
+
         var timer = try std.time.Timer.start();
         var cache_operations: usize = 0;
-        
+
         // Sample content for caching
         const sample_content = "pub fn test() void {}";
-        
+
         // Run cache operations
         while (timer.read() < target_duration_ns) {
             // Create cache key
             const key = AstCacheKey.init(12345, 1, 67890);
-            
+
             // Try cache lookup (miss)
             _ = cache_system.ast_cache.get(key);
-            
+
             // Store in cache
             try cache_system.ast_cache.put(key, sample_content);
-            
+
             // Lookup again (hit)
             _ = cache_system.ast_cache.get(key);
-            
+
             cache_operations += 3; // lookup + put + lookup
         }
-        
+
         const elapsed = timer.read();
         const cache_stats = cache_system.getAstStats();
-        
+
         if (verbose) {
             std.debug.print("  {} cache operations in {}ms\n", .{ cache_operations, elapsed / 1_000_000 });
-            std.debug.print("  Hit rate: {d:.1}% ({} hits, {} misses)\n", 
-                .{ cache_stats.efficiency(), cache_stats.hits, cache_stats.misses });
+            std.debug.print("  Hit rate: {d:.1}% ({} hits, {} misses)\n", .{ cache_stats.efficiency(), cache_stats.hits, cache_stats.misses });
         }
-        
+
         var extra_info_buf: [256]u8 = undefined;
         const extra_info = try std.fmt.bufPrint(&extra_info_buf, "Hit rate: {d:.1}%", .{cache_stats.efficiency()});
-        
+
         try self.results.append(.{
             .name = "Cache System",
             .total_operations = cache_operations,
@@ -374,30 +365,30 @@ pub const Benchmark = struct {
             .extra_info = try self.allocator.dupe(u8, extra_info),
         });
     }
-    
+
     /// Benchmark incremental file tracking
     pub fn benchmarkIncremental(self: *Self, target_duration_ns: u64, verbose: bool) !void {
         if (verbose) {
             std.debug.print("\n=== Incremental File Tracking Benchmark ===\n", .{});
         }
-        
+
         const FileTracker = @import("analysis/incremental.zig").FileTracker;
-        
+
         var tracker = FileTracker.init(self.allocator);
         defer tracker.deinit();
-        
+
         // Create temporary test files
         var tmp_dir = std.testing.tmpDir(.{});
         defer tmp_dir.cleanup();
-        
+
         const test_files = [_][]const u8{ "file1.zig", "file2.zig", "file3.zig" };
         for (test_files) |filename| {
             try tmp_dir.dir.writeFile(.{ .sub_path = filename, .data = "test content" });
         }
-        
+
         var timer = try std.time.Timer.start();
         var tracking_operations: usize = 0;
-        
+
         // Get absolute paths
         var file_paths: [test_files.len][]u8 = undefined;
         for (test_files, 0..) |filename, i| {
@@ -408,7 +399,7 @@ pub const Benchmark = struct {
                 self.allocator.free(path);
             }
         }
-        
+
         // Run tracking operations
         while (timer.read() < target_duration_ns) {
             for (file_paths) |file_path| {
@@ -417,17 +408,17 @@ pub const Benchmark = struct {
                 tracking_operations += 2; // track + get
             }
         }
-        
+
         const elapsed = timer.read();
-        
+
         if (verbose) {
             std.debug.print("  {} tracking operations in {}ms\n", .{ tracking_operations, elapsed / 1_000_000 });
             std.debug.print("  Files tracked: {}\n", .{test_files.len});
         }
-        
+
         var extra_info_buf: [256]u8 = undefined;
         const extra_info = try std.fmt.bufPrint(&extra_info_buf, "{} test files", .{test_files.len});
-        
+
         try self.results.append(.{
             .name = "Incremental Tracking",
             .total_operations = tracking_operations,
@@ -436,26 +427,26 @@ pub const Benchmark = struct {
             .extra_info = try self.allocator.dupe(u8, extra_info),
         });
     }
-    
+
     /// Benchmark parallel processing performance
     pub fn benchmarkParallelProcessing(self: *Self, target_duration_ns: u64, verbose: bool) !void {
         if (verbose) {
             std.debug.print("\n=== Parallel Processing Benchmark ===\n", .{});
         }
-        
+
         const WorkerPool = @import("parallel.zig").WorkerPool;
         const Task = @import("parallel.zig").Task;
-        
+
         // Create worker pool with 4 workers
         var pool = try WorkerPool.init(self.allocator, 4);
         defer pool.deinit();
-        
+
         try pool.start();
         defer pool.stop();
-        
+
         var timer = try std.time.Timer.start();
         var parallel_tasks: usize = 0;
-        
+
         // Simple task function
         const SimpleTaskFn = struct {
             fn execute(task: *Task, context: ?*anyopaque) !void {
@@ -470,34 +461,34 @@ pub const Benchmark = struct {
                 std.mem.doNotOptimizeAway(sum);
             }
         }.execute;
-        
+
         // Submit tasks until duration reached
         while (timer.read() < target_duration_ns) {
             const task_id = try pool.submitTask(.normal, SimpleTaskFn, null, &.{});
             _ = task_id;
             parallel_tasks += 1;
-            
+
             // Small delay to prevent overwhelming the queue
             if (parallel_tasks % 100 == 0) {
                 std.time.sleep(1_000_000); // 1ms
             }
         }
-        
+
         // Wait for completion
         pool.waitForCompletion();
-        
+
         const elapsed = timer.read();
         const stats = pool.getWorkerStats();
-        
+
         if (verbose) {
             std.debug.print("  {} tasks submitted in {}ms\n", .{ parallel_tasks, elapsed / 1_000_000 });
             std.debug.print("  Completed tasks: {}\n", .{stats.total_completed_tasks});
             std.debug.print("  Workers: {}\n", .{stats.worker_count});
         }
-        
+
         var extra_info_buf: [256]u8 = undefined;
         const extra_info = try std.fmt.bufPrint(&extra_info_buf, "{} workers", .{stats.worker_count});
-        
+
         try self.results.append(.{
             .name = "Parallel Processing",
             .total_operations = parallel_tasks,
@@ -506,17 +497,17 @@ pub const Benchmark = struct {
             .extra_info = try self.allocator.dupe(u8, extra_info),
         });
     }
-    
+
     /// Benchmark AST node visitor performance
     pub fn benchmarkAstTraversal(self: *Self, target_duration_ns: u64, verbose: bool) !void {
         if (verbose) {
             std.debug.print("\n=== AST Traversal Benchmark ===\n", .{});
         }
-        
+
         const AstNode = @import("parsing/ast.zig").AstNode;
         const NodeVisitor = @import("parsing/ast.zig").NodeVisitor;
         const VisitResult = @import("parsing/ast.zig").VisitResult;
-        
+
         // Create a mock AST node for traversal
         const sample_source = "pub fn test() void { const x = 42; return; }";
         const mock_node = AstNode{
@@ -528,10 +519,10 @@ pub const Benchmark = struct {
             .end_point = AstNode.Point{ .row = 0, .column = @intCast(sample_source.len) },
             .text = sample_source,
         };
-        
+
         var timer = try std.time.Timer.start();
         var traversal_operations: usize = 0;
-        
+
         // Visitor function that counts nodes
         const CounterVisitor = struct {
             fn visit(visitor: *NodeVisitor, node: *const AstNode, context: ?*anyopaque) !VisitResult {
@@ -544,7 +535,7 @@ pub const Benchmark = struct {
                 return VisitResult.continue_traversal;
             }
         }.visit;
-        
+
         // Run traversals
         while (timer.read() < target_duration_ns) {
             var node_count: usize = 0;
@@ -552,17 +543,17 @@ pub const Benchmark = struct {
             try visitor.traverse(&mock_node, sample_source);
             traversal_operations += 1;
         }
-        
+
         const elapsed = timer.read();
-        
+
         if (verbose) {
             std.debug.print("  {} AST traversals in {}ms\n", .{ traversal_operations, elapsed / 1_000_000 });
             std.debug.print("  Sample AST size: {} bytes\n", .{sample_source.len});
         }
-        
+
         var extra_info_buf: [256]u8 = undefined;
         const extra_info = try std.fmt.bufPrint(&extra_info_buf, "{} bytes AST", .{sample_source.len});
-        
+
         try self.results.append(.{
             .name = "AST Traversal",
             .total_operations = traversal_operations,
@@ -571,7 +562,7 @@ pub const Benchmark = struct {
             .extra_info = try self.allocator.dupe(u8, extra_info),
         });
     }
-    
+
     /// Run all benchmarks for target duration each
     pub fn runAll(self: *Self, target_duration_ns: u64, verbose: bool) !void {
         if (verbose) {
@@ -579,7 +570,7 @@ pub const Benchmark = struct {
             const formatted_duration = try formatTime(target_duration_ns, &duration_buf);
             std.debug.print("Running performance benchmarks for {} each...\n", .{formatted_duration});
         }
-        
+
         try self.benchmarkPathJoining(target_duration_ns, verbose);
         try self.benchmarkStringPool(target_duration_ns, verbose);
         try self.benchmarkMemoryPools(target_duration_ns, verbose);
@@ -589,36 +580,36 @@ pub const Benchmark = struct {
         try self.benchmarkIncremental(target_duration_ns, verbose);
         try self.benchmarkParallelProcessing(target_duration_ns, verbose);
         try self.benchmarkAstTraversal(target_duration_ns, verbose);
-        
+
         if (verbose) {
             std.debug.print("\n=== Benchmark Complete ===\n", .{});
         }
     }
-    
+
     /// Get all benchmark results
     pub fn getResults(self: Self) []const BenchmarkResult {
         return self.results.items;
     }
-    
+
     /// Print comparison summary to terminal
     pub fn printComparison(self: Self, baseline_results: ?[]const BenchmarkResult) void {
         if (baseline_results == null) return;
-        
+
         std.debug.print("\n=== Performance Comparison ===\n", .{});
         for (self.results.items) |result| {
             // Find matching baseline
             const baseline_result = for (baseline_results.?) |b| {
                 if (std.mem.eql(u8, b.name, result.name)) break b;
             } else null;
-            
+
             if (baseline_result) |base| {
-                const change = @as(f64, @floatFromInt(result.ns_per_op)) / 
-                              @as(f64, @floatFromInt(base.ns_per_op)) - 1.0;
+                const change = @as(f64, @floatFromInt(result.ns_per_op)) /
+                    @as(f64, @floatFromInt(base.ns_per_op)) - 1.0;
                 const change_pct = change * 100.0;
-                
+
                 // Color coding would be nice but keeping it simple
                 const symbol = if (change > 0.05) "⚠" else if (change < -0.05) "✓" else " ";
-                
+
                 std.debug.print("  {s} {s}: {s}{d:.1}% ({} ns/op → {} ns/op)\n", .{
                     symbol,
                     result.name,
@@ -632,7 +623,7 @@ pub const Benchmark = struct {
             }
         }
     }
-    
+
     /// Write results to markdown format
     pub fn writeMarkdown(
         self: Self,
@@ -643,7 +634,7 @@ pub const Benchmark = struct {
     ) !void {
         // Header
         try writer.print("# Benchmark Results\n\n", .{});
-        
+
         // Metadata
         const timestamp = std.time.timestamp();
         const date_time = std.time.epoch.EpochSeconds{ .secs = @intCast(timestamp) };
@@ -657,7 +648,7 @@ pub const Benchmark = struct {
         });
         try writer.print("**Build:** {s}  \n", .{build_mode});
         try writer.print("**Duration per benchmark:** {s}  \n\n", .{duration_per_benchmark});
-        
+
         // Results table
         try writer.print("## Results\n\n", .{});
         try writer.print("| Benchmark | Operations | Time (ms) | ns/op |", .{});
@@ -665,13 +656,13 @@ pub const Benchmark = struct {
             try writer.print(" Baseline | Change |", .{});
         }
         try writer.print("\n", .{});
-        
+
         try writer.print("|-----------|------------|-----------|-------|", .{});
         if (baseline_results != null) {
             try writer.print("----------|--------|", .{});
         }
         try writer.print("\n", .{});
-        
+
         // Data rows
         for (self.results.items) |result| {
             try writer.print("| {s} | {} | {} | {} |", .{
@@ -680,18 +671,18 @@ pub const Benchmark = struct {
                 result.elapsed_ns / 1_000_000,
                 result.ns_per_op,
             });
-            
+
             if (baseline_results) |baseline| {
                 // Find matching baseline
                 const baseline_result = for (baseline) |b| {
                     if (std.mem.eql(u8, b.name, result.name)) break b;
                 } else null;
-                
+
                 if (baseline_result) |base| {
-                    const change = @as(f64, @floatFromInt(result.ns_per_op)) / 
-                                  @as(f64, @floatFromInt(base.ns_per_op)) - 1.0;
+                    const change = @as(f64, @floatFromInt(result.ns_per_op)) /
+                        @as(f64, @floatFromInt(base.ns_per_op)) - 1.0;
                     const change_pct = change * 100.0;
-                    
+
                     try writer.print(" {} | {s}{d:.1}% |", .{
                         base.ns_per_op,
                         if (change > 0) "+" else "",
@@ -703,7 +694,7 @@ pub const Benchmark = struct {
             }
             try writer.print("\n", .{});
         }
-        
+
         // Extra info section if any
         try writer.print("\n## Notes\n\n", .{});
         for (self.results.items) |result| {
@@ -712,7 +703,7 @@ pub const Benchmark = struct {
             }
         }
     }
-    
+
     /// Write results in JSON format
     pub fn writeJSON(
         self: Self,
@@ -721,13 +712,13 @@ pub const Benchmark = struct {
         duration_per_benchmark: []const u8,
     ) !void {
         const timestamp = std.time.timestamp();
-        
+
         try writer.print("{{\n", .{});
         try writer.print("  \"timestamp\": {},\n", .{timestamp});
         try writer.print("  \"build_mode\": \"{s}\",\n", .{build_mode});
         try writer.print("  \"duration_per_benchmark\": \"{s}\",\n", .{duration_per_benchmark});
         try writer.print("  \"results\": [\n", .{});
-        
+
         for (self.results.items, 0..) |result, i| {
             try writer.print("    {{\n", .{});
             try writer.print("      \"name\": \"{s}\",\n", .{result.name});
@@ -743,16 +734,16 @@ pub const Benchmark = struct {
             }
             try writer.print("\n", .{});
         }
-        
+
         try writer.print("  ]\n", .{});
         try writer.print("}}\n", .{});
     }
-    
+
     /// Write results in CSV format
     pub fn writeCSV(self: Self, writer: anytype) !void {
         // Header
         try writer.print("Benchmark,Operations,Time (ms),ns/op\n", .{});
-        
+
         // Data rows
         for (self.results.items) |result| {
             try writer.print("{s},{},{},{}\n", .{
@@ -763,7 +754,7 @@ pub const Benchmark = struct {
             });
         }
     }
-    
+
     /// Write results in pretty terminal format
     pub fn writePretty(
         self: Self,
@@ -774,40 +765,40 @@ pub const Benchmark = struct {
         try writer.print("\n{s}{s}╔══════════════════════════════════════════════════════════════╗{s}\n", .{ Color.blue, Color.bold, Color.reset });
         try writer.print("{s}{s}║                  zz Performance Benchmarks                   ║{s}\n", .{ Color.blue, Color.bold, Color.reset });
         try writer.print("{s}{s}╚══════════════════════════════════════════════════════════════╝{s}\n\n", .{ Color.blue, Color.bold, Color.reset });
-        
+
         // Calculate totals for summary
         var total_time: u64 = 0;
         var improved_count: usize = 0;
         var regressed_count: usize = 0;
         var new_count: usize = 0;
-        
+
         // Calculate total runtime
         for (self.results.items) |result| {
             total_time += result.elapsed_ns;
         }
-        
+
         // Results with color coding
         for (self.results.items) |result| {
             var time_buf: [64]u8 = undefined;
             var baseline_buf: [64]u8 = undefined;
-            
+
             const formatted_time = try formatTime(result.ns_per_op, &time_buf);
-            
+
             if (baseline_results) |baseline| {
                 const baseline_result = for (baseline) |b| {
                     if (std.mem.eql(u8, b.name, result.name)) break b;
                 } else null;
-                
+
                 if (baseline_result) |base| {
-                    const change = @as(f64, @floatFromInt(result.ns_per_op)) / 
-                                  @as(f64, @floatFromInt(base.ns_per_op)) - 1.0;
+                    const change = @as(f64, @floatFromInt(result.ns_per_op)) /
+                        @as(f64, @floatFromInt(base.ns_per_op)) - 1.0;
                     const change_pct = change * 100.0;
-                    
+
                     const formatted_baseline = try formatTime(base.ns_per_op, &baseline_buf);
-                    
+
                     var total_runtime_buf: [64]u8 = undefined;
                     const formatted_total_runtime = try formatTime(result.elapsed_ns, &total_runtime_buf);
-                    
+
                     if (change > 0.05) {
                         regressed_count += 1;
                         try writer.print("{s}⚠ {s: <20} {s: >8} → {s}{s: >8}{s} {s}{s}{d:.1}% in {s}{s}\n", .{
@@ -868,14 +859,14 @@ pub const Benchmark = struct {
                 });
             }
         }
-        
+
         // Separator
         try writer.print("\n{s}──────────────────────────────────────────────────────────────{s}\n", .{ Color.gray, Color.reset });
-        
+
         // Summary section
         var total_time_buf: [64]u8 = undefined;
         const formatted_total = try formatTime(total_time, &total_time_buf);
-        
+
         if (baseline_results != null) {
             try writer.print("{s}Summary:{s} {} benchmarks, {s} total\n", .{
                 Color.bold,
@@ -883,7 +874,7 @@ pub const Benchmark = struct {
                 self.results.items.len,
                 formatted_total,
             });
-            
+
             if (improved_count > 0 or regressed_count > 0 or new_count > 0) {
                 try writer.print("         ", .{});
                 if (improved_count > 0) {
@@ -910,19 +901,19 @@ pub const Benchmark = struct {
                 Color.reset,
             });
         }
-        
+
         try writer.print("\n", .{});
     }
-    
+
     /// Load benchmark results from markdown file
     pub fn loadFromMarkdown(allocator: std.mem.Allocator, content: []const u8) ![]BenchmarkResult {
         var results = std.ArrayList(BenchmarkResult).init(allocator);
         errdefer results.deinit();
-        
+
         var lines = std.mem.tokenizeScalar(u8, content, '\n');
         var in_table = false;
         var skip_header = true;
-        
+
         while (lines.next()) |line| {
             // Look for table start
             if (!in_table) {
@@ -932,25 +923,25 @@ pub const Benchmark = struct {
                 }
                 continue;
             }
-            
+
             // Skip header separator
             if (skip_header and std.mem.indexOf(u8, line, "|---") != null) {
                 skip_header = false;
                 continue;
             }
-            
+
             // Parse data row
             if (line[0] == '|') {
                 var parts = std.mem.tokenizeScalar(u8, line, '|');
-                
+
                 const name = std.mem.trim(u8, parts.next() orelse continue, " ");
                 const ops_str = std.mem.trim(u8, parts.next() orelse continue, " ");
                 _ = parts.next(); // Skip time_ms
                 const ns_op_str = std.mem.trim(u8, parts.next() orelse continue, " ");
-                
+
                 const ops = std.fmt.parseInt(usize, ops_str, 10) catch continue;
                 const ns_op = std.fmt.parseInt(u64, ns_op_str, 10) catch continue;
-                
+
                 try results.append(.{
                     .name = try allocator.dupe(u8, name),
                     .total_operations = ops,
@@ -959,7 +950,7 @@ pub const Benchmark = struct {
                 });
             }
         }
-        
+
         return results.toOwnedSlice();
     }
 };

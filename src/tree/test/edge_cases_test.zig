@@ -50,7 +50,6 @@ test "symlink handling" {
         error.SymLinkLoop => {}, // Expected for some symlink scenarios
         else => return err,
     };
-
 }
 
 // Test null byte injection protection
@@ -73,7 +72,6 @@ test "null byte injection protection" {
     try testing.expect(filter.shouldIgnore("test\x00injection"));
     try testing.expect(!filter.shouldIgnore("test"));
     try testing.expect(!filter.shouldIgnore("injection"));
-
 }
 
 // Test circular directory references (if possible to create)
@@ -123,7 +121,6 @@ test "circular reference handling" {
     const walker = Walker.initWithOptions(testing.allocator, config, walker_options);
 
     try walker.walk(".");
-
 }
 
 // Test filesystem encoding issues
@@ -173,5 +170,4 @@ test "filesystem encoding edge cases" {
             std.mem.eql(u8, name, "UPPERCASE.TXT");
         try testing.expect(filter.shouldIgnore(name) == should_ignore);
     }
-
 }

@@ -11,7 +11,7 @@ const ExtractionFlags = @import("../language/flags.zig").ExtractionFlags;
 test "Zig: extract function signatures" {
     const allocator = testing.allocator;
     const parser = Extractor.init(allocator, .zig);
-    
+
     const source =
         \\pub fn main() void {
         \\    std.debug.print("Hello", .{});
@@ -23,11 +23,11 @@ test "Zig: extract function signatures" {
         \\
         \\const value = 42;
     ;
-    
+
     const flags = ExtractionFlags{ .signatures = true };
     const result = try parser.extract(source, flags);
     defer allocator.free(result);
-    
+
     // Should contain function signatures
     try testing.expect(std.mem.indexOf(u8, result, "pub fn main() void {") != null);
     try testing.expect(std.mem.indexOf(u8, result, "fn helper() !void {") != null);
@@ -45,7 +45,7 @@ test "Zig: extract types and constants" {
 test "Zig: extract imports" {
     const allocator = testing.allocator;
     const parser = Extractor.init(allocator, .zig);
-    
+
     const source =
         \\const std = @import("std");
         \\const testing = std.testing;
@@ -55,11 +55,11 @@ test "Zig: extract imports" {
         \\    const local = @import("local.zig");
         \\}
     ;
-    
+
     const flags = ExtractionFlags{ .imports = true };
     const result = try parser.extract(source, flags);
     defer allocator.free(result);
-    
+
     // Should contain all imports
     try testing.expect(std.mem.indexOf(u8, result, "@import(\"std\")") != null);
     try testing.expect(std.mem.indexOf(u8, result, "@import(\"my_module.zig\")") != null);
@@ -73,7 +73,7 @@ test "Zig: extract imports" {
 test "CSS: extract with types flag" {
     const allocator = testing.allocator;
     const parser = Extractor.init(allocator, .css);
-    
+
     const source =
         \\:root {
         \\    --primary-color: #007bff;
@@ -91,11 +91,11 @@ test "CSS: extract with types flag" {
         \\    }
         \\}
     ;
-    
+
     const flags = ExtractionFlags{ .types = true };
     const result = try parser.extract(source, flags);
     defer allocator.free(result);
-    
+
     // With types flag, CSS returns everything (all structure)
     try testing.expect(std.mem.indexOf(u8, result, ":root") != null);
     try testing.expect(std.mem.indexOf(u8, result, "--primary-color") != null);
@@ -106,7 +106,7 @@ test "CSS: extract with types flag" {
 test "CSS: extract selectors only with signatures" {
     const allocator = testing.allocator;
     const parser = Extractor.init(allocator, .css);
-    
+
     const source =
         \\.btn {
         \\    background: blue;
@@ -121,11 +121,11 @@ test "CSS: extract selectors only with signatures" {
         \\    margin: 0;
         \\}
     ;
-    
+
     const flags = ExtractionFlags{ .signatures = true };
     const result = try parser.extract(source, flags);
     defer allocator.free(result);
-    
+
     // Should contain selectors (without the opening brace)
     try testing.expect(std.mem.indexOf(u8, result, ".btn") != null);
     try testing.expect(std.mem.indexOf(u8, result, "#header") != null);
@@ -135,7 +135,7 @@ test "CSS: extract selectors only with signatures" {
 test "CSS: extract imports" {
     const allocator = testing.allocator;
     const parser = Extractor.init(allocator, .css);
-    
+
     const source =
         \\@import url('fonts.css');
         \\@import "variables.css";
@@ -145,11 +145,11 @@ test "CSS: extract imports" {
         \\    font-family: sans-serif;
         \\}
     ;
-    
+
     const flags = ExtractionFlags{ .imports = true };
     const result = try parser.extract(source, flags);
     defer allocator.free(result);
-    
+
     // Should contain imports
     try testing.expect(std.mem.indexOf(u8, result, "@import url('fonts.css')") != null);
     try testing.expect(std.mem.indexOf(u8, result, "@import \"variables.css\"") != null);
@@ -165,7 +165,7 @@ test "CSS: extract imports" {
 test "HTML: extract structure" {
     const allocator = testing.allocator;
     const parser = Extractor.init(allocator, .html);
-    
+
     const source =
         \\<!DOCTYPE html>
         \\<html lang="en">
@@ -179,11 +179,11 @@ test "HTML: extract structure" {
         \\</body>
         \\</html>
     ;
-    
+
     const flags = ExtractionFlags{ .structure = true };
     const result = try parser.extract(source, flags);
     defer allocator.free(result);
-    
+
     // Should contain all HTML tags
     try testing.expect(std.mem.indexOf(u8, result, "<!DOCTYPE html>") != null);
     try testing.expect(std.mem.indexOf(u8, result, "<html lang=\"en\">") != null);
@@ -197,7 +197,7 @@ test "HTML: extract structure" {
 test "HTML: extract script functions with signatures" {
     const allocator = testing.allocator;
     const parser = Extractor.init(allocator, .html);
-    
+
     const source =
         \\<html>
         \\<head>
@@ -212,11 +212,11 @@ test "HTML: extract script functions with signatures" {
         \\</body>
         \\</html>
     ;
-    
+
     const flags = ExtractionFlags{ .signatures = true };
     const result = try parser.extract(source, flags);
     defer allocator.free(result);
-    
+
     // Should contain script tags and functions
     try testing.expect(std.mem.indexOf(u8, result, "<script>") != null);
     try testing.expect(std.mem.indexOf(u8, result, "function init()") != null);
@@ -227,7 +227,7 @@ test "HTML: extract script functions with signatures" {
 test "HTML: extract comments with docs flag" {
     const allocator = testing.allocator;
     const parser = Extractor.init(allocator, .html);
-    
+
     const source =
         \\<html>
         \\<!-- Header Section -->
@@ -239,11 +239,11 @@ test "HTML: extract comments with docs flag" {
         \\<main>Content</main>
         \\</html>
     ;
-    
+
     const flags = ExtractionFlags{ .docs = true };
     const result = try parser.extract(source, flags);
     defer allocator.free(result);
-    
+
     // Should contain comments
     try testing.expect(std.mem.indexOf(u8, result, "<!-- Header Section -->") != null);
     try testing.expect(std.mem.indexOf(u8, result, "<!-- Navigation Menu -->") != null);
@@ -260,7 +260,7 @@ test "HTML: extract comments with docs flag" {
 test "JSON: extract structure" {
     const allocator = testing.allocator;
     const parser = Extractor.init(allocator, .json);
-    
+
     const source =
         \\{
         \\  "name": "test-app",
@@ -275,11 +275,11 @@ test "JSON: extract structure" {
         \\  ]
         \\}
     ;
-    
+
     const flags = ExtractionFlags{ .structure = true };
     const result = try parser.extract(source, flags);
     defer allocator.free(result);
-    
+
     // With structure flag, JSON returns everything
     try testing.expect(std.mem.indexOf(u8, result, "\"name\": \"test-app\"") != null);
     try testing.expect(std.mem.indexOf(u8, result, "\"version\": \"1.0.0\"") != null);
@@ -291,7 +291,7 @@ test "JSON: extract structure" {
 test "JSON: extract keys only with signatures" {
     const allocator = testing.allocator;
     const parser = Extractor.init(allocator, .json);
-    
+
     const source =
         \\{
         \\  "name": "app",
@@ -301,11 +301,11 @@ test "JSON: extract keys only with signatures" {
         \\  }
         \\}
     ;
-    
+
     const flags = ExtractionFlags{ .signatures = true };
     const result = try parser.extract(source, flags);
     defer allocator.free(result);
-    
+
     // Should contain lines with keys
     try testing.expect(std.mem.indexOf(u8, result, "\"name\":") != null);
     try testing.expect(std.mem.indexOf(u8, result, "\"key1\":") != null);
@@ -319,7 +319,7 @@ test "JSON: extract keys only with signatures" {
 test "TypeScript: extract interfaces and types" {
     const allocator = testing.allocator;
     const parser = Extractor.init(allocator, .typescript);
-    
+
     const source =
         \\interface User {
         \\    id: number;
@@ -337,11 +337,11 @@ test "TypeScript: extract interfaces and types" {
         \\    return 42;
         \\}
     ;
-    
+
     const flags = ExtractionFlags{ .types = true };
     const result = try parser.extract(source, flags);
     defer allocator.free(result);
-    
+
     // Should contain interfaces and types
     try testing.expect(std.mem.indexOf(u8, result, "interface User") != null);
     try testing.expect(std.mem.indexOf(u8, result, "id: number") != null);
@@ -354,7 +354,7 @@ test "TypeScript: extract interfaces and types" {
 test "TypeScript: extract function signatures" {
     const allocator = testing.allocator;
     const parser = Extractor.init(allocator, .typescript);
-    
+
     const source =
         \\function regularFunction(x: number): string {
         \\    return x.toString();
@@ -374,11 +374,11 @@ test "TypeScript: extract function signatures" {
         \\    field: string;
         \\}
     ;
-    
+
     const flags = ExtractionFlags{ .signatures = true };
     const result = try parser.extract(source, flags);
     defer allocator.free(result);
-    
+
     // Should contain function signatures
     try testing.expect(std.mem.indexOf(u8, result, "function regularFunction") != null);
     try testing.expect(std.mem.indexOf(u8, result, "export async function asyncFunc") != null);
@@ -392,7 +392,7 @@ test "TypeScript: extract function signatures" {
 test "TypeScript: extract imports" {
     const allocator = testing.allocator;
     const parser = Extractor.init(allocator, .typescript);
-    
+
     const source =
         \\import { Component } from 'react';
         \\import * as fs from 'fs';
@@ -403,11 +403,11 @@ test "TypeScript: extract imports" {
         \\
         \\export const value = 42;
     ;
-    
+
     const flags = ExtractionFlags{ .imports = true };
     const result = try parser.extract(source, flags);
     defer allocator.free(result);
-    
+
     // Should contain imports and exports
     try testing.expect(std.mem.indexOf(u8, result, "import { Component }") != null);
     try testing.expect(std.mem.indexOf(u8, result, "import * as fs") != null);
@@ -425,7 +425,7 @@ test "TypeScript: extract imports" {
 test "Svelte: extract script section with signatures" {
     const allocator = testing.allocator;
     const parser = Extractor.init(allocator, .svelte);
-    
+
     const source =
         \\<script lang="ts">
         \\  import { onMount } from 'svelte';
@@ -446,11 +446,11 @@ test "Svelte: extract script section with signatures" {
         \\
         \\<div>Not included</div>
     ;
-    
+
     const flags = ExtractionFlags{ .signatures = true };
     const result = try parser.extract(source, flags);
     defer allocator.free(result);
-    
+
     // Should contain script tags and functions
     try testing.expect(std.mem.indexOf(u8, result, "<script") != null);
     try testing.expect(std.mem.indexOf(u8, result, "</script>") != null);
@@ -465,7 +465,7 @@ test "Svelte: extract script section with signatures" {
 test "Svelte: extract style section with types" {
     const allocator = testing.allocator;
     const parser = Extractor.init(allocator, .svelte);
-    
+
     const source =
         \\<script>
         \\  let value = 0;
@@ -488,11 +488,11 @@ test "Svelte: extract style section with types" {
         \\
         \\<div class="card">Content</div>
     ;
-    
+
     const flags = ExtractionFlags{ .types = true };
     const result = try parser.extract(source, flags);
     defer allocator.free(result);
-    
+
     // Should contain style section
     try testing.expect(std.mem.indexOf(u8, result, "<style>") != null);
     try testing.expect(std.mem.indexOf(u8, result, "</style>") != null);
@@ -506,7 +506,7 @@ test "Svelte: extract style section with types" {
 test "Svelte: extract template structure" {
     const allocator = testing.allocator;
     const parser = Extractor.init(allocator, .svelte);
-    
+
     const source =
         \\<script>
         \\  export let items = [];
@@ -524,11 +524,11 @@ test "Svelte: extract template structure" {
         \\  <button on:click={handleClick}>Click me</button>
         \\</main>
     ;
-    
+
     const flags = ExtractionFlags{ .structure = true };
     const result = try parser.extract(source, flags);
     defer allocator.free(result);
-    
+
     // Should contain HTML template structure
     try testing.expect(std.mem.indexOf(u8, result, "<main>") != null);
     try testing.expect(std.mem.indexOf(u8, result, "<h1>") != null);
@@ -544,7 +544,7 @@ test "Svelte: extract template structure" {
 test "Multiple flags combined" {
     const allocator = testing.allocator;
     const parser = Extractor.init(allocator, .typescript);
-    
+
     const source =
         \\import { lib } from 'library';
         \\
@@ -556,16 +556,16 @@ test "Multiple flags combined" {
         \\    return config.port;
         \\}
     ;
-    
+
     // Combine signatures, types, and imports
-    const flags = ExtractionFlags{ 
+    const flags = ExtractionFlags{
         .signatures = true,
         .types = true,
         .imports = true,
     };
     const result = try parser.extract(source, flags);
     defer allocator.free(result);
-    
+
     // Should contain all requested elements
     try testing.expect(std.mem.indexOf(u8, result, "import { lib }") != null);
     try testing.expect(std.mem.indexOf(u8, result, "interface Config") != null);
@@ -574,16 +574,16 @@ test "Multiple flags combined" {
 
 test "Empty source handling" {
     const allocator = testing.allocator;
-    
+
     const languages = [_]Language{ .zig, .css, .html, .json, .typescript, .svelte };
-    
+
     for (languages) |lang| {
         const parser = Extractor.init(allocator, lang);
-        
+
         const flags = ExtractionFlags{ .signatures = true };
         const result = try parser.extract("", flags);
         defer allocator.free(result);
-        
+
         // Should handle empty source gracefully
         try testing.expectEqual(@as(usize, 0), result.len);
     }
@@ -592,16 +592,16 @@ test "Empty source handling" {
 test "Default flags behavior (full extraction)" {
     const allocator = testing.allocator;
     const parser = Extractor.init(allocator, .css);
-    
+
     const source = ".class { color: red; }";
-    
+
     // No flags set, should default to full
     var flags = ExtractionFlags{};
     flags.setDefault();
-    
+
     const result = try parser.extract(source, flags);
     defer allocator.free(result);
-    
+
     // Should return full source
     try testing.expectEqualStrings(source, result);
 }
@@ -613,9 +613,9 @@ test "Default flags behavior (full extraction)" {
 test "AST-based CSS extraction" {
     const allocator = testing.allocator;
     const createExtractor = @import("../language/extractor.zig").createExtractor;
-    
+
     var parser = createExtractor(allocator, .css);
-    
+
     const source =
         \\.container {
         \\    display: flex;
@@ -631,11 +631,11 @@ test "AST-based CSS extraction" {
         \\    .mobile { display: block; }
         \\}
     ;
-    
+
     const flags = ExtractionFlags{ .signatures = true };
     const result = try parser.extract(source, flags);
     defer allocator.free(result);
-    
+
     // Should use AST-based extraction but fall back to simple since we have a mock AST
     // The walkNode function should be called even with mock data
     try testing.expect(result.len >= 0); // Accept any result for now
@@ -644,9 +644,9 @@ test "AST-based CSS extraction" {
 test "AST-based HTML extraction" {
     const allocator = testing.allocator;
     const createExtractor = @import("../language/extractor.zig").createExtractor;
-    
+
     var parser = createExtractor(allocator, .html);
-    
+
     const source =
         \\<!DOCTYPE html>
         \\<html>
@@ -660,11 +660,11 @@ test "AST-based HTML extraction" {
         \\</body>
         \\</html>
     ;
-    
+
     const flags = ExtractionFlags{ .structure = true };
     const result = try parser.extract(source, flags);
     defer allocator.free(result);
-    
+
     // Should use AST-based extraction with mock data
     // For now, AST extraction falls back to full content when using mock AST
     try testing.expect(result.len > 0); // AST extraction should return content
@@ -673,9 +673,9 @@ test "AST-based HTML extraction" {
 test "AST-based JSON extraction" {
     const allocator = testing.allocator;
     const createExtractor = @import("../language/extractor.zig").createExtractor;
-    
+
     var parser = createExtractor(allocator, .json);
-    
+
     const source =
         \\{
         \\    "name": "test",
@@ -688,11 +688,11 @@ test "AST-based JSON extraction" {
         \\    }
         \\}
     ;
-    
+
     const flags = ExtractionFlags{ .signatures = true };
     const result = try parser.extract(source, flags);
     defer allocator.free(result);
-    
+
     // Should use AST-based extraction with mock data
     try testing.expect(result.len >= 0); // Accept any result for now
 }
@@ -700,9 +700,9 @@ test "AST-based JSON extraction" {
 test "AST-based Svelte extraction" {
     const allocator = testing.allocator;
     const createExtractor = @import("../language/extractor.zig").createExtractor;
-    
+
     var parser = createExtractor(allocator, .svelte);
-    
+
     const source =
         \\<script>
         \\    export let name = 'world';
@@ -724,11 +724,11 @@ test "AST-based Svelte extraction" {
         \\    {greeting}
         \\</div>
     ;
-    
+
     const flags = ExtractionFlags{ .signatures = true };
     const result = try parser.extract(source, flags);
     defer allocator.free(result);
-    
+
     // Should use AST-based extraction with mock data
     try testing.expect(result.len >= 0); // Accept any result for now
 }
@@ -736,21 +736,21 @@ test "AST-based Svelte extraction" {
 test "AST vs Simple extraction comparison" {
     const allocator = testing.allocator;
     const createExtractor = @import("../language/extractor.zig").createExtractor;
-    
+
     // Test with CSS
     const simple_parser = createExtractor(allocator, .css);
-    
+
     const ast_parser = createExtractor(allocator, .css);
-    
+
     const source = ".test { color: red; }";
     const flags = ExtractionFlags{ .signatures = true };
-    
+
     const simple_result = try simple_parser.extract(source, flags);
     defer allocator.free(simple_result);
-    
+
     const ast_result = try ast_parser.extract(source, flags);
     defer allocator.free(ast_result);
-    
+
     // For now, AST extraction uses mock data
     // Both should work (may produce different results)
     try testing.expect(simple_result.len >= 0);
@@ -760,18 +760,18 @@ test "AST vs Simple extraction comparison" {
 test "AST helper functions work correctly" {
     const allocator = testing.allocator;
     const extractCode = @import("../language/extractor.zig").extractCode;
-    
+
     const source = ".container { margin: 0; }";
     const flags = ExtractionFlags{ .structure = true };
-    
+
     // Test simple extraction helper
     const simple_result = try extractCode(allocator, "test.css", source, flags);
     defer allocator.free(simple_result);
-    
+
     // Test AST extraction helper
     const ast_result = try extractCode(allocator, "test.css", source, flags);
     defer allocator.free(ast_result);
-    
+
     // Both should work (AST uses mock data for now)
     try testing.expect(simple_result.len >= 0);
     try testing.expect(ast_result.len >= 0);

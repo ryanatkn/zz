@@ -20,7 +20,7 @@ pub const PromptBuilder = struct {
     quiet: bool,
     filesystem: FilesystemInterface,
     extraction_flags: ExtractionFlags,
-    
+
     // Incremental and caching support
     file_tracker: ?*FileTracker,
     cache_system: ?*CacheSystem,
@@ -59,15 +59,9 @@ pub const PromptBuilder = struct {
             .enable_parallel = false,
         };
     }
-    
+
     /// Initialize with incremental support
-    pub fn initWithIncremental(
-        allocator: std.mem.Allocator, 
-        filesystem: FilesystemInterface, 
-        extraction_flags: ExtractionFlags,
-        file_tracker: *FileTracker,
-        cache_system: *CacheSystem
-    ) Self {
+    pub fn initWithIncremental(allocator: std.mem.Allocator, filesystem: FilesystemInterface, extraction_flags: ExtractionFlags, file_tracker: *FileTracker, cache_system: *CacheSystem) Self {
         return Self{
             .allocator = allocator,
             .lines = std.ArrayList([]const u8).init(allocator),
@@ -81,16 +75,9 @@ pub const PromptBuilder = struct {
             .enable_parallel = false,
         };
     }
-    
+
     /// Initialize with parallel support
-    pub fn initWithParallel(
-        allocator: std.mem.Allocator, 
-        filesystem: FilesystemInterface, 
-        extraction_flags: ExtractionFlags,
-        file_tracker: ?*FileTracker,
-        cache_system: ?*CacheSystem,
-        worker_pool: *WorkerPool
-    ) Self {
+    pub fn initWithParallel(allocator: std.mem.Allocator, filesystem: FilesystemInterface, extraction_flags: ExtractionFlags, file_tracker: ?*FileTracker, cache_system: ?*CacheSystem, worker_pool: *WorkerPool) Self {
         return Self{
             .allocator = allocator,
             .lines = std.ArrayList([]const u8).init(allocator),
@@ -152,7 +139,7 @@ pub const PromptBuilder = struct {
         // Determine language and extract content based on flags
         const language = Language.fromExtension(ext);
         const parser = extractor_mod.createExtractor(self.arena.allocator(), language);
-        
+
         const extracted_content = try parser.extract(content, self.extraction_flags);
         // extracted_content is allocated by parser using arena allocator, no need to free
 
@@ -192,31 +179,31 @@ pub const PromptBuilder = struct {
             try self.addFilesSequential(file_paths);
         }
     }
-    
+
     /// Sequential file processing (original behavior)
     pub fn addFilesSequential(self: *Self, file_paths: [][]u8) !void {
         for (file_paths) |file_path| {
             try self.addFile(file_path);
         }
     }
-    
+
     /// Parallel file processing using worker pool
     pub fn addFilesParallel(self: *Self, file_paths: [][]u8) !void {
         if (self.worker_pool == null) return error.NoWorkerPool;
-        
+
         const pool = self.worker_pool.?;
-        
+
         // Set up progress tracking
         pool.setProgressTracker(@intCast(file_paths.len));
-        
+
         // Create tasks for each file
         var task_results = std.ArrayList(FileProcessResult).init(self.allocator);
         defer task_results.deinit();
         try task_results.resize(file_paths.len);
-        
+
         var task_ids = std.ArrayList(u64).init(self.allocator);
         defer task_ids.deinit();
-        
+
         // Submit tasks to worker pool
         for (file_paths, 0..) |file_path, i| {
             const task_context = try self.allocator.create(FileProcessContext);
@@ -226,20 +213,16 @@ pub const PromptBuilder = struct {
                 .result_index = i,
                 .results = &task_results,
             };
-            
-            const task_id = try pool.submitTask(
-                .normal,
-                processFileTask,
-                task_context,
-                &.{} // No dependencies for parallel processing
+
+            const task_id = try pool.submitTask(.normal, processFileTask, task_context, &.{} // No dependencies for parallel processing
             );
-            
+
             try task_ids.append(task_id);
         }
-        
+
         // Wait for all tasks to complete
         pool.waitForCompletion();
-        
+
         // Collect results in order and add to lines
         for (task_results.items) |result| {
             if (result.success) {
@@ -252,29 +235,26 @@ pub const PromptBuilder = struct {
                 self.allocator.free(err_msg);
             }
         }
-        
+
         // Clean up task contexts
         for (task_ids.items) |_| {
             // Task contexts are cleaned up in processFileTask
         }
     }
-    
+
     /// Enhanced file processing with caching and incremental support
     pub fn addFileWithCaching(self: *Self, file_path: []const u8) !void {
         // Check if we have incremental support
         if (self.file_tracker) |tracker| {
             try tracker.trackFile(file_path);
-            
+
             // Check if file has changed
             if (tracker.getFileState(file_path)) |state| {
                 // Try to get cached result if available
                 if (self.cache_system) |cache| {
-                    const cache_key = AstCacheKey.init(
-                        state.hash,
-                        1, // Parser version
-                        hashExtractionFlags(self.extraction_flags)
-                    );
-                    
+                    const cache_key = AstCacheKey.init(state.hash, 1, // Parser version
+                        hashExtractionFlags(self.extraction_flags));
+
                     if (cache.ast_cache.get(cache_key)) |cached_content| {
                         // Use cached content
                         try self.addCachedContent(file_path, cached_content);
@@ -283,35 +263,35 @@ pub const PromptBuilder = struct {
                 }
             }
         }
-        
+
         // Fall back to regular processing
         try self.addFile(file_path);
     }
-    
+
     /// Add content from cache
     fn addCachedContent(self: *Self, file_path: []const u8, cached_content: []const u8) !void {
         const ext = path_utils.extension(file_path);
         const lang = if (ext.len > 0) ext[1..] else "";
-        
+
         // Detect appropriate fence
         const fence_str = try fence.detectFence(cached_content, self.arena.allocator());
-        
+
         // Add file with XML-style tags and markdown code fence
         const prefixed_path = try path_utils.addRelativePrefix(self.arena.allocator(), file_path);
         const header = try std.fmt.allocPrint(self.arena.allocator(), "<File path=\"{s}\">", .{prefixed_path});
         try self.lines.append("");
         try self.lines.append(header);
         try self.lines.append("");
-        
+
         const fence_start = try std.fmt.allocPrint(self.arena.allocator(), "{s}{s}", .{ fence_str, lang });
         try self.lines.append(fence_start);
-        
+
         // Add cached content line by line
         var iter = std.mem.splitScalar(u8, cached_content, '\n');
         while (iter.next()) |line| {
             try self.lines.append(line);
         }
-        
+
         try self.lines.append(fence_str);
         try self.lines.append("");
         try self.lines.append("</File>");
@@ -338,7 +318,7 @@ const FileProcessResult = struct {
     success: bool,
     lines: std.ArrayList([]const u8),
     error_message: ?[]const u8,
-    
+
     pub fn init(allocator: std.mem.Allocator) FileProcessResult {
         return FileProcessResult{
             .success = false,
@@ -346,7 +326,7 @@ const FileProcessResult = struct {
             .error_message = null,
         };
     }
-    
+
     pub fn deinit(self: *FileProcessResult, allocator: std.mem.Allocator) void {
         for (self.lines.items) |line| {
             allocator.free(line);
@@ -362,20 +342,20 @@ const FileProcessResult = struct {
 fn processFileTask(task: *Task, context: ?*anyopaque) !void {
     const ctx: *FileProcessContext = @ptrCast(@alignCast(context orelse return));
     defer ctx.builder.allocator.destroy(ctx);
-    
+
     const allocator = ctx.builder.allocator;
     var result = FileProcessResult.init(allocator);
-    
+
     // Process file with error handling
     processFileSafe(ctx.builder, ctx.file_path, &result) catch |err| {
         result.success = false;
         const error_msg = std.fmt.allocPrint(allocator, "Failed to process {s}: {}", .{ ctx.file_path, err }) catch return;
         result.error_message = error_msg;
     };
-    
+
     // Store result at the correct index
     ctx.results.items[ctx.result_index] = result;
-    
+
     // Store result pointer in task for cleanup if needed
     task.result = &ctx.results.items[ctx.result_index];
 }
@@ -386,7 +366,7 @@ fn processFileSafe(builder: *PromptBuilder, file_path: []const u8, result: *File
     var temp_arena = std.heap.ArenaAllocator.init(builder.allocator);
     defer temp_arena.deinit();
     const temp_allocator = temp_arena.allocator();
-    
+
     // Process file using same logic as addFile but store in result
     const cwd = builder.filesystem.cwd();
     defer cwd.close();
@@ -419,33 +399,33 @@ fn processFileSafe(builder: *PromptBuilder, file_path: []const u8, result: *File
 
     const language = Language.fromExtension(ext);
     const parser = extractor_mod.createExtractor(temp_allocator, language);
-    
+
     const extracted_content = try parser.extract(content, builder.extraction_flags);
     const fence_str = try fence.detectFence(extracted_content, temp_allocator);
 
     // Build result lines
     const prefixed_path = try path_utils.addRelativePrefix(temp_allocator, file_path);
     const header = try std.fmt.allocPrint(temp_allocator, "<File path=\"{s}\">", .{prefixed_path});
-    
+
     // Copy lines to result (using main allocator for persistence)
     try result.lines.append(try builder.allocator.dupe(u8, ""));
     try result.lines.append(try builder.allocator.dupe(u8, header));
     try result.lines.append(try builder.allocator.dupe(u8, ""));
-    
+
     const fence_start = try std.fmt.allocPrint(temp_allocator, "{s}{s}", .{ fence_str, lang });
     try result.lines.append(try builder.allocator.dupe(u8, fence_start));
-    
+
     // Add content line by line
     var iter = std.mem.splitScalar(u8, extracted_content, '\n');
     while (iter.next()) |line| {
         try result.lines.append(try builder.allocator.dupe(u8, line));
     }
-    
+
     try result.lines.append(try builder.allocator.dupe(u8, fence_str));
     try result.lines.append(try builder.allocator.dupe(u8, ""));
     try result.lines.append(try builder.allocator.dupe(u8, "</File>"));
     try result.lines.append(try builder.allocator.dupe(u8, ""));
-    
+
     result.success = true;
 }
 

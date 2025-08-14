@@ -18,7 +18,7 @@ pub fn format(allocator: std.mem.Allocator, source: []const u8, options: Formatt
 fn formatWithAst(allocator: std.mem.Allocator, source: []const u8, options: FormatterOptions) ![]const u8 {
     var ast_formatter = try AstFormatter.init(allocator, .css, options);
     defer ast_formatter.deinit();
-    
+
     return ast_formatter.format(source);
 }
 
@@ -26,15 +26,15 @@ fn formatWithAst(allocator: std.mem.Allocator, source: []const u8, options: Form
 fn formatWithStateMachine(allocator: std.mem.Allocator, source: []const u8, options: FormatterOptions) ![]const u8 {
     var builder = LineBuilder.init(allocator, options);
     defer builder.deinit();
-    
+
     var i: usize = 0;
     var in_comment = false;
     var in_string = false;
     var string_char: ?u8 = null;
-    
+
     while (i < source.len) {
         const char = source[i];
-        
+
         // Handle strings
         if (!in_comment) {
             if ((char == '"' or char == '\'') and (i == 0 or source[i - 1] != '\\')) {
@@ -47,7 +47,7 @@ fn formatWithStateMachine(allocator: std.mem.Allocator, source: []const u8, opti
                 }
             }
         }
-        
+
         // Handle comments
         if (!in_string and i + 1 < source.len) {
             if (source[i] == '/' and source[i + 1] == '*') {
@@ -67,13 +67,13 @@ fn formatWithStateMachine(allocator: std.mem.Allocator, source: []const u8, opti
                 continue;
             }
         }
-        
+
         if (in_comment or in_string) {
             try builder.append(&[_]u8{char});
             i += 1;
             continue;
         }
-        
+
         // Format CSS
         switch (char) {
             '{' => {
@@ -155,7 +155,7 @@ fn formatWithStateMachine(allocator: std.mem.Allocator, source: []const u8, opti
             },
         }
     }
-    
+
     return builder.toOwnedSlice();
 }
 

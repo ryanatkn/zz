@@ -19,10 +19,10 @@ pub fn toOwnedSlice(comptime T: type, list: *List(T)) ![]T {
 pub fn deduplicate(comptime T: type, allocator: std.mem.Allocator, items: []const T) ![]T {
     var result = List(T).init(allocator);
     defer result.deinit();
-    
+
     var seen = Set.init(allocator);
     defer seen.deinit();
-    
+
     for (items) |item| {
         const key = if (T == []const u8) item else @as([]const u8, @ptrCast(&item));
         const entry = try seen.getOrPut(key);
@@ -30,7 +30,7 @@ pub fn deduplicate(comptime T: type, allocator: std.mem.Allocator, items: []cons
             try result.append(item);
         }
     }
-    
+
     return result.toOwnedSlice();
 }
 
@@ -43,13 +43,13 @@ pub fn filter(
 ) ![]T {
     var result = List(T).init(allocator);
     defer result.deinit();
-    
+
     for (items) |item| {
         if (predicate(item)) {
             try result.append(item);
         }
     }
-    
+
     return result.toOwnedSlice();
 }
 
@@ -63,12 +63,12 @@ pub fn map(
 ) ![]U {
     var result = List(U).init(allocator);
     defer result.deinit();
-    
+
     for (items) |item| {
         const transformed = try transform(allocator, item);
         try result.append(transformed);
     }
-    
+
     return result.toOwnedSlice();
 }
 
@@ -80,7 +80,7 @@ pub fn joinStrings(
 ) ![]u8 {
     if (strings.len == 0) return try allocator.dupe(u8, "");
     if (strings.len == 1) return try allocator.dupe(u8, strings[0]);
-    
+
     // Calculate total length
     var total_len: usize = 0;
     for (strings, 0..) |str, i| {
@@ -89,21 +89,21 @@ pub fn joinStrings(
             total_len += separator.len;
         }
     }
-    
+
     // Build result
     var result = try allocator.alloc(u8, total_len);
     var pos: usize = 0;
-    
+
     for (strings, 0..) |str, i| {
-        @memcpy(result[pos..pos + str.len], str);
+        @memcpy(result[pos .. pos + str.len], str);
         pos += str.len;
-        
+
         if (i < strings.len - 1) {
-            @memcpy(result[pos..pos + separator.len], separator);
+            @memcpy(result[pos .. pos + separator.len], separator);
             pos += separator.len;
         }
     }
-    
+
     return result;
 }
 
@@ -139,13 +139,13 @@ pub const StringList = struct {
     pub fn initWithCapacity(allocator: std.mem.Allocator, capacity: usize) !List([]const u8) {
         return List([]const u8).initCapacity(allocator, capacity);
     }
-    
+
     /// Add string by duplication
     pub fn addDupe(list: *List([]const u8), allocator: std.mem.Allocator, str: []const u8) !void {
         const duped = try allocator.dupe(u8, str);
         try list.append(duped);
     }
-    
+
     /// Add formatted string
     pub fn addFmt(
         list: *List([]const u8),
@@ -156,7 +156,7 @@ pub const StringList = struct {
         const formatted = try std.fmt.allocPrint(allocator, format, args);
         try list.append(formatted);
     }
-    
+
     /// Free all strings in list
     pub fn freeStrings(list: *List([]const u8), allocator: std.mem.Allocator) void {
         for (list.items) |str| {
@@ -178,7 +178,7 @@ pub const PathList = struct {
         const path = try std.fmt.allocPrint(allocator, "{s}/{s}", .{ dir, name });
         try list.append(path);
     }
-    
+
     /// Add normalized path
     pub fn addNormalized(
         list: *List([]const u8),
@@ -192,10 +192,10 @@ pub const PathList = struct {
 
 test "stdlib aliases work correctly" {
     const testing = std.testing;
-    
+
     var list = List(i32).init(testing.allocator);
     defer list.deinit();
-    
+
     try list.append(42);
     try testing.expect(list.items.len == 1);
     try testing.expect(list.items[0] == 42);
@@ -203,25 +203,27 @@ test "stdlib aliases work correctly" {
 
 test "deduplicate removes duplicates" {
     const testing = std.testing;
-    
+
     const items = [_][]const u8{ "a", "b", "a", "c", "b" };
     const result = try deduplicate([]const u8, testing.allocator, &items);
     defer testing.allocator.free(result);
-    
+
     try testing.expect(result.len == 3); // a, b, c
 }
 
 test "filter works correctly" {
     const testing = std.testing;
-    
+
     const items = [_]i32{ 1, 2, 3, 4, 5 };
     const isEven = struct {
-        fn func(x: i32) bool { return x % 2 == 0; }
+        fn func(x: i32) bool {
+            return x % 2 == 0;
+        }
     }.func;
-    
+
     const result = try filter(i32, testing.allocator, &items, isEven);
     defer testing.allocator.free(result);
-    
+
     try testing.expect(result.len == 2); // 2, 4
     try testing.expect(result[0] == 2);
     try testing.expect(result[1] == 4);
@@ -229,26 +231,26 @@ test "filter works correctly" {
 
 test "joinStrings works correctly" {
     const testing = std.testing;
-    
+
     const strings = [_][]const u8{ "hello", "world", "test" };
     const result = try joinStrings(testing.allocator, &strings, ", ");
     defer testing.allocator.free(result);
-    
+
     try testing.expectEqualStrings("hello, world, test", result);
 }
 
 test "StringList utilities" {
     const testing = std.testing;
-    
+
     var list = try StringList.initWithCapacity(testing.allocator, 2);
     defer {
         StringList.freeStrings(&list, testing.allocator);
         list.deinit();
     }
-    
+
     try StringList.addDupe(&list, testing.allocator, "hello");
     try StringList.addFmt(&list, testing.allocator, "world_{d}", .{42});
-    
+
     try testing.expect(list.items.len == 2);
     try testing.expectEqualStrings("hello", list.items[0]);
     try testing.expectEqualStrings("world_42", list.items[1]);
@@ -256,13 +258,13 @@ test "StringList utilities" {
 
 test "popSafe doesn't panic on empty" {
     const testing = std.testing;
-    
+
     var list = List(i32).init(testing.allocator);
     defer list.deinit();
-    
+
     const result = popSafe(i32, &list);
     try testing.expect(result == null);
-    
+
     try list.append(42);
     const result2 = popSafe(i32, &list);
     try testing.expect(result2.? == 42);

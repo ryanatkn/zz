@@ -46,13 +46,13 @@ pub fn trimmedNotEmpty(text: []const u8) ?[]const u8 {
 /// Iterator that yields trimmed lines
 pub const TrimmedLineIterator = struct {
     lines: std.mem.SplitIterator(u8, .scalar),
-    
+
     pub fn init(source: []const u8) TrimmedLineIterator {
         return .{
             .lines = std.mem.splitScalar(u8, source, '\n'),
         };
     }
-    
+
     pub fn next(self: *TrimmedLineIterator) ?[]const u8 {
         while (self.lines.next()) |line| {
             const trimmed = trimWhitespace(line);
@@ -61,7 +61,7 @@ pub const TrimmedLineIterator = struct {
         }
         return null;
     }
-    
+
     pub fn nextNonEmpty(self: *TrimmedLineIterator) ?[]const u8 {
         while (self.next()) |trimmed| {
             if (trimmed.len > 0) return trimmed;
@@ -76,18 +76,18 @@ pub const BlockTracker = struct {
     in_block: bool = false,
     open_char: u8 = '{',
     close_char: u8 = '}',
-    
+
     pub fn init() BlockTracker {
         return .{};
     }
-    
+
     pub fn initWithChars(open: u8, close: u8) BlockTracker {
         return .{
             .open_char = open,
             .close_char = close,
         };
     }
-    
+
     pub fn processLine(self: *BlockTracker, line: []const u8) void {
         for (line) |c| {
             if (c == self.open_char) {
@@ -102,11 +102,11 @@ pub const BlockTracker = struct {
             }
         }
     }
-    
+
     pub fn isInBlock(self: BlockTracker) bool {
         return self.in_block;
     }
-    
+
     pub fn reset(self: *BlockTracker) void {
         self.depth = 0;
         self.in_block = false;
@@ -144,7 +144,7 @@ pub fn extractLinesWithPrefixes(
     result: *std.ArrayList(u8),
 ) !void {
     var lines = std.mem.splitScalar(u8, source, '\n');
-    
+
     while (lines.next()) |line| {
         const trimmed = trimWhitespace(line);
         for (prefixes) |prefix| {
@@ -182,34 +182,34 @@ pub fn extractBlock(
     // Add the starting line
     try result.appendSlice(start_line);
     try result.append('\n');
-    
+
     // Process the starting line for initial depth
     tracker.processLine(start_line);
-    
+
     // If not in a block after processing start line, we're done
     if (!tracker.isInBlock()) return;
-    
+
     // Find where to continue from in the source
     const start_ptr = @intFromPtr(start_line.ptr);
     const source_ptr = @intFromPtr(source.ptr);
     if (start_ptr < source_ptr) return; // Invalid pointer
-    
+
     var offset = start_ptr - source_ptr + start_line.len;
     if (offset >= source.len) return;
-    
+
     // Skip to next line
     if (offset < source.len and source[offset] == '\n') {
         offset += 1;
     }
-    
+
     // Continue extracting lines until block closes
     const remaining = source[offset..];
     var lines = std.mem.splitScalar(u8, remaining, '\n');
-    
+
     while (lines.next()) |line| {
         try result.appendSlice(line);
         try result.append('\n');
-        
+
         tracker.processLine(line);
         if (!tracker.isInBlock()) break;
     }
@@ -221,7 +221,7 @@ pub fn filterNonEmpty(
     result: *std.ArrayList(u8),
 ) !void {
     var lines = std.mem.splitScalar(u8, source, '\n');
-    
+
     while (lines.next()) |line| {
         const trimmed = trimWhitespace(line);
         if (trimmed.len > 0) {
@@ -272,7 +272,7 @@ test "trimmedNotEmpty" {
 test "TrimmedLineIterator" {
     const source = "  line1  \n\t\tline2\t\n\n  line3";
     var iter = TrimmedLineIterator.init(source);
-    
+
     try std.testing.expectEqualStrings("line1", iter.next().?);
     try std.testing.expectEqualStrings("line2", iter.next().?);
     try std.testing.expectEqualStrings("", iter.next().?); // empty line
@@ -282,14 +282,14 @@ test "TrimmedLineIterator" {
 
 test "BlockTracker" {
     var tracker = BlockTracker.init();
-    
+
     tracker.processLine("interface Foo {");
     try std.testing.expect(tracker.isInBlock());
     try std.testing.expectEqual(@as(i32, 1), tracker.depth);
-    
+
     tracker.processLine("  nested: { value: string }");
     try std.testing.expectEqual(@as(i32, 1), tracker.depth); // balanced
-    
+
     tracker.processLine("}");
     try std.testing.expect(!tracker.isInBlock());
     try std.testing.expectEqual(@as(i32, 0), tracker.depth);
@@ -298,14 +298,14 @@ test "BlockTracker" {
 test "extractLinesWithPrefix" {
     const allocator = std.testing.allocator;
     const source = "pub fn test()\nfn private()\nconst value = 42\npub fn another()";
-    
+
     var result = std.ArrayList(u8).init(allocator);
     defer result.deinit();
-    
+
     try extractLinesWithPrefix(source, "pub fn", &result);
     const output = try result.toOwnedSlice();
     defer allocator.free(output);
-    
+
     try std.testing.expect(std.mem.indexOf(u8, output, "pub fn test()") != null);
     try std.testing.expect(std.mem.indexOf(u8, output, "pub fn another()") != null);
     try std.testing.expect(std.mem.indexOf(u8, output, "fn private()") == null);

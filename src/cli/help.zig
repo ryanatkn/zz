@@ -11,7 +11,7 @@ pub fn showBrief(program_name: []const u8) void {
     std.debug.print("  format [files...]     Format code files\n", .{});
     std.debug.print("  help                  Show detailed help\n", .{});
     std.debug.print("\n", .{});
-    std.debug.print("Use '{s} --help' or '{s} help' for detailed information\n", .{program_name, program_name});
+    std.debug.print("Use '{s} --help' or '{s} help' for detailed information\n", .{ program_name, program_name });
 }
 
 /// Show detailed help (for --help flag and help command)

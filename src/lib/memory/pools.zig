@@ -2,7 +2,6 @@ const std = @import("std");
 
 /// Memory pooling and caching utilities
 /// Consolidates string interning, path caching, and list pooling
-
 /// Arena allocator wrapper for temporary allocations
 pub const Arena = struct {
     arena: std.heap.ArenaAllocator,
@@ -32,7 +31,7 @@ pub const StringIntern = struct {
     allocator: std.mem.Allocator,
     arena: Arena,
     pool: std.StringHashMapUnmanaged([]const u8),
-    
+
     // Performance counters
     hits: u64 = 0,
     misses: u64 = 0,
@@ -98,9 +97,9 @@ pub const PathCache = struct {
     common: std.StringHashMapUnmanaged([]const u8),
 
     const COMMON_PATHS = [_][]const u8{
-        ".", "..", "src", "test", "tests", "node_modules", 
-        ".git", ".zig-cache", "zig-out", "build.zig",
-        "README.md", ".gitignore", "main.zig", "lib.zig",
+        ".",        "..",         "src",     "test",      "tests",     "node_modules",
+        ".git",     ".zig-cache", "zig-out", "build.zig", "README.md", ".gitignore",
+        "main.zig", "lib.zig",
     };
 
     pub fn init(allocator: std.mem.Allocator) !PathCache {
@@ -129,7 +128,7 @@ pub const PathCache = struct {
         if (self.common.get(path)) |cached| {
             return cached;
         }
-        
+
         // Fall back to general interning
         return self.intern.get(path);
     }
@@ -218,18 +217,18 @@ pub fn withConstStringList(pool: *ListPool, comptime func: anytype) !@TypeOf(fun
 
 test "Arena basic functionality" {
     const testing = std.testing;
-    
+
     var arena = Arena.init(testing.allocator);
     defer arena.deinit();
-    
+
     const str1 = try arena.allocator().dupe(u8, "hello");
     const str2 = try arena.allocator().dupe(u8, "world");
-    
+
     try testing.expectEqualStrings("hello", str1);
     try testing.expectEqualStrings("world", str2);
-    
+
     arena.reset();
-    
+
     // After reset, can allocate again
     const str3 = try arena.allocator().dupe(u8, "reset");
     try testing.expectEqualStrings("reset", str3);
@@ -237,13 +236,13 @@ test "Arena basic functionality" {
 
 test "StringIntern efficiency" {
     const testing = std.testing;
-    
+
     var intern = StringIntern.init(testing.allocator);
     defer intern.deinit();
-    
+
     const str1 = try intern.get("test");
     const str2 = try intern.get("test");
-    
+
     // Should be same pointer (interned)
     try testing.expect(str1.ptr == str2.ptr);
     try testing.expect(intern.efficiency() > 0.0);
@@ -251,27 +250,27 @@ test "StringIntern efficiency" {
 
 test "PathCache common paths" {
     const testing = std.testing;
-    
+
     var cache = try PathCache.init(testing.allocator);
     defer cache.deinit();
-    
+
     const src1 = try cache.get("src");
     const src2 = try cache.get("src");
-    
+
     // Should be same pointer (cached)
     try testing.expect(src1.ptr == src2.ptr);
 }
 
 test "ListPool reuse" {
     const testing = std.testing;
-    
+
     var pool = ListPool.init(testing.allocator);
     defer pool.deinit();
-    
+
     // Test basic reuse
     const list1 = pool.getStringList();
     pool.putStringList(list1);
-    
+
     const list2 = pool.getStringList();
     pool.putStringList(list2);
 }

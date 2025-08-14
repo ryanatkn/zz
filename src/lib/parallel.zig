@@ -35,13 +35,7 @@ pub const Task = struct {
     started_at: ?i64,
     completed_at: ?i64,
 
-    pub fn init(
-        id: u64, 
-        priority: TaskPriority, 
-        execute_fn: *const fn (task: *Task, context: ?*anyopaque) anyerror!void,
-        context: ?*anyopaque,
-        dependencies: []const u64
-    ) Task {
+    pub fn init(id: u64, priority: TaskPriority, execute_fn: *const fn (task: *Task, context: ?*anyopaque) anyerror!void, context: ?*anyopaque, dependencies: []const u64) Task {
         return Task{
             .id = id,
             .priority = priority,
@@ -149,7 +143,7 @@ const Worker = struct {
                         // Log error but continue processing
                         std.log.err("Task {} failed: {}", .{ task.id, err });
                     };
-                    
+
                     // Mark task as completed in dependency tracker
                     self.dependency_tracker.markCompleted(task.id);
                     _ = self.completed_tasks.fetchAdd(1, .monotonic);
@@ -158,7 +152,7 @@ const Worker = struct {
                     self.queue.push(task) catch |err| {
                         std.log.err("Failed to re-queue task {}: {}", .{ task.id, err });
                     };
-                    
+
                     // Sleep briefly to avoid busy waiting
                     std.time.sleep(1_000_000); // 1ms
                 }
@@ -203,7 +197,7 @@ pub const DependencyTracker = struct {
     pub fn addTask(self: *DependencyTracker, task_id: u64, dependencies: []const u64) !void {
         self.mutex.lock();
         defer self.mutex.unlock();
-        
+
         const deps_copy = try self.allocator.dupe(u64, dependencies);
         try self.dependencies.put(task_id, deps_copy);
     }
@@ -211,7 +205,7 @@ pub const DependencyTracker = struct {
     pub fn markCompleted(self: *DependencyTracker, task_id: u64) void {
         self.mutex.lock();
         defer self.mutex.unlock();
-        
+
         self.completed.put(task_id, {}) catch |err| {
             std.log.err("Failed to mark task {} as completed: {}", .{ task_id, err });
         };
@@ -220,9 +214,9 @@ pub const DependencyTracker = struct {
     pub fn areDependenciesSatisfied(self: *DependencyTracker, task_id: u64) bool {
         self.mutex.lock();
         defer self.mutex.unlock();
-        
+
         const dependencies = self.dependencies.get(task_id) orelse return true;
-        
+
         for (dependencies) |dep_id| {
             if (!self.completed.contains(dep_id)) {
                 return false;
@@ -234,7 +228,7 @@ pub const DependencyTracker = struct {
     pub fn getWaitingTaskCount(self: *DependencyTracker) usize {
         self.mutex.lock();
         defer self.mutex.unlock();
-        
+
         var waiting: usize = 0;
         var iter = self.dependencies.iterator();
         while (iter.next()) |entry| {
@@ -276,7 +270,7 @@ pub const ResultCollector = struct {
     pub fn expectResult(self: *ResultCollector, task_id: u64) !void {
         self.mutex.lock();
         defer self.mutex.unlock();
-        
+
         try self.expected_results.append(task_id);
         try self.results.put(task_id, null);
     }
@@ -284,14 +278,14 @@ pub const ResultCollector = struct {
     pub fn setResult(self: *ResultCollector, task_id: u64, result: ?*anyopaque) !void {
         self.mutex.lock();
         defer self.mutex.unlock();
-        
+
         try self.results.put(task_id, result);
     }
 
     pub fn getOrderedResults(self: *ResultCollector, results: *std.ArrayList(?*anyopaque)) !void {
         self.mutex.lock();
         defer self.mutex.unlock();
-        
+
         for (self.expected_results.items) |task_id| {
             const result = self.results.get(task_id);
             try results.append(result orelse null);
@@ -301,7 +295,7 @@ pub const ResultCollector = struct {
     pub fn areAllResultsReady(self: *ResultCollector) bool {
         self.mutex.lock();
         defer self.mutex.unlock();
-        
+
         for (self.expected_results.items) |task_id| {
             if (!self.results.contains(task_id)) {
                 return false;
@@ -355,9 +349,10 @@ pub const ProgressTracker = struct {
             .failed_tasks = failed,
             .progress_percent = self.getProgress() * 100.0,
             .elapsed_seconds = @as(f64, @floatFromInt(elapsed_ns)) / 1_000_000_000.0,
-            .tasks_per_second = if (elapsed_ns > 0) 
+            .tasks_per_second = if (elapsed_ns > 0)
                 @as(f64, @floatFromInt(completed)) / (@as(f64, @floatFromInt(elapsed_ns)) / 1_000_000_000.0)
-            else 0.0,
+            else
+                0.0,
         };
     }
 };
@@ -432,7 +427,7 @@ pub const WorkerPool = struct {
 
     pub fn stop(self: *WorkerPool) void {
         self.running.store(false, .release);
-        
+
         // Only join threads that were actually started
         if (self.started) {
             for (self.workers) |*worker| {
@@ -441,25 +436,19 @@ pub const WorkerPool = struct {
         }
     }
 
-    pub fn submitTask(
-        self: *WorkerPool, 
-        priority: TaskPriority,
-        execute_fn: *const fn (task: *Task, context: ?*anyopaque) anyerror!void,
-        context: ?*anyopaque,
-        dependencies: []const u64
-    ) !u64 {
+    pub fn submitTask(self: *WorkerPool, priority: TaskPriority, execute_fn: *const fn (task: *Task, context: ?*anyopaque) anyerror!void, context: ?*anyopaque, dependencies: []const u64) !u64 {
         const task_id = self.next_task_id.fetchAdd(1, .monotonic);
-        
+
         // Create task on heap so it persists across worker threads
         const task = try self.allocator.create(Task);
         task.* = Task.init(task_id, priority, execute_fn, context, dependencies);
-        
+
         // Register dependencies
         try self.dependency_tracker.addTask(task_id, dependencies);
-        
+
         // Queue the task
         try self.queue.push(task);
-        
+
         return task_id;
     }
 
@@ -505,10 +494,10 @@ pub const WorkerPoolStats = struct {
 
 test "task priority comparison" {
     const testing = std.testing;
-    
+
     const low = TaskPriority.low;
     const high = TaskPriority.high;
-    
+
     try testing.expect(high.compare(low) == .gt);
     try testing.expect(low.compare(high) == .lt);
     try testing.expect(low.compare(low) == .eq);
@@ -517,27 +506,27 @@ test "task priority comparison" {
 test "task queue basic operations" {
     const testing = std.testing;
     const allocator = testing.allocator;
-    
+
     var queue = TaskQueue.init(allocator);
     defer queue.deinit();
-    
+
     // Create tasks with different priorities
     const low_task = try allocator.create(Task);
     defer allocator.destroy(low_task);
     low_task.* = Task.init(1, .low, undefined, null, &.{});
-    
+
     const high_task = try allocator.create(Task);
     defer allocator.destroy(high_task);
     high_task.* = Task.init(2, .high, undefined, null, &.{});
-    
+
     try queue.push(low_task);
     try queue.push(high_task);
-    
+
     // High priority should come out first
     const first = queue.pop();
     try testing.expect(first != null);
     try testing.expect(first.?.priority == .high);
-    
+
     const second = queue.pop();
     try testing.expect(second != null);
     try testing.expect(second.?.priority == .low);
@@ -546,18 +535,18 @@ test "task queue basic operations" {
 test "dependency tracker" {
     const testing = std.testing;
     const allocator = testing.allocator;
-    
+
     var tracker = DependencyTracker.init(allocator);
     defer tracker.deinit();
-    
+
     // Task 2 depends on task 1
     try tracker.addTask(1, &.{});
     try tracker.addTask(2, &.{1});
-    
+
     // Initially, only task 1 can run
     try testing.expect(tracker.areDependenciesSatisfied(1));
     try testing.expect(!tracker.areDependenciesSatisfied(2));
-    
+
     // After task 1 completes, task 2 can run
     tracker.markCompleted(1);
     try testing.expect(tracker.areDependenciesSatisfied(2));
@@ -566,10 +555,10 @@ test "dependency tracker" {
 test "worker pool initialization" {
     const testing = std.testing;
     const allocator = testing.allocator;
-    
+
     var pool = try WorkerPool.init(allocator, 2);
     defer pool.deinit();
-    
+
     const stats = pool.getWorkerStats();
     try testing.expect(stats.worker_count == 2);
     try testing.expect(stats.total_completed_tasks == 0);

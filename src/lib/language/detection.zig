@@ -19,7 +19,7 @@ pub const Language = enum {
         if (std.mem.eql(u8, ext, ".svelte")) return .svelte;
         return .unknown;
     }
-    
+
     pub fn toString(self: Language) []const u8 {
         return switch (self) {
             .zig => "zig",
@@ -41,7 +41,7 @@ pub fn detectLanguage(path: []const u8) Language {
 
 test "language detection" {
     const testing = std.testing;
-    
+
     try testing.expect(detectLanguage("test.zig") == .zig);
     try testing.expect(detectLanguage("style.css") == .css);
     try testing.expect(detectLanguage("index.html") == .html);

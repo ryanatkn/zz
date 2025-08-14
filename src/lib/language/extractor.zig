@@ -18,7 +18,7 @@ pub const Extractor = struct {
     allocator: std.mem.Allocator,
     language: Language,
     use_ast: bool,
-    
+
     pub fn init(allocator: std.mem.Allocator, language: Language) Extractor {
         return Extractor{
             .allocator = allocator,
@@ -26,7 +26,7 @@ pub const Extractor = struct {
             .use_ast = false, // Default to text-based
         };
     }
-    
+
     pub fn initWithAst(allocator: std.mem.Allocator, language: Language) Extractor {
         return Extractor{
             .allocator = allocator,
@@ -34,17 +34,17 @@ pub const Extractor = struct {
             .use_ast = true,
         };
     }
-    
+
     /// Main extraction entry point
     pub fn extract(self: Extractor, source: []const u8, extraction_flags: ExtractionFlags) ![]const u8 {
         var mutable_flags = extraction_flags;
         mutable_flags.setDefault();
-        
+
         // Return full source if requested
         if (mutable_flags.full) {
             return self.allocator.dupe(u8, source);
         }
-        
+
         // Choose extraction method
         if (self.use_ast and self.language != .unknown) {
             return self.extractWithAst(source, mutable_flags);
@@ -52,7 +52,7 @@ pub const Extractor = struct {
             return self.extractText(source, mutable_flags);
         }
     }
-    
+
     /// AST-based extraction using tree-sitter
     fn extractWithAst(self: Extractor, source: []const u8, extraction_flags: ExtractionFlags) ![]const u8 {
         // Try to use tree-sitter parser
@@ -62,18 +62,18 @@ pub const Extractor = struct {
             return self.extractText(source, extraction_flags);
         };
         defer parser.deinit();
-        
+
         return parser.extract(source, extraction_flags) catch {
             // Fall back on parse errors
             return self.extractText(source, extraction_flags);
         };
     }
-    
+
     /// Text-based extraction (fallback)
     fn extractText(self: Extractor, source: []const u8, extraction_flags: ExtractionFlags) ![]const u8 {
         var result = std.ArrayList(u8).init(self.allocator);
         defer result.deinit();
-        
+
         // Dispatch to language-specific text extraction
         switch (self.language) {
             .zig => try zig_extractor.extract(source, extraction_flags, &result),
@@ -87,7 +87,7 @@ pub const Extractor = struct {
                 try result.appendSlice(source);
             },
         }
-        
+
         return result.toOwnedSlice();
     }
 };
@@ -119,29 +119,29 @@ test "basic text extraction" {
     // The custom_extract function in the refactored Zig extractor is changing behavior
     // Need to investigate why extraction is not matching expected patterns
     // return error.SkipZigTest;
-    
+
     const testing = std.testing;
-    
-    const source = 
+
+    const source =
         \\pub fn test() void {}
         \\const value = 42;
         \\test "example" {}
     ;
-    
+
     var extractor = createExtractor(testing.allocator, .zig);
-    
+
     // Extract signatures - FAILING
     const sigs = try extractor.extract(source, .{ .signatures = true });
     defer testing.allocator.free(sigs);
     // TODO: This expectation is failing - investigate extractor_base pattern matching
     // try testing.expect(std.mem.indexOf(u8, sigs, "pub fn test") != null);
-    
+
     // Extract types - FAILING
     const types = try extractor.extract(source, .{ .types = true });
     defer testing.allocator.free(types);
     // TODO: This expectation is failing - investigate extractor_base pattern matching
     // try testing.expect(std.mem.indexOf(u8, types, "const value") != null);
-    
+
     // Extract tests - FAILING
     const tests = try extractor.extract(source, .{ .tests = true });
     defer testing.allocator.free(tests);

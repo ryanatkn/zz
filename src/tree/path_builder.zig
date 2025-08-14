@@ -8,7 +8,7 @@ pub const PathBuilder = struct {
     path_cache: ?*PathCache,
 
     const Self = @This();
-    
+
     /// Initialize with optional path cache for performance
     pub fn initWithCache(allocator: std.mem.Allocator, filesystem: FilesystemInterface, path_cache: ?*PathCache) Self {
         return Self{
@@ -17,7 +17,7 @@ pub const PathBuilder = struct {
             .path_cache = path_cache,
         };
     }
-    
+
     /// Initialize without cache (backward compatibility)
     pub fn init(allocator: std.mem.Allocator, filesystem: FilesystemInterface) Self {
         return Self.initWithCache(allocator, filesystem, null);
@@ -34,13 +34,13 @@ pub const PathBuilder = struct {
             }
             return self.allocator.dupe(u8, name);
         }
-        
-        // Use cache for path building if available  
+
+        // Use cache for path building if available
         if (self.path_cache) |cache| {
             const cached = try cache.build(base, name);
             return try self.allocator.dupe(u8, cached);
         }
-        
+
         return try self.filesystem.pathJoin(self.allocator, &.{ base, name });
     }
 

@@ -15,13 +15,10 @@ const io = @import("../core/io.zig");
 
 /// Test scope management for automatic setup and teardown
 /// Usage: try testScope(testing.allocator, testFunction);
-pub fn testScope(
-    allocator: std.mem.Allocator,
-    comptime testFn: anytype
-) !void {
+pub fn testScope(allocator: std.mem.Allocator, comptime testFn: anytype) !void {
     const TestArgs = @TypeOf(testFn);
     const args_info = @typeInfo(TestArgs).Fn;
-    
+
     if (args_info.params.len == 1) {
         // Function expects MockTestContext
         var ctx = MockTestContext.init(allocator);
@@ -43,7 +40,7 @@ pub const TestContextBuilder = struct {
     use_mock_fs: bool = true,
     files: std.ArrayList([]const u8),
     dirs: std.ArrayList([]const u8),
-    
+
     pub fn init(allocator: std.mem.Allocator) TestContextBuilder {
         return .{
             .allocator = allocator,
@@ -51,63 +48,63 @@ pub const TestContextBuilder = struct {
             .dirs = std.ArrayList([]const u8).init(allocator),
         };
     }
-    
+
     pub fn withFile(self: *TestContextBuilder, path: []const u8, content: []const u8) *TestContextBuilder {
         const file_spec = std.fmt.allocPrint(self.allocator, "{s}:{s}", .{ path, content }) catch unreachable;
         self.files.append(file_spec) catch unreachable;
         return self;
     }
-    
+
     pub fn withDir(self: *TestContextBuilder, path: []const u8) *TestContextBuilder {
         const duped = self.allocator.dupe(u8, path) catch unreachable;
         self.dirs.append(duped) catch unreachable;
         return self;
     }
-    
+
     pub fn withRealFS(self: *TestContextBuilder) *TestContextBuilder {
         var builder = self.*;
         builder.use_mock_fs = false;
         return &builder;
     }
-    
+
     pub fn build(self: *TestContextBuilder) !TestContext {
         if (self.use_mock_fs) {
             var ctx = MockTestContext.init(self.allocator);
-            
+
             // Add directories first
             for (self.dirs.items) |dir| {
                 try ctx.addDirectory(dir);
             }
-            
+
             // Add files
             for (self.files.items) |file_spec| {
                 const colon_pos = std.mem.indexOf(u8, file_spec, ":") orelse continue;
                 const path = file_spec[0..colon_pos];
-                const content = file_spec[colon_pos + 1..];
+                const content = file_spec[colon_pos + 1 ..];
                 try ctx.addFile(path, content);
             }
-            
+
             return TestContext{ .mock = ctx };
         } else {
             var ctx = try TmpDirTestContext.init(self.allocator);
-            
+
             // Add directories first
             for (self.dirs.builder.list.items()) |dir| {
                 try ctx.makeDir(dir);
             }
-            
+
             // Add files
             for (self.files.builder.list.items()) |file_spec| {
                 const colon_pos = std.mem.indexOf(u8, file_spec, ":") orelse continue;
                 const path = file_spec[0..colon_pos];
-                const content = file_spec[colon_pos + 1..];
+                const content = file_spec[colon_pos + 1 ..];
                 try ctx.writeFile(path, content);
             }
-            
+
             return TestContext{ .tmp = ctx };
         }
     }
-    
+
     pub fn deinit(self: *TestContextBuilder) void {
         self.files.deinit();
         self.dirs.deinit();
@@ -118,14 +115,14 @@ pub const TestContextBuilder = struct {
 pub const TestContext = union(enum) {
     mock: MockTestContext,
     tmp: TmpDirTestContext,
-    
+
     pub fn deinit(self: *TestContext) void {
         switch (self.*) {
             .mock => |*ctx| ctx.deinit(),
             .tmp => |*ctx| ctx.deinit(),
         }
     }
-    
+
     pub fn filesystem(self: *const TestContext) FilesystemInterface {
         return switch (self.*) {
             .mock => |*ctx| ctx.filesystem,
@@ -388,14 +385,14 @@ pub const TestRunner = struct {
     var test_count: u32 = 0;
     var modules_completed: u8 = 0;
     var total_modules: u8 = 0;
-    
+
     const ModuleStats = struct {
         name: []const u8,
         test_count: u32,
         duration_ms: f64,
         memory_peak_kb: u64,
     };
-    
+
     var module_stats: [10]ModuleStats = undefined;
     var stats_count: u8 = 0;
 
@@ -407,13 +404,13 @@ pub const TestRunner = struct {
         } else |_| {
             verbose = false;
         }
-        
+
         // Reset counters
         modules_completed = 0;
         test_count = 0;
         stats_count = 0;
         total_modules = 6; // Tree, Prompt, Patterns, CLI, Benchmark, Lib
-        
+
         if (verbose) {
             std.debug.print("\n🧪 Test Suite Starting ({d} modules)\n", .{total_modules});
             std.debug.print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n", .{});
@@ -426,11 +423,11 @@ pub const TestRunner = struct {
         if (current_module.len > 0) {
             completeCurrentModule();
         }
-        
+
         current_module = module_name;
         module_start_time = std.time.nanoTimestamp();
         modules_completed += 1;
-        
+
         if (verbose) {
             std.debug.print("\n🧪 [{d}/{d}] {s} Tests\n", .{ modules_completed, total_modules, module_name });
             std.debug.print("┌─────────────────────────────────────────────────┐\n", .{});
@@ -438,17 +435,17 @@ pub const TestRunner = struct {
             std.debug.print("\n=== {s} Tests ===\n", .{module_name});
         }
     }
-    
+
     /// Complete the current module and record statistics
     fn completeCurrentModule() void {
         if (current_module.len == 0) return;
-        
+
         const end_time = std.time.nanoTimestamp();
         const duration_ms = @as(f64, @floatFromInt(@as(u64, @intCast(end_time - module_start_time)))) / 1_000_000.0;
-        
+
         // Estimate memory usage (simplified)
         const memory_kb = test_count * 8; // Rough estimate
-        
+
         if (stats_count < module_stats.len) {
             module_stats[stats_count] = ModuleStats{
                 .name = current_module,
@@ -458,11 +455,11 @@ pub const TestRunner = struct {
             };
             stats_count += 1;
         }
-        
+
         if (verbose) {
             std.debug.print("└─ ✓ {s}: {d} tests in {d:.1}ms\n", .{ current_module, test_count, duration_ms });
         }
-        
+
         test_count = 0;
     }
 
@@ -478,38 +475,37 @@ pub const TestRunner = struct {
     pub fn printSummary() void {
         // Complete final module
         completeCurrentModule();
-        
+
         if (verbose) {
             std.debug.print("\n📊 Test Suite Summary\n", .{});
             std.debug.print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n", .{});
-            
+
             var total_tests: u32 = 0;
             var total_duration: f64 = 0;
             var total_memory: u64 = 0;
-            
+
             for (module_stats[0..stats_count]) |stat| {
                 total_tests += stat.test_count;
                 total_duration += stat.duration_ms;
                 total_memory += stat.memory_peak_kb;
             }
-            
+
             std.debug.print("\n┌─ Module Breakdown:\n", .{});
             for (module_stats[0..stats_count]) |stat| {
                 const percent = if (total_duration > 0) (stat.duration_ms / total_duration) * 100 else 0;
-                std.debug.print("│ {s:<12} │ {d:>3} tests │ {d:>6.1}ms ({d:>4.1}%) │ {d:>3}KB\n", 
-                    .{ stat.name, stat.test_count, stat.duration_ms, percent, stat.memory_peak_kb });
+                std.debug.print("│ {s:<12} │ {d:>3} tests │ {d:>6.1}ms ({d:>4.1}%) │ {d:>3}KB\n", .{ stat.name, stat.test_count, stat.duration_ms, percent, stat.memory_peak_kb });
             }
-            
+
             std.debug.print("└─ Total Summary:\n", .{});
             std.debug.print("   • {d} modules completed\n", .{stats_count});
             std.debug.print("   • {d} total tests executed\n", .{total_tests});
             std.debug.print("   • {d:.1}ms total execution time\n", .{total_duration});
             std.debug.print("   • ~{d}KB peak memory usage\n", .{total_memory});
-            
+
             if (total_duration > 1000) {
                 std.debug.print("   ⚠️  Long test run - consider optimization\n", .{});
             }
-            
+
             std.debug.print("\n✅ All test modules completed successfully!\n", .{});
         } else {
             // Minimal summary for non-verbose mode
@@ -551,7 +547,6 @@ pub const TestRunner = struct {
 
 /// Enhanced assertion helpers with better error messages and context
 pub const Assertions = struct {
-    
     /// Assert string contains substring with context
     pub fn expectStringContains(actual: []const u8, expected_substring: []const u8) !void {
         if (std.mem.indexOf(u8, actual, expected_substring) == null) {
@@ -561,7 +556,7 @@ pub const Assertions = struct {
             return testing.expectError("String does not contain expected substring");
         }
     }
-    
+
     /// Assert string does not contain substring
     pub fn expectStringNotContains(actual: []const u8, unexpected_substring: []const u8) !void {
         if (std.mem.indexOf(u8, actual, unexpected_substring) != null) {
@@ -571,7 +566,7 @@ pub const Assertions = struct {
             return testing.expectError("String contains unexpected substring");
         }
     }
-    
+
     /// Assert slice contains item with better error reporting
     pub fn expectSliceContains(comptime T: type, slice: []const T, item: T) !void {
         if (std.mem.indexOfScalar(T, slice, item) == null) {
@@ -581,7 +576,7 @@ pub const Assertions = struct {
             return testing.expectError("Slice does not contain expected item");
         }
     }
-    
+
     /// Assert approximate equality for floating point numbers
     pub fn expectApproxEqual(actual: f64, expected: f64, tolerance: f64) !void {
         const diff = @abs(actual - expected);
@@ -589,11 +584,11 @@ pub const Assertions = struct {
             std.debug.print("\n❌ Values not approximately equal\n");
             std.debug.print("Actual: {d}\n", .{actual});
             std.debug.print("Expected: {d}\n", .{expected});
-            std.debug.print("Difference: {d} (tolerance: {d})\n", .{diff, tolerance});
+            std.debug.print("Difference: {d} (tolerance: {d})\n", .{ diff, tolerance });
             return testing.expectError("Values not approximately equal");
         }
     }
-    
+
     /// Assert file exists and is readable
     pub fn expectFileExists(file_path: []const u8) !void {
         std.fs.cwd().access(file_path, .{}) catch |err| switch (err) {
@@ -608,18 +603,18 @@ pub const Assertions = struct {
             else => return err,
         };
     }
-    
+
     /// Assert file contains expected content
     pub fn expectFileContains(allocator: std.mem.Allocator, file_path: []const u8, expected_content: []const u8) !void {
         const content = std.fs.cwd().readFileAlloc(allocator, file_path, 1024 * 1024) catch |err| {
-            std.debug.print("\n❌ Could not read file: {s} - {}\n", .{file_path, err});
+            std.debug.print("\n❌ Could not read file: {s} - {}\n", .{ file_path, err });
             return err;
         };
         defer allocator.free(content);
-        
+
         try expectStringContains(content, expected_content);
     }
-    
+
     /// Assert collection has expected length
     pub fn expectLength(comptime T: type, collection: []const T, expected_length: usize) !void {
         if (collection.len != expected_length) {
@@ -666,30 +661,30 @@ pub const Assertions = struct {
 pub const FileStructureBuilder = struct {
     allocator: std.mem.Allocator,
     files: std.ArrayList([]const u8),
-    
+
     pub fn init(allocator: std.mem.Allocator) FileStructureBuilder {
         return .{
             .allocator = allocator,
             .files = std.ArrayList([]const u8).init(allocator),
         };
     }
-    
+
     pub fn addZigFile(self: *FileStructureBuilder, path: []const u8, functions: []const []const u8) !*FileStructureBuilder {
         var content = std.ArrayList(u8).init(self.allocator);
         defer content.deinit();
-        
+
         try content.appendSlice("const std = @import(\"std\");\n\n");
         for (functions) |func| {
             try content.appendSlice("pub fn ");
             try content.appendSlice(func);
             try content.appendSlice("() void {}\n\n");
         }
-        
+
         _ = try self.files.addDupe(path);
         _ = try self.files.addDupe(content.items());
         return self;
     }
-    
+
     pub fn deinit(self: *FileStructureBuilder) void {
         self.files.deinit();
     }

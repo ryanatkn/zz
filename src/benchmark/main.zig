@@ -12,7 +12,7 @@ pub const OutputFormat = enum {
     json,
     csv,
     pretty,
-    
+
     pub fn fromString(s: []const u8) ?OutputFormat {
         if (std.mem.eql(u8, s, "markdown")) return .markdown;
         if (std.mem.eql(u8, s, "json")) return .json;
@@ -26,7 +26,7 @@ pub const OutputFormat = enum {
 const DEFAULT_DURATION_NS: u64 = 2_000_000_000;
 
 const Options = struct {
-    duration_ns: u64 = DEFAULT_DURATION_NS,  // Duration to run each benchmark
+    duration_ns: u64 = DEFAULT_DURATION_NS, // Duration to run each benchmark
     format: OutputFormat = .markdown,
     baseline: ?[]const u8 = null, // Baseline file for comparison
     no_compare: bool = false, // Disable automatic comparison
@@ -69,14 +69,14 @@ pub fn getEffectiveDuration(base_duration_ns: u64, benchmark_name: []const u8, u
 /// Parse duration string (e.g., "1s", "500ms", "2000000000ns")
 pub fn parseDuration(duration_str: []const u8) !u64 {
     if (std.mem.endsWith(u8, duration_str, "ns")) {
-        const num_str = duration_str[0..duration_str.len - 2];
+        const num_str = duration_str[0 .. duration_str.len - 2];
         return try std.fmt.parseInt(u64, num_str, 10);
     } else if (std.mem.endsWith(u8, duration_str, "ms")) {
-        const num_str = duration_str[0..duration_str.len - 2];
+        const num_str = duration_str[0 .. duration_str.len - 2];
         const ms = try std.fmt.parseInt(u64, num_str, 10);
         return ms * 1_000_000; // Convert to nanoseconds
     } else if (std.mem.endsWith(u8, duration_str, "s")) {
-        const num_str = duration_str[0..duration_str.len - 1];
+        const num_str = duration_str[0 .. duration_str.len - 1];
         const s = try std.fmt.parseInt(u64, num_str, 10);
         return s * 1_000_000_000; // Convert to nanoseconds
     } else {
@@ -132,7 +132,7 @@ pub fn run(allocator: std.mem.Allocator, args: [][:0]const u8) !void {
             options.run_glob = true;
             options.run_extraction = true;
             options.run_all = false;
-            
+
             // Parse the skip list and disable those benchmarks
             var iter = std.mem.tokenizeScalar(u8, options.skip.?, ',');
             while (iter.next()) |name| {
@@ -172,13 +172,13 @@ pub fn run(allocator: std.mem.Allocator, args: [][:0]const u8) !void {
     // Auto-load baseline for markdown and pretty formats unless disabled
     if ((options.format == .markdown or options.format == .pretty) and !options.no_compare) {
         const baseline_path = options.baseline orelse "benchmarks/baseline.md";
-        
+
         if (std.fs.cwd().openFile(baseline_path, .{})) |file| {
             defer file.close();
-            
+
             const content = try file.readToEndAlloc(allocator, 1024 * 1024);
             defer allocator.free(content);
-            
+
             baseline_results = try Benchmark.loadFromMarkdown(allocator, content);
         } else |err| {
             // Only error if explicitly specified
@@ -234,18 +234,18 @@ pub fn run(allocator: std.mem.Allocator, args: [][:0]const u8) !void {
     // Output results in requested format to stdout
     const stdout = std.io.getStdOut().writer();
     const build_mode = "Debug"; // We can make this dynamic later if needed
-    
+
     // Format duration for display
     var duration_buf: [64]u8 = undefined;
     const formatted_duration = try formatTime(options.duration_ns, &duration_buf);
-    
+
     switch (options.format) {
         .markdown => try bench.writeMarkdown(stdout, baseline_results, build_mode, formatted_duration),
         .json => try bench.writeJSON(stdout, build_mode, formatted_duration),
         .csv => try bench.writeCSV(stdout),
         .pretty => try bench.writePretty(stdout, baseline_results),
     }
-    
+
     // Check for regressions if comparing (exit with error code if found)
     if (baseline_results) |baseline| {
         var has_regression = false;
@@ -287,4 +287,3 @@ fn warmUp(allocator: std.mem.Allocator) !void {
         std.debug.print("", .{});
     }
 }
-

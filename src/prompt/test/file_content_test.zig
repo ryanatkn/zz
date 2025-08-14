@@ -1,7 +1,7 @@
 const std = @import("std");
 const test_helpers = @import("../../test_helpers.zig");
 const PromptBuilder = @import("../builder.zig").PromptBuilder;
-const ExtractionFlags = @import("../../lib/parser.zig").ExtractionFlags;
+const ExtractionFlags = @import("../../lib/ast.zig").ExtractionFlags;
 const fence = @import("../fence.zig");
 
 test "file with no newlines" {

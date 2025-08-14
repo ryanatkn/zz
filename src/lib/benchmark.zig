@@ -1,7 +1,7 @@
 const std = @import("std");
 const path_utils = @import("path.zig");
-const PathCache = @import("string_pool.zig").PathCache;
-const MemoryPools = @import("pools.zig").MemoryPools;
+const PathCache = @import("memory.zig").PathCache;
+const ListPool = @import("memory.zig").ListPool;
 
 /// Benchmark result structure
 pub const BenchmarkResult = struct {
@@ -159,7 +159,7 @@ pub const Benchmark = struct {
             std.debug.print("\n=== Memory Pools Benchmark ===\n", .{});
         }
         
-        var pools = MemoryPools.init(self.allocator);
+        var pools = ListPool.init(self.allocator);
         defer pools.deinit();
         
         var timer = try std.time.Timer.start();
@@ -167,12 +167,12 @@ pub const Benchmark = struct {
         
         // Run until we hit the target duration
         while (timer.read() < target_duration_ns) {
-            var list = try pools.createPathList();
+            var list = pools.getConstStringList();
             try list.append(try self.allocator.dupe(u8, "test"));
             for (list.items) |item| {
                 self.allocator.free(item);
             }
-            pools.releasePathList(list);
+            pools.putConstStringList(list);
             iterations += 1;
         }
         
@@ -248,8 +248,8 @@ pub const Benchmark = struct {
             std.debug.print("\n📋 Benchmarking Code Extraction...\n", .{});
         }
         
-        const Parser = @import("parser.zig").Parser;
-        const ExtractionFlags = @import("parser.zig").ExtractionFlags;
+        const ast = @import("ast.zig");
+        const ExtractionFlags = ast.ExtractionFlags;
         
         // Sample Zig code for extraction
         const sample_code = 
@@ -292,8 +292,7 @@ pub const Benchmark = struct {
         
         while (@as(u64, @intCast(std.time.nanoTimestamp() - start)) < target_duration_ns) {
             for (extraction_modes) |mode| {
-                var parser = try Parser.init(self.allocator, .zig);
-                defer parser.deinit();
+                var parser = ast.createExtractor(self.allocator, .zig);
                 
                 const extracted = try parser.extract(sample_code, mode.flags);
                 defer self.allocator.free(extracted);

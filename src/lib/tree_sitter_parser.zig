@@ -1,11 +1,11 @@
 const std = @import("std");
 const ts = @import("tree-sitter");
-const ExtractionFlags = @import("parser.zig").ExtractionFlags;
-const Language = @import("parser.zig").Language;
-const ImportExtractor = @import("import_extractor.zig").ImportExtractor;
-const ImportInfo = @import("import_extractor.zig").ImportInfo;
-const ExtractionResult = @import("import_extractor.zig").ExtractionResult;
-const collection_helpers = @import("collection_helpers.zig");
+const ast = @import("ast.zig");
+const ExtractionFlags = ast.ExtractionFlags;
+const Language = ast.Language;
+const imports_mod = @import("imports.zig");
+const ImportInfo = imports_mod.Import;
+const ExtractionResult = imports_mod.ExtractionResult;
 
 // Language-specific tree-sitter grammars
 extern fn tree_sitter_zig() callconv(.C) *ts.Language;
@@ -70,11 +70,11 @@ pub const TreeSitterParser = struct {
     }
     
     /// Extract imports and exports from source using AST analysis
-    /// This provides a unified interface that leverages ImportExtractor but uses this parser
+    /// This provides a unified interface that leverages imports_mod.Extractor but uses this parser
     pub fn extractImports(self: *Self, file_path: []const u8, source: []const u8) !ExtractionResult {
-        var import_extractor = ImportExtractor.init(self.allocator);
+        var import_extractor = imports_mod.Extractor.init(self.allocator);
         
-        // Use the ImportExtractor but with our tree-sitter parser for enhanced accuracy
+        // Use the imports_mod.Extractor but with our tree-sitter parser for enhanced accuracy
         switch (self.language) {
             .typescript, .javascript => return self.extractTypeScriptImports(file_path, source),
             .zig => return self.extractZigImports(file_path, source),
@@ -88,15 +88,15 @@ pub const TreeSitterParser = struct {
     fn extractTypeScriptImports(self: *Self, file_path: []const u8, source: []const u8) !ExtractionResult {
         const tree = self.parse(source) catch {
             // Fallback to text-based extraction if parsing fails
-            var import_extractor = ImportExtractor.init(self.allocator);
+            var import_extractor = imports_mod.Extractor.init(self.allocator);
             return import_extractor.extractTypeScriptFallback(file_path, source);
         };
         defer tree.destroy();
         
-        var imports = collection_helpers.CollectionHelpers.ManagedArrayList(ImportInfo).init(self.allocator);
+        var imports = std.ArrayList(ImportInfo).init(self.allocator);
         defer imports.deinit();
         
-        var exports = collection_helpers.CollectionHelpers.ManagedArrayList(@import("import_extractor.zig").ExportInfo).init(self.allocator);
+        var exports = std.ArrayList(imports_mod.Export).init(self.allocator);
         defer exports.deinit();
         
         // Walk AST to find import/export nodes
@@ -112,16 +112,16 @@ pub const TreeSitterParser = struct {
     fn extractZigImports(self: *Self, file_path: []const u8, source: []const u8) !ExtractionResult {
         const tree = self.parse(source) catch {
             // Fallback to text-based extraction if parsing fails
-            var import_extractor = ImportExtractor.init(self.allocator);
+            var import_extractor = imports_mod.Extractor.init(self.allocator);
             return import_extractor.extractZigFallback(file_path, source);
         };
         defer tree.destroy();
         
-        var imports = collection_helpers.CollectionHelpers.ManagedArrayList(ImportInfo).init(self.allocator);
+        var imports = std.ArrayList(ImportInfo).init(self.allocator);
         defer imports.deinit();
         
         // Zig doesn't have exports in the traditional sense
-        const exports = try self.allocator.alloc(@import("import_extractor.zig").ExportInfo, 0);
+        const exports = try self.allocator.alloc(imports_mod.Export, 0);
         
         try self.walkForZigImports(tree.rootNode(), source, file_path, &imports);
         
@@ -138,7 +138,7 @@ pub const TreeSitterParser = struct {
         };
         defer tree.destroy();
         
-        var imports = collection_helpers.CollectionHelpers.ManagedArrayList(ImportInfo).init(self.allocator);
+        var imports = std.ArrayList(ImportInfo).init(self.allocator);
         defer imports.deinit();
         
         try self.walkForCssImports(tree.rootNode(), source, file_path, &imports);
@@ -153,15 +153,15 @@ pub const TreeSitterParser = struct {
     fn extractSvelteImports(self: *Self, file_path: []const u8, source: []const u8) !ExtractionResult {
         const tree = self.parse(source) catch {
             // Fallback to text-based extraction if parsing fails
-            var import_extractor = ImportExtractor.init(self.allocator);
+            var import_extractor = imports_mod.Extractor.init(self.allocator);
             return import_extractor.extractSvelte(file_path, source);
         };
         defer tree.destroy();
         
-        var all_imports = collection_helpers.CollectionHelpers.ManagedArrayList(ImportInfo).init(self.allocator);
+        var all_imports = std.ArrayList(ImportInfo).init(self.allocator);
         defer all_imports.deinit();
         
-        var all_exports = collection_helpers.CollectionHelpers.ManagedArrayList(@import("import_extractor.zig").ExportInfo).init(self.allocator);
+        var all_exports = std.ArrayList(imports_mod.Export).init(self.allocator);
         defer all_exports.deinit();
         
         // Extract from script sections within Svelte
@@ -176,8 +176,8 @@ pub const TreeSitterParser = struct {
     // AST walking methods for import extraction
     
     fn walkForImports(self: *Self, node: ts.Node, source: []const u8, file_path: []const u8,
-                     imports: *collection_helpers.CollectionHelpers.ManagedArrayList(ImportInfo),
-                     exports: *collection_helpers.CollectionHelpers.ManagedArrayList(@import("import_extractor.zig").ExportInfo)) !void {
+                     imports: *std.ArrayList(ImportInfo),
+                     exports: *std.ArrayList(imports_mod.Export)) !void {
         const node_type = node.kind();
         
         // Handle import statements
@@ -210,7 +210,7 @@ pub const TreeSitterParser = struct {
     }
     
     fn walkForZigImports(self: *Self, node: ts.Node, source: []const u8, file_path: []const u8,
-                        imports: *collection_helpers.CollectionHelpers.ManagedArrayList(ImportInfo)) !void {
+                        imports: *std.ArrayList(ImportInfo)) !void {
         const node_type = node.kind();
         
         // Look for @import calls in builtin function calls
@@ -237,7 +237,7 @@ pub const TreeSitterParser = struct {
     }
     
     fn walkForCssImports(self: *Self, node: ts.Node, source: []const u8, file_path: []const u8,
-                        imports: *collection_helpers.CollectionHelpers.ManagedArrayList(ImportInfo)) !void {
+                        imports: *std.ArrayList(ImportInfo)) !void {
         const node_type = node.kind();
         
         // Look for @import at-rules
@@ -264,8 +264,8 @@ pub const TreeSitterParser = struct {
     }
     
     fn walkForSvelteImports(self: *Self, node: ts.Node, source: []const u8, file_path: []const u8,
-                           imports: *collection_helpers.CollectionHelpers.ManagedArrayList(ImportInfo),
-                           exports: *collection_helpers.CollectionHelpers.ManagedArrayList(@import("import_extractor.zig").ExportInfo)) !void {
+                           imports: *std.ArrayList(ImportInfo),
+                           exports: *std.ArrayList(imports_mod.Export)) !void {
         const node_type = node.kind();
         
         // Look for script elements and parse their content
@@ -325,11 +325,11 @@ pub const TreeSitterParser = struct {
         return import_info;
     }
     
-    fn parseTypeScriptExportNode(self: *Self, node: ts.Node, source: []const u8, file_path: []const u8) !@import("import_extractor.zig").ExportInfo {
+    fn parseTypeScriptExportNode(self: *Self, node: ts.Node, source: []const u8, file_path: []const u8) !imports_mod.Export {
         const line_number = self.getLineNumber(node, source);
         const node_text = self.getNodeText(node, source);
         
-        var export_info = @import("import_extractor.zig").ExportInfo{
+        var export_info = imports_mod.Export{
             .source_file = try self.allocator.dupe(u8, file_path),
             .export_path = null,
             .symbols = &.{},

@@ -2,9 +2,9 @@ const std = @import("std");
 const fence = @import("fence.zig");
 const FilesystemInterface = @import("../filesystem/interface.zig").FilesystemInterface;
 const path_utils = @import("../lib/path.zig");
-const Parser = @import("../lib/parser.zig").Parser;
-const Language = @import("../lib/parser.zig").Language;
-const ExtractionFlags = @import("../lib/parser.zig").ExtractionFlags;
+const ast = @import("../lib/ast.zig");
+const Language = ast.Language;
+const ExtractionFlags = ast.ExtractionFlags;
 const FileTracker = @import("../lib/incremental.zig").FileTracker;
 const CacheSystem = @import("../lib/cache.zig").CacheSystem;
 const AstCacheKey = @import("../lib/cache.zig").AstCacheKey;
@@ -151,8 +151,7 @@ pub const PromptBuilder = struct {
 
         // Determine language and extract content based on flags
         const language = Language.fromExtension(ext);
-        var parser = try Parser.init(self.arena.allocator(), language);
-        defer parser.deinit();
+        var parser = ast.createExtractor(self.arena.allocator(), language);
         
         const extracted_content = try parser.extract(content, self.extraction_flags);
         // extracted_content is allocated by parser using arena allocator, no need to free
@@ -419,7 +418,7 @@ fn processFileSafe(builder: *PromptBuilder, file_path: []const u8, result: *File
     const lang = if (ext.len > 0) ext[1..] else "";
 
     const language = Language.fromExtension(ext);
-    var parser = try Parser.init(temp_allocator, language);
+    var parser = ast.createExtractor(temp_allocator, language);
     defer parser.deinit();
     
     const extracted_content = try parser.extract(content, builder.extraction_flags);

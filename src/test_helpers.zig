@@ -5,9 +5,9 @@ const RealFilesystem = @import("filesystem/real.zig").RealFilesystem;
 const FilesystemInterface = @import("filesystem/interface.zig").FilesystemInterface;
 const SharedConfig = @import("config.zig").SharedConfig;
 const GlobExpander = @import("prompt/glob.zig").GlobExpander;
-const collection_helpers = @import("lib/collection_helpers.zig");
-const error_helpers = @import("lib/error_helpers.zig");
-const file_helpers = @import("lib/file_helpers.zig");
+const collections = @import("lib/collections.zig");
+const errors = @import("lib/errors.zig");
+const io = @import("lib/io.zig");
 
 // ============================================================================
 // Core Test Context Types - The Essential Test Infrastructure
@@ -41,24 +41,26 @@ pub fn testScope(
 pub const TestContextBuilder = struct {
     allocator: std.mem.Allocator,
     use_mock_fs: bool = true,
-    files: collection_helpers.CollectionHelpers.StringListBuilder,
-    dirs: collection_helpers.CollectionHelpers.StringListBuilder,
+    files: std.ArrayList([]const u8),
+    dirs: std.ArrayList([]const u8),
     
     pub fn init(allocator: std.mem.Allocator) TestContextBuilder {
         return .{
             .allocator = allocator,
-            .files = collection_helpers.CollectionHelpers.StringListBuilder.init(allocator),
-            .dirs = collection_helpers.CollectionHelpers.StringListBuilder.init(allocator),
+            .files = std.ArrayList([]const u8).init(allocator),
+            .dirs = std.ArrayList([]const u8).init(allocator),
         };
     }
     
     pub fn withFile(self: *TestContextBuilder, path: []const u8, content: []const u8) *TestContextBuilder {
-        _ = self.files.addFmt("{s}:{s}", .{ path, content }) catch unreachable;
+        const file_spec = std.fmt.allocPrint(self.allocator, "{s}:{s}", .{ path, content }) catch unreachable;
+        self.files.append(file_spec) catch unreachable;
         return self;
     }
     
     pub fn withDir(self: *TestContextBuilder, path: []const u8) *TestContextBuilder {
-        _ = self.dirs.addDupe(path) catch unreachable;
+        const duped = self.allocator.dupe(u8, path) catch unreachable;
+        self.dirs.append(duped) catch unreachable;
         return self;
     }
     
@@ -73,12 +75,12 @@ pub const TestContextBuilder = struct {
             var ctx = MockTestContext.init(self.allocator);
             
             // Add directories first
-            for (self.dirs.builder.list.items()) |dir| {
+            for (self.dirs.items) |dir| {
                 try ctx.addDirectory(dir);
             }
             
             // Add files
-            for (self.files.builder.list.items()) |file_spec| {
+            for (self.files.items) |file_spec| {
                 const colon_pos = std.mem.indexOf(u8, file_spec, ":") orelse continue;
                 const path = file_spec[0..colon_pos];
                 const content = file_spec[colon_pos + 1..];
@@ -663,17 +665,17 @@ pub const Assertions = struct {
 /// Builder for creating test file structures
 pub const FileStructureBuilder = struct {
     allocator: std.mem.Allocator,
-    files: collection_helpers.CollectionHelpers.StringListBuilder,
+    files: std.ArrayList([]const u8),
     
     pub fn init(allocator: std.mem.Allocator) FileStructureBuilder {
         return .{
             .allocator = allocator,
-            .files = collection_helpers.CollectionHelpers.StringListBuilder.init(allocator),
+            .files = std.ArrayList([]const u8).init(allocator),
         };
     }
     
     pub fn addZigFile(self: *FileStructureBuilder, path: []const u8, functions: []const []const u8) !*FileStructureBuilder {
-        var content = collection_helpers.CollectionHelpers.ManagedArrayList(u8).init(self.allocator);
+        var content = std.ArrayList(u8).init(self.allocator);
         defer content.deinit();
         
         try content.appendSlice("const std = @import(\"std\");\n\n");

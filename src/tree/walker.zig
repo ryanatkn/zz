@@ -6,8 +6,8 @@ const Filter = @import("filter.zig").Filter;
 const Formatter = @import("formatter.zig").Formatter;
 const PathBuilder = @import("path_builder.zig").PathBuilder;
 const FilesystemInterface = @import("../filesystem/interface.zig").FilesystemInterface;
-const PathCache = @import("../lib/string_pool.zig").PathCache;
-const ErrorHelpers = @import("../lib/error_helpers.zig").ErrorHelpers;
+const PathCache = @import("../lib/memory.zig").PathCache;
+const errors = @import("../lib/errors.zig");
 
 pub const WalkerOptions = struct {
     filesystem: FilesystemInterface,
@@ -71,19 +71,19 @@ pub const Walker = struct {
             error.FileNotFound => return,
             error.AccessDenied => {
                 if (!self.formatter.quiet) {
-                    ErrorHelpers.handleFsError(err, "Open directory", path);
+                    std.debug.print("Warning: {s} - Open directory: {s}\n", .{ path, errors.getMessage(err) });
                 }
                 return;
             },
             error.SymLinkLoop => {
                 if (!self.formatter.quiet) {
-                    ErrorHelpers.handleFsError(err, "Open directory", path);
+                    std.debug.print("Warning: {s} - Open directory: {s}\n", .{ path, errors.getMessage(err) });
                 }
                 return;
             },
             else => {
                 if (!self.formatter.quiet) {
-                    ErrorHelpers.handleFsError(err, "Open directory", path);
+                    std.debug.print("Warning: {s} - Open directory: {s}\n", .{ path, errors.getMessage(err) });
                 }
                 return err;
             },

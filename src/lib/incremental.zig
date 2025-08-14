@@ -1,17 +1,14 @@
 const std = @import("std");
 const AstCache = @import("cache.zig").AstCache;
 const AstCacheKey = @import("cache.zig").AstCacheKey;
-const ImportExtractor = @import("import_extractor.zig").ImportExtractor;
-const ImportInfo = @import("import_extractor.zig").ImportInfo;
-const ExtractionResult = @import("import_extractor.zig").ExtractionResult;
-const ImportResolver = @import("import_resolver.zig").ImportResolver;
-const ResolverConfig = @import("import_resolver.zig").ResolverConfig;
-const ResolutionResult = @import("import_resolver.zig").ResolutionResult;
+const imports_mod = @import("imports.zig");
+const ImportInfo = imports_mod.Import;
+const ExtractionResult = imports_mod.ExtractionResult;
 const TreeSitterParser = @import("tree_sitter_parser.zig").TreeSitterParser;
-const Language = @import("parser.zig").Language;
-const file_helpers = @import("file_helpers.zig");
-const error_helpers = @import("error_helpers.zig");
-const collection_helpers = @import("collection_helpers.zig");
+const ast = @import("ast.zig");
+const Language = ast.Language;
+const io = @import("io.zig");
+const errors = @import("errors.zig");
 
 /// Enhanced file state for incremental processing with detailed import analysis
 pub const FileState = struct {
@@ -96,7 +93,7 @@ pub const FileState = struct {
         allocator.free(self.exports);
         
         // Create new legacy fields from detailed analysis
-        var import_paths = collection_helpers.CollectionHelpers.ManagedArrayList([]const u8).init(allocator);
+        var import_paths = std.ArrayList([]const u8).init(allocator);
         defer import_paths.deinit();
         
         for (self.imports_detailed) |import_info| {
@@ -104,7 +101,7 @@ pub const FileState = struct {
         }
         self.imports = try import_paths.toOwnedSlice();
         
-        var export_names = collection_helpers.CollectionHelpers.ManagedArrayList([]const u8).init(allocator);
+        var export_names = std.ArrayList([]const u8).init(allocator);
         defer export_names.deinit();
         
         for (self.exports_detailed) |export_info| {
@@ -123,7 +120,7 @@ pub const FileState = struct {
     
     /// Get all dependency file paths (resolved + unresolved)
     pub fn getAllDependencies(self: FileState, allocator: std.mem.Allocator) ![][]const u8 {
-        var all_deps = collection_helpers.CollectionHelpers.ManagedArrayList([]const u8).init(allocator);
+        var all_deps = std.ArrayList([]const u8).init(allocator);
         defer all_deps.deinit();
         
         for (self.resolved_dependencies) |dep| {
@@ -147,7 +144,7 @@ pub const DependencyGraph = struct {
     dependencies: std.HashMap([]const u8, std.ArrayList([]const u8), std.hash_map.StringContext, 80),
     
     // Enhanced AST-based analysis
-    import_extractor: ImportExtractor,
+    import_extractor: imports_mod.Extractor,
     import_resolver: ImportResolver,
     
     // Circular dependency tracking
@@ -178,7 +175,7 @@ pub const DependencyGraph = struct {
             .allocator = allocator,
             .dependents = std.HashMap([]const u8, std.ArrayList([]const u8), std.hash_map.StringContext, 80).init(allocator),
             .dependencies = std.HashMap([]const u8, std.ArrayList([]const u8), std.hash_map.StringContext, 80).init(allocator),
-            .import_extractor = ImportExtractor.init(allocator),
+            .import_extractor = imports_mod.Extractor.init(allocator),
             .import_resolver = ImportResolver.init(allocator, resolver_config),
             .circular_dependencies = std.ArrayList([][]const u8).init(allocator),
             .stats = DependencyStats{},
@@ -192,7 +189,7 @@ pub const DependencyGraph = struct {
             .allocator = allocator,
             .dependents = std.HashMap([]const u8, std.ArrayList([]const u8), std.hash_map.StringContext, 80).init(allocator),
             .dependencies = std.HashMap([]const u8, std.ArrayList([]const u8), std.hash_map.StringContext, 80).init(allocator),
-            .import_extractor = ImportExtractor.initWithCache(allocator, cache),
+            .import_extractor = imports_mod.Extractor.initWithCache(allocator, cache),
             .import_resolver = ImportResolver.init(allocator, resolver_config),
             .circular_dependencies = std.ArrayList([][]const u8).init(allocator),
             .stats = DependencyStats{},
@@ -292,10 +289,10 @@ pub const DependencyGraph = struct {
         const resolution_start = std.time.nanoTimestamp();
         
         // Resolve import paths to actual files
-        var resolved_dependencies = collection_helpers.CollectionHelpers.ManagedArrayList([]const u8).init(self.allocator);
+        var resolved_dependencies = std.ArrayList([]const u8).init(self.allocator);
         defer resolved_dependencies.deinit();
         
-        var unresolved_dependencies = collection_helpers.CollectionHelpers.ManagedArrayList([]const u8).init(self.allocator);
+        var unresolved_dependencies = std.ArrayList([]const u8).init(self.allocator);
         defer unresolved_dependencies.deinit();
         
         for (extraction_result.imports) |import_info| {
@@ -356,7 +353,7 @@ pub const DependencyGraph = struct {
         var file_states = try self.allocator.alloc(FileState, file_paths.len);
         
         for (file_paths, 0..) |file_path, i| {
-            const source = file_helpers.FileHelpers.readFileRequired(self.allocator, file_path) catch {
+            const source = io.readFileRequired(self.allocator, file_path) catch {
                 // Skip files that can't be read
                 continue;
             };
@@ -532,12 +529,12 @@ pub const FileChange = struct {
 
 /// Fast file hashing using xxHash - now using shared file helpers
 pub fn hashFile(allocator: std.mem.Allocator, file_path: []const u8) !u64 {
-    return file_helpers.FileHelpers.hashFile(allocator, file_path);
+    return io.hashFile(allocator, file_path);
 }
 
 /// Get file modification time in nanoseconds since epoch - using shared file helpers
 pub fn getFileModTime(file_path: []const u8) !i64 {
-    if (try file_helpers.FileHelpers.getModTime(file_path)) |mtime| {
+    if (try io.getModTime(file_path)) |mtime| {
         return mtime * std.time.ns_per_s; // Convert to nanoseconds
     }
     return 0;
@@ -566,31 +563,17 @@ pub const ChangeDetector = struct {
     /// Detect changes between old and new file states - using improved error handling
     pub fn detectFileChange(self: *ChangeDetector, file_path: []const u8, old_state: ?FileState) !FileChange {
         // Check if file still exists using enhanced error handling
-        const mtime_result = error_helpers.ErrorHelpers.safeFileOperation(
-            i64, 
-            getFileModTime(file_path)
-        );
-        
-        const new_mtime = switch (mtime_result) {
-            .success => |mtime| mtime,
-            .not_found => {
+        // Try to get file modification time
+        const new_mtime = getFileModTime(file_path) catch |err| {
+            if (err == error.FileNotFound) {
                 return FileChange{
                     .path = file_path,
                     .change_type = if (old_state != null) .deleted else .unchanged,
                     .old_state = old_state,
                     .new_state = null,
                 };
-            },
-            .access_denied => {
-                error_helpers.ErrorHelpers.handleFsError(error.AccessDenied, "detecting file change", file_path);
-                return FileChange{
-                    .path = file_path,
-                    .change_type = .unchanged, // Can't determine, assume unchanged
-                    .old_state = old_state,
-                    .new_state = old_state,
-                };
-            },
-            .other_error => |err| return err,
+            }
+            return err;
         };
 
         // If we have no old state, this is a new file
@@ -816,7 +799,7 @@ pub const FileTracker = struct {
     pub fn cascadeInvalidation(self: *FileTracker, changed_file: []const u8) !void {
         if (self.ast_cache == null) return;
         
-        var dependents = collection_helpers.CollectionHelpers.ManagedArrayList([]const u8).init(self.allocator);
+        var dependents = std.ArrayList([]const u8).init(self.allocator);
         defer dependents.deinit();
         
         // Get all files that depend on the changed file
@@ -856,10 +839,10 @@ pub const IncrementalState = struct {
     /// Save state to file
     pub fn saveToFile(self: *IncrementalState, allocator: std.mem.Allocator, file_path: []const u8) !void {
         // Create .zz directory if it doesn't exist - using shared file helpers
-        try file_helpers.FileHelpers.ensureDir(".zz");
+        try io.ensureDir(".zz");
         
         // Serialize state to JSON
-        var json_data = collection_helpers.CollectionHelpers.ManagedArrayList(u8).init(allocator);
+        var json_data = std.ArrayList(u8).init(allocator);
         defer json_data.deinit();
         
         try self.writeJson(&json_data);
@@ -879,9 +862,8 @@ pub const IncrementalState = struct {
     
     /// Load state from file - using shared file helpers
     pub fn loadFromFile(allocator: std.mem.Allocator, file_path: []const u8) !IncrementalState {
-        const reader = file_helpers.FileHelpers.SafeFileReader.init(allocator);
-        const content = reader.readToStringOptional(file_path, 16 * 1024 * 1024) catch |err| {
-            error_helpers.ErrorHelpers.handleFsError(err, "loading incremental state", file_path);
+        const content = io.readFileOptional(allocator, file_path) catch |err| {
+            std.debug.print("Warning: loading incremental state for {s}: {s}\n", .{ file_path, errors.getMessage(err) });
             return err;
         };
         

@@ -41,7 +41,17 @@ pub const ZonParser = struct {
         content: []const u8,
         default_value: T,
     ) T {
-        return parseFromSlice(T, allocator, content) catch default_value;
+        // Add null terminator for ZON parsing
+        const null_terminated = allocator.dupeZ(u8, content) catch return default_value;
+        defer allocator.free(null_terminated);
+        
+        // Try to parse with better error handling
+        const result = std.zon.parse.fromSlice(T, allocator, null_terminated, null, .{}) catch {
+            // On any parse error, return the default value
+            return default_value;
+        };
+        
+        return result;
     }
     
     /// Parse ZON content from file with error handling that returns a default value on any failure

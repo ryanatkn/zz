@@ -3,7 +3,7 @@ const AstFormatter = @import("ast_formatter.zig").AstFormatter;
 const AstCache = @import("cache.zig").AstCache;
 const AstCacheKey = @import("cache.zig").AstCacheKey;
 const FormatterOptions = @import("formatter.zig").FormatterOptions;
-const Language = @import("ast.zig").Language;
+const Language = @import("language.zig").Language;
 const FileTracker = @import("incremental.zig").FileTracker;
 
 /// A formatter manager that coordinates AST formatters with shared caching
@@ -88,6 +88,13 @@ pub const CachedFormatterManager = struct {
         if (language == .unknown) {
             // Return original source for unknown file types
             return self.allocator.dupe(u8, source);
+        }
+        
+        // For languages that don't support AST formatting, use the regular formatter
+        if (language == .json or language == .zig or language == .html) {
+            const Formatter = @import("formatter.zig").Formatter;
+            var formatter = Formatter.init(self.allocator, language, options);
+            return formatter.format(source);
         }
         
         // Get or create formatter for this language

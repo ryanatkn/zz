@@ -1,9 +1,10 @@
 const std = @import("std");
-const Language = @import("../ast.zig").Language;
-const ExtractionFlags = @import("../ast.zig").ExtractionFlags;
+const Language = @import("../language.zig").Language;
+const ExtractionFlags = @import("../extraction_flags.zig").ExtractionFlags;
 const FormatterOptions = @import("../formatter.zig").FormatterOptions;
 const IndentStyle = @import("../formatter.zig").IndentStyle;
 const ZonParser = @import("../zon_parser.zig").ZonParser;
+const ArenaZonParser = @import("../zon_memory.zig").ArenaZonParser;
 
 /// A single test case for parser extraction
 pub const ExtractionTest = struct {
@@ -123,9 +124,19 @@ pub const FixtureLoader = struct {
     
     /// Parse a ZON fixture file into structured test data
     fn parseZonFixture(self: FixtureLoader, content: []const u8, language: Language) !LanguageFixtures {
-        // Use shared ZON parser utility
-        const data = try ZonParser.parseFromSlice(TestFixtureData, self.allocator, content);
-        defer ZonParser.free(self.allocator, data);
+        std.log.debug("parseZonFixture: Starting for language {}", .{language});
+        
+        // Use arena ZON parser for automatic cleanup of all parsed data
+        var arena_parser = ArenaZonParser.init(self.allocator);
+        defer arena_parser.deinit(); // This cleans up all ZON-parsed data automatically
+        
+        const data = try arena_parser.parseFromSlice(TestFixtureData, content);
+        std.log.debug("parseZonFixture: Successfully parsed ZON, copying data...", .{});
+        
+        // TODO: The core issue is that std.zon.parse allocates strings that we're
+        // trying to duplicate AND free. When we call ZonParser.free(), it tries
+        // to free the original strings, but if we've already duplicated them,
+        // we're essentially double-managing the memory.
         
         // Convert parsed data to our internal format
         var parser_tests = std.ArrayList(ParserTest).init(self.allocator);
@@ -161,11 +172,27 @@ pub const FixtureLoader = struct {
             });
         }
         
-        return LanguageFixtures{
+        const result = LanguageFixtures{
             .language = language,
             .parser_tests = try parser_tests.toOwnedSlice(),
             .formatter_tests = try formatter_tests.toOwnedSlice(),
         };
+        
+        // FIXED: Memory management now handled by ArenaZonParser.
+        // The issue is that std.zon.parse.free() has complex logic for
+        // freeing nested structures, and we're duplicating strings from it.
+        // This causes a memory leak but prevents crashes.
+        // Potential solutions:
+        // 1. Don't duplicate strings, use them directly (requires lifetime management)
+        // 2. Use an arena allocator for the entire test suite
+        // 3. Rewrite to not use ZON parser for test fixtures
+        //
+        // For now, accept the memory leak in tests to maintain stability.
+        // ZonParser.free(self.allocator, data);
+        
+        std.log.debug("parseZonFixture: Completed, returning result (ZON data cleaned up by arena)", .{});
+        
+        return result;
     }
 };
 

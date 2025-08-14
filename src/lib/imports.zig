@@ -121,7 +121,7 @@ pub const Extractor = struct {
             const trimmed = std.mem.trim(u8, line, " \t");
             
             // Extract @import statements
-            if (std.mem.indexOf(u8, trimmed, "@import(") != null) {
+            if (std.mem.indexOf(u8, trimmed, "@import(\"") != null) {
                 if (self.parseZigImport(file_path, trimmed, line_num)) |import| {
                     try imports.append(import);
                 } else |_| {
@@ -247,8 +247,8 @@ pub const Extractor = struct {
     // Parsing helpers
     fn parseZigImport(self: *Extractor, file_path: []const u8, line: []const u8, line_num: u32) !Import {
         // Handle both: @import("path") and const name = @import("path")
-        const import_pos = std.mem.indexOf(u8, line, "@import(") orelse return error.NoImport;
-        const after_import = line[import_pos + 8..]; // Skip "@import("
+        const import_pos = std.mem.indexOf(u8, line, "@import(\"") orelse return error.NoImport;
+        const after_import = line[import_pos + 9..]; // Skip "@import("" (including the opening quote)
         
         const quote_end = std.mem.indexOf(u8, after_import, "\")") orelse return error.NoQuote;
         const path = try self.allocator.dupe(u8, after_import[0..quote_end]);

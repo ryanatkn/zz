@@ -1,69 +1,15 @@
 const std = @import("std");
 const ts = @import("tree-sitter");
-const ExtractionFlags = @import("../ast.zig").ExtractionFlags;
+const ExtractionFlags = @import("../extraction_flags.zig").ExtractionFlags;
 const AstNode = @import("../ast.zig").AstNode;
 const NodeVisitor = @import("../ast.zig").NodeVisitor;
 const VisitResult = @import("../ast.zig").VisitResult;
 const AstWalker = @import("../ast.zig").AstWalker;
+const css_extractor = @import("../extractors/css.zig");
 
 pub fn extractSimple(source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
-    // If no specific flags are set or full flag is set, return complete source
-    if (flags.isDefault() or flags.full) {
-        try result.appendSlice(source);
-        return;
-    }
-    
-    var lines = std.mem.tokenizeScalar(u8, source, '\n');
-    
-    while (lines.next()) |line| {
-        const trimmed = std.mem.trim(u8, line, " \t");
-        
-        // Skip empty lines
-        if (trimmed.len == 0) continue;
-        
-        var should_include = false;
-        
-        // Check each flag and include relevant content
-        if (flags.types or flags.structure) {
-            // Include CSS rules, declarations, and at-rules
-            if (std.mem.indexOf(u8, line, "{") != null or
-                std.mem.indexOf(u8, line, "}") != null or
-                std.mem.indexOf(u8, line, ":") != null or
-                std.mem.startsWith(u8, trimmed, "@")) {
-                should_include = true;
-            }
-        }
-        
-        if (flags.signatures) {
-            // CSS selectors only (class names, IDs, elements before opening brace)
-            if ((std.mem.startsWith(u8, trimmed, ".") or
-                 std.mem.startsWith(u8, trimmed, "#") or
-                 std.mem.indexOf(u8, line, "{") != null) and
-                !std.mem.startsWith(u8, trimmed, "/*")) {
-                should_include = true;
-            }
-        }
-        
-        if (flags.imports) {
-            if (std.mem.startsWith(u8, trimmed, "@import") or 
-                std.mem.startsWith(u8, trimmed, "@use")) {
-                should_include = true;
-            }
-        }
-        
-        if (flags.docs) {
-            if (std.mem.startsWith(u8, trimmed, "/*") or
-                std.mem.startsWith(u8, trimmed, "*") or
-                std.mem.indexOf(u8, line, "*/") != null) {
-                should_include = true;
-            }
-        }
-        
-        if (should_include) {
-            try result.appendSlice(line);
-            try result.append('\n');
-        }
-    }
+    // Delegate to the extractor for simple extraction
+    try css_extractor.extract(source, flags, result);
 }
 
 /// AST-based extraction using CSS-specific logic

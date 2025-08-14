@@ -1,11 +1,9 @@
 const std = @import("std");
-const ExtractionFlags = @import("../ast.zig").ExtractionFlags;
+const ExtractionFlags = @import("../extraction_flags.zig").ExtractionFlags;
 const AstNode = @import("../ast.zig").AstNode;
 const NodeVisitor = @import("../ast.zig").NodeVisitor;
 const VisitResult = @import("../ast.zig").VisitResult;
-const FunctionExtractor = @import("../ast.zig").FunctionExtractor;
-const TypeExtractor = @import("../ast.zig").TypeExtractor;
-const DependencyAnalyzer = @import("../ast.zig").DependencyAnalyzer;
+// Removed non-existent imports - these were never implemented
 
 pub fn extractSimple(source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
     // If no specific flags are set or full flag is set, return complete source
@@ -111,44 +109,10 @@ pub fn walkNode(allocator: std.mem.Allocator, root: *const AstNode, source: []co
         .source = source,
     };
     
-    // Use AST-based extraction for more accurate results
-    if (flags.signatures) {
-        var func_extractor = FunctionExtractor.init(allocator);
-        defer func_extractor.deinit();
-        
-        try func_extractor.extractFunctions(root, source, "typescript");
-        const functions = func_extractor.getFunctions();
-        
-        for (functions) |func| {
-            try result.appendSlice(func.signature);
-            try result.append('\n');
-        }
-    }
-    
-    if (flags.types) {
-        var type_extractor = TypeExtractor.init(allocator);
-        defer type_extractor.deinit();
-        
-        try type_extractor.extractTypes(root, source, "typescript");
-        const types = type_extractor.getTypes();
-        
-        for (types) |type_def| {
-            try result.appendSlice(type_def.definition);
-            try result.append('\n');
-        }
-    }
-    
-    if (flags.imports) {
-        var dep_analyzer = DependencyAnalyzer.init(allocator);
-        defer dep_analyzer.deinit();
-        
-        try dep_analyzer.analyzeDependencies(root, source, "typescript");
-        const imports = dep_analyzer.getImports();
-        
-        for (imports) |import| {
-            try result.writer().print("import {s} from '{s}';\n", .{import.imports, import.module_path});
-        }
-    }
+    // TODO: Implement AST-based extraction when tree-sitter integration is ready
+    // For now, fallback to simple extraction
+    _ = root; // unused for now
+    try extractSimple(source, flags, result);
     
     if (flags.docs) {
         // Extract documentation comments using visitor pattern

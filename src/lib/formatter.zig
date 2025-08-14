@@ -1,5 +1,5 @@
 const std = @import("std");
-const Language = @import("ast.zig").Language;
+const Language = @import("language.zig").Language;
 const AstFormatter = @import("ast_formatter.zig").AstFormatter;
 
 pub const IndentStyle = enum {
@@ -59,7 +59,6 @@ pub const Formatter = struct {
             .css => try self.formatCss(source),
             .typescript => try self.formatTypeScript(source),
             .svelte => try self.formatSvelte(source),
-            .c, .cpp, .python, .rust, .go => FormatterError.UnsupportedLanguage,
             .unknown => FormatterError.UnsupportedLanguage,
         };
     }
@@ -69,7 +68,6 @@ pub const Formatter = struct {
         return switch (self.language) {
             .typescript, .css, .svelte => true,
             .json, .zig, .html => false, // Have good existing implementations
-            .c, .cpp, .python, .rust, .go => false, // No formatters yet
             .unknown => false,
         };
     }

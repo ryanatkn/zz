@@ -247,8 +247,7 @@ pub const Benchmark = struct {
             std.debug.print("\n📋 Benchmarking Code Extraction...\n", .{});
         }
         
-        const ast = @import("ast.zig");
-        const ExtractionFlags = ast.ExtractionFlags;
+        const ExtractionFlags = @import("extraction_flags.zig").ExtractionFlags;
         
         // Sample Zig code for extraction
         const sample_code = 
@@ -291,7 +290,8 @@ pub const Benchmark = struct {
         
         while (@as(u64, @intCast(std.time.nanoTimestamp() - start)) < target_duration_ns) {
             for (extraction_modes) |mode| {
-                var parser = ast.createExtractor(self.allocator, .zig);
+                const extractor_mod = @import("extractor.zig");
+                var parser = extractor_mod.createExtractor(self.allocator, .zig);
                 
                 const extracted = try parser.extract(sample_code, mode.flags);
                 defer self.allocator.free(extracted);

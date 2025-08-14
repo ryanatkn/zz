@@ -1,65 +1,13 @@
 const std = @import("std");
-const ExtractionFlags = @import("../ast.zig").ExtractionFlags;
+const ExtractionFlags = @import("../extraction_flags.zig").ExtractionFlags;
 const AstNode = @import("../ast.zig").AstNode;
 const NodeVisitor = @import("../ast.zig").NodeVisitor;
 const VisitResult = @import("../ast.zig").VisitResult;
+const json_extractor = @import("../extractors/json.zig");
 
 pub fn extractSimple(source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
-    // If no specific flags are set or full flag is set, return complete source
-    if (flags.isDefault() or flags.full) {
-        try result.appendSlice(source);
-        return;
-    }
-    
-    var lines = std.mem.tokenizeScalar(u8, source, '\n');
-    
-    while (lines.next()) |line| {
-        const trimmed = std.mem.trim(u8, line, " \t");
-        
-        // Skip empty lines
-        if (trimmed.len == 0) continue;
-        
-        var should_include = false;
-        
-        if (flags.structure or flags.types) {
-            // Include JSON structural elements: objects, arrays, and key-value pairs
-            if (std.mem.indexOf(u8, trimmed, "{") != null or
-                std.mem.indexOf(u8, trimmed, "}") != null or
-                std.mem.indexOf(u8, trimmed, "[") != null or
-                std.mem.indexOf(u8, trimmed, "]") != null or
-                std.mem.indexOf(u8, trimmed, "\":") != null) {
-                should_include = true;
-            }
-        }
-        
-        if (flags.signatures) {
-            // Extract JSON keys (lines with key-value patterns)
-            if (std.mem.indexOf(u8, trimmed, "\":") != null) {
-                should_include = true;
-            }
-        }
-        
-        if (flags.imports) {
-            // JSON doesn't have imports, but we can look for references or $ref patterns
-            if (std.mem.indexOf(u8, line, "$ref") != null or
-                std.mem.indexOf(u8, line, "\"@") != null) {
-                should_include = true;
-            }
-        }
-        
-        if (flags.docs) {
-            // JSON doesn't have comments in standard JSON, but some variants do
-            if (std.mem.indexOf(u8, trimmed, "//") != null or
-                std.mem.indexOf(u8, trimmed, "/*") != null) {
-                should_include = true;
-            }
-        }
-        
-        if (should_include) {
-            try result.appendSlice(line);
-            try result.append('\n');
-        }
-    }
+    // Delegate to the extractor for simple extraction
+    try json_extractor.extract(source, flags, result);
 }
 
 /// AST-based extraction using tree-sitter (when available)

@@ -3,7 +3,7 @@ const ts = @import("tree-sitter");
 const TreeSitterParser = @import("tree_sitter_parser.zig").TreeSitterParser;
 const FormatterOptions = @import("formatter.zig").FormatterOptions;
 const LineBuilder = @import("formatter.zig").LineBuilder;
-const Language = @import("ast.zig").Language;
+const Language = @import("language.zig").Language;
 const AstCache = @import("cache.zig").AstCache;
 const AstCacheKey = @import("cache.zig").AstCacheKey;
 

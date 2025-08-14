@@ -1,5 +1,5 @@
 const std = @import("std");
-const ExtractionFlags = @import("../ast.zig").ExtractionFlags;
+const ExtractionFlags = @import("../extraction_flags.zig").ExtractionFlags;
 const AstNode = @import("../ast.zig").AstNode;
 const NodeVisitor = @import("../ast.zig").NodeVisitor;
 const VisitResult = @import("../ast.zig").VisitResult;

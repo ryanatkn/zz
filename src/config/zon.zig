@@ -8,6 +8,8 @@ const FilesystemInterface = @import("../filesystem/interface.zig").FilesystemInt
 const DirHandle = @import("../filesystem/interface.zig").DirHandle;
 const filesystem_utils = @import("../lib/filesystem.zig");
 const ZonParser = @import("../lib/zon_parser.zig").ZonParser;
+const zon_memory = @import("../lib/zon_memory.zig");
+const ManagedZonConfig = zon_memory.ManagedZonConfig;
 
 pub const IndentStyle = enum {
     space,
@@ -63,7 +65,7 @@ pub const ZonConfig = struct {
 
 pub const ZonLoader = struct {
     allocator: std.mem.Allocator,
-    config: ?ZonConfig,
+    config: ?ManagedZonConfig(ZonConfig),
     filesystem: FilesystemInterface,
 
     const Self = @This();
@@ -88,7 +90,7 @@ pub const ZonLoader = struct {
             defer self.allocator.free(content);
             try self.loadFromContent(content);
         } else {
-            self.config = ZonConfig{}; // Empty config - file not found
+            self.config = ManagedZonConfig(ZonConfig).initDefault(self.allocator, ZonConfig{}); // Empty config - file not found
         }
     }
 
@@ -100,7 +102,7 @@ pub const ZonLoader = struct {
             defer self.allocator.free(content);
             try self.loadFromContent(content);
         } else {
-            self.config = ZonConfig{}; // Empty config - file not found
+            self.config = ManagedZonConfig(ZonConfig).initDefault(self.allocator, ZonConfig{}); // Empty config - file not found
         }
     }
 
@@ -112,20 +114,24 @@ pub const ZonLoader = struct {
             defer self.allocator.free(content);
             try self.loadFromContent(content);
         } else {
-            self.config = ZonConfig{}; // Empty config - file not found
+            self.config = ManagedZonConfig(ZonConfig).initDefault(self.allocator, ZonConfig{}); // Empty config - file not found
         }
     }
 
     pub fn loadFromContent(self: *Self, content: []const u8) !void {
         if (self.config != null) return; // Already loaded
 
-        // Use shared ZON parser utility with graceful error handling
-        self.config = ZonParser.parseFromSliceWithDefault(ZonConfig, self.allocator, content, ZonConfig{});
+        // Use safe ZON parsing with proper memory management
+        self.config = zon_memory.parseZonSafely(ZonConfig, self.allocator, content, ZonConfig{});
     }
 
     pub fn getConfig(self: *Self) !ZonConfig {
         try self.loadFromFile(DEFAULT_CONFIG_FILENAME);
-        return self.config orelse ZonConfig{};
+        if (self.config) |*managed| {
+            return managed.get();
+        } else {
+            return ZonConfig{};
+        }
     }
 
     pub fn getSharedConfig(self: *Self) !SharedConfig {
@@ -146,7 +152,7 @@ pub const ZonLoader = struct {
     }
 
     fn getSharedConfigFromDirInternal(self: *Self, dir: std.fs.Dir) !SharedConfig {
-        const config = self.config orelse ZonConfig{};
+        const config = if (self.config) |*managed| managed.get() else ZonConfig{};
 
         // Resolve base patterns (default to "extend")
         const base_patterns = if (config.base_patterns) |bp_str|
@@ -188,7 +194,7 @@ pub const ZonLoader = struct {
     }
 
     fn getSharedConfigFromDirHandleInternal(self: *Self, dir: DirHandle) !SharedConfig {
-        const config = self.config orelse ZonConfig{};
+        const config = if (self.config) |*managed| managed.get() else ZonConfig{};
 
         // Resolve base patterns (default to "extend")
         const base_patterns = if (config.base_patterns) |bp_str|
@@ -232,7 +238,7 @@ pub const ZonLoader = struct {
     pub fn getFormatConfig(self: *Self) !FormatConfigOptions {
         
         try self.loadFromFile(DEFAULT_CONFIG_FILENAME);
-        const config = self.config orelse ZonConfig{};
+        const config = if (self.config) |*managed| managed.get() else ZonConfig{};
         
         var options = FormatConfigOptions{};
         
@@ -284,8 +290,8 @@ pub const ZonLoader = struct {
     }
 
     pub fn deinit(self: *Self) void {
-        if (self.config) |config| {
-            ZonParser.free(self.allocator, config);
+        if (self.config) |*managed| {
+            managed.deinit();
         }
     }
 };

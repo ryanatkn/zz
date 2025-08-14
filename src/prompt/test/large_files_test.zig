@@ -2,7 +2,7 @@ const std = @import("std");
 const test_helpers = @import("../../test_helpers.zig");
 const GlobExpander = @import("../glob.zig").GlobExpander;
 const PromptBuilder = @import("../builder.zig").PromptBuilder;
-const ExtractionFlags = @import("../../lib/ast.zig").ExtractionFlags;
+const ExtractionFlags = @import("../../lib/extraction_flags.zig").ExtractionFlags;
 
 test "single large file warning" {
     const allocator = std.testing.allocator;

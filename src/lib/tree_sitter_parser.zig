@@ -1,8 +1,7 @@
 const std = @import("std");
 const ts = @import("tree-sitter");
-const ast = @import("ast.zig");
-const ExtractionFlags = ast.ExtractionFlags;
-const Language = ast.Language;
+const ExtractionFlags = @import("extraction_flags.zig").ExtractionFlags;
+const Language = @import("language.zig").Language;
 const imports_mod = @import("imports.zig");
 const ImportInfo = imports_mod.Import;
 const ExtractionResult = imports_mod.ExtractionResult;
@@ -534,7 +533,6 @@ pub const TreeSitterParser = struct {
             .json => try self.extractJson(node, source, flags, result),
             .typescript => try self.extractTypeScript(node, source, flags, result),
             .svelte => try self.extractSvelte(node, source, flags, result),
-            .c, .cpp, .python, .rust, .go => try result.appendSlice(source), // No AST extraction yet
             .unknown => try result.appendSlice(source),
         }
     }
@@ -794,7 +792,6 @@ fn getTreeSitterLanguage(language: Language) !*ts.Language {
         .json => tree_sitter_json(),
         .typescript => tree_sitter_typescript(),
         .svelte => tree_sitter_svelte(),
-        .c, .cpp, .python, .rust, .go => error.UnsupportedLanguage, // No tree-sitter grammars yet
         .unknown => error.UnsupportedLanguage, // Don't fallback to arbitrary grammar
     };
 }

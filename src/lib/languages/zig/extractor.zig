@@ -14,7 +14,7 @@ pub fn extract(allocator: std.mem.Allocator, source: []const u8, flags: Extracti
     }
     
     // If no specific flags are set, return full source (backward compatibility)
-    if (!flags.signatures and !flags.types and !flags.imports and !flags.docs and !flags.tests and !flags.errors and !flags.structure) {
+    if (flags.isDefault()) {
         try result.appendSlice(source);
         return;
     }

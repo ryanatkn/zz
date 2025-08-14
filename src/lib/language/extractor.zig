@@ -47,7 +47,7 @@ pub const Extractor = struct {
     /// Main extraction entry point
     pub fn extract(self: *const Extractor, language: Language, source: []const u8, extraction_flags: ExtractionFlags) ![]const u8 {
         // Handle special cases first
-        if (extraction_flags.full) {
+        if (extraction_flags.full or extraction_flags.isDefault()) {
             return self.allocator.dupe(u8, source);
         }
 
@@ -90,8 +90,7 @@ pub const Extractor = struct {
 
     /// Handle unsupported languages with basic extraction
     fn extractUnsupportedLanguage(self: *const Extractor, source: []const u8, extraction_flags: ExtractionFlags) ![]const u8 {
-        if (extraction_flags.full or 
-            (!extraction_flags.signatures and !extraction_flags.types and !extraction_flags.imports and !extraction_flags.docs and !extraction_flags.tests)) {
+        if (extraction_flags.full or extraction_flags.isDefault()) {
             // Return full source if no specific extraction is requested
             return self.allocator.dupe(u8, source);
         }

@@ -13,7 +13,9 @@ pub const CommandResult = struct {
     }
 };
 
-/// Execute a zz command and capture its output with optional animation
+/// Terminal interface type for animation support
+
+/// Execute a command and capture its output
 pub fn executeCommand(
     allocator: std.mem.Allocator,
     command: []const u8,
@@ -22,12 +24,12 @@ pub fn executeCommand(
     return executeCommandWithAnimation(allocator, command, args, null);
 }
 
-/// Execute a zz command with animation during execution
+/// Execute a command with optional animation during execution
 pub fn executeCommandWithAnimation(
     allocator: std.mem.Allocator,
     command: []const u8,
     args: []const []const u8,
-    terminal: ?*@import("terminal.zig").Terminal,
+    terminal: anytype,
 ) !CommandResult {
     // Build the full command args
     var argv = std.ArrayList([]const u8).init(allocator);
@@ -46,13 +48,13 @@ pub fn executeCommandWithAnimation(
     child.stderr_behavior = .Pipe;
 
     // Show stylized message for long-running commands
-    if (terminal) |term| {
+    if (@TypeOf(terminal) != @TypeOf(null)) {
         if (std.mem.eql(u8, command, "benchmark")) {
             // Use subtle pulse effect for better visual feedback
-            try term.showPulse(2, "⚡", "Running benchmarks...");
-            try term.writer.writeAll(" "); // Add space to prevent cursor from jumping
+            try terminal.showPulse(2, "⚡", "Running benchmarks...");
+            try terminal.writer.writeAll(" "); // Add space to prevent cursor from jumping
             std.time.sleep(100 * std.time.ns_per_ms); // Brief pause to show the effect
-            try term.writer.writeAll("\n");
+            try terminal.writer.writeAll("\n");
         }
     }
 
@@ -153,7 +155,6 @@ pub fn truncateOutput(
     }
 
     var line_count: usize = 0;
-    var last_newline: usize = 0;
 
     for (output, 0..) |char, i| {
         if (char == '\n') {
@@ -165,7 +166,6 @@ pub fn truncateOutput(
                 @memcpy(truncated[i .. i + suffix.len], suffix);
                 return truncated;
             }
-            last_newline = i;
         }
     }
 

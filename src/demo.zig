@@ -1,8 +1,7 @@
 const std = @import("std");
-const terminal = @import("demo/terminal.zig");
-const runner = @import("demo/runner.zig");
+const Terminal = @import("lib/terminal/terminal.zig").Terminal;
+const execution = @import("lib/execution/runner.zig");
 const steps = @import("demo/steps.zig");
-const formatter = @import("demo/formatter.zig");
 
 const DemoMode = enum {
     interactive,
@@ -86,10 +85,10 @@ fn showHelp() !void {
 }
 
 fn runInteractive(allocator: std.mem.Allocator) !void {
-    var term = terminal.Terminal.init(true);
+    var term = Terminal.init(true);
 
     // Check if zz binary exists
-    runner.checkZzBinary() catch {
+    execution.checkZzBinary() catch {
         try term.printError("Error: zz binary not found. Please run 'zig build' first.\n");
         return;
     };
@@ -125,18 +124,18 @@ fn runInteractive(allocator: std.mem.Allocator) !void {
         }
 
         // Format and display the command
-        const cmd_line = try runner.formatCommandLine(allocator, step.command, step.args);
+        const cmd_line = try execution.formatCommandLine(allocator, step.command, step.args);
         defer allocator.free(cmd_line);
         try term.printCommand(cmd_line);
         try term.newline();
 
         // Execute the command with animation
-        var result = try runner.executeCommandWithAnimation(allocator, step.command, step.args, &term);
+        var result = try execution.executeCommandWithAnimation(allocator, step.command, step.args, &term);
         defer result.deinit();
 
         // Display the output (truncated if needed)
         if (step.max_lines) |max| {
-            const truncated = try runner.truncateOutput(allocator, result.stdout, max);
+            const truncated = try execution.truncateOutput(allocator, result.stdout, max);
             defer allocator.free(truncated);
             try term.printOutput(truncated);
         } else {
@@ -161,10 +160,10 @@ fn runInteractive(allocator: std.mem.Allocator) !void {
 }
 
 fn runNonInteractive(allocator: std.mem.Allocator) !void {
-    var term = terminal.Terminal.init(false);
+    var term = Terminal.init(false);
 
     // Check if zz binary exists
-    runner.checkZzBinary() catch {
+    execution.checkZzBinary() catch {
         std.debug.print("Error: zz binary not found. Please run 'zig build' first.\n", .{});
         return;
     };
@@ -179,17 +178,17 @@ fn runNonInteractive(allocator: std.mem.Allocator) !void {
         try term.print("{s}\n\n", .{step.description});
 
         // Format and display the command
-        const cmd_line = try runner.formatCommandLine(allocator, step.command, step.args);
+        const cmd_line = try execution.formatCommandLine(allocator, step.command, step.args);
         defer allocator.free(cmd_line);
         try term.print("```console\n$ {s}\n", .{cmd_line});
 
         // Execute the command
-        var result = try runner.executeCommand(allocator, step.command, step.args);
+        var result = try execution.executeCommand(allocator, step.command, step.args);
         defer result.deinit();
 
         // Display the output (truncated if needed)
         if (step.max_lines) |max| {
-            const truncated = try runner.truncateOutput(allocator, result.stdout, max);
+            const truncated = try execution.truncateOutput(allocator, result.stdout, max);
             defer allocator.free(truncated);
             try term.printOutput(truncated);
         } else {
@@ -218,7 +217,7 @@ fn runNonInteractiveToFile(allocator: std.mem.Allocator, output_path: []const u8
     defer file.close();
 
     // Check if zz binary exists
-    runner.checkZzBinary() catch {
+    execution.checkZzBinary() catch {
         try file.writer().print("Error: zz binary not found. Please run 'zig build' first.\n", .{});
         return;
     };
@@ -235,17 +234,17 @@ fn runNonInteractiveToFile(allocator: std.mem.Allocator, output_path: []const u8
         try writer.print("{s}\n\n", .{step.description});
 
         // Format and display the command
-        const cmd_line = try runner.formatCommandLine(allocator, step.command, step.args);
+        const cmd_line = try execution.formatCommandLine(allocator, step.command, step.args);
         defer allocator.free(cmd_line);
         try writer.print("```console\n$ {s}\n", .{cmd_line});
 
         // Execute the command
-        var result = try runner.executeCommand(allocator, step.command, step.args);
+        var result = try execution.executeCommand(allocator, step.command, step.args);
         defer result.deinit();
 
         // Display the output (truncated if needed)
         if (step.max_lines) |max| {
-            const truncated = try runner.truncateOutput(allocator, result.stdout, max);
+            const truncated = try execution.truncateOutput(allocator, result.stdout, max);
             defer allocator.free(truncated);
             try writer.print("{s}", .{truncated});
         } else {
@@ -271,7 +270,7 @@ fn runNonInteractiveToFile(allocator: std.mem.Allocator, output_path: []const u8
     std.debug.print("Demo output written to: {s}\n", .{output_path});
 }
 
-fn showFilePreview(term: *terminal.Terminal, allocator: std.mem.Allocator, file_path: []const u8, preview_lines: usize) !void {
+fn showFilePreview(term: *Terminal, allocator: std.mem.Allocator, file_path: []const u8, preview_lines: usize) !void {
     const content = std.fs.cwd().readFileAlloc(allocator, file_path, 1024 * 1024) catch |err| {
         try term.printWarning("Could not read file for preview\n");
         std.debug.print("Error reading {s}: {}\n", .{ file_path, err });
@@ -296,7 +295,7 @@ fn showFilePreview(term: *terminal.Terminal, allocator: std.mem.Allocator, file_
     }
 }
 
-fn showSummary(term: *terminal.Terminal) !void {
+fn showSummary(term: *Terminal) !void {
     try term.newline();
     try term.drawBox("Demo Complete!", 60);
     try term.newline();

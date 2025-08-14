@@ -1,13 +1,15 @@
 const std = @import("std");
-const colors = @import("../lib/terminal/colors.zig");
-const control = @import("../lib/terminal/control.zig");
-const animation = @import("../lib/terminal/animation.zig");
+const colors = @import("colors.zig");
+const control = @import("control.zig");
+const animation = @import("animation.zig");
 
-// Re-export for backwards compatibility
+// Re-export for convenience
 pub const Color = colors.Color;
 pub const Control = control.Control;
+pub const Animation = animation.Animation;
 
-/// Terminal interface for interactive operations
+/// High-level terminal interface for interactive operations
+/// Consolidates terminal functionality from across the project
 pub const Terminal = struct {
     writer: std.fs.File.Writer,
     reader: std.fs.File.Reader,
@@ -179,25 +181,25 @@ pub const Terminal = struct {
     /// Show animated spinner during long operations
     pub fn showSpinner(self: *Terminal, frame: usize, message: []const u8) !void {
         if (!self.is_interactive) return;
-        try animation.Animation.showSpinner(self.writer, frame, message, self.use_color);
+        try Animation.showSpinner(self.writer, frame, message, self.use_color);
     }
 
     /// Show animated dots during operations
     pub fn showDots(self: *Terminal, frame: usize, message: []const u8) !void {
         if (!self.is_interactive) return;
-        try animation.Animation.showDots(self.writer, frame, message, self.use_color);
+        try Animation.showDots(self.writer, frame, message, self.use_color);
     }
 
     /// Show animated pulse effect
     pub fn showPulse(self: *Terminal, frame: usize, symbol: []const u8, message: []const u8) !void {
         if (!self.is_interactive) return;
-        try animation.Animation.showPulse(self.writer, frame, symbol, message, self.use_color);
+        try Animation.showPulse(self.writer, frame, symbol, message, self.use_color);
     }
 
     /// Clear current line (for cleaning up animations)
     pub fn clearLine(self: *Terminal) !void {
         if (!self.is_interactive) return;
-        try animation.Animation.clearLine(self.writer);
+        try Animation.clearLine(self.writer);
     }
 
     pub fn printStep(self: *Terminal, step_num: usize, title: []const u8) !void {

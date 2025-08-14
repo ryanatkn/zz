@@ -223,22 +223,12 @@ pub fn build(b: *std.Build) void {
     demo_ni_run.step.dependOn(b.getInstallStep());
     demo_ni_step.dependOn(&demo_ni_run.step);
 
-    // README updater tool
-    const readme_updater = b.addExecutable(.{
-        .name = "readme-updater",
-        .root_source_file = b.path("src/tools/readme_updater.zig"),
-        .target = target,
-        .optimize = optimize,
-    });
-    b.installArtifact(readme_updater);
-
-    // Update README step - now uses main zz binary
+    // Update README step - now uses main zz binary directly
     const update_readme_step = b.step("update-readme", "Update README.md with demo output");
 
-    // Pipe demo output to readme updater
-    const update_readme_cmd = b.addSystemCommand(&.{ "sh", "-c", "./zig-out/bin/zz demo --non-interactive | ./zig-out/bin/readme-updater" });
+    // Generate demo output directly
+    const update_readme_cmd = b.addSystemCommand(&.{ "sh", "-c", "./zig-out/bin/zz demo --non-interactive > demo_output.md" });
     update_readme_cmd.step.dependOn(b.getInstallStep());
-    update_readme_cmd.step.dependOn(&b.addInstallArtifact(readme_updater, .{}).step);
 
     update_readme_step.dependOn(&update_readme_cmd.step);
 }

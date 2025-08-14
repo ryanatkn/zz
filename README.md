@@ -1,14 +1,14 @@
 # zz
 
-High-performance command-line utilities written in Zig for POSIX systems. Features intelligent LLM prompt generation with language-aware code extraction, optimized directory visualization, and comprehensive performance benchmarking. **100% terminal-based** - no web technologies required.
+Fast command-line utilities in Zig for POSIX systems. LLM prompt generation with AST-based code extraction, directory trees, and performance benchmarking. **100% terminal-based**.
 
-**Platform Support:** Linux, macOS, BSD, and other POSIX-compliant systems. Windows is not supported.
+**Platforms:** Linux, macOS, BSD, POSIX. No Windows.
 
-**Language Support:** Complete AST-based extraction from TypeScript, CSS, HTML, JSON, Zig, and Svelte with unified NodeVisitor pattern for precise, language-aware code analysis.
+**Languages:** AST extraction for TypeScript, CSS, HTML, JSON, Zig, Svelte.
 
-**Performance:** Optimized path operations and pattern matching. Features incremental processing with AST cache invalidation and intelligent dependency tracking.
+**Performance:** Optimized paths, patterns, incremental processing, AST caching.
 
-**Architecture:** Organized `src/lib/` subdirectories for maximum code reuse. Features filesystem abstraction at `lib/filesystem/`, unified pattern matching, and aggressive performance optimizations. Includes advanced features like incremental file processing, AST-based code extraction, and parallel task execution. See [docs/archive/ARCHITECTURE.md](./docs/archive/ARCHITECTURE.md) for system design details.
+**Architecture:** Modular `src/lib/` with filesystem abstraction, unified patterns, AST extraction. See [docs/archive/ARCHITECTURE.md](./docs/archive/ARCHITECTURE.md).
 
 ## Requirements
 
@@ -16,7 +16,7 @@ High-performance command-line utilities written in Zig for POSIX systems. Featur
 - POSIX-compliant operating system (Linux, macOS, BSD)
 - Git (for cloning the repository)
 
-All dependencies are vendored in the `deps/` directory for reliability and reproducibility. See [deps/README.md](deps/README.md) for details.
+Dependencies vendored in `deps/`. See [deps/README.md](deps/README.md).
 
 ## Installation
 
@@ -35,13 +35,9 @@ zig build install-user -Dprefix=~/my-tools
 zig build install-user -Doptimize=ReleaseFast
 ```
 
-Then add `~/.zz/bin` to your PATH:
-```bash
-echo 'export PATH="$PATH:~/.zz/bin"' >> ~/.bashrc
-source ~/.bashrc
-```
+Add `~/.zz/bin` to your PATH.
 
-## Quick Start
+## Quick start
 
 ```bash
 # Check requirements
@@ -57,112 +53,63 @@ zz demo                        # Run interactive terminal demo
 
 ## Features
 
-### Tree Visualization
-- High-performance directory traversal with consolidated error handling
-- Multiple output formats (tree and list)
-- Modular configuration system with unified pattern matching engine
-- Clean tree-style output formatting with optimized rendering
-- Configurable depth limits with intelligent defaults
-- Safe pattern matching (no leaky substring matches)
-- Arena allocators for improved memory performance
+### Tree visualization
+- Fast directory traversal
+- Tree and list formats
+- Pattern matching with `.gitignore` support
+- Configurable depth limits
+- Arena allocators
 
-### Prompt Generation
-- **AST-based code extraction** with unified NodeVisitor pattern for precise analysis
-- **Complete language integration** with walkNode() implementations for all languages:
-  - **TypeScript**: Interfaces, types, classes, functions with dependency analysis (.ts files)
-  - **CSS**: Selectors, variables, media queries, at-rules with rule extraction
-  - **HTML**: Document structure, elements, attributes, event handlers
-  - **JSON**: Keys, structure, schema analysis, type detection
-  - **Zig**: Functions, structs, tests, documentation via tree-sitter
-  - **Svelte**: Multi-section components (script/style/template) with section-aware parsing
-- **Extraction modes** for precise code analysis:
-  - `--signatures`: Function/method signatures
-  - `--types`: Type definitions (interfaces, types, structs)
-  - `--docs`: Documentation comments
-  - `--imports`: Import statements
-  - `--errors`: Error handling code
-  - `--tests`: Test blocks
-  - `--structure`: Structural elements (HTML/JSON)
-  - `--full`: Complete source (default)
-- **Combine flags** for custom extraction: `zz prompt src/ --signatures --types`
-- Directory support: `zz prompt src/` processes all files recursively
-- Advanced glob pattern support with fast-path optimization
-- Smart code fence detection (handles nested backticks)
-- Automatic file deduplication
-- Markdown output with semantic XML tags for LLM context
+### Prompt generation
+- **AST-based extraction** via NodeVisitor pattern
+- **Language support**:
+  - TypeScript: Interfaces, types, classes, functions (.ts)
+  - CSS: Selectors, variables, media queries
+  - HTML: Structure, elements, attributes
+  - JSON: Keys, structure, schema
+  - Zig: Functions, structs, tests
+  - Svelte: Multi-section components
+- **Extraction flags**: `--signatures`, `--types`, `--docs`, `--imports`, `--errors`, `--tests`, `--structure`, `--full` (default)
+- **Combine flags**: `zz prompt src/ --signatures --types`
+- Directory recursion, glob patterns, deduplication
+- Smart fence detection, XML-tagged markdown output
 
-### Code Formatting
-- **Language-aware pretty printing** for multiple file types
-- **Supported languages**:
-  - **Zig**: Uses `zig fmt` for native formatting
-  - **JSON**: Intelligent indentation, key sorting, trailing commas
-  - **HTML**: Tag indentation, attribute formatting
-  - **CSS**: Selector formatting, property alignment
-  - **TypeScript**: Basic formatting (Svelte: basic support)
-- **Flexible options**:
-  - `--write`: Format files in-place
-  - `--check`: Check if files are formatted (exit 1 if not)
-  - `--stdin`: Read from stdin, write to stdout
-  - `--indent-size=N`: Spaces for indentation (default: 4)
-  - `--indent-style=space|tab`: Indentation style
-  - `--line-width=N`: Maximum line width (default: 100)
-- **Glob pattern support**: Format multiple files with patterns
+### Code formatting
+- **Languages**: Zig (`zig fmt`), JSON, HTML, CSS, TypeScript, Svelte
+- **Options**: `--write` (in-place), `--check` (verify), `--stdin`, `--indent-size=N`, `--indent-style=space|tab`, `--line-width=N`
+- Glob patterns supported
 
-### Performance Benchmarking
-- Comprehensive performance measurement suite with color-coded output
-- Multiple output formats: markdown, JSON, CSV, and pretty terminal display
-- Automatic baseline comparison with regression detection (20% threshold)
-- Human-readable time units (ns, μs, ms, s) with progress bars
-- **Duration multiplier system** - Allows extending benchmark duration for more stable results
-- Time-based execution with configurable duration per benchmark
+### Performance benchmarking
+- Color-coded terminal output
+- Formats: markdown, JSON, CSV, pretty
+- Baseline comparison, 20% regression threshold
+- Configurable duration per benchmark
 
-### Incremental Processing & Caching
-- **AST Cache Integration** - Intelligent caching of parsed AST trees with selective invalidation
-- **Smart Dependency Tracking** - Automatic cascade invalidation when dependencies change
-- **File Change Detection** - xxHash-based change detection for minimal cache invalidation
-- **95% Cache Efficiency** - High cache hit rates for unchanged files with different extraction flags
-- **Memory-Efficient Caching** - LRU eviction with configurable memory limits
+### Incremental processing & caching
+- AST cache with selective invalidation
+- Dependency tracking with cascade updates
+- xxHash change detection
+- 95% cache hit rate
+- LRU eviction
 
 ## Commands
 
 ```bash
-zz tree [directory] [depth] [options]  # Show directory tree
-zz prompt [files...] [options]         # Generate LLM prompt
-zz benchmark [options]                  # Run performance benchmarks
-zz help                                 # Display detailed help
-zz --help                               # Display detailed help
-zz -h                                   # Display brief help
+zz tree [dir] [depth] [opts]    # Directory tree
+zz prompt [files...] [opts]     # LLM prompt
+zz benchmark [opts]              # Performance tests
+zz format [files...] [opts]      # Format code
+zz demo [opts]                   # Interactive demo
+zz help, --help, -h              # Help
 
-# Tree format options:
-#   --format=FORMAT, -f FORMAT  - Output format: tree (default) or list
-#   --show-hidden               - Show hidden files
-#   --no-gitignore              - Disable .gitignore parsing
-
-# Prompt options:
-#   --prepend=TEXT           - Add text before files
-#   --append=TEXT            - Add text after files
-#   --allow-empty-glob       - Warn instead of error for empty globs
-#   --allow-missing          - Warn instead of error for all missing files
-#   Supports glob patterns   - *.zig, **/*.zig, *.{zig,md}
-#   Supports directories     - src/, src/subdir/
-
-# Format options:
-#   --write, -w              - Format files in-place
-#   --check                  - Check if files are formatted (exit 1 if not)
-#   --stdin                  - Read from stdin, write to stdout
-#   --indent-size=N          - Number of spaces for indentation (default: 4)
-#   --indent-style=STYLE     - Use spaces or tabs (default: space)
-#   --line-width=N           - Maximum line width (default: 100)
-
-# Benchmark options (outputs to stdout):
-#   --format=FORMAT          - Output format: markdown (default), json, csv, pretty
-#   --duration=TIME          - Duration per benchmark (default: 2s, formats: 1s, 500ms)
-#   --duration-multiplier=N  - Extra multiplier for extending benchmark duration (default: 1.0)
-#   --baseline=FILE          - Compare with baseline (default: benchmarks/baseline.md)
-#   --no-compare             - Disable automatic baseline comparison
-#   --only=path,string       - Run only specific benchmarks (comma-separated)
-#   --skip=glob,memory       - Skip specific benchmarks
-#   --warmup                 - Include warmup phase
+# Common options:
+--format=tree|list|json|csv|pretty|markdown
+--no-gitignore, --show-hidden
+--write, --check, --stdin
+--prepend=TEXT, --append=TEXT
+--allow-empty-glob, --allow-missing
+--duration=2s, --baseline=FILE
+--indent-size=4, --indent-style=space|tab
 ```
 
 ## Examples
@@ -174,17 +121,12 @@ zz tree src/ 2                   # src directory, 2 levels deep
 zz tree --format=list            # Flat list format
 zz tree -f list                  # Same as above using short flag
 
-# LLM prompt generation with language-aware extraction
-zz prompt "src/**/*.zig"         # All Zig files recursively
-zz prompt src/ docs/             # Multiple directories  
-zz prompt "*.{zig,md}" --prepend="Context:" # Multiple types with prefix
-
-# Language-specific extraction examples
-zz prompt app.ts --signatures --types    # Extract TypeScript interfaces and functions
-zz prompt style.css --types              # Extract CSS variables and selectors
-zz prompt index.html --structure         # Extract HTML document structure
-zz prompt config.json --structure        # Extract JSON keys and structure
-zz prompt component.svelte --signatures  # Extract Svelte component exports
+# Prompt generation
+zz prompt "src/**/*.zig"                 # All Zig files
+zz prompt src/ docs/                     # Multiple directories  
+zz prompt app.ts --signatures --types    # TypeScript interfaces and functions
+zz prompt style.css --types              # CSS variables and selectors
+zz prompt config.json --structure        # JSON keys and structure
 
 # Code formatting
 zz format config.json                    # Format and output to stdout
@@ -193,25 +135,15 @@ zz format "src/**/*.json" --check        # Check if JSON files are formatted
 echo '{"a":1}' | zz format --stdin       # Format from stdin
 zz format "*.css" --indent-size=2        # Format CSS with 2-space indent
 
-# Performance benchmarks (CLI outputs to stdout)
-zz benchmark                                     # Markdown to stdout
-zz benchmark --format=pretty                     # Pretty terminal output
-zz benchmark --format=json                       # JSON output
-zz benchmark > benchmarks/baseline.md            # Save baseline via redirect
-zz benchmark --only=path,string                  # Run specific benchmarks
-zz benchmark --duration-multiplier=2.0           # 2x longer for all benchmarks
-
-# Build commands (handle file management)
-zig build benchmark                              # Save to latest.md and show comparison
-zig build benchmark-baseline                     # Create new baseline
-zig build benchmark-stdout                       # Pretty output without saving
+# Benchmarks
+zz benchmark                              # Markdown to stdout
+zz benchmark --format=pretty              # Terminal output
+zz benchmark > benchmarks/baseline.md     # Save baseline
+zig build benchmark                       # Save to latest.md with comparison
 ```
 
-See [CLAUDE.md](./CLAUDE.md) for more details.
 
-**Exit Codes:**
-- `0` - Success
-- `1` - Error (missing files, ignored files, empty globs, etc.)
+**Exit codes:** `0` success, `1` error
 
 ## Configuration
 
@@ -241,25 +173,49 @@ Create a `zz.zon` file in any directory to customize behavior:
 }
 ```
 
-**Key Features:**
-- **Root-level config** - Single source of truth shared by all commands
-- **Extend mode** - Add your patterns to sensible defaults
-- **Custom mode** - Use only your patterns (no defaults)
-- **Safe matching** - Exact path components only (no leaky substring matches)
-- **Per-directory** - Config is respected from current working directory
+**Features:**
+- Root-level config shared by all commands
+- Extend mode adds to defaults, custom mode replaces them
+- Exact path component matching
+- Per-directory configs
 
-**Default ignore patterns:** `.git`, `node_modules`, `.zig-cache`, `zig-out`, `build`, `dist`, `target`, `__pycache__`, `venv`, `tmp`, etc.
+**Default ignores:** `.git`, `node_modules`, `.zig-cache`, `zig-out`, `build`, `dist`, `target`, `__pycache__`, `venv`, `tmp`
 
-**Gitignore Integration:**
-- Automatically reads `.gitignore` files from the current directory
-- Files matching gitignore patterns are completely hidden (like `git ls-files` behavior)
-- Directories matching gitignore patterns show as `[...]` 
-- Use `--no-gitignore` flag or set `respect_gitignore = false` to disable
-- Supports basic gitignore syntax: wildcards (`*.tmp`), negation (`!important.tmp`), directory patterns (`build/`)
+**Gitignore:**
+- Auto-reads `.gitignore` files
+- Matched files hidden, directories show as `[...]`
+- Disable with `--no-gitignore` or `respect_gitignore = false`
+- Supports wildcards, negation, directory patterns
 
-## Interactive Terminal Demo
 
-Experience zz's capabilities with our interactive terminal demo:
+## Documentation
+
+- **[CLAUDE.md](CLAUDE.md)** - Development guide and implementation details
+
+**Archive** (`docs/archive/`):
+- [ARCHITECTURE.md](docs/archive/ARCHITECTURE.md) - System design
+- [CONTRIBUTING.md](docs/archive/CONTRIBUTING.md) - Contribution guide
+- [PERFORMANCE.md](docs/archive/PERFORMANCE.md) - Optimizations
+- [PATTERNS.md](docs/archive/PATTERNS.md) - Pattern matching
+- [TESTING.md](docs/archive/TESTING.md) - Test strategy
+- [TROUBLESHOOTING.md](docs/archive/TROUBLESHOOTING.md) - Common issues
+
+
+## Technical documentation
+
+See [CLAUDE.md](CLAUDE.md) for architecture and development details.
+
+## Contributing
+
+Issues and discussions are welcome, but reviewing code is time consuming,
+so I will likely reject many well-meaning PRs, and re-implement if I agree with the idea.
+So if you don't mind the rejection and just care about getting the change in,
+PRs are very much encouraged! They are excellent for concrete discussion.
+Not every PR needs an issue but it's usually
+preferred to reference one or more issues and discussions.
+## Demo
+
+zz has an interactive terminal demo:
 
 ```bash
 # Run the interactive demo
@@ -272,136 +228,6 @@ zz demo --non-interactive
 zz demo --output=demo.md -n
 ```
 
-The demo showcases:
-- **Tree visualization** with pattern filtering animations
-- **Language parsing** - Live extraction from TypeScript, CSS, HTML, JSON, Svelte
-- **Performance metrics** - Real-time benchmark visualization with progress bars
-- **Pattern matching** - Interactive glob pattern demonstrations
-- **Terminal rendering** - ANSI colors, Unicode box-drawing, syntax highlighting
-
-## Documentation
-
-- **[CLAUDE.md](CLAUDE.md)** - Development guide and implementation details
-
-**Additional Documentation** (in `docs/archive/`, excluded from tree views):
-- **[docs/archive/ARCHITECTURE.md](docs/archive/ARCHITECTURE.md)** - System design and module relationships
-- **[docs/archive/CONTRIBUTING.md](docs/archive/CONTRIBUTING.md)** - How to contribute to the project
-- **[docs/archive/PERFORMANCE.md](docs/archive/PERFORMANCE.md)** - Performance characteristics and optimization guide
-- **[docs/archive/PATTERNS.md](docs/archive/PATTERNS.md)** - Pattern matching implementation details
-- **[docs/archive/TESTING.md](docs/archive/TESTING.md)** - Testing strategy and coverage
-- **[docs/archive/TROUBLESHOOTING.md](docs/archive/TROUBLESHOOTING.md)** - Common issues and solutions
-
-## Requirements
-
-- Zig 0.14.1+
-- POSIX-compliant OS (Linux, macOS, BSD)  
-- Not supported: Windows
-
-Run `zz benchmark --format=pretty` to see live performance metrics in your terminal.
-
-## Technical Documentation
-
-For detailed architecture documentation, development guidelines, and implementation details, see **[CLAUDE.md](CLAUDE.md)**.
-
-## Contributing
-
-Issues and discussions are welcome, but reviewing code is time consuming,
-so I will likely reject many well-meaning PRs, and re-implement if I agree with the idea.
-So if you don't mind the rejection and just care about getting the change in,
-PRs are very much encouraged! They are excellent for concrete discussion.
-Not every PR needs an issue but it's usually
-preferred to reference one or more issues and discussions.
-
-## Demo
-
-Sample terminal session showcasing zz's capabilities:
-
-## 1. Directory Tree Visualization
-Display the structure of the examples directory
-
-```console
-$ zz tree examples --no-gitignore
-
-```
-
-## 2. List Format Output
-Show files in a flat list format
-
-```console
-$ zz tree examples --format=list
-
-```
-
-## 3. TypeScript Code Extraction
-Extract signatures and types from TypeScript
-
-```console
-$ zz prompt examples/app.ts --signatures --types
-
-<File path="./examples/app.ts">
-
-```ts
-interface User {
-    id: number;
-    name: string;
-    email: string;
-    role: UserRole;
-    createdAt: Date;
-}
-type UserRole = 'admin' | 'editor' | 'viewer';
-interface ApiResponse<T> {
-    data: T;
-    status: number;
-    message?: string;
-}
-class UserService {
-    private db: Database;
-    private logger: Logger;
-    
-    constructor(database: Database) {
-        this.db = database;
-        this.logger = new Logger('UserService');
-    }
-    
-    async getUser(id: number): Promise<User> {
-        this.logger.info(`Fetching user ${id}`);
-        return await this.db.findOne<User>('users', { id });
-    }
-    
-    async createUser(data: Partial<User>): Promise<ApiResponse<User>> {
-        try {
-            const user = await this.db.insert<User>('users', {
-                ...data,
-                createdAt: new Date()
-            });
-            
-            return {
-                data: user,
-                status: 201,
-                message: 'User created successfully'
-            };
-        } catch (error) {
-            this.logger.error('Failed to create user', error);
-            throw error;
-        }
-    }
-    
-    async updateUserRole(userId: number, role: UserRole): Promise<void> {
-        await this.db.update('users', { id: userId }, { role });
-    }
-}
-
-```
-
-</File>
-
-```
-
-## 4. CSS Structure Extraction
-Extract CSS selectors and properties
-
-```console
-$ zz prompt examples/styles.css --types
 
 
 ## License

@@ -203,15 +203,6 @@ $ zig build test                                       # Run all tests with outp
 
 Comprehensive test suite covers configuration parsing, directory filtering, performance optimization, edge cases, security patterns, and AST-based extraction. 
 
-**Current test status:** ✅ **All 302 tests passing (99.7% pass rate)** 
-- Phase 5 consolidation complete with clean build
-- All production code compiles successfully
-- Test infrastructure consolidated to lib/test/helpers.zig
-- Filesystem abstraction moved to lib/filesystem/
-- Comprehensive parser tests for all supported languages
-- TypeScript parser has a version compatibility issue (marked as TODO)
-- 1 remaining test import to be fixed (down from 8 errors - 87.5% improvement)
-
 ## Benchmarking
 
 Performance benchmarking is critical for maintaining and improving the efficiency of zz. The benchmark system follows Unix philosophy: the CLI outputs to stdout, and users control file management.
@@ -240,7 +231,6 @@ $ zz benchmark --skip=glob                 # Skip specific benchmarks
 
 # Duration control for more stable results
 $ zz benchmark --duration-multiplier=2.0   # 2x longer for all benchmarks
-$ zz benchmark --duration-multiplier=3.0   # 3x longer for all benchmarks
 
 # Save results via shell redirect
 $ zz benchmark > results.md                # Save to any file
@@ -290,7 +280,9 @@ $ ./zig-out/bin/zz benchmark --duration=5s
 - During development of new features that impact performance
 - In CI/CD to catch performance regressions
 
-## Module Structure (Phase 5 Architecture)
+> TODO benchmarking needs better DX and features
+
+## Module Structure
 
 **Core Architecture:**
 - **CLI Module:** `src/cli/` - Command parsing, validation, and dispatch system
@@ -307,7 +299,7 @@ $ ./zig-out/bin/zz benchmark --duration=5s
 - **Modular Design:** Clean interfaces with shared utilities and consolidated implementations
 - **POSIX-Only Utilities:** Custom path operations optimized for POSIX systems (leaner than std.fs.path)
 
-**Shared Infrastructure (`src/lib/` - Phase 5 Consolidation):**
+**Shared Infrastructure in `src/lib/`:**
 
 *Core Utilities (`src/lib/core/`):*
 - **`path.zig`** - POSIX-only path utilities with direct buffer manipulation
@@ -696,77 +688,12 @@ git add deps/            # Commit vendored code
 git commit -m "Update vendored dependencies"
 ```
 
-## Notes to LLMs
-
-- We want idiomatic Zig, taking more after C than C++
-- Do not support backwards compatibility unless explicitly asked
-- Never deprecate or preserve backwards compatibility unless explicitly requested
-- Never re-export in modules unless explicitly justified with a comment or requested (do not ever use the facade pattern, it's a code smell to us)
-- Focus on performance and clean architecture
-- This is a CLI utilities project - no graphics or game functionality
-- Do not re-export identifiers from modules
-- Test frequently with `zig build run` to ensure each step works
-- Add and extend benchmarks when appropriate
-- Performance is top priority - optimize for speed
-- Address duplicated code and antipatterns
-- Push back against the developer when you think you are correct
-    or have understanding they don't, and when in doubt, ask clarifying questions
-- Keep modules self-contained and focused on their specific purpose
-- We have `rg` (ripgrep) installed, so always prefer `rg` over `grep` and `find`
-- Never use `sed` or write Bash loops to edit files, prefer direct editing instead
-- Claude Code is configured to prefer `rg` via `.claude/config.json` allowedCommands
-- Always update docs at ./CLAUDE.md and ./README.md
-- Always include tests for new functionality and newly handled edge cases
-    (and please don't cheat on tests lol,
-    identify root causes and leave `// TODO` if you're stumped)
-- Less is more - avoid over-engineering, and when in doubt, ask me or choose the simple option
-
-**Task Documentation Workflow:**
-- **Active task documentation** should be placed in root directory with `TASK_*.md` prefix for high visibility
-- **Permanent documentation** (README.md, CLAUDE.md) remains unprefixed in root
-- **Completed task documentation** should be moved to `docs/archive/` with meaningful names (e.g., `2025_01_parser_improvements.md`)
-- **Always commit task documentation** to git both during work and when archiving
-- This workflow ensures active work is visible while maintaining a historical record of completed tasks
-
-**Current Status:** ✓ **Production ready with complete DRY architecture** - All 302 tests passing (100% success rate). Complete AST-based code extraction with unified NodeVisitor pattern and aggressive code sharing through helper modules.
-
-**✓ Recent Improvements (Phase 5 Consolidation Complete):**
-
-*Architecture Consolidation:*
-- **Phase 5 Module Reorganization** - Consolidated 65% of code into organized src/lib/ subdirectories
-- **Filesystem Simplification** - Moved filesystem abstraction to lib/filesystem/ (simplified from lib/core/filesystem)
-- **Test Infrastructure Consolidation** - Moved test_helpers.zig to lib/test/helpers.zig (696 lines)
-- **Configuration Consolidation** - Moved config logic to lib/config.zig with facade pattern
-- **Patterns Directory Cleanup** - Removed obsolete patterns/ directory and tests
-- **Import Path Standardization** - Fixed all production code imports for new architecture
-- **Build Success** - Clean build with zero compilation errors for production code
-
-*Code Quality Improvements:*
-- **DRY Architecture Refactoring** - Eliminated ~500 lines of duplicate code through helper modules
-- **Enhanced Error Messages** - Deployed meaningful error messages in 5+ critical user touchpoints
-- **Test Quality Improved** - Tests validate actual content extraction vs basic crash testing
-- **Import Standardization** - Core modules standardized on filesystem imports
-- **Memory Management** - Collection helpers with RAII cleanup eliminating 30+ duplicate patterns
-- **Error Handling** - Standardized error handling eliminating 20+ switch statement patterns
-
-*AST and Parser Enhancements:*
-- **Complete AST Integration** - All languages support walkNode() implementations
-- **Unified NodeVisitor Pattern** - Consistent AST traversal across all parsers
-- **AST Cache Integration** - Incremental processing with cache invalidation
-- **Cascade Invalidation** - Smart dependency tracking for dependent files
-- **Enhanced Parser Interface** - Both simple and AST-based extraction
-- **Mock AST Framework** - Complete abstraction layer for testing
-- **Tree-sitter Integration** - Real syntax tree parsing for precise extraction
-- **Graceful Fallback** - Falls back to text extraction on parse errors
-
-*Performance Optimizations:*
-- **Path Operation Optimizations** - Direct buffer manipulation instead of allocPrint
-- **Memory Pooling** - String interning and ArrayList reuse
-- **Pattern Matching Optimizations** - Fast-path for common glob patterns
-- **Color-enhanced Benchmark Output** - Progress bars, human-readable units
-- **Vendored Dependencies** - All tree-sitter libraries in `deps/` for reliability
-
-**Architecture:** Complete filesystem abstraction with parameterized dependencies, unified pattern matching engine, comprehensive benchmarking suite, and modular command structure. See [docs/archive/ARCHITECTURE.md](docs/archive/ARCHITECTURE.md) for detailed system design.
+**Workflow with root TODO_*.md docs:**
+- **Active docs** should be placed in root directory with `TODO_*.md` prefix for high visibility
+- **Permanent docs** (README.md, CLAUDE.md) remains unprefixed in root
+- **Completed todo docs** should be moved to `docs/archive/` with `TODO_` stripped
+- **Always commit todo docs** to git both during work and when archiving
+- This workflow ensures active work is visible while maintaining a historical record of completed todos
 
 ## Test Coverage
 
@@ -782,14 +709,6 @@ The project has comprehensive test coverage including:
 - **Pattern matching**: Unified pattern engine with performance-critical optimizations
 - **Filesystem abstraction**: Mock filesystem testing for complete test isolation
 - **Parameterized dependencies**: All modules testable with mock filesystems
-
-**Current test status:** ✅ **All 302 tests passing (100% pass rate)**
-- Complete DRY architecture testing with all helper modules
-- Complete AST integration testing with mock framework
-- Comprehensive incremental processing and cache validation
-- Language-specific parser testing with unified interface
-- End-to-end extraction verification for all supported languages
-- Full coverage of collection helpers, file helpers, error helpers, and AST walker
 
 ## Related Documentation
 
@@ -815,4 +734,28 @@ When selecting tasks:
 6. Consider POSIX compatibility
 7. Keep the Unix philosophy in mind
 
-Remember: Performance is a feature, every cycle counts.
+## Notes to LLMs from the user
+
+- We want idiomatic Zig, taking more after C than C++
+- Do not support backwards compatibility unless explicitly asked
+- Never deprecate or preserve backwards compatibility unless explicitly requested
+- Never re-export in modules unless explicitly justified with a comment or requested (do not ever use the facade pattern, it's a code smell to us)
+- Focus on performance and clean architecture
+- This is a CLI utilities project - no graphics or game functionality
+- Do not re-export identifiers from modules
+- Test frequently with `zig build run` to ensure each step works
+- Add and extend benchmarks when appropriate
+- Performance is top priority - optimize for speed
+- Address duplicated code and antipatterns
+- Push back against the developer when you think you are correct
+    or have understanding they don't, and when in doubt, ask clarifying questions
+- Keep modules self-contained and focused on their specific purpose
+- We have `rg` (ripgrep) installed, so always prefer `rg` over `grep` and `find`
+- Never use `sed` or write Bash loops to edit files, prefer direct editing instead
+- Claude Code is configured to prefer `rg` via `.claude/config.json` allowedCommands
+- Always update docs at ./CLAUDE.md and ./README.md
+- Always include tests for new functionality and newly handled edge cases
+    (and please don't cheat on tests lol,
+    identify root causes and leave `// TODO` if you're stumped)
+- Remember: Performance is a feature, every cycle counts.
+- Less is more - avoid over-engineering, and when in doubt, ask me or choose the simple option

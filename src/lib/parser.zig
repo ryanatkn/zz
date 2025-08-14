@@ -2,6 +2,7 @@ const std = @import("std");
 const ts = @import("tree-sitter");
 const AstNode = @import("ast.zig").AstNode;
 const path_utils = @import("path.zig");
+const TreeSitterParser = @import("tree_sitter_parser.zig").TreeSitterParser;
 
 // Language-specific parsers
 const zig_parser = @import("parsers/zig.zig");
@@ -95,41 +96,17 @@ pub const Parser = struct {
 
     /// AST-based extraction using tree-sitter
     fn extractWithAst(self: *Parser, source: []const u8, flags: ExtractionFlags) ![]const u8 {
-        // Tree-sitter integration placeholder - falls back to simple extraction
-        // This maintains API compatibility while tree-sitter integration is completed
-        
-        var result = std.ArrayList(u8).init(self.allocator);
-        defer result.deinit();
-
-        // Create a mock AST node for the parsers that have walkNode implementations
-        // In real implementation, this would parse with tree-sitter
-        const mock_root = AstNode{
-            .raw_node = null,
-            .node_type = "document",
-            .start_byte = 0,
-            .end_byte = @intCast(source.len),
-            .start_point = AstNode.Point{ .row = 0, .column = 0 },
-            .end_point = AstNode.Point{ .row = 0, .column = 0 },
-            .text = source,
+        // Use real tree-sitter parsing for supported languages
+        var ts_parser = TreeSitterParser.init(self.allocator, self.language) catch {
+            // Fall back to simple extraction if tree-sitter fails
+            return self.extractSimple(source, flags);
         };
+        defer ts_parser.deinit();
 
-        switch (self.language) {
-            .zig => {
-                // Zig uses different AST interface, fall back to simple for now
-                try zig_parser.extractSimple(source, flags, &result);
-            },
-            .css => try css_parser.walkNode(self.allocator, &mock_root, source, flags, &result),
-            .html => try html_parser.walkNode(self.allocator, &mock_root, source, flags, &result),
-            .json => try json_parser.walkNode(self.allocator, &mock_root, source, flags, &result),
-            .typescript => try typescript_parser.walkNode(self.allocator, &mock_root, source, flags, &result),
-            .svelte => try svelte_parser.walkNode(self.allocator, &mock_root, source, flags, &result),
-            .unknown => {
-                // For unknown languages, return full source
-                try result.appendSlice(source);
-            },
-        }
-
-        return result.toOwnedSlice();
+        return ts_parser.extract(source, flags) catch {
+            // Fall back to simple extraction on parse errors
+            return self.extractSimple(source, flags);
+        };
     }
 
     fn extractSimple(self: *Parser, source: []const u8, flags: ExtractionFlags) ![]const u8 {

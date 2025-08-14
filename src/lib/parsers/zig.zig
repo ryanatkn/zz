@@ -1,6 +1,7 @@
 const std = @import("std");
 const ts = @import("tree-sitter");
 const ExtractionFlags = @import("../parser.zig").ExtractionFlags;
+const AstNode = @import("../ast.zig").AstNode;
 
 extern fn tree_sitter_zig() callconv(.C) *ts.Language;
 
@@ -68,6 +69,12 @@ pub fn extractSimple(source: []const u8, flags: ExtractionFlags, result: *std.Ar
     }
 }
 
+/// AST-based extraction using tree-sitter
+pub fn walkNode(allocator: std.mem.Allocator, root: *const AstNode, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
+    _ = allocator;
+    try walkNodeRecursive(root.ts_node, source, flags, result);
+}
+
 pub fn extractWithTreeSitter(
     allocator: std.mem.Allocator,
     source: []const u8,
@@ -85,12 +92,12 @@ pub fn extractWithTreeSitter(
     var result = std.ArrayList(u8).init(allocator);
     defer result.deinit();
     
-    try walkNode(root, source, flags, &result);
+    try walkNodeRecursive(root, source, flags, &result);
     
     return result.toOwnedSlice();
 }
 
-fn walkNode(node: ts.Node, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
+fn walkNodeRecursive(node: ts.Node, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
     const node_type = node.kind();
     
     // Extract based on node type and flags
@@ -141,6 +148,6 @@ fn walkNode(node: ts.Node, source: []const u8, flags: ExtractionFlags, result: *
     var i: u32 = 0;
     while (i < child_count) : (i += 1) {
         const child = node.child(i) orelse continue;
-        try walkNode(child, source, flags, result);
+        try walkNodeRecursive(child, source, flags, result);
     }
 }

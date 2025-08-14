@@ -1,5 +1,6 @@
 const std = @import("std");
 const Language = @import("parser.zig").Language;
+const AstFormatter = @import("ast_formatter.zig").AstFormatter;
 
 pub const IndentStyle = enum {
     space,
@@ -14,6 +15,7 @@ pub const FormatterOptions = struct {
     trailing_comma: bool = false,
     sort_keys: bool = false, // For JSON
     quote_style: enum { single, double, preserve } = .preserve,
+    use_ast: bool = true, // Prefer AST-based formatting when available
 };
 
 pub const FormatterError = error{
@@ -40,6 +42,15 @@ pub const Formatter = struct {
     }
 
     pub fn format(self: *Self, source: []const u8) FormatterError![]const u8 {
+        // Try AST-based formatting first if enabled and supported
+        if (self.options.use_ast and self.supportsAstFormatting()) {
+            if (self.formatWithAst(source)) |result| {
+                return result;
+            } else |_| {
+                // Fall back to traditional formatters on AST failure
+            }
+        }
+        
         // Dispatch to language-specific formatter
         return switch (self.language) {
             .json => try self.formatJson(source),
@@ -49,6 +60,27 @@ pub const Formatter = struct {
             .typescript => try self.formatTypeScript(source),
             .svelte => try self.formatSvelte(source),
             .unknown => FormatterError.UnsupportedLanguage,
+        };
+    }
+    
+    /// Check if this language supports AST-based formatting
+    fn supportsAstFormatting(self: *Self) bool {
+        return switch (self.language) {
+            .typescript, .css, .svelte => true,
+            .json, .zig, .html => false, // Have good existing implementations
+            .unknown => false,
+        };
+    }
+    
+    /// AST-based formatting
+    fn formatWithAst(self: *Self, source: []const u8) FormatterError![]const u8 {
+        var ast_formatter = AstFormatter.init(self.allocator, self.language, self.options) catch {
+            return FormatterError.FormattingFailed;
+        };
+        defer ast_formatter.deinit();
+        
+        return ast_formatter.format(source) catch {
+            return FormatterError.FormattingFailed;
         };
     }
 

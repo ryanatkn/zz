@@ -1,4 +1,5 @@
 const std = @import("std");
+const ts = @import("tree-sitter");
 const ExtractionFlags = @import("../parser.zig").ExtractionFlags;
 const AstNode = @import("../ast.zig").AstNode;
 const NodeVisitor = @import("../ast.zig").NodeVisitor;
@@ -65,15 +66,60 @@ pub fn extractSimple(source: []const u8, flags: ExtractionFlags, result: *std.Ar
     }
 }
 
-/// AST-based extraction using shared AST walker
+/// AST-based extraction using CSS-specific logic
 pub fn walkNode(allocator: std.mem.Allocator, root: *const AstNode, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
-    try AstWalker.walkNodeWithVisitor(allocator, root, source, flags, result, cssExtractionVisitorNew);
+    _ = allocator;
+    try walkNodeRecursive(root.ts_node, source, flags, result);
 }
 
-/// CSS-specific visitor function adapted for the shared AST walker
-fn cssExtractionVisitorNew(context: *AstWalker.WalkContext, node: *const AstNode) !void {
-    // CSS-specific extraction logic using generic visitor
-    try AstWalker.GenericVisitor.visitNode(context, node);
+/// Recursive tree-sitter node walking for CSS
+fn walkNodeRecursive(node: ts.Node, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
+    const node_type = node.kind();
+    
+    if (flags.signatures) {
+        if (isSelector(node_type)) {
+            try appendNodeText(node, source, result);
+            return; // Don't traverse into selector details
+        }
+    }
+    
+    if (flags.types or flags.structure) {
+        if (isRule(node_type) or isAtRule(node_type)) {
+            try appendNodeText(node, source, result);
+            return;
+        }
+    }
+    
+    if (flags.imports) {
+        if (isImportRule(node_type)) {
+            try appendNodeText(node, source, result);
+        }
+    }
+    
+    if (flags.docs) {
+        if (isComment(node_type)) {
+            try appendNodeText(node, source, result);
+        }
+    }
+    
+    // Recurse into children
+    const child_count = node.childCount();
+    var i: u32 = 0;
+    while (i < child_count) : (i += 1) {
+        if (node.child(i)) |child| {
+            try walkNodeRecursive(child, source, flags, result);
+        }
+    }
+}
+
+/// Helper to append node text with newline
+fn appendNodeText(node: ts.Node, source: []const u8, result: *std.ArrayList(u8)) !void {
+    const start = node.startByte();
+    const end = node.endByte();
+    if (end <= source.len) {
+        try result.appendSlice(source[start..end]);
+        try result.append('\n');
+    }
 }
 
 const ExtractionContext = struct {

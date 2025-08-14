@@ -1,8 +1,29 @@
 const std = @import("std");
 const FormatterOptions = @import("../formatter.zig").FormatterOptions;
 const LineBuilder = @import("../formatter.zig").LineBuilder;
+const AstFormatter = @import("../ast_formatter.zig").AstFormatter;
+const Language = @import("../parser.zig").Language;
 
 pub fn format(allocator: std.mem.Allocator, source: []const u8, options: FormatterOptions) ![]const u8 {
+    // Try AST-based formatting first for better precision
+    if (formatWithAst(allocator, source, options)) |result| {
+        return result;
+    } else |_| {
+        // Fall back to existing state-machine implementation
+        return formatWithStateMachine(allocator, source, options);
+    }
+}
+
+/// AST-based CSS formatting (preferred)
+fn formatWithAst(allocator: std.mem.Allocator, source: []const u8, options: FormatterOptions) ![]const u8 {
+    var ast_formatter = try AstFormatter.init(allocator, .css, options);
+    defer ast_formatter.deinit();
+    
+    return ast_formatter.format(source);
+}
+
+/// State-machine CSS formatting (fallback)
+fn formatWithStateMachine(allocator: std.mem.Allocator, source: []const u8, options: FormatterOptions) ![]const u8 {
     var builder = LineBuilder.init(allocator, options);
     defer builder.deinit();
     

@@ -8,6 +8,28 @@ const FilesystemInterface = @import("../filesystem/interface.zig").FilesystemInt
 const DirHandle = @import("../filesystem/interface.zig").DirHandle;
 const filesystem_utils = @import("../lib/filesystem.zig");
 
+pub const IndentStyle = enum {
+    space,
+    tab,
+};
+
+pub const QuoteStyle = enum {
+    single,
+    double,
+    preserve,
+};
+
+pub const FormatConfigOptions = struct {
+    indent_size: u8 = 4,
+    indent_style: IndentStyle = .space,
+    line_width: u32 = 100,
+    preserve_newlines: bool = true,
+    trailing_comma: bool = false,
+    sort_keys: bool = false,
+    quote_style: QuoteStyle = .preserve,
+    use_ast: bool = true,
+};
+
 pub const ZonConfig = struct {
     base_patterns: ?[]const u8 = null, // Changed from BasePatterns to string for ZON compatibility
     ignored_patterns: ?[]const []const u8 = null,
@@ -16,6 +38,7 @@ pub const ZonConfig = struct {
     respect_gitignore: ?bool = null,
     tree: ?TreeSection = null,
     prompt: ?PromptSection = null,
+    format: ?FormatSection = null,
 
     const TreeSection = struct {
         // Tree-specific overrides if needed in future
@@ -23,6 +46,17 @@ pub const ZonConfig = struct {
 
     const PromptSection = struct {
         // Prompt-specific overrides if needed in future
+    };
+
+    const FormatSection = struct {
+        indent_size: ?u8 = null,
+        indent_style: ?[]const u8 = null, // "space" or "tab"
+        line_width: ?u32 = null,
+        preserve_newlines: ?bool = null,
+        trailing_comma: ?bool = null,
+        sort_keys: ?bool = null,
+        quote_style: ?[]const u8 = null, // "single", "double", "preserve"
+        use_ast: ?bool = null,
     };
 };
 
@@ -201,6 +235,60 @@ pub const ZonLoader = struct {
             .respect_gitignore = respect_gitignore,
             .patterns_allocated = true,
         };
+    }
+
+    pub fn getFormatConfig(self: *Self) !FormatConfigOptions {
+        
+        try self.loadFromFile(DEFAULT_CONFIG_FILENAME);
+        const config = self.config orelse ZonConfig{};
+        
+        var options = FormatConfigOptions{};
+        
+        if (config.format) |format_section| {
+            if (format_section.indent_size) |size| {
+                options.indent_size = size;
+            }
+            
+            if (format_section.indent_style) |style_str| {
+                if (std.mem.eql(u8, style_str, "tab")) {
+                    options.indent_style = .tab;
+                } else if (std.mem.eql(u8, style_str, "space")) {
+                    options.indent_style = .space;
+                }
+            }
+            
+            if (format_section.line_width) |width| {
+                options.line_width = width;
+            }
+            
+            if (format_section.preserve_newlines) |preserve| {
+                options.preserve_newlines = preserve;
+            }
+            
+            if (format_section.trailing_comma) |trailing| {
+                options.trailing_comma = trailing;
+            }
+            
+            if (format_section.sort_keys) |sort| {
+                options.sort_keys = sort;
+            }
+            
+            if (format_section.quote_style) |quote_str| {
+                if (std.mem.eql(u8, quote_str, "single")) {
+                    options.quote_style = .single;
+                } else if (std.mem.eql(u8, quote_str, "double")) {
+                    options.quote_style = .double;
+                } else if (std.mem.eql(u8, quote_str, "preserve")) {
+                    options.quote_style = .preserve;
+                }
+            }
+            
+            if (format_section.use_ast) |use_ast| {
+                options.use_ast = use_ast;
+            }
+        }
+        
+        return options;
     }
 
     pub fn deinit(self: *Self) void {

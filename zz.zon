@@ -45,4 +45,15 @@
     // .prompt = .{
     //     // Prompt-specific settings would go here
     // },
+
+    // .format = .{
+    //     .indent_size = 4,
+    //     .indent_style = "space",
+    //     .line_width = 100,
+    //     .preserve_newlines = true,
+    //     .trailing_comma = false,
+    //     .sort_keys = false,
+    //     .quote_style = "preserve",
+    //     .use_ast = true,
+    // },
 }

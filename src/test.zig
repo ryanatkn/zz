@@ -39,3 +39,8 @@ test {
 test {
     std.testing.refAllDeclsRecursive(@import("lib/test.zig"));
 }
+
+// Import format tests
+test {
+    std.testing.refAllDeclsRecursive(@import("format/test.zig"));
+}

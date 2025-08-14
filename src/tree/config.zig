@@ -3,6 +3,8 @@ const FilesystemInterface = @import("../filesystem/interface.zig").FilesystemInt
 const Format = @import("format.zig").Format;
 const SharedConfig = @import("../config.zig").SharedConfig;
 const ZonLoader = @import("../config.zig").ZonLoader;
+const Args = @import("../lib/args.zig").Args;
+const CommonFlags = @import("../lib/args.zig").CommonFlags;
 
 pub const ArgError = error{
     InvalidFlag,
@@ -80,22 +82,15 @@ pub const Config = struct {
         _ = allocator; // May need later for string duplication
         var result = ParsedArgs{};
 
-        var i: usize = 0; // Start from first argument
-
-        // Skip until we find "tree" command
-        while (i < args.len and !std.mem.eql(u8, args[i], "tree")) {
-            i += 1;
-        }
-        i += 1; // Skip the "tree" command itself
+        const start_index = Args.skipToCommand(args, "tree");
         var positional_count: usize = 0;
 
+        var i = start_index;
         while (i < args.len) {
             const arg = args[i];
 
-            // Handle format flags (both long and short forms)
-            if (std.mem.startsWith(u8, arg, "--format=") or std.mem.startsWith(u8, arg, "-f=")) {
-                const prefix_len = if (std.mem.startsWith(u8, arg, "--format=")) "--format=".len else "-f=".len;
-                const format_str = arg[prefix_len..];
+            // Parse using centralized flag functions
+            if (CommonFlags.parseFormatFlag(arg)) |format_str| {
                 result.format = Format.fromString(format_str) orelse return ArgError.InvalidFormat;
             } else if (std.mem.eql(u8, arg, "-f")) {
                 // Handle -f flag that expects next argument as format
@@ -103,10 +98,13 @@ pub const Config = struct {
                 i += 1;
                 const format_str = args[i];
                 result.format = Format.fromString(format_str) orelse return ArgError.InvalidFormat;
-            } else if (std.mem.eql(u8, arg, "--show-hidden")) {
+            } else if (CommonFlags.isShowHiddenFlag(arg)) {
                 result.show_hidden = true;
-            } else if (std.mem.eql(u8, arg, "--no-gitignore")) {
+            } else if (CommonFlags.isNoGitignoreFlag(arg)) {
                 result.no_gitignore = true;
+            } else if (Args.isHelpFlag(arg)) {
+                printUsage("zz", "tree");
+                std.process.exit(0);
             } else if (std.mem.startsWith(u8, arg, "-")) {
                 return ArgError.InvalidFlag;
             } else {
@@ -127,18 +125,16 @@ pub const Config = struct {
     }
 
     fn printUsage(program_name: []const u8, command: []const u8) void {
-        std.debug.print("Usage: {s} {s} [directory] [max_depth] [options]\n\n", .{ program_name, command });
-        std.debug.print("Options:\n", .{});
-        std.debug.print("  --format=FORMAT, -f FORMAT   Output format: tree (default) or list\n", .{});
-        std.debug.print("  --show-hidden                 Show hidden files\n", .{});
-        std.debug.print("  --no-gitignore                Disable .gitignore parsing (respects .gitignore by default)\n", .{});
-        std.debug.print("\n", .{});
-        std.debug.print("Examples:\n", .{});
-        std.debug.print("  {s} {s}                       # Tree of current directory (respects .gitignore)\n", .{ program_name, command });
-        std.debug.print("  {s} {s} src 2                 # Tree of src/ with max depth 2\n", .{ program_name, command });
-        std.debug.print("  {s} {s} --format=list         # List format of current directory\n", .{ program_name, command });
-        std.debug.print("  {s} {s} -f list               # Same as above using short flag\n", .{ program_name, command });
-        std.debug.print("  {s} {s} --no-gitignore        # Tree ignoring .gitignore files\n", .{ program_name, command });
+        _ = program_name; // Use centralized usage function instead
+        const stderr = std.io.getStdErr().writer();
+        const options = [_][]const u8{
+            "--format=FORMAT, -f FORMAT   Output format: tree (default) or list",
+            "--show-hidden                 Show hidden files",
+            "--no-gitignore                Disable .gitignore parsing",
+            "--help, -h                    Show this help message",
+        };
+        
+        Args.printUsage(stderr, command, "Show directory tree with configurable filtering", &options) catch {};
     }
 
     fn formatArgError(err: ArgError) []const u8 {

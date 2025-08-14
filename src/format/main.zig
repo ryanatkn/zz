@@ -8,6 +8,10 @@ const IndentStyle = @import("../lib/formatter.zig").IndentStyle;
 const path_utils = @import("../lib/path.zig");
 const GlobExpander = @import("../prompt/glob.zig").GlobExpander;
 const SharedConfig = @import("../config/shared.zig").SharedConfig;
+const ZonLoader = @import("../config/zon.zig").ZonLoader;
+const FormatConfigOptions = @import("../config/zon.zig").FormatConfigOptions;
+const Args = @import("../lib/args.zig").Args;
+const CommonFlags = @import("../lib/args.zig").CommonFlags;
 
 const FormatArgs = struct {
     files: std.ArrayList([]const u8),
@@ -21,8 +25,38 @@ const FormatArgs = struct {
     }
 };
 
+fn configToFormatterOptions(config: FormatConfigOptions) FormatterOptions {
+    const config_indent_style = @import("../config/zon.zig").IndentStyle;
+    const config_quote_style = @import("../config/zon.zig").QuoteStyle;
+    
+    return FormatterOptions{
+        .indent_size = config.indent_size,
+        .indent_style = switch (config.indent_style) {
+            config_indent_style.space => .space,
+            config_indent_style.tab => .tab,
+        },
+        .line_width = config.line_width,
+        .preserve_newlines = config.preserve_newlines,
+        .trailing_comma = config.trailing_comma,
+        .sort_keys = config.sort_keys,
+        .quote_style = switch (config.quote_style) {
+            config_quote_style.single => .single,
+            config_quote_style.double => .double,
+            config_quote_style.preserve => .preserve,
+        },
+        .use_ast = config.use_ast,
+    };
+}
+
 pub fn run(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: [][:0]const u8) !void {
-    var format_args = try parseArgs(allocator, args);
+    // Load configuration from zz.zon
+    var zon_loader = ZonLoader.init(allocator, filesystem);
+    defer zon_loader.deinit();
+    
+    const config_options = zon_loader.getFormatConfig() catch FormatConfigOptions{}; // Use defaults on error
+    const formatter_options = configToFormatterOptions(config_options);
+    
+    var format_args = try parseArgs(allocator, args, formatter_options);
     defer format_args.deinit();
 
     // Handle stdin mode
@@ -233,34 +267,42 @@ fn detectLanguageFromContent(content: []const u8) Language {
     return .unknown;
 }
 
-fn parseArgs(allocator: std.mem.Allocator, args: [][:0]const u8) !FormatArgs {
+fn parseArgs(allocator: std.mem.Allocator, args: [][:0]const u8, base_options: FormatterOptions) !FormatArgs {
     var result = FormatArgs{
         .files = std.ArrayList([]const u8).init(allocator),
+        .options = base_options, // Start with config file options
     };
 
-    var i: usize = 2; // Skip program name and "format" command
+    const start_index = Args.skipToCommand(args, "format");
+
+    var i = start_index;
     while (i < args.len) : (i += 1) {
         const arg = args[i];
 
-        if (std.mem.eql(u8, arg, "--write") or std.mem.eql(u8, arg, "-w")) {
+        // Parse using centralized flag functions
+        if (CommonFlags.isWriteFlag(arg)) {
             result.write = true;
-        } else if (std.mem.eql(u8, arg, "--check")) {
+        } else if (CommonFlags.isCheckFlag(arg)) {
             result.check = true;
-        } else if (std.mem.eql(u8, arg, "--stdin")) {
+        } else if (CommonFlags.isStdinFlag(arg)) {
             result.stdin = true;
-        } else if (std.mem.startsWith(u8, arg, "--indent-size=")) {
-            const value = arg["--indent-size=".len..];
-            result.options.indent_size = try std.fmt.parseInt(u8, value, 10);
-        } else if (std.mem.startsWith(u8, arg, "--indent-style=")) {
-            const value = arg["--indent-style=".len..];
+        } else if (CommonFlags.parseIndentSizeFlag(arg)) |value| {
+            result.options.indent_size = value;
+        } else if (CommonFlags.parseIndentStyleFlag(arg)) |value| {
             if (std.mem.eql(u8, value, "tab")) {
                 result.options.indent_style = .tab;
             } else if (std.mem.eql(u8, value, "space")) {
                 result.options.indent_style = .space;
+            } else {
+                const stderr = std.io.getStdErr().writer();
+                try stderr.print("Error: Invalid indent style '{s}'. Use 'tab' or 'space'.\n", .{value});
+                std.process.exit(1);
             }
-        } else if (std.mem.startsWith(u8, arg, "--line-width=")) {
-            const value = arg["--line-width=".len..];
-            result.options.line_width = try std.fmt.parseInt(u32, value, 10);
+        } else if (CommonFlags.parseLineWidthFlag(arg)) |value| {
+            result.options.line_width = value;
+        } else if (Args.isHelpFlag(arg)) {
+            try printFormatHelp();
+            std.process.exit(0);
         } else if (arg[0] == '-') {
             const stderr = std.io.getStdErr().writer();
             try stderr.print("Unknown option: {s}\n", .{arg});
@@ -279,4 +321,19 @@ fn parseArgs(allocator: std.mem.Allocator, args: [][:0]const u8) !FormatArgs {
     }
 
     return result;
+}
+
+fn printFormatHelp() !void {
+    const stderr = std.io.getStdErr().writer();
+    const options = [_][]const u8{
+        "--write, -w              Format files in-place",
+        "--check                  Check if files are formatted (exit 1 if not)",
+        "--stdin                  Read from stdin, write to stdout",
+        "--indent-size=N          Number of spaces for indentation (default: 4)",
+        "--indent-style=STYLE     Use 'space' or 'tab' (default: space)",
+        "--line-width=N           Maximum line width (default: 100)",
+        "--help, -h               Show this help message",
+    };
+    
+    try Args.printUsage(stderr, "format", "Format code files with language-aware pretty printing", &options);
 }

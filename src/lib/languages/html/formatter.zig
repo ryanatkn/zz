@@ -64,8 +64,32 @@ fn formatStartTagConditionally(start_tag: ts.Node, source: []const u8, builder: 
     if (needs_attribute_wrapping) {
         try formatStartTagWithWrapping(start_tag, source, builder, options);
     } else {
-        // Use original formatting for most tags
-        try appendNodeText(start_tag, source, builder);
+        // Check if this is a self-closing tag that needs space normalization
+        if (std.mem.endsWith(u8, tag_text, "/>")) {
+            try normalizeSelfClosingTag(tag_text, builder);
+        } else {
+            // Use original formatting for regular tags
+            try appendNodeText(start_tag, source, builder);
+        }
+    }
+}
+
+/// Normalize self-closing tag to ensure space before />
+fn normalizeSelfClosingTag(tag_text: []const u8, builder: *LineBuilder) !void {
+    // Ensure there's always a space before /> in self-closing tags
+    if (std.mem.endsWith(u8, tag_text, "/>")) {
+        if (std.mem.endsWith(u8, tag_text, " />")) {
+            // Already has space, use as-is
+            try builder.append(tag_text);
+        } else {
+            // Add space before />
+            const content = tag_text[0..tag_text.len - 2]; // Remove />
+            try builder.append(content);
+            try builder.append(" />");
+        }
+    } else {
+        // Not a self-closing tag, use as-is
+        try builder.append(tag_text);
     }
 }
 
@@ -337,7 +361,11 @@ fn formatHtmlComment(node: ts.Node, source: []const u8, builder: *LineBuilder, d
 /// Format self-closing HTML tag (like <img />, <hr />)
 fn formatSelfClosingTag(node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) !void {
     _ = depth;
+    // Fix indentation issue: self-closing tags get called with extra indent level
+    // Temporarily reduce indent level to match regular elements
+    builder.dedent();
     try builder.appendIndent();
+    builder.indent();
     try formatStartTagConditionally(node, source, builder, options);
     try builder.newline();
 }

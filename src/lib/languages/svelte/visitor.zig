@@ -39,21 +39,33 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
             return false; // Skip children to avoid duplication
         }
 
-        // For the template section, only extract top-level elements
-        if (std.mem.eql(u8, node_type, "element")) {
-            // Check if this is a top-level template element by looking at parent depth
-            // Only extract elements that are direct children of the fragment
-            try context.appendNode(node);
+        // Extract snippet blocks as structural elements
+        if (isSvelteSnippet(node.text)) {
+            try appendNormalizedSvelteSection(context, node);
             return false; // Skip children to avoid duplication
         }
+
+        // For the template section, extract top-level elements
+        if (std.mem.eql(u8, node_type, "element")) {
+            // Extract all template elements for structure
+            try appendNormalizedSvelteSection(context, node);
+            return false; // Skip children to avoid duplication
+        }
+        
+        // Also extract text nodes that might contain snippet blocks
+        if (std.mem.eql(u8, node_type, "text") and isSvelteSnippet(node.text)) {
+            try appendNormalizedSvelteSection(context, node);
+            return false;
+        }
+        
         return true;
     }
 
-    // Types: Extract CSS from style elements
+    // Types: Extract JavaScript state declarations from script elements
     if (context.flags.types and !context.flags.structure and !context.flags.signatures) {
-        if (std.mem.eql(u8, node_type, "style_element")) {
-            // TODO: Extract only CSS content, not style tags
-            try context.appendNode(node);
+        if (std.mem.eql(u8, node_type, "script_element")) {
+            // Extract JS state variables and type definitions from the script content
+            try extractJSTypesFromScript(context, node);
             return false;
         }
         return true;
@@ -81,6 +93,26 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
 
     // Default: continue recursion to child nodes
     return true;
+}
+
+/// Extract JavaScript types/state from script element (without script tags)
+fn extractJSTypesFromScript(context: *ExtractionContext, script_node: *const Node) !void {
+    // Extract content from raw_text children of script_element
+    const child_count = script_node.childCount();
+    var i: u32 = 0;
+    while (i < child_count) : (i += 1) {
+        if (script_node.child(i, context.source)) |child| {
+            if (std.mem.eql(u8, child.kind, "raw_text")) {
+                // Extract JS state/types from the raw content (exclude function signatures)
+                const js_content = child.text;
+                try extractJSTypes(context, js_content);
+                return;
+            }
+        }
+    }
+
+    // Fallback if no raw_text found
+    try context.appendNode(script_node);
 }
 
 /// Extract import statements from script element (without script tags)
@@ -356,10 +388,71 @@ fn extractJSImports(context: *ExtractionContext, js_source: []const u8) !void {
 /// Extract JS types and state declarations
 fn extractJSTypes(context: *ExtractionContext, js_source: []const u8) !void {
     var lines = std.mem.splitScalar(u8, js_source, '\n');
+    var inside_multiline_expression = false;
+    var brace_count: i32 = 0;
+    var expression_lines = std.ArrayList([]const u8).init(context.allocator);
+    defer expression_lines.deinit();
 
     while (lines.next()) |line| {
         const trimmed = std.mem.trim(u8, line, " \t\r\n");
-        if (trimmed.len == 0) continue;
+        if (trimmed.len == 0 and !inside_multiline_expression) continue;
+
+        // Handle multi-line expressions
+        if (inside_multiline_expression) {
+            try expression_lines.append(line);
+
+            // Count braces to track when expression ends
+            for (trimmed) |char| {
+                if (char == '{') brace_count += 1;
+                if (char == '}') brace_count -= 1;
+            }
+
+            // If we're back to the original brace level, expression is complete
+            if (brace_count <= 0) {
+                inside_multiline_expression = false;
+
+                // Extract the complete expression (excluding closing braces)
+                for (expression_lines.items) |expr_line| {
+                    const expr_trimmed = std.mem.trim(u8, expr_line, " \t\r\n");
+                    // Skip lines that are just closing braces/parentheses
+                    if (expr_trimmed.len > 0 and !isClosingLine(expr_trimmed)) {
+                        try context.appendText(expr_trimmed);
+                    }
+                }
+
+                // Reset for next expression
+                expression_lines.clearRetainingCapacity();
+                brace_count = 0;
+            }
+            continue;
+        }
+
+        // Skip function declarations (these are signatures, not types)
+        if (std.mem.startsWith(u8, trimmed, "function ") or
+            std.mem.startsWith(u8, trimmed, "export function "))
+        {
+            continue;
+        }
+
+        // Check for multi-line expressions like $derived.by(() => { or $effect(() => {
+        if ((std.mem.indexOf(u8, trimmed, "$derived.by") != null or
+            std.mem.indexOf(u8, trimmed, "$effect") != null) and
+            std.mem.indexOf(u8, trimmed, "{") != null)
+        {
+            // Count initial braces in this line
+            for (trimmed) |char| {
+                if (char == '{') brace_count += 1;
+                if (char == '}') brace_count -= 1;
+            }
+
+            // If line doesn't close the expression, start multi-line tracking
+            if (brace_count > 0) {
+                inside_multiline_expression = true;
+                try expression_lines.append(line);
+                continue;
+            }
+            // If it's a single line expression, handle it normally below
+        }
 
         // Variable declarations that define types/state
         if (std.mem.startsWith(u8, trimmed, "let ") or
@@ -368,16 +461,17 @@ fn extractJSTypes(context: *ExtractionContext, js_source: []const u8) !void {
             std.mem.startsWith(u8, trimmed, "export const "))
         {
             try context.appendText(trimmed);
-            try context.appendText("\n");
             continue;
         }
 
-        // Svelte 5 state declarations
+        // Check for single-line Svelte 5 state/derived declarations
         if (std.mem.indexOf(u8, trimmed, "$state") != null or
-            std.mem.indexOf(u8, trimmed, "$derived") != null)
+            std.mem.indexOf(u8, trimmed, "$derived") != null or
+            std.mem.indexOf(u8, trimmed, "$effect") != null or
+            std.mem.indexOf(u8, trimmed, "$props") != null or
+            std.mem.indexOf(u8, trimmed, "$bindable") != null)
         {
             try context.appendText(trimmed);
-            try context.appendText("\n");
             continue;
         }
     }
@@ -442,6 +536,11 @@ fn appendNormalizedSvelteSection(context: *ExtractionContext, node: *const Node)
 
     // Append the normalized content with automatic newline handling
     try builders.appendMaybe(context.result, builder.items(), !std.mem.endsWith(u8, builder.items(), "\n"));
+}
+
+/// Check if node text contains a Svelte snippet
+fn isSvelteSnippet(text: []const u8) bool {
+    return std.mem.indexOf(u8, text, "{#snippet") != null;
 }
 
 /// Check if a line contains only closing braces/parentheses (should be excluded from signatures)

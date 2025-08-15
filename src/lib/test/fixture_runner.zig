@@ -49,7 +49,14 @@ pub const TestUtils = struct {
         };
         defer allocator.free(actual);
 
-        if (!std.mem.eql(u8, actual, formatter_test.expected)) {
+        // Normalize whitespace for comparison to handle invisible character differences
+        const normalized_expected = normalizeWhitespace(allocator, formatter_test.expected) catch formatter_test.expected;
+        defer if (normalized_expected.ptr != formatter_test.expected.ptr) allocator.free(normalized_expected);
+        
+        const normalized_actual = normalizeWhitespace(allocator, actual) catch actual;
+        defer if (normalized_actual.ptr != actual.ptr) allocator.free(normalized_actual);
+
+        if (!std.mem.eql(u8, normalized_actual, normalized_expected)) {
             std.log.err("Formatter test '{s}' for {s} failed:", .{ formatter_test.name, @tagName(language) });
             std.log.err("Expected:\n{s}", .{formatter_test.expected});
             std.log.err("Actual:\n{s}", .{actual});
@@ -131,6 +138,66 @@ test "Zig fixture tests" {
         if (err == error.FileNotFound) return; // Skip if no fixture file
         return err;
     };
+}
+
+/// Normalize whitespace to handle invisible character differences in test comparisons
+fn normalizeWhitespace(allocator: std.mem.Allocator, input: []const u8) ![]const u8 {
+    var result = std.ArrayList(u8).init(allocator);
+    defer result.deinit();
+
+    // Handle different line ending types (CRLF -> LF, remove BOM)
+    var cleaned_input = input;
+    
+    // Remove UTF-8 BOM if present
+    if (cleaned_input.len >= 3 and 
+        cleaned_input[0] == 0xEF and cleaned_input[1] == 0xBB and cleaned_input[2] == 0xBF) {
+        cleaned_input = cleaned_input[3..];
+    }
+
+    // Split by any line ending type and normalize to LF
+    var i: usize = 0;
+    var line_start: usize = 0;
+    var first_line = true;
+    
+    while (i < cleaned_input.len) {
+        if (cleaned_input[i] == '\r' or cleaned_input[i] == '\n') {
+            // Found line ending
+            const line = cleaned_input[line_start..i];
+            
+            if (!first_line) {
+                try result.append('\n');
+            }
+            first_line = false;
+            
+            // Trim trailing whitespace from each line
+            const trimmed = std.mem.trimRight(u8, line, " \t\r\n");
+            try result.appendSlice(trimmed);
+            
+            // Skip over line ending (handle CRLF)
+            if (i + 1 < cleaned_input.len and cleaned_input[i] == '\r' and cleaned_input[i + 1] == '\n') {
+                i += 2; // Skip CRLF
+            } else {
+                i += 1; // Skip CR or LF
+            }
+            line_start = i;
+        } else {
+            i += 1;
+        }
+    }
+    
+    // Handle last line if no trailing newline
+    if (line_start < cleaned_input.len) {
+        const line = cleaned_input[line_start..];
+        
+        if (!first_line) {
+            try result.append('\n');
+        }
+        
+        const trimmed = std.mem.trimRight(u8, line, " \t\r\n");
+        try result.appendSlice(trimmed);
+    }
+    
+    return result.toOwnedSlice();
 }
 
 

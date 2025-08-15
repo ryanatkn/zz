@@ -456,6 +456,20 @@ fn formatZigStruct(node: ts.Node, source: []const u8, builder: *LineBuilder, dep
                         const grandchild_type = grandchild.kind();
                         const grandchild_text = getNodeText(grandchild, source);
                         std.debug.print("      grandchild[{d}]: type='{s}', text='{s}'\n", .{ j, grandchild_type, if (grandchild_text.len > 30) grandchild_text[0..30] else grandchild_text });
+                        
+                        // If this is the struct definition, explore its children
+                        if (std.mem.eql(u8, grandchild_type, "ErrorUnionExpr")) {
+                            const struct_child_count = grandchild.childCount();
+                            std.debug.print("        ErrorUnionExpr has {d} children:\n", .{struct_child_count});
+                            var k: u32 = 0;
+                            while (k < struct_child_count) : (k += 1) {
+                                if (grandchild.child(k)) |struct_child| {
+                                    const struct_child_type = struct_child.kind();
+                                    const struct_child_text = getNodeText(struct_child, source);
+                                    std.debug.print("          struct_child[{d}]: type='{s}', text='{s}'\n", .{ k, struct_child_type, if (struct_child_text.len > 20) struct_child_text[0..20] else struct_child_text });
+                                }
+                            }
+                        }
                     }
                 }
             }

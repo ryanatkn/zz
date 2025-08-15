@@ -159,7 +159,6 @@ fn extractJavaScriptSignatures(context: *ExtractionContext, js_source: []const u
             std.mem.indexOf(u8, trimmed, "$bindable") != null)
         {
             try context.appendText(trimmed);
-            try context.appendText("\n");
             continue;
         }
 
@@ -175,7 +174,6 @@ fn extractJavaScriptSignatures(context: *ExtractionContext, js_source: []const u
                 signature = std.mem.trimRight(u8, signature[0 .. signature.len - 1], " \t");
             }
             try context.appendText(signature);
-            try context.appendText("\n");
             continue;
         }
 
@@ -186,14 +184,12 @@ fn extractJavaScriptSignatures(context: *ExtractionContext, js_source: []const u
             std.mem.startsWith(u8, trimmed, "export const "))
         {
             try context.appendText(trimmed);
-            try context.appendText("\n");
             continue;
         }
 
         // Svelte 4 reactive statements
         if (std.mem.startsWith(u8, trimmed, "$:")) {
             try context.appendText(trimmed);
-            try context.appendText("\n");
             continue;
         }
     }

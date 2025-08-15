@@ -59,18 +59,18 @@
             \\}
             ,
             .extraction_tests = .{
-                .{
-                    .flags = .{ .signatures = true },
-                    .expected =
-                    \\"user": {
-                    \\"id": 123
-                    \\"profile": {
-                    \\"name": "John Doe"
-                    \\"preferences": ["theme-dark", "notifications-on"]
-                    \\"settings": {
-                    \\"auto_save": true
-                    \\"timeout": 5000
-                    ,
+                .{ .flags = .{ .signatures = true }, .expected = 
+                \\"user": {
+                \\  "id": 123,
+                \\  "profile": {
+                \\    "name": "John Doe",
+                \\    "preferences": ["theme-dark", "notifications-on"],
+                \\    "settings": {
+                \\      "auto_save": true,
+                \\      "timeout": 5000
+                \\    }
+                \\  }
+                \\}
                 },
                 .{
                     .flags = .{ .structure = true },

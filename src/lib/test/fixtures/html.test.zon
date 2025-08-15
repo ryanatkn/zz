@@ -207,7 +207,7 @@
             ,
             .options = .{
                 .indent_size = 1,
-                .indent_style = .tab,
+                .indent_style = "tab",
             },
         },
         .{

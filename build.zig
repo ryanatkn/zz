@@ -137,12 +137,12 @@ pub fn build(b: *std.Build) void {
     });
     tree_sitter_typescript_lib.addCSourceFiles(.{
         .files = &.{
-            "deps/tree-sitter-typescript/src/parser.c",
-            "deps/tree-sitter-typescript/src/scanner.c",
+            "deps/tree-sitter-typescript/typescript/src/parser.c",
+            "deps/tree-sitter-typescript/typescript/src/scanner.c",
         },
         .flags = &.{"-std=c11"},
     });
-    tree_sitter_typescript_lib.addIncludePath(b.path("deps/tree-sitter-typescript/src"));
+    tree_sitter_typescript_lib.addIncludePath(b.path("deps/tree-sitter-typescript/typescript/src"));
     tree_sitter_typescript_lib.addIncludePath(b.path("deps/tree-sitter/lib/include"));
     tree_sitter_typescript_lib.linkLibC();
 
@@ -329,12 +329,12 @@ fn addTestSteps(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.b
     });
     tree_sitter_typescript_lib.addCSourceFiles(.{
         .files = &.{
-            "deps/tree-sitter-typescript/src/parser.c",
-            "deps/tree-sitter-typescript/src/scanner.c",
+            "deps/tree-sitter-typescript/typescript/src/parser.c",
+            "deps/tree-sitter-typescript/typescript/src/scanner.c",
         },
         .flags = &.{"-std=c11"},
     });
-    tree_sitter_typescript_lib.addIncludePath(b.path("deps/tree-sitter-typescript/src"));
+    tree_sitter_typescript_lib.addIncludePath(b.path("deps/tree-sitter-typescript/typescript/src"));
     tree_sitter_typescript_lib.addIncludePath(b.path("deps/tree-sitter/lib/include"));
     tree_sitter_typescript_lib.linkLibC();
 

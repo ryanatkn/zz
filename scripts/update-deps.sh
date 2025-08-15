@@ -27,7 +27,7 @@ declare -A VERSIONS=(
     ["zig-spec"]="main"
     ["tree-sitter-svelte"]="v1.0.2"
     ["tree-sitter-css"]="v0.23.0"
-    ["tree-sitter-typescript"]="v0.7.0"
+    ["tree-sitter-typescript"]="v0.23.2"
     ["tree-sitter-json"]="v0.24.8"
     ["tree-sitter-html"]="v0.23.0"
 )

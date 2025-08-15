@@ -105,7 +105,7 @@ pub const FixtureRunner = struct {
         for (parser_test.extraction_tests, 0..) |extraction_test, i| {
             std.log.debug("runSingleParserTest: Running extraction test {}/{} for '{s}'", .{ i + 1, parser_test.extraction_tests.len, parser_test.name });
 
-            const actual = extractor.extract(parser_test.source, extraction_test.flags) catch |err| {
+            const actual = extractor.extract(language, parser_test.source, extraction_test.flags) catch |err| {
                 std.log.err("Parser test '{s}' failed for {s}: {}", .{ parser_test.name, @tagName(language), err });
                 return err;
             };
@@ -276,9 +276,12 @@ test "minimal JSON fixture test" {
 }
 
 test "comprehensive fixture tests" {
-    // TODO: CSS parser test failing - simple_selectors extraction incomplete
-    // TODO: CSS formatter test failing - minified_to_pretty formatting issues
-    // TODO: ZON parser memory leak - we're not freeing ZON data to avoid segfault
-    // See fixture_loader.zig:187 for detailed explanation
-    return error.SkipZigTest;
+    var runner = FixtureRunner.init(testing.allocator) catch |err| {
+        std.log.err("Failed to initialize FixtureRunner: {}", .{err});
+        return err;
+    };
+    defer runner.deinit();
+
+    try runner.runParserTests();
+    try runner.runFormatterTests();
 }

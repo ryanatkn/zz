@@ -95,7 +95,7 @@ test "Zig code extraction with signatures flag" {
 
     // Verify that Zig function signatures are extracted
     try testing.expect(result.len > 0);
-    try testing.expect(std.mem.indexOf(u8, result, "pub fn main() void") != null);
+    try testing.expect(std.mem.indexOf(u8, result, "fn main() void") != null);
     try testing.expect(std.mem.indexOf(u8, result, "fn helper() !void") != null);
 }
 

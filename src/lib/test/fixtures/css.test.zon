@@ -189,11 +189,7 @@
             \\    justify-content: space-between;
             \\}
             ,
-            .expected =
-            \\.nav {
-            \\\tdisplay: flex;
-            \\\tjustify-content: space-between;
-            \\}
+            .expected = ".nav {\n\tdisplay: flex;\n\tjustify-content: space-between;\n}"
             ,
             .options = .{
                 .indent_size = 1,

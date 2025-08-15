@@ -19,7 +19,7 @@ pub const Extractor = struct {
         return Extractor{
             .allocator = allocator,
             .registry = registry_mod.getGlobalRegistry(allocator),
-            .prefer_ast = false, // Default to pattern-based extraction for now
+            .prefer_ast = true, // Enable AST extraction for debugging
         };
     }
 
@@ -58,9 +58,13 @@ pub const Extractor = struct {
 
         // Use appropriate extraction method
         if (self.prefer_ast) {
+            // Debug: Log AST extraction attempt
+            std.log.debug("Attempting AST extraction for language: {s}", .{@tagName(language)});
+            
             return self.extractWithAST(language, source, extraction_flags) catch |err| switch (err) {
                 // Fall back to pattern-based extraction on AST errors
                 error.ParseFailed, error.UnsupportedLanguage, error.GrammarLoadFailed => {
+                    std.log.debug("AST extraction failed with {s}, falling back to patterns", .{@errorName(err)});
                     return self.extractWithPatterns(language, source, extraction_flags);
                 },
                 else => err,
@@ -72,10 +76,14 @@ pub const Extractor = struct {
 
     /// Extract using tree-sitter AST
     fn extractWithAST(self: *const Extractor, language: Language, source: []const u8, extraction_flags: ExtractionFlags) ![]const u8 {
+        std.log.debug("AST extraction: source length={d}, flags={any}", .{ source.len, extraction_flags });
+        
         var result = std.ArrayList(u8).init(self.allocator);
         defer result.deinit();
 
         try self.registry.extractWithAST(self.allocator, language, source, extraction_flags, &result);
+        
+        std.log.debug("AST extraction succeeded: result length={d}", .{result.items.len});
         return result.toOwnedSlice();
     }
 

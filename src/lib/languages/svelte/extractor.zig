@@ -20,6 +20,31 @@ const SvelteContext = struct {
     in_style_block: bool = false,
 };
 
+/// Multi-line expression state tracking
+const ExpressionState = struct {
+    in_multi_line_expression: bool = false,
+    expression_type: ExpressionType = .none,
+    brace_depth: u32 = 0,
+    paren_depth: u32 = 0,
+    expression_start_patterns: []const []const u8 = &[_][]const u8{
+        "$derived.by(",
+        "$effect(",
+        "$effect.pre(",
+        "$effect.root(",
+        "() => {",
+        "function(",
+        "() =>",
+    },
+    
+    const ExpressionType = enum {
+        none,
+        derived_by,
+        effect,
+        arrow_function,
+        regular_function,
+    };
+};
+
 /// Extract Svelte code using section-aware patterns
 pub fn extract(allocator: std.mem.Allocator, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
     // If full flag is set, return full source
@@ -38,24 +63,25 @@ pub fn extract(allocator: std.mem.Allocator, source: []const u8, flags: Extracti
     try extractWithSectionTracking(allocator, source, flags, result);
 }
 
-/// Section-aware extraction with proper Svelte 5 support
+/// Section-aware extraction with proper Svelte 5 support and multi-line expression handling
 fn extractWithSectionTracking(_: std.mem.Allocator, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
     var context = SvelteContext{};
     var lines = std.mem.splitScalar(u8, source, '\n');
     var need_newline = false;
+    
+    // Multi-line expression tracking
+    var expression_state = ExpressionState{};
 
     while (lines.next()) |line| {
         var should_include = false;
 
         // Check for section boundaries first (before updating context)
         if (isSectionBoundary(line)) {
-            // Only include section tags for structure extraction, not for signatures/imports/types alone
-            if (flags.structure or
-                (std.mem.indexOf(u8, line, "<style") != null and flags.types and !flags.signatures) or
-                (std.mem.indexOf(u8, line, "</style>") != null and flags.types and !flags.signatures))
-            {
+            if (flags.structure) {
+                // Structure extraction includes all section boundaries
                 should_include = true;
             }
+            // For signatures/imports/types, we don't include section tags - just the content
         }
 
         // Check content within sections (use current context before updating)
@@ -63,16 +89,16 @@ fn extractWithSectionTracking(_: std.mem.Allocator, source: []const u8, flags: E
             switch (context.current_section) {
                 .script => {
                     if (flags.structure) {
-                        // For structure extraction, include ALL script content
-                        should_include = !isSectionBoundary(line);
+                        // For structure extraction, include ALL script content except empty lines
+                        should_include = !isSectionBoundary(line) and std.mem.trim(u8, line, " \t").len > 0;
                     } else if (flags.signatures or flags.imports or flags.types) {
-                        should_include = shouldIncludeScriptLine(line, flags);
+                        should_include = shouldIncludeScriptLineWithExpressions(line, flags, &expression_state);
                     }
                 },
                 .style => {
                     if (flags.structure) {
-                        // For structure extraction, include ALL style content
-                        should_include = !isSectionBoundary(line);
+                        // For structure extraction, include ALL style content except empty lines
+                        should_include = !isSectionBoundary(line) and std.mem.trim(u8, line, " \t").len > 0;
                     } else if (flags.types) {
                         should_include = shouldIncludeStyleLine(line, flags);
                     }
@@ -83,7 +109,10 @@ fn extractWithSectionTracking(_: std.mem.Allocator, source: []const u8, flags: E
                     }
                 },
                 .none => {
-                    // Already handled section boundaries above
+                    // For structure extraction, skip empty lines between sections
+                    if (flags.structure and std.mem.trim(u8, line, " \t").len == 0) {
+                        should_include = false;
+                    }
                 },
             }
         }
@@ -96,20 +125,26 @@ fn extractWithSectionTracking(_: std.mem.Allocator, source: []const u8, flags: E
                 try result.append('\n');
             }
 
-            // For signatures and similar extractions, trim indentation and clean up syntax
-            if (flags.signatures and !flags.structure) {
+            // For signatures, imports, and similar extractions, trim indentation and clean up syntax
+            if ((flags.signatures or flags.imports) and !flags.structure) {
                 var trimmed = std.mem.trim(u8, line, " \t");
 
-                // For function signatures, remove opening brace if present
-                if ((std.mem.startsWith(u8, trimmed, "function ") or
-                    std.mem.startsWith(u8, trimmed, "export function ")) and
-                    std.mem.endsWith(u8, trimmed, " {"))
+                // For function signatures, remove opening brace if present (but not for multi-line expressions)
+                if (flags.signatures and !expression_state.in_multi_line_expression and
+                    ((std.mem.startsWith(u8, trimmed, "function ") or
+                    std.mem.startsWith(u8, trimmed, "async function ") or
+                    std.mem.startsWith(u8, trimmed, "export function ") or
+                    std.mem.startsWith(u8, trimmed, "export async function ")) and
+                    std.mem.endsWith(u8, trimmed, " {")))
                 {
                     // Remove the " {" suffix to get just the signature
                     trimmed = trimmed[0 .. trimmed.len - 2];
-                } else if ((std.mem.startsWith(u8, trimmed, "function ") or
-                    std.mem.startsWith(u8, trimmed, "export function ")) and
-                    std.mem.endsWith(u8, trimmed, "{"))
+                } else if (flags.signatures and !expression_state.in_multi_line_expression and
+                    ((std.mem.startsWith(u8, trimmed, "function ") or
+                    std.mem.startsWith(u8, trimmed, "async function ") or
+                    std.mem.startsWith(u8, trimmed, "export function ") or
+                    std.mem.startsWith(u8, trimmed, "export async function ")) and
+                    std.mem.endsWith(u8, trimmed, "{")))
                 {
                     // Remove the "{" suffix (no space before brace)
                     trimmed = trimmed[0 .. trimmed.len - 1];
@@ -158,7 +193,26 @@ fn updateSectionContext(context: *SvelteContext, line: []const u8) void {
     }
 }
 
-/// Check if a script line should be included
+/// Check if a script line should be included with multi-line expression support
+fn shouldIncludeScriptLineWithExpressions(line: []const u8, flags: ExtractionFlags, expression_state: *ExpressionState) bool {
+    const trimmed = std.mem.trim(u8, line, " \t");
+
+    // Don't include section boundaries here - handled separately
+    if (isSectionBoundary(line)) return false;
+
+    // Update expression tracking
+    updateExpressionState(expression_state, trimmed);
+
+    // If we're in a multi-line expression, include all lines until it ends
+    if (expression_state.in_multi_line_expression) {
+        return true;
+    }
+
+    // Use the regular single-line logic for other cases
+    return shouldIncludeScriptLine(line, flags);
+}
+
+/// Check if a script line should be included (original single-line logic)
 fn shouldIncludeScriptLine(line: []const u8, flags: ExtractionFlags) bool {
     const trimmed = std.mem.trim(u8, line, " \t");
 
@@ -178,7 +232,9 @@ fn shouldIncludeScriptLine(line: []const u8, flags: ExtractionFlags) bool {
 
         // Function signatures
         if (std.mem.startsWith(u8, trimmed, "function ") or
-            std.mem.startsWith(u8, trimmed, "export function "))
+            std.mem.startsWith(u8, trimmed, "async function ") or
+            std.mem.startsWith(u8, trimmed, "export function ") or
+            std.mem.startsWith(u8, trimmed, "export async function "))
         {
             return true;
         }
@@ -217,9 +273,14 @@ fn shouldIncludeScriptLine(line: []const u8, flags: ExtractionFlags) bool {
     }
 
     if (flags.imports) {
-        if (std.mem.startsWith(u8, trimmed, "import ") or
-            std.mem.startsWith(u8, trimmed, "export "))
-        {
+        if (std.mem.startsWith(u8, trimmed, "import ")) {
+            return true;
+        }
+        // Only include re-export statements, not variable exports
+        if (std.mem.startsWith(u8, trimmed, "export ") and 
+            !std.mem.startsWith(u8, trimmed, "export let ") and
+            !std.mem.startsWith(u8, trimmed, "export const ") and
+            !std.mem.startsWith(u8, trimmed, "export function ")) {
             return true;
         }
     }
@@ -263,6 +324,52 @@ fn shouldIncludeTemplateLine(line: []const u8, flags: ExtractionFlags) bool {
     }
 
     return false;
+}
+
+/// Update expression state for multi-line tracking
+fn updateExpressionState(state: *ExpressionState, line: []const u8) void {
+    // First count brackets on current line
+    var line_brace_count: i32 = 0;
+    var line_paren_count: i32 = 0;
+    
+    for (line) |char| {
+        switch (char) {
+            '{' => line_brace_count += 1,
+            '}' => line_brace_count -= 1,
+            '(' => line_paren_count += 1,
+            ')' => line_paren_count -= 1,
+            else => {},
+        }
+    }
+    
+    // Check if we're starting a multi-line expression
+    if (!state.in_multi_line_expression) {
+        // Check for Svelte 5 runes with function bodies that likely span multiple lines
+        if (std.mem.indexOf(u8, line, "$derived.by(") != null and line_brace_count > 0) {
+            state.in_multi_line_expression = true;
+            state.expression_type = .derived_by;
+            state.brace_depth = @intCast(line_brace_count);
+            state.paren_depth = @intCast(line_paren_count);
+        } else if (std.mem.indexOf(u8, line, "$effect(") != null and line_brace_count > 0) {
+            state.in_multi_line_expression = true;
+            state.expression_type = .effect;
+            state.brace_depth = @intCast(line_brace_count);
+            state.paren_depth = @intCast(line_paren_count);
+        }
+    } else {
+        // Update bracket depth based on current line
+        state.brace_depth = @intCast(@max(0, @as(i32, @intCast(state.brace_depth)) + line_brace_count));
+        state.paren_depth = @intCast(@max(0, @as(i32, @intCast(state.paren_depth)) + line_paren_count));
+        
+        // Check if expression is complete (all brackets closed)
+        if (state.brace_depth == 0 and state.paren_depth == 0) {
+            // For $derived.by and $effect, expression ends when brackets are balanced
+            if (state.expression_type == .derived_by or state.expression_type == .effect) {
+                state.in_multi_line_expression = false;
+                state.expression_type = .none;
+            }
+        }
+    }
 }
 
 /// Check if line is a section boundary

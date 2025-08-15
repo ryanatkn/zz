@@ -1,7 +1,7 @@
 // TypeScript Application Example
-// @ts-expect-error
+// @ts-nocheck
+
 import { Database } from './database.ts';
-// @ts-expect-error
 import { Logger } from './logger.ts';
 
 interface User {

@@ -1,8 +1,8 @@
 <script lang="ts">
   // Svelte Component with TypeScript
+  // @ts-nocheck
   import { onMount, createEventDispatcher } from 'svelte';
   import { fade, slide } from 'svelte/transition';
-  // @ts-expect-error
   import type { User } from './types.ts';
   
   // Component Props

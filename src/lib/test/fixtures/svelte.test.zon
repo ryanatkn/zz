@@ -312,34 +312,52 @@
                 .{
                     .flags = .{ .signatures = true },
                     .expected =
-                    \\<script>
                     \\let count = $state(0);
                     \\let name = $state('world');
                     \\let items = $state([]);
                     \\const doubled = $derived(count * 2);
                     \\const greeting = $derived(`Hello ${name}!`);
                     \\const summary = $derived.by(() => {
+                    \\let total = 0;
+                    \\for (const item of items) {
+                    \\total += item.value;
+                    \\}
+                    \\return `Total: ${total}`;
                     \\$effect(() => {
+                    \\console.log('Count changed:', count);
                     \\$effect(() => {
+                    \\document.title = `Count: ${count}`;
+                    \\return () => {
+                    \\console.log('Cleanup');
+                    \\};
                     \\let { theme = 'light', size = 'medium' } = $props();
                     \\let { value = $bindable('') } = $props();
                     \\function increment()
-                    \\</script>
                     ,
                 },
                 .{
                     .flags = .{ .types = true },
                     .expected =
-                    \\<script>
-                    \\let count = $state(0);
-                    \\let name = $state('world');
-                    \\let items = $state([]);
-                    \\const doubled = $derived(count * 2);
-                    \\const greeting = $derived(`Hello ${name}!`);
-                    \\const summary = $derived.by(() => {
-                    \\let { theme = 'light', size = 'medium' } = $props();
-                    \\let { value = $bindable('') } = $props();
-                    \\</script>
+                    \\    let count = $state(0);
+                    \\    let name = $state('world');
+                    \\    let items = $state([]);
+                    \\    const doubled = $derived(count * 2);
+                    \\    const greeting = $derived(`Hello ${name}!`);
+                    \\    const summary = $derived.by(() => {
+                    \\        let total = 0;
+                    \\        for (const item of items) {
+                    \\            total += item.value;
+                    \\        }
+                    \\        return `Total: ${total}`;
+                    \\    $effect(() => {
+                    \\        console.log('Count changed:', count);
+                    \\    $effect(() => {
+                    \\        document.title = `Count: ${count}`;
+                    \\        return () => {
+                    \\            console.log('Cleanup');
+                    \\        };
+                    \\    let { theme = 'light', size = 'medium' } = $props();
+                    \\    let { value = $bindable('') } = $props();
                     ,
                 },
             },
@@ -508,11 +526,10 @@
                 .{
                     .flags = .{ .signatures = true },
                     .expected =
-                    \\<script>
                     \\let count = $state(0);
                     \\async function fetchData(id)
+                    \\const response = await fetch(`/api/data/${id}`);
                     \\const data = $derived(await fetchData(count));
-                    \\</script>
                     ,
                 },
             },

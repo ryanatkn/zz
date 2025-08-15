@@ -1,7 +1,8 @@
 // Svelte 5 Reactive Component with TypeScript
 // Using runes for reactive state management
 
-// @ts-expect-error
+// @ts-nocheck
+
 import { type Snippet } from 'svelte';
 
 declare const $state: any;
@@ -130,9 +131,9 @@ export const globalTodoStore = $state({
 
 // Composable for todo logic
 export function useTodos() {
-    const todos = $state<TodoItem[]>([]);
+    const todos: TodoItem[] = $state([]);
     const loading = $state(false);
-    const error = $state<string | null>(null);
+    const error: string | null = $state(null);
     
     async function loadTodos() {
         loading = true;
@@ -149,9 +150,9 @@ export function useTodos() {
     }
     
     return {
-        todos: $derived(() => todos),
-        loading: $derived(() => loading),
-        error: $derived(() => error),
+        todos: $derived(todos),
+        loading: $derived(loading),
+        error: $derived(error),
         loadTodos
     };
 }
@@ -160,12 +161,12 @@ export function useTodos() {
 export class ReactiveCounter {
     // Private reactive state
     #count = $state(0);
-    #history = $state<number[]>([]);
+    #history: number[] = $state([]);
     
     // Public getters using $derived
-    count = $derived(() => this.#count);
-    doubleCount = $derived(() => this.#count * 2);
-    average = $derived(() => {
+    count = $derived(this.#count);
+    doubleCount = $derived(this.#count * 2);
+    average = $derived.by(() => { 
         if (this.#history.length === 0) return 0;
         return this.#history.reduce((a, b) => a + b, 0) / this.#history.length;
     });
@@ -197,9 +198,9 @@ export interface TodoEvents {
 
 // Async reactive state
 export class AsyncDataLoader<T> {
-    data = $state<T | null>(null);
+    data: T | null = $state(null);
     loading = $state(false);
-    error = $state<Error | null>(null);
+    error: Error | null = $state(null);
     
     constructor(private fetcher: () => Promise<T>) {
         this.load();

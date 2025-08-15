@@ -1,5 +1,7 @@
 # zz - CLI Utilities
 
+NOTE TO LLMs: see ./WORKFLOW.md for dev sessions
+
 Fast command-line utilities written in Zig for POSIX systems. Currently features high-performance filesystem tree visualization and LLM prompt generation.
 
 Performance is a top priority, and we dont care about backwards compat -
@@ -792,3 +794,5 @@ When selecting tasks:
 - Remember: Performance is a feature, every cycle counts.
 - Leave `// TODO terse explanation` when you encounter unknowns and work that cannot be completed in the current pass
 - Less is more - avoid over-engineering, and when in doubt, ask me or choose the simple option
+
+NOTE TO LLMs: see ./WORKFLOW.md for dev sessions

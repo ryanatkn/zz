@@ -70,17 +70,21 @@ pub const AstFormatter = struct {
         }
 
         // Try AST-based formatting first
-        const tree = self.parser.parse(source) catch {
+        std.debug.print("AstFormatter: Attempting to parse {d} bytes for language {s}\n", .{ source.len, @tagName(self.language) });
+        const tree = self.parser.parse(source) catch |err| {
             // On parse failure, return original source
+            std.debug.print("AstFormatter: Parse failed with error: {s}\n", .{@errorName(err)});
             return self.allocator.dupe(u8, source);
         };
         defer tree.destroy();
 
         const root = tree.rootNode();
+        std.debug.print("AstFormatter: Parse successful, root node type: {s}\n", .{root.kind()});
         
         // Check if the parse resulted in ERROR nodes (malformed/partial parse)
         if (self.hasErrorNodes(root)) {
             // Return original source for malformed code
+            std.debug.print("AstFormatter: Has error nodes, returning original source\n", .{});
             return self.allocator.dupe(u8, source);
         }
 

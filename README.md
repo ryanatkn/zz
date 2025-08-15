@@ -2,7 +2,7 @@
 
 > ⚠️ AI slop code and docs, may be unstable and bad
 
-zz is a CLI in Zig.
+zz is a CLI in Zig written by Claude Code and designed by people.
 For the companion GUI see [Zzz](https://github.com/ryanatkn/zzz)
 and [ztack.net](https://www.ztack.net/) for a web+ stack.
 

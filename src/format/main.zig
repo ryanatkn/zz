@@ -50,6 +50,7 @@ fn configToFormatterOptions(config: FormatConfigOptions) FormatterOptions {
 }
 
 pub fn run(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: [][:0]const u8) !void {
+    std.debug.print("format/main.zig: run() called with {d} args\n", .{args.len});
     // Load configuration from zz.zon
     var zon_loader = ZonLoader.init(allocator, filesystem);
     defer zon_loader.deinit();

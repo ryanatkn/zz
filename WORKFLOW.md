@@ -1,0 +1,6 @@
+- assess TODO_DOC.md
+- do the thing
+  - submit optional elicitations as you gather context
+  - use the CLI `zz prompt` for language-aware information extraction
+- update TODO_DOC.md
+- commit with message

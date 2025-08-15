@@ -154,11 +154,21 @@ fn formatSingleParameter(param: []const u8, builder: *LineBuilder) !void {
 
 /// Format return type with proper spacing around union types
 fn formatReturnType(return_text: []const u8, builder: *LineBuilder) !void {
-    // Add spaces around | in union types and format the return type
+    // Add spaces around colons and | in union types
     var i: usize = 0;
     while (i < return_text.len) : (i += 1) {
         const char = return_text[i];
-        if (char == '|') {
+        if (char == ':') {
+            // Add space before colon if not present
+            if (i > 0 and return_text[i-1] != ' ') {
+                try builder.append(" ");
+            }
+            try builder.append(&[_]u8{char});
+            // Add space after colon if not present
+            if (i + 1 < return_text.len and return_text[i + 1] != ' ') {
+                try builder.append(" ");
+            }
+        } else if (char == '|') {
             // Add space before | if not present
             if (i > 0 and return_text[i-1] != ' ') {
                 try builder.append(" ");
@@ -488,7 +498,10 @@ fn formatClassBody(body_node: ts.Node, source: []const u8, builder: *LineBuilder
                 std.mem.eql(u8, child_type, "method_signature") or
                 std.mem.eql(u8, child_type, "method_definition") or
                 std.mem.eql(u8, child_type, "field_definition") or
-                std.mem.eql(u8, child_type, "public_field_definition"))
+                std.mem.eql(u8, child_type, "public_field_definition") or
+                std.mem.eql(u8, child_type, "async_method") or
+                std.mem.eql(u8, child_type, "function_declaration") or
+                std.mem.eql(u8, child_type, "async_function"))
             {
                 try formatClassMember(child, source, builder, depth, options);
             }
@@ -516,7 +529,10 @@ fn formatClassMember(member_node: ts.Node, source: []const u8, builder: *LineBui
             try builder.newline();
         }
     } else if (std.mem.eql(u8, member_type, "method_signature") or
-               std.mem.eql(u8, member_type, "method_definition"))
+               std.mem.eql(u8, member_type, "method_definition") or
+               std.mem.eql(u8, member_type, "async_method") or
+               std.mem.eql(u8, member_type, "function_declaration") or
+               std.mem.eql(u8, member_type, "async_function"))
     {
         // Format method 
         try builder.appendIndent();
@@ -532,7 +548,7 @@ fn formatClassMember(member_node: ts.Node, source: []const u8, builder: *LineBui
     _ = depth;
 }
 
-/// Format property with proper spacing around colons and equals
+/// Format property with proper spacing around colons, equals, and commas
 fn formatPropertyWithSpacing(property_text: []const u8, builder: *LineBuilder) !void {
     var i: usize = 0;
     while (i < property_text.len) : (i += 1) {
@@ -553,6 +569,12 @@ fn formatPropertyWithSpacing(property_text: []const u8, builder: *LineBuilder) !
             if (i + 1 < property_text.len and property_text[i + 1] != ' ') {
                 try builder.append(" ");
             }
+        } else if (char == ',') {
+            try builder.append(&[_]u8{char});
+            // Add space after comma if not present
+            if (i + 1 < property_text.len and property_text[i + 1] != ' ') {
+                try builder.append(" ");
+            }
         } else {
             try builder.append(&[_]u8{char});
         }
@@ -561,15 +583,20 @@ fn formatPropertyWithSpacing(property_text: []const u8, builder: *LineBuilder) !
 
 /// Format method with proper parameter and return type formatting
 fn formatMethodWithSpacing(method_text: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
-    // Check if method fits on one line
+    // Check if method fits on one line (be more aggressive about multi-line)
     const estimated_length = method_text.len;
     
-    if (estimated_length <= options.line_width) {
-        // Single line with proper spacing
-        try formatSingleLineMethod(method_text, builder);
-    } else {
+    // Force multi-line if method is complex (has type parameters or multiple params)
+    const has_generics = std.mem.indexOf(u8, method_text, "<") != null;
+    const has_multiple_params = std.mem.count(u8, method_text, ",") > 0;
+    const should_multiline = estimated_length > options.line_width or has_generics or has_multiple_params;
+    
+    if (should_multiline) {
         // Multi-line format
         try formatMultiLineMethod(method_text, builder, options);
+    } else {
+        // Single line with proper spacing
+        try formatSingleLineMethod(method_text, builder);
     }
 }
 
@@ -595,30 +622,38 @@ fn formatSingleLineMethod(method_text: []const u8, builder: *LineBuilder) !void 
 
 /// Format method across multiple lines
 fn formatMultiLineMethod(method_text: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
-    // For now, parse the method manually to format parameters properly
+    // Parse method to separate signature from body
     var paren_pos: ?usize = null;
     var colon_pos: ?usize = null;
+    var brace_pos: ?usize = null;
     
-    // Find parameter start and return type
+    // Find parameter start, return type, and function body
     var paren_depth: u32 = 0;
     for (method_text, 0..) |char, i| {
         if (char == '(' and paren_pos == null) {
             paren_pos = i;
             paren_depth = 1;
-        } else if (paren_pos != null) {
+        } else if (paren_pos != null and paren_depth > 0) {
             if (char == '(') {
                 paren_depth += 1;
             } else if (char == ')') {
                 paren_depth -= 1;
                 if (paren_depth == 0) {
                     // Look for colon after closing paren
-                    if (i + 1 < method_text.len and method_text[i + 1] == ':') {
-                        colon_pos = i + 1;
-                        break;
+                    var j = i + 1;
+                    while (j < method_text.len and method_text[j] == ' ') : (j += 1) {}
+                    if (j < method_text.len and method_text[j] == ':') {
+                        colon_pos = j;
                     }
+                    break;
                 }
             }
         }
+    }
+    
+    // Find function body start
+    if (std.mem.indexOf(u8, method_text, "{")) |brace_start| {
+        brace_pos = brace_start;
     }
     
     if (paren_pos) |paren_start| {
@@ -626,18 +661,39 @@ fn formatMultiLineMethod(method_text: []const u8, builder: *LineBuilder, options
         const method_prefix = method_text[0..paren_start];
         try builder.append(method_prefix);
         
-        // Format parameters
+        // Format parameters and return type
         if (colon_pos) |colon_start| {
-            const params_text = method_text[paren_start..colon_start];
-            try formatMethodParameters(params_text, builder, options);
-            
-            // Return type
-            const return_text = method_text[colon_start..];
-            try formatMethodReturn(return_text, builder);
+            if (brace_pos) |brace_start| {
+                // Has both return type and body
+                const params_text = method_text[paren_start..colon_start];
+                const return_text = method_text[colon_start..brace_start];
+                const body_text = method_text[brace_start..];
+                
+                try formatMethodParameters(params_text, builder, options);
+                try formatMethodReturn(return_text, builder);
+                try formatMethodBody(body_text, builder);
+            } else {
+                // Return type but no body
+                const params_text = method_text[paren_start..colon_start];
+                const return_text = method_text[colon_start..];
+                
+                try formatMethodParameters(params_text, builder, options);
+                try formatMethodReturn(return_text, builder);
+            }
         } else {
-            // No return type, just parameters
-            const params_text = method_text[paren_start..];
-            try formatMethodParameters(params_text, builder, options);
+            // No return type
+            if (brace_pos) |brace_start| {
+                // Parameters and body
+                const params_text = method_text[paren_start..brace_start];
+                const body_text = method_text[brace_start..];
+                
+                try formatMethodParameters(params_text, builder, options);
+                try formatMethodBody(body_text, builder);
+            } else {
+                // Just parameters
+                const params_text = method_text[paren_start..];
+                try formatMethodParameters(params_text, builder, options);
+            }
         }
     } else {
         // Fallback: just append with spacing
@@ -703,6 +759,63 @@ fn formatMethodParameters(params_text: []const u8, builder: *LineBuilder, option
 /// Format method return type
 fn formatMethodReturn(return_text: []const u8, builder: *LineBuilder) !void {
     try formatReturnType(return_text, builder);
+}
+
+/// Format method body with proper indentation
+fn formatMethodBody(body_text: []const u8, builder: *LineBuilder) !void {
+    if (std.mem.startsWith(u8, body_text, "{") and std.mem.endsWith(u8, body_text, "}")) {
+        try builder.append(" {");
+        try builder.newline();
+        
+        // Extract and format body content
+        const inner_body = std.mem.trim(u8, body_text[1..body_text.len-1], " \t\r\n");
+        if (inner_body.len > 0) {
+            builder.indent();
+            try builder.appendIndent();
+            
+            // Format the body content with proper spacing
+            try formatJavaScriptStatement(inner_body, builder);
+            
+            try builder.newline();
+            builder.dedent();
+        }
+        
+        try builder.appendIndent();
+        try builder.append("}");
+    } else {
+        // Fallback: append as-is
+        try builder.append(body_text);
+    }
+}
+
+/// Format JavaScript statement with proper spacing
+fn formatJavaScriptStatement(statement: []const u8, builder: *LineBuilder) !void {
+    // Simple approach: clean up the statement and format properly
+    var cleaned_statement = std.ArrayList(u8).init(builder.allocator);
+    defer cleaned_statement.deinit();
+    
+    // First pass: normalize spacing around keywords and operators
+    var i: usize = 0;
+    while (i < statement.len) : (i += 1) {
+        if (statement.len > i + 5 and std.mem.eql(u8, statement[i..i+6], "return")) {
+            try cleaned_statement.appendSlice("return ");
+            i += 5; // Skip "return"
+            
+            // Skip any existing spaces
+            while (i + 1 < statement.len and statement[i + 1] == ' ') : (i += 1) {}
+        } else if (statement[i] == ';') {
+            // Skip semicolons for now, we'll add one at the end
+            continue;
+        } else {
+            try cleaned_statement.append(statement[i]);
+        }
+    }
+    
+    // Append the cleaned statement and ensure it ends with a semicolon
+    try builder.append(cleaned_statement.items);
+    if (cleaned_statement.items.len > 0 and cleaned_statement.items[cleaned_statement.items.len - 1] != ';') {
+        try builder.append(";");
+    }
 }
 
 /// Check if this is the last member in the class

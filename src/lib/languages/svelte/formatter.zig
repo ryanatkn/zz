@@ -176,7 +176,12 @@ fn formatJavaScriptContent(js_content: []const u8, builder: *LineBuilder, option
     for (statements.items, 0..) |statement, i| {
         try builder.append("    "); // 4-space indent
         try formatJavaScriptStatement(statement, builder, options);
-        try builder.append(";");
+        
+        // Only add semicolon for non-function statements
+        if (std.mem.indexOf(u8, statement, "function ") == null) {
+            try builder.append(";");
+        }
+        
         try builder.newline();
         
         // Add blank line between statements for readability
@@ -229,9 +234,72 @@ fn formatSvelteElement(node: ts.Node, source: []const u8, builder: *LineBuilder,
 
 /// Format a single JavaScript statement with proper spacing
 fn formatJavaScriptStatement(statement: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
+    // Check if this is a function declaration
+    if (std.mem.indexOf(u8, statement, "function ") != null) {
+        try formatJavaScriptFunction(statement, builder, options);
+    } else {
+        // Regular statement formatting
+        try formatJavaScriptBasic(statement, builder, options);
+    }
+}
+
+/// Format JavaScript function with proper body expansion
+fn formatJavaScriptFunction(statement: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
+    
+    // Find function parts: signature and body
+    if (std.mem.indexOf(u8, statement, "{")) |brace_pos| {
+        // Has function body
+        const signature = std.mem.trim(u8, statement[0..brace_pos], " \t");
+        const body_with_braces = std.mem.trim(u8, statement[brace_pos..], " \t");
+        
+        // Format signature with proper spacing
+        try formatFunctionSignature(signature, builder);
+        try builder.append(" {");
+        try builder.newline();
+        
+        // Format function body
+        if (std.mem.startsWith(u8, body_with_braces, "{") and std.mem.endsWith(u8, body_with_braces, "}")) {
+            const body_content = std.mem.trim(u8, body_with_braces[1..body_with_braces.len-1], " \t\n\r");
+            if (body_content.len > 0) {
+                builder.indent();
+                try builder.appendIndent();
+                try formatJavaScriptBasic(body_content, builder, options);
+                try builder.newline();
+                builder.dedent();
+            }
+        }
+        
+        try builder.appendIndent();
+        try builder.append("}");
+    } else {
+        // No body, just format as basic statement
+        try formatJavaScriptBasic(statement, builder, options);
+    }
+}
+
+/// Format function signature with proper spacing around parentheses
+fn formatFunctionSignature(signature: []const u8, builder: *LineBuilder) !void {
+    var i: usize = 0;
+    while (i < signature.len) : (i += 1) {
+        const char = signature[i];
+        
+        if (char == '(') {
+            try builder.append("()");
+            // Skip to end of parameters
+            while (i < signature.len and signature[i] != ')') : (i += 1) {}
+        } else if (char == ')') {
+            // Skip - already handled by (
+            continue;
+        } else {
+            try builder.append(&[_]u8{char});
+        }
+    }
+}
+
+/// Format basic JavaScript statement with operator spacing
+fn formatJavaScriptBasic(statement: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
     _ = options;
     
-    // Basic JavaScript formatting - add spaces around key operators
     var i: usize = 0;
     var string_char: ?u8 = null;
     

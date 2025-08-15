@@ -18,6 +18,7 @@ pub fn format(allocator: std.mem.Allocator, source: []const u8, options: Formatt
 /// Format Zig using AST-based approach
 pub fn formatAst(allocator: std.mem.Allocator, node: ts.Node, source: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
     _ = allocator;
+    std.debug.print("formatAst called with source length: {}\n", .{source.len});
     try formatZigNode(node, source, builder, 0, options);
 }
 
@@ -26,30 +27,41 @@ fn formatZigNode(node: ts.Node, source: []const u8, builder: *LineBuilder, depth
     const node_type = node.kind();
     const node_text = getNodeText(node, source);
 
+    std.debug.print("formatZigNode: type='{s}', text_preview='{s}'\n", .{ node_type, if (node_text.len > 50) node_text[0..50] else node_text });
 
     // Use same logic as the visitor to identify node types
     if (std.mem.eql(u8, node_type, "VarDecl")) {
         // Check what kind of VarDecl this is
+        std.debug.print("VarDecl node: type='{s}', text='{s}'\n", .{ node_type, node_text });
         if (isFunctionDecl(node_text)) {
+            std.debug.print("  -> function\n", .{});
             try formatZigFunction(node, source, builder, depth, options);
         } else if (isTypeDecl(node_text)) {
+            std.debug.print("  -> struct/type\n", .{});
             try formatZigStruct(node, source, builder, depth, options);
         } else if (isImportDecl(node_text)) {
+            std.debug.print("  -> import\n", .{});
             try formatZigImport(node, source, builder, depth, options);
         } else {
+            std.debug.print("  -> variable\n", .{});
             try formatZigVariable(node, source, builder, depth, options);
         }
     } else if (std.mem.eql(u8, node_type, "TestDecl")) {
         try formatZigTest(node, source, builder, depth, options);
     } else if (std.mem.eql(u8, node_type, "Decl")) {
         // Handle Decl nodes (similar to VarDecl but different tree-sitter node type)
+        std.debug.print("Decl node: type='{s}', text='{s}'\n", .{ node_type, node_text });
         if (isFunctionDecl(node_text)) {
+            std.debug.print("  -> function\n", .{});
             try formatZigFunction(node, source, builder, depth, options);
         } else if (isTypeDecl(node_text)) {
+            std.debug.print("  -> struct/type\n", .{});
             try formatZigStruct(node, source, builder, depth, options);
         } else if (isImportDecl(node_text)) {
+            std.debug.print("  -> import\n", .{});
             try formatZigImport(node, source, builder, depth, options);
         } else {
+            std.debug.print("  -> variable\n", .{});
             try formatZigVariable(node, source, builder, depth, options);
         }
     } else if (std.mem.eql(u8, node_type, "source_file")) {
@@ -123,6 +135,80 @@ fn isTypeDecl(text: []const u8) bool {
 /// Check if this VarDecl represents an import
 fn isImportDecl(text: []const u8) bool {
     return std.mem.indexOf(u8, text, "@import") != null;
+}
+
+/// Extract struct name from declaration text like "const Point = struct"
+fn extractStructName(text: []const u8) ?[]const u8 {
+    const trimmed = std.mem.trim(u8, text, " \t\n\r");
+    
+    // Handle both "const Name = struct" and "pub const Name = struct"
+    var start_pos: usize = 0;
+    if (std.mem.startsWith(u8, trimmed, "pub const ")) {
+        start_pos = 10; // length of "pub const "
+    } else if (std.mem.startsWith(u8, trimmed, "const ")) {
+        start_pos = 6; // length of "const "
+    } else {
+        return null;
+    }
+    
+    // Find the end of the name (before " = struct")
+    if (std.mem.indexOfPos(u8, trimmed, start_pos, " =")) |equals_pos| {
+        const name = std.mem.trim(u8, trimmed[start_pos..equals_pos], " \t");
+        if (name.len > 0) {
+            return name;
+        }
+    }
+    
+    return null;
+}
+
+/// Format struct declaration with proper spacing
+fn formatStructDeclaration(struct_text: []const u8, builder: *LineBuilder) !void {
+    const trimmed = std.mem.trim(u8, struct_text, " \t\n\r");
+    
+    // Find "=struct" to separate declaration from body
+    if (std.mem.indexOf(u8, trimmed, "=struct")) |struct_pos| {
+        const declaration = std.mem.trim(u8, trimmed[0..struct_pos], " \t");
+        // Add proper spacing around keywords and identifiers
+        try formatZigDeclaration(declaration, builder);
+    } else {
+        // DEBUG: This shouldn't happen for structs - fallback
+        std.debug.print("formatStructDeclaration fallback: text='{s}'\n", .{trimmed});
+        try builder.append(trimmed);
+    }
+}
+
+/// Format Zig declaration with spacing around keywords
+fn formatZigDeclaration(declaration: []const u8, builder: *LineBuilder) !void {
+    var i: usize = 0;
+    while (i < declaration.len) : (i += 1) {
+        const char = declaration[i];
+        
+        // Handle "pub const" or "const"
+        if (declaration.len > i + 2 and std.mem.eql(u8, declaration[i..i+3], "pub")) {
+            try builder.append("pub ");
+            i += 2; // Will be incremented by loop
+            // Skip any following whitespace
+            while (i + 1 < declaration.len and (declaration[i + 1] == ' ' or declaration[i + 1] == '\t')) {
+                i += 1;
+            }
+        } else if (declaration.len > i + 4 and std.mem.eql(u8, declaration[i..i+5], "const")) {
+            try builder.append("const ");
+            i += 4; // Will be incremented by loop
+            // Skip any following whitespace
+            while (i + 1 < declaration.len and (declaration[i + 1] == ' ' or declaration[i + 1] == '\t')) {
+                i += 1;
+            }
+        } else if (char != ' ' and char != '\t') {
+            // Regular character, append as-is
+            try builder.append(&[_]u8{char});
+        } else if (char == ' ') {
+            // Preserve single spaces, skip multiple
+            if (i == 0 or declaration[i-1] != ' ') {
+                try builder.append(" ");
+            }
+        }
+    }
 }
 
 /// Check if node represents a top-level declaration that needs spacing
@@ -341,18 +427,10 @@ fn formatWithBasicSpacing(text: []const u8, builder: *LineBuilder) !void {
 fn formatZigStruct(node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) std.mem.Allocator.Error!void {
     try builder.appendIndent();
 
-    // Check if it's public
-    if (node.childByFieldName("pub")) |_| {
-        try builder.append("pub ");
-    }
-
-    try builder.append("const ");
-
-    // Struct name
-    if (node.childByFieldName("name")) |name_node| {
-        const name_text = getNodeText(name_node, source);
-        try builder.append(name_text);
-    }
+    // Parse and format the complete struct declaration
+    const struct_text = getNodeText(node, source);
+    std.debug.print("formatZigStruct: struct_text='{s}'\n", .{struct_text});
+    try formatStructDeclaration(struct_text, builder);
 
     try builder.append(" = struct {");
     try builder.newline();
@@ -360,13 +438,32 @@ fn formatZigStruct(node: ts.Node, source: []const u8, builder: *LineBuilder, dep
     // Struct body
     builder.indent();
     const child_count = node.childCount();
+    std.debug.print("formatZigStruct: child_count={d}\n", .{child_count});
     var i: u32 = 0;
     while (i < child_count) : (i += 1) {
         if (node.child(i)) |child| {
             const child_type = child.kind();
+            const child_text = getNodeText(child, source);
+            std.debug.print("  child[{d}]: type='{s}', text_preview='{s}'\n", .{ i, child_type, if (child_text.len > 50) child_text[0..50] else child_text });
+            
+            // If this child is a VarDecl, look at its children
+            if (std.mem.eql(u8, child_type, "VarDecl")) {
+                const vardecl_child_count = child.childCount();
+                std.debug.print("    VarDecl has {d} children:\n", .{vardecl_child_count});
+                var j: u32 = 0;
+                while (j < vardecl_child_count) : (j += 1) {
+                    if (child.child(j)) |grandchild| {
+                        const grandchild_type = grandchild.kind();
+                        const grandchild_text = getNodeText(grandchild, source);
+                        std.debug.print("      grandchild[{d}]: type='{s}', text='{s}'\n", .{ j, grandchild_type, if (grandchild_text.len > 30) grandchild_text[0..30] else grandchild_text });
+                    }
+                }
+            }
+            
             if (std.mem.eql(u8, child_type, "field_declaration") or
                 std.mem.eql(u8, child_type, "function_declaration"))
             {
+                std.debug.print("    -> formatting as struct member\n", .{});
                 try formatZigNode(child, source, builder, depth + 1, options);
             }
         }

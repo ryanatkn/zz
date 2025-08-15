@@ -2,6 +2,10 @@
 
 > ⚠️ AI slop code and docs
 
+zz is a CLI in Zig.
+For the companion GUI see [Zzz](https://github.com/ryanatkn/zzz)
+and [ztack.net](https://www.ztack.net/) for a web+ stack.
+
 Fast command-line utilities in Zig for POSIX systems. LLM prompt generation with AST-based code extraction, directory trees, and performance benchmarking. **100% terminal-based**.
 
 **Platforms:** Linux, macOS, BSD, POSIX. No Windows.

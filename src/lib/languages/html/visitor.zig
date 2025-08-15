@@ -32,6 +32,13 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
             try context.appendNode(node);
         }
     }
+
+    if (context.flags.full) {
+        // For full extraction, only append the root document node to avoid duplication
+        if (std.mem.eql(u8, node.kind, "document")) {
+            try context.result.appendSlice(node.text);
+        }
+    }
 }
 
 /// Check if node represents HTML structure

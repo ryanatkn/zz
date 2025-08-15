@@ -12,14 +12,12 @@ const LanguageRegistry = registry_mod.LanguageRegistry;
 pub const Extractor = struct {
     allocator: std.mem.Allocator,
     registry: *LanguageRegistry,
-    prefer_ast: bool,
 
     /// Initialize extractor with language registry
     pub fn init(allocator: std.mem.Allocator) Extractor {
         return Extractor{
             .allocator = allocator,
             .registry = registry_mod.getGlobalRegistry(allocator),
-            .prefer_ast = true, // Enable AST extraction for debugging
         };
     }
 
@@ -28,14 +26,9 @@ pub const Extractor = struct {
         return Extractor{
             .allocator = allocator,
             .registry = registry,
-            .prefer_ast = false, // Default to pattern-based extraction for now
         };
     }
 
-    /// Set extraction preference (AST vs pattern-based)
-    pub fn setPreferAST(self: *Extractor, prefer_ast: bool) void {
-        self.prefer_ast = prefer_ast;
-    }
 
     /// Clean up extractor resources
     pub fn deinit(self: *Extractor) void {
@@ -56,45 +49,19 @@ pub const Extractor = struct {
             return self.extractUnsupportedLanguage(source, extraction_flags);
         }
 
-        // Use appropriate extraction method
-        if (self.prefer_ast) {
-            // Debug: Log AST extraction attempt
-            std.log.debug("Attempting AST extraction for language: {s}", .{@tagName(language)});
-
-            return self.extractWithAST(language, source, extraction_flags) catch |err| switch (err) {
-                // Fall back to pattern-based extraction on AST errors
-                error.ParseFailed, error.UnsupportedLanguage, error.GrammarLoadFailed => {
-                    std.log.debug("AST extraction failed with {s}, falling back to patterns", .{@errorName(err)});
-                    return self.extractWithPatterns(language, source, extraction_flags);
-                },
-                else => err,
-            };
-        } else {
-            return self.extractWithPatterns(language, source, extraction_flags);
-        }
-    }
-
-    /// Extract using tree-sitter AST
-    fn extractWithAST(self: *const Extractor, language: Language, source: []const u8, extraction_flags: ExtractionFlags) ![]const u8 {
-        std.log.debug("AST extraction: source length={d}, flags={any}", .{ source.len, extraction_flags });
-
+        // Use AST extraction only
+        std.log.debug("Attempting AST extraction for language: {s}", .{@tagName(language)});
+        
         var result = std.ArrayList(u8).init(self.allocator);
         defer result.deinit();
-
-        try self.registry.extractWithAST(self.allocator, language, source, extraction_flags, &result);
-
+        
+        try self.registry.extract(self.allocator, language, source, extraction_flags, &result);
+        
         std.log.debug("AST extraction succeeded: result length={d}", .{result.items.len});
         return result.toOwnedSlice();
     }
 
-    /// Extract using pattern-based methods
-    fn extractWithPatterns(self: *const Extractor, language: Language, source: []const u8, extraction_flags: ExtractionFlags) ![]const u8 {
-        var result = std.ArrayList(u8).init(self.allocator);
-        defer result.deinit();
 
-        try self.registry.extract(self.allocator, language, source, extraction_flags, &result);
-        return result.toOwnedSlice();
-    }
 
     /// Handle unsupported languages with basic extraction
     fn extractUnsupportedLanguage(self: *const Extractor, source: []const u8, extraction_flags: ExtractionFlags) ![]const u8 {
@@ -153,23 +120,17 @@ pub fn createExtractor(allocator: std.mem.Allocator) Extractor {
 pub fn createTestExtractor(allocator: std.mem.Allocator) !Extractor {
     const registry = try allocator.create(registry_mod.LanguageRegistry);
     registry.* = registry_mod.LanguageRegistry.init(allocator);
-    var extractor = Extractor.initWithRegistry(allocator, registry);
-    extractor.prefer_ast = false; // Test extractor should use pattern-based for compatibility
-    return extractor;
+    return Extractor.initWithRegistry(allocator, registry);
 }
 
 /// Create an AST-first extractor (same as default)
 pub fn createASTExtractor(allocator: std.mem.Allocator) Extractor {
-    var extractor = Extractor.init(allocator);
-    extractor.prefer_ast = true;
-    return extractor;
+    return Extractor.init(allocator);
 }
 
-/// Create a pattern-only extractor (for fallback scenarios)
+/// Create an extractor (AST-only)
 pub fn createPatternExtractor(allocator: std.mem.Allocator) Extractor {
-    var extractor = Extractor.init(allocator);
-    extractor.prefer_ast = false;
-    return extractor;
+    return Extractor.init(allocator);
 }
 
 /// Extract from file path (convenience function)
@@ -262,26 +223,12 @@ test "Extractor unsupported language handling" {
 test "Pattern vs AST extraction preferences" {
     const allocator = std.testing.allocator;
 
-    // Test pattern-first extractor (test default)
-    var pattern_extractor = try createTestExtractor(allocator);
+    // Test AST-only extractor
+    var test_extractor = try createTestExtractor(allocator);
     defer {
-        pattern_extractor.registry.deinit();
-        allocator.destroy(pattern_extractor.registry);
+        test_extractor.registry.deinit();
+        allocator.destroy(test_extractor.registry);
     }
-    try std.testing.expect(pattern_extractor.prefer_ast == false);
-
-    // Test AST-enabled extractor
-    var ast_registry = try allocator.create(registry_mod.LanguageRegistry);
-    ast_registry.* = registry_mod.LanguageRegistry.init(allocator);
-    defer {
-        ast_registry.deinit();
-        allocator.destroy(ast_registry);
-    }
-    var ast_extractor = Extractor.initWithRegistry(allocator, ast_registry);
-    ast_extractor.prefer_ast = true;
-    try std.testing.expect(ast_extractor.prefer_ast == true);
-
-    // Test preference changes
-    pattern_extractor.setPreferAST(true);
-    try std.testing.expect(pattern_extractor.prefer_ast == true);
+    
+    // Test basic functionality works (no specific tests needed for removed prefer_ast)
 }

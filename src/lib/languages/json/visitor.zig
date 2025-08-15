@@ -4,6 +4,7 @@ const ExtractionContext = @import("../../tree_sitter/visitor.zig").ExtractionCon
 
 /// AST-based extraction visitor for JSON
 pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
+    
     // Extract based on node type and flags
     if (context.flags.structure or context.flags.types) {
         // Extract JSON structure (objects, arrays, pairs)
@@ -27,8 +28,10 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
     }
 
     if (context.flags.full) {
-        // Extract everything
-        try context.appendNode(node);
+        // For full extraction, only append the root document node to avoid duplication
+        if (std.mem.eql(u8, node.kind, "document")) {
+            try context.result.appendSlice(node.text);
+        }
     }
 }
 

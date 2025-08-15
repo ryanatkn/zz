@@ -52,6 +52,9 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
 
     // Full source
     if (context.flags.full) {
-        try context.appendNode(node);
+        // For full extraction, only append the root stylesheet node to avoid duplication
+        if (std.mem.eql(u8, node_type, "stylesheet")) {
+            try context.result.appendSlice(node.text);
+        }
     }
 }

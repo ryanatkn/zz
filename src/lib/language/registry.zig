@@ -9,37 +9,31 @@ const TreeSitterParser = @import("../tree_sitter/parser.zig").TreeSitterParser;
 
 // Language implementations - import individual modules directly
 // JSON
-const json_extractor = @import("../languages/json/extractor.zig");
 const json_formatter = @import("../languages/json/formatter.zig");
 const json_grammar = @import("../languages/json/grammar.zig");
 const json_visitor = @import("../languages/json/visitor.zig");
 
 // TypeScript
-const ts_extractor = @import("../languages/typescript/extractor.zig");
 const ts_formatter = @import("../languages/typescript/formatter.zig");
 const ts_grammar = @import("../languages/typescript/grammar.zig");
 const ts_visitor = @import("../languages/typescript/visitor.zig");
 
 // CSS
-const css_extractor = @import("../languages/css/extractor.zig");
 const css_formatter = @import("../languages/css/formatter.zig");
 const css_grammar = @import("../languages/css/grammar.zig");
 const css_visitor = @import("../languages/css/visitor.zig");
 
 // HTML
-const html_extractor = @import("../languages/html/extractor.zig");
 const html_formatter = @import("../languages/html/formatter.zig");
 const html_grammar = @import("../languages/html/grammar.zig");
 const html_visitor = @import("../languages/html/visitor.zig");
 
 // Zig
-const zig_extractor = @import("../languages/zig/extractor.zig");
 const zig_formatter = @import("../languages/zig/formatter.zig");
 const zig_grammar = @import("../languages/zig/grammar.zig");
 const zig_visitor = @import("../languages/zig/visitor.zig");
 
 // Svelte
-const svelte_extractor = @import("../languages/svelte/extractor.zig");
 const svelte_formatter = @import("../languages/svelte/formatter.zig");
 const svelte_grammar = @import("../languages/svelte/grammar.zig");
 const svelte_visitor = @import("../languages/svelte/visitor.zig");
@@ -52,8 +46,6 @@ pub const LanguageImpl = struct {
     /// Get tree-sitter grammar
     grammar: *const fn () *ts.Language,
 
-    /// Extract code using patterns or AST
-    extract: *const fn (allocator: std.mem.Allocator, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) anyerror!void,
 
     /// AST visitor function
     visitor: *const fn (context: *ExtractionContext, node: *const Node) anyerror!void,
@@ -90,7 +82,6 @@ pub const LanguageRegistry = struct {
         try self.implementations.put(Language.json, LanguageImpl{
             .name = "json",
             .grammar = json_grammar.grammar,
-            .extract = json_extractor.extract,
             .visitor = json_visitor.visitor,
             .format = json_formatter.format,
         });
@@ -99,7 +90,6 @@ pub const LanguageRegistry = struct {
         try self.implementations.put(Language.typescript, LanguageImpl{
             .name = "typescript",
             .grammar = ts_grammar.grammar,
-            .extract = ts_extractor.extract,
             .visitor = ts_visitor.visitor,
             .format = ts_formatter.format,
         });
@@ -108,7 +98,6 @@ pub const LanguageRegistry = struct {
         try self.implementations.put(Language.css, LanguageImpl{
             .name = "css",
             .grammar = css_grammar.grammar,
-            .extract = css_extractor.extract,
             .visitor = css_visitor.visitor,
             .format = css_formatter.format,
         });
@@ -117,7 +106,6 @@ pub const LanguageRegistry = struct {
         try self.implementations.put(Language.html, LanguageImpl{
             .name = "html",
             .grammar = html_grammar.grammar,
-            .extract = html_extractor.extract,
             .visitor = html_visitor.visitor,
             .format = html_formatter.format,
         });
@@ -126,7 +114,6 @@ pub const LanguageRegistry = struct {
         try self.implementations.put(Language.zig, LanguageImpl{
             .name = "zig",
             .grammar = zig_grammar.grammar,
-            .extract = zig_extractor.extract,
             .visitor = zig_visitor.visitor,
             .format = zig_formatter.format,
         });
@@ -135,7 +122,6 @@ pub const LanguageRegistry = struct {
         try self.implementations.put(Language.svelte, LanguageImpl{
             .name = "svelte",
             .grammar = svelte_grammar.grammar,
-            .extract = svelte_extractor.extract,
             .visitor = svelte_visitor.visitor,
             .format = svelte_formatter.format,
         });
@@ -151,7 +137,8 @@ pub const LanguageRegistry = struct {
         return self.implementations.contains(language);
     }
 
-    /// Extract code using the appropriate language implementation
+
+    /// Extract code using tree-sitter AST
     pub fn extract(
         self: *LanguageRegistry,
         allocator: std.mem.Allocator,
@@ -160,33 +147,18 @@ pub const LanguageRegistry = struct {
         flags: ExtractionFlags,
         result: *std.ArrayList(u8),
     ) !void {
-        if (self.getLanguage(language)) |lang_impl| {
-            try lang_impl.extract(allocator, source, flags, result);
-        } else {
-            // Fallback: return full source for unsupported languages
+        const lang_impl = self.getLanguage(language) orelse {
+            // For unsupported languages, return full source if requested
             if (flags.full) {
                 try result.appendSlice(source);
             }
-        }
-    }
-
-    /// Extract using tree-sitter AST
-    pub fn extractWithAST(
-        self: *LanguageRegistry,
-        allocator: std.mem.Allocator,
-        language: Language,
-        source: []const u8,
-        flags: ExtractionFlags,
-        result: *std.ArrayList(u8),
-    ) !void {
-        const lang_impl = self.getLanguage(language) orelse {
-            return self.extract(allocator, language, source, flags, result);
+            return;
         };
 
         // Parse with tree-sitter
-        var parse_result = self.tree_sitter_parser.parse(source, language) catch {
-            // Fallback to pattern-based extraction
-            return self.extract(allocator, language, source, flags, result);
+        var parse_result = self.tree_sitter_parser.parse(source, language) catch |err| {
+            std.log.debug("Tree-sitter parsing failed for {s}: {}", .{ @tagName(language), err });
+            return err;
         };
         defer parse_result.deinit();
 

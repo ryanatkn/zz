@@ -1,6 +1,7 @@
 const std = @import("std");
 const Node = @import("../../tree_sitter/node.zig").Node;
 const ExtractionContext = @import("../../tree_sitter/visitor.zig").ExtractionContext;
+const builders = @import("../../text/builders.zig");
 
 /// AST-based extraction visitor for Svelte with proper section handling
 /// Returns true to continue recursion, false to skip children  
@@ -221,12 +222,69 @@ fn extractJavaScriptContent(context: *ExtractionContext, raw_text_node: *const N
 /// Extract JavaScript signatures (functions, variables, runes)
 fn extractJavaScriptSignatures(context: *ExtractionContext, js_source: []const u8) !void {
     var lines = std.mem.splitScalar(u8, js_source, '\n');
+    var inside_multiline_expression = false;
+    var brace_count: i32 = 0;
+    var current_expression_start: ?[]const u8 = null;
+    var expression_lines = std.ArrayList([]const u8).init(context.allocator);
+    defer expression_lines.deinit();
 
     while (lines.next()) |line| {
         const trimmed = std.mem.trim(u8, line, " \t\r\n");
-        if (trimmed.len == 0) continue;
+        if (trimmed.len == 0 and !inside_multiline_expression) continue;
 
-        // Check for Svelte 5 runes
+        // Handle multi-line expressions
+        if (inside_multiline_expression) {
+            try expression_lines.append(line);
+            
+            // Count braces to track when expression ends
+            for (trimmed) |char| {
+                if (char == '{') brace_count += 1;
+                if (char == '}') brace_count -= 1;
+            }
+            
+            // If we're back to the original brace level, expression is complete
+            if (brace_count <= 0) {
+                inside_multiline_expression = false;
+                
+                // Extract the complete expression (excluding closing braces)
+                for (expression_lines.items) |expr_line| {
+                    const expr_trimmed = std.mem.trim(u8, expr_line, " \t\r\n");
+                    // Skip lines that are just closing braces/parentheses
+                    if (expr_trimmed.len > 0 and !isClosingLine(expr_trimmed)) {
+                        try context.appendText(expr_trimmed);
+                    }
+                }
+                
+                // Reset for next expression
+                current_expression_start = null;
+                expression_lines.clearRetainingCapacity();
+                brace_count = 0;
+            }
+            continue;
+        }
+
+        // Check for multi-line expressions like $derived.by(() => { or $effect(() => {
+        if ((std.mem.indexOf(u8, trimmed, "$derived.by") != null or
+             std.mem.indexOf(u8, trimmed, "$effect") != null) and
+            std.mem.indexOf(u8, trimmed, "{") != null)
+        {
+            // Count initial braces in this line
+            for (trimmed) |char| {
+                if (char == '{') brace_count += 1;
+                if (char == '}') brace_count -= 1;
+            }
+            
+            // If line doesn't close the expression, start multi-line tracking
+            if (brace_count > 0) {
+                inside_multiline_expression = true;
+                current_expression_start = trimmed;
+                try expression_lines.append(line);
+                continue;
+            }
+            // If it's a single line expression, handle it normally below
+        }
+
+        // Check for single-line Svelte 5 runes
         if (std.mem.indexOf(u8, trimmed, "$state") != null or
             std.mem.indexOf(u8, trimmed, "$derived") != null or
             std.mem.indexOf(u8, trimmed, "$effect") != null or
@@ -352,8 +410,8 @@ fn hasNonEmptyContent(node: *const Node, source: []const u8) bool {
 /// Removes blank lines within script and style sections to match test expectations
 fn appendNormalizedSvelteSection(context: *ExtractionContext, node: *const Node) !void {
     var lines = std.mem.splitScalar(u8, node.text, '\n');
-    var normalized = std.ArrayList(u8).init(context.allocator);
-    defer normalized.deinit();
+    var builder = builders.ResultBuilder.init(context.allocator);
+    defer builder.deinit();
     
     var inside_content_block = false;
     
@@ -375,18 +433,28 @@ fn appendNormalizedSvelteSection(context: *ExtractionContext, node: *const Node)
         }
         
         // Append all other lines
-        try normalized.appendSlice(line);
-        try normalized.append('\n');
+        try builders.appendLine(builder.list(), line);
     }
     
     // Remove trailing newline if present
-    if (normalized.items.len > 0 and normalized.items[normalized.items.len - 1] == '\n') {
-        _ = normalized.pop();
+    if (builder.len() > 0 and builder.items()[builder.len() - 1] == '\n') {
+        _ = builder.list().pop();
     }
     
-    // Append the normalized content
-    try context.result.appendSlice(normalized.items);
-    if (!std.mem.endsWith(u8, normalized.items, "\n")) {
-        try context.result.append('\n');
+    // Append the normalized content with automatic newline handling
+    try builders.appendMaybe(context.result, builder.items(), !std.mem.endsWith(u8, builder.items(), "\n"));
+}
+
+/// Check if a line contains only closing braces/parentheses (should be excluded from signatures)
+fn isClosingLine(line: []const u8) bool {
+    // Check for common closing patterns like "});", "})", "};", etc.
+    const patterns = [_][]const u8{ "});", "})", "};", "}" };
+    
+    for (patterns) |pattern| {
+        if (std.mem.eql(u8, line, pattern)) {
+            return true;
+        }
     }
+    
+    return false;
 }

@@ -219,7 +219,7 @@ const FormatterTestData = struct {
 
 const FormatterOptionsData = struct {
     indent_size: u32 = 4,
-    indent_style: []const u8 = "space",
+    indent_style: IndentStyle = .space,
     line_width: u32 = 100,
     trailing_comma: bool = false,
     sort_keys: bool = false,
@@ -241,14 +241,9 @@ fn parseExtractionFlags(data: ExtractionFlagsData) ExtractionFlags {
 
 /// Convert ZON options to FormatterOptions
 fn parseFormatterOptions(data: FormatterOptionsData) FormatterOptions {
-    const indent_style: IndentStyle = if (std.mem.eql(u8, data.indent_style, "tab"))
-        .tab
-    else
-        .space;
-
     return FormatterOptions{
         .indent_size = @intCast(data.indent_size),
-        .indent_style = indent_style,
+        .indent_style = data.indent_style,
         .line_width = data.line_width,
         .trailing_comma = data.trailing_comma,
         .sort_keys = data.sort_keys,

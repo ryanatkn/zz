@@ -1,6 +1,7 @@
 const std = @import("std");
 const Node = @import("../../tree_sitter/node.zig").Node;
 const ExtractionContext = @import("../../tree_sitter/visitor.zig").ExtractionContext;
+const builders = @import("../../text/builders.zig");
 
 /// AST-based extraction visitor for Zig
 /// Returns true to continue recursion, false to skip children
@@ -62,8 +63,10 @@ fn isFunctionNode(kind: []const u8, text: []const u8) bool {
     if (std.mem.eql(u8, kind, "VarDecl")) {
         const contains_fn = std.mem.indexOf(u8, text, "fn ") != null;
         const not_import = std.mem.indexOf(u8, text, "@import") == null;
-        const not_struct_def = std.mem.indexOf(u8, text, "struct") == null; // Don't extract struct definitions
-        return contains_fn and not_import and not_struct_def;
+        const not_type_def = std.mem.indexOf(u8, text, "struct") == null and
+                             std.mem.indexOf(u8, text, "enum") == null and
+                             std.mem.indexOf(u8, text, "union") == null; // Don't extract type definitions
+        return contains_fn and not_import and not_type_def;
     }
     
     // Look for Decl nodes that contain function declarations (but these miss pub keyword)
@@ -99,14 +102,38 @@ fn isTypeNode(kind: []const u8, text: []const u8) bool {
 
 /// Check if node represents an import
 fn isImportNode(kind: []const u8, text: []const u8) bool {
-    // Look for BUILTINIDENTIFIER that is @import
-    if (std.mem.eql(u8, kind, "BUILTINIDENTIFIER")) {
-        return std.mem.indexOf(u8, text, "@import") != null;
-    }
-    // Look for VarDecl containing @import
+    // Prioritize VarDecl containing @import for full import statements
     if (std.mem.eql(u8, kind, "VarDecl")) {
-        return std.mem.indexOf(u8, text, "@import") != null;
+        // Direct @import statements like: const std = @import("std");
+        if (std.mem.indexOf(u8, text, "@import") != null) {
+            return true;
+        }
+        
+        // Module member imports like: const testing = std.testing;
+        const trimmed = std.mem.trim(u8, text, " \t\n\r");
+        if ((std.mem.startsWith(u8, trimmed, "const ") or std.mem.startsWith(u8, trimmed, "pub const ")) and
+            std.mem.indexOf(u8, text, ".") != null and
+            std.mem.indexOf(u8, text, "=") != null) {
+            // Check that it's not a struct/function/type definition
+            if (std.mem.indexOf(u8, text, "struct") != null or
+                std.mem.indexOf(u8, text, "fn ") != null or
+                std.mem.indexOf(u8, text, "enum") != null or
+                std.mem.indexOf(u8, text, "union") != null) {
+                return false;
+            }
+            
+            // Check that it's not a function call (contains parentheses)
+            if (std.mem.indexOf(u8, text, "(") != null) {
+                return false;
+            }
+            
+            // Check that it follows the pattern: const name = module.member;
+            // (ends with a semicolon, no function calls)
+            return std.mem.endsWith(u8, trimmed, ";");
+        }
     }
+    
+    // Avoid extracting bare BUILTINIDENTIFIER nodes (causes spurious @import)
     return false;
 }
 
@@ -214,8 +241,8 @@ fn appendZigStructTypeOnly(context: *ExtractionContext, node: *const Node) !void
     }
     
     var lines = std.mem.splitScalar(u8, node_text, '\n');
-    var normalized = std.ArrayList(u8).init(context.allocator);
-    defer normalized.deinit();
+    var builder = builders.ResultBuilder.init(context.allocator);
+    defer builder.deinit();
     
     var inside_method = false;
     var brace_count: i32 = 0;
@@ -229,8 +256,10 @@ fn appendZigStructTypeOnly(context: *ExtractionContext, node: *const Node) !void
         for (line) |char| {
             if (char == '{') {
                 brace_count += 1;
-                // Remember the struct's opening brace level
-                if (struct_brace_count == 0 and std.mem.indexOf(u8, line, "struct") != null) {
+                // Remember the type's opening brace level (struct, enum, union)
+                if (struct_brace_count == 0 and (std.mem.indexOf(u8, line, "struct") != null or
+                                                  std.mem.indexOf(u8, line, "enum") != null or
+                                                  std.mem.indexOf(u8, line, "union") != null)) {
                     struct_brace_count = brace_count;
                 }
             } else if (char == '}') {
@@ -262,25 +291,21 @@ fn appendZigStructTypeOnly(context: *ExtractionContext, node: *const Node) !void
         
         // Handle the first line - prepend 'pub' if needed
         if (first_line and has_pub and !std.mem.startsWith(u8, trimmed, "pub ")) {
-            try normalized.appendSlice("pub ");
+            try builder.append("pub ");
         }
         first_line = false;
         
         // Include struct-level lines (skip empty lines to normalize whitespace)
         if (trimmed.len > 0) {
-            try normalized.appendSlice(line);
-            try normalized.append('\n');
+            try builders.appendLine(builder.list(), line);
         }
     }
     
     // Remove trailing newline if present
-    if (normalized.items.len > 0 and normalized.items[normalized.items.len - 1] == '\n') {
-        _ = normalized.pop();
+    if (builder.len() > 0 and builder.items()[builder.len() - 1] == '\n') {
+        _ = builder.list().pop();
     }
     
-    // Append the normalized content
-    try context.result.appendSlice(normalized.items);
-    if (!std.mem.endsWith(u8, normalized.items, "\n")) {
-        try context.result.append('\n');
-    }
+    // Append the normalized content with automatic newline handling
+    try builders.appendMaybe(context.result, builder.items(), !std.mem.endsWith(u8, builder.items(), "\n"));
 }

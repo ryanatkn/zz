@@ -242,3 +242,69 @@ pub fn extractSignatureWithContext(node: *const Node, source: []const u8) []cons
     
     return basic_signature;
 }
+
+// =============================================================================
+// Unified Visitor Flag Checking Utilities
+// =============================================================================
+
+/// Common flag combination patterns used across all language visitors
+pub const FlagPattern = enum {
+    signatures_only,   // signatures && !structure && !types
+    structure_only,    // structure
+    types_only,        // types && !structure && !signatures  
+    imports_only,      // imports && !structure && !signatures && !types
+    docs_only,         // docs && !structure && !signatures && !types
+    tests_only,        // tests && !structure && !signatures && !types
+    errors_only,       // errors && !structure && !signatures && !types
+    full_content,      // full
+};
+
+/// Check if extraction flags match a specific pattern
+pub fn matchesPattern(flags: ExtractionFlags, pattern: FlagPattern) bool {
+    return switch (pattern) {
+        .signatures_only => flags.signatures and !flags.structure and !flags.types,
+        .structure_only => flags.structure,
+        .types_only => flags.types and !flags.structure and !flags.signatures,
+        .imports_only => flags.imports and !flags.structure and !flags.signatures and !flags.types,
+        .docs_only => flags.docs and !flags.structure and !flags.signatures and !flags.types,
+        .tests_only => flags.tests and !flags.structure and !flags.signatures and !flags.types,
+        .errors_only => flags.errors and !flags.structure and !flags.signatures and !flags.types,
+        .full_content => flags.full,
+    };
+}
+
+/// Unified visitor dispatch helper to reduce boilerplate in language visitors
+pub fn dispatchByPattern(
+    context: *ExtractionContext,
+    node: *const Node,
+    handlers: anytype
+) !bool {
+    // Check each pattern in priority order
+    if (@hasField(@TypeOf(handlers), "signatures_only") and matchesPattern(context.flags, .signatures_only)) {
+        return try handlers.signatures_only(context, node);
+    }
+    if (@hasField(@TypeOf(handlers), "structure_only") and matchesPattern(context.flags, .structure_only)) {
+        return try handlers.structure_only(context, node);
+    }
+    if (@hasField(@TypeOf(handlers), "types_only") and matchesPattern(context.flags, .types_only)) {
+        return try handlers.types_only(context, node);
+    }
+    if (@hasField(@TypeOf(handlers), "imports_only") and matchesPattern(context.flags, .imports_only)) {
+        return try handlers.imports_only(context, node);
+    }
+    if (@hasField(@TypeOf(handlers), "docs_only") and matchesPattern(context.flags, .docs_only)) {
+        return try handlers.docs_only(context, node);
+    }
+    if (@hasField(@TypeOf(handlers), "tests_only") and matchesPattern(context.flags, .tests_only)) {
+        return try handlers.tests_only(context, node);
+    }
+    if (@hasField(@TypeOf(handlers), "errors_only") and matchesPattern(context.flags, .errors_only)) {
+        return try handlers.errors_only(context, node);
+    }
+    if (@hasField(@TypeOf(handlers), "full_content") and matchesPattern(context.flags, .full_content)) {
+        return try handlers.full_content(context, node);
+    }
+    
+    // Default: continue recursion
+    return true;
+}

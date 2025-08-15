@@ -1,6 +1,7 @@
 const std = @import("std");
 const Node = @import("../../tree_sitter/node.zig").Node;
 const ExtractionContext = @import("../../tree_sitter/visitor.zig").ExtractionContext;
+const builders = @import("../../text/builders.zig");
 
 /// AST-based extraction visitor for HTML
 /// Returns true to continue recursion, false to skip children
@@ -121,8 +122,8 @@ pub fn isVoidElement(tag: []const u8) bool {
 /// Removes all indentation to match test expectations
 fn appendNormalizedHtmlDocument(context: *ExtractionContext, node: *const Node) !void {
     var lines = std.mem.splitScalar(u8, node.text, '\n');
-    var normalized = std.ArrayList(u8).init(context.allocator);
-    defer normalized.deinit();
+    var builder = builders.ResultBuilder.init(context.allocator);
+    defer builder.deinit();
     
     while (lines.next()) |line| {
         // Remove leading whitespace (indentation) from each line
@@ -130,19 +131,15 @@ fn appendNormalizedHtmlDocument(context: *ExtractionContext, node: *const Node) 
         
         // Only append if not empty after trimming
         if (trimmed_start.len > 0) {
-            try normalized.appendSlice(trimmed_start);
-            try normalized.append('\n');
+            try builders.appendLine(builder.list(), trimmed_start);
         }
     }
     
     // Remove trailing newline if present
-    if (normalized.items.len > 0 and normalized.items[normalized.items.len - 1] == '\n') {
-        _ = normalized.pop();
+    if (builder.len() > 0 and builder.items()[builder.len() - 1] == '\n') {
+        _ = builder.list().pop();
     }
     
-    // Append the normalized content
-    try context.result.appendSlice(normalized.items);
-    if (!std.mem.endsWith(u8, normalized.items, "\n")) {
-        try context.result.append('\n');
-    }
+    // Append the normalized content with automatic newline handling
+    try builders.appendMaybe(context.result, builder.items(), !std.mem.endsWith(u8, builder.items(), "\n"));
 }

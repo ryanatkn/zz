@@ -1,6 +1,7 @@
 const std = @import("std");
 const Node = @import("../../tree_sitter/node.zig").Node;
 const ExtractionContext = @import("../../tree_sitter/visitor.zig").ExtractionContext;
+const builders = @import("../../text/builders.zig");
 
 /// AST-based extraction visitor for TypeScript
 /// Returns true to continue recursion, false to skip children
@@ -22,7 +23,20 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
             const text = node.text;
             if (std.mem.indexOf(u8, text, "=>") != null) {
                 // This is an arrow function assignment like "const getUserById = async (id: number) => {...}"
-                try context.appendSignature(node);
+                try appendArrowFunctionSignature(context, node);
+                return false;
+            }
+        }
+        // Export statements with arrow functions - extract the signature with export keyword
+        if (std.mem.eql(u8, node_type, "export_statement")) {
+            const text = node.text;
+            // Skip export interface in signatures-only mode (interfaces are not function signatures)
+            if (std.mem.indexOf(u8, text, "export interface") != null) {
+                return false; // Skip interfaces in signatures-only mode
+            }
+            if (std.mem.indexOf(u8, text, "=>") != null) {
+                // This is an exported arrow function like "export const UserProfile = () => {...}"
+                try appendArrowFunctionSignature(context, node);
                 return false;
             }
         }
@@ -41,6 +55,13 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
         if (std.mem.eql(u8, node_type, "class_declaration")) {
             // For classes, extract only type structure without method implementations
             try appendClassTypeStructure(context, node);
+            return false;
+        }
+    }
+    
+    // Skip interfaces in signatures-only mode (they're not function signatures)
+    if (context.flags.signatures and !context.flags.types and !context.flags.structure) {
+        if (std.mem.eql(u8, node_type, "interface_declaration")) {
             return false;
         }
     }
@@ -143,8 +164,8 @@ fn appendExportSignature(context: *ExtractionContext, node: *const Node) !void {
 /// Includes field declarations and constructor signature, but excludes method implementations
 fn appendClassTypeStructure(context: *ExtractionContext, node: *const Node) !void {
     var lines = std.mem.splitScalar(u8, node.text, '\n');
-    var normalized = std.ArrayList(u8).init(context.allocator);
-    defer normalized.deinit();
+    var builder = builders.ResultBuilder.init(context.allocator);
+    defer builder.deinit();
     
     var prev_line_was_blank = false;
     
@@ -173,26 +194,42 @@ fn appendClassTypeStructure(context: *ExtractionContext, node: *const Node) !voi
         }
         
         // Include non-blank line
-        try normalized.appendSlice(line);
-        try normalized.append('\n');
+        try builders.appendLine(builder.list(), line);
         prev_line_was_blank = false;
     }
     
     // Ensure we end with the class closing brace
-    const result = normalized.items;
+    const result = builder.items();
     if (result.len > 0 and !std.mem.endsWith(u8, result, "}")) {
-        try normalized.append('}');
-        try normalized.append('\n');
+        try builder.append("}");
+        try builder.appendChar('\n');
     }
     
     // Remove trailing newline if present
-    if (normalized.items.len > 0 and normalized.items[normalized.items.len - 1] == '\n') {
-        _ = normalized.pop();
+    if (builder.len() > 0 and builder.items()[builder.len() - 1] == '\n') {
+        _ = builder.list().pop();
     }
     
-    // Append the normalized content
-    try context.result.appendSlice(normalized.items);
-    if (!std.mem.endsWith(u8, normalized.items, "\n")) {
-        try context.result.append('\n');
+    // Append the normalized content with automatic newline handling
+    try builders.appendMaybe(context.result, builder.items(), !std.mem.endsWith(u8, builder.items(), "\n"));
+}
+
+/// Extract arrow function signature including parameters
+fn appendArrowFunctionSignature(context: *ExtractionContext, node: *const Node) !void {
+    const text = node.text;
+    
+    // Find the "=>" position
+    if (std.mem.indexOf(u8, text, "=>")) |arrow_pos| {
+        // Extract everything up to and including "=>"
+        const signature_end = arrow_pos + 2;
+        const signature = std.mem.trim(u8, text[0..signature_end], " \t\n\r");
+        
+        try context.result.appendSlice(signature);
+        if (!std.mem.endsWith(u8, signature, "\n")) {
+            try context.result.append('\n');
+        }
+    } else {
+        // Fallback to regular signature extraction
+        try context.appendSignature(node);
     }
 }

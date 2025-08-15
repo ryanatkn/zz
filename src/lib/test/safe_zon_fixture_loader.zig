@@ -94,7 +94,7 @@ const FormatterTestData = struct {
 
 const FormatterOptionsData = struct {
     indent_size: u8 = 4,
-    indent_style: []const u8 = "space", // Keep as string for ZON compatibility
+    indent_style: IndentStyle = .space,
     line_width: u16 = 100,
     trailing_comma: bool = false,
     sort_keys: bool = false,
@@ -208,14 +208,9 @@ fn parseExtractionFlags(flags_data: ExtractionFlagsData) ExtractionFlags {
 
 /// Convert ZON formatter options to internal representation
 fn parseFormatterOptions(options_data: FormatterOptionsData) FormatterOptions {
-    const indent_style = if (std.mem.eql(u8, options_data.indent_style, "tab"))
-        IndentStyle.tab
-    else
-        IndentStyle.space;
-
     return FormatterOptions{
         .indent_size = options_data.indent_size,
-        .indent_style = indent_style,
+        .indent_style = options_data.indent_style,
         .line_width = options_data.line_width,
         .trailing_comma = options_data.trailing_comma,
         .sort_keys = options_data.sort_keys,
@@ -247,7 +242,7 @@ test "SafeZonFixtureLoader basic parsing" {
         \\            .expected = "{\n  \"a\": 1\n}",
         \\            .options = .{
         \\                .indent_size = 2,
-        \\                .indent_style = "space",
+        \\                .indent_style = .space,
         \\            },
         \\        },
         \\    },
@@ -300,7 +295,7 @@ test "parseFormatterOptions" {
 
     const options_data = FormatterOptionsData{
         .indent_size = 2,
-        .indent_style = "tab",
+        .indent_style = .tab,
         .line_width = 120,
         .trailing_comma = true,
     };

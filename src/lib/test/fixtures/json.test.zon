@@ -133,7 +133,7 @@
             ,
             .options = .{
                 .indent_size = 4,
-                .indent_style = "space",
+                .indent_style = .space,
             },
         },
         .{
@@ -151,7 +151,7 @@
             ,
             .options = .{
                 .indent_size = 4,
-                .indent_style = "space",
+                .indent_style = .space,
             },
         },
         .{

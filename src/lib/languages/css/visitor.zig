@@ -1,6 +1,7 @@
 const std = @import("std");
 const Node = @import("../../tree_sitter/node.zig").Node;
 const ExtractionContext = @import("../../tree_sitter/visitor.zig").ExtractionContext;
+const builders = @import("../../text/builders.zig");
 
 /// AST-based extraction visitor for CSS
 /// Returns true to continue recursion, false to skip children
@@ -97,8 +98,8 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
 /// Helper function to normalize media statement whitespace for structure extraction
 fn appendNormalizedMediaStatement(context: *ExtractionContext, node: *const Node) !void {
     var lines = std.mem.splitScalar(u8, node.text, '\n');
-    var normalized = std.ArrayList(u8).init(context.allocator);
-    defer normalized.deinit();
+    var builder = builders.ResultBuilder.init(context.allocator);
+    defer builder.deinit();
     
     var inside_media_block = false;
     var brace_count: i32 = 0;
@@ -128,18 +129,14 @@ fn appendNormalizedMediaStatement(context: *ExtractionContext, node: *const Node
         }
         
         // Append non-blank lines or blank lines outside media block
-        try normalized.appendSlice(line);
-        try normalized.append('\n');
+        try builders.appendLine(builder.list(), line);
     }
     
-    // Remove trailing newline if present
-    if (normalized.items.len > 0 and normalized.items[normalized.items.len - 1] == '\n') {
-        _ = normalized.pop();
+    // Remove trailing newline if present  
+    if (builder.len() > 0 and builder.items()[builder.len() - 1] == '\n') {
+        _ = builder.list().pop();
     }
     
-    // Append the normalized content
-    try context.result.appendSlice(normalized.items);
-    if (!std.mem.endsWith(u8, normalized.items, "\n")) {
-        try context.result.append('\n');
-    }
+    // Append the normalized content with automatic newline handling
+    try builders.appendMaybe(context.result, builder.items(), !std.mem.endsWith(u8, builder.items(), "\n"));
 }

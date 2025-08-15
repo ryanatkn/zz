@@ -200,7 +200,7 @@
             ,
             .options = .{
                 .indent_size = 4,
-                .indent_style = "space",
+                .indent_style = .space,
             },
         },
         .{
@@ -214,7 +214,7 @@
             .expected = ".nav {\n\tdisplay: flex;\n\tjustify-content: space-between;\n}",
             .options = .{
                 .indent_size = 1,
-                .indent_style = "tab",
+                .indent_style = .tab,
             },
         },
         .{

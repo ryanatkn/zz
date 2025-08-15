@@ -187,7 +187,7 @@
             ,
             .options = .{
                 .indent_size = 4,
-                .indent_style = "space",
+                .indent_style = .space,
             },
         },
         .{
@@ -195,19 +195,11 @@
             .source =
             \\<article><header><h1>Title</h1></header><section><p>Content</p></section></article>
             ,
-            .expected =
-            \\<article>
-            \\\t<header>
-            \\\t\t<h1>Title</h1>
-            \\\t</header>
-            \\\t<section>
-            \\\t\t<p>Content</p>
-            \\\t</section>
-            \\</article>
+            .expected = "<article>\n\t<header>\n\t\t<h1>Title</h1>\n\t</header>\n\t<section>\n\t\t<p>Content</p>\n\t</section>\n</article>"
             ,
             .options = .{
                 .indent_size = 1,
-                .indent_style = "tab",
+                .indent_style = .tab,
             },
         },
         .{

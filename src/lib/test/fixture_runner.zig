@@ -1,11 +1,10 @@
 const std = @import("std");
 const testing = std.testing;
-const FixtureLoader = @import("fixture_loader.zig").FixtureLoader;
-const TestFixtures = @import("fixture_loader.zig").TestFixtures;
-const LanguageFixtures = @import("fixture_loader.zig").LanguageFixtures;
-const ParserTest = @import("fixture_loader.zig").ParserTest;
-const FormatterTest = @import("fixture_loader.zig").FormatterTest;
-const ExtractionTest = @import("fixture_loader.zig").ExtractionTest;
+const SafeZonFixtureLoader = @import("safe_zon_fixture_loader.zig").SafeZonFixtureLoader;
+const LanguageFixtures = @import("safe_zon_fixture_loader.zig").LanguageFixtures;
+const ParserTest = @import("safe_zon_fixture_loader.zig").ParserTest;
+const FormatterTest = @import("safe_zon_fixture_loader.zig").FormatterTest;
+const ExtractionTest = @import("safe_zon_fixture_loader.zig").ExtractionTest;
 const extractor_mod = @import("../language/extractor.zig");
 const Extractor = extractor_mod.Extractor;
 const Language = @import("../language/detection.zig").Language;
@@ -64,7 +63,7 @@ pub const TestUtils = struct {
 
 /// Generic function to test all fixtures for a specific language
 fn testLanguageFixtures(language: Language) !void {
-    const loader = FixtureLoader.init(testing.allocator);
+    const loader = SafeZonFixtureLoader.init(testing.allocator);
     var fixtures = loader.loadLanguage(language) catch |err| {
         std.log.err("Failed to load {s} fixtures: {}", .{ @tagName(language), err });
         return err;
@@ -91,26 +90,47 @@ fn testLanguageFixtures(language: Language) !void {
 // All supported languages for fixture testing
 const test_languages = [_]Language{ .json, .css, .html, .typescript, .svelte, .zig };
 
-// Generate tests for all languages  
-test "all language fixture tests" {
-    var success_count: u32 = 0;
-    var skip_count: u32 = 0;
-    
-    inline for (test_languages) |language| {
-        if (testLanguageFixtures(language)) {
-            success_count += 1;
-        } else |err| {
-            // Skip languages that don't have fixture files
-            if (err == error.FileNotFound or err == error.UnsupportedLanguage) {
-                skip_count += 1;
-            } else {
-                return err;
-            }
-        }
-    }
-    
-    // Ensure at least some tests ran successfully
-    try testing.expect(success_count > 0);
+// Test each language individually to isolate segfault issues
+test "JSON fixture tests" {
+    testLanguageFixtures(.json) catch |err| {
+        if (err == error.FileNotFound) return; // Skip if no fixture file
+        return err;
+    };
+}
+
+test "CSS fixture tests" {
+    testLanguageFixtures(.css) catch |err| {
+        if (err == error.FileNotFound) return; // Skip if no fixture file
+        return err;
+    };
+}
+
+test "HTML fixture tests" {
+    testLanguageFixtures(.html) catch |err| {
+        if (err == error.FileNotFound) return; // Skip if no fixture file
+        return err;
+    };
+}
+
+test "TypeScript fixture tests" {
+    testLanguageFixtures(.typescript) catch |err| {
+        if (err == error.FileNotFound) return; // Skip if no fixture file
+        return err;
+    };
+}
+
+test "Svelte fixture tests" {
+    testLanguageFixtures(.svelte) catch |err| {
+        if (err == error.FileNotFound) return; // Skip if no fixture file
+        return err;
+    };
+}
+
+test "Zig fixture tests" {
+    testLanguageFixtures(.zig) catch |err| {
+        if (err == error.FileNotFound) return; // Skip if no fixture file
+        return err;
+    };
 }
 
 

@@ -1,5 +1,4 @@
 const std = @import("std");
-
 const Entry = @import("entry.zig").Entry;
 const Format = @import("format.zig").Format;
 

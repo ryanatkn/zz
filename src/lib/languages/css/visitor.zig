@@ -8,19 +8,27 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
     const node_type = node.kind;
 
     // Selectors (for signatures flag)
-    if (context.flags.signatures) {
-        if (std.mem.eql(u8, node_type, "rule_set") or
-            std.mem.eql(u8, node_type, "selector") or
-            std.mem.eql(u8, node_type, "media_query") or
-            std.mem.startsWith(u8, node_type, "selector_"))
+    if (context.flags.signatures and !context.flags.structure and !context.flags.types) {
+        // Extract selectors and @media rules
+        if (std.mem.eql(u8, node_type, "class_selector") or
+            std.mem.eql(u8, node_type, "id_selector") or
+            std.mem.eql(u8, node_type, "type_selector") or
+            std.mem.eql(u8, node_type, "pseudo_class_selector") or
+            std.mem.eql(u8, node_type, "attribute_selector"))
         {
             try context.appendNode(node);
             return false; // Skip children - we've captured the selector
         }
+        // Also extract @media rules for signatures
+        if (std.mem.eql(u8, node_type, "media_statement")) {
+            // Extract only the @media query part, not the content
+            try context.appendSignature(node);
+            return false;
+        }
     }
 
     // At-rules and imports
-    if (context.flags.imports) {
+    if (context.flags.imports and !context.flags.structure and !context.flags.signatures and !context.flags.types) {
         if (std.mem.eql(u8, node_type, "import_statement") or
             std.mem.eql(u8, node_type, "at_rule") or
             std.mem.startsWith(u8, node_type, "import_"))
@@ -30,23 +38,29 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
         }
     }
 
-    // Structure elements (media queries, keyframes) and types (selectors, properties)
-    if (context.flags.structure or context.flags.types) {
-        if (std.mem.eql(u8, node_type, "media_statement") or
+    // Structure elements - complete CSS structure
+    if (context.flags.structure) {
+        if (std.mem.eql(u8, node_type, "rule_set") or
+            std.mem.eql(u8, node_type, "media_statement") or
             std.mem.eql(u8, node_type, "keyframes_statement") or
             std.mem.eql(u8, node_type, "supports_statement") or
-            std.mem.eql(u8, node_type, "property_name") or
-            std.mem.eql(u8, node_type, "custom_property_name") or
-            std.mem.eql(u8, node_type, "rule_set") or
-            std.mem.eql(u8, node_type, "class_selector") or
-            std.mem.eql(u8, node_type, "id_selector") or
-            std.mem.eql(u8, node_type, "pseudo_class_selector") or
-            std.mem.eql(u8, node_type, "at_rule") or
-            std.mem.eql(u8, node_type, "declaration") or
             std.mem.eql(u8, node_type, "import_statement"))
         {
             try context.appendNode(node);
-            return false; // Skip children - we've captured the structure
+        }
+    }
+
+    // Types - CSS properties and selectors only  
+    if (context.flags.types and !context.flags.structure and !context.flags.signatures) {
+        if (std.mem.eql(u8, node_type, "property_name") or
+            std.mem.eql(u8, node_type, "custom_property_name") or
+            std.mem.eql(u8, node_type, "class_selector") or
+            std.mem.eql(u8, node_type, "id_selector") or
+            std.mem.eql(u8, node_type, "type_selector") or
+            std.mem.eql(u8, node_type, "pseudo_class_selector"))
+        {
+            try context.appendNode(node);
+            return false; // Skip children for types
         }
     }
 

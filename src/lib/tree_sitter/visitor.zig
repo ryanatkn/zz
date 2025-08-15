@@ -164,4 +164,46 @@ pub const ExtractionContext = struct {
             try self.result.append('\n');
         }
     }
+
+    /// Extract only the signature part of a function/method (up to opening brace)
+    pub fn appendSignature(self: *ExtractionContext, node: *const Node) !void {
+        const signature = extractSignatureFromText(node.text);
+        try self.result.appendSlice(signature);
+        if (!std.mem.endsWith(u8, signature, "\n")) {
+            try self.result.append('\n');
+        }
+    }
 };
+
+/// Extract signature from function text (everything before opening brace)
+pub fn extractSignatureFromText(text: []const u8) []const u8 {
+    // Find the opening brace
+    if (std.mem.indexOf(u8, text, "{")) |brace_pos| {
+        // Extract everything before the opening brace
+        var end_pos = brace_pos;
+        
+        // Trim backwards to remove any whitespace before the brace
+        while (end_pos > 0 and std.ascii.isWhitespace(text[end_pos - 1])) {
+            end_pos -= 1;
+        }
+        
+        const signature_part = std.mem.trim(u8, text[0..end_pos], " \t\n\r");
+        
+        // For Zig, ensure we preserve the full declaration including pub
+        // Look for the line that contains "fn " to get the complete function signature
+        var line_start: usize = 0;
+        if (std.mem.indexOf(u8, signature_part, "fn ")) |fn_pos| {
+            // Find the start of the line containing "fn "
+            var i = fn_pos;
+            while (i > 0 and signature_part[i - 1] != '\n') {
+                i -= 1;
+            }
+            line_start = i;
+        }
+        
+        return std.mem.trim(u8, signature_part[line_start..], " \t\n\r");
+    }
+    
+    // If no opening brace found, return trimmed full text (might be a declaration)
+    return std.mem.trim(u8, text, " \t\n\r");
+}

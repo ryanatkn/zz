@@ -8,31 +8,51 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
     const node_type = node.kind;
 
     // Functions and methods
-    if (context.flags.signatures) {
+    if (context.flags.signatures and !context.flags.structure and !context.flags.types) {
         if (std.mem.eql(u8, node_type, "function_declaration") or
-            std.mem.eql(u8, node_type, "method_definition") or
-            std.mem.eql(u8, node_type, "arrow_function") or
-            std.mem.eql(u8, node_type, "function_expression"))
+            std.mem.eql(u8, node_type, "method_definition"))
         {
-            try context.appendNode(node);
+            // For function declarations, extract just the signature part
+            try context.appendSignature(node);
             return false;
+        }
+        // Arrow functions need special handling - look for variable declarators
+        if (std.mem.eql(u8, node_type, "variable_declarator")) {
+            const text = node.text;
+            if (std.mem.indexOf(u8, text, "=>") != null) {
+                // This is an arrow function assignment
+                try context.appendSignature(node);
+                return false;
+            }
         }
     }
 
     // Types and interfaces
-    if (context.flags.types) {
+    if (context.flags.types and !context.flags.structure and !context.flags.signatures) {
         if (std.mem.eql(u8, node_type, "interface_declaration") or
             std.mem.eql(u8, node_type, "type_alias_declaration") or
             std.mem.eql(u8, node_type, "class_declaration") or
             std.mem.eql(u8, node_type, "enum_declaration"))
         {
+            // TODO: Consider extracting only type structure without method implementations
             try context.appendNode(node);
             return false;
+        }
+    } else if (context.flags.structure) {
+        // For structure, extract both functions and types
+        if (std.mem.eql(u8, node_type, "interface_declaration") or
+            std.mem.eql(u8, node_type, "type_alias_declaration") or
+            std.mem.eql(u8, node_type, "class_declaration") or
+            std.mem.eql(u8, node_type, "enum_declaration") or
+            std.mem.eql(u8, node_type, "function_declaration") or
+            std.mem.eql(u8, node_type, "method_definition"))
+        {
+            try context.appendNode(node);
         }
     }
 
     // Imports and exports
-    if (context.flags.imports) {
+    if (context.flags.imports and !context.flags.structure and !context.flags.signatures and !context.flags.types) {
         if (std.mem.eql(u8, node_type, "import_statement") or
             std.mem.eql(u8, node_type, "export_statement"))
         {
@@ -42,7 +62,7 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
     }
 
     // Tests
-    if (context.flags.tests) {
+    if (context.flags.tests and !context.flags.structure and !context.flags.signatures and !context.flags.types) {
         if (std.mem.eql(u8, node_type, "call_expression")) {
             const text = node.text;
             if (std.mem.startsWith(u8, text, "test(") or

@@ -158,6 +158,28 @@
                 },
             },
         },
+        .{
+            .name = "css_imports",
+            .source =
+            \\@import url('fonts.css');
+            \\@import "variables.css";
+            \\@namespace prefix url('http://example.com');
+            \\
+            \\body {
+            \\    font-family: sans-serif;
+            \\}
+            ,
+            .extraction_tests = .{
+                .{
+                    .flags = .{ .imports = true },
+                    .expected =
+                    \\@import url('fonts.css');
+                    \\@import "variables.css";
+                    \\@namespace prefix url('http://example.com');
+                    ,
+                },
+            },
+        },
     },
     .formatter_tests = .{
         .{
@@ -280,28 +302,6 @@
             ,
             .options = .{
                 .indent_size = 4,
-            },
-        },
-        .{
-            .name = "css_imports",
-            .source =
-            \\@import url('fonts.css');
-            \\@import "variables.css";
-            \\@namespace prefix url('http://example.com');
-            \\
-            \\body {
-            \\    font-family: sans-serif;
-            \\}
-            ,
-            .extraction_tests = .{
-                .{
-                    .flags = .{ .imports = true },
-                    .expected =
-                    \\@import url('fonts.css');
-                    \\@import "variables.css";
-                    \\@namespace prefix url('http://example.com');
-                    ,
-                },
             },
         },
     },

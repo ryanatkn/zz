@@ -5,36 +5,36 @@ const ExtractionContext = @import("../../tree_sitter/visitor.zig").ExtractionCon
 /// AST-based extraction visitor for HTML
 /// Returns true to continue recursion, false to skip children
 pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
-    // Extract based on node type and flags
-    if (context.flags.structure or context.flags.types) {
-        // Extract HTML elements, attributes, and structure
-        if (isStructuralNode(node.kind)) {
+    // Extract based on node type and flags - use else-if to avoid duplicates
+    if (context.flags.signatures and !context.flags.structure and !context.flags.types) {
+        // Extract only opening tags for signatures
+        if (std.mem.eql(u8, node.kind, "start_tag") or 
+            std.mem.eql(u8, node.kind, "self_closing_tag")) {
             try context.appendNode(node);
+            return false; // Skip children for signatures
         }
-    }
-
-    if (context.flags.signatures) {
-        // Extract element definitions and attributes
+    } else if (context.flags.structure) {
+        // Extract complete HTML structure - only the root document to avoid duplicates
+        if (std.mem.eql(u8, node.kind, "document")) {
+            try context.appendNode(node);
+            return false; // Skip children - we have the full document
+        }
+    } else if (context.flags.types and !context.flags.signatures and !context.flags.structure) {
+        // Extract element types and attributes
         if (isElementNode(node.kind)) {
             try context.appendNode(node);
         }
-    }
-
-    if (context.flags.imports) {
+    } else if (context.flags.imports and !context.flags.structure and !context.flags.signatures and !context.flags.types) {
         // Extract script src, link href, etc.
         if (isImportNode(node.kind)) {
             try context.appendNode(node);
         }
-    }
-
-    if (context.flags.docs) {
+    } else if (context.flags.docs and !context.flags.structure and !context.flags.signatures and !context.flags.types) {
         // Extract HTML comments
         if (isCommentNode(node.kind)) {
             try context.appendNode(node);
         }
-    }
-
-    if (context.flags.full) {
+    } else if (context.flags.full) {
         // For full extraction, only append the root document node to avoid duplication
         if (std.mem.eql(u8, node.kind, "document")) {
             try context.result.appendSlice(node.text);

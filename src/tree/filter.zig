@@ -1,5 +1,4 @@
 const std = @import("std");
-
 const SharedConfig = @import("../config.zig").SharedConfig;
 const shouldIgnorePath = @import("../config.zig").shouldIgnorePath;
 const shouldHideFile = @import("../config.zig").shouldHideFile;

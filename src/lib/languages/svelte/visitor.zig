@@ -17,63 +17,51 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
         return true; // Continue recursion for other nodes
     }
 
-    // Handle script elements - the main container for JavaScript content
-    if (std.mem.eql(u8, node_type, "script_element")) {
-        try handleScriptElement(context, node);
-        return false; // Skip children - we've handled content explicitly
+    // Signatures: Extract JavaScript content from script elements only
+    if (context.flags.signatures and !context.flags.structure and !context.flags.types) {
+        if (std.mem.eql(u8, node_type, "script_element")) {
+            // TODO: Extract only the JavaScript content, not the script tags
+            // For now, extract signatures from the script content
+            try extractSignaturesFromScript(context, node);
+            return false;
+        }
+        return true;
     }
 
-    // Handle style elements - the main container for CSS content
-    if (std.mem.eql(u8, node_type, "style_element")) {
-        try handleStyleElement(context, node);
-        return false; // Skip children - we've handled content explicitly
-    }
-
-    // Handle template/HTML elements for structure
+    // Structure: Extract complete component sections
     if (context.flags.structure) {
-        // Only append template elements that are direct children of the fragment
-        // This avoids duplication where we process both parent and child elements
-        if (std.mem.eql(u8, node_type, "element")) {
-            // Only process if this element is likely a top-level template element
-            // by checking if it appears to be a container element
-            const node_text = node.text;
-            if (std.mem.startsWith(u8, node_text, "<div") or
-                std.mem.startsWith(u8, node_text, "<main") or
-                std.mem.startsWith(u8, node_text, "<section") or
-                std.mem.startsWith(u8, node_text, "<article") or
-                std.mem.startsWith(u8, node_text, "<nav") or
-                std.mem.startsWith(u8, node_text, "<header") or
-                std.mem.startsWith(u8, node_text, "<footer"))
-            {
-                try context.appendNode(node);
-                return false; // Skip children - we've captured the full element
-            }
-            // Skip processing other element nodes - they're likely children of processed elements
-            return false; // Skip children
-        }
-        
-        // Handle Svelte-specific statements
-        if (std.mem.eql(u8, node_type, "if_statement") or
-            std.mem.eql(u8, node_type, "each_statement") or
-            std.mem.eql(u8, node_type, "await_statement") or
-            std.mem.eql(u8, node_type, "snippet_statement"))
+        if (std.mem.eql(u8, node_type, "script_element") or
+            std.mem.eql(u8, node_type, "style_element") or
+            std.mem.eql(u8, node_type, "element"))
         {
+            // For structure, include complete sections
             try context.appendNode(node);
-            return false; // Skip children - we've captured the full statement
         }
-        
-        // Skip individual tags and text nodes - they're already included in elements
-        if (std.mem.eql(u8, node_type, "start_tag") or
-            std.mem.eql(u8, node_type, "end_tag") or
-            std.mem.eql(u8, node_type, "text"))
-        {
-            // Skip these - they're already included in their parent elements
-            return false; // Skip children
+        return true;
+    }
+
+    // Types: Extract CSS from style elements
+    if (context.flags.types and !context.flags.structure and !context.flags.signatures) {
+        if (std.mem.eql(u8, node_type, "style_element")) {
+            // TODO: Extract only CSS content, not style tags
+            try context.appendNode(node);
+            return false;
         }
+        return true;
+    }
+
+    // Imports: Extract import statements from script elements
+    if (context.flags.imports and !context.flags.structure and !context.flags.signatures and !context.flags.types) {
+        if (std.mem.eql(u8, node_type, "script_element")) {
+            // TODO: Extract only import statements
+            try context.appendNode(node);
+            return false;
+        }
+        return true;
     }
 
     // Comments for docs
-    if (context.flags.docs) {
+    if (context.flags.docs and !context.flags.structure and !context.flags.signatures and !context.flags.types) {
         if (std.mem.eql(u8, node_type, "comment") or
             std.mem.eql(u8, node_type, "html_comment"))
         {
@@ -85,6 +73,27 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
     // Default: continue recursion to child nodes
     return true;
 }
+
+/// Extract function signatures from script element (without script tags)
+fn extractSignaturesFromScript(context: *ExtractionContext, script_node: *const Node) !void {
+    // Extract content from raw_text children of script_element
+    const child_count = script_node.childCount();
+    var i: u32 = 0;
+    while (i < child_count) : (i += 1) {
+        if (script_node.child(i, context.source)) |child| {
+            if (std.mem.eql(u8, child.kind, "raw_text")) {
+                // Extract JavaScript signatures from the raw content
+                const js_content = child.text;
+                try extractJavaScriptSignatures(context, js_content);
+                return;
+            }
+        }
+    }
+    
+    // Fallback if no raw_text found
+    try context.appendSignature(script_node);
+}
+
 
 /// Handle script_element nodes - extract JavaScript content based on flags
 fn handleScriptElement(context: *ExtractionContext, node: *const Node) !void {

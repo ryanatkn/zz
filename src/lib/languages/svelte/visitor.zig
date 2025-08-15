@@ -58,6 +58,14 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
             return false;
         }
         
+        // Skip pure whitespace text nodes in structure mode to avoid extra blank lines
+        if (std.mem.eql(u8, node_type, "text")) {
+            const trimmed = std.mem.trim(u8, node.text, " \t\n\r");
+            if (trimmed.len == 0) {
+                return false; // Skip whitespace-only text nodes
+            }
+        }
+        
         return true;
     }
 
@@ -519,9 +527,14 @@ fn appendNormalizedSvelteSection(context: *ExtractionContext, node: *const Node)
             inside_content_block = false;
         }
 
-        // Skip all blank lines inside content blocks for structure extraction
-        if (trimmed.len == 0 and inside_content_block) {
-            // Skip blank lines inside script/style content
+        // Skip blank lines in structure mode to prevent extra spacing between sections  
+        if (trimmed.len == 0 and context.flags.structure) {
+            // Skip blank lines for clean structure extraction
+            continue;
+        }
+        
+        // For non-structure modes, skip blank lines only inside content blocks
+        if (trimmed.len == 0 and !context.flags.structure and inside_content_block) {
             continue;
         }
 

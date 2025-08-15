@@ -160,17 +160,17 @@ fn isErrorNode(kind: []const u8, text: []const u8) bool {
         return std.mem.startsWith(u8, trimmed, "const");
     }
     
-    // Functions returning error unions - only extract signatures
-    if (std.mem.eql(u8, kind, "VarDecl") and std.mem.indexOf(u8, text, "fn ") != null) {
+    // Functions returning error unions - check both VarDecl and Decl nodes
+    if ((std.mem.eql(u8, kind, "VarDecl") or std.mem.eql(u8, kind, "Decl")) and std.mem.indexOf(u8, text, "fn ") != null) {
         // Check if function returns an error union (Error!Type)
         if (std.mem.indexOf(u8, text, "Error!") != null) {
-            // Extract only the function signature, not the full body
             return true;
         }
     }
     
-    // Individual catch statements - for specific catch expressions like "parseNumber(line) catch continue"
-    if (std.mem.indexOf(u8, text, " catch ") != null and !std.mem.startsWith(u8, std.mem.trim(u8, text, " \t\n\r"), "return") and !std.mem.startsWith(u8, std.mem.trim(u8, text, " \t\n\r"), "fn ")) {
+    // Individual catch statements - for specific catch expressions like "parseNumber(line) catch continue"  
+    // Only extract from VarDecl nodes to avoid duplicates from multiple AST node types
+    if (std.mem.eql(u8, kind, "VarDecl") and std.mem.indexOf(u8, text, " catch ") != null and !std.mem.startsWith(u8, std.mem.trim(u8, text, " \t\n\r"), "return") and !std.mem.startsWith(u8, std.mem.trim(u8, text, " \t\n\r"), "fn ")) {
         // Only extract simple catch expressions, not full functions
         const trimmed = std.mem.trim(u8, text, " \t\n\r");
         if (std.mem.indexOf(u8, trimmed, "{") == null) { // No function body
@@ -316,15 +316,16 @@ fn appendNormalizedTestNode(context: *ExtractionContext, node: *const Node) !voi
     try builders.appendMaybe(context.result, builder.items(), !std.mem.endsWith(u8, builder.items(), "\n"));
 }
 
-/// Append function signature and return statement that contains error handling
+/// Append function signature and error-related content
 fn appendZigErrorFunction(context: *ExtractionContext, node: *const Node) !void {
     const node_text = node.text;
     var lines = std.mem.splitScalar(u8, node_text, '\n');
     var builder = builders.ResultBuilder.init(context.allocator);
     defer builder.deinit();
     
-    var in_function_signature = false;
     var found_function_start = false;
+    var in_function_signature = false;
+    var brace_count: i32 = 0;
     
     while (lines.next()) |line| {
         const trimmed = std.mem.trim(u8, line, " \t\r");
@@ -335,9 +336,12 @@ fn appendZigErrorFunction(context: *ExtractionContext, node: *const Node) !void 
             in_function_signature = true;
             try builders.appendLine(builder.list(), line);
             
-            // If function signature is complete on one line, stop signature collection
-            if (std.mem.indexOf(u8, trimmed, "{") != null) {
-                in_function_signature = false;
+            // Count braces on the same line to detect end of signature
+            for (line) |char| {
+                if (char == '{') {
+                    brace_count += 1;
+                    in_function_signature = false;
+                }
             }
             continue;
         }
@@ -346,15 +350,37 @@ fn appendZigErrorFunction(context: *ExtractionContext, node: *const Node) !void 
         if (in_function_signature) {
             try builders.appendLine(builder.list(), line);
             if (std.mem.indexOf(u8, trimmed, "{") != null) {
+                for (line) |char| {
+                    if (char == '{') brace_count += 1;
+                }
                 in_function_signature = false;
             }
             continue;
         }
         
-        // Look for return statement with error handling
-        if (found_function_start and std.mem.startsWith(u8, trimmed, "return") and std.mem.indexOf(u8, trimmed, "catch") != null) {
-            try builders.appendLine(builder.list(), line);
-            break; // Only extract the first return with catch
+        // After signature, only extract lines containing error handling (catch, switch with error)
+        if (found_function_start and !in_function_signature) {
+            const has_catch = std.mem.indexOf(u8, trimmed, "catch") != null;
+            const is_return_with_catch = std.mem.startsWith(u8, trimmed, "return") and has_catch;
+            const is_error_mapping = std.mem.indexOf(u8, trimmed, "error.") != null and 
+                                    std.mem.indexOf(u8, trimmed, "=>") != null;
+            const is_closing_brace = std.mem.eql(u8, trimmed, "};") or std.mem.eql(u8, trimmed, "}");
+            
+            // Only extract return statements with catch and error mapping lines
+            if (is_return_with_catch or is_error_mapping or is_closing_brace) {
+                try builders.appendLine(builder.list(), line);
+            }
+            
+            // Track brace count to know when function ends
+            for (line) |char| {
+                if (char == '{') brace_count += 1;
+                if (char == '}') brace_count -= 1;
+            }
+            
+            // Stop when function ends
+            if (brace_count <= 0) {
+                break;
+            }
         }
     }
     

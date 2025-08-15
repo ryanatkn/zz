@@ -552,8 +552,10 @@ fn formatArrowFunction(source_text: []const u8, builder: *LineBuilder, options: 
             
             if (estimated_length > options.line_width) {
                 try builder.newline();
+                builder.indent();
                 try builder.appendIndent();
                 try formatArrowFunctionBody(body_part, builder, options);
+                builder.dedent();
             } else {
                 try builder.append(" ");
                 try formatArrowFunctionBody(body_part, builder, options);

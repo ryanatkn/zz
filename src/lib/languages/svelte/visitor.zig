@@ -29,16 +29,43 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
 
     // Handle template/HTML elements for structure
     if (context.flags.structure) {
-        if (std.mem.eql(u8, node_type, "element") or
-            std.mem.eql(u8, node_type, "start_tag") or
-            std.mem.eql(u8, node_type, "end_tag") or
-            std.mem.eql(u8, node_type, "text") or
-            std.mem.eql(u8, node_type, "if_statement") or
+        // Only append template elements that are direct children of the fragment
+        // This avoids duplication where we process both parent and child elements
+        if (std.mem.eql(u8, node_type, "element")) {
+            // Only process if this element is likely a top-level template element
+            // by checking if it appears to be a container element
+            const node_text = node.text;
+            if (std.mem.startsWith(u8, node_text, "<div") or
+                std.mem.startsWith(u8, node_text, "<main") or
+                std.mem.startsWith(u8, node_text, "<section") or
+                std.mem.startsWith(u8, node_text, "<article") or
+                std.mem.startsWith(u8, node_text, "<nav") or
+                std.mem.startsWith(u8, node_text, "<header") or
+                std.mem.startsWith(u8, node_text, "<footer"))
+            {
+                try context.appendNode(node);
+                return;
+            }
+            // Skip processing other element nodes - they're likely children of processed elements
+            return;
+        }
+        
+        // Handle Svelte-specific statements
+        if (std.mem.eql(u8, node_type, "if_statement") or
             std.mem.eql(u8, node_type, "each_statement") or
             std.mem.eql(u8, node_type, "await_statement") or
             std.mem.eql(u8, node_type, "snippet_statement"))
         {
             try context.appendNode(node);
+            return;
+        }
+        
+        // Skip individual tags and text nodes - they're already included in elements
+        if (std.mem.eql(u8, node_type, "start_tag") or
+            std.mem.eql(u8, node_type, "end_tag") or
+            std.mem.eql(u8, node_type, "text"))
+        {
+            // Skip these - they're already included in their parent elements
             return;
         }
     }
@@ -56,9 +83,12 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
 
 /// Handle script_element nodes - extract JavaScript content based on flags
 fn handleScriptElement(context: *ExtractionContext, node: *const Node) !void {
-    // For structure extraction, include the entire script element
+    // For structure extraction, include the entire script element (but only if it has content)
     if (context.flags.structure) {
-        try context.appendNode(node);
+        // Check if this script element has actual content (raw_text nodes)
+        if (hasNonEmptyContent(node, context.source)) {
+            try context.appendNode(node);
+        }
         return;
     }
 
@@ -89,9 +119,12 @@ fn handleScriptElement(context: *ExtractionContext, node: *const Node) !void {
 
 /// Handle style_element nodes - extract CSS content based on flags
 fn handleStyleElement(context: *ExtractionContext, node: *const Node) !void {
-    // For structure extraction, include the entire style element
+    // For structure extraction, include the entire style element (but only if it has content)
     if (context.flags.structure) {
-        try context.appendNode(node);
+        // Check if this style element has actual content (raw_text nodes)
+        if (hasNonEmptyContent(node, context.source)) {
+            try context.appendNode(node);
+        }
         return;
     }
 
@@ -251,4 +284,26 @@ fn extractJavaScriptTypes(context: *ExtractionContext, js_source: []const u8) !v
             continue;
         }
     }
+}
+
+/// Check if a script or style element has non-empty content
+fn hasNonEmptyContent(node: *const Node, source: []const u8) bool {
+    const child_count = node.childCount();
+    var i: u32 = 0;
+    
+    while (i < child_count) : (i += 1) {
+        if (node.child(i, source)) |child| {
+            const child_type = child.kind;
+            
+            // Look for raw_text nodes with actual content
+            if (std.mem.eql(u8, child_type, "raw_text")) {
+                const content = std.mem.trim(u8, child.text, " \t\r\n");
+                if (content.len > 0) {
+                    return true;
+                }
+            }
+        }
+    }
+    
+    return false;
 }

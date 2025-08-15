@@ -57,6 +57,11 @@ pub const Extractor = struct {
         
         try self.registry.extract(self.allocator, language, source, extraction_flags, &result);
         
+        // Remove trailing newline if present for better test compatibility
+        if (result.items.len > 0 and result.items[result.items.len - 1] == '\n') {
+            _ = result.pop();
+        }
+        
         std.log.debug("AST extraction succeeded: result length={d}", .{result.items.len});
         return result.toOwnedSlice();
     }

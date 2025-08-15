@@ -16,11 +16,11 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
             try context.appendSignature(node);
             return false;
         }
-        // Arrow functions need special handling - look for variable declarators
-        if (std.mem.eql(u8, node_type, "variable_declarator")) {
+        // Arrow functions need special handling - look for variable declarations containing arrow functions
+        if (std.mem.eql(u8, node_type, "variable_declaration") or std.mem.eql(u8, node_type, "lexical_declaration")) {
             const text = node.text;
             if (std.mem.indexOf(u8, text, "=>") != null) {
-                // This is an arrow function assignment
+                // This is an arrow function assignment like "const getUserById = async (id: number) => {...}"
                 try context.appendSignature(node);
                 return false;
             }

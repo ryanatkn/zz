@@ -23,7 +23,7 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
         if (std.mem.eql(u8, node_type, "media_statement")) {
             // Extract only the @media query part, not the content
             try context.appendSignature(node);
-            return false;
+            return true; // Continue recursion to find selectors inside the media query
         }
     }
 
@@ -47,6 +47,14 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
             std.mem.eql(u8, node_type, "import_statement"))
         {
             try context.appendNode(node);
+            // If this is a container element (media, keyframes, etc.), skip children
+            // because we've already captured the complete structure including nested rules
+            if (std.mem.eql(u8, node_type, "media_statement") or
+                std.mem.eql(u8, node_type, "keyframes_statement") or
+                std.mem.eql(u8, node_type, "supports_statement"))
+            {
+                return false; // Skip children to avoid double extraction
+            }
         }
     }
 

@@ -63,13 +63,17 @@ fn isFunctionNode(kind: []const u8, text: []const u8) bool {
         // Only match if it contains "fn " and doesn't start with "const" (to avoid structs)
         const contains_fn = std.mem.indexOf(u8, text, "fn ") != null;
         const not_const_decl = !std.mem.startsWith(u8, std.mem.trim(u8, text, " \t\n\r"), "const");
-        
-        // TODO: Missing 'pub' keyword in extracted signatures - 
-        // the Decl nodes might not include visibility modifiers.
-        // Need to check if pub is in a parent node or different AST structure.
-        
         return contains_fn and not_const_decl;
     }
+    
+    // Also try VarDecl nodes that might contain full function declarations with pub
+    if (std.mem.eql(u8, kind, "VarDecl")) {
+        const contains_fn = std.mem.indexOf(u8, text, "fn ") != null;
+        const not_import = std.mem.indexOf(u8, text, "@import") == null;
+        const not_struct_def = std.mem.indexOf(u8, text, "struct") == null; // Don't extract struct definitions
+        return contains_fn and not_import and not_struct_def;
+    }
+    
     return false;
 }
 

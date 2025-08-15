@@ -61,10 +61,13 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
 
     // Imports and exports
     if (context.flags.imports and !context.flags.structure and !context.flags.signatures and !context.flags.types) {
-        if (std.mem.eql(u8, node_type, "import_statement") or
-            std.mem.eql(u8, node_type, "export_statement"))
-        {
+        if (std.mem.eql(u8, node_type, "import_statement")) {
             try context.appendNode(node);
+            return false;
+        }
+        if (std.mem.eql(u8, node_type, "export_statement")) {
+            // For exports, extract only the signature/declaration part
+            try appendExportSignature(context, node);
             return false;
         }
     }
@@ -93,6 +96,47 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
     }
 
     return true; // Continue recursion by default
+}
+
+/// Extract signature from TypeScript export statement
+fn appendExportSignature(context: *ExtractionContext, node: *const Node) !void {
+    const text = node.text;
+    
+    // Handle different export patterns
+    if (std.mem.indexOf(u8, text, "export interface") != null) {
+        // For interfaces, include "export interface Name {" but stop there
+        if (std.mem.indexOf(u8, text, "{")) |brace_pos| {
+            const signature = std.mem.trim(u8, text[0..brace_pos + 1], " \t\n\r");
+            try context.result.appendSlice(signature);
+        } else {
+            try context.result.appendSlice(std.mem.trim(u8, text, " \t\n\r"));
+        }
+    } else if (std.mem.indexOf(u8, text, "export const") != null or 
+               std.mem.indexOf(u8, text, "export let") != null or
+               std.mem.indexOf(u8, text, "export var") != null) {
+        // For variable exports, include up to "="
+        if (std.mem.indexOf(u8, text, "=")) |eq_pos| {
+            const signature = std.mem.trim(u8, text[0..eq_pos + 1], " \t\n\r");
+            try context.result.appendSlice(signature);
+        } else {
+            try context.result.appendSlice(std.mem.trim(u8, text, " \t\n\r"));
+        }
+    } else if (std.mem.indexOf(u8, text, "export default") != null) {
+        // For default exports, include the full statement (usually just one line)
+        var lines = std.mem.splitScalar(u8, text, '\n');
+        if (lines.next()) |first_line| {
+            try context.result.appendSlice(std.mem.trim(u8, first_line, " \t\n\r"));
+        }
+    } else {
+        // For other export types, use the regular signature extraction
+        const signature = @import("../../tree_sitter/visitor.zig").extractSignatureFromText(text);
+        try context.result.appendSlice(signature);
+    }
+    
+    // Add newline if not present
+    if (!std.mem.endsWith(u8, context.result.items, "\n")) {
+        try context.result.append('\n');
+    }
 }
 
 /// Helper function to extract only the type structure of a class

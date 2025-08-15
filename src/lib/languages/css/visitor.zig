@@ -10,14 +10,10 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
 
     // Selectors (for signatures flag)
     if (context.flags.signatures and !context.flags.structure and !context.flags.types) {
-        // Extract selectors and @media rules
-        if (std.mem.eql(u8, node_type, "class_selector") or
-            std.mem.eql(u8, node_type, "id_selector") or
-            std.mem.eql(u8, node_type, "type_selector") or
-            std.mem.eql(u8, node_type, "pseudo_class_selector") or
-            std.mem.eql(u8, node_type, "attribute_selector"))
-        {
-            try context.appendNode(node);
+        // Extract complete selectors from rule_set nodes
+        if (std.mem.eql(u8, node_type, "rule_set")) {
+            // Extract the selector part (everything before the opening brace)
+            try context.appendSignature(node);
             return false; // Skip children - we've captured the selector
         }
         // Also extract @media rules for signatures
@@ -32,6 +28,7 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
     if (context.flags.imports and !context.flags.structure and !context.flags.signatures and !context.flags.types) {
         if (std.mem.eql(u8, node_type, "import_statement") or
             std.mem.eql(u8, node_type, "at_rule") or
+            std.mem.eql(u8, node_type, "namespace_statement") or
             std.mem.startsWith(u8, node_type, "import_"))
         {
             try context.appendNode(node);

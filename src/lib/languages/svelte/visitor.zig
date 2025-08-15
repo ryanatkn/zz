@@ -61,8 +61,8 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
     // Imports: Extract import statements from script elements
     if (context.flags.imports and !context.flags.structure and !context.flags.signatures and !context.flags.types) {
         if (std.mem.eql(u8, node_type, "script_element")) {
-            // TODO: Extract only import statements
-            try context.appendNode(node);
+            // Extract only import statements from the JavaScript content
+            try extractImportsFromScript(context, node);
             return false;
         }
         return true;
@@ -80,6 +80,26 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
     
     // Default: continue recursion to child nodes
     return true;
+}
+
+/// Extract import statements from script element (without script tags)
+fn extractImportsFromScript(context: *ExtractionContext, script_node: *const Node) !void {
+    // Extract content from raw_text children of script_element
+    const child_count = script_node.childCount();
+    var i: u32 = 0;
+    while (i < child_count) : (i += 1) {
+        if (script_node.child(i, context.source)) |child| {
+            if (std.mem.eql(u8, child.kind, "raw_text")) {
+                // Extract JavaScript imports from the raw content
+                const js_content = child.text;
+                try extractJavaScriptImports(context, js_content);
+                return;
+            }
+        }
+    }
+    
+    // Fallback if no raw_text found
+    try context.appendNode(script_node);
 }
 
 /// Extract function signatures from script element (without script tags)
@@ -261,7 +281,6 @@ fn extractJavaScriptImports(context: *ExtractionContext, js_source: []const u8) 
         // Import statements
         if (std.mem.startsWith(u8, trimmed, "import ")) {
             try context.appendText(trimmed);
-            try context.appendText("\n");
             continue;
         }
 
@@ -272,7 +291,6 @@ fn extractJavaScriptImports(context: *ExtractionContext, js_source: []const u8) 
             !std.mem.startsWith(u8, trimmed, "export function "))
         {
             try context.appendText(trimmed);
-            try context.appendText("\n");
             continue;
         }
     }

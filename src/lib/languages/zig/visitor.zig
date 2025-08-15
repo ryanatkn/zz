@@ -189,43 +189,69 @@ fn appendZigSignature(context: *ExtractionContext, node: *const Node) !void {
 
 /// Extract only the struct type definition without method implementations
 fn appendZigStructTypeOnly(context: *ExtractionContext, node: *const Node) !void {
-    var lines = std.mem.splitScalar(u8, node.text, '\n');
+    const node_text = node.text;
+    
+    // Check if the original source contains 'pub' before this node
+    var has_pub = false;
+    if (std.mem.indexOf(u8, context.source, node_text)) |node_pos| {
+        // Look backwards from the node position to find 'pub'
+        const search_start = if (node_pos >= 20) node_pos - 20 else 0;
+        const search_text = context.source[search_start..node_pos];
+        
+        if (std.mem.lastIndexOf(u8, search_text, "pub")) |pub_relative_pos| {
+            const pub_pos = search_start + pub_relative_pos;
+            
+            // Check that 'pub' is followed by whitespace and is close to our node
+            if (pub_pos + 3 < context.source.len and 
+                std.ascii.isWhitespace(context.source[pub_pos + 3])) {
+                
+                const text_between = context.source[pub_pos + 3..node_pos];
+                // Only include 'pub' if there's minimal text between (whitespace/newlines)
+                const is_close = std.mem.trim(u8, text_between, " \t\n\r").len == 0;
+                has_pub = is_close;
+            }
+        }
+    }
+    
+    var lines = std.mem.splitScalar(u8, node_text, '\n');
     var normalized = std.ArrayList(u8).init(context.allocator);
     defer normalized.deinit();
     
     var inside_method = false;
     var brace_count: i32 = 0;
-    var method_start_brace_count: i32 = 0;
+    var struct_brace_count: i32 = 0;
+    var first_line = true;
     
     while (lines.next()) |line| {
         const trimmed = std.mem.trim(u8, line, " \t");
         
-        // Count braces in this line
-        var line_brace_delta: i32 = 0;
+        // Count braces to track nesting
         for (line) |char| {
             if (char == '{') {
-                line_brace_delta += 1;
+                brace_count += 1;
+                // Remember the struct's opening brace level
+                if (struct_brace_count == 0 and std.mem.indexOf(u8, line, "struct") != null) {
+                    struct_brace_count = brace_count;
+                }
             } else if (char == '}') {
-                line_brace_delta -= 1;
+                brace_count -= 1;
             }
         }
         
-        // Check if this line starts a method
+        // Check if this line starts a method (function inside struct)
         const is_method_start = !inside_method and trimmed.len > 0 and
+            brace_count >= struct_brace_count and
             (std.mem.indexOf(u8, trimmed, "pub fn ") != null or
              std.mem.indexOf(u8, trimmed, "fn ") != null) and
             std.mem.indexOf(u8, trimmed, "(") != null;
         
         if (is_method_start) {
             inside_method = true;
-            method_start_brace_count = brace_count;
+            continue; // Skip method start line
         }
         
-        // Update brace count after checking for method start
-        brace_count += line_brace_delta;
-        
-        // Check if we've exited the method
-        if (inside_method and brace_count <= method_start_brace_count) {
+        // If we're inside a method and back to struct level, exit method
+        if (inside_method and brace_count < struct_brace_count) {
             inside_method = false;
         }
         
@@ -234,7 +260,13 @@ fn appendZigStructTypeOnly(context: *ExtractionContext, node: *const Node) !void
             continue;
         }
         
-        // Include non-method lines, but skip empty lines to normalize whitespace
+        // Handle the first line - prepend 'pub' if needed
+        if (first_line and has_pub and !std.mem.startsWith(u8, trimmed, "pub ")) {
+            try normalized.appendSlice("pub ");
+        }
+        first_line = false;
+        
+        // Include struct-level lines (skip empty lines to normalize whitespace)
         if (trimmed.len > 0) {
             try normalized.appendSlice(line);
             try normalized.append('\n');

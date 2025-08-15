@@ -25,8 +25,10 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
             try context.appendNode(node);
         }
     } else if (context.flags.imports and !context.flags.structure and !context.flags.signatures and !context.flags.types) {
-        // Extract script src, link href, etc.
+        // Extract script src, link href, and event handler attributes
         if (isImportNode(node.kind)) {
+            try context.appendNode(node);
+        } else if (isEventHandlerAttribute(node)) {
             try context.appendNode(node);
         }
     } else if (context.flags.docs and !context.flags.structure and !context.flags.signatures and !context.flags.types) {
@@ -72,6 +74,32 @@ pub fn isImportNode(kind: []const u8) bool {
 /// Check if node is a comment
 pub fn isCommentNode(kind: []const u8) bool {
     return std.mem.eql(u8, kind, "comment");
+}
+
+/// Check if node is an event handler attribute (starts with 'on')
+pub fn isEventHandlerAttribute(node: *const Node) bool {
+    // Check if it's an attribute node
+    if (!std.mem.eql(u8, node.kind, "attribute")) {
+        return false;
+    }
+    
+    // Check if the attribute text starts with an event handler (on...)
+    const text = std.mem.trim(u8, node.text, " \t\n\r");
+    
+    // Common event handlers
+    const event_handlers = [_][]const u8{
+        "onclick=", "onmouseover=", "onmouseout=", "onload=", "onunload=",
+        "onsubmit=", "onchange=", "onfocus=", "onblur=", "onkeydown=",
+        "onkeyup=", "onkeypress=", "onmousedown=", "onmouseup=", "onmousemove=",
+    };
+    
+    for (event_handlers) |handler| {
+        if (std.mem.startsWith(u8, text, handler)) {
+            return true;
+        }
+    }
+    
+    return false;
 }
 
 /// Check if element is a void element (self-closing)

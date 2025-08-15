@@ -70,21 +70,20 @@ pub const AstFormatter = struct {
         }
 
         // Try AST-based formatting first
-        std.debug.print("AstFormatter: Attempting to parse {d} bytes for language {s}\n", .{ source.len, @tagName(self.language) });
-        const tree = self.parser.parse(source) catch |err| {
+        const tree = self.parser.parse(source) catch {
             // On parse failure, return original source
-            std.debug.print("AstFormatter: Parse failed with error: {s}\n", .{@errorName(err)});
+            std.debug.print("[DEBUG] AST parse failed, returning original source\n", .{});
             return self.allocator.dupe(u8, source);
         };
         defer tree.destroy();
 
         const root = tree.rootNode();
-        std.debug.print("AstFormatter: Parse successful, root node type: {s}\n", .{root.kind()});
         
         // Check if the parse resulted in ERROR nodes (malformed/partial parse)
         if (self.hasErrorNodes(root)) {
             // Return original source for malformed code
-            std.debug.print("AstFormatter: Has error nodes, returning original source\n", .{});
+            std.debug.print("[DEBUG] AST has error nodes:\n", .{});
+            self.debugPrintNodes(root, 0, 3); // Print first 3 levels
             return self.allocator.dupe(u8, source);
         }
 
@@ -186,6 +185,30 @@ pub const AstFormatter = struct {
         }
         
         return false;
+    }
+
+    /// Debug helper to print AST structure
+    fn debugPrintNodes(self: *Self, node: ts.Node, depth: u32, max_depth: u32) void {
+        if (depth > max_depth) return;
+        
+        const node_type = node.kind();
+        var indent: [32]u8 = undefined;
+        var i: u32 = 0;
+        while (i < depth * 2 and i < 31) : (i += 1) {
+            indent[i] = ' ';
+        }
+        indent[i] = 0;
+        
+        std.debug.print("{s}{s}\n", .{ indent[0..i], node_type });
+        
+        // Print children
+        const child_count = node.childCount();
+        var child_i: u32 = 0;
+        while (child_i < child_count) : (child_i += 1) {
+            if (node.child(child_i)) |child| {
+                self.debugPrintNodes(child, depth + 1, max_depth);
+            }
+        }
     }
 };
 

@@ -18,6 +18,7 @@ pub fn format(allocator: std.mem.Allocator, source: []const u8, options: Formatt
 /// Format Zig using AST-based approach
 pub fn formatAst(allocator: std.mem.Allocator, node: ts.Node, source: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
     _ = allocator;
+    std.debug.print("[DEBUG] Zig formatAst called\n", .{});
     try formatZigNode(node, source, builder, 0, options);
 }
 
@@ -26,41 +27,34 @@ fn formatZigNode(node: ts.Node, source: []const u8, builder: *LineBuilder, depth
     const node_type = node.kind();
     const node_text = getNodeText(node, source);
 
-    std.debug.print("formatZigNode: type='{s}', text_preview='{s}'\n", .{ node_type, if (node_text.len > 50) node_text[0..50] else node_text });
+    // Debug: Print node type to diagnose issues
+    if (depth <= 1) {
+        std.debug.print("[DEBUG] Zig Node at depth {d}: {s}\n", .{ depth, node_type });
+    }
 
     // Use same logic as the visitor to identify node types
     if (std.mem.eql(u8, node_type, "VarDecl")) {
         // Check what kind of VarDecl this is
-        std.debug.print("VarDecl node: type='{s}', text='{s}'\n", .{ node_type, node_text });
         if (isFunctionDecl(node_text)) {
-            std.debug.print("  -> function\n", .{});
             try formatZigFunction(node, source, builder, depth, options);
         } else if (isTypeDecl(node_text)) {
-            std.debug.print("  -> struct/type\n", .{});
             try formatZigStruct(node, source, builder, depth, options);
         } else if (isImportDecl(node_text)) {
-            std.debug.print("  -> import\n", .{});
             try formatZigImport(node, source, builder, depth, options);
         } else {
-            std.debug.print("  -> variable\n", .{});
             try formatZigVariable(node, source, builder, depth, options);
         }
     } else if (std.mem.eql(u8, node_type, "TestDecl")) {
         try formatZigTest(node, source, builder, depth, options);
     } else if (std.mem.eql(u8, node_type, "Decl")) {
         // Handle Decl nodes (similar to VarDecl but different tree-sitter node type)
-        std.debug.print("Decl node: type='{s}', text='{s}'\n", .{ node_type, node_text });
         if (isFunctionDecl(node_text)) {
-            std.debug.print("  -> function\n", .{});
             try formatZigFunction(node, source, builder, depth, options);
         } else if (isTypeDecl(node_text)) {
-            std.debug.print("  -> struct/type\n", .{});
             try formatZigStruct(node, source, builder, depth, options);
         } else if (isImportDecl(node_text)) {
-            std.debug.print("  -> import\n", .{});
             try formatZigImport(node, source, builder, depth, options);
         } else {
-            std.debug.print("  -> variable\n", .{});
             try formatZigVariable(node, source, builder, depth, options);
         }
     } else if (std.mem.eql(u8, node_type, "source_file")) {
@@ -171,8 +165,7 @@ fn formatStructDeclaration(struct_text: []const u8, builder: *LineBuilder) !void
         // Add proper spacing around keywords and identifiers
         try formatZigDeclaration(declaration, builder);
     } else {
-        // DEBUG: This shouldn't happen for structs - fallback
-        std.debug.print("formatStructDeclaration fallback: text='{s}'\n", .{trimmed});
+        // Fallback: just append the text
         try builder.append(trimmed);
     }
 }
@@ -387,16 +380,141 @@ fn formatSignatureRest(rest: []const u8, builder: *LineBuilder) !void {
     }
 }
 
-/// Format function body with proper spacing
+/// Format function body with proper spacing and statement expansion
 fn formatFunctionBody(body: []const u8, builder: *LineBuilder) !void {
-    // Simple body formatting - add spaces around key operators
+    // Split into statements by semicolon
+    var statements = std.ArrayList([]const u8).init(builder.allocator);
+    defer statements.deinit();
+    
+    var start: usize = 0;
     var i: usize = 0;
     while (i < body.len) : (i += 1) {
-        const char = body[i];
-        if (char == ',' and i + 1 < body.len and body[i + 1] != ' ') {
+        if (body[i] == ';') {
+            const statement = std.mem.trim(u8, body[start..i], " \t\n\r");
+            if (statement.len > 0) {
+                try statements.append(statement);
+            }
+            start = i + 1;
+        }
+    }
+    
+    // Add final statement if no trailing semicolon
+    if (start < body.len) {
+        const statement = std.mem.trim(u8, body[start..], " \t\n\r");
+        if (statement.len > 0) {
+            try statements.append(statement);
+        }
+    }
+    
+    // Format each statement
+    for (statements.items, 0..) |statement, idx| {
+        try formatZigStatement(statement, builder);
+        
+        // Add semicolon - return statements always need semicolons
+        try builder.append(";");
+        
+        // Add newline between statements
+        if (idx < statements.items.len - 1) {
+            try builder.newline();
+            try builder.appendIndent();
+        }
+    }
+}
+
+/// Format a single Zig statement with proper spacing and expansion
+fn formatZigStatement(statement: []const u8, builder: *LineBuilder) !void {
+    // Check if this is a return statement with struct literal
+    if (std.mem.startsWith(u8, statement, "return ") and std.mem.indexOf(u8, statement, "{") != null) {
+        try formatReturnWithStruct(statement, builder);
+    } else {
+        // Regular statement with operator spacing
+        try formatStatementWithSpacing(statement, builder);
+    }
+}
+
+/// Format return statement with struct literal expansion
+fn formatReturnWithStruct(statement: []const u8, builder: *LineBuilder) !void {
+    // Find the struct literal part
+    if (std.mem.indexOf(u8, statement, "{")) |brace_start| {
+        // Format "return StructName"
+        const return_part = std.mem.trim(u8, statement[0..brace_start], " \t");
+        try formatStatementWithSpacing(return_part, builder);
+        try builder.append("{");
+        try builder.newline();
+        
+        builder.indent();
+        
+        // Extract and format struct fields
+        const struct_end = std.mem.lastIndexOf(u8, statement, "}") orelse statement.len;
+        const struct_content = std.mem.trim(u8, statement[brace_start + 1..struct_end], " \t\n\r");
+        
+        if (struct_content.len > 0) {
+            // Split by comma and format each field
+            var field_start: usize = 0;
+            var j: usize = 0;
+            while (j < struct_content.len) : (j += 1) {
+                if (struct_content[j] == ',') {
+                    const field = std.mem.trim(u8, struct_content[field_start..j], " \t\n\r");
+                    if (field.len > 0) {
+                        try builder.appendIndent();
+                        try formatStatementWithSpacing(field, builder);
+                        try builder.append(",");
+                        try builder.newline();
+                    }
+                    field_start = j + 1;
+                }
+            }
+            
+            // Add final field if no trailing comma
+            if (field_start < struct_content.len) {
+                const field = std.mem.trim(u8, struct_content[field_start..], " \t\n\r");
+                if (field.len > 0) {
+                    try builder.appendIndent();
+                    try formatStatementWithSpacing(field, builder);
+                    try builder.append(",");
+                    try builder.newline();
+                }
+            }
+        }
+        
+        builder.dedent();
+        try builder.appendIndent();
+        try builder.append("}");
+    } else {
+        // No struct literal, just format normally
+        try formatStatementWithSpacing(statement, builder);
+    }
+}
+
+/// Format statement with proper spacing around operators
+fn formatStatementWithSpacing(statement: []const u8, builder: *LineBuilder) !void {
+    var i: usize = 0;
+    while (i < statement.len) : (i += 1) {
+        const char = statement[i];
+        
+        if (char == '=') {
+            // Add spaces around =
+            if (i > 0 and statement[i-1] != ' ') {
+                try builder.append(" ");
+            }
             try builder.append(&[_]u8{char});
-            try builder.append(" ");
-        } else if (char == '(' or char == ')') {
+            if (i + 1 < statement.len and statement[i + 1] != ' ') {
+                try builder.append(" ");
+            }
+        } else if (char == '+' or char == '-' or char == '*') {
+            // Add spaces around arithmetic operators
+            if (i > 0 and statement[i-1] != ' ') {
+                try builder.append(" ");
+            }
+            try builder.append(&[_]u8{char});
+            if (i + 1 < statement.len and statement[i + 1] != ' ') {
+                try builder.append(" ");
+            }
+        } else if (char == '@') {
+            // Add space before @ functions
+            if (i > 0 and statement[i-1] != ' ') {
+                try builder.append(" ");
+            }
             try builder.append(&[_]u8{char});
         } else {
             try builder.append(&[_]u8{char});
@@ -501,10 +619,6 @@ fn formatStructBody(container: ts.Node, source: []const u8, builder: *LineBuilde
             
             if (std.mem.eql(u8, child_type, "ContainerField")) {
                 // Format struct field
-                if (prev_was_field) {
-                    // Add newline between fields for readability
-                    try builder.newline();
-                }
                 try formatStructField(child, source, builder);
                 prev_was_field = true;
             } else if (std.mem.eql(u8, child_type, "pub")) {
@@ -513,9 +627,7 @@ fn formatStructBody(container: ts.Node, source: []const u8, builder: *LineBuilde
                     if (container.child(i + 1)) |next_child| {
                         if (std.mem.eql(u8, next_child.kind(), "Decl")) {
                             // Add blank line before methods
-                            if (prev_was_field) {
-                                try builder.newline();
-                            }
+                            try builder.newline();
                             
                             try formatPubMethod(child, next_child, source, builder, depth, options);
                             prev_was_field = false;

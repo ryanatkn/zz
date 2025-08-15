@@ -50,7 +50,6 @@ fn configToFormatterOptions(config: FormatConfigOptions) FormatterOptions {
 }
 
 pub fn run(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: [][:0]const u8) !void {
-    std.debug.print("format/main.zig: run() called with {d} args\n", .{args.len});
     // Load configuration from zz.zon
     var zon_loader = ZonLoader.init(allocator, filesystem);
     defer zon_loader.deinit();
@@ -219,6 +218,7 @@ fn formatStdin(allocator: std.mem.Allocator, options: FormatterOptions) !void {
 
     // Try to detect language from content (simple heuristic)
     const language = detectLanguageFromContent(content);
+    std.debug.print("[DEBUG] Language detection result: {}\n", .{language});
 
     var formatter = Formatter.init(allocator, language, options);
     const formatted = formatter.format(content) catch |err| {
@@ -242,7 +242,6 @@ fn detectLanguageFromContent(content: []const u8) Language {
 
     // JSON detection
     if (trimmed.len > 0 and (trimmed[0] == '{' or trimmed[0] == '[')) {
-        // Likely JSON
         return .json;
     }
 
@@ -253,7 +252,16 @@ fn detectLanguageFromContent(content: []const u8) Language {
         return .html;
     }
 
-    // CSS detection - improved heuristics
+    // Svelte detection - look for script or style tags (must come before CSS to avoid false positives)
+    if (std.mem.indexOf(u8, content, "<script>") != null or
+        std.mem.indexOf(u8, content, "<script ") != null or
+        std.mem.indexOf(u8, content, "<style>") != null or
+        std.mem.indexOf(u8, content, "<style ") != null)
+    {
+        return .svelte;
+    }
+
+    // CSS detection - improved heuristics  
     if (std.mem.indexOf(u8, content, "{") != null and std.mem.indexOf(u8, content, "}") != null) {
         // Look for CSS-specific patterns
         if (std.mem.indexOf(u8, content, ":") != null and
@@ -291,11 +299,21 @@ fn detectLanguageFromContent(content: []const u8) Language {
         }
     }
 
-    // Zig detection
-    if (std.mem.indexOf(u8, content, "const std = @import") != null or
-        std.mem.indexOf(u8, content, "pub fn") != null)
+    // Zig detection (must come before TypeScript to avoid @import being missed)
+    if (std.mem.indexOf(u8, content, "@import") != null or
+        std.mem.indexOf(u8, content, "pub fn") != null or
+        std.mem.indexOf(u8, content, "void{") != null)
     {
         return .zig;
+    }
+
+    // TypeScript detection - look for class keyword
+    if (std.mem.indexOf(u8, content, "class ") != null or
+        std.mem.indexOf(u8, content, "interface ") != null or
+        std.mem.indexOf(u8, content, "function ") != null or
+        std.mem.indexOf(u8, content, "const ") != null)
+    {
+        return .typescript;
     }
 
     return .unknown;

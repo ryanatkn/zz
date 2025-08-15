@@ -13,6 +13,7 @@ pub fn formatAst(allocator: std.mem.Allocator, node: ts.Node, source: []const u8
 fn formatTypeScriptNode(node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) std.mem.Allocator.Error!void {
     const node_type = node.kind();
 
+
     if (std.mem.eql(u8, node_type, "function_declaration")) {
         try formatFunction(node, source, builder, depth, options);
     } else if (std.mem.eql(u8, node_type, "interface_declaration")) {
@@ -493,7 +494,6 @@ fn formatClassBody(body_node: ts.Node, source: []const u8, builder: *LineBuilder
         if (body_node.child(i)) |child| {
             const child_type = child.kind();
             
-            
             if (std.mem.eql(u8, child_type, "property_signature") or
                 std.mem.eql(u8, child_type, "method_signature") or
                 std.mem.eql(u8, child_type, "method_definition") or
@@ -524,7 +524,7 @@ fn formatClassMember(member_node: ts.Node, source: []const u8, builder: *LineBui
         try builder.append(";");
         try builder.newline();
         
-        // Add blank line after properties
+        // Add blank line after properties (only if not last member)
         if (!isLastMember(member_node)) {
             try builder.newline();
         }
@@ -534,15 +534,12 @@ fn formatClassMember(member_node: ts.Node, source: []const u8, builder: *LineBui
                std.mem.eql(u8, member_type, "function_declaration") or
                std.mem.eql(u8, member_type, "async_function"))
     {
-        // Format method 
+        // Format method (already includes proper spacing and newlines internally)
         try builder.appendIndent();
         try formatMethodWithSpacing(member_text, builder, options);
         try builder.newline();
         
-        // Add blank line after methods
-        if (!isLastMember(member_node)) {
-            try builder.newline();
-        }
+        // No extra blank line needed for methods - they handle their own spacing
     }
     
     _ = depth;
@@ -703,7 +700,13 @@ fn formatMultiLineMethod(method_text: []const u8, builder: *LineBuilder, options
 
 /// Format method parameters with proper line breaking
 fn formatMethodParameters(params_text: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
-    if (params_text.len <= options.line_width / 2) {
+    // Force multi-line for methods with generic parameters or multiple parameters with complex types
+    const has_generics_in_params = std.mem.indexOf(u8, params_text, "<") != null;
+    const has_complex_types = std.mem.indexOf(u8, params_text, "[") != null; // T[K] type
+    const has_multiple_params = std.mem.count(u8, params_text, ",") > 0;
+    const should_multiline = params_text.len > options.line_width / 3 or has_generics_in_params or (has_complex_types and has_multiple_params);
+    
+    if (!should_multiline) {
         // Short parameters - single line
         try formatSingleLineMethod(params_text, builder);
     } else {
@@ -820,11 +823,16 @@ fn formatJavaScriptStatement(statement: []const u8, builder: *LineBuilder) !void
 
 /// Check if this is the last member in the class
 fn isLastMember(member_node: ts.Node) bool {
-    if (member_node.parent()) |_| {
-        const next_sibling = member_node.nextSibling();
-        return next_sibling == null;
+    // Get next sibling and check if it's a meaningful member (not just braces or semicolons)
+    var sibling = member_node.nextSibling();
+    while (sibling != null) {
+        const sibling_type = sibling.?.kind();
+        if (!std.mem.eql(u8, sibling_type, "}") and !std.mem.eql(u8, sibling_type, ";")) {
+            return false; // Found a meaningful sibling
+        }
+        sibling = sibling.?.nextSibling();
     }
-    return true;
+    return true; // No meaningful siblings found
 }
 
 /// Format TypeScript type alias

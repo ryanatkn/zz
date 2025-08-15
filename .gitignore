@@ -12,3 +12,8 @@ zig-out/
 
 # TODO temporary
 deps/webref 
+
+# Log files
+*.log
+
+.zz

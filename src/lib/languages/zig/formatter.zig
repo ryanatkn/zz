@@ -18,7 +18,6 @@ pub fn format(allocator: std.mem.Allocator, source: []const u8, options: Formatt
 /// Format Zig using AST-based approach
 pub fn formatAst(allocator: std.mem.Allocator, node: ts.Node, source: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
     _ = allocator;
-    std.debug.print("formatAst called with source length: {}\n", .{source.len});
     try formatZigNode(node, source, builder, 0, options);
 }
 
@@ -429,63 +428,152 @@ fn formatZigStruct(node: ts.Node, source: []const u8, builder: *LineBuilder, dep
 
     // Parse and format the complete struct declaration
     const struct_text = getNodeText(node, source);
-    std.debug.print("formatZigStruct: struct_text='{s}'\n", .{struct_text});
     try formatStructDeclaration(struct_text, builder);
 
     try builder.append(" = struct {");
     try builder.newline();
 
-    // Struct body
-    builder.indent();
+    // Navigate to the actual struct body (ContainerDecl)
+    const container_decl = findContainerDecl(node);
+    if (container_decl) |container| {
+        // Format struct body
+        builder.indent();
+        try formatStructBody(container, source, builder, depth + 1, options);
+        builder.dedent();
+    }
+
+    try builder.appendIndent();
+    try builder.append("};");
+    try builder.newline();
+}
+
+/// Find the ContainerDecl node within the struct definition
+fn findContainerDecl(node: ts.Node) ?ts.Node {
+    // Navigate: Decl -> VarDecl -> ErrorUnionExpr -> SuffixExpr -> ContainerDecl
     const child_count = node.childCount();
-    std.debug.print("formatZigStruct: child_count={d}\n", .{child_count});
     var i: u32 = 0;
     while (i < child_count) : (i += 1) {
         if (node.child(i)) |child| {
-            const child_type = child.kind();
-            const child_text = getNodeText(child, source);
-            std.debug.print("  child[{d}]: type='{s}', text_preview='{s}'\n", .{ i, child_type, if (child_text.len > 50) child_text[0..50] else child_text });
-            
-            // If this child is a VarDecl, look at its children
-            if (std.mem.eql(u8, child_type, "VarDecl")) {
+            if (std.mem.eql(u8, child.kind(), "VarDecl")) {
+                // Look for ErrorUnionExpr in VarDecl children
                 const vardecl_child_count = child.childCount();
-                std.debug.print("    VarDecl has {d} children:\n", .{vardecl_child_count});
                 var j: u32 = 0;
                 while (j < vardecl_child_count) : (j += 1) {
                     if (child.child(j)) |grandchild| {
-                        const grandchild_type = grandchild.kind();
-                        const grandchild_text = getNodeText(grandchild, source);
-                        std.debug.print("      grandchild[{d}]: type='{s}', text='{s}'\n", .{ j, grandchild_type, if (grandchild_text.len > 30) grandchild_text[0..30] else grandchild_text });
-                        
-                        // If this is the struct definition, explore its children
-                        if (std.mem.eql(u8, grandchild_type, "ErrorUnionExpr")) {
-                            const struct_child_count = grandchild.childCount();
-                            std.debug.print("        ErrorUnionExpr has {d} children:\n", .{struct_child_count});
+                        if (std.mem.eql(u8, grandchild.kind(), "ErrorUnionExpr")) {
+                            // Look for SuffixExpr in ErrorUnionExpr children
+                            const error_child_count = grandchild.childCount();
                             var k: u32 = 0;
-                            while (k < struct_child_count) : (k += 1) {
+                            while (k < error_child_count) : (k += 1) {
                                 if (grandchild.child(k)) |struct_child| {
-                                    const struct_child_type = struct_child.kind();
-                                    const struct_child_text = getNodeText(struct_child, source);
-                                    std.debug.print("          struct_child[{d}]: type='{s}', text='{s}'\n", .{ k, struct_child_type, if (struct_child_text.len > 20) struct_child_text[0..20] else struct_child_text });
+                                    if (std.mem.eql(u8, struct_child.kind(), "SuffixExpr")) {
+                                        // Look for ContainerDecl in SuffixExpr children
+                                        const suffix_child_count = struct_child.childCount();
+                                        var l: u32 = 0;
+                                        while (l < suffix_child_count) : (l += 1) {
+                                            if (struct_child.child(l)) |suffix_child| {
+                                                if (std.mem.eql(u8, suffix_child.kind(), "ContainerDecl")) {
+                                                    return suffix_child;
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-            
-            if (std.mem.eql(u8, child_type, "field_declaration") or
-                std.mem.eql(u8, child_type, "function_declaration"))
-            {
-                std.debug.print("    -> formatting as struct member\n", .{});
-                try formatZigNode(child, source, builder, depth + 1, options);
-            }
         }
     }
-    builder.dedent();
+    return null;
+}
 
+/// Format the contents of a struct body (ContainerDecl children)
+fn formatStructBody(container: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) !void {
+    const child_count = container.childCount();
+    var i: u32 = 0;
+    var prev_was_field = false;
+    
+    while (i < child_count) : (i += 1) {
+        if (container.child(i)) |child| {
+            const child_type = child.kind();
+            
+            if (std.mem.eql(u8, child_type, "ContainerField")) {
+                // Format struct field
+                if (prev_was_field) {
+                    // Add newline between fields for readability
+                    try builder.newline();
+                }
+                try formatStructField(child, source, builder);
+                prev_was_field = true;
+            } else if (std.mem.eql(u8, child_type, "pub")) {
+                // Handle pub + following declaration
+                if (i + 1 < child_count) {
+                    if (container.child(i + 1)) |next_child| {
+                        if (std.mem.eql(u8, next_child.kind(), "Decl")) {
+                            // Add blank line before methods
+                            if (prev_was_field) {
+                                try builder.newline();
+                            }
+                            
+                            try formatPubMethod(child, next_child, source, builder, depth, options);
+                            prev_was_field = false;
+                            i += 1; // Skip the next node since we processed it
+                        }
+                    }
+                }
+            } else if (std.mem.eql(u8, child_type, "Decl")) {
+                // Non-pub method
+                if (prev_was_field) {
+                    try builder.newline();
+                }
+                try formatZigNode(child, source, builder, depth, options);
+                prev_was_field = false;
+            }
+            // Skip other tokens like '{', '}', ',', 'struct'
+        }
+    }
+}
+
+/// Format a struct field (ContainerField)
+fn formatStructField(node: ts.Node, source: []const u8, builder: *LineBuilder) !void {
     try builder.appendIndent();
-    try builder.append("};");
+    const field_text = getNodeText(node, source);
+    // Format field with proper spacing around colon
+    try formatFieldWithSpacing(field_text, builder);
+    try builder.append(",");
+    try builder.newline();
+}
+
+/// Format field text with proper spacing around colon
+fn formatFieldWithSpacing(field_text: []const u8, builder: *LineBuilder) !void {
+    var i: usize = 0;
+    while (i < field_text.len) : (i += 1) {
+        const char = field_text[i];
+        if (char == ':') {
+            try builder.append(": ");
+        } else {
+            try builder.append(&[_]u8{char});
+        }
+    }
+}
+
+/// Format pub method by combining pub keyword with method declaration
+fn formatPubMethod(pub_node: ts.Node, decl_node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) !void {
+    _ = pub_node;
+    _ = depth;
+    _ = options;
+    
+    try builder.appendIndent();
+    
+    // Get the method text and format it as a public function
+    const method_text = getNodeText(decl_node, source);
+    const combined_text = try std.fmt.allocPrint(builder.allocator, "pub {s}", .{method_text});
+    defer builder.allocator.free(combined_text);
+    
+    // Format the combined pub method
+    try formatFunctionWithSpacing(combined_text, builder);
     try builder.newline();
 }
 

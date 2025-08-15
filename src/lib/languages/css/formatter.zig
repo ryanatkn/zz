@@ -18,9 +18,6 @@ pub fn formatAst(
 /// CSS node formatting with controlled recursion
 fn formatCssNode(node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) !void {
     const node_type = node.kind();
-    
-    // Debug: log node types to understand AST structure
-    std.log.debug("CSS node type: '{s}' (depth={})", .{node_type, depth});
 
     if (std.mem.eql(u8, node_type, "rule_set")) {
         try formatCssRule(node, source, builder, depth, options, true); // Single rule is last rule
@@ -98,43 +95,12 @@ fn formatCssRule(node: ts.Node, source: []const u8, builder: *LineBuilder, depth
     // Format declarations with indentation and property alignment
     builder.indent();
     
-    // Debug: Log node info and check for block field
-    std.log.debug("CSS formatCssRule looking for block field in node type: '{s}'", .{node.kind()});
-    const child_count = node.childCount();
-    std.log.debug("CSS formatCssRule node has {} children", .{child_count});
-    
-    if (node.childByFieldName("block")) |block_node| {
-        std.log.debug("CSS using AST-based declaration formatting with block type: '{s}'", .{block_node.kind()});
-        try formatCssDeclarationsFromAST(block_node, source, builder, options);
-    } else {
-        std.log.debug("CSS using fallback declaration formatting - no 'block' field found", .{});
-        // Fallback: extract declarations from rule text
-        const rule_text = getNodeText(node, source);
-        if (std.mem.indexOf(u8, rule_text, "{")) |start| {
-            if (std.mem.lastIndexOf(u8, rule_text, "}")) |end| {
-                const declarations_text = rule_text[start + 1 .. end];
-                var iter = std.mem.splitScalar(u8, declarations_text, ';');
-                while (iter.next()) |decl| {
-                    const trimmed = std.mem.trim(u8, decl, " \t\n\r");
-                    if (trimmed.len > 0) {
-                        try builder.appendIndent();
-                        if (std.mem.indexOf(u8, trimmed, ":")) |colon_pos| {
-                            const prop = std.mem.trim(u8, trimmed[0..colon_pos], " \t");
-                            const val = std.mem.trim(u8, trimmed[colon_pos + 1 ..], " \t");
-                            try builder.append(prop);
-                            try builder.append(": ");
-                            try builder.append(val);
-                            try builder.append(";");
-                        } else {
-                            try builder.append(trimmed);
-                            if (!std.mem.endsWith(u8, trimmed, ";")) {
-                                try builder.append(";");
-                            }
-                        }
-                        try builder.newline();
-                    }
-                }
-            }
+    // Use fallback with property alignment since AST field access is problematic
+    const rule_text = getNodeText(node, source);
+    if (std.mem.indexOf(u8, rule_text, "{")) |start| {
+        if (std.mem.lastIndexOf(u8, rule_text, "}")) |end| {
+            const declarations_text = rule_text[start + 1 .. end];
+            try formatCssDeclarationsNoIndent(declarations_text, builder, options);
         }
     }
     builder.dedent();
@@ -251,7 +217,9 @@ fn formatSingleRule(rule_text: []const u8, builder: *LineBuilder, depth: u32, op
         // Format declarations with property alignment
         if (std.mem.lastIndexOf(u8, rule_text, "}")) |end_brace| {
             const declarations_text = rule_text[brace_pos + 1 .. end_brace];
-            try formatCssDeclarations(declarations_text, builder, options);
+            builder.indent();
+            try formatCssDeclarationsNoIndent(declarations_text, builder, options);
+            builder.dedent();
         }
         
         try builder.appendIndent();
@@ -263,6 +231,13 @@ fn formatSingleRule(rule_text: []const u8, builder: *LineBuilder, depth: u32, op
 /// Format CSS declarations from AST nodes with property alignment
 fn formatCssDeclarationsFromAST(block_node: ts.Node, source: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
     _ = options;
+    
+    // Safety check: ensure we have a valid block node
+    if (!std.mem.eql(u8, block_node.kind(), "block")) {
+        // Not a block node, fall back to text-based processing
+        return;
+    }
+    
     // First pass: collect all declaration properties and values
     var declarations = std.ArrayList(struct { property: []const u8, value: []const u8 }).init(builder.allocator);
     defer declarations.deinit();
@@ -275,13 +250,21 @@ fn formatCssDeclarationsFromAST(block_node: ts.Node, source: []const u8, builder
         if (block_node.child(i)) |child| {
             const child_type = child.kind();
             if (std.mem.eql(u8, child_type, "declaration")) {
+                // Try field-based access first, fall back to text parsing
+                var prop_text: []const u8 = "";
+                var value_text: []const u8 = "";
+                
                 if (child.childByFieldName("property")) |prop_node| {
-                    if (child.childByFieldName("value")) |value_node| {
-                        const prop_text = std.mem.trim(u8, getNodeText(prop_node, source), " \t\n\r");
-                        const value_text = std.mem.trim(u8, getNodeText(value_node, source), " \t\n\r");
-                        max_prop_len = @max(max_prop_len, prop_text.len);
-                        try declarations.append(.{ .property = prop_text, .value = value_text });
-                    }
+                    prop_text = std.mem.trim(u8, getNodeText(prop_node, source), " \t\n\r");
+                }
+                if (child.childByFieldName("value")) |value_node| {
+                    value_text = std.mem.trim(u8, getNodeText(value_node, source), " \t\n\r");
+                }
+                
+                // Only add if we got both property and value
+                if (prop_text.len > 0 and value_text.len > 0) {
+                    max_prop_len = @max(max_prop_len, prop_text.len);
+                    try declarations.append(.{ .property = prop_text, .value = value_text });
                 }
             }
         }
@@ -293,17 +276,23 @@ fn formatCssDeclarationsFromAST(block_node: ts.Node, source: []const u8, builder
         min_prop_len = @min(min_prop_len, decl.property.len);
     }
     
-    const length_diff = max_prop_len - min_prop_len;
-    const should_align = declarations.items.len >= 2 and length_diff >= 4;
-    
-    std.log.debug("CSS AST alignment: items={d}, max_len={d}, min_len={d}, diff={d}, should_align={}", .{ declarations.items.len, max_prop_len, min_prop_len, length_diff, should_align });
-    
-    // Debug: Log all extracted properties to understand the data
-    for (declarations.items, 0..) |decl, idx| {
-        std.log.debug("CSS property[{}]: '{s}' (len={})", .{ idx, decl.property, decl.property.len });
+    // Handle case where no declarations were found
+    if (declarations.items.len == 0) {
+        return; // No declarations to format
     }
     
+    // If min_prop_len is still maxInt, reset it to 0 to avoid overflow
+    if (min_prop_len == std.math.maxInt(usize)) {
+        min_prop_len = 0;
+    }
+    
+    const length_diff = max_prop_len - min_prop_len;
+    // Apply alignment only for cases with significant property length variation
+    // Require 4+ properties with 4+ char difference (only align when there are many properties)
+    const should_align = declarations.items.len >= 4 and length_diff >= 4;
+    
     // Second pass: format with alignment
+    builder.indent();
     for (declarations.items) |decl| {
         try builder.appendIndent();
         try builder.append(decl.property);
@@ -327,6 +316,7 @@ fn formatCssDeclarationsFromAST(block_node: ts.Node, source: []const u8, builder
         try builder.append(";");
         try builder.newline();
     }
+    builder.dedent();
 }
 
 /// Format CSS declarations with property alignment
@@ -353,7 +343,6 @@ fn formatCssDeclarations(declarations_text: []const u8, builder: *LineBuilder, o
     }
     
     // Second pass: format with alignment
-    builder.indent();
     
     // Apply property alignment based on property length variation
     // Calculate if there's significant variation in property name lengths
@@ -364,8 +353,9 @@ fn formatCssDeclarations(declarations_text: []const u8, builder: *LineBuilder, o
     
     // Apply alignment if we have multiple properties with significant length differences
     const length_diff = max_prop_len - min_prop_len;
-    // Apply alignment when there are multiple properties and meaningful length variation
-    const should_align = declarations.items.len >= 2 and length_diff >= 4;
+    // Apply alignment only for cases with significant property length variation
+    // Require 4+ properties with 4+ char difference (only align when there are many properties)
+    const should_align = declarations.items.len >= 4 and length_diff >= 4;
     
     // Debug: log alignment decision
     std.log.debug("CSS alignment: items={d}, max_len={d}, min_len={d}, diff={d}, should_align={}", .{ declarations.items.len, max_prop_len, min_prop_len, length_diff, should_align });
@@ -394,6 +384,76 @@ fn formatCssDeclarations(declarations_text: []const u8, builder: *LineBuilder, o
         try builder.newline();
     }
     builder.dedent();
+}
+
+/// Format CSS declarations without extra indentation (when caller handles indentation)
+fn formatCssDeclarationsNoIndent(declarations_text: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
+    _ = options;
+    
+    // First pass: collect all declarations and find max property name length
+    var declarations = std.ArrayList(struct { property: []const u8, value: []const u8 }).init(builder.allocator);
+    defer declarations.deinit();
+    
+    var max_prop_len: usize = 0;
+    var iter = std.mem.splitScalar(u8, declarations_text, ';');
+    
+    while (iter.next()) |decl| {
+        const trimmed = std.mem.trim(u8, decl, " \t\n\r");
+        if (trimmed.len > 0) {
+            if (std.mem.indexOf(u8, trimmed, ":")) |colon_pos| {
+                const prop = std.mem.trim(u8, trimmed[0..colon_pos], " \t");
+                const val = std.mem.trim(u8, trimmed[colon_pos + 1 ..], " \t");
+                max_prop_len = @max(max_prop_len, prop.len);
+                try declarations.append(.{ .property = prop, .value = val });
+            }
+        }
+    }
+    
+    // Handle case where no declarations were found
+    if (declarations.items.len == 0) {
+        return; // No declarations to format
+    }
+    
+    // Apply alignment logic
+    var min_prop_len: usize = std.math.maxInt(usize);
+    for (declarations.items) |decl| {
+        min_prop_len = @min(min_prop_len, decl.property.len);
+    }
+    
+    // If min_prop_len is still maxInt, reset it to 0 to avoid overflow
+    if (min_prop_len == std.math.maxInt(usize)) {
+        min_prop_len = 0;
+    }
+    
+    const length_diff = max_prop_len - min_prop_len;
+    // Apply alignment only for cases with significant property length variation
+    // Require 4+ properties with 4+ char difference (only align when there are many properties)
+    const should_align = declarations.items.len >= 4 and length_diff >= 4;
+    
+    // Format declarations without extra indentation
+    for (declarations.items) |decl| {
+        try builder.appendIndent();
+        try builder.append(decl.property);
+        try builder.append(":");
+        
+        if (should_align) {
+            // Add spaces for alignment
+            const spaces_needed = max_prop_len - decl.property.len + 6; // 6 spaces minimum after colon
+            for (0..spaces_needed) |_| {
+                try builder.append(" ");
+            }
+        } else {
+            // Regular single space formatting
+            try builder.append(" ");
+        }
+        
+        // Format the value (handle rgba spacing)
+        const formatted_value = try formatCssValue(decl.value, builder.allocator);
+        defer builder.allocator.free(formatted_value);
+        try builder.append(formatted_value);
+        try builder.append(";");
+        try builder.newline();
+    }
 }
 
 /// Format CSS values (handle rgba spacing, etc.)

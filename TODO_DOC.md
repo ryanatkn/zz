@@ -62,9 +62,20 @@ This document outlines the current state and planned improvements for the zz CLI
    - **Solution**: Enabled AST extraction, added debug logging, fixed memory leak with proper cleanup
    - **Status**: Complete - AST extraction working for TypeScript, JSON, others; memory leak resolved
 
+11. **CSS Property Alignment Heuristic** ✓
+   - **Issue**: CSS property alignment feature implemented but not working due to AST field access problems
+   - **Root Cause**: `node.childByFieldName("block")` returning null despite block children existing in CSS AST
+   - **Solution**: Implemented working fallback using existing text-based `formatCssDeclarations` with alignment logic
+   - **Key Fixes**: 
+     - Fixed integer overflow in alignment calculation when no declarations found
+     - Resolved double indentation issue by removing extra indent/dedent calls
+     - Property alignment now works: `padding:      1rem;` correctly aligned
+   - **Result**: 360/369 → 361/369 tests passing (97.6% success rate)
+   - **Status**: Complete - property alignment working through robust text-based approach
+
 ### 📋 Pending High Priority
 
-11. **Code Duplication Elimination**
+12. **Code Duplication Elimination**
    - Significant overlap between `extractor.zig` and `visitor.zig`
    - Extract shared Svelte pattern recognition utilities
    - Unify rune detection logic across both approaches
@@ -72,12 +83,12 @@ This document outlines the current state and planned improvements for the zz CLI
 
 ### 📋 Pending Medium Priority
 
-12. **Enhanced CSS AST Utilization**
+13. **Enhanced CSS AST Utilization**
    - Move beyond pattern matching to semantic AST analysis
    - Property validation and selector optimization
    - CSS variable tracking and dependency analysis
 
-13. **Parser Caching & Performance**
+14. **Parser Caching & Performance**
    - Implement AST cache with file hash invalidation
    - Grammar pooling for tree-sitter parser instances
    - Memory optimization with arena allocators
@@ -239,12 +250,12 @@ if (SveltePatterns.isSvelteRune(trimmed)) ...
 ## Testing Strategy
 
 ### Current Test Coverage
-- 369 total tests, 360 passing (97.5%)
-- 1 failing: CSS property alignment (advanced formatting feature - heuristic needs refinement)
-- 8 skipped: Platform-specific or optional features
+- 369 total tests, 361 passing (97.6%)
+- 1 failing: CSS formatting edge case (minor formatting issue in `minified_to_pretty` test)
+- 7 skipped: Platform-specific or optional features
 
 ### Test Improvement Plan
-1. **CSS Property Alignment Heuristics**: Fine-tune activation conditions for property alignment feature
+1. **CSS Formatting Edge Cases**: Fix remaining CSS formatter edge cases (double indentation issues)
 2. **AST Visitor Quality**: Improve individual language visitor implementations (Zig, JSON duplication)
 3. **Performance Regression Tests**: Ensure optimizations don't break functionality
 4. **Cross-language Tests**: Svelte files with TypeScript/CSS content
@@ -267,16 +278,17 @@ if (SveltePatterns.isSvelteRune(trimmed)) ...
 ## Success Metrics
 
 ### Short-term (1 Month)
-- [x] 97.5% test pass rate (fixed major test failures)
+- [x] 97.6% test pass rate (fixed major test failures including CSS property alignment)
 - [x] Multi-line expression parsing complete 
 - [x] Async function signature support added
 - [x] Test consistency improvements across all languages
 - [x] CSS media query formatting implemented and working
 - [x] CSS tab indentation formatting resolved
-- [x] CSS property alignment feature implemented (heuristic refinement needed)
+- [x] CSS property alignment feature implemented and working
 - [x] AST extraction working for TypeScript, JSON, and other languages
 - [x] Memory leak in AST system resolved
 - [x] Debug logging and error reporting added for AST integration
+- [x] CSS property alignment heuristic fixed - using robust text-based fallback
 - [ ] Baseline performance maintained or improved
 
 ### Medium-term (3 Months)  
@@ -308,9 +320,9 @@ if (SveltePatterns.isSvelteRune(trimmed)) ...
 ## Next Actions
 
 ### Immediate (This Week)
-1. **Fine-tune CSS property alignment** - refine heuristics for when alignment should be applied
-2. **Extract shared Svelte patterns** - eliminate code duplication between extractor.zig and visitor.zig
-3. **Improve AST visitor quality** - fix Zig signature extraction and JSON duplication issues
+1. **Extract shared Svelte patterns** - eliminate code duplication between extractor.zig and visitor.zig
+2. **Improve AST visitor quality** - fix Zig signature extraction and JSON duplication issues
+3. **Fix remaining CSS formatting edge cases** - resolve `minified_to_pretty` test failure
 
 ### Short-term (Next 2-4 Weeks)
 1. **Enhanced CSS AST utilization** - move beyond pattern matching to semantic analysis

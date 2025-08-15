@@ -1,5 +1,7 @@
 # zz
 
+> ⚠️ AI slop code and docs
+
 Fast command-line utilities in Zig for POSIX systems. LLM prompt generation with AST-based code extraction, directory trees, and performance benchmarking. **100% terminal-based**.
 
 **Platforms:** Linux, macOS, BSD, POSIX. No Windows.

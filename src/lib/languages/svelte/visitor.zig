@@ -446,10 +446,11 @@ fn appendNormalizedSvelteSection(context: *ExtractionContext, node: *const Node)
 
 /// Check if a line contains only closing braces/parentheses (should be excluded from signatures)
 fn isClosingLine(line: []const u8) bool {
-    // Check for common closing patterns like "});", "})", "};", etc.
-    const patterns = [_][]const u8{ "});", "})", "};", "}" };
+    // Only exclude lines that are purely closing braces without meaningful context
+    // Keep closing lines that complete signatures like "});", "};" etc.
+    const pure_closing_patterns = [_][]const u8{ "}" };
 
-    for (patterns) |pattern| {
+    for (pure_closing_patterns) |pattern| {
         if (std.mem.eql(u8, line, pattern)) {
             return true;
         }

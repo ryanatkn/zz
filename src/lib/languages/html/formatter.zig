@@ -282,7 +282,7 @@ fn formatHtmlElement(node: ts.Node, source: []const u8, builder: *LineBuilder, d
                             try builder.append(" ");
                         }
                     }
-                } else if (std.mem.eql(u8, child_type, "element")) {
+                } else if (std.mem.eql(u8, child_type, "element") or std.mem.eql(u8, child_type, "self_closing_tag")) {
                     try appendNodeText(child, source, builder);
                     if (shouldAddSpaceAfterElement(node, j, source)) {
                         try builder.append(" ");
@@ -337,7 +337,6 @@ fn formatHtmlComment(node: ts.Node, source: []const u8, builder: *LineBuilder, d
 /// Format self-closing HTML tag (like <img />, <hr />)
 fn formatSelfClosingTag(node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) !void {
     _ = depth;
-    
     try builder.appendIndent();
     try formatStartTagConditionally(node, source, builder, options);
     try builder.newline();
@@ -389,10 +388,12 @@ fn getContentType(node: ts.Node, source: []const u8) ContentType {
             const child_type = child.kind();
             if (std.mem.eql(u8, child_type, "text")) {
                 const text = getNodeText(child, source);
-                if (std.mem.trim(u8, text, " \t\r\n").len > 0) {
+                const trimmed = std.mem.trim(u8, text, " \t\r\n");
+                // Only count as text if it has non-whitespace content
+                if (trimmed.len > 0) {
                     has_text = true;
                 }
-            } else if (std.mem.eql(u8, child_type, "element")) {
+            } else if (std.mem.eql(u8, child_type, "element") or std.mem.eql(u8, child_type, "self_closing_tag")) {
                 has_element = true;
             }
         }

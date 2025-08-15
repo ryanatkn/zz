@@ -442,24 +442,276 @@ fn formatClass(node: ts.Node, source: []const u8, builder: *LineBuilder, depth: 
     try builder.appendIndent();
     try builder.append("class ");
 
+    // Class name
     if (node.childByFieldName("name")) |name_node| {
         const name_text = getNodeText(name_node, source);
         try builder.append(name_text);
     }
 
+    // Handle generic type parameters
+    if (node.childByFieldName("type_parameters")) |type_params_node| {
+        const type_params_text = getNodeText(type_params_node, source);
+        try formatGenericParameters(type_params_text, builder);
+    }
+
     try builder.append(" {");
     try builder.newline();
-
-    // Format class body
     builder.indent();
-    if (node.childByFieldName("body")) |body_node| {
-        try formatTypeScriptNode(body_node, source, builder, depth + 1, options);
-    }
-    builder.dedent();
 
+    // Format class body members
+    if (node.childByFieldName("body")) |body_node| {
+        try formatClassBody(body_node, source, builder, depth + 1, options);
+    }
+
+    builder.dedent();
     try builder.appendIndent();
     try builder.append("}");
     try builder.newline();
+}
+
+/// Format generic type parameters like <T extends BaseEntity>
+fn formatGenericParameters(type_params: []const u8, builder: *LineBuilder) !void {
+    try builder.append(type_params);
+}
+
+/// Format class body members (properties and methods)
+fn formatClassBody(body_node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) !void {
+    const child_count = body_node.childCount();
+    var i: u32 = 0;
+    
+    while (i < child_count) : (i += 1) {
+        if (body_node.child(i)) |child| {
+            const child_type = child.kind();
+            
+            
+            if (std.mem.eql(u8, child_type, "property_signature") or
+                std.mem.eql(u8, child_type, "method_signature") or
+                std.mem.eql(u8, child_type, "method_definition") or
+                std.mem.eql(u8, child_type, "field_definition") or
+                std.mem.eql(u8, child_type, "public_field_definition"))
+            {
+                try formatClassMember(child, source, builder, depth, options);
+            }
+        }
+    }
+}
+
+/// Format individual class members (properties and methods)
+fn formatClassMember(member_node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) !void {
+    const member_type = member_node.kind();
+    const member_text = getNodeText(member_node, source);
+    
+    if (std.mem.eql(u8, member_type, "property_signature") or
+        std.mem.eql(u8, member_type, "field_definition") or
+        std.mem.eql(u8, member_type, "public_field_definition"))
+    {
+        // Format property with proper spacing
+        try builder.appendIndent();
+        try formatPropertyWithSpacing(member_text, builder);
+        try builder.append(";");
+        try builder.newline();
+        
+        // Add blank line after properties
+        if (!isLastMember(member_node)) {
+            try builder.newline();
+        }
+    } else if (std.mem.eql(u8, member_type, "method_signature") or
+               std.mem.eql(u8, member_type, "method_definition"))
+    {
+        // Format method 
+        try builder.appendIndent();
+        try formatMethodWithSpacing(member_text, builder, options);
+        try builder.newline();
+        
+        // Add blank line after methods
+        if (!isLastMember(member_node)) {
+            try builder.newline();
+        }
+    }
+    
+    _ = depth;
+}
+
+/// Format property with proper spacing around colons and equals
+fn formatPropertyWithSpacing(property_text: []const u8, builder: *LineBuilder) !void {
+    var i: usize = 0;
+    while (i < property_text.len) : (i += 1) {
+        const char = property_text[i];
+        if (char == ':') {
+            try builder.append(&[_]u8{char});
+            // Add space after colon if not present
+            if (i + 1 < property_text.len and property_text[i + 1] != ' ') {
+                try builder.append(" ");
+            }
+        } else if (char == '=') {
+            // Add space before = if not present
+            if (i > 0 and property_text[i-1] != ' ') {
+                try builder.append(" ");
+            }
+            try builder.append(&[_]u8{char});
+            // Add space after = if not present
+            if (i + 1 < property_text.len and property_text[i + 1] != ' ') {
+                try builder.append(" ");
+            }
+        } else {
+            try builder.append(&[_]u8{char});
+        }
+    }
+}
+
+/// Format method with proper parameter and return type formatting
+fn formatMethodWithSpacing(method_text: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
+    // Check if method fits on one line
+    const estimated_length = method_text.len;
+    
+    if (estimated_length <= options.line_width) {
+        // Single line with proper spacing
+        try formatSingleLineMethod(method_text, builder);
+    } else {
+        // Multi-line format
+        try formatMultiLineMethod(method_text, builder, options);
+    }
+}
+
+/// Format method on a single line with proper spacing
+fn formatSingleLineMethod(method_text: []const u8, builder: *LineBuilder) !void {
+    var i: usize = 0;
+    while (i < method_text.len) : (i += 1) {
+        const char = method_text[i];
+        if (char == ':') {
+            try builder.append(&[_]u8{char});
+            // Add space after colon if not present
+            if (i + 1 < method_text.len and method_text[i + 1] != ' ') {
+                try builder.append(" ");
+            }
+        } else if (char == ',' and i + 1 < method_text.len and method_text[i + 1] != ' ') {
+            try builder.append(&[_]u8{char});
+            try builder.append(" ");
+        } else {
+            try builder.append(&[_]u8{char});
+        }
+    }
+}
+
+/// Format method across multiple lines
+fn formatMultiLineMethod(method_text: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
+    // For now, parse the method manually to format parameters properly
+    var paren_pos: ?usize = null;
+    var colon_pos: ?usize = null;
+    
+    // Find parameter start and return type
+    var paren_depth: u32 = 0;
+    for (method_text, 0..) |char, i| {
+        if (char == '(' and paren_pos == null) {
+            paren_pos = i;
+            paren_depth = 1;
+        } else if (paren_pos != null) {
+            if (char == '(') {
+                paren_depth += 1;
+            } else if (char == ')') {
+                paren_depth -= 1;
+                if (paren_depth == 0) {
+                    // Look for colon after closing paren
+                    if (i + 1 < method_text.len and method_text[i + 1] == ':') {
+                        colon_pos = i + 1;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    
+    if (paren_pos) |paren_start| {
+        // Method signature before parameters
+        const method_prefix = method_text[0..paren_start];
+        try builder.append(method_prefix);
+        
+        // Format parameters
+        if (colon_pos) |colon_start| {
+            const params_text = method_text[paren_start..colon_start];
+            try formatMethodParameters(params_text, builder, options);
+            
+            // Return type
+            const return_text = method_text[colon_start..];
+            try formatMethodReturn(return_text, builder);
+        } else {
+            // No return type, just parameters
+            const params_text = method_text[paren_start..];
+            try formatMethodParameters(params_text, builder, options);
+        }
+    } else {
+        // Fallback: just append with spacing
+        try formatSingleLineMethod(method_text, builder);
+    }
+}
+
+/// Format method parameters with proper line breaking
+fn formatMethodParameters(params_text: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
+    if (params_text.len <= options.line_width / 2) {
+        // Short parameters - single line
+        try formatSingleLineMethod(params_text, builder);
+    } else {
+        // Multi-line parameters
+        try builder.append("(");
+        try builder.newline();
+        builder.indent();
+        
+        // Parse and format each parameter
+        var param_start: usize = 1; // Skip opening paren
+        var paren_depth: u32 = 0;
+        var angle_depth: u32 = 0;
+        
+        var i: usize = 1;
+        while (i < params_text.len - 1) : (i += 1) { // Skip closing paren
+            const char = params_text[i];
+            switch (char) {
+                '(' => paren_depth += 1,
+                ')' => paren_depth -= 1,
+                '<' => angle_depth += 1,
+                '>' => angle_depth -= 1,
+                ',' => {
+                    if (paren_depth == 0 and angle_depth == 0) {
+                        // Found parameter boundary
+                        const param = std.mem.trim(u8, params_text[param_start..i], " \t");
+                        try builder.appendIndent();
+                        try formatSingleParameter(param, builder);
+                        try builder.append(",");
+                        try builder.newline();
+                        param_start = i + 1;
+                    }
+                },
+                else => {},
+            }
+        }
+        
+        // Last parameter
+        if (param_start < params_text.len - 1) {
+            const last_param = std.mem.trim(u8, params_text[param_start..params_text.len-1], " \t");
+            if (last_param.len > 0) {
+                try builder.appendIndent();
+                try formatSingleParameter(last_param, builder);
+                try builder.newline();
+            }
+        }
+        
+        builder.dedent();
+        try builder.appendIndent();
+        try builder.append(")");
+    }
+}
+
+/// Format method return type
+fn formatMethodReturn(return_text: []const u8, builder: *LineBuilder) !void {
+    try formatReturnType(return_text, builder);
+}
+
+/// Check if this is the last member in the class
+fn isLastMember(member_node: ts.Node) bool {
+    if (member_node.parent()) |_| {
+        const next_sibling = member_node.nextSibling();
+        return next_sibling == null;
+    }
+    return true;
 }
 
 /// Format TypeScript type alias

@@ -334,9 +334,11 @@ fn extractJSSignatures(context: *ExtractionContext, js_source: []const u8) !void
             continue;
         }
 
-        // Function signatures
+        // Function signatures (including async functions)
         if (std.mem.startsWith(u8, trimmed, "function ") or
-            std.mem.startsWith(u8, trimmed, "export function "))
+            std.mem.startsWith(u8, trimmed, "export function ") or
+            std.mem.startsWith(u8, trimmed, "async function ") or
+            std.mem.startsWith(u8, trimmed, "export async function "))
         {
             // Extract just the signature part (remove opening brace)
             var signature = trimmed;

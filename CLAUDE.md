@@ -711,7 +711,7 @@ git commit -m "Update vendored dependencies"
 ```
 
 **Workflow with root TODO_*.md docs:**
-- **Active TODO docs** should be placed in root directory with `TODO_*.md` prefix for high visibility
+- **Active TODO docs** should be placed in root directory with `TODO_*.md` prefix and caps like TODO_FOO.md or TODO_BAR.md for high visibility
 - **Completed TODO docs** should be **updated in place** with completion status, not moved
   - Update title: `# TODO: Task Name` → `# ✅ COMPLETED: Task Name`
   - Add completion date and final status summary

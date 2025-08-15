@@ -3,13 +3,15 @@ const Node = @import("../../tree_sitter/node.zig").Node;
 const ExtractionContext = @import("../../tree_sitter/visitor.zig").ExtractionContext;
 
 /// AST-based extraction visitor for JSON
-pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
+/// Returns true to continue recursion, false to skip children
+pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
     
     // Extract based on node type and flags
     if (context.flags.structure or context.flags.types) {
         // Extract JSON structure (objects, arrays, pairs)
         if (isStructuralNode(node.kind)) {
             try context.appendNode(node);
+            return false; // Skip children - we've captured the structure
         }
     }
 
@@ -17,6 +19,7 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
         // Extract object key-value pairs (pairs contain keys)
         if (isPairNode(node.kind)) {
             try context.appendNode(node);
+            return false; // Skip children - we've captured the pair
         }
     }
 
@@ -24,6 +27,7 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
         // Extract type information (arrays, objects, primitives)
         if (isTypedValue(node.kind)) {
             try context.appendNode(node);
+            return false; // Skip children - we've captured the typed value
         }
     }
 
@@ -31,8 +35,12 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
         // For full extraction, only append the root document node to avoid duplication
         if (std.mem.eql(u8, node.kind, "document")) {
             try context.result.appendSlice(node.text);
+            return false; // Skip children - we already have full content
         }
     }
+    
+    // Default: continue recursion to child nodes
+    return true;
 }
 
 // JSON node type checking functions

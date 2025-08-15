@@ -3,7 +3,8 @@ const Node = @import("../../tree_sitter/node.zig").Node;
 const ExtractionContext = @import("../../tree_sitter/visitor.zig").ExtractionContext;
 
 /// AST-based extraction visitor for TypeScript
-pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
+/// Returns true to continue recursion, false to skip children
+pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
     const node_type = node.kind;
 
     // Functions and methods
@@ -14,7 +15,7 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
             std.mem.eql(u8, node_type, "function_expression"))
         {
             try context.appendNode(node);
-            return;
+            return false;
         }
     }
 
@@ -26,7 +27,7 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
             std.mem.eql(u8, node_type, "enum_declaration"))
         {
             try context.appendNode(node);
-            return;
+            return false;
         }
     }
 
@@ -36,7 +37,7 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
             std.mem.eql(u8, node_type, "export_statement"))
         {
             try context.appendNode(node);
-            return;
+            return false;
         }
     }
 
@@ -49,7 +50,7 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
                 std.mem.startsWith(u8, text, "describe("))
             {
                 try context.appendNode(node);
-                return;
+                return false;
             }
         }
     }
@@ -59,6 +60,9 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
         // For full extraction, only append the root program node to avoid duplication
         if (std.mem.eql(u8, node_type, "program")) {
             try context.result.appendSlice(node.text);
+            return false; // Skip children - we already have full content
         }
     }
+
+    return true; // Continue recursion by default
 }

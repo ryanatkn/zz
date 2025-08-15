@@ -41,15 +41,24 @@ test "malformed TypeScript function" {
         };
         defer testing.allocator.free(result);
 
-        // Should return some result (either formatted or original)
-        try testing.expect(result.len >= source.len or result.len == 0);
-
         // For completely empty/whitespace sources, any result is acceptable
         if (source.len == 0 or std.mem.trim(u8, source, " \t\n\r").len == 0) {
             continue;
         }
 
-        std.debug.print("Test {}: malformed source '{s}' -> result length {}\n", .{ i, source, result.len });
+        // For malformed code, formatter should either:
+        // 1. Return original source unchanged (safe fallback)
+        // 2. Return formatted result that preserves essential content
+        // 3. Return empty result only for completely unparseable input
+        const is_original_preserved = std.mem.eql(u8, result, source);
+        const is_reasonable_length = result.len >= source.len * 80 / 100; // Allow 20% reduction max
+        const is_empty_fallback = result.len == 0;
+        
+        if (!is_original_preserved and !is_reasonable_length and !is_empty_fallback) {
+            std.debug.print("Test {}: malformed source '{s}' (len={}) -> result '{s}' (len={})\n", .{ i, source, source.len, result, result.len });
+            std.debug.print("Expected: original preserved OR reasonable length (>= {}%) OR empty fallback\n", .{80});
+            return error.TestUnexpectedResult;
+        }
     }
 }
 

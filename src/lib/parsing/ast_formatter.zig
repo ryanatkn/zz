@@ -77,6 +77,12 @@ pub const AstFormatter = struct {
         defer tree.destroy();
 
         const root = tree.rootNode();
+        
+        // Check if the parse resulted in ERROR nodes (malformed/partial parse)
+        if (self.hasErrorNodes(root)) {
+            // Return original source for malformed code
+            return self.allocator.dupe(u8, source);
+        }
 
         var builder = LineBuilder.init(self.allocator, self.options);
         defer builder.deinit();
@@ -153,6 +159,29 @@ pub const AstFormatter = struct {
         const options_hash = hasher.final();
 
         return AstCacheKey.init(file_hash, 1, options_hash);
+    }
+
+    /// Check if the AST contains ERROR nodes indicating malformed/partial parse
+    fn hasErrorNodes(self: *Self, node: ts.Node) bool {
+        
+        // Check if this node is an ERROR node
+        const node_type = node.kind();
+        if (std.mem.eql(u8, node_type, "ERROR")) {
+            return true;
+        }
+        
+        // Recursively check children
+        const child_count = node.childCount();
+        var i: u32 = 0;
+        while (i < child_count) : (i += 1) {
+            if (node.child(i)) |child| {
+                if (self.hasErrorNodes(child)) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
     }
 };
 

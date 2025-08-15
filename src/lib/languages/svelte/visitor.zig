@@ -3,7 +3,8 @@ const Node = @import("../../tree_sitter/node.zig").Node;
 const ExtractionContext = @import("../../tree_sitter/visitor.zig").ExtractionContext;
 
 /// AST-based extraction visitor for Svelte with proper section handling
-pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
+/// Returns true to continue recursion, false to skip children  
+pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
     const node_type = node.kind;
 
     // Full source - append everything
@@ -11,20 +12,21 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
         // For full extraction, only append the root fragment node to avoid duplication
         if (std.mem.eql(u8, node_type, "fragment")) {
             try context.result.appendSlice(node.text);
+            return false; // Skip children - we already have full content
         }
-        return;
+        return true; // Continue recursion for other nodes
     }
 
     // Handle script elements - the main container for JavaScript content
     if (std.mem.eql(u8, node_type, "script_element")) {
         try handleScriptElement(context, node);
-        return;
+        return false; // Skip children - we've handled content explicitly
     }
 
     // Handle style elements - the main container for CSS content
     if (std.mem.eql(u8, node_type, "style_element")) {
         try handleStyleElement(context, node);
-        return;
+        return false; // Skip children - we've handled content explicitly
     }
 
     // Handle template/HTML elements for structure
@@ -44,10 +46,10 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
                 std.mem.startsWith(u8, node_text, "<footer"))
             {
                 try context.appendNode(node);
-                return;
+                return false; // Skip children - we've captured the full element
             }
             // Skip processing other element nodes - they're likely children of processed elements
-            return;
+            return false; // Skip children
         }
         
         // Handle Svelte-specific statements
@@ -57,7 +59,7 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
             std.mem.eql(u8, node_type, "snippet_statement"))
         {
             try context.appendNode(node);
-            return;
+            return false; // Skip children - we've captured the full statement
         }
         
         // Skip individual tags and text nodes - they're already included in elements
@@ -66,7 +68,7 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
             std.mem.eql(u8, node_type, "text"))
         {
             // Skip these - they're already included in their parent elements
-            return;
+            return false; // Skip children
         }
     }
 
@@ -76,9 +78,12 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
             std.mem.eql(u8, node_type, "html_comment"))
         {
             try context.appendNode(node);
-            return;
+            return false; // Skip children
         }
     }
+    
+    // Default: continue recursion to child nodes
+    return true;
 }
 
 /// Handle script_element nodes - extract JavaScript content based on flags

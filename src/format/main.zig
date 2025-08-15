@@ -240,7 +240,7 @@ fn detectLanguageFromContent(content: []const u8) Language {
     const trimmed = std.mem.trim(u8, content, " \t\n\r");
 
     // JSON detection
-    if ((trimmed.len > 0 and trimmed[0] == '{') or trimmed[0] == '[') {
+    if (trimmed.len > 0 and (trimmed[0] == '{' or trimmed[0] == '[')) {
         // Likely JSON
         return .json;
     }

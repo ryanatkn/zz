@@ -3,7 +3,8 @@ const Node = @import("../../tree_sitter/node.zig").Node;
 const ExtractionContext = @import("../../tree_sitter/visitor.zig").ExtractionContext;
 
 /// AST-based extraction visitor for CSS
-pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
+/// Returns true to continue recursion, false to skip children
+pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
     const node_type = node.kind;
 
     // Selectors (for signatures flag)
@@ -14,7 +15,7 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
             std.mem.startsWith(u8, node_type, "selector_"))
         {
             try context.appendNode(node);
-            return;
+            return false; // Skip children - we've captured the selector
         }
     }
 
@@ -25,7 +26,7 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
             std.mem.startsWith(u8, node_type, "import_"))
         {
             try context.appendNode(node);
-            return;
+            return false; // Skip children - we've captured the import
         }
     }
 
@@ -45,7 +46,7 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
             std.mem.eql(u8, node_type, "import_statement"))
         {
             try context.appendNode(node);
-            return;
+            return false; // Skip children - we've captured the structure
         }
     }
 
@@ -53,7 +54,7 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
     if (context.flags.docs) {
         if (std.mem.eql(u8, node_type, "comment")) {
             try context.appendNode(node);
-            return;
+            return false; // Skip children
         }
     }
 
@@ -62,6 +63,10 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
         // For full extraction, only append the root stylesheet node to avoid duplication
         if (std.mem.eql(u8, node_type, "stylesheet")) {
             try context.result.appendSlice(node.text);
+            return false; // Skip children - we already have full content
         }
     }
+    
+    // Default: continue recursion to child nodes
+    return true;
 }

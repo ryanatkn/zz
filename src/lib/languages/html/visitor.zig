@@ -3,7 +3,8 @@ const Node = @import("../../tree_sitter/node.zig").Node;
 const ExtractionContext = @import("../../tree_sitter/visitor.zig").ExtractionContext;
 
 /// AST-based extraction visitor for HTML
-pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
+/// Returns true to continue recursion, false to skip children
+pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
     // Extract based on node type and flags
     if (context.flags.structure or context.flags.types) {
         // Extract HTML elements, attributes, and structure
@@ -37,8 +38,11 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
         // For full extraction, only append the root document node to avoid duplication
         if (std.mem.eql(u8, node.kind, "document")) {
             try context.result.appendSlice(node.text);
+            return false; // Skip children - we already have full content
         }
     }
+
+    return true; // Continue recursion by default
 }
 
 /// Check if node represents HTML structure

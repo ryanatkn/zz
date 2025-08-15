@@ -30,8 +30,11 @@ fn formatTypeScriptNode(node: ts.Node, source: []const u8, builder: *LineBuilder
                 try formatTypeScriptNode(child, source, builder, depth, options);
             }
         }
+    } else if (std.mem.eql(u8, node_type, "ERROR")) {
+        // For ERROR nodes (malformed code), preserve the original text exactly
+        try appendNodeText(node, source, builder);
     } else {
-        // For unknown nodes, just append text without recursion
+        // For other unknown nodes, just append text without recursion
         try appendNodeText(node, source, builder);
     }
 }
@@ -172,12 +175,15 @@ pub fn isTypeScriptType(node_type: []const u8) bool {
         std.mem.eql(u8, node_type, "enum_declaration");
 }
 
-// Legacy format function for backwards compatibility - delegates to AST formatter
+/// Format TypeScript source using AST-based approach
 pub fn format(allocator: std.mem.Allocator, source: []const u8, options: FormatterOptions) ![]const u8 {
-    // TODO: This will be removed once we fully transition to AST-only formatting
-    // For now, return error to force use of AST formatter
-    _ = allocator;
-    _ = source;
-    _ = options;
-    return error.UnsupportedOperation;
+    // Use the AST formatter infrastructure
+    var formatter = @import("../../parsing/ast_formatter.zig").AstFormatter.init(allocator, .typescript, options) catch {
+        // If AST formatting fails, return original source
+        return allocator.dupe(u8, source);
+    };
+    defer formatter.deinit();
+
+    return formatter.format(source);
 }
+

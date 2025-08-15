@@ -4,7 +4,7 @@
 
 This document outlines the current state and planned improvements for the zz CLI utilities project, focusing on tree-sitter integration, code extraction refinements, and architectural enhancements.
 
-## Current Status (2025-08-15, Updated: 2025-08-15 - Post-Milestone Improvements)
+## Current Status (2025-08-15, Updated: 2025-08-15 - Test Validation & Memory Management)
 
 ### ✅ Completed Tasks
 
@@ -163,6 +163,21 @@ This document outlines the current state and planned improvements for the zz CLI
    - **Result**: 317/319 → 318/319 tests passing (99.7% success rate)
    - **Status**: Complete - Svelte signatures test now passes
 
+### 🔍 Under Investigation - Potential Test Bugs
+
+26. **Hidden Test Validation Issues** 🔍 (2025-08-15)
+   - **Issue**: Despite fixing the main validation bug, there may still be latent issues in test expectations or extraction logic
+   - **Evidence**: User intuition that bugs remain; test pass rate of 316/317 suggests some tests may still have incorrect expectations
+   - **Ambiguity**: Unclear which specific tests or fixture files have incorrect expectations
+   - **Investigation Plan**: 
+     - Systematically audit each ZON fixture file (JSON, CSS, HTML, TypeScript, Svelte, Zig)
+     - Manually verify extraction results match intended behavior for each test case
+     - Check for edge cases in extraction flags combinations
+     - Validate formatter test expectations against actual formatter output
+     - Look for pattern vs AST extraction inconsistencies
+   - **Risk**: Test suite may be giving false confidence if expectations don't match actual intended behavior
+   - **Status**: 🔍 **NEEDS INVESTIGATION** - Systematic audit required to identify remaining issues
+
 ### 📋 Pending Medium Priority
 
 21. **Svelte Structure Extraction Duplicate Elements** ✅ (2025-08-15)
@@ -186,13 +201,26 @@ This document outlines the current state and planned improvements for the zz CLI
    - **Impact**: Some fixture tests disabled (`fixture-based formatter tests` commented out)
    - **Solution Needed**: Either deeper investigation of Zig 0.14.1 ZON parser or alternative test fixture approach
 
-23. **CSS Imports AST Node Recognition**
+23. **Critical Test Validation Bug Fix** ✅ (2025-08-15)
+   - **Issue**: ZON fixture tests not actually validating expectations - could change any expected value and tests still passed
+   - **Root Cause**: `fixture_runner.zig` only checked `try testing.expect(actual.len > 0)` instead of comparing actual vs expected
+   - **Discovery**: User changed `json.test.zon` expectation and all tests still passed, revealing the bug
+   - **Solution**: 
+     - Replaced weak validation with proper `TestUtils.runParserTest()` calls
+     - Fixed JSON fixture incorrect nested structure expectations
+     - Made fixture runner generic and data-driven for all languages
+     - Added comprehensive test for all ZON fixtures (JSON, CSS, HTML, TypeScript, Svelte, Zig)
+   - **Result**: Tests now properly fail when expectations are wrong (316/317 tests passing, catching real bugs)
+   - **Impact**: ✅ **CRITICAL** - Test suite now has proper validation integrity
+   - **Status**: ✅ **COMPLETED** - Test validation working correctly, found and fixed incorrect fixture expectations
+
+24. **CSS Imports AST Node Recognition**
    - **Issue**: CSS visitor may not recognize all at-rule node types from tree-sitter-css grammar
    - **Root Cause**: Need to verify correct AST node types for `@import`, `@namespace` directives
    - **Impact**: Some CSS imports extraction tests may fail
    - **Solution**: Debug AST node types and update CSS visitor accordingly
 
-24. **Enhanced AST Utilization**
+25. **Enhanced AST Utilization**
    - Move beyond basic extraction to semantic AST analysis
    - Property validation and selector optimization  
    - CSS variable tracking and dependency analysis
@@ -459,15 +487,76 @@ if (SveltePatterns.isSvelteRune(trimmed)) ...
 3. **Enhanced Language Support** - Add more languages or improve existing ones
 4. **Semantic Analysis** - Implement dependency tracking and call graph generation
 
-## High-Level Strategy - ✅ TRANSFORMATION COMPLETE
+## Systematic Test Audit Plan 🔍
 
-The project has successfully achieved a **major milestone** with clean AST-only architecture and excellent stability. All critical infrastructure issues have been resolved:
+### Phase 1: Fixture File Validation (Priority: High)
+**Goal**: Verify all ZON fixture expectations match actual intended extraction behavior
+
+1. **JSON Fixtures Audit** (`json.test.zon`):
+   - ✅ Fixed nested structure expectation bug
+   - ✅ Fixed tab indentation test expectation  
+   - 🔍 **TODO**: Verify remaining extraction flag combinations (signatures, structure, full)
+   - 🔍 **TODO**: Check formatter tests for all FormatterOptions combinations
+
+2. **CSS Fixtures Audit** (`css.test.zon`):
+   - 🔍 **TODO**: Validate CSS imports extraction expectations
+   - 🔍 **TODO**: Check media query formatting expectations
+   - 🔍 **TODO**: Verify CSS selector extraction accuracy
+
+3. **HTML Fixtures Audit** (`html.test.zon`):
+   - 🔍 **TODO**: Validate HTML structure extraction expectations
+   - 🔍 **TODO**: Check attribute extraction accuracy
+
+4. **TypeScript Fixtures Audit** (`typescript.test.zon`):
+   - 🔍 **TODO**: Validate function signature extraction
+   - 🔍 **TODO**: Check interface/type extraction expectations
+
+5. **Svelte Fixtures Audit** (`svelte.test.zon`):
+   - ✅ Fixed structure extraction duplicate elements
+   - 🔍 **TODO**: Validate Svelte 5 runes extraction expectations
+   - 🔍 **TODO**: Check script/style/template section extraction
+
+6. **Zig Fixtures Audit** (`zig.test.zon`):
+   - 🔍 **TODO**: Validate Zig function/struct extraction expectations
+
+### Phase 2: Extraction Logic Verification (Priority: Medium)
+**Goal**: Ensure extraction logic produces correct results for all flag combinations
+
+1. **Cross-reference Pattern vs AST Results**:
+   - Compare extraction results between pattern-based and AST-based approaches
+   - Identify discrepancies that may indicate bugs in either approach
+
+2. **Edge Case Testing**:
+   - Empty files, malformed code, unicode characters
+   - Complex nested structures, multi-line expressions
+   - Mixed content (e.g., Svelte with TypeScript in script tags)
+
+### Phase 3: Test Infrastructure Validation (Priority: Low)
+**Goal**: Verify test framework itself is working correctly
+
+1. **Negative Testing**: 
+   - Intentionally break expectations and verify tests fail
+   - Test with malformed fixture files
+   - Test with missing fixture files
+
+2. **Memory Management Validation**:
+   - Monitor for memory leaks in test runs
+   - Verify ZON parser arena cleanup works correctly
+
+## High-Level Strategy - ✅ TRANSFORMATION COMPLETE + 🔍 QUALITY ASSURANCE
+
+The project has successfully achieved a **major milestone** with clean AST-only architecture and excellent stability. All critical infrastructure issues have been resolved, but **test quality assurance** is now the priority:
 
 ### 🎯 **ACCOMPLISHED OBJECTIVES** (2025-08-15):
 1. ✅ **AST-Only Architecture**: Complete transition, dual-path complexity eliminated
 2. ✅ **TypeScript Compatibility**: ABI issues resolved (v0.7.0 → v0.23.2)
-3. ✅ **Test Excellence**: 99.4% pass rate (317/319) with fixture-based architecture
+3. ✅ **Test Validation Fix**: Critical bug where tests didn't validate expectations - now fixed
 4. ✅ **Infrastructure Stability**: All major blockers resolved, clean dependency management
+
+### 🔍 **CURRENT FOCUS** (2025-08-15):
+1. **Test Quality Assurance**: Systematic audit of all fixture expectations to ensure accuracy
+2. **Hidden Bug Detection**: Investigate potential latent issues in test validation
+3. **Comprehensive Validation**: Verify extraction logic produces correct results for all scenarios
 
 ### 🚀 **NEXT PHASE - ADVANCED FEATURES**:
 1. **Semantic Analysis**: Implement call graphs, dependency tracking, code relationships

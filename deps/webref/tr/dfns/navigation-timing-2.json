@@ -1,0 +1,1664 @@
+{
+  "spec": {
+    "title": "Navigation Timing Level 2",
+    "url": "https://www.w3.org/TR/navigation-timing-2/"
+  },
+  "dfns": [
+    {
+      "id": "dfn-current-document",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dfn-current-document",
+      "linkingText": [
+        "current document"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#terminology",
+        "title": "Terminology",
+        "alternateIds": [
+          "x2-terminology"
+        ],
+        "number": "2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-performancenavigationtiming",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancenavigationtiming",
+      "linkingText": [
+        "PerformanceNavigationTiming"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-PerformanceNavigationTiming",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#sec-PerformanceNavigationTiming",
+        "title": "The PerformanceNavigationTiming interface",
+        "alternateIds": [
+          "x3-3-the-performancenavigationtiming-interface"
+        ],
+        "number": "3.3"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-document-load-timing",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dfn-document-load-timing",
+      "linkingText": [
+        "document load timing"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sec-PerformanceNavigationTiming",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#sec-PerformanceNavigationTiming",
+        "title": "The PerformanceNavigationTiming interface",
+        "alternateIds": [
+          "x3-3-the-performancenavigationtiming-interface"
+        ],
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-previous-document-unload-timing",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dfn-previous-document-unload-timing",
+      "linkingText": [
+        "previous document unload timing"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sec-PerformanceNavigationTiming",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#sec-PerformanceNavigationTiming",
+        "title": "The PerformanceNavigationTiming interface",
+        "alternateIds": [
+          "x3-3-the-performancenavigationtiming-interface"
+        ],
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-redirect-count",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dfn-redirect-count",
+      "linkingText": [
+        "redirect count"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sec-PerformanceNavigationTiming",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#sec-PerformanceNavigationTiming",
+        "title": "The PerformanceNavigationTiming interface",
+        "alternateIds": [
+          "x3-3-the-performancenavigationtiming-interface"
+        ],
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-navigation-type",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dfn-navigation-type",
+      "linkingText": [
+        "navigation type"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sec-PerformanceNavigationTiming",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#sec-PerformanceNavigationTiming",
+        "title": "The PerformanceNavigationTiming interface",
+        "alternateIds": [
+          "x3-3-the-performancenavigationtiming-interface"
+        ],
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-critical-ch-restart-time",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dfn-critical-ch-restart-time",
+      "linkingText": [
+        "Critical-CH restart time"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sec-PerformanceNavigationTiming",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#sec-PerformanceNavigationTiming",
+        "title": "The PerformanceNavigationTiming interface",
+        "alternateIds": [
+          "x3-3-the-performancenavigationtiming-interface"
+        ],
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-not-restored-reasons",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dfn-not-restored-reasons",
+      "linkingText": [
+        "not restored reasons"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sec-PerformanceNavigationTiming",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#sec-PerformanceNavigationTiming",
+        "title": "The PerformanceNavigationTiming interface",
+        "alternateIds": [
+          "x3-3-the-performancenavigationtiming-interface"
+        ],
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-service-worker-timing",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dfn-service-worker-timing",
+      "linkingText": [
+        "service worker timing"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "PerformanceNavigationTiming"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sec-PerformanceNavigationTiming",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#sec-PerformanceNavigationTiming",
+        "title": "The PerformanceNavigationTiming interface",
+        "alternateIds": [
+          "x3-3-the-performancenavigationtiming-interface"
+        ],
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-performancenavigationtiming-unloadeventstart",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancenavigationtiming-unloadeventstart",
+      "linkingText": [
+        "unloadEventStart"
+      ],
+      "localLinkingText": [
+        "PerformanceNavigationTiming.unloadEventStart"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceNavigationTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-PerformanceNavigationTiming",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#sec-PerformanceNavigationTiming",
+        "title": "The PerformanceNavigationTiming interface",
+        "alternateIds": [
+          "x3-3-the-performancenavigationtiming-interface"
+        ],
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-performancenavigationtiming-unloadeventend",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancenavigationtiming-unloadeventend",
+      "linkingText": [
+        "unloadEventEnd"
+      ],
+      "localLinkingText": [
+        "PerformanceNavigationTiming.unloadEventEnd"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceNavigationTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-PerformanceNavigationTiming",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#sec-PerformanceNavigationTiming",
+        "title": "The PerformanceNavigationTiming interface",
+        "alternateIds": [
+          "x3-3-the-performancenavigationtiming-interface"
+        ],
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-performancenavigationtiming-dominteractive",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancenavigationtiming-dominteractive",
+      "linkingText": [
+        "domInteractive"
+      ],
+      "localLinkingText": [
+        "PerformanceNavigationTiming.domInteractive"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceNavigationTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-PerformanceNavigationTiming",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#sec-PerformanceNavigationTiming",
+        "title": "The PerformanceNavigationTiming interface",
+        "alternateIds": [
+          "x3-3-the-performancenavigationtiming-interface"
+        ],
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-performancenavigationtiming-domcontentloadedeventstart",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancenavigationtiming-domcontentloadedeventstart",
+      "linkingText": [
+        "domContentLoadedEventStart"
+      ],
+      "localLinkingText": [
+        "PerformanceNavigationTiming.domContentLoadedEventStart"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceNavigationTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-PerformanceNavigationTiming",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#sec-PerformanceNavigationTiming",
+        "title": "The PerformanceNavigationTiming interface",
+        "alternateIds": [
+          "x3-3-the-performancenavigationtiming-interface"
+        ],
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-performancenavigationtiming-domcontentloadedeventend",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancenavigationtiming-domcontentloadedeventend",
+      "linkingText": [
+        "domContentLoadedEventEnd"
+      ],
+      "localLinkingText": [
+        "PerformanceNavigationTiming.domContentLoadedEventEnd"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceNavigationTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-PerformanceNavigationTiming",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#sec-PerformanceNavigationTiming",
+        "title": "The PerformanceNavigationTiming interface",
+        "alternateIds": [
+          "x3-3-the-performancenavigationtiming-interface"
+        ],
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-performancenavigationtiming-domcomplete",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancenavigationtiming-domcomplete",
+      "linkingText": [
+        "domComplete"
+      ],
+      "localLinkingText": [
+        "PerformanceNavigationTiming.domComplete"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceNavigationTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-PerformanceNavigationTiming",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#sec-PerformanceNavigationTiming",
+        "title": "The PerformanceNavigationTiming interface",
+        "alternateIds": [
+          "x3-3-the-performancenavigationtiming-interface"
+        ],
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-performancenavigationtiming-loadeventstart",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancenavigationtiming-loadeventstart",
+      "linkingText": [
+        "loadEventStart"
+      ],
+      "localLinkingText": [
+        "PerformanceNavigationTiming.loadEventStart"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceNavigationTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-PerformanceNavigationTiming",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#sec-PerformanceNavigationTiming",
+        "title": "The PerformanceNavigationTiming interface",
+        "alternateIds": [
+          "x3-3-the-performancenavigationtiming-interface"
+        ],
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-performancenavigationtiming-loadeventend",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancenavigationtiming-loadeventend",
+      "linkingText": [
+        "loadEventEnd"
+      ],
+      "localLinkingText": [
+        "PerformanceNavigationTiming.loadEventEnd"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceNavigationTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-PerformanceNavigationTiming",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#sec-PerformanceNavigationTiming",
+        "title": "The PerformanceNavigationTiming interface",
+        "alternateIds": [
+          "x3-3-the-performancenavigationtiming-interface"
+        ],
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-performancenavigationtiming-type",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancenavigationtiming-type",
+      "linkingText": [
+        "type"
+      ],
+      "localLinkingText": [
+        "PerformanceNavigationTiming.type"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceNavigationTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-PerformanceNavigationTiming",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#sec-PerformanceNavigationTiming",
+        "title": "The PerformanceNavigationTiming interface",
+        "alternateIds": [
+          "x3-3-the-performancenavigationtiming-interface"
+        ],
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-performancenavigationtiming-redirectcount",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancenavigationtiming-redirectcount",
+      "linkingText": [
+        "redirectCount"
+      ],
+      "localLinkingText": [
+        "PerformanceNavigationTiming.redirectCount"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceNavigationTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-PerformanceNavigationTiming",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#sec-PerformanceNavigationTiming",
+        "title": "The PerformanceNavigationTiming interface",
+        "alternateIds": [
+          "x3-3-the-performancenavigationtiming-interface"
+        ],
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-performancenavigationtiming-criticalchrestart",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancenavigationtiming-criticalchrestart",
+      "linkingText": [
+        "criticalCHRestart"
+      ],
+      "localLinkingText": [
+        "PerformanceNavigationTiming.criticalCHRestart"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceNavigationTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-PerformanceNavigationTiming",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#sec-PerformanceNavigationTiming",
+        "title": "The PerformanceNavigationTiming interface",
+        "alternateIds": [
+          "x3-3-the-performancenavigationtiming-interface"
+        ],
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-performancenavigationtiming-notrestoredreasons",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancenavigationtiming-notrestoredreasons",
+      "linkingText": [
+        "notRestoredReasons"
+      ],
+      "localLinkingText": [
+        "PerformanceNavigationTiming.notRestoredReasons"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceNavigationTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-PerformanceNavigationTiming",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#sec-PerformanceNavigationTiming",
+        "title": "The PerformanceNavigationTiming interface",
+        "alternateIds": [
+          "x3-3-the-performancenavigationtiming-interface"
+        ],
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-performancenavigationtiming-tojson",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancenavigationtiming-tojson",
+      "linkingText": [
+        "toJSON()"
+      ],
+      "localLinkingText": [
+        "PerformanceNavigationTiming.toJSON",
+        "PerformanceNavigationTiming.toJSON()",
+        "toJSON"
+      ],
+      "type": "method",
+      "for": [
+        "PerformanceNavigationTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-PerformanceNavigationTiming",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#sec-PerformanceNavigationTiming",
+        "title": "The PerformanceNavigationTiming interface",
+        "alternateIds": [
+          "x3-3-the-performancenavigationtiming-interface"
+        ],
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-navigationtimingtype",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-navigationtimingtype",
+      "linkingText": [
+        "NavigationTimingType"
+      ],
+      "localLinkingText": [],
+      "type": "enum",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-performance-navigation-types",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#sec-performance-navigation-types",
+        "title": "NavigationTimingType enum",
+        "alternateIds": [
+          "x3-3-1-navigationtimingtype-enum"
+        ],
+        "number": "3.3.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dom-navigationtimingtype-navigate",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-navigationtimingtype-navigate",
+      "linkingText": [
+        "navigate"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "NavigationTimingType"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-performance-navigation-types",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#sec-performance-navigation-types",
+        "title": "NavigationTimingType enum",
+        "alternateIds": [
+          "x3-3-1-navigationtimingtype-enum"
+        ],
+        "number": "3.3.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-navigationtimingtype-reload",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-navigationtimingtype-reload",
+      "linkingText": [
+        "reload"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "NavigationTimingType"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-performance-navigation-types",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#sec-performance-navigation-types",
+        "title": "NavigationTimingType enum",
+        "alternateIds": [
+          "x3-3-1-navigationtimingtype-enum"
+        ],
+        "number": "3.3.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-navigationtimingtype-back_forward",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-navigationtimingtype-back_forward",
+      "linkingText": [
+        "back_forward"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "NavigationTimingType"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-performance-navigation-types",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#sec-performance-navigation-types",
+        "title": "NavigationTimingType enum",
+        "alternateIds": [
+          "x3-3-1-navigationtimingtype-enum"
+        ],
+        "number": "3.3.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-navigationtimingtype-prerender",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-navigationtimingtype-prerender",
+      "linkingText": [
+        "prerender"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "NavigationTimingType"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-performance-navigation-types",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#sec-performance-navigation-types",
+        "title": "NavigationTimingType enum",
+        "alternateIds": [
+          "x3-3-1-navigationtimingtype-enum"
+        ],
+        "number": "3.3.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-navigation-timing-entry",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dfn-navigation-timing-entry",
+      "linkingText": [
+        "navigation timing entry"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "marking-navigation-timing",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#marking-navigation-timing",
+        "title": "Creating a navigation timing entry",
+        "alternateIds": [
+          "x5-creating-a-navigation-timing-entry"
+        ],
+        "number": "5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-create-the-navigation-timing-entry",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dfn-create-the-navigation-timing-entry",
+      "linkingText": [
+        "create the navigation timing entry"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "marking-navigation-timing",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#marking-navigation-timing",
+        "title": "Creating a navigation timing entry",
+        "alternateIds": [
+          "x5-creating-a-navigation-timing-entry"
+        ],
+        "number": "5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-queue-the-navigation-timing-entry",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dfn-queue-the-navigation-timing-entry",
+      "linkingText": [
+        "queue the navigation timing entry"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "marking-navigation-timing",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#marking-navigation-timing",
+        "title": "Creating a navigation timing entry",
+        "alternateIds": [
+          "x5-creating-a-navigation-timing-entry"
+        ],
+        "number": "5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-performancetiming",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancetiming",
+      "linkingText": [
+        "PerformanceTiming"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-performancetiming-interface",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#the-performancetiming-interface",
+        "title": "The PerformanceTiming interface",
+        "alternateIds": [
+          "x8-1-the-performancetiming-interface"
+        ],
+        "number": "8.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dom-performancetiming-navigationstart",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancetiming-navigationstart",
+      "linkingText": [
+        "navigationStart"
+      ],
+      "localLinkingText": [
+        "PerformanceTiming.navigationStart"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-performancetiming-interface",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#the-performancetiming-interface",
+        "title": "The PerformanceTiming interface",
+        "alternateIds": [
+          "x8-1-the-performancetiming-interface"
+        ],
+        "number": "8.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-performancetiming-unloadeventstart",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancetiming-unloadeventstart",
+      "linkingText": [
+        "unloadEventStart"
+      ],
+      "localLinkingText": [
+        "PerformanceTiming.unloadEventStart"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-performancetiming-interface",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#the-performancetiming-interface",
+        "title": "The PerformanceTiming interface",
+        "alternateIds": [
+          "x8-1-the-performancetiming-interface"
+        ],
+        "number": "8.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-performancetiming-unloadeventend",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancetiming-unloadeventend",
+      "linkingText": [
+        "unloadEventEnd"
+      ],
+      "localLinkingText": [
+        "PerformanceTiming.unloadEventEnd"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-performancetiming-interface",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#the-performancetiming-interface",
+        "title": "The PerformanceTiming interface",
+        "alternateIds": [
+          "x8-1-the-performancetiming-interface"
+        ],
+        "number": "8.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-performancetiming-redirectstart",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancetiming-redirectstart",
+      "linkingText": [
+        "redirectStart"
+      ],
+      "localLinkingText": [
+        "PerformanceTiming.redirectStart"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-performancetiming-interface",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#the-performancetiming-interface",
+        "title": "The PerformanceTiming interface",
+        "alternateIds": [
+          "x8-1-the-performancetiming-interface"
+        ],
+        "number": "8.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-performancetiming-redirectend",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancetiming-redirectend",
+      "linkingText": [
+        "redirectEnd"
+      ],
+      "localLinkingText": [
+        "PerformanceTiming.redirectEnd"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-performancetiming-interface",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#the-performancetiming-interface",
+        "title": "The PerformanceTiming interface",
+        "alternateIds": [
+          "x8-1-the-performancetiming-interface"
+        ],
+        "number": "8.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-performancetiming-fetchstart",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancetiming-fetchstart",
+      "linkingText": [
+        "fetchStart"
+      ],
+      "localLinkingText": [
+        "PerformanceTiming.fetchStart"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-performancetiming-interface",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#the-performancetiming-interface",
+        "title": "The PerformanceTiming interface",
+        "alternateIds": [
+          "x8-1-the-performancetiming-interface"
+        ],
+        "number": "8.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-performancetiming-domainlookupstart",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancetiming-domainlookupstart",
+      "linkingText": [
+        "domainLookupStart"
+      ],
+      "localLinkingText": [
+        "PerformanceTiming.domainLookupStart"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-performancetiming-interface",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#the-performancetiming-interface",
+        "title": "The PerformanceTiming interface",
+        "alternateIds": [
+          "x8-1-the-performancetiming-interface"
+        ],
+        "number": "8.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-performancetiming-domainlookupend",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancetiming-domainlookupend",
+      "linkingText": [
+        "domainLookupEnd"
+      ],
+      "localLinkingText": [
+        "PerformanceTiming.domainLookupEnd"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-performancetiming-interface",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#the-performancetiming-interface",
+        "title": "The PerformanceTiming interface",
+        "alternateIds": [
+          "x8-1-the-performancetiming-interface"
+        ],
+        "number": "8.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-performancetiming-connectstart",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancetiming-connectstart",
+      "linkingText": [
+        "connectStart"
+      ],
+      "localLinkingText": [
+        "PerformanceTiming.connectStart"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-performancetiming-interface",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#the-performancetiming-interface",
+        "title": "The PerformanceTiming interface",
+        "alternateIds": [
+          "x8-1-the-performancetiming-interface"
+        ],
+        "number": "8.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-performancetiming-connectend",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancetiming-connectend",
+      "linkingText": [
+        "connectEnd"
+      ],
+      "localLinkingText": [
+        "PerformanceTiming.connectEnd"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-performancetiming-interface",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#the-performancetiming-interface",
+        "title": "The PerformanceTiming interface",
+        "alternateIds": [
+          "x8-1-the-performancetiming-interface"
+        ],
+        "number": "8.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-performancetiming-secureconnectionstart",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancetiming-secureconnectionstart",
+      "linkingText": [
+        "secureConnectionStart"
+      ],
+      "localLinkingText": [
+        "PerformanceTiming.secureConnectionStart"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-performancetiming-interface",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#the-performancetiming-interface",
+        "title": "The PerformanceTiming interface",
+        "alternateIds": [
+          "x8-1-the-performancetiming-interface"
+        ],
+        "number": "8.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-performancetiming-requeststart",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancetiming-requeststart",
+      "linkingText": [
+        "requestStart"
+      ],
+      "localLinkingText": [
+        "PerformanceTiming.requestStart"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-performancetiming-interface",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#the-performancetiming-interface",
+        "title": "The PerformanceTiming interface",
+        "alternateIds": [
+          "x8-1-the-performancetiming-interface"
+        ],
+        "number": "8.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-performancetiming-responsestart",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancetiming-responsestart",
+      "linkingText": [
+        "responseStart"
+      ],
+      "localLinkingText": [
+        "PerformanceTiming.responseStart"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-performancetiming-interface",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#the-performancetiming-interface",
+        "title": "The PerformanceTiming interface",
+        "alternateIds": [
+          "x8-1-the-performancetiming-interface"
+        ],
+        "number": "8.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-performancetiming-responseend",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancetiming-responseend",
+      "linkingText": [
+        "responseEnd"
+      ],
+      "localLinkingText": [
+        "PerformanceTiming.responseEnd"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-performancetiming-interface",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#the-performancetiming-interface",
+        "title": "The PerformanceTiming interface",
+        "alternateIds": [
+          "x8-1-the-performancetiming-interface"
+        ],
+        "number": "8.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-performancetiming-domloading",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancetiming-domloading",
+      "linkingText": [
+        "domLoading"
+      ],
+      "localLinkingText": [
+        "PerformanceTiming.domLoading"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-performancetiming-interface",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#the-performancetiming-interface",
+        "title": "The PerformanceTiming interface",
+        "alternateIds": [
+          "x8-1-the-performancetiming-interface"
+        ],
+        "number": "8.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-performancetiming-dominteractive",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancetiming-dominteractive",
+      "linkingText": [
+        "domInteractive"
+      ],
+      "localLinkingText": [
+        "PerformanceTiming.domInteractive"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-performancetiming-interface",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#the-performancetiming-interface",
+        "title": "The PerformanceTiming interface",
+        "alternateIds": [
+          "x8-1-the-performancetiming-interface"
+        ],
+        "number": "8.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-performancetiming-domcontentloadedeventstart",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancetiming-domcontentloadedeventstart",
+      "linkingText": [
+        "domContentLoadedEventStart"
+      ],
+      "localLinkingText": [
+        "PerformanceTiming.domContentLoadedEventStart"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-performancetiming-interface",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#the-performancetiming-interface",
+        "title": "The PerformanceTiming interface",
+        "alternateIds": [
+          "x8-1-the-performancetiming-interface"
+        ],
+        "number": "8.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-performancetiming-domcontentloadedeventend",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancetiming-domcontentloadedeventend",
+      "linkingText": [
+        "domContentLoadedEventEnd"
+      ],
+      "localLinkingText": [
+        "PerformanceTiming.domContentLoadedEventEnd"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-performancetiming-interface",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#the-performancetiming-interface",
+        "title": "The PerformanceTiming interface",
+        "alternateIds": [
+          "x8-1-the-performancetiming-interface"
+        ],
+        "number": "8.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-performancetiming-domcomplete",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancetiming-domcomplete",
+      "linkingText": [
+        "domComplete"
+      ],
+      "localLinkingText": [
+        "PerformanceTiming.domComplete"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-performancetiming-interface",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#the-performancetiming-interface",
+        "title": "The PerformanceTiming interface",
+        "alternateIds": [
+          "x8-1-the-performancetiming-interface"
+        ],
+        "number": "8.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-performancetiming-loadeventstart",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancetiming-loadeventstart",
+      "linkingText": [
+        "loadEventStart"
+      ],
+      "localLinkingText": [
+        "PerformanceTiming.loadEventStart"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-performancetiming-interface",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#the-performancetiming-interface",
+        "title": "The PerformanceTiming interface",
+        "alternateIds": [
+          "x8-1-the-performancetiming-interface"
+        ],
+        "number": "8.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-performancetiming-loadeventend",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancetiming-loadeventend",
+      "linkingText": [
+        "loadEventEnd"
+      ],
+      "localLinkingText": [
+        "PerformanceTiming.loadEventEnd"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-performancetiming-interface",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#the-performancetiming-interface",
+        "title": "The PerformanceTiming interface",
+        "alternateIds": [
+          "x8-1-the-performancetiming-interface"
+        ],
+        "number": "8.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-performancetiming-tojson",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancetiming-tojson",
+      "linkingText": [
+        "toJSON()"
+      ],
+      "localLinkingText": [
+        "PerformanceTiming.toJSON",
+        "PerformanceTiming.toJSON()",
+        "toJSON"
+      ],
+      "type": "method",
+      "for": [
+        "PerformanceTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-performancetiming-interface",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#the-performancetiming-interface",
+        "title": "The PerformanceTiming interface",
+        "alternateIds": [
+          "x8-1-the-performancetiming-interface"
+        ],
+        "number": "8.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-performancenavigation",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancenavigation",
+      "linkingText": [
+        "PerformanceNavigation"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-performancenavigation-interface",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#the-performancenavigation-interface",
+        "title": "The PerformanceNavigation interface",
+        "alternateIds": [
+          "x8-2-the-performancenavigation-interface"
+        ],
+        "number": "8.2"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dom-performancenavigation-type_navigate",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancenavigation-type_navigate",
+      "linkingText": [
+        "TYPE_NAVIGATE"
+      ],
+      "localLinkingText": [],
+      "type": "const",
+      "for": [
+        "PerformanceNavigation"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-performancenavigation-interface",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#the-performancenavigation-interface",
+        "title": "The PerformanceNavigation interface",
+        "alternateIds": [
+          "x8-2-the-performancenavigation-interface"
+        ],
+        "number": "8.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-performancenavigation-type_reload",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancenavigation-type_reload",
+      "linkingText": [
+        "TYPE_RELOAD"
+      ],
+      "localLinkingText": [],
+      "type": "const",
+      "for": [
+        "PerformanceNavigation"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-performancenavigation-interface",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#the-performancenavigation-interface",
+        "title": "The PerformanceNavigation interface",
+        "alternateIds": [
+          "x8-2-the-performancenavigation-interface"
+        ],
+        "number": "8.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-performancenavigation-type_back_forward",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancenavigation-type_back_forward",
+      "linkingText": [
+        "TYPE_BACK_FORWARD"
+      ],
+      "localLinkingText": [],
+      "type": "const",
+      "for": [
+        "PerformanceNavigation"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-performancenavigation-interface",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#the-performancenavigation-interface",
+        "title": "The PerformanceNavigation interface",
+        "alternateIds": [
+          "x8-2-the-performancenavigation-interface"
+        ],
+        "number": "8.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-performancenavigation-type_reserved",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancenavigation-type_reserved",
+      "linkingText": [
+        "TYPE_RESERVED"
+      ],
+      "localLinkingText": [],
+      "type": "const",
+      "for": [
+        "PerformanceNavigation"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-performancenavigation-interface",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#the-performancenavigation-interface",
+        "title": "The PerformanceNavigation interface",
+        "alternateIds": [
+          "x8-2-the-performancenavigation-interface"
+        ],
+        "number": "8.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-performancenavigation-type",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancenavigation-type",
+      "linkingText": [
+        "type"
+      ],
+      "localLinkingText": [
+        "PerformanceNavigation.type"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceNavigation"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-performancenavigation-interface",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#the-performancenavigation-interface",
+        "title": "The PerformanceNavigation interface",
+        "alternateIds": [
+          "x8-2-the-performancenavigation-interface"
+        ],
+        "number": "8.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-performancenavigation-redirectcount",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancenavigation-redirectcount",
+      "linkingText": [
+        "redirectCount"
+      ],
+      "localLinkingText": [
+        "PerformanceNavigation.redirectCount"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceNavigation"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-performancenavigation-interface",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#the-performancenavigation-interface",
+        "title": "The PerformanceNavigation interface",
+        "alternateIds": [
+          "x8-2-the-performancenavigation-interface"
+        ],
+        "number": "8.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-performancenavigation-tojson",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performancenavigation-tojson",
+      "linkingText": [
+        "toJSON()"
+      ],
+      "localLinkingText": [
+        "PerformanceNavigation.toJSON",
+        "PerformanceNavigation.toJSON()",
+        "toJSON"
+      ],
+      "type": "method",
+      "for": [
+        "PerformanceNavigation"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-performancenavigation-interface",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#the-performancenavigation-interface",
+        "title": "The PerformanceNavigation interface",
+        "alternateIds": [
+          "x8-2-the-performancenavigation-interface"
+        ],
+        "number": "8.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-performance",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performance",
+      "linkingText": [
+        "Performance"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "extensions-to-the-performance-interface",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#extensions-to-the-performance-interface",
+        "title": "Extensions to the Performance interface",
+        "alternateIds": [
+          "x8-3-extensions-to-the-performance-interface"
+        ],
+        "number": "8.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-performance-timing",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performance-timing",
+      "linkingText": [
+        "timing"
+      ],
+      "localLinkingText": [
+        "Performance.timing"
+      ],
+      "type": "attribute",
+      "for": [
+        "Performance"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "extensions-to-the-performance-interface",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#extensions-to-the-performance-interface",
+        "title": "Extensions to the Performance interface",
+        "alternateIds": [
+          "x8-3-extensions-to-the-performance-interface"
+        ],
+        "number": "8.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-performance-navigation",
+      "href": "https://www.w3.org/TR/navigation-timing-2/#dom-performance-navigation",
+      "linkingText": [
+        "navigation"
+      ],
+      "localLinkingText": [
+        "Performance.navigation"
+      ],
+      "type": "attribute",
+      "for": [
+        "Performance"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "extensions-to-the-performance-interface",
+        "href": "https://www.w3.org/TR/navigation-timing-2/#extensions-to-the-performance-interface",
+        "title": "Extensions to the Performance interface",
+        "alternateIds": [
+          "x8-3-extensions-to-the-performance-interface"
+        ],
+        "number": "8.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    }
+  ]
+}

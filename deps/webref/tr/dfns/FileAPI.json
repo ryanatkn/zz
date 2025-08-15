@@ -1,0 +1,2579 @@
+{
+  "spec": {
+    "title": "File API",
+    "url": "https://www.w3.org/TR/FileAPI/"
+  },
+  "dfns": [
+    {
+      "id": "terminate-an-algorithm",
+      "href": "https://www.w3.org/TR/FileAPI/#terminate-an-algorithm",
+      "linkingText": [
+        "terminate an algorithm",
+        "terminate this algorithm"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/FileAPI/#terminology",
+        "title": "Terminology and Algorithms",
+        "number": "2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "UnixEpoch",
+      "href": "https://www.w3.org/TR/FileAPI/#UnixEpoch",
+      "linkingText": [
+        "Unix Epoch"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/FileAPI/#terminology",
+        "title": "Terminology and Algorithms",
+        "number": "2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "slice-blob",
+      "href": "https://www.w3.org/TR/FileAPI/#slice-blob",
+      "linkingText": [
+        "slice blob"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/FileAPI/#terminology",
+        "title": "Terminology and Algorithms",
+        "number": "2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "snapshot-state",
+      "href": "https://www.w3.org/TR/FileAPI/#snapshot-state",
+      "linkingText": [
+        "snapshot state"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "Blob"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "blob-section",
+        "href": "https://www.w3.org/TR/FileAPI/#blob-section",
+        "title": "The Blob Interface and Binary Data",
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-Blob",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-Blob",
+      "linkingText": [
+        "Blob"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "blob-section",
+        "href": "https://www.w3.org/TR/FileAPI/#blob-section",
+        "title": "The Blob Interface and Binary Data",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-blob-blob",
+      "href": "https://www.w3.org/TR/FileAPI/#dom-blob-blob",
+      "linkingText": [
+        "Blob(blobParts, options)",
+        "constructor(blobParts, options)",
+        "Blob(blobParts)",
+        "constructor(blobParts)",
+        "Blob()",
+        "constructor()"
+      ],
+      "localLinkingText": [],
+      "type": "constructor",
+      "for": [
+        "Blob"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "blob-section",
+        "href": "https://www.w3.org/TR/FileAPI/#blob-section",
+        "title": "The Blob Interface and Binary Data",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-blob-blob-blobparts-options-options",
+      "href": "https://www.w3.org/TR/FileAPI/#dom-blob-blob-blobparts-options-options",
+      "linkingText": [
+        "options"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "Blob/Blob(blobParts, options)",
+        "Blob/constructor(blobParts, options)",
+        "Blob/Blob(blobParts)",
+        "Blob/constructor(blobParts)",
+        "Blob/Blob()",
+        "Blob/constructor()"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "blob-section",
+        "href": "https://www.w3.org/TR/FileAPI/#blob-section",
+        "title": "The Blob Interface and Binary Data",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-blob-slice-start-end-contenttype-start",
+      "href": "https://www.w3.org/TR/FileAPI/#dom-blob-slice-start-end-contenttype-start",
+      "linkingText": [
+        "start"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "Blob/slice(start, end, contentType)",
+        "Blob/slice(start, end)",
+        "Blob/slice(start)",
+        "Blob/slice()"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "blob-section",
+        "href": "https://www.w3.org/TR/FileAPI/#blob-section",
+        "title": "The Blob Interface and Binary Data",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-blob-slice-start-end-contenttype-end",
+      "href": "https://www.w3.org/TR/FileAPI/#dom-blob-slice-start-end-contenttype-end",
+      "linkingText": [
+        "end"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "Blob/slice(start, end, contentType)",
+        "Blob/slice(start, end)",
+        "Blob/slice(start)",
+        "Blob/slice()"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "blob-section",
+        "href": "https://www.w3.org/TR/FileAPI/#blob-section",
+        "title": "The Blob Interface and Binary Data",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-blob-slice-start-end-contenttype-contenttype",
+      "href": "https://www.w3.org/TR/FileAPI/#dom-blob-slice-start-end-contenttype-contenttype",
+      "linkingText": [
+        "contentType"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "Blob/slice(start, end, contentType)",
+        "Blob/slice(start, end)",
+        "Blob/slice(start)",
+        "Blob/slice()"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "blob-section",
+        "href": "https://www.w3.org/TR/FileAPI/#blob-section",
+        "title": "The Blob Interface and Binary Data",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "enumdef-endingtype",
+      "href": "https://www.w3.org/TR/FileAPI/#enumdef-endingtype",
+      "linkingText": [
+        "EndingType"
+      ],
+      "localLinkingText": [],
+      "type": "enum",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "blob-section",
+        "href": "https://www.w3.org/TR/FileAPI/#blob-section",
+        "title": "The Blob Interface and Binary Data",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-endingtype-transparent",
+      "href": "https://www.w3.org/TR/FileAPI/#dom-endingtype-transparent",
+      "linkingText": [
+        "\"transparent\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "EndingType"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "blob-section",
+        "href": "https://www.w3.org/TR/FileAPI/#blob-section",
+        "title": "The Blob Interface and Binary Data",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-endingtype-native",
+      "href": "https://www.w3.org/TR/FileAPI/#dom-endingtype-native",
+      "linkingText": [
+        "\"native\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "EndingType"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "blob-section",
+        "href": "https://www.w3.org/TR/FileAPI/#blob-section",
+        "title": "The Blob Interface and Binary Data",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dfn-BlobPropertyBag",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-BlobPropertyBag",
+      "linkingText": [
+        "BlobPropertyBag"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "blob-section",
+        "href": "https://www.w3.org/TR/FileAPI/#blob-section",
+        "title": "The Blob Interface and Binary Data",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "typedefdef-blobpart",
+      "href": "https://www.w3.org/TR/FileAPI/#typedefdef-blobpart",
+      "linkingText": [
+        "BlobPart"
+      ],
+      "localLinkingText": [],
+      "type": "typedef",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "blob-section",
+        "href": "https://www.w3.org/TR/FileAPI/#blob-section",
+        "title": "The Blob Interface and Binary Data",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "blob-get-stream",
+      "href": "https://www.w3.org/TR/FileAPI/#blob-get-stream",
+      "linkingText": [
+        "get stream"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "Blob"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "blob-section",
+        "href": "https://www.w3.org/TR/FileAPI/#blob-section",
+        "title": "The Blob Interface and Binary Data",
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-blobParts",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-blobParts",
+      "linkingText": [
+        "blobParts"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "Blob/Blob(blobParts, options)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "constructorParams",
+        "href": "https://www.w3.org/TR/FileAPI/#constructorParams",
+        "title": "Constructor Parameters",
+        "number": "3.1.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-BPtype",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-BPtype",
+      "linkingText": [
+        "type"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "BlobPropertyBag"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "constructorParams",
+        "href": "https://www.w3.org/TR/FileAPI/#constructorParams",
+        "title": "Constructor Parameters",
+        "number": "3.1.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-blobpropertybag-endings",
+      "href": "https://www.w3.org/TR/FileAPI/#dom-blobpropertybag-endings",
+      "linkingText": [
+        "endings"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "BlobPropertyBag"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "constructorParams",
+        "href": "https://www.w3.org/TR/FileAPI/#constructorParams",
+        "title": "Constructor Parameters",
+        "number": "3.1.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "process-blob-parts",
+      "href": "https://www.w3.org/TR/FileAPI/#process-blob-parts",
+      "linkingText": [
+        "process blob parts",
+        "processing blob parts"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "constructorParams",
+        "href": "https://www.w3.org/TR/FileAPI/#constructorParams",
+        "title": "Constructor Parameters",
+        "number": "3.1.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "convert-line-endings-to-native",
+      "href": "https://www.w3.org/TR/FileAPI/#convert-line-endings-to-native",
+      "linkingText": [
+        "convert line endings to native",
+        "converting line endings to native"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "constructorParams",
+        "href": "https://www.w3.org/TR/FileAPI/#constructorParams",
+        "title": "Constructor Parameters",
+        "number": "3.1.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-size",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-size",
+      "linkingText": [
+        "size"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Blob"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "attributes-blob",
+        "href": "https://www.w3.org/TR/FileAPI/#attributes-blob",
+        "title": "Attributes",
+        "number": "3.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-type",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-type",
+      "linkingText": [
+        "type"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Blob"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "attributes-blob",
+        "href": "https://www.w3.org/TR/FileAPI/#attributes-blob",
+        "title": "Attributes",
+        "number": "3.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-slice",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-slice",
+      "linkingText": [
+        "slice(start, end, contentType)",
+        "slice(start, end)",
+        "slice(start)",
+        "slice()",
+        "slice(start, end, contentType), slice(start, end), slice(start), slice()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "Blob"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "slice-method-algo",
+        "href": "https://www.w3.org/TR/FileAPI/#slice-method-algo",
+        "title": "The slice() method",
+        "number": "3.3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-blob-stream",
+      "href": "https://www.w3.org/TR/FileAPI/#dom-blob-stream",
+      "linkingText": [
+        "stream()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "Blob"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "stream-method-algo",
+        "href": "https://www.w3.org/TR/FileAPI/#stream-method-algo",
+        "title": "The stream() method",
+        "number": "3.3.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-blob-text",
+      "href": "https://www.w3.org/TR/FileAPI/#dom-blob-text",
+      "linkingText": [
+        "text()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "Blob"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "text-method-algo",
+        "href": "https://www.w3.org/TR/FileAPI/#text-method-algo",
+        "title": "The text() method",
+        "number": "3.3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-blob-arraybuffer",
+      "href": "https://www.w3.org/TR/FileAPI/#dom-blob-arraybuffer",
+      "linkingText": [
+        "arrayBuffer()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "Blob"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "arraybuffer-method-algo",
+        "href": "https://www.w3.org/TR/FileAPI/#arraybuffer-method-algo",
+        "title": "The arrayBuffer() method",
+        "number": "3.3.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-blob-bytes",
+      "href": "https://www.w3.org/TR/FileAPI/#dom-blob-bytes",
+      "linkingText": [
+        "bytes()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "Blob"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "bytes-method-algo",
+        "href": "https://www.w3.org/TR/FileAPI/#bytes-method-algo",
+        "title": "The bytes() method",
+        "number": "3.3.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "file-type-guidelines",
+      "href": "https://www.w3.org/TR/FileAPI/#file-type-guidelines",
+      "linkingText": [
+        "file type guidelines"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "file-section",
+        "href": "https://www.w3.org/TR/FileAPI/#file-section",
+        "title": "The File Interface",
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-file",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-file",
+      "linkingText": [
+        "File"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "file-section",
+        "href": "https://www.w3.org/TR/FileAPI/#file-section",
+        "title": "The File Interface",
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-file-file",
+      "href": "https://www.w3.org/TR/FileAPI/#dom-file-file",
+      "linkingText": [
+        "File(fileBits, fileName, options)",
+        "constructor(fileBits, fileName, options)",
+        "File(fileBits, fileName)",
+        "constructor(fileBits, fileName)"
+      ],
+      "localLinkingText": [],
+      "type": "constructor",
+      "for": [
+        "File"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "file-section",
+        "href": "https://www.w3.org/TR/FileAPI/#file-section",
+        "title": "The File Interface",
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-file-file-filebits-filename-options-options",
+      "href": "https://www.w3.org/TR/FileAPI/#dom-file-file-filebits-filename-options-options",
+      "linkingText": [
+        "options"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "File/File(fileBits, fileName, options)",
+        "File/constructor(fileBits, fileName, options)",
+        "File/File(fileBits, fileName)",
+        "File/constructor(fileBits, fileName)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "file-section",
+        "href": "https://www.w3.org/TR/FileAPI/#file-section",
+        "title": "The File Interface",
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dfn-FilePropertyBag",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-FilePropertyBag",
+      "linkingText": [
+        "FilePropertyBag"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "file-section",
+        "href": "https://www.w3.org/TR/FileAPI/#file-section",
+        "title": "The File Interface",
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dfn-fileBits",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-fileBits",
+      "linkingText": [
+        "fileBits"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "File/File(fileBits, fileName, options)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "file-constructor-params",
+        "href": "https://www.w3.org/TR/FileAPI/#file-constructor-params",
+        "title": "Constructor Parameters",
+        "number": "4.1.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-fileName",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-fileName",
+      "linkingText": [
+        "fileName"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "File/File(fileBits, fileName, options)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "file-constructor-params",
+        "href": "https://www.w3.org/TR/FileAPI/#file-constructor-params",
+        "title": "Constructor Parameters",
+        "number": "4.1.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-FPdate",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-FPdate",
+      "linkingText": [
+        "lastModified"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "FilePropertyBag"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "file-constructor-params",
+        "href": "https://www.w3.org/TR/FileAPI/#file-constructor-params",
+        "title": "Constructor Parameters",
+        "number": "4.1.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-name",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-name",
+      "linkingText": [
+        "name"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "File"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "file-attrs",
+        "href": "https://www.w3.org/TR/FileAPI/#file-attrs",
+        "title": "Attributes",
+        "number": "4.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-lastModified",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-lastModified",
+      "linkingText": [
+        "lastModified"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "File"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "file-attrs",
+        "href": "https://www.w3.org/TR/FileAPI/#file-attrs",
+        "title": "Attributes",
+        "number": "4.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-filelist",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-filelist",
+      "linkingText": [
+        "FileList"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "filelist-section",
+        "href": "https://www.w3.org/TR/FileAPI/#filelist-section",
+        "title": "The FileList Interface",
+        "number": "5"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dfn-length",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-length",
+      "linkingText": [
+        "length"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "FileList"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "attributes-filelist",
+        "href": "https://www.w3.org/TR/FileAPI/#attributes-filelist",
+        "title": "Attributes",
+        "number": "5.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-item",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-item",
+      "linkingText": [
+        "item(index)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "FileList"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "filelist-methods-params",
+        "href": "https://www.w3.org/TR/FileAPI/#filelist-methods-params",
+        "title": "Methods and Parameters",
+        "number": "5.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-index",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-index",
+      "linkingText": [
+        "index"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "FileList/item(index)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "filelist-methods-params",
+        "href": "https://www.w3.org/TR/FileAPI/#filelist-methods-params",
+        "title": "Methods and Parameters",
+        "number": "5.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "fileReadingTaskSource",
+      "href": "https://www.w3.org/TR/FileAPI/#fileReadingTaskSource",
+      "linkingText": [
+        "file reading task source"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "blobreader-task-source",
+        "href": "https://www.w3.org/TR/FileAPI/#blobreader-task-source",
+        "title": "The File Reading Task Source",
+        "number": "6.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-filereader",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-filereader",
+      "linkingText": [
+        "FileReader"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "APIASynch",
+        "href": "https://www.w3.org/TR/FileAPI/#APIASynch",
+        "title": "The FileReader API",
+        "number": "6.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-filereader-readasarraybuffer-blob-blob",
+      "href": "https://www.w3.org/TR/FileAPI/#dom-filereader-readasarraybuffer-blob-blob",
+      "linkingText": [
+        "blob"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "FileReader/readAsArrayBuffer(blob)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "APIASynch",
+        "href": "https://www.w3.org/TR/FileAPI/#APIASynch",
+        "title": "The FileReader API",
+        "number": "6.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-filereader-readasbinarystring-blob-blob",
+      "href": "https://www.w3.org/TR/FileAPI/#dom-filereader-readasbinarystring-blob-blob",
+      "linkingText": [
+        "blob"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "FileReader/readAsBinaryString(blob)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "APIASynch",
+        "href": "https://www.w3.org/TR/FileAPI/#APIASynch",
+        "title": "The FileReader API",
+        "number": "6.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-filereader-readastext-blob-encoding-blob",
+      "href": "https://www.w3.org/TR/FileAPI/#dom-filereader-readastext-blob-encoding-blob",
+      "linkingText": [
+        "blob"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "FileReader/readAsText(blob, encoding)",
+        "FileReader/readAsText(blob)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "APIASynch",
+        "href": "https://www.w3.org/TR/FileAPI/#APIASynch",
+        "title": "The FileReader API",
+        "number": "6.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-filereader-readastext-blob-encoding-encoding",
+      "href": "https://www.w3.org/TR/FileAPI/#dom-filereader-readastext-blob-encoding-encoding",
+      "linkingText": [
+        "encoding"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "FileReader/readAsText(blob, encoding)",
+        "FileReader/readAsText(blob)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "APIASynch",
+        "href": "https://www.w3.org/TR/FileAPI/#APIASynch",
+        "title": "The FileReader API",
+        "number": "6.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-filereader-readasdataurl-blob-blob",
+      "href": "https://www.w3.org/TR/FileAPI/#dom-filereader-readasdataurl-blob-blob",
+      "linkingText": [
+        "blob"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "FileReader/readAsDataURL(blob)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "APIASynch",
+        "href": "https://www.w3.org/TR/FileAPI/#APIASynch",
+        "title": "The FileReader API",
+        "number": "6.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-filereader-empty",
+      "href": "https://www.w3.org/TR/FileAPI/#dom-filereader-empty",
+      "linkingText": [
+        "EMPTY"
+      ],
+      "localLinkingText": [],
+      "type": "const",
+      "for": [
+        "FileReader"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "APIASynch",
+        "href": "https://www.w3.org/TR/FileAPI/#APIASynch",
+        "title": "The FileReader API",
+        "number": "6.2"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filereader-empty①",
+          "name": "EMPTY (numeric value 0)",
+          "href": "https://www.w3.org/TR/FileAPI/#ref-for-dom-filereader-empty%E2%91%A0",
+          "heading": {
+            "id": "blobreader-state",
+            "href": "https://www.w3.org/TR/FileAPI/#blobreader-state",
+            "title": "FileReader States",
+            "number": "6.2.2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-filereader-loading",
+      "href": "https://www.w3.org/TR/FileAPI/#dom-filereader-loading",
+      "linkingText": [
+        "LOADING"
+      ],
+      "localLinkingText": [],
+      "type": "const",
+      "for": [
+        "FileReader"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "APIASynch",
+        "href": "https://www.w3.org/TR/FileAPI/#APIASynch",
+        "title": "The FileReader API",
+        "number": "6.2"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filereader-loading①",
+          "name": "LOADING (numeric value 1)",
+          "href": "https://www.w3.org/TR/FileAPI/#ref-for-dom-filereader-loading%E2%91%A0",
+          "heading": {
+            "id": "blobreader-state",
+            "href": "https://www.w3.org/TR/FileAPI/#blobreader-state",
+            "title": "FileReader States",
+            "number": "6.2.2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-filereader-done",
+      "href": "https://www.w3.org/TR/FileAPI/#dom-filereader-done",
+      "linkingText": [
+        "DONE"
+      ],
+      "localLinkingText": [],
+      "type": "const",
+      "for": [
+        "FileReader"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "APIASynch",
+        "href": "https://www.w3.org/TR/FileAPI/#APIASynch",
+        "title": "The FileReader API",
+        "number": "6.2"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filereader-done①",
+          "name": "DONE (numeric value 2)",
+          "href": "https://www.w3.org/TR/FileAPI/#ref-for-dom-filereader-done%E2%91%A0",
+          "heading": {
+            "id": "blobreader-state",
+            "href": "https://www.w3.org/TR/FileAPI/#blobreader-state",
+            "title": "FileReader States",
+            "number": "6.2.2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "filereader-state",
+      "href": "https://www.w3.org/TR/FileAPI/#filereader-state",
+      "linkingText": [
+        "state"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "FileReader"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "APIASynch",
+        "href": "https://www.w3.org/TR/FileAPI/#APIASynch",
+        "title": "The FileReader API",
+        "number": "6.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "filereader-result",
+      "href": "https://www.w3.org/TR/FileAPI/#filereader-result",
+      "linkingText": [
+        "result"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "FileReader"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "APIASynch",
+        "href": "https://www.w3.org/TR/FileAPI/#APIASynch",
+        "title": "The FileReader API",
+        "number": "6.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "filereader-error",
+      "href": "https://www.w3.org/TR/FileAPI/#filereader-error",
+      "linkingText": [
+        "error"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "FileReader"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "APIASynch",
+        "href": "https://www.w3.org/TR/FileAPI/#APIASynch",
+        "title": "The FileReader API",
+        "number": "6.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "filereaderConstrctr",
+      "href": "https://www.w3.org/TR/FileAPI/#filereaderConstrctr",
+      "linkingText": [
+        "FileReader()",
+        "constructor()"
+      ],
+      "localLinkingText": [],
+      "type": "constructor",
+      "for": [
+        "FileReader"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "APIASynch",
+        "href": "https://www.w3.org/TR/FileAPI/#APIASynch",
+        "title": "The FileReader API",
+        "number": "6.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-filereader-readystate",
+      "href": "https://www.w3.org/TR/FileAPI/#dom-filereader-readystate",
+      "linkingText": [
+        "readyState"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "FileReader"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "APIASynch",
+        "href": "https://www.w3.org/TR/FileAPI/#APIASynch",
+        "title": "The FileReader API",
+        "number": "6.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-filereader-result",
+      "href": "https://www.w3.org/TR/FileAPI/#dom-filereader-result",
+      "linkingText": [
+        "result"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "FileReader"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "APIASynch",
+        "href": "https://www.w3.org/TR/FileAPI/#APIASynch",
+        "title": "The FileReader API",
+        "number": "6.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-filereader-error",
+      "href": "https://www.w3.org/TR/FileAPI/#dom-filereader-error",
+      "linkingText": [
+        "error"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "FileReader"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "APIASynch",
+        "href": "https://www.w3.org/TR/FileAPI/#APIASynch",
+        "title": "The FileReader API",
+        "number": "6.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "readOperation",
+      "href": "https://www.w3.org/TR/FileAPI/#readOperation",
+      "linkingText": [
+        "read operation"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "APIASynch",
+        "href": "https://www.w3.org/TR/FileAPI/#APIASynch",
+        "title": "The FileReader API",
+        "number": "6.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-onloadstart",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-onloadstart",
+      "linkingText": [
+        "onloadstart"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "FileReader"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "event-handler-attributes-section",
+        "href": "https://www.w3.org/TR/FileAPI/#event-handler-attributes-section",
+        "title": "Event Handler Content Attributes",
+        "number": "6.2.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dfn-onprogress",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-onprogress",
+      "linkingText": [
+        "onprogress"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "FileReader"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "event-handler-attributes-section",
+        "href": "https://www.w3.org/TR/FileAPI/#event-handler-attributes-section",
+        "title": "Event Handler Content Attributes",
+        "number": "6.2.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dfn-onabort",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-onabort",
+      "linkingText": [
+        "onabort"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "FileReader"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "event-handler-attributes-section",
+        "href": "https://www.w3.org/TR/FileAPI/#event-handler-attributes-section",
+        "title": "Event Handler Content Attributes",
+        "number": "6.2.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dfn-onerror",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-onerror",
+      "linkingText": [
+        "onerror"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "FileReader"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "event-handler-attributes-section",
+        "href": "https://www.w3.org/TR/FileAPI/#event-handler-attributes-section",
+        "title": "Event Handler Content Attributes",
+        "number": "6.2.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dfn-onload",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-onload",
+      "linkingText": [
+        "onload"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "FileReader"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "event-handler-attributes-section",
+        "href": "https://www.w3.org/TR/FileAPI/#event-handler-attributes-section",
+        "title": "Event Handler Content Attributes",
+        "number": "6.2.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dfn-onloadend",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-onloadend",
+      "linkingText": [
+        "onloadend"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "FileReader"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "event-handler-attributes-section",
+        "href": "https://www.w3.org/TR/FileAPI/#event-handler-attributes-section",
+        "title": "Event Handler Content Attributes",
+        "number": "6.2.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "asynchronous-read-methods",
+      "href": "https://www.w3.org/TR/FileAPI/#asynchronous-read-methods",
+      "linkingText": [
+        "asynchronous read method"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "reading-a-file",
+        "href": "https://www.w3.org/TR/FileAPI/#reading-a-file",
+        "title": "Reading a File or Blob",
+        "number": "6.2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "read-method",
+      "href": "https://www.w3.org/TR/FileAPI/#read-method",
+      "linkingText": [
+        "read method"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "reading-a-file",
+        "href": "https://www.w3.org/TR/FileAPI/#reading-a-file",
+        "title": "Reading a File or Blob",
+        "number": "6.2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-readAsDataURL",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-readAsDataURL",
+      "linkingText": [
+        "readAsDataURL(blob)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "FileReader"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "readAsDataURL",
+        "href": "https://www.w3.org/TR/FileAPI/#readAsDataURL",
+        "title": "The readAsDataURL() method",
+        "number": "6.2.3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-readAsText",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-readAsText",
+      "linkingText": [
+        "readAsText(blob, encoding)",
+        "readAsText(blob)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "FileReader"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "readAsDataText",
+        "href": "https://www.w3.org/TR/FileAPI/#readAsDataText",
+        "title": "The readAsText() method",
+        "number": "6.2.3.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-readAsArrayBuffer",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-readAsArrayBuffer",
+      "linkingText": [
+        "readAsArrayBuffer(blob)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "FileReader"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "readAsArrayBuffer",
+        "href": "https://www.w3.org/TR/FileAPI/#readAsArrayBuffer",
+        "title": "The readAsArrayBuffer()",
+        "number": "6.2.3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-readAsBinaryString",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-readAsBinaryString",
+      "linkingText": [
+        "readAsBinaryString(blob)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "FileReader"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "readAsBinaryString",
+        "href": "https://www.w3.org/TR/FileAPI/#readAsBinaryString",
+        "title": "The readAsBinaryString() method",
+        "number": "6.2.3.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-abort",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-abort",
+      "linkingText": [
+        "abort()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "FileReader"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "abort",
+        "href": "https://www.w3.org/TR/FileAPI/#abort",
+        "title": "The abort() method",
+        "number": "6.2.3.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "blob-package-data",
+      "href": "https://www.w3.org/TR/FileAPI/#blob-package-data",
+      "linkingText": [
+        "package data"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "Blob"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "packaging-data",
+        "href": "https://www.w3.org/TR/FileAPI/#packaging-data",
+        "title": "Packaging data",
+        "number": "6.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "fire-a-progress-event",
+      "href": "https://www.w3.org/TR/FileAPI/#fire-a-progress-event",
+      "linkingText": [
+        "fire a progress event"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "events",
+        "href": "https://www.w3.org/TR/FileAPI/#events",
+        "title": "Events",
+        "number": "6.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-loadstart-event",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-loadstart-event",
+      "linkingText": [
+        "loadstart"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "FileReader"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "event-summary",
+        "href": "https://www.w3.org/TR/FileAPI/#event-summary",
+        "title": "Event Summary",
+        "number": "6.4.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dfn-progress-event",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-progress-event",
+      "linkingText": [
+        "progress"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "FileReader"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "event-summary",
+        "href": "https://www.w3.org/TR/FileAPI/#event-summary",
+        "title": "Event Summary",
+        "number": "6.4.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dfn-abort-event",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-abort-event",
+      "linkingText": [
+        "abort"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "FileReader"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "event-summary",
+        "href": "https://www.w3.org/TR/FileAPI/#event-summary",
+        "title": "Event Summary",
+        "number": "6.4.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dfn-error-event",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-error-event",
+      "linkingText": [
+        "error"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "FileReader"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "event-summary",
+        "href": "https://www.w3.org/TR/FileAPI/#event-summary",
+        "title": "Event Summary",
+        "number": "6.4.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dfn-load-event",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-load-event",
+      "linkingText": [
+        "load"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "FileReader"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "event-summary",
+        "href": "https://www.w3.org/TR/FileAPI/#event-summary",
+        "title": "Event Summary",
+        "number": "6.4.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dfn-loadend-event",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-loadend-event",
+      "linkingText": [
+        "loadend"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "FileReader"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "event-summary",
+        "href": "https://www.w3.org/TR/FileAPI/#event-summary",
+        "title": "Event Summary",
+        "number": "6.4.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "read-method-sync",
+      "href": "https://www.w3.org/TR/FileAPI/#read-method-sync",
+      "linkingText": [
+        "synchronous read method"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "FileReaderSync",
+        "href": "https://www.w3.org/TR/FileAPI/#FileReaderSync",
+        "title": "The FileReaderSync API",
+        "number": "6.5.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-FileReaderSync",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-FileReaderSync",
+      "linkingText": [
+        "FileReaderSync"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "FileReaderSync",
+        "href": "https://www.w3.org/TR/FileAPI/#FileReaderSync",
+        "title": "The FileReaderSync API",
+        "number": "6.5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-filereadersync-filereadersync",
+      "href": "https://www.w3.org/TR/FileAPI/#dom-filereadersync-filereadersync",
+      "linkingText": [
+        "FileReaderSync()",
+        "constructor()"
+      ],
+      "localLinkingText": [],
+      "type": "constructor",
+      "for": [
+        "FileReaderSync"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "FileReaderSync",
+        "href": "https://www.w3.org/TR/FileAPI/#FileReaderSync",
+        "title": "The FileReaderSync API",
+        "number": "6.5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-filereadersync-readasarraybuffer-blob-blob",
+      "href": "https://www.w3.org/TR/FileAPI/#dom-filereadersync-readasarraybuffer-blob-blob",
+      "linkingText": [
+        "blob"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "FileReaderSync/readAsArrayBuffer(blob)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "FileReaderSync",
+        "href": "https://www.w3.org/TR/FileAPI/#FileReaderSync",
+        "title": "The FileReaderSync API",
+        "number": "6.5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-filereadersync-readasbinarystring-blob-blob",
+      "href": "https://www.w3.org/TR/FileAPI/#dom-filereadersync-readasbinarystring-blob-blob",
+      "linkingText": [
+        "blob"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "FileReaderSync/readAsBinaryString(blob)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "FileReaderSync",
+        "href": "https://www.w3.org/TR/FileAPI/#FileReaderSync",
+        "title": "The FileReaderSync API",
+        "number": "6.5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-filereadersync-readastext-blob-encoding-blob",
+      "href": "https://www.w3.org/TR/FileAPI/#dom-filereadersync-readastext-blob-encoding-blob",
+      "linkingText": [
+        "blob"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "FileReaderSync/readAsText(blob, encoding)",
+        "FileReaderSync/readAsText(blob)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "FileReaderSync",
+        "href": "https://www.w3.org/TR/FileAPI/#FileReaderSync",
+        "title": "The FileReaderSync API",
+        "number": "6.5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-filereadersync-readastext-blob-encoding-encoding",
+      "href": "https://www.w3.org/TR/FileAPI/#dom-filereadersync-readastext-blob-encoding-encoding",
+      "linkingText": [
+        "encoding"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "FileReaderSync/readAsText(blob, encoding)",
+        "FileReaderSync/readAsText(blob)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "FileReaderSync",
+        "href": "https://www.w3.org/TR/FileAPI/#FileReaderSync",
+        "title": "The FileReaderSync API",
+        "number": "6.5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-filereadersync-readasdataurl-blob-blob",
+      "href": "https://www.w3.org/TR/FileAPI/#dom-filereadersync-readasdataurl-blob-blob",
+      "linkingText": [
+        "blob"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "FileReaderSync/readAsDataURL(blob)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "FileReaderSync",
+        "href": "https://www.w3.org/TR/FileAPI/#FileReaderSync",
+        "title": "The FileReaderSync API",
+        "number": "6.5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dfn-readAsTextSync",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-readAsTextSync",
+      "linkingText": [
+        "readAsText(blob, encoding)",
+        "readAsText(blob)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "FileReaderSync"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "readAsTextSync",
+        "href": "https://www.w3.org/TR/FileAPI/#readAsTextSync",
+        "title": "The readAsText()",
+        "number": "6.5.1.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-readAsDataURLSync",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-readAsDataURLSync",
+      "linkingText": [
+        "readAsDataURL(blob)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "FileReaderSync"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "readAsDataURLSync-section",
+        "href": "https://www.w3.org/TR/FileAPI/#readAsDataURLSync-section",
+        "title": "The readAsDataURL() method",
+        "number": "6.5.1.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-readAsArrayBufferSync",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-readAsArrayBufferSync",
+      "linkingText": [
+        "readAsArrayBuffer(blob)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "FileReaderSync"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "readAsArrayBufferSyncSection",
+        "href": "https://www.w3.org/TR/FileAPI/#readAsArrayBufferSyncSection",
+        "title": "The readAsArrayBuffer() method",
+        "number": "6.5.1.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-readAsBinaryStringSync",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-readAsBinaryStringSync",
+      "linkingText": [
+        "readAsBinaryString(blob)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "FileReaderSync"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "readAsBinaryStringSyncSection",
+        "href": "https://www.w3.org/TR/FileAPI/#readAsBinaryStringSyncSection",
+        "title": "The readAsBinaryString() method",
+        "number": "6.5.1.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "file-error-read",
+      "href": "https://www.w3.org/TR/FileAPI/#file-error-read",
+      "linkingText": [
+        "file read error"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "ErrorAndException",
+        "href": "https://www.w3.org/TR/FileAPI/#ErrorAndException",
+        "title": "Errors and Exceptions",
+        "number": "7"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "failureReason",
+      "href": "https://www.w3.org/TR/FileAPI/#failureReason",
+      "linkingText": [
+        "failure reason"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "dfn-error-codes",
+        "href": "https://www.w3.org/TR/FileAPI/#dfn-error-codes",
+        "title": "Throwing an Exception or Returning an Error",
+        "number": "7.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "NotFoundFR",
+      "href": "https://www.w3.org/TR/FileAPI/#NotFoundFR",
+      "linkingText": [
+        "NotFound"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "dfn-error-codes",
+        "href": "https://www.w3.org/TR/FileAPI/#dfn-error-codes",
+        "title": "Throwing an Exception or Returning an Error",
+        "number": "7.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "UnsafeFileFR",
+      "href": "https://www.w3.org/TR/FileAPI/#UnsafeFileFR",
+      "linkingText": [
+        "UnsafeFile"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "dfn-error-codes",
+        "href": "https://www.w3.org/TR/FileAPI/#dfn-error-codes",
+        "title": "Throwing an Exception or Returning an Error",
+        "number": "7.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "TooManyReadsFR",
+      "href": "https://www.w3.org/TR/FileAPI/#TooManyReadsFR",
+      "linkingText": [
+        "TooManyReads"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "dfn-error-codes",
+        "href": "https://www.w3.org/TR/FileAPI/#dfn-error-codes",
+        "title": "Throwing an Exception or Returning an Error",
+        "number": "7.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "SnapshotStateFR",
+      "href": "https://www.w3.org/TR/FileAPI/#SnapshotStateFR",
+      "linkingText": [
+        "SnapshotState"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "dfn-error-codes",
+        "href": "https://www.w3.org/TR/FileAPI/#dfn-error-codes",
+        "title": "Throwing an Exception or Returning an Error",
+        "number": "7.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "FileLockFR",
+      "href": "https://www.w3.org/TR/FileAPI/#FileLockFR",
+      "linkingText": [
+        "FileLock"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "dfn-error-codes",
+        "href": "https://www.w3.org/TR/FileAPI/#dfn-error-codes",
+        "title": "Throwing an Exception or Returning an Error",
+        "number": "7.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "BlobURLStore",
+      "href": "https://www.w3.org/TR/FileAPI/#BlobURLStore",
+      "linkingText": [
+        "blob URL store"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "url-model",
+        "href": "https://www.w3.org/TR/FileAPI/#url-model",
+        "title": "Model",
+        "number": "8.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "blob-url-entry",
+      "href": "https://www.w3.org/TR/FileAPI/#blob-url-entry",
+      "linkingText": [
+        "blob URL entry"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "url-model",
+        "href": "https://www.w3.org/TR/FileAPI/#url-model",
+        "title": "Model",
+        "number": "8.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "blob-url-entry-object",
+      "href": "https://www.w3.org/TR/FileAPI/#blob-url-entry-object",
+      "linkingText": [
+        "object"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "blob URL entry"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "url-model",
+        "href": "https://www.w3.org/TR/FileAPI/#url-model",
+        "title": "Model",
+        "number": "8.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "blob-url-entry-environment",
+      "href": "https://www.w3.org/TR/FileAPI/#blob-url-entry-environment",
+      "linkingText": [
+        "environment"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "blob URL entry"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "url-model",
+        "href": "https://www.w3.org/TR/FileAPI/#url-model",
+        "title": "Model",
+        "number": "8.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "blob-url",
+      "href": "https://www.w3.org/TR/FileAPI/#blob-url",
+      "linkingText": [
+        "blob URL",
+        "object URL"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "url-model",
+        "href": "https://www.w3.org/TR/FileAPI/#url-model",
+        "title": "Model",
+        "number": "8.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "blob-url-obtain-object",
+      "href": "https://www.w3.org/TR/FileAPI/#blob-url-obtain-object",
+      "linkingText": [
+        "obtain a blob object"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "url-model",
+        "href": "https://www.w3.org/TR/FileAPI/#url-model",
+        "title": "Model",
+        "number": "8.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "unicodeBlobURL",
+      "href": "https://www.w3.org/TR/FileAPI/#unicodeBlobURL",
+      "linkingText": [
+        "generate a new blob URL",
+        "generating a new blob URL"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "url-model",
+        "href": "https://www.w3.org/TR/FileAPI/#url-model",
+        "title": "Model",
+        "number": "8.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "add-an-entry",
+      "href": "https://www.w3.org/TR/FileAPI/#add-an-entry",
+      "linkingText": [
+        "add an entry",
+        "add the entry",
+        "add an entry to the blob URL store",
+        "add the entry to the blob URL store",
+        "adding an entry to the blob URL store"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "blob url store"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "url-model",
+        "href": "https://www.w3.org/TR/FileAPI/#url-model",
+        "title": "Model",
+        "number": "8.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "removeTheEntry",
+      "href": "https://www.w3.org/TR/FileAPI/#removeTheEntry",
+      "linkingText": [
+        "remove an entry",
+        "remove the entry",
+        "remove an entry from the blob URL store",
+        "remove the entry from the blob URL store"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "blob url store"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "url-model",
+        "href": "https://www.w3.org/TR/FileAPI/#url-model",
+        "title": "Model",
+        "number": "8.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "blob-url-resolve",
+      "href": "https://www.w3.org/TR/FileAPI/#blob-url-resolve",
+      "linkingText": [
+        "resolve a blob URL"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "requestResponseModel",
+        "href": "https://www.w3.org/TR/FileAPI/#requestResponseModel",
+        "title": "Dereferencing Model for blob URLs",
+        "number": "8.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "check-for-same-partition-blob-url-usage",
+      "href": "https://www.w3.org/TR/FileAPI/#check-for-same-partition-blob-url-usage",
+      "linkingText": [
+        "check for same-partition blob URL usage"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "partitioningOfBlobUrls",
+        "href": "https://www.w3.org/TR/FileAPI/#partitioningOfBlobUrls",
+        "title": "Access restrictions on blob URLs",
+        "number": "8.3.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "lifeTime",
+      "href": "https://www.w3.org/TR/FileAPI/#lifeTime",
+      "linkingText": [
+        "lifetime",
+        "lifetime stipulation"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "blob url"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "lifeTime",
+        "href": "https://www.w3.org/TR/FileAPI/#lifeTime",
+        "title": "Lifetime of blob URLs",
+        "number": "8.3.3"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dom-url-createobjecturl-obj-obj",
+      "href": "https://www.w3.org/TR/FileAPI/#dom-url-createobjecturl-obj-obj",
+      "linkingText": [
+        "obj"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "URL/createObjectURL(obj)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "creating-revoking",
+        "href": "https://www.w3.org/TR/FileAPI/#creating-revoking",
+        "title": "Creating and Revoking a blob URL",
+        "number": "8.4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-url-revokeobjecturl-url-url",
+      "href": "https://www.w3.org/TR/FileAPI/#dom-url-revokeobjecturl-url-url",
+      "linkingText": [
+        "url"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "URL/revokeObjectURL(url)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "creating-revoking",
+        "href": "https://www.w3.org/TR/FileAPI/#creating-revoking",
+        "title": "Creating and Revoking a blob URL",
+        "number": "8.4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dfn-createObjectURL",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-createObjectURL",
+      "linkingText": [
+        "createObjectURL(obj)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "URL"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "creating-revoking",
+        "href": "https://www.w3.org/TR/FileAPI/#creating-revoking",
+        "title": "Creating and Revoking a blob URL",
+        "number": "8.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-revokeObjectURL",
+      "href": "https://www.w3.org/TR/FileAPI/#dfn-revokeObjectURL",
+      "linkingText": [
+        "revokeObjectURL(url)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "URL"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "creating-revoking",
+        "href": "https://www.w3.org/TR/FileAPI/#creating-revoking",
+        "title": "Creating and Revoking a blob URL",
+        "number": "8.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

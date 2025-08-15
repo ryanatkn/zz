@@ -1,0 +1,199 @@
+{
+  "spec": {
+    "title": "requestIdleCallback()",
+    "url": "https://www.w3.org/TR/requestidlecallback/"
+  },
+  "headings": [
+    {
+      "id": "title",
+      "href": "https://www.w3.org/TR/requestidlecallback/#title",
+      "level": 1,
+      "title": "requestIdleCallback()"
+    },
+    {
+      "id": "subtitle",
+      "href": "https://www.w3.org/TR/requestidlecallback/#subtitle",
+      "level": 2,
+      "title": "Cooperative Scheduling of Background Tasks"
+    },
+    {
+      "id": "toc",
+      "href": "https://www.w3.org/TR/requestidlecallback/#toc",
+      "level": 2,
+      "title": "Table of Contents",
+      "alternateIds": [
+        "table-of-contents"
+      ]
+    },
+    {
+      "id": "introduction",
+      "href": "https://www.w3.org/TR/requestidlecallback/#introduction",
+      "level": 2,
+      "title": "Introduction",
+      "alternateIds": [
+        "x1-introduction"
+      ],
+      "number": "1"
+    },
+    {
+      "id": "idle-periods",
+      "href": "https://www.w3.org/TR/requestidlecallback/#idle-periods",
+      "level": 2,
+      "title": "Idle Periods",
+      "alternateIds": [
+        "x2-idle-periods"
+      ],
+      "number": "2"
+    },
+    {
+      "id": "conformance",
+      "href": "https://www.w3.org/TR/requestidlecallback/#conformance",
+      "level": 2,
+      "title": "Conformance",
+      "alternateIds": [
+        "x3-conformance"
+      ],
+      "number": "3"
+    },
+    {
+      "id": "window_extensions",
+      "href": "https://www.w3.org/TR/requestidlecallback/#window_extensions",
+      "level": 2,
+      "title": "Window interface extensions",
+      "alternateIds": [
+        "x4-window-interface-extensions"
+      ],
+      "number": "4"
+    },
+    {
+      "id": "the-requestidlecallback-method",
+      "href": "https://www.w3.org/TR/requestidlecallback/#the-requestidlecallback-method",
+      "level": 3,
+      "title": "The requestIdleCallback() method",
+      "alternateIds": [
+        "x4-1-the-requestidlecallback-method"
+      ],
+      "number": "4.1"
+    },
+    {
+      "id": "the-cancelidlecallback-method",
+      "href": "https://www.w3.org/TR/requestidlecallback/#the-cancelidlecallback-method",
+      "level": 3,
+      "title": "The cancelIdleCallback() method",
+      "alternateIds": [
+        "x4-2-the-cancelidlecallback-method"
+      ],
+      "number": "4.2"
+    },
+    {
+      "id": "the-idledeadline-interface",
+      "href": "https://www.w3.org/TR/requestidlecallback/#the-idledeadline-interface",
+      "level": 3,
+      "title": "The IdleDeadline interface",
+      "alternateIds": [
+        "x4-3-the-idledeadline-interface"
+      ],
+      "number": "4.3"
+    },
+    {
+      "id": "processing",
+      "href": "https://www.w3.org/TR/requestidlecallback/#processing",
+      "level": 2,
+      "title": "Processing",
+      "alternateIds": [
+        "x5-processing"
+      ],
+      "number": "5"
+    },
+    {
+      "id": "start-an-idle-period-algorithm",
+      "href": "https://www.w3.org/TR/requestidlecallback/#start-an-idle-period-algorithm",
+      "level": 3,
+      "title": "Start an idle period algorithm",
+      "alternateIds": [
+        "x5-1-start-an-idle-period-algorithm"
+      ],
+      "number": "5.1"
+    },
+    {
+      "id": "invoke-idle-callbacks-algorithm",
+      "href": "https://www.w3.org/TR/requestidlecallback/#invoke-idle-callbacks-algorithm",
+      "level": 3,
+      "title": "Invoke idle callbacks algorithm",
+      "alternateIds": [
+        "x5-2-invoke-idle-callbacks-algorithm"
+      ],
+      "number": "5.2"
+    },
+    {
+      "id": "invoke-idle-callback-timeout-algorithm",
+      "href": "https://www.w3.org/TR/requestidlecallback/#invoke-idle-callback-timeout-algorithm",
+      "level": 3,
+      "title": "Invoke idle callback timeout algorithm",
+      "alternateIds": [
+        "x5-3-invoke-idle-callback-timeout-algorithm"
+      ],
+      "number": "5.3"
+    },
+    {
+      "id": "privacy-considerations",
+      "href": "https://www.w3.org/TR/requestidlecallback/#privacy-considerations",
+      "level": 2,
+      "title": "Privacy Considerations",
+      "alternateIds": [
+        "x6-privacy-considerations"
+      ],
+      "number": "6"
+    },
+    {
+      "id": "security-considerations",
+      "href": "https://www.w3.org/TR/requestidlecallback/#security-considerations",
+      "level": 2,
+      "title": "Security Considerations",
+      "alternateIds": [
+        "x7-security-considerations"
+      ],
+      "number": "7"
+    },
+    {
+      "id": "acknowledgements",
+      "href": "https://www.w3.org/TR/requestidlecallback/#acknowledgements",
+      "level": 2,
+      "title": "Acknowledgments",
+      "alternateIds": [
+        "a-acknowledgments"
+      ],
+      "number": "A"
+    },
+    {
+      "id": "references",
+      "href": "https://www.w3.org/TR/requestidlecallback/#references",
+      "level": 2,
+      "title": "References",
+      "alternateIds": [
+        "b-references"
+      ],
+      "number": "B"
+    },
+    {
+      "id": "normative-references",
+      "href": "https://www.w3.org/TR/requestidlecallback/#normative-references",
+      "level": 3,
+      "title": "Normative references",
+      "alternateIds": [
+        "b-1-normative-references"
+      ],
+      "number": "B.1"
+    },
+    {
+      "id": "informative-references",
+      "href": "https://www.w3.org/TR/requestidlecallback/#informative-references",
+      "level": 3,
+      "title": "Informative references",
+      "alternateIds": [
+        "b-2-informative-references"
+      ],
+      "number": "B.2"
+    }
+  ]
+}

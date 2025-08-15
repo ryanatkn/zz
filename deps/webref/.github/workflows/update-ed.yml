@@ -1,0 +1,71 @@
+on:
+  schedule:
+    - cron: '30 */6 * * *'
+  workflow_dispatch:
+name: Update ED report
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+    # Starting with Ubuntu 23+, a security feature prevents running Puppeteer
+    # by default. It needs to be disabled. Using the "easiest" option, see:
+    # https://chromium.googlesource.com/chromium/src/+/main/docs/security/apparmor-userns-restrictions.md
+    # https://github.com/puppeteer/puppeteer/pull/13196/files
+    - name: Disable AppArmor
+      run: echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns
+
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    - name: Setup node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    # Note command to Reffy explicitly mentions a few discontinued specs,
+    # kept in the crawl for cross-referencing purpose.
+    - name: Run Reffy's crawler
+      run: |
+        mkdir report
+        node_modules/.bin/reffy --post csscomplete --post annotatelinks --post patchdfns --output report --fallback ed/index.json --spec all DOM-Level-2-Style selectors-nonelement-1 tracking-dnt rfc7230 rfc7231 rfc7232 rfc7233 rfc7234 rfc7235
+
+    # Update another Webref checkout to reduce the chances that the version we
+    # checked out is no longer in sync with origin by the time the crawl is over
+    - name: Checkout webref once more
+      uses: actions/checkout@v4
+      with:
+        path: webref
+
+    - name: Copy report
+      run: rsync -av report/ webref/ed/
+
+    - name: Drop extract files from specs that are no longer crawled
+      run: node tools/clean-dropped-specs-files.js ed
+      working-directory: webref
+
+    - name: Bump minor version of packages if needed
+      run: node tools/bump-packages-minor.js
+      working-directory: webref
+
+    - name: Push updates to git
+      run: |
+        git config user.name "reffy-bot"
+        git config user.email "<>"
+        git remote set-url --push origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
+        git add -A
+        REFFY_SHA=$(../node_modules/.bin/reffy --version)
+        git commit -m "Update of ED report from new reffy run" -m "Using reffy commit $REFFY_SHA."
+        git push origin HEAD:main
+      working-directory: webref
+
+    - name: Notify webref-analysis that it should update itself
+      run: |
+        curl -X POST \
+          -H "Authorization: Bearer ${{secrets.WEBREF_ANALYSIS_TOKEN}}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/w3c/webref-analysis/actions/workflows/analyze.yml/dispatches \
+          -d '{"ref": "main"}'

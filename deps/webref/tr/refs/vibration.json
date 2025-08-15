@@ -1,0 +1,36 @@
+{
+  "spec": {
+    "title": "Vibration API",
+    "url": "https://www.w3.org/TR/vibration/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "dom",
+        "url": "https://dom.spec.whatwg.org/"
+      },
+      {
+        "name": "html",
+        "url": "https://html.spec.whatwg.org/multipage/"
+      },
+      {
+        "name": "RFC2119",
+        "url": "https://www.rfc-editor.org/rfc/rfc2119"
+      },
+      {
+        "name": "RFC8174",
+        "url": "https://www.rfc-editor.org/rfc/rfc8174"
+      },
+      {
+        "name": "WEBIDL-1",
+        "url": "https://webidl.spec.whatwg.org/"
+      }
+    ],
+    "informative": [
+      {
+        "name": "NOTIFICATIONS",
+        "url": "https://notifications.spec.whatwg.org/"
+      }
+    ]
+  }
+}

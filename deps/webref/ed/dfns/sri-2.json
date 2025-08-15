@@ -1,0 +1,536 @@
+{
+  "spec": {
+    "title": "Subresource Integrity",
+    "url": "https://w3c.github.io/webappsec-subresource-integrity/"
+  },
+  "dfns": [
+    {
+      "id": "digest",
+      "href": "https://w3c.github.io/webappsec-subresource-integrity/#digest",
+      "linkingText": [
+        "digest"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "terms",
+        "href": "https://w3c.github.io/webappsec-subresource-integrity/#terms",
+        "title": "Key Concepts and Terminology",
+        "number": "2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "base64-encoding",
+      "href": "https://w3c.github.io/webappsec-subresource-integrity/#base64-encoding",
+      "linkingText": [
+        "base64 encoding"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "terms",
+        "href": "https://w3c.github.io/webappsec-subresource-integrity/#terms",
+        "title": "Key Concepts and Terminology",
+        "number": "2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "valid-sri-hash-algorithm-token-set",
+      "href": "https://w3c.github.io/webappsec-subresource-integrity/#valid-sri-hash-algorithm-token-set",
+      "linkingText": [
+        "valid SRI hash algorithm token set"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "terms",
+        "href": "https://w3c.github.io/webappsec-subresource-integrity/#terms",
+        "title": "Key Concepts and Terminology",
+        "number": "2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "valid-sri-hash-algorithm-token",
+      "href": "https://w3c.github.io/webappsec-subresource-integrity/#valid-sri-hash-algorithm-token",
+      "linkingText": [
+        "valid SRI hash algorithm token"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "terms",
+        "href": "https://w3c.github.io/webappsec-subresource-integrity/#terms",
+        "title": "Key Concepts and Terminology",
+        "number": "2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "integrity-metadata",
+      "href": "https://w3c.github.io/webappsec-subresource-integrity/#integrity-metadata",
+      "linkingText": [
+        "integrity metadata"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "integrity-metadata-description",
+        "href": "https://w3c.github.io/webappsec-subresource-integrity/#integrity-metadata-description",
+        "title": "Integrity metadata",
+        "number": "3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "parse-metadata",
+      "href": "https://w3c.github.io/webappsec-subresource-integrity/#parse-metadata",
+      "linkingText": [
+        "parse metadata"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "parse-metadata-section",
+        "href": "https://w3c.github.io/webappsec-subresource-integrity/#parse-metadata-section",
+        "title": "Parse metadata",
+        "number": "3.3.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "does-response-match-metadatalist",
+      "href": "https://w3c.github.io/webappsec-subresource-integrity/#does-response-match-metadatalist",
+      "linkingText": [
+        "Do bytes match metadataList?"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "does-response-match-metadatalist",
+        "href": "https://w3c.github.io/webappsec-subresource-integrity/#does-response-match-metadatalist",
+        "title": "Do bytes match metadataList?",
+        "number": "3.3.4"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "grammardef-integrity-metadata",
+      "href": "https://w3c.github.io/webappsec-subresource-integrity/#grammardef-integrity-metadata",
+      "linkingText": [
+        "integrity-metadata"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-integrity-attribute",
+        "href": "https://w3c.github.io/webappsec-subresource-integrity/#the-integrity-attribute",
+        "title": "The integrity attribute",
+        "number": "3.5"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "grammardef-hash-with-options",
+      "href": "https://w3c.github.io/webappsec-subresource-integrity/#grammardef-hash-with-options",
+      "linkingText": [
+        "hash-with-options"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-integrity-attribute",
+        "href": "https://w3c.github.io/webappsec-subresource-integrity/#the-integrity-attribute",
+        "title": "The integrity attribute",
+        "number": "3.5"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "grammardef-option-expression",
+      "href": "https://w3c.github.io/webappsec-subresource-integrity/#grammardef-option-expression",
+      "linkingText": [
+        "option-expression"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-integrity-attribute",
+        "href": "https://w3c.github.io/webappsec-subresource-integrity/#the-integrity-attribute",
+        "title": "The integrity attribute",
+        "number": "3.5"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "grammardef-hash-expression",
+      "href": "https://w3c.github.io/webappsec-subresource-integrity/#grammardef-hash-expression",
+      "linkingText": [
+        "hash-expression"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-integrity-attribute",
+        "href": "https://w3c.github.io/webappsec-subresource-integrity/#the-integrity-attribute",
+        "title": "The integrity attribute",
+        "number": "3.5"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "source",
+      "href": "https://w3c.github.io/webappsec-subresource-integrity/#source",
+      "linkingText": [
+        "source"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "integrity-policy-section",
+        "href": "https://w3c.github.io/webappsec-subresource-integrity/#integrity-policy-section",
+        "title": "Integrity-Policy",
+        "number": "3.8"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "destination",
+      "href": "https://w3c.github.io/webappsec-subresource-integrity/#destination",
+      "linkingText": [
+        "destination"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "integrity-policy-section",
+        "href": "https://w3c.github.io/webappsec-subresource-integrity/#integrity-policy-section",
+        "title": "Integrity-Policy",
+        "number": "3.8"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "integrity-policy",
+      "href": "https://w3c.github.io/webappsec-subresource-integrity/#integrity-policy",
+      "linkingText": [
+        "integrity policy"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "integrity-policy-section",
+        "href": "https://w3c.github.io/webappsec-subresource-integrity/#integrity-policy-section",
+        "title": "Integrity-Policy",
+        "number": "3.8"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "sources",
+      "href": "https://w3c.github.io/webappsec-subresource-integrity/#sources",
+      "linkingText": [
+        "sources"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "integrity-policy-section",
+        "href": "https://w3c.github.io/webappsec-subresource-integrity/#integrity-policy-section",
+        "title": "Integrity-Policy",
+        "number": "3.8"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "blocked-destinations",
+      "href": "https://w3c.github.io/webappsec-subresource-integrity/#blocked-destinations",
+      "linkingText": [
+        "blocked destinations"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "integrity-policy-section",
+        "href": "https://w3c.github.io/webappsec-subresource-integrity/#integrity-policy-section",
+        "title": "Integrity-Policy",
+        "number": "3.8"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "endpoints",
+      "href": "https://w3c.github.io/webappsec-subresource-integrity/#endpoints",
+      "linkingText": [
+        "endpoints"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "integrity-policy-section",
+        "href": "https://w3c.github.io/webappsec-subresource-integrity/#integrity-policy-section",
+        "title": "Integrity-Policy",
+        "number": "3.8"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "processing-an-integrity-policy",
+      "href": "https://w3c.github.io/webappsec-subresource-integrity/#processing-an-integrity-policy",
+      "linkingText": [
+        "processing an integrity policy"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "integrity-policy-section",
+        "href": "https://w3c.github.io/webappsec-subresource-integrity/#integrity-policy-section",
+        "title": "Integrity-Policy",
+        "number": "3.8"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "parse-integrity-policy-headers",
+      "href": "https://w3c.github.io/webappsec-subresource-integrity/#parse-integrity-policy-headers",
+      "linkingText": [
+        "parse Integrity-Policy headers"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "parse-integrity-policy-headers-section",
+        "href": "https://w3c.github.io/webappsec-subresource-integrity/#parse-integrity-policy-headers-section",
+        "title": "Parse Integrity-Policy headers",
+        "number": "3.8.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "should-request-be-blocked-by-integrity-policy",
+      "href": "https://w3c.github.io/webappsec-subresource-integrity/#should-request-be-blocked-by-integrity-policy",
+      "linkingText": [
+        "should request be blocked by integrity policy"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "should-request-be-blocked-by-integrity-policy-section",
+        "href": "https://w3c.github.io/webappsec-subresource-integrity/#should-request-be-blocked-by-integrity-policy-section",
+        "title": "Should request be blocked by Integrity Policy",
+        "number": "3.8.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dictdef-integrityviolationreportbody",
+      "href": "https://w3c.github.io/webappsec-subresource-integrity/#dictdef-integrityviolationreportbody",
+      "linkingText": [
+        "IntegrityViolationReportBody"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "report-violations",
+        "href": "https://w3c.github.io/webappsec-subresource-integrity/#report-violations",
+        "title": "Report violations",
+        "number": "3.8.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-integrityviolationreportbody-documenturl",
+      "href": "https://w3c.github.io/webappsec-subresource-integrity/#dom-integrityviolationreportbody-documenturl",
+      "linkingText": [
+        "documentURL"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "IntegrityViolationReportBody"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "report-violations",
+        "href": "https://w3c.github.io/webappsec-subresource-integrity/#report-violations",
+        "title": "Report violations",
+        "number": "3.8.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-integrityviolationreportbody-blockedurl",
+      "href": "https://w3c.github.io/webappsec-subresource-integrity/#dom-integrityviolationreportbody-blockedurl",
+      "linkingText": [
+        "blockedURL"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "IntegrityViolationReportBody"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "report-violations",
+        "href": "https://w3c.github.io/webappsec-subresource-integrity/#report-violations",
+        "title": "Report violations",
+        "number": "3.8.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-integrityviolationreportbody-destination",
+      "href": "https://w3c.github.io/webappsec-subresource-integrity/#dom-integrityviolationreportbody-destination",
+      "linkingText": [
+        "destination"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "IntegrityViolationReportBody"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "report-violations",
+        "href": "https://w3c.github.io/webappsec-subresource-integrity/#report-violations",
+        "title": "Report violations",
+        "number": "3.8.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-integrityviolationreportbody-reportonly",
+      "href": "https://w3c.github.io/webappsec-subresource-integrity/#dom-integrityviolationreportbody-reportonly",
+      "linkingText": [
+        "reportOnly"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "IntegrityViolationReportBody"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "report-violations",
+        "href": "https://w3c.github.io/webappsec-subresource-integrity/#report-violations",
+        "title": "Report violations",
+        "number": "3.8.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "report-violation",
+      "href": "https://w3c.github.io/webappsec-subresource-integrity/#report-violation",
+      "linkingText": [
+        "report violation"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "report-violations",
+        "href": "https://w3c.github.io/webappsec-subresource-integrity/#report-violations",
+        "title": "Report violations",
+        "number": "3.8.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

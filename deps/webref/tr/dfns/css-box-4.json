@@ -1,0 +1,1158 @@
+{
+  "spec": {
+    "title": "CSS Box Model Module Level 4",
+    "url": "https://www.w3.org/TR/css-box-4/"
+  },
+  "dfns": [
+    {
+      "id": "content-area",
+      "href": "https://www.w3.org/TR/css-box-4/#content-area",
+      "linkingText": [
+        "content area"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "box-model",
+        "href": "https://www.w3.org/TR/css-box-4/#box-model",
+        "title": "The CSS Box Model",
+        "number": "2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "padding-area",
+      "href": "https://www.w3.org/TR/css-box-4/#padding-area",
+      "linkingText": [
+        "padding area"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "box-model",
+        "href": "https://www.w3.org/TR/css-box-4/#box-model",
+        "title": "The CSS Box Model",
+        "number": "2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "border-area",
+      "href": "https://www.w3.org/TR/css-box-4/#border-area",
+      "linkingText": [
+        "border area"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "box-model",
+        "href": "https://www.w3.org/TR/css-box-4/#box-model",
+        "title": "The CSS Box Model",
+        "number": "2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "margin-area",
+      "href": "https://www.w3.org/TR/css-box-4/#margin-area",
+      "linkingText": [
+        "margin area"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "box-model",
+        "href": "https://www.w3.org/TR/css-box-4/#box-model",
+        "title": "The CSS Box Model",
+        "number": "2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "box-box-edge",
+      "href": "https://www.w3.org/TR/css-box-4/#box-box-edge",
+      "linkingText": [
+        "box edge",
+        "edge"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "box"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "box-edges",
+        "href": "https://www.w3.org/TR/css-box-4/#box-edges",
+        "title": "Boxes and Edges",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "content-edge",
+      "href": "https://www.w3.org/TR/css-box-4/#content-edge",
+      "linkingText": [
+        "content edge"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "box-edges",
+        "href": "https://www.w3.org/TR/css-box-4/#box-edges",
+        "title": "Boxes and Edges",
+        "number": "2.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "inner-edge",
+      "href": "https://www.w3.org/TR/css-box-4/#inner-edge",
+      "linkingText": [
+        "inner edge"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "box-edges",
+        "href": "https://www.w3.org/TR/css-box-4/#box-edges",
+        "title": "Boxes and Edges",
+        "number": "2.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "content-box",
+      "href": "https://www.w3.org/TR/css-box-4/#content-box",
+      "linkingText": [
+        "content box"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "box-edges",
+        "href": "https://www.w3.org/TR/css-box-4/#box-edges",
+        "title": "Boxes and Edges",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "padding-edge",
+      "href": "https://www.w3.org/TR/css-box-4/#padding-edge",
+      "linkingText": [
+        "padding edge"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "box-edges",
+        "href": "https://www.w3.org/TR/css-box-4/#box-edges",
+        "title": "Boxes and Edges",
+        "number": "2.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "padding-box",
+      "href": "https://www.w3.org/TR/css-box-4/#padding-box",
+      "linkingText": [
+        "padding box"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "box-edges",
+        "href": "https://www.w3.org/TR/css-box-4/#box-edges",
+        "title": "Boxes and Edges",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "border-edge",
+      "href": "https://www.w3.org/TR/css-box-4/#border-edge",
+      "linkingText": [
+        "border edge"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "box-edges",
+        "href": "https://www.w3.org/TR/css-box-4/#box-edges",
+        "title": "Boxes and Edges",
+        "number": "2.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "border-box",
+      "href": "https://www.w3.org/TR/css-box-4/#border-box",
+      "linkingText": [
+        "border box"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "box-edges",
+        "href": "https://www.w3.org/TR/css-box-4/#box-edges",
+        "title": "Boxes and Edges",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "margin-edge",
+      "href": "https://www.w3.org/TR/css-box-4/#margin-edge",
+      "linkingText": [
+        "margin edge"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "box-edges",
+        "href": "https://www.w3.org/TR/css-box-4/#box-edges",
+        "title": "Boxes and Edges",
+        "number": "2.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "outer-edge",
+      "href": "https://www.w3.org/TR/css-box-4/#outer-edge",
+      "linkingText": [
+        "outer edge"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "box-edges",
+        "href": "https://www.w3.org/TR/css-box-4/#box-edges",
+        "title": "Boxes and Edges",
+        "number": "2.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "margin-box",
+      "href": "https://www.w3.org/TR/css-box-4/#margin-box",
+      "linkingText": [
+        "margin box"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "box-edges",
+        "href": "https://www.w3.org/TR/css-box-4/#box-edges",
+        "title": "Boxes and Edges",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "shaped-edge",
+      "href": "https://www.w3.org/TR/css-box-4/#shaped-edge",
+      "linkingText": [
+        "shaped edge",
+        "shaped content edge",
+        "shaped padding edge",
+        "shaped border edge",
+        "shaped margin edge"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "box-edges",
+        "href": "https://www.w3.org/TR/css-box-4/#box-edges",
+        "title": "Boxes and Edges",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "unshaped-edge",
+      "href": "https://www.w3.org/TR/css-box-4/#unshaped-edge",
+      "linkingText": [
+        "unshaped edge",
+        "unshaped content edge",
+        "unshaped padding edge",
+        "unshaped border edge",
+        "unshaped margin edge"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "box-edges",
+        "href": "https://www.w3.org/TR/css-box-4/#box-edges",
+        "title": "Boxes and Edges",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "typedef-box",
+      "href": "https://www.w3.org/TR/css-box-4/#typedef-box",
+      "linkingText": [
+        "<box>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "keywords",
+        "href": "https://www.w3.org/TR/css-box-4/#keywords",
+        "title": "Box-edge Keywords",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "valdef-box-content-box",
+      "href": "https://www.w3.org/TR/css-box-4/#valdef-box-content-box",
+      "linkingText": [
+        "content-box"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "<box>",
+        "<visual-box>",
+        "<layout-box>",
+        "<shape-box>",
+        "<geometry-box>",
+        "<paint-box>",
+        "<coord-box>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "keywords",
+        "href": "https://www.w3.org/TR/css-box-4/#keywords",
+        "title": "Box-edge Keywords",
+        "number": "2.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-box-padding-box",
+      "href": "https://www.w3.org/TR/css-box-4/#valdef-box-padding-box",
+      "linkingText": [
+        "padding-box"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "<box>",
+        "<visual-box>",
+        "<layout-box>",
+        "<shape-box>",
+        "<geometry-box>",
+        "<paint-box>",
+        "<coord-box>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "keywords",
+        "href": "https://www.w3.org/TR/css-box-4/#keywords",
+        "title": "Box-edge Keywords",
+        "number": "2.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-box-border-box",
+      "href": "https://www.w3.org/TR/css-box-4/#valdef-box-border-box",
+      "linkingText": [
+        "border-box"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "<box>",
+        "<visual-box>",
+        "<layout-box>",
+        "<shape-box>",
+        "<geometry-box>",
+        "<paint-box>",
+        "<coord-box>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "keywords",
+        "href": "https://www.w3.org/TR/css-box-4/#keywords",
+        "title": "Box-edge Keywords",
+        "number": "2.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-box-margin-box",
+      "href": "https://www.w3.org/TR/css-box-4/#valdef-box-margin-box",
+      "linkingText": [
+        "margin-box"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "<box>",
+        "<layout-box>",
+        "<shape-box>",
+        "<geometry-box>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "keywords",
+        "href": "https://www.w3.org/TR/css-box-4/#keywords",
+        "title": "Box-edge Keywords",
+        "number": "2.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-box-fill-box",
+      "href": "https://www.w3.org/TR/css-box-4/#valdef-box-fill-box",
+      "linkingText": [
+        "fill-box"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "<box>",
+        "<geometry-box>",
+        "<paint-box>",
+        "<coord-box>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "keywords",
+        "href": "https://www.w3.org/TR/css-box-4/#keywords",
+        "title": "Box-edge Keywords",
+        "number": "2.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-box-stroke-box",
+      "href": "https://www.w3.org/TR/css-box-4/#valdef-box-stroke-box",
+      "linkingText": [
+        "stroke-box"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "<box>",
+        "<geometry-box>",
+        "<paint-box>",
+        "<coord-box>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "keywords",
+        "href": "https://www.w3.org/TR/css-box-4/#keywords",
+        "title": "Box-edge Keywords",
+        "number": "2.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-box-view-box",
+      "href": "https://www.w3.org/TR/css-box-4/#valdef-box-view-box",
+      "linkingText": [
+        "view-box"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "<box>",
+        "<geometry-box>",
+        "<coord-box>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "keywords",
+        "href": "https://www.w3.org/TR/css-box-4/#keywords",
+        "title": "Box-edge Keywords",
+        "number": "2.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "svg-viewport-origin-box",
+      "href": "https://www.w3.org/TR/css-box-4/#svg-viewport-origin-box",
+      "linkingText": [
+        "SVG viewport origin box"
+      ],
+      "localLinkingText": [
+        "origin box"
+      ],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "keywords",
+        "href": "https://www.w3.org/TR/css-box-4/#keywords",
+        "title": "Box-edge Keywords",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "typedef-visual-box",
+      "href": "https://www.w3.org/TR/css-box-4/#typedef-visual-box",
+      "linkingText": [
+        "<visual-box>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "keywords",
+        "href": "https://www.w3.org/TR/css-box-4/#keywords",
+        "title": "Box-edge Keywords",
+        "number": "2.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "typedef-layout-box",
+      "href": "https://www.w3.org/TR/css-box-4/#typedef-layout-box",
+      "linkingText": [
+        "<layout-box>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "keywords",
+        "href": "https://www.w3.org/TR/css-box-4/#keywords",
+        "title": "Box-edge Keywords",
+        "number": "2.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "typedef-paint-box",
+      "href": "https://www.w3.org/TR/css-box-4/#typedef-paint-box",
+      "linkingText": [
+        "<paint-box>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "keywords",
+        "href": "https://www.w3.org/TR/css-box-4/#keywords",
+        "title": "Box-edge Keywords",
+        "number": "2.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "typedef-coord-box",
+      "href": "https://www.w3.org/TR/css-box-4/#typedef-coord-box",
+      "linkingText": [
+        "<coord-box>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "keywords",
+        "href": "https://www.w3.org/TR/css-box-4/#keywords",
+        "title": "Box-edge Keywords",
+        "number": "2.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "margin",
+      "href": "https://www.w3.org/TR/css-box-4/#margin",
+      "linkingText": [
+        "margin"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "margins",
+        "href": "https://www.w3.org/TR/css-box-4/#margins",
+        "title": "Margins",
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "margin-properties",
+      "href": "https://www.w3.org/TR/css-box-4/#margin-properties",
+      "linkingText": [
+        "margin properties"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "margins",
+        "href": "https://www.w3.org/TR/css-box-4/#margins",
+        "title": "Margins",
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "propdef-margin-top",
+      "href": "https://www.w3.org/TR/css-box-4/#propdef-margin-top",
+      "linkingText": [
+        "margin-top"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "margin-physical",
+        "href": "https://www.w3.org/TR/css-box-4/#margin-physical",
+        "title": "Page-relative (Physical) Margin Properties: the margin-top, margin-right, margin-bottom, and margin-left properties",
+        "number": "3.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "propdef-margin-right",
+      "href": "https://www.w3.org/TR/css-box-4/#propdef-margin-right",
+      "linkingText": [
+        "margin-right"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "margin-physical",
+        "href": "https://www.w3.org/TR/css-box-4/#margin-physical",
+        "title": "Page-relative (Physical) Margin Properties: the margin-top, margin-right, margin-bottom, and margin-left properties",
+        "number": "3.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "propdef-margin-bottom",
+      "href": "https://www.w3.org/TR/css-box-4/#propdef-margin-bottom",
+      "linkingText": [
+        "margin-bottom"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "margin-physical",
+        "href": "https://www.w3.org/TR/css-box-4/#margin-physical",
+        "title": "Page-relative (Physical) Margin Properties: the margin-top, margin-right, margin-bottom, and margin-left properties",
+        "number": "3.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "propdef-margin-left",
+      "href": "https://www.w3.org/TR/css-box-4/#propdef-margin-left",
+      "linkingText": [
+        "margin-left"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "margin-physical",
+        "href": "https://www.w3.org/TR/css-box-4/#margin-physical",
+        "title": "Page-relative (Physical) Margin Properties: the margin-top, margin-right, margin-bottom, and margin-left properties",
+        "number": "3.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "propdef-margin",
+      "href": "https://www.w3.org/TR/css-box-4/#propdef-margin",
+      "linkingText": [
+        "margin"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "margin-shorthand",
+        "href": "https://www.w3.org/TR/css-box-4/#margin-shorthand",
+        "title": "Margin Shorthand: the margin property",
+        "number": "3.2"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "propdef-margin-trim",
+      "href": "https://www.w3.org/TR/css-box-4/#propdef-margin-trim",
+      "linkingText": [
+        "margin-trim"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "margin-trim",
+        "href": "https://www.w3.org/TR/css-box-4/#margin-trim",
+        "title": "Margins at Container Edges: the margin-trim property",
+        "number": "3.3"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "valdef-margin-trim-none",
+      "href": "https://www.w3.org/TR/css-box-4/#valdef-margin-trim-none",
+      "linkingText": [
+        "none"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "margin-trim"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "margin-trim",
+        "href": "https://www.w3.org/TR/css-box-4/#margin-trim",
+        "title": "Margins at Container Edges: the margin-trim property",
+        "number": "3.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-margin-trim-block-start",
+      "href": "https://www.w3.org/TR/css-box-4/#valdef-margin-trim-block-start",
+      "linkingText": [
+        "block-start"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "margin-trim"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "margin-trim",
+        "href": "https://www.w3.org/TR/css-box-4/#margin-trim",
+        "title": "Margins at Container Edges: the margin-trim property",
+        "number": "3.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-margin-trim-inline-start",
+      "href": "https://www.w3.org/TR/css-box-4/#valdef-margin-trim-inline-start",
+      "linkingText": [
+        "inline-start"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "margin-trim"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "margin-trim",
+        "href": "https://www.w3.org/TR/css-box-4/#margin-trim",
+        "title": "Margins at Container Edges: the margin-trim property",
+        "number": "3.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-margin-trim-inline-end",
+      "href": "https://www.w3.org/TR/css-box-4/#valdef-margin-trim-inline-end",
+      "linkingText": [
+        "inline-end"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "margin-trim"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "margin-trim",
+        "href": "https://www.w3.org/TR/css-box-4/#margin-trim",
+        "title": "Margins at Container Edges: the margin-trim property",
+        "number": "3.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-margin-trim-block-end",
+      "href": "https://www.w3.org/TR/css-box-4/#valdef-margin-trim-block-end",
+      "linkingText": [
+        "block-end"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "margin-trim"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "margin-trim",
+        "href": "https://www.w3.org/TR/css-box-4/#margin-trim",
+        "title": "Margins at Container Edges: the margin-trim property",
+        "number": "3.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-margin-trim-block",
+      "href": "https://www.w3.org/TR/css-box-4/#valdef-margin-trim-block",
+      "linkingText": [
+        "block"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "margin-trim"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "margin-trim",
+        "href": "https://www.w3.org/TR/css-box-4/#margin-trim",
+        "title": "Margins at Container Edges: the margin-trim property",
+        "number": "3.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-margin-trim-inline",
+      "href": "https://www.w3.org/TR/css-box-4/#valdef-margin-trim-inline",
+      "linkingText": [
+        "inline"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "margin-trim"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "margin-trim",
+        "href": "https://www.w3.org/TR/css-box-4/#margin-trim",
+        "title": "Margins at Container Edges: the margin-trim property",
+        "number": "3.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "padding",
+      "href": "https://www.w3.org/TR/css-box-4/#padding",
+      "linkingText": [
+        "Padding"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "paddings",
+        "href": "https://www.w3.org/TR/css-box-4/#paddings",
+        "title": "Padding",
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "padding-properties",
+      "href": "https://www.w3.org/TR/css-box-4/#padding-properties",
+      "linkingText": [
+        "padding properties"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "paddings",
+        "href": "https://www.w3.org/TR/css-box-4/#paddings",
+        "title": "Padding",
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "propdef-padding-top",
+      "href": "https://www.w3.org/TR/css-box-4/#propdef-padding-top",
+      "linkingText": [
+        "padding-top"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "padding-physical",
+        "href": "https://www.w3.org/TR/css-box-4/#padding-physical",
+        "title": "Page-relative (Physical) Padding Properties: the padding-top, padding-right, padding-bottom, and padding-left properties",
+        "number": "4.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "propdef-padding-right",
+      "href": "https://www.w3.org/TR/css-box-4/#propdef-padding-right",
+      "linkingText": [
+        "padding-right"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "padding-physical",
+        "href": "https://www.w3.org/TR/css-box-4/#padding-physical",
+        "title": "Page-relative (Physical) Padding Properties: the padding-top, padding-right, padding-bottom, and padding-left properties",
+        "number": "4.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "propdef-padding-bottom",
+      "href": "https://www.w3.org/TR/css-box-4/#propdef-padding-bottom",
+      "linkingText": [
+        "padding-bottom"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "padding-physical",
+        "href": "https://www.w3.org/TR/css-box-4/#padding-physical",
+        "title": "Page-relative (Physical) Padding Properties: the padding-top, padding-right, padding-bottom, and padding-left properties",
+        "number": "4.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "propdef-padding-left",
+      "href": "https://www.w3.org/TR/css-box-4/#propdef-padding-left",
+      "linkingText": [
+        "padding-left"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "padding-physical",
+        "href": "https://www.w3.org/TR/css-box-4/#padding-physical",
+        "title": "Page-relative (Physical) Padding Properties: the padding-top, padding-right, padding-bottom, and padding-left properties",
+        "number": "4.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "propdef-padding",
+      "href": "https://www.w3.org/TR/css-box-4/#propdef-padding",
+      "linkingText": [
+        "padding"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "padding-shorthand",
+        "href": "https://www.w3.org/TR/css-box-4/#padding-shorthand",
+        "title": "Padding Shorthand: the padding property",
+        "number": "4.2"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "border",
+      "href": "https://www.w3.org/TR/css-box-4/#border",
+      "linkingText": [
+        "border"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "borders",
+        "href": "https://www.w3.org/TR/css-box-4/#borders",
+        "title": "Borders",
+        "number": "5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "border-properties",
+      "href": "https://www.w3.org/TR/css-box-4/#border-properties",
+      "linkingText": [
+        "border properties"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "borders",
+        "href": "https://www.w3.org/TR/css-box-4/#borders",
+        "title": "Borders",
+        "number": "5"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

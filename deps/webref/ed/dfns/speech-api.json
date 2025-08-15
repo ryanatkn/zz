@@ -1,0 +1,4197 @@
+{
+  "spec": {
+    "title": "Web Speech API",
+    "url": "https://webaudio.github.io/web-speech-api/"
+  },
+  "dfns": [
+    {
+      "id": "dom-speechrecognition-started-slot",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognition-started-slot",
+      "linkingText": [
+        "[[started]]"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognition-processlocally-slot",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognition-processlocally-slot",
+      "linkingText": [
+        "[[processLocally]]"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognition-phrases-slot",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognition-phrases-slot",
+      "linkingText": [
+        "[[phrases]]"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "speechrecognition",
+      "href": "https://webaudio.github.io/web-speech-api/#speechrecognition",
+      "linkingText": [
+        "SpeechRecognition"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognition-speechrecognition",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognition-speechrecognition",
+      "linkingText": [
+        "SpeechRecognition()",
+        "constructor()"
+      ],
+      "localLinkingText": [],
+      "type": "constructor",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognition-start-audiotrack-audiotrack",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognition-start-audiotrack-audiotrack",
+      "linkingText": [
+        "audioTrack"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "SpeechRecognition/start(audioTrack)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognition-available-options-options",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognition-available-options-options",
+      "linkingText": [
+        "options"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "SpeechRecognition/available(options)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognition-install-options-options",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognition-install-options-options",
+      "linkingText": [
+        "options"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "SpeechRecognition/install(options)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognition-onaudiostart",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognition-onaudiostart",
+      "linkingText": [
+        "onaudiostart"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognition-onsoundstart",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognition-onsoundstart",
+      "linkingText": [
+        "onsoundstart"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognition-onspeechstart",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognition-onspeechstart",
+      "linkingText": [
+        "onspeechstart"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognition-onspeechend",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognition-onspeechend",
+      "linkingText": [
+        "onspeechend"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognition-onsoundend",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognition-onsoundend",
+      "linkingText": [
+        "onsoundend"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognition-onaudioend",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognition-onaudioend",
+      "linkingText": [
+        "onaudioend"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognition-onresult",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognition-onresult",
+      "linkingText": [
+        "onresult"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognition-onnomatch",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognition-onnomatch",
+      "linkingText": [
+        "onnomatch"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognition-onerror",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognition-onerror",
+      "linkingText": [
+        "onerror"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognition-onstart",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognition-onstart",
+      "linkingText": [
+        "onstart"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognition-onend",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognition-onend",
+      "linkingText": [
+        "onend"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dictdef-speechrecognitionoptions",
+      "href": "https://webaudio.github.io/web-speech-api/#dictdef-speechrecognitionoptions",
+      "linkingText": [
+        "SpeechRecognitionOptions"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionoptions-langs",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionoptions-langs",
+      "linkingText": [
+        "langs"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SpeechRecognitionOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionoptions-processlocally",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionoptions-processlocally",
+      "linkingText": [
+        "processLocally"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SpeechRecognitionOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "enumdef-speechrecognitionerrorcode",
+      "href": "https://webaudio.github.io/web-speech-api/#enumdef-speechrecognitionerrorcode",
+      "linkingText": [
+        "SpeechRecognitionErrorCode"
+      ],
+      "localLinkingText": [],
+      "type": "enum",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "enumdef-availabilitystatus",
+      "href": "https://webaudio.github.io/web-speech-api/#enumdef-availabilitystatus",
+      "linkingText": [
+        "AvailabilityStatus"
+      ],
+      "localLinkingText": [],
+      "type": "enum",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "speechrecognitionerrorevent",
+      "href": "https://webaudio.github.io/web-speech-api/#speechrecognitionerrorevent",
+      "linkingText": [
+        "SpeechRecognitionErrorEvent"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionerrorevent-speechrecognitionerrorevent",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionerrorevent-speechrecognitionerrorevent",
+      "linkingText": [
+        "SpeechRecognitionErrorEvent(type, eventInitDict)",
+        "constructor(type, eventInitDict)"
+      ],
+      "localLinkingText": [],
+      "type": "constructor",
+      "for": [
+        "SpeechRecognitionErrorEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionerrorevent-speechrecognitionerrorevent-type-eventinitdict-type",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionerrorevent-speechrecognitionerrorevent-type-eventinitdict-type",
+      "linkingText": [
+        "type"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "SpeechRecognitionErrorEvent/SpeechRecognitionErrorEvent(type, eventInitDict)",
+        "SpeechRecognitionErrorEvent/constructor(type, eventInitDict)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionerrorevent-speechrecognitionerrorevent-type-eventinitdict-eventinitdict",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionerrorevent-speechrecognitionerrorevent-type-eventinitdict-eventinitdict",
+      "linkingText": [
+        "eventInitDict"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "SpeechRecognitionErrorEvent/SpeechRecognitionErrorEvent(type, eventInitDict)",
+        "SpeechRecognitionErrorEvent/constructor(type, eventInitDict)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dictdef-speechrecognitionerroreventinit",
+      "href": "https://webaudio.github.io/web-speech-api/#dictdef-speechrecognitionerroreventinit",
+      "linkingText": [
+        "SpeechRecognitionErrorEventInit"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionerroreventinit-error",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionerroreventinit-error",
+      "linkingText": [
+        "error"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SpeechRecognitionErrorEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionerroreventinit-message",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionerroreventinit-message",
+      "linkingText": [
+        "message"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SpeechRecognitionErrorEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "speechrecognitionalternative",
+      "href": "https://webaudio.github.io/web-speech-api/#speechrecognitionalternative",
+      "linkingText": [
+        "SpeechRecognitionAlternative"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "speechrecognitionresult",
+      "href": "https://webaudio.github.io/web-speech-api/#speechrecognitionresult",
+      "linkingText": [
+        "SpeechRecognitionResult"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionresult-item-index-index",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionresult-item-index-index",
+      "linkingText": [
+        "index"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "SpeechRecognitionResult/item(index)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "speechrecognitionresultlist",
+      "href": "https://webaudio.github.io/web-speech-api/#speechrecognitionresultlist",
+      "linkingText": [
+        "SpeechRecognitionResultList"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionresultlist-item-index-index",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionresultlist-item-index-index",
+      "linkingText": [
+        "index"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "SpeechRecognitionResultList/item(index)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "speechrecognitionevent",
+      "href": "https://webaudio.github.io/web-speech-api/#speechrecognitionevent",
+      "linkingText": [
+        "SpeechRecognitionEvent"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionevent-speechrecognitionevent",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionevent-speechrecognitionevent",
+      "linkingText": [
+        "SpeechRecognitionEvent(type, eventInitDict)",
+        "constructor(type, eventInitDict)"
+      ],
+      "localLinkingText": [],
+      "type": "constructor",
+      "for": [
+        "SpeechRecognitionEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionevent-speechrecognitionevent-type-eventinitdict-type",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionevent-speechrecognitionevent-type-eventinitdict-type",
+      "linkingText": [
+        "type"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "SpeechRecognitionEvent/SpeechRecognitionEvent(type, eventInitDict)",
+        "SpeechRecognitionEvent/constructor(type, eventInitDict)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionevent-speechrecognitionevent-type-eventinitdict-eventinitdict",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionevent-speechrecognitionevent-type-eventinitdict-eventinitdict",
+      "linkingText": [
+        "eventInitDict"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "SpeechRecognitionEvent/SpeechRecognitionEvent(type, eventInitDict)",
+        "SpeechRecognitionEvent/constructor(type, eventInitDict)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dictdef-speechrecognitioneventinit",
+      "href": "https://webaudio.github.io/web-speech-api/#dictdef-speechrecognitioneventinit",
+      "linkingText": [
+        "SpeechRecognitionEventInit"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitioneventinit-resultindex",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitioneventinit-resultindex",
+      "linkingText": [
+        "resultIndex"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SpeechRecognitionEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitioneventinit-results",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitioneventinit-results",
+      "linkingText": [
+        "results"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SpeechRecognitionEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "speechgrammar",
+      "href": "https://webaudio.github.io/web-speech-api/#speechgrammar",
+      "linkingText": [
+        "SpeechGrammar"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "speechgrammarlist",
+      "href": "https://webaudio.github.io/web-speech-api/#speechgrammarlist",
+      "linkingText": [
+        "SpeechGrammarList"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechgrammarlist-speechgrammarlist",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechgrammarlist-speechgrammarlist",
+      "linkingText": [
+        "SpeechGrammarList()",
+        "constructor()"
+      ],
+      "localLinkingText": [],
+      "type": "constructor",
+      "for": [
+        "SpeechGrammarList"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechgrammarlist-item-index-index",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechgrammarlist-item-index-index",
+      "linkingText": [
+        "index"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "SpeechGrammarList/item(index)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechgrammarlist-addfromuri-src-weight-src",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechgrammarlist-addfromuri-src-weight-src",
+      "linkingText": [
+        "src"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "SpeechGrammarList/addFromURI(src, weight)",
+        "SpeechGrammarList/addFromURI(src)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechgrammarlist-addfromuri-src-weight-weight",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechgrammarlist-addfromuri-src-weight-weight",
+      "linkingText": [
+        "weight"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "SpeechGrammarList/addFromURI(src, weight)",
+        "SpeechGrammarList/addFromURI(src)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechgrammarlist-addfromstring-string-weight-string",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechgrammarlist-addfromstring-string-weight-string",
+      "linkingText": [
+        "string"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "SpeechGrammarList/addFromString(string, weight)",
+        "SpeechGrammarList/addFromString(string)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechgrammarlist-addfromstring-string-weight-weight",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechgrammarlist-addfromstring-string-weight-weight",
+      "linkingText": [
+        "weight"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "SpeechGrammarList/addFromString(string, weight)",
+        "SpeechGrammarList/addFromString(string)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "speechrecognitionphrase",
+      "href": "https://webaudio.github.io/web-speech-api/#speechrecognitionphrase",
+      "linkingText": [
+        "SpeechRecognitionPhrase"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionphrase-speechrecognitionphrase-phrase-boost-phrase",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionphrase-speechrecognitionphrase-phrase-boost-phrase",
+      "linkingText": [
+        "phrase"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "SpeechRecognitionPhrase/SpeechRecognitionPhrase(phrase, boost)",
+        "SpeechRecognitionPhrase/constructor(phrase, boost)",
+        "SpeechRecognitionPhrase/SpeechRecognitionPhrase(phrase)",
+        "SpeechRecognitionPhrase/constructor(phrase)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionphrase-speechrecognitionphrase-phrase-boost-boost",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionphrase-speechrecognitionphrase-phrase-boost-boost",
+      "linkingText": [
+        "boost"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "SpeechRecognitionPhrase/SpeechRecognitionPhrase(phrase, boost)",
+        "SpeechRecognitionPhrase/constructor(phrase, boost)",
+        "SpeechRecognitionPhrase/SpeechRecognitionPhrase(phrase)",
+        "SpeechRecognitionPhrase/constructor(phrase)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-section",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-section",
+        "title": "The SpeechRecognition Interface",
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognition-grammars",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognition-grammars",
+      "linkingText": [
+        "grammars"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-attributes",
+        "title": "SpeechRecognition Attributes",
+        "number": "4.1.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognition-lang",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognition-lang",
+      "linkingText": [
+        "lang"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-attributes",
+        "title": "SpeechRecognition Attributes",
+        "number": "4.1.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognition-continuous",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognition-continuous",
+      "linkingText": [
+        "continuous"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-attributes",
+        "title": "SpeechRecognition Attributes",
+        "number": "4.1.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognition-interimresults",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognition-interimresults",
+      "linkingText": [
+        "interimResults"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-attributes",
+        "title": "SpeechRecognition Attributes",
+        "number": "4.1.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognition-maxalternatives",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognition-maxalternatives",
+      "linkingText": [
+        "maxAlternatives"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-attributes",
+        "title": "SpeechRecognition Attributes",
+        "number": "4.1.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognition-processlocally",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognition-processlocally",
+      "linkingText": [
+        "processLocally"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-attributes",
+        "title": "SpeechRecognition Attributes",
+        "number": "4.1.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognition-phrases",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognition-phrases",
+      "linkingText": [
+        "phrases"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-attributes",
+        "title": "SpeechRecognition Attributes",
+        "number": "4.1.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognition-start",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognition-start",
+      "linkingText": [
+        "start()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-methods",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-methods",
+        "title": "SpeechRecognition Methods",
+        "number": "4.1.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognition-start-audiotrack",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognition-start-audiotrack",
+      "linkingText": [
+        "start(audioTrack)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-methods",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-methods",
+        "title": "SpeechRecognition Methods",
+        "number": "4.1.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognition-stop",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognition-stop",
+      "linkingText": [
+        "stop()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-methods",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-methods",
+        "title": "SpeechRecognition Methods",
+        "number": "4.1.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognition-abort",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognition-abort",
+      "linkingText": [
+        "abort()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-methods",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-methods",
+        "title": "SpeechRecognition Methods",
+        "number": "4.1.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognition-available",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognition-available",
+      "linkingText": [
+        "available(options)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-methods",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-methods",
+        "title": "SpeechRecognition Methods",
+        "number": "4.1.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognition-install",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognition-install",
+      "linkingText": [
+        "install(options)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-methods",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-methods",
+        "title": "SpeechRecognition Methods",
+        "number": "4.1.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-availabilitystatus-unavailable",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-availabilitystatus-unavailable",
+      "linkingText": [
+        "\"unavailable\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "AvailabilityStatus"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "availability-status-values",
+        "href": "https://webaudio.github.io/web-speech-api/#availability-status-values",
+        "title": "AvailabilityStatus Enum Values",
+        "number": "4.1.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-availabilitystatus-downloadable",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-availabilitystatus-downloadable",
+      "linkingText": [
+        "\"downloadable\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "AvailabilityStatus"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "availability-status-values",
+        "href": "https://webaudio.github.io/web-speech-api/#availability-status-values",
+        "title": "AvailabilityStatus Enum Values",
+        "number": "4.1.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-availabilitystatus-downloading",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-availabilitystatus-downloading",
+      "linkingText": [
+        "\"downloading\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "AvailabilityStatus"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "availability-status-values",
+        "href": "https://webaudio.github.io/web-speech-api/#availability-status-values",
+        "title": "AvailabilityStatus Enum Values",
+        "number": "4.1.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-availabilitystatus-available",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-availabilitystatus-available",
+      "linkingText": [
+        "\"available\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "AvailabilityStatus"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "availability-status-values",
+        "href": "https://webaudio.github.io/web-speech-api/#availability-status-values",
+        "title": "AvailabilityStatus Enum Values",
+        "number": "4.1.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "availability-algorithm",
+      "href": "https://webaudio.github.io/web-speech-api/#availability-algorithm",
+      "linkingText": [
+        "availability algorithm"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "availability-status-values",
+        "href": "https://webaudio.github.io/web-speech-api/#availability-status-values",
+        "title": "AvailabilityStatus Enum Values",
+        "number": "4.1.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "start-session-algorithm",
+      "href": "https://webaudio.github.io/web-speech-api/#start-session-algorithm",
+      "linkingText": [
+        "start session algorithm"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "availability-status-values",
+        "href": "https://webaudio.github.io/web-speech-api/#availability-status-values",
+        "title": "AvailabilityStatus Enum Values",
+        "number": "4.1.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "eventdef-speechrecognition-audiostart",
+      "href": "https://webaudio.github.io/web-speech-api/#eventdef-speechrecognition-audiostart",
+      "linkingText": [
+        "audiostart"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-events",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-events",
+        "title": "SpeechRecognition Events",
+        "number": "4.1.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "eventdef-speechrecognition-soundstart",
+      "href": "https://webaudio.github.io/web-speech-api/#eventdef-speechrecognition-soundstart",
+      "linkingText": [
+        "soundstart"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-events",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-events",
+        "title": "SpeechRecognition Events",
+        "number": "4.1.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "eventdef-speechrecognition-speechstart",
+      "href": "https://webaudio.github.io/web-speech-api/#eventdef-speechrecognition-speechstart",
+      "linkingText": [
+        "speechstart"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-events",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-events",
+        "title": "SpeechRecognition Events",
+        "number": "4.1.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "eventdef-speechrecognition-speechend",
+      "href": "https://webaudio.github.io/web-speech-api/#eventdef-speechrecognition-speechend",
+      "linkingText": [
+        "speechend"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-events",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-events",
+        "title": "SpeechRecognition Events",
+        "number": "4.1.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "eventdef-speechrecognition-soundend",
+      "href": "https://webaudio.github.io/web-speech-api/#eventdef-speechrecognition-soundend",
+      "linkingText": [
+        "soundend"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-events",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-events",
+        "title": "SpeechRecognition Events",
+        "number": "4.1.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "eventdef-speechrecognition-audioend",
+      "href": "https://webaudio.github.io/web-speech-api/#eventdef-speechrecognition-audioend",
+      "linkingText": [
+        "audioend"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-events",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-events",
+        "title": "SpeechRecognition Events",
+        "number": "4.1.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "eventdef-speechrecognition-result",
+      "href": "https://webaudio.github.io/web-speech-api/#eventdef-speechrecognition-result",
+      "linkingText": [
+        "result"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-events",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-events",
+        "title": "SpeechRecognition Events",
+        "number": "4.1.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "eventdef-speechrecognition-nomatch",
+      "href": "https://webaudio.github.io/web-speech-api/#eventdef-speechrecognition-nomatch",
+      "linkingText": [
+        "nomatch"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-events",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-events",
+        "title": "SpeechRecognition Events",
+        "number": "4.1.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "eventdef-speechrecognition-error",
+      "href": "https://webaudio.github.io/web-speech-api/#eventdef-speechrecognition-error",
+      "linkingText": [
+        "error"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-events",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-events",
+        "title": "SpeechRecognition Events",
+        "number": "4.1.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "eventdef-speechrecognition-start",
+      "href": "https://webaudio.github.io/web-speech-api/#eventdef-speechrecognition-start",
+      "linkingText": [
+        "start"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-events",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-events",
+        "title": "SpeechRecognition Events",
+        "number": "4.1.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "eventdef-speechrecognition-end",
+      "href": "https://webaudio.github.io/web-speech-api/#eventdef-speechrecognition-end",
+      "linkingText": [
+        "end"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "SpeechRecognition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-events",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-events",
+        "title": "SpeechRecognition Events",
+        "number": "4.1.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionerrorevent-error",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionerrorevent-error",
+      "linkingText": [
+        "error"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechRecognitionErrorEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-error",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-error",
+        "title": "SpeechRecognitionErrorEvent",
+        "number": "4.1.5"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionerrorcode-no-speech",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionerrorcode-no-speech",
+      "linkingText": [
+        "\"no-speech\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "SpeechRecognitionErrorCode"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-error",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-error",
+        "title": "SpeechRecognitionErrorEvent",
+        "number": "4.1.5"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionerrorcode-aborted",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionerrorcode-aborted",
+      "linkingText": [
+        "\"aborted\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "SpeechRecognitionErrorCode"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-error",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-error",
+        "title": "SpeechRecognitionErrorEvent",
+        "number": "4.1.5"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionerrorcode-audio-capture",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionerrorcode-audio-capture",
+      "linkingText": [
+        "\"audio-capture\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "SpeechRecognitionErrorCode"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-error",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-error",
+        "title": "SpeechRecognitionErrorEvent",
+        "number": "4.1.5"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionerrorcode-network",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionerrorcode-network",
+      "linkingText": [
+        "\"network\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "SpeechRecognitionErrorCode"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-error",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-error",
+        "title": "SpeechRecognitionErrorEvent",
+        "number": "4.1.5"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionerrorcode-not-allowed",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionerrorcode-not-allowed",
+      "linkingText": [
+        "\"not-allowed\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "SpeechRecognitionErrorCode"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-error",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-error",
+        "title": "SpeechRecognitionErrorEvent",
+        "number": "4.1.5"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionerrorcode-service-not-allowed",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionerrorcode-service-not-allowed",
+      "linkingText": [
+        "\"service-not-allowed\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "SpeechRecognitionErrorCode"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-error",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-error",
+        "title": "SpeechRecognitionErrorEvent",
+        "number": "4.1.5"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionerrorcode-language-not-supported",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionerrorcode-language-not-supported",
+      "linkingText": [
+        "\"language-not-supported\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "SpeechRecognitionErrorCode"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-error",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-error",
+        "title": "SpeechRecognitionErrorEvent",
+        "number": "4.1.5"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionerrorcode-phrases-not-supported",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionerrorcode-phrases-not-supported",
+      "linkingText": [
+        "\"phrases-not-supported\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "SpeechRecognitionErrorCode"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-error",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-error",
+        "title": "SpeechRecognitionErrorEvent",
+        "number": "4.1.5"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionerrorevent-message",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionerrorevent-message",
+      "linkingText": [
+        "message"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechRecognitionErrorEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-error",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-error",
+        "title": "SpeechRecognitionErrorEvent",
+        "number": "4.1.5"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionalternative-transcript",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionalternative-transcript",
+      "linkingText": [
+        "transcript"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechRecognitionAlternative"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-alternative",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-alternative",
+        "title": "SpeechRecognitionAlternative",
+        "number": "4.1.6"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionalternative-confidence",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionalternative-confidence",
+      "linkingText": [
+        "confidence"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechRecognitionAlternative"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-alternative",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-alternative",
+        "title": "SpeechRecognitionAlternative",
+        "number": "4.1.6"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionresult-length",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionresult-length",
+      "linkingText": [
+        "length"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechRecognitionResult"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-result",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-result",
+        "title": "SpeechRecognitionResult",
+        "number": "4.1.7"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionresult-item",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionresult-item",
+      "linkingText": [
+        "item(index)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "SpeechRecognitionResult"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-result",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-result",
+        "title": "SpeechRecognitionResult",
+        "number": "4.1.7"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionresult-isfinal",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionresult-isfinal",
+      "linkingText": [
+        "isFinal"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechRecognitionResult"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-result",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-result",
+        "title": "SpeechRecognitionResult",
+        "number": "4.1.7"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionresultlist-length",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionresultlist-length",
+      "linkingText": [
+        "length"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechRecognitionResultList"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-resultlist",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-resultlist",
+        "title": "SpeechRecognitionResultList",
+        "number": "4.1.8"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionresultlist-item",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionresultlist-item",
+      "linkingText": [
+        "item(index)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "SpeechRecognitionResultList"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-resultlist",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-resultlist",
+        "title": "SpeechRecognitionResultList",
+        "number": "4.1.8"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionevent-resultindex",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionevent-resultindex",
+      "linkingText": [
+        "resultIndex"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechRecognitionEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-event",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-event",
+        "title": "SpeechRecognitionEvent",
+        "number": "4.1.9"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionevent-results",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionevent-results",
+      "linkingText": [
+        "results"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechRecognitionEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-event",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-event",
+        "title": "SpeechRecognitionEvent",
+        "number": "4.1.9"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionphrase-phrase-slot",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionphrase-phrase-slot",
+      "linkingText": [
+        "[[phrase]]"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechRecognitionPhrase"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-phrase",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-phrase",
+        "title": "SpeechRecognitionPhrase",
+        "number": "4.1.10"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionphrase-boost-slot",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionphrase-boost-slot",
+      "linkingText": [
+        "[[boost]]"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechRecognitionPhrase"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-phrase",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-phrase",
+        "title": "SpeechRecognitionPhrase",
+        "number": "4.1.10"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionphrase-speechrecognitionphrase",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionphrase-speechrecognitionphrase",
+      "linkingText": [
+        "SpeechRecognitionPhrase(phrase, boost)",
+        "constructor(phrase, boost)",
+        "SpeechRecognitionPhrase(phrase)",
+        "constructor(phrase)"
+      ],
+      "localLinkingText": [],
+      "type": "constructor",
+      "for": [
+        "SpeechRecognitionPhrase"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-phrase",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-phrase",
+        "title": "SpeechRecognitionPhrase",
+        "number": "4.1.10"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionphrase-phrase",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionphrase-phrase",
+      "linkingText": [
+        "phrase"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechRecognitionPhrase"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-phrase",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-phrase",
+        "title": "SpeechRecognitionPhrase",
+        "number": "4.1.10"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechrecognitionphrase-boost",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechrecognitionphrase-boost",
+      "linkingText": [
+        "boost"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechRecognitionPhrase"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-phrase",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-phrase",
+        "title": "SpeechRecognitionPhrase",
+        "number": "4.1.10"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechgrammar-src",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechgrammar-src",
+      "linkingText": [
+        "src"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechGrammar"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-speechgrammar",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-speechgrammar",
+        "title": "SpeechGrammar",
+        "number": "4.1.11"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechgrammar-weight",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechgrammar-weight",
+      "linkingText": [
+        "weight"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechGrammar"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-speechgrammar",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-speechgrammar",
+        "title": "SpeechGrammar",
+        "number": "4.1.11"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechgrammarlist-length",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechgrammarlist-length",
+      "linkingText": [
+        "length"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechGrammarList"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-speechgrammarlist",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-speechgrammarlist",
+        "title": "SpeechGrammarList",
+        "number": "4.1.12"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechgrammarlist-item",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechgrammarlist-item",
+      "linkingText": [
+        "item(index)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "SpeechGrammarList"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-speechgrammarlist",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-speechgrammarlist",
+        "title": "SpeechGrammarList",
+        "number": "4.1.12"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechgrammarlist-addfromuri",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechgrammarlist-addfromuri",
+      "linkingText": [
+        "addFromURI(src, weight)",
+        "addFromURI(src)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "SpeechGrammarList"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-speechgrammarlist",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-speechgrammarlist",
+        "title": "SpeechGrammarList",
+        "number": "4.1.12"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechgrammarlist-addfromstring",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechgrammarlist-addfromstring",
+      "linkingText": [
+        "addFromString(string, weight)",
+        "addFromString(string)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "SpeechGrammarList"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechreco-speechgrammarlist",
+        "href": "https://webaudio.github.io/web-speech-api/#speechreco-speechgrammarlist",
+        "title": "SpeechGrammarList",
+        "number": "4.1.12"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "speechsynthesis",
+      "href": "https://webaudio.github.io/web-speech-api/#speechsynthesis",
+      "linkingText": [
+        "SpeechSynthesis"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-section",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-section",
+        "title": "The SpeechSynthesis Interface",
+        "number": "4.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesis-onvoiceschanged",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesis-onvoiceschanged",
+      "linkingText": [
+        "onvoiceschanged"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechSynthesis"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-section",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-section",
+        "title": "The SpeechSynthesis Interface",
+        "number": "4.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesis-speak-utterance-utterance",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesis-speak-utterance-utterance",
+      "linkingText": [
+        "utterance"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "SpeechSynthesis/speak(utterance)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-section",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-section",
+        "title": "The SpeechSynthesis Interface",
+        "number": "4.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-window-speechsynthesis",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-window-speechsynthesis",
+      "linkingText": [
+        "speechSynthesis"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Window"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-section",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-section",
+        "title": "The SpeechSynthesis Interface",
+        "number": "4.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "speechsynthesisutterance",
+      "href": "https://webaudio.github.io/web-speech-api/#speechsynthesisutterance",
+      "linkingText": [
+        "SpeechSynthesisUtterance"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-section",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-section",
+        "title": "The SpeechSynthesis Interface",
+        "number": "4.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesisutterance-speechsynthesisutterance",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesisutterance-speechsynthesisutterance",
+      "linkingText": [
+        "SpeechSynthesisUtterance(text)",
+        "constructor(text)",
+        "SpeechSynthesisUtterance()",
+        "constructor()"
+      ],
+      "localLinkingText": [],
+      "type": "constructor",
+      "for": [
+        "SpeechSynthesisUtterance"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-section",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-section",
+        "title": "The SpeechSynthesis Interface",
+        "number": "4.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesisutterance-speechsynthesisutterance-text-text",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesisutterance-speechsynthesisutterance-text-text",
+      "linkingText": [
+        "text"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "SpeechSynthesisUtterance/SpeechSynthesisUtterance(text)",
+        "SpeechSynthesisUtterance/constructor(text)",
+        "SpeechSynthesisUtterance/SpeechSynthesisUtterance()",
+        "SpeechSynthesisUtterance/constructor()"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-section",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-section",
+        "title": "The SpeechSynthesis Interface",
+        "number": "4.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesisutterance-onstart",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesisutterance-onstart",
+      "linkingText": [
+        "onstart"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechSynthesisUtterance"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-section",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-section",
+        "title": "The SpeechSynthesis Interface",
+        "number": "4.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesisutterance-onend",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesisutterance-onend",
+      "linkingText": [
+        "onend"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechSynthesisUtterance"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-section",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-section",
+        "title": "The SpeechSynthesis Interface",
+        "number": "4.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesisutterance-onerror",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesisutterance-onerror",
+      "linkingText": [
+        "onerror"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechSynthesisUtterance"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-section",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-section",
+        "title": "The SpeechSynthesis Interface",
+        "number": "4.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesisutterance-onpause",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesisutterance-onpause",
+      "linkingText": [
+        "onpause"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechSynthesisUtterance"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-section",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-section",
+        "title": "The SpeechSynthesis Interface",
+        "number": "4.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesisutterance-onresume",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesisutterance-onresume",
+      "linkingText": [
+        "onresume"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechSynthesisUtterance"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-section",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-section",
+        "title": "The SpeechSynthesis Interface",
+        "number": "4.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesisutterance-onmark",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesisutterance-onmark",
+      "linkingText": [
+        "onmark"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechSynthesisUtterance"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-section",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-section",
+        "title": "The SpeechSynthesis Interface",
+        "number": "4.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesisutterance-onboundary",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesisutterance-onboundary",
+      "linkingText": [
+        "onboundary"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechSynthesisUtterance"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-section",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-section",
+        "title": "The SpeechSynthesis Interface",
+        "number": "4.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "speechsynthesisevent",
+      "href": "https://webaudio.github.io/web-speech-api/#speechsynthesisevent",
+      "linkingText": [
+        "SpeechSynthesisEvent"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-section",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-section",
+        "title": "The SpeechSynthesis Interface",
+        "number": "4.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesisevent-speechsynthesisevent",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesisevent-speechsynthesisevent",
+      "linkingText": [
+        "SpeechSynthesisEvent(type, eventInitDict)",
+        "constructor(type, eventInitDict)"
+      ],
+      "localLinkingText": [],
+      "type": "constructor",
+      "for": [
+        "SpeechSynthesisEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-section",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-section",
+        "title": "The SpeechSynthesis Interface",
+        "number": "4.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesisevent-speechsynthesisevent-type-eventinitdict-type",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesisevent-speechsynthesisevent-type-eventinitdict-type",
+      "linkingText": [
+        "type"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "SpeechSynthesisEvent/SpeechSynthesisEvent(type, eventInitDict)",
+        "SpeechSynthesisEvent/constructor(type, eventInitDict)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-section",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-section",
+        "title": "The SpeechSynthesis Interface",
+        "number": "4.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesisevent-speechsynthesisevent-type-eventinitdict-eventinitdict",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesisevent-speechsynthesisevent-type-eventinitdict-eventinitdict",
+      "linkingText": [
+        "eventInitDict"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "SpeechSynthesisEvent/SpeechSynthesisEvent(type, eventInitDict)",
+        "SpeechSynthesisEvent/constructor(type, eventInitDict)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-section",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-section",
+        "title": "The SpeechSynthesis Interface",
+        "number": "4.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dictdef-speechsynthesiseventinit",
+      "href": "https://webaudio.github.io/web-speech-api/#dictdef-speechsynthesiseventinit",
+      "linkingText": [
+        "SpeechSynthesisEventInit"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-section",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-section",
+        "title": "The SpeechSynthesis Interface",
+        "number": "4.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesiseventinit-utterance",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesiseventinit-utterance",
+      "linkingText": [
+        "utterance"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SpeechSynthesisEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-section",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-section",
+        "title": "The SpeechSynthesis Interface",
+        "number": "4.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesiseventinit-charindex",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesiseventinit-charindex",
+      "linkingText": [
+        "charIndex"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SpeechSynthesisEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-section",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-section",
+        "title": "The SpeechSynthesis Interface",
+        "number": "4.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesiseventinit-charlength",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesiseventinit-charlength",
+      "linkingText": [
+        "charLength"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SpeechSynthesisEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-section",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-section",
+        "title": "The SpeechSynthesis Interface",
+        "number": "4.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesiseventinit-elapsedtime",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesiseventinit-elapsedtime",
+      "linkingText": [
+        "elapsedTime"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SpeechSynthesisEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-section",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-section",
+        "title": "The SpeechSynthesis Interface",
+        "number": "4.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesiseventinit-name",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesiseventinit-name",
+      "linkingText": [
+        "name"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SpeechSynthesisEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-section",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-section",
+        "title": "The SpeechSynthesis Interface",
+        "number": "4.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "enumdef-speechsynthesiserrorcode",
+      "href": "https://webaudio.github.io/web-speech-api/#enumdef-speechsynthesiserrorcode",
+      "linkingText": [
+        "SpeechSynthesisErrorCode"
+      ],
+      "localLinkingText": [],
+      "type": "enum",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-section",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-section",
+        "title": "The SpeechSynthesis Interface",
+        "number": "4.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "speechsynthesiserrorevent",
+      "href": "https://webaudio.github.io/web-speech-api/#speechsynthesiserrorevent",
+      "linkingText": [
+        "SpeechSynthesisErrorEvent"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-section",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-section",
+        "title": "The SpeechSynthesis Interface",
+        "number": "4.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesiserrorevent-speechsynthesiserrorevent",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesiserrorevent-speechsynthesiserrorevent",
+      "linkingText": [
+        "SpeechSynthesisErrorEvent(type, eventInitDict)",
+        "constructor(type, eventInitDict)"
+      ],
+      "localLinkingText": [],
+      "type": "constructor",
+      "for": [
+        "SpeechSynthesisErrorEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-section",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-section",
+        "title": "The SpeechSynthesis Interface",
+        "number": "4.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesiserrorevent-speechsynthesiserrorevent-type-eventinitdict-type",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesiserrorevent-speechsynthesiserrorevent-type-eventinitdict-type",
+      "linkingText": [
+        "type"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "SpeechSynthesisErrorEvent/SpeechSynthesisErrorEvent(type, eventInitDict)",
+        "SpeechSynthesisErrorEvent/constructor(type, eventInitDict)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-section",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-section",
+        "title": "The SpeechSynthesis Interface",
+        "number": "4.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesiserrorevent-speechsynthesiserrorevent-type-eventinitdict-eventinitdict",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesiserrorevent-speechsynthesiserrorevent-type-eventinitdict-eventinitdict",
+      "linkingText": [
+        "eventInitDict"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "SpeechSynthesisErrorEvent/SpeechSynthesisErrorEvent(type, eventInitDict)",
+        "SpeechSynthesisErrorEvent/constructor(type, eventInitDict)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-section",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-section",
+        "title": "The SpeechSynthesis Interface",
+        "number": "4.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dictdef-speechsynthesiserroreventinit",
+      "href": "https://webaudio.github.io/web-speech-api/#dictdef-speechsynthesiserroreventinit",
+      "linkingText": [
+        "SpeechSynthesisErrorEventInit"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-section",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-section",
+        "title": "The SpeechSynthesis Interface",
+        "number": "4.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesiserroreventinit-error",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesiserroreventinit-error",
+      "linkingText": [
+        "error"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SpeechSynthesisErrorEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-section",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-section",
+        "title": "The SpeechSynthesis Interface",
+        "number": "4.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "speechsynthesisvoice",
+      "href": "https://webaudio.github.io/web-speech-api/#speechsynthesisvoice",
+      "linkingText": [
+        "SpeechSynthesisVoice"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-section",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-section",
+        "title": "The SpeechSynthesis Interface",
+        "number": "4.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesis-pending",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesis-pending",
+      "linkingText": [
+        "pending"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechSynthesis"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-attributes",
+        "title": "SpeechSynthesis Attributes",
+        "number": "4.2.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesis-speaking",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesis-speaking",
+      "linkingText": [
+        "speaking"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechSynthesis"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-attributes",
+        "title": "SpeechSynthesis Attributes",
+        "number": "4.2.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesis-paused",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesis-paused",
+      "linkingText": [
+        "paused"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechSynthesis"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-attributes",
+        "title": "SpeechSynthesis Attributes",
+        "number": "4.2.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesis-speak",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesis-speak",
+      "linkingText": [
+        "speak(utterance)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "SpeechSynthesis"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-methods",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-methods",
+        "title": "SpeechSynthesis Methods",
+        "number": "4.2.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesis-cancel",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesis-cancel",
+      "linkingText": [
+        "cancel()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "SpeechSynthesis"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-methods",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-methods",
+        "title": "SpeechSynthesis Methods",
+        "number": "4.2.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesis-pause",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesis-pause",
+      "linkingText": [
+        "pause()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "SpeechSynthesis"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-methods",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-methods",
+        "title": "SpeechSynthesis Methods",
+        "number": "4.2.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesis-resume",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesis-resume",
+      "linkingText": [
+        "resume()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "SpeechSynthesis"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-methods",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-methods",
+        "title": "SpeechSynthesis Methods",
+        "number": "4.2.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesis-getvoices",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesis-getvoices",
+      "linkingText": [
+        "getVoices()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "SpeechSynthesis"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-methods",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-methods",
+        "title": "SpeechSynthesis Methods",
+        "number": "4.2.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "eventdef-speechsynthesis-voiceschanged",
+      "href": "https://webaudio.github.io/web-speech-api/#eventdef-speechsynthesis-voiceschanged",
+      "linkingText": [
+        "voiceschanged"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "SpeechSynthesis"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tts-events",
+        "href": "https://webaudio.github.io/web-speech-api/#tts-events",
+        "title": "SpeechSynthesis Events",
+        "number": "4.2.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesisutterance-text",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesisutterance-text",
+      "linkingText": [
+        "text"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechSynthesisUtterance"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "utterance-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#utterance-attributes",
+        "title": "SpeechSynthesisUtterance Attributes",
+        "number": "4.2.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesisutterance-lang",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesisutterance-lang",
+      "linkingText": [
+        "lang"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechSynthesisUtterance"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "utterance-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#utterance-attributes",
+        "title": "SpeechSynthesisUtterance Attributes",
+        "number": "4.2.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesisutterance-voice",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesisutterance-voice",
+      "linkingText": [
+        "voice"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechSynthesisUtterance"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "utterance-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#utterance-attributes",
+        "title": "SpeechSynthesisUtterance Attributes",
+        "number": "4.2.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesisutterance-volume",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesisutterance-volume",
+      "linkingText": [
+        "volume"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechSynthesisUtterance"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "utterance-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#utterance-attributes",
+        "title": "SpeechSynthesisUtterance Attributes",
+        "number": "4.2.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesisutterance-rate",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesisutterance-rate",
+      "linkingText": [
+        "rate"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechSynthesisUtterance"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "utterance-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#utterance-attributes",
+        "title": "SpeechSynthesisUtterance Attributes",
+        "number": "4.2.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesisutterance-pitch",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesisutterance-pitch",
+      "linkingText": [
+        "pitch"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechSynthesisUtterance"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "utterance-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#utterance-attributes",
+        "title": "SpeechSynthesisUtterance Attributes",
+        "number": "4.2.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "eventdef-speechsynthesisutterance-start",
+      "href": "https://webaudio.github.io/web-speech-api/#eventdef-speechsynthesisutterance-start",
+      "linkingText": [
+        "start"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "SpeechSynthesisUtterance"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "utterance-events",
+        "href": "https://webaudio.github.io/web-speech-api/#utterance-events",
+        "title": "SpeechSynthesisUtterance Events",
+        "number": "4.2.5"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "eventdef-speechsynthesisutterance-end",
+      "href": "https://webaudio.github.io/web-speech-api/#eventdef-speechsynthesisutterance-end",
+      "linkingText": [
+        "end"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "SpeechSynthesisUtterance"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "utterance-events",
+        "href": "https://webaudio.github.io/web-speech-api/#utterance-events",
+        "title": "SpeechSynthesisUtterance Events",
+        "number": "4.2.5"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "eventdef-speechsynthesisutterance-error",
+      "href": "https://webaudio.github.io/web-speech-api/#eventdef-speechsynthesisutterance-error",
+      "linkingText": [
+        "error"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "SpeechSynthesisUtterance"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "utterance-events",
+        "href": "https://webaudio.github.io/web-speech-api/#utterance-events",
+        "title": "SpeechSynthesisUtterance Events",
+        "number": "4.2.5"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "eventdef-speechsynthesisutterance-pause",
+      "href": "https://webaudio.github.io/web-speech-api/#eventdef-speechsynthesisutterance-pause",
+      "linkingText": [
+        "pause"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "SpeechSynthesisUtterance"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "utterance-events",
+        "href": "https://webaudio.github.io/web-speech-api/#utterance-events",
+        "title": "SpeechSynthesisUtterance Events",
+        "number": "4.2.5"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "eventdef-speechsynthesisutterance-resume",
+      "href": "https://webaudio.github.io/web-speech-api/#eventdef-speechsynthesisutterance-resume",
+      "linkingText": [
+        "resume"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "SpeechSynthesisUtterance"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "utterance-events",
+        "href": "https://webaudio.github.io/web-speech-api/#utterance-events",
+        "title": "SpeechSynthesisUtterance Events",
+        "number": "4.2.5"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "eventdef-speechsynthesisutterance-mark",
+      "href": "https://webaudio.github.io/web-speech-api/#eventdef-speechsynthesisutterance-mark",
+      "linkingText": [
+        "mark"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "SpeechSynthesisUtterance"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "utterance-events",
+        "href": "https://webaudio.github.io/web-speech-api/#utterance-events",
+        "title": "SpeechSynthesisUtterance Events",
+        "number": "4.2.5"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "eventdef-speechsynthesisutterance-boundary",
+      "href": "https://webaudio.github.io/web-speech-api/#eventdef-speechsynthesisutterance-boundary",
+      "linkingText": [
+        "boundary"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "SpeechSynthesisUtterance"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "utterance-events",
+        "href": "https://webaudio.github.io/web-speech-api/#utterance-events",
+        "title": "SpeechSynthesisUtterance Events",
+        "number": "4.2.5"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesisevent-utterance",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesisevent-utterance",
+      "linkingText": [
+        "utterance"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechSynthesisEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechsynthesisevent-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#speechsynthesisevent-attributes",
+        "title": "SpeechSynthesisEvent Attributes",
+        "number": "4.2.6"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesisevent-charindex",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesisevent-charindex",
+      "linkingText": [
+        "charIndex"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechSynthesisEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechsynthesisevent-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#speechsynthesisevent-attributes",
+        "title": "SpeechSynthesisEvent Attributes",
+        "number": "4.2.6"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesisevent-charlength",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesisevent-charlength",
+      "linkingText": [
+        "charLength"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechSynthesisEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechsynthesisevent-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#speechsynthesisevent-attributes",
+        "title": "SpeechSynthesisEvent Attributes",
+        "number": "4.2.6"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesisevent-elapsedtime",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesisevent-elapsedtime",
+      "linkingText": [
+        "elapsedTime"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechSynthesisEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechsynthesisevent-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#speechsynthesisevent-attributes",
+        "title": "SpeechSynthesisEvent Attributes",
+        "number": "4.2.6"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesisevent-name",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesisevent-name",
+      "linkingText": [
+        "name"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechSynthesisEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechsynthesisevent-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#speechsynthesisevent-attributes",
+        "title": "SpeechSynthesisEvent Attributes",
+        "number": "4.2.6"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesiserrorevent-error",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesiserrorevent-error",
+      "linkingText": [
+        "error"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechSynthesisErrorEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechsynthesiserrorevent-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#speechsynthesiserrorevent-attributes",
+        "title": "SpeechSynthesisErrorEvent Attributes",
+        "number": "4.2.7"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesiserrorcode-canceled",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesiserrorcode-canceled",
+      "linkingText": [
+        "\"canceled\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "SpeechSynthesisErrorCode"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechsynthesiserrorevent-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#speechsynthesiserrorevent-attributes",
+        "title": "SpeechSynthesisErrorEvent Attributes",
+        "number": "4.2.7"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesiserrorcode-interrupted",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesiserrorcode-interrupted",
+      "linkingText": [
+        "\"interrupted\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "SpeechSynthesisErrorCode"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechsynthesiserrorevent-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#speechsynthesiserrorevent-attributes",
+        "title": "SpeechSynthesisErrorEvent Attributes",
+        "number": "4.2.7"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesiserrorcode-audio-busy",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesiserrorcode-audio-busy",
+      "linkingText": [
+        "\"audio-busy\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "SpeechSynthesisErrorCode"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechsynthesiserrorevent-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#speechsynthesiserrorevent-attributes",
+        "title": "SpeechSynthesisErrorEvent Attributes",
+        "number": "4.2.7"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesiserrorcode-audio-hardware",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesiserrorcode-audio-hardware",
+      "linkingText": [
+        "\"audio-hardware\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "SpeechSynthesisErrorCode"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechsynthesiserrorevent-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#speechsynthesiserrorevent-attributes",
+        "title": "SpeechSynthesisErrorEvent Attributes",
+        "number": "4.2.7"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesiserrorcode-network",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesiserrorcode-network",
+      "linkingText": [
+        "\"network\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "SpeechSynthesisErrorCode"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechsynthesiserrorevent-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#speechsynthesiserrorevent-attributes",
+        "title": "SpeechSynthesisErrorEvent Attributes",
+        "number": "4.2.7"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesiserrorcode-synthesis-unavailable",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesiserrorcode-synthesis-unavailable",
+      "linkingText": [
+        "\"synthesis-unavailable\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "SpeechSynthesisErrorCode"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechsynthesiserrorevent-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#speechsynthesiserrorevent-attributes",
+        "title": "SpeechSynthesisErrorEvent Attributes",
+        "number": "4.2.7"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesiserrorcode-synthesis-failed",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesiserrorcode-synthesis-failed",
+      "linkingText": [
+        "\"synthesis-failed\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "SpeechSynthesisErrorCode"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechsynthesiserrorevent-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#speechsynthesiserrorevent-attributes",
+        "title": "SpeechSynthesisErrorEvent Attributes",
+        "number": "4.2.7"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesiserrorcode-language-unavailable",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesiserrorcode-language-unavailable",
+      "linkingText": [
+        "\"language-unavailable\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "SpeechSynthesisErrorCode"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechsynthesiserrorevent-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#speechsynthesiserrorevent-attributes",
+        "title": "SpeechSynthesisErrorEvent Attributes",
+        "number": "4.2.7"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesiserrorcode-voice-unavailable",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesiserrorcode-voice-unavailable",
+      "linkingText": [
+        "\"voice-unavailable\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "SpeechSynthesisErrorCode"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechsynthesiserrorevent-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#speechsynthesiserrorevent-attributes",
+        "title": "SpeechSynthesisErrorEvent Attributes",
+        "number": "4.2.7"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesiserrorcode-text-too-long",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesiserrorcode-text-too-long",
+      "linkingText": [
+        "\"text-too-long\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "SpeechSynthesisErrorCode"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechsynthesiserrorevent-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#speechsynthesiserrorevent-attributes",
+        "title": "SpeechSynthesisErrorEvent Attributes",
+        "number": "4.2.7"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesiserrorcode-invalid-argument",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesiserrorcode-invalid-argument",
+      "linkingText": [
+        "\"invalid-argument\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "SpeechSynthesisErrorCode"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechsynthesiserrorevent-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#speechsynthesiserrorevent-attributes",
+        "title": "SpeechSynthesisErrorEvent Attributes",
+        "number": "4.2.7"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesiserrorcode-not-allowed",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesiserrorcode-not-allowed",
+      "linkingText": [
+        "\"not-allowed\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "SpeechSynthesisErrorCode"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechsynthesiserrorevent-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#speechsynthesiserrorevent-attributes",
+        "title": "SpeechSynthesisErrorEvent Attributes",
+        "number": "4.2.7"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesisvoice-voiceuri",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesisvoice-voiceuri",
+      "linkingText": [
+        "voiceURI"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechSynthesisVoice"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechsynthesisvoice-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#speechsynthesisvoice-attributes",
+        "title": "SpeechSynthesisVoice Attributes",
+        "number": "4.2.8"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesisvoice-name",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesisvoice-name",
+      "linkingText": [
+        "name"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechSynthesisVoice"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechsynthesisvoice-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#speechsynthesisvoice-attributes",
+        "title": "SpeechSynthesisVoice Attributes",
+        "number": "4.2.8"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesisvoice-lang",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesisvoice-lang",
+      "linkingText": [
+        "lang"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechSynthesisVoice"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechsynthesisvoice-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#speechsynthesisvoice-attributes",
+        "title": "SpeechSynthesisVoice Attributes",
+        "number": "4.2.8"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesisvoice-localservice",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesisvoice-localservice",
+      "linkingText": [
+        "localService"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechSynthesisVoice"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechsynthesisvoice-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#speechsynthesisvoice-attributes",
+        "title": "SpeechSynthesisVoice Attributes",
+        "number": "4.2.8"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-speechsynthesisvoice-default",
+      "href": "https://webaudio.github.io/web-speech-api/#dom-speechsynthesisvoice-default",
+      "linkingText": [
+        "default"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SpeechSynthesisVoice"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "speechsynthesisvoice-attributes",
+        "href": "https://webaudio.github.io/web-speech-api/#speechsynthesisvoice-attributes",
+        "title": "SpeechSynthesisVoice Attributes",
+        "number": "4.2.8"
+      },
+      "definedIn": "dt",
+      "links": []
+    }
+  ]
+}

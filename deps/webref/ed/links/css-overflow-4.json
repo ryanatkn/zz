@@ -1,0 +1,367 @@
+{
+  "spec": {
+    "title": "CSS Overflow Module Level 4",
+    "url": "https://drafts.csswg.org/css-overflow-4/"
+  },
+  "links": {
+    "rawlinks": {
+      "http://lists.w3.org/Archives/Public/public-css-testsuite": {},
+      "http://lists.w3.org/Archives/Public/www-style/": {},
+      "http://www.w3.org/Style/CSS/Test/": {},
+      "http://www.w3.org/TR/CSS/": {
+        "anchors": [
+          "future-proofing",
+          "unstable",
+          "proprietary-extension"
+        ]
+      },
+      "http://www.w3.org/TR/CSS21/conform.html": {
+        "anchors": [
+          "style-sheet",
+          "user-agent",
+          "ignore"
+        ]
+      },
+      "https://caniuse.com/": {
+        "anchors": [
+          "feat=text-overflow"
+        ]
+      },
+      "https://compat.spec.whatwg.org/": {},
+      "https://datatracker.ietf.org/doc/html/rfc2119": {},
+      "https://developer.mozilla.org/en-US/docs/Web/CSS/-webkit-line-clamp": {},
+      "https://drafts.csswg.org/css-backgrounds-3/": {
+        "anchors": [
+          "corner-shaping",
+          "shadow-shape"
+        ]
+      },
+      "https://drafts.csswg.org/css-backgrounds/": {},
+      "https://drafts.csswg.org/css-box-4/": {},
+      "https://drafts.csswg.org/css-break-3/": {
+        "anchors": [
+          "varying-size-boxes"
+        ]
+      },
+      "https://drafts.csswg.org/css-break-4/": {},
+      "https://drafts.csswg.org/css-break/": {},
+      "https://drafts.csswg.org/css-cascade-5/": {},
+      "https://drafts.csswg.org/css-display/": {},
+      "https://drafts.csswg.org/css-flexbox-1/": {},
+      "https://drafts.csswg.org/css-inline-3/": {},
+      "https://drafts.csswg.org/css-logical-1/": {
+        "anchors": [
+          "logical-property-group"
+        ]
+      },
+      "https://drafts.csswg.org/css-multicol-2/": {},
+      "https://drafts.csswg.org/css-multicol/": {},
+      "https://drafts.csswg.org/css-overflow-3/": {
+        "anchors": [
+          "overflow-properties",
+          "auto-ellipsis",
+          "overflow-concepts"
+        ]
+      },
+      "https://drafts.csswg.org/css-overflow-4/": {},
+      "https://drafts.csswg.org/css-page-3/": {},
+      "https://drafts.csswg.org/css-position-3/": {},
+      "https://drafts.csswg.org/css-pseudo-4/": {},
+      "https://drafts.csswg.org/css-regions/": {},
+      "https://drafts.csswg.org/css-sizing-3/": {},
+      "https://drafts.csswg.org/css-syntax/": {},
+      "https://drafts.csswg.org/css-text-3/": {},
+      "https://drafts.csswg.org/css-text-4/": {},
+      "https://drafts.csswg.org/css-ui-4/": {},
+      "https://drafts.csswg.org/css-values-3/": {},
+      "https://drafts.csswg.org/css-values-4/": {},
+      "https://drafts.csswg.org/css-writing-modes-3/": {},
+      "https://drafts.csswg.org/css-writing-modes-4/": {},
+      "https://drafts.csswg.org/css2/": {},
+      "https://drafts.fxtf.org/css-masking-1/": {},
+      "https://github.com/w3c/csswg-drafts/issues": {},
+      "https://github.com/w3c/csswg-drafts/issues/10323": {},
+      "https://github.com/w3c/csswg-drafts/issues/10324": {},
+      "https://github.com/w3c/csswg-drafts/issues/2970": {},
+      "https://github.com/w3c/csswg-drafts/issues/2971": {},
+      "https://github.com/w3c/csswg-drafts/issues/7058": {},
+      "https://github.com/w3c/csswg-drafts/issues/7144": {},
+      "https://github.com/w3c/csswg-drafts/issues/7245": {},
+      "https://github.com/w3c/csswg-drafts/issues/7708": {},
+      "https://github.com/w3c/csswg-drafts/issues/9368": {},
+      "https://github.com/w3c/csswg-drafts/issues/9815": {},
+      "https://lists.w3.org/Archives/Public/public-css-archive/": {},
+      "https://lists.w3.org/Archives/Public/www-style/": {},
+      "https://lists.w3.org/Archives/Public/www-style/2018Jul/0030.html": {},
+      "https://medium.com/mofed/css-line-clamp-the-good-the-bad-and-the-straight-up-broken-865413f16e5": {},
+      "https://www.unicode.org/reports/tr29/tr29-45.html": {},
+      "https://www.w3.org/TR/2017/WD-css-overflow-4-20170613/": {},
+      "https://www.w3.org/TR/CSS/": {},
+      "https://www.w3.org/TR/CSS2/": {},
+      "https://www.w3.org/TR/CSS2/about.html": {
+        "anchors": [
+          "property-defs"
+        ]
+      },
+      "https://www.w3.org/TR/CSS2/visudet.html": {
+        "anchors": [
+          "leading"
+        ]
+      },
+      "https://www.w3.org/TR/CSS2/visuren.html": {
+        "anchors": [
+          "inline-boxes"
+        ]
+      },
+      "https://www.w3.org/TR/css-break-3/": {
+        "anchors": [
+          "parallel-flows"
+        ]
+      },
+      "https://www.w3.org/TR/css-cascade/": {
+        "anchors": [
+          "initial-values",
+          "applies-to",
+          "inherited-property",
+          "computed"
+        ]
+      },
+      "https://www.w3.org/TR/css-overflow-3/": {},
+      "https://www.w3.org/TR/css-overflow-4/": {
+        "anchors": [
+          "fragmentation"
+        ]
+      },
+      "https://www.w3.org/TR/css-pseudo/": {
+        "anchors": [
+          "generated-content"
+        ]
+      },
+      "https://www.w3.org/TR/css-text-3/": {
+        "anchors": [
+          "justification"
+        ]
+      },
+      "https://www.w3.org/TR/css-values-3/": {
+        "anchors": [
+          "value-defs"
+        ]
+      },
+      "https://www.w3.org/TR/css-values/": {
+        "anchors": [
+          "value-defs",
+          "percentages"
+        ]
+      },
+      "https://www.w3.org/TR/cssom/": {
+        "anchors": [
+          "serializing-css-values"
+        ]
+      },
+      "https://www.w3.org/TR/web-animations/": {
+        "anchors": [
+          "animation-type"
+        ]
+      },
+      "https://www.w3.org/policies/process/20231103/": {}
+    },
+    "autolinks": {
+      "https://compat.spec.whatwg.org/": {
+        "anchors": [
+          "valdef-flex--webkit-box",
+          "valdef-flex--webkit-inline-box",
+          "propdef--webkit-box-orient"
+        ]
+      },
+      "https://drafts.csswg.org/css-backgrounds-3/": {
+        "anchors": [
+          "box-shadow-outer-box-shadow"
+        ]
+      },
+      "https://drafts.csswg.org/css-box-4/": {
+        "anchors": [
+          "typedef-visual-box",
+          "propdef-margin",
+          "border-edge"
+        ]
+      },
+      "https://drafts.csswg.org/css-break-3/": {
+        "anchors": [
+          "propdef-orphans",
+          "propdef-break-inside",
+          "propdef-break-before",
+          "propdef-break-after"
+        ]
+      },
+      "https://drafts.csswg.org/css-break-4/": {
+        "anchors": [
+          "region-break",
+          "fragmentation-container",
+          "fragmentation-context",
+          "propdef-widows",
+          "fragmentation-break",
+          "forced-break",
+          "unforced-break",
+          "fragmented-flow"
+        ]
+      },
+      "https://drafts.csswg.org/css-cascade-5/": {
+        "anchors": [
+          "shorthand-property",
+          "used-value",
+          "cascade-origin-ua",
+          "longhand",
+          "specified-value",
+          "computed-value"
+        ]
+      },
+      "https://drafts.csswg.org/css-display-4/": {
+        "anchors": [
+          "replaced-element",
+          "inline-formatting-context",
+          "block-container",
+          "block-formatting-context",
+          "propdef-display",
+          "in-flow",
+          "independent-formatting-context",
+          "establish-an-independent-formatting-context",
+          "propdef-visibility",
+          "valdef-display-flow-root",
+          "bfc",
+          "valdef-display-inline-block",
+          "block-level",
+          "block-formatting-context-root",
+          "invisible-box",
+          "containing-block-chain"
+        ]
+      },
+      "https://drafts.csswg.org/css-flexbox-1/": {
+        "anchors": [
+          "flex-container"
+        ]
+      },
+      "https://drafts.csswg.org/css-inline-3/": {
+        "anchors": [
+          "root-inline-box",
+          "line-box"
+        ]
+      },
+      "https://drafts.csswg.org/css-multicol-1/": {
+        "anchors": [
+          "overflow-columns"
+        ]
+      },
+      "https://drafts.csswg.org/css-multicol-2/": {
+        "anchors": [
+          "multi-column-container"
+        ]
+      },
+      "https://drafts.csswg.org/css-overflow-3/": {
+        "anchors": [
+          "propdef-overflow-x",
+          "propdef-overflow-y",
+          "propdef-overflow",
+          "valdef-overflow-visible",
+          "valdef-overflow-clip",
+          "scrollable-overflow",
+          "ink-overflow",
+          "propdef-scrollbar-gutter",
+          "overlay-scrollbars",
+          "scrollbar-gutter",
+          "valdef-overflow-scroll",
+          "valdef-overflow-hidden",
+          "valdef-overflow-auto",
+          "scroll-container",
+          "valdef-scrollbar-gutter-auto",
+          "valdef-scrollbar-gutter-stable"
+        ]
+      },
+      "https://drafts.csswg.org/css-position-3/": {
+        "anchors": [
+          "positioned-box",
+          "absolute-position"
+        ]
+      },
+      "https://drafts.csswg.org/css-pseudo-4/": {
+        "anchors": [
+          "selectordef-first-letter",
+          "selectordef-first-line"
+        ]
+      },
+      "https://drafts.csswg.org/css-sizing-3/": {
+        "anchors": [
+          "min-content",
+          "max-content",
+          "automatic-block-size",
+          "min-content-inline-size"
+        ]
+      },
+      "https://drafts.csswg.org/css-syntax-3/": {
+        "anchors": [
+          "css-ignored"
+        ]
+      },
+      "https://drafts.csswg.org/css-text-4/": {
+        "anchors": [
+          "content-language",
+          "soft-wrap-opportunity",
+          "propdef-overflow-wrap"
+        ]
+      },
+      "https://drafts.csswg.org/css-values-4/": {
+        "anchors": [
+          "css-wide-keywords",
+          "comb-any",
+          "length-value",
+          "comb-one",
+          "string-value",
+          "mult-num-range",
+          "typedef-length-percentage",
+          "percentage-value",
+          "integer-value",
+          "mult-opt",
+          "comb-all"
+        ]
+      },
+      "https://drafts.csswg.org/css-writing-modes-3/": {
+        "anchors": [
+          "propdef-direction",
+          "physical-left",
+          "propdef-unicode-bidi"
+        ]
+      },
+      "https://drafts.csswg.org/css-writing-modes-4/": {
+        "anchors": [
+          "css-end",
+          "line-left",
+          "line-right",
+          "css-start",
+          "writing-mode",
+          "block-dimension",
+          "inline-size",
+          "block-size"
+        ]
+      },
+      "https://drafts.csswg.org/css2/": {
+        "anchors": [
+          "propdef-line-height"
+        ]
+      },
+      "https://drafts.fxtf.org/css-masking-1/": {
+        "anchors": [
+          "propdef-mask-image"
+        ]
+      },
+      "https://www.w3.org/TR/CSS21/visudet.html": {
+        "anchors": [
+          "strut"
+        ]
+      },
+      "https://www.w3.org/TR/css-overflow-4/": {
+        "anchors": [
+          "valdef-scrollbar-gutter-force"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,840 @@
+{
+  "spec": {
+    "title": "Decentralized Identifiers (DIDs) v1.1",
+    "url": "https://www.w3.org/TR/did-1.1/"
+  },
+  "dfns": [
+    {
+      "id": "dfn-conforming-did",
+      "href": "https://www.w3.org/TR/did-1.1/#dfn-conforming-did",
+      "linkingText": [
+        "conforming DID"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "conformance",
+        "href": "https://www.w3.org/TR/did-1.1/#conformance",
+        "title": "Conformance",
+        "alternateIds": [
+          "x1-4-conformance"
+        ],
+        "number": "1.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-conforming-did-document",
+      "href": "https://www.w3.org/TR/did-1.1/#dfn-conforming-did-document",
+      "linkingText": [
+        "conforming DID document"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": true,
+      "heading": {
+        "id": "conformance",
+        "href": "https://www.w3.org/TR/did-1.1/#conformance",
+        "title": "Conformance",
+        "alternateIds": [
+          "x1-4-conformance"
+        ],
+        "number": "1.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-conforming-producer",
+      "href": "https://www.w3.org/TR/did-1.1/#dfn-conforming-producer",
+      "linkingText": [
+        "conforming producer"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "conformance",
+        "href": "https://www.w3.org/TR/did-1.1/#conformance",
+        "title": "Conformance",
+        "alternateIds": [
+          "x1-4-conformance"
+        ],
+        "number": "1.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-conforming-consumer",
+      "href": "https://www.w3.org/TR/did-1.1/#dfn-conforming-consumer",
+      "linkingText": [
+        "conforming consumer"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "conformance",
+        "href": "https://www.w3.org/TR/did-1.1/#conformance",
+        "title": "Conformance",
+        "alternateIds": [
+          "x1-4-conformance"
+        ],
+        "number": "1.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-conforming-did-method",
+      "href": "https://www.w3.org/TR/did-1.1/#dfn-conforming-did-method",
+      "linkingText": [
+        "conforming DID method"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": true,
+      "heading": {
+        "id": "conformance",
+        "href": "https://www.w3.org/TR/did-1.1/#conformance",
+        "title": "Conformance",
+        "alternateIds": [
+          "x1-4-conformance"
+        ],
+        "number": "1.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-amplification",
+      "href": "https://www.w3.org/TR/did-1.1/#dfn-amplification",
+      "linkingText": [
+        "amplification",
+        "amplification attack"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/did-1.1/#terminology",
+        "title": "Terminology",
+        "alternateIds": [
+          "x2-terminology"
+        ],
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-decentralized-identifiers",
+      "href": "https://www.w3.org/TR/did-1.1/#dfn-decentralized-identifiers",
+      "linkingText": [
+        "decentralized identifiers",
+        "DID",
+        "DIDs",
+        "decentralized identifier"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": true,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/did-1.1/#terminology",
+        "title": "Terminology",
+        "alternateIds": [
+          "x2-terminology"
+        ],
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-did-controllers",
+      "href": "https://www.w3.org/TR/did-1.1/#dfn-did-controllers",
+      "linkingText": [
+        "did controllers",
+        "did controller(s)",
+        "DID controller"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": true,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/did-1.1/#terminology",
+        "title": "Terminology",
+        "alternateIds": [
+          "x2-terminology"
+        ],
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-did-delegate",
+      "href": "https://www.w3.org/TR/did-1.1/#dfn-did-delegate",
+      "linkingText": [
+        "DID delegate"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/did-1.1/#terminology",
+        "title": "Terminology",
+        "alternateIds": [
+          "x2-terminology"
+        ],
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-did-documents",
+      "href": "https://www.w3.org/TR/did-1.1/#dfn-did-documents",
+      "linkingText": [
+        "DID documents",
+        "DID document"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": true,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/did-1.1/#terminology",
+        "title": "Terminology",
+        "alternateIds": [
+          "x2-terminology"
+        ],
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-did-fragments",
+      "href": "https://www.w3.org/TR/did-1.1/#dfn-did-fragments",
+      "linkingText": [
+        "DID fragments",
+        "DID fragment"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/did-1.1/#terminology",
+        "title": "Terminology",
+        "alternateIds": [
+          "x2-terminology"
+        ],
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-did-methods",
+      "href": "https://www.w3.org/TR/did-1.1/#dfn-did-methods",
+      "linkingText": [
+        "DID methods",
+        "DID method"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": true,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/did-1.1/#terminology",
+        "title": "Terminology",
+        "alternateIds": [
+          "x2-terminology"
+        ],
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-did-paths",
+      "href": "https://www.w3.org/TR/did-1.1/#dfn-did-paths",
+      "linkingText": [
+        "DID paths",
+        "DID path"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/did-1.1/#terminology",
+        "title": "Terminology",
+        "alternateIds": [
+          "x2-terminology"
+        ],
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-did-queries",
+      "href": "https://www.w3.org/TR/did-1.1/#dfn-did-queries",
+      "linkingText": [
+        "DID queries",
+        "DID query"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/did-1.1/#terminology",
+        "title": "Terminology",
+        "alternateIds": [
+          "x2-terminology"
+        ],
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-did-resolution",
+      "href": "https://www.w3.org/TR/did-1.1/#dfn-did-resolution",
+      "linkingText": [
+        "DID resolution"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": true,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/did-1.1/#terminology",
+        "title": "Terminology",
+        "alternateIds": [
+          "x2-terminology"
+        ],
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-did-resolvers",
+      "href": "https://www.w3.org/TR/did-1.1/#dfn-did-resolvers",
+      "linkingText": [
+        "DID resolvers",
+        "DID resolver"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": true,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/did-1.1/#terminology",
+        "title": "Terminology",
+        "alternateIds": [
+          "x2-terminology"
+        ],
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-did-schemes",
+      "href": "https://www.w3.org/TR/did-1.1/#dfn-did-schemes",
+      "linkingText": [
+        "DID schemes",
+        "DID method scheme",
+        "DID scheme"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/did-1.1/#terminology",
+        "title": "Terminology",
+        "alternateIds": [
+          "x2-terminology"
+        ],
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-did-subjects",
+      "href": "https://www.w3.org/TR/did-1.1/#dfn-did-subjects",
+      "linkingText": [
+        "DID subjects",
+        "DID subject"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/did-1.1/#terminology",
+        "title": "Terminology",
+        "alternateIds": [
+          "x2-terminology"
+        ],
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-did-urls",
+      "href": "https://www.w3.org/TR/did-1.1/#dfn-did-urls",
+      "linkingText": [
+        "DID URLs",
+        "DID URL"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/did-1.1/#terminology",
+        "title": "Terminology",
+        "alternateIds": [
+          "x2-terminology"
+        ],
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-did-url-dereferencing",
+      "href": "https://www.w3.org/TR/did-1.1/#dfn-did-url-dereferencing",
+      "linkingText": [
+        "DID URL dereferencing"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/did-1.1/#terminology",
+        "title": "Terminology",
+        "alternateIds": [
+          "x2-terminology"
+        ],
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-did-url-dereferencers",
+      "href": "https://www.w3.org/TR/did-1.1/#dfn-did-url-dereferencers",
+      "linkingText": [
+        "DID URL dereferencers",
+        "DID URL dereferencer"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/did-1.1/#terminology",
+        "title": "Terminology",
+        "alternateIds": [
+          "x2-terminology"
+        ],
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-distributed-ledger-technology",
+      "href": "https://www.w3.org/TR/did-1.1/#dfn-distributed-ledger-technology",
+      "linkingText": [
+        "distributed ledger technology",
+        "DLT",
+        "distributed ledger"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/did-1.1/#terminology",
+        "title": "Terminology",
+        "alternateIds": [
+          "x2-terminology"
+        ],
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-resources",
+      "href": "https://www.w3.org/TR/did-1.1/#dfn-resources",
+      "linkingText": [
+        "resources",
+        "resource"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/did-1.1/#terminology",
+        "title": "Terminology",
+        "alternateIds": [
+          "x2-terminology"
+        ],
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-representations",
+      "href": "https://www.w3.org/TR/did-1.1/#dfn-representations",
+      "linkingText": [
+        "representations",
+        "representation"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/did-1.1/#terminology",
+        "title": "Terminology",
+        "alternateIds": [
+          "x2-terminology"
+        ],
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-representation-specific-entry",
+      "href": "https://www.w3.org/TR/did-1.1/#dfn-representation-specific-entry",
+      "linkingText": [
+        "representation-specific entry",
+        "non-representation-specific entry",
+        "representation-specific entries"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/did-1.1/#terminology",
+        "title": "Terminology",
+        "alternateIds": [
+          "x2-terminology"
+        ],
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-service",
+      "href": "https://www.w3.org/TR/did-1.1/#dfn-service",
+      "linkingText": [
+        "service"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/did-1.1/#terminology",
+        "title": "Terminology",
+        "alternateIds": [
+          "x2-terminology"
+        ],
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-service-endpoints",
+      "href": "https://www.w3.org/TR/did-1.1/#dfn-service-endpoints",
+      "linkingText": [
+        "service endpoints",
+        "service endpoint"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/did-1.1/#terminology",
+        "title": "Terminology",
+        "alternateIds": [
+          "x2-terminology"
+        ],
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-uri",
+      "href": "https://www.w3.org/TR/did-1.1/#dfn-uri",
+      "linkingText": [
+        "URI",
+        "URIs",
+        "Uniform Resource Identifier"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/did-1.1/#terminology",
+        "title": "Terminology",
+        "alternateIds": [
+          "x2-terminology"
+        ],
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-verifiable-data-registry",
+      "href": "https://www.w3.org/TR/did-1.1/#dfn-verifiable-data-registry",
+      "linkingText": [
+        "verifiable data registry",
+        "verifiable data registries"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": true,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/did-1.1/#terminology",
+        "title": "Terminology",
+        "alternateIds": [
+          "x2-terminology"
+        ],
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-verifiable-timestamp",
+      "href": "https://www.w3.org/TR/did-1.1/#dfn-verifiable-timestamp",
+      "linkingText": [
+        "verifiable timestamp"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/did-1.1/#terminology",
+        "title": "Terminology",
+        "alternateIds": [
+          "x2-terminology"
+        ],
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-datetime",
+      "href": "https://www.w3.org/TR/did-1.1/#dfn-datetime",
+      "linkingText": [
+        "datetime"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "data-model",
+        "href": "https://www.w3.org/TR/did-1.1/#data-model",
+        "title": "Data Model",
+        "alternateIds": [
+          "x4-data-model"
+        ],
+        "number": "4"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dfn-integer",
+      "href": "https://www.w3.org/TR/did-1.1/#dfn-integer",
+      "linkingText": [
+        "integer"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "data-model",
+        "href": "https://www.w3.org/TR/did-1.1/#data-model",
+        "title": "Data Model",
+        "alternateIds": [
+          "x4-data-model"
+        ],
+        "number": "4"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dfn-double",
+      "href": "https://www.w3.org/TR/did-1.1/#dfn-double",
+      "linkingText": [
+        "double"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "data-model",
+        "href": "https://www.w3.org/TR/did-1.1/#data-model",
+        "title": "Data Model",
+        "alternateIds": [
+          "x4-data-model"
+        ],
+        "number": "4"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dfn-production",
+      "href": "https://www.w3.org/TR/did-1.1/#dfn-production",
+      "linkingText": [
+        "production"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "representations",
+        "href": "https://www.w3.org/TR/did-1.1/#representations",
+        "title": "Representations",
+        "alternateIds": [
+          "x6-representations"
+        ],
+        "number": "6"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-consumption",
+      "href": "https://www.w3.org/TR/did-1.1/#dfn-consumption",
+      "linkingText": [
+        "consumption"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "representations",
+        "href": "https://www.w3.org/TR/did-1.1/#representations",
+        "title": "Representations",
+        "alternateIds": [
+          "x6-representations"
+        ],
+        "number": "6"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

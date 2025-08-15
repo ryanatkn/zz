@@ -1,0 +1,260 @@
+{
+  "spec": {
+    "title": "Server Timing",
+    "url": "https://www.w3.org/TR/server-timing/"
+  },
+  "dfns": [
+    {
+      "id": "dfn-server-timing-header-field",
+      "href": "https://www.w3.org/TR/server-timing/#dfn-server-timing-header-field",
+      "linkingText": [
+        "Server-Timing header field"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-server-timing-header-field",
+        "href": "https://www.w3.org/TR/server-timing/#the-server-timing-header-field",
+        "title": "The Server-Timing Header Field",
+        "alternateIds": [
+          "x3-the-server-timing-header-field"
+        ],
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-parse-a-server-timing-header-field",
+      "href": "https://www.w3.org/TR/server-timing/#dfn-parse-a-server-timing-header-field",
+      "linkingText": [
+        "parse a server-timing header field"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-server-timing-header-field",
+        "href": "https://www.w3.org/TR/server-timing/#the-server-timing-header-field",
+        "title": "The Server-Timing Header Field",
+        "alternateIds": [
+          "x3-the-server-timing-header-field"
+        ],
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-performanceservertiming",
+      "href": "https://www.w3.org/TR/server-timing/#dom-performanceservertiming",
+      "linkingText": [
+        "PerformanceServerTiming"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-performanceservertiming-interface",
+        "href": "https://www.w3.org/TR/server-timing/#the-performanceservertiming-interface",
+        "title": "The PerformanceServerTiming Interface",
+        "alternateIds": [
+          "x4-the-performanceservertiming-interface"
+        ],
+        "number": "4"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dom-performanceservertiming-tojson",
+      "href": "https://www.w3.org/TR/server-timing/#dom-performanceservertiming-tojson",
+      "linkingText": [
+        "toJSON()"
+      ],
+      "localLinkingText": [
+        "PerformanceServerTiming.toJSON",
+        "PerformanceServerTiming.toJSON()",
+        "toJSON"
+      ],
+      "type": "method",
+      "for": [
+        "PerformanceServerTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-performanceservertiming-interface",
+        "href": "https://www.w3.org/TR/server-timing/#the-performanceservertiming-interface",
+        "title": "The PerformanceServerTiming Interface",
+        "alternateIds": [
+          "x4-the-performanceservertiming-interface"
+        ],
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-performanceservertiming-name",
+      "href": "https://www.w3.org/TR/server-timing/#dom-performanceservertiming-name",
+      "linkingText": [
+        "name"
+      ],
+      "localLinkingText": [
+        "PerformanceServerTiming.name"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceServerTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "name-attribute",
+        "href": "https://www.w3.org/TR/server-timing/#name-attribute",
+        "title": "name attribute",
+        "alternateIds": [
+          "x4-1-name-attribute"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dom-performanceservertiming-duration",
+      "href": "https://www.w3.org/TR/server-timing/#dom-performanceservertiming-duration",
+      "linkingText": [
+        "duration"
+      ],
+      "localLinkingText": [
+        "PerformanceServerTiming.duration"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceServerTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "duration-attribute",
+        "href": "https://www.w3.org/TR/server-timing/#duration-attribute",
+        "title": "duration attribute",
+        "alternateIds": [
+          "x4-2-duration-attribute"
+        ],
+        "number": "4.2"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dom-performanceservertiming-description",
+      "href": "https://www.w3.org/TR/server-timing/#dom-performanceservertiming-description",
+      "linkingText": [
+        "description"
+      ],
+      "localLinkingText": [
+        "PerformanceServerTiming.description"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceServerTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "description-attribute",
+        "href": "https://www.w3.org/TR/server-timing/#description-attribute",
+        "title": "description attribute",
+        "alternateIds": [
+          "x4-3-description-attribute"
+        ],
+        "number": "4.3"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-metric-name",
+      "href": "https://www.w3.org/TR/server-timing/#dfn-metric-name",
+      "linkingText": [
+        "metric name"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "description-attribute",
+        "href": "https://www.w3.org/TR/server-timing/#description-attribute",
+        "title": "description attribute",
+        "alternateIds": [
+          "x4-3-description-attribute"
+        ],
+        "number": "4.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-params",
+      "href": "https://www.w3.org/TR/server-timing/#dfn-params",
+      "linkingText": [
+        "params"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "description-attribute",
+        "href": "https://www.w3.org/TR/server-timing/#description-attribute",
+        "title": "description attribute",
+        "alternateIds": [
+          "x4-3-description-attribute"
+        ],
+        "number": "4.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-performanceresourcetiming-servertiming",
+      "href": "https://www.w3.org/TR/server-timing/#dom-performanceresourcetiming-servertiming",
+      "linkingText": [
+        "serverTiming"
+      ],
+      "localLinkingText": [
+        "PerformanceResourceTiming.serverTiming"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceResourceTiming"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "servertiming-attribute",
+        "href": "https://www.w3.org/TR/server-timing/#servertiming-attribute",
+        "title": "serverTiming attribute",
+        "alternateIds": [
+          "x5-1-servertiming-attribute"
+        ],
+        "number": "5.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

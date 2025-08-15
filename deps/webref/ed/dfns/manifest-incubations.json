@@ -1,0 +1,2227 @@
+{
+  "spec": {
+    "title": "Manifest Incubations",
+    "url": "https://wicg.github.io/manifest-incubations/"
+  },
+  "dfns": [
+    {
+      "id": "dfn-display_override",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-display_override",
+      "linkingText": [
+        "display_override"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "manifest"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "display_override-member",
+        "href": "https://wicg.github.io/manifest-incubations/#display_override-member",
+        "title": "display_override member",
+        "alternateIds": [
+          "x1-display_override-member"
+        ],
+        "number": "1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-controls-of-the-window",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-controls-of-the-window",
+      "linkingText": [
+        "controls of the window",
+        "Window controls"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "concepts",
+        "href": "https://wicg.github.io/manifest-incubations/#concepts",
+        "title": "Concepts",
+        "alternateIds": [
+          "x1-1-concepts"
+        ],
+        "number": "1.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-borderless",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-borderless",
+      "linkingText": [
+        "borderless"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "display mode"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "display-mode-extensions",
+        "href": "https://wicg.github.io/manifest-incubations/#display-mode-extensions",
+        "title": "Display mode extensions",
+        "alternateIds": [
+          "x1-2-display-mode-extensions"
+        ],
+        "number": "1.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-tabbed",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-tabbed",
+      "linkingText": [
+        "tabbed"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "display mode"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "display-mode-extensions",
+        "href": "https://wicg.github.io/manifest-incubations/#display-mode-extensions",
+        "title": "Display mode extensions",
+        "alternateIds": [
+          "x1-2-display-mode-extensions"
+        ],
+        "number": "1.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-draggable-region",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-draggable-region",
+      "linkingText": [
+        "draggable region",
+        "draggable regions"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "defining-draggable-regions",
+        "href": "https://wicg.github.io/manifest-incubations/#defining-draggable-regions",
+        "title": "Defining draggable regions",
+        "alternateIds": [
+          "x1-3-defining-draggable-regions"
+        ],
+        "number": "1.3"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-webkit-app-region",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-webkit-app-region",
+      "linkingText": [
+        "-webkit-app-region"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": true,
+      "heading": {
+        "id": "defining-draggable-regions",
+        "href": "https://wicg.github.io/manifest-incubations/#defining-draggable-regions",
+        "title": "Defining draggable regions",
+        "alternateIds": [
+          "x1-3-defining-draggable-regions"
+        ],
+        "number": "1.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-app-region",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-app-region",
+      "linkingText": [
+        "app-region"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "defining-draggable-regions",
+        "href": "https://wicg.github.io/manifest-incubations/#defining-draggable-regions",
+        "title": "Defining draggable regions",
+        "alternateIds": [
+          "x1-3-defining-draggable-regions"
+        ],
+        "number": "1.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-tab_strip",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-tab_strip",
+      "linkingText": [
+        "tab_strip"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "tab_strip-member",
+        "href": "https://wicg.github.io/manifest-incubations/#tab_strip-member",
+        "title": "tab_strip member",
+        "alternateIds": [
+          "x3-tab_strip-member"
+        ],
+        "number": "3"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-home_tab",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-home_tab",
+      "linkingText": [
+        "home_tab"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "home_tab-member",
+        "href": "https://wicg.github.io/manifest-incubations/#home_tab-member",
+        "title": "home_tab member",
+        "alternateIds": [
+          "x3-1-home_tab-member"
+        ],
+        "number": "3.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-scope_patterns",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-scope_patterns",
+      "linkingText": [
+        "scope_patterns"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "home_tab-member",
+        "href": "https://wicg.github.io/manifest-incubations/#home_tab-member",
+        "title": "home_tab member",
+        "alternateIds": [
+          "x3-1-home_tab-member"
+        ],
+        "number": "3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-has-a-home-tab",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-has-a-home-tab",
+      "linkingText": [
+        "has a home tab"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "home_tab-member",
+        "href": "https://wicg.github.io/manifest-incubations/#home_tab-member",
+        "title": "home_tab member",
+        "alternateIds": [
+          "x3-1-home_tab-member"
+        ],
+        "number": "3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-home-tab-context",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-home-tab-context",
+      "linkingText": [
+        "home tab context"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "home_tab-member",
+        "href": "https://wicg.github.io/manifest-incubations/#home_tab-member",
+        "title": "home_tab member",
+        "alternateIds": [
+          "x3-1-home_tab-member"
+        ],
+        "number": "3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-within-home-tab-scope",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-within-home-tab-scope",
+      "linkingText": [
+        "within home tab scope"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "home_tab-member",
+        "href": "https://wicg.github.io/manifest-incubations/#home_tab-member",
+        "title": "home_tab member",
+        "alternateIds": [
+          "x3-1-home_tab-member"
+        ],
+        "number": "3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-outside-of-home-tab-scope",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-outside-of-home-tab-scope",
+      "linkingText": [
+        "outside of home tab scope"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "home_tab-member",
+        "href": "https://wicg.github.io/manifest-incubations/#home_tab-member",
+        "title": "home_tab member",
+        "alternateIds": [
+          "x3-1-home_tab-member"
+        ],
+        "number": "3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-new_tab_button",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-new_tab_button",
+      "linkingText": [
+        "new_tab_button"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "new_tab_button-member",
+        "href": "https://wicg.github.io/manifest-incubations/#new_tab_button-member",
+        "title": "new_tab_button member",
+        "alternateIds": [
+          "x3-2-new_tab_button-member"
+        ],
+        "number": "3.2"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-url",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-url",
+      "linkingText": [
+        "url"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "new_tab_button"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "new_tab_button-member",
+        "href": "https://wicg.github.io/manifest-incubations/#new_tab_button-member",
+        "title": "new_tab_button member",
+        "alternateIds": [
+          "x3-2-new_tab_button-member"
+        ],
+        "number": "3.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-has-a-new-tab-button",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-has-a-new-tab-button",
+      "linkingText": [
+        "has a new tab button"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "new_tab_button-member",
+        "href": "https://wicg.github.io/manifest-incubations/#new_tab_button-member",
+        "title": "new_tab_button member",
+        "alternateIds": [
+          "x3-2-new_tab_button-member"
+        ],
+        "number": "3.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-process-the-tab_strip-member",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-process-the-tab_strip-member",
+      "linkingText": [
+        "process the tab_strip member"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "processing-the-tab_strip-member",
+        "href": "https://wicg.github.io/manifest-incubations/#processing-the-tab_strip-member",
+        "title": "Processing the tab_strip member",
+        "alternateIds": [
+          "x3-3-processing-the-tab_strip-member"
+        ],
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-process-the-home_tab-member",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-process-the-home_tab-member",
+      "linkingText": [
+        "process the home_tab member"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "processing-the-home_tab-member",
+        "href": "https://wicg.github.io/manifest-incubations/#processing-the-home_tab-member",
+        "title": "Processing the home_tab member",
+        "alternateIds": [
+          "x3-3-1-processing-the-home_tab-member"
+        ],
+        "number": "3.3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-process-the-new_tab_button-member",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-process-the-new_tab_button-member",
+      "linkingText": [
+        "process the new_tab_button member"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "processing-the-new_tab_button-member",
+        "href": "https://wicg.github.io/manifest-incubations/#processing-the-new_tab_button-member",
+        "title": "Processing the new_tab_button member",
+        "alternateIds": [
+          "x3-3-2-processing-the-new_tab_button-member"
+        ],
+        "number": "3.3.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-process-the-scope_patterns-member",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-process-the-scope_patterns-member",
+      "linkingText": [
+        "process the scope_patterns member"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "processing-the-scope_patterns-member",
+        "href": "https://wicg.github.io/manifest-incubations/#processing-the-scope_patterns-member",
+        "title": "Processing the scope_patterns member",
+        "alternateIds": [
+          "x3-3-3-processing-the-scope_patterns-member"
+        ],
+        "number": "3.3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-note_taking",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-note_taking",
+      "linkingText": [
+        "note_taking"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "note_taking-member",
+        "href": "https://wicg.github.io/manifest-incubations/#note_taking-member",
+        "title": "note_taking member",
+        "alternateIds": [
+          "x5-note_taking-member"
+        ],
+        "number": "5"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-new_note_url",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-new_note_url",
+      "linkingText": [
+        "new_note_url"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "note_taking"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "new_note_url-member",
+        "href": "https://wicg.github.io/manifest-incubations/#new_note_url-member",
+        "title": "new_note_url member",
+        "alternateIds": [
+          "x5-1-new_note_url-member"
+        ],
+        "number": "5.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-process-the-note_taking-member",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-process-the-note_taking-member",
+      "linkingText": [
+        "process the note_taking member"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "processing-the-note_taking-member",
+        "href": "https://wicg.github.io/manifest-incubations/#processing-the-note_taking-member",
+        "title": "Processing the note_taking member",
+        "alternateIds": [
+          "x5-3-processing-the-note_taking-member"
+        ],
+        "number": "5.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-process-the-new_note_url-member",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-process-the-new_note_url-member",
+      "linkingText": [
+        "process the new_note_url member"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "processing-the-new_note_url-member",
+        "href": "https://wicg.github.io/manifest-incubations/#processing-the-new_note_url-member",
+        "title": "Processing the new_note_url member",
+        "alternateIds": [
+          "x5-4-processing-the-new_note_url-member"
+        ],
+        "number": "5.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-launch-the-new_note_url",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-launch-the-new_note_url",
+      "linkingText": [
+        "launch the new_note_url"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "launching-the-new_note_url",
+        "href": "https://wicg.github.io/manifest-incubations/#launching-the-new_note_url",
+        "title": "Launching the new_note_url",
+        "alternateIds": [
+          "x5-5-launching-the-new_note_url"
+        ],
+        "number": "5.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-protocol_handlers",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-protocol_handlers",
+      "linkingText": [
+        "protocol_handlers"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "manifest"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "protocol_handlers-member",
+        "href": "https://wicg.github.io/manifest-incubations/#protocol_handlers-member",
+        "title": "protocol_handlers member",
+        "alternateIds": [
+          "x6-protocol_handlers-member"
+        ],
+        "number": "6"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-process-the-protocol_handlers-member",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-process-the-protocol_handlers-member",
+      "linkingText": [
+        "process the protocol_handlers member"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "processing-the-protocol_handlers-member",
+        "href": "https://wicg.github.io/manifest-incubations/#processing-the-protocol_handlers-member",
+        "title": "Processing the protocol_handlers member",
+        "alternateIds": [
+          "x6-1-processing-the-protocol_handlers-member"
+        ],
+        "number": "6.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-protocol-handler-description",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-protocol-handler-description",
+      "linkingText": [
+        "protocol handler description"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "protocol-handler-items",
+        "href": "https://wicg.github.io/manifest-incubations/#protocol-handler-items",
+        "title": "Protocol handler items",
+        "alternateIds": [
+          "x6-2-protocol-handler-items"
+        ],
+        "number": "6.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-protocol",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-protocol",
+      "linkingText": [
+        "protocol"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "protocol handler description"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "protocol-member",
+        "href": "https://wicg.github.io/manifest-incubations/#protocol-member",
+        "title": "protocol member",
+        "alternateIds": [
+          "x6-2-1-protocol-member"
+        ],
+        "number": "6.2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-url-0",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-url-0",
+      "linkingText": [
+        "url"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "protocol handler description"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "url-member",
+        "href": "https://wicg.github.io/manifest-incubations/#url-member",
+        "title": "url member",
+        "alternateIds": [
+          "x6-2-2-url-member"
+        ],
+        "number": "6.2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-handling-a-protocol-launch",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-handling-a-protocol-launch",
+      "linkingText": [
+        "Handling a protocol launch"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "handling-a-protocol-launch",
+        "href": "https://wicg.github.io/manifest-incubations/#handling-a-protocol-launch",
+        "title": "Handling a protocol launch",
+        "alternateIds": [
+          "x6-2-3-handling-a-protocol-launch"
+        ],
+        "number": "6.2.3"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-file_handlers",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-file_handlers",
+      "linkingText": [
+        "file_handlers"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "manifest"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "file_handlers-member",
+        "href": "https://wicg.github.io/manifest-incubations/#file_handlers-member",
+        "title": "file_handlers member",
+        "alternateIds": [
+          "x7-file_handlers-member"
+        ],
+        "number": "7"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-process-the-file_handlers-member",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-process-the-file_handlers-member",
+      "linkingText": [
+        "process the file_handlers member"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "file_handlers-member",
+        "href": "https://wicg.github.io/manifest-incubations/#file_handlers-member",
+        "title": "file_handlers member",
+        "alternateIds": [
+          "x7-file_handlers-member"
+        ],
+        "number": "7"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-file-handler",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-file-handler",
+      "linkingText": [
+        "file handler"
+      ],
+      "localLinkingText": [
+        "file handler"
+      ],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "file-handler-items",
+        "href": "https://wicg.github.io/manifest-incubations/#file-handler-items",
+        "title": "File Handler Items",
+        "alternateIds": [
+          "x7-1-file-handler-items"
+        ],
+        "number": "7.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-file-type",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-file-type",
+      "linkingText": [
+        "file type"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "file-handler-items",
+        "href": "https://wicg.github.io/manifest-incubations/#file-handler-items",
+        "title": "File Handler Items",
+        "alternateIds": [
+          "x7-1-file-handler-items"
+        ],
+        "number": "7.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-file-extension",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-file-extension",
+      "linkingText": [
+        "file extension"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "file-handler-items",
+        "href": "https://wicg.github.io/manifest-incubations/#file-handler-items",
+        "title": "File Handler Items",
+        "alternateIds": [
+          "x7-1-file-handler-items"
+        ],
+        "number": "7.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-action",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-action",
+      "linkingText": [
+        "action"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "file handler"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "action-member",
+        "href": "https://wicg.github.io/manifest-incubations/#action-member",
+        "title": "action member",
+        "alternateIds": [
+          "x7-1-1-action-member"
+        ],
+        "number": "7.1.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-name",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-name",
+      "linkingText": [
+        "name"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "file handler"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "name-member",
+        "href": "https://wicg.github.io/manifest-incubations/#name-member",
+        "title": "name member",
+        "alternateIds": [
+          "x7-1-2-name-member"
+        ],
+        "number": "7.1.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-icons",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-icons",
+      "linkingText": [
+        "icons"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "file handler"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "icons-member",
+        "href": "https://wicg.github.io/manifest-incubations/#icons-member",
+        "title": "icons member",
+        "alternateIds": [
+          "x7-1-3-icons-member"
+        ],
+        "number": "7.1.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-accept",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-accept",
+      "linkingText": [
+        "accept"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "file handler"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "accept-member",
+        "href": "https://wicg.github.io/manifest-incubations/#accept-member",
+        "title": "accept member",
+        "alternateIds": [
+          "x7-1-4-accept-member"
+        ],
+        "number": "7.1.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-launch_type",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-launch_type",
+      "linkingText": [
+        "launch_type"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "file handler"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "launch_type-member",
+        "href": "https://wicg.github.io/manifest-incubations/#launch_type-member",
+        "title": "launch_type member",
+        "alternateIds": [
+          "x7-1-5-launch_type-member"
+        ],
+        "number": "7.1.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-process-a-file-handler-item",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-process-a-file-handler-item",
+      "linkingText": [
+        "process a file handler item"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "processing-file-handler-items",
+        "href": "https://wicg.github.io/manifest-incubations/#processing-file-handler-items",
+        "title": "Processing file handler items",
+        "alternateIds": [
+          "x7-2-processing-file-handler-items"
+        ],
+        "number": "7.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-execute-a-file-handler-launch",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-execute-a-file-handler-launch",
+      "linkingText": [
+        "execute a file handler launch"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "execute-a-file-handler-launch",
+        "href": "https://wicg.github.io/manifest-incubations/#execute-a-file-handler-launch",
+        "title": "Execute a file handler launch",
+        "alternateIds": [
+          "x7-3-execute-a-file-handler-launch"
+        ],
+        "number": "7.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-register-file-handlers",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-register-file-handlers",
+      "linkingText": [
+        "register file handlers"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "registering-file-handlers",
+        "href": "https://wicg.github.io/manifest-incubations/#registering-file-handlers",
+        "title": "Registering file handlers",
+        "alternateIds": [
+          "x7-4-registering-file-handlers"
+        ],
+        "number": "7.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-related-application",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-related-application",
+      "linkingText": [
+        "related application"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "related_applications-member",
+        "href": "https://wicg.github.io/manifest-incubations/#related_applications-member",
+        "title": "related_applications member",
+        "alternateIds": [
+          "x8-related_applications-member"
+        ],
+        "number": "8"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-related_applications",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-related_applications",
+      "linkingText": [
+        "related_applications"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "manifest"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "related_applications-member",
+        "href": "https://wicg.github.io/manifest-incubations/#related_applications-member",
+        "title": "related_applications member",
+        "alternateIds": [
+          "x8-related_applications-member"
+        ],
+        "number": "8"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-process-the-related_applications-member",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-process-the-related_applications-member",
+      "linkingText": [
+        "process the related_applications member"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "related_applications-member",
+        "href": "https://wicg.github.io/manifest-incubations/#related_applications-member",
+        "title": "related_applications member",
+        "alternateIds": [
+          "x8-related_applications-member"
+        ],
+        "number": "8"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-prefer_related_applications",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-prefer_related_applications",
+      "linkingText": [
+        "prefer_related_applications"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "manifest"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "prefer_related_applications-member",
+        "href": "https://wicg.github.io/manifest-incubations/#prefer_related_applications-member",
+        "title": "prefer_related_applications member",
+        "alternateIds": [
+          "x9-prefer_related_applications-member"
+        ],
+        "number": "9"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-scope_extensions",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-scope_extensions",
+      "linkingText": [
+        "scope_extensions"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "manifest"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "scope_extensions-member",
+        "href": "https://wicg.github.io/manifest-incubations/#scope_extensions-member",
+        "title": "10. scope_extensions member",
+        "alternateIds": [
+          "x10-scope_extensions-member"
+        ]
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-scope-extension",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-scope-extension",
+      "linkingText": [
+        "scope extension"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "scope_extensions-member",
+        "href": "https://wicg.github.io/manifest-incubations/#scope_extensions-member",
+        "title": "10. scope_extensions member",
+        "alternateIds": [
+          "x10-scope_extensions-member"
+        ]
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-within-extended-scope",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-within-extended-scope",
+      "linkingText": [
+        "within extended scope"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "scope_extensions-member",
+        "href": "https://wicg.github.io/manifest-incubations/#scope_extensions-member",
+        "title": "10. scope_extensions member",
+        "alternateIds": [
+          "x10-scope_extensions-member"
+        ]
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-matches-a-validated-scope-extension",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-matches-a-validated-scope-extension",
+      "linkingText": [
+        "matches a validated scope extension"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "scope_extensions-member",
+        "href": "https://wicg.github.io/manifest-incubations/#scope_extensions-member",
+        "title": "10. scope_extensions member",
+        "alternateIds": [
+          "x10-scope_extensions-member"
+        ]
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-process-the-scope_extensions-member",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-process-the-scope_extensions-member",
+      "linkingText": [
+        "process the scope_extensions member"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "processing-the-scope_extensions-member",
+        "href": "https://wicg.github.io/manifest-incubations/#processing-the-scope_extensions-member",
+        "title": "Processing the scope_extensions member",
+        "alternateIds": [
+          "x10-2-processing-the-scope_extensions-member"
+        ],
+        "number": "10.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-web-app-origin-association",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-web-app-origin-association",
+      "linkingText": [
+        "web-app-origin-association"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "the-web-app-origin-association-file",
+        "href": "https://wicg.github.io/manifest-incubations/#the-web-app-origin-association-file",
+        "title": "The web-app-origin-association file",
+        "alternateIds": [
+          "x10-3-the-web-app-origin-association-file"
+        ],
+        "number": "10.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-validate-scope-extensions",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-validate-scope-extensions",
+      "linkingText": [
+        "validate scope extensions"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "validating-scope-extensions",
+        "href": "https://wicg.github.io/manifest-incubations/#validating-scope-extensions",
+        "title": "Validating scope extensions",
+        "alternateIds": [
+          "x10-4-validating-scope-extensions"
+        ],
+        "number": "10.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-apply-extended-scope",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-apply-extended-scope",
+      "linkingText": [
+        "apply extended scope"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "applying-scope-extensions",
+        "href": "https://wicg.github.io/manifest-incubations/#applying-scope-extensions",
+        "title": "Applying scope extensions",
+        "alternateIds": [
+          "x10-5-applying-scope-extensions"
+        ],
+        "number": "10.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-external-application-resource",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-external-application-resource",
+      "linkingText": [
+        "external application resource"
+      ],
+      "localLinkingText": [
+        "external application resource's"
+      ],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "external-application-resource",
+        "href": "https://wicg.github.io/manifest-incubations/#external-application-resource",
+        "title": "11. External application resource",
+        "alternateIds": [
+          "x11-external-application-resource"
+        ]
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-valid-external-application-resource",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-valid-external-application-resource",
+      "linkingText": [
+        "valid external application resource"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "external-application-resource",
+        "href": "https://wicg.github.io/manifest-incubations/#external-application-resource",
+        "title": "11. External application resource",
+        "alternateIds": [
+          "x11-external-application-resource"
+        ]
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-platform",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-platform",
+      "linkingText": [
+        "platform"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "external application resource"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "platform-member",
+        "href": "https://wicg.github.io/manifest-incubations/#platform-member",
+        "title": "platform member",
+        "alternateIds": [
+          "x11-1-platform-member"
+        ],
+        "number": "11.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-platform-0",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-platform-0",
+      "linkingText": [
+        "platform"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "platform-member",
+        "href": "https://wicg.github.io/manifest-incubations/#platform-member",
+        "title": "platform member",
+        "alternateIds": [
+          "x11-1-platform-member"
+        ],
+        "number": "11.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-url-1",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-url-1",
+      "linkingText": [
+        "url"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "external application resource"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "url-member-0",
+        "href": "https://wicg.github.io/manifest-incubations/#url-member-0",
+        "title": "url member",
+        "alternateIds": [
+          "x11-2-url-member"
+        ],
+        "number": "11.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-process-the-url-member-of-an-application",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-process-the-url-member-of-an-application",
+      "linkingText": [
+        "process the url member of an application"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "url-member-0",
+        "href": "https://wicg.github.io/manifest-incubations/#url-member-0",
+        "title": "url member",
+        "alternateIds": [
+          "x11-2-url-member"
+        ],
+        "number": "11.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-id",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-id",
+      "linkingText": [
+        "id"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "external application resource"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "id-member",
+        "href": "https://wicg.github.io/manifest-incubations/#id-member",
+        "title": "id member",
+        "alternateIds": [
+          "x11-3-id-member"
+        ],
+        "number": "11.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-min_version",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-min_version",
+      "linkingText": [
+        "min_version"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "external application resource"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "min_version-member",
+        "href": "https://wicg.github.io/manifest-incubations/#min_version-member",
+        "title": "min_version member",
+        "alternateIds": [
+          "x11-4-min_version-member"
+        ],
+        "number": "11.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-fingerprints",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-fingerprints",
+      "linkingText": [
+        "fingerprints"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "external application resource"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "fingerprints-member",
+        "href": "https://wicg.github.io/manifest-incubations/#fingerprints-member",
+        "title": "fingerprints member",
+        "alternateIds": [
+          "x11-5-fingerprints-member"
+        ],
+        "number": "11.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-fingerprints-0",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-fingerprints-0",
+      "linkingText": [
+        "fingerprint"
+      ],
+      "localLinkingText": [
+        "fingerprints"
+      ],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "fingerprints-member",
+        "href": "https://wicg.github.io/manifest-incubations/#fingerprints-member",
+        "title": "fingerprints member",
+        "alternateIds": [
+          "x11-5-fingerprints-member"
+        ],
+        "number": "11.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-type",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-type",
+      "linkingText": [
+        "type"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "fingerprint"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "fingerprints-member",
+        "href": "https://wicg.github.io/manifest-incubations/#fingerprints-member",
+        "title": "fingerprints member",
+        "alternateIds": [
+          "x11-5-fingerprints-member"
+        ],
+        "number": "11.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-value",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-value",
+      "linkingText": [
+        "value"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "fingerprint"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "fingerprints-member",
+        "href": "https://wicg.github.io/manifest-incubations/#fingerprints-member",
+        "title": "fingerprints member",
+        "alternateIds": [
+          "x11-5-fingerprints-member"
+        ],
+        "number": "11.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-manual-installation",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-manual-installation",
+      "linkingText": [
+        "manual installation",
+        "manually"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "installation-prompts",
+        "href": "https://wicg.github.io/manifest-incubations/#installation-prompts",
+        "title": "12. Installation prompts",
+        "alternateIds": [
+          "x12-installation-prompts"
+        ]
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-automated-install-prompt",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-automated-install-prompt",
+      "linkingText": [
+        "automated install prompt"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "installation-prompts",
+        "href": "https://wicg.github.io/manifest-incubations/#installation-prompts",
+        "title": "12. Installation prompts",
+        "alternateIds": [
+          "x12-installation-prompts"
+        ]
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-site-triggered-install-prompt",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-site-triggered-install-prompt",
+      "linkingText": [
+        "site-triggered install prompt"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "installation-prompts",
+        "href": "https://wicg.github.io/manifest-incubations/#installation-prompts",
+        "title": "12. Installation prompts",
+        "alternateIds": [
+          "x12-installation-prompts"
+        ]
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-present-an-install-prompt",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-present-an-install-prompt",
+      "linkingText": [
+        "present an install prompt"
+      ],
+      "localLinkingText": [
+        "presenting an install prompt",
+        "presentation of the install prompt"
+      ],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "installation-prompts",
+        "href": "https://wicg.github.io/manifest-incubations/#installation-prompts",
+        "title": "12. Installation prompts",
+        "alternateIds": [
+          "x12-installation-prompts"
+        ]
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-steps-to-notify-that-an-install-prompt-is-available",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-steps-to-notify-that-an-install-prompt-is-available",
+      "linkingText": [
+        "steps to notify that an install prompt is available"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "installation-prompts",
+        "href": "https://wicg.github.io/manifest-incubations/#installation-prompts",
+        "title": "12. Installation prompts",
+        "alternateIds": [
+          "x12-installation-prompts"
+        ]
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-installation",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-installation",
+      "linkingText": [
+        "Installation"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "installation-process",
+        "href": "https://wicg.github.io/manifest-incubations/#installation-process",
+        "title": "Installation process",
+        "alternateIds": [
+          "x13-1-installation-process"
+        ],
+        "number": "13.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-steps-to-install-the-web-application",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-steps-to-install-the-web-application",
+      "linkingText": [
+        "steps to install the web application"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "installation-process",
+        "href": "https://wicg.github.io/manifest-incubations/#installation-process",
+        "title": "Installation process",
+        "alternateIds": [
+          "x13-1-installation-process"
+        ],
+        "number": "13.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-installability-signal",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-installability-signal",
+      "linkingText": [
+        "installability signal"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "installability-signals-0",
+        "href": "https://wicg.github.io/manifest-incubations/#installability-signals-0",
+        "title": "Installability signals",
+        "alternateIds": [
+          "installability-signals"
+        ],
+        "number": "13.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-application-life-cycle-task-source",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-application-life-cycle-task-source",
+      "linkingText": [
+        "application life-cycle task source"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "installation-events",
+        "href": "https://wicg.github.io/manifest-incubations/#installation-events",
+        "title": "14. Installation Events",
+        "alternateIds": [
+          "x14-installation-events"
+        ]
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-beforeinstallpromptevent",
+      "href": "https://wicg.github.io/manifest-incubations/#dom-beforeinstallpromptevent",
+      "linkingText": [
+        "BeforeInstallPromptEvent"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "beforeinstallpromptevent-interface",
+        "href": "https://wicg.github.io/manifest-incubations/#beforeinstallpromptevent-interface",
+        "title": "BeforeInstallPromptEvent Interface",
+        "alternateIds": [
+          "x14-1-beforeinstallpromptevent-interface"
+        ],
+        "number": "14.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dom-beforeinstallpromptevent-constructor",
+      "href": "https://wicg.github.io/manifest-incubations/#dom-beforeinstallpromptevent-constructor",
+      "linkingText": [
+        "constructor()",
+        "constructor(type)",
+        "constructor(type, eventInitDict)"
+      ],
+      "localLinkingText": [
+        "BeforeInstallPromptEvent.constructor",
+        "BeforeInstallPromptEvent.constructor()",
+        "constructor"
+      ],
+      "type": "constructor",
+      "for": [
+        "BeforeInstallPromptEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "beforeinstallpromptevent-interface",
+        "href": "https://wicg.github.io/manifest-incubations/#beforeinstallpromptevent-interface",
+        "title": "BeforeInstallPromptEvent Interface",
+        "alternateIds": [
+          "x14-1-beforeinstallpromptevent-interface"
+        ],
+        "number": "14.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-promptresponseobject",
+      "href": "https://wicg.github.io/manifest-incubations/#dom-promptresponseobject",
+      "linkingText": [
+        "PromptResponseObject"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "beforeinstallpromptevent-interface",
+        "href": "https://wicg.github.io/manifest-incubations/#beforeinstallpromptevent-interface",
+        "title": "BeforeInstallPromptEvent Interface",
+        "alternateIds": [
+          "x14-1-beforeinstallpromptevent-interface"
+        ],
+        "number": "14.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-promptresponseobject-userchoice",
+      "href": "https://wicg.github.io/manifest-incubations/#dom-promptresponseobject-userchoice",
+      "linkingText": [
+        "userChoice"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "PromptResponseObject"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "beforeinstallpromptevent-interface",
+        "href": "https://wicg.github.io/manifest-incubations/#beforeinstallpromptevent-interface",
+        "title": "BeforeInstallPromptEvent Interface",
+        "alternateIds": [
+          "x14-1-beforeinstallpromptevent-interface"
+        ],
+        "number": "14.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-didprompt",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-didprompt",
+      "linkingText": [
+        "[[didPrompt]]"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "BeforeInstallPromptEvent"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "beforeinstallpromptevent-interface",
+        "href": "https://wicg.github.io/manifest-incubations/#beforeinstallpromptevent-interface",
+        "title": "BeforeInstallPromptEvent Interface",
+        "alternateIds": [
+          "x14-1-beforeinstallpromptevent-interface"
+        ],
+        "number": "14.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-userresponsepromise",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-userresponsepromise",
+      "linkingText": [
+        "[[userResponsePromise]]"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "BeforeInstallPromptEvent"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "beforeinstallpromptevent-interface",
+        "href": "https://wicg.github.io/manifest-incubations/#beforeinstallpromptevent-interface",
+        "title": "BeforeInstallPromptEvent Interface",
+        "alternateIds": [
+          "x14-1-beforeinstallpromptevent-interface"
+        ],
+        "number": "14.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-beforeinstallpromptevent-prompt",
+      "href": "https://wicg.github.io/manifest-incubations/#dom-beforeinstallpromptevent-prompt",
+      "linkingText": [
+        "prompt()"
+      ],
+      "localLinkingText": [
+        "BeforeInstallPromptEvent.prompt",
+        "BeforeInstallPromptEvent.prompt()",
+        "prompt"
+      ],
+      "type": "method",
+      "for": [
+        "BeforeInstallPromptEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "prompt-method",
+        "href": "https://wicg.github.io/manifest-incubations/#prompt-method",
+        "title": "prompt() method",
+        "alternateIds": [
+          "x14-1-1-prompt-method"
+        ],
+        "number": "14.1.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-request-to-present-an-install-prompt",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-request-to-present-an-install-prompt",
+      "linkingText": [
+        "request to present an install prompt"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "prompt-method",
+        "href": "https://wicg.github.io/manifest-incubations/#prompt-method",
+        "title": "prompt() method",
+        "alternateIds": [
+          "x14-1-1-prompt-method"
+        ],
+        "number": "14.1.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-appbannerpromptoutcome",
+      "href": "https://wicg.github.io/manifest-incubations/#dom-appbannerpromptoutcome",
+      "linkingText": [
+        "AppBannerPromptOutcome"
+      ],
+      "localLinkingText": [],
+      "type": "enum",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "appbannerpromptoutcome-enum",
+        "href": "https://wicg.github.io/manifest-incubations/#appbannerpromptoutcome-enum",
+        "title": "AppBannerPromptOutcome enum",
+        "alternateIds": [
+          "x14-1-3-appbannerpromptoutcome-enum"
+        ],
+        "number": "14.1.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-appbannerpromptoutcome-accepted",
+      "href": "https://wicg.github.io/manifest-incubations/#dom-appbannerpromptoutcome-accepted",
+      "linkingText": [
+        "accepted"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "AppBannerPromptOutcome"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "appbannerpromptoutcome-enum",
+        "href": "https://wicg.github.io/manifest-incubations/#appbannerpromptoutcome-enum",
+        "title": "AppBannerPromptOutcome enum",
+        "alternateIds": [
+          "x14-1-3-appbannerpromptoutcome-enum"
+        ],
+        "number": "14.1.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-appbannerpromptoutcome-dismissed",
+      "href": "https://wicg.github.io/manifest-incubations/#dom-appbannerpromptoutcome-dismissed",
+      "linkingText": [
+        "dismissed"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "AppBannerPromptOutcome"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "appbannerpromptoutcome-enum",
+        "href": "https://wicg.github.io/manifest-incubations/#appbannerpromptoutcome-enum",
+        "title": "AppBannerPromptOutcome enum",
+        "alternateIds": [
+          "x14-1-3-appbannerpromptoutcome-enum"
+        ],
+        "number": "14.1.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-window-onappinstalled",
+      "href": "https://wicg.github.io/manifest-incubations/#dom-window-onappinstalled",
+      "linkingText": [
+        "onappinstalled"
+      ],
+      "localLinkingText": [
+        "Window.onappinstalled"
+      ],
+      "type": "attribute",
+      "for": [
+        "Window"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "onappinstalled-attribute",
+        "href": "https://wicg.github.io/manifest-incubations/#onappinstalled-attribute",
+        "title": "onappinstalled attribute",
+        "alternateIds": [
+          "x14-2-1-onappinstalled-attribute"
+        ],
+        "number": "14.2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-appinstalled",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-appinstalled",
+      "linkingText": [
+        "appinstalled"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "onappinstalled-attribute",
+        "href": "https://wicg.github.io/manifest-incubations/#onappinstalled-attribute",
+        "title": "onappinstalled attribute",
+        "alternateIds": [
+          "x14-2-1-onappinstalled-attribute"
+        ],
+        "number": "14.2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-window-onbeforeinstallprompt",
+      "href": "https://wicg.github.io/manifest-incubations/#dom-window-onbeforeinstallprompt",
+      "linkingText": [
+        "onbeforeinstallprompt"
+      ],
+      "localLinkingText": [
+        "Window.onbeforeinstallprompt"
+      ],
+      "type": "attribute",
+      "for": [
+        "Window"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "onbeforeinstallprompt-attribute",
+        "href": "https://wicg.github.io/manifest-incubations/#onbeforeinstallprompt-attribute",
+        "title": "onbeforeinstallprompt attribute",
+        "alternateIds": [
+          "x14-2-2-onbeforeinstallprompt-attribute"
+        ],
+        "number": "14.2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-beforeinstallprompt",
+      "href": "https://wicg.github.io/manifest-incubations/#dfn-beforeinstallprompt",
+      "linkingText": [
+        "beforeinstallprompt"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "onbeforeinstallprompt-attribute",
+        "href": "https://wicg.github.io/manifest-incubations/#onbeforeinstallprompt-attribute",
+        "title": "onbeforeinstallprompt attribute",
+        "alternateIds": [
+          "x14-2-2-onbeforeinstallprompt-attribute"
+        ],
+        "number": "14.2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

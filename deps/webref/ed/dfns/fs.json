@@ -1,0 +1,3225 @@
+{
+  "spec": {
+    "title": "File System Standard",
+    "url": "https://fs.spec.whatwg.org/"
+  },
+  "dfns": [
+    {
+      "id": "entry",
+      "href": "https://fs.spec.whatwg.org/#entry",
+      "linkingText": [
+        "file system entry"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "concepts",
+        "href": "https://fs.spec.whatwg.org/#concepts",
+        "title": "Concepts",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "entry-query-access",
+      "href": "https://fs.spec.whatwg.org/#entry-query-access",
+      "linkingText": [
+        "query access"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "file system entry"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "concepts",
+        "href": "https://fs.spec.whatwg.org/#concepts",
+        "title": "Concepts",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "entry-request-access",
+      "href": "https://fs.spec.whatwg.org/#entry-request-access",
+      "linkingText": [
+        "request access"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "file system entry"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "concepts",
+        "href": "https://fs.spec.whatwg.org/#concepts",
+        "title": "Concepts",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "file-system-access-result",
+      "href": "https://fs.spec.whatwg.org/#file-system-access-result",
+      "linkingText": [
+        "file system access result"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "concepts",
+        "href": "https://fs.spec.whatwg.org/#concepts",
+        "title": "Concepts",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "file-system-access-result-permission-state",
+      "href": "https://fs.spec.whatwg.org/#file-system-access-result-permission-state",
+      "linkingText": [
+        "permission state"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "file system access result"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "concepts",
+        "href": "https://fs.spec.whatwg.org/#concepts",
+        "title": "Concepts",
+        "number": "2.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "file-system-access-result-error-name",
+      "href": "https://fs.spec.whatwg.org/#file-system-access-result-error-name",
+      "linkingText": [
+        "error name"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "file system access result"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "concepts",
+        "href": "https://fs.spec.whatwg.org/#concepts",
+        "title": "Concepts",
+        "number": "2.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "entry-name",
+      "href": "https://fs.spec.whatwg.org/#entry-name",
+      "linkingText": [
+        "name"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "file system entry"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "concepts",
+        "href": "https://fs.spec.whatwg.org/#concepts",
+        "title": "Concepts",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "valid-file-name",
+      "href": "https://fs.spec.whatwg.org/#valid-file-name",
+      "linkingText": [
+        "valid file name"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "concepts",
+        "href": "https://fs.spec.whatwg.org/#concepts",
+        "title": "Concepts",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "file",
+      "href": "https://fs.spec.whatwg.org/#file",
+      "linkingText": [
+        "file entry"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "concepts",
+        "href": "https://fs.spec.whatwg.org/#concepts",
+        "title": "Concepts",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "file-entry-binary-data",
+      "href": "https://fs.spec.whatwg.org/#file-entry-binary-data",
+      "linkingText": [
+        "binary data"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "file entry"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "concepts",
+        "href": "https://fs.spec.whatwg.org/#concepts",
+        "title": "Concepts",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "file-entry-modification-timestamp",
+      "href": "https://fs.spec.whatwg.org/#file-entry-modification-timestamp",
+      "linkingText": [
+        "modification timestamp"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "file entry"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "concepts",
+        "href": "https://fs.spec.whatwg.org/#concepts",
+        "title": "Concepts",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "file-entry-lock",
+      "href": "https://fs.spec.whatwg.org/#file-entry-lock",
+      "linkingText": [
+        "lock"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "file entry"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "concepts",
+        "href": "https://fs.spec.whatwg.org/#concepts",
+        "title": "Concepts",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "file-entry-shared-lock-count",
+      "href": "https://fs.spec.whatwg.org/#file-entry-shared-lock-count",
+      "linkingText": [
+        "shared lock count"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "file entry"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "concepts",
+        "href": "https://fs.spec.whatwg.org/#concepts",
+        "title": "Concepts",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "file-system-queue",
+      "href": "https://fs.spec.whatwg.org/#file-system-queue",
+      "linkingText": [
+        "file system queue"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "concepts",
+        "href": "https://fs.spec.whatwg.org/#concepts",
+        "title": "Concepts",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "file-entry-lock-take",
+      "href": "https://fs.spec.whatwg.org/#file-entry-lock-take",
+      "linkingText": [
+        "take"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "file entry/lock"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "concepts",
+        "href": "https://fs.spec.whatwg.org/#concepts",
+        "title": "Concepts",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "file-entry-lock-release",
+      "href": "https://fs.spec.whatwg.org/#file-entry-lock-release",
+      "linkingText": [
+        "release"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "file entry/lock"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "concepts",
+        "href": "https://fs.spec.whatwg.org/#concepts",
+        "title": "Concepts",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "directory",
+      "href": "https://fs.spec.whatwg.org/#directory",
+      "linkingText": [
+        "directory entry"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "concepts",
+        "href": "https://fs.spec.whatwg.org/#concepts",
+        "title": "Concepts",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "directory-entry-children",
+      "href": "https://fs.spec.whatwg.org/#directory-entry-children",
+      "linkingText": [
+        "children"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "directory entry"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "concepts",
+        "href": "https://fs.spec.whatwg.org/#concepts",
+        "title": "Concepts",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "entry-parent",
+      "href": "https://fs.spec.whatwg.org/#entry-parent",
+      "linkingText": [
+        "parent"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "file system entry"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "concepts",
+        "href": "https://fs.spec.whatwg.org/#concepts",
+        "title": "Concepts",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "file-system-entry-the-same-entry-as",
+      "href": "https://fs.spec.whatwg.org/#file-system-entry-the-same-entry-as",
+      "linkingText": [
+        "the same entry as"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "file system entry"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "concepts",
+        "href": "https://fs.spec.whatwg.org/#concepts",
+        "title": "Concepts",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "locator-resolve",
+      "href": "https://fs.spec.whatwg.org/#locator-resolve",
+      "linkingText": [
+        "resolve"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "file system locator"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "concepts",
+        "href": "https://fs.spec.whatwg.org/#concepts",
+        "title": "Concepts",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "file-system-locator",
+      "href": "https://fs.spec.whatwg.org/#file-system-locator",
+      "linkingText": [
+        "file system locator"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "concepts",
+        "href": "https://fs.spec.whatwg.org/#concepts",
+        "title": "Concepts",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "locator-path",
+      "href": "https://fs.spec.whatwg.org/#locator-path",
+      "linkingText": [
+        "path"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "file system locator"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "concepts",
+        "href": "https://fs.spec.whatwg.org/#concepts",
+        "title": "Concepts",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "locator-kind",
+      "href": "https://fs.spec.whatwg.org/#locator-kind",
+      "linkingText": [
+        "kind"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "file system locator"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "concepts",
+        "href": "https://fs.spec.whatwg.org/#concepts",
+        "title": "Concepts",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "locator-root",
+      "href": "https://fs.spec.whatwg.org/#locator-root",
+      "linkingText": [
+        "root"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "file system locator"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "concepts",
+        "href": "https://fs.spec.whatwg.org/#concepts",
+        "title": "Concepts",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "file-locator",
+      "href": "https://fs.spec.whatwg.org/#file-locator",
+      "linkingText": [
+        "file locator"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "concepts",
+        "href": "https://fs.spec.whatwg.org/#concepts",
+        "title": "Concepts",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "directory-locator",
+      "href": "https://fs.spec.whatwg.org/#directory-locator",
+      "linkingText": [
+        "directory locator"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "concepts",
+        "href": "https://fs.spec.whatwg.org/#concepts",
+        "title": "Concepts",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "file-system-root",
+      "href": "https://fs.spec.whatwg.org/#file-system-root",
+      "linkingText": [
+        "file system root"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "concepts",
+        "href": "https://fs.spec.whatwg.org/#concepts",
+        "title": "Concepts",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "file-system-locator-the-same-locator-as",
+      "href": "https://fs.spec.whatwg.org/#file-system-locator-the-same-locator-as",
+      "linkingText": [
+        "the same locator as"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "file system locator"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "concepts",
+        "href": "https://fs.spec.whatwg.org/#concepts",
+        "title": "Concepts",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "locating-an-entry",
+      "href": "https://fs.spec.whatwg.org/#locating-an-entry",
+      "linkingText": [
+        "locating an entry"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "concepts",
+        "href": "https://fs.spec.whatwg.org/#concepts",
+        "title": "Concepts",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "getting-the-locator",
+      "href": "https://fs.spec.whatwg.org/#getting-the-locator",
+      "linkingText": [
+        "getting the locator"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "concepts",
+        "href": "https://fs.spec.whatwg.org/#concepts",
+        "title": "Concepts",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "file-system-path",
+      "href": "https://fs.spec.whatwg.org/#file-system-path",
+      "linkingText": [
+        "file system path"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "concepts",
+        "href": "https://fs.spec.whatwg.org/#concepts",
+        "title": "Concepts",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "file-system-path-the-same-path-as",
+      "href": "https://fs.spec.whatwg.org/#file-system-path-the-same-path-as",
+      "linkingText": [
+        "the same path as"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "file system path"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "concepts",
+        "href": "https://fs.spec.whatwg.org/#concepts",
+        "title": "Concepts",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "enumdef-filesystemhandlekind",
+      "href": "https://fs.spec.whatwg.org/#enumdef-filesystemhandlekind",
+      "linkingText": [
+        "FileSystemHandleKind"
+      ],
+      "localLinkingText": [],
+      "type": "enum",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemhandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemhandle",
+        "title": "The FileSystemHandle interface",
+        "number": "2.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-filesystemhandlekind-file",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemhandlekind-file",
+      "linkingText": [
+        "\"file\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "FileSystemHandleKind"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemhandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemhandle",
+        "title": "The FileSystemHandle interface",
+        "number": "2.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-filesystemhandlekind-directory",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemhandlekind-directory",
+      "linkingText": [
+        "\"directory\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "FileSystemHandleKind"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemhandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemhandle",
+        "title": "The FileSystemHandle interface",
+        "number": "2.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "filesystemhandle",
+      "href": "https://fs.spec.whatwg.org/#filesystemhandle",
+      "linkingText": [
+        "FileSystemHandle"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemhandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemhandle",
+        "title": "The FileSystemHandle interface",
+        "number": "2.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-filesystemhandle-issameentry-other-other",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemhandle-issameentry-other-other",
+      "linkingText": [
+        "other"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "FileSystemHandle/isSameEntry(other)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemhandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemhandle",
+        "title": "The FileSystemHandle interface",
+        "number": "2.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "filesystemhandle-locator",
+      "href": "https://fs.spec.whatwg.org/#filesystemhandle-locator",
+      "linkingText": [
+        "locator"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "FileSystemHandle"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemhandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemhandle",
+        "title": "The FileSystemHandle interface",
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "filesystemhandle-is-in-a-bucket-file-system",
+      "href": "https://fs.spec.whatwg.org/#filesystemhandle-is-in-a-bucket-file-system",
+      "linkingText": [
+        "is in a bucket file system"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "FileSystemHandle"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemhandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemhandle",
+        "title": "The FileSystemHandle interface",
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-filesystemhandle-kind",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemhandle-kind",
+      "linkingText": [
+        "kind"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "FileSystemHandle"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemhandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemhandle",
+        "title": "The FileSystemHandle interface",
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemhandle-kind①",
+          "name": "handle . kind",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemhandle-kind%E2%91%A0",
+          "heading": {
+            "id": "api-filesystemhandle",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemhandle",
+            "title": "The FileSystemHandle interface",
+            "number": "2.2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-filesystemhandle-name",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemhandle-name",
+      "linkingText": [
+        "name"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "FileSystemHandle"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemhandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemhandle",
+        "title": "The FileSystemHandle interface",
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemhandle-name①",
+          "name": "handle . name",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemhandle-name%E2%91%A0",
+          "heading": {
+            "id": "api-filesystemhandle",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemhandle",
+            "title": "The FileSystemHandle interface",
+            "number": "2.2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-filesystemhandle-issameentry",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemhandle-issameentry",
+      "linkingText": [
+        "isSameEntry(other)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "FileSystemHandle"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemhandle-issameentry",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemhandle-issameentry",
+        "title": "The isSameEntry() method",
+        "number": "2.2.1"
+      },
+      "definedIn": "prose",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemhandle-issameentry②",
+          "name": "same = await handle1 . isSameEntry( handle2 )",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemhandle-issameentry%E2%91%A1",
+          "heading": {
+            "id": "api-filesystemhandle-issameentry",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemhandle-issameentry",
+            "title": "The isSameEntry() method",
+            "number": "2.2.1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dictdef-filesystemcreatewritableoptions",
+      "href": "https://fs.spec.whatwg.org/#dictdef-filesystemcreatewritableoptions",
+      "linkingText": [
+        "FileSystemCreateWritableOptions"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemfilehandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemfilehandle",
+        "title": "The FileSystemFileHandle interface",
+        "number": "2.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-filesystemcreatewritableoptions-keepexistingdata",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemcreatewritableoptions-keepexistingdata",
+      "linkingText": [
+        "keepExistingData"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "FileSystemCreateWritableOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemfilehandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemfilehandle",
+        "title": "The FileSystemFileHandle interface",
+        "number": "2.3"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemcreatewritableoptions-keepexistingdata",
+          "name": "stream = await fileHandle . createWritable({ keepExistingData: true/false })",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemcreatewritableoptions-keepexistingdata",
+          "heading": {
+            "id": "api-filesystemfilehandle-createwritable",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemfilehandle-createwritable",
+            "title": "The createWritable() method",
+            "number": "2.3.2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "filesystemfilehandle",
+      "href": "https://fs.spec.whatwg.org/#filesystemfilehandle",
+      "linkingText": [
+        "FileSystemFileHandle"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemfilehandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemfilehandle",
+        "title": "The FileSystemFileHandle interface",
+        "number": "2.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-filesystemfilehandle-createwritable-options-options",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemfilehandle-createwritable-options-options",
+      "linkingText": [
+        "options"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "FileSystemFileHandle/createWritable(options)",
+        "FileSystemFileHandle/createWritable()"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemfilehandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemfilehandle",
+        "title": "The FileSystemFileHandle interface",
+        "number": "2.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "creating-a-child-filesystemfilehandle",
+      "href": "https://fs.spec.whatwg.org/#creating-a-child-filesystemfilehandle",
+      "linkingText": [
+        "creating a child FileSystemFileHandle"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemfilehandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemfilehandle",
+        "title": "The FileSystemFileHandle interface",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "creating-a-new-filesystemfilehandle",
+      "href": "https://fs.spec.whatwg.org/#creating-a-new-filesystemfilehandle",
+      "linkingText": [
+        "creating a new FileSystemFileHandle"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemfilehandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemfilehandle",
+        "title": "The FileSystemFileHandle interface",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-filesystemfilehandle-getfile",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemfilehandle-getfile",
+      "linkingText": [
+        "getFile()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "FileSystemFileHandle"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemfilehandle-getfile",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemfilehandle-getfile",
+        "title": "The getFile() method",
+        "number": "2.3.1"
+      },
+      "definedIn": "prose",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemfilehandle-getfile②",
+          "name": "file = await fileHandle . getFile()",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemfilehandle-getfile%E2%91%A1",
+          "heading": {
+            "id": "api-filesystemfilehandle-getfile",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemfilehandle-getfile",
+            "title": "The getFile() method",
+            "number": "2.3.1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-filesystemfilehandle-createwritable",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemfilehandle-createwritable",
+      "linkingText": [
+        "createWritable(options)",
+        "createWritable()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "FileSystemFileHandle"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemfilehandle-createwritable",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemfilehandle-createwritable",
+        "title": "The createWritable() method",
+        "number": "2.3.2"
+      },
+      "definedIn": "prose",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemfilehandle-createwritable②",
+          "name": "stream = await fileHandle . createWritable()",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemfilehandle-createwritable%E2%91%A1",
+          "heading": {
+            "id": "api-filesystemfilehandle-createwritable",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemfilehandle-createwritable",
+            "title": "The createWritable() method",
+            "number": "2.3.2"
+          }
+        },
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemfilehandle-createwritable③",
+          "name": "stream = await fileHandle . createWritable({ keepExistingData: true/false })",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemfilehandle-createwritable%E2%91%A2",
+          "heading": {
+            "id": "api-filesystemfilehandle-createwritable",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemfilehandle-createwritable",
+            "title": "The createWritable() method",
+            "number": "2.3.2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-filesystemfilehandle-createsyncaccesshandle",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemfilehandle-createsyncaccesshandle",
+      "linkingText": [
+        "createSyncAccessHandle()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "FileSystemFileHandle"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemfilehandle-createsyncaccesshandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemfilehandle-createsyncaccesshandle",
+        "title": "The createSyncAccessHandle() method",
+        "number": "2.3.3"
+      },
+      "definedIn": "prose",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemfilehandle-createsyncaccesshandle②",
+          "name": "handle = await fileHandle . createSyncAccessHandle()",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemfilehandle-createsyncaccesshandle%E2%91%A1",
+          "heading": {
+            "id": "api-filesystemfilehandle-createsyncaccesshandle",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemfilehandle-createsyncaccesshandle",
+            "title": "The createSyncAccessHandle() method",
+            "number": "2.3.3"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dictdef-filesystemgetfileoptions",
+      "href": "https://fs.spec.whatwg.org/#dictdef-filesystemgetfileoptions",
+      "linkingText": [
+        "FileSystemGetFileOptions"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemdirectoryhandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemdirectoryhandle",
+        "title": "The FileSystemDirectoryHandle interface",
+        "number": "2.4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-filesystemgetfileoptions-create",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemgetfileoptions-create",
+      "linkingText": [
+        "create"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "FileSystemGetFileOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemdirectoryhandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemdirectoryhandle",
+        "title": "The FileSystemDirectoryHandle interface",
+        "number": "2.4"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemgetfileoptions-create",
+          "name": "fileHandle = await directoryHandle . getFileHandle(name, { create: false })",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemgetfileoptions-create",
+          "heading": {
+            "id": "api-filesystemdirectoryhandle-getfilehandle",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemdirectoryhandle-getfilehandle",
+            "title": "The getFileHandle() method",
+            "number": "2.4.2"
+          }
+        },
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemgetfileoptions-create①",
+          "name": "fileHandle = await directoryHandle . getFileHandle(name, { create: true })",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemgetfileoptions-create%E2%91%A0",
+          "heading": {
+            "id": "api-filesystemdirectoryhandle-getfilehandle",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemdirectoryhandle-getfilehandle",
+            "title": "The getFileHandle() method",
+            "number": "2.4.2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dictdef-filesystemgetdirectoryoptions",
+      "href": "https://fs.spec.whatwg.org/#dictdef-filesystemgetdirectoryoptions",
+      "linkingText": [
+        "FileSystemGetDirectoryOptions"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemdirectoryhandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemdirectoryhandle",
+        "title": "The FileSystemDirectoryHandle interface",
+        "number": "2.4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-filesystemgetdirectoryoptions-create",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemgetdirectoryoptions-create",
+      "linkingText": [
+        "create"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "FileSystemGetDirectoryOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemdirectoryhandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemdirectoryhandle",
+        "title": "The FileSystemDirectoryHandle interface",
+        "number": "2.4"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemgetdirectoryoptions-create",
+          "name": "subdirHandle = await directoryHandle . getDirectoryHandle(name, { create: false })",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemgetdirectoryoptions-create",
+          "heading": {
+            "id": "api-filesystemdirectoryhandle-getdirectoryhandle",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemdirectoryhandle-getdirectoryhandle",
+            "title": "The getDirectoryHandle() method",
+            "number": "2.4.3"
+          }
+        },
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemgetdirectoryoptions-create①",
+          "name": "subdirHandle = await directoryHandle . getDirectoryHandle(name, { create: true })",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemgetdirectoryoptions-create%E2%91%A0",
+          "heading": {
+            "id": "api-filesystemdirectoryhandle-getdirectoryhandle",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemdirectoryhandle-getdirectoryhandle",
+            "title": "The getDirectoryHandle() method",
+            "number": "2.4.3"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dictdef-filesystemremoveoptions",
+      "href": "https://fs.spec.whatwg.org/#dictdef-filesystemremoveoptions",
+      "linkingText": [
+        "FileSystemRemoveOptions"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemdirectoryhandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemdirectoryhandle",
+        "title": "The FileSystemDirectoryHandle interface",
+        "number": "2.4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-filesystemremoveoptions-recursive",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemremoveoptions-recursive",
+      "linkingText": [
+        "recursive"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "FileSystemRemoveOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemdirectoryhandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemdirectoryhandle",
+        "title": "The FileSystemDirectoryHandle interface",
+        "number": "2.4"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemremoveoptions-recursive",
+          "name": "await directoryHandle . removeEntry(name, { recursive: false })",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemremoveoptions-recursive",
+          "heading": {
+            "id": "api-filesystemdirectoryhandle-removeentry",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemdirectoryhandle-removeentry",
+            "title": "The removeEntry() method",
+            "number": "2.4.4"
+          }
+        },
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemremoveoptions-recursive①",
+          "name": "await directoryHandle . removeEntry(name, { recursive: true })",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemremoveoptions-recursive%E2%91%A0",
+          "heading": {
+            "id": "api-filesystemdirectoryhandle-removeentry",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemdirectoryhandle-removeentry",
+            "title": "The removeEntry() method",
+            "number": "2.4.4"
+          }
+        }
+      ]
+    },
+    {
+      "id": "filesystemdirectoryhandle",
+      "href": "https://fs.spec.whatwg.org/#filesystemdirectoryhandle",
+      "linkingText": [
+        "FileSystemDirectoryHandle"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemdirectoryhandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemdirectoryhandle",
+        "title": "The FileSystemDirectoryHandle interface",
+        "number": "2.4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-filesystemdirectoryhandle-getfilehandle-name-options-name",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemdirectoryhandle-getfilehandle-name-options-name",
+      "linkingText": [
+        "name"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "FileSystemDirectoryHandle/getFileHandle(name, options)",
+        "FileSystemDirectoryHandle/getFileHandle(name)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemdirectoryhandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemdirectoryhandle",
+        "title": "The FileSystemDirectoryHandle interface",
+        "number": "2.4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-filesystemdirectoryhandle-getfilehandle-name-options-options",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemdirectoryhandle-getfilehandle-name-options-options",
+      "linkingText": [
+        "options"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "FileSystemDirectoryHandle/getFileHandle(name, options)",
+        "FileSystemDirectoryHandle/getFileHandle(name)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemdirectoryhandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemdirectoryhandle",
+        "title": "The FileSystemDirectoryHandle interface",
+        "number": "2.4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-filesystemdirectoryhandle-getdirectoryhandle-name-options-name",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemdirectoryhandle-getdirectoryhandle-name-options-name",
+      "linkingText": [
+        "name"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "FileSystemDirectoryHandle/getDirectoryHandle(name, options)",
+        "FileSystemDirectoryHandle/getDirectoryHandle(name)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemdirectoryhandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemdirectoryhandle",
+        "title": "The FileSystemDirectoryHandle interface",
+        "number": "2.4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-filesystemdirectoryhandle-getdirectoryhandle-name-options-options",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemdirectoryhandle-getdirectoryhandle-name-options-options",
+      "linkingText": [
+        "options"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "FileSystemDirectoryHandle/getDirectoryHandle(name, options)",
+        "FileSystemDirectoryHandle/getDirectoryHandle(name)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemdirectoryhandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemdirectoryhandle",
+        "title": "The FileSystemDirectoryHandle interface",
+        "number": "2.4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-filesystemdirectoryhandle-removeentry-name-options-name",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemdirectoryhandle-removeentry-name-options-name",
+      "linkingText": [
+        "name"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "FileSystemDirectoryHandle/removeEntry(name, options)",
+        "FileSystemDirectoryHandle/removeEntry(name)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemdirectoryhandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemdirectoryhandle",
+        "title": "The FileSystemDirectoryHandle interface",
+        "number": "2.4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-filesystemdirectoryhandle-removeentry-name-options-options",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemdirectoryhandle-removeentry-name-options-options",
+      "linkingText": [
+        "options"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "FileSystemDirectoryHandle/removeEntry(name, options)",
+        "FileSystemDirectoryHandle/removeEntry(name)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemdirectoryhandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemdirectoryhandle",
+        "title": "The FileSystemDirectoryHandle interface",
+        "number": "2.4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-filesystemdirectoryhandle-resolve-possibledescendant-possibledescendant",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemdirectoryhandle-resolve-possibledescendant-possibledescendant",
+      "linkingText": [
+        "possibleDescendant"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "FileSystemDirectoryHandle/resolve(possibleDescendant)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemdirectoryhandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemdirectoryhandle",
+        "title": "The FileSystemDirectoryHandle interface",
+        "number": "2.4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "creating-a-child-filesystemdirectoryhandle",
+      "href": "https://fs.spec.whatwg.org/#creating-a-child-filesystemdirectoryhandle",
+      "linkingText": [
+        "creating a child FileSystemDirectoryHandle"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemdirectoryhandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemdirectoryhandle",
+        "title": "The FileSystemDirectoryHandle interface",
+        "number": "2.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "creating-a-new-filesystemdirectoryhandle",
+      "href": "https://fs.spec.whatwg.org/#creating-a-new-filesystemdirectoryhandle",
+      "linkingText": [
+        "creating a new FileSystemDirectoryHandle"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemdirectoryhandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemdirectoryhandle",
+        "title": "The FileSystemDirectoryHandle interface",
+        "number": "2.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "filesystemdirectoryhandle-iterator-past-results",
+      "href": "https://fs.spec.whatwg.org/#filesystemdirectoryhandle-iterator-past-results",
+      "linkingText": [
+        "past results"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "FileSystemDirectoryHandle-iterator"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemdirectoryhandle-asynciterable",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemdirectoryhandle-asynciterable",
+        "title": "Directory iteration",
+        "number": "2.4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-filesystemdirectoryhandle-getfilehandle",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemdirectoryhandle-getfilehandle",
+      "linkingText": [
+        "getFileHandle(name, options)",
+        "getFileHandle(name)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "FileSystemDirectoryHandle"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemdirectoryhandle-getfilehandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemdirectoryhandle-getfilehandle",
+        "title": "The getFileHandle() method",
+        "number": "2.4.2"
+      },
+      "definedIn": "prose",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemdirectoryhandle-getfilehandle②",
+          "name": "fileHandle = await directoryHandle . getFileHandle(name)",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemdirectoryhandle-getfilehandle%E2%91%A1",
+          "heading": {
+            "id": "api-filesystemdirectoryhandle-getfilehandle",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemdirectoryhandle-getfilehandle",
+            "title": "The getFileHandle() method",
+            "number": "2.4.2"
+          }
+        },
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemdirectoryhandle-getfilehandle③",
+          "name": "fileHandle = await directoryHandle . getFileHandle(name, { create: false })",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemdirectoryhandle-getfilehandle%E2%91%A2",
+          "heading": {
+            "id": "api-filesystemdirectoryhandle-getfilehandle",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemdirectoryhandle-getfilehandle",
+            "title": "The getFileHandle() method",
+            "number": "2.4.2"
+          }
+        },
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemdirectoryhandle-getfilehandle④",
+          "name": "fileHandle = await directoryHandle . getFileHandle(name, { create: true })",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemdirectoryhandle-getfilehandle%E2%91%A3",
+          "heading": {
+            "id": "api-filesystemdirectoryhandle-getfilehandle",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemdirectoryhandle-getfilehandle",
+            "title": "The getFileHandle() method",
+            "number": "2.4.2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-filesystemdirectoryhandle-getdirectoryhandle",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemdirectoryhandle-getdirectoryhandle",
+      "linkingText": [
+        "getDirectoryHandle(name, options)",
+        "getDirectoryHandle(name)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "FileSystemDirectoryHandle"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemdirectoryhandle-getdirectoryhandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemdirectoryhandle-getdirectoryhandle",
+        "title": "The getDirectoryHandle() method",
+        "number": "2.4.3"
+      },
+      "definedIn": "prose",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemdirectoryhandle-getdirectoryhandle②",
+          "name": "subdirHandle = await directoryHandle . getDirectoryHandle(name)",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemdirectoryhandle-getdirectoryhandle%E2%91%A1",
+          "heading": {
+            "id": "api-filesystemdirectoryhandle-getdirectoryhandle",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemdirectoryhandle-getdirectoryhandle",
+            "title": "The getDirectoryHandle() method",
+            "number": "2.4.3"
+          }
+        },
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemdirectoryhandle-getdirectoryhandle③",
+          "name": "subdirHandle = await directoryHandle . getDirectoryHandle(name, { create: false })",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemdirectoryhandle-getdirectoryhandle%E2%91%A2",
+          "heading": {
+            "id": "api-filesystemdirectoryhandle-getdirectoryhandle",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemdirectoryhandle-getdirectoryhandle",
+            "title": "The getDirectoryHandle() method",
+            "number": "2.4.3"
+          }
+        },
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemdirectoryhandle-getdirectoryhandle④",
+          "name": "subdirHandle = await directoryHandle . getDirectoryHandle(name, { create: true })",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemdirectoryhandle-getdirectoryhandle%E2%91%A3",
+          "heading": {
+            "id": "api-filesystemdirectoryhandle-getdirectoryhandle",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemdirectoryhandle-getdirectoryhandle",
+            "title": "The getDirectoryHandle() method",
+            "number": "2.4.3"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-filesystemdirectoryhandle-removeentry",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemdirectoryhandle-removeentry",
+      "linkingText": [
+        "removeEntry(name, options)",
+        "removeEntry(name)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "FileSystemDirectoryHandle"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemdirectoryhandle-removeentry",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemdirectoryhandle-removeentry",
+        "title": "The removeEntry() method",
+        "number": "2.4.4"
+      },
+      "definedIn": "prose",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemdirectoryhandle-removeentry②",
+          "name": "await directoryHandle . removeEntry(name)",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemdirectoryhandle-removeentry%E2%91%A1",
+          "heading": {
+            "id": "api-filesystemdirectoryhandle-removeentry",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemdirectoryhandle-removeentry",
+            "title": "The removeEntry() method",
+            "number": "2.4.4"
+          }
+        },
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemdirectoryhandle-removeentry③",
+          "name": "await directoryHandle . removeEntry(name, { recursive: false })",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemdirectoryhandle-removeentry%E2%91%A2",
+          "heading": {
+            "id": "api-filesystemdirectoryhandle-removeentry",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemdirectoryhandle-removeentry",
+            "title": "The removeEntry() method",
+            "number": "2.4.4"
+          }
+        },
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemdirectoryhandle-removeentry④",
+          "name": "await directoryHandle . removeEntry(name, { recursive: true })",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemdirectoryhandle-removeentry%E2%91%A3",
+          "heading": {
+            "id": "api-filesystemdirectoryhandle-removeentry",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemdirectoryhandle-removeentry",
+            "title": "The removeEntry() method",
+            "number": "2.4.4"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-filesystemdirectoryhandle-resolve",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemdirectoryhandle-resolve",
+      "linkingText": [
+        "resolve(possibleDescendant)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "FileSystemDirectoryHandle"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemdirectoryhandle-resolve",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemdirectoryhandle-resolve",
+        "title": "The resolve() method",
+        "number": "2.4.5"
+      },
+      "definedIn": "prose",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemdirectoryhandle-resolve②",
+          "name": "path = await directory . resolve( child )",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemdirectoryhandle-resolve%E2%91%A1",
+          "heading": {
+            "id": "api-filesystemdirectoryhandle-resolve",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemdirectoryhandle-resolve",
+            "title": "The resolve() method",
+            "number": "2.4.5"
+          }
+        }
+      ]
+    },
+    {
+      "id": "enumdef-writecommandtype",
+      "href": "https://fs.spec.whatwg.org/#enumdef-writecommandtype",
+      "linkingText": [
+        "WriteCommandType"
+      ],
+      "localLinkingText": [],
+      "type": "enum",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemwritablefilestream",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream",
+        "title": "The FileSystemWritableFileStream interface",
+        "number": "2.5"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-writecommandtype-write",
+      "href": "https://fs.spec.whatwg.org/#dom-writecommandtype-write",
+      "linkingText": [
+        "\"write\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "WriteCommandType"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemwritablefilestream",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream",
+        "title": "The FileSystemWritableFileStream interface",
+        "number": "2.5"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-writecommandtype-write②",
+          "name": "await stream . write({ type: \"write\", data: data })",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-writecommandtype-write%E2%91%A1",
+          "heading": {
+            "id": "api-filesystemwritablefilestream-write",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream-write",
+            "title": "The write() method",
+            "number": "2.5.1"
+          }
+        },
+        {
+          "type": "dev",
+          "id": "ref-for-dom-writecommandtype-write③",
+          "name": "await stream . write({ type: \"write\", position: position, data: data })",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-writecommandtype-write%E2%91%A2",
+          "heading": {
+            "id": "api-filesystemwritablefilestream-write",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream-write",
+            "title": "The write() method",
+            "number": "2.5.1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-writecommandtype-seek",
+      "href": "https://fs.spec.whatwg.org/#dom-writecommandtype-seek",
+      "linkingText": [
+        "\"seek\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "WriteCommandType"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemwritablefilestream",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream",
+        "title": "The FileSystemWritableFileStream interface",
+        "number": "2.5"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-writecommandtype-seek①",
+          "name": "await stream . write({ type: \"seek\", position: position })",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-writecommandtype-seek%E2%91%A0",
+          "heading": {
+            "id": "api-filesystemwritablefilestream-write",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream-write",
+            "title": "The write() method",
+            "number": "2.5.1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-writecommandtype-truncate",
+      "href": "https://fs.spec.whatwg.org/#dom-writecommandtype-truncate",
+      "linkingText": [
+        "\"truncate\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "WriteCommandType"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemwritablefilestream",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream",
+        "title": "The FileSystemWritableFileStream interface",
+        "number": "2.5"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-writecommandtype-truncate①",
+          "name": "await stream . write({ type: \"truncate\", size: size })",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-writecommandtype-truncate%E2%91%A0",
+          "heading": {
+            "id": "api-filesystemwritablefilestream-write",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream-write",
+            "title": "The write() method",
+            "number": "2.5.1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dictdef-writeparams",
+      "href": "https://fs.spec.whatwg.org/#dictdef-writeparams",
+      "linkingText": [
+        "WriteParams"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemwritablefilestream",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream",
+        "title": "The FileSystemWritableFileStream interface",
+        "number": "2.5"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-writeparams-type",
+      "href": "https://fs.spec.whatwg.org/#dom-writeparams-type",
+      "linkingText": [
+        "type"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "WriteParams"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemwritablefilestream",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream",
+        "title": "The FileSystemWritableFileStream interface",
+        "number": "2.5"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-writeparams-type①",
+          "name": "await stream . write({ type: \"write\", data: data })",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-writeparams-type%E2%91%A0",
+          "heading": {
+            "id": "api-filesystemwritablefilestream-write",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream-write",
+            "title": "The write() method",
+            "number": "2.5.1"
+          }
+        },
+        {
+          "type": "dev",
+          "id": "ref-for-dom-writeparams-type②",
+          "name": "await stream . write({ type: \"write\", position: position, data: data })",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-writeparams-type%E2%91%A1",
+          "heading": {
+            "id": "api-filesystemwritablefilestream-write",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream-write",
+            "title": "The write() method",
+            "number": "2.5.1"
+          }
+        },
+        {
+          "type": "dev",
+          "id": "ref-for-dom-writeparams-type③",
+          "name": "await stream . write({ type: \"seek\", position: position })",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-writeparams-type%E2%91%A2",
+          "heading": {
+            "id": "api-filesystemwritablefilestream-write",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream-write",
+            "title": "The write() method",
+            "number": "2.5.1"
+          }
+        },
+        {
+          "type": "dev",
+          "id": "ref-for-dom-writeparams-type④",
+          "name": "await stream . write({ type: \"truncate\", size: size })",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-writeparams-type%E2%91%A3",
+          "heading": {
+            "id": "api-filesystemwritablefilestream-write",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream-write",
+            "title": "The write() method",
+            "number": "2.5.1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-writeparams-size",
+      "href": "https://fs.spec.whatwg.org/#dom-writeparams-size",
+      "linkingText": [
+        "size"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "WriteParams"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemwritablefilestream",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream",
+        "title": "The FileSystemWritableFileStream interface",
+        "number": "2.5"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-writeparams-size②",
+          "name": "await stream . write({ type: \"truncate\", size: size })",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-writeparams-size%E2%91%A1",
+          "heading": {
+            "id": "api-filesystemwritablefilestream-write",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream-write",
+            "title": "The write() method",
+            "number": "2.5.1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-writeparams-position",
+      "href": "https://fs.spec.whatwg.org/#dom-writeparams-position",
+      "linkingText": [
+        "position"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "WriteParams"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemwritablefilestream",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream",
+        "title": "The FileSystemWritableFileStream interface",
+        "number": "2.5"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-writeparams-position④",
+          "name": "await stream . write({ type: \"write\", position: position, data: data })",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-writeparams-position%E2%91%A3",
+          "heading": {
+            "id": "api-filesystemwritablefilestream-write",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream-write",
+            "title": "The write() method",
+            "number": "2.5.1"
+          }
+        },
+        {
+          "type": "dev",
+          "id": "ref-for-dom-writeparams-position⑤",
+          "name": "await stream . write({ type: \"seek\", position: position })",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-writeparams-position%E2%91%A4",
+          "heading": {
+            "id": "api-filesystemwritablefilestream-write",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream-write",
+            "title": "The write() method",
+            "number": "2.5.1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-writeparams-data",
+      "href": "https://fs.spec.whatwg.org/#dom-writeparams-data",
+      "linkingText": [
+        "data"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "WriteParams"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemwritablefilestream",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream",
+        "title": "The FileSystemWritableFileStream interface",
+        "number": "2.5"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-writeparams-data②",
+          "name": "await stream . write({ type: \"write\", data: data })",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-writeparams-data%E2%91%A1",
+          "heading": {
+            "id": "api-filesystemwritablefilestream-write",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream-write",
+            "title": "The write() method",
+            "number": "2.5.1"
+          }
+        },
+        {
+          "type": "dev",
+          "id": "ref-for-dom-writeparams-data③",
+          "name": "await stream . write({ type: \"write\", position: position, data: data })",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-writeparams-data%E2%91%A2",
+          "heading": {
+            "id": "api-filesystemwritablefilestream-write",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream-write",
+            "title": "The write() method",
+            "number": "2.5.1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "typedefdef-filesystemwritechunktype",
+      "href": "https://fs.spec.whatwg.org/#typedefdef-filesystemwritechunktype",
+      "linkingText": [
+        "FileSystemWriteChunkType"
+      ],
+      "localLinkingText": [],
+      "type": "typedef",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemwritablefilestream",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream",
+        "title": "The FileSystemWritableFileStream interface",
+        "number": "2.5"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "filesystemwritablefilestream",
+      "href": "https://fs.spec.whatwg.org/#filesystemwritablefilestream",
+      "linkingText": [
+        "FileSystemWritableFileStream"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemwritablefilestream",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream",
+        "title": "The FileSystemWritableFileStream interface",
+        "number": "2.5"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-filesystemwritablefilestream-write-data-data",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemwritablefilestream-write-data-data",
+      "linkingText": [
+        "data"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "FileSystemWritableFileStream/write(data)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemwritablefilestream",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream",
+        "title": "The FileSystemWritableFileStream interface",
+        "number": "2.5"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-filesystemwritablefilestream-seek-position-position",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemwritablefilestream-seek-position-position",
+      "linkingText": [
+        "position"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "FileSystemWritableFileStream/seek(position)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemwritablefilestream",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream",
+        "title": "The FileSystemWritableFileStream interface",
+        "number": "2.5"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-filesystemwritablefilestream-truncate-size-size",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemwritablefilestream-truncate-size-size",
+      "linkingText": [
+        "size"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "FileSystemWritableFileStream/truncate(size)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemwritablefilestream",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream",
+        "title": "The FileSystemWritableFileStream interface",
+        "number": "2.5"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "filesystemwritablefilestream-file",
+      "href": "https://fs.spec.whatwg.org/#filesystemwritablefilestream-file",
+      "linkingText": [
+        "[[file]]"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "FileSystemWritableFileStream"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemwritablefilestream",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream",
+        "title": "The FileSystemWritableFileStream interface",
+        "number": "2.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "filesystemwritablefilestream-buffer",
+      "href": "https://fs.spec.whatwg.org/#filesystemwritablefilestream-buffer",
+      "linkingText": [
+        "[[buffer]]"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "FileSystemWritableFileStream"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemwritablefilestream",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream",
+        "title": "The FileSystemWritableFileStream interface",
+        "number": "2.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "filesystemwritablefilestream-seekoffset",
+      "href": "https://fs.spec.whatwg.org/#filesystemwritablefilestream-seekoffset",
+      "linkingText": [
+        "[[seekOffset]]"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "FileSystemWritableFileStream"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemwritablefilestream",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream",
+        "title": "The FileSystemWritableFileStream interface",
+        "number": "2.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "create-a-new-filesystemwritablefilestream",
+      "href": "https://fs.spec.whatwg.org/#create-a-new-filesystemwritablefilestream",
+      "linkingText": [
+        "create a new FileSystemWritableFileStream"
+      ],
+      "localLinkingText": [
+        "creating a new FileSystemWritableFileStream"
+      ],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemwritablefilestream",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream",
+        "title": "The FileSystemWritableFileStream interface",
+        "number": "2.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "write-a-chunk",
+      "href": "https://fs.spec.whatwg.org/#write-a-chunk",
+      "linkingText": [
+        "write a chunk"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemwritablefilestream",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream",
+        "title": "The FileSystemWritableFileStream interface",
+        "number": "2.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-filesystemwritablefilestream-write",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemwritablefilestream-write",
+      "linkingText": [
+        "write(data)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "FileSystemWritableFileStream"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemwritablefilestream-write",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream-write",
+        "title": "The write() method",
+        "number": "2.5.1"
+      },
+      "definedIn": "prose",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemwritablefilestream-write③",
+          "name": "await stream . write(data)",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemwritablefilestream-write%E2%91%A2",
+          "heading": {
+            "id": "api-filesystemwritablefilestream-write",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream-write",
+            "title": "The write() method",
+            "number": "2.5.1"
+          }
+        },
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemwritablefilestream-write④",
+          "name": "await stream . write({ type: \"write\", data: data })",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemwritablefilestream-write%E2%91%A3",
+          "heading": {
+            "id": "api-filesystemwritablefilestream-write",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream-write",
+            "title": "The write() method",
+            "number": "2.5.1"
+          }
+        },
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemwritablefilestream-write⑤",
+          "name": "await stream . write({ type: \"write\", position: position, data: data })",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemwritablefilestream-write%E2%91%A4",
+          "heading": {
+            "id": "api-filesystemwritablefilestream-write",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream-write",
+            "title": "The write() method",
+            "number": "2.5.1"
+          }
+        },
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemwritablefilestream-write⑥",
+          "name": "await stream . write({ type: \"seek\", position: position })",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemwritablefilestream-write%E2%91%A5",
+          "heading": {
+            "id": "api-filesystemwritablefilestream-write",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream-write",
+            "title": "The write() method",
+            "number": "2.5.1"
+          }
+        },
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemwritablefilestream-write⑦",
+          "name": "await stream . write({ type: \"truncate\", size: size })",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemwritablefilestream-write%E2%91%A6",
+          "heading": {
+            "id": "api-filesystemwritablefilestream-write",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream-write",
+            "title": "The write() method",
+            "number": "2.5.1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-filesystemwritablefilestream-seek",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemwritablefilestream-seek",
+      "linkingText": [
+        "seek(position)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "FileSystemWritableFileStream"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemwritablefilestream-seek",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream-seek",
+        "title": "The seek() method",
+        "number": "2.5.2"
+      },
+      "definedIn": "prose",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemwritablefilestream-seek②",
+          "name": "await stream . seek(position)",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemwritablefilestream-seek%E2%91%A1",
+          "heading": {
+            "id": "api-filesystemwritablefilestream-seek",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream-seek",
+            "title": "The seek() method",
+            "number": "2.5.2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-filesystemwritablefilestream-truncate",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemwritablefilestream-truncate",
+      "linkingText": [
+        "truncate(size)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "FileSystemWritableFileStream"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemwritablefilestream-truncate",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream-truncate",
+        "title": "The truncate() method",
+        "number": "2.5.3"
+      },
+      "definedIn": "prose",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemwritablefilestream-truncate③",
+          "name": "await stream . truncate(size)",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemwritablefilestream-truncate%E2%91%A2",
+          "heading": {
+            "id": "api-filesystemwritablefilestream-truncate",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream-truncate",
+            "title": "The truncate() method",
+            "number": "2.5.3"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dictdef-filesystemreadwriteoptions",
+      "href": "https://fs.spec.whatwg.org/#dictdef-filesystemreadwriteoptions",
+      "linkingText": [
+        "FileSystemReadWriteOptions"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemsyncaccesshandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemsyncaccesshandle",
+        "title": "The FileSystemSyncAccessHandle interface",
+        "number": "2.6"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-filesystemreadwriteoptions-at",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemreadwriteoptions-at",
+      "linkingText": [
+        "at"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "FileSystemReadWriteOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemsyncaccesshandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemsyncaccesshandle",
+        "title": "The FileSystemSyncAccessHandle interface",
+        "number": "2.6"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemreadwriteoptions-at",
+          "name": "handle . read(buffer, { at })",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemreadwriteoptions-at",
+          "heading": {
+            "id": "api-filesystemsyncaccesshandle-read",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemsyncaccesshandle-read",
+            "title": "The read() method",
+            "number": "2.6.1"
+          }
+        },
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemreadwriteoptions-at③",
+          "name": "handle . write(buffer, { at })",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemreadwriteoptions-at%E2%91%A2",
+          "heading": {
+            "id": "api-filesystemsyncaccesshandle-write",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemsyncaccesshandle-write",
+            "title": "The write() method",
+            "number": "2.6.2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "filesystemsyncaccesshandle",
+      "href": "https://fs.spec.whatwg.org/#filesystemsyncaccesshandle",
+      "linkingText": [
+        "FileSystemSyncAccessHandle"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemsyncaccesshandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemsyncaccesshandle",
+        "title": "The FileSystemSyncAccessHandle interface",
+        "number": "2.6"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-filesystemsyncaccesshandle-read",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemsyncaccesshandle-read",
+      "linkingText": [
+        "read(buffer, options)",
+        "read(buffer)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "FileSystemSyncAccessHandle"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemsyncaccesshandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemsyncaccesshandle",
+        "title": "The FileSystemSyncAccessHandle interface",
+        "number": "2.6"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemsyncaccesshandle-read①",
+          "name": "handle . read(buffer)",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemsyncaccesshandle-read%E2%91%A0",
+          "heading": {
+            "id": "api-filesystemsyncaccesshandle-read",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemsyncaccesshandle-read",
+            "title": "The read() method",
+            "number": "2.6.1"
+          }
+        },
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemsyncaccesshandle-read②",
+          "name": "handle . read(buffer, { at })",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemsyncaccesshandle-read%E2%91%A1",
+          "heading": {
+            "id": "api-filesystemsyncaccesshandle-read",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemsyncaccesshandle-read",
+            "title": "The read() method",
+            "number": "2.6.1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-filesystemsyncaccesshandle-read-buffer-options-buffer",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemsyncaccesshandle-read-buffer-options-buffer",
+      "linkingText": [
+        "buffer"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "FileSystemSyncAccessHandle/read(buffer, options)",
+        "FileSystemSyncAccessHandle/read(buffer)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemsyncaccesshandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemsyncaccesshandle",
+        "title": "The FileSystemSyncAccessHandle interface",
+        "number": "2.6"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-filesystemsyncaccesshandle-read-buffer-options-options",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemsyncaccesshandle-read-buffer-options-options",
+      "linkingText": [
+        "options"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "FileSystemSyncAccessHandle/read(buffer, options)",
+        "FileSystemSyncAccessHandle/read(buffer)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemsyncaccesshandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemsyncaccesshandle",
+        "title": "The FileSystemSyncAccessHandle interface",
+        "number": "2.6"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-filesystemsyncaccesshandle-write",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemsyncaccesshandle-write",
+      "linkingText": [
+        "write(buffer, options)",
+        "write(buffer)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "FileSystemSyncAccessHandle"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemsyncaccesshandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemsyncaccesshandle",
+        "title": "The FileSystemSyncAccessHandle interface",
+        "number": "2.6"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemsyncaccesshandle-write①",
+          "name": "handle . write(buffer)",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemsyncaccesshandle-write%E2%91%A0",
+          "heading": {
+            "id": "api-filesystemsyncaccesshandle-write",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemsyncaccesshandle-write",
+            "title": "The write() method",
+            "number": "2.6.2"
+          }
+        },
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemsyncaccesshandle-write②",
+          "name": "handle . write(buffer, { at })",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemsyncaccesshandle-write%E2%91%A1",
+          "heading": {
+            "id": "api-filesystemsyncaccesshandle-write",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemsyncaccesshandle-write",
+            "title": "The write() method",
+            "number": "2.6.2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-filesystemsyncaccesshandle-write-buffer-options-buffer",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemsyncaccesshandle-write-buffer-options-buffer",
+      "linkingText": [
+        "buffer"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "FileSystemSyncAccessHandle/write(buffer, options)",
+        "FileSystemSyncAccessHandle/write(buffer)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemsyncaccesshandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemsyncaccesshandle",
+        "title": "The FileSystemSyncAccessHandle interface",
+        "number": "2.6"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-filesystemsyncaccesshandle-write-buffer-options-options",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemsyncaccesshandle-write-buffer-options-options",
+      "linkingText": [
+        "options"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "FileSystemSyncAccessHandle/write(buffer, options)",
+        "FileSystemSyncAccessHandle/write(buffer)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemsyncaccesshandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemsyncaccesshandle",
+        "title": "The FileSystemSyncAccessHandle interface",
+        "number": "2.6"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-filesystemsyncaccesshandle-truncate-newsize-newsize",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemsyncaccesshandle-truncate-newsize-newsize",
+      "linkingText": [
+        "newSize"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "FileSystemSyncAccessHandle/truncate(newSize)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemsyncaccesshandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemsyncaccesshandle",
+        "title": "The FileSystemSyncAccessHandle interface",
+        "number": "2.6"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "filesystemsyncaccesshandle-file",
+      "href": "https://fs.spec.whatwg.org/#filesystemsyncaccesshandle-file",
+      "linkingText": [
+        "[[file]]"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "FileSystemSyncAccessHandle"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemsyncaccesshandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemsyncaccesshandle",
+        "title": "The FileSystemSyncAccessHandle interface",
+        "number": "2.6"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "filesystemsyncaccesshandle-state",
+      "href": "https://fs.spec.whatwg.org/#filesystemsyncaccesshandle-state",
+      "linkingText": [
+        "[[state]]"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "FileSystemSyncAccessHandle"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemsyncaccesshandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemsyncaccesshandle",
+        "title": "The FileSystemSyncAccessHandle interface",
+        "number": "2.6"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "filesystemsyncaccesshandle-file-position-cursor",
+      "href": "https://fs.spec.whatwg.org/#filesystemsyncaccesshandle-file-position-cursor",
+      "linkingText": [
+        "file position cursor"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "FileSystemSyncAccessHandle"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemsyncaccesshandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemsyncaccesshandle",
+        "title": "The FileSystemSyncAccessHandle interface",
+        "number": "2.6"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "create-a-new-filesystemsyncaccesshandle",
+      "href": "https://fs.spec.whatwg.org/#create-a-new-filesystemsyncaccesshandle",
+      "linkingText": [
+        "create a new FileSystemSyncAccessHandle"
+      ],
+      "localLinkingText": [
+        "creating a new FileSystemSyncAccessHandle"
+      ],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemsyncaccesshandle",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemsyncaccesshandle",
+        "title": "The FileSystemSyncAccessHandle interface",
+        "number": "2.6"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-filesystemsyncaccesshandle-read-buffer-filesystemreadwriteoptions-options",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemsyncaccesshandle-read-buffer-filesystemreadwriteoptions-options",
+      "linkingText": [
+        "read(buffer, FileSystemReadWriteOptions: options)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "FileSystemSyncAccessHandle"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemsyncaccesshandle-read",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemsyncaccesshandle-read",
+        "title": "The read() method",
+        "number": "2.6.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-filesystemsyncaccesshandle-write-buffer-filesystemreadwriteoptions-options",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemsyncaccesshandle-write-buffer-filesystemreadwriteoptions-options",
+      "linkingText": [
+        "write(buffer, FileSystemReadWriteOptions: options)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "FileSystemSyncAccessHandle"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemsyncaccesshandle-write",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemsyncaccesshandle-write",
+        "title": "The write() method",
+        "number": "2.6.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-filesystemsyncaccesshandle-truncate",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemsyncaccesshandle-truncate",
+      "linkingText": [
+        "truncate(newSize)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "FileSystemSyncAccessHandle"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemsyncaccesshandle-truncate",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemsyncaccesshandle-truncate",
+        "title": "The truncate() method",
+        "number": "2.6.3"
+      },
+      "definedIn": "prose",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemsyncaccesshandle-truncate②",
+          "name": "handle . truncate(newSize)",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemsyncaccesshandle-truncate%E2%91%A1",
+          "heading": {
+            "id": "api-filesystemsyncaccesshandle-truncate",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemsyncaccesshandle-truncate",
+            "title": "The truncate() method",
+            "number": "2.6.3"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-filesystemsyncaccesshandle-getsize",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemsyncaccesshandle-getsize",
+      "linkingText": [
+        "getSize()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "FileSystemSyncAccessHandle"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemsyncaccesshandle-getsize",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemsyncaccesshandle-getsize",
+        "title": "The getSize() method",
+        "number": "2.6.4"
+      },
+      "definedIn": "prose",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemsyncaccesshandle-getsize②",
+          "name": "handle . getSize()",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemsyncaccesshandle-getsize%E2%91%A1",
+          "heading": {
+            "id": "api-filesystemsyncaccesshandle-getsize",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemsyncaccesshandle-getsize",
+            "title": "The getSize() method",
+            "number": "2.6.4"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-filesystemsyncaccesshandle-flush",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemsyncaccesshandle-flush",
+      "linkingText": [
+        "flush()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "FileSystemSyncAccessHandle"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemsyncaccesshandle-flush",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemsyncaccesshandle-flush",
+        "title": "The flush() method",
+        "number": "2.6.5"
+      },
+      "definedIn": "prose",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemsyncaccesshandle-flush②",
+          "name": "handle . flush()",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemsyncaccesshandle-flush%E2%91%A1",
+          "heading": {
+            "id": "api-filesystemsyncaccesshandle-flush",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemsyncaccesshandle-flush",
+            "title": "The flush() method",
+            "number": "2.6.5"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-filesystemsyncaccesshandle-close",
+      "href": "https://fs.spec.whatwg.org/#dom-filesystemsyncaccesshandle-close",
+      "linkingText": [
+        "close()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "FileSystemSyncAccessHandle"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "api-filesystemsyncaccesshandle-close",
+        "href": "https://fs.spec.whatwg.org/#api-filesystemsyncaccesshandle-close",
+        "title": "The close() method",
+        "number": "2.6.6"
+      },
+      "definedIn": "prose",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-filesystemsyncaccesshandle-close②",
+          "name": "handle . close()",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-filesystemsyncaccesshandle-close%E2%91%A1",
+          "heading": {
+            "id": "api-filesystemsyncaccesshandle-close",
+            "href": "https://fs.spec.whatwg.org/#api-filesystemsyncaccesshandle-close",
+            "title": "The close() method",
+            "number": "2.6.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "origin-private-file-system",
+      "href": "https://fs.spec.whatwg.org/#origin-private-file-system",
+      "linkingText": [
+        "bucket file system"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sandboxed-filesystem",
+        "href": "https://fs.spec.whatwg.org/#sandboxed-filesystem",
+        "title": "Accessing the Bucket File System",
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-storagemanager-getdirectory",
+      "href": "https://fs.spec.whatwg.org/#dom-storagemanager-getdirectory",
+      "linkingText": [
+        "getDirectory()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "StorageManager"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sandboxed-filesystem",
+        "href": "https://fs.spec.whatwg.org/#sandboxed-filesystem",
+        "title": "Accessing the Bucket File System",
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-storagemanager-getdirectory③",
+          "name": "directoryHandle = await navigator . storage . getDirectory()",
+          "href": "https://fs.spec.whatwg.org/#ref-for-dom-storagemanager-getdirectory%E2%91%A2",
+          "heading": {
+            "id": "sandboxed-filesystem",
+            "href": "https://fs.spec.whatwg.org/#sandboxed-filesystem",
+            "title": "Accessing the Bucket File System",
+            "number": "3"
+          }
+        }
+      ]
+    }
+  ]
+}

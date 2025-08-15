@@ -1,0 +1,209 @@
+{
+  "spec": {
+    "title": "CSS Text Module Level 4",
+    "url": "https://drafts.csswg.org/css-text-4/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "CSS-BACKGROUNDS-3",
+        "url": "https://drafts.csswg.org/css-backgrounds/"
+      },
+      {
+        "name": "CSS-BOX-4",
+        "url": "https://drafts.csswg.org/css-box-4/"
+      },
+      {
+        "name": "CSS-BREAK-4",
+        "url": "https://drafts.csswg.org/css-break-4/"
+      },
+      {
+        "name": "CSS-CASCADE-5",
+        "url": "https://drafts.csswg.org/css-cascade-5/"
+      },
+      {
+        "name": "CSS-COLOR-HDR-1",
+        "url": "https://drafts.csswg.org/css-color-hdr-1/"
+      },
+      {
+        "name": "CSS-DISPLAY-4",
+        "url": "https://drafts.csswg.org/css-display/"
+      },
+      {
+        "name": "CSS-FONTS-3",
+        "url": "https://drafts.csswg.org/css-fonts-3/"
+      },
+      {
+        "name": "CSS-FONTS-4",
+        "url": "https://drafts.csswg.org/css-fonts-4/"
+      },
+      {
+        "name": "CSS-INLINE-3",
+        "url": "https://drafts.csswg.org/css-inline-3/"
+      },
+      {
+        "name": "CSS-OVERFLOW-3",
+        "url": "https://drafts.csswg.org/css-overflow-3/"
+      },
+      {
+        "name": "CSS-OVERFLOW-4",
+        "url": "https://drafts.csswg.org/css-overflow-4/"
+      },
+      {
+        "name": "CSS-PSEUDO-4",
+        "url": "https://drafts.csswg.org/css-pseudo-4/"
+      },
+      {
+        "name": "CSS-RUBY-1",
+        "url": "https://drafts.csswg.org/css-ruby-1/"
+      },
+      {
+        "name": "CSS-SIZING-3",
+        "url": "https://drafts.csswg.org/css-sizing-3/"
+      },
+      {
+        "name": "CSS-TEXT-3",
+        "url": "https://drafts.csswg.org/css-text-3/"
+      },
+      {
+        "name": "CSS-VALUES-3",
+        "url": "https://drafts.csswg.org/css-values-3/"
+      },
+      {
+        "name": "CSS-VALUES-4",
+        "url": "https://drafts.csswg.org/css-values-4/"
+      },
+      {
+        "name": "CSS-WRITING-MODES-3",
+        "url": "https://drafts.csswg.org/css-writing-modes-3/"
+      },
+      {
+        "name": "CSS-WRITING-MODES-4",
+        "url": "https://drafts.csswg.org/css-writing-modes-4/"
+      },
+      {
+        "name": "CSS2",
+        "url": "https://drafts.csswg.org/css2/"
+      },
+      {
+        "name": "CSS3-BREAK",
+        "url": "https://drafts.csswg.org/css-break/"
+      },
+      {
+        "name": "CSS3-FLEXBOX",
+        "url": "https://drafts.csswg.org/css-flexbox-1/"
+      },
+      {
+        "name": "CSSOM-1",
+        "url": "https://drafts.csswg.org/cssom/"
+      },
+      {
+        "name": "HTML",
+        "url": "https://html.spec.whatwg.org/multipage/"
+      },
+      {
+        "name": "INFRA",
+        "url": "https://infra.spec.whatwg.org/"
+      },
+      {
+        "name": "MATHML-CORE",
+        "url": "https://w3c.github.io/mathml-core/"
+      },
+      {
+        "name": "RFC2119",
+        "url": "https://datatracker.ietf.org/doc/html/rfc2119"
+      },
+      {
+        "name": "UAX11",
+        "url": "https://www.unicode.org/reports/tr11/tr11-43.html"
+      },
+      {
+        "name": "UAX14",
+        "url": "https://www.unicode.org/reports/tr14/tr14-53.html"
+      },
+      {
+        "name": "UAX24",
+        "url": "https://www.unicode.org/reports/tr24/tr24-38.html"
+      },
+      {
+        "name": "UAX29",
+        "url": "https://www.unicode.org/reports/tr29/tr29-45.html"
+      },
+      {
+        "name": "UAX44",
+        "url": "https://www.unicode.org/reports/tr44/tr44-34.html"
+      },
+      {
+        "name": "UAX50",
+        "url": "https://www.unicode.org/reports/tr50/tr50-31.html"
+      },
+      {
+        "name": "UAX9",
+        "url": "https://www.unicode.org/reports/tr9/tr9-50.html"
+      },
+      {
+        "name": "UNICODE",
+        "url": "https://www.unicode.org/versions/latest/"
+      }
+    ],
+    "informative": [
+      {
+        "name": "BCP47",
+        "url": "https://www.rfc-editor.org/rfc/rfc5646"
+      },
+      {
+        "name": "CLREQ",
+        "url": "https://www.w3.org/International/clreq/"
+      },
+      {
+        "name": "CSS-DISPLAY-3",
+        "url": "https://drafts.csswg.org/css-display/"
+      },
+      {
+        "name": "CSS-TEXT-DECOR-3",
+        "url": "https://drafts.csswg.org/css-text-decor-3/"
+      },
+      {
+        "name": "DOM",
+        "url": "https://dom.spec.whatwg.org/"
+      },
+      {
+        "name": "ILREQ",
+        "url": "https://w3c.github.io/ilreq/"
+      },
+      {
+        "name": "ISO15924"
+      },
+      {
+        "name": "JIS4051"
+      },
+      {
+        "name": "JLREQ",
+        "url": "https://w3c.github.io/jlreq/"
+      },
+      {
+        "name": "JUSTIFY",
+        "url": "https://www.w3.org/International/articles/typography/justification"
+      },
+      {
+        "name": "L2-22-080R",
+        "url": "https://www.unicode.org/L2/L2022/22080r-line-break-ortho-bnd.pdf"
+      },
+      {
+        "name": "RFC6919",
+        "url": "https://www.rfc-editor.org/rfc/rfc6919"
+      },
+      {
+        "name": "TYPOGRAPHY",
+        "url": "https://w3c.github.io/typography/"
+      },
+      {
+        "name": "XML10",
+        "url": "https://www.w3.org/TR/xml/"
+      },
+      {
+        "name": "ZHMARK"
+      }
+    ]
+  }
+}

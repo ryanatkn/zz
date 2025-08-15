@@ -1,0 +1,113 @@
+{
+  "spec": {
+    "title": "HTML Media Capture",
+    "url": "https://w3c.github.io/html-media-capture/"
+  },
+  "headings": [
+    {
+      "id": "title",
+      "href": "https://w3c.github.io/html-media-capture/#title",
+      "level": 1,
+      "title": "HTML Media Capture"
+    },
+    {
+      "id": "toc",
+      "href": "https://w3c.github.io/html-media-capture/#toc",
+      "level": 2,
+      "title": "Table of Contents",
+      "alternateIds": [
+        "table-of-contents"
+      ]
+    },
+    {
+      "id": "introduction",
+      "href": "https://w3c.github.io/html-media-capture/#introduction",
+      "level": 2,
+      "title": "Introduction",
+      "alternateIds": [
+        "x1-introduction"
+      ],
+      "number": "1"
+    },
+    {
+      "id": "conformance",
+      "href": "https://w3c.github.io/html-media-capture/#conformance",
+      "level": 2,
+      "title": "Conformance",
+      "alternateIds": [
+        "x2-conformance"
+      ],
+      "number": "2"
+    },
+    {
+      "id": "terminology",
+      "href": "https://w3c.github.io/html-media-capture/#terminology",
+      "level": 2,
+      "title": "Terminology",
+      "alternateIds": [
+        "x3-terminology"
+      ],
+      "number": "3"
+    },
+    {
+      "id": "security",
+      "href": "https://w3c.github.io/html-media-capture/#security",
+      "level": 2,
+      "title": "Security and privacy considerations",
+      "alternateIds": [
+        "x4-security-and-privacy-considerations"
+      ],
+      "number": "4"
+    },
+    {
+      "id": "the-capture-idl-attribute",
+      "href": "https://w3c.github.io/html-media-capture/#the-capture-idl-attribute",
+      "level": 2,
+      "title": "The capture IDL attribute",
+      "alternateIds": [
+        "x5-the-capture-idl-attribute"
+      ],
+      "number": "5"
+    },
+    {
+      "id": "examples",
+      "href": "https://w3c.github.io/html-media-capture/#examples",
+      "level": 2,
+      "title": "Examples",
+      "alternateIds": [
+        "a-examples"
+      ],
+      "number": "A"
+    },
+    {
+      "id": "references",
+      "href": "https://w3c.github.io/html-media-capture/#references",
+      "level": 2,
+      "title": "References",
+      "alternateIds": [
+        "b-references"
+      ],
+      "number": "B"
+    },
+    {
+      "id": "normative-references",
+      "href": "https://w3c.github.io/html-media-capture/#normative-references",
+      "level": 3,
+      "title": "Normative references",
+      "alternateIds": [
+        "b-1-normative-references"
+      ],
+      "number": "B.1"
+    },
+    {
+      "id": "informative-references",
+      "href": "https://w3c.github.io/html-media-capture/#informative-references",
+      "level": 3,
+      "title": "Informative references",
+      "alternateIds": [
+        "b-2-informative-references"
+      ],
+      "number": "B.2"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "spec": {
+    "title": "RTP Payload Format For AV1",
+    "url": "https://aomediacodec.github.io/av1-rtp-spec/"
+  },
+  "links": {
+    "rawlinks": {
+      "https://aomediacodec.github.io/av1-rtp-spec/": {
+        "anchors": [
+          "dependency-descriptor-rtp-header-extension"
+        ]
+      },
+      "https://aomediacodec.github.io/av1-spec/av1-spec.pdf": {},
+      "https://datatracker.ietf.org/doc/html/rfc2119": {},
+      "https://tools.ietf.org/html/draft-ietf-avtext-lrr-07": {},
+      "https://tools.ietf.org/html/draft-ietf-payload-vp9": {},
+      "https://www.iana.org/assignments/media-types/video/AV1": {},
+      "https://www.rfc-editor.org/rfc/rfc2326": {},
+      "https://www.rfc-editor.org/rfc/rfc2974": {},
+      "https://www.rfc-editor.org/rfc/rfc3264": {},
+      "https://www.rfc-editor.org/rfc/rfc3550": {},
+      "https://www.rfc-editor.org/rfc/rfc3711": {},
+      "https://www.rfc-editor.org/rfc/rfc4566": {},
+      "https://www.rfc-editor.org/rfc/rfc4585": {},
+      "https://www.rfc-editor.org/rfc/rfc5104": {},
+      "https://www.rfc-editor.org/rfc/rfc6184": {},
+      "https://www.rfc-editor.org/rfc/rfc6904": {},
+      "https://www.rfc-editor.org/rfc/rfc7202": {},
+      "https://www.rfc-editor.org/rfc/rfc7667": {},
+      "https://www.rfc-editor.org/rfc/rfc8082": {},
+      "https://www.rfc-editor.org/rfc/rfc8285": {},
+      "https://www.rfc-editor.org/rfc/rfc8851": {},
+      "https://www.rfc-editor.org/rfc/rfc8852": {},
+      "https://www.rfc-editor.org/rfc/rfc8853": {}
+    },
+    "autolinks": {}
+  }
+}

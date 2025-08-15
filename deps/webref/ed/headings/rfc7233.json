@@ -1,0 +1,338 @@
+{
+  "spec": {
+    "title": "RFC 7233 - Hypertext Transfer Protocol (HTTP/1.1): Range Requests",
+    "url": "https://httpwg.org/specs/rfc7233.html"
+  },
+  "headings": [
+    {
+      "id": "rfc.abstract",
+      "href": "https://httpwg.org/specs/rfc7233.html#rfc.abstract",
+      "level": 2,
+      "title": "Abstract"
+    },
+    {
+      "id": "introduction",
+      "href": "https://httpwg.org/specs/rfc7233.html#introduction",
+      "level": 2,
+      "title": "Introduction",
+      "alternateIds": [
+        "rfc.section.1"
+      ],
+      "number": "1"
+    },
+    {
+      "id": "conformance",
+      "href": "https://httpwg.org/specs/rfc7233.html#conformance",
+      "level": 3,
+      "title": "Conformance and Error Handling",
+      "alternateIds": [
+        "rfc.section.1.1"
+      ],
+      "number": "1.1"
+    },
+    {
+      "id": "notation",
+      "href": "https://httpwg.org/specs/rfc7233.html#notation",
+      "level": 3,
+      "title": "Syntax Notation",
+      "alternateIds": [
+        "rfc.section.1.2"
+      ],
+      "number": "1.2"
+    },
+    {
+      "id": "range.units",
+      "href": "https://httpwg.org/specs/rfc7233.html#range.units",
+      "level": 2,
+      "title": "Range Units",
+      "alternateIds": [
+        "rfc.section.2"
+      ],
+      "number": "2"
+    },
+    {
+      "id": "byte.ranges",
+      "href": "https://httpwg.org/specs/rfc7233.html#byte.ranges",
+      "level": 3,
+      "title": "Byte Ranges",
+      "alternateIds": [
+        "rfc.section.2.1"
+      ],
+      "number": "2.1"
+    },
+    {
+      "id": "range.units.other",
+      "href": "https://httpwg.org/specs/rfc7233.html#range.units.other",
+      "level": 3,
+      "title": "Other Range Units",
+      "alternateIds": [
+        "rfc.section.2.2"
+      ],
+      "number": "2.2"
+    },
+    {
+      "id": "header.accept-ranges",
+      "href": "https://httpwg.org/specs/rfc7233.html#header.accept-ranges",
+      "level": 3,
+      "title": "Accept-Ranges",
+      "alternateIds": [
+        "rfc.section.2.3"
+      ],
+      "number": "2.3"
+    },
+    {
+      "id": "range.requests",
+      "href": "https://httpwg.org/specs/rfc7233.html#range.requests",
+      "level": 2,
+      "title": "Range Requests",
+      "alternateIds": [
+        "rfc.section.3"
+      ],
+      "number": "3"
+    },
+    {
+      "id": "header.range",
+      "href": "https://httpwg.org/specs/rfc7233.html#header.range",
+      "level": 3,
+      "title": "Range",
+      "alternateIds": [
+        "rfc.section.3.1"
+      ],
+      "number": "3.1"
+    },
+    {
+      "id": "header.if-range",
+      "href": "https://httpwg.org/specs/rfc7233.html#header.if-range",
+      "level": 3,
+      "title": "If-Range",
+      "alternateIds": [
+        "rfc.section.3.2"
+      ],
+      "number": "3.2"
+    },
+    {
+      "id": "range.response",
+      "href": "https://httpwg.org/specs/rfc7233.html#range.response",
+      "level": 2,
+      "title": "Responses to a Range Request",
+      "alternateIds": [
+        "rfc.section.4"
+      ],
+      "number": "4"
+    },
+    {
+      "id": "status.206",
+      "href": "https://httpwg.org/specs/rfc7233.html#status.206",
+      "level": 3,
+      "title": "206 Partial Content",
+      "alternateIds": [
+        "rfc.section.4.1"
+      ],
+      "number": "4.1"
+    },
+    {
+      "id": "header.content-range",
+      "href": "https://httpwg.org/specs/rfc7233.html#header.content-range",
+      "level": 3,
+      "title": "Content-Range",
+      "alternateIds": [
+        "rfc.section.4.2"
+      ],
+      "number": "4.2"
+    },
+    {
+      "id": "combining.byte.ranges",
+      "href": "https://httpwg.org/specs/rfc7233.html#combining.byte.ranges",
+      "level": 3,
+      "title": "Combining Ranges",
+      "alternateIds": [
+        "rfc.section.4.3"
+      ],
+      "number": "4.3"
+    },
+    {
+      "id": "status.416",
+      "href": "https://httpwg.org/specs/rfc7233.html#status.416",
+      "level": 3,
+      "title": "416 Range Not Satisfiable",
+      "alternateIds": [
+        "rfc.section.4.4"
+      ],
+      "number": "4.4"
+    },
+    {
+      "id": "IANA.considerations",
+      "href": "https://httpwg.org/specs/rfc7233.html#IANA.considerations",
+      "level": 2,
+      "title": "IANA Considerations",
+      "alternateIds": [
+        "rfc.section.5"
+      ],
+      "number": "5"
+    },
+    {
+      "id": "range.unit.registry",
+      "href": "https://httpwg.org/specs/rfc7233.html#range.unit.registry",
+      "level": 3,
+      "title": "Range Unit Registry",
+      "alternateIds": [
+        "rfc.section.5.1"
+      ],
+      "number": "5.1"
+    },
+    {
+      "id": "range.unit.registry.procedure",
+      "href": "https://httpwg.org/specs/rfc7233.html#range.unit.registry.procedure",
+      "level": 4,
+      "title": "Procedure",
+      "alternateIds": [
+        "rfc.section.5.1.1"
+      ],
+      "number": "5.1.1"
+    },
+    {
+      "id": "range.unit.registration",
+      "href": "https://httpwg.org/specs/rfc7233.html#range.unit.registration",
+      "level": 4,
+      "title": "Registrations",
+      "alternateIds": [
+        "rfc.section.5.1.2"
+      ],
+      "number": "5.1.2"
+    },
+    {
+      "id": "status.code.registration",
+      "href": "https://httpwg.org/specs/rfc7233.html#status.code.registration",
+      "level": 3,
+      "title": "Status Code Registration",
+      "alternateIds": [
+        "rfc.section.5.2"
+      ],
+      "number": "5.2"
+    },
+    {
+      "id": "header.field.registration",
+      "href": "https://httpwg.org/specs/rfc7233.html#header.field.registration",
+      "level": 3,
+      "title": "Header Field Registration",
+      "alternateIds": [
+        "rfc.section.5.3"
+      ],
+      "number": "5.3"
+    },
+    {
+      "id": "internet.media.type.http",
+      "href": "https://httpwg.org/specs/rfc7233.html#internet.media.type.http",
+      "level": 3,
+      "title": "Internet Media Type Registration",
+      "alternateIds": [
+        "rfc.section.5.4"
+      ],
+      "number": "5.4"
+    },
+    {
+      "id": "internet.media.type.multipart.byteranges.reg",
+      "href": "https://httpwg.org/specs/rfc7233.html#internet.media.type.multipart.byteranges.reg",
+      "level": 4,
+      "title": "Internet Media Type multipart/byteranges",
+      "alternateIds": [
+        "rfc.section.5.4.1"
+      ],
+      "number": "5.4.1"
+    },
+    {
+      "id": "security.considerations",
+      "href": "https://httpwg.org/specs/rfc7233.html#security.considerations",
+      "level": 2,
+      "title": "Security Considerations",
+      "alternateIds": [
+        "rfc.section.6"
+      ],
+      "number": "6"
+    },
+    {
+      "id": "overlapping.ranges",
+      "href": "https://httpwg.org/specs/rfc7233.html#overlapping.ranges",
+      "level": 3,
+      "title": "Denial-of-Service Attacks Using Range",
+      "alternateIds": [
+        "rfc.section.6.1"
+      ],
+      "number": "6.1"
+    },
+    {
+      "id": "acks",
+      "href": "https://httpwg.org/specs/rfc7233.html#acks",
+      "level": 2,
+      "title": "Acknowledgments",
+      "alternateIds": [
+        "rfc.section.7"
+      ],
+      "number": "7"
+    },
+    {
+      "id": "rfc.references",
+      "href": "https://httpwg.org/specs/rfc7233.html#rfc.references",
+      "level": 2,
+      "title": "References",
+      "alternateIds": [
+        "rfc.section.8"
+      ],
+      "number": "8"
+    },
+    {
+      "id": "rfc.section.8.1",
+      "href": "https://httpwg.org/specs/rfc7233.html#rfc.section.8.1",
+      "level": 3,
+      "title": "Normative References",
+      "number": "8.1"
+    },
+    {
+      "id": "rfc.section.8.2",
+      "href": "https://httpwg.org/specs/rfc7233.html#rfc.section.8.2",
+      "level": 3,
+      "title": "Informative References",
+      "number": "8.2"
+    },
+    {
+      "id": "internet.media.type.multipart.byteranges",
+      "href": "https://httpwg.org/specs/rfc7233.html#internet.media.type.multipart.byteranges",
+      "level": 2,
+      "title": "Internet Media Type multipart/byteranges",
+      "alternateIds": [
+        "rfc.section.A"
+      ],
+      "number": "A"
+    },
+    {
+      "id": "changes.from.rfc.2616",
+      "href": "https://httpwg.org/specs/rfc7233.html#changes.from.rfc.2616",
+      "level": 2,
+      "title": "Changes from RFC 2616",
+      "alternateIds": [
+        "rfc.section.B"
+      ],
+      "number": "B"
+    },
+    {
+      "id": "imported.abnf",
+      "href": "https://httpwg.org/specs/rfc7233.html#imported.abnf",
+      "level": 2,
+      "title": "Imported ABNF",
+      "alternateIds": [
+        "rfc.section.C"
+      ],
+      "number": "C"
+    },
+    {
+      "id": "collected.abnf",
+      "href": "https://httpwg.org/specs/rfc7233.html#collected.abnf",
+      "level": 2,
+      "title": "Collected ABNF",
+      "alternateIds": [
+        "rfc.section.D"
+      ],
+      "number": "D"
+    }
+  ]
+}

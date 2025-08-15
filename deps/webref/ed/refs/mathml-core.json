@@ -1,0 +1,151 @@
+{
+  "spec": {
+    "title": "MathML Core",
+    "url": "https://w3c.github.io/mathml-core/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "BIDI",
+        "url": "https://www.unicode.org/reports/tr9/tr9-50.html"
+      },
+      {
+        "name": "css-align-3",
+        "url": "https://www.w3.org/TR/css-align-3/"
+      },
+      {
+        "name": "css-backgrounds-3",
+        "url": "https://www.w3.org/TR/css-backgrounds-3/"
+      },
+      {
+        "name": "css-box-4",
+        "url": "https://www.w3.org/TR/css-box-4/"
+      },
+      {
+        "name": "CSS-CASCADE-4",
+        "url": "https://www.w3.org/TR/css-cascade-4/"
+      },
+      {
+        "name": "css-color-4",
+        "url": "https://www.w3.org/TR/css-color-4/"
+      },
+      {
+        "name": "CSS-DISPLAY-3",
+        "url": "https://www.w3.org/TR/css-display-3/"
+      },
+      {
+        "name": "CSS-FONTS-4",
+        "url": "https://www.w3.org/TR/css-fonts-4/"
+      },
+      {
+        "name": "CSS-POSITION-3",
+        "url": "https://www.w3.org/TR/css-position-3/"
+      },
+      {
+        "name": "css-pseudo-4",
+        "url": "https://www.w3.org/TR/css-pseudo-4/"
+      },
+      {
+        "name": "css-sizing-3",
+        "url": "https://www.w3.org/TR/css-sizing-3/"
+      },
+      {
+        "name": "css-text-3",
+        "url": "https://www.w3.org/TR/css-text-3/"
+      },
+      {
+        "name": "CSS-TEXT-4",
+        "url": "https://www.w3.org/TR/css-text-4/"
+      },
+      {
+        "name": "CSS-VALUES-4",
+        "url": "https://www.w3.org/TR/css-values-4/"
+      },
+      {
+        "name": "CSS-WRITING-MODES-4",
+        "url": "https://www.w3.org/TR/css-writing-modes-4/"
+      },
+      {
+        "name": "CSS2",
+        "url": "https://www.w3.org/TR/CSS2/"
+      },
+      {
+        "name": "DOM",
+        "url": "https://dom.spec.whatwg.org/"
+      },
+      {
+        "name": "HTML",
+        "url": "https://html.spec.whatwg.org/multipage/"
+      },
+      {
+        "name": "infra",
+        "url": "https://infra.spec.whatwg.org/"
+      },
+      {
+        "name": "OPEN-FONT-FORMAT",
+        "url": "https://www.iso.org/standard/74461.html"
+      },
+      {
+        "name": "RFC2119",
+        "url": "https://www.rfc-editor.org/rfc/rfc2119"
+      },
+      {
+        "name": "SELECT",
+        "url": "https://www.w3.org/TR/selectors-3/"
+      },
+      {
+        "name": "SVG",
+        "url": "https://www.w3.org/TR/SVG/"
+      },
+      {
+        "name": "webidl",
+        "url": "https://webidl.spec.whatwg.org/"
+      }
+    ],
+    "informative": [
+      {
+        "name": "CSS-LAYOUT-API-1",
+        "url": "https://www.w3.org/TR/css-layout-api-1/"
+      },
+      {
+        "name": "css-text-decor-4",
+        "url": "https://www.w3.org/TR/css-text-decor-4/"
+      },
+      {
+        "name": "cssom-view",
+        "url": "https://www.w3.org/TR/cssom-view-1/"
+      },
+      {
+        "name": "HOUDINI",
+        "url": "https://drafts.css-houdini.org/"
+      },
+      {
+        "name": "MATHML3",
+        "url": "https://www.w3.org/TR/MathML3/"
+      },
+      {
+        "name": "MATHML4",
+        "url": "https://w3c.github.io/mathml/"
+      },
+      {
+        "name": "OPEN-TYPE-MATH-ILLUMINATED",
+        "url": "https://www.tug.org/TUGboat/tb30-1/tb94vieth.pdf"
+      },
+      {
+        "name": "OPEN-TYPE-MATH-IN-HARFBUZZ",
+        "url": "https://frederic-wang.fr/2016/04/16/opentype-math-in-harfbuzz/"
+      },
+      {
+        "name": "TEXBOOK"
+      },
+      {
+        "name": "UNICODE",
+        "url": "https://www.unicode.org/versions/latest/"
+      },
+      {
+        "name": "xml-entity-names",
+        "url": "https://www.w3.org/TR/xml-entity-names/"
+      }
+    ]
+  }
+}

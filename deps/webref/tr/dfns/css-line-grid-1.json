@@ -1,0 +1,310 @@
+{
+  "spec": {
+    "title": "CSS Line Grid Module Level 1",
+    "url": "https://www.w3.org/TR/css-line-grid-1/"
+  },
+  "dfns": [
+    {
+      "id": "propdef-line-grid",
+      "href": "https://www.w3.org/TR/css-line-grid-1/#propdef-line-grid",
+      "linkingText": [
+        "line-grid"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "line-grid",
+        "href": "https://www.w3.org/TR/css-line-grid-1/#line-grid",
+        "title": "Defining a Line Grid: the line-grid property",
+        "number": "2"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "valdef-line-grid-match-parent",
+      "href": "https://www.w3.org/TR/css-line-grid-1/#valdef-line-grid-match-parent",
+      "linkingText": [
+        "match-parent"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "line-grid"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "line-grid",
+        "href": "https://www.w3.org/TR/css-line-grid-1/#line-grid",
+        "title": "Defining a Line Grid: the line-grid property",
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-line-grid-create",
+      "href": "https://www.w3.org/TR/css-line-grid-1/#valdef-line-grid-create",
+      "linkingText": [
+        "create"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "line-grid"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "line-grid",
+        "href": "https://www.w3.org/TR/css-line-grid-1/#line-grid",
+        "title": "Defining a Line Grid: the line-grid property",
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "propdef-line-snap",
+      "href": "https://www.w3.org/TR/css-line-grid-1/#propdef-line-snap",
+      "linkingText": [
+        "line-snap"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "line-snap",
+        "href": "https://www.w3.org/TR/css-line-grid-1/#line-snap",
+        "title": "Snapping Line Boxes: the line-snap property",
+        "number": "3.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "valdef-line-snap-none",
+      "href": "https://www.w3.org/TR/css-line-grid-1/#valdef-line-snap-none",
+      "linkingText": [
+        "none"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "line-snap"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "line-snap",
+        "href": "https://www.w3.org/TR/css-line-grid-1/#line-snap",
+        "title": "Snapping Line Boxes: the line-snap property",
+        "number": "3.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-line-snap-baseline",
+      "href": "https://www.w3.org/TR/css-line-grid-1/#valdef-line-snap-baseline",
+      "linkingText": [
+        "baseline"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "line-snap"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "line-snap",
+        "href": "https://www.w3.org/TR/css-line-grid-1/#line-snap",
+        "title": "Snapping Line Boxes: the line-snap property",
+        "number": "3.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-line-snap-contain",
+      "href": "https://www.w3.org/TR/css-line-grid-1/#valdef-line-snap-contain",
+      "linkingText": [
+        "contain"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "line-snap"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "line-snap",
+        "href": "https://www.w3.org/TR/css-line-grid-1/#line-snap",
+        "title": "Snapping Line Boxes: the line-snap property",
+        "number": "3.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "propdef-box-snap",
+      "href": "https://www.w3.org/TR/css-line-grid-1/#propdef-box-snap",
+      "linkingText": [
+        "box-snap"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "box-snap",
+        "href": "https://www.w3.org/TR/css-line-grid-1/#box-snap",
+        "title": "Snapping Block Boxes: the box-snap property",
+        "number": "3.2"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "valdef-box-snap-none",
+      "href": "https://www.w3.org/TR/css-line-grid-1/#valdef-box-snap-none",
+      "linkingText": [
+        "none"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "box-snap"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "box-snap",
+        "href": "https://www.w3.org/TR/css-line-grid-1/#box-snap",
+        "title": "Snapping Block Boxes: the box-snap property",
+        "number": "3.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-box-snap-block-start",
+      "href": "https://www.w3.org/TR/css-line-grid-1/#valdef-box-snap-block-start",
+      "linkingText": [
+        "block-start"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "box-snap"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "box-snap",
+        "href": "https://www.w3.org/TR/css-line-grid-1/#box-snap",
+        "title": "Snapping Block Boxes: the box-snap property",
+        "number": "3.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-box-snap-block-end",
+      "href": "https://www.w3.org/TR/css-line-grid-1/#valdef-box-snap-block-end",
+      "linkingText": [
+        "block-end"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "box-snap"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "box-snap",
+        "href": "https://www.w3.org/TR/css-line-grid-1/#box-snap",
+        "title": "Snapping Block Boxes: the box-snap property",
+        "number": "3.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-box-snap-center",
+      "href": "https://www.w3.org/TR/css-line-grid-1/#valdef-box-snap-center",
+      "linkingText": [
+        "center"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "box-snap"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "box-snap",
+        "href": "https://www.w3.org/TR/css-line-grid-1/#box-snap",
+        "title": "Snapping Block Boxes: the box-snap property",
+        "number": "3.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-box-snap-first-baseline",
+      "href": "https://www.w3.org/TR/css-line-grid-1/#valdef-box-snap-first-baseline",
+      "linkingText": [
+        "first-baseline"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "box-snap"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "box-snap",
+        "href": "https://www.w3.org/TR/css-line-grid-1/#box-snap",
+        "title": "Snapping Block Boxes: the box-snap property",
+        "number": "3.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-box-snap-last-baseline",
+      "href": "https://www.w3.org/TR/css-line-grid-1/#valdef-box-snap-last-baseline",
+      "linkingText": [
+        "last-baseline"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "box-snap"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "box-snap",
+        "href": "https://www.w3.org/TR/css-line-grid-1/#box-snap",
+        "title": "Snapping Block Boxes: the box-snap property",
+        "number": "3.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    }
+  ]
+}

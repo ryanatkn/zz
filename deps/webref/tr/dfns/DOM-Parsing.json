@@ -1,0 +1,721 @@
+{
+  "spec": {
+    "title": "DOM Parsing and Serialization",
+    "url": "https://www.w3.org/TR/DOM-Parsing/"
+  },
+  "dfns": [
+    {
+      "id": "dfn-other-applicable-specifications",
+      "href": "https://www.w3.org/TR/DOM-Parsing/#dfn-other-applicable-specifications",
+      "linkingText": [
+        "other applicable specifications"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "extensibility",
+        "href": "https://www.w3.org/TR/DOM-Parsing/#extensibility",
+        "title": "Extensibility",
+        "alternateIds": [
+          "h-extensibility"
+        ],
+        "number": "1.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-context-object",
+      "href": "https://www.w3.org/TR/DOM-Parsing/#dfn-context-object",
+      "linkingText": [
+        "context object"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/DOM-Parsing/#terminology",
+        "title": "Terminology",
+        "alternateIds": [
+          "h-terminology"
+        ],
+        "number": "2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-html-ns",
+      "href": "https://www.w3.org/TR/DOM-Parsing/#dfn-html-ns",
+      "linkingText": [
+        "html-ns"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "namespaces",
+        "href": "https://www.w3.org/TR/DOM-Parsing/#namespaces",
+        "title": "Namespaces",
+        "alternateIds": [
+          "h-namespaces"
+        ],
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-xml-ns",
+      "href": "https://www.w3.org/TR/DOM-Parsing/#dfn-xml-ns",
+      "linkingText": [
+        "xml-ns"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "namespaces",
+        "href": "https://www.w3.org/TR/DOM-Parsing/#namespaces",
+        "title": "Namespaces",
+        "alternateIds": [
+          "h-namespaces"
+        ],
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-xmlns-ns",
+      "href": "https://www.w3.org/TR/DOM-Parsing/#dfn-xmlns-ns",
+      "linkingText": [
+        "xmlns-ns"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "namespaces",
+        "href": "https://www.w3.org/TR/DOM-Parsing/#namespaces",
+        "title": "Namespaces",
+        "alternateIds": [
+          "h-namespaces"
+        ],
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-concept-parse-fragment",
+      "href": "https://www.w3.org/TR/DOM-Parsing/#dfn-concept-parse-fragment",
+      "linkingText": [
+        "concept-parse-fragment"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "parsing",
+        "href": "https://www.w3.org/TR/DOM-Parsing/#parsing",
+        "title": "Parsing",
+        "alternateIds": [
+          "h-parsing"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-concept-fragment-serializing-algorithm",
+      "href": "https://www.w3.org/TR/DOM-Parsing/#dfn-concept-fragment-serializing-algorithm",
+      "linkingText": [
+        "concept-fragment-serializing-algorithm"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "serializing",
+        "href": "https://www.w3.org/TR/DOM-Parsing/#serializing",
+        "title": "Serializing",
+        "alternateIds": [
+          "h-serializing"
+        ],
+        "number": "4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-concept-well-formed",
+      "href": "https://www.w3.org/TR/DOM-Parsing/#dfn-concept-well-formed",
+      "linkingText": [
+        "concept-well-formed"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "serializing",
+        "href": "https://www.w3.org/TR/DOM-Parsing/#serializing",
+        "title": "Serializing",
+        "alternateIds": [
+          "h-serializing"
+        ],
+        "number": "4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-concept-serialize-html",
+      "href": "https://www.w3.org/TR/DOM-Parsing/#dfn-concept-serialize-html",
+      "linkingText": [
+        "concept-serialize-html"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "serializing",
+        "href": "https://www.w3.org/TR/DOM-Parsing/#serializing",
+        "title": "Serializing",
+        "alternateIds": [
+          "h-serializing"
+        ],
+        "number": "4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-concept-serialize-xml",
+      "href": "https://www.w3.org/TR/DOM-Parsing/#dfn-concept-serialize-xml",
+      "linkingText": [
+        "concept-serialize-xml"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "serializing",
+        "href": "https://www.w3.org/TR/DOM-Parsing/#serializing",
+        "title": "Serializing",
+        "alternateIds": [
+          "h-serializing"
+        ],
+        "number": "4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-concept-context-namespace",
+      "href": "https://www.w3.org/TR/DOM-Parsing/#dfn-concept-context-namespace",
+      "linkingText": [
+        "concept-context-namespace"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "serializing",
+        "href": "https://www.w3.org/TR/DOM-Parsing/#serializing",
+        "title": "Serializing",
+        "alternateIds": [
+          "h-serializing"
+        ],
+        "number": "4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-concept-namespace-prefix-map",
+      "href": "https://www.w3.org/TR/DOM-Parsing/#dfn-concept-namespace-prefix-map",
+      "linkingText": [
+        "concept-namespace-prefix-map"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "serializing",
+        "href": "https://www.w3.org/TR/DOM-Parsing/#serializing",
+        "title": "Serializing",
+        "alternateIds": [
+          "h-serializing"
+        ],
+        "number": "4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-concept-generated-prefix",
+      "href": "https://www.w3.org/TR/DOM-Parsing/#dfn-concept-generated-prefix",
+      "linkingText": [
+        "concept-generated-prefix"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "serializing",
+        "href": "https://www.w3.org/TR/DOM-Parsing/#serializing",
+        "title": "Serializing",
+        "alternateIds": [
+          "h-serializing"
+        ],
+        "number": "4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-concept-algorithm-exception",
+      "href": "https://www.w3.org/TR/DOM-Parsing/#dfn-concept-algorithm-exception",
+      "linkingText": [
+        "concept-algorithm-exception"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "serializing",
+        "href": "https://www.w3.org/TR/DOM-Parsing/#serializing",
+        "title": "Serializing",
+        "alternateIds": [
+          "h-serializing"
+        ],
+        "number": "4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-concept-xml-serialization-algorithm",
+      "href": "https://www.w3.org/TR/DOM-Parsing/#dfn-concept-xml-serialization-algorithm",
+      "linkingText": [
+        "concept-xml-serialization-algorithm"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "serializing",
+        "href": "https://www.w3.org/TR/DOM-Parsing/#serializing",
+        "title": "Serializing",
+        "alternateIds": [
+          "h-serializing"
+        ],
+        "number": "4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-concept-serialize-doctype",
+      "href": "https://www.w3.org/TR/DOM-Parsing/#dfn-concept-serialize-doctype",
+      "linkingText": [
+        "concept-serialize-doctype"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "serializing",
+        "href": "https://www.w3.org/TR/DOM-Parsing/#serializing",
+        "title": "Serializing",
+        "alternateIds": [
+          "h-serializing"
+        ],
+        "number": "4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-concept-record-namespace-info",
+      "href": "https://www.w3.org/TR/DOM-Parsing/#dfn-concept-record-namespace-info",
+      "linkingText": [
+        "concept-record-namespace-info"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "serializing",
+        "href": "https://www.w3.org/TR/DOM-Parsing/#serializing",
+        "title": "Serializing",
+        "alternateIds": [
+          "h-serializing"
+        ],
+        "number": "4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-record-namespace-loop",
+      "href": "https://www.w3.org/TR/DOM-Parsing/#dfn-record-namespace-loop",
+      "linkingText": [
+        "record-namespace-loop"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "serializing",
+        "href": "https://www.w3.org/TR/DOM-Parsing/#serializing",
+        "title": "Serializing",
+        "alternateIds": [
+          "h-serializing"
+        ],
+        "number": "4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-concept-generate-prefix",
+      "href": "https://www.w3.org/TR/DOM-Parsing/#dfn-concept-generate-prefix",
+      "linkingText": [
+        "concept-generate-prefix"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "serializing",
+        "href": "https://www.w3.org/TR/DOM-Parsing/#serializing",
+        "title": "Serializing",
+        "alternateIds": [
+          "h-serializing"
+        ],
+        "number": "4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-concept-serialize-xml-attributes",
+      "href": "https://www.w3.org/TR/DOM-Parsing/#dfn-concept-serialize-xml-attributes",
+      "linkingText": [
+        "concept-serialize-xml-attributes"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "serializing",
+        "href": "https://www.w3.org/TR/DOM-Parsing/#serializing",
+        "title": "Serializing",
+        "alternateIds": [
+          "h-serializing"
+        ],
+        "number": "4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-concept-namespace-localname-set",
+      "href": "https://www.w3.org/TR/DOM-Parsing/#dfn-concept-namespace-localname-set",
+      "linkingText": [
+        "concept-namespace-localname-set"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "serializing",
+        "href": "https://www.w3.org/TR/DOM-Parsing/#serializing",
+        "title": "Serializing",
+        "alternateIds": [
+          "h-serializing"
+        ],
+        "number": "4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-serialize-attributes-loop",
+      "href": "https://www.w3.org/TR/DOM-Parsing/#dfn-serialize-attributes-loop",
+      "linkingText": [
+        "serialize-attributes-loop"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "serializing",
+        "href": "https://www.w3.org/TR/DOM-Parsing/#serializing",
+        "title": "Serializing",
+        "alternateIds": [
+          "h-serializing"
+        ],
+        "number": "4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-concept-serialize-attr-value",
+      "href": "https://www.w3.org/TR/DOM-Parsing/#dfn-concept-serialize-attr-value",
+      "linkingText": [
+        "concept-serialize-attr-value"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "serializing",
+        "href": "https://www.w3.org/TR/DOM-Parsing/#serializing",
+        "title": "Serializing",
+        "alternateIds": [
+          "h-serializing"
+        ],
+        "number": "4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-dom-domparser",
+      "href": "https://www.w3.org/TR/DOM-Parsing/#dfn-dom-domparser",
+      "linkingText": [
+        "dom-domparser"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-domparser-interface",
+        "href": "https://www.w3.org/TR/DOM-Parsing/#the-domparser-interface",
+        "title": "The DOMParser interface",
+        "alternateIds": [
+          "h-the-domparser-interface"
+        ],
+        "number": "5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-dom-domparser-parsefromstring",
+      "href": "https://www.w3.org/TR/DOM-Parsing/#dfn-dom-domparser-parsefromstring",
+      "linkingText": [
+        "dom-domparser-parsefromstring"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "methods",
+        "href": "https://www.w3.org/TR/DOM-Parsing/#methods",
+        "title": "Methods",
+        "alternateIds": [
+          "h-methods"
+        ],
+        "number": "5.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-dom-xmlserializer",
+      "href": "https://www.w3.org/TR/DOM-Parsing/#dfn-dom-xmlserializer",
+      "linkingText": [
+        "dom-xmlserializer"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-xmlserializer-interface",
+        "href": "https://www.w3.org/TR/DOM-Parsing/#the-xmlserializer-interface",
+        "title": "The XMLSerializer interface",
+        "alternateIds": [
+          "h-the-xmlserializer-interface"
+        ],
+        "number": "6"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-dom-xmlserializer-serializetostring",
+      "href": "https://www.w3.org/TR/DOM-Parsing/#dfn-dom-xmlserializer-serializetostring",
+      "linkingText": [
+        "dom-xmlserializer-serializetostring"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "methods-1",
+        "href": "https://www.w3.org/TR/DOM-Parsing/#methods-1",
+        "title": "Methods",
+        "alternateIds": [
+          "h-methods-1"
+        ],
+        "number": "6.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-dom-element-innerhtml",
+      "href": "https://www.w3.org/TR/DOM-Parsing/#dfn-dom-element-innerhtml",
+      "linkingText": [
+        "dom-element-innerhtml"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "attributes",
+        "href": "https://www.w3.org/TR/DOM-Parsing/#attributes",
+        "title": "Attributes",
+        "alternateIds": [
+          "h-attributes"
+        ],
+        "number": "7.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-dom-element-outerhtml",
+      "href": "https://www.w3.org/TR/DOM-Parsing/#dfn-dom-element-outerhtml",
+      "linkingText": [
+        "dom-element-outerhtml"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "attributes",
+        "href": "https://www.w3.org/TR/DOM-Parsing/#attributes",
+        "title": "Attributes",
+        "alternateIds": [
+          "h-attributes"
+        ],
+        "number": "7.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-dom-element-insertadjacenthtml",
+      "href": "https://www.w3.org/TR/DOM-Parsing/#dfn-dom-element-insertadjacenthtml",
+      "linkingText": [
+        "dom-element-insertadjacenthtml"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "methods-2",
+        "href": "https://www.w3.org/TR/DOM-Parsing/#methods-2",
+        "title": "Methods",
+        "alternateIds": [
+          "h-methods-2"
+        ],
+        "number": "7.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-dom-range-createcontextualfragment",
+      "href": "https://www.w3.org/TR/DOM-Parsing/#dfn-dom-range-createcontextualfragment",
+      "linkingText": [
+        "dom-range-createcontextualfragment"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "methods-3",
+        "href": "https://www.w3.org/TR/DOM-Parsing/#methods-3",
+        "title": "Methods",
+        "alternateIds": [
+          "h-methods-3"
+        ],
+        "number": "8.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

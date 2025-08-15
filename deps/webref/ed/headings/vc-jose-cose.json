@@ -1,0 +1,763 @@
+{
+  "spec": {
+    "title": "Securing Verifiable Credentials using JOSE and COSE",
+    "url": "https://w3c.github.io/vc-jose-cose/"
+  },
+  "headings": [
+    {
+      "id": "title",
+      "href": "https://w3c.github.io/vc-jose-cose/#title",
+      "level": 1,
+      "title": "Securing Verifiable Credentials using JOSE and COSE"
+    },
+    {
+      "id": "toc",
+      "href": "https://w3c.github.io/vc-jose-cose/#toc",
+      "level": 2,
+      "title": "Table of Contents",
+      "alternateIds": [
+        "table-of-contents"
+      ]
+    },
+    {
+      "id": "introduction",
+      "href": "https://w3c.github.io/vc-jose-cose/#introduction",
+      "level": 2,
+      "title": "Introduction",
+      "alternateIds": [
+        "section-introduction"
+      ],
+      "number": "1"
+    },
+    {
+      "id": "conformance",
+      "href": "https://w3c.github.io/vc-jose-cose/#conformance",
+      "level": 3,
+      "title": "Conformance",
+      "alternateIds": [
+        "x1-1-conformance"
+      ],
+      "number": "1.1"
+    },
+    {
+      "id": "conformance-classes-0",
+      "href": "https://w3c.github.io/vc-jose-cose/#conformance-classes-0",
+      "level": 4,
+      "title": "Conformance Classes",
+      "alternateIds": [
+        "conformance-classes"
+      ],
+      "number": "1.1.1"
+    },
+    {
+      "id": "securing-verifiable-credentials-0",
+      "href": "https://w3c.github.io/vc-jose-cose/#securing-verifiable-credentials-0",
+      "level": 4,
+      "title": "Securing Verifiable Credentials",
+      "alternateIds": [
+        "securing-verifiable-credentials"
+      ],
+      "number": "1.1.2"
+    },
+    {
+      "id": "jwt-format-and-requirements",
+      "href": "https://w3c.github.io/vc-jose-cose/#jwt-format-and-requirements",
+      "level": 5,
+      "title": "JWT Format and Requirements",
+      "alternateIds": [
+        "x1-1-2-1-jwt-format-and-requirements"
+      ],
+      "number": "1.1.2.1"
+    },
+    {
+      "id": "sd-jwt-format-and-requirements",
+      "href": "https://w3c.github.io/vc-jose-cose/#sd-jwt-format-and-requirements",
+      "level": 5,
+      "title": "SD-JWT Format and Requirements",
+      "alternateIds": [
+        "x1-1-2-2-sd-jwt-format-and-requirements"
+      ],
+      "number": "1.1.2.2"
+    },
+    {
+      "id": "terminology-0",
+      "href": "https://w3c.github.io/vc-jose-cose/#terminology-0",
+      "level": 2,
+      "title": "Terminology",
+      "alternateIds": [
+        "terminology"
+      ],
+      "number": "2"
+    },
+    {
+      "id": "securing-the-vc-data-model-0",
+      "href": "https://w3c.github.io/vc-jose-cose/#securing-the-vc-data-model-0",
+      "level": 2,
+      "title": "Securing the VC Data Model",
+      "alternateIds": [
+        "securing-the-vc-data-model"
+      ],
+      "number": "3"
+    },
+    {
+      "id": "secure-with-jose",
+      "href": "https://w3c.github.io/vc-jose-cose/#secure-with-jose",
+      "level": 3,
+      "title": "With JOSE",
+      "alternateIds": [
+        "with-jose"
+      ],
+      "number": "3.1"
+    },
+    {
+      "id": "securing-json-ld-verifiable-credentials-with-jose",
+      "href": "https://w3c.github.io/vc-jose-cose/#securing-json-ld-verifiable-credentials-with-jose",
+      "level": 4,
+      "title": "Securing JSON-LD Verifiable Credentials with JOSE",
+      "alternateIds": [
+        "securing-with-jose"
+      ],
+      "number": "3.1.1"
+    },
+    {
+      "id": "securing-json-ld-verifiable-presentations-with-jose",
+      "href": "https://w3c.github.io/vc-jose-cose/#securing-json-ld-verifiable-presentations-with-jose",
+      "level": 4,
+      "title": "Securing JSON-LD Verifiable Presentations with JOSE",
+      "alternateIds": [
+        "securing-vps-with-jose"
+      ],
+      "number": "3.1.2"
+    },
+    {
+      "id": "jose-header-parameters-and-jwt-claims",
+      "href": "https://w3c.github.io/vc-jose-cose/#jose-header-parameters-and-jwt-claims",
+      "level": 4,
+      "title": "JOSE Header Parameters and JWT Claims",
+      "alternateIds": [
+        "jose-header-parameters-jwt-claims"
+      ],
+      "number": "3.1.3"
+    },
+    {
+      "id": "secure-with-sd-jwt",
+      "href": "https://w3c.github.io/vc-jose-cose/#secure-with-sd-jwt",
+      "level": 3,
+      "title": "With SD-JWT",
+      "alternateIds": [
+        "with-sd-jwt"
+      ],
+      "number": "3.2"
+    },
+    {
+      "id": "securing-json-ld-verifiable-credentials-with-sd-jwt",
+      "href": "https://w3c.github.io/vc-jose-cose/#securing-json-ld-verifiable-credentials-with-sd-jwt",
+      "level": 4,
+      "title": "Securing JSON-LD Verifiable Credentials with SD-JWT",
+      "alternateIds": [
+        "securing-with-sd-jwt"
+      ],
+      "number": "3.2.1"
+    },
+    {
+      "id": "sd-jwt-claim-JoNlsqU3hMme-GH-OkyG9oFqOML897Wbe3-NMQDGvcU",
+      "href": "https://w3c.github.io/vc-jose-cose/#sd-jwt-claim-JoNlsqU3hMme-GH-OkyG9oFqOML897Wbe3-NMQDGvcU",
+      "level": 3,
+      "title": "Claim: id"
+    },
+    {
+      "id": "sd-jwt-claim-USHFrTak6kH3YKRltUKOVy_1x60_Kg2CLG0r-wvUrCg",
+      "href": "https://w3c.github.io/vc-jose-cose/#sd-jwt-claim-USHFrTak6kH3YKRltUKOVy_1x60_Kg2CLG0r-wvUrCg",
+      "level": 3,
+      "title": "Claim: type"
+    },
+    {
+      "id": "sd-jwt-claim-CP5G6Wm1PGbZxXlDYmJJ93cfm9g5KKshZ6Z8vUlVUQE",
+      "href": "https://w3c.github.io/vc-jose-cose/#sd-jwt-claim-CP5G6Wm1PGbZxXlDYmJJ93cfm9g5KKshZ6Z8vUlVUQE",
+      "level": 3,
+      "title": "Claim: id"
+    },
+    {
+      "id": "sd-jwt-claim-UTNwa_UZNoiiWK4W2R6DTXxRxoeNcrzpM0WiytqQD50",
+      "href": "https://w3c.github.io/vc-jose-cose/#sd-jwt-claim-UTNwa_UZNoiiWK4W2R6DTXxRxoeNcrzpM0WiytqQD50",
+      "level": 3,
+      "title": "Claim: type"
+    },
+    {
+      "id": "sd-jwt-claim-bqEzLbY3IzXbKk_eC9hsyUZOBMaEAQ3d6sltzfvIDzU",
+      "href": "https://w3c.github.io/vc-jose-cose/#sd-jwt-claim-bqEzLbY3IzXbKk_eC9hsyUZOBMaEAQ3d6sltzfvIDzU",
+      "level": 3,
+      "title": "Claim: id"
+    },
+    {
+      "id": "sd-jwt-claim-GqEW3YPpVDB_r0AZ15gfAshzH6akFbckTZZwdYL8a_M",
+      "href": "https://w3c.github.io/vc-jose-cose/#sd-jwt-claim-GqEW3YPpVDB_r0AZ15gfAshzH6akFbckTZZwdYL8a_M",
+      "level": 3,
+      "title": "Claim: type"
+    },
+    {
+      "id": "sd-jwt-claim-HVutPuWNHDRx5bvdt16pGPAWBrg_D09A69LADGjOpBo",
+      "href": "https://w3c.github.io/vc-jose-cose/#sd-jwt-claim-HVutPuWNHDRx5bvdt16pGPAWBrg_D09A69LADGjOpBo",
+      "level": 3,
+      "title": "Claim: id"
+    },
+    {
+      "id": "sd-jwt-claim-qobMSYzU60nXLIMmADNBa3PJTsgDpLlu1jlgKx4zUP8",
+      "href": "https://w3c.github.io/vc-jose-cose/#sd-jwt-claim-qobMSYzU60nXLIMmADNBa3PJTsgDpLlu1jlgKx4zUP8",
+      "level": 3,
+      "title": "Claim: type"
+    },
+    {
+      "id": "securing-json-ld-verifiable-presentations-with-sd-jwt",
+      "href": "https://w3c.github.io/vc-jose-cose/#securing-json-ld-verifiable-presentations-with-sd-jwt",
+      "level": 4,
+      "title": "Securing JSON-LD Verifiable Presentations with SD-JWT",
+      "alternateIds": [
+        "securing-vps-sd-jwt"
+      ],
+      "number": "3.2.2"
+    },
+    {
+      "id": "sd-jwt-claim-kMms6etA5SmTZkYRmSSiB-a1o-gI8cVyic2LSqVs6vI",
+      "href": "https://w3c.github.io/vc-jose-cose/#sd-jwt-claim-kMms6etA5SmTZkYRmSSiB-a1o-gI8cVyic2LSqVs6vI",
+      "level": 3,
+      "title": "Claim: type"
+    },
+    {
+      "id": "sd-jwt-claim-mcOWljAMJ_VyXjr8Ie9SVD7zrWqYj60FVPvJAKGsauQ",
+      "href": "https://w3c.github.io/vc-jose-cose/#sd-jwt-claim-mcOWljAMJ_VyXjr8Ie9SVD7zrWqYj60FVPvJAKGsauQ",
+      "level": 3,
+      "title": "Claim: type"
+    },
+    {
+      "id": "sd-jwt-claim-VUa4vhNIZgFMn90x-SST6mxTp--K3dmQkQoF8bP-UsQ",
+      "href": "https://w3c.github.io/vc-jose-cose/#sd-jwt-claim-VUa4vhNIZgFMn90x-SST6mxTp--K3dmQkQoF8bP-UsQ",
+      "level": 3,
+      "title": "Claim: id"
+    },
+    {
+      "id": "sd-jwt-claim-oM6mcODpwHJpwZbTMPaidi-e4G8IBcXIY-rErrcDyhQ",
+      "href": "https://w3c.github.io/vc-jose-cose/#sd-jwt-claim-oM6mcODpwHJpwZbTMPaidi-e4G8IBcXIY-rErrcDyhQ",
+      "level": 3,
+      "title": "Claim: type"
+    },
+    {
+      "id": "sd-jwt-claim-tj2Ui89Kb55Y-RcHYMzUZXTc_cRCGer2X6SMyCK0RMs",
+      "href": "https://w3c.github.io/vc-jose-cose/#sd-jwt-claim-tj2Ui89Kb55Y-RcHYMzUZXTc_cRCGer2X6SMyCK0RMs",
+      "level": 3,
+      "title": "Claim: id"
+    },
+    {
+      "id": "secure-with-cose",
+      "href": "https://w3c.github.io/vc-jose-cose/#secure-with-cose",
+      "level": 3,
+      "title": "With COSE",
+      "alternateIds": [
+        "securing-with-cose"
+      ],
+      "number": "3.3"
+    },
+    {
+      "id": "securing-json-ld-verifiable-credentials-with-cose",
+      "href": "https://w3c.github.io/vc-jose-cose/#securing-json-ld-verifiable-credentials-with-cose",
+      "level": 4,
+      "title": "Securing JSON-LD Verifiable Credentials with COSE",
+      "alternateIds": [
+        "securing-vcs-with-cose"
+      ],
+      "number": "3.3.1"
+    },
+    {
+      "id": "securing-json-ld-verifiable-presentations-with-cose",
+      "href": "https://w3c.github.io/vc-jose-cose/#securing-json-ld-verifiable-presentations-with-cose",
+      "level": 4,
+      "title": "Securing JSON-LD Verifiable Presentations with COSE",
+      "alternateIds": [
+        "securing-vps-with-cose"
+      ],
+      "number": "3.3.2"
+    },
+    {
+      "id": "cose-header-parameters-and-cwt-claims",
+      "href": "https://w3c.github.io/vc-jose-cose/#cose-header-parameters-and-cwt-claims",
+      "level": 4,
+      "title": "COSE Header Parameters and CWT Claims",
+      "alternateIds": [
+        "cose-header-param-cwt-claims"
+      ],
+      "number": "3.3.3"
+    },
+    {
+      "id": "key_discovery",
+      "href": "https://w3c.github.io/vc-jose-cose/#key_discovery",
+      "level": 2,
+      "title": "Key Discovery",
+      "alternateIds": [
+        "key-discovery"
+      ],
+      "number": "4"
+    },
+    {
+      "id": "using-header-parameters-and-claims-for-key-discovery",
+      "href": "https://w3c.github.io/vc-jose-cose/#using-header-parameters-and-claims-for-key-discovery",
+      "level": 3,
+      "title": "Using Header Parameters and Claims for Key Discovery",
+      "alternateIds": [
+        "using-header-params-claims-key-discovery"
+      ],
+      "number": "4.1"
+    },
+    {
+      "id": "kid-0",
+      "href": "https://w3c.github.io/vc-jose-cose/#kid-0",
+      "level": 4,
+      "title": "kid",
+      "alternateIds": [
+        "kid"
+      ],
+      "number": "4.1.1"
+    },
+    {
+      "id": "iss-0",
+      "href": "https://w3c.github.io/vc-jose-cose/#iss-0",
+      "level": 4,
+      "title": "iss",
+      "alternateIds": [
+        "iss"
+      ],
+      "number": "4.1.2"
+    },
+    {
+      "id": "cnf-0",
+      "href": "https://w3c.github.io/vc-jose-cose/#cnf-0",
+      "level": 4,
+      "title": "cnf",
+      "alternateIds": [
+        "cnf"
+      ],
+      "number": "4.1.3"
+    },
+    {
+      "id": "using-controlled-identifier-documents-0",
+      "href": "https://w3c.github.io/vc-jose-cose/#using-controlled-identifier-documents-0",
+      "level": 3,
+      "title": "Using Controlled Identifier Documents",
+      "alternateIds": [
+        "using-controlled-identifier-documents"
+      ],
+      "number": "4.2"
+    },
+    {
+      "id": "algorithms-0",
+      "href": "https://w3c.github.io/vc-jose-cose/#algorithms-0",
+      "level": 2,
+      "title": "Algorithms",
+      "alternateIds": [
+        "algorithms"
+      ],
+      "number": "5"
+    },
+    {
+      "id": "verifying-a-credential-or-presentation-secured-with-jose",
+      "href": "https://w3c.github.io/vc-jose-cose/#verifying-a-credential-or-presentation-secured-with-jose",
+      "level": 3,
+      "title": "Verifying a Credential or Presentation Secured with JOSE",
+      "alternateIds": [
+        "alg-jose"
+      ],
+      "number": "5.1"
+    },
+    {
+      "id": "verifying-a-credential-or-presentation-secured-with-sd-jwt",
+      "href": "https://w3c.github.io/vc-jose-cose/#verifying-a-credential-or-presentation-secured-with-sd-jwt",
+      "level": 3,
+      "title": "Verifying a Credential or Presentation Secured with SD-JWT",
+      "alternateIds": [
+        "alg-sd-jwt"
+      ],
+      "number": "5.2"
+    },
+    {
+      "id": "verifying-a-credential-or-presentation-secured-with-cose",
+      "href": "https://w3c.github.io/vc-jose-cose/#verifying-a-credential-or-presentation-secured-with-cose",
+      "level": 3,
+      "title": "Verifying a Credential or Presentation Secured with COSE",
+      "alternateIds": [
+        "alg-cose"
+      ],
+      "number": "5.3"
+    },
+    {
+      "id": "validation",
+      "href": "https://w3c.github.io/vc-jose-cose/#validation",
+      "level": 3,
+      "title": "Validation",
+      "alternateIds": [
+        "validation-algorithm"
+      ],
+      "number": "5.4"
+    },
+    {
+      "id": "iana-considerations-0",
+      "href": "https://w3c.github.io/vc-jose-cose/#iana-considerations-0",
+      "level": 2,
+      "title": "IANA Considerations",
+      "alternateIds": [
+        "iana-considerations"
+      ],
+      "number": "6"
+    },
+    {
+      "id": "media-types-0",
+      "href": "https://w3c.github.io/vc-jose-cose/#media-types-0",
+      "level": 3,
+      "title": "Media Types",
+      "alternateIds": [
+        "media-types"
+      ],
+      "number": "6.1"
+    },
+    {
+      "id": "vc-jwt-media-type",
+      "href": "https://w3c.github.io/vc-jose-cose/#vc-jwt-media-type",
+      "level": 4,
+      "title": "application/vc+jwt",
+      "alternateIds": [
+        "vc-json-jwt"
+      ],
+      "number": "6.1.1"
+    },
+    {
+      "id": "vp-jwt-media-type",
+      "href": "https://w3c.github.io/vc-jose-cose/#vp-jwt-media-type",
+      "level": 4,
+      "title": "application/vp+jwt",
+      "alternateIds": [
+        "vp-json-jwt"
+      ],
+      "number": "6.1.2"
+    },
+    {
+      "id": "vc-sd-jwt-media-type",
+      "href": "https://w3c.github.io/vc-jose-cose/#vc-sd-jwt-media-type",
+      "level": 4,
+      "title": "application/vc+sd-jwt",
+      "alternateIds": [
+        "vc-json-sd-jwt"
+      ],
+      "number": "6.1.3"
+    },
+    {
+      "id": "vp-sd-jwt-media-type",
+      "href": "https://w3c.github.io/vc-jose-cose/#vp-sd-jwt-media-type",
+      "level": 4,
+      "title": "application/vp+sd-jwt",
+      "alternateIds": [
+        "vp-json-sd-jwt"
+      ],
+      "number": "6.1.4"
+    },
+    {
+      "id": "vc-json-cose-media-type",
+      "href": "https://w3c.github.io/vc-jose-cose/#vc-json-cose-media-type",
+      "level": 4,
+      "title": "application/vc+cose",
+      "alternateIds": [
+        "vc-json-cose"
+      ],
+      "number": "6.1.5"
+    },
+    {
+      "id": "vp-json-cose-media-type",
+      "href": "https://w3c.github.io/vc-jose-cose/#vp-json-cose-media-type",
+      "level": 4,
+      "title": "application/vp+cose",
+      "alternateIds": [
+        "vp-json-cose"
+      ],
+      "number": "6.1.6"
+    },
+    {
+      "id": "other-considerations-0",
+      "href": "https://w3c.github.io/vc-jose-cose/#other-considerations-0",
+      "level": 2,
+      "title": "Other Considerations",
+      "alternateIds": [
+        "other-considerations"
+      ],
+      "number": "7"
+    },
+    {
+      "id": "privacy-considerations-0",
+      "href": "https://w3c.github.io/vc-jose-cose/#privacy-considerations-0",
+      "level": 3,
+      "title": "Privacy Considerations",
+      "alternateIds": [
+        "privacy-considerations"
+      ],
+      "number": "7.1"
+    },
+    {
+      "id": "security-considerations-0",
+      "href": "https://w3c.github.io/vc-jose-cose/#security-considerations-0",
+      "level": 3,
+      "title": "Security Considerations",
+      "alternateIds": [
+        "security-considerations"
+      ],
+      "number": "7.2"
+    },
+    {
+      "id": "accessibility-0",
+      "href": "https://w3c.github.io/vc-jose-cose/#accessibility-0",
+      "level": 3,
+      "title": "Accessibility",
+      "alternateIds": [
+        "accessibility"
+      ],
+      "number": "7.3"
+    },
+    {
+      "id": "examples-0",
+      "href": "https://w3c.github.io/vc-jose-cose/#examples-0",
+      "level": 2,
+      "title": "Examples",
+      "alternateIds": [
+        "examples"
+      ],
+      "number": "8"
+    },
+    {
+      "id": "controllers-0",
+      "href": "https://w3c.github.io/vc-jose-cose/#controllers-0",
+      "level": 3,
+      "title": "Controllers",
+      "alternateIds": [
+        "controllers"
+      ],
+      "number": "8.1"
+    },
+    {
+      "id": "credentials-0",
+      "href": "https://w3c.github.io/vc-jose-cose/#credentials-0",
+      "level": 3,
+      "title": "Credentials",
+      "alternateIds": [
+        "credentials"
+      ],
+      "number": "8.2"
+    },
+    {
+      "id": "sd-jwt-claim-qXJYf3TiuZ3WZr-XnvoamST-JztUTCXPCZ9VXAIIJ1Q",
+      "href": "https://w3c.github.io/vc-jose-cose/#sd-jwt-claim-qXJYf3TiuZ3WZr-XnvoamST-JztUTCXPCZ9VXAIIJ1Q",
+      "level": 3,
+      "title": "Claim: id"
+    },
+    {
+      "id": "sd-jwt-claim-w8YvbeukXo5pEc5ojI0PzJ--9Dw5AQcXVCt-1yW8-Rw",
+      "href": "https://w3c.github.io/vc-jose-cose/#sd-jwt-claim-w8YvbeukXo5pEc5ojI0PzJ--9Dw5AQcXVCt-1yW8-Rw",
+      "level": 3,
+      "title": "Claim: type"
+    },
+    {
+      "id": "sd-jwt-claim-mrQibvYoLgboxp3kRIBWPBc-wvtptZYVRQqCO1F7iEE",
+      "href": "https://w3c.github.io/vc-jose-cose/#sd-jwt-claim-mrQibvYoLgboxp3kRIBWPBc-wvtptZYVRQqCO1F7iEE",
+      "level": 3,
+      "title": "Claim: id"
+    },
+    {
+      "id": "sd-jwt-claim-zSeaaS3SX3UkvQfB_vNWQGbcsKy9HKNUk804Xx9WDpo",
+      "href": "https://w3c.github.io/vc-jose-cose/#sd-jwt-claim-zSeaaS3SX3UkvQfB_vNWQGbcsKy9HKNUk804Xx9WDpo",
+      "level": 3,
+      "title": "Claim: id"
+    },
+    {
+      "id": "sd-jwt-claim-OqKRLnZMiXVmgqdO9AjjAWNwLLrOvEdD8Dzf1VOHUKQ",
+      "href": "https://w3c.github.io/vc-jose-cose/#sd-jwt-claim-OqKRLnZMiXVmgqdO9AjjAWNwLLrOvEdD8Dzf1VOHUKQ",
+      "level": 3,
+      "title": "Claim: type"
+    },
+    {
+      "id": "sd-jwt-claim-7jdqByXUF053gyJp_HL4AVZEhjgr6XvbfMBEwz_zEQM",
+      "href": "https://w3c.github.io/vc-jose-cose/#sd-jwt-claim-7jdqByXUF053gyJp_HL4AVZEhjgr6XvbfMBEwz_zEQM",
+      "level": 3,
+      "title": "Claim: id"
+    },
+    {
+      "id": "sd-jwt-claim-8_zSMDgfP1bOcIOr5Q_E4F8nM2SfKQ8uIlrbazLvVl4",
+      "href": "https://w3c.github.io/vc-jose-cose/#sd-jwt-claim-8_zSMDgfP1bOcIOr5Q_E4F8nM2SfKQ8uIlrbazLvVl4",
+      "level": 3,
+      "title": "Claim: type"
+    },
+    {
+      "id": "sd-jwt-claim-pHrfojQxBZe8gO4qBV6FZRFAHN_9LJ7KjpKt2jOh2iU",
+      "href": "https://w3c.github.io/vc-jose-cose/#sd-jwt-claim-pHrfojQxBZe8gO4qBV6FZRFAHN_9LJ7KjpKt2jOh2iU",
+      "level": 3,
+      "title": "Claim: id"
+    },
+    {
+      "id": "sd-jwt-claim-ezdc3ToIRwsGWew94L4YY9nc32Ipp1rmgEBsJkd-zpQ",
+      "href": "https://w3c.github.io/vc-jose-cose/#sd-jwt-claim-ezdc3ToIRwsGWew94L4YY9nc32Ipp1rmgEBsJkd-zpQ",
+      "level": 3,
+      "title": "Claim: type"
+    },
+    {
+      "id": "sd-jwt-claim-Eyf89k8ViVTQQ7n0Egnbh7FnZpxt5uDrliuzhhRq3TM",
+      "href": "https://w3c.github.io/vc-jose-cose/#sd-jwt-claim-Eyf89k8ViVTQQ7n0Egnbh7FnZpxt5uDrliuzhhRq3TM",
+      "level": 3,
+      "title": "Claim: id"
+    },
+    {
+      "id": "sd-jwt-claim-yHNQ6eO_kGLNH_kZZUTVWaDeQJJ_dplpiLbYB6fu44w",
+      "href": "https://w3c.github.io/vc-jose-cose/#sd-jwt-claim-yHNQ6eO_kGLNH_kZZUTVWaDeQJJ_dplpiLbYB6fu44w",
+      "level": 3,
+      "title": "Claim: type"
+    },
+    {
+      "id": "sd-jwt-claim-yng_jz5WlUx_MtmwYfxIxJaHISx11E6lgpJU40-HoTE",
+      "href": "https://w3c.github.io/vc-jose-cose/#sd-jwt-claim-yng_jz5WlUx_MtmwYfxIxJaHISx11E6lgpJU40-HoTE",
+      "level": 3,
+      "title": "Claim: id"
+    },
+    {
+      "id": "sd-jwt-claim-i_xMTk0pe7sUTxz7djVclARpPlKIR-tEGLKdvz1RLbI",
+      "href": "https://w3c.github.io/vc-jose-cose/#sd-jwt-claim-i_xMTk0pe7sUTxz7djVclARpPlKIR-tEGLKdvz1RLbI",
+      "level": 3,
+      "title": "Claim: type"
+    },
+    {
+      "id": "sd-jwt-claim-UeDYC68Y_D5dsrp4DQXKK6ZkV0NJykCom9yiCNa2hzc",
+      "href": "https://w3c.github.io/vc-jose-cose/#sd-jwt-claim-UeDYC68Y_D5dsrp4DQXKK6ZkV0NJykCom9yiCNa2hzc",
+      "level": 3,
+      "title": "Claim: id"
+    },
+    {
+      "id": "sd-jwt-claim-5uic7cA518_QqCgbMlP44N9f7OgWkrfHEYZ3w7uBggY",
+      "href": "https://w3c.github.io/vc-jose-cose/#sd-jwt-claim-5uic7cA518_QqCgbMlP44N9f7OgWkrfHEYZ3w7uBggY",
+      "level": 3,
+      "title": "Claim: type"
+    },
+    {
+      "id": "presentations-0",
+      "href": "https://w3c.github.io/vc-jose-cose/#presentations-0",
+      "level": 3,
+      "title": "Presentations",
+      "alternateIds": [
+        "presentations"
+      ],
+      "number": "8.3"
+    },
+    {
+      "id": "sd-jwt-claim-Mg34KWmeOCdhKMWZuZmlivDRVUPM258hlqy5psDoS-I",
+      "href": "https://w3c.github.io/vc-jose-cose/#sd-jwt-claim-Mg34KWmeOCdhKMWZuZmlivDRVUPM258hlqy5psDoS-I",
+      "level": 3,
+      "title": "Claim: type"
+    },
+    {
+      "id": "sd-jwt-claim-SPG4pbxIzUyw-cfuJ5G7L4pCKWy_7hNFTkUsUk7b7hE",
+      "href": "https://w3c.github.io/vc-jose-cose/#sd-jwt-claim-SPG4pbxIzUyw-cfuJ5G7L4pCKWy_7hNFTkUsUk7b7hE",
+      "level": 3,
+      "title": "Claim: id"
+    },
+    {
+      "id": "sd-jwt-claim-XlNZYmBJUcK6nnoKbhBViotyy94o_RjzJVoFPeIrzaA",
+      "href": "https://w3c.github.io/vc-jose-cose/#sd-jwt-claim-XlNZYmBJUcK6nnoKbhBViotyy94o_RjzJVoFPeIrzaA",
+      "level": 3,
+      "title": "Claim: type"
+    },
+    {
+      "id": "sd-jwt-claim-ntt1oSo4gkwa_9Iq962Q2I5gsMOzxfYyX5yG7jTeMYE",
+      "href": "https://w3c.github.io/vc-jose-cose/#sd-jwt-claim-ntt1oSo4gkwa_9Iq962Q2I5gsMOzxfYyX5yG7jTeMYE",
+      "level": 3,
+      "title": "Claim: id"
+    },
+    {
+      "id": "sd-jwt-claim-_NblEjbT5Yrx7Rmi-stOYAKbLcKTJZj8-2oLwdvyvqs",
+      "href": "https://w3c.github.io/vc-jose-cose/#sd-jwt-claim-_NblEjbT5Yrx7Rmi-stOYAKbLcKTJZj8-2oLwdvyvqs",
+      "level": 3,
+      "title": "Claim: type"
+    },
+    {
+      "id": "sd-jwt-claim-I2sJcfA1qLnFBhrO3TV6RdlooMqSl0R8kV_I-w42KeE",
+      "href": "https://w3c.github.io/vc-jose-cose/#sd-jwt-claim-I2sJcfA1qLnFBhrO3TV6RdlooMqSl0R8kV_I-w42KeE",
+      "level": 3,
+      "title": "Claim: id"
+    },
+    {
+      "id": "sd-jwt-claim-S-v2ZISm7xvEo4rekjhYIyCETCIIKCArPZAjBUg4i7w",
+      "href": "https://w3c.github.io/vc-jose-cose/#sd-jwt-claim-S-v2ZISm7xvEo4rekjhYIyCETCIIKCArPZAjBUg4i7w",
+      "level": 3,
+      "title": "Claim: type"
+    },
+    {
+      "id": "data-uris",
+      "href": "https://w3c.github.io/vc-jose-cose/#data-uris",
+      "level": 3,
+      "title": "Data URIs",
+      "alternateIds": [
+        "date-uris"
+      ],
+      "number": "8.4"
+    },
+    {
+      "id": "cose-examples-0",
+      "href": "https://w3c.github.io/vc-jose-cose/#cose-examples-0",
+      "level": 3,
+      "title": "COSE Examples",
+      "alternateIds": [
+        "cose-examples"
+      ],
+      "number": "8.5"
+    },
+    {
+      "id": "revision-history",
+      "href": "https://w3c.github.io/vc-jose-cose/#revision-history",
+      "level": 2,
+      "title": "Revision History",
+      "alternateIds": [
+        "a-revision-history"
+      ],
+      "number": "A"
+    },
+    {
+      "id": "acknowledgements",
+      "href": "https://w3c.github.io/vc-jose-cose/#acknowledgements",
+      "level": 2,
+      "title": "Acknowledgements",
+      "alternateIds": [
+        "b-acknowledgements"
+      ],
+      "number": "B"
+    },
+    {
+      "id": "references",
+      "href": "https://w3c.github.io/vc-jose-cose/#references",
+      "level": 2,
+      "title": "References",
+      "alternateIds": [
+        "c-references"
+      ],
+      "number": "C"
+    },
+    {
+      "id": "normative-references",
+      "href": "https://w3c.github.io/vc-jose-cose/#normative-references",
+      "level": 3,
+      "title": "Normative references",
+      "alternateIds": [
+        "c-1-normative-references"
+      ],
+      "number": "C.1"
+    },
+    {
+      "id": "informative-references",
+      "href": "https://w3c.github.io/vc-jose-cose/#informative-references",
+      "level": 3,
+      "title": "Informative references",
+      "alternateIds": [
+        "c-2-informative-references"
+      ],
+      "number": "C.2"
+    }
+  ]
+}

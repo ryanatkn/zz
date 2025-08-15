@@ -1,0 +1,1105 @@
+{
+  "spec": {
+    "title": "Web Neural Network API",
+    "url": "https://www.w3.org/TR/webnn/"
+  },
+  "headings": [
+    {
+      "id": "title",
+      "href": "https://www.w3.org/TR/webnn/#title",
+      "level": 1,
+      "title": "Web Neural Network API"
+    },
+    {
+      "id": "abstract",
+      "href": "https://www.w3.org/TR/webnn/#abstract",
+      "level": 2,
+      "title": "Abstract"
+    },
+    {
+      "id": "sotd",
+      "href": "https://www.w3.org/TR/webnn/#sotd",
+      "level": 2,
+      "title": "Status of this document"
+    },
+    {
+      "id": "toc",
+      "href": "https://www.w3.org/TR/webnn/#toc",
+      "level": 2,
+      "title": "Table of Contents",
+      "alternateIds": [
+        "contents"
+      ]
+    },
+    {
+      "id": "intro",
+      "href": "https://www.w3.org/TR/webnn/#intro",
+      "level": 2,
+      "title": "Introduction",
+      "number": "1"
+    },
+    {
+      "id": "usecases",
+      "href": "https://www.w3.org/TR/webnn/#usecases",
+      "level": 2,
+      "title": "Use cases",
+      "number": "2"
+    },
+    {
+      "id": "usecases-application",
+      "href": "https://www.w3.org/TR/webnn/#usecases-application",
+      "level": 3,
+      "title": "Application Use Cases",
+      "number": "2.1"
+    },
+    {
+      "id": "usecase-person-detection",
+      "href": "https://www.w3.org/TR/webnn/#usecase-person-detection",
+      "level": 4,
+      "title": "Person Detection",
+      "number": "2.1.1"
+    },
+    {
+      "id": "usecase-segmentation",
+      "href": "https://www.w3.org/TR/webnn/#usecase-segmentation",
+      "level": 4,
+      "title": "Semantic Segmentation",
+      "number": "2.1.2"
+    },
+    {
+      "id": "usecase-skeleton-detection",
+      "href": "https://www.w3.org/TR/webnn/#usecase-skeleton-detection",
+      "level": 4,
+      "title": "Skeleton Detection",
+      "number": "2.1.3"
+    },
+    {
+      "id": "usecase-face-recognition",
+      "href": "https://www.w3.org/TR/webnn/#usecase-face-recognition",
+      "level": 4,
+      "title": "Face Recognition",
+      "number": "2.1.4"
+    },
+    {
+      "id": "usecase-facial-landmarks",
+      "href": "https://www.w3.org/TR/webnn/#usecase-facial-landmarks",
+      "level": 4,
+      "title": "Facial Landmark Detection",
+      "number": "2.1.5"
+    },
+    {
+      "id": "usecase-style-transfer",
+      "href": "https://www.w3.org/TR/webnn/#usecase-style-transfer",
+      "level": 4,
+      "title": "Style Transfer",
+      "number": "2.1.6"
+    },
+    {
+      "id": "usecase-super-resolution",
+      "href": "https://www.w3.org/TR/webnn/#usecase-super-resolution",
+      "level": 4,
+      "title": "Super Resolution",
+      "number": "2.1.7"
+    },
+    {
+      "id": "usecase-image-captioning",
+      "href": "https://www.w3.org/TR/webnn/#usecase-image-captioning",
+      "level": 4,
+      "title": "Image Captioning",
+      "number": "2.1.8"
+    },
+    {
+      "id": "usecase-text-to-image",
+      "href": "https://www.w3.org/TR/webnn/#usecase-text-to-image",
+      "level": 4,
+      "title": "Text-to-image",
+      "number": "2.1.9"
+    },
+    {
+      "id": "usecase-translation",
+      "href": "https://www.w3.org/TR/webnn/#usecase-translation",
+      "level": 4,
+      "title": "Machine Translation",
+      "number": "2.1.10"
+    },
+    {
+      "id": "usecase-emotion-analysis",
+      "href": "https://www.w3.org/TR/webnn/#usecase-emotion-analysis",
+      "level": 4,
+      "title": "Emotion Analysis",
+      "number": "2.1.11"
+    },
+    {
+      "id": "usecase-video-summalization",
+      "href": "https://www.w3.org/TR/webnn/#usecase-video-summalization",
+      "level": 4,
+      "title": "Video Summarization",
+      "number": "2.1.12"
+    },
+    {
+      "id": "usecase-noise-suppression",
+      "href": "https://www.w3.org/TR/webnn/#usecase-noise-suppression",
+      "level": 4,
+      "title": "Noise Suppression",
+      "number": "2.1.13"
+    },
+    {
+      "id": "usecase-speech-recognition",
+      "href": "https://www.w3.org/TR/webnn/#usecase-speech-recognition",
+      "level": 4,
+      "title": "Speech Recognition",
+      "number": "2.1.14"
+    },
+    {
+      "id": "usecase-text-generation",
+      "href": "https://www.w3.org/TR/webnn/#usecase-text-generation",
+      "level": 4,
+      "title": "Text Generation",
+      "number": "2.1.15"
+    },
+    {
+      "id": "usecase-detecting-fake-video",
+      "href": "https://www.w3.org/TR/webnn/#usecase-detecting-fake-video",
+      "level": 4,
+      "title": "Detecting fake video",
+      "number": "2.1.16"
+    },
+    {
+      "id": "usecases-framework",
+      "href": "https://www.w3.org/TR/webnn/#usecases-framework",
+      "level": 3,
+      "title": "Framework Use Cases",
+      "number": "2.2"
+    },
+    {
+      "id": "usecase-custom-layer",
+      "href": "https://www.w3.org/TR/webnn/#usecase-custom-layer",
+      "level": 4,
+      "title": "Custom Layer",
+      "number": "2.2.1"
+    },
+    {
+      "id": "usecase-network-concat",
+      "href": "https://www.w3.org/TR/webnn/#usecase-network-concat",
+      "level": 4,
+      "title": "Network Concatenation",
+      "number": "2.2.2"
+    },
+    {
+      "id": "usecase-perf-adapt",
+      "href": "https://www.w3.org/TR/webnn/#usecase-perf-adapt",
+      "level": 4,
+      "title": "Performance Adaptation",
+      "number": "2.2.3"
+    },
+    {
+      "id": "usecase-op-level-exec",
+      "href": "https://www.w3.org/TR/webnn/#usecase-op-level-exec",
+      "level": 4,
+      "title": "Operation Level Execution",
+      "number": "2.2.4"
+    },
+    {
+      "id": "usecase-real-time-video-processing",
+      "href": "https://www.w3.org/TR/webnn/#usecase-real-time-video-processing",
+      "level": 4,
+      "title": "Integration with real-time video processing",
+      "number": "2.2.5"
+    },
+    {
+      "id": "accessibility",
+      "href": "https://www.w3.org/TR/webnn/#accessibility",
+      "level": 2,
+      "title": "Accessibility Considerations",
+      "number": "3"
+    },
+    {
+      "id": "security",
+      "href": "https://www.w3.org/TR/webnn/#security",
+      "level": 2,
+      "title": "Security Considerations",
+      "number": "4"
+    },
+    {
+      "id": "security-new-ops",
+      "href": "https://www.w3.org/TR/webnn/#security-new-ops",
+      "level": 3,
+      "title": "Guidelines for new operations",
+      "number": "4.1"
+    },
+    {
+      "id": "privacy",
+      "href": "https://www.w3.org/TR/webnn/#privacy",
+      "level": 2,
+      "title": "Privacy Considerations",
+      "number": "5"
+    },
+    {
+      "id": "ethics",
+      "href": "https://www.w3.org/TR/webnn/#ethics",
+      "level": 2,
+      "title": "Ethical Considerations",
+      "number": "6"
+    },
+    {
+      "id": "programming-model",
+      "href": "https://www.w3.org/TR/webnn/#programming-model",
+      "level": 2,
+      "title": "Programming Model",
+      "number": "7"
+    },
+    {
+      "id": "programming-model-overview",
+      "href": "https://www.w3.org/TR/webnn/#programming-model-overview",
+      "level": 3,
+      "title": "Overview",
+      "number": "7.1"
+    },
+    {
+      "id": "programming-model-device-selection",
+      "href": "https://www.w3.org/TR/webnn/#programming-model-device-selection",
+      "level": 3,
+      "title": "Device Selection",
+      "number": "7.2"
+    },
+    {
+      "id": "programming-model-operators",
+      "href": "https://www.w3.org/TR/webnn/#programming-model-operators",
+      "level": 3,
+      "title": "Operators",
+      "number": "7.3"
+    },
+    {
+      "id": "programming-model-task-source",
+      "href": "https://www.w3.org/TR/webnn/#programming-model-task-source",
+      "level": 3,
+      "title": "Task Source",
+      "number": "7.4"
+    },
+    {
+      "id": "permissions-policy-integration",
+      "href": "https://www.w3.org/TR/webnn/#permissions-policy-integration",
+      "level": 3,
+      "title": "Permissions Policy Integration",
+      "number": "7.5"
+    },
+    {
+      "id": "api",
+      "href": "https://www.w3.org/TR/webnn/#api",
+      "level": 2,
+      "title": "API",
+      "number": "8"
+    },
+    {
+      "id": "api-navigator-ml",
+      "href": "https://www.w3.org/TR/webnn/#api-navigator-ml",
+      "level": 3,
+      "title": "The navigator.ml interface",
+      "number": "8.1"
+    },
+    {
+      "id": "api-ml",
+      "href": "https://www.w3.org/TR/webnn/#api-ml",
+      "level": 3,
+      "title": "ML interface",
+      "number": "8.2"
+    },
+    {
+      "id": "api-mlcontextoptions",
+      "href": "https://www.w3.org/TR/webnn/#api-mlcontextoptions",
+      "level": 4,
+      "title": "MLContextOptions",
+      "number": "8.2.1"
+    },
+    {
+      "id": "api-ml-createcontext",
+      "href": "https://www.w3.org/TR/webnn/#api-ml-createcontext",
+      "level": 4,
+      "title": "createContext()",
+      "number": "8.2.2"
+    },
+    {
+      "id": "api-mlcontext",
+      "href": "https://www.w3.org/TR/webnn/#api-mlcontext",
+      "level": 3,
+      "title": "MLContext interface",
+      "number": "8.3"
+    },
+    {
+      "id": "api-mlcontext-dispatch",
+      "href": "https://www.w3.org/TR/webnn/#api-mlcontext-dispatch",
+      "level": 4,
+      "title": "dispatch()",
+      "number": "8.3.1"
+    },
+    {
+      "id": "api-mlcontext-dispatch-examples",
+      "href": "https://www.w3.org/TR/webnn/#api-mlcontext-dispatch-examples",
+      "level": 5,
+      "title": "Examples",
+      "number": "8.3.1.1"
+    },
+    {
+      "id": "api-mlcontext-createtensor",
+      "href": "https://www.w3.org/TR/webnn/#api-mlcontext-createtensor",
+      "level": 4,
+      "title": "createTensor()",
+      "number": "8.3.2"
+    },
+    {
+      "id": "api-mlcontext-createconstanttensor",
+      "href": "https://www.w3.org/TR/webnn/#api-mlcontext-createconstanttensor",
+      "level": 4,
+      "title": "createConstantTensor()",
+      "number": "8.3.3"
+    },
+    {
+      "id": "api-mlcontext-readtensor",
+      "href": "https://www.w3.org/TR/webnn/#api-mlcontext-readtensor",
+      "level": 4,
+      "title": "readTensor(tensor)",
+      "number": "8.3.4"
+    },
+    {
+      "id": "api-mlcontext-readtensor-byob",
+      "href": "https://www.w3.org/TR/webnn/#api-mlcontext-readtensor-byob",
+      "level": 4,
+      "title": "readTensor(tensor, outputData)",
+      "number": "8.3.5"
+    },
+    {
+      "id": "api-mlcontext-writetensor",
+      "href": "https://www.w3.org/TR/webnn/#api-mlcontext-writetensor",
+      "level": 4,
+      "title": "writeTensor()",
+      "number": "8.3.6"
+    },
+    {
+      "id": "api-mlcontext-opsupportlimits",
+      "href": "https://www.w3.org/TR/webnn/#api-mlcontext-opsupportlimits",
+      "level": 4,
+      "title": "opSupportLimits()",
+      "number": "8.3.7"
+    },
+    {
+      "id": "api-mlcontext-opsupportlimits-dictionary",
+      "href": "https://www.w3.org/TR/webnn/#api-mlcontext-opsupportlimits-dictionary",
+      "level": 5,
+      "title": "MLOpSupportLimits dictionary",
+      "number": "8.3.7.1"
+    },
+    {
+      "id": "api-mlcontext-datatypelimits-dictionary",
+      "href": "https://www.w3.org/TR/webnn/#api-mlcontext-datatypelimits-dictionary",
+      "level": 5,
+      "title": "MLDataTypeLimits dictionary",
+      "number": "8.3.7.2"
+    },
+    {
+      "id": "api-mlcontext-rankrange-dictionary",
+      "href": "https://www.w3.org/TR/webnn/#api-mlcontext-rankrange-dictionary",
+      "level": 5,
+      "title": "MLRankRange dictionary",
+      "number": "8.3.7.3"
+    },
+    {
+      "id": "api-mlcontext-tensorlimits-dictionary",
+      "href": "https://www.w3.org/TR/webnn/#api-mlcontext-tensorlimits-dictionary",
+      "level": 5,
+      "title": "MLTensorLimits dictionary",
+      "number": "8.3.7.4"
+    },
+    {
+      "id": "api-mlcontext-binarysupportlimits-dictionary",
+      "href": "https://www.w3.org/TR/webnn/#api-mlcontext-binarysupportlimits-dictionary",
+      "level": 5,
+      "title": "MLBinarySupportLimits dictionary",
+      "number": "8.3.7.5"
+    },
+    {
+      "id": "api-mlcontext-singleinputsupportlimits-dictionary",
+      "href": "https://www.w3.org/TR/webnn/#api-mlcontext-singleinputsupportlimits-dictionary",
+      "level": 5,
+      "title": "MLSingleInputSupportLimits dictionary",
+      "number": "8.3.7.6"
+    },
+    {
+      "id": "api-mlcontext-destroy",
+      "href": "https://www.w3.org/TR/webnn/#api-mlcontext-destroy",
+      "level": 4,
+      "title": "destroy()",
+      "number": "8.3.8"
+    },
+    {
+      "id": "api-mlcontext-errors",
+      "href": "https://www.w3.org/TR/webnn/#api-mlcontext-errors",
+      "level": 4,
+      "title": "Errors",
+      "number": "8.3.9"
+    },
+    {
+      "id": "api-mlgraph",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraph",
+      "level": 3,
+      "title": "MLGraph interface",
+      "number": "8.4"
+    },
+    {
+      "id": "api-mlgraph-destroy",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraph-destroy",
+      "level": 4,
+      "title": "destroy()",
+      "number": "8.4.1"
+    },
+    {
+      "id": "api-mloperanddescriptor",
+      "href": "https://www.w3.org/TR/webnn/#api-mloperanddescriptor",
+      "level": 3,
+      "title": "MLOperandDescriptor dictionary",
+      "number": "8.5"
+    },
+    {
+      "id": "api-mloperand",
+      "href": "https://www.w3.org/TR/webnn/#api-mloperand",
+      "level": 3,
+      "title": "MLOperand interface",
+      "number": "8.6"
+    },
+    {
+      "id": "api-mloperand-create",
+      "href": "https://www.w3.org/TR/webnn/#api-mloperand-create",
+      "level": 4,
+      "title": "Creating an MLOperand",
+      "number": "8.6.1"
+    },
+    {
+      "id": "api-mlnumber-typedef",
+      "href": "https://www.w3.org/TR/webnn/#api-mlnumber-typedef",
+      "level": 5,
+      "title": "MLNumber",
+      "number": "8.6.1.1"
+    },
+    {
+      "id": "api-mltensordescriptor",
+      "href": "https://www.w3.org/TR/webnn/#api-mltensordescriptor",
+      "level": 3,
+      "title": "MLTensorDescriptor dictionary",
+      "number": "8.7"
+    },
+    {
+      "id": "api-mltensor",
+      "href": "https://www.w3.org/TR/webnn/#api-mltensor",
+      "level": 3,
+      "title": "MLTensor interface",
+      "number": "8.8"
+    },
+    {
+      "id": "api-mltensor-create",
+      "href": "https://www.w3.org/TR/webnn/#api-mltensor-create",
+      "level": 4,
+      "title": "Creating an MLTensor",
+      "number": "8.8.1"
+    },
+    {
+      "id": "api-mltensor-destroy",
+      "href": "https://www.w3.org/TR/webnn/#api-mltensor-destroy",
+      "level": 4,
+      "title": "destroy()",
+      "number": "8.8.2"
+    },
+    {
+      "id": "api-mlconstant-tensor-create",
+      "href": "https://www.w3.org/TR/webnn/#api-mlconstant-tensor-create",
+      "level": 4,
+      "title": "Creating a constant MLTensor",
+      "number": "8.8.3"
+    },
+    {
+      "id": "api-mlgraphbuilder",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder",
+      "level": 3,
+      "title": "MLGraphBuilder interface",
+      "number": "8.9"
+    },
+    {
+      "id": "api-mlgraphbuilder-constructor",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-constructor",
+      "level": 4,
+      "title": "MLGraphBuilder constructor",
+      "number": "8.9.1"
+    },
+    {
+      "id": "api-mlgraphbuilder-input",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-input",
+      "level": 4,
+      "title": "input operands",
+      "number": "8.9.2"
+    },
+    {
+      "id": "api-mlgraphbuilder-constant",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-constant",
+      "level": 4,
+      "title": "constant operands",
+      "number": "8.9.3"
+    },
+    {
+      "id": "api-mlgraphbuilder-constant-buffer",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-constant-buffer",
+      "level": 5,
+      "title": "constant(descriptor, buffer)",
+      "number": "8.9.3.1"
+    },
+    {
+      "id": "api-mlgraphbuilder-constant-tensor",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-constant-tensor",
+      "level": 5,
+      "title": "constant(tensor)",
+      "number": "8.9.3.2"
+    },
+    {
+      "id": "api-mlgraphbuilder-constant-type-value",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-constant-type-value",
+      "level": 5,
+      "title": "constant(type, value)",
+      "number": "8.9.3.3"
+    },
+    {
+      "id": "api-mlgraphbuilder-build",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-build",
+      "level": 4,
+      "title": "build method",
+      "number": "8.9.4"
+    },
+    {
+      "id": "api-mlgraphbuilder-argminmax",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-argminmax",
+      "level": 4,
+      "title": "argMin/argMax operations",
+      "number": "8.9.5"
+    },
+    {
+      "id": "api-mlgraphbuilder-batchnorm",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-batchnorm",
+      "level": 4,
+      "title": "batchNormalization",
+      "number": "8.9.6"
+    },
+    {
+      "id": "api-mlgraphbuilder-cast",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-cast",
+      "level": 4,
+      "title": "cast",
+      "number": "8.9.7"
+    },
+    {
+      "id": "api-mlgraphbuilder-clamp",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-clamp",
+      "level": 4,
+      "title": "clamp",
+      "number": "8.9.8"
+    },
+    {
+      "id": "api-mlgraphbuilder-concat",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-concat",
+      "level": 4,
+      "title": "concat",
+      "number": "8.9.9"
+    },
+    {
+      "id": "api-mlgraphbuilder-conv2d",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-conv2d",
+      "level": 4,
+      "title": "conv2d",
+      "number": "8.9.10"
+    },
+    {
+      "id": "api-mlgraphbuilder-convtranspose2d",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-convtranspose2d",
+      "level": 4,
+      "title": "convTranspose2d",
+      "number": "8.9.11"
+    },
+    {
+      "id": "api-mlgraphbuilder-cumulativesum",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-cumulativesum",
+      "level": 4,
+      "title": "cumulativeSum",
+      "number": "8.9.12"
+    },
+    {
+      "id": "api-mlgraphbuilder-binary",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-binary",
+      "level": 4,
+      "title": "Element-wise binary operations",
+      "number": "8.9.13"
+    },
+    {
+      "id": "api-mlgraphbuilder-logical",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-logical",
+      "level": 4,
+      "title": "Element-wise logical operations",
+      "number": "8.9.14"
+    },
+    {
+      "id": "api-mlgraphbuilder-unary",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-unary",
+      "level": 4,
+      "title": "Element-wise unary operations",
+      "number": "8.9.15"
+    },
+    {
+      "id": "api-mlgraphbuilder-dequantizelinear",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-dequantizelinear",
+      "level": 4,
+      "title": "dequantizeLinear",
+      "number": "8.9.16"
+    },
+    {
+      "id": "api-mlgraphbuilder-quantizelinear",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-quantizelinear",
+      "level": 4,
+      "title": "quantizeLinear",
+      "number": "8.9.17"
+    },
+    {
+      "id": "api-mlgraphbuilder-elu",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-elu",
+      "level": 4,
+      "title": "elu",
+      "number": "8.9.18"
+    },
+    {
+      "id": "api-mlgraphbuilder-expand",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-expand",
+      "level": 4,
+      "title": "expand",
+      "number": "8.9.19"
+    },
+    {
+      "id": "api-mlgraphbuilder-gather",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-gather",
+      "level": 4,
+      "title": "gather",
+      "number": "8.9.20"
+    },
+    {
+      "id": "api-mlgraphbuilder-gatherelements",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-gatherelements",
+      "level": 4,
+      "title": "gatherElements",
+      "number": "8.9.21"
+    },
+    {
+      "id": "api-mlgraphbuilder-gathernd",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-gathernd",
+      "level": 4,
+      "title": "gatherND",
+      "number": "8.9.22"
+    },
+    {
+      "id": "api-mlgraphbuilder-gelu-method",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-gelu-method",
+      "level": 4,
+      "title": "gelu",
+      "number": "8.9.23"
+    },
+    {
+      "id": "api-mlgraphbuilder-gemm",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-gemm",
+      "level": 4,
+      "title": "gemm",
+      "number": "8.9.24"
+    },
+    {
+      "id": "api-mlgraphbuilder-gru",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-gru",
+      "level": 4,
+      "title": "gru",
+      "number": "8.9.25"
+    },
+    {
+      "id": "api-mlgraphbuilder-grucell",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-grucell",
+      "level": 4,
+      "title": "gruCell",
+      "number": "8.9.26"
+    },
+    {
+      "id": "api-mlgraphbuilder-hard-sigmoid",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-hard-sigmoid",
+      "level": 4,
+      "title": "hardSigmoid",
+      "number": "8.9.27"
+    },
+    {
+      "id": "api-mlgraphbuilder-hard-swish",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-hard-swish",
+      "level": 4,
+      "title": "hardSwish",
+      "number": "8.9.28"
+    },
+    {
+      "id": "api-mlgraphbuilder-instancenorm",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-instancenorm",
+      "level": 4,
+      "title": "instanceNormalization",
+      "number": "8.9.29"
+    },
+    {
+      "id": "api-mlgraphbuilder-layernorm",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-layernorm",
+      "level": 4,
+      "title": "layerNormalization",
+      "number": "8.9.30"
+    },
+    {
+      "id": "api-mlgraphbuilder-leakyrelu",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-leakyrelu",
+      "level": 4,
+      "title": "leakyRelu",
+      "number": "8.9.31"
+    },
+    {
+      "id": "api-mlgraphbuilder-linear",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-linear",
+      "level": 4,
+      "title": "linear",
+      "number": "8.9.32"
+    },
+    {
+      "id": "api-mlgraphbuilder-lstm",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-lstm",
+      "level": 4,
+      "title": "lstm",
+      "number": "8.9.33"
+    },
+    {
+      "id": "api-mlgraphbuilder-lstmcell",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-lstmcell",
+      "level": 4,
+      "title": "lstmCell",
+      "number": "8.9.34"
+    },
+    {
+      "id": "api-mlgraphbuilder-matmul",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-matmul",
+      "level": 4,
+      "title": "matmul",
+      "number": "8.9.35"
+    },
+    {
+      "id": "api-mlgraphbuilder-pad",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-pad",
+      "level": 4,
+      "title": "pad",
+      "number": "8.9.36"
+    },
+    {
+      "id": "api-mlgraphbuilder-pool2d",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-pool2d",
+      "level": 4,
+      "title": "Pooling operations",
+      "number": "8.9.37"
+    },
+    {
+      "id": "api-mlgraphbuilder-pool2d-average",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-pool2d-average",
+      "level": 5,
+      "title": "averagePool2d",
+      "number": "8.9.37.1"
+    },
+    {
+      "id": "api-mlgraphbuilder-pool2d-l2",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-pool2d-l2",
+      "level": 5,
+      "title": "l2Pool2d",
+      "number": "8.9.37.2"
+    },
+    {
+      "id": "api-mlgraphbuilder-pool2d-max",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-pool2d-max",
+      "level": 5,
+      "title": "maxPool2d",
+      "number": "8.9.37.3"
+    },
+    {
+      "id": "api-mlgraphbuilder-prelu",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-prelu",
+      "level": 4,
+      "title": "prelu",
+      "number": "8.9.38"
+    },
+    {
+      "id": "api-mlgraphbuilder-reduce",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-reduce",
+      "level": 4,
+      "title": "Reduction operations",
+      "number": "8.9.39"
+    },
+    {
+      "id": "api-mlgraphbuilder-relu-method",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-relu-method",
+      "level": 4,
+      "title": "relu",
+      "number": "8.9.40"
+    },
+    {
+      "id": "api-mlgraphbuilder-resample2d-method",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-resample2d-method",
+      "level": 4,
+      "title": "resample2d",
+      "number": "8.9.41"
+    },
+    {
+      "id": "api-mlgraphbuilder-reshape-method",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-reshape-method",
+      "level": 4,
+      "title": "reshape",
+      "number": "8.9.42"
+    },
+    {
+      "id": "api-mlgraphbuilder-reverse-method",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-reverse-method",
+      "level": 4,
+      "title": "reverse",
+      "number": "8.9.43"
+    },
+    {
+      "id": "api-mlgraphbuilder-scatterelements",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-scatterelements",
+      "level": 4,
+      "title": "scatterElements",
+      "number": "8.9.44"
+    },
+    {
+      "id": "api-mlgraphbuilder-scatternd",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-scatternd",
+      "level": 4,
+      "title": "scatterND",
+      "number": "8.9.45"
+    },
+    {
+      "id": "api-mlgraphbuilder-sigmoid-method",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-sigmoid-method",
+      "level": 4,
+      "title": "sigmoid",
+      "number": "8.9.46"
+    },
+    {
+      "id": "api-mlgraphbuilder-slice",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-slice",
+      "level": 4,
+      "title": "slice",
+      "number": "8.9.47"
+    },
+    {
+      "id": "api-mlgraphbuilder-softmax-method",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-softmax-method",
+      "level": 4,
+      "title": "softmax",
+      "number": "8.9.48"
+    },
+    {
+      "id": "api-mlgraphbuilder-softplus-method",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-softplus-method",
+      "level": 4,
+      "title": "softplus",
+      "number": "8.9.49"
+    },
+    {
+      "id": "api-mlgraphbuilder-softsign-method",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-softsign-method",
+      "level": 4,
+      "title": "softsign",
+      "number": "8.9.50"
+    },
+    {
+      "id": "api-mlgraphbuilder-split",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-split",
+      "level": 4,
+      "title": "split",
+      "number": "8.9.51"
+    },
+    {
+      "id": "api-mlgraphbuilder-tanh-method",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-tanh-method",
+      "level": 4,
+      "title": "tanh",
+      "number": "8.9.52"
+    },
+    {
+      "id": "api-mlgraphbuilder-tile",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-tile",
+      "level": 4,
+      "title": "tile",
+      "number": "8.9.53"
+    },
+    {
+      "id": "api-mlgraphbuilder-transpose",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-transpose",
+      "level": 4,
+      "title": "transpose",
+      "number": "8.9.54"
+    },
+    {
+      "id": "api-mlgraphbuilder-triangular",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-triangular",
+      "level": 4,
+      "title": "triangular",
+      "number": "8.9.55"
+    },
+    {
+      "id": "api-mlgraphbuilder-where",
+      "href": "https://www.w3.org/TR/webnn/#api-mlgraphbuilder-where",
+      "level": 4,
+      "title": "where",
+      "number": "8.9.56"
+    },
+    {
+      "id": "algorithms",
+      "href": "https://www.w3.org/TR/webnn/#algorithms",
+      "level": 2,
+      "title": "Algorithms",
+      "number": "9"
+    },
+    {
+      "id": "algorithms-broadcasting",
+      "href": "https://www.w3.org/TR/webnn/#algorithms-broadcasting",
+      "level": 3,
+      "title": "Broadcasting",
+      "number": "9.1"
+    },
+    {
+      "id": "algorithms-casting",
+      "href": "https://www.w3.org/TR/webnn/#algorithms-casting",
+      "level": 3,
+      "title": "Casting",
+      "number": "9.2"
+    },
+    {
+      "id": "algorithms-miscellaneous",
+      "href": "https://www.w3.org/TR/webnn/#algorithms-miscellaneous",
+      "level": 3,
+      "title": "Miscellaneous",
+      "number": "9.3"
+    },
+    {
+      "id": "examples",
+      "href": "https://www.w3.org/TR/webnn/#examples",
+      "level": 2,
+      "title": "10. Examples"
+    },
+    {
+      "id": "emulation",
+      "href": "https://www.w3.org/TR/webnn/#emulation",
+      "level": 2,
+      "title": "11. Operator Emulation"
+    },
+    {
+      "id": "emulation-squeeze",
+      "href": "https://www.w3.org/TR/webnn/#emulation-squeeze",
+      "level": 3,
+      "title": "squeeze",
+      "number": "11.1"
+    },
+    {
+      "id": "emulation-unsqueeze",
+      "href": "https://www.w3.org/TR/webnn/#emulation-unsqueeze",
+      "level": 3,
+      "title": "unsqueeze",
+      "number": "11.2"
+    },
+    {
+      "id": "emulation-flatten",
+      "href": "https://www.w3.org/TR/webnn/#emulation-flatten",
+      "level": 3,
+      "title": "flatten",
+      "number": "11.3"
+    },
+    {
+      "id": "appendices",
+      "href": "https://www.w3.org/TR/webnn/#appendices",
+      "level": 2,
+      "title": "12. Appendices"
+    },
+    {
+      "id": "appendices-mloperanddatatype-arraybufferview-compatibility",
+      "href": "https://www.w3.org/TR/webnn/#appendices-mloperanddatatype-arraybufferview-compatibility",
+      "level": 3,
+      "title": "MLOperandDataType and ArrayBufferView compatibility",
+      "number": "12.1"
+    },
+    {
+      "id": "acknowledgements",
+      "href": "https://www.w3.org/TR/webnn/#acknowledgements",
+      "level": 2,
+      "title": "13. Acknowledgements"
+    },
+    {
+      "id": "w3c-conformance",
+      "href": "https://www.w3.org/TR/webnn/#w3c-conformance",
+      "level": 2,
+      "title": "Conformance"
+    },
+    {
+      "id": "w3c-conventions",
+      "href": "https://www.w3.org/TR/webnn/#w3c-conventions",
+      "level": 3,
+      "title": "Document conventions"
+    },
+    {
+      "id": "w3c-conformant-algorithms",
+      "href": "https://www.w3.org/TR/webnn/#w3c-conformant-algorithms",
+      "level": 3,
+      "title": "Conformant Algorithms"
+    },
+    {
+      "id": "index",
+      "href": "https://www.w3.org/TR/webnn/#index",
+      "level": 2,
+      "title": "Index"
+    },
+    {
+      "id": "index-defined-here",
+      "href": "https://www.w3.org/TR/webnn/#index-defined-here",
+      "level": 3,
+      "title": "Terms defined by this specification"
+    },
+    {
+      "id": "index-defined-elsewhere",
+      "href": "https://www.w3.org/TR/webnn/#index-defined-elsewhere",
+      "level": 3,
+      "title": "Terms defined by reference"
+    },
+    {
+      "id": "references",
+      "href": "https://www.w3.org/TR/webnn/#references",
+      "level": 2,
+      "title": "References"
+    },
+    {
+      "id": "normative",
+      "href": "https://www.w3.org/TR/webnn/#normative",
+      "level": 3,
+      "title": "Normative References"
+    },
+    {
+      "id": "informative",
+      "href": "https://www.w3.org/TR/webnn/#informative",
+      "level": 3,
+      "title": "Informative References"
+    },
+    {
+      "id": "idl-index",
+      "href": "https://www.w3.org/TR/webnn/#idl-index",
+      "level": 2,
+      "title": "IDL Index"
+    },
+    {
+      "id": "issues-index",
+      "href": "https://www.w3.org/TR/webnn/#issues-index",
+      "level": 2,
+      "title": "Issues Index"
+    }
+  ]
+}

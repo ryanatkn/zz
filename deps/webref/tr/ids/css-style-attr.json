@@ -1,0 +1,28 @@
+{
+  "spec": {
+    "title": "CSS Style Attributes",
+    "url": "https://www.w3.org/TR/css-style-attr/"
+  },
+  "ids": [
+    "https://www.w3.org/TR/css-style-attr/#longstatus-date",
+    "https://www.w3.org/TR/css-style-attr/#abstract",
+    "https://www.w3.org/TR/css-style-attr/#status",
+    "https://www.w3.org/TR/css-style-attr/#contents",
+    "https://www.w3.org/TR/css-style-attr/#intro",
+    "https://www.w3.org/TR/css-style-attr/#style-attribute",
+    "https://www.w3.org/TR/css-style-attr/#style-attribute0",
+    "https://www.w3.org/TR/css-style-attr/#conformance",
+    "https://www.w3.org/TR/css-style-attr/#document",
+    "https://www.w3.org/TR/css-style-attr/#interpreter",
+    "https://www.w3.org/TR/css-style-attr/#syntax",
+    "https://www.w3.org/TR/css-style-attr/#interpret",
+    "https://www.w3.org/TR/css-style-attr/#ack",
+    "https://www.w3.org/TR/css-style-attr/#references",
+    "https://www.w3.org/TR/css-style-attr/#normative-references",
+    "https://www.w3.org/TR/css-style-attr/#CSS21",
+    "https://www.w3.org/TR/css-style-attr/#RFC2119",
+    "https://www.w3.org/TR/css-style-attr/#informative-references",
+    "https://www.w3.org/TR/css-style-attr/#HTML401",
+    "https://www.w3.org/TR/css-style-attr/#SVG11"
+  ]
+}

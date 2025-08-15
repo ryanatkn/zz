@@ -1,0 +1,77 @@
+{
+  "spec": {
+    "title": "Beacon",
+    "url": "https://www.w3.org/TR/beacon/"
+  },
+  "dfns": [
+    {
+      "id": "dom-navigator-sendbeacon",
+      "href": "https://www.w3.org/TR/beacon/#dom-navigator-sendbeacon",
+      "linkingText": [
+        "sendBeacon()",
+        "sendBeacon(url)",
+        "sendBeacon(url, data)"
+      ],
+      "localLinkingText": [
+        "Navigator.sendBeacon",
+        "Navigator.sendBeacon()",
+        "sendBeacon"
+      ],
+      "type": "method",
+      "for": [
+        "Navigator"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sendbeacon-method",
+        "href": "https://www.w3.org/TR/beacon/#sendbeacon-method",
+        "title": "sendBeacon() Method",
+        "alternateIds": [
+          "x3-1-sendbeacon-method"
+        ],
+        "number": "3.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "url-parameter",
+      "href": "https://www.w3.org/TR/beacon/#url-parameter",
+      "linkingText": [
+        "url parameter"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "url",
+        "href": "https://www.w3.org/TR/beacon/#url",
+        "title": "url"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-data",
+      "href": "https://www.w3.org/TR/beacon/#dfn-data",
+      "linkingText": [
+        "data"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "data",
+        "href": "https://www.w3.org/TR/beacon/#data",
+        "title": "data"
+      },
+      "definedIn": "heading",
+      "links": []
+    }
+  ]
+}

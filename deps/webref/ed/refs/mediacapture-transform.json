@@ -1,0 +1,60 @@
+{
+  "spec": {
+    "title": "MediaStreamTrack Insertable Media Processing using Streams",
+    "url": "https://w3c.github.io/mediacapture-transform/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "CSS-TEXT-4",
+        "url": "https://drafts.csswg.org/css-text-4/"
+      },
+      {
+        "name": "HTML",
+        "url": "https://html.spec.whatwg.org/multipage/"
+      },
+      {
+        "name": "INFRA",
+        "url": "https://infra.spec.whatwg.org/"
+      },
+      {
+        "name": "MEDIACAPTURE-STREAMS",
+        "url": "https://w3c.github.io/mediacapture-main/"
+      },
+      {
+        "name": "RFC2119",
+        "url": "https://datatracker.ietf.org/doc/html/rfc2119"
+      },
+      {
+        "name": "STREAMS",
+        "url": "https://streams.spec.whatwg.org/"
+      },
+      {
+        "name": "WEBCODECS",
+        "url": "https://w3c.github.io/webcodecs/"
+      },
+      {
+        "name": "WEBIDL",
+        "url": "https://webidl.spec.whatwg.org/"
+      },
+      {
+        "name": "WEBRTC",
+        "url": "https://w3c.github.io/webrtc-pc/"
+      }
+    ],
+    "informative": [
+      {
+        "name": "SCREEN-CAPTURE",
+        "url": "https://w3c.github.io/mediacapture-screen-share/"
+      },
+      {
+        "name": "WEBRTC-NV-USE-CASES",
+        "url": "https://w3c.github.io/webrtc-nv-use-cases/"
+      },
+      {
+        "name": "WEBTRANSPORT",
+        "url": "https://w3c.github.io/webtransport/"
+      }
+    ]
+  }
+}

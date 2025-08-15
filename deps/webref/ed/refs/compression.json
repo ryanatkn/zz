@@ -1,0 +1,40 @@
+{
+  "spec": {
+    "title": "Compression Standard",
+    "url": "https://compression.spec.whatwg.org/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "INFRA",
+        "url": "https://infra.spec.whatwg.org/"
+      },
+      {
+        "name": "RFC1950",
+        "url": "https://www.rfc-editor.org/rfc/rfc1950"
+      },
+      {
+        "name": "RFC1951",
+        "url": "https://www.rfc-editor.org/rfc/rfc1951"
+      },
+      {
+        "name": "RFC1952",
+        "url": "https://www.rfc-editor.org/rfc/rfc1952"
+      },
+      {
+        "name": "STREAMS",
+        "url": "https://streams.spec.whatwg.org/"
+      },
+      {
+        "name": "WEBIDL",
+        "url": "https://webidl.spec.whatwg.org/"
+      }
+    ],
+    "informative": [
+      {
+        "name": "RFC7230",
+        "url": "https://httpwg.org/specs/rfc7230.html"
+      }
+    ]
+  }
+}

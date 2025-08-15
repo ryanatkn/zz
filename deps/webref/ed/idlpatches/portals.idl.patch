@@ -1,0 +1,56 @@
+From 821f748ac967de02ffb4cc1258bd625f7702a8fc Mon Sep 17 00:00:00 2001
+From: Dominique Hazael-Massieux <dom@w3.org>
+Date: Wed, 4 Aug 2021 11:07:56 +0200
+Subject: [PATCH] Make consistent with global IDL declarations
+
+Remove duplicate typedef MessageEventSource
+https://github.com/WICG/portals/issues/230
+
+Replace PostMessageOptions with StructuredSerializeOptions
+https://github.com/WICG/portals/pull/273
+https://github.com/WICG/portals/pull/275 (patch has been merged but not published)
+---
+ ed/idl/portals.idl | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
+
+diff --git a/ed/idl/portals.idl b/ed/idl/portals.idl
+index 20c655b92..5d85cce66 100644
+--- a/ed/idl/portals.idl
++++ b/ed/idl/portals.idl
+@@ -11,13 +11,13 @@ interface HTMLPortalElement : HTMLElement {
+     [CEReactions] attribute DOMString referrerPolicy;
+ 
+     [NewObject] Promise<undefined> activate(optional PortalActivateOptions options = {});
+-    undefined postMessage(any message, optional PostMessageOptions options = {});
++    undefined postMessage(any message, optional StructuredSerializeOptions options = {});
+ 
+     attribute EventHandler onmessage;
+     attribute EventHandler onmessageerror;
+ };
+ 
+-dictionary PortalActivateOptions : PostMessageOptions {
++dictionary PortalActivateOptions : StructuredSerializeOptions {
+     any data;
+ };
+ 
+@@ -27,7 +27,7 @@ partial interface Window {
+ 
+ [Exposed=Window]
+ interface PortalHost : EventTarget {
+-    undefined postMessage(any message, optional PostMessageOptions options = {});
++    undefined postMessage(any message, optional StructuredSerializeOptions options = {});
+ 
+     attribute EventHandler onmessage;
+     attribute EventHandler onmessageerror;
+@@ -45,8 +45,6 @@ dictionary PortalActivateEventInit : EventInit {
+     any data = null;
+ };
+ 
+-typedef (WindowProxy or MessagePort or ServiceWorker or HTMLPortalElement or PortalHost) MessageEventSource;
+-
+ partial interface mixin WindowEventHandlers {
+     attribute EventHandler onportalactivate;
+ };
+-- 
+2.32.0
+

@@ -1,0 +1,2405 @@
+{
+  "spec": {
+    "title": "Pointer Events",
+    "url": "https://www.w3.org/TR/pointerevents3/"
+  },
+  "dfns": [
+    {
+      "id": "dom-pointereventinit-pointerid",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-pointereventinit-pointerid",
+      "linkingText": [
+        "pointerId"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "PointerEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "pointerevent-interface",
+        "href": "https://www.w3.org/TR/pointerevents3/#pointerevent-interface",
+        "title": "PointerEvent interface",
+        "alternateIds": [
+          "x4-1-pointerevent-interface"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-pointereventinit-width",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-pointereventinit-width",
+      "linkingText": [
+        "width"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "PointerEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "pointerevent-interface",
+        "href": "https://www.w3.org/TR/pointerevents3/#pointerevent-interface",
+        "title": "PointerEvent interface",
+        "alternateIds": [
+          "x4-1-pointerevent-interface"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-pointereventinit-height",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-pointereventinit-height",
+      "linkingText": [
+        "height"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "PointerEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "pointerevent-interface",
+        "href": "https://www.w3.org/TR/pointerevents3/#pointerevent-interface",
+        "title": "PointerEvent interface",
+        "alternateIds": [
+          "x4-1-pointerevent-interface"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-pointereventinit-pressure",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-pointereventinit-pressure",
+      "linkingText": [
+        "pressure"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "PointerEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "pointerevent-interface",
+        "href": "https://www.w3.org/TR/pointerevents3/#pointerevent-interface",
+        "title": "PointerEvent interface",
+        "alternateIds": [
+          "x4-1-pointerevent-interface"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-pointereventinit-tangentialpressure",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-pointereventinit-tangentialpressure",
+      "linkingText": [
+        "tangentialPressure"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "PointerEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "pointerevent-interface",
+        "href": "https://www.w3.org/TR/pointerevents3/#pointerevent-interface",
+        "title": "PointerEvent interface",
+        "alternateIds": [
+          "x4-1-pointerevent-interface"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-pointereventinit-tiltx",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-pointereventinit-tiltx",
+      "linkingText": [
+        "tiltX"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "PointerEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "pointerevent-interface",
+        "href": "https://www.w3.org/TR/pointerevents3/#pointerevent-interface",
+        "title": "PointerEvent interface",
+        "alternateIds": [
+          "x4-1-pointerevent-interface"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-pointereventinit-tilty",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-pointereventinit-tilty",
+      "linkingText": [
+        "tiltY"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "PointerEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "pointerevent-interface",
+        "href": "https://www.w3.org/TR/pointerevents3/#pointerevent-interface",
+        "title": "PointerEvent interface",
+        "alternateIds": [
+          "x4-1-pointerevent-interface"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-pointereventinit-twist",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-pointereventinit-twist",
+      "linkingText": [
+        "twist"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "PointerEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "pointerevent-interface",
+        "href": "https://www.w3.org/TR/pointerevents3/#pointerevent-interface",
+        "title": "PointerEvent interface",
+        "alternateIds": [
+          "x4-1-pointerevent-interface"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-pointereventinit-altitudeangle",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-pointereventinit-altitudeangle",
+      "linkingText": [
+        "altitudeAngle"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "PointerEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "pointerevent-interface",
+        "href": "https://www.w3.org/TR/pointerevents3/#pointerevent-interface",
+        "title": "PointerEvent interface",
+        "alternateIds": [
+          "x4-1-pointerevent-interface"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-pointereventinit-azimuthangle",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-pointereventinit-azimuthangle",
+      "linkingText": [
+        "azimuthAngle"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "PointerEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "pointerevent-interface",
+        "href": "https://www.w3.org/TR/pointerevents3/#pointerevent-interface",
+        "title": "PointerEvent interface",
+        "alternateIds": [
+          "x4-1-pointerevent-interface"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-pointereventinit-pointertype",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-pointereventinit-pointertype",
+      "linkingText": [
+        "pointerType"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "PointerEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "pointerevent-interface",
+        "href": "https://www.w3.org/TR/pointerevents3/#pointerevent-interface",
+        "title": "PointerEvent interface",
+        "alternateIds": [
+          "x4-1-pointerevent-interface"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-pointereventinit-isprimary",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-pointereventinit-isprimary",
+      "linkingText": [
+        "isPrimary"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "PointerEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "pointerevent-interface",
+        "href": "https://www.w3.org/TR/pointerevents3/#pointerevent-interface",
+        "title": "PointerEvent interface",
+        "alternateIds": [
+          "x4-1-pointerevent-interface"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-pointereventinit-coalescedevents",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-pointereventinit-coalescedevents",
+      "linkingText": [
+        "coalescedEvents"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "PointerEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "pointerevent-interface",
+        "href": "https://www.w3.org/TR/pointerevents3/#pointerevent-interface",
+        "title": "PointerEvent interface",
+        "alternateIds": [
+          "x4-1-pointerevent-interface"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-pointereventinit-predictedevents",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-pointereventinit-predictedevents",
+      "linkingText": [
+        "predictedEvents"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "PointerEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "pointerevent-interface",
+        "href": "https://www.w3.org/TR/pointerevents3/#pointerevent-interface",
+        "title": "PointerEvent interface",
+        "alternateIds": [
+          "x4-1-pointerevent-interface"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-pointerevent-constructor",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-pointerevent-constructor",
+      "linkingText": [
+        "constructor()",
+        "constructor(type)",
+        "constructor(type, eventInitDict)"
+      ],
+      "localLinkingText": [
+        "PointerEvent.constructor",
+        "PointerEvent.constructor()",
+        "constructor"
+      ],
+      "type": "constructor",
+      "for": [
+        "PointerEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "pointerevent-interface",
+        "href": "https://www.w3.org/TR/pointerevents3/#pointerevent-interface",
+        "title": "PointerEvent interface",
+        "alternateIds": [
+          "x4-1-pointerevent-interface"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-pointerevent-pointerid",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-pointerevent-pointerid",
+      "linkingText": [
+        "pointerId"
+      ],
+      "localLinkingText": [
+        "PointerEvent.pointerId"
+      ],
+      "type": "attribute",
+      "for": [
+        "PointerEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "pointerevent-interface",
+        "href": "https://www.w3.org/TR/pointerevents3/#pointerevent-interface",
+        "title": "PointerEvent interface",
+        "alternateIds": [
+          "x4-1-pointerevent-interface"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-pointerevent-width",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-pointerevent-width",
+      "linkingText": [
+        "width"
+      ],
+      "localLinkingText": [
+        "PointerEvent.width"
+      ],
+      "type": "attribute",
+      "for": [
+        "PointerEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "pointerevent-interface",
+        "href": "https://www.w3.org/TR/pointerevents3/#pointerevent-interface",
+        "title": "PointerEvent interface",
+        "alternateIds": [
+          "x4-1-pointerevent-interface"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-pointerevent-height",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-pointerevent-height",
+      "linkingText": [
+        "height"
+      ],
+      "localLinkingText": [
+        "PointerEvent.height"
+      ],
+      "type": "attribute",
+      "for": [
+        "PointerEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "pointerevent-interface",
+        "href": "https://www.w3.org/TR/pointerevents3/#pointerevent-interface",
+        "title": "PointerEvent interface",
+        "alternateIds": [
+          "x4-1-pointerevent-interface"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-pointerevent-pressure",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-pointerevent-pressure",
+      "linkingText": [
+        "pressure"
+      ],
+      "localLinkingText": [
+        "PointerEvent.pressure"
+      ],
+      "type": "attribute",
+      "for": [
+        "PointerEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "pointerevent-interface",
+        "href": "https://www.w3.org/TR/pointerevents3/#pointerevent-interface",
+        "title": "PointerEvent interface",
+        "alternateIds": [
+          "x4-1-pointerevent-interface"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-pointerevent-tangentialpressure",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-pointerevent-tangentialpressure",
+      "linkingText": [
+        "tangentialPressure"
+      ],
+      "localLinkingText": [
+        "PointerEvent.tangentialPressure"
+      ],
+      "type": "attribute",
+      "for": [
+        "PointerEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "pointerevent-interface",
+        "href": "https://www.w3.org/TR/pointerevents3/#pointerevent-interface",
+        "title": "PointerEvent interface",
+        "alternateIds": [
+          "x4-1-pointerevent-interface"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-pointerevent-tiltx",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-pointerevent-tiltx",
+      "linkingText": [
+        "tiltX"
+      ],
+      "localLinkingText": [
+        "PointerEvent.tiltX"
+      ],
+      "type": "attribute",
+      "for": [
+        "PointerEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "pointerevent-interface",
+        "href": "https://www.w3.org/TR/pointerevents3/#pointerevent-interface",
+        "title": "PointerEvent interface",
+        "alternateIds": [
+          "x4-1-pointerevent-interface"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-pointerevent-tilty",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-pointerevent-tilty",
+      "linkingText": [
+        "tiltY"
+      ],
+      "localLinkingText": [
+        "PointerEvent.tiltY"
+      ],
+      "type": "attribute",
+      "for": [
+        "PointerEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "pointerevent-interface",
+        "href": "https://www.w3.org/TR/pointerevents3/#pointerevent-interface",
+        "title": "PointerEvent interface",
+        "alternateIds": [
+          "x4-1-pointerevent-interface"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-pointerevent-twist",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-pointerevent-twist",
+      "linkingText": [
+        "twist"
+      ],
+      "localLinkingText": [
+        "PointerEvent.twist"
+      ],
+      "type": "attribute",
+      "for": [
+        "PointerEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "pointerevent-interface",
+        "href": "https://www.w3.org/TR/pointerevents3/#pointerevent-interface",
+        "title": "PointerEvent interface",
+        "alternateIds": [
+          "x4-1-pointerevent-interface"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-pointerevent-altitudeangle",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-pointerevent-altitudeangle",
+      "linkingText": [
+        "altitudeAngle"
+      ],
+      "localLinkingText": [
+        "PointerEvent.altitudeAngle"
+      ],
+      "type": "attribute",
+      "for": [
+        "PointerEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "pointerevent-interface",
+        "href": "https://www.w3.org/TR/pointerevents3/#pointerevent-interface",
+        "title": "PointerEvent interface",
+        "alternateIds": [
+          "x4-1-pointerevent-interface"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-pointerevent-azimuthangle",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-pointerevent-azimuthangle",
+      "linkingText": [
+        "azimuthAngle"
+      ],
+      "localLinkingText": [
+        "PointerEvent.azimuthAngle"
+      ],
+      "type": "attribute",
+      "for": [
+        "PointerEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "pointerevent-interface",
+        "href": "https://www.w3.org/TR/pointerevents3/#pointerevent-interface",
+        "title": "PointerEvent interface",
+        "alternateIds": [
+          "x4-1-pointerevent-interface"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-pointerevent-pointertype",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-pointerevent-pointertype",
+      "linkingText": [
+        "pointerType"
+      ],
+      "localLinkingText": [
+        "PointerEvent.pointerType"
+      ],
+      "type": "attribute",
+      "for": [
+        "PointerEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "pointerevent-interface",
+        "href": "https://www.w3.org/TR/pointerevents3/#pointerevent-interface",
+        "title": "PointerEvent interface",
+        "alternateIds": [
+          "x4-1-pointerevent-interface"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-pointerevent-isprimary",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-pointerevent-isprimary",
+      "linkingText": [
+        "isPrimary"
+      ],
+      "localLinkingText": [
+        "PointerEvent.isPrimary"
+      ],
+      "type": "attribute",
+      "for": [
+        "PointerEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "pointerevent-interface",
+        "href": "https://www.w3.org/TR/pointerevents3/#pointerevent-interface",
+        "title": "PointerEvent interface",
+        "alternateIds": [
+          "x4-1-pointerevent-interface"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-pointerevent-getcoalescedevents",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-pointerevent-getcoalescedevents",
+      "linkingText": [
+        "getCoalescedEvents()"
+      ],
+      "localLinkingText": [
+        "PointerEvent.getCoalescedEvents",
+        "PointerEvent.getCoalescedEvents()",
+        "getCoalescedEvents"
+      ],
+      "type": "method",
+      "for": [
+        "PointerEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "pointerevent-interface",
+        "href": "https://www.w3.org/TR/pointerevents3/#pointerevent-interface",
+        "title": "PointerEvent interface",
+        "alternateIds": [
+          "x4-1-pointerevent-interface"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-pointerevent-getpredictedevents",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-pointerevent-getpredictedevents",
+      "linkingText": [
+        "getPredictedEvents()"
+      ],
+      "localLinkingText": [
+        "PointerEvent.getPredictedEvents",
+        "PointerEvent.getPredictedEvents()",
+        "getPredictedEvents"
+      ],
+      "type": "method",
+      "for": [
+        "PointerEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "pointerevent-interface",
+        "href": "https://www.w3.org/TR/pointerevents3/#pointerevent-interface",
+        "title": "PointerEvent interface",
+        "alternateIds": [
+          "x4-1-pointerevent-interface"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-pointereventinit",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-pointereventinit",
+      "linkingText": [
+        "PointerEventInit"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "pointerevent-interface",
+        "href": "https://www.w3.org/TR/pointerevents3/#pointerevent-interface",
+        "title": "PointerEvent interface",
+        "alternateIds": [
+          "x4-1-pointerevent-interface"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-pointerevent",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-pointerevent",
+      "linkingText": [
+        "PointerEvent"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "pointerevent-interface",
+        "href": "https://www.w3.org/TR/pointerevents3/#pointerevent-interface",
+        "title": "PointerEvent interface",
+        "alternateIds": [
+          "x4-1-pointerevent-interface"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-chorded-buttons",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-chorded-buttons",
+      "linkingText": [
+        "chorded buttons",
+        "Chorded button interactions"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "chorded-button-interactions",
+        "href": "https://www.w3.org/TR/pointerevents3/#chorded-button-interactions",
+        "title": "Chorded button interactions",
+        "alternateIds": [
+          "x4-1-1-1-chorded-button-interactions"
+        ],
+        "number": "4.1.1.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-primary-pointer",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-primary-pointer",
+      "linkingText": [
+        "primary pointer"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-primary-pointer",
+        "href": "https://www.w3.org/TR/pointerevents3/#the-primary-pointer",
+        "title": "The primary pointer",
+        "alternateIds": [
+          "x4-1-2-the-primary-pointer"
+        ],
+        "number": "4.1.2"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-fire-a-pointer-event",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-fire-a-pointer-event",
+      "linkingText": [
+        "fire a pointer event"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "firing-events-using-the-pointerevent-interface",
+        "href": "https://www.w3.org/TR/pointerevents3/#firing-events-using-the-pointerevent-interface",
+        "title": "Firing events using the PointerEvent interface",
+        "alternateIds": [
+          "x4-1-3-firing-events-using-the-pointerevent-interface"
+        ],
+        "number": "4.1.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-determine-the-target",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-determine-the-target",
+      "linkingText": [
+        "Determine the target"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "firing-events-using-the-pointerevent-interface",
+        "href": "https://www.w3.org/TR/pointerevents3/#firing-events-using-the-pointerevent-interface",
+        "title": "Firing events using the PointerEvent interface",
+        "alternateIds": [
+          "x4-1-3-firing-events-using-the-pointerevent-interface"
+        ],
+        "number": "4.1.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-attributes-and-default-actions",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-attributes-and-default-actions",
+      "linkingText": [
+        "Attributes and default actions"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "attributes-and-default-actions",
+        "href": "https://www.w3.org/TR/pointerevents3/#attributes-and-default-actions",
+        "title": "Attributes and default actions",
+        "alternateIds": [
+          "x4-1-3-1-attributes-and-default-actions"
+        ],
+        "number": "4.1.3.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-process-pending-pointer-capture",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-process-pending-pointer-capture",
+      "linkingText": [
+        "Process pending pointer capture"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "process-pending-pointer-capture",
+        "href": "https://www.w3.org/TR/pointerevents3/#process-pending-pointer-capture",
+        "title": "Process pending pointer capture",
+        "alternateIds": [
+          "x4-1-3-2-process-pending-pointer-capture"
+        ],
+        "number": "4.1.3.2"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-pointer-capture-target-override",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-pointer-capture-target-override",
+      "linkingText": [
+        "pointer capture target override"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "process-pending-pointer-capture",
+        "href": "https://www.w3.org/TR/pointerevents3/#process-pending-pointer-capture",
+        "title": "Process pending pointer capture",
+        "alternateIds": [
+          "x4-1-3-2-process-pending-pointer-capture"
+        ],
+        "number": "4.1.3.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-suppress-a-pointer-event-stream",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-suppress-a-pointer-event-stream",
+      "linkingText": [
+        "suppress a pointer event stream"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "suppressing-a-pointer-event-stream",
+        "href": "https://www.w3.org/TR/pointerevents3/#suppressing-a-pointer-event-stream",
+        "title": "Suppressing a pointer event stream",
+        "alternateIds": [
+          "x4-1-3-3-suppressing-a-pointer-event-stream"
+        ],
+        "number": "4.1.3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-events-from-layout-changes",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-events-from-layout-changes",
+      "linkingText": [
+        "events-from-layout-changes",
+        "Boundary events caused by layout changes"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "boundary-events-caused-by-layout-changes",
+        "href": "https://www.w3.org/TR/pointerevents3/#boundary-events-caused-by-layout-changes",
+        "title": "Boundary events caused by layout changes",
+        "alternateIds": [
+          "x4-1-4-boundary-events-caused-by-layout-changes"
+        ],
+        "number": "4.1.4"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-pointer-event-types",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-pointer-event-types",
+      "linkingText": [
+        "Pointer Event types"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "pointer-event-types",
+        "href": "https://www.w3.org/TR/pointerevents3/#pointer-event-types",
+        "title": "Pointer Event types",
+        "alternateIds": [
+          "x4-2-pointer-event-types"
+        ],
+        "number": "4.2"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-pointerover",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-pointerover",
+      "linkingText": [
+        "pointerover"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "GlobalEventHandlers"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-pointerover-event",
+        "href": "https://www.w3.org/TR/pointerevents3/#the-pointerover-event",
+        "title": "The pointerover event",
+        "alternateIds": [
+          "x4-2-1-the-pointerover-event"
+        ],
+        "number": "4.2.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-pointerenter",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-pointerenter",
+      "linkingText": [
+        "pointerenter"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "GlobalEventHandlers"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-pointerenter-event",
+        "href": "https://www.w3.org/TR/pointerevents3/#the-pointerenter-event",
+        "title": "The pointerenter event",
+        "alternateIds": [
+          "x4-2-2-the-pointerenter-event"
+        ],
+        "number": "4.2.2"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-pointerdown",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-pointerdown",
+      "linkingText": [
+        "pointerdown"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "GlobalEventHandlers"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-pointerdown-event",
+        "href": "https://www.w3.org/TR/pointerevents3/#the-pointerdown-event",
+        "title": "The pointerdown event",
+        "alternateIds": [
+          "x4-2-3-the-pointerdown-event"
+        ],
+        "number": "4.2.3"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-pointermove",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-pointermove",
+      "linkingText": [
+        "pointermove"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "GlobalEventHandlers"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-pointermove-event",
+        "href": "https://www.w3.org/TR/pointerevents3/#the-pointermove-event",
+        "title": "The pointermove event",
+        "alternateIds": [
+          "x4-2-4-the-pointermove-event"
+        ],
+        "number": "4.2.4"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-pointerrawupdate",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-pointerrawupdate",
+      "linkingText": [
+        "pointerrawupdate"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "GlobalEventHandlers"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-pointerrawupdate-event",
+        "href": "https://www.w3.org/TR/pointerevents3/#the-pointerrawupdate-event",
+        "title": "The pointerrawupdate event",
+        "alternateIds": [
+          "x4-2-5-the-pointerrawupdate-event"
+        ],
+        "number": "4.2.5"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-pointerup",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-pointerup",
+      "linkingText": [
+        "pointerup"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "GlobalEventHandlers"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-pointerup-event",
+        "href": "https://www.w3.org/TR/pointerevents3/#the-pointerup-event",
+        "title": "The pointerup event",
+        "alternateIds": [
+          "x4-2-6-the-pointerup-event"
+        ],
+        "number": "4.2.6"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-pointercancel",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-pointercancel",
+      "linkingText": [
+        "pointercancel"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "GlobalEventHandlers"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-pointercancel-event",
+        "href": "https://www.w3.org/TR/pointerevents3/#the-pointercancel-event",
+        "title": "The pointercancel event",
+        "alternateIds": [
+          "x4-2-7-the-pointercancel-event"
+        ],
+        "number": "4.2.7"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-pointerout",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-pointerout",
+      "linkingText": [
+        "pointerout"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "GlobalEventHandlers"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-pointerout-event",
+        "href": "https://www.w3.org/TR/pointerevents3/#the-pointerout-event",
+        "title": "The pointerout event",
+        "alternateIds": [
+          "x4-2-8-the-pointerout-event"
+        ],
+        "number": "4.2.8"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-pointerleave",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-pointerleave",
+      "linkingText": [
+        "pointerleave"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "GlobalEventHandlers"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-pointerleave-event",
+        "href": "https://www.w3.org/TR/pointerevents3/#the-pointerleave-event",
+        "title": "The pointerleave event",
+        "alternateIds": [
+          "x4-2-9-the-pointerleave-event"
+        ],
+        "number": "4.2.9"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-gotpointercapture",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-gotpointercapture",
+      "linkingText": [
+        "gotpointercapture"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "GlobalEventHandlers"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-gotpointercapture-event",
+        "href": "https://www.w3.org/TR/pointerevents3/#the-gotpointercapture-event",
+        "title": "The gotpointercapture event",
+        "alternateIds": [
+          "x4-2-10-the-gotpointercapture-event"
+        ],
+        "number": "4.2.10"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-lostpointercapture",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-lostpointercapture",
+      "linkingText": [
+        "lostpointercapture"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "GlobalEventHandlers"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-lostpointercapture-event",
+        "href": "https://www.w3.org/TR/pointerevents3/#the-lostpointercapture-event",
+        "title": "The lostpointercapture event",
+        "alternateIds": [
+          "x4-2-11-the-lostpointercapture-event"
+        ],
+        "number": "4.2.11"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-click-auxclick-and-contextmenu-events",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-click-auxclick-and-contextmenu-events",
+      "linkingText": [
+        "click, auxclick, and contextmenu events"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-click-auxclick-and-contextmenu-events",
+        "href": "https://www.w3.org/TR/pointerevents3/#the-click-auxclick-and-contextmenu-events",
+        "title": "The click, auxclick, and contextmenu events",
+        "alternateIds": [
+          "x4-2-12-the-click-auxclick-and-contextmenu-events"
+        ],
+        "number": "4.2.12"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dom-element-setpointercapture",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-element-setpointercapture",
+      "linkingText": [
+        "setPointerCapture()",
+        "setPointerCapture(pointerId)"
+      ],
+      "localLinkingText": [
+        "Element.setPointerCapture",
+        "Element.setPointerCapture()",
+        "setPointerCapture"
+      ],
+      "type": "method",
+      "for": [
+        "Element"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "extensions-to-the-element-interface",
+        "href": "https://www.w3.org/TR/pointerevents3/#extensions-to-the-element-interface",
+        "title": "Extensions to the Element interface",
+        "alternateIds": [
+          "x5-extensions-to-the-element-interface"
+        ],
+        "number": "5"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-element-releasepointercapture",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-element-releasepointercapture",
+      "linkingText": [
+        "releasePointerCapture()",
+        "releasePointerCapture(pointerId)"
+      ],
+      "localLinkingText": [
+        "Element.releasePointerCapture",
+        "Element.releasePointerCapture()",
+        "releasePointerCapture"
+      ],
+      "type": "method",
+      "for": [
+        "Element"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "extensions-to-the-element-interface",
+        "href": "https://www.w3.org/TR/pointerevents3/#extensions-to-the-element-interface",
+        "title": "Extensions to the Element interface",
+        "alternateIds": [
+          "x5-extensions-to-the-element-interface"
+        ],
+        "number": "5"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-element-haspointercapture",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-element-haspointercapture",
+      "linkingText": [
+        "hasPointerCapture()",
+        "hasPointerCapture(pointerId)"
+      ],
+      "localLinkingText": [
+        "Element.hasPointerCapture",
+        "Element.hasPointerCapture()",
+        "hasPointerCapture"
+      ],
+      "type": "method",
+      "for": [
+        "Element"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "extensions-to-the-element-interface",
+        "href": "https://www.w3.org/TR/pointerevents3/#extensions-to-the-element-interface",
+        "title": "Extensions to the Element interface",
+        "alternateIds": [
+          "x5-extensions-to-the-element-interface"
+        ],
+        "number": "5"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-globaleventhandlers-onpointerover",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-globaleventhandlers-onpointerover",
+      "linkingText": [
+        "onpointerover"
+      ],
+      "localLinkingText": [
+        "GlobalEventHandlers.onpointerover"
+      ],
+      "type": "attribute",
+      "for": [
+        "GlobalEventHandlers"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "extensions-to-the-globaleventhandlers-mixin",
+        "href": "https://www.w3.org/TR/pointerevents3/#extensions-to-the-globaleventhandlers-mixin",
+        "title": "Extensions to the GlobalEventHandlers mixin",
+        "alternateIds": [
+          "x6-extensions-to-the-globaleventhandlers-mixin"
+        ],
+        "number": "6"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-globaleventhandlers-onpointerenter",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-globaleventhandlers-onpointerenter",
+      "linkingText": [
+        "onpointerenter"
+      ],
+      "localLinkingText": [
+        "GlobalEventHandlers.onpointerenter"
+      ],
+      "type": "attribute",
+      "for": [
+        "GlobalEventHandlers"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "extensions-to-the-globaleventhandlers-mixin",
+        "href": "https://www.w3.org/TR/pointerevents3/#extensions-to-the-globaleventhandlers-mixin",
+        "title": "Extensions to the GlobalEventHandlers mixin",
+        "alternateIds": [
+          "x6-extensions-to-the-globaleventhandlers-mixin"
+        ],
+        "number": "6"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-globaleventhandlers-onpointerdown",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-globaleventhandlers-onpointerdown",
+      "linkingText": [
+        "onpointerdown"
+      ],
+      "localLinkingText": [
+        "GlobalEventHandlers.onpointerdown"
+      ],
+      "type": "attribute",
+      "for": [
+        "GlobalEventHandlers"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "extensions-to-the-globaleventhandlers-mixin",
+        "href": "https://www.w3.org/TR/pointerevents3/#extensions-to-the-globaleventhandlers-mixin",
+        "title": "Extensions to the GlobalEventHandlers mixin",
+        "alternateIds": [
+          "x6-extensions-to-the-globaleventhandlers-mixin"
+        ],
+        "number": "6"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-globaleventhandlers-onpointermove",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-globaleventhandlers-onpointermove",
+      "linkingText": [
+        "onpointermove"
+      ],
+      "localLinkingText": [
+        "GlobalEventHandlers.onpointermove"
+      ],
+      "type": "attribute",
+      "for": [
+        "GlobalEventHandlers"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "extensions-to-the-globaleventhandlers-mixin",
+        "href": "https://www.w3.org/TR/pointerevents3/#extensions-to-the-globaleventhandlers-mixin",
+        "title": "Extensions to the GlobalEventHandlers mixin",
+        "alternateIds": [
+          "x6-extensions-to-the-globaleventhandlers-mixin"
+        ],
+        "number": "6"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-globaleventhandlers-onpointerrawupdate",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-globaleventhandlers-onpointerrawupdate",
+      "linkingText": [
+        "onpointerrawupdate"
+      ],
+      "localLinkingText": [
+        "GlobalEventHandlers.onpointerrawupdate"
+      ],
+      "type": "attribute",
+      "for": [
+        "GlobalEventHandlers"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "extensions-to-the-globaleventhandlers-mixin",
+        "href": "https://www.w3.org/TR/pointerevents3/#extensions-to-the-globaleventhandlers-mixin",
+        "title": "Extensions to the GlobalEventHandlers mixin",
+        "alternateIds": [
+          "x6-extensions-to-the-globaleventhandlers-mixin"
+        ],
+        "number": "6"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-globaleventhandlers-onpointerup",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-globaleventhandlers-onpointerup",
+      "linkingText": [
+        "onpointerup"
+      ],
+      "localLinkingText": [
+        "GlobalEventHandlers.onpointerup"
+      ],
+      "type": "attribute",
+      "for": [
+        "GlobalEventHandlers"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "extensions-to-the-globaleventhandlers-mixin",
+        "href": "https://www.w3.org/TR/pointerevents3/#extensions-to-the-globaleventhandlers-mixin",
+        "title": "Extensions to the GlobalEventHandlers mixin",
+        "alternateIds": [
+          "x6-extensions-to-the-globaleventhandlers-mixin"
+        ],
+        "number": "6"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-globaleventhandlers-onpointercancel",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-globaleventhandlers-onpointercancel",
+      "linkingText": [
+        "onpointercancel"
+      ],
+      "localLinkingText": [
+        "GlobalEventHandlers.onpointercancel"
+      ],
+      "type": "attribute",
+      "for": [
+        "GlobalEventHandlers"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "extensions-to-the-globaleventhandlers-mixin",
+        "href": "https://www.w3.org/TR/pointerevents3/#extensions-to-the-globaleventhandlers-mixin",
+        "title": "Extensions to the GlobalEventHandlers mixin",
+        "alternateIds": [
+          "x6-extensions-to-the-globaleventhandlers-mixin"
+        ],
+        "number": "6"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-globaleventhandlers-onpointerout",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-globaleventhandlers-onpointerout",
+      "linkingText": [
+        "onpointerout"
+      ],
+      "localLinkingText": [
+        "GlobalEventHandlers.onpointerout"
+      ],
+      "type": "attribute",
+      "for": [
+        "GlobalEventHandlers"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "extensions-to-the-globaleventhandlers-mixin",
+        "href": "https://www.w3.org/TR/pointerevents3/#extensions-to-the-globaleventhandlers-mixin",
+        "title": "Extensions to the GlobalEventHandlers mixin",
+        "alternateIds": [
+          "x6-extensions-to-the-globaleventhandlers-mixin"
+        ],
+        "number": "6"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-globaleventhandlers-onpointerleave",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-globaleventhandlers-onpointerleave",
+      "linkingText": [
+        "onpointerleave"
+      ],
+      "localLinkingText": [
+        "GlobalEventHandlers.onpointerleave"
+      ],
+      "type": "attribute",
+      "for": [
+        "GlobalEventHandlers"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "extensions-to-the-globaleventhandlers-mixin",
+        "href": "https://www.w3.org/TR/pointerevents3/#extensions-to-the-globaleventhandlers-mixin",
+        "title": "Extensions to the GlobalEventHandlers mixin",
+        "alternateIds": [
+          "x6-extensions-to-the-globaleventhandlers-mixin"
+        ],
+        "number": "6"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-globaleventhandlers-ongotpointercapture",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-globaleventhandlers-ongotpointercapture",
+      "linkingText": [
+        "ongotpointercapture"
+      ],
+      "localLinkingText": [
+        "GlobalEventHandlers.ongotpointercapture"
+      ],
+      "type": "attribute",
+      "for": [
+        "GlobalEventHandlers"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "extensions-to-the-globaleventhandlers-mixin",
+        "href": "https://www.w3.org/TR/pointerevents3/#extensions-to-the-globaleventhandlers-mixin",
+        "title": "Extensions to the GlobalEventHandlers mixin",
+        "alternateIds": [
+          "x6-extensions-to-the-globaleventhandlers-mixin"
+        ],
+        "number": "6"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-globaleventhandlers-onlostpointercapture",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-globaleventhandlers-onlostpointercapture",
+      "linkingText": [
+        "onlostpointercapture"
+      ],
+      "localLinkingText": [
+        "GlobalEventHandlers.onlostpointercapture"
+      ],
+      "type": "attribute",
+      "for": [
+        "GlobalEventHandlers"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "extensions-to-the-globaleventhandlers-mixin",
+        "href": "https://www.w3.org/TR/pointerevents3/#extensions-to-the-globaleventhandlers-mixin",
+        "title": "Extensions to the GlobalEventHandlers mixin",
+        "alternateIds": [
+          "x6-extensions-to-the-globaleventhandlers-mixin"
+        ],
+        "number": "6"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-navigator-maxtouchpoints",
+      "href": "https://www.w3.org/TR/pointerevents3/#dom-navigator-maxtouchpoints",
+      "linkingText": [
+        "maxTouchPoints"
+      ],
+      "localLinkingText": [
+        "Navigator.maxTouchPoints"
+      ],
+      "type": "attribute",
+      "for": [
+        "Navigator"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "extensions-to-the-navigator-interface",
+        "href": "https://www.w3.org/TR/pointerevents3/#extensions-to-the-navigator-interface",
+        "title": "Extensions to the Navigator interface",
+        "alternateIds": [
+          "x7-extensions-to-the-navigator-interface"
+        ],
+        "number": "7"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-direct-manipulation-behavior",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-direct-manipulation-behavior",
+      "linkingText": [
+        "direct manipulation behavior",
+        "declare the direct manipulation behavior",
+        "Declaring direct manipulation behavior"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "declaring-direct-manipulation-behavior",
+        "href": "https://www.w3.org/TR/pointerevents3/#declaring-direct-manipulation-behavior",
+        "title": "Declaring direct manipulation behavior",
+        "alternateIds": [
+          "x8-declaring-direct-manipulation-behavior"
+        ],
+        "number": "8"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-touch-action",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-touch-action",
+      "linkingText": [
+        "touch-action"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-touch-action-css-property",
+        "href": "https://www.w3.org/TR/pointerevents3/#the-touch-action-css-property",
+        "title": "The touch-action CSS property",
+        "alternateIds": [
+          "x8-1-the-touch-action-css-property"
+        ],
+        "number": "8.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-conforming-touch-behavior",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-conforming-touch-behavior",
+      "linkingText": [
+        "conforming-touch-behavior",
+        "conforms to an element's touch-action"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "determining-supported-direct-manipulation-behavior",
+        "href": "https://www.w3.org/TR/pointerevents3/#determining-supported-direct-manipulation-behavior",
+        "title": "Determining supported direct manipulation behavior",
+        "alternateIds": [
+          "x8-2-determining-supported-direct-manipulation-behavior"
+        ],
+        "number": "8.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-touch-action-values",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-touch-action-values",
+      "linkingText": [
+        "touch-action values",
+        "Details of touch-action values"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "details-of-touch-action-values",
+        "href": "https://www.w3.org/TR/pointerevents3/#details-of-touch-action-values",
+        "title": "Details of touch-action values",
+        "alternateIds": [
+          "x8-3-details-of-touch-action-values"
+        ],
+        "number": "8.3"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-pointer-capture",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-pointer-capture",
+      "linkingText": [
+        "Pointer capture"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "pointer-capture",
+        "href": "https://www.w3.org/TR/pointerevents3/#pointer-capture",
+        "title": "Pointer capture",
+        "alternateIds": [
+          "x9-pointer-capture"
+        ],
+        "number": "9"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-set-pointer-capture",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-set-pointer-capture",
+      "linkingText": [
+        "set pointer capture",
+        "Setting pointer capture"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "setting-pointer-capture",
+        "href": "https://www.w3.org/TR/pointerevents3/#setting-pointer-capture",
+        "title": "Setting pointer capture",
+        "alternateIds": [
+          "x9-2-setting-pointer-capture"
+        ],
+        "number": "9.2"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-pending-pointer-capture-target-override",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-pending-pointer-capture-target-override",
+      "linkingText": [
+        "pending pointer capture target override"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "setting-pointer-capture",
+        "href": "https://www.w3.org/TR/pointerevents3/#setting-pointer-capture",
+        "title": "Setting pointer capture",
+        "alternateIds": [
+          "x9-2-setting-pointer-capture"
+        ],
+        "number": "9.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-release-pointer-capture",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-release-pointer-capture",
+      "linkingText": [
+        "release pointer capture",
+        "Releasing pointer capture"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "releasing-pointer-capture",
+        "href": "https://www.w3.org/TR/pointerevents3/#releasing-pointer-capture",
+        "title": "Releasing pointer capture",
+        "alternateIds": [
+          "x9-3-releasing-pointer-capture"
+        ],
+        "number": "9.3"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-implicit-pointer-capture",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-implicit-pointer-capture",
+      "linkingText": [
+        "Implicit pointer capture"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "implicit-pointer-capture",
+        "href": "https://www.w3.org/TR/pointerevents3/#implicit-pointer-capture",
+        "title": "Implicit pointer capture",
+        "alternateIds": [
+          "x9-4-implicit-pointer-capture"
+        ],
+        "number": "9.4"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-implicitly-release-the-pointer-capture",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-implicitly-release-the-pointer-capture",
+      "linkingText": [
+        "implicitly release the pointer capture",
+        "implicitly releasing pointer capture",
+        "Implicit release of pointer capture"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "implicit-release-of-pointer-capture",
+        "href": "https://www.w3.org/TR/pointerevents3/#implicit-release-of-pointer-capture",
+        "title": "Implicit release of pointer capture",
+        "alternateIds": [
+          "x9-5-implicit-release-of-pointer-capture"
+        ],
+        "number": "9.5"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-coalesced-events",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-coalesced-events",
+      "linkingText": [
+        "Coalesced events"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "coalesced-events",
+        "href": "https://www.w3.org/TR/pointerevents3/#coalesced-events",
+        "title": "Coalesced events",
+        "alternateIds": [
+          "x10-1-coalesced-events"
+        ],
+        "number": "10.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-coalesced-events-list",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-coalesced-events-list",
+      "linkingText": [
+        "coalesced events list"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "coalesced-events",
+        "href": "https://www.w3.org/TR/pointerevents3/#coalesced-events",
+        "title": "Coalesced events",
+        "alternateIds": [
+          "x10-1-coalesced-events"
+        ],
+        "number": "10.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-predicted-events",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-predicted-events",
+      "linkingText": [
+        "Predicted events"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "predicted-events",
+        "href": "https://www.w3.org/TR/pointerevents3/#predicted-events",
+        "title": "Predicted events",
+        "alternateIds": [
+          "x10-2-predicted-events"
+        ],
+        "number": "10.2"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-predicted-events-list",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-predicted-events-list",
+      "linkingText": [
+        "predicted events list"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "predicted-events",
+        "href": "https://www.w3.org/TR/pointerevents3/#predicted-events",
+        "title": "Predicted events",
+        "alternateIds": [
+          "x10-2-predicted-events"
+        ],
+        "number": "10.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-compatibility-mouse-events",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-compatibility-mouse-events",
+      "linkingText": [
+        "compatibility mouse events",
+        "Compatibility mapping with mouse events"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "compatibility-mapping-with-mouse-events",
+        "href": "https://www.w3.org/TR/pointerevents3/#compatibility-mapping-with-mouse-events",
+        "title": "11. Compatibility mapping with mouse events",
+        "alternateIds": [
+          "x11-compatibility-mapping-with-mouse-events"
+        ]
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-tracking-the-effective-position-of-the-legacy-mouse-pointer",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-tracking-the-effective-position-of-the-legacy-mouse-pointer",
+      "linkingText": [
+        "Tracking the effective position of the legacy mouse pointer"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "tracking-the-effective-position-of-the-legacy-mouse-pointer",
+        "href": "https://www.w3.org/TR/pointerevents3/#tracking-the-effective-position-of-the-legacy-mouse-pointer",
+        "title": "Tracking the effective position of the legacy mouse pointer",
+        "alternateIds": [
+          "x11-1-tracking-the-effective-position-of-the-legacy-mouse-pointer"
+        ],
+        "number": "11.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-effective-legacy-mouse-pointer-position",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-effective-legacy-mouse-pointer-position",
+      "linkingText": [
+        "effective legacy mouse pointer position",
+        "effective position of the legacy mouse pointer"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "tracking-the-effective-position-of-the-legacy-mouse-pointer",
+        "href": "https://www.w3.org/TR/pointerevents3/#tracking-the-effective-position-of-the-legacy-mouse-pointer",
+        "title": "Tracking the effective position of the legacy mouse pointer",
+        "alternateIds": [
+          "x11-1-tracking-the-effective-position-of-the-legacy-mouse-pointer"
+        ],
+        "number": "11.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-factory-calibration-information",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-factory-calibration-information",
+      "linkingText": [
+        "factory calibration information",
+        "Factory calibration information for sensors"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "security-and-privacy-considerations",
+        "href": "https://www.w3.org/TR/pointerevents3/#security-and-privacy-considerations",
+        "title": "12. Security and privacy considerations",
+        "alternateIds": [
+          "x12-security-and-privacy-considerations"
+        ]
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-active-buttons-state",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-active-buttons-state",
+      "linkingText": [
+        "active buttons state"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "glossary",
+        "href": "https://www.w3.org/TR/pointerevents3/#glossary",
+        "title": "13. Glossary",
+        "alternateIds": [
+          "x13-glossary"
+        ]
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-active-document",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-active-document",
+      "linkingText": [
+        "active document"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "glossary",
+        "href": "https://www.w3.org/TR/pointerevents3/#glossary",
+        "title": "13. Glossary",
+        "alternateIds": [
+          "x13-glossary"
+        ]
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-active-pointer",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-active-pointer",
+      "linkingText": [
+        "active pointer"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "glossary",
+        "href": "https://www.w3.org/TR/pointerevents3/#glossary",
+        "title": "13. Glossary",
+        "alternateIds": [
+          "x13-glossary"
+        ]
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-canceled-event",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-canceled-event",
+      "linkingText": [
+        "canceled event"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "glossary",
+        "href": "https://www.w3.org/TR/pointerevents3/#glossary",
+        "title": "13. Glossary",
+        "alternateIds": [
+          "x13-glossary"
+        ]
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-contact-geometry",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-contact-geometry",
+      "linkingText": [
+        "contact geometry"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "glossary",
+        "href": "https://www.w3.org/TR/pointerevents3/#glossary",
+        "title": "13. Glossary",
+        "alternateIds": [
+          "x13-glossary"
+        ]
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-digitizer",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-digitizer",
+      "linkingText": [
+        "digitizer"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "glossary",
+        "href": "https://www.w3.org/TR/pointerevents3/#glossary",
+        "title": "13. Glossary",
+        "alternateIds": [
+          "x13-glossary"
+        ]
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-direct-manipulation",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-direct-manipulation",
+      "linkingText": [
+        "direct manipulation"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "glossary",
+        "href": "https://www.w3.org/TR/pointerevents3/#glossary",
+        "title": "13. Glossary",
+        "alternateIds": [
+          "x13-glossary"
+        ]
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-hit-test",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-hit-test",
+      "linkingText": [
+        "hit test"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "glossary",
+        "href": "https://www.w3.org/TR/pointerevents3/#glossary",
+        "title": "13. Glossary",
+        "alternateIds": [
+          "x13-glossary"
+        ]
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-measurable-property",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-measurable-property",
+      "linkingText": [
+        "measurable property",
+        "measurable properties"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "glossary",
+        "href": "https://www.w3.org/TR/pointerevents3/#glossary",
+        "title": "13. Glossary",
+        "alternateIds": [
+          "x13-glossary"
+        ]
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-pointer",
+      "href": "https://www.w3.org/TR/pointerevents3/#dfn-pointer",
+      "linkingText": [
+        "pointer"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "glossary",
+        "href": "https://www.w3.org/TR/pointerevents3/#glossary",
+        "title": "13. Glossary",
+        "alternateIds": [
+          "x13-glossary"
+        ]
+      },
+      "definedIn": "dt",
+      "links": []
+    }
+  ]
+}

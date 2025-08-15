@@ -1,0 +1,2198 @@
+{
+  "spec": {
+    "title": "Secure Payment Confirmation",
+    "url": "https://w3c.github.io/secure-payment-confirmation/"
+  },
+  "dfns": [
+    {
+      "id": "spc-credential",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#spc-credential",
+      "linkingText": [
+        "SPC Credential"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-terminology",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-terminology",
+        "title": "Terminology",
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "third-party-enabled-spc-credential",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#third-party-enabled-spc-credential",
+      "linkingText": [
+        "Third-party enabled SPC Credential"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-terminology",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-terminology",
+        "title": "Terminology",
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "steps-to-silently-determine-if-an-spc-credential-is-third-party-enabled",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#steps-to-silently-determine-if-an-spc-credential-is-third-party-enabled",
+      "linkingText": [
+        "Steps to silently determine if an SPC Credential is third-party enabled"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sctn-terminology",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-terminology",
+        "title": "Terminology",
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "steps-to-silently-determine-if-a-credential-is-available-for-the-current-device",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#steps-to-silently-determine-if-a-credential-is-available-for-the-current-device",
+      "linkingText": [
+        "Steps to silently determine if a credential is available for the current device"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sctn-terminology",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-terminology",
+        "title": "Terminology",
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "browser-bound-key",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#browser-bound-key",
+      "linkingText": [
+        "Browser bound key"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sctn-terminology",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-terminology",
+        "title": "Terminology",
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "key-pair",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#key-pair",
+      "linkingText": [
+        "Key Pair"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sctn-terminology",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-terminology",
+        "title": "Terminology",
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "key-pair-public-key",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#key-pair-public-key",
+      "linkingText": [
+        "public key"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "key pair"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sctn-terminology",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-terminology",
+        "title": "Terminology",
+        "number": "2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "key-pair-private-key",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#key-pair-private-key",
+      "linkingText": [
+        "private key"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "key pair"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sctn-terminology",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-terminology",
+        "title": "Terminology",
+        "number": "2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "secure-payment-confirmation-payment-handler",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#secure-payment-confirmation-payment-handler",
+      "linkingText": [
+        "Secure Payment Confirmation payment handler"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sctn-authentication",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-authentication",
+        "title": "Authentication - the Secure Payment Confirmation payment method",
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "secure-payment-confirmation",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#secure-payment-confirmation",
+      "linkingText": [
+        "secure-payment-confirmation"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sctn-authentication",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-authentication",
+        "title": "Authentication - the Secure Payment Confirmation payment method",
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dictdef-securepaymentconfirmationrequest",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dictdef-securepaymentconfirmationrequest",
+      "linkingText": [
+        "SecurePaymentConfirmationRequest"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-securepaymentconfirmationrequest-dictionary",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-securepaymentconfirmationrequest-dictionary",
+        "title": "SecurePaymentConfirmationRequest Dictionary",
+        "number": "4.4"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dom-securepaymentconfirmationrequest-challenge",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-securepaymentconfirmationrequest-challenge",
+      "linkingText": [
+        "challenge"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SecurePaymentConfirmationRequest"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-securepaymentconfirmationrequest-dictionary",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-securepaymentconfirmationrequest-dictionary",
+        "title": "SecurePaymentConfirmationRequest Dictionary",
+        "number": "4.4"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-securepaymentconfirmationrequest-challenge",
+          "name": "challenge",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-securepaymentconfirmationrequest-challenge",
+          "heading": {
+            "id": "sctn-securepaymentconfirmationrequest-dictionary",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-securepaymentconfirmationrequest-dictionary",
+            "title": "SecurePaymentConfirmationRequest Dictionary",
+            "number": "4.4"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-securepaymentconfirmationrequest-rpid",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-securepaymentconfirmationrequest-rpid",
+      "linkingText": [
+        "rpId"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SecurePaymentConfirmationRequest"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-securepaymentconfirmationrequest-dictionary",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-securepaymentconfirmationrequest-dictionary",
+        "title": "SecurePaymentConfirmationRequest Dictionary",
+        "number": "4.4"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-securepaymentconfirmationrequest-rpid",
+          "name": "rpId",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-securepaymentconfirmationrequest-rpid",
+          "heading": {
+            "id": "sctn-securepaymentconfirmationrequest-dictionary",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-securepaymentconfirmationrequest-dictionary",
+            "title": "SecurePaymentConfirmationRequest Dictionary",
+            "number": "4.4"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-securepaymentconfirmationrequest-credentialids",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-securepaymentconfirmationrequest-credentialids",
+      "linkingText": [
+        "credentialIds"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SecurePaymentConfirmationRequest"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-securepaymentconfirmationrequest-dictionary",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-securepaymentconfirmationrequest-dictionary",
+        "title": "SecurePaymentConfirmationRequest Dictionary",
+        "number": "4.4"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-securepaymentconfirmationrequest-credentialids",
+          "name": "credentialIds",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-securepaymentconfirmationrequest-credentialids",
+          "heading": {
+            "id": "sctn-securepaymentconfirmationrequest-dictionary",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-securepaymentconfirmationrequest-dictionary",
+            "title": "SecurePaymentConfirmationRequest Dictionary",
+            "number": "4.4"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-securepaymentconfirmationrequest-instrument",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-securepaymentconfirmationrequest-instrument",
+      "linkingText": [
+        "instrument"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SecurePaymentConfirmationRequest"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-securepaymentconfirmationrequest-dictionary",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-securepaymentconfirmationrequest-dictionary",
+        "title": "SecurePaymentConfirmationRequest Dictionary",
+        "number": "4.4"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-securepaymentconfirmationrequest-instrument",
+          "name": "instrument",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-securepaymentconfirmationrequest-instrument",
+          "heading": {
+            "id": "sctn-securepaymentconfirmationrequest-dictionary",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-securepaymentconfirmationrequest-dictionary",
+            "title": "SecurePaymentConfirmationRequest Dictionary",
+            "number": "4.4"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-securepaymentconfirmationrequest-timeout",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-securepaymentconfirmationrequest-timeout",
+      "linkingText": [
+        "timeout"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SecurePaymentConfirmationRequest"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-securepaymentconfirmationrequest-dictionary",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-securepaymentconfirmationrequest-dictionary",
+        "title": "SecurePaymentConfirmationRequest Dictionary",
+        "number": "4.4"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-securepaymentconfirmationrequest-timeout",
+          "name": "timeout",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-securepaymentconfirmationrequest-timeout",
+          "heading": {
+            "id": "sctn-securepaymentconfirmationrequest-dictionary",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-securepaymentconfirmationrequest-dictionary",
+            "title": "SecurePaymentConfirmationRequest Dictionary",
+            "number": "4.4"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-securepaymentconfirmationrequest-payeename",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-securepaymentconfirmationrequest-payeename",
+      "linkingText": [
+        "payeeName"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SecurePaymentConfirmationRequest"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-securepaymentconfirmationrequest-dictionary",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-securepaymentconfirmationrequest-dictionary",
+        "title": "SecurePaymentConfirmationRequest Dictionary",
+        "number": "4.4"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-securepaymentconfirmationrequest-payeename",
+          "name": "payeeName",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-securepaymentconfirmationrequest-payeename",
+          "heading": {
+            "id": "sctn-securepaymentconfirmationrequest-dictionary",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-securepaymentconfirmationrequest-dictionary",
+            "title": "SecurePaymentConfirmationRequest Dictionary",
+            "number": "4.4"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-securepaymentconfirmationrequest-payeeorigin",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-securepaymentconfirmationrequest-payeeorigin",
+      "linkingText": [
+        "payeeOrigin"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SecurePaymentConfirmationRequest"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-securepaymentconfirmationrequest-dictionary",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-securepaymentconfirmationrequest-dictionary",
+        "title": "SecurePaymentConfirmationRequest Dictionary",
+        "number": "4.4"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-securepaymentconfirmationrequest-payeeorigin①",
+          "name": "payeeOrigin",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-securepaymentconfirmationrequest-payeeorigin%E2%91%A0",
+          "heading": {
+            "id": "sctn-securepaymentconfirmationrequest-dictionary",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-securepaymentconfirmationrequest-dictionary",
+            "title": "SecurePaymentConfirmationRequest Dictionary",
+            "number": "4.4"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-securepaymentconfirmationrequest-paymententitieslogos",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-securepaymentconfirmationrequest-paymententitieslogos",
+      "linkingText": [
+        "paymentEntitiesLogos"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SecurePaymentConfirmationRequest"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-securepaymentconfirmationrequest-dictionary",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-securepaymentconfirmationrequest-dictionary",
+        "title": "SecurePaymentConfirmationRequest Dictionary",
+        "number": "4.4"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-securepaymentconfirmationrequest-paymententitieslogos",
+          "name": "paymentEntitiesLogos",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-securepaymentconfirmationrequest-paymententitieslogos",
+          "heading": {
+            "id": "sctn-securepaymentconfirmationrequest-dictionary",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-securepaymentconfirmationrequest-dictionary",
+            "title": "SecurePaymentConfirmationRequest Dictionary",
+            "number": "4.4"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-securepaymentconfirmationrequest-extensions",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-securepaymentconfirmationrequest-extensions",
+      "linkingText": [
+        "extensions"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SecurePaymentConfirmationRequest"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-securepaymentconfirmationrequest-dictionary",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-securepaymentconfirmationrequest-dictionary",
+        "title": "SecurePaymentConfirmationRequest Dictionary",
+        "number": "4.4"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-securepaymentconfirmationrequest-extensions",
+          "name": "extensions",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-securepaymentconfirmationrequest-extensions",
+          "heading": {
+            "id": "sctn-securepaymentconfirmationrequest-dictionary",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-securepaymentconfirmationrequest-dictionary",
+            "title": "SecurePaymentConfirmationRequest Dictionary",
+            "number": "4.4"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-securepaymentconfirmationrequest-browserboundpubkeycredparams",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-securepaymentconfirmationrequest-browserboundpubkeycredparams",
+      "linkingText": [
+        "browserBoundPubKeyCredParams"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SecurePaymentConfirmationRequest"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-securepaymentconfirmationrequest-dictionary",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-securepaymentconfirmationrequest-dictionary",
+        "title": "SecurePaymentConfirmationRequest Dictionary",
+        "number": "4.4"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-securepaymentconfirmationrequest-browserboundpubkeycredparams",
+          "name": "browserBoundPubKeyCredParams",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-securepaymentconfirmationrequest-browserboundpubkeycredparams",
+          "heading": {
+            "id": "sctn-securepaymentconfirmationrequest-dictionary",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-securepaymentconfirmationrequest-dictionary",
+            "title": "SecurePaymentConfirmationRequest Dictionary",
+            "number": "4.4"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-securepaymentconfirmationrequest-locale",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-securepaymentconfirmationrequest-locale",
+      "linkingText": [
+        "locale"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SecurePaymentConfirmationRequest"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-securepaymentconfirmationrequest-dictionary",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-securepaymentconfirmationrequest-dictionary",
+        "title": "SecurePaymentConfirmationRequest Dictionary",
+        "number": "4.4"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-securepaymentconfirmationrequest-locale",
+          "name": "locale",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-securepaymentconfirmationrequest-locale",
+          "heading": {
+            "id": "sctn-securepaymentconfirmationrequest-dictionary",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-securepaymentconfirmationrequest-dictionary",
+            "title": "SecurePaymentConfirmationRequest Dictionary",
+            "number": "4.4"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-securepaymentconfirmationrequest-showoptout",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-securepaymentconfirmationrequest-showoptout",
+      "linkingText": [
+        "showOptOut"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SecurePaymentConfirmationRequest"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-securepaymentconfirmationrequest-dictionary",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-securepaymentconfirmationrequest-dictionary",
+        "title": "SecurePaymentConfirmationRequest Dictionary",
+        "number": "4.4"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-securepaymentconfirmationrequest-showoptout",
+          "name": "showOptOut",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-securepaymentconfirmationrequest-showoptout",
+          "heading": {
+            "id": "sctn-securepaymentconfirmationrequest-dictionary",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-securepaymentconfirmationrequest-dictionary",
+            "title": "SecurePaymentConfirmationRequest Dictionary",
+            "number": "4.4"
+          }
+        }
+      ]
+    },
+    {
+      "id": "enumdef-securepaymentconfirmationavailability",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#enumdef-securepaymentconfirmationavailability",
+      "linkingText": [
+        "SecurePaymentConfirmationAvailability"
+      ],
+      "localLinkingText": [],
+      "type": "enum",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-secure-payment-confirmation-available-api",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-secure-payment-confirmation-available-api",
+        "title": "Checking if Secure Payment Confirmation is available",
+        "number": "4.6"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-paymentrequest-securepaymentconfirmationavailability",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-paymentrequest-securepaymentconfirmationavailability",
+      "linkingText": [
+        "securePaymentConfirmationAvailability()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "PaymentRequest"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-secure-payment-confirmation-available-api",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-secure-payment-confirmation-available-api",
+        "title": "Checking if Secure Payment Confirmation is available",
+        "number": "4.6"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-securepaymentconfirmationavailability-available",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-securepaymentconfirmationavailability-available",
+      "linkingText": [
+        "\"available\"",
+        "available"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "SecurePaymentConfirmationAvailability"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-secure-payment-confirmation-available-api",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-secure-payment-confirmation-available-api",
+        "title": "Checking if Secure Payment Confirmation is available",
+        "number": "4.6"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-securepaymentconfirmationavailability-unavailable-unknown-reason",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-securepaymentconfirmationavailability-unavailable-unknown-reason",
+      "linkingText": [
+        "\"unavailable-unknown-reason\"",
+        "unavailable-unknown-reason"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "SecurePaymentConfirmationAvailability"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-secure-payment-confirmation-available-api",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-secure-payment-confirmation-available-api",
+        "title": "Checking if Secure Payment Confirmation is available",
+        "number": "4.6"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-securepaymentconfirmationavailability-unavailable-feature-not-enabled",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-securepaymentconfirmationavailability-unavailable-feature-not-enabled",
+      "linkingText": [
+        "\"unavailable-feature-not-enabled\"",
+        "unavailable-feature-not-enabled"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "SecurePaymentConfirmationAvailability"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-secure-payment-confirmation-available-api",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-secure-payment-confirmation-available-api",
+        "title": "Checking if Secure Payment Confirmation is available",
+        "number": "4.6"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-securepaymentconfirmationavailability-unavailable-no-permission-policy",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-securepaymentconfirmationavailability-unavailable-no-permission-policy",
+      "linkingText": [
+        "\"unavailable-no-permission-policy\"",
+        "unavailable-no-permission-policy"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "SecurePaymentConfirmationAvailability"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-secure-payment-confirmation-available-api",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-secure-payment-confirmation-available-api",
+        "title": "Checking if Secure Payment Confirmation is available",
+        "number": "4.6"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-securepaymentconfirmationavailability-unavailable-no-user-verifying-platform-authenticator",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-securepaymentconfirmationavailability-unavailable-no-user-verifying-platform-authenticator",
+      "linkingText": [
+        "\"unavailable-no-user-verifying-platform-authenticator\"",
+        "unavailable-no-user-verifying-platform-authenticator"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "SecurePaymentConfirmationAvailability"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-secure-payment-confirmation-available-api",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-secure-payment-confirmation-available-api",
+        "title": "Checking if Secure Payment Confirmation is available",
+        "number": "4.6"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-authenticationextensionsclientinputs-payment",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-authenticationextensionsclientinputs-payment",
+      "linkingText": [
+        "payment"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "AuthenticationExtensionsClientInputs"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-payment-extension-registration",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-payment-extension-registration",
+        "title": "WebAuthn Extension - \"payment\"",
+        "number": "5"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dictdef-authenticationextensionspaymentinputs",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dictdef-authenticationextensionspaymentinputs",
+      "linkingText": [
+        "AuthenticationExtensionsPaymentInputs"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-payment-extension-registration",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-payment-extension-registration",
+        "title": "WebAuthn Extension - \"payment\"",
+        "number": "5"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-authenticationextensionspaymentinputs-ispayment",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-authenticationextensionspaymentinputs-ispayment",
+      "linkingText": [
+        "isPayment"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "AuthenticationExtensionsPaymentInputs"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-payment-extension-registration",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-payment-extension-registration",
+        "title": "WebAuthn Extension - \"payment\"",
+        "number": "5"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-authenticationextensionspaymentinputs-ispayment①",
+          "name": "isPayment",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-authenticationextensionspaymentinputs-ispayment%E2%91%A0",
+          "heading": {
+            "id": "sctn-payment-extension-registration",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-payment-extension-registration",
+            "title": "WebAuthn Extension - \"payment\"",
+            "number": "5"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-authenticationextensionspaymentinputs-browserboundpubkeycredparams",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-authenticationextensionspaymentinputs-browserboundpubkeycredparams",
+      "linkingText": [
+        "browserBoundPubKeyCredParams"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "AuthenticationExtensionsPaymentInputs"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-payment-extension-registration",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-payment-extension-registration",
+        "title": "WebAuthn Extension - \"payment\"",
+        "number": "5"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-authenticationextensionspaymentinputs-browserboundpubkeycredparams①",
+          "name": "browserBoundPubKeyCredParams",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-authenticationextensionspaymentinputs-browserboundpubkeycredparams%E2%91%A0",
+          "heading": {
+            "id": "sctn-payment-extension-registration",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-payment-extension-registration",
+            "title": "WebAuthn Extension - \"payment\"",
+            "number": "5"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-authenticationextensionspaymentinputs-rpid",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-authenticationextensionspaymentinputs-rpid",
+      "linkingText": [
+        "rpId"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "AuthenticationExtensionsPaymentInputs"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-payment-extension-registration",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-payment-extension-registration",
+        "title": "WebAuthn Extension - \"payment\"",
+        "number": "5"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-authenticationextensionspaymentinputs-rpid①",
+          "name": "rpId",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-authenticationextensionspaymentinputs-rpid%E2%91%A0",
+          "heading": {
+            "id": "sctn-payment-extension-registration",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-payment-extension-registration",
+            "title": "WebAuthn Extension - \"payment\"",
+            "number": "5"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-authenticationextensionspaymentinputs-toporigin",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-authenticationextensionspaymentinputs-toporigin",
+      "linkingText": [
+        "topOrigin"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "AuthenticationExtensionsPaymentInputs"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-payment-extension-registration",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-payment-extension-registration",
+        "title": "WebAuthn Extension - \"payment\"",
+        "number": "5"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-authenticationextensionspaymentinputs-toporigin①",
+          "name": "topOrigin",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-authenticationextensionspaymentinputs-toporigin%E2%91%A0",
+          "heading": {
+            "id": "sctn-payment-extension-registration",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-payment-extension-registration",
+            "title": "WebAuthn Extension - \"payment\"",
+            "number": "5"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-authenticationextensionspaymentinputs-payeename",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-authenticationextensionspaymentinputs-payeename",
+      "linkingText": [
+        "payeeName"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "AuthenticationExtensionsPaymentInputs"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-payment-extension-registration",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-payment-extension-registration",
+        "title": "WebAuthn Extension - \"payment\"",
+        "number": "5"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-authenticationextensionspaymentinputs-payeename①",
+          "name": "payeeName",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-authenticationextensionspaymentinputs-payeename%E2%91%A0",
+          "heading": {
+            "id": "sctn-payment-extension-registration",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-payment-extension-registration",
+            "title": "WebAuthn Extension - \"payment\"",
+            "number": "5"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-authenticationextensionspaymentinputs-payeeorigin",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-authenticationextensionspaymentinputs-payeeorigin",
+      "linkingText": [
+        "payeeOrigin"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "AuthenticationExtensionsPaymentInputs"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-payment-extension-registration",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-payment-extension-registration",
+        "title": "WebAuthn Extension - \"payment\"",
+        "number": "5"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-authenticationextensionspaymentinputs-payeeorigin①",
+          "name": "payeeOrigin",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-authenticationextensionspaymentinputs-payeeorigin%E2%91%A0",
+          "heading": {
+            "id": "sctn-payment-extension-registration",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-payment-extension-registration",
+            "title": "WebAuthn Extension - \"payment\"",
+            "number": "5"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-authenticationextensionspaymentinputs-paymententitieslogos",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-authenticationextensionspaymentinputs-paymententitieslogos",
+      "linkingText": [
+        "paymentEntitiesLogos"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "AuthenticationExtensionsPaymentInputs"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-payment-extension-registration",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-payment-extension-registration",
+        "title": "WebAuthn Extension - \"payment\"",
+        "number": "5"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-authenticationextensionspaymentinputs-paymententitieslogos①",
+          "name": "paymentEntitiesLogos",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-authenticationextensionspaymentinputs-paymententitieslogos%E2%91%A0",
+          "heading": {
+            "id": "sctn-payment-extension-registration",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-payment-extension-registration",
+            "title": "WebAuthn Extension - \"payment\"",
+            "number": "5"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-authenticationextensionspaymentinputs-total",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-authenticationextensionspaymentinputs-total",
+      "linkingText": [
+        "total"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "AuthenticationExtensionsPaymentInputs"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-payment-extension-registration",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-payment-extension-registration",
+        "title": "WebAuthn Extension - \"payment\"",
+        "number": "5"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-authenticationextensionspaymentinputs-total①",
+          "name": "total",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-authenticationextensionspaymentinputs-total%E2%91%A0",
+          "heading": {
+            "id": "sctn-payment-extension-registration",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-payment-extension-registration",
+            "title": "WebAuthn Extension - \"payment\"",
+            "number": "5"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-authenticationextensionspaymentinputs-instrument",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-authenticationextensionspaymentinputs-instrument",
+      "linkingText": [
+        "instrument"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "AuthenticationExtensionsPaymentInputs"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-payment-extension-registration",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-payment-extension-registration",
+        "title": "WebAuthn Extension - \"payment\"",
+        "number": "5"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-authenticationextensionspaymentinputs-instrument①",
+          "name": "instrument",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-authenticationextensionspaymentinputs-instrument%E2%91%A0",
+          "heading": {
+            "id": "sctn-payment-extension-registration",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-payment-extension-registration",
+            "title": "WebAuthn Extension - \"payment\"",
+            "number": "5"
+          }
+        }
+      ]
+    },
+    {
+      "id": "client-extension-processing-registration",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#client-extension-processing-registration",
+      "linkingText": [
+        "Client extension processing (registration)"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-payment-extension-registration",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-payment-extension-registration",
+        "title": "WebAuthn Extension - \"payment\"",
+        "number": "5"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "client-extension-processing-authentication",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#client-extension-processing-authentication",
+      "linkingText": [
+        "Client extension processing (authentication)"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-payment-extension-registration",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-payment-extension-registration",
+        "title": "WebAuthn Extension - \"payment\"",
+        "number": "5"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-authenticationextensionsclientoutputs-payment",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-authenticationextensionsclientoutputs-payment",
+      "linkingText": [
+        "payment"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "AuthenticationExtensionsClientOutputs"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-payment-extension-registration",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-payment-extension-registration",
+        "title": "WebAuthn Extension - \"payment\"",
+        "number": "5"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dictdef-authenticationextensionspaymentoutputs",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dictdef-authenticationextensionspaymentoutputs",
+      "linkingText": [
+        "AuthenticationExtensionsPaymentOutputs"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-payment-extension-registration",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-payment-extension-registration",
+        "title": "WebAuthn Extension - \"payment\"",
+        "number": "5"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-authenticationextensionspaymentoutputs-browserboundsignature",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-authenticationextensionspaymentoutputs-browserboundsignature",
+      "linkingText": [
+        "browserBoundSignature"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "AuthenticationExtensionsPaymentOutputs"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-payment-extension-registration",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-payment-extension-registration",
+        "title": "WebAuthn Extension - \"payment\"",
+        "number": "5"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-authenticationextensionspaymentoutputs-browserboundsignature②",
+          "name": "browserBoundSignature",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-authenticationextensionspaymentoutputs-browserboundsignature%E2%91%A1",
+          "heading": {
+            "id": "sctn-payment-extension-registration",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-payment-extension-registration",
+            "title": "WebAuthn Extension - \"payment\"",
+            "number": "5"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dictdef-browserboundsignature",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dictdef-browserboundsignature",
+      "linkingText": [
+        "BrowserBoundSignature"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-payment-extension-registration",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-payment-extension-registration",
+        "title": "WebAuthn Extension - \"payment\"",
+        "number": "5"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-browserboundsignature-signature",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-browserboundsignature-signature",
+      "linkingText": [
+        "signature"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "BrowserBoundSignature"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-payment-extension-registration",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-payment-extension-registration",
+        "title": "WebAuthn Extension - \"payment\"",
+        "number": "5"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-browserboundsignature-signature③",
+          "name": "signature",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-browserboundsignature-signature%E2%91%A2",
+          "heading": {
+            "id": "sctn-payment-extension-registration",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-payment-extension-registration",
+            "title": "WebAuthn Extension - \"payment\"",
+            "number": "5"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dictdef-collectedclientpaymentdata",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dictdef-collectedclientpaymentdata",
+      "linkingText": [
+        "CollectedClientPaymentData"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-collectedclientpaymentdata-dictionary",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-collectedclientpaymentdata-dictionary",
+        "title": "CollectedClientPaymentData Dictionary",
+        "number": "5.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dom-collectedclientpaymentdata-payment",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-collectedclientpaymentdata-payment",
+      "linkingText": [
+        "payment"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CollectedClientPaymentData"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-collectedclientpaymentdata-dictionary",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-collectedclientpaymentdata-dictionary",
+        "title": "CollectedClientPaymentData Dictionary",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-collectedclientpaymentdata-payment②",
+          "name": "payment",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-collectedclientpaymentdata-payment%E2%91%A1",
+          "heading": {
+            "id": "sctn-collectedclientpaymentdata-dictionary",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-collectedclientpaymentdata-dictionary",
+            "title": "CollectedClientPaymentData Dictionary",
+            "number": "5.1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dictdef-collectedclientadditionalpaymentdata",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dictdef-collectedclientadditionalpaymentdata",
+      "linkingText": [
+        "CollectedClientAdditionalPaymentData"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-collectedclientadditionalpaymentdata-dictionary",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-collectedclientadditionalpaymentdata-dictionary",
+        "title": "CollectedClientAdditionalPaymentData Dictionary",
+        "number": "5.2"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dom-collectedclientadditionalpaymentdata-rpid",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-collectedclientadditionalpaymentdata-rpid",
+      "linkingText": [
+        "rpId"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CollectedClientAdditionalPaymentData"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-collectedclientadditionalpaymentdata-dictionary",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-collectedclientadditionalpaymentdata-dictionary",
+        "title": "CollectedClientAdditionalPaymentData Dictionary",
+        "number": "5.2"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-collectedclientadditionalpaymentdata-rpid①",
+          "name": "rpId",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-collectedclientadditionalpaymentdata-rpid%E2%91%A0",
+          "heading": {
+            "id": "sctn-collectedclientadditionalpaymentdata-dictionary",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-collectedclientadditionalpaymentdata-dictionary",
+            "title": "CollectedClientAdditionalPaymentData Dictionary",
+            "number": "5.2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-collectedclientadditionalpaymentdata-toporigin",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-collectedclientadditionalpaymentdata-toporigin",
+      "linkingText": [
+        "topOrigin"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CollectedClientAdditionalPaymentData"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-collectedclientadditionalpaymentdata-dictionary",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-collectedclientadditionalpaymentdata-dictionary",
+        "title": "CollectedClientAdditionalPaymentData Dictionary",
+        "number": "5.2"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-collectedclientadditionalpaymentdata-toporigin①",
+          "name": "topOrigin",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-collectedclientadditionalpaymentdata-toporigin%E2%91%A0",
+          "heading": {
+            "id": "sctn-collectedclientadditionalpaymentdata-dictionary",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-collectedclientadditionalpaymentdata-dictionary",
+            "title": "CollectedClientAdditionalPaymentData Dictionary",
+            "number": "5.2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-collectedclientadditionalpaymentdata-payeename",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-collectedclientadditionalpaymentdata-payeename",
+      "linkingText": [
+        "payeeName"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CollectedClientAdditionalPaymentData"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-collectedclientadditionalpaymentdata-dictionary",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-collectedclientadditionalpaymentdata-dictionary",
+        "title": "CollectedClientAdditionalPaymentData Dictionary",
+        "number": "5.2"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-collectedclientadditionalpaymentdata-payeename②",
+          "name": "payeeName",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-collectedclientadditionalpaymentdata-payeename%E2%91%A1",
+          "heading": {
+            "id": "sctn-collectedclientadditionalpaymentdata-dictionary",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-collectedclientadditionalpaymentdata-dictionary",
+            "title": "CollectedClientAdditionalPaymentData Dictionary",
+            "number": "5.2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-collectedclientadditionalpaymentdata-payeeorigin",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-collectedclientadditionalpaymentdata-payeeorigin",
+      "linkingText": [
+        "payeeOrigin"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CollectedClientAdditionalPaymentData"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-collectedclientadditionalpaymentdata-dictionary",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-collectedclientadditionalpaymentdata-dictionary",
+        "title": "CollectedClientAdditionalPaymentData Dictionary",
+        "number": "5.2"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-collectedclientadditionalpaymentdata-payeeorigin②",
+          "name": "payeeOrigin",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-collectedclientadditionalpaymentdata-payeeorigin%E2%91%A1",
+          "heading": {
+            "id": "sctn-collectedclientadditionalpaymentdata-dictionary",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-collectedclientadditionalpaymentdata-dictionary",
+            "title": "CollectedClientAdditionalPaymentData Dictionary",
+            "number": "5.2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-collectedclientadditionalpaymentdata-paymententitieslogos",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-collectedclientadditionalpaymentdata-paymententitieslogos",
+      "linkingText": [
+        "paymentEntitiesLogos"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CollectedClientAdditionalPaymentData"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-collectedclientadditionalpaymentdata-dictionary",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-collectedclientadditionalpaymentdata-dictionary",
+        "title": "CollectedClientAdditionalPaymentData Dictionary",
+        "number": "5.2"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-collectedclientadditionalpaymentdata-paymententitieslogos③",
+          "name": "paymentEntitiesLogos",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-collectedclientadditionalpaymentdata-paymententitieslogos%E2%91%A2",
+          "heading": {
+            "id": "sctn-collectedclientadditionalpaymentdata-dictionary",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-collectedclientadditionalpaymentdata-dictionary",
+            "title": "CollectedClientAdditionalPaymentData Dictionary",
+            "number": "5.2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-collectedclientadditionalpaymentdata-total",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-collectedclientadditionalpaymentdata-total",
+      "linkingText": [
+        "total"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CollectedClientAdditionalPaymentData"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-collectedclientadditionalpaymentdata-dictionary",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-collectedclientadditionalpaymentdata-dictionary",
+        "title": "CollectedClientAdditionalPaymentData Dictionary",
+        "number": "5.2"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-collectedclientadditionalpaymentdata-total②",
+          "name": "total",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-collectedclientadditionalpaymentdata-total%E2%91%A1",
+          "heading": {
+            "id": "sctn-collectedclientadditionalpaymentdata-dictionary",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-collectedclientadditionalpaymentdata-dictionary",
+            "title": "CollectedClientAdditionalPaymentData Dictionary",
+            "number": "5.2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-collectedclientadditionalpaymentdata-instrument",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-collectedclientadditionalpaymentdata-instrument",
+      "linkingText": [
+        "instrument"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CollectedClientAdditionalPaymentData"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-collectedclientadditionalpaymentdata-dictionary",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-collectedclientadditionalpaymentdata-dictionary",
+        "title": "CollectedClientAdditionalPaymentData Dictionary",
+        "number": "5.2"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-collectedclientadditionalpaymentdata-instrument③",
+          "name": "instrument",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-collectedclientadditionalpaymentdata-instrument%E2%91%A2",
+          "heading": {
+            "id": "sctn-collectedclientadditionalpaymentdata-dictionary",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-collectedclientadditionalpaymentdata-dictionary",
+            "title": "CollectedClientAdditionalPaymentData Dictionary",
+            "number": "5.2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-collectedclientadditionalpaymentdata-browserboundpublickey",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-collectedclientadditionalpaymentdata-browserboundpublickey",
+      "linkingText": [
+        "browserBoundPublicKey"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CollectedClientAdditionalPaymentData"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-collectedclientadditionalpaymentdata-dictionary",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-collectedclientadditionalpaymentdata-dictionary",
+        "title": "CollectedClientAdditionalPaymentData Dictionary",
+        "number": "5.2"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-collectedclientadditionalpaymentdata-browserboundpublickey③",
+          "name": "browserBoundPublicKey",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-collectedclientadditionalpaymentdata-browserboundpublickey%E2%91%A2",
+          "heading": {
+            "id": "sctn-collectedclientadditionalpaymentdata-dictionary",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-collectedclientadditionalpaymentdata-dictionary",
+            "title": "CollectedClientAdditionalPaymentData Dictionary",
+            "number": "5.2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dictdef-collectedclientadditionalpaymentregistrationdata",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dictdef-collectedclientadditionalpaymentregistrationdata",
+      "linkingText": [
+        "CollectedClientAdditionalPaymentRegistrationData"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-collectedclientadditionalpaymentregistrationdata-dictionary",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-collectedclientadditionalpaymentregistrationdata-dictionary",
+        "title": "CollectedClientAdditionalPaymentRegistrationData Dictionary",
+        "number": "5.3"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dom-collectedclientadditionalpaymentregistrationdata-browserboundpublickey",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-collectedclientadditionalpaymentregistrationdata-browserboundpublickey",
+      "linkingText": [
+        "browserBoundPublicKey"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CollectedClientAdditionalPaymentRegistrationData"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-collectedclientadditionalpaymentregistrationdata-dictionary",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-collectedclientadditionalpaymentregistrationdata-dictionary",
+        "title": "CollectedClientAdditionalPaymentRegistrationData Dictionary",
+        "number": "5.3"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-collectedclientadditionalpaymentregistrationdata-browserboundpublickey②",
+          "name": "browserBoundPublicKey",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-collectedclientadditionalpaymentregistrationdata-browserboundpublickey%E2%91%A1",
+          "heading": {
+            "id": "sctn-collectedclientadditionalpaymentregistrationdata-dictionary",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-collectedclientadditionalpaymentregistrationdata-dictionary",
+            "title": "CollectedClientAdditionalPaymentRegistrationData Dictionary",
+            "number": "5.3"
+          }
+        }
+      ]
+    },
+    {
+      "id": "browser-bound-key-store",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#browser-bound-key-store",
+      "linkingText": [
+        "browser bound key store"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sctn-browser-bound-key-store",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-browser-bound-key-store",
+        "title": "Browser Bound Key Store",
+        "number": "6"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "browser_bound_map",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#browser_bound_map",
+      "linkingText": [
+        "browser_bound_map"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sctn-browser-bound-key-store",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-browser-bound-key-store",
+        "title": "Browser Bound Key Store",
+        "number": "6"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "keypair_map",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#keypair_map",
+      "linkingText": [
+        "keypair_map"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sctn-browser-bound-key-store",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-browser-bound-key-store",
+        "title": "Browser Bound Key Store",
+        "number": "6"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "create-a-key-pair",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#create-a-key-pair",
+      "linkingText": [
+        "create a key pair"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sctn-creating-a-keypair",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-creating-a-keypair",
+        "title": "Creating a key pair",
+        "number": "6.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "bind-a-key-pair",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#bind-a-key-pair",
+      "linkingText": [
+        "bind a key pair"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sctn-binding-a-keypair",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-binding-a-keypair",
+        "title": "Binding a key pair",
+        "number": "6.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "get-or-create-a-browser-bound-key",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#get-or-create-a-browser-bound-key",
+      "linkingText": [
+        "get or create a browser bound key"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sctn-retrieving-a-browser-bound-key",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-retrieving-a-browser-bound-key",
+        "title": "Retrieving a key pair",
+        "number": "6.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "get-a-browser-bound-public-key",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#get-a-browser-bound-public-key",
+      "linkingText": [
+        "get a browser bound public key"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sctn-getting-the-bbk-public-key",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-getting-the-bbk-public-key",
+        "title": "Getting the browser bound public key",
+        "number": "6.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "generate-a-browser-bound-signature",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#generate-a-browser-bound-signature",
+      "linkingText": [
+        "generate a browser bound signature"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sctn-signing-client-data",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-signing-client-data",
+        "title": "Signing client data",
+        "number": "6.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dictdef-paymentcredentialinstrument",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dictdef-paymentcredentialinstrument",
+      "linkingText": [
+        "PaymentCredentialInstrument"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-paymentcredentialinstrument-dictionary",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-paymentcredentialinstrument-dictionary",
+        "title": "PaymentCredentialInstrument Dictionary",
+        "number": "7.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dom-paymentcredentialinstrument-displayname",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-paymentcredentialinstrument-displayname",
+      "linkingText": [
+        "displayName"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "PaymentCredentialInstrument"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-paymentcredentialinstrument-dictionary",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-paymentcredentialinstrument-dictionary",
+        "title": "PaymentCredentialInstrument Dictionary",
+        "number": "7.1"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-paymentcredentialinstrument-displayname②",
+          "name": "displayName",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-paymentcredentialinstrument-displayname%E2%91%A1",
+          "heading": {
+            "id": "sctn-paymentcredentialinstrument-dictionary",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-paymentcredentialinstrument-dictionary",
+            "title": "PaymentCredentialInstrument Dictionary",
+            "number": "7.1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-paymentcredentialinstrument-icon",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-paymentcredentialinstrument-icon",
+      "linkingText": [
+        "icon"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "PaymentCredentialInstrument"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-paymentcredentialinstrument-dictionary",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-paymentcredentialinstrument-dictionary",
+        "title": "PaymentCredentialInstrument Dictionary",
+        "number": "7.1"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-paymentcredentialinstrument-icon⑥",
+          "name": "icon",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-paymentcredentialinstrument-icon%E2%91%A5",
+          "heading": {
+            "id": "sctn-paymentcredentialinstrument-dictionary",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-paymentcredentialinstrument-dictionary",
+            "title": "PaymentCredentialInstrument Dictionary",
+            "number": "7.1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-paymentcredentialinstrument-iconmustbeshown",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-paymentcredentialinstrument-iconmustbeshown",
+      "linkingText": [
+        "iconMustBeShown"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "PaymentCredentialInstrument"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-paymentcredentialinstrument-dictionary",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-paymentcredentialinstrument-dictionary",
+        "title": "PaymentCredentialInstrument Dictionary",
+        "number": "7.1"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-paymentcredentialinstrument-iconmustbeshown②",
+          "name": "iconMustBeShown",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-paymentcredentialinstrument-iconmustbeshown%E2%91%A1",
+          "heading": {
+            "id": "sctn-paymentcredentialinstrument-dictionary",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-paymentcredentialinstrument-dictionary",
+            "title": "PaymentCredentialInstrument Dictionary",
+            "number": "7.1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-paymentcredentialinstrument-details",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-paymentcredentialinstrument-details",
+      "linkingText": [
+        "details"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "PaymentCredentialInstrument"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-paymentcredentialinstrument-dictionary",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-paymentcredentialinstrument-dictionary",
+        "title": "PaymentCredentialInstrument Dictionary",
+        "number": "7.1"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-paymentcredentialinstrument-details②",
+          "name": "details",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-paymentcredentialinstrument-details%E2%91%A1",
+          "heading": {
+            "id": "sctn-paymentcredentialinstrument-dictionary",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-paymentcredentialinstrument-dictionary",
+            "title": "PaymentCredentialInstrument Dictionary",
+            "number": "7.1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dictdef-paymententitylogo",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dictdef-paymententitylogo",
+      "linkingText": [
+        "PaymentEntityLogo"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-paymententitylogo-dictionary",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-paymententitylogo-dictionary",
+        "title": "PaymentEntityLogo Dictionary",
+        "number": "7.2"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dom-paymententitylogo-url",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-paymententitylogo-url",
+      "linkingText": [
+        "url"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "PaymentEntityLogo"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-paymententitylogo-dictionary",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-paymententitylogo-dictionary",
+        "title": "PaymentEntityLogo Dictionary",
+        "number": "7.2"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-paymententitylogo-url⑤",
+          "name": "url",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-paymententitylogo-url%E2%91%A4",
+          "heading": {
+            "id": "sctn-paymententitylogo-dictionary",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-paymententitylogo-dictionary",
+            "title": "PaymentEntityLogo Dictionary",
+            "number": "7.2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-paymententitylogo-label",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#dom-paymententitylogo-label",
+      "linkingText": [
+        "label"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "PaymentEntityLogo"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sctn-paymententitylogo-dictionary",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-paymententitylogo-dictionary",
+        "title": "PaymentEntityLogo Dictionary",
+        "number": "7.2"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-paymententitylogo-label③",
+          "name": "label",
+          "href": "https://w3c.github.io/secure-payment-confirmation/#ref-for-dom-paymententitylogo-label%E2%91%A2",
+          "heading": {
+            "id": "sctn-paymententitylogo-dictionary",
+            "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-paymententitylogo-dictionary",
+            "title": "PaymentEntityLogo Dictionary",
+            "number": "7.2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "set-spc-transaction-mode",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#set-spc-transaction-mode",
+      "linkingText": [
+        "Set SPC Transaction Mode"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sctn-automation-set-spc-transaction-mode",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-automation-set-spc-transaction-mode",
+        "title": "Set SPC Transaction Mode",
+        "number": "10.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "current-transaction-automation-mode",
+      "href": "https://w3c.github.io/secure-payment-confirmation/#current-transaction-automation-mode",
+      "linkingText": [
+        "current transaction automation mode"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sctn-automation-set-spc-transaction-mode",
+        "href": "https://w3c.github.io/secure-payment-confirmation/#sctn-automation-set-spc-transaction-mode",
+        "title": "Set SPC Transaction Mode",
+        "number": "10.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

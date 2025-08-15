@@ -1,0 +1,56 @@
+{
+  "spec": {
+    "title": "Requesting Permissions",
+    "url": "https://wicg.github.io/permissions-request/"
+  },
+  "links": {
+    "rawlinks": {
+      "http://www.w3.org/community/": {},
+      "https://datatracker.ietf.org/doc/html/rfc2119": {},
+      "https://html.spec.whatwg.org/multipage/": {},
+      "https://notifications.spec.whatwg.org/": {},
+      "https://w3c.github.io/permissions/": {
+        "anchors": [
+          "permission-registry",
+          "requesting-more-permission"
+        ]
+      },
+      "https://webidl.spec.whatwg.org/": {},
+      "https://www.w3.org/TR/geolocation-API/": {},
+      "https://www.w3.org/TR/permissions/": {},
+      "https://www.w3.org/community/about/agreements/cla/": {},
+      "https://www.w3.org/community/wicg/": {}
+    },
+    "autolinks": {
+      "https://html.spec.whatwg.org/multipage/webappapis.html": {
+        "anchors": [
+          "environment-settings-object"
+        ]
+      },
+      "https://w3c.github.io/permissions/": {
+        "anchors": [
+          "dfn-powerful-feature",
+          "dom-permissions",
+          "dom-permissionstatus",
+          "dom-permissiondescriptor",
+          "dom-permissiondescriptor-name",
+          "dfn-permission-descriptor-type",
+          "dfn-create-a-permissionstatus",
+          "dfn-permission-result-type",
+          "dfn-default-permission-query-algorithm",
+          "dom-permissionstate-prompt",
+          "dfn-request-permission-to-use"
+        ]
+      },
+      "https://webidl.spec.whatwg.org/": {
+        "anchors": [
+          "idl-promise",
+          "idl-object",
+          "dfn-convert-ecmascript-to-idl-value",
+          "a-promise-rejected-with",
+          "reject"
+        ]
+      }
+    }
+  }
+}

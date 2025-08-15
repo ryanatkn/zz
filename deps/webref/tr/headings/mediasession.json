@@ -1,0 +1,238 @@
+{
+  "spec": {
+    "title": "Media Session",
+    "url": "https://www.w3.org/TR/mediasession/"
+  },
+  "headings": [
+    {
+      "id": "title",
+      "href": "https://www.w3.org/TR/mediasession/#title",
+      "level": 1,
+      "title": "Media Session"
+    },
+    {
+      "id": "abstract",
+      "href": "https://www.w3.org/TR/mediasession/#abstract",
+      "level": 2,
+      "title": "Abstract"
+    },
+    {
+      "id": "sotd",
+      "href": "https://www.w3.org/TR/mediasession/#sotd",
+      "level": 2,
+      "title": "Status of this document"
+    },
+    {
+      "id": "toc",
+      "href": "https://www.w3.org/TR/mediasession/#toc",
+      "level": 2,
+      "title": "Table of Contents",
+      "alternateIds": [
+        "contents"
+      ]
+    },
+    {
+      "id": "introduction",
+      "href": "https://www.w3.org/TR/mediasession/#introduction",
+      "level": 2,
+      "title": "Introduction",
+      "number": "1"
+    },
+    {
+      "id": "privacy-considerations",
+      "href": "https://www.w3.org/TR/mediasession/#privacy-considerations",
+      "level": 2,
+      "title": "Privacy Considerations",
+      "number": "2"
+    },
+    {
+      "id": "incognito-mode-privacy",
+      "href": "https://www.w3.org/TR/mediasession/#incognito-mode-privacy",
+      "level": 3,
+      "title": "Incognito mode",
+      "number": "2.1"
+    },
+    {
+      "id": "media-session-actions-privacy",
+      "href": "https://www.w3.org/TR/mediasession/#media-session-actions-privacy",
+      "level": 3,
+      "title": "Media Session Actions",
+      "number": "2.2"
+    },
+    {
+      "id": "security-considerations",
+      "href": "https://www.w3.org/TR/mediasession/#security-considerations",
+      "level": 2,
+      "title": "Security Considerations",
+      "number": "3"
+    },
+    {
+      "id": "user-interface-guidelines",
+      "href": "https://www.w3.org/TR/mediasession/#user-interface-guidelines",
+      "level": 3,
+      "title": "User interface guidelines",
+      "number": "3.1"
+    },
+    {
+      "id": "model",
+      "href": "https://www.w3.org/TR/mediasession/#model",
+      "level": 2,
+      "title": "Model",
+      "number": "4"
+    },
+    {
+      "id": "playback-state-model",
+      "href": "https://www.w3.org/TR/mediasession/#playback-state-model",
+      "level": 3,
+      "title": "Playback State",
+      "number": "4.1"
+    },
+    {
+      "id": "media-session-routing",
+      "href": "https://www.w3.org/TR/mediasession/#media-session-routing",
+      "level": 3,
+      "title": "Routing",
+      "number": "4.2"
+    },
+    {
+      "id": "metadata",
+      "href": "https://www.w3.org/TR/mediasession/#metadata",
+      "level": 3,
+      "title": "Metadata",
+      "number": "4.3"
+    },
+    {
+      "id": "actions-model",
+      "href": "https://www.w3.org/TR/mediasession/#actions-model",
+      "level": 3,
+      "title": "Actions",
+      "number": "4.4"
+    },
+    {
+      "id": "position-state-sec",
+      "href": "https://www.w3.org/TR/mediasession/#position-state-sec",
+      "level": 3,
+      "title": "Position State",
+      "number": "4.5"
+    },
+    {
+      "id": "the-mediasession-interface",
+      "href": "https://www.w3.org/TR/mediasession/#the-mediasession-interface",
+      "level": 2,
+      "title": "The MediaSession interface",
+      "number": "5"
+    },
+    {
+      "id": "the-mediametadata-interface",
+      "href": "https://www.w3.org/TR/mediasession/#the-mediametadata-interface",
+      "level": 2,
+      "title": "The MediaMetadata interface",
+      "number": "6"
+    },
+    {
+      "id": "the-chapterinformation-interface",
+      "href": "https://www.w3.org/TR/mediasession/#the-chapterinformation-interface",
+      "level": 2,
+      "title": "The ChapterInformation interface",
+      "number": "7"
+    },
+    {
+      "id": "the-mediaimage-dictionary",
+      "href": "https://www.w3.org/TR/mediasession/#the-mediaimage-dictionary",
+      "level": 2,
+      "title": "The MediaImage dictionary",
+      "number": "8"
+    },
+    {
+      "id": "the-mediapositionstate-dictionary",
+      "href": "https://www.w3.org/TR/mediasession/#the-mediapositionstate-dictionary",
+      "level": 2,
+      "title": "The MediaPositionState dictionary",
+      "number": "9"
+    },
+    {
+      "id": "the-mediasessionactiondetails-dictionary",
+      "href": "https://www.w3.org/TR/mediasession/#the-mediasessionactiondetails-dictionary",
+      "level": 2,
+      "title": "10. The MediaSessionActionDetails dictionary"
+    },
+    {
+      "id": "permissions-policy",
+      "href": "https://www.w3.org/TR/mediasession/#permissions-policy",
+      "level": 2,
+      "title": "11. Permissions Policy Integration"
+    },
+    {
+      "id": "examples",
+      "href": "https://www.w3.org/TR/mediasession/#examples",
+      "level": 2,
+      "title": "12. Examples"
+    },
+    {
+      "id": "acknowledgments",
+      "href": "https://www.w3.org/TR/mediasession/#acknowledgments",
+      "level": 2,
+      "title": "Acknowledgments"
+    },
+    {
+      "id": "w3c-conformance",
+      "href": "https://www.w3.org/TR/mediasession/#w3c-conformance",
+      "level": 2,
+      "title": "Conformance"
+    },
+    {
+      "id": "w3c-conventions",
+      "href": "https://www.w3.org/TR/mediasession/#w3c-conventions",
+      "level": 3,
+      "title": "Document conventions"
+    },
+    {
+      "id": "w3c-conformant-algorithms",
+      "href": "https://www.w3.org/TR/mediasession/#w3c-conformant-algorithms",
+      "level": 3,
+      "title": "Conformant Algorithms"
+    },
+    {
+      "id": "index",
+      "href": "https://www.w3.org/TR/mediasession/#index",
+      "level": 2,
+      "title": "Index"
+    },
+    {
+      "id": "index-defined-here",
+      "href": "https://www.w3.org/TR/mediasession/#index-defined-here",
+      "level": 3,
+      "title": "Terms defined by this specification"
+    },
+    {
+      "id": "index-defined-elsewhere",
+      "href": "https://www.w3.org/TR/mediasession/#index-defined-elsewhere",
+      "level": 3,
+      "title": "Terms defined by reference"
+    },
+    {
+      "id": "references",
+      "href": "https://www.w3.org/TR/mediasession/#references",
+      "level": 2,
+      "title": "References"
+    },
+    {
+      "id": "normative",
+      "href": "https://www.w3.org/TR/mediasession/#normative",
+      "level": 3,
+      "title": "Normative References"
+    },
+    {
+      "id": "informative",
+      "href": "https://www.w3.org/TR/mediasession/#informative",
+      "level": 3,
+      "title": "Informative References"
+    },
+    {
+      "id": "idl-index",
+      "href": "https://www.w3.org/TR/mediasession/#idl-index",
+      "level": 2,
+      "title": "IDL Index"
+    }
+  ]
+}

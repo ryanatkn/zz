@@ -1,0 +1,47 @@
+{
+  "spec": {
+    "title": "MediaStream Image Capture",
+    "url": "https://w3c.github.io/mediacapture-image/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "FileAPI",
+        "url": "https://w3c.github.io/FileAPI/"
+      },
+      {
+        "name": "GETUSERMEDIA",
+        "url": "https://w3c.github.io/mediacapture-main/"
+      },
+      {
+        "name": "HTML",
+        "url": "https://html.spec.whatwg.org/multipage/"
+      },
+      {
+        "name": "PERMISSIONS",
+        "url": "https://w3c.github.io/permissions/"
+      },
+      {
+        "name": "RFC2119",
+        "url": "https://datatracker.ietf.org/doc/html/rfc2119"
+      },
+      {
+        "name": "WEBIDL",
+        "url": "https://webidl.spec.whatwg.org/"
+      }
+    ],
+    "informative": [
+      {
+        "name": "ISO12232",
+        "url": "http://www.iso.org/iso/catalogue_detail.htm?csnumber=37777"
+      },
+      {
+        "name": "LIGHTING-VOCABULARY"
+      },
+      {
+        "name": "UVC",
+        "url": "http://www.usb.org/developers/docs/devclass_docs/"
+      }
+    ]
+  }
+}

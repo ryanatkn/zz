@@ -1,0 +1,32 @@
+{
+  "spec": {
+    "title": "Pointer Lock 2.0",
+    "url": "https://w3c.github.io/pointerlock/"
+  },
+  "events": [
+    {
+      "src": {
+        "format": "fire an event phrasing",
+        "href": "https://w3c.github.io/pointerlock/#exit-pointer-lock"
+      },
+      "href": "https://w3c.github.io/pointerlock/#dfn-pointerlockchange",
+      "type": "pointerlockchange",
+      "targets": [
+        "Document"
+      ],
+      "interface": "Event"
+    },
+    {
+      "src": {
+        "format": "fire an event phrasing",
+        "href": "https://w3c.github.io/pointerlock/#requestPointerLock"
+      },
+      "href": "https://w3c.github.io/pointerlock/#dfn-pointerlockerror",
+      "type": "pointerlockerror",
+      "targets": [
+        "Document"
+      ],
+      "interface": "Event"
+    }
+  ]
+}

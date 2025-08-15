@@ -1,0 +1,709 @@
+{
+  "spec": {
+    "title": "Magnetometer",
+    "url": "https://www.w3.org/TR/magnetometer/"
+  },
+  "dfns": [
+    {
+      "id": "magnetic-field",
+      "href": "https://www.w3.org/TR/magnetometer/#magnetic-field",
+      "linkingText": [
+        "magnetic field"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "intro",
+        "href": "https://www.w3.org/TR/magnetometer/#intro",
+        "title": "Introduction",
+        "number": "1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "hard-iron-distortion",
+      "href": "https://www.w3.org/TR/magnetometer/#hard-iron-distortion",
+      "linkingText": [
+        "Hard iron distortion"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "intro",
+        "href": "https://www.w3.org/TR/magnetometer/#intro",
+        "title": "Introduction",
+        "number": "1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "soft-iron-distortion",
+      "href": "https://www.w3.org/TR/magnetometer/#soft-iron-distortion",
+      "linkingText": [
+        "Soft iron distortion"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "intro",
+        "href": "https://www.w3.org/TR/magnetometer/#intro",
+        "title": "Introduction",
+        "number": "1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "calibrated-magnetic-field",
+      "href": "https://www.w3.org/TR/magnetometer/#calibrated-magnetic-field",
+      "linkingText": [
+        "calibrated magnetic field"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "intro",
+        "href": "https://www.w3.org/TR/magnetometer/#intro",
+        "title": "Introduction",
+        "number": "1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "uncalibrated-magnetic-field",
+      "href": "https://www.w3.org/TR/magnetometer/#uncalibrated-magnetic-field",
+      "linkingText": [
+        "uncalibrated magnetic field"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "intro",
+        "href": "https://www.w3.org/TR/magnetometer/#intro",
+        "title": "Introduction",
+        "number": "1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "magnetometer-sensor-type",
+      "href": "https://www.w3.org/TR/magnetometer/#magnetometer-sensor-type",
+      "linkingText": [
+        "Magnetometer"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "model",
+        "href": "https://www.w3.org/TR/magnetometer/#model",
+        "title": "Model",
+        "number": "5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "uncalibrated-magnetometer-sensor-type",
+      "href": "https://www.w3.org/TR/magnetometer/#uncalibrated-magnetometer-sensor-type",
+      "linkingText": [
+        "Uncalibrated Magnetometer"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "model",
+        "href": "https://www.w3.org/TR/magnetometer/#model",
+        "title": "Model",
+        "number": "5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "uncalibrated-magnetometer-virtual-sensor-type",
+      "href": "https://www.w3.org/TR/magnetometer/#uncalibrated-magnetometer-virtual-sensor-type",
+      "linkingText": [
+        "uncalibrated-magnetometer virtual sensor type"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "model",
+        "href": "https://www.w3.org/TR/magnetometer/#model",
+        "title": "Model",
+        "number": "5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "magnetometer",
+      "href": "https://www.w3.org/TR/magnetometer/#magnetometer",
+      "linkingText": [
+        "Magnetometer"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "magnetometer-interface",
+        "href": "https://www.w3.org/TR/magnetometer/#magnetometer-interface",
+        "title": "The Magnetometer Interface",
+        "number": "6.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-magnetometer-magnetometer-sensoroptions-sensoroptions",
+      "href": "https://www.w3.org/TR/magnetometer/#dom-magnetometer-magnetometer-sensoroptions-sensoroptions",
+      "linkingText": [
+        "sensorOptions"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "Magnetometer/Magnetometer(sensorOptions)",
+        "Magnetometer/constructor(sensorOptions)",
+        "Magnetometer/Magnetometer()",
+        "Magnetometer/constructor()"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "magnetometer-interface",
+        "href": "https://www.w3.org/TR/magnetometer/#magnetometer-interface",
+        "title": "The Magnetometer Interface",
+        "number": "6.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-magnetometer-x",
+      "href": "https://www.w3.org/TR/magnetometer/#dom-magnetometer-x",
+      "linkingText": [
+        "x"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Magnetometer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "magnetometer-interface",
+        "href": "https://www.w3.org/TR/magnetometer/#magnetometer-interface",
+        "title": "The Magnetometer Interface",
+        "number": "6.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-magnetometer-y",
+      "href": "https://www.w3.org/TR/magnetometer/#dom-magnetometer-y",
+      "linkingText": [
+        "y"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Magnetometer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "magnetometer-interface",
+        "href": "https://www.w3.org/TR/magnetometer/#magnetometer-interface",
+        "title": "The Magnetometer Interface",
+        "number": "6.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-magnetometer-z",
+      "href": "https://www.w3.org/TR/magnetometer/#dom-magnetometer-z",
+      "linkingText": [
+        "z"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Magnetometer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "magnetometer-interface",
+        "href": "https://www.w3.org/TR/magnetometer/#magnetometer-interface",
+        "title": "The Magnetometer Interface",
+        "number": "6.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "enumdef-magnetometerlocalcoordinatesystem",
+      "href": "https://www.w3.org/TR/magnetometer/#enumdef-magnetometerlocalcoordinatesystem",
+      "linkingText": [
+        "MagnetometerLocalCoordinateSystem"
+      ],
+      "localLinkingText": [],
+      "type": "enum",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "magnetometer-interface",
+        "href": "https://www.w3.org/TR/magnetometer/#magnetometer-interface",
+        "title": "The Magnetometer Interface",
+        "number": "6.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-magnetometerlocalcoordinatesystem-device",
+      "href": "https://www.w3.org/TR/magnetometer/#dom-magnetometerlocalcoordinatesystem-device",
+      "linkingText": [
+        "\"device\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "MagnetometerLocalCoordinateSystem"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "magnetometer-interface",
+        "href": "https://www.w3.org/TR/magnetometer/#magnetometer-interface",
+        "title": "The Magnetometer Interface",
+        "number": "6.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-magnetometerlocalcoordinatesystem-screen",
+      "href": "https://www.w3.org/TR/magnetometer/#dom-magnetometerlocalcoordinatesystem-screen",
+      "linkingText": [
+        "\"screen\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "MagnetometerLocalCoordinateSystem"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "magnetometer-interface",
+        "href": "https://www.w3.org/TR/magnetometer/#magnetometer-interface",
+        "title": "The Magnetometer Interface",
+        "number": "6.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dictdef-magnetometersensoroptions",
+      "href": "https://www.w3.org/TR/magnetometer/#dictdef-magnetometersensoroptions",
+      "linkingText": [
+        "MagnetometerSensorOptions"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "magnetometer-interface",
+        "href": "https://www.w3.org/TR/magnetometer/#magnetometer-interface",
+        "title": "The Magnetometer Interface",
+        "number": "6.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-magnetometersensoroptions-referenceframe",
+      "href": "https://www.w3.org/TR/magnetometer/#dom-magnetometersensoroptions-referenceframe",
+      "linkingText": [
+        "referenceFrame"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "MagnetometerSensorOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "magnetometer-interface",
+        "href": "https://www.w3.org/TR/magnetometer/#magnetometer-interface",
+        "title": "The Magnetometer Interface",
+        "number": "6.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-magnetometer-magnetometer",
+      "href": "https://www.w3.org/TR/magnetometer/#dom-magnetometer-magnetometer",
+      "linkingText": [
+        "Magnetometer(sensorOptions)",
+        "constructor(sensorOptions)",
+        "Magnetometer()",
+        "constructor()"
+      ],
+      "localLinkingText": [],
+      "type": "constructor",
+      "for": [
+        "Magnetometer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "magnetometer-interface",
+        "href": "https://www.w3.org/TR/magnetometer/#magnetometer-interface",
+        "title": "The Magnetometer Interface",
+        "number": "6.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "uncalibratedmagnetometer",
+      "href": "https://www.w3.org/TR/magnetometer/#uncalibratedmagnetometer",
+      "linkingText": [
+        "UncalibratedMagnetometer"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "uncalibrated-magnetometer-interface",
+        "href": "https://www.w3.org/TR/magnetometer/#uncalibrated-magnetometer-interface",
+        "title": "The UncalibratedMagnetometer Interface",
+        "number": "6.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-uncalibratedmagnetometer-uncalibratedmagnetometer-sensoroptions-sensoroptions",
+      "href": "https://www.w3.org/TR/magnetometer/#dom-uncalibratedmagnetometer-uncalibratedmagnetometer-sensoroptions-sensoroptions",
+      "linkingText": [
+        "sensorOptions"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "UncalibratedMagnetometer/UncalibratedMagnetometer(sensorOptions)",
+        "UncalibratedMagnetometer/constructor(sensorOptions)",
+        "UncalibratedMagnetometer/UncalibratedMagnetometer()",
+        "UncalibratedMagnetometer/constructor()"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "uncalibrated-magnetometer-interface",
+        "href": "https://www.w3.org/TR/magnetometer/#uncalibrated-magnetometer-interface",
+        "title": "The UncalibratedMagnetometer Interface",
+        "number": "6.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-uncalibratedmagnetometer-x",
+      "href": "https://www.w3.org/TR/magnetometer/#dom-uncalibratedmagnetometer-x",
+      "linkingText": [
+        "x"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "UncalibratedMagnetometer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "uncalibrated-magnetometer-interface",
+        "href": "https://www.w3.org/TR/magnetometer/#uncalibrated-magnetometer-interface",
+        "title": "The UncalibratedMagnetometer Interface",
+        "number": "6.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-uncalibratedmagnetometer-y",
+      "href": "https://www.w3.org/TR/magnetometer/#dom-uncalibratedmagnetometer-y",
+      "linkingText": [
+        "y"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "UncalibratedMagnetometer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "uncalibrated-magnetometer-interface",
+        "href": "https://www.w3.org/TR/magnetometer/#uncalibrated-magnetometer-interface",
+        "title": "The UncalibratedMagnetometer Interface",
+        "number": "6.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-uncalibratedmagnetometer-z",
+      "href": "https://www.w3.org/TR/magnetometer/#dom-uncalibratedmagnetometer-z",
+      "linkingText": [
+        "z"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "UncalibratedMagnetometer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "uncalibrated-magnetometer-interface",
+        "href": "https://www.w3.org/TR/magnetometer/#uncalibrated-magnetometer-interface",
+        "title": "The UncalibratedMagnetometer Interface",
+        "number": "6.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-uncalibratedmagnetometer-xbias",
+      "href": "https://www.w3.org/TR/magnetometer/#dom-uncalibratedmagnetometer-xbias",
+      "linkingText": [
+        "xBias"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "UncalibratedMagnetometer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "uncalibrated-magnetometer-interface",
+        "href": "https://www.w3.org/TR/magnetometer/#uncalibrated-magnetometer-interface",
+        "title": "The UncalibratedMagnetometer Interface",
+        "number": "6.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-uncalibratedmagnetometer-ybias",
+      "href": "https://www.w3.org/TR/magnetometer/#dom-uncalibratedmagnetometer-ybias",
+      "linkingText": [
+        "yBias"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "UncalibratedMagnetometer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "uncalibrated-magnetometer-interface",
+        "href": "https://www.w3.org/TR/magnetometer/#uncalibrated-magnetometer-interface",
+        "title": "The UncalibratedMagnetometer Interface",
+        "number": "6.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-uncalibratedmagnetometer-zbias",
+      "href": "https://www.w3.org/TR/magnetometer/#dom-uncalibratedmagnetometer-zbias",
+      "linkingText": [
+        "zBias"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "UncalibratedMagnetometer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "uncalibrated-magnetometer-interface",
+        "href": "https://www.w3.org/TR/magnetometer/#uncalibrated-magnetometer-interface",
+        "title": "The UncalibratedMagnetometer Interface",
+        "number": "6.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-uncalibratedmagnetometer-uncalibratedmagnetometer",
+      "href": "https://www.w3.org/TR/magnetometer/#dom-uncalibratedmagnetometer-uncalibratedmagnetometer",
+      "linkingText": [
+        "UncalibratedMagnetometer(sensorOptions)",
+        "constructor(sensorOptions)",
+        "UncalibratedMagnetometer()",
+        "constructor()"
+      ],
+      "localLinkingText": [],
+      "type": "constructor",
+      "for": [
+        "UncalibratedMagnetometer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "uncalibrated-magnetometer-interface",
+        "href": "https://www.w3.org/TR/magnetometer/#uncalibrated-magnetometer-interface",
+        "title": "The UncalibratedMagnetometer Interface",
+        "number": "6.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "construct-a-magnetometer-object",
+      "href": "https://www.w3.org/TR/magnetometer/#construct-a-magnetometer-object",
+      "linkingText": [
+        "Construct a magnetometer object"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "construct-a-magnetometer-object",
+        "href": "https://www.w3.org/TR/magnetometer/#construct-a-magnetometer-object",
+        "title": "Construct a magnetometer object",
+        "number": "7.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "uncalibrated-magnetometer-reading-parsing-algorithm",
+      "href": "https://www.w3.org/TR/magnetometer/#uncalibrated-magnetometer-reading-parsing-algorithm",
+      "linkingText": [
+        "Uncalibrated Magnetometer reading parsing algorithm"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "uncalibrated-magnetometer-reading-parsing-algorithm",
+        "href": "https://www.w3.org/TR/magnetometer/#uncalibrated-magnetometer-reading-parsing-algorithm",
+        "title": "Uncalibrated Magnetometer reading parsing algorithm",
+        "number": "8.2.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "magnetic-declination",
+      "href": "https://www.w3.org/TR/magnetometer/#magnetic-declination",
+      "linkingText": [
+        "Magnetic declination"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "compass",
+        "href": "https://www.w3.org/TR/magnetometer/#compass",
+        "title": "11. Compass Heading Using Magnetometers"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "declination-angle",
+      "href": "https://www.w3.org/TR/magnetometer/#declination-angle",
+      "linkingText": [
+        "declination angle"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "compass",
+        "href": "https://www.w3.org/TR/magnetometer/#compass",
+        "title": "11. Compass Heading Using Magnetometers"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "conformant-user-agent",
+      "href": "https://www.w3.org/TR/magnetometer/#conformant-user-agent",
+      "linkingText": [
+        "conformant user agent"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "conformance",
+        "href": "https://www.w3.org/TR/magnetometer/#conformance",
+        "title": "13. Conformance"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

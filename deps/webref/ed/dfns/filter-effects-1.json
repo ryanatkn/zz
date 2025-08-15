@@ -1,0 +1,3217 @@
+{
+  "spec": {
+    "title": "Filter Effects Module Level 1",
+    "url": "https://drafts.fxtf.org/filter-effects-1/"
+  },
+  "dfns": [
+    {
+      "id": "filter-primitive",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#filter-primitive",
+      "linkingText": [
+        "filter primitive"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "definitions",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#definitions",
+        "title": "Terminology",
+        "number": "4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "elementdef-filter-primitive",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#elementdef-filter-primitive",
+      "linkingText": [
+        "filter-primitive"
+      ],
+      "localLinkingText": [],
+      "type": "element",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "definitions",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#definitions",
+        "title": "Terminology",
+        "number": "4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "pass-through-filter",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#pass-through-filter",
+      "linkingText": [
+        "pass through filter"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "definitions",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#definitions",
+        "title": "Terminology",
+        "number": "4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "propdef-filter",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#propdef-filter",
+      "linkingText": [
+        "filter"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "FilterProperty",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#FilterProperty",
+        "title": "Graphic filters: the filter property",
+        "number": "5"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "typedef-filter-value-list",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#typedef-filter-value-list",
+      "linkingText": [
+        "<filter-value-list>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "FilterProperty",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#FilterProperty",
+        "title": "Graphic filters: the filter property",
+        "number": "5"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "typedef-filter-url",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#typedef-filter-url",
+      "linkingText": [
+        "<url>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [
+        "filter"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "FilterProperty",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#FilterProperty",
+        "title": "Graphic filters: the filter property",
+        "number": "5"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "typedef-filter-function",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#typedef-filter-function",
+      "linkingText": [
+        "<filter-function>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "supported-filter-functions",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#supported-filter-functions",
+        "title": "Supported Filter Functions",
+        "number": "6.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "funcdef-filter-blur",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#funcdef-filter-blur",
+      "linkingText": [
+        "blur()"
+      ],
+      "localLinkingText": [],
+      "type": "function",
+      "for": [
+        "filter"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "supported-filter-functions",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#supported-filter-functions",
+        "title": "Supported Filter Functions",
+        "number": "6.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "funcdef-filter-brightness",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#funcdef-filter-brightness",
+      "linkingText": [
+        "brightness()"
+      ],
+      "localLinkingText": [],
+      "type": "function",
+      "for": [
+        "filter"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "supported-filter-functions",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#supported-filter-functions",
+        "title": "Supported Filter Functions",
+        "number": "6.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "funcdef-filter-contrast",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#funcdef-filter-contrast",
+      "linkingText": [
+        "contrast()"
+      ],
+      "localLinkingText": [],
+      "type": "function",
+      "for": [
+        "filter"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "supported-filter-functions",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#supported-filter-functions",
+        "title": "Supported Filter Functions",
+        "number": "6.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "funcdef-filter-drop-shadow",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#funcdef-filter-drop-shadow",
+      "linkingText": [
+        "drop-shadow()"
+      ],
+      "localLinkingText": [],
+      "type": "function",
+      "for": [
+        "filter"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "supported-filter-functions",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#supported-filter-functions",
+        "title": "Supported Filter Functions",
+        "number": "6.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "funcdef-filter-grayscale",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#funcdef-filter-grayscale",
+      "linkingText": [
+        "grayscale()"
+      ],
+      "localLinkingText": [],
+      "type": "function",
+      "for": [
+        "filter"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "supported-filter-functions",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#supported-filter-functions",
+        "title": "Supported Filter Functions",
+        "number": "6.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "funcdef-filter-hue-rotate",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#funcdef-filter-hue-rotate",
+      "linkingText": [
+        "hue-rotate()"
+      ],
+      "localLinkingText": [],
+      "type": "function",
+      "for": [
+        "filter"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "supported-filter-functions",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#supported-filter-functions",
+        "title": "Supported Filter Functions",
+        "number": "6.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "funcdef-filter-invert",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#funcdef-filter-invert",
+      "linkingText": [
+        "invert()"
+      ],
+      "localLinkingText": [],
+      "type": "function",
+      "for": [
+        "filter"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "supported-filter-functions",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#supported-filter-functions",
+        "title": "Supported Filter Functions",
+        "number": "6.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "funcdef-filter-opacity",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#funcdef-filter-opacity",
+      "linkingText": [
+        "opacity()"
+      ],
+      "localLinkingText": [],
+      "type": "function",
+      "for": [
+        "filter"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "supported-filter-functions",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#supported-filter-functions",
+        "title": "Supported Filter Functions",
+        "number": "6.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "funcdef-filter-saturate",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#funcdef-filter-saturate",
+      "linkingText": [
+        "saturate()"
+      ],
+      "localLinkingText": [],
+      "type": "function",
+      "for": [
+        "filter"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "supported-filter-functions",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#supported-filter-functions",
+        "title": "Supported Filter Functions",
+        "number": "6.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "funcdef-filter-sepia",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#funcdef-filter-sepia",
+      "linkingText": [
+        "sepia()"
+      ],
+      "localLinkingText": [],
+      "type": "function",
+      "for": [
+        "filter"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "supported-filter-functions",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#supported-filter-functions",
+        "title": "Supported Filter Functions",
+        "number": "6.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "typedef-number-optional-number",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#typedef-number-optional-number",
+      "linkingText": [
+        "<number-optional-number>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "FilterElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#FilterElement",
+        "title": "SVG Filter Sources: the filter element",
+        "number": "7"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-filter-filterunits",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-filter-filterunits",
+      "linkingText": [
+        "filterUnits"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "filter"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "FilterElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#FilterElement",
+        "title": "SVG Filter Sources: the filter element",
+        "number": "7"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "attr-valuedef-filterunits-userspaceonuse",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#attr-valuedef-filterunits-userspaceonuse",
+      "linkingText": [
+        "userSpaceOnUse"
+      ],
+      "localLinkingText": [],
+      "type": "attr-value",
+      "for": [
+        "filterUnits"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "FilterElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#FilterElement",
+        "title": "SVG Filter Sources: the filter element",
+        "number": "7"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "attr-valuedef-filterunits-objectboundingbox",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#attr-valuedef-filterunits-objectboundingbox",
+      "linkingText": [
+        "objectBoundingBox"
+      ],
+      "localLinkingText": [],
+      "type": "attr-value",
+      "for": [
+        "filterUnits"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "FilterElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#FilterElement",
+        "title": "SVG Filter Sources: the filter element",
+        "number": "7"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-filter-primitiveunits",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-filter-primitiveunits",
+      "linkingText": [
+        "primitiveUnits"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "filter"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "FilterElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#FilterElement",
+        "title": "SVG Filter Sources: the filter element",
+        "number": "7"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "attr-valuedef-primitiveunits-userspaceonuse",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#attr-valuedef-primitiveunits-userspaceonuse",
+      "linkingText": [
+        "userSpaceOnUse"
+      ],
+      "localLinkingText": [],
+      "type": "attr-value",
+      "for": [
+        "primitiveUnits"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "FilterElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#FilterElement",
+        "title": "SVG Filter Sources: the filter element",
+        "number": "7"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "attr-valuedef-primitiveunits-objectboundingbox",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#attr-valuedef-primitiveunits-objectboundingbox",
+      "linkingText": [
+        "objectBoundingBox"
+      ],
+      "localLinkingText": [],
+      "type": "attr-value",
+      "for": [
+        "primitiveUnits"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "FilterElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#FilterElement",
+        "title": "SVG Filter Sources: the filter element",
+        "number": "7"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-filter-x",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-filter-x",
+      "linkingText": [
+        "x"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "filter"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "FilterElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#FilterElement",
+        "title": "SVG Filter Sources: the filter element",
+        "number": "7"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-filter-y",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-filter-y",
+      "linkingText": [
+        "y"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "filter"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "FilterElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#FilterElement",
+        "title": "SVG Filter Sources: the filter element",
+        "number": "7"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-filter-width",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-filter-width",
+      "linkingText": [
+        "width"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "filter"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "FilterElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#FilterElement",
+        "title": "SVG Filter Sources: the filter element",
+        "number": "7"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-filter-height",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-filter-height",
+      "linkingText": [
+        "height"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "filter"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "FilterElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#FilterElement",
+        "title": "SVG Filter Sources: the filter element",
+        "number": "7"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-filter-filterres",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-filter-filterres",
+      "linkingText": [
+        "filterRes"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "filter"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "FilterElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#FilterElement",
+        "title": "SVG Filter Sources: the filter element",
+        "number": "7"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "filter-region",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#filter-region",
+      "linkingText": [
+        "filter region"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "FilterEffectsRegion",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#FilterEffectsRegion",
+        "title": "Filter Region",
+        "number": "8"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "operating-coordinate-space",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#operating-coordinate-space",
+      "linkingText": [
+        "operating coordinate space"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "FilterPrimitivesOverviewIntro",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#FilterPrimitivesOverviewIntro",
+        "title": "Overview",
+        "number": "9.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "filter-primitive-attributes",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#filter-primitive-attributes",
+      "linkingText": [
+        "filter primitive attributes"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "CommonAttributes",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#CommonAttributes",
+        "title": "Common filter primitive attributes",
+        "number": "9.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-filter-primitive-x",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-filter-primitive-x",
+      "linkingText": [
+        "x"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "filter-primitive"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CommonAttributes",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#CommonAttributes",
+        "title": "Common filter primitive attributes",
+        "number": "9.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-filter-primitive-y",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-filter-primitive-y",
+      "linkingText": [
+        "y"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "filter-primitive"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CommonAttributes",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#CommonAttributes",
+        "title": "Common filter primitive attributes",
+        "number": "9.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-filter-primitive-width",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-filter-primitive-width",
+      "linkingText": [
+        "width"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "filter-primitive"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CommonAttributes",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#CommonAttributes",
+        "title": "Common filter primitive attributes",
+        "number": "9.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-filter-primitive-height",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-filter-primitive-height",
+      "linkingText": [
+        "height"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "filter-primitive"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CommonAttributes",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#CommonAttributes",
+        "title": "Common filter primitive attributes",
+        "number": "9.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-filter-primitive-result",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-filter-primitive-result",
+      "linkingText": [
+        "result"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "filter-primitive"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CommonAttributes",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#CommonAttributes",
+        "title": "Common filter primitive attributes",
+        "number": "9.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "typedef-result-filter-primitive-reference",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#typedef-result-filter-primitive-reference",
+      "linkingText": [
+        "<filter-primitive-reference>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [
+        "result"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CommonAttributes",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#CommonAttributes",
+        "title": "Common filter primitive attributes",
+        "number": "9.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-filter-primitive-in",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-filter-primitive-in",
+      "linkingText": [
+        "in"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "filter-primitive"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CommonAttributes",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#CommonAttributes",
+        "title": "Common filter primitive attributes",
+        "number": "9.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "attr-valuedef-in-sourcegraphic",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#attr-valuedef-in-sourcegraphic",
+      "linkingText": [
+        "SourceGraphic"
+      ],
+      "localLinkingText": [],
+      "type": "attr-value",
+      "for": [
+        "in"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CommonAttributes",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#CommonAttributes",
+        "title": "Common filter primitive attributes",
+        "number": "9.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "attr-valuedef-in-sourcealpha",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#attr-valuedef-in-sourcealpha",
+      "linkingText": [
+        "SourceAlpha"
+      ],
+      "localLinkingText": [],
+      "type": "attr-value",
+      "for": [
+        "in"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CommonAttributes",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#CommonAttributes",
+        "title": "Common filter primitive attributes",
+        "number": "9.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "attr-valuedef-in-backgroundimage",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#attr-valuedef-in-backgroundimage",
+      "linkingText": [
+        "BackgroundImage"
+      ],
+      "localLinkingText": [],
+      "type": "attr-value",
+      "for": [
+        "in"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CommonAttributes",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#CommonAttributes",
+        "title": "Common filter primitive attributes",
+        "number": "9.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "attr-valuedef-in-backgroundalpha",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#attr-valuedef-in-backgroundalpha",
+      "linkingText": [
+        "BackgroundAlpha"
+      ],
+      "localLinkingText": [],
+      "type": "attr-value",
+      "for": [
+        "in"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CommonAttributes",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#CommonAttributes",
+        "title": "Common filter primitive attributes",
+        "number": "9.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "attr-valuedef-in-fillpaint",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#attr-valuedef-in-fillpaint",
+      "linkingText": [
+        "FillPaint"
+      ],
+      "localLinkingText": [],
+      "type": "attr-value",
+      "for": [
+        "in"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CommonAttributes",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#CommonAttributes",
+        "title": "Common filter primitive attributes",
+        "number": "9.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "attr-valuedef-in-strokepaint",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#attr-valuedef-in-strokepaint",
+      "linkingText": [
+        "StrokePaint"
+      ],
+      "localLinkingText": [],
+      "type": "attr-value",
+      "for": [
+        "in"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CommonAttributes",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#CommonAttributes",
+        "title": "Common filter primitive attributes",
+        "number": "9.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "filter-primitive-tree",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#filter-primitive-tree",
+      "linkingText": [
+        "filter primitive tree"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "FilterPrimitiveTree",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#FilterPrimitiveTree",
+        "title": "Filter primitive tree",
+        "number": "9.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "primary-filter-primitive-tree",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#primary-filter-primitive-tree",
+      "linkingText": [
+        "primary filter primitive tree"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "FilterPrimitiveTree",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#FilterPrimitiveTree",
+        "title": "Filter primitive tree",
+        "number": "9.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "filter-primitive-subregion",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#filter-primitive-subregion",
+      "linkingText": [
+        "filter primitive subregion"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "FilterPrimitiveSubRegion",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#FilterPrimitiveSubRegion",
+        "title": "Filter primitive subregion",
+        "number": "9.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-feblend-mode",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-feblend-mode",
+      "linkingText": [
+        "mode"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feBlend"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feBlendElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feBlendElement",
+        "title": "Filter primitive feBlend",
+        "number": "9.5"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-feblend-no-composite",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-feblend-no-composite",
+      "linkingText": [
+        "no-composite"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feBlend"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feBlendElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feBlendElement",
+        "title": "Filter primitive feBlend",
+        "number": "9.5"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "attr-valuedef-no-composite-no-composite",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#attr-valuedef-no-composite-no-composite",
+      "linkingText": [
+        "no-composite"
+      ],
+      "localLinkingText": [],
+      "type": "attr-value",
+      "for": [
+        "no-composite"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feBlendElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feBlendElement",
+        "title": "Filter primitive feBlend",
+        "number": "9.5"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-feblend-in2",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-feblend-in2",
+      "linkingText": [
+        "in2"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feBlend"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feBlendElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feBlendElement",
+        "title": "Filter primitive feBlend",
+        "number": "9.5"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fecolormatrix-type",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fecolormatrix-type",
+      "linkingText": [
+        "type"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feColorMatrix"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feColorMatrixElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feColorMatrixElement",
+        "title": "Filter primitive feColorMatrix",
+        "number": "9.6"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "attr-valuedef-type-matrix",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#attr-valuedef-type-matrix",
+      "linkingText": [
+        "matrix"
+      ],
+      "localLinkingText": [],
+      "type": "attr-value",
+      "for": [
+        "type"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feColorMatrixElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feColorMatrixElement",
+        "title": "Filter primitive feColorMatrix",
+        "number": "9.6"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "attr-valuedef-type-saturate",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#attr-valuedef-type-saturate",
+      "linkingText": [
+        "saturate"
+      ],
+      "localLinkingText": [],
+      "type": "attr-value",
+      "for": [
+        "type"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feColorMatrixElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feColorMatrixElement",
+        "title": "Filter primitive feColorMatrix",
+        "number": "9.6"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "attr-valuedef-type-huerotate",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#attr-valuedef-type-huerotate",
+      "linkingText": [
+        "hueRotate"
+      ],
+      "localLinkingText": [],
+      "type": "attr-value",
+      "for": [
+        "type"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feColorMatrixElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feColorMatrixElement",
+        "title": "Filter primitive feColorMatrix",
+        "number": "9.6"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "attr-valuedef-type-luminancetoalpha",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#attr-valuedef-type-luminancetoalpha",
+      "linkingText": [
+        "luminanceToAlpha"
+      ],
+      "localLinkingText": [],
+      "type": "attr-value",
+      "for": [
+        "type"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feColorMatrixElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feColorMatrixElement",
+        "title": "Filter primitive feColorMatrix",
+        "number": "9.6"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fecolormatrix-values",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fecolormatrix-values",
+      "linkingText": [
+        "values"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feColorMatrix"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feColorMatrixElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feColorMatrixElement",
+        "title": "Filter primitive feColorMatrix",
+        "number": "9.6"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "transfer-function-element",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#transfer-function-element",
+      "linkingText": [
+        "transfer function element"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "feComponentTransferElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feComponentTransferElement",
+        "title": "Filter primitive feComponentTransfer",
+        "number": "9.7"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "transfer-function-element-attributes",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#transfer-function-element-attributes",
+      "linkingText": [
+        "transfer function element attributes"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "feFuncRElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feFuncRElement",
+        "title": "Transfer function feFuncR",
+        "number": "9.7.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fecomponenttransfer-type",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fecomponenttransfer-type",
+      "linkingText": [
+        "type"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feComponentTransfer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feFuncRElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feFuncRElement",
+        "title": "Transfer function feFuncR",
+        "number": "9.7.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "attr-valuedef-type-identity",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#attr-valuedef-type-identity",
+      "linkingText": [
+        "identity"
+      ],
+      "localLinkingText": [],
+      "type": "attr-value",
+      "for": [
+        "type"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feFuncRElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feFuncRElement",
+        "title": "Transfer function feFuncR",
+        "number": "9.7.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "attr-valuedef-type-table",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#attr-valuedef-type-table",
+      "linkingText": [
+        "table"
+      ],
+      "localLinkingText": [],
+      "type": "attr-value",
+      "for": [
+        "type"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feFuncRElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feFuncRElement",
+        "title": "Transfer function feFuncR",
+        "number": "9.7.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "attr-valuedef-type-discrete",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#attr-valuedef-type-discrete",
+      "linkingText": [
+        "discrete"
+      ],
+      "localLinkingText": [],
+      "type": "attr-value",
+      "for": [
+        "type"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feFuncRElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feFuncRElement",
+        "title": "Transfer function feFuncR",
+        "number": "9.7.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "attr-valuedef-type-linear",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#attr-valuedef-type-linear",
+      "linkingText": [
+        "linear"
+      ],
+      "localLinkingText": [],
+      "type": "attr-value",
+      "for": [
+        "type"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feFuncRElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feFuncRElement",
+        "title": "Transfer function feFuncR",
+        "number": "9.7.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "attr-valuedef-type-gamma",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#attr-valuedef-type-gamma",
+      "linkingText": [
+        "gamma"
+      ],
+      "localLinkingText": [],
+      "type": "attr-value",
+      "for": [
+        "type"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feFuncRElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feFuncRElement",
+        "title": "Transfer function feFuncR",
+        "number": "9.7.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fecomponenttransfer-tablevalues",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fecomponenttransfer-tablevalues",
+      "linkingText": [
+        "tableValues"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feComponentTransfer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feFuncRElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feFuncRElement",
+        "title": "Transfer function feFuncR",
+        "number": "9.7.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fecomponenttransfer-slope",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fecomponenttransfer-slope",
+      "linkingText": [
+        "slope"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feComponentTransfer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feFuncRElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feFuncRElement",
+        "title": "Transfer function feFuncR",
+        "number": "9.7.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fecomponenttransfer-intercept",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fecomponenttransfer-intercept",
+      "linkingText": [
+        "intercept"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feComponentTransfer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feFuncRElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feFuncRElement",
+        "title": "Transfer function feFuncR",
+        "number": "9.7.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fecomponenttransfer-amplitude",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fecomponenttransfer-amplitude",
+      "linkingText": [
+        "amplitude"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feComponentTransfer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feFuncRElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feFuncRElement",
+        "title": "Transfer function feFuncR",
+        "number": "9.7.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fecomponenttransfer-exponent",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fecomponenttransfer-exponent",
+      "linkingText": [
+        "exponent"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feComponentTransfer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feFuncRElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feFuncRElement",
+        "title": "Transfer function feFuncR",
+        "number": "9.7.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fecomponenttransfer-offset",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fecomponenttransfer-offset",
+      "linkingText": [
+        "offset"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feComponentTransfer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feFuncRElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feFuncRElement",
+        "title": "Transfer function feFuncR",
+        "number": "9.7.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fecomposite-operator",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fecomposite-operator",
+      "linkingText": [
+        "operator"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feComposite"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feCompositeElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feCompositeElement",
+        "title": "Filter primitive feComposite",
+        "number": "9.8"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "attr-valuedef-fecomposite-operator-over",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#attr-valuedef-fecomposite-operator-over",
+      "linkingText": [
+        "over"
+      ],
+      "localLinkingText": [],
+      "type": "attr-value",
+      "for": [
+        "feComposite/operator"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feCompositeElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feCompositeElement",
+        "title": "Filter primitive feComposite",
+        "number": "9.8"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "attr-valuedef-fecomposite-operator-in",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#attr-valuedef-fecomposite-operator-in",
+      "linkingText": [
+        "in"
+      ],
+      "localLinkingText": [],
+      "type": "attr-value",
+      "for": [
+        "feComposite/operator"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feCompositeElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feCompositeElement",
+        "title": "Filter primitive feComposite",
+        "number": "9.8"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "attr-valuedef-fecomposite-operator-out",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#attr-valuedef-fecomposite-operator-out",
+      "linkingText": [
+        "out"
+      ],
+      "localLinkingText": [],
+      "type": "attr-value",
+      "for": [
+        "feComposite/operator"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feCompositeElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feCompositeElement",
+        "title": "Filter primitive feComposite",
+        "number": "9.8"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "attr-valuedef-fecomposite-operator-atop",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#attr-valuedef-fecomposite-operator-atop",
+      "linkingText": [
+        "atop"
+      ],
+      "localLinkingText": [],
+      "type": "attr-value",
+      "for": [
+        "feComposite/operator"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feCompositeElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feCompositeElement",
+        "title": "Filter primitive feComposite",
+        "number": "9.8"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "attr-valuedef-fecomposite-operator-xor",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#attr-valuedef-fecomposite-operator-xor",
+      "linkingText": [
+        "xor"
+      ],
+      "localLinkingText": [],
+      "type": "attr-value",
+      "for": [
+        "feComposite/operator"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feCompositeElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feCompositeElement",
+        "title": "Filter primitive feComposite",
+        "number": "9.8"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "attr-valuedef-fecomposite-operator-lighter",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#attr-valuedef-fecomposite-operator-lighter",
+      "linkingText": [
+        "lighter"
+      ],
+      "localLinkingText": [],
+      "type": "attr-value",
+      "for": [
+        "feComposite/operator"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feCompositeElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feCompositeElement",
+        "title": "Filter primitive feComposite",
+        "number": "9.8"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "attr-valuedef-fecomposite-operator-arithmetic",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#attr-valuedef-fecomposite-operator-arithmetic",
+      "linkingText": [
+        "arithmetic"
+      ],
+      "localLinkingText": [],
+      "type": "attr-value",
+      "for": [
+        "feComposite/operator"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feCompositeElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feCompositeElement",
+        "title": "Filter primitive feComposite",
+        "number": "9.8"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fecomposite-k1",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fecomposite-k1",
+      "linkingText": [
+        "k1"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feComposite"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feCompositeElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feCompositeElement",
+        "title": "Filter primitive feComposite",
+        "number": "9.8"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fecomposite-k2",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fecomposite-k2",
+      "linkingText": [
+        "k2"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feComposite"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feCompositeElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feCompositeElement",
+        "title": "Filter primitive feComposite",
+        "number": "9.8"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fecomposite-k3",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fecomposite-k3",
+      "linkingText": [
+        "k3"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feComposite"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feCompositeElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feCompositeElement",
+        "title": "Filter primitive feComposite",
+        "number": "9.8"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fecomposite-k4",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fecomposite-k4",
+      "linkingText": [
+        "k4"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feComposite"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feCompositeElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feCompositeElement",
+        "title": "Filter primitive feComposite",
+        "number": "9.8"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fecomposite-in2",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fecomposite-in2",
+      "linkingText": [
+        "in2"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feComposite"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feCompositeElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feCompositeElement",
+        "title": "Filter primitive feComposite",
+        "number": "9.8"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-order",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-order",
+      "linkingText": [
+        "order"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feConvolveMatrix"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feConvolveMatrixElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feConvolveMatrixElement",
+        "title": "Filter primitive feConvolveMatrix",
+        "number": "9.9"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-feconvolvematrix-kernelmatrix",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-feconvolvematrix-kernelmatrix",
+      "linkingText": [
+        "kernelMatrix"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feConvolveMatrix"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feConvolveMatrixElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feConvolveMatrixElement",
+        "title": "Filter primitive feConvolveMatrix",
+        "number": "9.9"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-feconvolvematrix-divisor",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-feconvolvematrix-divisor",
+      "linkingText": [
+        "divisor"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feConvolveMatrix"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feConvolveMatrixElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feConvolveMatrixElement",
+        "title": "Filter primitive feConvolveMatrix",
+        "number": "9.9"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-feconvolvematrix-bias",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-feconvolvematrix-bias",
+      "linkingText": [
+        "bias"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feConvolveMatrix"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feConvolveMatrixElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feConvolveMatrixElement",
+        "title": "Filter primitive feConvolveMatrix",
+        "number": "9.9"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-feconvolvematrix-targetx",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-feconvolvematrix-targetx",
+      "linkingText": [
+        "targetX"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feConvolveMatrix"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feConvolveMatrixElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feConvolveMatrixElement",
+        "title": "Filter primitive feConvolveMatrix",
+        "number": "9.9"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-feconvolvematrix-targety",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-feconvolvematrix-targety",
+      "linkingText": [
+        "targetY"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feConvolveMatrix"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feConvolveMatrixElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feConvolveMatrixElement",
+        "title": "Filter primitive feConvolveMatrix",
+        "number": "9.9"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-feconvolvematrix-edgemode",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-feconvolvematrix-edgemode",
+      "linkingText": [
+        "edgeMode"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feConvolveMatrix"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feConvolveMatrixElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feConvolveMatrixElement",
+        "title": "Filter primitive feConvolveMatrix",
+        "number": "9.9"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-feconvolvematrix-kernelunitlength",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-feconvolvematrix-kernelunitlength",
+      "linkingText": [
+        "kernelUnitLength"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feConvolveMatrix"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feConvolveMatrixElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feConvolveMatrixElement",
+        "title": "Filter primitive feConvolveMatrix",
+        "number": "9.9"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-feconvolvematrix-preservealpha",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-feconvolvematrix-preservealpha",
+      "linkingText": [
+        "preserveAlpha"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feConvolveMatrix"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feConvolveMatrixElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feConvolveMatrixElement",
+        "title": "Filter primitive feConvolveMatrix",
+        "number": "9.9"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fediffuselighting-surfacescale",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fediffuselighting-surfacescale",
+      "linkingText": [
+        "surfaceScale"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feDiffuseLighting"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feDiffuseLightingElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feDiffuseLightingElement",
+        "title": "Filter primitive feDiffuseLighting",
+        "number": "9.10"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fediffuselighting-diffuseconstant",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fediffuselighting-diffuseconstant",
+      "linkingText": [
+        "diffuseConstant"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feDiffuseLighting"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feDiffuseLightingElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feDiffuseLightingElement",
+        "title": "Filter primitive feDiffuseLighting",
+        "number": "9.10"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fediffuselighting-kernelunitlength",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fediffuselighting-kernelunitlength",
+      "linkingText": [
+        "kernelUnitLength"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feDiffuseLighting"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feDiffuseLightingElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feDiffuseLightingElement",
+        "title": "Filter primitive feDiffuseLighting",
+        "number": "9.10"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fedisplacementmap-scale",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fedisplacementmap-scale",
+      "linkingText": [
+        "scale"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feDisplacementMap"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feDisplacementMapElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feDisplacementMapElement",
+        "title": "Filter primitive feDisplacementMap",
+        "number": "9.11"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fedisplacementmap-xchannelselector",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fedisplacementmap-xchannelselector",
+      "linkingText": [
+        "xChannelSelector"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feDisplacementMap"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feDisplacementMapElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feDisplacementMapElement",
+        "title": "Filter primitive feDisplacementMap",
+        "number": "9.11"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fedisplacementmap-ychannelselector",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fedisplacementmap-ychannelselector",
+      "linkingText": [
+        "yChannelSelector"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feDisplacementMap"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feDisplacementMapElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feDisplacementMapElement",
+        "title": "Filter primitive feDisplacementMap",
+        "number": "9.11"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fedisplacementmap-in2",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fedisplacementmap-in2",
+      "linkingText": [
+        "in2"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feDisplacementMap"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feDisplacementMapElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feDisplacementMapElement",
+        "title": "Filter primitive feDisplacementMap",
+        "number": "9.11"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fedropshadow-dx",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fedropshadow-dx",
+      "linkingText": [
+        "dx"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feDropShadow"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feDropShadowElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feDropShadowElement",
+        "title": "Filter primitive feDropShadow",
+        "number": "9.12"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fedropshadow-dy",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fedropshadow-dy",
+      "linkingText": [
+        "dy"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feDropShadow"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feDropShadowElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feDropShadowElement",
+        "title": "Filter primitive feDropShadow",
+        "number": "9.12"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fedropshadow-stddeviation",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fedropshadow-stddeviation",
+      "linkingText": [
+        "stdDeviation"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feDropShadow"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feDropShadowElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feDropShadowElement",
+        "title": "Filter primitive feDropShadow",
+        "number": "9.12"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "propdef-flood-color",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#propdef-flood-color",
+      "linkingText": [
+        "flood-color"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "FloodColorProperty",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#FloodColorProperty",
+        "title": "The flood-color property",
+        "number": "9.13.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "propdef-flood-opacity",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#propdef-flood-opacity",
+      "linkingText": [
+        "flood-opacity"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "FloodOpacityProperty",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#FloodOpacityProperty",
+        "title": "The flood-opacity property",
+        "number": "9.13.2"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fegaussianblur-stddeviation",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fegaussianblur-stddeviation",
+      "linkingText": [
+        "stdDeviation"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feGaussianBlur"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feGaussianBlurElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feGaussianBlurElement",
+        "title": "Filter primitive feGaussianBlur",
+        "number": "9.14"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fegaussianblur-edgemode",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fegaussianblur-edgemode",
+      "linkingText": [
+        "edgeMode"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feGaussianBlur"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feGaussianBlurElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feGaussianBlurElement",
+        "title": "Filter primitive feGaussianBlur",
+        "number": "9.14"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "attr-valuedef-fegaussianblur-edgemode-duplicate",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#attr-valuedef-fegaussianblur-edgemode-duplicate",
+      "linkingText": [
+        "duplicate"
+      ],
+      "localLinkingText": [],
+      "type": "attr-value",
+      "for": [
+        "feGaussianBlur/edgeMode"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feGaussianBlurElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feGaussianBlurElement",
+        "title": "Filter primitive feGaussianBlur",
+        "number": "9.14"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "attr-valuedef-fegaussianblur-edgemode-wrap",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#attr-valuedef-fegaussianblur-edgemode-wrap",
+      "linkingText": [
+        "wrap"
+      ],
+      "localLinkingText": [],
+      "type": "attr-value",
+      "for": [
+        "feGaussianBlur/edgeMode"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feGaussianBlurElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feGaussianBlurElement",
+        "title": "Filter primitive feGaussianBlur",
+        "number": "9.14"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "attr-valuedef-feguassianblur-edgemode-mirror",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#attr-valuedef-feguassianblur-edgemode-mirror",
+      "linkingText": [
+        "mirror"
+      ],
+      "localLinkingText": [],
+      "type": "attr-value",
+      "for": [
+        "feGuassianBlur/edgeMode"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feGaussianBlurElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feGaussianBlurElement",
+        "title": "Filter primitive feGaussianBlur",
+        "number": "9.14"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-feimage-xlinkhref",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-feimage-xlinkhref",
+      "linkingText": [
+        "xlink:href"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feImage"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feImageElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feImageElement",
+        "title": "Filter primitive feImage",
+        "number": "9.15"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-feimage-href",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-feimage-href",
+      "linkingText": [
+        "href"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feImage"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feImageElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feImageElement",
+        "title": "Filter primitive feImage",
+        "number": "9.15"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-feimage-preserveaspectratio",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-feimage-preserveaspectratio",
+      "linkingText": [
+        "preserveAspectRatio"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feImage"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feImageElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feImageElement",
+        "title": "Filter primitive feImage",
+        "number": "9.15"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-feimage-crossorigin",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-feimage-crossorigin",
+      "linkingText": [
+        "crossorigin"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feImage"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feImageElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feImageElement",
+        "title": "Filter primitive feImage",
+        "number": "9.15"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-femorphology-operator",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-femorphology-operator",
+      "linkingText": [
+        "operator"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feMorphology"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feMorphologyElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feMorphologyElement",
+        "title": "Filter primitive feMorphology",
+        "number": "9.17"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-femorphology-radius",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-femorphology-radius",
+      "linkingText": [
+        "radius"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feMorphology"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feMorphologyElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feMorphologyElement",
+        "title": "Filter primitive feMorphology",
+        "number": "9.17"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-feoffset-dx",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-feoffset-dx",
+      "linkingText": [
+        "dx"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feOffset"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feOffsetElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feOffsetElement",
+        "title": "Filter primitive feOffset",
+        "number": "9.18"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-feoffset-dy",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-feoffset-dy",
+      "linkingText": [
+        "dy"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feOffset"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feOffsetElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feOffsetElement",
+        "title": "Filter primitive feOffset",
+        "number": "9.18"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fespecularlighting-surfacescale",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fespecularlighting-surfacescale",
+      "linkingText": [
+        "surfaceScale"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feSpecularLighting"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feSpecularLightingElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feSpecularLightingElement",
+        "title": "Filter primitive feSpecularLighting",
+        "number": "9.19"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fespecularlighting-specularconstant",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fespecularlighting-specularconstant",
+      "linkingText": [
+        "specularConstant"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feSpecularLighting"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feSpecularLightingElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feSpecularLightingElement",
+        "title": "Filter primitive feSpecularLighting",
+        "number": "9.19"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fespecularlighting-specularexponent",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fespecularlighting-specularexponent",
+      "linkingText": [
+        "specularExponent"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feSpecularLighting"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feSpecularLightingElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feSpecularLightingElement",
+        "title": "Filter primitive feSpecularLighting",
+        "number": "9.19"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fespecularlighting-kernelunitlength",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fespecularlighting-kernelunitlength",
+      "linkingText": [
+        "kernelUnitLength"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feSpecularLighting"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feSpecularLightingElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feSpecularLightingElement",
+        "title": "Filter primitive feSpecularLighting",
+        "number": "9.19"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-feturbulence-basefrequency",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-feturbulence-basefrequency",
+      "linkingText": [
+        "baseFrequency"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feTurbulence"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feTurbulenceElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feTurbulenceElement",
+        "title": "Filter primitive feTurbulence",
+        "number": "9.21"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-feturbulence-numoctaves",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-feturbulence-numoctaves",
+      "linkingText": [
+        "numOctaves"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feTurbulence"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feTurbulenceElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feTurbulenceElement",
+        "title": "Filter primitive feTurbulence",
+        "number": "9.21"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-feturbulence-seed",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-feturbulence-seed",
+      "linkingText": [
+        "seed"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feTurbulence"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feTurbulenceElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feTurbulenceElement",
+        "title": "Filter primitive feTurbulence",
+        "number": "9.21"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-feturbulence-stitchtiles",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-feturbulence-stitchtiles",
+      "linkingText": [
+        "stitchTiles"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feTurbulence"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feTurbulenceElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feTurbulenceElement",
+        "title": "Filter primitive feTurbulence",
+        "number": "9.21"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-feturbulence-type",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-feturbulence-type",
+      "linkingText": [
+        "type"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feTurbulence"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feTurbulenceElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feTurbulenceElement",
+        "title": "Filter primitive feTurbulence",
+        "number": "9.21"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "propdef-color-interpolation-filters",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#propdef-color-interpolation-filters",
+      "linkingText": [
+        "color-interpolation-filters"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "ColorInterpolationFiltersProperty",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#ColorInterpolationFiltersProperty",
+        "title": "10. The color-interpolation-filters property"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "valdef-color-interpolation-filters-auto",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#valdef-color-interpolation-filters-auto",
+      "linkingText": [
+        "auto"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "color-interpolation-filters"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "ColorInterpolationFiltersProperty",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#ColorInterpolationFiltersProperty",
+        "title": "10. The color-interpolation-filters property"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-color-interpolation-filters-srgb",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#valdef-color-interpolation-filters-srgb",
+      "linkingText": [
+        "sRGB"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "color-interpolation-filters"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "ColorInterpolationFiltersProperty",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#ColorInterpolationFiltersProperty",
+        "title": "10. The color-interpolation-filters property"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-color-interpolation-filters-linearrgb",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#valdef-color-interpolation-filters-linearrgb",
+      "linkingText": [
+        "linearRGB"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "color-interpolation-filters"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "ColorInterpolationFiltersProperty",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#ColorInterpolationFiltersProperty",
+        "title": "10. The color-interpolation-filters property"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "light-source",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#light-source",
+      "linkingText": [
+        "light source"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "LightSourceIntro",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#LightSourceIntro",
+        "title": "Introduction",
+        "number": "11.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fedistantlight-azimuth",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fedistantlight-azimuth",
+      "linkingText": [
+        "azimuth"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feDistantLight"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feDistantLightElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feDistantLightElement",
+        "title": "Light source feDistantLight",
+        "number": "11.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fedistantlight-elevation",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fedistantlight-elevation",
+      "linkingText": [
+        "elevation"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feDistantLight"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feDistantLightElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feDistantLightElement",
+        "title": "Light source feDistantLight",
+        "number": "11.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fepointlight-x",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fepointlight-x",
+      "linkingText": [
+        "x"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "fePointLight"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "fePointLightElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#fePointLightElement",
+        "title": "Light source fePointLight",
+        "number": "11.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fepointlight-y",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fepointlight-y",
+      "linkingText": [
+        "y"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "fePointLight"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "fePointLightElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#fePointLightElement",
+        "title": "Light source fePointLight",
+        "number": "11.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fepointlight-z",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fepointlight-z",
+      "linkingText": [
+        "z"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "fePointLight"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "fePointLightElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#fePointLightElement",
+        "title": "Light source fePointLight",
+        "number": "11.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fespotlight-x",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fespotlight-x",
+      "linkingText": [
+        "x"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feSpotLight"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feSpotLightElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feSpotLightElement",
+        "title": "Light source feSpotLight",
+        "number": "11.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fespotlight-y",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fespotlight-y",
+      "linkingText": [
+        "y"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feSpotLight"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feSpotLightElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feSpotLightElement",
+        "title": "Light source feSpotLight",
+        "number": "11.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fespotlight-z",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fespotlight-z",
+      "linkingText": [
+        "z"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feSpotLight"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feSpotLightElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feSpotLightElement",
+        "title": "Light source feSpotLight",
+        "number": "11.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fespotlight-pointsatx",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fespotlight-pointsatx",
+      "linkingText": [
+        "pointsAtX"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feSpotLight"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feSpotLightElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feSpotLightElement",
+        "title": "Light source feSpotLight",
+        "number": "11.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fespotlight-pointsaty",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fespotlight-pointsaty",
+      "linkingText": [
+        "pointsAtY"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feSpotLight"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feSpotLightElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feSpotLightElement",
+        "title": "Light source feSpotLight",
+        "number": "11.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fespotlight-pointsatz",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fespotlight-pointsatz",
+      "linkingText": [
+        "pointsAtZ"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feSpotLight"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feSpotLightElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feSpotLightElement",
+        "title": "Light source feSpotLight",
+        "number": "11.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fespotlight-specularexponent",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fespotlight-specularexponent",
+      "linkingText": [
+        "specularExponent"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feSpotLight"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feSpotLightElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feSpotLightElement",
+        "title": "Light source feSpotLight",
+        "number": "11.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "element-attrdef-fespotlight-limitingconeangle",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#element-attrdef-fespotlight-limitingconeangle",
+      "linkingText": [
+        "limitingConeAngle"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "feSpotLight"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "feSpotLightElement",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#feSpotLightElement",
+        "title": "Light source feSpotLight",
+        "number": "11.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "propdef-lighting-color",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#propdef-lighting-color",
+      "linkingText": [
+        "lighting-color"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "LightingColorProperty",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#LightingColorProperty",
+        "title": "The lighting-color property",
+        "number": "11.5"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "funcdef-filter",
+      "href": "https://drafts.fxtf.org/filter-effects-1/#funcdef-filter",
+      "linkingText": [
+        "filter()"
+      ],
+      "localLinkingText": [],
+      "type": "function",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "FilterCSSImageValue",
+        "href": "https://drafts.fxtf.org/filter-effects-1/#FilterCSSImageValue",
+        "title": "12. Filter CSS <image> values"
+      },
+      "definedIn": "pre",
+      "links": []
+    }
+  ]
+}

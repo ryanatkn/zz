@@ -1,0 +1,60 @@
+{
+  "spec": {
+    "title": "CSS Line Grid Module Level 1",
+    "url": "https://drafts.csswg.org/css-line-grid-1/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "CSS-ALIGN-3",
+        "url": "https://drafts.csswg.org/css-align/"
+      },
+      {
+        "name": "CSS-DISPLAY-4",
+        "url": "https://drafts.csswg.org/css-display/"
+      },
+      {
+        "name": "CSS-RHYTHM-1",
+        "url": "https://drafts.csswg.org/css-rhythm/"
+      },
+      {
+        "name": "CSS-SHAPES-1",
+        "url": "https://drafts.csswg.org/css-shapes/"
+      },
+      {
+        "name": "CSS-VALUES-3",
+        "url": "https://drafts.csswg.org/css-values-3/"
+      },
+      {
+        "name": "CSS-VALUES-4",
+        "url": "https://drafts.csswg.org/css-values-4/"
+      },
+      {
+        "name": "CSS-WRITING-MODES-4",
+        "url": "https://drafts.csswg.org/css-writing-modes-4/"
+      },
+      {
+        "name": "CSS2",
+        "url": "https://drafts.csswg.org/css2/"
+      },
+      {
+        "name": "MEDIAQUERIES-5",
+        "url": "https://drafts.csswg.org/mediaqueries-5/"
+      },
+      {
+        "name": "RFC2119",
+        "url": "https://datatracker.ietf.org/doc/html/rfc2119"
+      }
+    ],
+    "informative": [
+      {
+        "name": "CSS3LINE",
+        "url": "https://drafts.csswg.org/css-inline-3/"
+      },
+      {
+        "name": "JLREQ",
+        "url": "https://w3c.github.io/jlreq/"
+      }
+    ]
+  }
+}

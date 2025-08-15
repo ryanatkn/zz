@@ -1,0 +1,59 @@
+{
+  "spec": {
+    "title": "Element Timing API",
+    "url": "https://w3c.github.io/element-timing/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "CSS-IMAGES-3",
+        "url": "https://drafts.csswg.org/css-images-3/"
+      },
+      {
+        "name": "DOM",
+        "url": "https://dom.spec.whatwg.org/"
+      },
+      {
+        "name": "GEOMETRY-1",
+        "url": "https://drafts.fxtf.org/geometry/"
+      },
+      {
+        "name": "HR-TIME-3",
+        "url": "https://w3c.github.io/hr-time/"
+      },
+      {
+        "name": "HTML",
+        "url": "https://html.spec.whatwg.org/multipage/"
+      },
+      {
+        "name": "INFRA",
+        "url": "https://infra.spec.whatwg.org/"
+      },
+      {
+        "name": "INTERSECTION-OBSERVER",
+        "url": "https://w3c.github.io/IntersectionObserver/"
+      },
+      {
+        "name": "PAINT-TIMING",
+        "url": "https://w3c.github.io/paint-timing/"
+      },
+      {
+        "name": "PERFORMANCE-TIMELINE",
+        "url": "https://w3c.github.io/performance-timeline/"
+      },
+      {
+        "name": "RFC2119",
+        "url": "https://datatracker.ietf.org/doc/html/rfc2119"
+      },
+      {
+        "name": "URL",
+        "url": "https://url.spec.whatwg.org/"
+      },
+      {
+        "name": "WEBIDL",
+        "url": "https://webidl.spec.whatwg.org/"
+      }
+    ],
+    "informative": []
+  }
+}

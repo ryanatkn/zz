@@ -1,0 +1,51 @@
+{
+  "name": "webref",
+  "description": "Machine-readable references and analyses of terms defined in web browser specifications",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/w3c/webref.git"
+  },
+  "bugs": {
+    "url": "https://github.com/w3c/webref/issues"
+  },
+  "author": {
+    "name": "tidoust",
+    "email": "fd@w3.org"
+  },
+  "contributors": [
+    {
+      "name": "foolip",
+      "email": "philip@foolip.org"
+    }
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "type": "module",
+  "devDependencies": {
+    "@actions/core": "1.11.1",
+    "@jsdevtools/npm-publish": "3.1.1",
+    "@octokit/plugin-throttling": "^11.0.1",
+    "@octokit/rest": "22.0.0",
+    "@webref/css": "file:packages/css",
+    "@webref/css6": "file:packages/css6",
+    "@webref/elements": "file:packages/elements",
+    "@webref/events": "file:packages/events",
+    "@webref/idl": "file:packages/idl",
+    "css-tree": "3.1.0",
+    "reffy": "19.1.7",
+    "rimraf": "6.0.1",
+    "strudy": "^3.2.2",
+    "webidl2": "24.5.0"
+  },
+  "scripts": {
+    "create-patch": "node tools/create-patch.js",
+    "curate": "node tools/prepare-curated.js ed curated && node tools/prepare-packages.js curated packages",
+    "test": "node --test --test-reporter=spec",
+    "test-css": "node --test --test-reporter=spec \"test/css/*.js\"",
+    "test-elements": "node --test --test-reporter=spec \"test/elements/*.js\"",
+    "test-idl": "node --test --test-reporter=spec \"test/idl/*.js\""
+  }
+}

@@ -1,0 +1,217 @@
+{
+  "spec": {
+    "title": "RDF 1.2 XML Syntax",
+    "url": "https://w3c.github.io/rdf-xml/spec/"
+  },
+  "dfns": [
+    {
+      "id": "dfn-node-elements",
+      "href": "https://w3c.github.io/rdf-xml/spec/#dfn-node-elements",
+      "linkingText": [
+        "node elements"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "section-Syntax-node-property-elements",
+        "href": "https://w3c.github.io/rdf-xml/spec/#section-Syntax-node-property-elements",
+        "title": "Node Elements and Property Elements",
+        "alternateIds": [
+          "x2-2-node-elements-and-property-elements"
+        ],
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-property-elements",
+      "href": "https://w3c.github.io/rdf-xml/spec/#dfn-property-elements",
+      "linkingText": [
+        "property elements"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "section-Syntax-node-property-elements",
+        "href": "https://w3c.github.io/rdf-xml/spec/#section-Syntax-node-property-elements",
+        "title": "Node Elements and Property Elements",
+        "alternateIds": [
+          "x2-2-node-elements-and-property-elements"
+        ],
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-blank-node-elements",
+      "href": "https://w3c.github.io/rdf-xml/spec/#dfn-blank-node-elements",
+      "linkingText": [
+        "blank node elements"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "section-Syntax-node-property-elements",
+        "href": "https://w3c.github.io/rdf-xml/spec/#section-Syntax-node-property-elements",
+        "title": "Node Elements and Property Elements",
+        "alternateIds": [
+          "x2-2-node-elements-and-property-elements"
+        ],
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-property-attribute",
+      "href": "https://w3c.github.io/rdf-xml/spec/#dfn-property-attribute",
+      "linkingText": [
+        "property attribute",
+        "Property Attribute"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "section-Syntax-property-attributes",
+        "href": "https://w3c.github.io/rdf-xml/spec/#section-Syntax-property-attributes",
+        "title": "Property Attributes",
+        "alternateIds": [
+          "x2-5-property-attributes"
+        ],
+        "number": "2.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-annotating",
+      "href": "https://w3c.github.io/rdf-xml/spec/#dfn-annotating",
+      "linkingText": [
+        "annotating"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "section-Syntax-annotations",
+        "href": "https://w3c.github.io/rdf-xml/spec/#section-Syntax-annotations",
+        "title": "Annotating Triples: rdf:annotation or rdf:annotationNodeID",
+        "alternateIds": [
+          "x2-20-annotating-triples-rdf-annotation-or-rdf-annotationnodeid"
+        ],
+        "number": "2.20"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-rdf-xml-document",
+      "href": "https://w3c.github.io/rdf-xml/spec/#dfn-rdf-xml-document",
+      "linkingText": [
+        "RDF/XML Document"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "conformance",
+        "href": "https://w3c.github.io/rdf-xml/spec/#conformance",
+        "title": "Conformance",
+        "alternateIds": [
+          "x3-conformance"
+        ],
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-conforming-document",
+      "href": "https://w3c.github.io/rdf-xml/spec/#dfn-conforming-document",
+      "linkingText": [
+        "conforming document",
+        "conforming RDF/XML document"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "conformance",
+        "href": "https://w3c.github.io/rdf-xml/spec/#conformance",
+        "title": "Conformance",
+        "alternateIds": [
+          "x3-conformance"
+        ],
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-constraint-id",
+      "href": "https://w3c.github.io/rdf-xml/spec/#dfn-constraint-id",
+      "linkingText": [
+        "constraint-id"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "section-constraints",
+        "href": "https://w3c.github.io/rdf-xml/spec/#section-constraints",
+        "title": "Constraints",
+        "alternateIds": [
+          "x4-4-constraints"
+        ],
+        "number": "4.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-top-level-xml-document-element",
+      "href": "https://w3c.github.io/rdf-xml/spec/#dfn-top-level-xml-document-element",
+      "linkingText": [
+        "top-level XML document element"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "start",
+        "href": "https://w3c.github.io/rdf-xml/spec/#start",
+        "title": "Grammar start",
+        "alternateIds": [
+          "x6-2-1-grammar-start"
+        ],
+        "number": "6.2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "spec": {
+    "title": "WebGPU Shading Language",
+    "url": "https://www.w3.org/TR/WGSL/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "DeRemer1969",
+        "url": "http://publications.csail.mit.edu/lcs/pubs/pdf/MIT-LCS-TR-065.pdf"
+      },
+      {
+        "name": "ECMASCRIPT",
+        "url": "https://tc39.es/ecma262/multipage/"
+      },
+      {
+        "name": "IEEE-754",
+        "url": "http://ieeexplore.ieee.org/servlet/opac?punumber=4610933"
+      },
+      {
+        "name": "Muller2005",
+        "url": "https://inria.hal.science/inria-00070503"
+      },
+      {
+        "name": "RFC2119",
+        "url": "https://datatracker.ietf.org/doc/html/rfc2119"
+      },
+      {
+        "name": "UAX14",
+        "url": "https://www.unicode.org/reports/tr14/tr14-53.html"
+      },
+      {
+        "name": "UAX31",
+        "url": "https://www.unicode.org/reports/tr31/tr31-41.html"
+      },
+      {
+        "name": "UnicodeVersion14",
+        "url": "http://www.unicode.org/versions/Unicode14.0.0/"
+      },
+      {
+        "name": "VanWyk2007",
+        "url": "https://dl.acm.org/doi/10.1145/1289971.1289983"
+      },
+      {
+        "name": "VulkanMemoryModel",
+        "url": "https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#memory-model"
+      },
+      {
+        "name": "WebGPU",
+        "url": "https://w3.org/TR/webgpu"
+      }
+    ],
+    "informative": [
+      {
+        "name": "CHARMOD-NORM",
+        "url": "https://www.w3.org/TR/charmod-norm/"
+      },
+      {
+        "name": "CSS-TABLES-3",
+        "url": "https://www.w3.org/TR/css-tables-3/"
+      },
+      {
+        "name": "IANA-MEDIA-TYPES",
+        "url": "https://www.iana.org/assignments/media-types/"
+      },
+      {
+        "name": "INFRA",
+        "url": "https://infra.spec.whatwg.org/"
+      },
+      {
+        "name": "Jeannerod2013",
+        "url": "https://www.ams.org/journals/mcom/2013-82-284/S0025-5718-2013-02679-8/S0025-5718-2013-02679-8.pdf"
+      },
+      {
+        "name": "WASM-CORE-2",
+        "url": "https://www.w3.org/TR/wasm-core-2/"
+      }
+    ]
+  }
+}

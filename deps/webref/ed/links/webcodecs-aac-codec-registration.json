@@ -1,0 +1,40 @@
+{
+  "spec": {
+    "title": "AAC WebCodecs Registration",
+    "url": "https://w3c.github.io/webcodecs/aac_codec_registration.html"
+  },
+  "links": {
+    "rawlinks": {
+      "https://datatracker.ietf.org/doc/html/rfc2119": {},
+      "https://github.com/w3c/webcodecs/issues": {},
+      "https://lists.w3.org/Archives/Public/public-media-wg/": {},
+      "https://w3c.github.io/webcodecs/": {
+        "anchors": [
+          "config-codec-string",
+          "privacy-considerations",
+          "security-considerations"
+        ]
+      },
+      "https://w3c.github.io/webcodecs/codec_registry.html": {},
+      "https://www.iso.org/standard/53943.html": {},
+      "https://www.w3.org/TR/": {},
+      "https://www.w3.org/groups/wg/media/": {},
+      "https://www.w3.org/policies/patent-policy/": {},
+      "https://www.w3.org/policies/process/20231103/": {}
+    },
+    "autolinks": {
+      "https://w3c.github.io/webcodecs/": {
+        "anchors": [
+          "encodedaudiochunk",
+          "dom-encodedaudiochunk-internal-data-slot",
+          "dom-audiodecoderconfig-description",
+          "dom-encodedaudiochunk-type-slot",
+          "dictdef-audioencoderconfig",
+          "dom-audiodecoderconfig-samplerate",
+          "dom-audiodecoderconfig-numberofchannels",
+          "dom-encodedaudiochunktype-key"
+        ]
+      }
+    }
+  }
+}

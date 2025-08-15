@@ -1,0 +1,2317 @@
+{
+  "spec": {
+    "title": "Cookie Store API Standard",
+    "url": "https://cookiestore.spec.whatwg.org/"
+  },
+  "dfns": [
+    {
+      "id": "cookie",
+      "href": "https://cookiestore.spec.whatwg.org/#cookie",
+      "linkingText": [
+        "cookie"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cookie-concept",
+        "href": "https://cookiestore.spec.whatwg.org/#cookie-concept",
+        "title": "Cookie",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "cookie-name",
+      "href": "https://cookiestore.spec.whatwg.org/#cookie-name",
+      "linkingText": [
+        "name"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "cookie"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cookie-concept",
+        "href": "https://cookiestore.spec.whatwg.org/#cookie-concept",
+        "title": "Cookie",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "cookie-value",
+      "href": "https://cookiestore.spec.whatwg.org/#cookie-value",
+      "linkingText": [
+        "value"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "cookie"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cookie-concept",
+        "href": "https://cookiestore.spec.whatwg.org/#cookie-concept",
+        "title": "Cookie",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "cookie-domain",
+      "href": "https://cookiestore.spec.whatwg.org/#cookie-domain",
+      "linkingText": [
+        "domain"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "cookie"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cookie-concept",
+        "href": "https://cookiestore.spec.whatwg.org/#cookie-concept",
+        "title": "Cookie",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "cookie-path",
+      "href": "https://cookiestore.spec.whatwg.org/#cookie-path",
+      "linkingText": [
+        "path"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "cookie"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cookie-concept",
+        "href": "https://cookiestore.spec.whatwg.org/#cookie-concept",
+        "title": "Cookie",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "cookie-http-only-flag",
+      "href": "https://cookiestore.spec.whatwg.org/#cookie-http-only-flag",
+      "linkingText": [
+        "http-only-flag"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "cookie"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cookie-concept",
+        "href": "https://cookiestore.spec.whatwg.org/#cookie-concept",
+        "title": "Cookie",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "normalize-a-cookie-name-or-value",
+      "href": "https://cookiestore.spec.whatwg.org/#normalize-a-cookie-name-or-value",
+      "linkingText": [
+        "normalize a cookie name or value"
+      ],
+      "localLinkingText": [
+        "normalize"
+      ],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cookie-concept",
+        "href": "https://cookiestore.spec.whatwg.org/#cookie-concept",
+        "title": "Cookie",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "script-visible",
+      "href": "https://cookiestore.spec.whatwg.org/#script-visible",
+      "linkingText": [
+        "script-visible"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cookie-concept",
+        "href": "https://cookiestore.spec.whatwg.org/#cookie-concept",
+        "title": "Cookie",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "cookie-maximum-name-value-pair-size",
+      "href": "https://cookiestore.spec.whatwg.org/#cookie-maximum-name-value-pair-size",
+      "linkingText": [
+        "maximum name/value pair size"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "cookie"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cookie-concept",
+        "href": "https://cookiestore.spec.whatwg.org/#cookie-concept",
+        "title": "Cookie",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "cookie-maximum-attribute-value-size",
+      "href": "https://cookiestore.spec.whatwg.org/#cookie-maximum-attribute-value-size",
+      "linkingText": [
+        "maximum attribute value size"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "cookie"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cookie-concept",
+        "href": "https://cookiestore.spec.whatwg.org/#cookie-concept",
+        "title": "Cookie",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "cookie-store",
+      "href": "https://cookiestore.spec.whatwg.org/#cookie-store",
+      "linkingText": [
+        "cookie store"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cookie-store--concept",
+        "href": "https://cookiestore.spec.whatwg.org/#cookie-store--concept",
+        "title": "Cookie store",
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "cookie-change-subscription-list",
+      "href": "https://cookiestore.spec.whatwg.org/#cookie-change-subscription-list",
+      "linkingText": [
+        "cookie change subscription list"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "service-worker-extensions",
+        "href": "https://cookiestore.spec.whatwg.org/#service-worker-extensions",
+        "title": "Extensions to Service Workers",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "cookie-change-subscription",
+      "href": "https://cookiestore.spec.whatwg.org/#cookie-change-subscription",
+      "linkingText": [
+        "cookie change subscription"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "service-worker-extensions",
+        "href": "https://cookiestore.spec.whatwg.org/#service-worker-extensions",
+        "title": "Extensions to Service Workers",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "cookie-change-subscription-name",
+      "href": "https://cookiestore.spec.whatwg.org/#cookie-change-subscription-name",
+      "linkingText": [
+        "name"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "cookie change subscription"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "service-worker-extensions",
+        "href": "https://cookiestore.spec.whatwg.org/#service-worker-extensions",
+        "title": "Extensions to Service Workers",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "cookie-change-subscription-url",
+      "href": "https://cookiestore.spec.whatwg.org/#cookie-change-subscription-url",
+      "linkingText": [
+        "url"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "cookie change subscription"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "service-worker-extensions",
+        "href": "https://cookiestore.spec.whatwg.org/#service-worker-extensions",
+        "title": "Extensions to Service Workers",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "cookiestore",
+      "href": "https://cookiestore.spec.whatwg.org/#cookiestore",
+      "linkingText": [
+        "CookieStore"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore",
+        "title": "The CookieStore interface",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookiestore-get-name-name",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiestore-get-name-name",
+      "linkingText": [
+        "name"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "CookieStore/get(name)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore",
+        "title": "The CookieStore interface",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookiestore-get-options-options",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiestore-get-options-options",
+      "linkingText": [
+        "options"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "CookieStore/get(options)",
+        "CookieStore/get()"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore",
+        "title": "The CookieStore interface",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookiestore-getall-name-name",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiestore-getall-name-name",
+      "linkingText": [
+        "name"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "CookieStore/getAll(name)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore",
+        "title": "The CookieStore interface",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookiestore-getall-options-options",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiestore-getall-options-options",
+      "linkingText": [
+        "options"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "CookieStore/getAll(options)",
+        "CookieStore/getAll()"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore",
+        "title": "The CookieStore interface",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookiestore-set-name-value-name",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiestore-set-name-value-name",
+      "linkingText": [
+        "name"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "CookieStore/set(name, value)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore",
+        "title": "The CookieStore interface",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookiestore-set-name-value-value",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiestore-set-name-value-value",
+      "linkingText": [
+        "value"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "CookieStore/set(name, value)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore",
+        "title": "The CookieStore interface",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookiestore-set-options-options",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiestore-set-options-options",
+      "linkingText": [
+        "options"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "CookieStore/set(options)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore",
+        "title": "The CookieStore interface",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookiestore-delete-name-name",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiestore-delete-name-name",
+      "linkingText": [
+        "name"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "CookieStore/delete(name)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore",
+        "title": "The CookieStore interface",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookiestore-delete-options-options",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiestore-delete-options-options",
+      "linkingText": [
+        "options"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "CookieStore/delete(options)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore",
+        "title": "The CookieStore interface",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookiestore-onchange",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiestore-onchange",
+      "linkingText": [
+        "onchange"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CookieStore"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore",
+        "title": "The CookieStore interface",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dictdef-cookiestoregetoptions",
+      "href": "https://cookiestore.spec.whatwg.org/#dictdef-cookiestoregetoptions",
+      "linkingText": [
+        "CookieStoreGetOptions"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore",
+        "title": "The CookieStore interface",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookiestoregetoptions-name",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiestoregetoptions-name",
+      "linkingText": [
+        "name"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CookieStoreGetOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore",
+        "title": "The CookieStore interface",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookiestoregetoptions-url",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiestoregetoptions-url",
+      "linkingText": [
+        "url"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CookieStoreGetOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore",
+        "title": "The CookieStore interface",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "enumdef-cookiesamesite",
+      "href": "https://cookiestore.spec.whatwg.org/#enumdef-cookiesamesite",
+      "linkingText": [
+        "CookieSameSite"
+      ],
+      "localLinkingText": [],
+      "type": "enum",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore",
+        "title": "The CookieStore interface",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookiesamesite-strict",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiesamesite-strict",
+      "linkingText": [
+        "\"strict\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "CookieSameSite"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore",
+        "title": "The CookieStore interface",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookiesamesite-lax",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiesamesite-lax",
+      "linkingText": [
+        "\"lax\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "CookieSameSite"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore",
+        "title": "The CookieStore interface",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookiesamesite-none",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiesamesite-none",
+      "linkingText": [
+        "\"none\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "CookieSameSite"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore",
+        "title": "The CookieStore interface",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dictdef-cookieinit",
+      "href": "https://cookiestore.spec.whatwg.org/#dictdef-cookieinit",
+      "linkingText": [
+        "CookieInit"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore",
+        "title": "The CookieStore interface",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookieinit-name",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookieinit-name",
+      "linkingText": [
+        "name"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CookieInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore",
+        "title": "The CookieStore interface",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookieinit-value",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookieinit-value",
+      "linkingText": [
+        "value"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CookieInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore",
+        "title": "The CookieStore interface",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookieinit-expires",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookieinit-expires",
+      "linkingText": [
+        "expires"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CookieInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore",
+        "title": "The CookieStore interface",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookieinit-domain",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookieinit-domain",
+      "linkingText": [
+        "domain"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CookieInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore",
+        "title": "The CookieStore interface",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookieinit-path",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookieinit-path",
+      "linkingText": [
+        "path"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CookieInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore",
+        "title": "The CookieStore interface",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookieinit-samesite",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookieinit-samesite",
+      "linkingText": [
+        "sameSite"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CookieInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore",
+        "title": "The CookieStore interface",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookieinit-partitioned",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookieinit-partitioned",
+      "linkingText": [
+        "partitioned"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CookieInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore",
+        "title": "The CookieStore interface",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dictdef-cookiestoredeleteoptions",
+      "href": "https://cookiestore.spec.whatwg.org/#dictdef-cookiestoredeleteoptions",
+      "linkingText": [
+        "CookieStoreDeleteOptions"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore",
+        "title": "The CookieStore interface",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookiestoredeleteoptions-name",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiestoredeleteoptions-name",
+      "linkingText": [
+        "name"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CookieStoreDeleteOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore",
+        "title": "The CookieStore interface",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookiestoredeleteoptions-domain",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiestoredeleteoptions-domain",
+      "linkingText": [
+        "domain"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CookieStoreDeleteOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore",
+        "title": "The CookieStore interface",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookiestoredeleteoptions-path",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiestoredeleteoptions-path",
+      "linkingText": [
+        "path"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CookieStoreDeleteOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore",
+        "title": "The CookieStore interface",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookiestoredeleteoptions-partitioned",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiestoredeleteoptions-partitioned",
+      "linkingText": [
+        "partitioned"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CookieStoreDeleteOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore",
+        "title": "The CookieStore interface",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dictdef-cookielistitem",
+      "href": "https://cookiestore.spec.whatwg.org/#dictdef-cookielistitem",
+      "linkingText": [
+        "CookieListItem"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore",
+        "title": "The CookieStore interface",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookielistitem-name",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookielistitem-name",
+      "linkingText": [
+        "name"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CookieListItem"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore",
+        "title": "The CookieStore interface",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookielistitem-value",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookielistitem-value",
+      "linkingText": [
+        "value"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CookieListItem"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore",
+        "title": "The CookieStore interface",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "typedefdef-cookielist",
+      "href": "https://cookiestore.spec.whatwg.org/#typedefdef-cookielist",
+      "linkingText": [
+        "CookieList"
+      ],
+      "localLinkingText": [],
+      "type": "typedef",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore",
+        "title": "The CookieStore interface",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookiestore-get",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiestore-get",
+      "linkingText": [
+        "get(name)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "CookieStore"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore-get",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore-get",
+        "title": "The get() method",
+        "number": "3.1"
+      },
+      "definedIn": "prose",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-cookiestore-get①",
+          "name": "cookie = await cookieStore . get(name)",
+          "href": "https://cookiestore.spec.whatwg.org/#ref-for-dom-cookiestore-get%E2%91%A0",
+          "heading": {
+            "id": "CookieStore-get",
+            "href": "https://cookiestore.spec.whatwg.org/#CookieStore-get",
+            "title": "The get() method",
+            "number": "3.1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-cookiestore-get-options",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiestore-get-options",
+      "linkingText": [
+        "get(options)",
+        "get()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "CookieStore"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore-get",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore-get",
+        "title": "The get() method",
+        "number": "3.1"
+      },
+      "definedIn": "prose",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-cookiestore-get-options⑥",
+          "name": "cookie = await cookieStore . get(options)",
+          "href": "https://cookiestore.spec.whatwg.org/#ref-for-dom-cookiestore-get-options%E2%91%A5",
+          "heading": {
+            "id": "CookieStore-get",
+            "href": "https://cookiestore.spec.whatwg.org/#CookieStore-get",
+            "title": "The get() method",
+            "number": "3.1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-cookiestore-getall",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiestore-getall",
+      "linkingText": [
+        "getAll(name)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "CookieStore"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore-getAll",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore-getAll",
+        "title": "The getAll() method",
+        "number": "3.2"
+      },
+      "definedIn": "prose",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-cookiestore-getall①",
+          "name": "cookies = await cookieStore . getAll(name)",
+          "href": "https://cookiestore.spec.whatwg.org/#ref-for-dom-cookiestore-getall%E2%91%A0",
+          "heading": {
+            "id": "CookieStore-getAll",
+            "href": "https://cookiestore.spec.whatwg.org/#CookieStore-getAll",
+            "title": "The getAll() method",
+            "number": "3.2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-cookiestore-getall-options",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiestore-getall-options",
+      "linkingText": [
+        "getAll(options)",
+        "getAll()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "CookieStore"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore-getAll",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore-getAll",
+        "title": "The getAll() method",
+        "number": "3.2"
+      },
+      "definedIn": "prose",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-cookiestore-getall-options⑦",
+          "name": "cookies = await cookieStore . getAll(options)",
+          "href": "https://cookiestore.spec.whatwg.org/#ref-for-dom-cookiestore-getall-options%E2%91%A6",
+          "heading": {
+            "id": "CookieStore-getAll",
+            "href": "https://cookiestore.spec.whatwg.org/#CookieStore-getAll",
+            "title": "The getAll() method",
+            "number": "3.2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-cookiestore-set",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiestore-set",
+      "linkingText": [
+        "set(name, value)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "CookieStore"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore-set",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore-set",
+        "title": "The set() method",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-cookiestore-set④",
+          "name": "await cookieStore . set(name, value)",
+          "href": "https://cookiestore.spec.whatwg.org/#ref-for-dom-cookiestore-set%E2%91%A3",
+          "heading": {
+            "id": "CookieStore-set",
+            "href": "https://cookiestore.spec.whatwg.org/#CookieStore-set",
+            "title": "The set() method",
+            "number": "3.3"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-cookiestore-set-options",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiestore-set-options",
+      "linkingText": [
+        "set(options)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "CookieStore"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore-set",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore-set",
+        "title": "The set() method",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-cookiestore-set-options①",
+          "name": "await cookieStore . set(options)",
+          "href": "https://cookiestore.spec.whatwg.org/#ref-for-dom-cookiestore-set-options%E2%91%A0",
+          "heading": {
+            "id": "CookieStore-set",
+            "href": "https://cookiestore.spec.whatwg.org/#CookieStore-set",
+            "title": "The set() method",
+            "number": "3.3"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-cookiestore-delete",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiestore-delete",
+      "linkingText": [
+        "delete(name)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "CookieStore"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore-delete",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore-delete",
+        "title": "The delete() method",
+        "number": "3.4"
+      },
+      "definedIn": "prose",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-cookiestore-delete③",
+          "name": "await cookieStore . delete(name)",
+          "href": "https://cookiestore.spec.whatwg.org/#ref-for-dom-cookiestore-delete%E2%91%A2",
+          "heading": {
+            "id": "CookieStore-delete",
+            "href": "https://cookiestore.spec.whatwg.org/#CookieStore-delete",
+            "title": "The delete() method",
+            "number": "3.4"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-cookiestore-delete-options",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiestore-delete-options",
+      "linkingText": [
+        "delete(options)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "CookieStore"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStore-delete",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStore-delete",
+        "title": "The delete() method",
+        "number": "3.4"
+      },
+      "definedIn": "prose",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-cookiestore-delete-options①",
+          "name": "await cookieStore . delete(options)",
+          "href": "https://cookiestore.spec.whatwg.org/#ref-for-dom-cookiestore-delete-options%E2%91%A0",
+          "heading": {
+            "id": "CookieStore-delete",
+            "href": "https://cookiestore.spec.whatwg.org/#CookieStore-delete",
+            "title": "The delete() method",
+            "number": "3.4"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cookiestoremanager-registration",
+      "href": "https://cookiestore.spec.whatwg.org/#cookiestoremanager-registration",
+      "linkingText": [
+        "registration"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "CookieStoreManager"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "CookieStoreManager",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStoreManager",
+        "title": "The CookieStoreManager interface",
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "cookiestoremanager",
+      "href": "https://cookiestore.spec.whatwg.org/#cookiestoremanager",
+      "linkingText": [
+        "CookieStoreManager"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStoreManager",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStoreManager",
+        "title": "The CookieStoreManager interface",
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookiestoremanager-subscribe-subscriptions-subscriptions",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiestoremanager-subscribe-subscriptions-subscriptions",
+      "linkingText": [
+        "subscriptions"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "CookieStoreManager/subscribe(subscriptions)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStoreManager",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStoreManager",
+        "title": "The CookieStoreManager interface",
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookiestoremanager-unsubscribe-subscriptions-subscriptions",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiestoremanager-unsubscribe-subscriptions-subscriptions",
+      "linkingText": [
+        "subscriptions"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "CookieStoreManager/unsubscribe(subscriptions)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStoreManager",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStoreManager",
+        "title": "The CookieStoreManager interface",
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookiestoremanager-subscribe",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiestoremanager-subscribe",
+      "linkingText": [
+        "subscribe(subscriptions)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "CookieStoreManager"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStoreManager-subscribe",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStoreManager-subscribe",
+        "title": "The subscribe() method",
+        "number": "4.1"
+      },
+      "definedIn": "prose",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-cookiestoremanager-subscribe④",
+          "name": "await registration . cookies . subscribe(subscriptions)",
+          "href": "https://cookiestore.spec.whatwg.org/#ref-for-dom-cookiestoremanager-subscribe%E2%91%A3",
+          "heading": {
+            "id": "CookieStoreManager-subscribe",
+            "href": "https://cookiestore.spec.whatwg.org/#CookieStoreManager-subscribe",
+            "title": "The subscribe() method",
+            "number": "4.1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-cookiestoremanager-getsubscriptions",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiestoremanager-getsubscriptions",
+      "linkingText": [
+        "getSubscriptions()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "CookieStoreManager"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStoreManager-getSubscriptions",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStoreManager-getSubscriptions",
+        "title": "The getSubscriptions() method",
+        "number": "4.2"
+      },
+      "definedIn": "prose",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-cookiestoremanager-getsubscriptions③",
+          "name": "subscriptions = await registration . cookies . getSubscriptions()",
+          "href": "https://cookiestore.spec.whatwg.org/#ref-for-dom-cookiestoremanager-getsubscriptions%E2%91%A2",
+          "heading": {
+            "id": "CookieStoreManager-getSubscriptions",
+            "href": "https://cookiestore.spec.whatwg.org/#CookieStoreManager-getSubscriptions",
+            "title": "The getSubscriptions() method",
+            "number": "4.2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-cookiestoremanager-unsubscribe",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiestoremanager-unsubscribe",
+      "linkingText": [
+        "unsubscribe(subscriptions)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "CookieStoreManager"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieStoreManager-unsubscribe",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieStoreManager-unsubscribe",
+        "title": "The unsubscribe() method",
+        "number": "4.3"
+      },
+      "definedIn": "prose",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-cookiestoremanager-unsubscribe②",
+          "name": "await registration . cookies . unsubscribe(subscriptions)",
+          "href": "https://cookiestore.spec.whatwg.org/#ref-for-dom-cookiestoremanager-unsubscribe%E2%91%A1",
+          "heading": {
+            "id": "CookieStoreManager-unsubscribe",
+            "href": "https://cookiestore.spec.whatwg.org/#CookieStoreManager-unsubscribe",
+            "title": "The unsubscribe() method",
+            "number": "4.3"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-serviceworkerregistration-cookies",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-serviceworkerregistration-cookies",
+      "linkingText": [
+        "cookies"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "ServiceWorkerRegistration"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "ServiceWorkerRegistration",
+        "href": "https://cookiestore.spec.whatwg.org/#ServiceWorkerRegistration",
+        "title": "The ServiceWorkerRegistration interface",
+        "number": "4.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "cookiechangeevent",
+      "href": "https://cookiestore.spec.whatwg.org/#cookiechangeevent",
+      "linkingText": [
+        "CookieChangeEvent"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieChangeEvent",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieChangeEvent",
+        "title": "The CookieChangeEvent interface",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookiechangeevent-cookiechangeevent",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiechangeevent-cookiechangeevent",
+      "linkingText": [
+        "CookieChangeEvent(type, eventInitDict)",
+        "constructor(type, eventInitDict)",
+        "CookieChangeEvent(type)",
+        "constructor(type)"
+      ],
+      "localLinkingText": [],
+      "type": "constructor",
+      "for": [
+        "CookieChangeEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieChangeEvent",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieChangeEvent",
+        "title": "The CookieChangeEvent interface",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookiechangeevent-cookiechangeevent-type-eventinitdict-type",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiechangeevent-cookiechangeevent-type-eventinitdict-type",
+      "linkingText": [
+        "type"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "CookieChangeEvent/CookieChangeEvent(type, eventInitDict)",
+        "CookieChangeEvent/constructor(type, eventInitDict)",
+        "CookieChangeEvent/CookieChangeEvent(type)",
+        "CookieChangeEvent/constructor(type)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieChangeEvent",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieChangeEvent",
+        "title": "The CookieChangeEvent interface",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookiechangeevent-cookiechangeevent-type-eventinitdict-eventinitdict",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiechangeevent-cookiechangeevent-type-eventinitdict-eventinitdict",
+      "linkingText": [
+        "eventInitDict"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "CookieChangeEvent/CookieChangeEvent(type, eventInitDict)",
+        "CookieChangeEvent/constructor(type, eventInitDict)",
+        "CookieChangeEvent/CookieChangeEvent(type)",
+        "CookieChangeEvent/constructor(type)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieChangeEvent",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieChangeEvent",
+        "title": "The CookieChangeEvent interface",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookiechangeevent-changed",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiechangeevent-changed",
+      "linkingText": [
+        "changed"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CookieChangeEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieChangeEvent",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieChangeEvent",
+        "title": "The CookieChangeEvent interface",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookiechangeevent-deleted",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiechangeevent-deleted",
+      "linkingText": [
+        "deleted"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CookieChangeEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieChangeEvent",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieChangeEvent",
+        "title": "The CookieChangeEvent interface",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dictdef-cookiechangeeventinit",
+      "href": "https://cookiestore.spec.whatwg.org/#dictdef-cookiechangeeventinit",
+      "linkingText": [
+        "CookieChangeEventInit"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieChangeEvent",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieChangeEvent",
+        "title": "The CookieChangeEvent interface",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookiechangeeventinit-changed",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiechangeeventinit-changed",
+      "linkingText": [
+        "changed"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CookieChangeEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieChangeEvent",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieChangeEvent",
+        "title": "The CookieChangeEvent interface",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cookiechangeeventinit-deleted",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-cookiechangeeventinit-deleted",
+      "linkingText": [
+        "deleted"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CookieChangeEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CookieChangeEvent",
+        "href": "https://cookiestore.spec.whatwg.org/#CookieChangeEvent",
+        "title": "The CookieChangeEvent interface",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "extendablecookiechangeevent",
+      "href": "https://cookiestore.spec.whatwg.org/#extendablecookiechangeevent",
+      "linkingText": [
+        "ExtendableCookieChangeEvent"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "ExtendableCookieChangeEvent",
+        "href": "https://cookiestore.spec.whatwg.org/#ExtendableCookieChangeEvent",
+        "title": "The ExtendableCookieChangeEvent interface",
+        "number": "5.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-extendablecookiechangeevent-extendablecookiechangeevent",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-extendablecookiechangeevent-extendablecookiechangeevent",
+      "linkingText": [
+        "ExtendableCookieChangeEvent(type, eventInitDict)",
+        "constructor(type, eventInitDict)",
+        "ExtendableCookieChangeEvent(type)",
+        "constructor(type)"
+      ],
+      "localLinkingText": [],
+      "type": "constructor",
+      "for": [
+        "ExtendableCookieChangeEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "ExtendableCookieChangeEvent",
+        "href": "https://cookiestore.spec.whatwg.org/#ExtendableCookieChangeEvent",
+        "title": "The ExtendableCookieChangeEvent interface",
+        "number": "5.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-extendablecookiechangeevent-extendablecookiechangeevent-type-eventinitdict-type",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-extendablecookiechangeevent-extendablecookiechangeevent-type-eventinitdict-type",
+      "linkingText": [
+        "type"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "ExtendableCookieChangeEvent/ExtendableCookieChangeEvent(type, eventInitDict)",
+        "ExtendableCookieChangeEvent/constructor(type, eventInitDict)",
+        "ExtendableCookieChangeEvent/ExtendableCookieChangeEvent(type)",
+        "ExtendableCookieChangeEvent/constructor(type)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "ExtendableCookieChangeEvent",
+        "href": "https://cookiestore.spec.whatwg.org/#ExtendableCookieChangeEvent",
+        "title": "The ExtendableCookieChangeEvent interface",
+        "number": "5.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-extendablecookiechangeevent-extendablecookiechangeevent-type-eventinitdict-eventinitdict",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-extendablecookiechangeevent-extendablecookiechangeevent-type-eventinitdict-eventinitdict",
+      "linkingText": [
+        "eventInitDict"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "ExtendableCookieChangeEvent/ExtendableCookieChangeEvent(type, eventInitDict)",
+        "ExtendableCookieChangeEvent/constructor(type, eventInitDict)",
+        "ExtendableCookieChangeEvent/ExtendableCookieChangeEvent(type)",
+        "ExtendableCookieChangeEvent/constructor(type)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "ExtendableCookieChangeEvent",
+        "href": "https://cookiestore.spec.whatwg.org/#ExtendableCookieChangeEvent",
+        "title": "The ExtendableCookieChangeEvent interface",
+        "number": "5.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-extendablecookiechangeevent-changed",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-extendablecookiechangeevent-changed",
+      "linkingText": [
+        "changed"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "ExtendableCookieChangeEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "ExtendableCookieChangeEvent",
+        "href": "https://cookiestore.spec.whatwg.org/#ExtendableCookieChangeEvent",
+        "title": "The ExtendableCookieChangeEvent interface",
+        "number": "5.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-extendablecookiechangeevent-deleted",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-extendablecookiechangeevent-deleted",
+      "linkingText": [
+        "deleted"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "ExtendableCookieChangeEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "ExtendableCookieChangeEvent",
+        "href": "https://cookiestore.spec.whatwg.org/#ExtendableCookieChangeEvent",
+        "title": "The ExtendableCookieChangeEvent interface",
+        "number": "5.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dictdef-extendablecookiechangeeventinit",
+      "href": "https://cookiestore.spec.whatwg.org/#dictdef-extendablecookiechangeeventinit",
+      "linkingText": [
+        "ExtendableCookieChangeEventInit"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "ExtendableCookieChangeEvent",
+        "href": "https://cookiestore.spec.whatwg.org/#ExtendableCookieChangeEvent",
+        "title": "The ExtendableCookieChangeEvent interface",
+        "number": "5.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-extendablecookiechangeeventinit-changed",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-extendablecookiechangeeventinit-changed",
+      "linkingText": [
+        "changed"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "ExtendableCookieChangeEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "ExtendableCookieChangeEvent",
+        "href": "https://cookiestore.spec.whatwg.org/#ExtendableCookieChangeEvent",
+        "title": "The ExtendableCookieChangeEvent interface",
+        "number": "5.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-extendablecookiechangeeventinit-deleted",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-extendablecookiechangeeventinit-deleted",
+      "linkingText": [
+        "deleted"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "ExtendableCookieChangeEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "ExtendableCookieChangeEvent",
+        "href": "https://cookiestore.spec.whatwg.org/#ExtendableCookieChangeEvent",
+        "title": "The ExtendableCookieChangeEvent interface",
+        "number": "5.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "window-associated-cookiestore",
+      "href": "https://cookiestore.spec.whatwg.org/#window-associated-cookiestore",
+      "linkingText": [
+        "associated CookieStore"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "Window"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "Window",
+        "href": "https://cookiestore.spec.whatwg.org/#Window",
+        "title": "The Window interface",
+        "number": "6.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-window-cookiestore",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-window-cookiestore",
+      "linkingText": [
+        "cookieStore"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Window"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "Window",
+        "href": "https://cookiestore.spec.whatwg.org/#Window",
+        "title": "The Window interface",
+        "number": "6.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-serviceworkerglobalscope-oncookiechange",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-serviceworkerglobalscope-oncookiechange",
+      "linkingText": [
+        "oncookiechange"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "ServiceWorkerGlobalScope"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "ServiceWorkerGlobalScope",
+        "href": "https://cookiestore.spec.whatwg.org/#ServiceWorkerGlobalScope",
+        "title": "The ServiceWorkerGlobalScope interface",
+        "number": "6.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "serviceworkerglobalscope-associated-cookiestore",
+      "href": "https://cookiestore.spec.whatwg.org/#serviceworkerglobalscope-associated-cookiestore",
+      "linkingText": [
+        "associated CookieStore"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "ServiceWorkerGlobalScope"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "ServiceWorkerGlobalScope",
+        "href": "https://cookiestore.spec.whatwg.org/#ServiceWorkerGlobalScope",
+        "title": "The ServiceWorkerGlobalScope interface",
+        "number": "6.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-serviceworkerglobalscope-cookiestore",
+      "href": "https://cookiestore.spec.whatwg.org/#dom-serviceworkerglobalscope-cookiestore",
+      "linkingText": [
+        "cookieStore"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "ServiceWorkerGlobalScope"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "ServiceWorkerGlobalScope",
+        "href": "https://cookiestore.spec.whatwg.org/#ServiceWorkerGlobalScope",
+        "title": "The ServiceWorkerGlobalScope interface",
+        "number": "6.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "as-a-timestamp",
+      "href": "https://cookiestore.spec.whatwg.org/#as-a-timestamp",
+      "linkingText": [
+        "as a timestamp"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "algorithms",
+        "href": "https://cookiestore.spec.whatwg.org/#algorithms",
+        "title": "Algorithms",
+        "number": "7"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "date-serialize",
+      "href": "https://cookiestore.spec.whatwg.org/#date-serialize",
+      "linkingText": [
+        "date serialize"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "algorithms",
+        "href": "https://cookiestore.spec.whatwg.org/#algorithms",
+        "title": "Algorithms",
+        "number": "7"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "query-cookies",
+      "href": "https://cookiestore.spec.whatwg.org/#query-cookies",
+      "linkingText": [
+        "query cookies"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "query-cookies-algorithm",
+        "href": "https://cookiestore.spec.whatwg.org/#query-cookies-algorithm",
+        "title": "Query cookies",
+        "number": "7.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "create-a-cookielistitem",
+      "href": "https://cookiestore.spec.whatwg.org/#create-a-cookielistitem",
+      "linkingText": [
+        "create a CookieListItem"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "query-cookies-algorithm",
+        "href": "https://cookiestore.spec.whatwg.org/#query-cookies-algorithm",
+        "title": "Query cookies",
+        "number": "7.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "set-a-cookie",
+      "href": "https://cookiestore.spec.whatwg.org/#set-a-cookie",
+      "linkingText": [
+        "set a cookie"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "set-cookie-algorithm",
+        "href": "https://cookiestore.spec.whatwg.org/#set-cookie-algorithm",
+        "title": "Set a cookie",
+        "number": "7.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "delete-a-cookie",
+      "href": "https://cookiestore.spec.whatwg.org/#delete-a-cookie",
+      "linkingText": [
+        "delete a cookie"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "delete-cookie-algorithm",
+        "href": "https://cookiestore.spec.whatwg.org/#delete-cookie-algorithm",
+        "title": "Delete a cookie",
+        "number": "7.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "process-cookie-changes",
+      "href": "https://cookiestore.spec.whatwg.org/#process-cookie-changes",
+      "linkingText": [
+        "process cookie changes"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "process-changes",
+        "href": "https://cookiestore.spec.whatwg.org/#process-changes",
+        "title": "Process changes",
+        "number": "7.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "observable-changes",
+      "href": "https://cookiestore.spec.whatwg.org/#observable-changes",
+      "linkingText": [
+        "observable changes"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "process-changes",
+        "href": "https://cookiestore.spec.whatwg.org/#process-changes",
+        "title": "Process changes",
+        "number": "7.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "cookie-change",
+      "href": "https://cookiestore.spec.whatwg.org/#cookie-change",
+      "linkingText": [
+        "cookie change"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "process-changes",
+        "href": "https://cookiestore.spec.whatwg.org/#process-changes",
+        "title": "Process changes",
+        "number": "7.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "fire-a-change-event",
+      "href": "https://cookiestore.spec.whatwg.org/#fire-a-change-event",
+      "linkingText": [
+        "fire a change event"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "process-changes",
+        "href": "https://cookiestore.spec.whatwg.org/#process-changes",
+        "title": "Process changes",
+        "number": "7.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "prepare-lists",
+      "href": "https://cookiestore.spec.whatwg.org/#prepare-lists",
+      "linkingText": [
+        "prepare lists"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "process-changes",
+        "href": "https://cookiestore.spec.whatwg.org/#process-changes",
+        "title": "Process changes",
+        "number": "7.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

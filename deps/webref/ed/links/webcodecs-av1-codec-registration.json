@@ -1,0 +1,46 @@
+{
+  "spec": {
+    "title": "AV1 WebCodecs Registration",
+    "url": "https://w3c.github.io/webcodecs/av1_codec_registration.html"
+  },
+  "links": {
+    "rawlinks": {
+      "https://aomediacodec.github.io/av1-isobmff/": {},
+      "https://aomediacodec.github.io/av1-spec/": {},
+      "https://datatracker.ietf.org/doc/html/rfc2119": {},
+      "https://github.com/w3c/webcodecs/issues": {},
+      "https://lists.w3.org/Archives/Public/public-media-wg/": {},
+      "https://w3c.github.io/webcodecs/": {
+        "anchors": [
+          "config-codec-string",
+          "privacy-considerations",
+          "security-considerations"
+        ]
+      },
+      "https://w3c.github.io/webcodecs/codec_registry.html": {},
+      "https://webidl.spec.whatwg.org/": {},
+      "https://www.w3.org/TR/": {},
+      "https://www.w3.org/groups/wg/media/": {},
+      "https://www.w3.org/policies/patent-policy/": {},
+      "https://www.w3.org/policies/process/20231103/": {}
+    },
+    "autolinks": {
+      "https://w3c.github.io/webcodecs/": {
+        "anchors": [
+          "encodedvideochunk",
+          "dom-encodedvideochunk-internal-data-slot",
+          "dictdef-videoencoderconfig",
+          "dom-videodecoderconfig-description",
+          "dom-encodedvideochunk-type-slot",
+          "dictdef-videoencoderencodeoptions",
+          "dom-encodedvideochunktype-key"
+        ]
+      },
+      "https://webidl.spec.whatwg.org/": {
+        "anchors": [
+          "idl-unsigned-short"
+        ]
+      }
+    }
+  }
+}

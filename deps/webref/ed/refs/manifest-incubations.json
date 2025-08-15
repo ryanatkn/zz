@@ -1,0 +1,79 @@
+{
+  "spec": {
+    "title": "Manifest Incubations",
+    "url": "https://wicg.github.io/manifest-incubations/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "appmanifest",
+        "url": "https://www.w3.org/TR/appmanifest/"
+      },
+      {
+        "name": "dom",
+        "url": "https://dom.spec.whatwg.org/"
+      },
+      {
+        "name": "fetch",
+        "url": "https://fetch.spec.whatwg.org/"
+      },
+      {
+        "name": "file-system-access",
+        "url": "https://wicg.github.io/file-system-access/"
+      },
+      {
+        "name": "fs",
+        "url": "https://fs.spec.whatwg.org/"
+      },
+      {
+        "name": "HTML",
+        "url": "https://html.spec.whatwg.org/multipage/"
+      },
+      {
+        "name": "IANA-MEDIA-TYPES",
+        "url": "https://www.iana.org/assignments/media-types/"
+      },
+      {
+        "name": "infra",
+        "url": "https://infra.spec.whatwg.org/"
+      },
+      {
+        "name": "mimesniff",
+        "url": "https://mimesniff.spec.whatwg.org/"
+      },
+      {
+        "name": "RFC2119",
+        "url": "https://www.rfc-editor.org/rfc/rfc2119"
+      },
+      {
+        "name": "RFC8174",
+        "url": "https://www.rfc-editor.org/rfc/rfc8174"
+      },
+      {
+        "name": "url",
+        "url": "https://url.spec.whatwg.org/"
+      },
+      {
+        "name": "urlpattern",
+        "url": "https://urlpattern.spec.whatwg.org/"
+      },
+      {
+        "name": "web-app-launch",
+        "url": "https://wicg.github.io/web-app-launch/"
+      },
+      {
+        "name": "web-share-target",
+        "url": "https://w3c.github.io/web-share-target/"
+      },
+      {
+        "name": "WEBIDL",
+        "url": "https://webidl.spec.whatwg.org/"
+      },
+      {
+        "name": "window-controls-overlay",
+        "url": "https://wicg.github.io/window-controls-overlay/"
+      }
+    ],
+    "informative": []
+  }
+}

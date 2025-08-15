@@ -1,0 +1,320 @@
+{
+  "spec": {
+    "title": "Ambient Light Sensor",
+    "url": "https://w3c.github.io/ambient-light/"
+  },
+  "dfns": [
+    {
+      "id": "ambient-light-sensor",
+      "href": "https://w3c.github.io/ambient-light/#ambient-light-sensor",
+      "linkingText": [
+        "Ambient Light Sensor"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "model",
+        "href": "https://w3c.github.io/ambient-light/#model",
+        "title": "Model",
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "permissiondef-ambient-light-sensor",
+      "href": "https://w3c.github.io/ambient-light/#permissiondef-ambient-light-sensor",
+      "linkingText": [
+        "ambient-light-sensor"
+      ],
+      "localLinkingText": [],
+      "type": "permission",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "model",
+        "href": "https://w3c.github.io/ambient-light/#model",
+        "title": "Model",
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "ambient-light-virtual-sensor-type",
+      "href": "https://w3c.github.io/ambient-light/#ambient-light-virtual-sensor-type",
+      "linkingText": [
+        "ambient-light virtual sensor type"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "model",
+        "href": "https://w3c.github.io/ambient-light/#model",
+        "title": "Model",
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "current-light-level",
+      "href": "https://w3c.github.io/ambient-light/#current-light-level",
+      "linkingText": [
+        "current light level"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "model",
+        "href": "https://w3c.github.io/ambient-light/#model",
+        "title": "Model",
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "illuminance",
+      "href": "https://w3c.github.io/ambient-light/#illuminance",
+      "linkingText": [
+        "illuminance"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "model",
+        "href": "https://w3c.github.io/ambient-light/#model",
+        "title": "Model",
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "illuminance-rounding-multiple",
+      "href": "https://w3c.github.io/ambient-light/#illuminance-rounding-multiple",
+      "linkingText": [
+        "illuminance rounding multiple"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "model",
+        "href": "https://w3c.github.io/ambient-light/#model",
+        "title": "Model",
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "illuminance-threshold-value",
+      "href": "https://w3c.github.io/ambient-light/#illuminance-threshold-value",
+      "linkingText": [
+        "illuminance threshold value"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "model",
+        "href": "https://w3c.github.io/ambient-light/#model",
+        "title": "Model",
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "ambientlightsensor",
+      "href": "https://w3c.github.io/ambient-light/#ambientlightsensor",
+      "linkingText": [
+        "AmbientLightSensor"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "ambient-light-sensor-interface",
+        "href": "https://w3c.github.io/ambient-light/#ambient-light-sensor-interface",
+        "title": "The AmbientLightSensor Interface",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-ambientlightsensor-ambientlightsensor",
+      "href": "https://w3c.github.io/ambient-light/#dom-ambientlightsensor-ambientlightsensor",
+      "linkingText": [
+        "AmbientLightSensor(sensorOptions)",
+        "constructor(sensorOptions)",
+        "AmbientLightSensor()",
+        "constructor()"
+      ],
+      "localLinkingText": [],
+      "type": "constructor",
+      "for": [
+        "AmbientLightSensor"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "ambient-light-sensor-interface",
+        "href": "https://w3c.github.io/ambient-light/#ambient-light-sensor-interface",
+        "title": "The AmbientLightSensor Interface",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-ambientlightsensor-ambientlightsensor-sensoroptions-sensoroptions",
+      "href": "https://w3c.github.io/ambient-light/#dom-ambientlightsensor-ambientlightsensor-sensoroptions-sensoroptions",
+      "linkingText": [
+        "sensorOptions"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "AmbientLightSensor/AmbientLightSensor(sensorOptions)",
+        "AmbientLightSensor/constructor(sensorOptions)",
+        "AmbientLightSensor/AmbientLightSensor()",
+        "AmbientLightSensor/constructor()"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "ambient-light-sensor-interface",
+        "href": "https://w3c.github.io/ambient-light/#ambient-light-sensor-interface",
+        "title": "The AmbientLightSensor Interface",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-ambientlightsensor-illuminance",
+      "href": "https://w3c.github.io/ambient-light/#dom-ambientlightsensor-illuminance",
+      "linkingText": [
+        "illuminance"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "AmbientLightSensor"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "ambient-light-sensor-interface",
+        "href": "https://w3c.github.io/ambient-light/#ambient-light-sensor-interface",
+        "title": "The AmbientLightSensor Interface",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "construct-an-ambient-light-sensor-object",
+      "href": "https://w3c.github.io/ambient-light/#construct-an-ambient-light-sensor-object",
+      "linkingText": [
+        "Construct an ambient light sensor object"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "construct-an-ambient-light-sensor-object",
+        "href": "https://w3c.github.io/ambient-light/#construct-an-ambient-light-sensor-object",
+        "title": "Construct an ambient light sensor object",
+        "number": "6.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "ambient-light-threshold-check-algorithm",
+      "href": "https://w3c.github.io/ambient-light/#ambient-light-threshold-check-algorithm",
+      "linkingText": [
+        "Ambient light threshold check algorithm"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "ambient-light-threshold-check-algorithm",
+        "href": "https://w3c.github.io/ambient-light/#ambient-light-threshold-check-algorithm",
+        "title": "Ambient light threshold check algorithm",
+        "number": "6.2"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "ambient-light-reading-quantization-algorithm",
+      "href": "https://w3c.github.io/ambient-light/#ambient-light-reading-quantization-algorithm",
+      "linkingText": [
+        "Ambient light reading quantization algorithm"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "ambient-light-reading-quantization-algorithm",
+        "href": "https://w3c.github.io/ambient-light/#ambient-light-reading-quantization-algorithm",
+        "title": "Ambient light reading quantization algorithm",
+        "number": "6.3"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "illuminance-reading-parsing-algorithm",
+      "href": "https://w3c.github.io/ambient-light/#illuminance-reading-parsing-algorithm",
+      "linkingText": [
+        "illuminance reading parsing algorithm"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "automation",
+        "href": "https://w3c.github.io/ambient-light/#automation",
+        "title": "Automation",
+        "number": "7"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

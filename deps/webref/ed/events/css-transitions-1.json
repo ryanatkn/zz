@@ -1,0 +1,60 @@
+{
+  "spec": {
+    "title": "CSS Transitions Level 1",
+    "url": "https://drafts.csswg.org/css-transitions-1/"
+  },
+  "events": [
+    {
+      "type": "transitionrun",
+      "targets": [
+        "GlobalEventHandlers"
+      ],
+      "interface": "TransitionEvent",
+      "src": {
+        "format": "IDL eventHandler"
+      },
+      "href": "https://drafts.csswg.org/css-transitions-1/#transitionrun",
+      "bubbles": true,
+      "cancelable": false
+    },
+    {
+      "type": "transitionstart",
+      "targets": [
+        "GlobalEventHandlers"
+      ],
+      "interface": "TransitionEvent",
+      "src": {
+        "format": "IDL eventHandler"
+      },
+      "href": "https://drafts.csswg.org/css-transitions-1/#transitionstart",
+      "bubbles": true,
+      "cancelable": false
+    },
+    {
+      "type": "transitionend",
+      "targets": [
+        "GlobalEventHandlers"
+      ],
+      "interface": "TransitionEvent",
+      "src": {
+        "format": "IDL eventHandler"
+      },
+      "href": "https://drafts.csswg.org/css-transitions-1/#transitionend",
+      "bubbles": true,
+      "cancelable": false
+    },
+    {
+      "type": "transitioncancel",
+      "targets": [
+        "GlobalEventHandlers"
+      ],
+      "interface": "TransitionEvent",
+      "src": {
+        "format": "IDL eventHandler"
+      },
+      "href": "https://drafts.csswg.org/css-transitions-1/#transitioncancel",
+      "bubbles": true,
+      "cancelable": false
+    }
+  ]
+}

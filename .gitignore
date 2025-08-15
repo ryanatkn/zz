@@ -10,9 +10,6 @@ zig-out/
 *.tmp
 .tmp*
 
-# TODO temporary
-deps/webref 
-
 # Log files
 *.log
 

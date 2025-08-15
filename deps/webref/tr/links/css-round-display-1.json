@@ -1,0 +1,151 @@
+{
+  "spec": {
+    "title": "CSS Round Display Level 1",
+    "url": "https://www.w3.org/TR/css-round-display-1/"
+  },
+  "links": {
+    "rawlinks": {
+      "http://lists.w3.org/Archives/Public/public-css-testsuite": {},
+      "http://lists.w3.org/Archives/Public/www-style/": {},
+      "https://developer.android.com/reference/android/content/res/Configuration.html?hl=es": {
+        "anchors": [
+          "isScreenRound%28%29"
+        ]
+      },
+      "https://drafts.csswg.org/css-conditional-3/": {
+        "anchors": [
+          "at-ruledef-media"
+        ]
+      },
+      "https://drafts.csswg.org/css-pseudo/": {
+        "anchors": [
+          "generated-content"
+        ]
+      },
+      "https://drafts.csswg.org/css-values-4/": {
+        "anchors": [
+          "comb-one",
+          "comb-any"
+        ]
+      },
+      "https://drafts.fxtf.org/motion-1/": {
+        "anchors": [
+          "propdef-offset-distance",
+          "propdef-offset-path",
+          "propdef-offset-position"
+        ]
+      },
+      "https://github.com/w3c/csswg-drafts/issues": {},
+      "https://github.com/w3c/csswg-drafts/issues/214": {},
+      "https://lists.w3.org/Archives/Public/public-css-archive/": {},
+      "https://tools.ietf.org/html/rfc2119": {},
+      "https://wiki.csswg.org/ideas/round-display": {},
+      "https://www.w3.org/2004/01/pp-impl/32061/status": {},
+      "https://www.w3.org/2015/Process-20150901/": {},
+      "https://www.w3.org/Consortium/Patent-Policy-20040205/": {
+        "anchors": [
+          "def-essential",
+          "sec-Disclosure"
+        ]
+      },
+      "https://www.w3.org/Style/": {},
+      "https://www.w3.org/Style/CSS/Test/": {},
+      "https://www.w3.org/Style/CSS/members": {},
+      "https://www.w3.org/TR/": {},
+      "https://www.w3.org/TR/2016/WD-css-round-display-1-20160301/": {},
+      "https://www.w3.org/TR/CSS/": {
+        "anchors": [
+          "future-proofing",
+          "unstable",
+          "proprietary-extension"
+        ]
+      },
+      "https://www.w3.org/TR/CSS2": {},
+      "https://www.w3.org/TR/CSS2/conform.html": {
+        "anchors": [
+          "style-sheet",
+          "user-agent",
+          "ignore"
+        ]
+      },
+      "https://www.w3.org/TR/CSS21/syndata.html": {
+        "anchors": [
+          "value-def-uri"
+        ]
+      },
+      "https://www.w3.org/TR/css-device-adapt-1/": {},
+      "https://www.w3.org/TR/css-device-adapt/": {
+        "anchors": [
+          "at-ruledef-viewport"
+        ]
+      },
+      "https://www.w3.org/TR/css-position-3/": {},
+      "https://www.w3.org/TR/css-round-display-1/": {
+        "anchors": [
+          "device-radius-media-feature",
+          "changes_from_Sep_22_2015"
+        ]
+      },
+      "https://www.w3.org/TR/css-shapes-1/": {
+        "anchors": [
+          "typedef-basic-shape"
+        ]
+      },
+      "https://www.w3.org/TR/css-values-3/": {},
+      "https://www.w3.org/TR/css3-border": {},
+      "https://www.w3.org/TR/css3-conditional/": {},
+      "https://www.w3.org/TR/css3-images/": {
+        "anchors": [
+          "image-type"
+        ]
+      },
+      "https://www.w3.org/TR/mediaqueries-4/": {},
+      "https://www.w3.org/TR/motion-1/": {}
+    },
+    "autolinks": {
+      "https://drafts.csswg.org/css-conditional-3/": {
+        "anchors": [
+          "at-ruledef-media"
+        ]
+      },
+      "https://drafts.csswg.org/css-values-4/": {
+        "anchors": [
+          "comb-one",
+          "comb-any"
+        ]
+      },
+      "https://drafts.fxtf.org/motion-1/": {
+        "anchors": [
+          "propdef-offset-path",
+          "propdef-offset-distance",
+          "propdef-offset-position"
+        ]
+      },
+      "https://www.w3.org/TR/CSS/": {
+        "anchors": [
+          "vendor-prefix"
+        ]
+      },
+      "https://www.w3.org/TR/CSS21/syndata.html": {
+        "anchors": [
+          "value-def-uri"
+        ]
+      },
+      "https://www.w3.org/TR/css-device-adapt/": {
+        "anchors": [
+          "at-ruledef-viewport"
+        ]
+      },
+      "https://www.w3.org/TR/css-shapes-1/": {
+        "anchors": [
+          "typedef-basic-shape"
+        ]
+      },
+      "https://www.w3.org/TR/css3-images/": {
+        "anchors": [
+          "image-type"
+        ]
+      }
+    }
+  }
+}

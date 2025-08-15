@@ -1,0 +1,470 @@
+{
+  "spec": {
+    "title": "Opus WebCodecs Registration",
+    "url": "https://www.w3.org/TR/webcodecs-opus-codec-registration/"
+  },
+  "dfns": [
+    {
+      "id": "dom-audioencoderconfig-opus",
+      "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#dom-audioencoderconfig-opus",
+      "linkingText": [
+        "opus"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "AudioEncoderConfig"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "audioencoderconfig-extensions",
+        "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#audioencoderconfig-extensions",
+        "title": "AudioEncoderConfig extensions",
+        "number": "5"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dictdef-opusencoderconfig",
+      "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#dictdef-opusencoderconfig",
+      "linkingText": [
+        "OpusEncoderConfig"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "opus-encoder-config",
+        "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#opus-encoder-config",
+        "title": "OpusEncoderConfig",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-opusencoderconfig-format",
+      "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#dom-opusencoderconfig-format",
+      "linkingText": [
+        "format"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "OpusEncoderConfig"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "opus-encoder-config",
+        "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#opus-encoder-config",
+        "title": "OpusEncoderConfig",
+        "number": "5.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-opusencoderconfig-signal",
+      "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#dom-opusencoderconfig-signal",
+      "linkingText": [
+        "signal"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "OpusEncoderConfig"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "opus-encoder-config",
+        "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#opus-encoder-config",
+        "title": "OpusEncoderConfig",
+        "number": "5.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-opusencoderconfig-application",
+      "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#dom-opusencoderconfig-application",
+      "linkingText": [
+        "application"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "OpusEncoderConfig"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "opus-encoder-config",
+        "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#opus-encoder-config",
+        "title": "OpusEncoderConfig",
+        "number": "5.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-opusencoderconfig-frameduration",
+      "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#dom-opusencoderconfig-frameduration",
+      "linkingText": [
+        "frameDuration"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "OpusEncoderConfig"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "opus-encoder-config",
+        "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#opus-encoder-config",
+        "title": "OpusEncoderConfig",
+        "number": "5.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-opusencoderconfig-complexity",
+      "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#dom-opusencoderconfig-complexity",
+      "linkingText": [
+        "complexity"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "OpusEncoderConfig"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "opus-encoder-config",
+        "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#opus-encoder-config",
+        "title": "OpusEncoderConfig",
+        "number": "5.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-opusencoderconfig-packetlossperc",
+      "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#dom-opusencoderconfig-packetlossperc",
+      "linkingText": [
+        "packetlossperc"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "OpusEncoderConfig"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "opus-encoder-config",
+        "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#opus-encoder-config",
+        "title": "OpusEncoderConfig",
+        "number": "5.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-opusencoderconfig-useinbandfec",
+      "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#dom-opusencoderconfig-useinbandfec",
+      "linkingText": [
+        "useinbandfec"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "OpusEncoderConfig"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "opus-encoder-config",
+        "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#opus-encoder-config",
+        "title": "OpusEncoderConfig",
+        "number": "5.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-opusencoderconfig-usedtx",
+      "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#dom-opusencoderconfig-usedtx",
+      "linkingText": [
+        "usedtx"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "OpusEncoderConfig"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "opus-encoder-config",
+        "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#opus-encoder-config",
+        "title": "OpusEncoderConfig",
+        "number": "5.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "enumdef-opusbitstreamformat",
+      "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#enumdef-opusbitstreamformat",
+      "linkingText": [
+        "OpusBitstreamFormat"
+      ],
+      "localLinkingText": [],
+      "type": "enum",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "opus-bitstream-format",
+        "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#opus-bitstream-format",
+        "title": "OpusBitstreamFormat",
+        "number": "5.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-opusbitstreamformat-opus",
+      "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#dom-opusbitstreamformat-opus",
+      "linkingText": [
+        "\"opus\"",
+        "opus"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "OpusBitstreamFormat"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "opus-bitstream-format",
+        "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#opus-bitstream-format",
+        "title": "OpusBitstreamFormat",
+        "number": "5.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-opusbitstreamformat-ogg",
+      "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#dom-opusbitstreamformat-ogg",
+      "linkingText": [
+        "\"ogg\"",
+        "ogg"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "OpusBitstreamFormat"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "opus-bitstream-format",
+        "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#opus-bitstream-format",
+        "title": "OpusBitstreamFormat",
+        "number": "5.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "enumdef-opussignal",
+      "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#enumdef-opussignal",
+      "linkingText": [
+        "OpusSignal"
+      ],
+      "localLinkingText": [],
+      "type": "enum",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "opus-signal",
+        "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#opus-signal",
+        "title": "OpusSignal",
+        "number": "5.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-opussignal-auto",
+      "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#dom-opussignal-auto",
+      "linkingText": [
+        "\"auto\"",
+        "auto"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "OpusSignal"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "opus-signal",
+        "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#opus-signal",
+        "title": "OpusSignal",
+        "number": "5.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-opussignal-music",
+      "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#dom-opussignal-music",
+      "linkingText": [
+        "\"music\"",
+        "music"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "OpusSignal"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "opus-signal",
+        "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#opus-signal",
+        "title": "OpusSignal",
+        "number": "5.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-opussignal-voice",
+      "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#dom-opussignal-voice",
+      "linkingText": [
+        "\"voice\"",
+        "voice"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "OpusSignal"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "opus-signal",
+        "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#opus-signal",
+        "title": "OpusSignal",
+        "number": "5.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "enumdef-opusapplication",
+      "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#enumdef-opusapplication",
+      "linkingText": [
+        "OpusApplication"
+      ],
+      "localLinkingText": [],
+      "type": "enum",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "opus-application",
+        "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#opus-application",
+        "title": "OpusApplication",
+        "number": "5.4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-opusapplication-voip",
+      "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#dom-opusapplication-voip",
+      "linkingText": [
+        "\"voip\"",
+        "voip"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "OpusApplication"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "opus-application",
+        "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#opus-application",
+        "title": "OpusApplication",
+        "number": "5.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-opusapplication-audio",
+      "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#dom-opusapplication-audio",
+      "linkingText": [
+        "\"audio\"",
+        "audio"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "OpusApplication"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "opus-application",
+        "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#opus-application",
+        "title": "OpusApplication",
+        "number": "5.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-opusapplication-lowdelay",
+      "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#dom-opusapplication-lowdelay",
+      "linkingText": [
+        "\"lowdelay\"",
+        "lowdelay"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "OpusApplication"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "opus-application",
+        "href": "https://www.w3.org/TR/webcodecs-opus-codec-registration/#opus-application",
+        "title": "OpusApplication",
+        "number": "5.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    }
+  ]
+}

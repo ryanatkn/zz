@@ -1,0 +1,242 @@
+{
+  "spec": {
+    "title": "Audio Output Devices API",
+    "url": "https://w3c.github.io/mediacapture-output/"
+  },
+  "dfns": [
+    {
+      "id": "dfn-sinkid",
+      "href": "https://w3c.github.io/mediacapture-output/#dfn-sinkid",
+      "linkingText": [
+        "[[SinkId]]"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "HTMLMediaElement"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "htmlmediaelement-extensions",
+        "href": "https://w3c.github.io/mediacapture-output/#htmlmediaelement-extensions",
+        "title": "HTMLMediaElement Extensions",
+        "alternateIds": [
+          "x2-htmlmediaelement-extensions"
+        ],
+        "number": "2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-htmlmediaelement-sinkid",
+      "href": "https://w3c.github.io/mediacapture-output/#dom-htmlmediaelement-sinkid",
+      "linkingText": [
+        "sinkId"
+      ],
+      "localLinkingText": [
+        "HTMLMediaElement.sinkId"
+      ],
+      "type": "attribute",
+      "for": [
+        "HTMLMediaElement"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "attributes",
+        "href": "https://w3c.github.io/mediacapture-output/#attributes",
+        "title": "Attributes"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-htmlmediaelement-setsinkid",
+      "href": "https://w3c.github.io/mediacapture-output/#dom-htmlmediaelement-setsinkid",
+      "linkingText": [
+        "setSinkId()",
+        "setSinkId(sinkId)"
+      ],
+      "localLinkingText": [
+        "HTMLMediaElement.setSinkId",
+        "HTMLMediaElement.setSinkId()",
+        "setSinkId"
+      ],
+      "type": "method",
+      "for": [
+        "HTMLMediaElement"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "methods",
+        "href": "https://w3c.github.io/mediacapture-output/#methods",
+        "title": "Methods"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-unavailable",
+      "href": "https://w3c.github.io/mediacapture-output/#dfn-unavailable",
+      "linkingText": [
+        "unavailable"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "algorithms-sink-unavailable",
+        "href": "https://w3c.github.io/mediacapture-output/#algorithms-sink-unavailable",
+        "title": "Sink no longer available",
+        "alternateIds": [
+          "x2-1-1-sink-no-longer-available"
+        ],
+        "number": "2.1.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-mediadevices-selectaudiooutput",
+      "href": "https://w3c.github.io/mediacapture-output/#dom-mediadevices-selectaudiooutput",
+      "linkingText": [
+        "selectAudioOutput()",
+        "selectAudioOutput(options)"
+      ],
+      "localLinkingText": [
+        "MediaDevices.selectAudioOutput",
+        "MediaDevices.selectAudioOutput()",
+        "selectAudioOutput"
+      ],
+      "type": "method",
+      "for": [
+        "MediaDevices"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "methods-0",
+        "href": "https://w3c.github.io/mediacapture-output/#methods-0",
+        "title": "Methods"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-audiooutputoptions",
+      "href": "https://w3c.github.io/mediacapture-output/#dom-audiooutputoptions",
+      "linkingText": [
+        "AudioOutputOptions"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "dictionary-audiooutputoptions-members",
+        "href": "https://w3c.github.io/mediacapture-output/#dictionary-audiooutputoptions-members",
+        "title": "Dictionary AudioOutputOptions Members"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dom-audiooutputoptions-deviceid",
+      "href": "https://w3c.github.io/mediacapture-output/#dom-audiooutputoptions-deviceid",
+      "linkingText": [
+        "deviceId"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "AudioOutputOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "dictionary-audiooutputoptions-members",
+        "href": "https://w3c.github.io/mediacapture-output/#dictionary-audiooutputoptions-members",
+        "title": "Dictionary AudioOutputOptions Members"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-explicitlygrantedaudiooutputdevices",
+      "href": "https://w3c.github.io/mediacapture-output/#dfn-explicitlygrantedaudiooutputdevices",
+      "linkingText": [
+        "[[explicitlyGrantedAudioOutputDevices]]"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "relevant global object"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "privacy-obtaining-consent",
+        "href": "https://w3c.github.io/mediacapture-output/#privacy-obtaining-consent",
+        "title": "Obtaining Consent",
+        "alternateIds": [
+          "x4-2-obtaining-consent"
+        ],
+        "number": "4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-speaker-selection",
+      "href": "https://w3c.github.io/mediacapture-output/#dfn-speaker-selection",
+      "linkingText": [
+        "\"speaker-selection\""
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "permissions-policy-integration-0",
+        "href": "https://w3c.github.io/mediacapture-output/#permissions-policy-integration-0",
+        "title": "Permissions Policy Integration",
+        "alternateIds": [
+          "permissions-policy-integration"
+        ],
+        "number": "4.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-user-agent",
+      "href": "https://w3c.github.io/mediacapture-output/#dfn-user-agent",
+      "linkingText": [
+        "user agent"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "conformance",
+        "href": "https://w3c.github.io/mediacapture-output/#conformance",
+        "title": "Conformance",
+        "alternateIds": [
+          "x5-conformance"
+        ],
+        "number": "5"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

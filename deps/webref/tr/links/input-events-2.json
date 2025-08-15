@@ -1,0 +1,169 @@
+{
+  "spec": {
+    "title": "Input Events Level 2",
+    "url": "https://www.w3.org/TR/input-events-2/"
+  },
+  "links": {
+    "rawlinks": {
+      "https://dom.spec.whatwg.org/": {
+        "anchors": [
+          "interface-staticrange"
+        ]
+      },
+      "https://extensiblewebmanifesto.org/": {},
+      "https://github.com/web-platform-tests/wpt/tree/master/input-events": {},
+      "https://html.spec.whatwg.org/multipage/": {},
+      "https://html.spec.whatwg.org/multipage/dnd.html": {
+        "anchors": [
+          "drag-data-store",
+          "concept-dnd-ro",
+          "the-drag-data-item-kind",
+          "the-drag-data-item-type-string",
+          "drag-data-store-item-list"
+        ]
+      },
+      "https://html.spec.whatwg.org/multipage/form-elements.html": {
+        "anchors": [
+          "the-textarea-element"
+        ]
+      },
+      "https://html.spec.whatwg.org/multipage/input.html": {
+        "anchors": [
+          "the-input-element"
+        ]
+      },
+      "https://infra.spec.whatwg.org/": {
+        "anchors": [
+          "code-points"
+        ]
+      },
+      "https://mimesniff.spec.whatwg.org/": {},
+      "https://w3c.github.io/edit-context/": {
+        "anchors": [
+          "dfn-editcontext-editing-host",
+          "dfn-editcontext-handled-inputtype",
+          "dfn-handle-input-for-editcontext"
+        ]
+      },
+      "https://w3c.github.io/test-results/input-events/": {},
+      "https://w3c.github.io/uievents/": {
+        "anchors": [
+          "event-type-input",
+          "beforeinput"
+        ]
+      },
+      "https://webidl.spec.whatwg.org/": {},
+      "https://www.rfc-editor.org/info/bcp14": {},
+      "https://www.rfc-editor.org/rfc/rfc2119": {},
+      "https://www.rfc-editor.org/rfc/rfc8174": {},
+      "https://www.w3.org/TR/": {},
+      "https://www.w3.org/TR/FileAPI/": {
+        "anchors": [
+          "dfn-file"
+        ]
+      },
+      "https://www.w3.org/TR/clipboard-apis/": {
+        "anchors": [
+          "clipboard-event-paste"
+        ]
+      },
+      "https://www.w3.org/TR/cssom-1/": {
+        "anchors": [
+          "serialize-a-css-component-value"
+        ]
+      },
+      "https://www.w3.org/TR/fingerprinting-guidance/": {},
+      "https://www.w3.org/TR/i18n-glossary/": {},
+      "https://www.w3.org/TR/input-events-1/": {},
+      "https://www.w3.org/TR/uievents/": {
+        "anchors": [
+          "default-action"
+        ]
+      },
+      "https://www.w3.org/groups/wg/webediting": {},
+      "https://www.w3.org/groups/wg/webediting/ipr": {},
+      "https://www.w3.org/policies/patent-policy/": {
+        "anchors": [
+          "def-essential",
+          "sec-Disclosure"
+        ]
+      },
+      "https://www.w3.org/policies/process/20231103/": {
+        "anchors": [
+          "recs-and-notes"
+        ]
+      }
+    },
+    "autolinks": {
+      "https://dom.spec.whatwg.org/": {
+        "anchors": [
+          "concept-event-dispatch",
+          "interface-staticrange"
+        ]
+      },
+      "https://html.spec.whatwg.org/": {
+        "anchors": [
+          "the-br-element"
+        ]
+      },
+      "https://html.spec.whatwg.org/multipage/dnd.html": {
+        "anchors": [
+          "datatransfer"
+        ]
+      },
+      "https://html.spec.whatwg.org/multipage/form-elements.html": {
+        "anchors": [
+          "the-textarea-element"
+        ]
+      },
+      "https://html.spec.whatwg.org/multipage/input.html": {
+        "anchors": [
+          "the-input-element"
+        ]
+      },
+      "https://html.spec.whatwg.org/multipage/interaction.html": {
+        "anchors": [
+          "editing-host"
+        ]
+      },
+      "https://infra.spec.whatwg.org/": {
+        "anchors": [
+          "code-point",
+          "user-agent"
+        ]
+      },
+      "https://mimesniff.spec.whatwg.org/": {
+        "anchors": [
+          "mime-type"
+        ]
+      },
+      "https://webidl.spec.whatwg.org/": {
+        "anchors": [
+          "idl-sequence"
+        ]
+      },
+      "https://www.w3.org/TR/fingerprinting-guidance/": {
+        "anchors": [
+          "dfn-browser-fingerprinting"
+        ]
+      },
+      "https://www.w3.org/TR/i18n-glossary/": {
+        "anchors": [
+          "dfn-grapheme-cluster"
+        ]
+      },
+      "https://www.w3.org/TR/uievents/": {
+        "anchors": [
+          "inputevent",
+          "dictdef-inputeventinit",
+          "dom-inputevent-inputtype",
+          "compositionstart",
+          "compositionupdate",
+          "compositionend",
+          "keydown",
+          "keypress"
+        ]
+      }
+    }
+  }
+}

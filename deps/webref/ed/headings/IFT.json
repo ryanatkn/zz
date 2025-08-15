@@ -1,0 +1,450 @@
+{
+  "spec": {
+    "title": "Incremental Font Transfer",
+    "url": "https://w3c.github.io/IFT/Overview.html"
+  },
+  "headings": [
+    {
+      "id": "title",
+      "href": "https://w3c.github.io/IFT/Overview.html#title",
+      "level": 1,
+      "title": "Incremental Font Transfer"
+    },
+    {
+      "id": "abstract",
+      "href": "https://w3c.github.io/IFT/Overview.html#abstract",
+      "level": 2,
+      "title": "Abstract"
+    },
+    {
+      "id": "sotd",
+      "href": "https://w3c.github.io/IFT/Overview.html#sotd",
+      "level": 2,
+      "title": "Status of this document"
+    },
+    {
+      "id": "toc",
+      "href": "https://w3c.github.io/IFT/Overview.html#toc",
+      "level": 2,
+      "title": "Table of Contents",
+      "alternateIds": [
+        "contents"
+      ]
+    },
+    {
+      "id": "intro",
+      "href": "https://w3c.github.io/IFT/Overview.html#intro",
+      "level": 2,
+      "title": "Introduction",
+      "number": "1"
+    },
+    {
+      "id": "evaluation-report",
+      "href": "https://w3c.github.io/IFT/Overview.html#evaluation-report",
+      "level": 3,
+      "title": "Technical Motivation: Evaluation Report",
+      "number": "1.1"
+    },
+    {
+      "id": "overview",
+      "href": "https://w3c.github.io/IFT/Overview.html#overview",
+      "level": 3,
+      "title": "Overview",
+      "number": "1.2"
+    },
+    {
+      "id": "making-incremental-fonts",
+      "href": "https://w3c.github.io/IFT/Overview.html#making-incremental-fonts",
+      "level": 3,
+      "title": "Creating an Incremental Font",
+      "number": "1.3"
+    },
+    {
+      "id": "performance-considerations",
+      "href": "https://w3c.github.io/IFT/Overview.html#performance-considerations",
+      "level": 3,
+      "title": "Performance Considerations and the use of Incremental Font Transfer",
+      "number": "1.4"
+    },
+    {
+      "id": "reduce-requests",
+      "href": "https://w3c.github.io/IFT/Overview.html#reduce-requests",
+      "level": 4,
+      "title": "Reducing the Number of Network Requests",
+      "number": "1.4.1"
+    },
+    {
+      "id": "opt-in",
+      "href": "https://w3c.github.io/IFT/Overview.html#opt-in",
+      "level": 2,
+      "title": "Opt-In Mechanism",
+      "number": "2"
+    },
+    {
+      "id": "offline-usage",
+      "href": "https://w3c.github.io/IFT/Overview.html#offline-usage",
+      "level": 3,
+      "title": "Offline Usage",
+      "number": "2.1"
+    },
+    {
+      "id": "definitions",
+      "href": "https://w3c.github.io/IFT/Overview.html#definitions",
+      "level": 2,
+      "title": "Definitions",
+      "number": "3"
+    },
+    {
+      "id": "font-subset-dfn",
+      "href": "https://w3c.github.io/IFT/Overview.html#font-subset-dfn",
+      "level": 3,
+      "title": "Font Subset",
+      "number": "3.1"
+    },
+    {
+      "id": "font-patch-definitions",
+      "href": "https://w3c.github.io/IFT/Overview.html#font-patch-definitions",
+      "level": 3,
+      "title": "Font Patch",
+      "number": "3.2"
+    },
+    {
+      "id": "patch-map-dfn",
+      "href": "https://w3c.github.io/IFT/Overview.html#patch-map-dfn",
+      "level": 3,
+      "title": "Patch Map",
+      "number": "3.3"
+    },
+    {
+      "id": "data-types",
+      "href": "https://w3c.github.io/IFT/Overview.html#data-types",
+      "level": 3,
+      "title": "Explanation of Data Types",
+      "number": "3.4"
+    },
+    {
+      "id": "extending-font-subset",
+      "href": "https://w3c.github.io/IFT/Overview.html#extending-font-subset",
+      "level": 2,
+      "title": "Extending a Font Subset",
+      "number": "4"
+    },
+    {
+      "id": "font-patch-invalidations",
+      "href": "https://w3c.github.io/IFT/Overview.html#font-patch-invalidations",
+      "level": 3,
+      "title": "Patch Invalidations",
+      "number": "4.1"
+    },
+    {
+      "id": "default-layout-features",
+      "href": "https://w3c.github.io/IFT/Overview.html#default-layout-features",
+      "level": 3,
+      "title": "Default Layout Features",
+      "number": "4.2"
+    },
+    {
+      "id": "extend-font-subset",
+      "href": "https://w3c.github.io/IFT/Overview.html#extend-font-subset",
+      "level": 3,
+      "title": "Incremental Font Extension Algorithm",
+      "number": "4.3"
+    },
+    {
+      "id": "invalidating-patch-selection",
+      "href": "https://w3c.github.io/IFT/Overview.html#invalidating-patch-selection",
+      "level": 3,
+      "title": "Selecting Invalidating Patches",
+      "number": "4.4"
+    },
+    {
+      "id": "target-subset-definitions",
+      "href": "https://w3c.github.io/IFT/Overview.html#target-subset-definitions",
+      "level": 3,
+      "title": "Target Subset Definition",
+      "number": "4.5"
+    },
+    {
+      "id": "ift-font-coverage",
+      "href": "https://w3c.github.io/IFT/Overview.html#ift-font-coverage",
+      "level": 3,
+      "title": "Determining what Content a Font can Render",
+      "number": "4.6"
+    },
+    {
+      "id": "fully-expanding-a-font",
+      "href": "https://w3c.github.io/IFT/Overview.html#fully-expanding-a-font",
+      "level": 3,
+      "title": "Fully Expanding a Font",
+      "number": "4.7"
+    },
+    {
+      "id": "caching-incremental-fonts",
+      "href": "https://w3c.github.io/IFT/Overview.html#caching-incremental-fonts",
+      "level": 3,
+      "title": "Caching Extended Incremental Fonts",
+      "number": "4.8"
+    },
+    {
+      "id": "font-format-extensions",
+      "href": "https://w3c.github.io/IFT/Overview.html#font-format-extensions",
+      "level": 2,
+      "title": "Extensions to the Font Format",
+      "number": "5"
+    },
+    {
+      "id": "ift-and-compression",
+      "href": "https://w3c.github.io/IFT/Overview.html#ift-and-compression",
+      "level": 3,
+      "title": "Incremental Font Transfer and Font Compression Formats",
+      "number": "5.1"
+    },
+    {
+      "id": "cff",
+      "href": "https://w3c.github.io/IFT/Overview.html#cff",
+      "level": 3,
+      "title": "CFF and CFF2 Incremental Fonts",
+      "number": "5.2"
+    },
+    {
+      "id": "patch-map-table",
+      "href": "https://w3c.github.io/IFT/Overview.html#patch-map-table",
+      "level": 3,
+      "title": "Patch Map Table",
+      "number": "5.3"
+    },
+    {
+      "id": "patch-map-format-1",
+      "href": "https://w3c.github.io/IFT/Overview.html#patch-map-format-1",
+      "level": 4,
+      "title": "Patch Map Table: Format 1",
+      "number": "5.3.1"
+    },
+    {
+      "id": "interpreting-patch-map-format-1",
+      "href": "https://w3c.github.io/IFT/Overview.html#interpreting-patch-map-format-1",
+      "level": 5,
+      "title": "Interpreting Format 1",
+      "number": "5.3.1.1"
+    },
+    {
+      "id": "remove-entries-format-1",
+      "href": "https://w3c.github.io/IFT/Overview.html#remove-entries-format-1",
+      "level": 5,
+      "title": "Remove Entries from Format 1",
+      "number": "5.3.1.2"
+    },
+    {
+      "id": "patch-map-format-2",
+      "href": "https://w3c.github.io/IFT/Overview.html#patch-map-format-2",
+      "level": 4,
+      "title": "Patch Map Table: Format 2",
+      "number": "5.3.2"
+    },
+    {
+      "id": "interpreting-patch-map-format-2",
+      "href": "https://w3c.github.io/IFT/Overview.html#interpreting-patch-map-format-2",
+      "level": 5,
+      "title": "Interpreting Format 2",
+      "number": "5.3.2.1"
+    },
+    {
+      "id": "remove-entries-format-2",
+      "href": "https://w3c.github.io/IFT/Overview.html#remove-entries-format-2",
+      "level": 5,
+      "title": "Remove Entries from Format 2",
+      "number": "5.3.2.2"
+    },
+    {
+      "id": "sparse-bit-set-decoding",
+      "href": "https://w3c.github.io/IFT/Overview.html#sparse-bit-set-decoding",
+      "level": 5,
+      "title": "Sparse Bit Set",
+      "number": "5.3.2.3"
+    },
+    {
+      "id": "url-templates",
+      "href": "https://w3c.github.io/IFT/Overview.html#url-templates",
+      "level": 4,
+      "title": "URL Templates",
+      "number": "5.3.3"
+    },
+    {
+      "id": "font-patch-formats",
+      "href": "https://w3c.github.io/IFT/Overview.html#font-patch-formats",
+      "level": 2,
+      "title": "Font Patch Formats",
+      "number": "6"
+    },
+    {
+      "id": "font-patch-formats-summary",
+      "href": "https://w3c.github.io/IFT/Overview.html#font-patch-formats-summary",
+      "level": 3,
+      "title": "Formats Summary",
+      "number": "6.1"
+    },
+    {
+      "id": "table-keyed",
+      "href": "https://w3c.github.io/IFT/Overview.html#table-keyed",
+      "level": 3,
+      "title": "Table Keyed",
+      "number": "6.2"
+    },
+    {
+      "id": "apply-table-keyed",
+      "href": "https://w3c.github.io/IFT/Overview.html#apply-table-keyed",
+      "level": 4,
+      "title": "Applying Table Keyed Patches",
+      "number": "6.2.1"
+    },
+    {
+      "id": "glyph-keyed",
+      "href": "https://w3c.github.io/IFT/Overview.html#glyph-keyed",
+      "level": 3,
+      "title": "Glyph Keyed",
+      "number": "6.3"
+    },
+    {
+      "id": "apply-glyph-keyed",
+      "href": "https://w3c.github.io/IFT/Overview.html#apply-glyph-keyed",
+      "level": 4,
+      "title": "Applying Glyph Keyed Patches",
+      "number": "6.3.1"
+    },
+    {
+      "id": "encoding",
+      "href": "https://w3c.github.io/IFT/Overview.html#encoding",
+      "level": 2,
+      "title": "Encoding",
+      "number": "7"
+    },
+    {
+      "id": "encoding-considerations",
+      "href": "https://w3c.github.io/IFT/Overview.html#encoding-considerations",
+      "level": 3,
+      "title": "Encoding Considerations",
+      "number": "7.1"
+    },
+    {
+      "id": "priv",
+      "href": "https://w3c.github.io/IFT/Overview.html#priv",
+      "level": 2,
+      "title": "Privacy Considerations",
+      "number": "8"
+    },
+    {
+      "id": "content-inference-from-character-set",
+      "href": "https://w3c.github.io/IFT/Overview.html#content-inference-from-character-set",
+      "level": 3,
+      "title": "Content inference from character set",
+      "number": "8.1"
+    },
+    {
+      "id": "encoding-privacy",
+      "href": "https://w3c.github.io/IFT/Overview.html#encoding-privacy",
+      "level": 3,
+      "title": "Encoding IFT Fonts and Privacy",
+      "number": "8.2"
+    },
+    {
+      "id": "per-origin",
+      "href": "https://w3c.github.io/IFT/Overview.html#per-origin",
+      "level": 3,
+      "title": "Per-origin restriction avoids fingerprinting",
+      "number": "8.3"
+    },
+    {
+      "id": "sec",
+      "href": "https://w3c.github.io/IFT/Overview.html#sec",
+      "level": 2,
+      "title": "Security Considerations",
+      "number": "9"
+    },
+    {
+      "id": "changes",
+      "href": "https://w3c.github.io/IFT/Overview.html#changes",
+      "level": 2,
+      "title": "10. Changes"
+    },
+    {
+      "id": "feature-tag-list",
+      "href": "https://w3c.github.io/IFT/Overview.html#feature-tag-list",
+      "level": 2,
+      "title": "Default Feature Tags",
+      "number": "A"
+    },
+    {
+      "id": "extension-example",
+      "href": "https://w3c.github.io/IFT/Overview.html#extension-example",
+      "level": 2,
+      "title": "Extension Algorithm Example Execution",
+      "number": "B"
+    },
+    {
+      "id": "appendix-b-example-1",
+      "href": "https://w3c.github.io/IFT/Overview.html#appendix-b-example-1",
+      "level": 3,
+      "title": "Example 1: Table and Glyph Keyed Patches"
+    },
+    {
+      "id": "appendix-b-example-2",
+      "href": "https://w3c.github.io/IFT/Overview.html#appendix-b-example-2",
+      "level": 3,
+      "title": "Example 2: Glyph Keyed Patches with Child Entries"
+    },
+    {
+      "id": "w3c-conformance",
+      "href": "https://w3c.github.io/IFT/Overview.html#w3c-conformance",
+      "level": 2,
+      "title": "Conformance"
+    },
+    {
+      "id": "w3c-conventions",
+      "href": "https://w3c.github.io/IFT/Overview.html#w3c-conventions",
+      "level": 3,
+      "title": "Document conventions"
+    },
+    {
+      "id": "w3c-conformant-algorithms",
+      "href": "https://w3c.github.io/IFT/Overview.html#w3c-conformant-algorithms",
+      "level": 3,
+      "title": "Conformant Algorithms"
+    },
+    {
+      "id": "index",
+      "href": "https://w3c.github.io/IFT/Overview.html#index",
+      "level": 2,
+      "title": "Index"
+    },
+    {
+      "id": "index-defined-here",
+      "href": "https://w3c.github.io/IFT/Overview.html#index-defined-here",
+      "level": 3,
+      "title": "Terms defined by this specification"
+    },
+    {
+      "id": "index-defined-elsewhere",
+      "href": "https://w3c.github.io/IFT/Overview.html#index-defined-elsewhere",
+      "level": 3,
+      "title": "Terms defined by reference"
+    },
+    {
+      "id": "references",
+      "href": "https://w3c.github.io/IFT/Overview.html#references",
+      "level": 2,
+      "title": "References"
+    },
+    {
+      "id": "normative",
+      "href": "https://w3c.github.io/IFT/Overview.html#normative",
+      "level": 3,
+      "title": "Normative References"
+    },
+    {
+      "id": "informative",
+      "href": "https://w3c.github.io/IFT/Overview.html#informative",
+      "level": 3,
+      "title": "Informative References"
+    }
+  ]
+}

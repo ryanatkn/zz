@@ -1,0 +1,48 @@
+{
+  "spec": {
+    "title": "HEVC (H.265) WebCodecs Registration",
+    "url": "https://w3c.github.io/webcodecs/hevc_codec_registration.html"
+  },
+  "links": {
+    "rawlinks": {
+      "https://datatracker.ietf.org/doc/html/rfc2119": {},
+      "https://github.com/w3c/webcodecs/issues": {},
+      "https://lists.w3.org/Archives/Public/public-media-wg/": {},
+      "https://w3c.github.io/webcodecs/": {
+        "anchors": [
+          "config-codec-string",
+          "privacy-considerations",
+          "security-considerations"
+        ]
+      },
+      "https://w3c.github.io/webcodecs/codec_registry.html": {},
+      "https://webidl.spec.whatwg.org/": {},
+      "https://www.iso.org/standard/89118.html": {},
+      "https://www.itu.int/rec/T-REC-H.265": {},
+      "https://www.w3.org/TR/": {},
+      "https://www.w3.org/groups/wg/media/": {},
+      "https://www.w3.org/policies/patent-policy/": {},
+      "https://www.w3.org/policies/process/20231103/": {}
+    },
+    "autolinks": {
+      "https://w3c.github.io/webcodecs/": {
+        "anchors": [
+          "encodedvideochunk",
+          "dom-encodedvideochunk-internal-data-slot",
+          "dom-videodecoderconfig-description",
+          "dom-encodedvideochunk-type-slot",
+          "dictdef-videoencoderconfig",
+          "dom-encodedvideochunktype-key",
+          "dom-videoencoder-output-callback-slot",
+          "dom-encodedvideochunkmetadata-decoderconfig",
+          "dictdef-videoencoderencodeoptions"
+        ]
+      },
+      "https://webidl.spec.whatwg.org/": {
+        "anchors": [
+          "idl-unsigned-short"
+        ]
+      }
+    }
+  }
+}

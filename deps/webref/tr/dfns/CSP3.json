@@ -1,0 +1,3772 @@
+{
+  "spec": {
+    "title": "Content Security Policy Level 3",
+    "url": "https://www.w3.org/TR/CSP3/"
+  },
+  "dfns": [
+    {
+      "id": "content-security-policy",
+      "href": "https://www.w3.org/TR/CSP3/#content-security-policy",
+      "linkingText": [
+        "Content Security Policy"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "intro",
+        "href": "https://www.w3.org/TR/CSP3/#intro",
+        "title": "Introduction",
+        "number": "1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "grammardef-optional-ascii-whitespace",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-optional-ascii-whitespace",
+      "linkingText": [
+        "optional-ascii-whitespace"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-infrastructure",
+        "href": "https://www.w3.org/TR/CSP3/#framework-infrastructure",
+        "title": "Infrastructure",
+        "number": "2.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "grammardef-required-ascii-whitespace",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-required-ascii-whitespace",
+      "linkingText": [
+        "required-ascii-whitespace"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-infrastructure",
+        "href": "https://www.w3.org/TR/CSP3/#framework-infrastructure",
+        "title": "Infrastructure",
+        "number": "2.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "content-security-policy-object",
+      "href": "https://www.w3.org/TR/CSP3/#content-security-policy-object",
+      "linkingText": [
+        "content security policy object"
+      ],
+      "localLinkingText": [
+        "policy"
+      ],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-policy",
+        "href": "https://www.w3.org/TR/CSP3/#framework-policy",
+        "title": "Policies",
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "policy-directive-set",
+      "href": "https://www.w3.org/TR/CSP3/#policy-directive-set",
+      "linkingText": [
+        "directive set"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "policy"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-policy",
+        "href": "https://www.w3.org/TR/CSP3/#framework-policy",
+        "title": "Policies",
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "policy-disposition",
+      "href": "https://www.w3.org/TR/CSP3/#policy-disposition",
+      "linkingText": [
+        "disposition"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "policy"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-policy",
+        "href": "https://www.w3.org/TR/CSP3/#framework-policy",
+        "title": "Policies",
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "policy-source",
+      "href": "https://www.w3.org/TR/CSP3/#policy-source",
+      "linkingText": [
+        "source"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "policy"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-policy",
+        "href": "https://www.w3.org/TR/CSP3/#framework-policy",
+        "title": "Policies",
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "policy-self-origin",
+      "href": "https://www.w3.org/TR/CSP3/#policy-self-origin",
+      "linkingText": [
+        "self-origin"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "policy"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-policy",
+        "href": "https://www.w3.org/TR/CSP3/#framework-policy",
+        "title": "Policies",
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "csp-list",
+      "href": "https://www.w3.org/TR/CSP3/#csp-list",
+      "linkingText": [
+        "CSP list"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-policy",
+        "href": "https://www.w3.org/TR/CSP3/#framework-policy",
+        "title": "Policies",
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "contains-a-header-delivered-content-security-policy",
+      "href": "https://www.w3.org/TR/CSP3/#contains-a-header-delivered-content-security-policy",
+      "linkingText": [
+        "contains a header-delivered Content Security Policy"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-policy",
+        "href": "https://www.w3.org/TR/CSP3/#framework-policy",
+        "title": "Policies",
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "serialized-csp",
+      "href": "https://www.w3.org/TR/CSP3/#serialized-csp",
+      "linkingText": [
+        "serialized CSP"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-policy",
+        "href": "https://www.w3.org/TR/CSP3/#framework-policy",
+        "title": "Policies",
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "grammardef-serialized-policy",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-serialized-policy",
+      "linkingText": [
+        "serialized-policy"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-policy",
+        "href": "https://www.w3.org/TR/CSP3/#framework-policy",
+        "title": "Policies",
+        "number": "2.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "serialized-csp-list",
+      "href": "https://www.w3.org/TR/CSP3/#serialized-csp-list",
+      "linkingText": [
+        "serialized CSP list"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-policy",
+        "href": "https://www.w3.org/TR/CSP3/#framework-policy",
+        "title": "Policies",
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "grammardef-serialized-policy-list",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-serialized-policy-list",
+      "linkingText": [
+        "serialized-policy-list"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-policy",
+        "href": "https://www.w3.org/TR/CSP3/#framework-policy",
+        "title": "Policies",
+        "number": "2.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "abstract-opdef-parse-a-serialized-csp",
+      "href": "https://www.w3.org/TR/CSP3/#abstract-opdef-parse-a-serialized-csp",
+      "linkingText": [
+        "parse a serialized CSP"
+      ],
+      "localLinkingText": [],
+      "type": "abstract-op",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "parse-serialized-policy",
+        "href": "https://www.w3.org/TR/CSP3/#parse-serialized-policy",
+        "title": "Parse a serialized CSP",
+        "number": "2.2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "parse-response-csp",
+      "href": "https://www.w3.org/TR/CSP3/#parse-response-csp",
+      "linkingText": [
+        "Parse response’s Content Security Policies"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "parse-response-csp",
+        "href": "https://www.w3.org/TR/CSP3/#parse-response-csp",
+        "title": "Parse response’s Content Security Policies",
+        "number": "2.2.2"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "abstract-opdef-parse-a-responses-content-security-policies",
+      "href": "https://www.w3.org/TR/CSP3/#abstract-opdef-parse-a-responses-content-security-policies",
+      "linkingText": [
+        "parse a response’s Content Security Policies"
+      ],
+      "localLinkingText": [],
+      "type": "abstract-op",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "parse-response-csp",
+        "href": "https://www.w3.org/TR/CSP3/#parse-response-csp",
+        "title": "Parse response’s Content Security Policies",
+        "number": "2.2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "directives",
+      "href": "https://www.w3.org/TR/CSP3/#directives",
+      "linkingText": [
+        "directives"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directives",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directives",
+        "title": "Directives",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "directive-name",
+      "href": "https://www.w3.org/TR/CSP3/#directive-name",
+      "linkingText": [
+        "name"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "directive"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directives",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directives",
+        "title": "Directives",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "directive-value",
+      "href": "https://www.w3.org/TR/CSP3/#directive-value",
+      "linkingText": [
+        "value"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "directive"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directives",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directives",
+        "title": "Directives",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "serialized-directive",
+      "href": "https://www.w3.org/TR/CSP3/#serialized-directive",
+      "linkingText": [
+        "serialized directive"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directives",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directives",
+        "title": "Directives",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "grammardef-serialized-directive",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-serialized-directive",
+      "linkingText": [
+        "serialized-directive"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directives",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directives",
+        "title": "Directives",
+        "number": "2.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "grammardef-directive-name",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-directive-name",
+      "linkingText": [
+        "directive-name"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directives",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directives",
+        "title": "Directives",
+        "number": "2.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "grammardef-directive-value",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-directive-value",
+      "linkingText": [
+        "directive-value"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directives",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directives",
+        "title": "Directives",
+        "number": "2.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "directive-pre-request-check",
+      "href": "https://www.w3.org/TR/CSP3/#directive-pre-request-check",
+      "linkingText": [
+        "pre-request check"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "directive"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directives",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directives",
+        "title": "Directives",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "directive-post-request-check",
+      "href": "https://www.w3.org/TR/CSP3/#directive-post-request-check",
+      "linkingText": [
+        "post-request check"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "directive"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directives",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directives",
+        "title": "Directives",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "directive-inline-check",
+      "href": "https://www.w3.org/TR/CSP3/#directive-inline-check",
+      "linkingText": [
+        "inline check"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "directive"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directives",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directives",
+        "title": "Directives",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "directive-initialization",
+      "href": "https://www.w3.org/TR/CSP3/#directive-initialization",
+      "linkingText": [
+        "initialization"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "directive"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directives",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directives",
+        "title": "Directives",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "directive-pre-navigation-check",
+      "href": "https://www.w3.org/TR/CSP3/#directive-pre-navigation-check",
+      "linkingText": [
+        "pre-navigation check"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "directive"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directives",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directives",
+        "title": "Directives",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "directive-navigation-response-check",
+      "href": "https://www.w3.org/TR/CSP3/#directive-navigation-response-check",
+      "linkingText": [
+        "navigation response check"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "directive"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directives",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directives",
+        "title": "Directives",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "directive-webrtc-pre-connect-check",
+      "href": "https://www.w3.org/TR/CSP3/#directive-webrtc-pre-connect-check",
+      "linkingText": [
+        "webrtc pre-connect check"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "directive"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directives",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directives",
+        "title": "Directives",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "source-lists",
+      "href": "https://www.w3.org/TR/CSP3/#source-lists",
+      "linkingText": [
+        "source lists"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directive-source-list",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directive-source-list",
+        "title": "Source Lists",
+        "number": "2.3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "source-expression",
+      "href": "https://www.w3.org/TR/CSP3/#source-expression",
+      "linkingText": [
+        "source expression"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directive-source-list",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directive-source-list",
+        "title": "Source Lists",
+        "number": "2.3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "serialized-source-list",
+      "href": "https://www.w3.org/TR/CSP3/#serialized-source-list",
+      "linkingText": [
+        "serialized source list"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directive-source-list",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directive-source-list",
+        "title": "Source Lists",
+        "number": "2.3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "grammardef-serialized-source-list",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-serialized-source-list",
+      "linkingText": [
+        "serialized-source-list"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directive-source-list",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directive-source-list",
+        "title": "Source Lists",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "grammardef-none",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-none",
+      "linkingText": [
+        "'none'"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directive-source-list",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directive-source-list",
+        "title": "Source Lists",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "grammardef-source-expression",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-source-expression",
+      "linkingText": [
+        "source-expression"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directive-source-list",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directive-source-list",
+        "title": "Source Lists",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "grammardef-scheme-source",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-scheme-source",
+      "linkingText": [
+        "scheme-source"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directive-source-list",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directive-source-list",
+        "title": "Source Lists",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "grammardef-host-source",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-host-source",
+      "linkingText": [
+        "host-source"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directive-source-list",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directive-source-list",
+        "title": "Source Lists",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "grammardef-scheme-part",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-scheme-part",
+      "linkingText": [
+        "scheme-part"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directive-source-list",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directive-source-list",
+        "title": "Source Lists",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "grammardef-host-part",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-host-part",
+      "linkingText": [
+        "host-part"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directive-source-list",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directive-source-list",
+        "title": "Source Lists",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "grammardef-host-char",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-host-char",
+      "linkingText": [
+        "host-char"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directive-source-list",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directive-source-list",
+        "title": "Source Lists",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "grammardef-port-part",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-port-part",
+      "linkingText": [
+        "port-part"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directive-source-list",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directive-source-list",
+        "title": "Source Lists",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "grammardef-path-part",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-path-part",
+      "linkingText": [
+        "path-part"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directive-source-list",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directive-source-list",
+        "title": "Source Lists",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "grammardef-keyword-source",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-keyword-source",
+      "linkingText": [
+        "keyword-source"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directive-source-list",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directive-source-list",
+        "title": "Source Lists",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "grammardef-self",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-self",
+      "linkingText": [
+        "'self'"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directive-source-list",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directive-source-list",
+        "title": "Source Lists",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "grammardef-unsafe-inline",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-unsafe-inline",
+      "linkingText": [
+        "'unsafe-inline'"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directive-source-list",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directive-source-list",
+        "title": "Source Lists",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "grammardef-unsafe-eval",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-unsafe-eval",
+      "linkingText": [
+        "'unsafe-eval'"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directive-source-list",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directive-source-list",
+        "title": "Source Lists",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "grammardef-strict-dynamic",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-strict-dynamic",
+      "linkingText": [
+        "'strict-dynamic'"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directive-source-list",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directive-source-list",
+        "title": "Source Lists",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "grammardef-unsafe-hashes",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-unsafe-hashes",
+      "linkingText": [
+        "'unsafe-hashes'"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directive-source-list",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directive-source-list",
+        "title": "Source Lists",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "grammardef-report-sample",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-report-sample",
+      "linkingText": [
+        "'report-sample'"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directive-source-list",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directive-source-list",
+        "title": "Source Lists",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "grammardef-unsafe-allow-redirects",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-unsafe-allow-redirects",
+      "linkingText": [
+        "'unsafe-allow-redirects'"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directive-source-list",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directive-source-list",
+        "title": "Source Lists",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "grammardef-wasm-unsafe-eval",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-wasm-unsafe-eval",
+      "linkingText": [
+        "'wasm-unsafe-eval'"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directive-source-list",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directive-source-list",
+        "title": "Source Lists",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "grammardef-trusted-types-eval",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-trusted-types-eval",
+      "linkingText": [
+        "'trusted-types-eval'"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directive-source-list",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directive-source-list",
+        "title": "Source Lists",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "grammardef-report-sha256",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-report-sha256",
+      "linkingText": [
+        "'report-sha256'"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directive-source-list",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directive-source-list",
+        "title": "Source Lists",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "grammardef-report-sha384",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-report-sha384",
+      "linkingText": [
+        "'report-sha384'"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directive-source-list",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directive-source-list",
+        "title": "Source Lists",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "grammardef-report-sha512",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-report-sha512",
+      "linkingText": [
+        "'report-sha512'"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directive-source-list",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directive-source-list",
+        "title": "Source Lists",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "grammardef-nonce-source",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-nonce-source",
+      "linkingText": [
+        "nonce-source"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directive-source-list",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directive-source-list",
+        "title": "Source Lists",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "grammardef-base64-value",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-base64-value",
+      "linkingText": [
+        "base64-value"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directive-source-list",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directive-source-list",
+        "title": "Source Lists",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "grammardef-hash-source",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-hash-source",
+      "linkingText": [
+        "hash-source"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directive-source-list",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directive-source-list",
+        "title": "Source Lists",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "grammardef-hash-algorithm",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-hash-algorithm",
+      "linkingText": [
+        "hash-algorithm"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-directive-source-list",
+        "href": "https://www.w3.org/TR/CSP3/#framework-directive-source-list",
+        "title": "Source Lists",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "violation",
+      "href": "https://www.w3.org/TR/CSP3/#violation",
+      "linkingText": [
+        "violation"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-violation",
+        "href": "https://www.w3.org/TR/CSP3/#framework-violation",
+        "title": "Violations",
+        "number": "2.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "violation-global-object",
+      "href": "https://www.w3.org/TR/CSP3/#violation-global-object",
+      "linkingText": [
+        "global object"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "violation"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-violation",
+        "href": "https://www.w3.org/TR/CSP3/#framework-violation",
+        "title": "Violations",
+        "number": "2.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "violation-url",
+      "href": "https://www.w3.org/TR/CSP3/#violation-url",
+      "linkingText": [
+        "url"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "violation"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-violation",
+        "href": "https://www.w3.org/TR/CSP3/#framework-violation",
+        "title": "Violations",
+        "number": "2.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "violation-status",
+      "href": "https://www.w3.org/TR/CSP3/#violation-status",
+      "linkingText": [
+        "status"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "violation"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-violation",
+        "href": "https://www.w3.org/TR/CSP3/#framework-violation",
+        "title": "Violations",
+        "number": "2.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "violation-resource",
+      "href": "https://www.w3.org/TR/CSP3/#violation-resource",
+      "linkingText": [
+        "resource"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "violation"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-violation",
+        "href": "https://www.w3.org/TR/CSP3/#framework-violation",
+        "title": "Violations",
+        "number": "2.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "violation-referrer",
+      "href": "https://www.w3.org/TR/CSP3/#violation-referrer",
+      "linkingText": [
+        "referrer"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "violation"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-violation",
+        "href": "https://www.w3.org/TR/CSP3/#framework-violation",
+        "title": "Violations",
+        "number": "2.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "violation-policy",
+      "href": "https://www.w3.org/TR/CSP3/#violation-policy",
+      "linkingText": [
+        "policy"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "violation"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-violation",
+        "href": "https://www.w3.org/TR/CSP3/#framework-violation",
+        "title": "Violations",
+        "number": "2.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "violation-disposition",
+      "href": "https://www.w3.org/TR/CSP3/#violation-disposition",
+      "linkingText": [
+        "disposition"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "violation"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-violation",
+        "href": "https://www.w3.org/TR/CSP3/#framework-violation",
+        "title": "Violations",
+        "number": "2.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "violation-effective-directive",
+      "href": "https://www.w3.org/TR/CSP3/#violation-effective-directive",
+      "linkingText": [
+        "effective directive"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "violation"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-violation",
+        "href": "https://www.w3.org/TR/CSP3/#framework-violation",
+        "title": "Violations",
+        "number": "2.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "violation-source-file",
+      "href": "https://www.w3.org/TR/CSP3/#violation-source-file",
+      "linkingText": [
+        "source file"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "violation"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-violation",
+        "href": "https://www.w3.org/TR/CSP3/#framework-violation",
+        "title": "Violations",
+        "number": "2.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "violation-line-number",
+      "href": "https://www.w3.org/TR/CSP3/#violation-line-number",
+      "linkingText": [
+        "line number"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "violation"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-violation",
+        "href": "https://www.w3.org/TR/CSP3/#framework-violation",
+        "title": "Violations",
+        "number": "2.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "violation-column-number",
+      "href": "https://www.w3.org/TR/CSP3/#violation-column-number",
+      "linkingText": [
+        "column number"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "violation"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-violation",
+        "href": "https://www.w3.org/TR/CSP3/#framework-violation",
+        "title": "Violations",
+        "number": "2.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "violation-element",
+      "href": "https://www.w3.org/TR/CSP3/#violation-element",
+      "linkingText": [
+        "element"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "violation"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-violation",
+        "href": "https://www.w3.org/TR/CSP3/#framework-violation",
+        "title": "Violations",
+        "number": "2.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "violation-sample",
+      "href": "https://www.w3.org/TR/CSP3/#violation-sample",
+      "linkingText": [
+        "sample"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "violation"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "framework-violation",
+        "href": "https://www.w3.org/TR/CSP3/#framework-violation",
+        "title": "Violations",
+        "number": "2.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "header-content-security-policy",
+      "href": "https://www.w3.org/TR/CSP3/#header-content-security-policy",
+      "linkingText": [
+        "Content-Security-Policy"
+      ],
+      "localLinkingText": [],
+      "type": "http-header",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "csp-header",
+        "href": "https://www.w3.org/TR/CSP3/#csp-header",
+        "title": "The Content-Security-Policy HTTP Response Header Field",
+        "number": "3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "header-content-security-policy-report-only",
+      "href": "https://www.w3.org/TR/CSP3/#header-content-security-policy-report-only",
+      "linkingText": [
+        "Content-Security-Policy-Report-Only"
+      ],
+      "localLinkingText": [],
+      "type": "http-header",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "cspro-header",
+        "href": "https://www.w3.org/TR/CSP3/#cspro-header",
+        "title": "The Content-Security-Policy-Report-Only HTTP Response Header Field",
+        "number": "3.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "report-for-request",
+      "href": "https://www.w3.org/TR/CSP3/#report-for-request",
+      "linkingText": [
+        "Report Content Security Policy violations for request"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "report-for-request",
+        "href": "https://www.w3.org/TR/CSP3/#report-for-request",
+        "title": "Report Content Security Policy violations for request",
+        "number": "4.1.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "should-block-request",
+      "href": "https://www.w3.org/TR/CSP3/#should-block-request",
+      "linkingText": [
+        "Should request be blocked by Content Security Policy?"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "should-block-request",
+        "href": "https://www.w3.org/TR/CSP3/#should-block-request",
+        "title": "Should request be blocked by Content Security Policy?",
+        "number": "4.1.2"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "should-block-response",
+      "href": "https://www.w3.org/TR/CSP3/#should-block-response",
+      "linkingText": [
+        "Should response to request be blocked by Content Security Policy?"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "should-block-response",
+        "href": "https://www.w3.org/TR/CSP3/#should-block-response",
+        "title": "Should response to request be blocked by Content Security Policy?",
+        "number": "4.1.3"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "potentially-report-hash",
+      "href": "https://www.w3.org/TR/CSP3/#potentially-report-hash",
+      "linkingText": [
+        "Potentially report hash"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "potentially-report-hash",
+        "href": "https://www.w3.org/TR/CSP3/#potentially-report-hash",
+        "title": "Potentially report hash",
+        "number": "4.1.4"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "global-object-csp-list",
+      "href": "https://www.w3.org/TR/CSP3/#global-object-csp-list",
+      "linkingText": [
+        "CSP list"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "global object"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "html-integration",
+        "href": "https://www.w3.org/TR/CSP3/#html-integration",
+        "title": "Integration with HTML",
+        "number": "4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "enforced",
+      "href": "https://www.w3.org/TR/CSP3/#enforced",
+      "linkingText": [
+        "enforced"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "html-integration",
+        "href": "https://www.w3.org/TR/CSP3/#html-integration",
+        "title": "Integration with HTML",
+        "number": "4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "monitored",
+      "href": "https://www.w3.org/TR/CSP3/#monitored",
+      "linkingText": [
+        "monitored"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "html-integration",
+        "href": "https://www.w3.org/TR/CSP3/#html-integration",
+        "title": "Integration with HTML",
+        "number": "4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "run-document-csp-initialization",
+      "href": "https://www.w3.org/TR/CSP3/#run-document-csp-initialization",
+      "linkingText": [
+        "Run CSP initialization for a Document"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "run-document-csp-initialization",
+        "href": "https://www.w3.org/TR/CSP3/#run-document-csp-initialization",
+        "title": "Run CSP initialization for a Document",
+        "number": "4.2.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "should-block-inline",
+      "href": "https://www.w3.org/TR/CSP3/#should-block-inline",
+      "linkingText": [
+        "Should element’s inline type behavior be blocked by Content Security Policy?"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "should-block-inline",
+        "href": "https://www.w3.org/TR/CSP3/#should-block-inline",
+        "title": "Should element’s inline type behavior be blocked by Content Security Policy?",
+        "number": "4.2.3"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "should-block-navigation-request",
+      "href": "https://www.w3.org/TR/CSP3/#should-block-navigation-request",
+      "linkingText": [
+        "Should navigation request of type be blocked by Content Security Policy?"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "should-block-navigation-request",
+        "href": "https://www.w3.org/TR/CSP3/#should-block-navigation-request",
+        "title": "Should navigation request of type be blocked by Content Security Policy?",
+        "number": "4.2.4"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "should-block-navigation-response",
+      "href": "https://www.w3.org/TR/CSP3/#should-block-navigation-response",
+      "linkingText": [
+        "Should navigation response to navigation request of type in target be blocked by Content Security Policy?"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "should-block-navigation-response",
+        "href": "https://www.w3.org/TR/CSP3/#should-block-navigation-response",
+        "title": "Should navigation response to navigation request of type in target be blocked by Content Security Policy?",
+        "number": "4.2.5"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "run-global-object-csp-initialization",
+      "href": "https://www.w3.org/TR/CSP3/#run-global-object-csp-initialization",
+      "linkingText": [
+        "Run CSP initialization for a global object"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "run-global-object-csp-initialization",
+        "href": "https://www.w3.org/TR/CSP3/#run-global-object-csp-initialization",
+        "title": "Run CSP initialization for a global object",
+        "number": "4.2.6"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "can-compile-strings",
+      "href": "https://www.w3.org/TR/CSP3/#can-compile-strings",
+      "linkingText": [
+        "EnsureCSPDoesNotBlockStringCompilation(realm, parameterStrings, bodyString, codeString, compilationType, parameterArgs, bodyArg)"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "can-compile-strings",
+        "href": "https://www.w3.org/TR/CSP3/#can-compile-strings",
+        "title": "EnsureCSPDoesNotBlockStringCompilation(realm, parameterStrings, bodyString, codeString, compilationType, parameterArgs, bodyArg)",
+        "number": "4.4.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "can-compile-wasm-bytes",
+      "href": "https://www.w3.org/TR/CSP3/#can-compile-wasm-bytes",
+      "linkingText": [
+        "EnsureCSPDoesNotBlockWasmByteCompilationrealm"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "can-compile-wasm-bytes",
+        "href": "https://www.w3.org/TR/CSP3/#can-compile-wasm-bytes",
+        "title": "EnsureCSPDoesNotBlockWasmByteCompilationrealm",
+        "number": "4.5.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "csp-violation-report",
+      "href": "https://www.w3.org/TR/CSP3/#csp-violation-report",
+      "linkingText": [
+        "csp violation report"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "reporting",
+        "href": "https://www.w3.org/TR/CSP3/#reporting",
+        "title": "Reporting",
+        "number": "5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dictdef-cspviolationreportbody",
+      "href": "https://www.w3.org/TR/CSP3/#dictdef-cspviolationreportbody",
+      "linkingText": [
+        "CSPViolationReportBody"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "reporting",
+        "href": "https://www.w3.org/TR/CSP3/#reporting",
+        "title": "Reporting",
+        "number": "5"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cspviolationreportbody-documenturl",
+      "href": "https://www.w3.org/TR/CSP3/#dom-cspviolationreportbody-documenturl",
+      "linkingText": [
+        "documentURL"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CSPViolationReportBody"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "reporting",
+        "href": "https://www.w3.org/TR/CSP3/#reporting",
+        "title": "Reporting",
+        "number": "5"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cspviolationreportbody-referrer",
+      "href": "https://www.w3.org/TR/CSP3/#dom-cspviolationreportbody-referrer",
+      "linkingText": [
+        "referrer"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CSPViolationReportBody"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "reporting",
+        "href": "https://www.w3.org/TR/CSP3/#reporting",
+        "title": "Reporting",
+        "number": "5"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cspviolationreportbody-blockedurl",
+      "href": "https://www.w3.org/TR/CSP3/#dom-cspviolationreportbody-blockedurl",
+      "linkingText": [
+        "blockedURL"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CSPViolationReportBody"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "reporting",
+        "href": "https://www.w3.org/TR/CSP3/#reporting",
+        "title": "Reporting",
+        "number": "5"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cspviolationreportbody-effectivedirective",
+      "href": "https://www.w3.org/TR/CSP3/#dom-cspviolationreportbody-effectivedirective",
+      "linkingText": [
+        "effectiveDirective"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CSPViolationReportBody"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "reporting",
+        "href": "https://www.w3.org/TR/CSP3/#reporting",
+        "title": "Reporting",
+        "number": "5"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cspviolationreportbody-originalpolicy",
+      "href": "https://www.w3.org/TR/CSP3/#dom-cspviolationreportbody-originalpolicy",
+      "linkingText": [
+        "originalPolicy"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CSPViolationReportBody"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "reporting",
+        "href": "https://www.w3.org/TR/CSP3/#reporting",
+        "title": "Reporting",
+        "number": "5"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cspviolationreportbody-sourcefile",
+      "href": "https://www.w3.org/TR/CSP3/#dom-cspviolationreportbody-sourcefile",
+      "linkingText": [
+        "sourceFile"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CSPViolationReportBody"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "reporting",
+        "href": "https://www.w3.org/TR/CSP3/#reporting",
+        "title": "Reporting",
+        "number": "5"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cspviolationreportbody-sample",
+      "href": "https://www.w3.org/TR/CSP3/#dom-cspviolationreportbody-sample",
+      "linkingText": [
+        "sample"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CSPViolationReportBody"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "reporting",
+        "href": "https://www.w3.org/TR/CSP3/#reporting",
+        "title": "Reporting",
+        "number": "5"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cspviolationreportbody-disposition",
+      "href": "https://www.w3.org/TR/CSP3/#dom-cspviolationreportbody-disposition",
+      "linkingText": [
+        "disposition"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CSPViolationReportBody"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "reporting",
+        "href": "https://www.w3.org/TR/CSP3/#reporting",
+        "title": "Reporting",
+        "number": "5"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cspviolationreportbody-statuscode",
+      "href": "https://www.w3.org/TR/CSP3/#dom-cspviolationreportbody-statuscode",
+      "linkingText": [
+        "statusCode"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CSPViolationReportBody"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "reporting",
+        "href": "https://www.w3.org/TR/CSP3/#reporting",
+        "title": "Reporting",
+        "number": "5"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cspviolationreportbody-linenumber",
+      "href": "https://www.w3.org/TR/CSP3/#dom-cspviolationreportbody-linenumber",
+      "linkingText": [
+        "lineNumber"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CSPViolationReportBody"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "reporting",
+        "href": "https://www.w3.org/TR/CSP3/#reporting",
+        "title": "Reporting",
+        "number": "5"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cspviolationreportbody-columnnumber",
+      "href": "https://www.w3.org/TR/CSP3/#dom-cspviolationreportbody-columnnumber",
+      "linkingText": [
+        "columnNumber"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "CSPViolationReportBody"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "reporting",
+        "href": "https://www.w3.org/TR/CSP3/#reporting",
+        "title": "Reporting",
+        "number": "5"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "csp-hash-report",
+      "href": "https://www.w3.org/TR/CSP3/#csp-hash-report",
+      "linkingText": [
+        "csp hash report"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "reporting",
+        "href": "https://www.w3.org/TR/CSP3/#reporting",
+        "title": "Reporting",
+        "number": "5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "csp-hash-report-body",
+      "href": "https://www.w3.org/TR/CSP3/#csp-hash-report-body",
+      "linkingText": [
+        "csp hash report body"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "reporting",
+        "href": "https://www.w3.org/TR/CSP3/#reporting",
+        "title": "Reporting",
+        "number": "5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "csp-hash-report-body-documenturl",
+      "href": "https://www.w3.org/TR/CSP3/#csp-hash-report-body-documenturl",
+      "linkingText": [
+        "documentURL"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "csp hash report body"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "reporting",
+        "href": "https://www.w3.org/TR/CSP3/#reporting",
+        "title": "Reporting",
+        "number": "5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "csp-hash-report-body-subresourceurl",
+      "href": "https://www.w3.org/TR/CSP3/#csp-hash-report-body-subresourceurl",
+      "linkingText": [
+        "subresourceURL"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "csp hash report body"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "reporting",
+        "href": "https://www.w3.org/TR/CSP3/#reporting",
+        "title": "Reporting",
+        "number": "5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "csp-hash-report-body-hash",
+      "href": "https://www.w3.org/TR/CSP3/#csp-hash-report-body-hash",
+      "linkingText": [
+        "hash"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "csp hash report body"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "reporting",
+        "href": "https://www.w3.org/TR/CSP3/#reporting",
+        "title": "Reporting",
+        "number": "5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "csp-hash-report-body-destination",
+      "href": "https://www.w3.org/TR/CSP3/#csp-hash-report-body-destination",
+      "linkingText": [
+        "destination"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "csp hash report body"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "reporting",
+        "href": "https://www.w3.org/TR/CSP3/#reporting",
+        "title": "Reporting",
+        "number": "5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "csp-hash-report-body-type",
+      "href": "https://www.w3.org/TR/CSP3/#csp-hash-report-body-type",
+      "linkingText": [
+        "type"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "csp hash report body"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "reporting",
+        "href": "https://www.w3.org/TR/CSP3/#reporting",
+        "title": "Reporting",
+        "number": "5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "enumdef-securitypolicyviolationeventdisposition",
+      "href": "https://www.w3.org/TR/CSP3/#enumdef-securitypolicyviolationeventdisposition",
+      "linkingText": [
+        "SecurityPolicyViolationEventDisposition"
+      ],
+      "localLinkingText": [],
+      "type": "enum",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "violation-events",
+        "href": "https://www.w3.org/TR/CSP3/#violation-events",
+        "title": "Violation DOM Events",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-securitypolicyviolationeventdisposition-enforce",
+      "href": "https://www.w3.org/TR/CSP3/#dom-securitypolicyviolationeventdisposition-enforce",
+      "linkingText": [
+        "\"enforce\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "SecurityPolicyViolationEventDisposition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "violation-events",
+        "href": "https://www.w3.org/TR/CSP3/#violation-events",
+        "title": "Violation DOM Events",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-securitypolicyviolationeventdisposition-report",
+      "href": "https://www.w3.org/TR/CSP3/#dom-securitypolicyviolationeventdisposition-report",
+      "linkingText": [
+        "\"report\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "SecurityPolicyViolationEventDisposition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "violation-events",
+        "href": "https://www.w3.org/TR/CSP3/#violation-events",
+        "title": "Violation DOM Events",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "securitypolicyviolationevent",
+      "href": "https://www.w3.org/TR/CSP3/#securitypolicyviolationevent",
+      "linkingText": [
+        "SecurityPolicyViolationEvent"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "violation-events",
+        "href": "https://www.w3.org/TR/CSP3/#violation-events",
+        "title": "Violation DOM Events",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-securitypolicyviolationevent-securitypolicyviolationevent",
+      "href": "https://www.w3.org/TR/CSP3/#dom-securitypolicyviolationevent-securitypolicyviolationevent",
+      "linkingText": [
+        "SecurityPolicyViolationEvent(type, eventInitDict)",
+        "constructor(type, eventInitDict)",
+        "SecurityPolicyViolationEvent(type)",
+        "constructor(type)"
+      ],
+      "localLinkingText": [],
+      "type": "constructor",
+      "for": [
+        "SecurityPolicyViolationEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "violation-events",
+        "href": "https://www.w3.org/TR/CSP3/#violation-events",
+        "title": "Violation DOM Events",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-securitypolicyviolationevent-securitypolicyviolationevent-type-eventinitdict-type",
+      "href": "https://www.w3.org/TR/CSP3/#dom-securitypolicyviolationevent-securitypolicyviolationevent-type-eventinitdict-type",
+      "linkingText": [
+        "type"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "SecurityPolicyViolationEvent/SecurityPolicyViolationEvent(type, eventInitDict)",
+        "SecurityPolicyViolationEvent/constructor(type, eventInitDict)",
+        "SecurityPolicyViolationEvent/SecurityPolicyViolationEvent(type)",
+        "SecurityPolicyViolationEvent/constructor(type)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "violation-events",
+        "href": "https://www.w3.org/TR/CSP3/#violation-events",
+        "title": "Violation DOM Events",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-securitypolicyviolationevent-securitypolicyviolationevent-type-eventinitdict-eventinitdict",
+      "href": "https://www.w3.org/TR/CSP3/#dom-securitypolicyviolationevent-securitypolicyviolationevent-type-eventinitdict-eventinitdict",
+      "linkingText": [
+        "eventInitDict"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "SecurityPolicyViolationEvent/SecurityPolicyViolationEvent(type, eventInitDict)",
+        "SecurityPolicyViolationEvent/constructor(type, eventInitDict)",
+        "SecurityPolicyViolationEvent/SecurityPolicyViolationEvent(type)",
+        "SecurityPolicyViolationEvent/constructor(type)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "violation-events",
+        "href": "https://www.w3.org/TR/CSP3/#violation-events",
+        "title": "Violation DOM Events",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-securitypolicyviolationevent-documenturi",
+      "href": "https://www.w3.org/TR/CSP3/#dom-securitypolicyviolationevent-documenturi",
+      "linkingText": [
+        "documentURI"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SecurityPolicyViolationEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "violation-events",
+        "href": "https://www.w3.org/TR/CSP3/#violation-events",
+        "title": "Violation DOM Events",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-securitypolicyviolationevent-referrer",
+      "href": "https://www.w3.org/TR/CSP3/#dom-securitypolicyviolationevent-referrer",
+      "linkingText": [
+        "referrer"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SecurityPolicyViolationEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "violation-events",
+        "href": "https://www.w3.org/TR/CSP3/#violation-events",
+        "title": "Violation DOM Events",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-securitypolicyviolationevent-blockeduri",
+      "href": "https://www.w3.org/TR/CSP3/#dom-securitypolicyviolationevent-blockeduri",
+      "linkingText": [
+        "blockedURI"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SecurityPolicyViolationEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "violation-events",
+        "href": "https://www.w3.org/TR/CSP3/#violation-events",
+        "title": "Violation DOM Events",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-securitypolicyviolationevent-effectivedirective",
+      "href": "https://www.w3.org/TR/CSP3/#dom-securitypolicyviolationevent-effectivedirective",
+      "linkingText": [
+        "effectiveDirective"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SecurityPolicyViolationEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "violation-events",
+        "href": "https://www.w3.org/TR/CSP3/#violation-events",
+        "title": "Violation DOM Events",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-securitypolicyviolationevent-violateddirective",
+      "href": "https://www.w3.org/TR/CSP3/#dom-securitypolicyviolationevent-violateddirective",
+      "linkingText": [
+        "violatedDirective"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SecurityPolicyViolationEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "violation-events",
+        "href": "https://www.w3.org/TR/CSP3/#violation-events",
+        "title": "Violation DOM Events",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-securitypolicyviolationevent-originalpolicy",
+      "href": "https://www.w3.org/TR/CSP3/#dom-securitypolicyviolationevent-originalpolicy",
+      "linkingText": [
+        "originalPolicy"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SecurityPolicyViolationEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "violation-events",
+        "href": "https://www.w3.org/TR/CSP3/#violation-events",
+        "title": "Violation DOM Events",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-securitypolicyviolationevent-sourcefile",
+      "href": "https://www.w3.org/TR/CSP3/#dom-securitypolicyviolationevent-sourcefile",
+      "linkingText": [
+        "sourceFile"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SecurityPolicyViolationEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "violation-events",
+        "href": "https://www.w3.org/TR/CSP3/#violation-events",
+        "title": "Violation DOM Events",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-securitypolicyviolationevent-sample",
+      "href": "https://www.w3.org/TR/CSP3/#dom-securitypolicyviolationevent-sample",
+      "linkingText": [
+        "sample"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SecurityPolicyViolationEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "violation-events",
+        "href": "https://www.w3.org/TR/CSP3/#violation-events",
+        "title": "Violation DOM Events",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-securitypolicyviolationevent-disposition",
+      "href": "https://www.w3.org/TR/CSP3/#dom-securitypolicyviolationevent-disposition",
+      "linkingText": [
+        "disposition"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SecurityPolicyViolationEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "violation-events",
+        "href": "https://www.w3.org/TR/CSP3/#violation-events",
+        "title": "Violation DOM Events",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-securitypolicyviolationevent-statuscode",
+      "href": "https://www.w3.org/TR/CSP3/#dom-securitypolicyviolationevent-statuscode",
+      "linkingText": [
+        "statusCode"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SecurityPolicyViolationEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "violation-events",
+        "href": "https://www.w3.org/TR/CSP3/#violation-events",
+        "title": "Violation DOM Events",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-securitypolicyviolationevent-linenumber",
+      "href": "https://www.w3.org/TR/CSP3/#dom-securitypolicyviolationevent-linenumber",
+      "linkingText": [
+        "lineNumber"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SecurityPolicyViolationEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "violation-events",
+        "href": "https://www.w3.org/TR/CSP3/#violation-events",
+        "title": "Violation DOM Events",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-securitypolicyviolationevent-columnnumber",
+      "href": "https://www.w3.org/TR/CSP3/#dom-securitypolicyviolationevent-columnnumber",
+      "linkingText": [
+        "columnNumber"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SecurityPolicyViolationEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "violation-events",
+        "href": "https://www.w3.org/TR/CSP3/#violation-events",
+        "title": "Violation DOM Events",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dictdef-securitypolicyviolationeventinit",
+      "href": "https://www.w3.org/TR/CSP3/#dictdef-securitypolicyviolationeventinit",
+      "linkingText": [
+        "SecurityPolicyViolationEventInit"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "violation-events",
+        "href": "https://www.w3.org/TR/CSP3/#violation-events",
+        "title": "Violation DOM Events",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-securitypolicyviolationeventinit-documenturi",
+      "href": "https://www.w3.org/TR/CSP3/#dom-securitypolicyviolationeventinit-documenturi",
+      "linkingText": [
+        "documentURI"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SecurityPolicyViolationEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "violation-events",
+        "href": "https://www.w3.org/TR/CSP3/#violation-events",
+        "title": "Violation DOM Events",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-securitypolicyviolationeventinit-referrer",
+      "href": "https://www.w3.org/TR/CSP3/#dom-securitypolicyviolationeventinit-referrer",
+      "linkingText": [
+        "referrer"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SecurityPolicyViolationEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "violation-events",
+        "href": "https://www.w3.org/TR/CSP3/#violation-events",
+        "title": "Violation DOM Events",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-securitypolicyviolationeventinit-blockeduri",
+      "href": "https://www.w3.org/TR/CSP3/#dom-securitypolicyviolationeventinit-blockeduri",
+      "linkingText": [
+        "blockedURI"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SecurityPolicyViolationEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "violation-events",
+        "href": "https://www.w3.org/TR/CSP3/#violation-events",
+        "title": "Violation DOM Events",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-securitypolicyviolationeventinit-violateddirective",
+      "href": "https://www.w3.org/TR/CSP3/#dom-securitypolicyviolationeventinit-violateddirective",
+      "linkingText": [
+        "violatedDirective"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SecurityPolicyViolationEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "violation-events",
+        "href": "https://www.w3.org/TR/CSP3/#violation-events",
+        "title": "Violation DOM Events",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-securitypolicyviolationeventinit-effectivedirective",
+      "href": "https://www.w3.org/TR/CSP3/#dom-securitypolicyviolationeventinit-effectivedirective",
+      "linkingText": [
+        "effectiveDirective"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SecurityPolicyViolationEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "violation-events",
+        "href": "https://www.w3.org/TR/CSP3/#violation-events",
+        "title": "Violation DOM Events",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-securitypolicyviolationeventinit-originalpolicy",
+      "href": "https://www.w3.org/TR/CSP3/#dom-securitypolicyviolationeventinit-originalpolicy",
+      "linkingText": [
+        "originalPolicy"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SecurityPolicyViolationEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "violation-events",
+        "href": "https://www.w3.org/TR/CSP3/#violation-events",
+        "title": "Violation DOM Events",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-securitypolicyviolationeventinit-sourcefile",
+      "href": "https://www.w3.org/TR/CSP3/#dom-securitypolicyviolationeventinit-sourcefile",
+      "linkingText": [
+        "sourceFile"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SecurityPolicyViolationEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "violation-events",
+        "href": "https://www.w3.org/TR/CSP3/#violation-events",
+        "title": "Violation DOM Events",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-securitypolicyviolationeventinit-sample",
+      "href": "https://www.w3.org/TR/CSP3/#dom-securitypolicyviolationeventinit-sample",
+      "linkingText": [
+        "sample"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SecurityPolicyViolationEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "violation-events",
+        "href": "https://www.w3.org/TR/CSP3/#violation-events",
+        "title": "Violation DOM Events",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-securitypolicyviolationeventinit-disposition",
+      "href": "https://www.w3.org/TR/CSP3/#dom-securitypolicyviolationeventinit-disposition",
+      "linkingText": [
+        "disposition"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SecurityPolicyViolationEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "violation-events",
+        "href": "https://www.w3.org/TR/CSP3/#violation-events",
+        "title": "Violation DOM Events",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-securitypolicyviolationeventinit-statuscode",
+      "href": "https://www.w3.org/TR/CSP3/#dom-securitypolicyviolationeventinit-statuscode",
+      "linkingText": [
+        "statusCode"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SecurityPolicyViolationEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "violation-events",
+        "href": "https://www.w3.org/TR/CSP3/#violation-events",
+        "title": "Violation DOM Events",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-securitypolicyviolationeventinit-linenumber",
+      "href": "https://www.w3.org/TR/CSP3/#dom-securitypolicyviolationeventinit-linenumber",
+      "linkingText": [
+        "lineNumber"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SecurityPolicyViolationEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "violation-events",
+        "href": "https://www.w3.org/TR/CSP3/#violation-events",
+        "title": "Violation DOM Events",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-securitypolicyviolationeventinit-columnnumber",
+      "href": "https://www.w3.org/TR/CSP3/#dom-securitypolicyviolationeventinit-columnnumber",
+      "linkingText": [
+        "columnNumber"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SecurityPolicyViolationEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "violation-events",
+        "href": "https://www.w3.org/TR/CSP3/#violation-events",
+        "title": "Violation DOM Events",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "eventdef-globaleventhandlers-securitypolicyviolation",
+      "href": "https://www.w3.org/TR/CSP3/#eventdef-globaleventhandlers-securitypolicyviolation",
+      "linkingText": [
+        "securitypolicyviolation"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "GlobalEventHandlers",
+        "WorkerGlobalScope"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "report-violation",
+        "href": "https://www.w3.org/TR/CSP3/#report-violation",
+        "title": "Report a violation",
+        "number": "5.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "fetch-directives",
+      "href": "https://www.w3.org/TR/CSP3/#fetch-directives",
+      "linkingText": [
+        "Fetch directives"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "directives-fetch",
+        "href": "https://www.w3.org/TR/CSP3/#directives-fetch",
+        "title": "Fetch Directives",
+        "number": "6.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "child-src",
+      "href": "https://www.w3.org/TR/CSP3/#child-src",
+      "linkingText": [
+        "child-src"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "directive-child-src",
+        "href": "https://www.w3.org/TR/CSP3/#directive-child-src",
+        "title": "child-src",
+        "number": "6.1.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "connect-src",
+      "href": "https://www.w3.org/TR/CSP3/#connect-src",
+      "linkingText": [
+        "connect-src"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "directive-connect-src",
+        "href": "https://www.w3.org/TR/CSP3/#directive-connect-src",
+        "title": "connect-src",
+        "number": "6.1.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "default-src",
+      "href": "https://www.w3.org/TR/CSP3/#default-src",
+      "linkingText": [
+        "default-src"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "directive-default-src",
+        "href": "https://www.w3.org/TR/CSP3/#directive-default-src",
+        "title": "default-src",
+        "number": "6.1.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "font-src",
+      "href": "https://www.w3.org/TR/CSP3/#font-src",
+      "linkingText": [
+        "font-src"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "directive-font-src",
+        "href": "https://www.w3.org/TR/CSP3/#directive-font-src",
+        "title": "font-src",
+        "number": "6.1.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "frame-src",
+      "href": "https://www.w3.org/TR/CSP3/#frame-src",
+      "linkingText": [
+        "frame-src"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "directive-frame-src",
+        "href": "https://www.w3.org/TR/CSP3/#directive-frame-src",
+        "title": "frame-src",
+        "number": "6.1.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "img-src",
+      "href": "https://www.w3.org/TR/CSP3/#img-src",
+      "linkingText": [
+        "img-src"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "directive-img-src",
+        "href": "https://www.w3.org/TR/CSP3/#directive-img-src",
+        "title": "img-src",
+        "number": "6.1.6"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "manifest-src",
+      "href": "https://www.w3.org/TR/CSP3/#manifest-src",
+      "linkingText": [
+        "manifest-src"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "directive-manifest-src",
+        "href": "https://www.w3.org/TR/CSP3/#directive-manifest-src",
+        "title": "manifest-src",
+        "number": "6.1.7"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "media-src",
+      "href": "https://www.w3.org/TR/CSP3/#media-src",
+      "linkingText": [
+        "media-src"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "directive-media-src",
+        "href": "https://www.w3.org/TR/CSP3/#directive-media-src",
+        "title": "media-src",
+        "number": "6.1.8"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "object-src",
+      "href": "https://www.w3.org/TR/CSP3/#object-src",
+      "linkingText": [
+        "object-src"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "directive-object-src",
+        "href": "https://www.w3.org/TR/CSP3/#directive-object-src",
+        "title": "object-src",
+        "number": "6.1.9"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "script-src",
+      "href": "https://www.w3.org/TR/CSP3/#script-src",
+      "linkingText": [
+        "script-src"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "directive-script-src",
+        "href": "https://www.w3.org/TR/CSP3/#directive-script-src",
+        "title": "script-src",
+        "number": "6.1.10"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "script-src-elem",
+      "href": "https://www.w3.org/TR/CSP3/#script-src-elem",
+      "linkingText": [
+        "script-src-elem"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "directive-script-src-elem",
+        "href": "https://www.w3.org/TR/CSP3/#directive-script-src-elem",
+        "title": "script-src-elem",
+        "number": "6.1.11"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "script-src-attr",
+      "href": "https://www.w3.org/TR/CSP3/#script-src-attr",
+      "linkingText": [
+        "script-src-attr"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "directive-script-src-attr",
+        "href": "https://www.w3.org/TR/CSP3/#directive-script-src-attr",
+        "title": "script-src-attr",
+        "number": "6.1.12"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "style-src",
+      "href": "https://www.w3.org/TR/CSP3/#style-src",
+      "linkingText": [
+        "style-src"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "directive-style-src",
+        "href": "https://www.w3.org/TR/CSP3/#directive-style-src",
+        "title": "style-src",
+        "number": "6.1.13"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "style-src-elem",
+      "href": "https://www.w3.org/TR/CSP3/#style-src-elem",
+      "linkingText": [
+        "style-src-elem"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "directive-style-src-elem",
+        "href": "https://www.w3.org/TR/CSP3/#directive-style-src-elem",
+        "title": "style-src-elem",
+        "number": "6.1.14"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "style-src-attr",
+      "href": "https://www.w3.org/TR/CSP3/#style-src-attr",
+      "linkingText": [
+        "style-src-attr"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "directive-style-src-attr",
+        "href": "https://www.w3.org/TR/CSP3/#directive-style-src-attr",
+        "title": "style-src-attr",
+        "number": "6.1.15"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webrtc",
+      "href": "https://www.w3.org/TR/CSP3/#webrtc",
+      "linkingText": [
+        "webrtc"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "directive-webrtc",
+        "href": "https://www.w3.org/TR/CSP3/#directive-webrtc",
+        "title": "webrtc",
+        "number": "6.2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "grammardef-allow",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-allow",
+      "linkingText": [
+        "'allow'"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "directive-webrtc",
+        "href": "https://www.w3.org/TR/CSP3/#directive-webrtc",
+        "title": "webrtc",
+        "number": "6.2.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "grammardef-block",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-block",
+      "linkingText": [
+        "'block'"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "directive-webrtc",
+        "href": "https://www.w3.org/TR/CSP3/#directive-webrtc",
+        "title": "webrtc",
+        "number": "6.2.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "worker-src",
+      "href": "https://www.w3.org/TR/CSP3/#worker-src",
+      "linkingText": [
+        "worker-src"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "directive-worker-src",
+        "href": "https://www.w3.org/TR/CSP3/#directive-worker-src",
+        "title": "worker-src",
+        "number": "6.2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "base-uri",
+      "href": "https://www.w3.org/TR/CSP3/#base-uri",
+      "linkingText": [
+        "base-uri"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "directive-base-uri",
+        "href": "https://www.w3.org/TR/CSP3/#directive-base-uri",
+        "title": "base-uri",
+        "number": "6.3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "allow-base-for-document",
+      "href": "https://www.w3.org/TR/CSP3/#allow-base-for-document",
+      "linkingText": [
+        "Is base allowed for document?"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "allow-base-for-document",
+        "href": "https://www.w3.org/TR/CSP3/#allow-base-for-document",
+        "title": "Is base allowed for document?",
+        "number": "6.3.1.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "sandbox",
+      "href": "https://www.w3.org/TR/CSP3/#sandbox",
+      "linkingText": [
+        "sandbox"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "directive-sandbox",
+        "href": "https://www.w3.org/TR/CSP3/#directive-sandbox",
+        "title": "sandbox",
+        "number": "6.3.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "form-action",
+      "href": "https://www.w3.org/TR/CSP3/#form-action",
+      "linkingText": [
+        "form-action"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "directive-form-action",
+        "href": "https://www.w3.org/TR/CSP3/#directive-form-action",
+        "title": "form-action",
+        "number": "6.4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "frame-ancestors",
+      "href": "https://www.w3.org/TR/CSP3/#frame-ancestors",
+      "linkingText": [
+        "frame-ancestors"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "directive-frame-ancestors",
+        "href": "https://www.w3.org/TR/CSP3/#directive-frame-ancestors",
+        "title": "frame-ancestors",
+        "number": "6.4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "grammardef-ancestor-source-list",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-ancestor-source-list",
+      "linkingText": [
+        "ancestor-source-list"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "directive-frame-ancestors",
+        "href": "https://www.w3.org/TR/CSP3/#directive-frame-ancestors",
+        "title": "frame-ancestors",
+        "number": "6.4.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "grammardef-ancestor-source",
+      "href": "https://www.w3.org/TR/CSP3/#grammardef-ancestor-source",
+      "linkingText": [
+        "ancestor-source"
+      ],
+      "localLinkingText": [],
+      "type": "grammar",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "directive-frame-ancestors",
+        "href": "https://www.w3.org/TR/CSP3/#directive-frame-ancestors",
+        "title": "frame-ancestors",
+        "number": "6.4.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "report-uri",
+      "href": "https://www.w3.org/TR/CSP3/#report-uri",
+      "linkingText": [
+        "report-uri"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "directive-report-uri",
+        "href": "https://www.w3.org/TR/CSP3/#directive-report-uri",
+        "title": "report-uri",
+        "number": "6.5.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "report-to",
+      "href": "https://www.w3.org/TR/CSP3/#report-to",
+      "linkingText": [
+        "report-to"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "directive-report-to",
+        "href": "https://www.w3.org/TR/CSP3/#directive-report-to",
+        "title": "report-to",
+        "number": "6.5.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "match-url-to-source-expression",
+      "href": "https://www.w3.org/TR/CSP3/#match-url-to-source-expression",
+      "linkingText": [
+        "Does url match expression in origin with redirect count?"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "match-url-to-source-expression",
+        "href": "https://www.w3.org/TR/CSP3/#match-url-to-source-expression",
+        "title": "Does url match expression in origin with redirect count?",
+        "number": "6.7.2.8"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "scheme-part-match",
+      "href": "https://www.w3.org/TR/CSP3/#scheme-part-match",
+      "linkingText": [
+        "scheme-part match"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "match-schemes",
+        "href": "https://www.w3.org/TR/CSP3/#match-schemes",
+        "title": "scheme-part matching",
+        "number": "6.7.2.9"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "host-part-match",
+      "href": "https://www.w3.org/TR/CSP3/#host-part-match",
+      "linkingText": [
+        "host-part match"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "match-hosts",
+        "href": "https://www.w3.org/TR/CSP3/#match-hosts",
+        "title": "host-part matching",
+        "number": "6.7.2.10"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "port-part-matches",
+      "href": "https://www.w3.org/TR/CSP3/#port-part-matches",
+      "linkingText": [
+        "port-part matches"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "match-ports",
+        "href": "https://www.w3.org/TR/CSP3/#match-ports",
+        "title": "port-part matching",
+        "number": "6.7.2.11"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "path-part-match",
+      "href": "https://www.w3.org/TR/CSP3/#path-part-match",
+      "linkingText": [
+        "path-part match"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "match-paths",
+        "href": "https://www.w3.org/TR/CSP3/#match-paths",
+        "title": "path-part matching",
+        "number": "6.7.2.12"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "source-list-allows-all-inline-behavior",
+      "href": "https://www.w3.org/TR/CSP3/#source-list-allows-all-inline-behavior",
+      "linkingText": [
+        "allows all inline behavior"
+      ],
+      "localLinkingText": [
+        "allow all inline behavior"
+      ],
+      "type": "dfn",
+      "for": [
+        "source list"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "allow-all-inline",
+        "href": "https://www.w3.org/TR/CSP3/#allow-all-inline",
+        "title": "Does a source list allow all inline behavior for type?",
+        "number": "6.7.3.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "request-effective-directive",
+      "href": "https://www.w3.org/TR/CSP3/#request-effective-directive",
+      "linkingText": [
+        "effective directive"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "request"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "effective-directive-for-a-request",
+        "href": "https://www.w3.org/TR/CSP3/#effective-directive-for-a-request",
+        "title": "Get the effective directive for request",
+        "number": "6.8.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

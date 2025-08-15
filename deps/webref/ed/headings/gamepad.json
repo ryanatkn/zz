@@ -1,0 +1,381 @@
+{
+  "spec": {
+    "title": "Gamepad",
+    "url": "https://w3c.github.io/gamepad/"
+  },
+  "headings": [
+    {
+      "id": "title",
+      "href": "https://w3c.github.io/gamepad/#title",
+      "level": 1,
+      "title": "Gamepad"
+    },
+    {
+      "id": "toc",
+      "href": "https://w3c.github.io/gamepad/#toc",
+      "level": 2,
+      "title": "Table of Contents",
+      "alternateIds": [
+        "table-of-contents"
+      ]
+    },
+    {
+      "id": "introduction",
+      "href": "https://w3c.github.io/gamepad/#introduction",
+      "level": 2,
+      "title": "Introduction",
+      "alternateIds": [
+        "x1-introduction"
+      ],
+      "number": "1"
+    },
+    {
+      "id": "scope",
+      "href": "https://w3c.github.io/gamepad/#scope",
+      "level": 2,
+      "title": "Scope",
+      "alternateIds": [
+        "x2-scope"
+      ],
+      "number": "2"
+    },
+    {
+      "id": "model",
+      "href": "https://w3c.github.io/gamepad/#model",
+      "level": 2,
+      "title": "Model",
+      "alternateIds": [
+        "x3-model"
+      ],
+      "number": "3"
+    },
+    {
+      "id": "input-control-layout",
+      "href": "https://w3c.github.io/gamepad/#input-control-layout",
+      "level": 3,
+      "title": "Input control layout",
+      "alternateIds": [
+        "x3-1-input-control-layout"
+      ],
+      "number": "3.1"
+    },
+    {
+      "id": "input-values",
+      "href": "https://w3c.github.io/gamepad/#input-values",
+      "level": 3,
+      "title": "Input values",
+      "alternateIds": [
+        "x3-2-input-values"
+      ],
+      "number": "3.2"
+    },
+    {
+      "id": "axes",
+      "href": "https://w3c.github.io/gamepad/#axes",
+      "level": 3,
+      "title": "Axes",
+      "alternateIds": [
+        "x3-3-axes"
+      ],
+      "number": "3.3"
+    },
+    {
+      "id": "buttons",
+      "href": "https://w3c.github.io/gamepad/#buttons",
+      "level": 3,
+      "title": "Buttons",
+      "alternateIds": [
+        "x3-4-buttons"
+      ],
+      "number": "3.4"
+    },
+    {
+      "id": "touch-surfaces",
+      "href": "https://w3c.github.io/gamepad/#touch-surfaces",
+      "level": 3,
+      "title": "Touch surfaces",
+      "alternateIds": [
+        "x3-5-touch-surfaces"
+      ],
+      "number": "3.5"
+    },
+    {
+      "id": "output-controls",
+      "href": "https://w3c.github.io/gamepad/#output-controls",
+      "level": 3,
+      "title": "Output controls",
+      "alternateIds": [
+        "x3-6-output-controls"
+      ],
+      "number": "3.6"
+    },
+    {
+      "id": "gamepad-interface",
+      "href": "https://w3c.github.io/gamepad/#gamepad-interface",
+      "level": 2,
+      "title": "Gamepad Interface",
+      "alternateIds": [
+        "x4-gamepad-interface"
+      ],
+      "number": "4"
+    },
+    {
+      "id": "receiving-inputs",
+      "href": "https://w3c.github.io/gamepad/#receiving-inputs",
+      "level": 3,
+      "title": "Receiving inputs",
+      "alternateIds": [
+        "x4-1-receiving-inputs"
+      ],
+      "number": "4.1"
+    },
+    {
+      "id": "constructing-a-gamepad",
+      "href": "https://w3c.github.io/gamepad/#constructing-a-gamepad",
+      "level": 3,
+      "title": "Constructing a Gamepad",
+      "alternateIds": [
+        "x4-2-constructing-a-gamepad"
+      ],
+      "number": "4.2"
+    },
+    {
+      "id": "gamepadbutton-interface",
+      "href": "https://w3c.github.io/gamepad/#gamepadbutton-interface",
+      "level": 2,
+      "title": "GamepadButton Interface",
+      "alternateIds": [
+        "x5-gamepadbutton-interface"
+      ],
+      "number": "5"
+    },
+    {
+      "id": "gamepadtouch-interface",
+      "href": "https://w3c.github.io/gamepad/#gamepadtouch-interface",
+      "level": 2,
+      "title": "GamepadTouch Interface",
+      "alternateIds": [
+        "x6-gamepadtouch-interface"
+      ],
+      "number": "6"
+    },
+    {
+      "id": "gamepadmappingtype-enum",
+      "href": "https://w3c.github.io/gamepad/#gamepadmappingtype-enum",
+      "level": 2,
+      "title": "GamepadMappingType Enum",
+      "alternateIds": [
+        "x7-gamepadmappingtype-enum"
+      ],
+      "number": "7"
+    },
+    {
+      "id": "gamepadhapticactuator-interface",
+      "href": "https://w3c.github.io/gamepad/#gamepadhapticactuator-interface",
+      "level": 2,
+      "title": "GamepadHapticActuator Interface",
+      "alternateIds": [
+        "x8-gamepadhapticactuator-interface"
+      ],
+      "number": "8"
+    },
+    {
+      "id": "handling-visibility-change",
+      "href": "https://w3c.github.io/gamepad/#handling-visibility-change",
+      "level": 3,
+      "title": "Handling visibility change",
+      "alternateIds": [
+        "x8-1-handling-visibility-change"
+      ],
+      "number": "8.1"
+    },
+    {
+      "id": "constructing-a-gamepadhapticactuator",
+      "href": "https://w3c.github.io/gamepad/#constructing-a-gamepadhapticactuator",
+      "level": 3,
+      "title": "Constructing a GamepadHapticActuator",
+      "alternateIds": [
+        "x8-2-constructing-a-gamepadhapticactuator"
+      ],
+      "number": "8.2"
+    },
+    {
+      "id": "gamepadhapticsresult-enum",
+      "href": "https://w3c.github.io/gamepad/#gamepadhapticsresult-enum",
+      "level": 2,
+      "title": "GamepadHapticsResult Enum",
+      "alternateIds": [
+        "x9-gamepadhapticsresult-enum"
+      ],
+      "number": "9"
+    },
+    {
+      "id": "gamepadhapticeffecttype-enum",
+      "href": "https://w3c.github.io/gamepad/#gamepadhapticeffecttype-enum",
+      "level": 2,
+      "title": "10. GamepadHapticEffectType Enum",
+      "alternateIds": [
+        "x10-gamepadhapticeffecttype-enum"
+      ]
+    },
+    {
+      "id": "gamepadeffectparameters-dictionary",
+      "href": "https://w3c.github.io/gamepad/#gamepadeffectparameters-dictionary",
+      "level": 2,
+      "title": "11. GamepadEffectParameters Dictionary",
+      "alternateIds": [
+        "x11-gamepadeffectparameters-dictionary"
+      ]
+    },
+    {
+      "id": "extensions-to-the-navigator-interface",
+      "href": "https://w3c.github.io/gamepad/#extensions-to-the-navigator-interface",
+      "level": 2,
+      "title": "12. Extensions to the Navigator Interface",
+      "alternateIds": [
+        "x12-extensions-to-the-navigator-interface"
+      ]
+    },
+    {
+      "id": "getgamepads-method",
+      "href": "https://w3c.github.io/gamepad/#getgamepads-method",
+      "level": 3,
+      "title": "getGamepads() method",
+      "alternateIds": [
+        "x12-1-getgamepads-method"
+      ],
+      "number": "12.1"
+    },
+    {
+      "id": "gamepadevent-interface",
+      "href": "https://w3c.github.io/gamepad/#gamepadevent-interface",
+      "level": 2,
+      "title": "13. GamepadEvent Interface",
+      "alternateIds": [
+        "x13-gamepadevent-interface"
+      ]
+    },
+    {
+      "id": "gamepadeventinit-dictionary",
+      "href": "https://w3c.github.io/gamepad/#gamepadeventinit-dictionary",
+      "level": 3,
+      "title": "GamepadEventInit dictionary",
+      "alternateIds": [
+        "x13-1-gamepadeventinit-dictionary"
+      ],
+      "number": "13.1"
+    },
+    {
+      "id": "remapping",
+      "href": "https://w3c.github.io/gamepad/#remapping",
+      "level": 2,
+      "title": "14. Remapping",
+      "alternateIds": [
+        "x14-remapping"
+      ]
+    },
+    {
+      "id": "fingerprinting-mitigation",
+      "href": "https://w3c.github.io/gamepad/#fingerprinting-mitigation",
+      "level": 3,
+      "title": "Fingerprinting mitigation",
+      "alternateIds": [
+        "x14-1-fingerprinting-mitigation"
+      ],
+      "number": "14.1"
+    },
+    {
+      "id": "usage-examples",
+      "href": "https://w3c.github.io/gamepad/#usage-examples",
+      "level": 2,
+      "title": "15. Usage Examples",
+      "alternateIds": [
+        "x15-usage-examples"
+      ]
+    },
+    {
+      "id": "the-gamepadconnected-event",
+      "href": "https://w3c.github.io/gamepad/#the-gamepadconnected-event",
+      "level": 2,
+      "title": "16. The gamepadconnected event",
+      "alternateIds": [
+        "event-gamepadconnected"
+      ]
+    },
+    {
+      "id": "the-gamepaddisconnected-event",
+      "href": "https://w3c.github.io/gamepad/#the-gamepaddisconnected-event",
+      "level": 2,
+      "title": "17. The gamepaddisconnected event",
+      "alternateIds": [
+        "event-gamepaddisconnected"
+      ]
+    },
+    {
+      "id": "other-events",
+      "href": "https://w3c.github.io/gamepad/#other-events",
+      "level": 2,
+      "title": "18. Other events",
+      "alternateIds": [
+        "x18-other-events"
+      ]
+    },
+    {
+      "id": "extensions-to-the-windoweventhandlers-interface-mixin",
+      "href": "https://w3c.github.io/gamepad/#extensions-to-the-windoweventhandlers-interface-mixin",
+      "level": 2,
+      "title": "19. Extensions to the WindowEventHandlers Interface Mixin",
+      "alternateIds": [
+        "x19-extensions-to-the-windoweventhandlers-interface-mixin"
+      ]
+    },
+    {
+      "id": "permission-policy",
+      "href": "https://w3c.github.io/gamepad/#permission-policy",
+      "level": 2,
+      "title": "20. Integration with Permissions Policy",
+      "alternateIds": [
+        "x20-integration-with-permissions-policy"
+      ]
+    },
+    {
+      "id": "conformance",
+      "href": "https://w3c.github.io/gamepad/#conformance",
+      "level": 2,
+      "title": "21. Conformance",
+      "alternateIds": [
+        "x21-conformance"
+      ]
+    },
+    {
+      "id": "acknowledgements",
+      "href": "https://w3c.github.io/gamepad/#acknowledgements",
+      "level": 2,
+      "title": "Acknowledgements",
+      "alternateIds": [
+        "a-acknowledgements"
+      ],
+      "number": "A"
+    },
+    {
+      "id": "references",
+      "href": "https://w3c.github.io/gamepad/#references",
+      "level": 2,
+      "title": "References",
+      "alternateIds": [
+        "b-references"
+      ],
+      "number": "B"
+    },
+    {
+      "id": "normative-references",
+      "href": "https://w3c.github.io/gamepad/#normative-references",
+      "level": 3,
+      "title": "Normative references",
+      "alternateIds": [
+        "b-1-normative-references"
+      ],
+      "number": "B.1"
+    }
+  ]
+}

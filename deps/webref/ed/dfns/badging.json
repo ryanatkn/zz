@@ -1,0 +1,284 @@
+{
+  "spec": {
+    "title": "Badging API",
+    "url": "https://w3c.github.io/badging/"
+  },
+  "dfns": [
+    {
+      "id": "dfn-badge",
+      "href": "https://w3c.github.io/badging/#dfn-badge",
+      "linkingText": [
+        "badge"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "model",
+        "href": "https://w3c.github.io/badging/#model",
+        "title": "Model",
+        "alternateIds": [
+          "x2-model"
+        ],
+        "number": "2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-values",
+      "href": "https://w3c.github.io/badging/#dfn-values",
+      "linkingText": [
+        "values"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "badge"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "model",
+        "href": "https://w3c.github.io/badging/#model",
+        "title": "Model",
+        "alternateIds": [
+          "x2-model"
+        ],
+        "number": "2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-nothing",
+      "href": "https://w3c.github.io/badging/#dfn-nothing",
+      "linkingText": [
+        "\"nothing\""
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "model",
+        "href": "https://w3c.github.io/badging/#model",
+        "title": "Model",
+        "alternateIds": [
+          "x2-model"
+        ],
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-flag",
+      "href": "https://w3c.github.io/badging/#dfn-flag",
+      "linkingText": [
+        "\"flag\""
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "model",
+        "href": "https://w3c.github.io/badging/#model",
+        "title": "Model",
+        "alternateIds": [
+          "x2-model"
+        ],
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-number",
+      "href": "https://w3c.github.io/badging/#dfn-number",
+      "linkingText": [
+        "number"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "model",
+        "href": "https://w3c.github.io/badging/#model",
+        "title": "Model",
+        "alternateIds": [
+          "x2-model"
+        ],
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-setting",
+      "href": "https://w3c.github.io/badging/#dfn-setting",
+      "linkingText": [
+        "setting",
+        "set"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "badge"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "presentation",
+        "href": "https://w3c.github.io/badging/#presentation",
+        "title": "Displaying a badge",
+        "alternateIds": [
+          "x3-displaying-a-badge"
+        ],
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-clear",
+      "href": "https://w3c.github.io/badging/#dfn-clear",
+      "linkingText": [
+        "clear"
+      ],
+      "localLinkingText": [
+        "clearing",
+        "cleared"
+      ],
+      "type": "dfn",
+      "for": [
+        "badge"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "presentation",
+        "href": "https://w3c.github.io/badging/#presentation",
+        "title": "Displaying a badge",
+        "alternateIds": [
+          "x3-displaying-a-badge"
+        ],
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-navigatorbadge",
+      "href": "https://w3c.github.io/badging/#dom-navigatorbadge",
+      "linkingText": [
+        "NavigatorBadge"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "extensions-to-the-navigator-and-workernavigator-interfaces",
+        "href": "https://w3c.github.io/badging/#extensions-to-the-navigator-and-workernavigator-interfaces",
+        "title": "Extensions to the Navigator and WorkerNavigator interfaces",
+        "alternateIds": [
+          "x4-extensions-to-the-navigator-and-workernavigator-interfaces"
+        ],
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-navigatorbadge-setappbadge",
+      "href": "https://w3c.github.io/badging/#dom-navigatorbadge-setappbadge",
+      "linkingText": [
+        "setAppBadge()",
+        "setAppBadge(contents)"
+      ],
+      "localLinkingText": [
+        "NavigatorBadge.setAppBadge",
+        "NavigatorBadge.setAppBadge()",
+        "setAppBadge"
+      ],
+      "type": "method",
+      "for": [
+        "NavigatorBadge"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "setappbadge-method",
+        "href": "https://w3c.github.io/badging/#setappbadge-method",
+        "title": "setAppBadge() method",
+        "alternateIds": [
+          "x4-1-setappbadge-method"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dom-navigatorbadge-clearappbadge",
+      "href": "https://w3c.github.io/badging/#dom-navigatorbadge-clearappbadge",
+      "linkingText": [
+        "clearAppBadge()"
+      ],
+      "localLinkingText": [
+        "NavigatorBadge.clearAppBadge",
+        "NavigatorBadge.clearAppBadge()",
+        "clearAppBadge"
+      ],
+      "type": "method",
+      "for": [
+        "NavigatorBadge"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "clearappbadge-method",
+        "href": "https://w3c.github.io/badging/#clearappbadge-method",
+        "title": "clearAppBadge() method",
+        "alternateIds": [
+          "x4-2-clearappbadge-method"
+        ],
+        "number": "4.2"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-set-the-application-badge",
+      "href": "https://w3c.github.io/badging/#dfn-set-the-application-badge",
+      "linkingText": [
+        "set the application badge"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "setting-the-application-badge",
+        "href": "https://w3c.github.io/badging/#setting-the-application-badge",
+        "title": "Setting the application badge",
+        "alternateIds": [
+          "x5-setting-the-application-badge"
+        ],
+        "number": "5"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

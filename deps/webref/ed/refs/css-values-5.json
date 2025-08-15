@@ -1,0 +1,216 @@
+{
+  "spec": {
+    "title": "CSS Values and Units Module Level 5",
+    "url": "https://drafts.csswg.org/css-values-5/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "CSS-ALIGN-3",
+        "url": "https://drafts.csswg.org/css-align/"
+      },
+      {
+        "name": "CSS-ANIMATIONS-1",
+        "url": "https://drafts.csswg.org/css-animations/"
+      },
+      {
+        "name": "CSS-ANIMATIONS-2",
+        "url": "https://drafts.csswg.org/css-animations-2/"
+      },
+      {
+        "name": "CSS-BACKGROUNDS-3",
+        "url": "https://drafts.csswg.org/css-backgrounds/"
+      },
+      {
+        "name": "CSS-BOX-4",
+        "url": "https://drafts.csswg.org/css-box-4/"
+      },
+      {
+        "name": "CSS-CASCADE-5",
+        "url": "https://drafts.csswg.org/css-cascade-5/"
+      },
+      {
+        "name": "CSS-CASCADE-6",
+        "url": "https://drafts.csswg.org/css-cascade-6/"
+      },
+      {
+        "name": "CSS-COLOR-5",
+        "url": "https://drafts.csswg.org/css-color-5/"
+      },
+      {
+        "name": "CSS-CONDITIONAL-3",
+        "url": "https://drafts.csswg.org/css-conditional-3/"
+      },
+      {
+        "name": "CSS-CONDITIONAL-5",
+        "url": "https://drafts.csswg.org/css-conditional-5/"
+      },
+      {
+        "name": "CSS-DISPLAY-3",
+        "url": "https://drafts.csswg.org/css-display/"
+      },
+      {
+        "name": "CSS-EASING-2",
+        "url": "https://drafts.csswg.org/css-easing/"
+      },
+      {
+        "name": "CSS-FONTS-4",
+        "url": "https://drafts.csswg.org/css-fonts-4/"
+      },
+      {
+        "name": "CSS-IMAGES-3",
+        "url": "https://drafts.csswg.org/css-images-3/"
+      },
+      {
+        "name": "CSS-IMAGES-4",
+        "url": "https://drafts.csswg.org/css-images-4/"
+      },
+      {
+        "name": "CSS-MIXINS-1",
+        "url": "https://drafts.csswg.org/css-mixins/"
+      },
+      {
+        "name": "CSS-PROPERTIES-VALUES-API-1",
+        "url": "https://drafts.css-houdini.org/css-properties-values-api-1/"
+      },
+      {
+        "name": "CSS-PSEUDO-4",
+        "url": "https://drafts.csswg.org/css-pseudo-4/"
+      },
+      {
+        "name": "CSS-SCOPING-1",
+        "url": "https://drafts.csswg.org/css-scoping/"
+      },
+      {
+        "name": "CSS-SIZING-3",
+        "url": "https://drafts.csswg.org/css-sizing-3/"
+      },
+      {
+        "name": "CSS-SIZING-4",
+        "url": "https://drafts.csswg.org/css-sizing-4/"
+      },
+      {
+        "name": "CSS-SYNTAX-3",
+        "url": "https://drafts.csswg.org/css-syntax/"
+      },
+      {
+        "name": "CSS-TRANSFORMS-1",
+        "url": "https://drafts.csswg.org/css-transforms/"
+      },
+      {
+        "name": "CSS-TRANSFORMS-2",
+        "url": "https://drafts.csswg.org/css-transforms-2/"
+      },
+      {
+        "name": "CSS-TRANSITIONS-1",
+        "url": "https://drafts.csswg.org/css-transitions/"
+      },
+      {
+        "name": "CSS-TYPED-OM-1",
+        "url": "https://drafts.css-houdini.org/css-typed-om-1/"
+      },
+      {
+        "name": "CSS-VALUES-4",
+        "url": "https://drafts.csswg.org/css-values-4/"
+      },
+      {
+        "name": "CSS-VALUES-5",
+        "url": "https://drafts.csswg.org/css-values-5/"
+      },
+      {
+        "name": "CSS-VARIABLES-2",
+        "url": "https://drafts.csswg.org/css-variables-2/"
+      },
+      {
+        "name": "CSS-WRITING-MODES-4",
+        "url": "https://drafts.csswg.org/css-writing-modes-4/"
+      },
+      {
+        "name": "CSS21",
+        "url": "https://drafts.csswg.org/css2/"
+      },
+      {
+        "name": "DOM",
+        "url": "https://dom.spec.whatwg.org/"
+      },
+      {
+        "name": "ECMASCRIPT",
+        "url": "https://tc39.es/ecma262/multipage/"
+      },
+      {
+        "name": "FETCH",
+        "url": "https://fetch.spec.whatwg.org/"
+      },
+      {
+        "name": "HTML",
+        "url": "https://html.spec.whatwg.org/multipage/"
+      },
+      {
+        "name": "INFRA",
+        "url": "https://infra.spec.whatwg.org/"
+      },
+      {
+        "name": "MEDIAQUERIES-5",
+        "url": "https://drafts.csswg.org/mediaqueries-5/"
+      },
+      {
+        "name": "REFERRER-POLICY",
+        "url": "https://w3c.github.io/webappsec-referrer-policy/"
+      },
+      {
+        "name": "RFC2119",
+        "url": "https://datatracker.ietf.org/doc/html/rfc2119"
+      },
+      {
+        "name": "SELECTORS-3",
+        "url": "https://drafts.csswg.org/selectors-3/"
+      },
+      {
+        "name": "SELECTORS-4",
+        "url": "https://drafts.csswg.org/selectors/"
+      },
+      {
+        "name": "WEB-ANIMATIONS-1",
+        "url": "https://drafts.csswg.org/web-animations-1/"
+      },
+      {
+        "name": "WEB-ANIMATIONS-2",
+        "url": "https://drafts.csswg.org/web-animations-2/"
+      },
+      {
+        "name": "WEBIDL",
+        "url": "https://webidl.spec.whatwg.org/"
+      }
+    ],
+    "informative": [
+      {
+        "name": "CSS-CASCADE-4",
+        "url": "https://drafts.csswg.org/css-cascade-4/"
+      },
+      {
+        "name": "CSS-COLOR-4",
+        "url": "https://drafts.csswg.org/css-color-4/"
+      },
+      {
+        "name": "CSS-DISPLAY-4",
+        "url": "https://drafts.csswg.org/css-display/"
+      },
+      {
+        "name": "CSS-LISTS-3",
+        "url": "https://drafts.csswg.org/css-lists-3/"
+      },
+      {
+        "name": "CSS-VARIABLES",
+        "url": "https://drafts.csswg.org/css-variables/"
+      },
+      {
+        "name": "CSSOM-1",
+        "url": "https://drafts.csswg.org/cssom/"
+      },
+      {
+        "name": "SCROLL-ANIMATIONS-1",
+        "url": "https://drafts.csswg.org/scroll-animations-1/"
+      }
+    ]
+  }
+}

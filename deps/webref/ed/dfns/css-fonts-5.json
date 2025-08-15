@@ -1,0 +1,1627 @@
+{
+  "spec": {
+    "title": "CSS Fonts Module Level 5",
+    "url": "https://drafts.csswg.org/css-fonts-5/"
+  },
+  "dfns": [
+    {
+      "id": "valdef-font-family-xxx",
+      "href": "https://drafts.csswg.org/css-fonts-5/#valdef-font-family-xxx",
+      "linkingText": [
+        "xxx"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "font-family",
+        "<generic-family>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "generic-font-families",
+        "href": "https://drafts.csswg.org/css-fonts-5/#generic-font-families",
+        "title": "Generic font families",
+        "number": "2.1.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "propdef-font-size-adjust",
+      "href": "https://drafts.csswg.org/css-fonts-5/#propdef-font-size-adjust",
+      "linkingText": [
+        "font-size-adjust"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "font-size-adjust-prop",
+        "href": "https://drafts.csswg.org/css-fonts-5/#font-size-adjust-prop",
+        "title": "Relative sizing: the font-size-adjust property",
+        "number": "2.4"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "valdef-font-size-adjust-none",
+      "href": "https://drafts.csswg.org/css-fonts-5/#valdef-font-size-adjust-none",
+      "linkingText": [
+        "none"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "font-size-adjust"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "font-size-adjust-prop",
+        "href": "https://drafts.csswg.org/css-fonts-5/#font-size-adjust-prop",
+        "title": "Relative sizing: the font-size-adjust property",
+        "number": "2.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-font-size-adjust-ex-height--cap-height--ch-width--ic-width--ic-height",
+      "href": "https://drafts.csswg.org/css-fonts-5/#valdef-font-size-adjust-ex-height--cap-height--ch-width--ic-width--ic-height",
+      "linkingText": [
+        "ex-height | cap-height | ch-width | ic-width | ic-height"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "font-size-adjust"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "font-size-adjust-prop",
+        "href": "https://drafts.csswg.org/css-fonts-5/#font-size-adjust-prop",
+        "title": "Relative sizing: the font-size-adjust property",
+        "number": "2.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-font-size-adjust-ex-height",
+      "href": "https://drafts.csswg.org/css-fonts-5/#valdef-font-size-adjust-ex-height",
+      "linkingText": [
+        "ex-height"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "font-size-adjust"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "font-size-adjust-prop",
+        "href": "https://drafts.csswg.org/css-fonts-5/#font-size-adjust-prop",
+        "title": "Relative sizing: the font-size-adjust property",
+        "number": "2.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "font-size-adjust-aspect-value",
+      "href": "https://drafts.csswg.org/css-fonts-5/#font-size-adjust-aspect-value",
+      "linkingText": [
+        "aspect value"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "font-size-adjust"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "font-size-adjust-prop",
+        "href": "https://drafts.csswg.org/css-fonts-5/#font-size-adjust-prop",
+        "title": "Relative sizing: the font-size-adjust property",
+        "number": "2.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "valdef-font-size-adjust-cap-height",
+      "href": "https://drafts.csswg.org/css-fonts-5/#valdef-font-size-adjust-cap-height",
+      "linkingText": [
+        "cap-height"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "font-size-adjust"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "font-size-adjust-prop",
+        "href": "https://drafts.csswg.org/css-fonts-5/#font-size-adjust-prop",
+        "title": "Relative sizing: the font-size-adjust property",
+        "number": "2.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-font-size-adjust-ch-width",
+      "href": "https://drafts.csswg.org/css-fonts-5/#valdef-font-size-adjust-ch-width",
+      "linkingText": [
+        "ch-width"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "font-size-adjust"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "font-size-adjust-prop",
+        "href": "https://drafts.csswg.org/css-fonts-5/#font-size-adjust-prop",
+        "title": "Relative sizing: the font-size-adjust property",
+        "number": "2.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-font-size-adjust-ic-width",
+      "href": "https://drafts.csswg.org/css-fonts-5/#valdef-font-size-adjust-ic-width",
+      "linkingText": [
+        "ic-width"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "font-size-adjust"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "font-size-adjust-prop",
+        "href": "https://drafts.csswg.org/css-fonts-5/#font-size-adjust-prop",
+        "title": "Relative sizing: the font-size-adjust property",
+        "number": "2.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-font-size-adjust-ic-height",
+      "href": "https://drafts.csswg.org/css-fonts-5/#valdef-font-size-adjust-ic-height",
+      "linkingText": [
+        "ic-height"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "font-size-adjust"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "font-size-adjust-prop",
+        "href": "https://drafts.csswg.org/css-fonts-5/#font-size-adjust-prop",
+        "title": "Relative sizing: the font-size-adjust property",
+        "number": "2.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-font-size-adjust-from-font",
+      "href": "https://drafts.csswg.org/css-fonts-5/#valdef-font-size-adjust-from-font",
+      "linkingText": [
+        "from-font"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "font-size-adjust"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "font-size-adjust-prop",
+        "href": "https://drafts.csswg.org/css-fonts-5/#font-size-adjust-prop",
+        "title": "Relative sizing: the font-size-adjust property",
+        "number": "2.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "at-font-face-rule",
+      "href": "https://drafts.csswg.org/css-fonts-5/#at-font-face-rule",
+      "linkingText": [
+        "@font-face"
+      ],
+      "localLinkingText": [],
+      "type": "at-rule",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "font-face-rule",
+        "href": "https://drafts.csswg.org/css-fonts-5/#font-face-rule",
+        "title": "The @font-face rule",
+        "number": "3.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "font-format-values",
+      "href": "https://drafts.csswg.org/css-fonts-5/#font-format-values",
+      "linkingText": [
+        "<font-format>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "font-face-src-parsing",
+        "href": "https://drafts.csswg.org/css-fonts-5/#font-face-src-parsing",
+        "title": "Parsing the src descriptor",
+        "number": "3.2.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "font-tech-values",
+      "href": "https://drafts.csswg.org/css-fonts-5/#font-tech-values",
+      "linkingText": [
+        "<font-tech>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "font-face-src-parsing",
+        "href": "https://drafts.csswg.org/css-fonts-5/#font-face-src-parsing",
+        "title": "Parsing the src descriptor",
+        "number": "3.2.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "font-features-tech-values",
+      "href": "https://drafts.csswg.org/css-fonts-5/#font-features-tech-values",
+      "linkingText": [
+        "<font-features-tech>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "font-face-src-parsing",
+        "href": "https://drafts.csswg.org/css-fonts-5/#font-face-src-parsing",
+        "title": "Parsing the src descriptor",
+        "number": "3.2.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "color-font-tech-values",
+      "href": "https://drafts.csswg.org/css-fonts-5/#color-font-tech-values",
+      "linkingText": [
+        "<color-font-tech>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "font-face-src-parsing",
+        "href": "https://drafts.csswg.org/css-fonts-5/#font-face-src-parsing",
+        "title": "Parsing the src descriptor",
+        "number": "3.2.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "descdef-font-face-font-size",
+      "href": "https://drafts.csswg.org/css-fonts-5/#descdef-font-face-font-size",
+      "linkingText": [
+        "font-size"
+      ],
+      "localLinkingText": [],
+      "type": "descriptor",
+      "for": [
+        "@font-face"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "font-size-desc",
+        "href": "https://drafts.csswg.org/css-fonts-5/#font-size-desc",
+        "title": "Font property descriptors: the font-size",
+        "number": "3.3"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "valdef-font-face-font-size-auto",
+      "href": "https://drafts.csswg.org/css-fonts-5/#valdef-font-face-font-size-auto",
+      "linkingText": [
+        "auto"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "@font-face/font-size"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "font-size-desc",
+        "href": "https://drafts.csswg.org/css-fonts-5/#font-size-desc",
+        "title": "Font property descriptors: the font-size",
+        "number": "3.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "descdef-font-face-size-adjust",
+      "href": "https://drafts.csswg.org/css-fonts-5/#descdef-font-face-size-adjust",
+      "linkingText": [
+        "size-adjust"
+      ],
+      "localLinkingText": [],
+      "type": "descriptor",
+      "for": [
+        "@font-face"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "size-adjust-desc",
+        "href": "https://drafts.csswg.org/css-fonts-5/#size-adjust-desc",
+        "title": "Glyph Size Multiplier: the size-adjust descriptor",
+        "number": "3.4"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "descdef-font-face-ascent-override",
+      "href": "https://drafts.csswg.org/css-fonts-5/#descdef-font-face-ascent-override",
+      "linkingText": [
+        "ascent-override"
+      ],
+      "localLinkingText": [],
+      "type": "descriptor",
+      "for": [
+        "@font-face"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "font-metrics-override-desc",
+        "href": "https://drafts.csswg.org/css-fonts-5/#font-metrics-override-desc",
+        "title": "Line Height Font Metrics Overrides: the ascent-override, descent-override, and line-gap-override descriptors",
+        "number": "3.5"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "descdef-font-face-descent-override",
+      "href": "https://drafts.csswg.org/css-fonts-5/#descdef-font-face-descent-override",
+      "linkingText": [
+        "descent-override"
+      ],
+      "localLinkingText": [],
+      "type": "descriptor",
+      "for": [
+        "@font-face"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "font-metrics-override-desc",
+        "href": "https://drafts.csswg.org/css-fonts-5/#font-metrics-override-desc",
+        "title": "Line Height Font Metrics Overrides: the ascent-override, descent-override, and line-gap-override descriptors",
+        "number": "3.5"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "descdef-font-face-line-gap-override",
+      "href": "https://drafts.csswg.org/css-fonts-5/#descdef-font-face-line-gap-override",
+      "linkingText": [
+        "line-gap-override"
+      ],
+      "localLinkingText": [],
+      "type": "descriptor",
+      "for": [
+        "@font-face"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "font-metrics-override-desc",
+        "href": "https://drafts.csswg.org/css-fonts-5/#font-metrics-override-desc",
+        "title": "Line Height Font Metrics Overrides: the ascent-override, descent-override, and line-gap-override descriptors",
+        "number": "3.5"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "valdef-ascent-overridedescriptor-normal",
+      "href": "https://drafts.csswg.org/css-fonts-5/#valdef-ascent-overridedescriptor-normal",
+      "linkingText": [
+        "normal"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "ascent-override!!descriptor",
+        "descent-override!!descriptor",
+        "line-gap-override!!descriptor"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "font-metrics-override-desc",
+        "href": "https://drafts.csswg.org/css-fonts-5/#font-metrics-override-desc",
+        "title": "Line Height Font Metrics Overrides: the ascent-override, descent-override, and line-gap-override descriptors",
+        "number": "3.5"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "descdef-font-face-superscript-position-override",
+      "href": "https://drafts.csswg.org/css-fonts-5/#descdef-font-face-superscript-position-override",
+      "linkingText": [
+        "superscript-position-override"
+      ],
+      "localLinkingText": [],
+      "type": "descriptor",
+      "for": [
+        "@font-face"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "font-sup-sub-override-desc",
+        "href": "https://drafts.csswg.org/css-fonts-5/#font-sup-sub-override-desc",
+        "title": "Superscript and subscript metrics overrides: the superscript-position-override, subscript-position-override,superscript-size-override and subscript-size-override descriptors",
+        "number": "3.6"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "descdef-font-face-subscript-position-override",
+      "href": "https://drafts.csswg.org/css-fonts-5/#descdef-font-face-subscript-position-override",
+      "linkingText": [
+        "subscript-position-override"
+      ],
+      "localLinkingText": [],
+      "type": "descriptor",
+      "for": [
+        "@font-face"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "font-sup-sub-override-desc",
+        "href": "https://drafts.csswg.org/css-fonts-5/#font-sup-sub-override-desc",
+        "title": "Superscript and subscript metrics overrides: the superscript-position-override, subscript-position-override,superscript-size-override and subscript-size-override descriptors",
+        "number": "3.6"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "descdef-font-face-superscript-size-override",
+      "href": "https://drafts.csswg.org/css-fonts-5/#descdef-font-face-superscript-size-override",
+      "linkingText": [
+        "superscript-size-override"
+      ],
+      "localLinkingText": [],
+      "type": "descriptor",
+      "for": [
+        "@font-face"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "font-sup-sub-override-desc",
+        "href": "https://drafts.csswg.org/css-fonts-5/#font-sup-sub-override-desc",
+        "title": "Superscript and subscript metrics overrides: the superscript-position-override, subscript-position-override,superscript-size-override and subscript-size-override descriptors",
+        "number": "3.6"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "descdef-font-face-subscript-size-override",
+      "href": "https://drafts.csswg.org/css-fonts-5/#descdef-font-face-subscript-size-override",
+      "linkingText": [
+        "subscript-size-override"
+      ],
+      "localLinkingText": [],
+      "type": "descriptor",
+      "for": [
+        "@font-face"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "font-sup-sub-override-desc",
+        "href": "https://drafts.csswg.org/css-fonts-5/#font-sup-sub-override-desc",
+        "title": "Superscript and subscript metrics overrides: the superscript-position-override, subscript-position-override,superscript-size-override and subscript-size-override descriptors",
+        "number": "3.6"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "valdef-superscript-position-overridedescriptor-normal",
+      "href": "https://drafts.csswg.org/css-fonts-5/#valdef-superscript-position-overridedescriptor-normal",
+      "linkingText": [
+        "normal"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "superscript-position-override!!descriptor",
+        "subscript-position-override!!descriptor",
+        "superscript-size-override!!descriptor",
+        "subscript-size-override!!descriptor"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "font-sup-sub-override-desc",
+        "href": "https://drafts.csswg.org/css-fonts-5/#font-sup-sub-override-desc",
+        "title": "Superscript and subscript metrics overrides: the superscript-position-override, subscript-position-override,superscript-size-override and subscript-size-override descriptors",
+        "number": "3.6"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-superscript-position-overridedescriptor-from-font",
+      "href": "https://drafts.csswg.org/css-fonts-5/#valdef-superscript-position-overridedescriptor-from-font",
+      "linkingText": [
+        "from-font"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "superscript-position-override!!descriptor",
+        "subscript-position-override!!descriptor",
+        "superscript-size-override!!descriptor",
+        "subscript-size-override!!descriptor"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "font-sup-sub-override-desc",
+        "href": "https://drafts.csswg.org/css-fonts-5/#font-sup-sub-override-desc",
+        "title": "Superscript and subscript metrics overrides: the superscript-position-override, subscript-position-override,superscript-size-override and subscript-size-override descriptors",
+        "number": "3.6"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "cssfontfacerule-interface",
+      "href": "https://drafts.csswg.org/css-fonts-5/#cssfontfacerule-interface",
+      "linkingText": [
+        "CSSFontFaceRule"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "cssfontfacedescriptors",
+      "href": "https://drafts.csswg.org/css-fonts-5/#cssfontfacedescriptors",
+      "linkingText": [
+        "CSSFontFaceDescriptors"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-src",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-src",
+      "linkingText": [
+        "src"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-fontfamily",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-fontfamily",
+      "linkingText": [
+        "fontFamily"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-font-family",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-font-family",
+      "linkingText": [
+        "font-family"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-fontstyle",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-fontstyle",
+      "linkingText": [
+        "fontStyle"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-font-style",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-font-style",
+      "linkingText": [
+        "font-style"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-fontweight",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-fontweight",
+      "linkingText": [
+        "fontWeight"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-font-weight",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-font-weight",
+      "linkingText": [
+        "font-weight"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-fontstretch",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-fontstretch",
+      "linkingText": [
+        "fontStretch"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-font-stretch",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-font-stretch",
+      "linkingText": [
+        "font-stretch"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-fontwidth",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-fontwidth",
+      "linkingText": [
+        "fontWidth"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-font-width",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-font-width",
+      "linkingText": [
+        "font-width"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-fontsize",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-fontsize",
+      "linkingText": [
+        "fontSize"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-font-size",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-font-size",
+      "linkingText": [
+        "font-size"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-sizeadjust",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-sizeadjust",
+      "linkingText": [
+        "sizeAdjust"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-size-adjust",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-size-adjust",
+      "linkingText": [
+        "size-adjust"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-unicoderange",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-unicoderange",
+      "linkingText": [
+        "unicodeRange"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-unicode-range",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-unicode-range",
+      "linkingText": [
+        "unicode-range"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-fontfeaturesettings",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-fontfeaturesettings",
+      "linkingText": [
+        "fontFeatureSettings"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-font-feature-settings",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-font-feature-settings",
+      "linkingText": [
+        "font-feature-settings"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-fontvariationsettings",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-fontvariationsettings",
+      "linkingText": [
+        "fontVariationSettings"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-font-variation-settings",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-font-variation-settings",
+      "linkingText": [
+        "font-variation-settings"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-fontnamedinstance",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-fontnamedinstance",
+      "linkingText": [
+        "fontNamedInstance"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-font-named-instance",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-font-named-instance",
+      "linkingText": [
+        "font-named-instance"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-fontdisplay",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-fontdisplay",
+      "linkingText": [
+        "fontDisplay"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-font-display",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-font-display",
+      "linkingText": [
+        "font-display"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-fontlanguageoverride",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-fontlanguageoverride",
+      "linkingText": [
+        "fontLanguageOverride"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-font-language-override",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-font-language-override",
+      "linkingText": [
+        "font-language-override"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-ascentoverride",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-ascentoverride",
+      "linkingText": [
+        "ascentOverride"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-ascent-override",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-ascent-override",
+      "linkingText": [
+        "ascent-override"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-descentoverride",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-descentoverride",
+      "linkingText": [
+        "descentOverride"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-descent-override",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-descent-override",
+      "linkingText": [
+        "descent-override"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-linegapoverride",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-linegapoverride",
+      "linkingText": [
+        "lineGapOverride"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-line-gap-override",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-line-gap-override",
+      "linkingText": [
+        "line-gap-override"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-superscriptpositionoverride",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-superscriptpositionoverride",
+      "linkingText": [
+        "superscriptPositionOverride"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-superscript-position-override",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-superscript-position-override",
+      "linkingText": [
+        "superscript-position-override"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-subscriptpositionoverride",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-subscriptpositionoverride",
+      "linkingText": [
+        "subscriptPositionOverride"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-subscript-position-override",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-subscript-position-override",
+      "linkingText": [
+        "subscript-position-override"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-superscriptsizeoverride",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-superscriptsizeoverride",
+      "linkingText": [
+        "superscriptSizeOverride"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-superscript-size-override",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-superscript-size-override",
+      "linkingText": [
+        "superscript-size-override"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-subscriptsizeoverride",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-subscriptsizeoverride",
+      "linkingText": [
+        "subscriptSizeOverride"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacedescriptors-subscript-size-override",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacedescriptors-subscript-size-override",
+      "linkingText": [
+        "subscript-size-override"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceDescriptors"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "cssfontfacerule",
+      "href": "https://drafts.csswg.org/css-fonts-5/#cssfontfacerule",
+      "linkingText": [
+        "CSSFontFaceRule"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssfontfacerule-style",
+      "href": "https://drafts.csswg.org/css-fonts-5/#dom-cssfontfacerule-style",
+      "linkingText": [
+        "style"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSFontFaceRule"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "om-fontface",
+        "href": "https://drafts.csswg.org/css-fonts-5/#om-fontface",
+        "title": "The CSSFontFaceRule interface",
+        "number": "8.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    }
+  ]
+}

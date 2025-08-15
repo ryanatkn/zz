@@ -1,0 +1,76 @@
+{
+  "spec": {
+    "title": "Permissions Policy",
+    "url": "https://www.w3.org/TR/permissions-policy-1/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "CSP3",
+        "url": "https://www.w3.org/TR/CSP3/"
+      },
+      {
+        "name": "DOM",
+        "url": "https://dom.spec.whatwg.org/"
+      },
+      {
+        "name": "FETCH",
+        "url": "https://fetch.spec.whatwg.org/"
+      },
+      {
+        "name": "FULLSCREEN",
+        "url": "https://fullscreen.spec.whatwg.org/"
+      },
+      {
+        "name": "HTML",
+        "url": "https://html.spec.whatwg.org/multipage/"
+      },
+      {
+        "name": "INFRA",
+        "url": "https://infra.spec.whatwg.org/"
+      },
+      {
+        "name": "REPORTING-1",
+        "url": "https://www.w3.org/TR/reporting-1/"
+      },
+      {
+        "name": "RFC2119",
+        "url": "https://datatracker.ietf.org/doc/html/rfc2119"
+      },
+      {
+        "name": "RFC3864",
+        "url": "https://www.rfc-editor.org/rfc/rfc3864"
+      },
+      {
+        "name": "RFC8941",
+        "url": "https://httpwg.org/specs/rfc8941.html"
+      },
+      {
+        "name": "URL",
+        "url": "https://url.spec.whatwg.org/"
+      },
+      {
+        "name": "WEBIDL",
+        "url": "https://webidl.spec.whatwg.org/"
+      }
+    ],
+    "informative": [
+      {
+        "name": "CSP2",
+        "url": "https://www.w3.org/TR/CSP2/"
+      },
+      {
+        "name": "HTML5",
+        "url": "https://www.w3.org/TR/html5/"
+      },
+      {
+        "name": "MEDIACAPTURE-STREAMS",
+        "url": "https://www.w3.org/TR/mediacapture-streams/"
+      },
+      {
+        "name": "PERMISSIONS",
+        "url": "https://www.w3.org/TR/permissions/"
+      }
+    ]
+  }
+}

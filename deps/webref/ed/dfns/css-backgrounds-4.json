@@ -1,0 +1,558 @@
+{
+  "spec": {
+    "title": "CSS Backgrounds Module Level 4",
+    "url": "https://drafts.csswg.org/css-backgrounds-4/"
+  },
+  "dfns": [
+    {
+      "id": "propdef-background-repeat-x",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#propdef-background-repeat-x",
+      "linkingText": [
+        "background-repeat-x"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "background-repeat-longhands",
+        "href": "https://drafts.csswg.org/css-backgrounds-4/#background-repeat-longhands",
+        "title": "Tiling Images: the background-repeat-x, background-repeat-y, background-repeat-block, and background-repeat-inline properties",
+        "number": "2.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "propdef-background-repeat-y",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#propdef-background-repeat-y",
+      "linkingText": [
+        "background-repeat-y"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "background-repeat-longhands",
+        "href": "https://drafts.csswg.org/css-backgrounds-4/#background-repeat-longhands",
+        "title": "Tiling Images: the background-repeat-x, background-repeat-y, background-repeat-block, and background-repeat-inline properties",
+        "number": "2.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "propdef-background-repeat-block",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#propdef-background-repeat-block",
+      "linkingText": [
+        "background-repeat-block"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "background-repeat-longhands",
+        "href": "https://drafts.csswg.org/css-backgrounds-4/#background-repeat-longhands",
+        "title": "Tiling Images: the background-repeat-x, background-repeat-y, background-repeat-block, and background-repeat-inline properties",
+        "number": "2.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "propdef-background-repeat-inline",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#propdef-background-repeat-inline",
+      "linkingText": [
+        "background-repeat-inline"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "background-repeat-longhands",
+        "href": "https://drafts.csswg.org/css-backgrounds-4/#background-repeat-longhands",
+        "title": "Tiling Images: the background-repeat-x, background-repeat-y, background-repeat-block, and background-repeat-inline properties",
+        "number": "2.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "typedef-repetition",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#typedef-repetition",
+      "linkingText": [
+        "<repetition>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "background-repeat-longhands",
+        "href": "https://drafts.csswg.org/css-backgrounds-4/#background-repeat-longhands",
+        "title": "Tiling Images: the background-repeat-x, background-repeat-y, background-repeat-block, and background-repeat-inline properties",
+        "number": "2.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "valdef-background-repeat-x-repeat",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#valdef-background-repeat-x-repeat",
+      "linkingText": [
+        "repeat"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "background-repeat-x",
+        "background-repeat-y",
+        "background-repeat-block",
+        "background-repeat-inline"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "background-repeat-longhands",
+        "href": "https://drafts.csswg.org/css-backgrounds-4/#background-repeat-longhands",
+        "title": "Tiling Images: the background-repeat-x, background-repeat-y, background-repeat-block, and background-repeat-inline properties",
+        "number": "2.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-background-repeat-x-space",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#valdef-background-repeat-x-space",
+      "linkingText": [
+        "space"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "background-repeat-x",
+        "background-repeat-y",
+        "background-repeat-block",
+        "background-repeat-inline"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "background-repeat-longhands",
+        "href": "https://drafts.csswg.org/css-backgrounds-4/#background-repeat-longhands",
+        "title": "Tiling Images: the background-repeat-x, background-repeat-y, background-repeat-block, and background-repeat-inline properties",
+        "number": "2.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-background-repeat-x-round",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#valdef-background-repeat-x-round",
+      "linkingText": [
+        "round"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "background-repeat-x",
+        "background-repeat-y",
+        "background-repeat-block",
+        "background-repeat-inline"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "background-repeat-longhands",
+        "href": "https://drafts.csswg.org/css-backgrounds-4/#background-repeat-longhands",
+        "title": "Tiling Images: the background-repeat-x, background-repeat-y, background-repeat-block, and background-repeat-inline properties",
+        "number": "2.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-background-repeat-x-no-repeat",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#valdef-background-repeat-x-no-repeat",
+      "linkingText": [
+        "no-repeat"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "background-repeat-x",
+        "background-repeat-y",
+        "background-repeat-block",
+        "background-repeat-inline"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "background-repeat-longhands",
+        "href": "https://drafts.csswg.org/css-backgrounds-4/#background-repeat-longhands",
+        "title": "Tiling Images: the background-repeat-x, background-repeat-y, background-repeat-block, and background-repeat-inline properties",
+        "number": "2.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "propdef-background-repeat",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#propdef-background-repeat",
+      "linkingText": [
+        "background-repeat"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "background-repeat",
+        "href": "https://drafts.csswg.org/css-backgrounds-4/#background-repeat",
+        "title": "Tiling Images Shorthand: the background-repeat property",
+        "number": "2.2"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "typedef-repeat-style",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#typedef-repeat-style",
+      "linkingText": [
+        "<repeat-style>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "background-repeat",
+        "href": "https://drafts.csswg.org/css-backgrounds-4/#background-repeat",
+        "title": "Tiling Images Shorthand: the background-repeat property",
+        "number": "2.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "valdef-background-repeat-repeat-x",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#valdef-background-repeat-repeat-x",
+      "linkingText": [
+        "repeat-x"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "background-repeat"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "background-repeat",
+        "href": "https://drafts.csswg.org/css-backgrounds-4/#background-repeat",
+        "title": "Tiling Images Shorthand: the background-repeat property",
+        "number": "2.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-background-repeat-repeat-y",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#valdef-background-repeat-repeat-y",
+      "linkingText": [
+        "repeat-y"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "background-repeat"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "background-repeat",
+        "href": "https://drafts.csswg.org/css-backgrounds-4/#background-repeat",
+        "title": "Tiling Images Shorthand: the background-repeat property",
+        "number": "2.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "propdef-background-position",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#propdef-background-position",
+      "linkingText": [
+        "background-position"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-background-position",
+        "href": "https://drafts.csswg.org/css-backgrounds-4/#the-background-position",
+        "title": "Background Positioning: the background-position shorthand property",
+        "number": "2.3"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "typedef-bg-position",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#typedef-bg-position",
+      "linkingText": [
+        "<bg-position>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-background-position",
+        "href": "https://drafts.csswg.org/css-backgrounds-4/#the-background-position",
+        "title": "Background Positioning: the background-position shorthand property",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "typedef-position-three",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#typedef-position-three",
+      "linkingText": [
+        "<position-three>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-background-position",
+        "href": "https://drafts.csswg.org/css-backgrounds-4/#the-background-position",
+        "title": "Background Positioning: the background-position shorthand property",
+        "number": "2.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "propdef-background-position-x",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#propdef-background-position-x",
+      "linkingText": [
+        "background-position-x"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "background-position-longhands",
+        "href": "https://drafts.csswg.org/css-backgrounds-4/#background-position-longhands",
+        "title": "Background Positioning Longhands: the background-position-x, background-position-y, background-position-inline, and background-position-block properties",
+        "number": "2.3.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "propdef-background-position-y",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#propdef-background-position-y",
+      "linkingText": [
+        "background-position-y"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "background-position-longhands",
+        "href": "https://drafts.csswg.org/css-backgrounds-4/#background-position-longhands",
+        "title": "Background Positioning Longhands: the background-position-x, background-position-y, background-position-inline, and background-position-block properties",
+        "number": "2.3.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "propdef-background-position-inline",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#propdef-background-position-inline",
+      "linkingText": [
+        "background-position-inline"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "background-position-longhands",
+        "href": "https://drafts.csswg.org/css-backgrounds-4/#background-position-longhands",
+        "title": "Background Positioning Longhands: the background-position-x, background-position-y, background-position-inline, and background-position-block properties",
+        "number": "2.3.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "propdef-background-position-block",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#propdef-background-position-block",
+      "linkingText": [
+        "background-position-block"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "background-position-longhands",
+        "href": "https://drafts.csswg.org/css-backgrounds-4/#background-position-longhands",
+        "title": "Background Positioning Longhands: the background-position-x, background-position-y, background-position-inline, and background-position-block properties",
+        "number": "2.3.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "propdef-background-clip",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#propdef-background-clip",
+      "linkingText": [
+        "background-clip"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "background-clip",
+        "href": "https://drafts.csswg.org/css-backgrounds-4/#background-clip",
+        "title": "Painting Area: the background-clip property",
+        "number": "2.4"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "background-painting-area",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#background-painting-area",
+      "linkingText": [
+        "background painting area"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "background-clip",
+        "href": "https://drafts.csswg.org/css-backgrounds-4/#background-clip",
+        "title": "Painting Area: the background-clip property",
+        "number": "2.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "typedef-bg-clip",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#typedef-bg-clip",
+      "linkingText": [
+        "<bg-clip>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "background-clip",
+        "href": "https://drafts.csswg.org/css-backgrounds-4/#background-clip",
+        "title": "Painting Area: the background-clip property",
+        "number": "2.4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "valdef-background-clip-text",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#valdef-background-clip-text",
+      "linkingText": [
+        "text"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "background-clip",
+        "<bg-clip>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "background-clip",
+        "href": "https://drafts.csswg.org/css-backgrounds-4/#background-clip",
+        "title": "Painting Area: the background-clip property",
+        "number": "2.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-background-clip-border-area",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#valdef-background-clip-border-area",
+      "linkingText": [
+        "border-area"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "background-clip",
+        "<bg-clip>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "background-clip",
+        "href": "https://drafts.csswg.org/css-backgrounds-4/#background-clip",
+        "title": "Painting Area: the background-clip property",
+        "number": "2.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "propdef-background-tbd",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#propdef-background-tbd",
+      "linkingText": [
+        "background-tbd"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "background-layers",
+        "href": "https://drafts.csswg.org/css-backgrounds-4/#background-layers",
+        "title": "Background Image Layers: the background-tbd shorthand property",
+        "number": "2.5"
+      },
+      "definedIn": "table",
+      "links": []
+    }
+  ]
+}

@@ -1,0 +1,156 @@
+{
+  "spec": {
+    "title": "Selectors Level 4",
+    "url": "https://drafts.csswg.org/selectors-4/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "BCP47",
+        "url": "https://www.rfc-editor.org/rfc/rfc5646"
+      },
+      {
+        "name": "CSS-DISPLAY-4",
+        "url": "https://drafts.csswg.org/css-display/"
+      },
+      {
+        "name": "CSS-MULTICOL-2",
+        "url": "https://drafts.csswg.org/css-multicol-2/"
+      },
+      {
+        "name": "CSS-POSITION-4",
+        "url": "https://drafts.csswg.org/css-position-4/"
+      },
+      {
+        "name": "CSS-PSEUDO-4",
+        "url": "https://drafts.csswg.org/css-pseudo-4/"
+      },
+      {
+        "name": "CSS-SCOPING-1",
+        "url": "https://drafts.csswg.org/css-scoping/"
+      },
+      {
+        "name": "CSS-TEXT-4",
+        "url": "https://drafts.csswg.org/css-text-4/"
+      },
+      {
+        "name": "CSS-VALUES-4",
+        "url": "https://drafts.csswg.org/css-values-4/"
+      },
+      {
+        "name": "CSS-WRITING-MODES-3",
+        "url": "https://drafts.csswg.org/css-writing-modes-3/"
+      },
+      {
+        "name": "CSS21",
+        "url": "https://drafts.csswg.org/css2/"
+      },
+      {
+        "name": "CSS3NAMESPACE",
+        "url": "https://drafts.csswg.org/css-namespaces/"
+      },
+      {
+        "name": "CSS3SYN",
+        "url": "https://drafts.csswg.org/css-syntax/"
+      },
+      {
+        "name": "DOM",
+        "url": "https://dom.spec.whatwg.org/"
+      },
+      {
+        "name": "HTML",
+        "url": "https://html.spec.whatwg.org/multipage/"
+      },
+      {
+        "name": "INFRA",
+        "url": "https://infra.spec.whatwg.org/"
+      },
+      {
+        "name": "RFC2119",
+        "url": "https://datatracker.ietf.org/doc/html/rfc2119"
+      },
+      {
+        "name": "RFC4647",
+        "url": "https://www.rfc-editor.org/rfc/rfc4647"
+      },
+      {
+        "name": "SELECT",
+        "url": "https://drafts.csswg.org/selectors-3/"
+      },
+      {
+        "name": "SELECTORS-4",
+        "url": "https://drafts.csswg.org/selectors/"
+      },
+      {
+        "name": "URL",
+        "url": "https://url.spec.whatwg.org/"
+      }
+    ],
+    "informative": [
+      {
+        "name": "CSS-COLOR-5",
+        "url": "https://drafts.csswg.org/css-color-5/"
+      },
+      {
+        "name": "CSS-DISPLAY-3",
+        "url": "https://drafts.csswg.org/css-display/"
+      },
+      {
+        "name": "CSS3UI",
+        "url": "https://drafts.csswg.org/css-ui-3/"
+      },
+      {
+        "name": "CSSOM-1",
+        "url": "https://drafts.csswg.org/cssom/"
+      },
+      {
+        "name": "CSSSTYLEATTR",
+        "url": "https://drafts.csswg.org/css-style-attr/"
+      },
+      {
+        "name": "FULLSCREEN",
+        "url": "https://fullscreen.spec.whatwg.org/"
+      },
+      {
+        "name": "HTML5",
+        "url": "https://www.w3.org/TR/html5/"
+      },
+      {
+        "name": "ITS20",
+        "url": "https://www.w3.org/TR/its20/"
+      },
+      {
+        "name": "MATHML",
+        "url": "https://www.w3.org/TR/REC-MathML/"
+      },
+      {
+        "name": "MATHML-CORE",
+        "url": "https://w3c.github.io/mathml-core/"
+      },
+      {
+        "name": "PICTURE-IN-PICTURE",
+        "url": "https://w3c.github.io/picture-in-picture/"
+      },
+      {
+        "name": "QUIRKS",
+        "url": "https://quirks.spec.whatwg.org/"
+      },
+      {
+        "name": "SVG11",
+        "url": "https://www.w3.org/TR/SVG11/"
+      },
+      {
+        "name": "XFORMS11",
+        "url": "https://www.w3.org/TR/xforms11/"
+      },
+      {
+        "name": "XML-NAMES",
+        "url": "https://www.w3.org/TR/xml-names/"
+      },
+      {
+        "name": "XML10",
+        "url": "https://www.w3.org/TR/xml/"
+      }
+    ]
+  }
+}

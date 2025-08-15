@@ -1,0 +1,213 @@
+{
+  "spec": {
+    "title": "Region Capture",
+    "url": "https://w3c.github.io/mediacapture-region/"
+  },
+  "headings": [
+    {
+      "id": "title",
+      "href": "https://w3c.github.io/mediacapture-region/#title",
+      "level": 1,
+      "title": "Region Capture"
+    },
+    {
+      "id": "toc",
+      "href": "https://w3c.github.io/mediacapture-region/#toc",
+      "level": 2,
+      "title": "Table of Contents",
+      "alternateIds": [
+        "table-of-contents"
+      ]
+    },
+    {
+      "id": "conformance",
+      "href": "https://w3c.github.io/mediacapture-region/#conformance",
+      "level": 2,
+      "title": "Conformance",
+      "alternateIds": [
+        "x1-conformance"
+      ],
+      "number": "1"
+    },
+    {
+      "id": "definitions",
+      "href": "https://w3c.github.io/mediacapture-region/#definitions",
+      "level": 2,
+      "title": "Definitions",
+      "alternateIds": [
+        "x2-definitions"
+      ],
+      "number": "2"
+    },
+    {
+      "id": "use-cases",
+      "href": "https://w3c.github.io/mediacapture-region/#use-cases",
+      "level": 2,
+      "title": "Use Cases",
+      "alternateIds": [
+        "x3-use-cases"
+      ],
+      "number": "3"
+    },
+    {
+      "id": "generic-use-case",
+      "href": "https://w3c.github.io/mediacapture-region/#generic-use-case",
+      "level": 3,
+      "title": "Generic Use-Case",
+      "alternateIds": [
+        "x3-1-generic-use-case"
+      ],
+      "number": "3.1"
+    },
+    {
+      "id": "practical-use-case",
+      "href": "https://w3c.github.io/mediacapture-region/#practical-use-case",
+      "level": 3,
+      "title": "Practical Use-Case",
+      "alternateIds": [
+        "x3-2-practical-use-case"
+      ],
+      "number": "3.2"
+    },
+    {
+      "id": "solution-overview",
+      "href": "https://w3c.github.io/mediacapture-region/#solution-overview",
+      "level": 2,
+      "title": "Solution Overview",
+      "alternateIds": [
+        "x4-solution-overview"
+      ],
+      "number": "4"
+    },
+    {
+      "id": "produce-crop-target",
+      "href": "https://w3c.github.io/mediacapture-region/#produce-crop-target",
+      "level": 2,
+      "title": "CropTarget Production",
+      "alternateIds": [
+        "x5-croptarget-production"
+      ],
+      "number": "5"
+    },
+    {
+      "id": "crop-target-motivation",
+      "href": "https://w3c.github.io/mediacapture-region/#crop-target-motivation",
+      "level": 3,
+      "title": "CropTarget Motivation",
+      "alternateIds": [
+        "x5-1-croptarget-motivation"
+      ],
+      "number": "5.1"
+    },
+    {
+      "id": "crop-target",
+      "href": "https://w3c.github.io/mediacapture-region/#crop-target",
+      "level": 3,
+      "title": "CropTarget Definition",
+      "alternateIds": [
+        "x5-2-croptarget-definition"
+      ],
+      "number": "5.2"
+    },
+    {
+      "id": "cropping-a-track",
+      "href": "https://w3c.github.io/mediacapture-region/#cropping-a-track",
+      "level": 2,
+      "title": "Cropping Mechanism",
+      "alternateIds": [
+        "x6-cropping-mechanism"
+      ],
+      "number": "6"
+    },
+    {
+      "id": "browser-capture-media-stream-track",
+      "href": "https://w3c.github.io/mediacapture-region/#browser-capture-media-stream-track",
+      "level": 3,
+      "title": "BrowserCaptureMediaStreamTrack",
+      "alternateIds": [
+        "x6-1-browsercapturemediastreamtrack"
+      ],
+      "number": "6.1"
+    },
+    {
+      "id": "crop-session-lifetime",
+      "href": "https://w3c.github.io/mediacapture-region/#crop-session-lifetime",
+      "level": 3,
+      "title": "Crop-Session Lifetime",
+      "alternateIds": [
+        "x6-2-crop-session-lifetime"
+      ],
+      "number": "6.2"
+    },
+    {
+      "id": "crop-session-definitions",
+      "href": "https://w3c.github.io/mediacapture-region/#crop-session-definitions",
+      "level": 4,
+      "title": "Crop-Session Definitions",
+      "alternateIds": [
+        "x6-2-1-crop-session-definitions"
+      ],
+      "number": "6.2.1"
+    },
+    {
+      "id": "crop-session-edge-cases",
+      "href": "https://w3c.github.io/mediacapture-region/#crop-session-edge-cases",
+      "level": 4,
+      "title": "Crop-Session Edge Cases",
+      "alternateIds": [
+        "x6-2-2-crop-session-edge-cases"
+      ],
+      "number": "6.2.2"
+    },
+    {
+      "id": "empty-crop-target",
+      "href": "https://w3c.github.io/mediacapture-region/#empty-crop-target",
+      "level": 5,
+      "title": "Empty Crop-Target",
+      "alternateIds": [
+        "x6-2-2-1-empty-crop-target"
+      ],
+      "number": "6.2.2.1"
+    },
+    {
+      "id": "disconnected-crop-target",
+      "href": "https://w3c.github.io/mediacapture-region/#disconnected-crop-target",
+      "level": 5,
+      "title": "Disconnected Crop-Session Target",
+      "alternateIds": [
+        "x6-2-2-2-disconnected-crop-session-target"
+      ],
+      "number": "6.2.2.2"
+    },
+    {
+      "id": "sample-code",
+      "href": "https://w3c.github.io/mediacapture-region/#sample-code",
+      "level": 2,
+      "title": "Sample Code",
+      "alternateIds": [
+        "x7-sample-code"
+      ],
+      "number": "7"
+    },
+    {
+      "id": "references",
+      "href": "https://w3c.github.io/mediacapture-region/#references",
+      "level": 2,
+      "title": "References",
+      "alternateIds": [
+        "a-references"
+      ],
+      "number": "A"
+    },
+    {
+      "id": "normative-references",
+      "href": "https://w3c.github.io/mediacapture-region/#normative-references",
+      "level": 3,
+      "title": "Normative references",
+      "alternateIds": [
+        "a-1-normative-references"
+      ],
+      "number": "A.1"
+    }
+  ]
+}

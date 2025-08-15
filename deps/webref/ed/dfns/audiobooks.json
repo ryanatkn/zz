@@ -1,0 +1,166 @@
+{
+  "spec": {
+    "title": "Audiobooks",
+    "url": "https://w3c.github.io/audiobooks/"
+  },
+  "dfns": [
+    {
+      "id": "dfn-publication-manifest",
+      "href": "https://w3c.github.io/audiobooks/#dfn-publication-manifest",
+      "linkingText": [
+        "Publication Manifest"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "abstract",
+        "href": "https://w3c.github.io/audiobooks/#abstract",
+        "title": "Abstract"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-file-name",
+      "href": "https://w3c.github.io/audiobooks/#dfn-file-name",
+      "linkingText": [
+        "File Names",
+        "Supplemental Content"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "audio-terminology",
+        "href": "https://w3c.github.io/audiobooks/#audio-terminology",
+        "title": "Terminology",
+        "alternateIds": [
+          "x2-terminology"
+        ],
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-primary-entry-page",
+      "href": "https://w3c.github.io/audiobooks/#dfn-primary-entry-page",
+      "linkingText": [
+        "primary entry page"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "audio-pep",
+        "href": "https://w3c.github.io/audiobooks/#audio-pep",
+        "title": "Primary Entry Page",
+        "alternateIds": [
+          "x4-1-primary-entry-page"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-publication-type",
+      "href": "https://w3c.github.io/audiobooks/#dfn-publication-type",
+      "linkingText": [
+        "Publication Type"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "audio-type",
+        "href": "https://w3c.github.io/audiobooks/#audio-type",
+        "title": "Publication Type",
+        "alternateIds": [
+          "x5-5-publication-type"
+        ],
+        "number": "5.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-creator",
+      "href": "https://w3c.github.io/audiobooks/#dfn-creator",
+      "linkingText": [
+        "creator"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "audio-creators",
+        "href": "https://w3c.github.io/audiobooks/#audio-creators",
+        "title": "Creators",
+        "alternateIds": [
+          "x5-6-1-creators"
+        ],
+        "number": "5.6.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-duration",
+      "href": "https://w3c.github.io/audiobooks/#dfn-duration",
+      "linkingText": [
+        "duration"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "audio-duration",
+        "href": "https://w3c.github.io/audiobooks/#audio-duration",
+        "title": "Duration",
+        "alternateIds": [
+          "x5-6-2-duration"
+        ],
+        "number": "5.6.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-resource-list",
+      "href": "https://w3c.github.io/audiobooks/#dfn-resource-list",
+      "linkingText": [
+        "resource list"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "audio-resourcelist",
+        "href": "https://w3c.github.io/audiobooks/#audio-resourcelist",
+        "title": "Resource List",
+        "alternateIds": [
+          "x5-8-resource-list"
+        ],
+        "number": "5.8"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

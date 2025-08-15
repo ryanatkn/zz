@@ -1,0 +1,1131 @@
+{
+  "spec": {
+    "title": "CSS Animation Worklet API",
+    "url": "https://www.w3.org/TR/css-animation-worklet-1/"
+  },
+  "dfns": [
+    {
+      "id": "animation-worklet",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#animation-worklet",
+      "linkingText": [
+        "Animation Worklet"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "animation-worklet-desc",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#animation-worklet-desc",
+        "title": "Animation Worklet",
+        "number": "2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-css-animationworklet",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#dom-css-animationworklet",
+      "linkingText": [
+        "animationWorklet"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSS"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "animation-worklet-desc",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#animation-worklet-desc",
+        "title": "Animation Worklet",
+        "number": "2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "animator",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#animator",
+      "linkingText": [
+        "Animator"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "animator-desc",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#animator-desc",
+        "title": "Animator",
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-statelessanimator-statelessanimator",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#dom-statelessanimator-statelessanimator",
+      "linkingText": [
+        "StatelessAnimator(options)",
+        "StatelessAnimator()"
+      ],
+      "localLinkingText": [],
+      "type": "constructor",
+      "for": [
+        "StatelessAnimator"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "stateless-animator-desc",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#stateless-animator-desc",
+        "title": "StatelessAnimator Interface",
+        "number": "3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-statelessanimator-statelessanimator-options-options",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#dom-statelessanimator-statelessanimator-options-options",
+      "linkingText": [
+        "options"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "StatelessAnimator/StatelessAnimator(options)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "stateless-animator-desc",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#stateless-animator-desc",
+        "title": "StatelessAnimator Interface",
+        "number": "3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "statelessanimator",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#statelessanimator",
+      "linkingText": [
+        "StatelessAnimator"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "stateless-animator-desc",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#stateless-animator-desc",
+        "title": "StatelessAnimator Interface",
+        "number": "3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-statefulanimator-statefulanimator",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#dom-statefulanimator-statefulanimator",
+      "linkingText": [
+        "StatefulAnimator(options, state)",
+        "StatefulAnimator(options)",
+        "StatefulAnimator()"
+      ],
+      "localLinkingText": [],
+      "type": "constructor",
+      "for": [
+        "StatefulAnimator"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "stateful-animator-desc",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#stateful-animator-desc",
+        "title": "StatefulAnimator Interface",
+        "number": "3.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-statefulanimator-statefulanimator-options-state-options",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#dom-statefulanimator-statefulanimator-options-state-options",
+      "linkingText": [
+        "options"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "StatefulAnimator/StatefulAnimator(options, state)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "stateful-animator-desc",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#stateful-animator-desc",
+        "title": "StatefulAnimator Interface",
+        "number": "3.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-statefulanimator-statefulanimator-options-state-state",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#dom-statefulanimator-statefulanimator-options-state-state",
+      "linkingText": [
+        "state"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "StatefulAnimator/StatefulAnimator(options, state)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "stateful-animator-desc",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#stateful-animator-desc",
+        "title": "StatefulAnimator Interface",
+        "number": "3.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "statefulanimator",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#statefulanimator",
+      "linkingText": [
+        "StatefulAnimator"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "stateful-animator-desc",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#stateful-animator-desc",
+        "title": "StatefulAnimator Interface",
+        "number": "3.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-statefulanimator-state",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#dom-statefulanimator-state",
+      "linkingText": [
+        "state()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "StatefulAnimator"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "stateful-animator-desc",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#stateful-animator-desc",
+        "title": "StatefulAnimator Interface",
+        "number": "3.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "animator-definition",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#animator-definition",
+      "linkingText": [
+        "animator definition"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "animator-definition-desc",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#animator-definition-desc",
+        "title": "Animator Definition",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "animator-name",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#animator-name",
+      "linkingText": [
+        "animator name"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "animator-definition-desc",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#animator-definition-desc",
+        "title": "Animator Definition",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "class-constructor",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#class-constructor",
+      "linkingText": [
+        "class constructor"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "animator-definition-desc",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#animator-definition-desc",
+        "title": "Animator Definition",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "animate-function",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#animate-function",
+      "linkingText": [
+        "animate function"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "animator-definition-desc",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#animator-definition-desc",
+        "title": "Animator Definition",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "stateful-flag",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#stateful-flag",
+      "linkingText": [
+        "stateful flag"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "animator-definition-desc",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#animator-definition-desc",
+        "title": "Animator Definition",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "animator-name-to-animator-definition-map",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#animator-name-to-animator-definition-map",
+      "linkingText": [
+        "animator name to animator definition map"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "registering-animator-definition",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#registering-animator-definition",
+        "title": "Registering an Animator Definition",
+        "number": "3.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "animationworkletglobalscope",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#animationworkletglobalscope",
+      "linkingText": [
+        "AnimationWorkletGlobalScope"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "registering-animator-definition",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#registering-animator-definition",
+        "title": "Registering an Animator Definition",
+        "number": "3.4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-animationworkletglobalscope-registeranimator-name-animatorctor-name",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#dom-animationworkletglobalscope-registeranimator-name-animatorctor-name",
+      "linkingText": [
+        "name"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "AnimationWorkletGlobalScope/registerAnimator(name, animatorCtor)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "registering-animator-definition",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#registering-animator-definition",
+        "title": "Registering an Animator Definition",
+        "number": "3.4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-animationworkletglobalscope-registeranimator-name-animatorctor-animatorctor",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#dom-animationworkletglobalscope-registeranimator-name-animatorctor-animatorctor",
+      "linkingText": [
+        "animatorCtor"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "AnimationWorkletGlobalScope/registerAnimator(name, animatorCtor)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "registering-animator-definition",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#registering-animator-definition",
+        "title": "Registering an Animator Definition",
+        "number": "3.4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "callbackdef-animatorinstanceconstructor",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#callbackdef-animatorinstanceconstructor",
+      "linkingText": [
+        "AnimatorInstanceConstructor"
+      ],
+      "localLinkingText": [],
+      "type": "callback",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "registering-animator-definition",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#registering-animator-definition",
+        "title": "Registering an Animator Definition",
+        "number": "3.4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-animatorinstanceconstructor-options",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#dom-animatorinstanceconstructor-options",
+      "linkingText": [
+        "options"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "AnimatorInstanceConstructor"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "registering-animator-definition",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#registering-animator-definition",
+        "title": "Registering an Animator Definition",
+        "number": "3.4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-animatorinstanceconstructor-state",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#dom-animatorinstanceconstructor-state",
+      "linkingText": [
+        "state"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "AnimatorInstanceConstructor"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "registering-animator-definition",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#registering-animator-definition",
+        "title": "Registering an Animator Definition",
+        "number": "3.4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-animationworkletglobalscope-registeranimator",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#dom-animationworkletglobalscope-registeranimator",
+      "linkingText": [
+        "registerAnimator(name, animatorCtor)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "AnimationWorkletGlobalScope"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "registering-animator-definition",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#registering-animator-definition",
+        "title": "Registering an Animator Definition",
+        "number": "3.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "animator-instance",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#animator-instance",
+      "linkingText": [
+        "animator instance"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "animator-instance-section",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#animator-instance-section",
+        "title": "Animator Instance",
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "animator-effect",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#animator-effect",
+      "linkingText": [
+        "animator effect"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "animator-instance-section",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#animator-instance-section",
+        "title": "Animator Instance",
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "animator-current-time",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#animator-current-time",
+      "linkingText": [
+        "animator current time"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "animator-instance-section",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#animator-instance-section",
+        "title": "Animator Instance",
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "animator-timeline",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#animator-timeline",
+      "linkingText": [
+        "animator timeline"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "animator-instance-section",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#animator-instance-section",
+        "title": "Animator Instance",
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "animator-serialized-options",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#animator-serialized-options",
+      "linkingText": [
+        "animator serialized options"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "animator-instance-section",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#animator-instance-section",
+        "title": "Animator Instance",
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "stateful-animator-instance",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#stateful-animator-instance",
+      "linkingText": [
+        "stateful animator instance"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "animator-instance-section",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#animator-instance-section",
+        "title": "Animator Instance",
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "animator-instance-set",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#animator-instance-set",
+      "linkingText": [
+        "animator instance set"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "creating-animator-instance",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#creating-animator-instance",
+        "title": "Creating an Animator Instance",
+        "number": "4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "create-a-new-animator-instance",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#create-a-new-animator-instance",
+      "linkingText": [
+        "create a new animator instance"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "creating-animator-instance",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#creating-animator-instance",
+        "title": "Creating an Animator Instance",
+        "number": "4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "run-animators",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#run-animators",
+      "linkingText": [
+        "run animators"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "running-animators",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#running-animators",
+        "title": "Running Animators",
+        "number": "4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "remove-an-animator-instance",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#remove-an-animator-instance",
+      "linkingText": [
+        "remove an animator instance"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "removing-animator",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#removing-animator",
+        "title": "Removing an Animator Instance",
+        "number": "4.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "migrate-an-animator-instance",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#migrate-an-animator-instance",
+      "linkingText": [
+        "migrate an animator instance"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "migrating-animator",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#migrating-animator",
+        "title": "Migrating an Animator Instance",
+        "number": "4.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "animation-requested-flag",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#animation-requested-flag",
+      "linkingText": [
+        "animation requested flag"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "requesting-animation-frames",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#requesting-animation-frames",
+        "title": "Requesting Animation Frames",
+        "number": "4.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "frame-requested",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#frame-requested",
+      "linkingText": [
+        "frame-requested"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "requesting-animation-frames",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#requesting-animation-frames",
+        "title": "Requesting Animation Frames",
+        "number": "4.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "frame-current",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#frame-current",
+      "linkingText": [
+        "frame-current"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "requesting-animation-frames",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#requesting-animation-frames",
+        "title": "Requesting Animation Frames",
+        "number": "4.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "worklet-animation",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#worklet-animation",
+      "linkingText": [
+        "Worklet animation"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "worklet-animation-desc",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#worklet-animation-desc",
+        "title": "Worklet Animation",
+        "number": "5.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "animation-animator-name",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#animation-animator-name",
+      "linkingText": [
+        "animation animator name"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "worklet-animation-desc",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#worklet-animation-desc",
+        "title": "Worklet Animation",
+        "number": "5.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "serialized-options",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#serialized-options",
+      "linkingText": [
+        "serialized options"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "worklet-animation-desc",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#worklet-animation-desc",
+        "title": "Worklet Animation",
+        "number": "5.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-workletanimation-workletanimation-animatorname-effects-timeline-options-animatorname",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#dom-workletanimation-workletanimation-animatorname-effects-timeline-options-animatorname",
+      "linkingText": [
+        "animatorName"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "WorkletAnimation/WorkletAnimation(animatorName, effects, timeline, options)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "creating-worklet-animation",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#creating-worklet-animation",
+        "title": "Creating a Worklet Animation",
+        "number": "5.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-workletanimation-workletanimation-animatorname-effects-timeline-options-effects",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#dom-workletanimation-workletanimation-animatorname-effects-timeline-options-effects",
+      "linkingText": [
+        "effects"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "WorkletAnimation/WorkletAnimation(animatorName, effects, timeline, options)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "creating-worklet-animation",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#creating-worklet-animation",
+        "title": "Creating a Worklet Animation",
+        "number": "5.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-workletanimation-workletanimation-animatorname-effects-timeline-options-timeline",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#dom-workletanimation-workletanimation-animatorname-effects-timeline-options-timeline",
+      "linkingText": [
+        "timeline"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "WorkletAnimation/WorkletAnimation(animatorName, effects, timeline, options)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "creating-worklet-animation",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#creating-worklet-animation",
+        "title": "Creating a Worklet Animation",
+        "number": "5.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-workletanimation-workletanimation-animatorname-effects-timeline-options-options",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#dom-workletanimation-workletanimation-animatorname-effects-timeline-options-options",
+      "linkingText": [
+        "options"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "WorkletAnimation/WorkletAnimation(animatorName, effects, timeline, options)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "creating-worklet-animation",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#creating-worklet-animation",
+        "title": "Creating a Worklet Animation",
+        "number": "5.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "workletanimation",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#workletanimation",
+      "linkingText": [
+        "WorkletAnimation"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "creating-worklet-animation",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#creating-worklet-animation",
+        "title": "Creating a Worklet Animation",
+        "number": "5.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-workletanimation-animatorname",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#dom-workletanimation-animatorname",
+      "linkingText": [
+        "animatorName"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "WorkletAnimation"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "creating-worklet-animation",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#creating-worklet-animation",
+        "title": "Creating a Worklet Animation",
+        "number": "5.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-workletanimation-workletanimation",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#dom-workletanimation-workletanimation",
+      "linkingText": [
+        "WorkletAnimation(animatorName, effects, timeline, options)"
+      ],
+      "localLinkingText": [],
+      "type": "constructor",
+      "for": [
+        "WorkletAnimation"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "creating-worklet-animation",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#creating-worklet-animation",
+        "title": "Creating a Worklet Animation",
+        "number": "5.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "associate-animator-instance-of-worklet-animation",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#associate-animator-instance-of-worklet-animation",
+      "linkingText": [
+        "associate animator instance of worklet animation"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "worklet-animation-animator-instances",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#worklet-animation-animator-instances",
+        "title": "Interaction with Animator Instances",
+        "number": "5.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "disassociate-animator-instance-of-worklet-animation",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#disassociate-animator-instance-of-worklet-animation",
+      "linkingText": [
+        "disassociate animator instance of worklet animation"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "worklet-animation-animator-instances",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#worklet-animation-animator-instances",
+        "title": "Interaction with Animator Instances",
+        "number": "5.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "set-animator-instance-of-worklet-animation",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#set-animator-instance-of-worklet-animation",
+      "linkingText": [
+        "set animator instance of worklet animation"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "worklet-animation-animator-instances",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#worklet-animation-animator-instances",
+        "title": "Interaction with Animator Instances",
+        "number": "5.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "workletgroupeffect",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#workletgroupeffect",
+      "linkingText": [
+        "WorkletGroupEffect"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "worklet-group-effect",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#worklet-group-effect",
+        "title": "WorkletGroupEffect",
+        "number": "5.6"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-workletgroupeffect-getchildren",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#dom-workletgroupeffect-getchildren",
+      "linkingText": [
+        "getChildren()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "WorkletGroupEffect"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "worklet-group-effect",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#worklet-group-effect",
+        "title": "WorkletGroupEffect",
+        "number": "5.6"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-animationeffect-localtime",
+      "href": "https://www.w3.org/TR/css-animation-worklet-1/#dom-animationeffect-localtime",
+      "linkingText": [
+        "localTime"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "AnimationEffect"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "worklet-group-effect",
+        "href": "https://www.w3.org/TR/css-animation-worklet-1/#worklet-group-effect",
+        "title": "WorkletGroupEffect",
+        "number": "5.6"
+      },
+      "definedIn": "pre",
+      "links": []
+    }
+  ]
+}

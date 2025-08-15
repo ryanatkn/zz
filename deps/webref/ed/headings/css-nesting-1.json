@@ -1,0 +1,224 @@
+{
+  "spec": {
+    "title": "CSS Nesting Module",
+    "url": "https://drafts.csswg.org/css-nesting-1/"
+  },
+  "headings": [
+    {
+      "id": "title",
+      "href": "https://drafts.csswg.org/css-nesting-1/#title",
+      "level": 1,
+      "title": "CSS Nesting Module"
+    },
+    {
+      "id": "abstract",
+      "href": "https://drafts.csswg.org/css-nesting-1/#abstract",
+      "level": 2,
+      "title": "Abstract"
+    },
+    {
+      "id": "sotd",
+      "href": "https://drafts.csswg.org/css-nesting-1/#sotd",
+      "level": 2,
+      "title": "Status of this document"
+    },
+    {
+      "id": "toc",
+      "href": "https://drafts.csswg.org/css-nesting-1/#toc",
+      "level": 2,
+      "title": "Table of Contents",
+      "alternateIds": [
+        "contents"
+      ]
+    },
+    {
+      "id": "intro",
+      "href": "https://drafts.csswg.org/css-nesting-1/#intro",
+      "level": 2,
+      "title": "Introduction",
+      "number": "1"
+    },
+    {
+      "id": "placement",
+      "href": "https://drafts.csswg.org/css-nesting-1/#placement",
+      "level": 3,
+      "title": "Module Interactions",
+      "number": "1.1"
+    },
+    {
+      "id": "values",
+      "href": "https://drafts.csswg.org/css-nesting-1/#values",
+      "level": 3,
+      "title": "Values",
+      "number": "1.2"
+    },
+    {
+      "id": "explainer",
+      "href": "https://drafts.csswg.org/css-nesting-1/#explainer",
+      "level": 2,
+      "title": "Explainer",
+      "number": "2"
+    },
+    {
+      "id": "nesting",
+      "href": "https://drafts.csswg.org/css-nesting-1/#nesting",
+      "level": 2,
+      "title": "Nesting Style Rules",
+      "number": "3"
+    },
+    {
+      "id": "syntax",
+      "href": "https://drafts.csswg.org/css-nesting-1/#syntax",
+      "level": 3,
+      "title": "Syntax",
+      "number": "3.1"
+    },
+    {
+      "id": "syntax-examples",
+      "href": "https://drafts.csswg.org/css-nesting-1/#syntax-examples",
+      "level": 3,
+      "title": "Examples",
+      "number": "3.2"
+    },
+    {
+      "id": "conditionals",
+      "href": "https://drafts.csswg.org/css-nesting-1/#conditionals",
+      "level": 3,
+      "title": "Nesting Other At-Rules",
+      "number": "3.3"
+    },
+    {
+      "id": "nesting-at-scope",
+      "href": "https://drafts.csswg.org/css-nesting-1/#nesting-at-scope",
+      "level": 4,
+      "title": "Nested @scope Rules",
+      "number": "3.3.1"
+    },
+    {
+      "id": "mixing",
+      "href": "https://drafts.csswg.org/css-nesting-1/#mixing",
+      "level": 3,
+      "title": "Mixing Nesting Rules and Declarations",
+      "number": "3.4"
+    },
+    {
+      "id": "nest-selector",
+      "href": "https://drafts.csswg.org/css-nesting-1/#nest-selector",
+      "level": 2,
+      "title": "Nesting Selector: the & selector",
+      "number": "4"
+    },
+    {
+      "id": "nested-declarations-rule",
+      "href": "https://drafts.csswg.org/css-nesting-1/#nested-declarations-rule",
+      "level": 2,
+      "title": "The Nested Declarations Rule",
+      "number": "5"
+    },
+    {
+      "id": "cssom",
+      "href": "https://drafts.csswg.org/css-nesting-1/#cssom",
+      "level": 2,
+      "title": "CSSOM",
+      "number": "6"
+    },
+    {
+      "id": "the-cssnestrule",
+      "href": "https://drafts.csswg.org/css-nesting-1/#the-cssnestrule",
+      "level": 3,
+      "title": "The CSSNestedDeclarations Interface",
+      "number": "6.1"
+    },
+    {
+      "id": "changes",
+      "href": "https://drafts.csswg.org/css-nesting-1/#changes",
+      "level": 2,
+      "title": "Changes",
+      "number": "7"
+    },
+    {
+      "id": "w3c-conformance",
+      "href": "https://drafts.csswg.org/css-nesting-1/#w3c-conformance",
+      "level": 2,
+      "title": "Conformance"
+    },
+    {
+      "id": "w3c-conventions",
+      "href": "https://drafts.csswg.org/css-nesting-1/#w3c-conventions",
+      "level": 3,
+      "title": "Document conventions"
+    },
+    {
+      "id": "w3c-conformance-classes",
+      "href": "https://drafts.csswg.org/css-nesting-1/#w3c-conformance-classes",
+      "level": 3,
+      "title": "Conformance classes"
+    },
+    {
+      "id": "w3c-partial",
+      "href": "https://drafts.csswg.org/css-nesting-1/#w3c-partial",
+      "level": 3,
+      "title": "Partial implementations"
+    },
+    {
+      "id": "w3c-conform-future-proofing",
+      "href": "https://drafts.csswg.org/css-nesting-1/#w3c-conform-future-proofing",
+      "level": 4,
+      "title": "Implementations of Unstable and Proprietary Features"
+    },
+    {
+      "id": "w3c-testing",
+      "href": "https://drafts.csswg.org/css-nesting-1/#w3c-testing",
+      "level": 3,
+      "title": "Non-experimental implementations"
+    },
+    {
+      "id": "index",
+      "href": "https://drafts.csswg.org/css-nesting-1/#index",
+      "level": 2,
+      "title": "Index"
+    },
+    {
+      "id": "index-defined-here",
+      "href": "https://drafts.csswg.org/css-nesting-1/#index-defined-here",
+      "level": 3,
+      "title": "Terms defined by this specification"
+    },
+    {
+      "id": "index-defined-elsewhere",
+      "href": "https://drafts.csswg.org/css-nesting-1/#index-defined-elsewhere",
+      "level": 3,
+      "title": "Terms defined by reference"
+    },
+    {
+      "id": "references",
+      "href": "https://drafts.csswg.org/css-nesting-1/#references",
+      "level": 2,
+      "title": "References"
+    },
+    {
+      "id": "normative",
+      "href": "https://drafts.csswg.org/css-nesting-1/#normative",
+      "level": 3,
+      "title": "Normative References"
+    },
+    {
+      "id": "informative",
+      "href": "https://drafts.csswg.org/css-nesting-1/#informative",
+      "level": 3,
+      "title": "Informative References"
+    },
+    {
+      "id": "idl-index",
+      "href": "https://drafts.csswg.org/css-nesting-1/#idl-index",
+      "level": 2,
+      "title": "IDL Index"
+    },
+    {
+      "id": "issues-index",
+      "href": "https://drafts.csswg.org/css-nesting-1/#issues-index",
+      "level": 2,
+      "title": "Issues Index"
+    }
+  ]
+}

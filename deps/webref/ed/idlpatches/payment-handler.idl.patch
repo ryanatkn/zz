@@ -1,0 +1,37 @@
+From e6179dbe95efd530dbeca7ccc474aafc249a340b Mon Sep 17 00:00:00 2001
+From: Francois Daoust <fd@tidoust.net>
+Date: Mon, 19 Aug 2024 10:45:38 +0200
+Subject: [PATCH] Add missing AddressInit dictionary
+
+Payment Request re-introduced most of the missing interfaces, except the
+`AddressInit` dictionary. This patch adds it pending proper resolution of the
+underlying problem, see:
+https://github.com/w3c/payment-handler/issues/412
+---
+ ed/idl/payment-handler.idl | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/ed/idl/payment-handler.idl b/ed/idl/payment-handler.idl
+index 1f6eaae2b..8aa55e9e9 100644
+--- a/ed/idl/payment-handler.idl
++++ b/ed/idl/payment-handler.idl
+@@ -81,3 +81,16 @@ DOMString? payerPhone;
+ AddressInit shippingAddress;
+ DOMString? shippingOption;
+ };
++
++dictionary AddressInit {
++  DOMString country = "";
++  sequence<DOMString> addressLine = [];
++  DOMString region = "";
++  DOMString city = "";
++  DOMString dependentLocality = "";
++  DOMString postalCode = "";
++  DOMString sortingCode = "";
++  DOMString organization = "";
++  DOMString recipient = "";
++  DOMString phone = "";
++};
+-- 
+2.37.1.windows.1
+

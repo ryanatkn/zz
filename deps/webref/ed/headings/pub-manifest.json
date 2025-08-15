@@ -1,0 +1,1033 @@
+{
+  "spec": {
+    "title": "Publication Manifest",
+    "url": "https://w3c.github.io/pub-manifest/"
+  },
+  "headings": [
+    {
+      "id": "title",
+      "href": "https://w3c.github.io/pub-manifest/#title",
+      "level": 1,
+      "title": "Publication Manifest"
+    },
+    {
+      "id": "toc",
+      "href": "https://w3c.github.io/pub-manifest/#toc",
+      "level": 2,
+      "title": "Table of Contents",
+      "alternateIds": [
+        "table-of-contents"
+      ]
+    },
+    {
+      "id": "intro",
+      "href": "https://w3c.github.io/pub-manifest/#intro",
+      "level": 2,
+      "title": "Introduction",
+      "alternateIds": [
+        "x1-introduction"
+      ],
+      "number": "1"
+    },
+    {
+      "id": "scope",
+      "href": "https://w3c.github.io/pub-manifest/#scope",
+      "level": 3,
+      "title": "Scope",
+      "alternateIds": [
+        "x1-1-scope"
+      ],
+      "number": "1.1"
+    },
+    {
+      "id": "manifest-format",
+      "href": "https://w3c.github.io/pub-manifest/#manifest-format",
+      "level": 3,
+      "title": "Manifest Format",
+      "alternateIds": [
+        "x1-2-manifest-format"
+      ],
+      "number": "1.2"
+    },
+    {
+      "id": "manifest-jsonld",
+      "href": "https://w3c.github.io/pub-manifest/#manifest-jsonld",
+      "level": 3,
+      "title": "JSON-LD Authoring and Processing",
+      "alternateIds": [
+        "x1-3-json-ld-authoring-and-processing"
+      ],
+      "number": "1.3"
+    },
+    {
+      "id": "manifest-schemaorg",
+      "href": "https://w3c.github.io/pub-manifest/#manifest-schemaorg",
+      "level": 3,
+      "title": "Relationship to Schema.org",
+      "alternateIds": [
+        "x1-4-relationship-to-schema-org"
+      ],
+      "number": "1.4"
+    },
+    {
+      "id": "terminology",
+      "href": "https://w3c.github.io/pub-manifest/#terminology",
+      "level": 2,
+      "title": "Terminology",
+      "alternateIds": [
+        "x2-terminology"
+      ],
+      "number": "2"
+    },
+    {
+      "id": "conformance",
+      "href": "https://w3c.github.io/pub-manifest/#conformance",
+      "level": 2,
+      "title": "Conformance",
+      "alternateIds": [
+        "x3-conformance"
+      ],
+      "number": "3"
+    },
+    {
+      "id": "manifest",
+      "href": "https://w3c.github.io/pub-manifest/#manifest",
+      "level": 2,
+      "title": "Publication Manifest",
+      "alternateIds": [
+        "x4-publication-manifest"
+      ],
+      "number": "4"
+    },
+    {
+      "id": "manifest-requirements",
+      "href": "https://w3c.github.io/pub-manifest/#manifest-requirements",
+      "level": 3,
+      "title": "Requirements",
+      "alternateIds": [
+        "x4-1-requirements"
+      ],
+      "number": "4.1"
+    },
+    {
+      "id": "properties-value-categories",
+      "href": "https://w3c.github.io/pub-manifest/#properties-value-categories",
+      "level": 3,
+      "title": "Value Categories",
+      "alternateIds": [
+        "x4-2-value-categories"
+      ],
+      "number": "4.2"
+    },
+    {
+      "id": "value-literal",
+      "href": "https://w3c.github.io/pub-manifest/#value-literal",
+      "level": 4,
+      "title": "Literals",
+      "alternateIds": [
+        "x4-2-1-literals"
+      ],
+      "number": "4.2.1"
+    },
+    {
+      "id": "value-number",
+      "href": "https://w3c.github.io/pub-manifest/#value-number",
+      "level": 4,
+      "title": "Numbers",
+      "alternateIds": [
+        "x4-2-2-numbers"
+      ],
+      "number": "4.2.2"
+    },
+    {
+      "id": "value-boolean",
+      "href": "https://w3c.github.io/pub-manifest/#value-boolean",
+      "level": 4,
+      "title": "Booleans",
+      "alternateIds": [
+        "x4-2-3-booleans"
+      ],
+      "number": "4.2.3"
+    },
+    {
+      "id": "explicit-implied-objects",
+      "href": "https://w3c.github.io/pub-manifest/#explicit-implied-objects",
+      "level": 4,
+      "title": "Explicit and Implied Objects",
+      "alternateIds": [
+        "x4-2-4-explicit-and-implied-objects"
+      ],
+      "number": "4.2.4"
+    },
+    {
+      "id": "value-localizable-string",
+      "href": "https://w3c.github.io/pub-manifest/#value-localizable-string",
+      "level": 5,
+      "title": "Localizable Strings",
+      "alternateIds": [
+        "x4-2-4-1-localizable-strings"
+      ],
+      "number": "4.2.4.1"
+    },
+    {
+      "id": "value-entity",
+      "href": "https://w3c.github.io/pub-manifest/#value-entity",
+      "level": 5,
+      "title": "Entities",
+      "alternateIds": [
+        "x4-2-4-2-entities"
+      ],
+      "number": "4.2.4.2"
+    },
+    {
+      "id": "value-linked-resource",
+      "href": "https://w3c.github.io/pub-manifest/#value-linked-resource",
+      "level": 5,
+      "title": "Linked Resources",
+      "alternateIds": [
+        "x4-2-4-3-linked-resources"
+      ],
+      "number": "4.2.4.3"
+    },
+    {
+      "id": "value-object",
+      "href": "https://w3c.github.io/pub-manifest/#value-object",
+      "level": 5,
+      "title": "Objects",
+      "alternateIds": [
+        "x4-2-4-4-objects"
+      ],
+      "number": "4.2.4.4"
+    },
+    {
+      "id": "value-url",
+      "href": "https://w3c.github.io/pub-manifest/#value-url",
+      "level": 4,
+      "title": "URLs",
+      "alternateIds": [
+        "x4-2-5-urls"
+      ],
+      "number": "4.2.5"
+    },
+    {
+      "id": "value-id",
+      "href": "https://w3c.github.io/pub-manifest/#value-id",
+      "level": 4,
+      "title": "Identifiers",
+      "alternateIds": [
+        "x4-2-6-identifiers"
+      ],
+      "number": "4.2.6"
+    },
+    {
+      "id": "value-array",
+      "href": "https://w3c.github.io/pub-manifest/#value-array",
+      "level": 4,
+      "title": "Arrays",
+      "alternateIds": [
+        "x4-2-7-arrays"
+      ],
+      "number": "4.2.7"
+    },
+    {
+      "id": "manifest-context",
+      "href": "https://w3c.github.io/pub-manifest/#manifest-context",
+      "level": 3,
+      "title": "Manifest Contexts",
+      "alternateIds": [
+        "x4-3-manifest-contexts"
+      ],
+      "number": "4.3"
+    },
+    {
+      "id": "manifest-lang-dir",
+      "href": "https://w3c.github.io/pub-manifest/#manifest-lang-dir",
+      "level": 3,
+      "title": "Manifest Language and Direction",
+      "alternateIds": [
+        "x4-4-manifest-language-and-direction"
+      ],
+      "number": "4.4"
+    },
+    {
+      "id": "manifest-lang-dir-global",
+      "href": "https://w3c.github.io/pub-manifest/#manifest-lang-dir-global",
+      "level": 4,
+      "title": "Global Declarations",
+      "alternateIds": [
+        "x4-4-1-global-declarations"
+      ],
+      "number": "4.4.1"
+    },
+    {
+      "id": "manifest-lang-dir-local",
+      "href": "https://w3c.github.io/pub-manifest/#manifest-lang-dir-local",
+      "level": 4,
+      "title": "Item-Specific Declarations",
+      "alternateIds": [
+        "x4-4-2-item-specific-declarations"
+      ],
+      "number": "4.4.2"
+    },
+    {
+      "id": "publication-types",
+      "href": "https://w3c.github.io/pub-manifest/#publication-types",
+      "level": 3,
+      "title": "Publication Types",
+      "alternateIds": [
+        "x4-5-publication-types"
+      ],
+      "number": "4.5"
+    },
+    {
+      "id": "profile-conformance",
+      "href": "https://w3c.github.io/pub-manifest/#profile-conformance",
+      "level": 3,
+      "title": "Profile Conformance",
+      "alternateIds": [
+        "x4-6-profile-conformance"
+      ],
+      "number": "4.6"
+    },
+    {
+      "id": "manifest-properties",
+      "href": "https://w3c.github.io/pub-manifest/#manifest-properties",
+      "level": 3,
+      "title": "Properties",
+      "alternateIds": [
+        "x4-7-properties"
+      ],
+      "number": "4.7"
+    },
+    {
+      "id": "descriptive-properties",
+      "href": "https://w3c.github.io/pub-manifest/#descriptive-properties",
+      "level": 4,
+      "title": "Descriptive Properties",
+      "alternateIds": [
+        "x4-7-1-descriptive-properties"
+      ],
+      "number": "4.7.1"
+    },
+    {
+      "id": "abridged",
+      "href": "https://w3c.github.io/pub-manifest/#abridged",
+      "level": 5,
+      "title": "Abridged",
+      "alternateIds": [
+        "x4-7-1-1-abridged"
+      ],
+      "number": "4.7.1.1"
+    },
+    {
+      "id": "accessibility",
+      "href": "https://w3c.github.io/pub-manifest/#accessibility",
+      "level": 5,
+      "title": "Accessibility",
+      "alternateIds": [
+        "x4-7-1-2-accessibility"
+      ],
+      "number": "4.7.1.2"
+    },
+    {
+      "id": "address",
+      "href": "https://w3c.github.io/pub-manifest/#address",
+      "level": 5,
+      "title": "Address",
+      "alternateIds": [
+        "x4-7-1-3-address"
+      ],
+      "number": "4.7.1.3"
+    },
+    {
+      "id": "canonical-identifier",
+      "href": "https://w3c.github.io/pub-manifest/#canonical-identifier",
+      "level": 5,
+      "title": "Canonical Identifier",
+      "alternateIds": [
+        "x4-7-1-4-canonical-identifier"
+      ],
+      "number": "4.7.1.4"
+    },
+    {
+      "id": "creators",
+      "href": "https://w3c.github.io/pub-manifest/#creators",
+      "level": 5,
+      "title": "Creators",
+      "alternateIds": [
+        "x4-7-1-5-creators"
+      ],
+      "number": "4.7.1.5"
+    },
+    {
+      "id": "duration",
+      "href": "https://w3c.github.io/pub-manifest/#duration",
+      "level": 5,
+      "title": "Duration",
+      "alternateIds": [
+        "x4-7-1-6-duration"
+      ],
+      "number": "4.7.1.6"
+    },
+    {
+      "id": "last-modification-date",
+      "href": "https://w3c.github.io/pub-manifest/#last-modification-date",
+      "level": 5,
+      "title": "Last Modification Date",
+      "alternateIds": [
+        "x4-7-1-7-last-modification-date"
+      ],
+      "number": "4.7.1.7"
+    },
+    {
+      "id": "publication-date",
+      "href": "https://w3c.github.io/pub-manifest/#publication-date",
+      "level": 5,
+      "title": "Publication Date",
+      "alternateIds": [
+        "x4-7-1-8-publication-date"
+      ],
+      "number": "4.7.1.8"
+    },
+    {
+      "id": "inLanguage",
+      "href": "https://w3c.github.io/pub-manifest/#inLanguage",
+      "level": 5,
+      "title": "Publication Language",
+      "alternateIds": [
+        "x4-7-1-9-publication-language"
+      ],
+      "number": "4.7.1.9"
+    },
+    {
+      "id": "reading-progression-direction",
+      "href": "https://w3c.github.io/pub-manifest/#reading-progression-direction",
+      "level": 5,
+      "title": "Reading Progression Direction",
+      "alternateIds": [
+        "x4-7-1-10-reading-progression-direction"
+      ],
+      "number": "4.7.1.10"
+    },
+    {
+      "id": "pub-title",
+      "href": "https://w3c.github.io/pub-manifest/#pub-title",
+      "level": 5,
+      "title": "Title",
+      "alternateIds": [
+        "x4-7-1-11-title"
+      ],
+      "number": "4.7.1.11"
+    },
+    {
+      "id": "resource-categorization-properties",
+      "href": "https://w3c.github.io/pub-manifest/#resource-categorization-properties",
+      "level": 4,
+      "title": "Resource Categorization Properties",
+      "alternateIds": [
+        "x4-7-2-resource-categorization-properties"
+      ],
+      "number": "4.7.2"
+    },
+    {
+      "id": "default-reading-order",
+      "href": "https://w3c.github.io/pub-manifest/#default-reading-order",
+      "level": 5,
+      "title": "Default Reading Order",
+      "alternateIds": [
+        "x4-7-2-1-default-reading-order"
+      ],
+      "number": "4.7.2.1"
+    },
+    {
+      "id": "resource-list",
+      "href": "https://w3c.github.io/pub-manifest/#resource-list",
+      "level": 5,
+      "title": "Resource List",
+      "alternateIds": [
+        "x4-7-2-2-resource-list"
+      ],
+      "number": "4.7.2.2"
+    },
+    {
+      "id": "links",
+      "href": "https://w3c.github.io/pub-manifest/#links",
+      "level": 5,
+      "title": "Links",
+      "alternateIds": [
+        "x4-7-2-3-links"
+      ],
+      "number": "4.7.2.3"
+    },
+    {
+      "id": "extensibility",
+      "href": "https://w3c.github.io/pub-manifest/#extensibility",
+      "level": 4,
+      "title": "Extensibility",
+      "alternateIds": [
+        "x4-7-3-extensibility"
+      ],
+      "number": "4.7.3"
+    },
+    {
+      "id": "extensibility-linked-records",
+      "href": "https://w3c.github.io/pub-manifest/#extensibility-linked-records",
+      "level": 5,
+      "title": "Linked records",
+      "alternateIds": [
+        "x4-7-3-1-linked-records"
+      ],
+      "number": "4.7.3.1"
+    },
+    {
+      "id": "extensibility-manifest-properties",
+      "href": "https://w3c.github.io/pub-manifest/#extensibility-manifest-properties",
+      "level": 5,
+      "title": "Additional Manifest Properties",
+      "alternateIds": [
+        "x4-7-3-2-additional-manifest-properties"
+      ],
+      "number": "4.7.3.2"
+    },
+    {
+      "id": "manifest-rel",
+      "href": "https://w3c.github.io/pub-manifest/#manifest-rel",
+      "level": 3,
+      "title": "Resource Relations",
+      "alternateIds": [
+        "x4-8-resource-relations"
+      ],
+      "number": "4.8"
+    },
+    {
+      "id": "structural-rel",
+      "href": "https://w3c.github.io/pub-manifest/#structural-rel",
+      "level": 4,
+      "title": "Structural Resources",
+      "alternateIds": [
+        "x4-8-1-structural-resources"
+      ],
+      "number": "4.8.1"
+    },
+    {
+      "id": "cover",
+      "href": "https://w3c.github.io/pub-manifest/#cover",
+      "level": 5,
+      "title": "Cover",
+      "alternateIds": [
+        "x4-8-1-1-cover"
+      ],
+      "number": "4.8.1.1"
+    },
+    {
+      "id": "page-list",
+      "href": "https://w3c.github.io/pub-manifest/#page-list",
+      "level": 5,
+      "title": "Page List",
+      "alternateIds": [
+        "x4-8-1-2-page-list"
+      ],
+      "number": "4.8.1.2"
+    },
+    {
+      "id": "contents",
+      "href": "https://w3c.github.io/pub-manifest/#contents",
+      "level": 5,
+      "title": "Table of Contents",
+      "alternateIds": [
+        "x4-8-1-3-table-of-contents"
+      ],
+      "number": "4.8.1.3"
+    },
+    {
+      "id": "informative-rel",
+      "href": "https://w3c.github.io/pub-manifest/#informative-rel",
+      "level": 4,
+      "title": "Informative Resources",
+      "alternateIds": [
+        "x4-8-2-informative-resources"
+      ],
+      "number": "4.8.2"
+    },
+    {
+      "id": "accessibility-report",
+      "href": "https://w3c.github.io/pub-manifest/#accessibility-report",
+      "level": 5,
+      "title": "Accessibility Report",
+      "alternateIds": [
+        "x4-8-2-1-accessibility-report"
+      ],
+      "number": "4.8.2.1"
+    },
+    {
+      "id": "preview",
+      "href": "https://w3c.github.io/pub-manifest/#preview",
+      "level": 5,
+      "title": "Preview",
+      "alternateIds": [
+        "x4-8-2-2-preview"
+      ],
+      "number": "4.8.2.2"
+    },
+    {
+      "id": "privacy-policy",
+      "href": "https://w3c.github.io/pub-manifest/#privacy-policy",
+      "level": 5,
+      "title": "Privacy Policy",
+      "alternateIds": [
+        "x4-8-2-3-privacy-policy"
+      ],
+      "number": "4.8.2.3"
+    },
+    {
+      "id": "rel-extensions",
+      "href": "https://w3c.github.io/pub-manifest/#rel-extensions",
+      "level": 4,
+      "title": "Extensions",
+      "alternateIds": [
+        "x4-8-3-extensions"
+      ],
+      "number": "4.8.3"
+    },
+    {
+      "id": "publication-resources",
+      "href": "https://w3c.github.io/pub-manifest/#publication-resources",
+      "level": 2,
+      "title": "Publication Resources",
+      "alternateIds": [
+        "x5-publication-resources"
+      ],
+      "number": "5"
+    },
+    {
+      "id": "manifest-discovery",
+      "href": "https://w3c.github.io/pub-manifest/#manifest-discovery",
+      "level": 2,
+      "title": "Manifest Discovery",
+      "alternateIds": [
+        "x6-manifest-discovery"
+      ],
+      "number": "6"
+    },
+    {
+      "id": "manifest-link",
+      "href": "https://w3c.github.io/pub-manifest/#manifest-link",
+      "level": 3,
+      "title": "Linking",
+      "alternateIds": [
+        "x6-1-linking"
+      ],
+      "number": "6.1"
+    },
+    {
+      "id": "manifest-embed",
+      "href": "https://w3c.github.io/pub-manifest/#manifest-embed",
+      "level": 3,
+      "title": "Embedding",
+      "alternateIds": [
+        "x6-2-embedding"
+      ],
+      "number": "6.2"
+    },
+    {
+      "id": "manifest-other-discovery",
+      "href": "https://w3c.github.io/pub-manifest/#manifest-other-discovery",
+      "level": 3,
+      "title": "Other Discovery Methods",
+      "alternateIds": [
+        "x6-3-other-discovery-methods"
+      ],
+      "number": "6.3"
+    },
+    {
+      "id": "manifest-processing",
+      "href": "https://w3c.github.io/pub-manifest/#manifest-processing",
+      "level": 2,
+      "title": "Processing a Manifest",
+      "alternateIds": [
+        "x7-processing-a-manifest"
+      ],
+      "number": "7"
+    },
+    {
+      "id": "processing-intro",
+      "href": "https://w3c.github.io/pub-manifest/#processing-intro",
+      "level": 3,
+      "title": "Introduction",
+      "alternateIds": [
+        "x7-1-introduction"
+      ],
+      "number": "7.1"
+    },
+    {
+      "id": "processing-errors",
+      "href": "https://w3c.github.io/pub-manifest/#processing-errors",
+      "level": 3,
+      "title": "Error Handling",
+      "alternateIds": [
+        "x7-2-error-handling"
+      ],
+      "number": "7.2"
+    },
+    {
+      "id": "processing-contexts",
+      "href": "https://w3c.github.io/pub-manifest/#processing-contexts",
+      "level": 3,
+      "title": "Processing Contexts",
+      "alternateIds": [
+        "x7-3-processing-contexts"
+      ],
+      "number": "7.3"
+    },
+    {
+      "id": "processing-algorithm",
+      "href": "https://w3c.github.io/pub-manifest/#processing-algorithm",
+      "level": 3,
+      "title": "Generate the Internal Representation",
+      "alternateIds": [
+        "x7-4-generate-the-internal-representation"
+      ],
+      "number": "7.4"
+    },
+    {
+      "id": "normalize-data",
+      "href": "https://w3c.github.io/pub-manifest/#normalize-data",
+      "level": 4,
+      "title": "Normalize Data",
+      "alternateIds": [
+        "x7-4-1-normalize-data"
+      ],
+      "number": "7.4.1"
+    },
+    {
+      "id": "convert-absolute-url",
+      "href": "https://w3c.github.io/pub-manifest/#convert-absolute-url",
+      "level": 5,
+      "title": "Convert to Absolute URL",
+      "alternateIds": [
+        "x7-4-1-1-convert-to-absolute-url"
+      ],
+      "number": "7.4.1.1"
+    },
+    {
+      "id": "validate-data",
+      "href": "https://w3c.github.io/pub-manifest/#validate-data",
+      "level": 4,
+      "title": "Data Validation",
+      "alternateIds": [
+        "x7-4-2-data-validation"
+      ],
+      "number": "7.4.2"
+    },
+    {
+      "id": "global-data-checks",
+      "href": "https://w3c.github.io/pub-manifest/#global-data-checks",
+      "level": 5,
+      "title": "Global Data Checks",
+      "alternateIds": [
+        "x7-4-2-1-global-data-checks"
+      ],
+      "number": "7.4.2.1"
+    },
+    {
+      "id": "verify-value-category",
+      "href": "https://w3c.github.io/pub-manifest/#verify-value-category",
+      "level": 5,
+      "title": "Verify Value Category",
+      "alternateIds": [
+        "x7-4-2-2-verify-value-category"
+      ],
+      "number": "7.4.2.2"
+    },
+    {
+      "id": "get-unique-urls",
+      "href": "https://w3c.github.io/pub-manifest/#get-unique-urls",
+      "level": 5,
+      "title": "Get Unique URLs",
+      "alternateIds": [
+        "x7-4-2-3-get-unique-urls"
+      ],
+      "number": "7.4.2.3"
+    },
+    {
+      "id": "remove-empty-arrays",
+      "href": "https://w3c.github.io/pub-manifest/#remove-empty-arrays",
+      "level": 5,
+      "title": "Remove Empty Arrays",
+      "alternateIds": [
+        "x7-4-2-4-remove-empty-arrays"
+      ],
+      "number": "7.4.2.4"
+    },
+    {
+      "id": "add-default-values",
+      "href": "https://w3c.github.io/pub-manifest/#add-default-values",
+      "level": 4,
+      "title": "Add Default Values",
+      "alternateIds": [
+        "x7-4-3-add-default-values"
+      ],
+      "number": "7.4.3"
+    },
+    {
+      "id": "extensions",
+      "href": "https://w3c.github.io/pub-manifest/#extensions",
+      "level": 2,
+      "title": "Modular Extensions",
+      "alternateIds": [
+        "x8-modular-extensions"
+      ],
+      "number": "8"
+    },
+    {
+      "id": "security-privacy",
+      "href": "https://w3c.github.io/pub-manifest/#security-privacy",
+      "level": 2,
+      "title": "Security and Privacy Considerations",
+      "alternateIds": [
+        "x9-security-and-privacy-considerations"
+      ],
+      "number": "9"
+    },
+    {
+      "id": "app-internal-rep-data-model",
+      "href": "https://w3c.github.io/pub-manifest/#app-internal-rep-data-model",
+      "level": 2,
+      "title": "Internal Representation Data Model",
+      "alternateIds": [
+        "a-internal-representation-data-model"
+      ],
+      "number": "A"
+    },
+    {
+      "id": "webidl-wpm",
+      "href": "https://w3c.github.io/pub-manifest/#webidl-wpm",
+      "level": 3,
+      "title": "The PublicationManifest Dictionary",
+      "alternateIds": [
+        "a-1-the-publicationmanifest-dictionary"
+      ],
+      "number": "A.1"
+    },
+    {
+      "id": "LinkedResource",
+      "href": "https://w3c.github.io/pub-manifest/#LinkedResource",
+      "level": 4,
+      "title": "The LinkedResource Dictionary",
+      "alternateIds": [
+        "a-1-1-the-linkedresource-dictionary"
+      ],
+      "number": "A.1.1"
+    },
+    {
+      "id": "Entity",
+      "href": "https://w3c.github.io/pub-manifest/#Entity",
+      "level": 4,
+      "title": "The Entity Dictionary",
+      "alternateIds": [
+        "a-1-2-the-entity-dictionary"
+      ],
+      "number": "A.1.2"
+    },
+    {
+      "id": "LocalizableString",
+      "href": "https://w3c.github.io/pub-manifest/#LocalizableString",
+      "level": 4,
+      "title": "The LocalizableString Dictionary",
+      "alternateIds": [
+        "a-1-3-the-localizablestring-dictionary"
+      ],
+      "number": "A.1.3"
+    },
+    {
+      "id": "app-select-alternate",
+      "href": "https://w3c.github.io/pub-manifest/#app-select-alternate",
+      "level": 2,
+      "title": "Selecting an Alternate Resource",
+      "alternateIds": [
+        "b-selecting-an-alternate-resource"
+      ],
+      "number": "B"
+    },
+    {
+      "id": "app-toc-structure",
+      "href": "https://w3c.github.io/pub-manifest/#app-toc-structure",
+      "level": 2,
+      "title": "Machine-Processable Table of Contents",
+      "alternateIds": [
+        "c-machine-processable-table-of-contents"
+      ],
+      "number": "C"
+    },
+    {
+      "id": "app-toc-html-intro",
+      "href": "https://w3c.github.io/pub-manifest/#app-toc-html-intro",
+      "level": 3,
+      "title": "Introduction",
+      "alternateIds": [
+        "c-1-introduction"
+      ],
+      "number": "C.1"
+    },
+    {
+      "id": "app-toc-html",
+      "href": "https://w3c.github.io/pub-manifest/#app-toc-html",
+      "level": 3,
+      "title": "HTML Structure",
+      "alternateIds": [
+        "c-2-html-structure"
+      ],
+      "number": "C.2"
+    },
+    {
+      "id": "app-toc-html-examples",
+      "href": "https://w3c.github.io/pub-manifest/#app-toc-html-examples",
+      "level": 4,
+      "title": "Examples",
+      "alternateIds": [
+        "c-2-1-examples"
+      ],
+      "number": "C.2.1"
+    },
+    {
+      "id": "app-toc-ua",
+      "href": "https://w3c.github.io/pub-manifest/#app-toc-ua",
+      "level": 3,
+      "title": "User Agent Processing",
+      "alternateIds": [
+        "c-3-user-agent-processing"
+      ],
+      "number": "C.3"
+    },
+    {
+      "id": "change-log",
+      "href": "https://w3c.github.io/pub-manifest/#change-log",
+      "level": 2,
+      "title": "Change Log",
+      "alternateIds": [
+        "d-change-log"
+      ],
+      "number": "D"
+    },
+    {
+      "id": "iana-consideration",
+      "href": "https://w3c.github.io/pub-manifest/#iana-consideration",
+      "level": 2,
+      "title": "IANA considerations",
+      "alternateIds": [
+        "e-iana-considerations"
+      ],
+      "number": "E"
+    },
+    {
+      "id": "link-relation-type-registration",
+      "href": "https://w3c.github.io/pub-manifest/#link-relation-type-registration",
+      "level": 3,
+      "title": "Link relation type registration",
+      "alternateIds": [
+        "e-1-link-relation-type-registration"
+      ],
+      "number": "E.1"
+    },
+    {
+      "id": "app-manifest-examples",
+      "href": "https://w3c.github.io/pub-manifest/#app-manifest-examples",
+      "level": 2,
+      "title": "Manifest Examples",
+      "alternateIds": [
+        "f-manifest-examples"
+      ],
+      "number": "F"
+    },
+    {
+      "id": "basic-manifest",
+      "href": "https://w3c.github.io/pub-manifest/#basic-manifest",
+      "level": 3,
+      "title": "Basic Manifest",
+      "alternateIds": [
+        "f-1-basic-manifest"
+      ],
+      "number": "F.1"
+    },
+    {
+      "id": "single-document-publication",
+      "href": "https://w3c.github.io/pub-manifest/#single-document-publication",
+      "level": 3,
+      "title": "Single-Document Publication",
+      "alternateIds": [
+        "f-2-single-document-publication"
+      ],
+      "number": "F.2"
+    },
+    {
+      "id": "audiobook",
+      "href": "https://w3c.github.io/pub-manifest/#audiobook",
+      "level": 3,
+      "title": "Audiobook",
+      "alternateIds": [
+        "f-3-audiobook"
+      ],
+      "number": "F.3"
+    },
+    {
+      "id": "app-properties-index",
+      "href": "https://w3c.github.io/pub-manifest/#app-properties-index",
+      "level": 2,
+      "title": "Properties Index",
+      "alternateIds": [
+        "g-properties-index"
+      ],
+      "number": "G"
+    },
+    {
+      "id": "app-rel-index",
+      "href": "https://w3c.github.io/pub-manifest/#app-rel-index",
+      "level": 2,
+      "title": "Resource Relations Index",
+      "alternateIds": [
+        "h-resource-relations-index"
+      ],
+      "number": "H"
+    },
+    {
+      "id": "ack",
+      "href": "https://w3c.github.io/pub-manifest/#ack",
+      "level": 2,
+      "title": "Acknowledgements",
+      "alternateIds": [
+        "i-acknowledgements"
+      ],
+      "number": "I"
+    },
+    {
+      "id": "references",
+      "href": "https://w3c.github.io/pub-manifest/#references",
+      "level": 2,
+      "title": "References",
+      "alternateIds": [
+        "j-references"
+      ],
+      "number": "J"
+    },
+    {
+      "id": "normative-references",
+      "href": "https://w3c.github.io/pub-manifest/#normative-references",
+      "level": 3,
+      "title": "Normative references",
+      "alternateIds": [
+        "j-1-normative-references"
+      ],
+      "number": "J.1"
+    },
+    {
+      "id": "informative-references",
+      "href": "https://w3c.github.io/pub-manifest/#informative-references",
+      "level": 3,
+      "title": "Informative references",
+      "alternateIds": [
+        "j-2-informative-references"
+      ],
+      "number": "J.2"
+    }
+  ]
+}

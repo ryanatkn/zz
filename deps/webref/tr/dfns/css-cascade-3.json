@@ -1,0 +1,629 @@
+{
+  "spec": {
+    "title": "CSS Cascading and Inheritance Level 3",
+    "url": "https://www.w3.org/TR/css-cascade-3/"
+  },
+  "dfns": [
+    {
+      "id": "at-ruledef-import",
+      "href": "https://www.w3.org/TR/css-cascade-3/#at-ruledef-import",
+      "linkingText": [
+        "@import"
+      ],
+      "localLinkingText": [],
+      "type": "at-rule",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "at-import",
+        "href": "https://www.w3.org/TR/css-cascade-3/#at-import",
+        "title": "Importing Style Sheets: the @import rule",
+        "number": "2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "import-conditions",
+      "href": "https://www.w3.org/TR/css-cascade-3/#import-conditions",
+      "linkingText": [
+        "import conditions"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "at-import",
+        "href": "https://www.w3.org/TR/css-cascade-3/#at-import",
+        "title": "Importing Style Sheets: the @import rule",
+        "number": "2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "shorthand-property",
+      "href": "https://www.w3.org/TR/css-cascade-3/#shorthand-property",
+      "linkingText": [
+        "shorthand property",
+        "shorthand"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "shorthand",
+        "href": "https://www.w3.org/TR/css-cascade-3/#shorthand",
+        "title": "Shorthand Properties",
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "longhand",
+      "href": "https://www.w3.org/TR/css-cascade-3/#longhand",
+      "linkingText": [
+        "longhand",
+        "longhand property",
+        "sub-property"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "shorthand",
+        "href": "https://www.w3.org/TR/css-cascade-3/#shorthand",
+        "title": "Shorthand Properties",
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "reset-only-sub-property",
+      "href": "https://www.w3.org/TR/css-cascade-3/#reset-only-sub-property",
+      "linkingText": [
+        "reset-only sub-property"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "shorthand",
+        "href": "https://www.w3.org/TR/css-cascade-3/#shorthand",
+        "title": "Shorthand Properties",
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "propdef-all",
+      "href": "https://www.w3.org/TR/css-cascade-3/#propdef-all",
+      "linkingText": [
+        "all"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "all-shorthand",
+        "href": "https://www.w3.org/TR/css-cascade-3/#all-shorthand",
+        "title": "Resetting All Properties: the all property",
+        "number": "3.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "declared-value",
+      "href": "https://www.w3.org/TR/css-cascade-3/#declared-value",
+      "linkingText": [
+        "declared value"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "declared",
+        "href": "https://www.w3.org/TR/css-cascade-3/#declared",
+        "title": "Declared Values",
+        "number": "4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "cascaded-value",
+      "href": "https://www.w3.org/TR/css-cascade-3/#cascaded-value",
+      "linkingText": [
+        "cascaded value"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "cascaded",
+        "href": "https://www.w3.org/TR/css-cascade-3/#cascaded",
+        "title": "Cascaded Values",
+        "number": "4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "specified-value",
+      "href": "https://www.w3.org/TR/css-cascade-3/#specified-value",
+      "linkingText": [
+        "specified value"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "specified",
+        "href": "https://www.w3.org/TR/css-cascade-3/#specified",
+        "title": "Specified Values",
+        "number": "4.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "computed-value",
+      "href": "https://www.w3.org/TR/css-cascade-3/#computed-value",
+      "linkingText": [
+        "computed value"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "computed",
+        "href": "https://www.w3.org/TR/css-cascade-3/#computed",
+        "title": "Computed Values",
+        "number": "4.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "used-value",
+      "href": "https://www.w3.org/TR/css-cascade-3/#used-value",
+      "linkingText": [
+        "used value"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "used",
+        "href": "https://www.w3.org/TR/css-cascade-3/#used",
+        "title": "Used Values",
+        "number": "4.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "applies-to",
+      "href": "https://www.w3.org/TR/css-cascade-3/#applies-to",
+      "linkingText": [
+        "apply to",
+        "applies to"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "used",
+        "href": "https://www.w3.org/TR/css-cascade-3/#used",
+        "title": "Used Values",
+        "number": "4.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "actual-value",
+      "href": "https://www.w3.org/TR/css-cascade-3/#actual-value",
+      "linkingText": [
+        "actual value"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "actual",
+        "href": "https://www.w3.org/TR/css-cascade-3/#actual",
+        "title": "Actual Values",
+        "number": "4.6"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "cascade",
+      "href": "https://www.w3.org/TR/css-cascade-3/#cascade",
+      "linkingText": [
+        "cascade"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "cascading",
+        "href": "https://www.w3.org/TR/css-cascade-3/#cascading",
+        "title": "Cascading",
+        "number": "6"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "output-of-the-cascade",
+      "href": "https://www.w3.org/TR/css-cascade-3/#output-of-the-cascade",
+      "linkingText": [
+        "output of the cascade"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "cascade-sort",
+        "href": "https://www.w3.org/TR/css-cascade-3/#cascade-sort",
+        "title": "Cascade Sorting Order",
+        "number": "6.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "origin",
+      "href": "https://www.w3.org/TR/css-cascade-3/#origin",
+      "linkingText": [
+        "cascade origin"
+      ],
+      "localLinkingText": [
+        "origin"
+      ],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "cascading-origins",
+        "href": "https://www.w3.org/TR/css-cascade-3/#cascading-origins",
+        "title": "Cascading Origins",
+        "number": "6.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "cascade-origin-author",
+      "href": "https://www.w3.org/TR/css-cascade-3/#cascade-origin-author",
+      "linkingText": [
+        "author origin",
+        "author style sheet",
+        "author-origin"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "cascading-origins",
+        "href": "https://www.w3.org/TR/css-cascade-3/#cascading-origins",
+        "title": "Cascading Origins",
+        "number": "6.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "cascade-origin-user",
+      "href": "https://www.w3.org/TR/css-cascade-3/#cascade-origin-user",
+      "linkingText": [
+        "user origin",
+        "user style sheet",
+        "user-origin"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "cascading-origins",
+        "href": "https://www.w3.org/TR/css-cascade-3/#cascading-origins",
+        "title": "Cascading Origins",
+        "number": "6.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "cascade-origin-ua",
+      "href": "https://www.w3.org/TR/css-cascade-3/#cascade-origin-ua",
+      "linkingText": [
+        "user-agent origin",
+        "UA origin",
+        "user-agent style sheet",
+        "UA style sheet",
+        "UA-origin"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "cascading-origins",
+        "href": "https://www.w3.org/TR/css-cascade-3/#cascading-origins",
+        "title": "Cascading Origins",
+        "number": "6.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "cascade-origin-animation",
+      "href": "https://www.w3.org/TR/css-cascade-3/#cascade-origin-animation",
+      "linkingText": [
+        "Animation Origin"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "cascading-origins",
+        "href": "https://www.w3.org/TR/css-cascade-3/#cascading-origins",
+        "title": "Cascading Origins",
+        "number": "6.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "cascade-origin-transition",
+      "href": "https://www.w3.org/TR/css-cascade-3/#cascade-origin-transition",
+      "linkingText": [
+        "Transition Origin"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "cascading-origins",
+        "href": "https://www.w3.org/TR/css-cascade-3/#cascading-origins",
+        "title": "Cascading Origins",
+        "number": "6.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "important",
+      "href": "https://www.w3.org/TR/css-cascade-3/#important",
+      "linkingText": [
+        "important"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "importance",
+        "href": "https://www.w3.org/TR/css-cascade-3/#importance",
+        "title": "Important Declarations: the !important annotation",
+        "number": "6.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "normal",
+      "href": "https://www.w3.org/TR/css-cascade-3/#normal",
+      "linkingText": [
+        "normal"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "importance",
+        "href": "https://www.w3.org/TR/css-cascade-3/#importance",
+        "title": "Important Declarations: the !important annotation",
+        "number": "6.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "initial-value",
+      "href": "https://www.w3.org/TR/css-cascade-3/#initial-value",
+      "linkingText": [
+        "initial value"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "initial-values",
+        "href": "https://www.w3.org/TR/css-cascade-3/#initial-values",
+        "title": "Initial Values",
+        "number": "7.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "inheritance",
+      "href": "https://www.w3.org/TR/css-cascade-3/#inheritance",
+      "linkingText": [
+        "inheritance",
+        "inherit"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "inheriting",
+        "href": "https://www.w3.org/TR/css-cascade-3/#inheriting",
+        "title": "Inheritance",
+        "number": "7.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "inherited-value",
+      "href": "https://www.w3.org/TR/css-cascade-3/#inherited-value",
+      "linkingText": [
+        "inherited value"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "inheriting",
+        "href": "https://www.w3.org/TR/css-cascade-3/#inheriting",
+        "title": "Inheritance",
+        "number": "7.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "inherited-property",
+      "href": "https://www.w3.org/TR/css-cascade-3/#inherited-property",
+      "linkingText": [
+        "inherited property"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "inheriting",
+        "href": "https://www.w3.org/TR/css-cascade-3/#inheriting",
+        "title": "Inheritance",
+        "number": "7.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "valdef-all-initial",
+      "href": "https://www.w3.org/TR/css-cascade-3/#valdef-all-initial",
+      "linkingText": [
+        "initial"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "all"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "initial",
+        "href": "https://www.w3.org/TR/css-cascade-3/#initial",
+        "title": "Resetting a Property: the initial keyword",
+        "number": "7.3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "valdef-all-inherit",
+      "href": "https://www.w3.org/TR/css-cascade-3/#valdef-all-inherit",
+      "linkingText": [
+        "inherit"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "all"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "inherit",
+        "href": "https://www.w3.org/TR/css-cascade-3/#inherit",
+        "title": "Explicit Inheritance: the inherit keyword",
+        "number": "7.3.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "valdef-all-unset",
+      "href": "https://www.w3.org/TR/css-cascade-3/#valdef-all-unset",
+      "linkingText": [
+        "unset"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "all"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "inherit-initial",
+        "href": "https://www.w3.org/TR/css-cascade-3/#inherit-initial",
+        "title": "Erasing All Declarations: the unset keyword",
+        "number": "7.3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

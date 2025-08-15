@@ -1,0 +1,516 @@
+{
+  "spec": {
+    "title": "Largest Contentful Paint",
+    "url": "https://w3c.github.io/largest-contentful-paint/"
+  },
+  "dfns": [
+    {
+      "id": "largest-contentful-paint-candidate",
+      "href": "https://w3c.github.io/largest-contentful-paint/#largest-contentful-paint-candidate",
+      "linkingText": [
+        "largest contentful paint candidate"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sec-terminology",
+        "href": "https://w3c.github.io/largest-contentful-paint/#sec-terminology",
+        "title": "Terminology",
+        "number": "2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "largest-contentful-paint-candidate-element",
+      "href": "https://w3c.github.io/largest-contentful-paint/#largest-contentful-paint-candidate-element",
+      "linkingText": [
+        "element"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "largest contentful paint candidate"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sec-terminology",
+        "href": "https://w3c.github.io/largest-contentful-paint/#sec-terminology",
+        "title": "Terminology",
+        "number": "2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "largest-contentful-paint-candidate-request",
+      "href": "https://w3c.github.io/largest-contentful-paint/#largest-contentful-paint-candidate-request",
+      "linkingText": [
+        "request"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "largest contentful paint candidate"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sec-terminology",
+        "href": "https://w3c.github.io/largest-contentful-paint/#sec-terminology",
+        "title": "Terminology",
+        "number": "2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "eligible-to-be-largest-contentful-paint",
+      "href": "https://w3c.github.io/largest-contentful-paint/#eligible-to-be-largest-contentful-paint",
+      "linkingText": [
+        "eligible to be largest contentful paint"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sec-terminology",
+        "href": "https://w3c.github.io/largest-contentful-paint/#sec-terminology",
+        "title": "Terminology",
+        "number": "2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "largestcontentfulpaint",
+      "href": "https://w3c.github.io/largest-contentful-paint/#largestcontentfulpaint",
+      "linkingText": [
+        "LargestContentfulPaint"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-largest-contentful-paint-interface",
+        "href": "https://w3c.github.io/largest-contentful-paint/#sec-largest-contentful-paint-interface",
+        "title": "LargestContentfulPaint interface",
+        "number": "3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-largestcontentfulpaint-loadtime",
+      "href": "https://w3c.github.io/largest-contentful-paint/#dom-largestcontentfulpaint-loadtime",
+      "linkingText": [
+        "loadTime"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "LargestContentfulPaint"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-largest-contentful-paint-interface",
+        "href": "https://w3c.github.io/largest-contentful-paint/#sec-largest-contentful-paint-interface",
+        "title": "LargestContentfulPaint interface",
+        "number": "3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-largestcontentfulpaint-rendertime",
+      "href": "https://w3c.github.io/largest-contentful-paint/#dom-largestcontentfulpaint-rendertime",
+      "linkingText": [
+        "renderTime"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "LargestContentfulPaint"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-largest-contentful-paint-interface",
+        "href": "https://w3c.github.io/largest-contentful-paint/#sec-largest-contentful-paint-interface",
+        "title": "LargestContentfulPaint interface",
+        "number": "3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-largestcontentfulpaint-size",
+      "href": "https://w3c.github.io/largest-contentful-paint/#dom-largestcontentfulpaint-size",
+      "linkingText": [
+        "size"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "LargestContentfulPaint"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-largest-contentful-paint-interface",
+        "href": "https://w3c.github.io/largest-contentful-paint/#sec-largest-contentful-paint-interface",
+        "title": "LargestContentfulPaint interface",
+        "number": "3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-largestcontentfulpaint-id",
+      "href": "https://w3c.github.io/largest-contentful-paint/#dom-largestcontentfulpaint-id",
+      "linkingText": [
+        "id"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "LargestContentfulPaint"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-largest-contentful-paint-interface",
+        "href": "https://w3c.github.io/largest-contentful-paint/#sec-largest-contentful-paint-interface",
+        "title": "LargestContentfulPaint interface",
+        "number": "3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-largestcontentfulpaint-url",
+      "href": "https://w3c.github.io/largest-contentful-paint/#dom-largestcontentfulpaint-url",
+      "linkingText": [
+        "url"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "LargestContentfulPaint"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-largest-contentful-paint-interface",
+        "href": "https://w3c.github.io/largest-contentful-paint/#sec-largest-contentful-paint-interface",
+        "title": "LargestContentfulPaint interface",
+        "number": "3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-largestcontentfulpaint-element",
+      "href": "https://w3c.github.io/largest-contentful-paint/#dom-largestcontentfulpaint-element",
+      "linkingText": [
+        "element"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "LargestContentfulPaint"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-largest-contentful-paint-interface",
+        "href": "https://w3c.github.io/largest-contentful-paint/#sec-largest-contentful-paint-interface",
+        "title": "LargestContentfulPaint interface",
+        "number": "3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-largestcontentfulpaint-tojson",
+      "href": "https://w3c.github.io/largest-contentful-paint/#dom-largestcontentfulpaint-tojson",
+      "linkingText": [
+        "toJSON()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "LargestContentfulPaint"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-largest-contentful-paint-interface",
+        "href": "https://w3c.github.io/largest-contentful-paint/#sec-largest-contentful-paint-interface",
+        "title": "LargestContentfulPaint interface",
+        "number": "3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "largestcontentfulpaint-size",
+      "href": "https://w3c.github.io/largest-contentful-paint/#largestcontentfulpaint-size",
+      "linkingText": [
+        "size"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "LargestContentfulPaint"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sec-largest-contentful-paint-interface",
+        "href": "https://w3c.github.io/largest-contentful-paint/#sec-largest-contentful-paint-interface",
+        "title": "LargestContentfulPaint interface",
+        "number": "3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "largestcontentfulpaint-loadtime",
+      "href": "https://w3c.github.io/largest-contentful-paint/#largestcontentfulpaint-loadtime",
+      "linkingText": [
+        "loadTime"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "LargestContentfulPaint"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sec-largest-contentful-paint-interface",
+        "href": "https://w3c.github.io/largest-contentful-paint/#sec-largest-contentful-paint-interface",
+        "title": "LargestContentfulPaint interface",
+        "number": "3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "largestcontentfulpaint-id",
+      "href": "https://w3c.github.io/largest-contentful-paint/#largestcontentfulpaint-id",
+      "linkingText": [
+        "id"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "LargestContentfulPaint"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sec-largest-contentful-paint-interface",
+        "href": "https://w3c.github.io/largest-contentful-paint/#sec-largest-contentful-paint-interface",
+        "title": "LargestContentfulPaint interface",
+        "number": "3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "largestcontentfulpaint-url",
+      "href": "https://w3c.github.io/largest-contentful-paint/#largestcontentfulpaint-url",
+      "linkingText": [
+        "url"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "LargestContentfulPaint"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sec-largest-contentful-paint-interface",
+        "href": "https://w3c.github.io/largest-contentful-paint/#sec-largest-contentful-paint-interface",
+        "title": "LargestContentfulPaint interface",
+        "number": "3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "largestcontentfulpaint-element",
+      "href": "https://w3c.github.io/largest-contentful-paint/#largestcontentfulpaint-element",
+      "linkingText": [
+        "element"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "LargestContentfulPaint"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sec-largest-contentful-paint-interface",
+        "href": "https://w3c.github.io/largest-contentful-paint/#sec-largest-contentful-paint-interface",
+        "title": "LargestContentfulPaint interface",
+        "number": "3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "largest-contentful-paint-size",
+      "href": "https://w3c.github.io/largest-contentful-paint/#largest-contentful-paint-size",
+      "linkingText": [
+        "largest contentful paint size"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sec-largest-contentful-paint-interface",
+        "href": "https://w3c.github.io/largest-contentful-paint/#sec-largest-contentful-paint-interface",
+        "title": "LargestContentfulPaint interface",
+        "number": "3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "content-set",
+      "href": "https://w3c.github.io/largest-contentful-paint/#content-set",
+      "linkingText": [
+        "content set"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sec-largest-contentful-paint-interface",
+        "href": "https://w3c.github.io/largest-contentful-paint/#sec-largest-contentful-paint-interface",
+        "title": "LargestContentfulPaint interface",
+        "number": "3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "has-dispatched-scroll-event",
+      "href": "https://w3c.github.io/largest-contentful-paint/#has-dispatched-scroll-event",
+      "linkingText": [
+        "has dispatched scroll event"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sec-processing-model",
+        "href": "https://w3c.github.io/largest-contentful-paint/#sec-processing-model",
+        "title": "Processing model",
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "report-largest-contentful-paint",
+      "href": "https://w3c.github.io/largest-contentful-paint/#report-largest-contentful-paint",
+      "linkingText": [
+        "report largest contentful paint"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-report-largest-contentful-paint",
+        "href": "https://w3c.github.io/largest-contentful-paint/#sec-report-largest-contentful-paint",
+        "title": "Report Largest Contentful Paint",
+        "number": "4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "effective-visual-size",
+      "href": "https://w3c.github.io/largest-contentful-paint/#effective-visual-size",
+      "linkingText": [
+        "effective visual size"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-effective-visual-size",
+        "href": "https://w3c.github.io/largest-contentful-paint/#sec-effective-visual-size",
+        "title": "Determine the effective visual size of an element",
+        "number": "4.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "potentially-add-a-largestcontentfulpaint-entry",
+      "href": "https://w3c.github.io/largest-contentful-paint/#potentially-add-a-largestcontentfulpaint-entry",
+      "linkingText": [
+        "potentially add a LargestContentfulPaint entry"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-add-lcp-entry",
+        "href": "https://w3c.github.io/largest-contentful-paint/#sec-add-lcp-entry",
+        "title": "Potentially add LargestContentfulPaint entry",
+        "number": "4.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "create-a-largestcontentfulpaint-entry",
+      "href": "https://w3c.github.io/largest-contentful-paint/#create-a-largestcontentfulpaint-entry",
+      "linkingText": [
+        "create a LargestContentfulPaint entry"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sec-create-entry",
+        "href": "https://w3c.github.io/largest-contentful-paint/#sec-create-entry",
+        "title": "Create a LargestContentfulPaint entry",
+        "number": "4.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

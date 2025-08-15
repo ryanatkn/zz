@@ -1,0 +1,121 @@
+{
+  "spec": {
+    "title": "MediaStream Recording",
+    "url": "https://www.w3.org/TR/mediastream-recording/"
+  },
+  "links": {
+    "rawlinks": {
+      "https://codepen.io/collection/XjkNbN/": {},
+      "https://codepen.io/miguelao/pen/edqNab?editors=0010": {},
+      "https://codepen.io/miguelao/pen/wzVMJb?editors=0010": {},
+      "https://developers.google.com/web/updates/2016/01/mediarecorder": {},
+      "https://dom.spec.whatwg.org/": {
+        "anchors": [
+          "concept-event-fire"
+        ]
+      },
+      "https://html.spec.whatwg.org/multipage/": {},
+      "https://lists.w3.org/Archives/Public/public-webrtc/": {},
+      "https://webidl.spec.whatwg.org/": {},
+      "https://www.rfc-editor.org/rfc/rfc2046": {},
+      "https://www.rfc-editor.org/rfc/rfc6381": {},
+      "https://www.w3.org/2004/01/pp-impl/47318/status": {},
+      "https://www.w3.org/TR/": {},
+      "https://www.w3.org/TR/FileAPI/": {},
+      "https://www.w3.org/TR/fingerprinting-guidance/": {},
+      "https://www.w3.org/TR/hr-time-3/": {},
+      "https://www.w3.org/TR/mediacapture-streams/": {},
+      "https://www.w3.org/TR/webdriver-bidi/": {},
+      "https://www.w3.org/groups/wg/webrtc": {},
+      "https://www.w3.org/policies/patent-policy/": {
+        "anchors": [
+          "def-essential",
+          "sec-Disclosure"
+        ]
+      },
+      "https://www.w3.org/policies/process/20231103/": {
+        "anchors": [
+          "recs-and-notes"
+        ]
+      }
+    },
+    "autolinks": {
+      "https://dom.spec.whatwg.org/": {
+        "anchors": [
+          "eventtarget",
+          "concept-event-fire",
+          "event",
+          "dictdef-eventinit"
+        ]
+      },
+      "https://html.spec.whatwg.org/multipage/infrastructure.html": {
+        "anchors": [
+          "in-parallel"
+        ]
+      },
+      "https://html.spec.whatwg.org/multipage/webappapis.html": {
+        "anchors": [
+          "eventhandler",
+          "errorevent",
+          "secure-context"
+        ]
+      },
+      "https://webidl.spec.whatwg.org/": {
+        "anchors": [
+          "Exposed",
+          "idl-DOMString",
+          "idl-unsigned-long",
+          "idl-undefined",
+          "idl-boolean",
+          "notsupportederror",
+          "idl-DOMException",
+          "invalidstateerror",
+          "securityerror",
+          "invalidmodificationerror",
+          "unknownerror",
+          "SameObject"
+        ]
+      },
+      "https://www.w3.org/TR/FileAPI/": {
+        "anchors": [
+          "dfn-Blob",
+          "dfn-type"
+        ]
+      },
+      "https://www.w3.org/TR/fingerprinting-guidance/": {
+        "anchors": [
+          "dfn-active-fingerprinting",
+          "dfn-fingerprinting-surface"
+        ]
+      },
+      "https://www.w3.org/TR/hr-time-3/": {
+        "anchors": [
+          "dom-domhighrestimestamp"
+        ]
+      },
+      "https://www.w3.org/TR/mediacapture-streams/": {
+        "anchors": [
+          "dom-mediastream",
+          "dom-mediastreamtrack",
+          "idl-def-MediaStreamTrackState.live",
+          "dfn-track-set",
+          "stream-inactive",
+          "idl-def-MediaStreamTrackState.ended",
+          "dom-mediastreamtrack-muted",
+          "dom-mediastreamtrack-enabled",
+          "dom-mediadevices-getusermedia"
+        ]
+      },
+      "https://www.w3.org/TR/webdriver-bidi/": {
+        "anchors": [
+          "resume"
+        ]
+      },
+      "https://www.w3.org/TR/webrtc-identity/": {
+        "anchors": [
+          "isolated-media-streams"
+        ]
+      }
+    }
+  }
+}

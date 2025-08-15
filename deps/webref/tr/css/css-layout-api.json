@@ -1,0 +1,20 @@
+{
+  "spec": {
+    "title": "CSS Layout API Level 1",
+    "url": "https://www.w3.org/TR/css-layout-api-1/"
+  },
+  "properties": [],
+  "atrules": [],
+  "selectors": [],
+  "values": [],
+  "warnings": [
+    {
+      "msg": "Dangling value",
+      "name": "layout()",
+      "href": "https://www.w3.org/TR/css-layout-api-1/#valdef-display-layout",
+      "type": "value",
+      "value": "layout()",
+      "for": "display"
+    }
+  ]
+}

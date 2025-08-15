@@ -1,0 +1,193 @@
+{
+  "spec": {
+    "title": "Payment Method Identifiers",
+    "url": "https://www.w3.org/TR/payment-method-id/"
+  },
+  "dfns": [
+    {
+      "id": "dfn-pmi",
+      "href": "https://www.w3.org/TR/payment-method-id/#dfn-pmi",
+      "linkingText": [
+        "PMI",
+        "payment method identifier"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "payment-method-identifiers-pmis",
+        "href": "https://www.w3.org/TR/payment-method-id/#payment-method-identifiers-pmis",
+        "title": "Payment method identifiers (PMIs)",
+        "alternateIds": [
+          "x1-payment-method-identifiers-pmis"
+        ],
+        "number": "1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-validate-a-payment-method-identifier",
+      "href": "https://www.w3.org/TR/payment-method-id/#dfn-validate-a-payment-method-identifier",
+      "linkingText": [
+        "validate a payment method identifier"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "validity",
+        "href": "https://www.w3.org/TR/payment-method-id/#validity",
+        "title": "Validity",
+        "alternateIds": [
+          "x1-1-validity"
+        ],
+        "number": "1.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-url-based-payment-method-identifier",
+      "href": "https://www.w3.org/TR/payment-method-id/#dfn-url-based-payment-method-identifier",
+      "linkingText": [
+        "URL-based payment method identifier"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "url-based-payment-method-identifiers",
+        "href": "https://www.w3.org/TR/payment-method-id/#url-based-payment-method-identifiers",
+        "title": "URL-based payment method identifiers",
+        "alternateIds": [
+          "x2-url-based-payment-method-identifiers"
+        ],
+        "number": "2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-validate-a-url-based-payment-method-identifier",
+      "href": "https://www.w3.org/TR/payment-method-id/#dfn-validate-a-url-based-payment-method-identifier",
+      "linkingText": [
+        "validate a URL-based payment method identifier"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "validation",
+        "href": "https://www.w3.org/TR/payment-method-id/#validation",
+        "title": "Validation",
+        "alternateIds": [
+          "x2-1-validation"
+        ],
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-standardized-payment-method-identifier",
+      "href": "https://www.w3.org/TR/payment-method-id/#dfn-standardized-payment-method-identifier",
+      "linkingText": [
+        "standardized payment method identifier"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "standardized-payment-method-identifiers",
+        "href": "https://www.w3.org/TR/payment-method-id/#standardized-payment-method-identifiers",
+        "title": "Standardized payment method identifiers",
+        "alternateIds": [
+          "x3-standardized-payment-method-identifiers"
+        ],
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-syntax-of-a-standardized-payment-method-identifier",
+      "href": "https://www.w3.org/TR/payment-method-id/#dfn-syntax-of-a-standardized-payment-method-identifier",
+      "linkingText": [
+        "syntax of a standardized payment method identifier"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "standardized-payment-method-identifiers",
+        "href": "https://www.w3.org/TR/payment-method-id/#standardized-payment-method-identifiers",
+        "title": "Standardized payment method identifiers",
+        "alternateIds": [
+          "x3-standardized-payment-method-identifiers"
+        ],
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-validate-a-standardized-payment-method-identifier",
+      "href": "https://www.w3.org/TR/payment-method-id/#dfn-validate-a-standardized-payment-method-identifier",
+      "linkingText": [
+        "validate a standardized payment method identifier"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "validity-0",
+        "href": "https://www.w3.org/TR/payment-method-id/#validity-0",
+        "title": "Validity",
+        "alternateIds": [
+          "x3-1-validity"
+        ],
+        "number": "3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-standardized-payment-method",
+      "href": "https://www.w3.org/TR/payment-method-id/#dfn-standardized-payment-method",
+      "linkingText": [
+        "standardized payment method"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "registry",
+        "href": "https://www.w3.org/TR/payment-method-id/#registry",
+        "title": "Registry of standardized payment methods",
+        "alternateIds": [
+          "x4-registry-of-standardized-payment-methods"
+        ],
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

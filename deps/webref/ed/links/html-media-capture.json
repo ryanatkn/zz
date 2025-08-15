@@ -1,0 +1,104 @@
+{
+  "spec": {
+    "title": "HTML Media Capture",
+    "url": "https://w3c.github.io/html-media-capture/"
+  },
+  "links": {
+    "rawlinks": {
+      "https://html.spec.whatwg.org/multipage/": {},
+      "https://html.spec.whatwg.org/multipage/common-microsyntaxes.html": {
+        "anchors": [
+          "enumerated-attribute"
+        ]
+      },
+      "https://html.spec.whatwg.org/multipage/infrastructure.html": {
+        "anchors": [
+          "missing-value-default",
+          "invalid-value-default"
+        ]
+      },
+      "https://html.spec.whatwg.org/multipage/input.html": {
+        "anchors": [
+          "file-upload-state-(type=file)"
+        ]
+      },
+      "https://webidl.spec.whatwg.org/": {},
+      "https://www.rfc-editor.org/info/bcp14": {},
+      "https://www.rfc-editor.org/rfc/rfc2119": {},
+      "https://www.rfc-editor.org/rfc/rfc8174": {},
+      "https://www.w3.org/2009/dap/wiki/ImplementationStatus": {},
+      "https://www.w3.org/TR/": {},
+      "https://www.w3.org/TR/2017/PR-html-media-capture-20171128/": {},
+      "https://www.w3.org/TR/FileAPI/": {},
+      "https://www.w3.org/TR/mediacapture-streams/": {},
+      "https://www.w3.org/groups/wg/das": {},
+      "https://www.w3.org/groups/wg/das/ipr": {},
+      "https://www.w3.org/policies/patent-policy/": {
+        "anchors": [
+          "sec-Requirements",
+          "def-essential",
+          "sec-Disclosure"
+        ]
+      },
+      "https://www.w3.org/policies/process/20231103/": {
+        "anchors": [
+          "recs-and-notes"
+        ]
+      }
+    },
+    "autolinks": {
+      "https://html.spec.whatwg.org/multipage/canvas.html": {
+        "anchors": [
+          "canvas"
+        ]
+      },
+      "https://html.spec.whatwg.org/multipage/common-microsyntaxes.html": {
+        "anchors": [
+          "enumerated-attribute"
+        ]
+      },
+      "https://html.spec.whatwg.org/multipage/custom-elements.html": {
+        "anchors": [
+          "cereactions"
+        ]
+      },
+      "https://html.spec.whatwg.org/multipage/embedded-content.html": {
+        "anchors": [
+          "the-img-element"
+        ]
+      },
+      "https://html.spec.whatwg.org/multipage/infrastructure.html": {
+        "anchors": [
+          "missing-value-default",
+          "invalid-value-default"
+        ]
+      },
+      "https://html.spec.whatwg.org/multipage/input.html": {
+        "anchors": [
+          "htmlinputelement",
+          "attr-input-accept",
+          "the-input-element",
+          "attr-input-type",
+          "file-upload-state-(type=file)"
+        ]
+      },
+      "https://webidl.spec.whatwg.org/": {
+        "anchors": [
+          "idl-DOMString"
+        ]
+      },
+      "https://www.w3.org/TR/FileAPI/": {
+        "anchors": [
+          "dfn-filelist",
+          "dfn-filereader",
+          "dfn-createObjectURL"
+        ]
+      },
+      "https://www.w3.org/TR/mediacapture-streams/": {
+        "anchors": [
+          "dom-videofacingmodeenum"
+        ]
+      }
+    }
+  }
+}

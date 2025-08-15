@@ -1,0 +1,456 @@
+{
+  "spec": {
+    "title": "Writing Assistance APIs",
+    "url": "https://webmachinelearning.github.io/writing-assistance-apis/"
+  },
+  "headings": [
+    {
+      "id": "title",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#title",
+      "level": 1,
+      "title": "Writing Assistance APIs"
+    },
+    {
+      "id": "abstract",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#abstract",
+      "level": 2,
+      "title": "Abstract"
+    },
+    {
+      "id": "sotd",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#sotd",
+      "level": 2,
+      "title": "Status of this document"
+    },
+    {
+      "id": "toc",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#toc",
+      "level": 2,
+      "title": "Table of Contents",
+      "alternateIds": [
+        "contents"
+      ]
+    },
+    {
+      "id": "intro",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#intro",
+      "level": 2,
+      "title": "Introduction",
+      "number": "1"
+    },
+    {
+      "id": "summarizer-api",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-api",
+      "level": 2,
+      "title": "The summarizer API",
+      "number": "2"
+    },
+    {
+      "id": "summarizer-creation",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-creation",
+      "level": 3,
+      "title": "Creation",
+      "number": "2.1"
+    },
+    {
+      "id": "summarizer-availability",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-availability",
+      "level": 3,
+      "title": "Availability",
+      "number": "2.2"
+    },
+    {
+      "id": "the-summarizer-class",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-summarizer-class",
+      "level": 3,
+      "title": "The Summarizer class",
+      "number": "2.3"
+    },
+    {
+      "id": "summarizer-summarization",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-summarization",
+      "level": 3,
+      "title": "Summarization",
+      "number": "2.4"
+    },
+    {
+      "id": "summarizer-algorithm",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-algorithm",
+      "level": 4,
+      "title": "The algorithm",
+      "number": "2.4.1"
+    },
+    {
+      "id": "summarizer-usage",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-usage",
+      "level": 4,
+      "title": "Usage",
+      "number": "2.4.2"
+    },
+    {
+      "id": "summarizer-options",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-options",
+      "level": 4,
+      "title": "Options",
+      "number": "2.4.3"
+    },
+    {
+      "id": "summarizer-errors",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-errors",
+      "level": 4,
+      "title": "Errors",
+      "number": "2.4.4"
+    },
+    {
+      "id": "summarizer-permissions-policy",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-permissions-policy",
+      "level": 3,
+      "title": "Permissions policy integration",
+      "number": "2.5"
+    },
+    {
+      "id": "writer-api",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-api",
+      "level": 2,
+      "title": "The writer API",
+      "number": "3"
+    },
+    {
+      "id": "writer-creation",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-creation",
+      "level": 3,
+      "title": "Creation",
+      "number": "3.1"
+    },
+    {
+      "id": "writer-availability",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-availability",
+      "level": 3,
+      "title": "Availability",
+      "number": "3.2"
+    },
+    {
+      "id": "the-writer-class",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-writer-class",
+      "level": 3,
+      "title": "The Writer class",
+      "number": "3.3"
+    },
+    {
+      "id": "writer-writing",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-writing",
+      "level": 3,
+      "title": "Writing",
+      "number": "3.4"
+    },
+    {
+      "id": "writer-algorithm",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-algorithm",
+      "level": 4,
+      "title": "The algorithm",
+      "number": "3.4.1"
+    },
+    {
+      "id": "writer-usage",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-usage",
+      "level": 4,
+      "title": "Usage",
+      "number": "3.4.2"
+    },
+    {
+      "id": "writer-options",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-options",
+      "level": 4,
+      "title": "Options",
+      "number": "3.4.3"
+    },
+    {
+      "id": "writer-errors",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-errors",
+      "level": 4,
+      "title": "Errors",
+      "number": "3.4.4"
+    },
+    {
+      "id": "writer-permissions-policy",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-permissions-policy",
+      "level": 3,
+      "title": "Permissions policy integration",
+      "number": "3.5"
+    },
+    {
+      "id": "rewriter-api",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-api",
+      "level": 2,
+      "title": "The rewriter API",
+      "number": "4"
+    },
+    {
+      "id": "rewriter-creation",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-creation",
+      "level": 3,
+      "title": "Creation",
+      "number": "4.1"
+    },
+    {
+      "id": "rewriter-availability",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-availability",
+      "level": 3,
+      "title": "Availability",
+      "number": "4.2"
+    },
+    {
+      "id": "the-rewriter-class",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-rewriter-class",
+      "level": 3,
+      "title": "The Rewriter class",
+      "number": "4.3"
+    },
+    {
+      "id": "rewriter-rewriting",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-rewriting",
+      "level": 3,
+      "title": "Rewriting",
+      "number": "4.4"
+    },
+    {
+      "id": "rewriter-algorithm",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-algorithm",
+      "level": 4,
+      "title": "The algorithm",
+      "number": "4.4.1"
+    },
+    {
+      "id": "rewriter-usage",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-usage",
+      "level": 4,
+      "title": "Usage",
+      "number": "4.4.2"
+    },
+    {
+      "id": "rewriter-options",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-options",
+      "level": 4,
+      "title": "Options",
+      "number": "4.4.3"
+    },
+    {
+      "id": "rewriter-errors",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-errors",
+      "level": 4,
+      "title": "Errors",
+      "number": "4.4.4"
+    },
+    {
+      "id": "rewriter-permissions-policy",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-permissions-policy",
+      "level": 3,
+      "title": "Permissions policy integration",
+      "number": "4.5"
+    },
+    {
+      "id": "supporting",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#supporting",
+      "level": 2,
+      "title": "Shared infrastructure",
+      "number": "5"
+    },
+    {
+      "id": "shared-apis",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#shared-apis",
+      "level": 3,
+      "title": "Common APIs",
+      "number": "5.1"
+    },
+    {
+      "id": "supporting-creation",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#supporting-creation",
+      "level": 3,
+      "title": "Creation",
+      "number": "5.2"
+    },
+    {
+      "id": "supporting-results",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#supporting-results",
+      "level": 3,
+      "title": "Obtaining results and usage",
+      "number": "5.3"
+    },
+    {
+      "id": "supporting-language-tags",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#supporting-language-tags",
+      "level": 3,
+      "title": "Language tags",
+      "number": "5.4"
+    },
+    {
+      "id": "supporting-availability",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#supporting-availability",
+      "level": 3,
+      "title": "Availability",
+      "number": "5.5"
+    },
+    {
+      "id": "supporting-language-availability",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#supporting-language-availability",
+      "level": 3,
+      "title": "Language availability",
+      "number": "5.6"
+    },
+    {
+      "id": "supporting-errors",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#supporting-errors",
+      "level": 3,
+      "title": "Errors",
+      "number": "5.7"
+    },
+    {
+      "id": "supporting-task-source",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#supporting-task-source",
+      "level": 3,
+      "title": "Task source",
+      "number": "5.8"
+    },
+    {
+      "id": "privacy",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#privacy",
+      "level": 2,
+      "title": "Privacy considerations",
+      "number": "6"
+    },
+    {
+      "id": "privacy-availability",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#privacy-availability",
+      "level": 3,
+      "title": "Model availability",
+      "number": "6.1"
+    },
+    {
+      "id": "privacy-availability-masking",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#privacy-availability-masking",
+      "level": 4,
+      "title": "Download masking",
+      "number": "6.1.1"
+    },
+    {
+      "id": "privacy-availability-creation",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#privacy-availability-creation",
+      "level": 4,
+      "title": "Creation-time friction",
+      "number": "6.1.2"
+    },
+    {
+      "id": "privacy-availability-cancelation",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#privacy-availability-cancelation",
+      "level": 4,
+      "title": "Download cancelation",
+      "number": "6.1.3"
+    },
+    {
+      "id": "privacy-availability-eviction",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#privacy-availability-eviction",
+      "level": 4,
+      "title": "Download eviction",
+      "number": "6.1.4"
+    },
+    {
+      "id": "privacy-availability-alternatives",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#privacy-availability-alternatives",
+      "level": 4,
+      "title": "Alternate options",
+      "number": "6.1.5"
+    },
+    {
+      "id": "privacy-language-availability",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#privacy-language-availability",
+      "level": 3,
+      "title": "Sensitive language availability",
+      "number": "6.2"
+    },
+    {
+      "id": "privacy-model-version",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#privacy-model-version",
+      "level": 3,
+      "title": "Model version",
+      "number": "6.3"
+    },
+    {
+      "id": "privacy-user-input",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#privacy-user-input",
+      "level": 3,
+      "title": "User input",
+      "number": "6.4"
+    },
+    {
+      "id": "privacy-cloud-implementations",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#privacy-cloud-implementations",
+      "level": 3,
+      "title": "Cloud-based implementations",
+      "number": "6.5"
+    },
+    {
+      "id": "security",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#security",
+      "level": 2,
+      "title": "Security considerations",
+      "number": "7"
+    },
+    {
+      "id": "security-disk-space",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#security-disk-space",
+      "level": 3,
+      "title": "Disk space",
+      "number": "7.1"
+    },
+    {
+      "id": "security-runtime",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#security-runtime",
+      "level": 3,
+      "title": "Runtime shared resources",
+      "number": "7.2"
+    },
+    {
+      "id": "security-os",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#security-os",
+      "level": 3,
+      "title": "OS-provided models",
+      "number": "7.3"
+    },
+    {
+      "id": "index",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#index",
+      "level": 2,
+      "title": "Index"
+    },
+    {
+      "id": "index-defined-here",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#index-defined-here",
+      "level": 3,
+      "title": "Terms defined by this specification"
+    },
+    {
+      "id": "index-defined-elsewhere",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#index-defined-elsewhere",
+      "level": 3,
+      "title": "Terms defined by reference"
+    },
+    {
+      "id": "references",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#references",
+      "level": 2,
+      "title": "References"
+    },
+    {
+      "id": "normative",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#normative",
+      "level": 3,
+      "title": "Normative References"
+    },
+    {
+      "id": "idl-index",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#idl-index",
+      "level": 2,
+      "title": "IDL Index"
+    }
+  ]
+}

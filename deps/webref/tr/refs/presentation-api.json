@@ -1,0 +1,88 @@
+{
+  "spec": {
+    "title": "Presentation API",
+    "url": "https://www.w3.org/TR/presentation-api/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "DIAL",
+        "url": "http://www.dial-multiscreen.org/dial-protocol-specification"
+      },
+      {
+        "name": "dom",
+        "url": "https://dom.spec.whatwg.org/"
+      },
+      {
+        "name": "ECMASCRIPT",
+        "url": "https://tc39.es/ecma262/multipage/"
+      },
+      {
+        "name": "fileapi",
+        "url": "https://www.w3.org/TR/FileAPI/"
+      },
+      {
+        "name": "HTML",
+        "url": "https://html.spec.whatwg.org/multipage/"
+      },
+      {
+        "name": "INDEXEDDB",
+        "url": "https://www.w3.org/TR/IndexedDB/"
+      },
+      {
+        "name": "infra",
+        "url": "https://infra.spec.whatwg.org/"
+      },
+      {
+        "name": "PERMISSIONS",
+        "url": "https://www.w3.org/TR/permissions/"
+      },
+      {
+        "name": "RFC2119",
+        "url": "https://www.rfc-editor.org/rfc/rfc2119"
+      },
+      {
+        "name": "RFC4122",
+        "url": "https://www.rfc-editor.org/rfc/rfc4122"
+      },
+      {
+        "name": "RFC6265",
+        "url": "https://httpwg.org/specs/rfc6265.html"
+      },
+      {
+        "name": "RFC8174",
+        "url": "https://www.rfc-editor.org/rfc/rfc8174"
+      },
+      {
+        "name": "RFC9110",
+        "url": "https://httpwg.org/specs/rfc9110.html"
+      },
+      {
+        "name": "secure-contexts",
+        "url": "https://www.w3.org/TR/secure-contexts/"
+      },
+      {
+        "name": "SERVICE-WORKERS",
+        "url": "https://www.w3.org/TR/service-workers/"
+      },
+      {
+        "name": "url",
+        "url": "https://url.spec.whatwg.org/"
+      },
+      {
+        "name": "WEBIDL",
+        "url": "https://webidl.spec.whatwg.org/"
+      },
+      {
+        "name": "websockets",
+        "url": "https://websockets.spec.whatwg.org/"
+      }
+    ],
+    "informative": [
+      {
+        "name": "webrtc",
+        "url": "https://www.w3.org/TR/webrtc/"
+      }
+    ]
+  }
+}

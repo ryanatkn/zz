@@ -1,0 +1,1092 @@
+{
+  "spec": {
+    "title": "RDF 1.2 XML Syntax",
+    "url": "https://w3c.github.io/rdf-xml/spec/"
+  },
+  "headings": [
+    {
+      "id": "title",
+      "href": "https://w3c.github.io/rdf-xml/spec/#title",
+      "level": 1,
+      "title": "RDF 1.2 XML Syntax"
+    },
+    {
+      "id": "related",
+      "href": "https://w3c.github.io/rdf-xml/spec/#related",
+      "level": 3,
+      "title": "Set of Documents",
+      "alternateIds": [
+        "set-of-documents"
+      ]
+    },
+    {
+      "id": "toc",
+      "href": "https://w3c.github.io/rdf-xml/spec/#toc",
+      "level": 2,
+      "title": "Table of Contents",
+      "alternateIds": [
+        "table-of-contents"
+      ]
+    },
+    {
+      "id": "section-Introduction",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-Introduction",
+      "level": 2,
+      "title": "Introduction",
+      "alternateIds": [
+        "x1-introduction"
+      ],
+      "number": "1"
+    },
+    {
+      "id": "section-Syntax",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-Syntax",
+      "level": 2,
+      "title": "An XML Syntax for RDF",
+      "alternateIds": [
+        "x2-an-xml-syntax-for-rdf"
+      ],
+      "number": "2"
+    },
+    {
+      "id": "section-Syntax-intro",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-Syntax-intro",
+      "level": 3,
+      "title": "Introduction",
+      "alternateIds": [
+        "x2-1-introduction"
+      ],
+      "number": "2.1"
+    },
+    {
+      "id": "section-Syntax-node-property-elements",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-Syntax-node-property-elements",
+      "level": 3,
+      "title": "Node Elements and Property Elements",
+      "alternateIds": [
+        "x2-2-node-elements-and-property-elements"
+      ],
+      "number": "2.2"
+    },
+    {
+      "id": "section-Syntax-multiple-property-elements",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-Syntax-multiple-property-elements",
+      "level": 3,
+      "title": "Multiple Property Elements",
+      "alternateIds": [
+        "x2-3-multiple-property-elements"
+      ],
+      "number": "2.3"
+    },
+    {
+      "id": "section-Syntax-empty-property-elements",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-Syntax-empty-property-elements",
+      "level": 3,
+      "title": "Empty Property Elements",
+      "alternateIds": [
+        "x2-4-empty-property-elements"
+      ],
+      "number": "2.4"
+    },
+    {
+      "id": "section-Syntax-property-attributes",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-Syntax-property-attributes",
+      "level": 3,
+      "title": "Property Attributes",
+      "alternateIds": [
+        "x2-5-property-attributes"
+      ],
+      "number": "2.5"
+    },
+    {
+      "id": "section-Syntax-complete-document",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-Syntax-complete-document",
+      "level": 3,
+      "title": "Completing the Document: Document Element and XML Declaration",
+      "alternateIds": [
+        "x2-6-completing-the-document-document-element-and-xml-declaration"
+      ],
+      "number": "2.6"
+    },
+    {
+      "id": "section-Syntax-languages",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-Syntax-languages",
+      "level": 3,
+      "title": "Languages: xml:lang",
+      "alternateIds": [
+        "x2-7-languages-xml-lang"
+      ],
+      "number": "2.7"
+    },
+    {
+      "id": "section-Syntax-base-direction",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-Syntax-base-direction",
+      "level": 3,
+      "title": "Base Direction: its:dir",
+      "alternateIds": [
+        "x2-8-base-direction-its-dir"
+      ],
+      "number": "2.8"
+    },
+    {
+      "id": "section-Syntax-XML-literals",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-Syntax-XML-literals",
+      "level": 3,
+      "title": "XML Literals: rdf:parseType=\"Literal\"",
+      "alternateIds": [
+        "x2-9-xml-literals-rdf-parsetype-literal"
+      ],
+      "number": "2.9"
+    },
+    {
+      "id": "section-Syntax-datatyped-literals",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-Syntax-datatyped-literals",
+      "level": 3,
+      "title": "Typed Literals: rdf:datatype",
+      "alternateIds": [
+        "x2-10-typed-literals-rdf-datatype"
+      ],
+      "number": "2.10"
+    },
+    {
+      "id": "section-Syntax-blank-nodes",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-Syntax-blank-nodes",
+      "level": 3,
+      "title": "Identifying Blank Nodes: rdf:nodeID",
+      "alternateIds": [
+        "x2-11-identifying-blank-nodes-rdf-nodeid"
+      ],
+      "number": "2.11"
+    },
+    {
+      "id": "section-Syntax-parsetype-resource",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-Syntax-parsetype-resource",
+      "level": 3,
+      "title": "Omitting Blank Nodes: rdf:parseType=\"Resource\"",
+      "alternateIds": [
+        "x2-12-omitting-blank-nodes-rdf-parsetype-resource"
+      ],
+      "number": "2.12"
+    },
+    {
+      "id": "section-Syntax-property-attributes-on-property-element",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-Syntax-property-attributes-on-property-element",
+      "level": 3,
+      "title": "Omitting Nodes: Property Attributes on an empty Property Element",
+      "alternateIds": [
+        "x2-13-omitting-nodes-property-attributes-on-an-empty-property-element"
+      ],
+      "number": "2.13"
+    },
+    {
+      "id": "section-Syntax-typed-nodes",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-Syntax-typed-nodes",
+      "level": 3,
+      "title": "Typed Node Elements",
+      "alternateIds": [
+        "x2-14-typed-node-elements"
+      ],
+      "number": "2.14"
+    },
+    {
+      "id": "section-Syntax-ID-xml-base",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-Syntax-ID-xml-base",
+      "level": 3,
+      "title": "Abbreviating IRIs: rdf:ID and xml:base",
+      "alternateIds": [
+        "x2-15-abbreviating-iris-rdf-id-and-xml-base"
+      ],
+      "number": "2.15"
+    },
+    {
+      "id": "section-Syntax-list-elements",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-Syntax-list-elements",
+      "level": 3,
+      "title": "Container Membership Property Elements: rdf:li and rdf:_n",
+      "alternateIds": [
+        "x2-16-container-membership-property-elements-rdf-li-and-rdf-_n"
+      ],
+      "number": "2.16"
+    },
+    {
+      "id": "section-Syntax-parsetype-Collection",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-Syntax-parsetype-Collection",
+      "level": 3,
+      "title": "Collections: rdf:parseType=\"Collection\"",
+      "alternateIds": [
+        "x2-17-collections-rdf-parsetype-collection"
+      ],
+      "number": "2.17"
+    },
+    {
+      "id": "section-Syntax-reifying",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-Syntax-reifying",
+      "level": 3,
+      "title": "Reifying Statements: rdf:ID",
+      "alternateIds": [
+        "x2-18-reifying-statements-rdf-id"
+      ],
+      "number": "2.18"
+    },
+    {
+      "id": "section-Syntax-triple-terms",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-Syntax-triple-terms",
+      "level": 3,
+      "title": "Triple Terms: rdf:parseType=\"Triple\"",
+      "alternateIds": [
+        "x2-19-triple-terms-rdf-parsetype-triple"
+      ],
+      "number": "2.19"
+    },
+    {
+      "id": "section-Syntax-annotations",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-Syntax-annotations",
+      "level": 3,
+      "title": "Annotating Triples: rdf:annotation or rdf:annotationNodeID",
+      "alternateIds": [
+        "x2-20-annotating-triples-rdf-annotation-or-rdf-annotationnodeid"
+      ],
+      "number": "2.20"
+    },
+    {
+      "id": "conformance",
+      "href": "https://w3c.github.io/rdf-xml/spec/#conformance",
+      "level": 2,
+      "title": "Conformance",
+      "alternateIds": [
+        "x3-conformance"
+      ],
+      "number": "3"
+    },
+    {
+      "id": "section-MIME-Type",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-MIME-Type",
+      "level": 3,
+      "title": "RDF/XML Internet Media Type, File Extension, and Macintosh File Type",
+      "alternateIds": [
+        "x3-1-rdf-xml-internet-media-type-file-extension-and-macintosh-file-type"
+      ],
+      "number": "3.1"
+    },
+    {
+      "id": "privacy-considerations",
+      "href": "https://w3c.github.io/rdf-xml/spec/#privacy-considerations",
+      "level": 3,
+      "title": "Privacy Considerations",
+      "alternateIds": [
+        "x3-2-privacy-considerations"
+      ],
+      "number": "3.2"
+    },
+    {
+      "id": "security",
+      "href": "https://w3c.github.io/rdf-xml/spec/#security",
+      "level": 3,
+      "title": "Security Considerations",
+      "alternateIds": [
+        "x3-3-security-considerations"
+      ],
+      "number": "3.3"
+    },
+    {
+      "id": "section-Global",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-Global",
+      "level": 2,
+      "title": "Global Issues",
+      "alternateIds": [
+        "x4-global-issues"
+      ],
+      "number": "4"
+    },
+    {
+      "id": "section-Namespace",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-Namespace",
+      "level": 3,
+      "title": "The RDF Namespace and Vocabulary",
+      "alternateIds": [
+        "x4-1-the-rdf-namespace-and-vocabulary"
+      ],
+      "number": "4.1"
+    },
+    {
+      "id": "section-Identifiers",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-Identifiers",
+      "level": 3,
+      "title": "Identifiers",
+      "alternateIds": [
+        "x4-2-identifiers"
+      ],
+      "number": "4.2"
+    },
+    {
+      "id": "section-baseIRIs",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-baseIRIs",
+      "level": 3,
+      "title": "Resolving IRIs",
+      "alternateIds": [
+        "x4-3-resolving-iris"
+      ],
+      "number": "4.3"
+    },
+    {
+      "id": "section-constraints",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-constraints",
+      "level": 3,
+      "title": "Constraints",
+      "alternateIds": [
+        "x4-4-constraints"
+      ],
+      "number": "4.4"
+    },
+    {
+      "id": "section-Data-Model",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-Data-Model",
+      "level": 2,
+      "title": "Syntax Data Model",
+      "alternateIds": [
+        "x5-syntax-data-model"
+      ],
+      "number": "5"
+    },
+    {
+      "id": "section-Nodes",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-Nodes",
+      "level": 3,
+      "title": "Events",
+      "alternateIds": [
+        "x5-1-events"
+      ],
+      "number": "5.1"
+    },
+    {
+      "id": "section-root-node",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-root-node",
+      "level": 4,
+      "title": "Root Event",
+      "alternateIds": [
+        "x5-1-1-root-event"
+      ],
+      "number": "5.1.1"
+    },
+    {
+      "id": "section-element-node",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-element-node",
+      "level": 4,
+      "title": "Element Event",
+      "alternateIds": [
+        "x5-1-2-element-event"
+      ],
+      "number": "5.1.2"
+    },
+    {
+      "id": "section-end-element-node",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-end-element-node",
+      "level": 4,
+      "title": "End Element Event",
+      "alternateIds": [
+        "x5-1-3-end-element-event"
+      ],
+      "number": "5.1.3"
+    },
+    {
+      "id": "section-attribute-node",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-attribute-node",
+      "level": 4,
+      "title": "Attribute Event",
+      "alternateIds": [
+        "x5-1-4-attribute-event"
+      ],
+      "number": "5.1.4"
+    },
+    {
+      "id": "section-text-node",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-text-node",
+      "level": 4,
+      "title": "Text Event",
+      "alternateIds": [
+        "x5-1-5-text-event"
+      ],
+      "number": "5.1.5"
+    },
+    {
+      "id": "section-identifier-node",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-identifier-node",
+      "level": 4,
+      "title": "IRI Event",
+      "alternateIds": [
+        "x5-1-6-iri-event"
+      ],
+      "number": "5.1.6"
+    },
+    {
+      "id": "section-triple-term-node",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-triple-term-node",
+      "level": 4,
+      "title": "Triple Term Event",
+      "alternateIds": [
+        "x5-1-7-triple-term-event"
+      ],
+      "number": "5.1.7"
+    },
+    {
+      "id": "section-blank-nodeid-event",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-blank-nodeid-event",
+      "level": 4,
+      "title": "Blank Node Identifier Event",
+      "alternateIds": [
+        "x5-1-8-blank-node-identifier-event"
+      ],
+      "number": "5.1.8"
+    },
+    {
+      "id": "section-literal-node",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-literal-node",
+      "level": 4,
+      "title": "Literal Without Datatype Event",
+      "alternateIds": [
+        "x5-1-9-literal-without-datatype-event"
+      ],
+      "number": "5.1.9"
+    },
+    {
+      "id": "section-typed-literal-node",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-typed-literal-node",
+      "level": 4,
+      "title": "Typed Literal Event",
+      "alternateIds": [
+        "x5-1-10-typed-literal-event"
+      ],
+      "number": "5.1.10"
+    },
+    {
+      "id": "section-Infoset-Mapping",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-Infoset-Mapping",
+      "level": 3,
+      "title": "Information Set Mapping",
+      "alternateIds": [
+        "section-Infoset-Conformance"
+      ],
+      "number": "5.2"
+    },
+    {
+      "id": "section-Infoset-Grammar-Notation",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-Infoset-Grammar-Notation",
+      "level": 3,
+      "title": "Grammar Notation",
+      "alternateIds": [
+        "section-Notation-Forms"
+      ],
+      "number": "5.3"
+    },
+    {
+      "id": "section-Infoset-Grammar-General",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-Infoset-Grammar-General",
+      "level": 4,
+      "title": "Grammar General Notation",
+      "alternateIds": [
+        "x5-3-1-grammar-general-notation"
+      ],
+      "number": "5.3.1"
+    },
+    {
+      "id": "section-Infoset-Grammar-Matching",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-Infoset-Grammar-Matching",
+      "level": 4,
+      "title": "Grammar Event Matching Notation",
+      "alternateIds": [
+        "x5-3-2-grammar-event-matching-notation"
+      ],
+      "number": "5.3.2"
+    },
+    {
+      "id": "section-Infoset-Grammar-Action",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-Infoset-Grammar-Action",
+      "level": 4,
+      "title": "Grammar Action Notation",
+      "alternateIds": [
+        "x5-3-3-grammar-action-notation"
+      ],
+      "number": "5.3.3"
+    },
+    {
+      "id": "section-Infoset-Grammar",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-Infoset-Grammar",
+      "level": 2,
+      "title": "RDF/XML Grammar",
+      "alternateIds": [
+        "x6-rdf-xml-grammar"
+      ],
+      "number": "6"
+    },
+    {
+      "id": "section-grammar-summary",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-grammar-summary",
+      "level": 3,
+      "title": "Grammar summary",
+      "alternateIds": [
+        "x6-1-grammar-summary"
+      ],
+      "number": "6.1"
+    },
+    {
+      "id": "section-grammar-productions",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-grammar-productions",
+      "level": 3,
+      "title": "Grammar Productions",
+      "alternateIds": [
+        "x6-2-grammar-productions"
+      ],
+      "number": "6.2"
+    },
+    {
+      "id": "start",
+      "href": "https://w3c.github.io/rdf-xml/spec/#start",
+      "level": 4,
+      "title": "Grammar start",
+      "alternateIds": [
+        "x6-2-1-grammar-start"
+      ],
+      "number": "6.2.1"
+    },
+    {
+      "id": "coreSyntaxTerms",
+      "href": "https://w3c.github.io/rdf-xml/spec/#coreSyntaxTerms",
+      "level": 4,
+      "title": "Production coreSyntaxTerms",
+      "alternateIds": [
+        "x6-2-2-production-coresyntaxterms"
+      ],
+      "number": "6.2.2"
+    },
+    {
+      "id": "syntaxTerms",
+      "href": "https://w3c.github.io/rdf-xml/spec/#syntaxTerms",
+      "level": 4,
+      "title": "Production syntaxTerms",
+      "alternateIds": [
+        "x6-2-3-production-syntaxterms"
+      ],
+      "number": "6.2.3"
+    },
+    {
+      "id": "oldTerms",
+      "href": "https://w3c.github.io/rdf-xml/spec/#oldTerms",
+      "level": 4,
+      "title": "Production oldTerms",
+      "alternateIds": [
+        "section-Bag-Expand"
+      ],
+      "number": "6.2.4"
+    },
+    {
+      "id": "nodeElementURIs",
+      "href": "https://w3c.github.io/rdf-xml/spec/#nodeElementURIs",
+      "level": 4,
+      "title": "Production nodeElementIRIs",
+      "alternateIds": [
+        "x6-2-5-production-nodeelementiris"
+      ],
+      "number": "6.2.5"
+    },
+    {
+      "id": "propertyElementURIs",
+      "href": "https://w3c.github.io/rdf-xml/spec/#propertyElementURIs",
+      "level": 4,
+      "title": "Production propertyElementURIs",
+      "alternateIds": [
+        "x6-2-6-production-propertyelementuris"
+      ],
+      "number": "6.2.6"
+    },
+    {
+      "id": "propertyAttributeURIs",
+      "href": "https://w3c.github.io/rdf-xml/spec/#propertyAttributeURIs",
+      "level": 4,
+      "title": "Production propertyAttributeIRIs",
+      "alternateIds": [
+        "x6-2-7-production-propertyattributeiris"
+      ],
+      "number": "6.2.7"
+    },
+    {
+      "id": "doc",
+      "href": "https://w3c.github.io/rdf-xml/spec/#doc",
+      "level": 4,
+      "title": "Production doc",
+      "alternateIds": [
+        "x6-2-8-production-doc"
+      ],
+      "number": "6.2.8"
+    },
+    {
+      "id": "RDF",
+      "href": "https://w3c.github.io/rdf-xml/spec/#RDF",
+      "level": 4,
+      "title": "Production RDF",
+      "alternateIds": [
+        "x6-2-9-production-rdf"
+      ],
+      "number": "6.2.9"
+    },
+    {
+      "id": "nodeElementList",
+      "href": "https://w3c.github.io/rdf-xml/spec/#nodeElementList",
+      "level": 4,
+      "title": "Production nodeElementList",
+      "alternateIds": [
+        "x6-2-10-production-nodeelementlist"
+      ],
+      "number": "6.2.10"
+    },
+    {
+      "id": "nodeElement",
+      "href": "https://w3c.github.io/rdf-xml/spec/#nodeElement",
+      "level": 4,
+      "title": "Production nodeElement",
+      "alternateIds": [
+        "typedNode"
+      ],
+      "number": "6.2.11"
+    },
+    {
+      "id": "ws",
+      "href": "https://w3c.github.io/rdf-xml/spec/#ws",
+      "level": 4,
+      "title": "Production ws",
+      "alternateIds": [
+        "x6-2-12-production-ws"
+      ],
+      "number": "6.2.12"
+    },
+    {
+      "id": "propertyEltList",
+      "href": "https://w3c.github.io/rdf-xml/spec/#propertyEltList",
+      "level": 4,
+      "title": "Production propertyEltList",
+      "alternateIds": [
+        "x6-2-13-production-propertyeltlist"
+      ],
+      "number": "6.2.13"
+    },
+    {
+      "id": "propertyElt",
+      "href": "https://w3c.github.io/rdf-xml/spec/#propertyElt",
+      "level": 4,
+      "title": "Production propertyElt",
+      "alternateIds": [
+        "x6-2-14-production-propertyelt"
+      ],
+      "number": "6.2.14"
+    },
+    {
+      "id": "resourcePropertyElt",
+      "href": "https://w3c.github.io/rdf-xml/spec/#resourcePropertyElt",
+      "level": 4,
+      "title": "Production resourcePropertyElt",
+      "alternateIds": [
+        "x6-2-15-production-resourcepropertyelt"
+      ],
+      "number": "6.2.15"
+    },
+    {
+      "id": "literalPropertyElt",
+      "href": "https://w3c.github.io/rdf-xml/spec/#literalPropertyElt",
+      "level": 4,
+      "title": "Production literalPropertyElt",
+      "alternateIds": [
+        "x6-2-16-production-literalpropertyelt"
+      ],
+      "number": "6.2.16"
+    },
+    {
+      "id": "parseTypeLiteralPropertyElt",
+      "href": "https://w3c.github.io/rdf-xml/spec/#parseTypeLiteralPropertyElt",
+      "level": 4,
+      "title": "Production parseTypeLiteralPropertyElt",
+      "alternateIds": [
+        "x6-2-17-production-parsetypeliteralpropertyelt"
+      ],
+      "number": "6.2.17"
+    },
+    {
+      "id": "parseTypeResourcePropertyElt",
+      "href": "https://w3c.github.io/rdf-xml/spec/#parseTypeResourcePropertyElt",
+      "level": 4,
+      "title": "Production parseTypeResourcePropertyElt",
+      "alternateIds": [
+        "x6-2-18-production-parsetyperesourcepropertyelt"
+      ],
+      "number": "6.2.18"
+    },
+    {
+      "id": "parseTypeTriplePropertyElt",
+      "href": "https://w3c.github.io/rdf-xml/spec/#parseTypeTriplePropertyElt",
+      "level": 4,
+      "title": "Production parseTypeTriplePropertyElt",
+      "alternateIds": [
+        "x6-2-19-production-parsetypetriplepropertyelt"
+      ],
+      "number": "6.2.19"
+    },
+    {
+      "id": "parseTypeCollectionPropertyElt",
+      "href": "https://w3c.github.io/rdf-xml/spec/#parseTypeCollectionPropertyElt",
+      "level": 4,
+      "title": "Production parseTypeCollectionPropertyElt",
+      "alternateIds": [
+        "x6-2-20-production-parsetypecollectionpropertyelt"
+      ],
+      "number": "6.2.20"
+    },
+    {
+      "id": "parseTypeOtherPropertyElt",
+      "href": "https://w3c.github.io/rdf-xml/spec/#parseTypeOtherPropertyElt",
+      "level": 4,
+      "title": "Production parseTypeOtherPropertyElt",
+      "alternateIds": [
+        "x6-2-21-production-parsetypeotherpropertyelt"
+      ],
+      "number": "6.2.21"
+    },
+    {
+      "id": "emptyPropertyElt",
+      "href": "https://w3c.github.io/rdf-xml/spec/#emptyPropertyElt",
+      "level": 4,
+      "title": "Production emptyPropertyElt",
+      "alternateIds": [
+        "x6-2-22-production-emptypropertyelt"
+      ],
+      "number": "6.2.22"
+    },
+    {
+      "id": "idAttr",
+      "href": "https://w3c.github.io/rdf-xml/spec/#idAttr",
+      "level": 4,
+      "title": "Production idAttr",
+      "alternateIds": [
+        "idAboutAttr"
+      ],
+      "number": "6.2.23"
+    },
+    {
+      "id": "nodeIdAttr",
+      "href": "https://w3c.github.io/rdf-xml/spec/#nodeIdAttr",
+      "level": 4,
+      "title": "Production nodeIdAttr",
+      "alternateIds": [
+        "x6-2-24-production-nodeidattr"
+      ],
+      "number": "6.2.24"
+    },
+    {
+      "id": "aboutAttr",
+      "href": "https://w3c.github.io/rdf-xml/spec/#aboutAttr",
+      "level": 4,
+      "title": "Production aboutAttr",
+      "alternateIds": [
+        "x6-2-25-production-aboutattr"
+      ],
+      "number": "6.2.25"
+    },
+    {
+      "id": "annotationAttr",
+      "href": "https://w3c.github.io/rdf-xml/spec/#annotationAttr",
+      "level": 4,
+      "title": "Production annotationAttr",
+      "alternateIds": [
+        "x6-2-26-production-annotationattr"
+      ],
+      "number": "6.2.26"
+    },
+    {
+      "id": "annotationNodeIDAttr",
+      "href": "https://w3c.github.io/rdf-xml/spec/#annotationNodeIDAttr",
+      "level": 4,
+      "title": "Production annotationNodeIDAttr",
+      "alternateIds": [
+        "x6-2-27-production-annotationnodeidattr"
+      ],
+      "number": "6.2.27"
+    },
+    {
+      "id": "propertyAttr",
+      "href": "https://w3c.github.io/rdf-xml/spec/#propertyAttr",
+      "level": 4,
+      "title": "Production propertyAttr",
+      "alternateIds": [
+        "propAttr"
+      ],
+      "number": "6.2.28"
+    },
+    {
+      "id": "resourceAttr",
+      "href": "https://w3c.github.io/rdf-xml/spec/#resourceAttr",
+      "level": 4,
+      "title": "Production resourceAttr",
+      "alternateIds": [
+        "x6-2-29-production-resourceattr"
+      ],
+      "number": "6.2.29"
+    },
+    {
+      "id": "datatypeAttr",
+      "href": "https://w3c.github.io/rdf-xml/spec/#datatypeAttr",
+      "level": 4,
+      "title": "Production datatypeAttr",
+      "alternateIds": [
+        "x6-2-30-production-datatypeattr"
+      ],
+      "number": "6.2.30"
+    },
+    {
+      "id": "parseLiteral",
+      "href": "https://w3c.github.io/rdf-xml/spec/#parseLiteral",
+      "level": 4,
+      "title": "Production parseLiteral",
+      "alternateIds": [
+        "x6-2-31-production-parseliteral"
+      ],
+      "number": "6.2.31"
+    },
+    {
+      "id": "parseResource",
+      "href": "https://w3c.github.io/rdf-xml/spec/#parseResource",
+      "level": 4,
+      "title": "Production parseResource",
+      "alternateIds": [
+        "x6-2-32-production-parseresource"
+      ],
+      "number": "6.2.32"
+    },
+    {
+      "id": "parseTriple",
+      "href": "https://w3c.github.io/rdf-xml/spec/#parseTriple",
+      "level": 4,
+      "title": "Production parseTriple",
+      "alternateIds": [
+        "x6-2-33-production-parsetriple"
+      ],
+      "number": "6.2.33"
+    },
+    {
+      "id": "parseCollection",
+      "href": "https://w3c.github.io/rdf-xml/spec/#parseCollection",
+      "level": 4,
+      "title": "Production parseCollection",
+      "alternateIds": [
+        "x6-2-34-production-parsecollection"
+      ],
+      "number": "6.2.34"
+    },
+    {
+      "id": "parseOther",
+      "href": "https://w3c.github.io/rdf-xml/spec/#parseOther",
+      "level": 4,
+      "title": "Production parseOther",
+      "alternateIds": [
+        "x6-2-35-production-parseother"
+      ],
+      "number": "6.2.35"
+    },
+    {
+      "id": "URI-reference",
+      "href": "https://w3c.github.io/rdf-xml/spec/#URI-reference",
+      "level": 4,
+      "title": "Production IRI",
+      "alternateIds": [
+        "x6-2-36-production-iri"
+      ],
+      "number": "6.2.36"
+    },
+    {
+      "id": "literal",
+      "href": "https://w3c.github.io/rdf-xml/spec/#literal",
+      "level": 4,
+      "title": "Production literal",
+      "alternateIds": [
+        "x6-2-37-production-literal"
+      ],
+      "number": "6.2.37"
+    },
+    {
+      "id": "rdf-id",
+      "href": "https://w3c.github.io/rdf-xml/spec/#rdf-id",
+      "level": 4,
+      "title": "Production rdf-id",
+      "alternateIds": [
+        "x6-2-38-production-rdf-id"
+      ],
+      "number": "6.2.38"
+    },
+    {
+      "id": "section-Reification",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-Reification",
+      "level": 3,
+      "title": "Reification Rules",
+      "alternateIds": [
+        "x6-3-reification-rules"
+      ],
+      "number": "6.3"
+    },
+    {
+      "id": "section-List-Expand",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-List-Expand",
+      "level": 3,
+      "title": "List Expansion Rules",
+      "alternateIds": [
+        "x6-4-list-expansion-rules"
+      ],
+      "number": "6.4"
+    },
+    {
+      "id": "section-Serialising",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-Serialising",
+      "level": 2,
+      "title": "Serializing an RDF Graph to RDF/XML",
+      "alternateIds": [
+        "x7-serializing-an-rdf-graph-to-rdf-xml"
+      ],
+      "number": "7"
+    },
+    {
+      "id": "section-rdf-in-SVG",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-rdf-in-SVG",
+      "level": 2,
+      "title": "Using RDF/XML with SVG",
+      "alternateIds": [
+        "x8-using-rdf-xml-with-svg"
+      ],
+      "number": "8"
+    },
+    {
+      "id": "section-Acknowledgments",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-Acknowledgments",
+      "level": 2,
+      "title": "Acknowledgments",
+      "alternateIds": [
+        "a-acknowledgments"
+      ],
+      "number": "A"
+    },
+    {
+      "id": "acknowledgments-the-original-specification",
+      "href": "https://w3c.github.io/rdf-xml/spec/#acknowledgments-the-original-specification",
+      "level": 3,
+      "title": "Acknowledgments the original specification",
+      "alternateIds": [
+        "a-1-acknowledgments-the-original-specification"
+      ],
+      "number": "A.1"
+    },
+    {
+      "id": "acknowledgments-for-rdf-1-1",
+      "href": "https://w3c.github.io/rdf-xml/spec/#acknowledgments-for-rdf-1-1",
+      "level": 3,
+      "title": "Acknowledgments for RDF 1.1",
+      "alternateIds": [
+        "a-2-acknowledgments-for-rdf-1-1"
+      ],
+      "number": "A.2"
+    },
+    {
+      "id": "acknowledgments-for-rdf-1-2",
+      "href": "https://w3c.github.io/rdf-xml/spec/#acknowledgments-for-rdf-1-2",
+      "level": 3,
+      "title": "Acknowledgments for RDF 1.2",
+      "alternateIds": [
+        "a-3-acknowledgments-for-rdf-1-2"
+      ],
+      "number": "A.3"
+    },
+    {
+      "id": "changes-12",
+      "href": "https://w3c.github.io/rdf-xml/spec/#changes-12",
+      "level": 2,
+      "title": "Changes between RDF 1.1 and RDF 1.2",
+      "alternateIds": [
+        "b-changes-between-rdf-1-1-and-rdf-1-2"
+      ],
+      "number": "B"
+    },
+    {
+      "id": "section-Schemas",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-Schemas",
+      "level": 2,
+      "title": "Syntax Schemas",
+      "alternateIds": [
+        "c-syntax-schemas"
+      ],
+      "number": "C"
+    },
+    {
+      "id": "section-RELAXNG-Schema",
+      "href": "https://w3c.github.io/rdf-xml/spec/#section-RELAXNG-Schema",
+      "level": 3,
+      "title": "RELAX NG Compact Schema",
+      "alternateIds": [
+        "c-1-relax-ng-compact-schema"
+      ],
+      "number": "C.1"
+    },
+    {
+      "id": "index",
+      "href": "https://w3c.github.io/rdf-xml/spec/#index",
+      "level": 2,
+      "title": "Index",
+      "alternateIds": [
+        "d-index"
+      ],
+      "number": "D"
+    },
+    {
+      "id": "index-defined-here",
+      "href": "https://w3c.github.io/rdf-xml/spec/#index-defined-here",
+      "level": 3,
+      "title": "Terms defined by this specification",
+      "alternateIds": [
+        "d-1-terms-defined-by-this-specification"
+      ],
+      "number": "D.1"
+    },
+    {
+      "id": "index-defined-elsewhere",
+      "href": "https://w3c.github.io/rdf-xml/spec/#index-defined-elsewhere",
+      "level": 3,
+      "title": "Terms defined by reference",
+      "alternateIds": [
+        "d-2-terms-defined-by-reference"
+      ],
+      "number": "D.2"
+    },
+    {
+      "id": "references",
+      "href": "https://w3c.github.io/rdf-xml/spec/#references",
+      "level": 2,
+      "title": "References",
+      "alternateIds": [
+        "e-references"
+      ],
+      "number": "E"
+    },
+    {
+      "id": "normative-references",
+      "href": "https://w3c.github.io/rdf-xml/spec/#normative-references",
+      "level": 3,
+      "title": "Normative references",
+      "alternateIds": [
+        "e-1-normative-references"
+      ],
+      "number": "E.1"
+    },
+    {
+      "id": "informative-references",
+      "href": "https://w3c.github.io/rdf-xml/spec/#informative-references",
+      "level": 3,
+      "title": "Informative references",
+      "alternateIds": [
+        "e-2-informative-references"
+      ],
+      "number": "E.2"
+    }
+  ]
+}

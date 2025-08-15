@@ -1,0 +1,48 @@
+{
+  "spec": {
+    "title": "WebCodecs",
+    "url": "https://www.w3.org/TR/webcodecs/"
+  },
+  "events": [
+    {
+      "type": "dequeue",
+      "targets": [
+        "AudioDecoder"
+      ],
+      "src": {
+        "format": "IDL eventHandler"
+      },
+      "href": "https://www.w3.org/TR/webcodecs/#eventdef-audiodecoder-dequeue"
+    },
+    {
+      "type": "dequeue",
+      "targets": [
+        "VideoDecoder"
+      ],
+      "src": {
+        "format": "IDL eventHandler"
+      },
+      "href": "https://www.w3.org/TR/webcodecs/#eventdef-videodecoder-dequeue"
+    },
+    {
+      "type": "dequeue",
+      "targets": [
+        "AudioEncoder"
+      ],
+      "src": {
+        "format": "IDL eventHandler"
+      },
+      "href": "https://www.w3.org/TR/webcodecs/#eventdef-audioencoder-dequeue"
+    },
+    {
+      "type": "dequeue",
+      "targets": [
+        "VideoEncoder"
+      ],
+      "src": {
+        "format": "IDL eventHandler"
+      },
+      "href": "https://www.w3.org/TR/webcodecs/#eventdef-videoencoder-dequeue"
+    }
+  ]
+}

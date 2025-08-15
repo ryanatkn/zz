@@ -1,0 +1,240 @@
+{
+  "spec": {
+    "title": "Upgrade Insecure Requests",
+    "url": "https://www.w3.org/TR/upgrade-insecure-requests/"
+  },
+  "dfns": [
+    {
+      "id": "upgrade-a-request",
+      "href": "https://www.w3.org/TR/upgrade-insecure-requests/#upgrade-a-request",
+      "linkingText": [
+        "upgrade a request"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "key-concepts",
+        "href": "https://www.w3.org/TR/upgrade-insecure-requests/#key-concepts",
+        "title": "Key Concepts and Terminology",
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "safely-upgradable-requests",
+      "href": "https://www.w3.org/TR/upgrade-insecure-requests/#safely-upgradable-requests",
+      "linkingText": [
+        "safely upgradable requests"
+      ],
+      "localLinkingText": [
+        "safely upgradable"
+      ],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "key-concepts",
+        "href": "https://www.w3.org/TR/upgrade-insecure-requests/#key-concepts",
+        "title": "Key Concepts and Terminology",
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "hsts-safe-origin",
+      "href": "https://www.w3.org/TR/upgrade-insecure-requests/#hsts-safe-origin",
+      "linkingText": [
+        "HSTS-safe origin"
+      ],
+      "localLinkingText": [
+        "HSTS-safe"
+      ],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "key-concepts",
+        "href": "https://www.w3.org/TR/upgrade-insecure-requests/#key-concepts",
+        "title": "Key Concepts and Terminology",
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "conditionally-hsts-safe-origin",
+      "href": "https://www.w3.org/TR/upgrade-insecure-requests/#conditionally-hsts-safe-origin",
+      "linkingText": [
+        "conditionally HSTS-safe origin"
+      ],
+      "localLinkingText": [
+        "conditionally HSTS-safe"
+      ],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "key-concepts",
+        "href": "https://www.w3.org/TR/upgrade-insecure-requests/#key-concepts",
+        "title": "Key Concepts and Terminology",
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "preloadable-hsts-host",
+      "href": "https://www.w3.org/TR/upgrade-insecure-requests/#preloadable-hsts-host",
+      "linkingText": [
+        "preloadable HSTS host"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "key-concepts",
+        "href": "https://www.w3.org/TR/upgrade-insecure-requests/#key-concepts",
+        "title": "Key Concepts and Terminology",
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "insecure-requests-policy",
+      "href": "https://www.w3.org/TR/upgrade-insecure-requests/#insecure-requests-policy",
+      "linkingText": [
+        "insecure requests policy"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "upgrading",
+        "href": "https://www.w3.org/TR/upgrade-insecure-requests/#upgrading",
+        "title": "Upgrading Insecure Resource Requests",
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "valdef-insecure-requests-policy-do-not-upgrade",
+      "href": "https://www.w3.org/TR/upgrade-insecure-requests/#valdef-insecure-requests-policy-do-not-upgrade",
+      "linkingText": [
+        "Do Not Upgrade"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "insecure requests policy"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "upgrading",
+        "href": "https://www.w3.org/TR/upgrade-insecure-requests/#upgrading",
+        "title": "Upgrading Insecure Resource Requests",
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "valdef-insecure-requests-policy-upgrade",
+      "href": "https://www.w3.org/TR/upgrade-insecure-requests/#valdef-insecure-requests-policy-upgrade",
+      "linkingText": [
+        "Upgrade"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "insecure requests policy"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "upgrading",
+        "href": "https://www.w3.org/TR/upgrade-insecure-requests/#upgrading",
+        "title": "Upgrading Insecure Resource Requests",
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "upgrade-insecure-navigations-set",
+      "href": "https://www.w3.org/TR/upgrade-insecure-requests/#upgrade-insecure-navigations-set",
+      "linkingText": [
+        "upgrade insecure navigations set"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "upgrading",
+        "href": "https://www.w3.org/TR/upgrade-insecure-requests/#upgrading",
+        "title": "Upgrading Insecure Resource Requests",
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "upgrade-insecure-requests",
+      "href": "https://www.w3.org/TR/upgrade-insecure-requests/#upgrade-insecure-requests",
+      "linkingText": [
+        "upgrade-insecure-requests"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "delivery",
+        "href": "https://www.w3.org/TR/upgrade-insecure-requests/#delivery",
+        "title": "The upgrade-insecure-requests Content Security Policy directive",
+        "number": "3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "upgrade-insecure-requests-http-request-header-field",
+      "href": "https://www.w3.org/TR/upgrade-insecure-requests/#upgrade-insecure-requests-http-request-header-field",
+      "linkingText": [
+        "Upgrade-Insecure-Requests HTTP request header field"
+      ],
+      "localLinkingText": [
+        "Upgrade-Insecure-Requests header field"
+      ],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "preference",
+        "href": "https://www.w3.org/TR/upgrade-insecure-requests/#preference",
+        "title": "The Upgrade-Insecure-Requests HTTP Request Header Field",
+        "number": "3.2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

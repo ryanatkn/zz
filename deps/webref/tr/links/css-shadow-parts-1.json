@@ -1,0 +1,153 @@
+{
+  "spec": {
+    "title": "CSS Shadow Parts",
+    "url": "https://www.w3.org/TR/css-shadow-parts-1/"
+  },
+  "links": {
+    "rawlinks": {
+      "https://dom.spec.whatwg.org/": {
+        "anchors": [
+          "domtokenlist",
+          "element",
+          "concept-shadow-root",
+          "dom-domtokenlist-value"
+        ]
+      },
+      "https://github.com/w3c/csswg-drafts/issues": {},
+      "https://github.com/w3c/csswg-drafts/issues/2411": {},
+      "https://github.com/w3c/csswg-drafts/issues/2414": {},
+      "https://heycam.github.io/webidl/": {
+        "anchors": [
+          "PutForwards",
+          "SameObject"
+        ]
+      },
+      "https://infra.spec.whatwg.org/": {
+        "anchors": [
+          "collect-a-sequence-of-code-points",
+          "map-exists",
+          "list",
+          "ordered-map",
+          "ordered-set",
+          "pair",
+          "string"
+        ]
+      },
+      "https://lists.w3.org/Archives/Public/public-css-archive/": {},
+      "https://lists.w3.org/Archives/Public/public-css-testsuite": {},
+      "https://lists.w3.org/Archives/Public/www-style/": {},
+      "https://tools.ietf.org/html/rfc2119": {},
+      "https://www.w3.org/2004/01/pp-impl/32061/status": {},
+      "https://www.w3.org/2018/Process-20180201/": {},
+      "https://www.w3.org/Consortium/Patent-Policy/": {
+        "anchors": [
+          "def-essential",
+          "sec-Disclosure"
+        ]
+      },
+      "https://www.w3.org/Style/CSS/Test/": {},
+      "https://www.w3.org/Style/CSS/members": {},
+      "https://www.w3.org/TR/": {},
+      "https://www.w3.org/TR/CSS/": {
+        "anchors": [
+          "future-proofing",
+          "unstable",
+          "proprietary-extension"
+        ]
+      },
+      "https://www.w3.org/TR/CSS2/conform.html": {
+        "anchors": [
+          "style-sheet",
+          "user-agent",
+          "ignore"
+        ]
+      },
+      "https://www.w3.org/TR/css-scoping-1/": {
+        "anchors": [
+          "shadow-host",
+          "shadow-tree"
+        ]
+      },
+      "https://www.w3.org/TR/css-values-4/": {
+        "anchors": [
+          "typedef-ident"
+        ]
+      },
+      "https://www.w3.org/TR/css-variables-1/": {
+        "anchors": [
+          "custom-property"
+        ]
+      },
+      "https://www.w3.org/TR/selectors-4/": {},
+      "https://www.w3.org/TR/selectors4/": {
+        "anchors": [
+          "hover-pseudo",
+          "live-profile",
+          "originating-element",
+          "structural-pseudo-classes"
+        ]
+      }
+    },
+    "autolinks": {
+      "https://dom.spec.whatwg.org/": {
+        "anchors": [
+          "concept-shadow-root",
+          "element",
+          "dom-domtokenlist-value",
+          "domtokenlist"
+        ]
+      },
+      "https://drafts.csswg.org/css-shadow-parts/": {
+        "anchors": [
+          "part"
+        ]
+      },
+      "https://heycam.github.io/webidl/": {
+        "anchors": [
+          "SameObject",
+          "PutForwards"
+        ]
+      },
+      "https://infra.spec.whatwg.org/": {
+        "anchors": [
+          "ordered-set",
+          "ordered-map",
+          "string",
+          "map-exists",
+          "pair",
+          "collect-a-sequence-of-code-points",
+          "list"
+        ]
+      },
+      "https://www.w3.org/TR/CSS/": {
+        "anchors": [
+          "vendor-prefix"
+        ]
+      },
+      "https://www.w3.org/TR/css-scoping-1/": {
+        "anchors": [
+          "shadow-host",
+          "shadow-tree"
+        ]
+      },
+      "https://www.w3.org/TR/css-values-4/": {
+        "anchors": [
+          "typedef-ident"
+        ]
+      },
+      "https://www.w3.org/TR/css-variables-1/": {
+        "anchors": [
+          "custom-property"
+        ]
+      },
+      "https://www.w3.org/TR/selectors4/": {
+        "anchors": [
+          "live-profile",
+          "hover-pseudo",
+          "originating-element",
+          "structural-pseudo-classes"
+        ]
+      }
+    }
+  }
+}

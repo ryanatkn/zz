@@ -1,0 +1,968 @@
+{
+  "spec": {
+    "title": "CSS Containment Module Level 2",
+    "url": "https://drafts.csswg.org/css-contain-2/"
+  },
+  "dfns": [
+    {
+      "id": "propdef-contain",
+      "href": "https://drafts.csswg.org/css-contain-2/#propdef-contain",
+      "linkingText": [
+        "contain"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "contain-property",
+        "href": "https://drafts.csswg.org/css-contain-2/#contain-property",
+        "title": "Strong Containment: the contain property",
+        "number": "2"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "valdef-contain-none",
+      "href": "https://drafts.csswg.org/css-contain-2/#valdef-contain-none",
+      "linkingText": [
+        "none"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "contain"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "contain-property",
+        "href": "https://drafts.csswg.org/css-contain-2/#contain-property",
+        "title": "Strong Containment: the contain property",
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-contain-strict",
+      "href": "https://drafts.csswg.org/css-contain-2/#valdef-contain-strict",
+      "linkingText": [
+        "strict"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "contain"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "contain-property",
+        "href": "https://drafts.csswg.org/css-contain-2/#contain-property",
+        "title": "Strong Containment: the contain property",
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-contain-content",
+      "href": "https://drafts.csswg.org/css-contain-2/#valdef-contain-content",
+      "linkingText": [
+        "content"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "contain"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "contain-property",
+        "href": "https://drafts.csswg.org/css-contain-2/#contain-property",
+        "title": "Strong Containment: the contain property",
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-contain-size",
+      "href": "https://drafts.csswg.org/css-contain-2/#valdef-contain-size",
+      "linkingText": [
+        "size"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "contain"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "contain-property",
+        "href": "https://drafts.csswg.org/css-contain-2/#contain-property",
+        "title": "Strong Containment: the contain property",
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-contain-inline-size",
+      "href": "https://drafts.csswg.org/css-contain-2/#valdef-contain-inline-size",
+      "linkingText": [
+        "inline-size"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "contain"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "contain-property",
+        "href": "https://drafts.csswg.org/css-contain-2/#contain-property",
+        "title": "Strong Containment: the contain property",
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-contain-layout",
+      "href": "https://drafts.csswg.org/css-contain-2/#valdef-contain-layout",
+      "linkingText": [
+        "layout"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "contain"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "contain-property",
+        "href": "https://drafts.csswg.org/css-contain-2/#contain-property",
+        "title": "Strong Containment: the contain property",
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-contain-style",
+      "href": "https://drafts.csswg.org/css-contain-2/#valdef-contain-style",
+      "linkingText": [
+        "style"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "contain"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "contain-property",
+        "href": "https://drafts.csswg.org/css-contain-2/#contain-property",
+        "title": "Strong Containment: the contain property",
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-contain-paint",
+      "href": "https://drafts.csswg.org/css-contain-2/#valdef-contain-paint",
+      "linkingText": [
+        "paint"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "contain"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "contain-property",
+        "href": "https://drafts.csswg.org/css-contain-2/#contain-property",
+        "title": "Strong Containment: the contain property",
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "containment",
+      "href": "https://drafts.csswg.org/css-contain-2/#containment",
+      "linkingText": [
+        "containment"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "containment-types",
+        "href": "https://drafts.csswg.org/css-contain-2/#containment-types",
+        "title": "Types of Containment",
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "size-containment",
+      "href": "https://drafts.csswg.org/css-contain-2/#size-containment",
+      "linkingText": [
+        "size containment"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "containment-size",
+        "href": "https://drafts.csswg.org/css-contain-2/#containment-size",
+        "title": "Size Containment",
+        "number": "3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "size-containment-box",
+      "href": "https://drafts.csswg.org/css-contain-2/#size-containment-box",
+      "linkingText": [
+        "size containment box"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "containment-size",
+        "href": "https://drafts.csswg.org/css-contain-2/#containment-size",
+        "title": "Size Containment",
+        "number": "3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "sizing-as-if-empty",
+      "href": "https://drafts.csswg.org/css-contain-2/#sizing-as-if-empty",
+      "linkingText": [
+        "Sizing as if empty"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "containment-size",
+        "href": "https://drafts.csswg.org/css-contain-2/#containment-size",
+        "title": "Size Containment",
+        "number": "3.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "laying-out-in-place",
+      "href": "https://drafts.csswg.org/css-contain-2/#laying-out-in-place",
+      "linkingText": [
+        "Laying out in-place"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "containment-size",
+        "href": "https://drafts.csswg.org/css-contain-2/#containment-size",
+        "title": "Size Containment",
+        "number": "3.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "inline-size-containment",
+      "href": "https://drafts.csswg.org/css-contain-2/#inline-size-containment",
+      "linkingText": [
+        "inline-size containment"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "containment-inline-size",
+        "href": "https://drafts.csswg.org/css-contain-2/#containment-inline-size",
+        "title": "Inline-Size Containment",
+        "number": "3.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "layout-containment",
+      "href": "https://drafts.csswg.org/css-contain-2/#layout-containment",
+      "linkingText": [
+        "layout containment"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "containment-layout",
+        "href": "https://drafts.csswg.org/css-contain-2/#containment-layout",
+        "title": "Layout Containment",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "layout-containment-box",
+      "href": "https://drafts.csswg.org/css-contain-2/#layout-containment-box",
+      "linkingText": [
+        "layout containment box"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "containment-layout",
+        "href": "https://drafts.csswg.org/css-contain-2/#containment-layout",
+        "title": "Layout Containment",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "style-containment",
+      "href": "https://drafts.csswg.org/css-contain-2/#style-containment",
+      "linkingText": [
+        "style containment"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "containment-style",
+        "href": "https://drafts.csswg.org/css-contain-2/#containment-style",
+        "title": "Style Containment",
+        "number": "3.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "property-scoped",
+      "href": "https://drafts.csswg.org/css-contain-2/#property-scoped",
+      "linkingText": [
+        "scoped",
+        "scoped property",
+        "scoped properties"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "property"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "containment-style",
+        "href": "https://drafts.csswg.org/css-contain-2/#containment-style",
+        "title": "Style Containment",
+        "number": "3.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "property-scoped-to-an-element",
+      "href": "https://drafts.csswg.org/css-contain-2/#property-scoped-to-an-element",
+      "linkingText": [
+        "scoped to an element",
+        "scoped to the element"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "property"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "containment-style",
+        "href": "https://drafts.csswg.org/css-contain-2/#containment-style",
+        "title": "Style Containment",
+        "number": "3.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "property-scoped-to-a-sub-tree",
+      "href": "https://drafts.csswg.org/css-contain-2/#property-scoped-to-a-sub-tree",
+      "linkingText": [
+        "scoped to a sub-tree",
+        "scoped to the sub-tree",
+        "scoped to the element's sub-tree",
+        "scoped to an element's sub-tree"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "property"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "containment-style",
+        "href": "https://drafts.csswg.org/css-contain-2/#containment-style",
+        "title": "Style Containment",
+        "number": "3.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "paint-containment",
+      "href": "https://drafts.csswg.org/css-contain-2/#paint-containment",
+      "linkingText": [
+        "paint containment"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "containment-paint",
+        "href": "https://drafts.csswg.org/css-contain-2/#containment-paint",
+        "title": "Paint Containment",
+        "number": "3.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "paint-containment-box",
+      "href": "https://drafts.csswg.org/css-contain-2/#paint-containment-box",
+      "linkingText": [
+        "paint containment box"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "containment-paint",
+        "href": "https://drafts.csswg.org/css-contain-2/#containment-paint",
+        "title": "Paint Containment",
+        "number": "3.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "propdef-content-visibility",
+      "href": "https://drafts.csswg.org/css-contain-2/#propdef-content-visibility",
+      "linkingText": [
+        "content-visibility"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "content-visibility",
+        "href": "https://drafts.csswg.org/css-contain-2/#content-visibility",
+        "title": "Suppressing An Element’s Contents Entirely: the content-visibility property",
+        "number": "4"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "valdef-content-visibility-visible",
+      "href": "https://drafts.csswg.org/css-contain-2/#valdef-content-visibility-visible",
+      "linkingText": [
+        "visible"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "content-visibility"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "content-visibility",
+        "href": "https://drafts.csswg.org/css-contain-2/#content-visibility",
+        "title": "Suppressing An Element’s Contents Entirely: the content-visibility property",
+        "number": "4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-content-visibility-hidden",
+      "href": "https://drafts.csswg.org/css-contain-2/#valdef-content-visibility-hidden",
+      "linkingText": [
+        "hidden"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "content-visibility"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "content-visibility",
+        "href": "https://drafts.csswg.org/css-contain-2/#content-visibility",
+        "title": "Suppressing An Element’s Contents Entirely: the content-visibility property",
+        "number": "4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-content-visibility-auto",
+      "href": "https://drafts.csswg.org/css-contain-2/#valdef-content-visibility-auto",
+      "linkingText": [
+        "auto"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "content-visibility"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "content-visibility",
+        "href": "https://drafts.csswg.org/css-contain-2/#content-visibility",
+        "title": "Suppressing An Element’s Contents Entirely: the content-visibility property",
+        "number": "4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "skips-its-contents",
+      "href": "https://drafts.csswg.org/css-contain-2/#skips-its-contents",
+      "linkingText": [
+        "skips its contents",
+        "skipping its contents",
+        "skip its contents",
+        "skipped contents"
+      ],
+      "localLinkingText": [
+        "skip"
+      ],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "content-visibility",
+        "href": "https://drafts.csswg.org/css-contain-2/#content-visibility",
+        "title": "Suppressing An Element’s Contents Entirely: the content-visibility property",
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "element-contents",
+      "href": "https://drafts.csswg.org/css-contain-2/#element-contents",
+      "linkingText": [
+        "element contents"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "content-visibility",
+        "href": "https://drafts.csswg.org/css-contain-2/#content-visibility",
+        "title": "Suppressing An Element’s Contents Entirely: the content-visibility property",
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "proximity-to-the-viewport",
+      "href": "https://drafts.csswg.org/css-contain-2/#proximity-to-the-viewport",
+      "linkingText": [
+        "proximity to the viewport"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "content-visibility",
+        "href": "https://drafts.csswg.org/css-contain-2/#content-visibility",
+        "title": "Suppressing An Element’s Contents Entirely: the content-visibility property",
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "close-to-the-viewport",
+      "href": "https://drafts.csswg.org/css-contain-2/#close-to-the-viewport",
+      "linkingText": [
+        "close to the viewport"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "content-visibility",
+        "href": "https://drafts.csswg.org/css-contain-2/#content-visibility",
+        "title": "Suppressing An Element’s Contents Entirely: the content-visibility property",
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "far-away-from-the-viewport",
+      "href": "https://drafts.csswg.org/css-contain-2/#far-away-from-the-viewport",
+      "linkingText": [
+        "far away from the viewport"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "content-visibility",
+        "href": "https://drafts.csswg.org/css-contain-2/#content-visibility",
+        "title": "Suppressing An Element’s Contents Entirely: the content-visibility property",
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "not-determined",
+      "href": "https://drafts.csswg.org/css-contain-2/#not-determined",
+      "linkingText": [
+        "not determined"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "content-visibility",
+        "href": "https://drafts.csswg.org/css-contain-2/#content-visibility",
+        "title": "Suppressing An Element’s Contents Entirely: the content-visibility property",
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "currently-relevant-to-the-user",
+      "href": "https://drafts.csswg.org/css-contain-2/#currently-relevant-to-the-user",
+      "linkingText": [
+        "currently relevant to the user"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "content-visibility",
+        "href": "https://drafts.csswg.org/css-contain-2/#content-visibility",
+        "title": "Suppressing An Element’s Contents Entirely: the content-visibility property",
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "update-currently-relevant-to-the-user",
+      "href": "https://drafts.csswg.org/css-contain-2/#update-currently-relevant-to-the-user",
+      "linkingText": [
+        "update currently relevant to the user"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "content-visibility",
+        "href": "https://drafts.csswg.org/css-contain-2/#content-visibility",
+        "title": "Suppressing An Element’s Contents Entirely: the content-visibility property",
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "update-content-relevancy-for-a-document",
+      "href": "https://drafts.csswg.org/css-contain-2/#update-content-relevancy-for-a-document",
+      "linkingText": [
+        "update content relevancy for a document"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "content-visibility",
+        "href": "https://drafts.csswg.org/css-contain-2/#content-visibility",
+        "title": "Suppressing An Element’s Contents Entirely: the content-visibility property",
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "relevant-to-the-user",
+      "href": "https://drafts.csswg.org/css-contain-2/#relevant-to-the-user",
+      "linkingText": [
+        "relevant to the user"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "content-visibility",
+        "href": "https://drafts.csswg.org/css-contain-2/#content-visibility",
+        "title": "Suppressing An Element’s Contents Entirely: the content-visibility property",
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "eventdef-element-contentvisibilityautostatechange",
+      "href": "https://drafts.csswg.org/css-contain-2/#eventdef-element-contentvisibilityautostatechange",
+      "linkingText": [
+        "contentvisibilityautostatechange"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "Element"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "content-visibility-auto-state-change",
+        "href": "https://drafts.csswg.org/css-contain-2/#content-visibility-auto-state-change",
+        "title": "Detecting content-visibility: auto state changes: the contentvisibilityautostatechange event",
+        "number": "4.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "contentvisibilityautostatechangeevent",
+      "href": "https://drafts.csswg.org/css-contain-2/#contentvisibilityautostatechangeevent",
+      "linkingText": [
+        "ContentVisibilityAutoStateChangeEvent"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "content-visibility-auto-state-change",
+        "href": "https://drafts.csswg.org/css-contain-2/#content-visibility-auto-state-change",
+        "title": "Detecting content-visibility: auto state changes: the contentvisibilityautostatechange event",
+        "number": "4.4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-contentvisibilityautostatechangeevent-contentvisibilityautostatechangeevent",
+      "href": "https://drafts.csswg.org/css-contain-2/#dom-contentvisibilityautostatechangeevent-contentvisibilityautostatechangeevent",
+      "linkingText": [
+        "ContentVisibilityAutoStateChangeEvent(type, eventInitDict)",
+        "constructor(type, eventInitDict)",
+        "ContentVisibilityAutoStateChangeEvent(type)",
+        "constructor(type)"
+      ],
+      "localLinkingText": [],
+      "type": "constructor",
+      "for": [
+        "ContentVisibilityAutoStateChangeEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "content-visibility-auto-state-change",
+        "href": "https://drafts.csswg.org/css-contain-2/#content-visibility-auto-state-change",
+        "title": "Detecting content-visibility: auto state changes: the contentvisibilityautostatechange event",
+        "number": "4.4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-contentvisibilityautostatechangeevent-contentvisibilityautostatechangeevent-type-eventinitdict-type",
+      "href": "https://drafts.csswg.org/css-contain-2/#dom-contentvisibilityautostatechangeevent-contentvisibilityautostatechangeevent-type-eventinitdict-type",
+      "linkingText": [
+        "type"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "ContentVisibilityAutoStateChangeEvent/ContentVisibilityAutoStateChangeEvent(type, eventInitDict)",
+        "ContentVisibilityAutoStateChangeEvent/constructor(type, eventInitDict)",
+        "ContentVisibilityAutoStateChangeEvent/ContentVisibilityAutoStateChangeEvent(type)",
+        "ContentVisibilityAutoStateChangeEvent/constructor(type)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "content-visibility-auto-state-change",
+        "href": "https://drafts.csswg.org/css-contain-2/#content-visibility-auto-state-change",
+        "title": "Detecting content-visibility: auto state changes: the contentvisibilityautostatechange event",
+        "number": "4.4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-contentvisibilityautostatechangeevent-contentvisibilityautostatechangeevent-type-eventinitdict-eventinitdict",
+      "href": "https://drafts.csswg.org/css-contain-2/#dom-contentvisibilityautostatechangeevent-contentvisibilityautostatechangeevent-type-eventinitdict-eventinitdict",
+      "linkingText": [
+        "eventInitDict"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "ContentVisibilityAutoStateChangeEvent/ContentVisibilityAutoStateChangeEvent(type, eventInitDict)",
+        "ContentVisibilityAutoStateChangeEvent/constructor(type, eventInitDict)",
+        "ContentVisibilityAutoStateChangeEvent/ContentVisibilityAutoStateChangeEvent(type)",
+        "ContentVisibilityAutoStateChangeEvent/constructor(type)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "content-visibility-auto-state-change",
+        "href": "https://drafts.csswg.org/css-contain-2/#content-visibility-auto-state-change",
+        "title": "Detecting content-visibility: auto state changes: the contentvisibilityautostatechange event",
+        "number": "4.4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dictdef-contentvisibilityautostatechangeeventinit",
+      "href": "https://drafts.csswg.org/css-contain-2/#dictdef-contentvisibilityautostatechangeeventinit",
+      "linkingText": [
+        "ContentVisibilityAutoStateChangeEventInit"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "content-visibility-auto-state-change",
+        "href": "https://drafts.csswg.org/css-contain-2/#content-visibility-auto-state-change",
+        "title": "Detecting content-visibility: auto state changes: the contentvisibilityautostatechange event",
+        "number": "4.4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-contentvisibilityautostatechangeevent-skipped",
+      "href": "https://drafts.csswg.org/css-contain-2/#dom-contentvisibilityautostatechangeevent-skipped",
+      "linkingText": [
+        "skipped"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "ContentVisibilityAutoStateChangeEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "content-visibility-auto-state-change",
+        "href": "https://drafts.csswg.org/css-contain-2/#content-visibility-auto-state-change",
+        "title": "Detecting content-visibility: auto state changes: the contentvisibilityautostatechange event",
+        "number": "4.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-contentvisibilityautostatechangeeventinit-skipped",
+      "href": "https://drafts.csswg.org/css-contain-2/#dom-contentvisibilityautostatechangeeventinit-skipped",
+      "linkingText": [
+        "skipped"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "ContentVisibilityAutoStateChangeEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "content-visibility-auto-state-change",
+        "href": "https://drafts.csswg.org/css-contain-2/#content-visibility-auto-state-change",
+        "title": "Detecting content-visibility: auto state changes: the contentvisibilityautostatechange event",
+        "number": "4.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    }
+  ]
+}

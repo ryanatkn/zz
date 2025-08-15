@@ -1,0 +1,867 @@
+{
+  "spec": {
+    "title": "CSS Overflow Module Level 3",
+    "url": "https://www.w3.org/TR/css-overflow-3/"
+  },
+  "dfns": [
+    {
+      "id": "overflow",
+      "href": "https://www.w3.org/TR/css-overflow-3/#overflow",
+      "linkingText": [
+        "overflow"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "overflow-concepts",
+        "href": "https://www.w3.org/TR/css-overflow-3/#overflow-concepts",
+        "title": "Overflow Concepts and Terminology",
+        "number": "2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "ink-overflow",
+      "href": "https://www.w3.org/TR/css-overflow-3/#ink-overflow",
+      "linkingText": [
+        "ink overflow"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "ink",
+        "href": "https://www.w3.org/TR/css-overflow-3/#ink",
+        "title": "Ink Overflow",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "ink-overflow-region",
+      "href": "https://www.w3.org/TR/css-overflow-3/#ink-overflow-region",
+      "linkingText": [
+        "ink overflow region",
+        "ink overflow area"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/css-overflow-3/#title",
+        "title": "CSS Overflow Module Level 3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "ink-overflow-rectangle",
+      "href": "https://www.w3.org/TR/css-overflow-3/#ink-overflow-rectangle",
+      "linkingText": [
+        "ink overflow rectangle"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/css-overflow-3/#title",
+        "title": "CSS Overflow Module Level 3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "scrollable-overflow",
+      "href": "https://www.w3.org/TR/css-overflow-3/#scrollable-overflow",
+      "linkingText": [
+        "scrollable overflow"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "scrollable",
+        "href": "https://www.w3.org/TR/css-overflow-3/#scrollable",
+        "title": "Scrollable Overflow",
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "scrollable-overflow-region",
+      "href": "https://www.w3.org/TR/css-overflow-3/#scrollable-overflow-region",
+      "linkingText": [
+        "scrollable overflow region",
+        "scrollable overflow area"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/css-overflow-3/#title",
+        "title": "CSS Overflow Module Level 3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "scrollable-overflow-rectangle",
+      "href": "https://www.w3.org/TR/css-overflow-3/#scrollable-overflow-rectangle",
+      "linkingText": [
+        "scrollable overflow rectangle"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/css-overflow-3/#title",
+        "title": "CSS Overflow Module Level 3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "scroll-container",
+      "href": "https://www.w3.org/TR/css-overflow-3/#scroll-container",
+      "linkingText": [
+        "scroll container"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "scrolling",
+        "href": "https://www.w3.org/TR/css-overflow-3/#scrolling",
+        "title": "Scrolling Overflow",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "scrollport",
+      "href": "https://www.w3.org/TR/css-overflow-3/#scrollport",
+      "linkingText": [
+        "scrollport"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/css-overflow-3/#title",
+        "title": "CSS Overflow Module Level 3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "nearest-scrollport",
+      "href": "https://www.w3.org/TR/css-overflow-3/#nearest-scrollport",
+      "linkingText": [
+        "nearest scrollport"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/css-overflow-3/#title",
+        "title": "CSS Overflow Module Level 3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "initial-scroll-position",
+      "href": "https://www.w3.org/TR/css-overflow-3/#initial-scroll-position",
+      "linkingText": [
+        "initial scroll position"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/css-overflow-3/#title",
+        "title": "CSS Overflow Module Level 3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "scroll-position",
+      "href": "https://www.w3.org/TR/css-overflow-3/#scroll-position",
+      "linkingText": [
+        "scroll position"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/css-overflow-3/#title",
+        "title": "CSS Overflow Module Level 3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "scroll-offset",
+      "href": "https://www.w3.org/TR/css-overflow-3/#scroll-offset",
+      "linkingText": [
+        "scroll offset"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/css-overflow-3/#title",
+        "title": "CSS Overflow Module Level 3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "scroll-origin",
+      "href": "https://www.w3.org/TR/css-overflow-3/#scroll-origin",
+      "linkingText": [
+        "scroll origin"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/css-overflow-3/#title",
+        "title": "CSS Overflow Module Level 3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "negative-scrollable-overflow-region",
+      "href": "https://www.w3.org/TR/css-overflow-3/#negative-scrollable-overflow-region",
+      "linkingText": [
+        "negative scrollable overflow region"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/css-overflow-3/#title",
+        "title": "CSS Overflow Module Level 3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "scroll-origin-position",
+      "href": "https://www.w3.org/TR/css-overflow-3/#scroll-origin-position",
+      "linkingText": [
+        "scroll origin position"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/css-overflow-3/#title",
+        "title": "CSS Overflow Module Level 3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "propdef-overflow-x",
+      "href": "https://www.w3.org/TR/css-overflow-3/#propdef-overflow-x",
+      "linkingText": [
+        "overflow-x"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "overflow-control",
+        "href": "https://www.w3.org/TR/css-overflow-3/#overflow-control",
+        "title": "Managing Overflow: the overflow-x, overflow-y, and overflow properties",
+        "number": "3.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "propdef-overflow-y",
+      "href": "https://www.w3.org/TR/css-overflow-3/#propdef-overflow-y",
+      "linkingText": [
+        "overflow-y"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "overflow-control",
+        "href": "https://www.w3.org/TR/css-overflow-3/#overflow-control",
+        "title": "Managing Overflow: the overflow-x, overflow-y, and overflow properties",
+        "number": "3.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "propdef-overflow-block",
+      "href": "https://www.w3.org/TR/css-overflow-3/#propdef-overflow-block",
+      "linkingText": [
+        "overflow-block"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "overflow-control",
+        "href": "https://www.w3.org/TR/css-overflow-3/#overflow-control",
+        "title": "Managing Overflow: the overflow-x, overflow-y, and overflow properties",
+        "number": "3.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "propdef-overflow-inline",
+      "href": "https://www.w3.org/TR/css-overflow-3/#propdef-overflow-inline",
+      "linkingText": [
+        "overflow-inline"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "overflow-control",
+        "href": "https://www.w3.org/TR/css-overflow-3/#overflow-control",
+        "title": "Managing Overflow: the overflow-x, overflow-y, and overflow properties",
+        "number": "3.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "propdef-overflow",
+      "href": "https://www.w3.org/TR/css-overflow-3/#propdef-overflow",
+      "linkingText": [
+        "overflow"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "overflow-control",
+        "href": "https://www.w3.org/TR/css-overflow-3/#overflow-control",
+        "title": "Managing Overflow: the overflow-x, overflow-y, and overflow properties",
+        "number": "3.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "valdef-overflow-visible",
+      "href": "https://www.w3.org/TR/css-overflow-3/#valdef-overflow-visible",
+      "linkingText": [
+        "visible"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "overflow",
+        "overflow-x",
+        "overflow-y"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "overflow-control",
+        "href": "https://www.w3.org/TR/css-overflow-3/#overflow-control",
+        "title": "Managing Overflow: the overflow-x, overflow-y, and overflow properties",
+        "number": "3.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-overflow-hidden",
+      "href": "https://www.w3.org/TR/css-overflow-3/#valdef-overflow-hidden",
+      "linkingText": [
+        "hidden"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "overflow",
+        "overflow-x",
+        "overflow-y"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/css-overflow-3/#title",
+        "title": "CSS Overflow Module Level 3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-overflow-clip",
+      "href": "https://www.w3.org/TR/css-overflow-3/#valdef-overflow-clip",
+      "linkingText": [
+        "clip"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "overflow",
+        "overflow-x",
+        "overflow-y"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/css-overflow-3/#title",
+        "title": "CSS Overflow Module Level 3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-overflow-scroll",
+      "href": "https://www.w3.org/TR/css-overflow-3/#valdef-overflow-scroll",
+      "linkingText": [
+        "scroll"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "overflow",
+        "overflow-x",
+        "overflow-y"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/css-overflow-3/#title",
+        "title": "CSS Overflow Module Level 3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-overflow-auto",
+      "href": "https://www.w3.org/TR/css-overflow-3/#valdef-overflow-auto",
+      "linkingText": [
+        "auto"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "overflow",
+        "overflow-x",
+        "overflow-y"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/css-overflow-3/#title",
+        "title": "CSS Overflow Module Level 3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-overflow-overlay",
+      "href": "https://www.w3.org/TR/css-overflow-3/#valdef-overflow-overlay",
+      "linkingText": [
+        "overlay"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "overflow",
+        "overflow-x",
+        "overflow-y",
+        "overflow-block",
+        "overflow-inline"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/css-overflow-3/#title",
+        "title": "CSS Overflow Module Level 3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "propdef-overflow-clip-margin",
+      "href": "https://www.w3.org/TR/css-overflow-3/#propdef-overflow-clip-margin",
+      "linkingText": [
+        "overflow-clip-margin"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "overflow-clip-margin",
+        "href": "https://www.w3.org/TR/css-overflow-3/#overflow-clip-margin",
+        "title": "Expanding Clipping Bounds: the overflow-clip-margin property",
+        "number": "3.2"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "overflow-clip-edge",
+      "href": "https://www.w3.org/TR/css-overflow-3/#overflow-clip-edge",
+      "linkingText": [
+        "overflow clip edge"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "overflow-clip-margin",
+        "href": "https://www.w3.org/TR/css-overflow-3/#overflow-clip-margin",
+        "title": "Expanding Clipping Bounds: the overflow-clip-margin property",
+        "number": "3.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "propdef-scroll-behavior",
+      "href": "https://www.w3.org/TR/css-overflow-3/#propdef-scroll-behavior",
+      "linkingText": [
+        "scroll-behavior"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "smooth-scrolling",
+        "href": "https://www.w3.org/TR/css-overflow-3/#smooth-scrolling",
+        "title": "Smooth Scrolling: the scroll-behavior Property",
+        "number": "3.4"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "valdef-scroll-behavior-auto",
+      "href": "https://www.w3.org/TR/css-overflow-3/#valdef-scroll-behavior-auto",
+      "linkingText": [
+        "auto"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "scroll-behavior"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "smooth-scrolling",
+        "href": "https://www.w3.org/TR/css-overflow-3/#smooth-scrolling",
+        "title": "Smooth Scrolling: the scroll-behavior Property",
+        "number": "3.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-scroll-behavior-smooth",
+      "href": "https://www.w3.org/TR/css-overflow-3/#valdef-scroll-behavior-smooth",
+      "linkingText": [
+        "smooth"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "scroll-behavior"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "smooth-scrolling",
+        "href": "https://www.w3.org/TR/css-overflow-3/#smooth-scrolling",
+        "title": "Smooth Scrolling: the scroll-behavior Property",
+        "number": "3.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "scrollbar-gutter",
+      "href": "https://www.w3.org/TR/css-overflow-3/#scrollbar-gutter",
+      "linkingText": [
+        "scrollbar gutter"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "scrollbar-gutter-property",
+        "href": "https://www.w3.org/TR/css-overflow-3/#scrollbar-gutter-property",
+        "title": "Reserving space for the scrollbar: the scrollbar-gutter property",
+        "number": "4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "propdef-scrollbar-gutter",
+      "href": "https://www.w3.org/TR/css-overflow-3/#propdef-scrollbar-gutter",
+      "linkingText": [
+        "scrollbar-gutter"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/css-overflow-3/#title",
+        "title": "CSS Overflow Module Level 3"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "overlay-scrollbars",
+      "href": "https://www.w3.org/TR/css-overflow-3/#overlay-scrollbars",
+      "linkingText": [
+        "overlay scrollbars"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/css-overflow-3/#title",
+        "title": "CSS Overflow Module Level 3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "classic-scrollbars",
+      "href": "https://www.w3.org/TR/css-overflow-3/#classic-scrollbars",
+      "linkingText": [
+        "classic scrollbars"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/css-overflow-3/#title",
+        "title": "CSS Overflow Module Level 3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "valdef-scrollbar-gutter-auto",
+      "href": "https://www.w3.org/TR/css-overflow-3/#valdef-scrollbar-gutter-auto",
+      "linkingText": [
+        "auto"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "scrollbar-gutter"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/css-overflow-3/#title",
+        "title": "CSS Overflow Module Level 3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-scrollbar-gutter-stable",
+      "href": "https://www.w3.org/TR/css-overflow-3/#valdef-scrollbar-gutter-stable",
+      "linkingText": [
+        "stable"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "scrollbar-gutter"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/css-overflow-3/#title",
+        "title": "CSS Overflow Module Level 3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-scrollbar-gutter-both-edges",
+      "href": "https://www.w3.org/TR/css-overflow-3/#valdef-scrollbar-gutter-both-edges",
+      "linkingText": [
+        "both-edges"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "scrollbar-gutter"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/css-overflow-3/#title",
+        "title": "CSS Overflow Module Level 3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "propdef-text-overflow",
+      "href": "https://www.w3.org/TR/css-overflow-3/#propdef-text-overflow",
+      "linkingText": [
+        "text-overflow"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "text-overflow",
+        "href": "https://www.w3.org/TR/css-overflow-3/#text-overflow",
+        "title": "Overflow Ellipsis: the text-overflow property",
+        "number": "5.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "overflow-clip",
+      "href": "https://www.w3.org/TR/css-overflow-3/#overflow-clip",
+      "linkingText": [
+        "clip"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "text-overflow"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "text-overflow",
+        "href": "https://www.w3.org/TR/css-overflow-3/#text-overflow",
+        "title": "Overflow Ellipsis: the text-overflow property",
+        "number": "5.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "overflow-ellipsis",
+      "href": "https://www.w3.org/TR/css-overflow-3/#overflow-ellipsis",
+      "linkingText": [
+        "ellipsis"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "text-overflow"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "text-overflow",
+        "href": "https://www.w3.org/TR/css-overflow-3/#text-overflow",
+        "title": "Overflow Ellipsis: the text-overflow property",
+        "number": "5.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "spec": {
+    "title": "Largest Contentful Paint",
+    "url": "https://w3c.github.io/largest-contentful-paint/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "CSS-BACKGROUNDS-3",
+        "url": "https://drafts.csswg.org/css-backgrounds/"
+      },
+      {
+        "name": "CSS-BOX-4",
+        "url": "https://drafts.csswg.org/css-box-4/"
+      },
+      {
+        "name": "CSS-COLOR-3",
+        "url": "https://drafts.csswg.org/css-color-3/"
+      },
+      {
+        "name": "CSS-COLOR-4",
+        "url": "https://drafts.csswg.org/css-color-4/"
+      },
+      {
+        "name": "CSS-IMAGES-3",
+        "url": "https://drafts.csswg.org/css-images-3/"
+      },
+      {
+        "name": "CSS-TEXT-DECOR-4",
+        "url": "https://drafts.csswg.org/css-text-decor-4/"
+      },
+      {
+        "name": "CSSOM-VIEW-1",
+        "url": "https://drafts.csswg.org/cssom-view/"
+      },
+      {
+        "name": "DOM",
+        "url": "https://dom.spec.whatwg.org/"
+      },
+      {
+        "name": "EVENT-TIMING",
+        "url": "https://w3c.github.io/event-timing/"
+      },
+      {
+        "name": "FETCH",
+        "url": "https://fetch.spec.whatwg.org/"
+      },
+      {
+        "name": "FILL-STROKE-3",
+        "url": "https://drafts.fxtf.org/fill-stroke/"
+      },
+      {
+        "name": "GEOMETRY-1",
+        "url": "https://drafts.fxtf.org/geometry/"
+      },
+      {
+        "name": "HR-TIME-3",
+        "url": "https://w3c.github.io/hr-time/"
+      },
+      {
+        "name": "HTML",
+        "url": "https://html.spec.whatwg.org/multipage/"
+      },
+      {
+        "name": "INFRA",
+        "url": "https://infra.spec.whatwg.org/"
+      },
+      {
+        "name": "PAINT-TIMING",
+        "url": "https://w3c.github.io/paint-timing/"
+      },
+      {
+        "name": "PERFORMANCE-TIMELINE",
+        "url": "https://w3c.github.io/performance-timeline/"
+      },
+      {
+        "name": "RFC2119",
+        "url": "https://datatracker.ietf.org/doc/html/rfc2119"
+      },
+      {
+        "name": "STREAMS",
+        "url": "https://streams.spec.whatwg.org/"
+      },
+      {
+        "name": "WEBIDL",
+        "url": "https://webidl.spec.whatwg.org/"
+      }
+    ],
+    "informative": [
+      {
+        "name": "ELEMENT-TIMING",
+        "url": "https://w3c.github.io/element-timing/"
+      }
+    ]
+  }
+}

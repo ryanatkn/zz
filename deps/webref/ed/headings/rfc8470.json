@@ -1,0 +1,187 @@
+{
+  "spec": {
+    "title": "RFC 8470 - Using Early Data in HTTP",
+    "url": "https://httpwg.org/specs/rfc8470.html"
+  },
+  "headings": [
+    {
+      "id": "rfc.abstract",
+      "href": "https://httpwg.org/specs/rfc8470.html#rfc.abstract",
+      "level": 2,
+      "title": "Abstract"
+    },
+    {
+      "id": "introduction",
+      "href": "https://httpwg.org/specs/rfc8470.html#introduction",
+      "level": 2,
+      "title": "Introduction",
+      "alternateIds": [
+        "rfc.section.1"
+      ],
+      "number": "1"
+    },
+    {
+      "id": "conventions-and-definitions",
+      "href": "https://httpwg.org/specs/rfc8470.html#conventions-and-definitions",
+      "level": 3,
+      "title": "Conventions and Definitions",
+      "alternateIds": [
+        "rfc.section.1.1"
+      ],
+      "number": "1.1"
+    },
+    {
+      "id": "early-data-in-http",
+      "href": "https://httpwg.org/specs/rfc8470.html#early-data-in-http",
+      "level": 2,
+      "title": "Early Data in HTTP",
+      "alternateIds": [
+        "rfc.section.2"
+      ],
+      "number": "2"
+    },
+    {
+      "id": "supporting-early-data-in-http-servers",
+      "href": "https://httpwg.org/specs/rfc8470.html#supporting-early-data-in-http-servers",
+      "level": 2,
+      "title": "Supporting Early Data in HTTP Servers",
+      "alternateIds": [
+        "rfc.section.3"
+      ],
+      "number": "3"
+    },
+    {
+      "id": "using-early-data-in-http-clients",
+      "href": "https://httpwg.org/specs/rfc8470.html#using-early-data-in-http-clients",
+      "level": 2,
+      "title": "Using Early Data in HTTP Clients",
+      "alternateIds": [
+        "rfc.section.4"
+      ],
+      "number": "4"
+    },
+    {
+      "id": "extensions-for-early-data-in-http",
+      "href": "https://httpwg.org/specs/rfc8470.html#extensions-for-early-data-in-http",
+      "level": 2,
+      "title": "Extensions for Early Data in HTTP",
+      "alternateIds": [
+        "rfc.section.5"
+      ],
+      "number": "5"
+    },
+    {
+      "id": "header",
+      "href": "https://httpwg.org/specs/rfc8470.html#header",
+      "level": 3,
+      "title": "The Early-Data Header Field",
+      "alternateIds": [
+        "rfc.section.5.1"
+      ],
+      "number": "5.1"
+    },
+    {
+      "id": "status",
+      "href": "https://httpwg.org/specs/rfc8470.html#status",
+      "level": 3,
+      "title": "The 425 (Too Early) Status Code",
+      "alternateIds": [
+        "rfc.section.5.2"
+      ],
+      "number": "5.2"
+    },
+    {
+      "id": "security-considerations",
+      "href": "https://httpwg.org/specs/rfc8470.html#security-considerations",
+      "level": 2,
+      "title": "Security Considerations",
+      "alternateIds": [
+        "rfc.section.6"
+      ],
+      "number": "6"
+    },
+    {
+      "id": "gateways-and-early-data",
+      "href": "https://httpwg.org/specs/rfc8470.html#gateways-and-early-data",
+      "level": 3,
+      "title": "Gateways and Early Data",
+      "alternateIds": [
+        "rfc.section.6.1"
+      ],
+      "number": "6.1"
+    },
+    {
+      "id": "be-consistent",
+      "href": "https://httpwg.org/specs/rfc8470.html#be-consistent",
+      "level": 3,
+      "title": "Consistent Handling of Early Data",
+      "alternateIds": [
+        "rfc.section.6.2"
+      ],
+      "number": "6.2"
+    },
+    {
+      "id": "denial-of-service",
+      "href": "https://httpwg.org/specs/rfc8470.html#denial-of-service",
+      "level": 3,
+      "title": "Denial of Service",
+      "alternateIds": [
+        "rfc.section.6.3"
+      ],
+      "number": "6.3"
+    },
+    {
+      "id": "out-of-order-delivery",
+      "href": "https://httpwg.org/specs/rfc8470.html#out-of-order-delivery",
+      "level": 3,
+      "title": "Out-of-Order Delivery",
+      "alternateIds": [
+        "rfc.section.6.4"
+      ],
+      "number": "6.4"
+    },
+    {
+      "id": "iana-considerations",
+      "href": "https://httpwg.org/specs/rfc8470.html#iana-considerations",
+      "level": 2,
+      "title": "IANA Considerations",
+      "alternateIds": [
+        "rfc.section.7"
+      ],
+      "number": "7"
+    },
+    {
+      "id": "rfc.references",
+      "href": "https://httpwg.org/specs/rfc8470.html#rfc.references",
+      "level": 2,
+      "title": "References",
+      "alternateIds": [
+        "rfc.section.8"
+      ],
+      "number": "8"
+    },
+    {
+      "id": "rfc.section.8.1",
+      "href": "https://httpwg.org/specs/rfc8470.html#rfc.section.8.1",
+      "level": 3,
+      "title": "Normative References",
+      "number": "8.1"
+    },
+    {
+      "id": "rfc.section.8.2",
+      "href": "https://httpwg.org/specs/rfc8470.html#rfc.section.8.2",
+      "level": 3,
+      "title": "Informative References",
+      "number": "8.2"
+    },
+    {
+      "id": "acknowledgments",
+      "href": "https://httpwg.org/specs/rfc8470.html#acknowledgments",
+      "level": 2,
+      "title": "Acknowledgments",
+      "alternateIds": [
+        "rfc.section.unnumbered-1"
+      ]
+    }
+  ]
+}

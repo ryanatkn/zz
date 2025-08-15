@@ -1,0 +1,665 @@
+{
+  "spec": {
+    "title": "User Timing",
+    "url": "https://www.w3.org/TR/user-timing/"
+  },
+  "dfns": [
+    {
+      "id": "dom-performance-mark",
+      "href": "https://www.w3.org/TR/user-timing/#dom-performance-mark",
+      "linkingText": [
+        "mark()",
+        "mark(markName)",
+        "mark(markName, markOptions)"
+      ],
+      "localLinkingText": [
+        "Performance.mark",
+        "Performance.mark()",
+        "mark"
+      ],
+      "type": "method",
+      "for": [
+        "Performance"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "mark-method",
+        "href": "https://www.w3.org/TR/user-timing/#mark-method",
+        "title": "mark() method",
+        "alternateIds": [
+          "x3-1-1-mark-method"
+        ],
+        "number": "3.1.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dom-performancemarkoptions",
+      "href": "https://www.w3.org/TR/user-timing/#dom-performancemarkoptions",
+      "linkingText": [
+        "PerformanceMarkOptions"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "performancemarkoptions-dictionary",
+        "href": "https://www.w3.org/TR/user-timing/#performancemarkoptions-dictionary",
+        "title": "PerformanceMarkOptions dictionary",
+        "alternateIds": [
+          "x3-1-1-1-performancemarkoptions-dictionary"
+        ],
+        "number": "3.1.1.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dom-performancemarkoptions-detail",
+      "href": "https://www.w3.org/TR/user-timing/#dom-performancemarkoptions-detail",
+      "linkingText": [
+        "detail"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "PerformanceMarkOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "performancemarkoptions-dictionary",
+        "href": "https://www.w3.org/TR/user-timing/#performancemarkoptions-dictionary",
+        "title": "PerformanceMarkOptions dictionary",
+        "alternateIds": [
+          "x3-1-1-1-performancemarkoptions-dictionary"
+        ],
+        "number": "3.1.1.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-performancemarkoptions-starttime",
+      "href": "https://www.w3.org/TR/user-timing/#dom-performancemarkoptions-starttime",
+      "linkingText": [
+        "startTime"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "PerformanceMarkOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "performancemarkoptions-dictionary",
+        "href": "https://www.w3.org/TR/user-timing/#performancemarkoptions-dictionary",
+        "title": "PerformanceMarkOptions dictionary",
+        "alternateIds": [
+          "x3-1-1-1-performancemarkoptions-dictionary"
+        ],
+        "number": "3.1.1.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-performance-clearmarks",
+      "href": "https://www.w3.org/TR/user-timing/#dom-performance-clearmarks",
+      "linkingText": [
+        "clearMarks()",
+        "clearMarks(markName)"
+      ],
+      "localLinkingText": [
+        "Performance.clearMarks",
+        "Performance.clearMarks()",
+        "clearMarks"
+      ],
+      "type": "method",
+      "for": [
+        "Performance"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "clearmarks-method",
+        "href": "https://www.w3.org/TR/user-timing/#clearmarks-method",
+        "title": "clearMarks() method",
+        "alternateIds": [
+          "x3-1-2-clearmarks-method"
+        ],
+        "number": "3.1.2"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dom-performance-measure",
+      "href": "https://www.w3.org/TR/user-timing/#dom-performance-measure",
+      "linkingText": [
+        "measure()",
+        "measure(measureName)",
+        "measure(measureName, startOrMeasureOptions)",
+        "measure(measureName, startOrMeasureOptions, endMark)"
+      ],
+      "localLinkingText": [
+        "Performance.measure",
+        "Performance.measure()",
+        "measure"
+      ],
+      "type": "method",
+      "for": [
+        "Performance"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "measure-method",
+        "href": "https://www.w3.org/TR/user-timing/#measure-method",
+        "title": "measure() method",
+        "alternateIds": [
+          "x3-1-3-measure-method"
+        ],
+        "number": "3.1.3"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dom-performancemeasureoptions",
+      "href": "https://www.w3.org/TR/user-timing/#dom-performancemeasureoptions",
+      "linkingText": [
+        "PerformanceMeasureOptions"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "performancemeasureoptions-dictionary",
+        "href": "https://www.w3.org/TR/user-timing/#performancemeasureoptions-dictionary",
+        "title": "PerformanceMeasureOptions dictionary",
+        "alternateIds": [
+          "x3-1-3-1-performancemeasureoptions-dictionary"
+        ],
+        "number": "3.1.3.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dom-performancemeasureoptions-detail",
+      "href": "https://www.w3.org/TR/user-timing/#dom-performancemeasureoptions-detail",
+      "linkingText": [
+        "detail"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "PerformanceMeasureOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "performancemeasureoptions-dictionary",
+        "href": "https://www.w3.org/TR/user-timing/#performancemeasureoptions-dictionary",
+        "title": "PerformanceMeasureOptions dictionary",
+        "alternateIds": [
+          "x3-1-3-1-performancemeasureoptions-dictionary"
+        ],
+        "number": "3.1.3.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-performancemeasureoptions-start",
+      "href": "https://www.w3.org/TR/user-timing/#dom-performancemeasureoptions-start",
+      "linkingText": [
+        "start"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "PerformanceMeasureOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "performancemeasureoptions-dictionary",
+        "href": "https://www.w3.org/TR/user-timing/#performancemeasureoptions-dictionary",
+        "title": "PerformanceMeasureOptions dictionary",
+        "alternateIds": [
+          "x3-1-3-1-performancemeasureoptions-dictionary"
+        ],
+        "number": "3.1.3.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-performancemeasureoptions-duration",
+      "href": "https://www.w3.org/TR/user-timing/#dom-performancemeasureoptions-duration",
+      "linkingText": [
+        "duration"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "PerformanceMeasureOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "performancemeasureoptions-dictionary",
+        "href": "https://www.w3.org/TR/user-timing/#performancemeasureoptions-dictionary",
+        "title": "PerformanceMeasureOptions dictionary",
+        "alternateIds": [
+          "x3-1-3-1-performancemeasureoptions-dictionary"
+        ],
+        "number": "3.1.3.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-performancemeasureoptions-end",
+      "href": "https://www.w3.org/TR/user-timing/#dom-performancemeasureoptions-end",
+      "linkingText": [
+        "end"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "PerformanceMeasureOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "performancemeasureoptions-dictionary",
+        "href": "https://www.w3.org/TR/user-timing/#performancemeasureoptions-dictionary",
+        "title": "PerformanceMeasureOptions dictionary",
+        "alternateIds": [
+          "x3-1-3-1-performancemeasureoptions-dictionary"
+        ],
+        "number": "3.1.3.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-performance-clearmeasures",
+      "href": "https://www.w3.org/TR/user-timing/#dom-performance-clearmeasures",
+      "linkingText": [
+        "clearMeasures()",
+        "clearMeasures(measureName)"
+      ],
+      "localLinkingText": [
+        "Performance.clearMeasures",
+        "Performance.clearMeasures()",
+        "clearMeasures"
+      ],
+      "type": "method",
+      "for": [
+        "Performance"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "clearmeasures-method",
+        "href": "https://www.w3.org/TR/user-timing/#clearmeasures-method",
+        "title": "clearMeasures() method",
+        "alternateIds": [
+          "x3-1-4-clearmeasures-method"
+        ],
+        "number": "3.1.4"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dom-performancemark",
+      "href": "https://www.w3.org/TR/user-timing/#dom-performancemark",
+      "linkingText": [
+        "PerformanceMark"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "performancemark",
+        "href": "https://www.w3.org/TR/user-timing/#performancemark",
+        "title": "The PerformanceMark Interface",
+        "alternateIds": [
+          "x3-2-the-performancemark-interface"
+        ],
+        "number": "3.2"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dom-performancemark-constructor",
+      "href": "https://www.w3.org/TR/user-timing/#dom-performancemark-constructor",
+      "linkingText": [
+        "constructor()",
+        "constructor(markName)",
+        "constructor(markName, markOptions)"
+      ],
+      "localLinkingText": [
+        "PerformanceMark.constructor",
+        "PerformanceMark.constructor()",
+        "constructor"
+      ],
+      "type": "constructor",
+      "for": [
+        "PerformanceMark"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "performancemark",
+        "href": "https://www.w3.org/TR/user-timing/#performancemark",
+        "title": "The PerformanceMark Interface",
+        "alternateIds": [
+          "x3-2-the-performancemark-interface"
+        ],
+        "number": "3.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-performancemark-detail",
+      "href": "https://www.w3.org/TR/user-timing/#dom-performancemark-detail",
+      "linkingText": [
+        "detail"
+      ],
+      "localLinkingText": [
+        "PerformanceMark.detail"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceMark"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "performancemark",
+        "href": "https://www.w3.org/TR/user-timing/#performancemark",
+        "title": "The PerformanceMark Interface",
+        "alternateIds": [
+          "x3-2-the-performancemark-interface"
+        ],
+        "number": "3.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-performancemark-constructor",
+      "href": "https://www.w3.org/TR/user-timing/#dfn-performancemark-constructor",
+      "linkingText": [
+        "PerformanceMark Constructor"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-performancemark-constructor",
+        "href": "https://www.w3.org/TR/user-timing/#the-performancemark-constructor",
+        "title": "The PerformanceMark Constructor",
+        "alternateIds": [
+          "x3-2-1-the-performancemark-constructor"
+        ],
+        "number": "3.2.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dom-performancemeasure",
+      "href": "https://www.w3.org/TR/user-timing/#dom-performancemeasure",
+      "linkingText": [
+        "PerformanceMeasure"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "performancemeasure",
+        "href": "https://www.w3.org/TR/user-timing/#performancemeasure",
+        "title": "The PerformanceMeasure Interface",
+        "alternateIds": [
+          "x3-3-the-performancemeasure-interface"
+        ],
+        "number": "3.3"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dom-performancemeasure-detail",
+      "href": "https://www.w3.org/TR/user-timing/#dom-performancemeasure-detail",
+      "linkingText": [
+        "detail"
+      ],
+      "localLinkingText": [
+        "PerformanceMeasure.detail"
+      ],
+      "type": "attribute",
+      "for": [
+        "PerformanceMeasure"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "performancemeasure",
+        "href": "https://www.w3.org/TR/user-timing/#performancemeasure",
+        "title": "The PerformanceMeasure Interface",
+        "alternateIds": [
+          "x3-3-the-performancemeasure-interface"
+        ],
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-convert-a-mark-to-a-timestamp",
+      "href": "https://www.w3.org/TR/user-timing/#dfn-convert-a-mark-to-a-timestamp",
+      "linkingText": [
+        "convert a mark to a timestamp"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "convert-a-mark-to-a-timestamp",
+        "href": "https://www.w3.org/TR/user-timing/#convert-a-mark-to-a-timestamp",
+        "title": "Convert a mark to a timestamp",
+        "alternateIds": [
+          "x4-1-convert-a-mark-to-a-timestamp"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-convert-a-name-to-a-timestamp",
+      "href": "https://www.w3.org/TR/user-timing/#dfn-convert-a-name-to-a-timestamp",
+      "linkingText": [
+        "convert a name to a timestamp"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "convert-a-name-to-a-timestamp",
+        "href": "https://www.w3.org/TR/user-timing/#convert-a-name-to-a-timestamp",
+        "title": "Convert a name to a timestamp",
+        "alternateIds": [
+          "x4-2-convert-a-name-to-a-timestamp"
+        ],
+        "number": "4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-mark_fully_loaded",
+      "href": "https://www.w3.org/TR/user-timing/#dfn-mark_fully_loaded",
+      "linkingText": [
+        "mark_fully_loaded"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "recommended-mark-names",
+        "href": "https://www.w3.org/TR/user-timing/#recommended-mark-names",
+        "title": "Recommended mark names",
+        "alternateIds": [
+          "x5-recommended-mark-names"
+        ],
+        "number": "5"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-mark_fully_visible",
+      "href": "https://www.w3.org/TR/user-timing/#dfn-mark_fully_visible",
+      "linkingText": [
+        "mark_fully_visible"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "recommended-mark-names",
+        "href": "https://www.w3.org/TR/user-timing/#recommended-mark-names",
+        "title": "Recommended mark names",
+        "alternateIds": [
+          "x5-recommended-mark-names"
+        ],
+        "number": "5"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-mark_interactive",
+      "href": "https://www.w3.org/TR/user-timing/#dfn-mark_interactive",
+      "linkingText": [
+        "mark_interactive"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "recommended-mark-names",
+        "href": "https://www.w3.org/TR/user-timing/#recommended-mark-names",
+        "title": "Recommended mark names",
+        "alternateIds": [
+          "x5-recommended-mark-names"
+        ],
+        "number": "5"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-mark_feature_usage",
+      "href": "https://www.w3.org/TR/user-timing/#dfn-mark_feature_usage",
+      "linkingText": [
+        "mark_feature_usage"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "recommended-mark-names",
+        "href": "https://www.w3.org/TR/user-timing/#recommended-mark-names",
+        "title": "Recommended mark names",
+        "alternateIds": [
+          "x5-recommended-mark-names"
+        ],
+        "number": "5"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-feature",
+      "href": "https://www.w3.org/TR/user-timing/#dfn-feature",
+      "linkingText": [
+        "feature"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "recommended-mark-names",
+        "href": "https://www.w3.org/TR/user-timing/#recommended-mark-names",
+        "title": "Recommended mark names",
+        "alternateIds": [
+          "x5-recommended-mark-names"
+        ],
+        "number": "5"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-framework",
+      "href": "https://www.w3.org/TR/user-timing/#dfn-framework",
+      "linkingText": [
+        "framework"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "recommended-mark-names",
+        "href": "https://www.w3.org/TR/user-timing/#recommended-mark-names",
+        "title": "Recommended mark names",
+        "alternateIds": [
+          "x5-recommended-mark-names"
+        ],
+        "number": "5"
+      },
+      "definedIn": "dt",
+      "links": []
+    }
+  ]
+}

@@ -1,0 +1,148 @@
+{
+  "spec": {
+    "title": "Audio Output Devices API",
+    "url": "https://w3c.github.io/mediacapture-output/"
+  },
+  "links": {
+    "rawlinks": {
+      "https://dom.spec.whatwg.org/": {},
+      "https://html.spec.whatwg.org/multipage/": {
+        "anchors": [
+          "allowed-to-play",
+          "concept-relevant-global"
+        ]
+      },
+      "https://html.spec.whatwg.org/multipage/iframe-embed-object.html": {
+        "anchors": [
+          "allowed-to-use"
+        ]
+      },
+      "https://html.spec.whatwg.org/multipage/webappapis.html": {
+        "anchors": [
+          "current-settings-object",
+          "concept-relevant-global"
+        ]
+      },
+      "https://html.spec.whatwg.org/multipage/window-object.html": {
+        "anchors": [
+          "concept-document-window"
+        ]
+      },
+      "https://webidl.spec.whatwg.org/": {},
+      "https://www.rfc-editor.org/info/bcp14": {},
+      "https://www.rfc-editor.org/rfc/rfc2119": {},
+      "https://www.rfc-editor.org/rfc/rfc8174": {},
+      "https://www.w3.org/TR/": {},
+      "https://www.w3.org/TR/mediacapture-streams/": {
+        "anchors": [
+          "event-mediadevices-devicechange",
+          "device-exposure-decision-non-camera-microphone",
+          "dfn-associated-mediadevices"
+        ]
+      },
+      "https://www.w3.org/TR/permissions-policy-1/": {},
+      "https://www.w3.org/TR/permissions/": {},
+      "https://www.w3.org/TR/webaudio-1.0/": {
+        "anchors": [
+          "allowed-to-start"
+        ]
+      },
+      "https://www.w3.org/groups/wg/webrtc": {},
+      "https://www.w3.org/groups/wg/webrtc/ipr": {},
+      "https://www.w3.org/policies/patent-policy/": {
+        "anchors": [
+          "def-essential",
+          "sec-Disclosure"
+        ]
+      },
+      "https://www.w3.org/policies/process/20231103/": {}
+    },
+    "autolinks": {
+      "https://dom.spec.whatwg.org/": {
+        "anchors": [
+          "concept-document"
+        ]
+      },
+      "https://html.spec.whatwg.org/multipage/dom.html": {
+        "anchors": [
+          "concept-document-permissions-policy"
+        ]
+      },
+      "https://html.spec.whatwg.org/multipage/iframe-embed-object.html": {
+        "anchors": [
+          "allowed-to-use"
+        ]
+      },
+      "https://html.spec.whatwg.org/multipage/interaction.html": {
+        "anchors": [
+          "transient-activation"
+        ]
+      },
+      "https://html.spec.whatwg.org/multipage/media.html": {
+        "anchors": [
+          "htmlmediaelement",
+          "dom-media-paused"
+        ]
+      },
+      "https://html.spec.whatwg.org/multipage/webappapis.html": {
+        "anchors": [
+          "concept-relevant-global"
+        ]
+      },
+      "https://webidl.spec.whatwg.org/": {
+        "anchors": [
+          "SecureContext",
+          "idl-DOMString",
+          "idl-promise",
+          "idl-undefined",
+          "idl-DOMException",
+          "notallowederror",
+          "notfounderror",
+          "aborterror",
+          "this",
+          "reject",
+          "dom-domexception-name",
+          "invalidstateerror"
+        ]
+      },
+      "https://www.w3.org/TR/mediacapture-streams/": {
+        "anchors": [
+          "dom-mediadeviceinfo-deviceid",
+          "dom-mediadeviceinfo",
+          "dom-mediadevices-enumeratedevices",
+          "event-mediadevices-devicechange",
+          "dom-mediadevices",
+          "dom-mediadevices-getusermedia",
+          "creating-a-device-info-object",
+          "dom-mediadeviceinfo-groupid",
+          "dom-mediadeviceinfo-kind",
+          "idl-def-MediaDeviceKind.audiooutput",
+          "microphone-information-can-be-exposed"
+        ]
+      },
+      "https://www.w3.org/TR/permissions-policy-1/": {
+        "anchors": [
+          "policy-controlled-feature",
+          "policy-controlled-feature-default-allowlist"
+        ]
+      },
+      "https://www.w3.org/TR/permissions/": {
+        "anchors": [
+          "dom-permissiondescriptor",
+          "dfn-name",
+          "dfn-permission-state",
+          "dom-permissionstate-denied",
+          "dfn-prompt-the-user-to-choose",
+          "dfn-powerful-feature",
+          "dfn-permission-descriptor-type",
+          "dom-permissionstate-granted"
+        ]
+      },
+      "https://www.w3.org/TR/webaudio-1.0/": {
+        "anchors": [
+          "AudioContext"
+        ]
+      }
+    }
+  }
+}

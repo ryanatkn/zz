@@ -1,0 +1,469 @@
+{
+  "spec": {
+    "title": "Device Posture API",
+    "url": "https://www.w3.org/TR/device-posture/"
+  },
+  "dfns": [
+    {
+      "id": "dfn-currentposture",
+      "href": "https://www.w3.org/TR/device-posture/#dfn-currentposture",
+      "linkingText": [
+        "[[CurrentPosture]]"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Document"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "extensions-to-the-document-interface",
+        "href": "https://www.w3.org/TR/device-posture/#extensions-to-the-document-interface",
+        "title": "Extensions to the Document interface",
+        "alternateIds": [
+          "x2-extensions-to-the-document-interface"
+        ],
+        "number": "2"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dfn-current-posture",
+      "href": "https://www.w3.org/TR/device-posture/#dfn-current-posture",
+      "linkingText": [
+        "current posture"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "extensions-to-the-document-interface",
+        "href": "https://www.w3.org/TR/device-posture/#extensions-to-the-document-interface",
+        "title": "Extensions to the Document interface",
+        "alternateIds": [
+          "x2-extensions-to-the-document-interface"
+        ],
+        "number": "2"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dom-navigator-deviceposture",
+      "href": "https://www.w3.org/TR/device-posture/#dom-navigator-deviceposture",
+      "linkingText": [
+        "devicePosture"
+      ],
+      "localLinkingText": [
+        "Navigator.devicePosture"
+      ],
+      "type": "attribute",
+      "for": [
+        "Navigator"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "extensions-to-the-navigator-interface-0",
+        "href": "https://www.w3.org/TR/device-posture/#extensions-to-the-navigator-interface-0",
+        "title": "Extensions to the Navigator interface",
+        "alternateIds": [
+          "extensions-to-the-navigator-interface"
+        ],
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-deviceposture",
+      "href": "https://www.w3.org/TR/device-posture/#dom-deviceposture",
+      "linkingText": [
+        "DevicePosture"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-deviceposture-interface",
+        "href": "https://www.w3.org/TR/device-posture/#the-deviceposture-interface",
+        "title": "The DevicePosture interface",
+        "alternateIds": [
+          "x4-the-deviceposture-interface"
+        ],
+        "number": "4"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dom-deviceposturetype",
+      "href": "https://www.w3.org/TR/device-posture/#dom-deviceposturetype",
+      "linkingText": [
+        "DevicePostureType"
+      ],
+      "localLinkingText": [],
+      "type": "enum",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-deviceposture-interface",
+        "href": "https://www.w3.org/TR/device-posture/#the-deviceposture-interface",
+        "title": "The DevicePosture interface",
+        "alternateIds": [
+          "x4-the-deviceposture-interface"
+        ],
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-deviceposturetype-continuous",
+      "href": "https://www.w3.org/TR/device-posture/#dom-deviceposturetype-continuous",
+      "linkingText": [
+        "continuous"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "DevicePostureType"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-deviceposture-interface",
+        "href": "https://www.w3.org/TR/device-posture/#the-deviceposture-interface",
+        "title": "The DevicePosture interface",
+        "alternateIds": [
+          "x4-the-deviceposture-interface"
+        ],
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-deviceposturetype-folded",
+      "href": "https://www.w3.org/TR/device-posture/#dom-deviceposturetype-folded",
+      "linkingText": [
+        "folded"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "DevicePostureType"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-deviceposture-interface",
+        "href": "https://www.w3.org/TR/device-posture/#the-deviceposture-interface",
+        "title": "The DevicePosture interface",
+        "alternateIds": [
+          "x4-the-deviceposture-interface"
+        ],
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-deviceposture-type",
+      "href": "https://www.w3.org/TR/device-posture/#dom-deviceposture-type",
+      "linkingText": [
+        "type"
+      ],
+      "localLinkingText": [
+        "DevicePosture.type"
+      ],
+      "type": "attribute",
+      "for": [
+        "DevicePosture"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-type-attribute-get-current-device-posture",
+        "href": "https://www.w3.org/TR/device-posture/#the-type-attribute-get-current-device-posture",
+        "title": "The type attribute: Get current device posture",
+        "alternateIds": [
+          "x4-1-the-type-attribute-get-current-device-posture"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dom-deviceposture-onchange",
+      "href": "https://www.w3.org/TR/device-posture/#dom-deviceposture-onchange",
+      "linkingText": [
+        "onchange"
+      ],
+      "localLinkingText": [
+        "DevicePosture.onchange"
+      ],
+      "type": "attribute",
+      "for": [
+        "DevicePosture"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-onchange-attribute-handle-posture-changes",
+        "href": "https://www.w3.org/TR/device-posture/#the-onchange-attribute-handle-posture-changes",
+        "title": "The onchange attribute: Handle posture changes",
+        "alternateIds": [
+          "x4-2-the-onchange-attribute-handle-posture-changes"
+        ],
+        "number": "4.2"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-change",
+      "href": "https://www.w3.org/TR/device-posture/#dfn-change",
+      "linkingText": [
+        "change"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "DevicePosture"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-onchange-attribute-handle-posture-changes",
+        "href": "https://www.w3.org/TR/device-posture/#the-onchange-attribute-handle-posture-changes",
+        "title": "The onchange attribute: Handle posture changes",
+        "alternateIds": [
+          "x4-2-the-onchange-attribute-handle-posture-changes"
+        ],
+        "number": "4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-posture",
+      "href": "https://www.w3.org/TR/device-posture/#dfn-posture",
+      "linkingText": [
+        "posture"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "posture-types",
+        "href": "https://www.w3.org/TR/device-posture/#posture-types",
+        "title": "Posture types",
+        "alternateIds": [
+          "x5-posture-types"
+        ],
+        "number": "5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-device-posture",
+      "href": "https://www.w3.org/TR/device-posture/#dfn-device-posture",
+      "linkingText": [
+        "device-posture"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-device-posture-media-feature",
+        "href": "https://www.w3.org/TR/device-posture/#the-device-posture-media-feature",
+        "title": "The device-posture media feature",
+        "alternateIds": [
+          "x6-1-the-device-posture-media-feature"
+        ],
+        "number": "6.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-posture-values-table",
+      "href": "https://www.w3.org/TR/device-posture/#dfn-posture-values-table",
+      "linkingText": [
+        "Posture values table"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "posture-values-table",
+        "href": "https://www.w3.org/TR/device-posture/#posture-values-table",
+        "title": "Posture values table",
+        "alternateIds": [
+          "x7-1-posture-values-table"
+        ],
+        "number": "7.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-calculate-the-device-posture-information",
+      "href": "https://www.w3.org/TR/device-posture/#dfn-calculate-the-device-posture-information",
+      "linkingText": [
+        "calculate the device posture information"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "calculating-the-device-posture-information",
+        "href": "https://www.w3.org/TR/device-posture/#calculating-the-device-posture-information",
+        "title": "Calculating the device posture information",
+        "alternateIds": [
+          "x8-1-calculating-the-device-posture-information"
+        ],
+        "number": "8.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-device-posture-change-steps",
+      "href": "https://www.w3.org/TR/device-posture/#dfn-device-posture-change-steps",
+      "linkingText": [
+        "device posture change steps"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "device-posture-change",
+        "href": "https://www.w3.org/TR/device-posture/#device-posture-change",
+        "title": "Device Posture change",
+        "alternateIds": [
+          "x8-2-device-posture-change"
+        ],
+        "number": "8.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-document",
+      "href": "https://www.w3.org/TR/device-posture/#dfn-document",
+      "linkingText": [
+        "document"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "device posture change steps"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "device-posture-change",
+        "href": "https://www.w3.org/TR/device-posture/#device-posture-change",
+        "title": "Device Posture change",
+        "alternateIds": [
+          "x8-2-device-posture-change"
+        ],
+        "number": "8.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-disallowrecursion",
+      "href": "https://www.w3.org/TR/device-posture/#dfn-disallowrecursion",
+      "linkingText": [
+        "disallowRecursion"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "device posture change steps"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "device-posture-change",
+        "href": "https://www.w3.org/TR/device-posture/#device-posture-change",
+        "title": "Device Posture change",
+        "alternateIds": [
+          "x8-2-device-posture-change"
+        ],
+        "number": "8.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-postureoverride",
+      "href": "https://www.w3.org/TR/device-posture/#dfn-postureoverride",
+      "linkingText": [
+        "[[PostureOverride]]"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "top-level traversable"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "automation",
+        "href": "https://www.w3.org/TR/device-posture/#automation",
+        "title": "12. Automation",
+        "alternateIds": [
+          "x12-automation"
+        ]
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dfn-user-agent",
+      "href": "https://www.w3.org/TR/device-posture/#dfn-user-agent",
+      "linkingText": [
+        "user agent"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "conformance",
+        "href": "https://www.w3.org/TR/device-posture/#conformance",
+        "title": "14. Conformance",
+        "alternateIds": [
+          "x14-conformance"
+        ]
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

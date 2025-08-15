@@ -1,0 +1,59 @@
+{
+  "spec": {
+    "title": "Event Timing API",
+    "url": "https://w3c.github.io/event-timing/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "DOM",
+        "url": "https://dom.spec.whatwg.org/"
+      },
+      {
+        "name": "HR-TIME-2",
+        "url": "https://w3c.github.io/hr-time/"
+      },
+      {
+        "name": "HTML",
+        "url": "https://html.spec.whatwg.org/multipage/"
+      },
+      {
+        "name": "INFRA",
+        "url": "https://infra.spec.whatwg.org/"
+      },
+      {
+        "name": "PAINT-TIMING",
+        "url": "https://w3c.github.io/paint-timing/"
+      },
+      {
+        "name": "PERFORMANCE-TIMELINE-2",
+        "url": "https://w3c.github.io/performance-timeline/"
+      },
+      {
+        "name": "POINTEREVENTS",
+        "url": "https://dvcs.w3.org/hg/pointerevents/raw-file/tip/pointerEvents.html"
+      },
+      {
+        "name": "POINTEREVENTS3",
+        "url": "https://w3c.github.io/pointerevents/"
+      },
+      {
+        "name": "RFC2119",
+        "url": "https://datatracker.ietf.org/doc/html/rfc2119"
+      },
+      {
+        "name": "TOUCH-EVENTS",
+        "url": "https://w3c.github.io/touch-events/"
+      },
+      {
+        "name": "UIEVENTS",
+        "url": "https://w3c.github.io/uievents/"
+      },
+      {
+        "name": "WEBIDL",
+        "url": "https://webidl.spec.whatwg.org/"
+      }
+    ],
+    "informative": []
+  }
+}

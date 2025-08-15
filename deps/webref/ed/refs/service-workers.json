@@ -1,0 +1,116 @@
+{
+  "spec": {
+    "title": "Service Workers Nightly",
+    "url": "https://w3c.github.io/ServiceWorker/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "CSP-NEXT",
+        "url": "https://wicg.github.io/csp-next/scripting-policy.html"
+      },
+      {
+        "name": "CSP3",
+        "url": "https://w3c.github.io/webappsec-csp/"
+      },
+      {
+        "name": "DOM",
+        "url": "https://dom.spec.whatwg.org/"
+      },
+      {
+        "name": "ECMASCRIPT",
+        "url": "https://tc39.es/ecma262/multipage/"
+      },
+      {
+        "name": "FETCH",
+        "url": "https://fetch.spec.whatwg.org/"
+      },
+      {
+        "name": "FileAPI",
+        "url": "https://w3c.github.io/FileAPI/"
+      },
+      {
+        "name": "HR-TIME-3",
+        "url": "https://w3c.github.io/hr-time/"
+      },
+      {
+        "name": "HTML",
+        "url": "https://html.spec.whatwg.org/multipage/"
+      },
+      {
+        "name": "INFRA",
+        "url": "https://infra.spec.whatwg.org/"
+      },
+      {
+        "name": "MIMESNIFF",
+        "url": "https://mimesniff.spec.whatwg.org/"
+      },
+      {
+        "name": "NAVIGATION-TIMING-2",
+        "url": "https://w3c.github.io/navigation-timing/"
+      },
+      {
+        "name": "PAGE-LIFECYCLE",
+        "url": "https://wicg.github.io/page-lifecycle/"
+      },
+      {
+        "name": "RESOURCE-TIMING",
+        "url": "https://w3c.github.io/resource-timing/"
+      },
+      {
+        "name": "RFC2119",
+        "url": "https://datatracker.ietf.org/doc/html/rfc2119"
+      },
+      {
+        "name": "RFC5234",
+        "url": "https://www.rfc-editor.org/rfc/rfc5234"
+      },
+      {
+        "name": "RFC7230",
+        "url": "https://httpwg.org/specs/rfc7230.html"
+      },
+      {
+        "name": "RFC7231",
+        "url": "https://httpwg.org/specs/rfc7231.html"
+      },
+      {
+        "name": "SCREEN-CAPTURE",
+        "url": "https://w3c.github.io/mediacapture-screen-share/"
+      },
+      {
+        "name": "SECURE-CONTEXTS",
+        "url": "https://w3c.github.io/webappsec-secure-contexts/"
+      },
+      {
+        "name": "STORAGE",
+        "url": "https://storage.spec.whatwg.org/"
+      },
+      {
+        "name": "STREAMS",
+        "url": "https://streams.spec.whatwg.org/"
+      },
+      {
+        "name": "TRUSTED-TYPES",
+        "url": "https://w3c.github.io/trusted-types/dist/spec/"
+      },
+      {
+        "name": "URL",
+        "url": "https://url.spec.whatwg.org/"
+      },
+      {
+        "name": "URLPATTERN",
+        "url": "https://urlpattern.spec.whatwg.org/"
+      },
+      {
+        "name": "WEBIDL",
+        "url": "https://webidl.spec.whatwg.org/"
+      }
+    ],
+    "informative": [
+      {
+        "name": "UNSANCTIONED-TRACKING",
+        "url": "https://www.w3.org/2001/tag/doc/unsanctioned-tracking/"
+      }
+    ]
+  }
+}

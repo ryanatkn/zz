@@ -1,0 +1,106 @@
+{
+  "spec": {
+    "title": "SHACL 1.2 Core",
+    "url": "https://w3c.github.io/data-shapes/shacl12-core/"
+  },
+  "links": {
+    "rawlinks": {
+      "http://www.w3.org/ns/shacl": {},
+      "http://www.w3.org/ns/shacl-shacl": {},
+      "http://www.w3.org/ns/shacl.ttl": {},
+      "https://github.com/w3c/data-shapes": {},
+      "https://github.com/w3c/data-shapes/issues/160": {},
+      "https://github.com/w3c/data-shapes/issues/172": {},
+      "https://github.com/w3c/data-shapes/issues/177": {},
+      "https://github.com/w3c/data-shapes/issues/185": {},
+      "https://github.com/w3c/data-shapes/issues/212": {},
+      "https://github.com/w3c/data-shapes/issues/271": {},
+      "https://github.com/w3c/data-shapes/issues/300": {},
+      "https://github.com/w3c/data-shapes/issues/391": {},
+      "https://github.com/w3c/data-shapes/issues/407": {},
+      "https://github.com/w3c/data-shapes/issues/414": {},
+      "https://github.com/w3c/data-shapes/issues/479": {},
+      "https://w3c.github.io/data-shapes/shacl-compact-syntax/": {},
+      "https://w3c.github.io/data-shapes/shacl12-shacl-shacl/": {},
+      "https://www.rfc-editor.org/info/bcp14": {},
+      "https://www.rfc-editor.org/rfc/rfc2119": {},
+      "https://www.rfc-editor.org/rfc/rfc5646": {},
+      "https://www.rfc-editor.org/rfc/rfc8174": {},
+      "https://www.w3.org/TR/": {},
+      "https://www.w3.org/TR/json-ld/": {},
+      "https://www.w3.org/TR/owl2-syntax/": {
+        "anchors": [
+          "Imports"
+        ]
+      },
+      "https://www.w3.org/TR/rdf12-concepts/": {
+        "anchors": [
+          "dfn-rdf-graph",
+          "dfn-rdf-triple",
+          "dfn-iri",
+          "dfn-rdf-literal",
+          "dfn-datatype",
+          "dfn-blank-node",
+          "dfn-triple-term",
+          "dfn-reifier",
+          "dfn-rdf-node",
+          "dfn-rdf-term",
+          "dfn-subject",
+          "dfn-predicate",
+          "dfn-object",
+          "section-dataset",
+          "section-Graph-Literal"
+        ]
+      },
+      "https://www.w3.org/TR/rdf12-turtle/": {},
+      "https://www.w3.org/TR/shacl-ucr/": {},
+      "https://www.w3.org/TR/shacl/": {
+        "anchors": [
+          "ack"
+        ]
+      },
+      "https://www.w3.org/TR/shacl12-sparql/": {},
+      "https://www.w3.org/TR/sparql12-entailment/": {},
+      "https://www.w3.org/TR/sparql12-query/": {
+        "anchors": [
+          "pp-language",
+          "defn_QueryVariable",
+          "func-datatype",
+          "func-strlen",
+          "func-str",
+          "func-regex",
+          "func-langMatches"
+        ]
+      },
+      "https://www.w3.org/groups/wg/data-shapes": {},
+      "https://www.w3.org/groups/wg/data-shapes/ipr": {},
+      "https://www.w3.org/policies/patent-policy/": {
+        "anchors": [
+          "def-essential",
+          "sec-Disclosure"
+        ]
+      },
+      "https://www.w3.org/policies/process/20231103/": {},
+      "https://www.w3.org/submissions/CBD/": {}
+    },
+    "autolinks": {
+      "https://www.w3.org/TR/rdf12-concepts/": {
+        "anchors": [
+          "dfn-iri",
+          "dfn-rdf-term",
+          "dfn-rdf-graph",
+          "dfn-rdf-triple",
+          "dfn-subject",
+          "dfn-predicate",
+          "dfn-object",
+          "dfn-blank-node",
+          "dfn-rdf-node",
+          "dfn-rdf-literal",
+          "dfn-reifier",
+          "dfn-datatype",
+          "dfn-triple-term"
+        ]
+      }
+    }
+  }
+}

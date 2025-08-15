@@ -1,0 +1,1697 @@
+{
+  "spec": {
+    "title": "Generic Sensor API",
+    "url": "https://w3c.github.io/sensors/"
+  },
+  "dfns": [
+    {
+      "id": "limit-max-frequency",
+      "href": "https://w3c.github.io/sensors/#limit-max-frequency",
+      "linkingText": [
+        "Limit maximum sampling frequency"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "limit-max-frequency",
+        "href": "https://w3c.github.io/sensors/#limit-max-frequency",
+        "title": "Limit maximum sampling frequency",
+        "number": "4.3.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "stop-sensor",
+      "href": "https://w3c.github.io/sensors/#stop-sensor",
+      "linkingText": [
+        "Stop the sensor altogether"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "stop-sensor",
+        "href": "https://w3c.github.io/sensors/#stop-sensor",
+        "title": "Stop the sensor altogether",
+        "number": "4.3.2"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "limit-number-of-delivered-readings",
+      "href": "https://w3c.github.io/sensors/#limit-number-of-delivered-readings",
+      "linkingText": [
+        "Limit number of delivered readings"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "limit-number-of-delivered-readings",
+        "href": "https://w3c.github.io/sensors/#limit-number-of-delivered-readings",
+        "title": "Limit number of delivered readings",
+        "number": "4.3.3"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "reduce-accuracy",
+      "href": "https://w3c.github.io/sensors/#reduce-accuracy",
+      "linkingText": [
+        "Reduce accuracy"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "reduce-accuracy",
+        "href": "https://w3c.github.io/sensors/#reduce-accuracy",
+        "title": "Reduce accuracy",
+        "number": "4.3.4"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "concept-device-sensor",
+      "href": "https://w3c.github.io/sensors/#concept-device-sensor",
+      "linkingText": [
+        "device sensor"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "concepts-sensors",
+        "href": "https://w3c.github.io/sensors/#concepts-sensors",
+        "title": "Sensors",
+        "number": "5.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "sensor-reading",
+      "href": "https://w3c.github.io/sensors/#sensor-reading",
+      "linkingText": [
+        "sensor reading"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "reading-timestamp",
+      "href": "https://w3c.github.io/sensors/#reading-timestamp",
+      "linkingText": [
+        "reading timestamp"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "local-coordinate-system",
+      "href": "https://w3c.github.io/sensors/#local-coordinate-system",
+      "linkingText": [
+        "local coordinate system"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "spatial-sensor",
+      "href": "https://w3c.github.io/sensors/#spatial-sensor",
+      "linkingText": [
+        "spatial sensor"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "concept-platform-sensor",
+      "href": "https://w3c.github.io/sensors/#concept-platform-sensor",
+      "linkingText": [
+        "platform sensor"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "calibration",
+      "href": "https://w3c.github.io/sensors/#calibration",
+      "linkingText": [
+        "calibration"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "low-level",
+      "href": "https://w3c.github.io/sensors/#low-level",
+      "linkingText": [
+        "low-level"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "concepts-sensor-types",
+        "href": "https://w3c.github.io/sensors/#concepts-sensor-types",
+        "title": "Sensor Types",
+        "number": "5.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "high-level",
+      "href": "https://w3c.github.io/sensors/#high-level",
+      "linkingText": [
+        "high-level"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "sensor-fusion",
+      "href": "https://w3c.github.io/sensors/#sensor-fusion",
+      "linkingText": [
+        "sensor fusion"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "default-sensor",
+      "href": "https://w3c.github.io/sensors/#default-sensor",
+      "linkingText": [
+        "default sensor"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "concepts-default-sensor",
+        "href": "https://w3c.github.io/sensors/#concepts-default-sensor",
+        "title": "Default sensor",
+        "number": "5.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "sampling-frequency",
+      "href": "https://w3c.github.io/sensors/#sampling-frequency",
+      "linkingText": [
+        "sampling frequency"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "concepts-sampling-and-reporting-frequencies",
+        "href": "https://w3c.github.io/sensors/#concepts-sampling-and-reporting-frequencies",
+        "title": "Sampling Frequency and Reporting Frequency",
+        "number": "5.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "device-sensor-minimum-sampling-frequency",
+      "href": "https://w3c.github.io/sensors/#device-sensor-minimum-sampling-frequency",
+      "linkingText": [
+        "minimum sampling frequency"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "device sensor"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "device-sensor-maximum-sampling-frequency",
+      "href": "https://w3c.github.io/sensors/#device-sensor-maximum-sampling-frequency",
+      "linkingText": [
+        "maximum sampling frequency"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "device sensor"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "reporting-frequency",
+      "href": "https://w3c.github.io/sensors/#reporting-frequency",
+      "linkingText": [
+        "reporting frequency"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "can-expose-sensor-readings",
+      "href": "https://w3c.github.io/sensors/#can-expose-sensor-readings",
+      "linkingText": [
+        "can expose sensor readings"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "concepts-can-expose-sensor-readings",
+        "href": "https://w3c.github.io/sensors/#concepts-can-expose-sensor-readings",
+        "title": "Conditions to expose sensor readings",
+        "number": "5.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "specific-conditions",
+      "href": "https://w3c.github.io/sensors/#specific-conditions",
+      "linkingText": [
+        "Specific conditions"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "sensor-type",
+      "href": "https://w3c.github.io/sensors/#sensor-type",
+      "linkingText": [
+        "sensor type"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "model-sensor-type",
+        "href": "https://w3c.github.io/sensors/#model-sensor-type",
+        "title": "Sensor Type",
+        "number": "6.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "sensor-permission-names",
+      "href": "https://w3c.github.io/sensors/#sensor-permission-names",
+      "linkingText": [
+        "sensor permission names"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "sensor-feature-names",
+      "href": "https://w3c.github.io/sensors/#sensor-feature-names",
+      "linkingText": [
+        "sensor feature names"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "sensor-type-minimum-sampling-frequency",
+      "href": "https://w3c.github.io/sensors/#sensor-type-minimum-sampling-frequency",
+      "linkingText": [
+        "minimum sampling frequency"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "sensor type"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "sensor-type-maximum-sampling-frequency",
+      "href": "https://w3c.github.io/sensors/#sensor-type-maximum-sampling-frequency",
+      "linkingText": [
+        "maximum sampling frequency"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "sensor type"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "threshold-check-algorithm",
+      "href": "https://w3c.github.io/sensors/#threshold-check-algorithm",
+      "linkingText": [
+        "threshold check algorithm"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "reading-quantization-algorithm",
+      "href": "https://w3c.github.io/sensors/#reading-quantization-algorithm",
+      "linkingText": [
+        "reading quantization algorithm"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "activated-sensor-objects",
+      "href": "https://w3c.github.io/sensors/#activated-sensor-objects",
+      "linkingText": [
+        "activated sensor objects"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "model-sensor",
+        "href": "https://w3c.github.io/sensors/#model-sensor",
+        "title": "Sensor",
+        "number": "6.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "latest-reading",
+      "href": "https://w3c.github.io/sensors/#latest-reading",
+      "linkingText": [
+        "latest reading"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "get-a-platform-sensors-sampling-bounds",
+      "href": "https://w3c.github.io/sensors/#get-a-platform-sensors-sampling-bounds",
+      "linkingText": [
+        "get a platform sensor’s sampling bounds"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "sensor",
+      "href": "https://w3c.github.io/sensors/#sensor",
+      "linkingText": [
+        "Sensor"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-sensor-interface",
+        "href": "https://w3c.github.io/sensors/#the-sensor-interface",
+        "title": "The Sensor Interface",
+        "number": "7.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-sensor-activated",
+      "href": "https://w3c.github.io/sensors/#dom-sensor-activated",
+      "linkingText": [
+        "activated"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Sensor"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-sensor-hasreading",
+      "href": "https://w3c.github.io/sensors/#dom-sensor-hasreading",
+      "linkingText": [
+        "hasReading"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Sensor"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-sensor-timestamp",
+      "href": "https://w3c.github.io/sensors/#dom-sensor-timestamp",
+      "linkingText": [
+        "timestamp"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Sensor"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-sensor-start",
+      "href": "https://w3c.github.io/sensors/#dom-sensor-start",
+      "linkingText": [
+        "start()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "Sensor"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-sensor-stop",
+      "href": "https://w3c.github.io/sensors/#dom-sensor-stop",
+      "linkingText": [
+        "stop()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "Sensor"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-sensor-onreading",
+      "href": "https://w3c.github.io/sensors/#dom-sensor-onreading",
+      "linkingText": [
+        "onreading"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Sensor"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-sensor-onactivate",
+      "href": "https://w3c.github.io/sensors/#dom-sensor-onactivate",
+      "linkingText": [
+        "onactivate"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Sensor"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-sensor-onerror",
+      "href": "https://w3c.github.io/sensors/#dom-sensor-onerror",
+      "linkingText": [
+        "onerror"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Sensor"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dictdef-sensoroptions",
+      "href": "https://w3c.github.io/sensors/#dictdef-sensoroptions",
+      "linkingText": [
+        "SensorOptions"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-sensoroptions-frequency",
+      "href": "https://w3c.github.io/sensors/#dom-sensoroptions-frequency",
+      "linkingText": [
+        "frequency"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SensorOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "sensor-task-source",
+      "href": "https://w3c.github.io/sensors/#sensor-task-source",
+      "linkingText": [
+        "sensor task source"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-sensor-state-slot",
+      "href": "https://w3c.github.io/sensors/#dom-sensor-state-slot",
+      "linkingText": [
+        "[[state]]"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Sensor"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sensor-internal-slots",
+        "href": "https://w3c.github.io/sensors/#sensor-internal-slots",
+        "title": "Sensor internal slots",
+        "number": "7.1.3"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dom-sensor-frequency-slot",
+      "href": "https://w3c.github.io/sensors/#dom-sensor-frequency-slot",
+      "linkingText": [
+        "[[frequency]]"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Sensor"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sensor-internal-slots",
+        "href": "https://w3c.github.io/sensors/#sensor-internal-slots",
+        "title": "Sensor internal slots",
+        "number": "7.1.3"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dom-sensor-lasteventfiredat-slot",
+      "href": "https://w3c.github.io/sensors/#dom-sensor-lasteventfiredat-slot",
+      "linkingText": [
+        "[[lastEventFiredAt]]"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Sensor"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sensor-internal-slots",
+        "href": "https://w3c.github.io/sensors/#sensor-internal-slots",
+        "title": "Sensor internal slots",
+        "number": "7.1.3"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dom-sensor-pendingreadingnotification-slot",
+      "href": "https://w3c.github.io/sensors/#dom-sensor-pendingreadingnotification-slot",
+      "linkingText": [
+        "[[pendingReadingNotification]]"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Sensor"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sensor-internal-slots",
+        "href": "https://w3c.github.io/sensors/#sensor-internal-slots",
+        "title": "Sensor internal slots",
+        "number": "7.1.3"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "sensorerrorevent",
+      "href": "https://w3c.github.io/sensors/#sensorerrorevent",
+      "linkingText": [
+        "SensorErrorEvent"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-sensor-error-event-interface",
+        "href": "https://w3c.github.io/sensors/#the-sensor-error-event-interface",
+        "title": "The SensorErrorEvent Interface",
+        "number": "7.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-sensorerrorevent-sensorerrorevent",
+      "href": "https://w3c.github.io/sensors/#dom-sensorerrorevent-sensorerrorevent",
+      "linkingText": [
+        "SensorErrorEvent(type, errorEventInitDict)",
+        "constructor(type, errorEventInitDict)"
+      ],
+      "localLinkingText": [],
+      "type": "constructor",
+      "for": [
+        "SensorErrorEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-sensorerrorevent-sensorerrorevent-type-erroreventinitdict-type",
+      "href": "https://w3c.github.io/sensors/#dom-sensorerrorevent-sensorerrorevent-type-erroreventinitdict-type",
+      "linkingText": [
+        "type"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "SensorErrorEvent/SensorErrorEvent(type, errorEventInitDict)",
+        "SensorErrorEvent/constructor(type, errorEventInitDict)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-sensorerrorevent-sensorerrorevent-type-erroreventinitdict-erroreventinitdict",
+      "href": "https://w3c.github.io/sensors/#dom-sensorerrorevent-sensorerrorevent-type-erroreventinitdict-erroreventinitdict",
+      "linkingText": [
+        "errorEventInitDict"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "SensorErrorEvent/SensorErrorEvent(type, errorEventInitDict)",
+        "SensorErrorEvent/constructor(type, errorEventInitDict)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dictdef-sensorerroreventinit",
+      "href": "https://w3c.github.io/sensors/#dictdef-sensorerroreventinit",
+      "linkingText": [
+        "SensorErrorEventInit"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-sensorerroreventinit-error",
+      "href": "https://w3c.github.io/sensors/#dom-sensorerroreventinit-error",
+      "linkingText": [
+        "error"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SensorErrorEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-sensorerrorevent-error",
+      "href": "https://w3c.github.io/sensors/#dom-sensorerrorevent-error",
+      "linkingText": [
+        "error"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "SensorErrorEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "initialize-a-sensor-object",
+      "href": "https://w3c.github.io/sensors/#initialize-a-sensor-object",
+      "linkingText": [
+        "Initialize a sensor object"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "initialize-a-sensor-object",
+        "href": "https://w3c.github.io/sensors/#initialize-a-sensor-object",
+        "title": "Initialize a sensor object",
+        "number": "8.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "check-sensor-policy-controlled-features",
+      "href": "https://w3c.github.io/sensors/#check-sensor-policy-controlled-features",
+      "linkingText": [
+        "Check sensor policy-controlled features"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "check-sensor-policy-controlled-features",
+        "href": "https://w3c.github.io/sensors/#check-sensor-policy-controlled-features",
+        "title": "Check sensor policy-controlled features",
+        "number": "8.2"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "connect-to-sensor",
+      "href": "https://w3c.github.io/sensors/#connect-to-sensor",
+      "linkingText": [
+        "Connect to sensor"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "connect-to-sensor",
+        "href": "https://w3c.github.io/sensors/#connect-to-sensor",
+        "title": "Connect to sensor",
+        "number": "8.3"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "activate-a-sensor-object",
+      "href": "https://w3c.github.io/sensors/#activate-a-sensor-object",
+      "linkingText": [
+        "Activate a sensor object"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "activate-a-sensor-object",
+        "href": "https://w3c.github.io/sensors/#activate-a-sensor-object",
+        "title": "Activate a sensor object",
+        "number": "8.4"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "deactivate-a-sensor-object",
+      "href": "https://w3c.github.io/sensors/#deactivate-a-sensor-object",
+      "linkingText": [
+        "Deactivate a sensor object"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "deactivate-a-sensor-object",
+        "href": "https://w3c.github.io/sensors/#deactivate-a-sensor-object",
+        "title": "Deactivate a sensor object",
+        "number": "8.5"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "generic-sensor-permission-revocation-algorithm",
+      "href": "https://w3c.github.io/sensors/#generic-sensor-permission-revocation-algorithm",
+      "linkingText": [
+        "Generic Sensor permission revocation algorithm"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "generic-sensor-permission-revocation-algorithm",
+        "href": "https://w3c.github.io/sensors/#generic-sensor-permission-revocation-algorithm",
+        "title": "Generic Sensor permission revocation algorithm",
+        "number": "8.6"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "set-sensor-settings",
+      "href": "https://w3c.github.io/sensors/#set-sensor-settings",
+      "linkingText": [
+        "Set sensor settings"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "set-sensor-settings",
+        "href": "https://w3c.github.io/sensors/#set-sensor-settings",
+        "title": "Set sensor settings",
+        "number": "8.7"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "update-latest-reading",
+      "href": "https://w3c.github.io/sensors/#update-latest-reading",
+      "linkingText": [
+        "Update latest reading"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "update-latest-reading",
+        "href": "https://w3c.github.io/sensors/#update-latest-reading",
+        "title": "Update latest reading",
+        "number": "8.8"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "report-latest-reading-updated",
+      "href": "https://w3c.github.io/sensors/#report-latest-reading-updated",
+      "linkingText": [
+        "Report latest reading updated"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "report-latest-reading-updated",
+        "href": "https://w3c.github.io/sensors/#report-latest-reading-updated",
+        "title": "Report latest reading updated",
+        "number": "8.9"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "notify-new-reading",
+      "href": "https://w3c.github.io/sensors/#notify-new-reading",
+      "linkingText": [
+        "Notify new reading"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "notify-new-reading",
+        "href": "https://w3c.github.io/sensors/#notify-new-reading",
+        "title": "Notify new reading",
+        "number": "8.10"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "notify-activated-state",
+      "href": "https://w3c.github.io/sensors/#notify-activated-state",
+      "linkingText": [
+        "Notify activated state"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "notify-activated-state",
+        "href": "https://w3c.github.io/sensors/#notify-activated-state",
+        "title": "Notify activated state",
+        "number": "8.11"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "notify-error",
+      "href": "https://w3c.github.io/sensors/#notify-error",
+      "linkingText": [
+        "Notify error"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "notify-error",
+        "href": "https://w3c.github.io/sensors/#notify-error",
+        "title": "Notify error",
+        "number": "8.12"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "get-value-from-latest-reading",
+      "href": "https://w3c.github.io/sensors/#get-value-from-latest-reading",
+      "linkingText": [
+        "Get value from latest reading"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "get-value-from-latest-reading",
+        "href": "https://w3c.github.io/sensors/#get-value-from-latest-reading",
+        "title": "Get value from latest reading",
+        "number": "8.13"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "request-sensor-access",
+      "href": "https://w3c.github.io/sensors/#request-sensor-access",
+      "linkingText": [
+        "Request sensor access"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "request-sensor-access",
+        "href": "https://w3c.github.io/sensors/#request-sensor-access",
+        "title": "Request sensor access",
+        "number": "8.14"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "focus-and-origin-check",
+      "href": "https://w3c.github.io/sensors/#focus-and-origin-check",
+      "linkingText": [
+        "Focus and origin check"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "focus-and-origin-check",
+        "href": "https://w3c.github.io/sensors/#focus-and-origin-check",
+        "title": "Focus and origin check",
+        "number": "8.15"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "virtual-sensor",
+      "href": "https://w3c.github.io/sensors/#virtual-sensor",
+      "linkingText": [
+        "virtual sensor"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "virtual-sensors",
+        "href": "https://w3c.github.io/sensors/#virtual-sensors",
+        "title": "Virtual Sensors",
+        "number": "9.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "virtual-sensor-can-provide-readings-flag",
+      "href": "https://w3c.github.io/sensors/#virtual-sensor-can-provide-readings-flag",
+      "linkingText": [
+        "can provide readings flag"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "virtual sensor"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "virtual-sensor-requested-sampling-frequency",
+      "href": "https://w3c.github.io/sensors/#virtual-sensor-requested-sampling-frequency",
+      "linkingText": [
+        "requested sampling frequency"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "virtual sensor"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "virtual-sensor-minimum-sampling-frequency",
+      "href": "https://w3c.github.io/sensors/#virtual-sensor-minimum-sampling-frequency",
+      "linkingText": [
+        "minimum sampling frequency"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "virtual sensor"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "virtual-sensor-maximum-sampling-frequency",
+      "href": "https://w3c.github.io/sensors/#virtual-sensor-maximum-sampling-frequency",
+      "linkingText": [
+        "maximum sampling frequency"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "virtual sensor"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "virtual-sensor-type",
+      "href": "https://w3c.github.io/sensors/#virtual-sensor-type",
+      "linkingText": [
+        "virtual sensor type"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "per-type-virtual-sensor-metadata",
+      "href": "https://w3c.github.io/sensors/#per-type-virtual-sensor-metadata",
+      "linkingText": [
+        "per-type virtual sensor metadata"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "virtual-sensor-metadata",
+      "href": "https://w3c.github.io/sensors/#virtual-sensor-metadata",
+      "linkingText": [
+        "virtual sensor metadata"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "virtual-sensor-metadata-reading-parsing-algorithm",
+      "href": "https://w3c.github.io/sensors/#virtual-sensor-metadata-reading-parsing-algorithm",
+      "linkingText": [
+        "reading parsing algorithm"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "virtual sensor metadata"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "virtual-sensor-mapping",
+      "href": "https://w3c.github.io/sensors/#virtual-sensor-mapping",
+      "linkingText": [
+        "virtual sensor mapping"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "parse-single-value-number-reading",
+      "href": "https://w3c.github.io/sensors/#parse-single-value-number-reading",
+      "linkingText": [
+        "Parse single-value number reading"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "parse-single-value-number-reading",
+        "href": "https://w3c.github.io/sensors/#parse-single-value-number-reading",
+        "title": "Parse single-value number reading",
+        "number": "9.2.3.1.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "parse-xyz-reading",
+      "href": "https://w3c.github.io/sensors/#parse-xyz-reading",
+      "linkingText": [
+        "Parse XYZ reading"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "parse-xyz-reading",
+        "href": "https://w3c.github.io/sensors/#parse-xyz-reading",
+        "title": "Parse XYZ reading",
+        "number": "9.2.3.1.2"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "extension-specification",
+      "href": "https://w3c.github.io/sensors/#extension-specification",
+      "linkingText": [
+        "extension specification"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "extensibility",
+        "href": "https://w3c.github.io/sensors/#extensibility",
+        "title": "10. Extensibility"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "extension-sensor-interface",
+      "href": "https://w3c.github.io/sensors/#extension-sensor-interface",
+      "linkingText": [
+        "extension sensor interface"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "definition-reqs",
+        "href": "https://w3c.github.io/sensors/#definition-reqs",
+        "title": "Definition Requirements",
+        "number": "10.6"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "supported-sensor-options",
+      "href": "https://w3c.github.io/sensors/#supported-sensor-options",
+      "linkingText": [
+        "supported sensor options"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://w3c.github.io/sensors/#title",
+        "title": "Generic Sensor API"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "spec": {
+    "title": "CSS Spatial Navigation Level 1",
+    "url": "https://drafts.csswg.org/css-nav-1/"
+  },
+  "events": [
+    {
+      "type": "navbeforefocus",
+      "interface": "NavigationEvent",
+      "bubbles": true,
+      "cancelable": true,
+      "src": {
+        "format": "css definition table"
+      }
+    },
+    {
+      "type": "navnotarget",
+      "interface": "NavigationEvent",
+      "bubbles": true,
+      "cancelable": true,
+      "src": {
+        "format": "css definition table"
+      }
+    },
+    {
+      "type": "navbeforefocus",
+      "targets": [
+        "NavigationEvent"
+      ],
+      "src": {
+        "format": "dfn",
+        "href": "https://drafts.csswg.org/css-nav-1/#eventdef-navigationevent-navbeforefocus"
+      },
+      "href": "https://drafts.csswg.org/css-nav-1/#eventdef-navigationevent-navbeforefocus"
+    },
+    {
+      "type": "navnotarget",
+      "targets": [
+        "NavigationEvent"
+      ],
+      "src": {
+        "format": "dfn",
+        "href": "https://drafts.csswg.org/css-nav-1/#eventdef-navigationevent-navnotarget"
+      },
+      "href": "https://drafts.csswg.org/css-nav-1/#eventdef-navigationevent-navnotarget"
+    }
+  ]
+}

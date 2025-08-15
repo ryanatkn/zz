@@ -1,0 +1,449 @@
+{
+  "spec": {
+    "title": "WebXR Augmented Reality Module - Level 1",
+    "url": "https://www.w3.org/TR/webxr-ar-module-1/"
+  },
+  "dfns": [
+    {
+      "id": "real-world-environment",
+      "href": "https://www.w3.org/TR/webxr-ar-module-1/#real-world-environment",
+      "linkingText": [
+        "real-world environment"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/webxr-ar-module-1/#terminology",
+        "title": "Terminology",
+        "number": "1.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "display-technology",
+      "href": "https://www.w3.org/TR/webxr-ar-module-1/#display-technology",
+      "linkingText": [
+        "display technology"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/webxr-ar-module-1/#terminology",
+        "title": "Terminology",
+        "number": "1.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "additive-light",
+      "href": "https://www.w3.org/TR/webxr-ar-module-1/#additive-light",
+      "linkingText": [
+        "additive light"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/webxr-ar-module-1/#terminology",
+        "title": "Terminology",
+        "number": "1.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "pass-through",
+      "href": "https://www.w3.org/TR/webxr-ar-module-1/#pass-through",
+      "linkingText": [
+        "pass-through"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/webxr-ar-module-1/#terminology",
+        "title": "Terminology",
+        "number": "1.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "opaque",
+      "href": "https://www.w3.org/TR/webxr-ar-module-1/#opaque",
+      "linkingText": [
+        "opaque"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/webxr-ar-module-1/#terminology",
+        "title": "Terminology",
+        "number": "1.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-xrsessionmode-immersive-ar",
+      "href": "https://www.w3.org/TR/webxr-ar-module-1/#dom-xrsessionmode-immersive-ar",
+      "linkingText": [
+        "\"immersive-ar\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "XRSessionMode"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "xrsessionmode-enum",
+        "href": "https://www.w3.org/TR/webxr-ar-module-1/#xrsessionmode-enum",
+        "title": "XRSessionMode",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "enumdef-xrenvironmentblendmode",
+      "href": "https://www.w3.org/TR/webxr-ar-module-1/#enumdef-xrenvironmentblendmode",
+      "linkingText": [
+        "XREnvironmentBlendMode"
+      ],
+      "localLinkingText": [],
+      "type": "enum",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "xrenvironmentblendmode-enum",
+        "href": "https://www.w3.org/TR/webxr-ar-module-1/#xrenvironmentblendmode-enum",
+        "title": "XREnvironmentBlendMode",
+        "number": "2.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-xrsession-environmentblendmode",
+      "href": "https://www.w3.org/TR/webxr-ar-module-1/#dom-xrsession-environmentblendmode",
+      "linkingText": [
+        "environmentBlendMode"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "XRSession"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "xrenvironmentblendmode-enum",
+        "href": "https://www.w3.org/TR/webxr-ar-module-1/#xrenvironmentblendmode-enum",
+        "title": "XREnvironmentBlendMode",
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-xrenvironmentblendmode-opaque",
+      "href": "https://www.w3.org/TR/webxr-ar-module-1/#dom-xrenvironmentblendmode-opaque",
+      "linkingText": [
+        "\"opaque\"",
+        "opaque"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "XREnvironmentBlendMode"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "xrenvironmentblendmode-enum",
+        "href": "https://www.w3.org/TR/webxr-ar-module-1/#xrenvironmentblendmode-enum",
+        "title": "XREnvironmentBlendMode",
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-xrenvironmentblendmode-alpha-blend",
+      "href": "https://www.w3.org/TR/webxr-ar-module-1/#dom-xrenvironmentblendmode-alpha-blend",
+      "linkingText": [
+        "\"alpha-blend\"",
+        "alpha-blend"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "XREnvironmentBlendMode"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "xrenvironmentblendmode-enum",
+        "href": "https://www.w3.org/TR/webxr-ar-module-1/#xrenvironmentblendmode-enum",
+        "title": "XREnvironmentBlendMode",
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-xrenvironmentblendmode-additive",
+      "href": "https://www.w3.org/TR/webxr-ar-module-1/#dom-xrenvironmentblendmode-additive",
+      "linkingText": [
+        "\"additive\"",
+        "additive"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "XREnvironmentBlendMode"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "xrenvironmentblendmode-enum",
+        "href": "https://www.w3.org/TR/webxr-ar-module-1/#xrenvironmentblendmode-enum",
+        "title": "XREnvironmentBlendMode",
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "enumdef-xrinteractionmode",
+      "href": "https://www.w3.org/TR/webxr-ar-module-1/#enumdef-xrinteractionmode",
+      "linkingText": [
+        "XRInteractionMode"
+      ],
+      "localLinkingText": [],
+      "type": "enum",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "xrinteractionmode-enum",
+        "href": "https://www.w3.org/TR/webxr-ar-module-1/#xrinteractionmode-enum",
+        "title": "XRInteractionMode",
+        "number": "2.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-xrinteractionmode-screen-space",
+      "href": "https://www.w3.org/TR/webxr-ar-module-1/#dom-xrinteractionmode-screen-space",
+      "linkingText": [
+        "\"screen-space\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "XRInteractionMode"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "xrinteractionmode-enum",
+        "href": "https://www.w3.org/TR/webxr-ar-module-1/#xrinteractionmode-enum",
+        "title": "XRInteractionMode",
+        "number": "2.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-xrinteractionmode-world-space",
+      "href": "https://www.w3.org/TR/webxr-ar-module-1/#dom-xrinteractionmode-world-space",
+      "linkingText": [
+        "\"world-space\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "XRInteractionMode"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "xrinteractionmode-enum",
+        "href": "https://www.w3.org/TR/webxr-ar-module-1/#xrinteractionmode-enum",
+        "title": "XRInteractionMode",
+        "number": "2.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-xrsession-interactionmode",
+      "href": "https://www.w3.org/TR/webxr-ar-module-1/#dom-xrsession-interactionmode",
+      "linkingText": [
+        "interactionMode"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "XRSession"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "xrinteractionmode-enum",
+        "href": "https://www.w3.org/TR/webxr-ar-module-1/#xrinteractionmode-enum",
+        "title": "XRInteractionMode",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "blend-technique",
+      "href": "https://www.w3.org/TR/webxr-ar-module-1/#blend-technique",
+      "linkingText": [
+        "blend technique"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "xr-compositor-behaviors",
+        "href": "https://www.w3.org/TR/webxr-ar-module-1/#xr-compositor-behaviors",
+        "title": "XR Compositor Behaviors",
+        "number": "2.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "opaque-environment-blending",
+      "href": "https://www.w3.org/TR/webxr-ar-module-1/#opaque-environment-blending",
+      "linkingText": [
+        "opaque environment blending"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "xr-compositor-behaviors",
+        "href": "https://www.w3.org/TR/webxr-ar-module-1/#xr-compositor-behaviors",
+        "title": "XR Compositor Behaviors",
+        "number": "2.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "alpha-blend-environment-blending",
+      "href": "https://www.w3.org/TR/webxr-ar-module-1/#alpha-blend-environment-blending",
+      "linkingText": [
+        "alpha-blend environment blending"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "xr-compositor-behaviors",
+        "href": "https://www.w3.org/TR/webxr-ar-module-1/#xr-compositor-behaviors",
+        "title": "XR Compositor Behaviors",
+        "number": "2.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "additive-environment-blending",
+      "href": "https://www.w3.org/TR/webxr-ar-module-1/#additive-environment-blending",
+      "linkingText": [
+        "additive environment blending"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "xr-compositor-behaviors",
+        "href": "https://www.w3.org/TR/webxr-ar-module-1/#xr-compositor-behaviors",
+        "title": "XR Compositor Behaviors",
+        "number": "2.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "first-person-observer-view",
+      "href": "https://www.w3.org/TR/webxr-ar-module-1/#first-person-observer-view",
+      "linkingText": [
+        "first-person observer view"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "first-person-observer",
+        "href": "https://www.w3.org/TR/webxr-ar-module-1/#first-person-observer",
+        "title": "First Person Observer Views",
+        "number": "2.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-xrview-isfirstpersonobserver",
+      "href": "https://www.w3.org/TR/webxr-ar-module-1/#dom-xrview-isfirstpersonobserver",
+      "linkingText": [
+        "isFirstPersonObserver"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "XRView"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "first-person-observer",
+        "href": "https://www.w3.org/TR/webxr-ar-module-1/#first-person-observer",
+        "title": "First Person Observer Views",
+        "number": "2.5"
+      },
+      "definedIn": "pre",
+      "links": []
+    }
+  ]
+}

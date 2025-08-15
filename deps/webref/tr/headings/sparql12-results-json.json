@@ -1,0 +1,312 @@
+{
+  "spec": {
+    "title": "SPARQL 1.2 Query Results JSON Format",
+    "url": "https://www.w3.org/TR/sparql12-results-json/"
+  },
+  "headings": [
+    {
+      "id": "title",
+      "href": "https://www.w3.org/TR/sparql12-results-json/#title",
+      "level": 1,
+      "title": "SPARQL 1.2 Query Results JSON Format"
+    },
+    {
+      "id": "related",
+      "href": "https://www.w3.org/TR/sparql12-results-json/#related",
+      "level": 3,
+      "title": "Set of Documents",
+      "alternateIds": [
+        "set-of-documents"
+      ]
+    },
+    {
+      "id": "toc",
+      "href": "https://www.w3.org/TR/sparql12-results-json/#toc",
+      "level": 2,
+      "title": "Table of Contents",
+      "alternateIds": [
+        "table-of-contents"
+      ]
+    },
+    {
+      "id": "introduction",
+      "href": "https://www.w3.org/TR/sparql12-results-json/#introduction",
+      "level": 2,
+      "title": "Introduction",
+      "alternateIds": [
+        "x1-introduction"
+      ],
+      "number": "1"
+    },
+    {
+      "id": "version-announcement",
+      "href": "https://www.w3.org/TR/sparql12-results-json/#version-announcement",
+      "level": 3,
+      "title": "Version Announcement",
+      "alternateIds": [
+        "x1-1-version-announcement"
+      ],
+      "number": "1.1"
+    },
+    {
+      "id": "json-result-object",
+      "href": "https://www.w3.org/TR/sparql12-results-json/#json-result-object",
+      "level": 2,
+      "title": "JSON Results Object",
+      "alternateIds": [
+        "x2-json-results-object"
+      ],
+      "number": "2"
+    },
+    {
+      "id": "select-results-form",
+      "href": "https://www.w3.org/TR/sparql12-results-json/#select-results-form",
+      "level": 2,
+      "title": "Variable Binding Results",
+      "alternateIds": [
+        "x3-variable-binding-results"
+      ],
+      "number": "3"
+    },
+    {
+      "id": "select-head",
+      "href": "https://www.w3.org/TR/sparql12-results-json/#select-head",
+      "level": 3,
+      "title": "\"head\"",
+      "alternateIds": [
+        "x3-1-head"
+      ],
+      "number": "3.1"
+    },
+    {
+      "id": "select-vars",
+      "href": "https://www.w3.org/TR/sparql12-results-json/#select-vars",
+      "level": 4,
+      "title": "\"vars\"",
+      "alternateIds": [
+        "x3-1-1-vars"
+      ],
+      "number": "3.1.1"
+    },
+    {
+      "id": "select-link",
+      "href": "https://www.w3.org/TR/sparql12-results-json/#select-link",
+      "level": 4,
+      "title": "\"link\"",
+      "alternateIds": [
+        "x3-1-2-link"
+      ],
+      "number": "3.1.2"
+    },
+    {
+      "id": "select-version",
+      "href": "https://www.w3.org/TR/sparql12-results-json/#select-version",
+      "level": 4,
+      "title": "\"version\"",
+      "alternateIds": [
+        "x3-1-3-version"
+      ],
+      "number": "3.1.3"
+    },
+    {
+      "id": "select-results",
+      "href": "https://www.w3.org/TR/sparql12-results-json/#select-results",
+      "level": 3,
+      "title": "\"results\"",
+      "alternateIds": [
+        "x3-2-results"
+      ],
+      "number": "3.2"
+    },
+    {
+      "id": "select-bindings",
+      "href": "https://www.w3.org/TR/sparql12-results-json/#select-bindings",
+      "level": 4,
+      "title": "\"bindings\"",
+      "alternateIds": [
+        "x3-2-1-bindings"
+      ],
+      "number": "3.2.1"
+    },
+    {
+      "id": "select-encode-terms",
+      "href": "https://www.w3.org/TR/sparql12-results-json/#select-encode-terms",
+      "level": 4,
+      "title": "Encoding RDF terms",
+      "alternateIds": [
+        "x3-2-2-encoding-rdf-terms"
+      ],
+      "number": "3.2.2"
+    },
+    {
+      "id": "ask-result-form",
+      "href": "https://www.w3.org/TR/sparql12-results-json/#ask-result-form",
+      "level": 2,
+      "title": "Boolean Results",
+      "alternateIds": [
+        "x4-boolean-results"
+      ],
+      "number": "4"
+    },
+    {
+      "id": "ask-head",
+      "href": "https://www.w3.org/TR/sparql12-results-json/#ask-head",
+      "level": 3,
+      "title": "\"head\"",
+      "alternateIds": [
+        "x4-1-head"
+      ],
+      "number": "4.1"
+    },
+    {
+      "id": "ask-link",
+      "href": "https://www.w3.org/TR/sparql12-results-json/#ask-link",
+      "level": 4,
+      "title": "\"link\"",
+      "alternateIds": [
+        "x4-1-1-link"
+      ],
+      "number": "4.1.1"
+    },
+    {
+      "id": "ask-boolean",
+      "href": "https://www.w3.org/TR/sparql12-results-json/#ask-boolean",
+      "level": 3,
+      "title": "\"boolean\"",
+      "alternateIds": [
+        "x4-2-boolean"
+      ],
+      "number": "4.2"
+    },
+    {
+      "id": "example",
+      "href": "https://www.w3.org/TR/sparql12-results-json/#example",
+      "level": 2,
+      "title": "Examples",
+      "alternateIds": [
+        "x5-examples"
+      ],
+      "number": "5"
+    },
+    {
+      "id": "example-bindings",
+      "href": "https://www.w3.org/TR/sparql12-results-json/#example-bindings",
+      "level": 3,
+      "title": "Variable Binding Results Examples",
+      "alternateIds": [
+        "x5-1-variable-binding-results-examples"
+      ],
+      "number": "5.1"
+    },
+    {
+      "id": "example-bindings-triple-term",
+      "href": "https://www.w3.org/TR/sparql12-results-json/#example-bindings-triple-term",
+      "level": 3,
+      "title": "Variable Binding Results Examples with Triple Terms",
+      "alternateIds": [
+        "x5-2-variable-binding-results-examples-with-triple-terms"
+      ],
+      "number": "5.2"
+    },
+    {
+      "id": "media-type",
+      "href": "https://www.w3.org/TR/sparql12-results-json/#media-type",
+      "level": 2,
+      "title": "Internet Media Type, File Extension and Macintosh File Type",
+      "alternateIds": [
+        "x6-internet-media-type-file-extension-and-macintosh-file-type"
+      ],
+      "number": "6"
+    },
+    {
+      "id": "changes-1-1",
+      "href": "https://www.w3.org/TR/sparql12-results-json/#changes-1-1",
+      "level": 2,
+      "title": "Changes between SPARQL 1.1 Query Results JSON Format and SPARQL 1.2 Query Results JSON Format",
+      "alternateIds": [
+        "a-changes-between-sparql-1-1-query-results-json-format-and-sparql-1-2-query-results-json-format"
+      ],
+      "number": "A"
+    },
+    {
+      "id": "privacy",
+      "href": "https://www.w3.org/TR/sparql12-results-json/#privacy",
+      "level": 2,
+      "title": "Privacy Considerations",
+      "alternateIds": [
+        "b-privacy-considerations"
+      ],
+      "number": "B"
+    },
+    {
+      "id": "security",
+      "href": "https://www.w3.org/TR/sparql12-results-json/#security",
+      "level": 2,
+      "title": "Security Considerations",
+      "alternateIds": [
+        "c-security-considerations"
+      ],
+      "number": "C"
+    },
+    {
+      "id": "internationalization",
+      "href": "https://www.w3.org/TR/sparql12-results-json/#internationalization",
+      "level": 2,
+      "title": "Internationalization Considerations",
+      "alternateIds": [
+        "d-internationalization-considerations"
+      ],
+      "number": "D"
+    },
+    {
+      "id": "index",
+      "href": "https://www.w3.org/TR/sparql12-results-json/#index",
+      "level": 2,
+      "title": "Index",
+      "alternateIds": [
+        "e-index"
+      ],
+      "number": "E"
+    },
+    {
+      "id": "index-defined-here",
+      "href": "https://www.w3.org/TR/sparql12-results-json/#index-defined-here",
+      "level": 3,
+      "title": "Terms defined by this specification",
+      "alternateIds": [
+        "e-1-terms-defined-by-this-specification"
+      ],
+      "number": "E.1"
+    },
+    {
+      "id": "index-defined-elsewhere",
+      "href": "https://www.w3.org/TR/sparql12-results-json/#index-defined-elsewhere",
+      "level": 3,
+      "title": "Terms defined by reference",
+      "alternateIds": [
+        "e-2-terms-defined-by-reference"
+      ],
+      "number": "E.2"
+    },
+    {
+      "id": "references",
+      "href": "https://www.w3.org/TR/sparql12-results-json/#references",
+      "level": 2,
+      "title": "References",
+      "alternateIds": [
+        "f-references"
+      ],
+      "number": "F"
+    },
+    {
+      "id": "informative-references",
+      "href": "https://www.w3.org/TR/sparql12-results-json/#informative-references",
+      "level": 3,
+      "title": "Informative references",
+      "alternateIds": [
+        "f-1-informative-references"
+      ],
+      "number": "F.1"
+    }
+  ]
+}

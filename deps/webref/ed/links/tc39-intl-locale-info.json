@@ -1,0 +1,71 @@
+{
+  "spec": {
+    "title": "Intl Locale Info Proposal",
+    "url": "https://tc39.es/proposal-intl-locale-info/"
+  },
+  "links": {
+    "rawlinks": {
+      "https://ecma-international.org/memento/codeofconduct.htm": {},
+      "https://github.com/tc39/proposal-intl-locale-info/blob/main/README.md": {},
+      "https://tc39.es/ecma262/": {
+        "anchors": [
+          "sec-list-and-record-specification-type",
+          "sec-ecmascript-language-types",
+          "sec-createarrayfromlist",
+          "lexicographic-code-unit-order",
+          "assert",
+          "sec-time-zone-identifiers",
+          "integral-number",
+          "constructor",
+          "sec-ordinarycreatefromconstructor",
+          "sec-ecmascript-language-types-string-type",
+          "sec-object-type",
+          "sec-tostring",
+          "sec-samevalue",
+          "sec-requireinternalslot",
+          "sec-ordinaryobjectcreate",
+          "sec-properties-of-the-object-prototype-object",
+          "sec-createdatapropertyorthrow",
+          "ordinary-object",
+          "sec-ecmascript-language-types-boolean-type"
+        ]
+      },
+      "https://tc39.es/ecma402/": {
+        "anchors": [
+          "sec-calendar-types",
+          "sec-collation-types",
+          "sec-numberingsystem-identifiers",
+          "sec-getlocaleregion",
+          "sec-getlocalescript",
+          "sec-coerceoptionstoobject",
+          "sec-isstructurallyvalidlanguagetag",
+          "sec-canonicalizeunicodelocaleid",
+          "sec-updatelanguageid",
+          "sec-getoption",
+          "sec-language-tags",
+          "sec-makelocalerecord",
+          "sec-the-intl-collator-constructor"
+        ]
+      },
+      "https://unicode.org/reports/tr35/": {
+        "anchors": [
+          "Likely_Subtags",
+          "Unicode_locale_identifier"
+        ]
+      },
+      "https://www.unicode.org/reports/tr35/tr35-dates.html": {
+        "anchors": [
+          "Date_Patterns_Week_Elements",
+          "Week_Data",
+          "first-day-overrides"
+        ]
+      },
+      "https://www.unicode.org/reports/tr35/tr35-general.html": {
+        "anchors": [
+          "Layout_Elements"
+        ]
+      }
+    },
+    "autolinks": {}
+  }
+}

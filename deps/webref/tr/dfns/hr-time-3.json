@@ -1,0 +1,752 @@
+{
+  "spec": {
+    "title": "High Resolution Time",
+    "url": "https://www.w3.org/TR/hr-time-3/"
+  },
+  "dfns": [
+    {
+      "id": "dfn-clock",
+      "href": "https://www.w3.org/TR/hr-time-3/#dfn-clock",
+      "linkingText": [
+        "clock"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sec-clocks",
+        "href": "https://www.w3.org/TR/hr-time-3/#sec-clocks",
+        "title": "Clocks",
+        "alternateIds": [
+          "x2-1-clocks"
+        ],
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-unsafe-current-time",
+      "href": "https://www.w3.org/TR/hr-time-3/#dfn-unsafe-current-time",
+      "linkingText": [
+        "unsafe current time"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sec-clocks",
+        "href": "https://www.w3.org/TR/hr-time-3/#sec-clocks",
+        "title": "Clocks",
+        "alternateIds": [
+          "x2-1-clocks"
+        ],
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-wall-clock",
+      "href": "https://www.w3.org/TR/hr-time-3/#dfn-wall-clock",
+      "linkingText": [
+        "wall clock"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-clocks",
+        "href": "https://www.w3.org/TR/hr-time-3/#sec-clocks",
+        "title": "Clocks",
+        "alternateIds": [
+          "x2-1-clocks"
+        ],
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "wall-clock-unsafe-current-time",
+      "href": "https://www.w3.org/TR/hr-time-3/#wall-clock-unsafe-current-time",
+      "linkingText": [
+        "unsafe current time"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "wall clock"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-clocks",
+        "href": "https://www.w3.org/TR/hr-time-3/#sec-clocks",
+        "title": "Clocks",
+        "alternateIds": [
+          "x2-1-clocks"
+        ],
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-monotonic-clock",
+      "href": "https://www.w3.org/TR/hr-time-3/#dfn-monotonic-clock",
+      "linkingText": [
+        "monotonic clock"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-clocks",
+        "href": "https://www.w3.org/TR/hr-time-3/#sec-clocks",
+        "title": "Clocks",
+        "alternateIds": [
+          "x2-1-clocks"
+        ],
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "monotonic-clock-unsafe-current-time",
+      "href": "https://www.w3.org/TR/hr-time-3/#monotonic-clock-unsafe-current-time",
+      "linkingText": [
+        "unsafe current time"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "monotonic clock"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-clocks",
+        "href": "https://www.w3.org/TR/hr-time-3/#sec-clocks",
+        "title": "Clocks",
+        "alternateIds": [
+          "x2-1-clocks"
+        ],
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-unsafe-moment",
+      "href": "https://www.w3.org/TR/hr-time-3/#dfn-unsafe-moment",
+      "linkingText": [
+        "unsafe moment"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "moments-and-durations",
+        "href": "https://www.w3.org/TR/hr-time-3/#moments-and-durations",
+        "title": "Moments and Durations",
+        "alternateIds": [
+          "x2-2-moments-and-durations"
+        ],
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-moment",
+      "href": "https://www.w3.org/TR/hr-time-3/#dfn-moment",
+      "linkingText": [
+        "moment",
+        "coarsened moments"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "moments-and-durations",
+        "href": "https://www.w3.org/TR/hr-time-3/#moments-and-durations",
+        "title": "Moments and Durations",
+        "alternateIds": [
+          "x2-2-moments-and-durations"
+        ],
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-duration",
+      "href": "https://www.w3.org/TR/hr-time-3/#dfn-duration",
+      "linkingText": [
+        "duration"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "moments-and-durations",
+        "href": "https://www.w3.org/TR/hr-time-3/#moments-and-durations",
+        "title": "Moments and Durations",
+        "alternateIds": [
+          "x2-2-moments-and-durations"
+        ],
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-duration-from",
+      "href": "https://www.w3.org/TR/hr-time-3/#dfn-duration-from",
+      "linkingText": [
+        "duration from"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "moments-and-durations",
+        "href": "https://www.w3.org/TR/hr-time-3/#moments-and-durations",
+        "title": "Moments and Durations",
+        "alternateIds": [
+          "x2-2-moments-and-durations"
+        ],
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-implicitly-convert-a-duration-to-a-timestamp",
+      "href": "https://www.w3.org/TR/hr-time-3/#dfn-implicitly-convert-a-duration-to-a-timestamp",
+      "linkingText": [
+        "implicitly convert a duration to a timestamp"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "moments-and-durations",
+        "href": "https://www.w3.org/TR/hr-time-3/#moments-and-durations",
+        "title": "Moments and Durations",
+        "alternateIds": [
+          "x2-2-moments-and-durations"
+        ],
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-current-relative-timestamp",
+      "href": "https://www.w3.org/TR/hr-time-3/#dfn-current-relative-timestamp",
+      "linkingText": [
+        "current relative timestamp"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "environment settings object"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-tools",
+        "href": "https://www.w3.org/TR/hr-time-3/#sec-tools",
+        "title": "Tools for Specification Authors",
+        "alternateIds": [
+          "x3-tools-for-specification-authors"
+        ],
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-current-monotonic-time",
+      "href": "https://www.w3.org/TR/hr-time-3/#dfn-current-monotonic-time",
+      "linkingText": [
+        "current monotonic time"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "environment settings object"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-tools",
+        "href": "https://www.w3.org/TR/hr-time-3/#sec-tools",
+        "title": "Tools for Specification Authors",
+        "alternateIds": [
+          "x3-tools-for-specification-authors"
+        ],
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-current-wall-time",
+      "href": "https://www.w3.org/TR/hr-time-3/#dfn-current-wall-time",
+      "linkingText": [
+        "current coarsened wall time"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-tools",
+        "href": "https://www.w3.org/TR/hr-time-3/#sec-tools",
+        "title": "Tools for Specification Authors",
+        "alternateIds": [
+          "x3-tools-for-specification-authors"
+        ],
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-eso-current-wall-time",
+      "href": "https://www.w3.org/TR/hr-time-3/#dfn-eso-current-wall-time",
+      "linkingText": [
+        "current wall time"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "environment settings object"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-tools",
+        "href": "https://www.w3.org/TR/hr-time-3/#sec-tools",
+        "title": "Tools for Specification Authors",
+        "alternateIds": [
+          "x3-tools-for-specification-authors"
+        ],
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-unix-epoch",
+      "href": "https://www.w3.org/TR/hr-time-3/#dfn-unix-epoch",
+      "linkingText": [
+        "Unix epoch"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-time-origin",
+        "href": "https://www.w3.org/TR/hr-time-3/#sec-time-origin",
+        "title": "Time Origin",
+        "alternateIds": [
+          "x4-time-origin"
+        ],
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-estimated-monotonic-time-of-the-unix-epoch",
+      "href": "https://www.w3.org/TR/hr-time-3/#dfn-estimated-monotonic-time-of-the-unix-epoch",
+      "linkingText": [
+        "estimated monotonic time of the Unix epoch"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sec-time-origin",
+        "href": "https://www.w3.org/TR/hr-time-3/#sec-time-origin",
+        "title": "Time Origin",
+        "alternateIds": [
+          "x4-time-origin"
+        ],
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-get-time-origin-timestamp",
+      "href": "https://www.w3.org/TR/hr-time-3/#dfn-get-time-origin-timestamp",
+      "linkingText": [
+        "get time origin timestamp"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sec-time-origin",
+        "href": "https://www.w3.org/TR/hr-time-3/#sec-time-origin",
+        "title": "Time Origin",
+        "alternateIds": [
+          "x4-time-origin"
+        ],
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-coarsen-time",
+      "href": "https://www.w3.org/TR/hr-time-3/#dfn-coarsen-time",
+      "linkingText": [
+        "coarsen time"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-time-origin",
+        "href": "https://www.w3.org/TR/hr-time-3/#sec-time-origin",
+        "title": "Time Origin",
+        "alternateIds": [
+          "x4-time-origin"
+        ],
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-relative-high-resolution-time",
+      "href": "https://www.w3.org/TR/hr-time-3/#dfn-relative-high-resolution-time",
+      "linkingText": [
+        "relative high resolution time"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-time-origin",
+        "href": "https://www.w3.org/TR/hr-time-3/#sec-time-origin",
+        "title": "Time Origin",
+        "alternateIds": [
+          "x4-time-origin"
+        ],
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-relative-high-resolution-coarse-time",
+      "href": "https://www.w3.org/TR/hr-time-3/#dfn-relative-high-resolution-coarse-time",
+      "linkingText": [
+        "relative high resolution coarse time"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-time-origin",
+        "href": "https://www.w3.org/TR/hr-time-3/#sec-time-origin",
+        "title": "Time Origin",
+        "alternateIds": [
+          "x4-time-origin"
+        ],
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-current-high-resolution-time",
+      "href": "https://www.w3.org/TR/hr-time-3/#dfn-current-high-resolution-time",
+      "linkingText": [
+        "current high resolution time"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-time-origin",
+        "href": "https://www.w3.org/TR/hr-time-3/#sec-time-origin",
+        "title": "Time Origin",
+        "alternateIds": [
+          "x4-time-origin"
+        ],
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-coarsened-shared-current-time",
+      "href": "https://www.w3.org/TR/hr-time-3/#dfn-coarsened-shared-current-time",
+      "linkingText": [
+        "coarsened shared current time"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-time-origin",
+        "href": "https://www.w3.org/TR/hr-time-3/#sec-time-origin",
+        "title": "Time Origin",
+        "alternateIds": [
+          "x4-time-origin"
+        ],
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-unsafe-shared-current-time",
+      "href": "https://www.w3.org/TR/hr-time-3/#dfn-unsafe-shared-current-time",
+      "linkingText": [
+        "unsafe shared current time"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-time-origin",
+        "href": "https://www.w3.org/TR/hr-time-3/#sec-time-origin",
+        "title": "Time Origin",
+        "alternateIds": [
+          "x4-time-origin"
+        ],
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-domhighrestimestamp",
+      "href": "https://www.w3.org/TR/hr-time-3/#dom-domhighrestimestamp",
+      "linkingText": [
+        "DOMHighResTimeStamp"
+      ],
+      "localLinkingText": [],
+      "type": "typedef",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-domhighrestimestamp",
+        "href": "https://www.w3.org/TR/hr-time-3/#sec-domhighrestimestamp",
+        "title": "The DOMHighResTimeStamp typedef",
+        "alternateIds": [
+          "x5-the-domhighrestimestamp-typedef"
+        ],
+        "number": "5"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dom-epochtimestamp",
+      "href": "https://www.w3.org/TR/hr-time-3/#dom-epochtimestamp",
+      "linkingText": [
+        "EpochTimeStamp"
+      ],
+      "localLinkingText": [],
+      "type": "typedef",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-epochtimestamp-typedef",
+        "href": "https://www.w3.org/TR/hr-time-3/#the-epochtimestamp-typedef",
+        "title": "The EpochTimeStamp typedef",
+        "alternateIds": [
+          "x6-the-epochtimestamp-typedef"
+        ],
+        "number": "6"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dom-performance",
+      "href": "https://www.w3.org/TR/hr-time-3/#dom-performance",
+      "linkingText": [
+        "Performance"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-performance",
+        "href": "https://www.w3.org/TR/hr-time-3/#sec-performance",
+        "title": "The Performance interface",
+        "alternateIds": [
+          "x7-the-performance-interface"
+        ],
+        "number": "7"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dom-performance-now",
+      "href": "https://www.w3.org/TR/hr-time-3/#dom-performance-now",
+      "linkingText": [
+        "now()"
+      ],
+      "localLinkingText": [
+        "Performance.now",
+        "Performance.now()",
+        "now"
+      ],
+      "type": "method",
+      "for": [
+        "Performance"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "now-method",
+        "href": "https://www.w3.org/TR/hr-time-3/#now-method",
+        "title": "now() method",
+        "alternateIds": [
+          "x7-1-now-method"
+        ],
+        "number": "7.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-performance-timeorigin",
+      "href": "https://www.w3.org/TR/hr-time-3/#dom-performance-timeorigin",
+      "linkingText": [
+        "timeOrigin"
+      ],
+      "localLinkingText": [
+        "Performance.timeOrigin"
+      ],
+      "type": "attribute",
+      "for": [
+        "Performance"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "timeorigin-attribute",
+        "href": "https://www.w3.org/TR/hr-time-3/#timeorigin-attribute",
+        "title": "timeOrigin attribute",
+        "alternateIds": [
+          "x7-2-timeorigin-attribute"
+        ],
+        "number": "7.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-performance-tojson",
+      "href": "https://www.w3.org/TR/hr-time-3/#dom-performance-tojson",
+      "linkingText": [
+        "toJSON()"
+      ],
+      "localLinkingText": [
+        "Performance.toJSON",
+        "Performance.toJSON()",
+        "toJSON"
+      ],
+      "type": "method",
+      "for": [
+        "Performance"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tojson-method",
+        "href": "https://www.w3.org/TR/hr-time-3/#tojson-method",
+        "title": "toJSON() method",
+        "alternateIds": [
+          "x7-3-tojson-method"
+        ],
+        "number": "7.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-windoworworkerglobalscope-performance",
+      "href": "https://www.w3.org/TR/hr-time-3/#dom-windoworworkerglobalscope-performance",
+      "linkingText": [
+        "performance"
+      ],
+      "localLinkingText": [
+        "WindowOrWorkerGlobalScope.performance"
+      ],
+      "type": "attribute",
+      "for": [
+        "WindowOrWorkerGlobalScope"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-performance-attribute",
+        "href": "https://www.w3.org/TR/hr-time-3/#the-performance-attribute",
+        "title": "The performance attribute",
+        "alternateIds": [
+          "x8-1-the-performance-attribute"
+        ],
+        "number": "8.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

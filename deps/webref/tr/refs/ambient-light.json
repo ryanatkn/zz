@@ -1,0 +1,72 @@
+{
+  "spec": {
+    "title": "Ambient Light Sensor",
+    "url": "https://www.w3.org/TR/ambient-light/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "ECMASCRIPT",
+        "url": "https://tc39.es/ecma262/multipage/"
+      },
+      {
+        "name": "GENERIC-SENSOR",
+        "url": "https://w3c.github.io/sensors/"
+      },
+      {
+        "name": "INFRA",
+        "url": "https://infra.spec.whatwg.org/"
+      },
+      {
+        "name": "PERMISSIONS",
+        "url": "https://w3c.github.io/permissions/"
+      },
+      {
+        "name": "PERMISSIONS-POLICY-1",
+        "url": "https://w3c.github.io/webappsec-permissions-policy/"
+      },
+      {
+        "name": "RFC2119",
+        "url": "https://datatracker.ietf.org/doc/html/rfc2119"
+      },
+      {
+        "name": "WEBIDL",
+        "url": "https://webidl.spec.whatwg.org/"
+      }
+    ],
+    "informative": [
+      {
+        "name": "ALSPRIVACYANALYSIS",
+        "url": "https://blog.lukaszolejnik.com/privacy-of-ambient-light-sensors/"
+      },
+      {
+        "name": "CSSOM-VIEW-1",
+        "url": "https://drafts.csswg.org/cssom-view/"
+      },
+      {
+        "name": "IMAGINGPRIVACY",
+        "url": "https://www.science.org/doi/10.1126/sciadv.adj3608"
+      },
+      {
+        "name": "MEDIAQUERIES-5",
+        "url": "https://drafts.csswg.org/mediaqueries-5/"
+      },
+      {
+        "name": "PINSKIMMINGVIASENSOR",
+        "url": "https://arxiv.org/abs/1405.3760"
+      },
+      {
+        "name": "SI",
+        "url": "http://www.bipm.org/en/publications/si-brochure/"
+      },
+      {
+        "name": "STEALINGSENSITIVEDATA",
+        "url": "https://blog.lukaszolejnik.com/stealing-sensitive-browser-data-with-the-w3c-ambient-light-sensor-api/"
+      },
+      {
+        "name": "VIDEORECOGNITIONAMBIENTLIGHT",
+        "url": "https://doi.org/10.1109/PERCOM.2016.7456511"
+      }
+    ]
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "spec": {
+    "title": "WebAssembly Web API",
+    "url": "https://www.w3.org/TR/wasm-web-api-2/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "ECMASCRIPT",
+        "url": "https://tc39.es/ecma262/multipage/"
+      },
+      {
+        "name": "FETCH",
+        "url": "https://fetch.spec.whatwg.org/"
+      },
+      {
+        "name": "HTML",
+        "url": "https://html.spec.whatwg.org/multipage/"
+      },
+      {
+        "name": "INFRA",
+        "url": "https://infra.spec.whatwg.org/"
+      },
+      {
+        "name": "RFC2119",
+        "url": "https://datatracker.ietf.org/doc/html/rfc2119"
+      },
+      {
+        "name": "WASMJS",
+        "url": "https://webassembly.github.io/spec/js-api/"
+      },
+      {
+        "name": "WEBASSEMBLY",
+        "url": "https://webassembly.github.io/spec/core/"
+      },
+      {
+        "name": "WEBIDL",
+        "url": "https://webidl.spec.whatwg.org/"
+      }
+    ],
+    "informative": [
+      {
+        "name": "IANA-MEDIA-TYPES",
+        "url": "https://www.iana.org/assignments/media-types/"
+      }
+    ]
+  }
+}

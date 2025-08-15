@@ -1,0 +1,2864 @@
+{
+  "spec": {
+    "title": "CSS Values and Units Module Level 5",
+    "url": "https://drafts.csswg.org/css-values-5/"
+  },
+  "dfns": [
+    {
+      "id": "comma-containing-productions",
+      "href": "https://drafts.csswg.org/css-values-5/#comma-containing-productions",
+      "linkingText": [
+        "comma-containing productions"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "component-function-commas",
+        "href": "https://drafts.csswg.org/css-values-5/#component-function-commas",
+        "title": "Commas in Function Arguments",
+        "number": "3.1.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "non-strict-comma-containing-production",
+      "href": "https://drafts.csswg.org/css-values-5/#non-strict-comma-containing-production",
+      "linkingText": [
+        "non-strict comma-containing production"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "component-function-commas",
+        "href": "https://drafts.csswg.org/css-values-5/#component-function-commas",
+        "title": "Commas in Function Arguments",
+        "number": "3.1.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "typedef-boolean-expr",
+      "href": "https://drafts.csswg.org/css-values-5/#typedef-boolean-expr",
+      "linkingText": [
+        "<boolean-expr>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "boolean",
+        "href": "https://drafts.csswg.org/css-values-5/#boolean",
+        "title": "Boolean Expression Multiplier <boolean-expr[]>",
+        "number": "3.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "typedef-syntax",
+      "href": "https://drafts.csswg.org/css-values-5/#typedef-syntax",
+      "linkingText": [
+        "<syntax>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "css-syntax",
+        "href": "https://drafts.csswg.org/css-values-5/#css-syntax",
+        "title": "Specifying CSS Syntax in CSS: the <syntax> type",
+        "number": "3.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "typedef-syntax-component",
+      "href": "https://drafts.csswg.org/css-values-5/#typedef-syntax-component",
+      "linkingText": [
+        "<syntax-component>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "css-syntax",
+        "href": "https://drafts.csswg.org/css-values-5/#css-syntax",
+        "title": "Specifying CSS Syntax in CSS: the <syntax> type",
+        "number": "3.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "typedef-syntax-single-component",
+      "href": "https://drafts.csswg.org/css-values-5/#typedef-syntax-single-component",
+      "linkingText": [
+        "<syntax-single-component>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "css-syntax",
+        "href": "https://drafts.csswg.org/css-values-5/#css-syntax",
+        "title": "Specifying CSS Syntax in CSS: the <syntax> type",
+        "number": "3.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "typedef-syntax-type-name",
+      "href": "https://drafts.csswg.org/css-values-5/#typedef-syntax-type-name",
+      "linkingText": [
+        "<syntax-type-name>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "css-syntax",
+        "href": "https://drafts.csswg.org/css-values-5/#css-syntax",
+        "title": "Specifying CSS Syntax in CSS: the <syntax> type",
+        "number": "3.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "typedef-syntax-combinator",
+      "href": "https://drafts.csswg.org/css-values-5/#typedef-syntax-combinator",
+      "linkingText": [
+        "<syntax-combinator>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "css-syntax",
+        "href": "https://drafts.csswg.org/css-values-5/#css-syntax",
+        "title": "Specifying CSS Syntax in CSS: the <syntax> type",
+        "number": "3.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "typedef-syntax-multiplier",
+      "href": "https://drafts.csswg.org/css-values-5/#typedef-syntax-multiplier",
+      "linkingText": [
+        "<syntax-multiplier>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "css-syntax",
+        "href": "https://drafts.csswg.org/css-values-5/#css-syntax",
+        "title": "Specifying CSS Syntax in CSS: the <syntax> type",
+        "number": "3.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "typedef-syntax-string",
+      "href": "https://drafts.csswg.org/css-values-5/#typedef-syntax-string",
+      "linkingText": [
+        "<syntax-string>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "css-syntax",
+        "href": "https://drafts.csswg.org/css-values-5/#css-syntax",
+        "title": "Specifying CSS Syntax in CSS: the <syntax> type",
+        "number": "3.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "parse-with-a-syntax",
+      "href": "https://drafts.csswg.org/css-values-5/#parse-with-a-syntax",
+      "linkingText": [
+        "parse with a <syntax>"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "parse-syntax",
+        "href": "https://drafts.csswg.org/css-values-5/#parse-syntax",
+        "title": "Parsing as <syntax>",
+        "number": "3.3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "typedef-request-url-modifier",
+      "href": "https://drafts.csswg.org/css-values-5/#typedef-request-url-modifier",
+      "linkingText": [
+        "<request-url-modifier>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "request-url-modifiers",
+        "href": "https://drafts.csswg.org/css-values-5/#request-url-modifiers",
+        "title": "Request URL Modifiers",
+        "number": "4.1.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "typedef-request-url-modifier-cross-origin-modifier",
+      "href": "https://drafts.csswg.org/css-values-5/#typedef-request-url-modifier-cross-origin-modifier",
+      "linkingText": [
+        "<cross-origin-modifier>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [
+        "<request-url-modifier>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "request-url-modifiers",
+        "href": "https://drafts.csswg.org/css-values-5/#request-url-modifiers",
+        "title": "Request URL Modifiers",
+        "number": "4.1.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "funcdef-request-url-modifier-cross-origin",
+      "href": "https://drafts.csswg.org/css-values-5/#funcdef-request-url-modifier-cross-origin",
+      "linkingText": [
+        "cross-origin()"
+      ],
+      "localLinkingText": [],
+      "type": "function",
+      "for": [
+        "<request-url-modifier>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "request-url-modifiers",
+        "href": "https://drafts.csswg.org/css-values-5/#request-url-modifiers",
+        "title": "Request URL Modifiers",
+        "number": "4.1.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-request-url-modifier-anonymous",
+      "href": "https://drafts.csswg.org/css-values-5/#valdef-request-url-modifier-anonymous",
+      "linkingText": [
+        "anonymous"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "<request-url-modifier>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "request-url-modifiers",
+        "href": "https://drafts.csswg.org/css-values-5/#request-url-modifiers",
+        "title": "Request URL Modifiers",
+        "number": "4.1.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-request-url-modifier-use-credentials",
+      "href": "https://drafts.csswg.org/css-values-5/#valdef-request-url-modifier-use-credentials",
+      "linkingText": [
+        "use-credentials"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "<request-url-modifier>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "request-url-modifiers",
+        "href": "https://drafts.csswg.org/css-values-5/#request-url-modifiers",
+        "title": "Request URL Modifiers",
+        "number": "4.1.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "typedef-request-url-modifier-integrity-modifier",
+      "href": "https://drafts.csswg.org/css-values-5/#typedef-request-url-modifier-integrity-modifier",
+      "linkingText": [
+        "<integrity-modifier>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [
+        "<request-url-modifier>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "request-url-modifiers",
+        "href": "https://drafts.csswg.org/css-values-5/#request-url-modifiers",
+        "title": "Request URL Modifiers",
+        "number": "4.1.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "funcdef-request-url-modifier-integrity",
+      "href": "https://drafts.csswg.org/css-values-5/#funcdef-request-url-modifier-integrity",
+      "linkingText": [
+        "integrity()"
+      ],
+      "localLinkingText": [],
+      "type": "function",
+      "for": [
+        "<request-url-modifier>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "request-url-modifiers",
+        "href": "https://drafts.csswg.org/css-values-5/#request-url-modifiers",
+        "title": "Request URL Modifiers",
+        "number": "4.1.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "typedef-request-url-modifier-referrer-policy-modifier",
+      "href": "https://drafts.csswg.org/css-values-5/#typedef-request-url-modifier-referrer-policy-modifier",
+      "linkingText": [
+        "<referrer-policy-modifier>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [
+        "<request-url-modifier>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "request-url-modifiers",
+        "href": "https://drafts.csswg.org/css-values-5/#request-url-modifiers",
+        "title": "Request URL Modifiers",
+        "number": "4.1.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "funcdef-request-url-modifier-referrer-policy",
+      "href": "https://drafts.csswg.org/css-values-5/#funcdef-request-url-modifier-referrer-policy",
+      "linkingText": [
+        "referrer-policy()"
+      ],
+      "localLinkingText": [],
+      "type": "function",
+      "for": [
+        "<request-url-modifier>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "request-url-modifiers",
+        "href": "https://drafts.csswg.org/css-values-5/#request-url-modifiers",
+        "title": "Request URL Modifiers",
+        "number": "4.1.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-request-url-modifier-no-referrer",
+      "href": "https://drafts.csswg.org/css-values-5/#valdef-request-url-modifier-no-referrer",
+      "linkingText": [
+        "no-referrer"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "<request-url-modifier>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "request-url-modifiers",
+        "href": "https://drafts.csswg.org/css-values-5/#request-url-modifiers",
+        "title": "Request URL Modifiers",
+        "number": "4.1.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-request-url-modifier-no-referrer-when-downgrade",
+      "href": "https://drafts.csswg.org/css-values-5/#valdef-request-url-modifier-no-referrer-when-downgrade",
+      "linkingText": [
+        "no-referrer-when-downgrade"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "<request-url-modifier>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "request-url-modifiers",
+        "href": "https://drafts.csswg.org/css-values-5/#request-url-modifiers",
+        "title": "Request URL Modifiers",
+        "number": "4.1.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-request-url-modifier-same-origin",
+      "href": "https://drafts.csswg.org/css-values-5/#valdef-request-url-modifier-same-origin",
+      "linkingText": [
+        "same-origin"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "<request-url-modifier>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "request-url-modifiers",
+        "href": "https://drafts.csswg.org/css-values-5/#request-url-modifiers",
+        "title": "Request URL Modifiers",
+        "number": "4.1.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-request-url-modifier-origin",
+      "href": "https://drafts.csswg.org/css-values-5/#valdef-request-url-modifier-origin",
+      "linkingText": [
+        "origin"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "<request-url-modifier>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "request-url-modifiers",
+        "href": "https://drafts.csswg.org/css-values-5/#request-url-modifiers",
+        "title": "Request URL Modifiers",
+        "number": "4.1.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-request-url-modifier-strict-origin",
+      "href": "https://drafts.csswg.org/css-values-5/#valdef-request-url-modifier-strict-origin",
+      "linkingText": [
+        "strict-origin"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "<request-url-modifier>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "request-url-modifiers",
+        "href": "https://drafts.csswg.org/css-values-5/#request-url-modifiers",
+        "title": "Request URL Modifiers",
+        "number": "4.1.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-request-url-modifier-origin-when-cross-origin",
+      "href": "https://drafts.csswg.org/css-values-5/#valdef-request-url-modifier-origin-when-cross-origin",
+      "linkingText": [
+        "origin-when-cross-origin"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "<request-url-modifier>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "request-url-modifiers",
+        "href": "https://drafts.csswg.org/css-values-5/#request-url-modifiers",
+        "title": "Request URL Modifiers",
+        "number": "4.1.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-request-url-modifier-strict-origin-when-cross-origin",
+      "href": "https://drafts.csswg.org/css-values-5/#valdef-request-url-modifier-strict-origin-when-cross-origin",
+      "linkingText": [
+        "strict-origin-when-cross-origin"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "<request-url-modifier>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "request-url-modifiers",
+        "href": "https://drafts.csswg.org/css-values-5/#request-url-modifiers",
+        "title": "Request URL Modifiers",
+        "number": "4.1.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-request-url-modifier-unsafe-url",
+      "href": "https://drafts.csswg.org/css-values-5/#valdef-request-url-modifier-unsafe-url",
+      "linkingText": [
+        "unsafe-url"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "<request-url-modifier>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "request-url-modifiers",
+        "href": "https://drafts.csswg.org/css-values-5/#request-url-modifiers",
+        "title": "Request URL Modifiers",
+        "number": "4.1.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "apply-request-modifiers-from-url-value",
+      "href": "https://drafts.csswg.org/css-values-5/#apply-request-modifiers-from-url-value",
+      "linkingText": [
+        "apply request modifiers from URL value"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "request-url-modifiers",
+        "href": "https://drafts.csswg.org/css-values-5/#request-url-modifiers",
+        "title": "Request URL Modifiers",
+        "number": "4.1.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "typedef-position",
+      "href": "https://drafts.csswg.org/css-values-5/#typedef-position",
+      "linkingText": [
+        "<position>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "position",
+        "href": "https://drafts.csswg.org/css-values-5/#position",
+        "title": "2D Positioning: the <position> type",
+        "number": "4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "typedef-position-one",
+      "href": "https://drafts.csswg.org/css-values-5/#typedef-position-one",
+      "linkingText": [
+        "<position-one>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "position",
+        "href": "https://drafts.csswg.org/css-values-5/#position",
+        "title": "2D Positioning: the <position> type",
+        "number": "4.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "typedef-position-two",
+      "href": "https://drafts.csswg.org/css-values-5/#typedef-position-two",
+      "linkingText": [
+        "<position-two>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "position",
+        "href": "https://drafts.csswg.org/css-values-5/#position",
+        "title": "2D Positioning: the <position> type",
+        "number": "4.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "typedef-position-four",
+      "href": "https://drafts.csswg.org/css-values-5/#typedef-position-four",
+      "linkingText": [
+        "<position-four>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "position",
+        "href": "https://drafts.csswg.org/css-values-5/#position",
+        "title": "2D Positioning: the <position> type",
+        "number": "4.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "valdef-position-top",
+      "href": "https://drafts.csswg.org/css-values-5/#valdef-position-top",
+      "linkingText": [
+        "top"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "<position>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "position",
+        "href": "https://drafts.csswg.org/css-values-5/#position",
+        "title": "2D Positioning: the <position> type",
+        "number": "4.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-position-right",
+      "href": "https://drafts.csswg.org/css-values-5/#valdef-position-right",
+      "linkingText": [
+        "right"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "<position>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "position",
+        "href": "https://drafts.csswg.org/css-values-5/#position",
+        "title": "2D Positioning: the <position> type",
+        "number": "4.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-position-bottom",
+      "href": "https://drafts.csswg.org/css-values-5/#valdef-position-bottom",
+      "linkingText": [
+        "bottom"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "<position>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "position",
+        "href": "https://drafts.csswg.org/css-values-5/#position",
+        "title": "2D Positioning: the <position> type",
+        "number": "4.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-position-left",
+      "href": "https://drafts.csswg.org/css-values-5/#valdef-position-left",
+      "linkingText": [
+        "left"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "<position>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "position",
+        "href": "https://drafts.csswg.org/css-values-5/#position",
+        "title": "2D Positioning: the <position> type",
+        "number": "4.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-position-y-start",
+      "href": "https://drafts.csswg.org/css-values-5/#valdef-position-y-start",
+      "linkingText": [
+        "y-start"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "<position>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "position",
+        "href": "https://drafts.csswg.org/css-values-5/#position",
+        "title": "2D Positioning: the <position> type",
+        "number": "4.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-position-y-end",
+      "href": "https://drafts.csswg.org/css-values-5/#valdef-position-y-end",
+      "linkingText": [
+        "y-end"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "<position>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "position",
+        "href": "https://drafts.csswg.org/css-values-5/#position",
+        "title": "2D Positioning: the <position> type",
+        "number": "4.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-position-x-start",
+      "href": "https://drafts.csswg.org/css-values-5/#valdef-position-x-start",
+      "linkingText": [
+        "x-start"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "<position>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "position",
+        "href": "https://drafts.csswg.org/css-values-5/#position",
+        "title": "2D Positioning: the <position> type",
+        "number": "4.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-position-x-end",
+      "href": "https://drafts.csswg.org/css-values-5/#valdef-position-x-end",
+      "linkingText": [
+        "x-end"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "<position>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "position",
+        "href": "https://drafts.csswg.org/css-values-5/#position",
+        "title": "2D Positioning: the <position> type",
+        "number": "4.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-position-block-start",
+      "href": "https://drafts.csswg.org/css-values-5/#valdef-position-block-start",
+      "linkingText": [
+        "block-start"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "<position>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "position",
+        "href": "https://drafts.csswg.org/css-values-5/#position",
+        "title": "2D Positioning: the <position> type",
+        "number": "4.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-position-block-end",
+      "href": "https://drafts.csswg.org/css-values-5/#valdef-position-block-end",
+      "linkingText": [
+        "block-end"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "<position>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "position",
+        "href": "https://drafts.csswg.org/css-values-5/#position",
+        "title": "2D Positioning: the <position> type",
+        "number": "4.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-position-inline-start",
+      "href": "https://drafts.csswg.org/css-values-5/#valdef-position-inline-start",
+      "linkingText": [
+        "inline-start"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "<position>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "position",
+        "href": "https://drafts.csswg.org/css-values-5/#position",
+        "title": "2D Positioning: the <position> type",
+        "number": "4.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-position-inline-end",
+      "href": "https://drafts.csswg.org/css-values-5/#valdef-position-inline-end",
+      "linkingText": [
+        "inline-end"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "<position>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "position",
+        "href": "https://drafts.csswg.org/css-values-5/#position",
+        "title": "2D Positioning: the <position> type",
+        "number": "4.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-position-center",
+      "href": "https://drafts.csswg.org/css-values-5/#valdef-position-center",
+      "linkingText": [
+        "center"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "<position>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "position",
+        "href": "https://drafts.csswg.org/css-values-5/#position",
+        "title": "2D Positioning: the <position> type",
+        "number": "4.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "funcdef-progress",
+      "href": "https://drafts.csswg.org/css-values-5/#funcdef-progress",
+      "linkingText": [
+        "progress()"
+      ],
+      "localLinkingText": [],
+      "type": "function",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "progress",
+        "href": "https://drafts.csswg.org/css-values-5/#progress",
+        "title": "Interpolation Progress Calculations: the progress() notation",
+        "number": "5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "progress-value",
+      "href": "https://drafts.csswg.org/css-values-5/#progress-value",
+      "linkingText": [
+        "progress value"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "progress",
+        "href": "https://drafts.csswg.org/css-values-5/#progress",
+        "title": "Interpolation Progress Calculations: the progress() notation",
+        "number": "5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "progress-start-value",
+      "href": "https://drafts.csswg.org/css-values-5/#progress-start-value",
+      "linkingText": [
+        "progress start value"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "progress",
+        "href": "https://drafts.csswg.org/css-values-5/#progress",
+        "title": "Interpolation Progress Calculations: the progress() notation",
+        "number": "5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "progress-end-value",
+      "href": "https://drafts.csswg.org/css-values-5/#progress-end-value",
+      "linkingText": [
+        "progress end value"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "progress",
+        "href": "https://drafts.csswg.org/css-values-5/#progress",
+        "title": "Interpolation Progress Calculations: the progress() notation",
+        "number": "5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "calculate-a-progress-function",
+      "href": "https://drafts.csswg.org/css-values-5/#calculate-a-progress-function",
+      "linkingText": [
+        "calculate a progress function"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "progress",
+        "href": "https://drafts.csswg.org/css-values-5/#progress",
+        "title": "Interpolation Progress Calculations: the progress() notation",
+        "number": "5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "mix-notations",
+      "href": "https://drafts.csswg.org/css-values-5/#mix-notations",
+      "linkingText": [
+        "mix notations"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "mixing",
+        "href": "https://drafts.csswg.org/css-values-5/#mixing",
+        "title": "Weighted Average Notations: the *-mix() family",
+        "number": "6"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "mix-item",
+      "href": "https://drafts.csswg.org/css-values-5/#mix-item",
+      "linkingText": [
+        "mix item"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "mixing",
+        "href": "https://drafts.csswg.org/css-values-5/#mixing",
+        "title": "Weighted Average Notations: the *-mix() family",
+        "number": "6"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "normalize-mix-percentages",
+      "href": "https://drafts.csswg.org/css-values-5/#normalize-mix-percentages",
+      "linkingText": [
+        "normalize mix percentages"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "mix-percentage-normalization",
+        "href": "https://drafts.csswg.org/css-values-5/#mix-percentage-normalization",
+        "title": "Normalizing Mix Percentages",
+        "number": "6.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "funcdef-calc-mix",
+      "href": "https://drafts.csswg.org/css-values-5/#funcdef-calc-mix",
+      "linkingText": [
+        "calc-mix()"
+      ],
+      "localLinkingText": [],
+      "type": "function",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "calc-mix",
+        "href": "https://drafts.csswg.org/css-values-5/#calc-mix",
+        "title": "Weighted Average of Numeric and Dimensional Values: the calc-mix() notation",
+        "number": "6.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "funcdef-transform-mix",
+      "href": "https://drafts.csswg.org/css-values-5/#funcdef-transform-mix",
+      "linkingText": [
+        "transform-mix()"
+      ],
+      "localLinkingText": [],
+      "type": "function",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "transform-mix",
+        "href": "https://drafts.csswg.org/css-values-5/#transform-mix",
+        "title": "Weighted Average of Transform Values: the transform-mix() notation",
+        "number": "6.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "interpolation-notations",
+      "href": "https://drafts.csswg.org/css-values-5/#interpolation-notations",
+      "linkingText": [
+        "interpolation notations"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "interpolation-notation",
+        "href": "https://drafts.csswg.org/css-values-5/#interpolation-notation",
+        "title": "Interpolation Mapping Notations: the *-interpolate() family",
+        "number": "7"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "interpolation-progress",
+      "href": "https://drafts.csswg.org/css-values-5/#interpolation-progress",
+      "linkingText": [
+        "interpolation progress"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "interpolation-notation",
+        "href": "https://drafts.csswg.org/css-values-5/#interpolation-notation",
+        "title": "Interpolation Mapping Notations: the *-interpolate() family",
+        "number": "7"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "interpolation-map",
+      "href": "https://drafts.csswg.org/css-values-5/#interpolation-map",
+      "linkingText": [
+        "interpolation map"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "interpolation-notation",
+        "href": "https://drafts.csswg.org/css-values-5/#interpolation-notation",
+        "title": "Interpolation Mapping Notations: the *-interpolate() family",
+        "number": "7"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "typedef-progress-source",
+      "href": "https://drafts.csswg.org/css-values-5/#typedef-progress-source",
+      "linkingText": [
+        "<progress-source>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "interpolation-progress-arguments",
+        "href": "https://drafts.csswg.org/css-values-5/#interpolation-progress-arguments",
+        "title": "Specifying the Interpolation Progress",
+        "number": "7.1.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "valdef-calc-interpolate-by",
+      "href": "https://drafts.csswg.org/css-values-5/#valdef-calc-interpolate-by",
+      "linkingText": [
+        "by"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "calc-interpolate()",
+        "transform-interpolate()",
+        "color-interpolate()",
+        "interpolate()"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "interpolation-progress-easing",
+        "href": "https://drafts.csswg.org/css-values-5/#interpolation-progress-easing",
+        "title": "Easing Interpolation Progress: the by <easing-function> argument",
+        "number": "7.1.1.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "input-positions",
+      "href": "https://drafts.csswg.org/css-values-5/#input-positions",
+      "linkingText": [
+        "input positions"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "interpolation-map-arguments",
+        "href": "https://drafts.csswg.org/css-values-5/#interpolation-map-arguments",
+        "title": "Defining the Interpolation Map",
+        "number": "7.1.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "output-values",
+      "href": "https://drafts.csswg.org/css-values-5/#output-values",
+      "linkingText": [
+        "output values"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "interpolation-map-arguments",
+        "href": "https://drafts.csswg.org/css-values-5/#interpolation-map-arguments",
+        "title": "Defining the Interpolation Map",
+        "number": "7.1.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "interpolation-stop",
+      "href": "https://drafts.csswg.org/css-values-5/#interpolation-stop",
+      "linkingText": [
+        "interpolation stop"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "interpolation-map-arguments",
+        "href": "https://drafts.csswg.org/css-values-5/#interpolation-map-arguments",
+        "title": "Defining the Interpolation Map",
+        "number": "7.1.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "typedef-calc-interpolate-input-position",
+      "href": "https://drafts.csswg.org/css-values-5/#typedef-calc-interpolate-input-position",
+      "linkingText": [
+        "<input-position>",
+        "<output-value>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [
+        "calc-interpolate()",
+        "transform-interpolate()",
+        "color-interpolate()",
+        "interpolate()"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "interpolation-map-arguments",
+        "href": "https://drafts.csswg.org/css-values-5/#interpolation-map-arguments",
+        "title": "Defining the Interpolation Map",
+        "number": "7.1.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "segment-interpolation-progress",
+      "href": "https://drafts.csswg.org/css-values-5/#segment-interpolation-progress",
+      "linkingText": [
+        "segment interpolation progress"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "interpolation-map-arguments",
+        "href": "https://drafts.csswg.org/css-values-5/#interpolation-map-arguments",
+        "title": "Defining the Interpolation Map",
+        "number": "7.1.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "typedef-calc-interpolate-segment-options",
+      "href": "https://drafts.csswg.org/css-values-5/#typedef-calc-interpolate-segment-options",
+      "linkingText": [
+        "<segment-options>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [
+        "calc-interpolate()",
+        "transform-interpolate()",
+        "color-interpolate()",
+        "interpolate()"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "interpolation-map-arguments",
+        "href": "https://drafts.csswg.org/css-values-5/#interpolation-map-arguments",
+        "title": "Defining the Interpolation Map",
+        "number": "7.1.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "interpolation-input-type",
+      "href": "https://drafts.csswg.org/css-values-5/#interpolation-input-type",
+      "linkingText": [
+        "interpolation input type"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "interpolation-validity",
+        "href": "https://drafts.csswg.org/css-values-5/#interpolation-validity",
+        "title": "Type Checking",
+        "number": "7.2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "interpolation-input-type-proportional",
+      "href": "https://drafts.csswg.org/css-values-5/#interpolation-input-type-proportional",
+      "linkingText": [
+        "proportional"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "interpolation input type"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "interpolation-validity",
+        "href": "https://drafts.csswg.org/css-values-5/#interpolation-validity",
+        "title": "Type Checking",
+        "number": "7.2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "interpolation-input-type-absolute",
+      "href": "https://drafts.csswg.org/css-values-5/#interpolation-input-type-absolute",
+      "linkingText": [
+        "absolute"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "interpolation input type"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "interpolation-validity",
+        "href": "https://drafts.csswg.org/css-values-5/#interpolation-validity",
+        "title": "Type Checking",
+        "number": "7.2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "interpolation-range",
+      "href": "https://drafts.csswg.org/css-values-5/#interpolation-range",
+      "linkingText": [
+        "interpolation range"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "interpolation-range-calculation",
+        "href": "https://drafts.csswg.org/css-values-5/#interpolation-range-calculation",
+        "title": "Calculating the Absolute Interpolation Range",
+        "number": "7.2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "funcdef-calc-interpolate",
+      "href": "https://drafts.csswg.org/css-values-5/#funcdef-calc-interpolate",
+      "linkingText": [
+        "calc-interpolate()"
+      ],
+      "localLinkingText": [],
+      "type": "function",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "calc-interpolate",
+        "href": "https://drafts.csswg.org/css-values-5/#calc-interpolate",
+        "title": "Interpolated Numeric and Dimensional Values: the calc-interpolate() notation",
+        "number": "7.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "funcdef-color-interpolate",
+      "href": "https://drafts.csswg.org/css-values-5/#funcdef-color-interpolate",
+      "linkingText": [
+        "color-interpolate()"
+      ],
+      "localLinkingText": [],
+      "type": "function",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "color-interpolate",
+        "href": "https://drafts.csswg.org/css-values-5/#color-interpolate",
+        "title": "Interpolated Color Values: the color-interpolate() notation",
+        "number": "7.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "funcdef-transform-interpolate",
+      "href": "https://drafts.csswg.org/css-values-5/#funcdef-transform-interpolate",
+      "linkingText": [
+        "transform-interpolate()"
+      ],
+      "localLinkingText": [],
+      "type": "function",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "transform-interpolate",
+        "href": "https://drafts.csswg.org/css-values-5/#transform-interpolate",
+        "title": "Interpolated Transform Values: the transform-interpolate() notation",
+        "number": "7.6"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "funcdef-interpolate",
+      "href": "https://drafts.csswg.org/css-values-5/#funcdef-interpolate",
+      "linkingText": [
+        "interpolate()"
+      ],
+      "localLinkingText": [],
+      "type": "function",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "mix",
+        "href": "https://drafts.csswg.org/css-values-5/#mix",
+        "title": "Interpolated Property Values: the interpolate() notation",
+        "number": "7.7"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "whole-value",
+      "href": "https://drafts.csswg.org/css-values-5/#whole-value",
+      "linkingText": [
+        "<whole-value>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "whole-value",
+        "href": "https://drafts.csswg.org/css-values-5/#whole-value",
+        "title": "Representing An Entire Property Value: the <whole-value> type",
+        "number": "8.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "funcdef-first-valid",
+      "href": "https://drafts.csswg.org/css-values-5/#funcdef-first-valid",
+      "linkingText": [
+        "first-valid()"
+      ],
+      "localLinkingText": [],
+      "type": "function",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "first-valid",
+        "href": "https://drafts.csswg.org/css-values-5/#first-valid",
+        "title": "Selecting the First Supported Value: the first-valid() notation",
+        "number": "8.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "funcdef-if",
+      "href": "https://drafts.csswg.org/css-values-5/#funcdef-if",
+      "linkingText": [
+        "if()"
+      ],
+      "localLinkingText": [],
+      "type": "function",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "if-notation",
+        "href": "https://drafts.csswg.org/css-values-5/#if-notation",
+        "title": "Conditional Value Selection: the if() notation",
+        "number": "8.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "typedef-if-branch",
+      "href": "https://drafts.csswg.org/css-values-5/#typedef-if-branch",
+      "linkingText": [
+        "<if-branch>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "if-notation",
+        "href": "https://drafts.csswg.org/css-values-5/#if-notation",
+        "title": "Conditional Value Selection: the if() notation",
+        "number": "8.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "typedef-if-condition",
+      "href": "https://drafts.csswg.org/css-values-5/#typedef-if-condition",
+      "linkingText": [
+        "<if-condition>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "if-notation",
+        "href": "https://drafts.csswg.org/css-values-5/#if-notation",
+        "title": "Conditional Value Selection: the if() notation",
+        "number": "8.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "typedef-if-test",
+      "href": "https://drafts.csswg.org/css-values-5/#typedef-if-test",
+      "linkingText": [
+        "<if-test>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "if-notation",
+        "href": "https://drafts.csswg.org/css-values-5/#if-notation",
+        "title": "Conditional Value Selection: the if() notation",
+        "number": "8.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "valdef-if-else",
+      "href": "https://drafts.csswg.org/css-values-5/#valdef-if-else",
+      "linkingText": [
+        "else"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "if()"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "if-notation",
+        "href": "https://drafts.csswg.org/css-values-5/#if-notation",
+        "title": "Conditional Value Selection: the if() notation",
+        "number": "8.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "typedef-if-args",
+      "href": "https://drafts.csswg.org/css-values-5/#typedef-if-args",
+      "linkingText": [
+        "<if-args>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "if-notation",
+        "href": "https://drafts.csswg.org/css-values-5/#if-notation",
+        "title": "Conditional Value Selection: the if() notation",
+        "number": "8.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "typedef-if-args-branch",
+      "href": "https://drafts.csswg.org/css-values-5/#typedef-if-args-branch",
+      "linkingText": [
+        "<if-args-branch>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "if-notation",
+        "href": "https://drafts.csswg.org/css-values-5/#if-notation",
+        "title": "Conditional Value Selection: the if() notation",
+        "number": "8.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "replace-an-if-function",
+      "href": "https://drafts.csswg.org/css-values-5/#replace-an-if-function",
+      "linkingText": [
+        "replace an if() function"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "if-notation",
+        "href": "https://drafts.csswg.org/css-values-5/#if-notation",
+        "title": "Conditional Value Selection: the if() notation",
+        "number": "8.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "funcdef-toggle",
+      "href": "https://drafts.csswg.org/css-values-5/#funcdef-toggle",
+      "linkingText": [
+        "toggle()"
+      ],
+      "localLinkingText": [],
+      "type": "function",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "toggle-notation",
+        "href": "https://drafts.csswg.org/css-values-5/#toggle-notation",
+        "title": "Toggling Between Values: the toggle() notation",
+        "number": "8.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "funcdef-inherit",
+      "href": "https://drafts.csswg.org/css-values-5/#funcdef-inherit",
+      "linkingText": [
+        "inherit()"
+      ],
+      "localLinkingText": [],
+      "type": "function",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "inherit-notation",
+        "href": "https://drafts.csswg.org/css-values-5/#inherit-notation",
+        "title": "Inherited Value References: the inherit() notation",
+        "number": "8.6"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "typedef-inherit-args",
+      "href": "https://drafts.csswg.org/css-values-5/#typedef-inherit-args",
+      "linkingText": [
+        "<inherit-args>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "inherit-notation",
+        "href": "https://drafts.csswg.org/css-values-5/#inherit-notation",
+        "title": "Inherited Value References: the inherit() notation",
+        "number": "8.6"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "replace-an-inherit-function",
+      "href": "https://drafts.csswg.org/css-values-5/#replace-an-inherit-function",
+      "linkingText": [
+        "replace an inherit() function"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "inherit-notation",
+        "href": "https://drafts.csswg.org/css-values-5/#inherit-notation",
+        "title": "Inherited Value References: the inherit() notation",
+        "number": "8.6"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "funcdef-attr",
+      "href": "https://drafts.csswg.org/css-values-5/#funcdef-attr",
+      "linkingText": [
+        "attr()"
+      ],
+      "localLinkingText": [],
+      "type": "function",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "attr-notation",
+        "href": "https://drafts.csswg.org/css-values-5/#attr-notation",
+        "title": "Attribute References: the attr() notation",
+        "number": "8.7"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "typedef-attr-name",
+      "href": "https://drafts.csswg.org/css-values-5/#typedef-attr-name",
+      "linkingText": [
+        "<attr-name>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "attr-notation",
+        "href": "https://drafts.csswg.org/css-values-5/#attr-notation",
+        "title": "Attribute References: the attr() notation",
+        "number": "8.7"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "typedef-attr-type",
+      "href": "https://drafts.csswg.org/css-values-5/#typedef-attr-type",
+      "linkingText": [
+        "<attr-type>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "attr-notation",
+        "href": "https://drafts.csswg.org/css-values-5/#attr-notation",
+        "title": "Attribute References: the attr() notation",
+        "number": "8.7"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "funcdef-attr-type",
+      "href": "https://drafts.csswg.org/css-values-5/#funcdef-attr-type",
+      "linkingText": [
+        "type()"
+      ],
+      "localLinkingText": [],
+      "type": "function",
+      "for": [
+        "attr()"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "attr-notation",
+        "href": "https://drafts.csswg.org/css-values-5/#attr-notation",
+        "title": "Attribute References: the attr() notation",
+        "number": "8.7"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "typedef-attr-args",
+      "href": "https://drafts.csswg.org/css-values-5/#typedef-attr-args",
+      "linkingText": [
+        "<attr-args>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "attr-notation",
+        "href": "https://drafts.csswg.org/css-values-5/#attr-notation",
+        "title": "Attribute References: the attr() notation",
+        "number": "8.7"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "typedef-attr-unit",
+      "href": "https://drafts.csswg.org/css-values-5/#typedef-attr-unit",
+      "linkingText": [
+        "<attr-unit>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "attr-notation",
+        "href": "https://drafts.csswg.org/css-values-5/#attr-notation",
+        "title": "Attribute References: the attr() notation",
+        "number": "8.7"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "replace-an-attr-function",
+      "href": "https://drafts.csswg.org/css-values-5/#replace-an-attr-function",
+      "linkingText": [
+        "replace an attr() function"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "attr-substitution",
+        "href": "https://drafts.csswg.org/css-values-5/#attr-substitution",
+        "title": "Substitution",
+        "number": "8.7.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "attr-taint",
+      "href": "https://drafts.csswg.org/css-values-5/#attr-taint",
+      "linkingText": [
+        "attr()-taint"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "attr-security",
+        "href": "https://drafts.csswg.org/css-values-5/#attr-security",
+        "title": "Security",
+        "number": "8.7.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "funcdef-ident",
+      "href": "https://drafts.csswg.org/css-values-5/#funcdef-ident",
+      "linkingText": [
+        "ident()"
+      ],
+      "localLinkingText": [],
+      "type": "function",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "ident",
+        "href": "https://drafts.csswg.org/css-values-5/#ident",
+        "title": "Constructing <custom-ident> values: the ident() function",
+        "number": "8.8"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "typedef-ident-arg",
+      "href": "https://drafts.csswg.org/css-values-5/#typedef-ident-arg",
+      "linkingText": [
+        "<ident-arg>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "ident",
+        "href": "https://drafts.csswg.org/css-values-5/#ident",
+        "title": "Constructing <custom-ident> values: the ident() function",
+        "number": "8.8"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "css-random-function",
+      "href": "https://drafts.csswg.org/css-values-5/#css-random-function",
+      "linkingText": [
+        "random function"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "CSS"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "randomness",
+        "href": "https://drafts.csswg.org/css-values-5/#randomness",
+        "title": "Generating Random Values",
+        "number": "9"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "funcdef-random",
+      "href": "https://drafts.csswg.org/css-values-5/#funcdef-random",
+      "linkingText": [
+        "random()"
+      ],
+      "localLinkingText": [],
+      "type": "function",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "random",
+        "href": "https://drafts.csswg.org/css-values-5/#random",
+        "title": "Generating a Random Numeric Value: the random() function",
+        "number": "9.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "typedef-random-value-sharing",
+      "href": "https://drafts.csswg.org/css-values-5/#typedef-random-value-sharing",
+      "linkingText": [
+        "<random-value-sharing>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "random",
+        "href": "https://drafts.csswg.org/css-values-5/#random",
+        "title": "Generating a Random Numeric Value: the random() function",
+        "number": "9.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "valdef-random-auto",
+      "href": "https://drafts.csswg.org/css-values-5/#valdef-random-auto",
+      "linkingText": [
+        "auto"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "random()",
+        "<random-value-sharing>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "random",
+        "href": "https://drafts.csswg.org/css-values-5/#random",
+        "title": "Generating a Random Numeric Value: the random() function",
+        "number": "9.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-random-element-shared",
+      "href": "https://drafts.csswg.org/css-values-5/#valdef-random-element-shared",
+      "linkingText": [
+        "element-shared"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "random()",
+        "<random-value-sharing>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "random",
+        "href": "https://drafts.csswg.org/css-values-5/#random",
+        "title": "Generating a Random Numeric Value: the random() function",
+        "number": "9.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-random-fixed",
+      "href": "https://drafts.csswg.org/css-values-5/#valdef-random-fixed",
+      "linkingText": [
+        "fixed",
+        "<number>"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "random()",
+        "<random-value-sharing>"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "random",
+        "href": "https://drafts.csswg.org/css-values-5/#random",
+        "title": "Generating a Random Numeric Value: the random() function",
+        "number": "9.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "funcdef-random-item",
+      "href": "https://drafts.csswg.org/css-values-5/#funcdef-random-item",
+      "linkingText": [
+        "random-item()"
+      ],
+      "localLinkingText": [],
+      "type": "function",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "random-item",
+        "href": "https://drafts.csswg.org/css-values-5/#random-item",
+        "title": "Picking a Random Item From a List: the random-item() function",
+        "number": "9.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "typedef-random-item-args",
+      "href": "https://drafts.csswg.org/css-values-5/#typedef-random-item-args",
+      "linkingText": [
+        "<random-item-args>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "random-item",
+        "href": "https://drafts.csswg.org/css-values-5/#random-item",
+        "title": "Picking a Random Item From a List: the random-item() function",
+        "number": "9.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "replace-a-random-item-function",
+      "href": "https://drafts.csswg.org/css-values-5/#replace-a-random-item-function",
+      "linkingText": [
+        "replace a random-item() function"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "random-item",
+        "href": "https://drafts.csswg.org/css-values-5/#random-item",
+        "title": "Picking a Random Item From a List: the random-item() function",
+        "number": "9.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "generate-a-random-integer",
+      "href": "https://drafts.csswg.org/css-values-5/#generate-a-random-integer",
+      "linkingText": [
+        "generate a random integer"
+      ],
+      "localLinkingText": [
+        "random integer"
+      ],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "random-evaluation",
+        "href": "https://drafts.csswg.org/css-values-5/#random-evaluation",
+        "title": "Evaluating Random Values",
+        "number": "9.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "random-base-value",
+      "href": "https://drafts.csswg.org/css-values-5/#random-base-value",
+      "linkingText": [
+        "random base value"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "random-caching",
+        "href": "https://drafts.csswg.org/css-values-5/#random-caching",
+        "title": "Caching Random Values: the <random-value-sharing> value",
+        "number": "9.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "random-caching-key",
+      "href": "https://drafts.csswg.org/css-values-5/#random-caching-key",
+      "linkingText": [
+        "random caching key"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "random-caching",
+        "href": "https://drafts.csswg.org/css-values-5/#random-caching",
+        "title": "Caching Random Values: the <random-value-sharing> value",
+        "number": "9.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "funcdef-sibling-count",
+      "href": "https://drafts.csswg.org/css-values-5/#funcdef-sibling-count",
+      "linkingText": [
+        "sibling-count()"
+      ],
+      "localLinkingText": [],
+      "type": "function",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tree-counting",
+        "href": "https://drafts.csswg.org/css-values-5/#tree-counting",
+        "title": "10. Tree Counting Functions: the sibling-count() and sibling-index() notations"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "funcdef-sibling-index",
+      "href": "https://drafts.csswg.org/css-values-5/#funcdef-sibling-index",
+      "linkingText": [
+        "sibling-index()"
+      ],
+      "localLinkingText": [],
+      "type": "function",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "tree-counting",
+        "href": "https://drafts.csswg.org/css-values-5/#tree-counting",
+        "title": "10. Tree Counting Functions: the sibling-count() and sibling-index() notations"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "funcdef-calc-size",
+      "href": "https://drafts.csswg.org/css-values-5/#funcdef-calc-size",
+      "linkingText": [
+        "calc-size()"
+      ],
+      "localLinkingText": [],
+      "type": "function",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "calc-size",
+        "href": "https://drafts.csswg.org/css-values-5/#calc-size",
+        "title": "11. Calculating With Intrinsic Sizes: the calc-size() function"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "typedef-calc-size-basis",
+      "href": "https://drafts.csswg.org/css-values-5/#typedef-calc-size-basis",
+      "linkingText": [
+        "<calc-size-basis>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "calc-size",
+        "href": "https://drafts.csswg.org/css-values-5/#calc-size",
+        "title": "11. Calculating With Intrinsic Sizes: the calc-size() function"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "typedef-size-keyword",
+      "href": "https://drafts.csswg.org/css-values-5/#typedef-size-keyword",
+      "linkingText": [
+        "<size-keyword>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "calc-size",
+        "href": "https://drafts.csswg.org/css-values-5/#calc-size",
+        "title": "11. Calculating With Intrinsic Sizes: the calc-size() function"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "calc-size-basis",
+      "href": "https://drafts.csswg.org/css-values-5/#calc-size-basis",
+      "linkingText": [
+        "calc-size basis"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "calc-size",
+        "href": "https://drafts.csswg.org/css-values-5/#calc-size",
+        "title": "11. Calculating With Intrinsic Sizes: the calc-size() function"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "calc-size-calculation",
+      "href": "https://drafts.csswg.org/css-values-5/#calc-size-calculation",
+      "linkingText": [
+        "calc-size calculation"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "calc-size",
+        "href": "https://drafts.csswg.org/css-values-5/#calc-size",
+        "title": "11. Calculating With Intrinsic Sizes: the calc-size() function"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "valdef-calc-size-size",
+      "href": "https://drafts.csswg.org/css-values-5/#valdef-calc-size-size",
+      "linkingText": [
+        "size"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "calc-size()"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "calc-size",
+        "href": "https://drafts.csswg.org/css-values-5/#calc-size",
+        "title": "11. Calculating With Intrinsic Sizes: the calc-size() function"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "calc-size-canonicalize-for-interpolation",
+      "href": "https://drafts.csswg.org/css-values-5/#calc-size-canonicalize-for-interpolation",
+      "linkingText": [
+        "canonicalize for interpolation"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "calc-size()"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "simplifying-calc-size",
+        "href": "https://drafts.csswg.org/css-values-5/#simplifying-calc-size",
+        "title": "Simplifying calc-size()",
+        "number": "11.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "de-percentify-a-calc-size-calculation",
+      "href": "https://drafts.csswg.org/css-values-5/#de-percentify-a-calc-size-calculation",
+      "linkingText": [
+        "de-percentify a calc-size calculation"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "simplifying-calc-size",
+        "href": "https://drafts.csswg.org/css-values-5/#simplifying-calc-size",
+        "title": "Simplifying calc-size()",
+        "number": "11.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "substitute-into-a-calc-size-calculation",
+      "href": "https://drafts.csswg.org/css-values-5/#substitute-into-a-calc-size-calculation",
+      "linkingText": [
+        "substitute into a calc-size calculation"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "simplifying-calc-size",
+        "href": "https://drafts.csswg.org/css-values-5/#simplifying-calc-size",
+        "title": "Simplifying calc-size()",
+        "number": "11.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "valdef-calc-size-any",
+      "href": "https://drafts.csswg.org/css-values-5/#valdef-calc-size-any",
+      "linkingText": [
+        "any"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "calc-size()"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "resolving-calc-size",
+        "href": "https://drafts.csswg.org/css-values-5/#resolving-calc-size",
+        "title": "Resolving calc-size()",
+        "number": "11.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "propdef-interpolate-size",
+      "href": "https://drafts.csswg.org/css-values-5/#propdef-interpolate-size",
+      "linkingText": [
+        "interpolate-size"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "interpolate-size",
+        "href": "https://drafts.csswg.org/css-values-5/#interpolate-size",
+        "title": "Interpolating sizing keywords: the interpolate-size property",
+        "number": "11.4"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "valdef-interpolate-size-numeric-only",
+      "href": "https://drafts.csswg.org/css-values-5/#valdef-interpolate-size-numeric-only",
+      "linkingText": [
+        "numeric-only"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "interpolate-size"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "interpolate-size",
+        "href": "https://drafts.csswg.org/css-values-5/#interpolate-size",
+        "title": "Interpolating sizing keywords: the interpolate-size property",
+        "number": "11.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-interpolate-size-allow-keywords",
+      "href": "https://drafts.csswg.org/css-values-5/#valdef-interpolate-size-allow-keywords",
+      "linkingText": [
+        "allow-keywords"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "interpolate-size"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "interpolate-size",
+        "href": "https://drafts.csswg.org/css-values-5/#interpolate-size",
+        "title": "Interpolating sizing keywords: the interpolate-size property",
+        "number": "11.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "arbitrary-substitution-function",
+      "href": "https://drafts.csswg.org/css-values-5/#arbitrary-substitution-function",
+      "linkingText": [
+        "arbitrary substitution function"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "arbitrary-substitution",
+        "href": "https://drafts.csswg.org/css-values-5/#arbitrary-substitution",
+        "title": "Arbitrary Substitution Functions",
+        "number": "A"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "replace-an-arbitrary-substitution-function",
+      "href": "https://drafts.csswg.org/css-values-5/#replace-an-arbitrary-substitution-function",
+      "linkingText": [
+        "replace an arbitrary substitution function"
+      ],
+      "localLinkingText": [
+        "replace",
+        "replacement"
+      ],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "substitution",
+        "href": "https://drafts.csswg.org/css-values-5/#substitution",
+        "title": "Substitution"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "substitute-arbitrary-substitution-function",
+      "href": "https://drafts.csswg.org/css-values-5/#substitute-arbitrary-substitution-function",
+      "linkingText": [
+        "substitute arbitrary substitution function",
+        "arbitrary substitution"
+      ],
+      "localLinkingText": [
+        "substitute",
+        "substitution"
+      ],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "substitution",
+        "href": "https://drafts.csswg.org/css-values-5/#substitution",
+        "title": "Substitution"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "substitution-context",
+      "href": "https://drafts.csswg.org/css-values-5/#substitution-context",
+      "linkingText": [
+        "substitution context"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "substitution",
+        "href": "https://drafts.csswg.org/css-values-5/#substitution",
+        "title": "Substitution"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "guarded",
+      "href": "https://drafts.csswg.org/css-values-5/#guarded",
+      "linkingText": [
+        "guarded"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "substitution",
+        "href": "https://drafts.csswg.org/css-values-5/#substitution",
+        "title": "Substitution"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "cyclic-substitution-contexts",
+      "href": "https://drafts.csswg.org/css-values-5/#cyclic-substitution-contexts",
+      "linkingText": [
+        "cyclic substitution contexts"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "substitution",
+        "href": "https://drafts.csswg.org/css-values-5/#substitution",
+        "title": "Substitution"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "argument-grammar",
+      "href": "https://drafts.csswg.org/css-values-5/#argument-grammar",
+      "linkingText": [
+        "argument grammar"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "early-resolution",
+        "href": "https://drafts.csswg.org/css-values-5/#early-resolution",
+        "title": "Argument Grammars and Spread Syntax"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "spread-syntax",
+      "href": "https://drafts.csswg.org/css-values-5/#spread-syntax",
+      "linkingText": [
+        "spread syntax"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "early-resolution",
+        "href": "https://drafts.csswg.org/css-values-5/#early-resolution",
+        "title": "Argument Grammars and Spread Syntax"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "substitute-early-invoked-functions",
+      "href": "https://drafts.csswg.org/css-values-5/#substitute-early-invoked-functions",
+      "linkingText": [
+        "substitute early-invoked functions"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "early-resolution",
+        "href": "https://drafts.csswg.org/css-values-5/#early-resolution",
+        "title": "Argument Grammars and Spread Syntax"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "property-replacement",
+      "href": "https://drafts.csswg.org/css-values-5/#property-replacement",
+      "linkingText": [
+        "property replacement",
+        "replace substitution functions",
+        "replace substitution functions in a property"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "resolve-property",
+        "href": "https://drafts.csswg.org/css-values-5/#resolve-property",
+        "title": "Resolving in Properties"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "invalid-at-computed-value-time",
+      "href": "https://drafts.csswg.org/css-values-5/#invalid-at-computed-value-time",
+      "linkingText": [
+        "invalid at computed-value time"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "invalid-substitution",
+        "href": "https://drafts.csswg.org/css-values-5/#invalid-substitution",
+        "title": "Invalid Substitution"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "pending-substitution-value",
+      "href": "https://drafts.csswg.org/css-values-5/#pending-substitution-value",
+      "linkingText": [
+        "pending-substitution value"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "substitution-in-shorthands",
+        "href": "https://drafts.csswg.org/css-values-5/#substitution-in-shorthands",
+        "title": "Substitution in Shorthand Properties"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

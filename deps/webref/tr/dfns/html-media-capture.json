@@ -1,0 +1,171 @@
+{
+  "spec": {
+    "title": "HTML Media Capture",
+    "url": "https://www.w3.org/TR/html-media-capture/"
+  },
+  "dfns": [
+    {
+      "id": "dfn-user-agent",
+      "href": "https://www.w3.org/TR/html-media-capture/#dfn-user-agent",
+      "linkingText": [
+        "user agent"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "conformance",
+        "href": "https://www.w3.org/TR/html-media-capture/#conformance",
+        "title": "Conformance",
+        "alternateIds": [
+          "x2-conformance"
+        ],
+        "number": "2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-capture-control-type",
+      "href": "https://www.w3.org/TR/html-media-capture/#dfn-capture-control-type",
+      "linkingText": [
+        "capture control type"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/html-media-capture/#terminology",
+        "title": "Terminology",
+        "alternateIds": [
+          "x3-terminology"
+        ],
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-media-capture-mechanism",
+      "href": "https://www.w3.org/TR/html-media-capture/#dfn-media-capture-mechanism",
+      "linkingText": [
+        "media capture mechanism"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/html-media-capture/#terminology",
+        "title": "Terminology",
+        "alternateIds": [
+          "x3-terminology"
+        ],
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-preferred-facing-mode",
+      "href": "https://www.w3.org/TR/html-media-capture/#dfn-preferred-facing-mode",
+      "linkingText": [
+        "preferred facing mode"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "terminology",
+        "href": "https://www.w3.org/TR/html-media-capture/#terminology",
+        "title": "Terminology",
+        "alternateIds": [
+          "x3-terminology"
+        ],
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-htmlinputelement-capture",
+      "href": "https://www.w3.org/TR/html-media-capture/#dom-htmlinputelement-capture",
+      "linkingText": [
+        "capture"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "htmlinputelement"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-capture-attribute",
+        "href": "https://www.w3.org/TR/html-media-capture/#the-capture-attribute",
+        "title": "The capture attribute",
+        "alternateIds": [
+          "x5-the-capture-attribute"
+        ],
+        "number": "5"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-user",
+      "href": "https://www.w3.org/TR/html-media-capture/#dfn-user",
+      "linkingText": [
+        "user"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-capture-attribute",
+        "href": "https://www.w3.org/TR/html-media-capture/#the-capture-attribute",
+        "title": "The capture attribute",
+        "alternateIds": [
+          "x5-the-capture-attribute"
+        ],
+        "number": "5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-environment",
+      "href": "https://www.w3.org/TR/html-media-capture/#dfn-environment",
+      "linkingText": [
+        "environment"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-capture-attribute",
+        "href": "https://www.w3.org/TR/html-media-capture/#the-capture-attribute",
+        "title": "The capture attribute",
+        "alternateIds": [
+          "x5-the-capture-attribute"
+        ],
+        "number": "5"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

@@ -1,0 +1,429 @@
+{
+  "spec": {
+    "title": "RDF 1.2 Semantics",
+    "url": "https://w3c.github.io/rdf-semantics/spec/"
+  },
+  "headings": [
+    {
+      "id": "title",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#title",
+      "level": 1,
+      "title": "RDF 1.2 Semantics"
+    },
+    {
+      "id": "related",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#related",
+      "level": 3,
+      "title": "Set of Documents",
+      "alternateIds": [
+        "set-of-documents"
+      ]
+    },
+    {
+      "id": "toc",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#toc",
+      "level": 2,
+      "title": "Table of Contents",
+      "alternateIds": [
+        "table-of-contents"
+      ]
+    },
+    {
+      "id": "notes-0",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#notes-0",
+      "level": 2,
+      "title": "Notes",
+      "alternateIds": [
+        "notes"
+      ]
+    },
+    {
+      "id": "introduction-0",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#introduction-0",
+      "level": 2,
+      "title": "Introduction",
+      "alternateIds": [
+        "introduction"
+      ],
+      "number": "1"
+    },
+    {
+      "id": "conformance",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#conformance",
+      "level": 2,
+      "title": "Conformance",
+      "alternateIds": [
+        "x2-conformance"
+      ],
+      "number": "2"
+    },
+    {
+      "id": "extensions",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#extensions",
+      "level": 2,
+      "title": "Semantic Extensions and Entailment Regimes",
+      "alternateIds": [
+        "x3-semantic-extensions-and-entailment-regimes"
+      ],
+      "number": "3"
+    },
+    {
+      "id": "notation",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#notation",
+      "level": 2,
+      "title": "Notation and Terminology",
+      "alternateIds": [
+        "x4-notation-and-terminology"
+      ],
+      "number": "4"
+    },
+    {
+      "id": "unions_merges",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#unions_merges",
+      "level": 3,
+      "title": "Shared blank nodes, unions, and merges",
+      "alternateIds": [
+        "x4-1-shared-blank-nodes-unions-and-merges"
+      ],
+      "number": "4.1"
+    },
+    {
+      "id": "simple",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#simple",
+      "level": 2,
+      "title": "Simple Interpretations",
+      "alternateIds": [
+        "x5-simple-interpretations"
+      ],
+      "number": "5"
+    },
+    {
+      "id": "blank_nodes",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#blank_nodes",
+      "level": 3,
+      "title": "Blank nodes",
+      "alternateIds": [
+        "x5-1-blank-nodes"
+      ],
+      "number": "5.1"
+    },
+    {
+      "id": "shared_blank_nodes",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#shared_blank_nodes",
+      "level": 4,
+      "title": "Shared blank nodes",
+      "alternateIds": [
+        "x5-1-1-shared-blank-nodes"
+      ],
+      "number": "5.1.1"
+    },
+    {
+      "id": "simpleentailment",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#simpleentailment",
+      "level": 3,
+      "title": "Simple Entailment",
+      "alternateIds": [
+        "x5-2-simple-entailment"
+      ],
+      "number": "5.2"
+    },
+    {
+      "id": "simple_entailment_properties",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#simple_entailment_properties",
+      "level": 3,
+      "title": "Properties of simple entailment and satisfiability",
+      "alternateIds": [
+        "x5-3-properties-of-simple-entailment-and-satisfiability"
+      ],
+      "number": "5.3"
+    },
+    {
+      "id": "skolemization",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#skolemization",
+      "level": 2,
+      "title": "Skolemization",
+      "alternateIds": [
+        "x6-skolemization"
+      ],
+      "number": "6"
+    },
+    {
+      "id": "datatypes",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#datatypes",
+      "level": 2,
+      "title": "Literals and datatypes",
+      "alternateIds": [
+        "x7-literals-and-datatypes"
+      ],
+      "number": "7"
+    },
+    {
+      "id": "D_interpretations",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#D_interpretations",
+      "level": 3,
+      "title": "D-interpretations",
+      "alternateIds": [
+        "x7-1-d-interpretations"
+      ],
+      "number": "7.1"
+    },
+    {
+      "id": "D_entailment",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#D_entailment",
+      "level": 3,
+      "title": "Datatype entailment",
+      "alternateIds": [
+        "x7-2-datatype-entailment"
+      ],
+      "number": "7.2"
+    },
+    {
+      "id": "datatype_entailment_patterns",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#datatype_entailment_patterns",
+      "level": 4,
+      "title": "Patterns of datatype entailment",
+      "alternateIds": [
+        "x7-2-1-patterns-of-datatype-entailment"
+      ],
+      "number": "7.2.1"
+    },
+    {
+      "id": "rdf_d_interpretations",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#rdf_d_interpretations",
+      "level": 2,
+      "title": "RDF Interpretations",
+      "alternateIds": [
+        "x8-rdf-interpretations"
+      ],
+      "number": "8"
+    },
+    {
+      "id": "rdf_entail",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#rdf_entail",
+      "level": 3,
+      "title": "RDF entailment",
+      "alternateIds": [
+        "x8-1-rdf-entailment"
+      ],
+      "number": "8.1"
+    },
+    {
+      "id": "rdf_entailment_patterns",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#rdf_entailment_patterns",
+      "level": 4,
+      "title": "Patterns of RDF entailment",
+      "alternateIds": [
+        "x8-1-1-patterns-of-rdf-entailment"
+      ],
+      "number": "8.1.1"
+    },
+    {
+      "id": "rdfs_interpretations",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#rdfs_interpretations",
+      "level": 2,
+      "title": "RDFS Interpretations",
+      "alternateIds": [
+        "x9-rdfs-interpretations"
+      ],
+      "number": "9"
+    },
+    {
+      "id": "rdfs_literal_note",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#rdfs_literal_note",
+      "level": 3,
+      "title": "A note on rdfs:Literal",
+      "alternateIds": [
+        "x9-1-a-note-on-rdfs-literal"
+      ],
+      "number": "9.1"
+    },
+    {
+      "id": "rdfs_entailment",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#rdfs_entailment",
+      "level": 3,
+      "title": "RDFS entailment",
+      "alternateIds": [
+        "x9-2-rdfs-entailment"
+      ],
+      "number": "9.2"
+    },
+    {
+      "id": "rdfs_patterns",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#rdfs_patterns",
+      "level": 4,
+      "title": "Patterns of RDFS entailment",
+      "alternateIds": [
+        "x9-2-1-patterns-of-rdfs-entailment"
+      ],
+      "number": "9.2.1"
+    },
+    {
+      "id": "rdf_datasets",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#rdf_datasets",
+      "level": 2,
+      "title": "10. RDF Datasets",
+      "alternateIds": [
+        "x10-rdf-datasets"
+      ]
+    },
+    {
+      "id": "appendices-0",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#appendices-0",
+      "level": 2,
+      "title": "11. Appendices",
+      "alternateIds": [
+        "appendices"
+      ]
+    },
+    {
+      "id": "entailment_rules",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#entailment_rules",
+      "level": 2,
+      "title": "Entailment rules",
+      "alternateIds": [
+        "a-entailment-rules"
+      ],
+      "number": "A"
+    },
+    {
+      "id": "finite_interpretations",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#finite_interpretations",
+      "level": 2,
+      "title": "Finite interpretations",
+      "alternateIds": [
+        "b-finite-interpretations"
+      ],
+      "number": "B"
+    },
+    {
+      "id": "proofs",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#proofs",
+      "level": 2,
+      "title": "Proofs of some results",
+      "alternateIds": [
+        "c-proofs-of-some-results"
+      ],
+      "number": "C"
+    },
+    {
+      "id": "privacy",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#privacy",
+      "level": 2,
+      "title": "Privacy Considerations",
+      "alternateIds": [
+        "d-privacy-considerations"
+      ],
+      "number": "D"
+    },
+    {
+      "id": "security",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#security",
+      "level": 2,
+      "title": "Security Considerations",
+      "alternateIds": [
+        "e-security-considerations"
+      ],
+      "number": "E"
+    },
+    {
+      "id": "Acknowledgments",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#Acknowledgments",
+      "level": 2,
+      "title": "Acknowledgments",
+      "alternateIds": [
+        "f-acknowledgments"
+      ],
+      "number": "F"
+    },
+    {
+      "id": "section-Changes",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#section-Changes",
+      "level": 2,
+      "title": "Substantive Changes",
+      "alternateIds": [
+        "g-substantive-changes"
+      ],
+      "number": "G"
+    },
+    {
+      "id": "ChangeLog-11",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#ChangeLog-11",
+      "level": 3,
+      "title": "Substantive changes between RDF 1.0 and RDF 1.1",
+      "alternateIds": [
+        "g-1-substantive-changes-between-rdf-1-0-and-rdf-1-1"
+      ],
+      "number": "G.1"
+    },
+    {
+      "id": "ChangeLog-12",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#ChangeLog-12",
+      "level": 3,
+      "title": "Substantive changes since RDF 1.1",
+      "alternateIds": [
+        "g-2-substantive-changes-since-rdf-1-1"
+      ],
+      "number": "G.2"
+    },
+    {
+      "id": "index",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#index",
+      "level": 2,
+      "title": "Index",
+      "alternateIds": [
+        "h-index"
+      ],
+      "number": "H"
+    },
+    {
+      "id": "index-defined-here",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#index-defined-here",
+      "level": 3,
+      "title": "Terms defined by this specification",
+      "alternateIds": [
+        "h-1-terms-defined-by-this-specification"
+      ],
+      "number": "H.1"
+    },
+    {
+      "id": "index-defined-elsewhere",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#index-defined-elsewhere",
+      "level": 3,
+      "title": "Terms defined by reference",
+      "alternateIds": [
+        "h-2-terms-defined-by-reference"
+      ],
+      "number": "H.2"
+    },
+    {
+      "id": "references",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#references",
+      "level": 2,
+      "title": "References",
+      "alternateIds": [
+        "i-references"
+      ],
+      "number": "I"
+    },
+    {
+      "id": "normative-references",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#normative-references",
+      "level": 3,
+      "title": "Normative references",
+      "alternateIds": [
+        "i-1-normative-references"
+      ],
+      "number": "I.1"
+    },
+    {
+      "id": "informative-references",
+      "href": "https://w3c.github.io/rdf-semantics/spec/#informative-references",
+      "level": 3,
+      "title": "Informative references",
+      "alternateIds": [
+        "i-2-informative-references"
+      ],
+      "number": "I.2"
+    }
+  ]
+}

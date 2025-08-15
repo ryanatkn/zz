@@ -1,0 +1,92 @@
+{
+  "spec": {
+    "title": "Content Security Policy: Embedded Enforcement",
+    "url": "https://www.w3.org/TR/csp-embedded-enforcement/"
+  },
+  "dfns": [
+    {
+      "id": "element-attrdef-iframe-csp",
+      "href": "https://www.w3.org/TR/csp-embedded-enforcement/#element-attrdef-iframe-csp",
+      "linkingText": [
+        "csp"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "iframe"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "html-integration",
+        "href": "https://www.w3.org/TR/csp-embedded-enforcement/#html-integration",
+        "title": "Integration with HTML",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-htmliframeelement-csp",
+      "href": "https://www.w3.org/TR/csp-embedded-enforcement/#dom-htmliframeelement-csp",
+      "linkingText": [
+        "csp"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "HTMLIFrameElement"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "html-integration",
+        "href": "https://www.w3.org/TR/csp-embedded-enforcement/#html-integration",
+        "title": "Integration with HTML",
+        "number": "2.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "required-csp",
+      "href": "https://www.w3.org/TR/csp-embedded-enforcement/#required-csp",
+      "linkingText": [
+        "required CSP"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "html-integration",
+        "href": "https://www.w3.org/TR/csp-embedded-enforcement/#html-integration",
+        "title": "Integration with HTML",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "http-headerdef-embedding-csp",
+      "href": "https://www.w3.org/TR/csp-embedded-enforcement/#http-headerdef-embedding-csp",
+      "linkingText": [
+        "Embedding-CSP"
+      ],
+      "localLinkingText": [],
+      "type": "http-header",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "embedding-csp-http-header",
+        "href": "https://www.w3.org/TR/csp-embedded-enforcement/#embedding-csp-http-header",
+        "title": "The Embedding-CSP HTTP Request Header",
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

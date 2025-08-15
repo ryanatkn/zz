@@ -1,0 +1,679 @@
+{
+  "spec": {
+    "title": "The <model> element",
+    "url": "https://immersive-web.github.io/model-element/"
+  },
+  "headings": [
+    {
+      "id": "title",
+      "href": "https://immersive-web.github.io/model-element/#title",
+      "level": 1,
+      "title": "The <model> element"
+    },
+    {
+      "id": "toc",
+      "href": "https://immersive-web.github.io/model-element/#toc",
+      "level": 2,
+      "title": "Table of Contents",
+      "alternateIds": [
+        "table-of-contents"
+      ]
+    },
+    {
+      "id": "introduction",
+      "href": "https://immersive-web.github.io/model-element/#introduction",
+      "level": 2,
+      "title": "Introduction",
+      "alternateIds": [
+        "x1-introduction"
+      ],
+      "number": "1"
+    },
+    {
+      "id": "out-of-scope",
+      "href": "https://immersive-web.github.io/model-element/#out-of-scope",
+      "level": 2,
+      "title": "Out of scope",
+      "alternateIds": [
+        "x2-out-of-scope"
+      ],
+      "number": "2"
+    },
+    {
+      "id": "scene-graph-inspection-and-manipulation",
+      "href": "https://immersive-web.github.io/model-element/#scene-graph-inspection-and-manipulation",
+      "level": 3,
+      "title": "Scene graph inspection and manipulation",
+      "alternateIds": [
+        "x2-1-scene-graph-inspection-and-manipulation"
+      ],
+      "number": "2.1"
+    },
+    {
+      "id": "animation-mixing-and-blending",
+      "href": "https://immersive-web.github.io/model-element/#animation-mixing-and-blending",
+      "level": 3,
+      "title": "Animation mixing and blending",
+      "alternateIds": [
+        "x2-2-animation-mixing-and-blending"
+      ],
+      "number": "2.2"
+    },
+    {
+      "id": "stateful-interaction-with-model-contents",
+      "href": "https://immersive-web.github.io/model-element/#stateful-interaction-with-model-contents",
+      "level": 3,
+      "title": "Stateful interaction with model contents",
+      "alternateIds": [
+        "x2-3-stateful-interaction-with-model-contents"
+      ],
+      "number": "2.3"
+    },
+    {
+      "id": "subresource-loading",
+      "href": "https://immersive-web.github.io/model-element/#subresource-loading",
+      "level": 3,
+      "title": "Subresource loading",
+      "alternateIds": [
+        "x2-4-subresource-loading"
+      ],
+      "number": "2.4"
+    },
+    {
+      "id": "examples",
+      "href": "https://immersive-web.github.io/model-element/#examples",
+      "level": 2,
+      "title": "Examples",
+      "alternateIds": [
+        "x3-examples"
+      ],
+      "number": "3"
+    },
+    {
+      "id": "adding-a-model-to-a-document",
+      "href": "https://immersive-web.github.io/model-element/#adding-a-model-to-a-document",
+      "level": 3,
+      "title": "Adding a model to a document",
+      "alternateIds": [
+        "x3-1-adding-a-model-to-a-document"
+      ],
+      "number": "3.1"
+    },
+    {
+      "id": "enabling-interactivity",
+      "href": "https://immersive-web.github.io/model-element/#enabling-interactivity",
+      "level": 3,
+      "title": "Enabling interactivity",
+      "alternateIds": [
+        "x3-2-enabling-interactivity"
+      ],
+      "number": "3.2"
+    },
+    {
+      "id": "supporting-multiple-formats",
+      "href": "https://immersive-web.github.io/model-element/#supporting-multiple-formats",
+      "level": 3,
+      "title": "Supporting multiple formats",
+      "alternateIds": [
+        "x3-3-supporting-multiple-formats"
+      ],
+      "number": "3.3"
+    },
+    {
+      "id": "providing-fallback-content-for-legacy-user-agents",
+      "href": "https://immersive-web.github.io/model-element/#providing-fallback-content-for-legacy-user-agents",
+      "level": 3,
+      "title": "Providing fallback content for legacy user agents",
+      "alternateIds": [
+        "x3-4-providing-fallback-content-for-legacy-user-agents"
+      ],
+      "number": "3.4"
+    },
+    {
+      "id": "making-model-accessible",
+      "href": "https://immersive-web.github.io/model-element/#making-model-accessible",
+      "level": 3,
+      "title": "Making model accessible",
+      "alternateIds": [
+        "x3-5-making-model-accessible"
+      ],
+      "number": "3.5"
+    },
+    {
+      "id": "the-model-element",
+      "href": "https://immersive-web.github.io/model-element/#the-model-element",
+      "level": 2,
+      "title": "The model element",
+      "alternateIds": [
+        "x4-the-model-element"
+      ],
+      "number": "4"
+    },
+    {
+      "id": "autoplay-attribute",
+      "href": "https://immersive-web.github.io/model-element/#autoplay-attribute",
+      "level": 3,
+      "title": "autoplay attribute",
+      "alternateIds": [
+        "x4-1-autoplay-attribute"
+      ],
+      "number": "4.1"
+    },
+    {
+      "id": "interactive-attribute",
+      "href": "https://immersive-web.github.io/model-element/#interactive-attribute",
+      "level": 3,
+      "title": "interactive attribute",
+      "alternateIds": [
+        "x4-2-interactive-attribute"
+      ],
+      "number": "4.2"
+    },
+    {
+      "id": "controls-attribute",
+      "href": "https://immersive-web.github.io/model-element/#controls-attribute",
+      "level": 3,
+      "title": "controls attribute",
+      "alternateIds": [
+        "x4-3-controls-attribute"
+      ],
+      "number": "4.3"
+    },
+    {
+      "id": "crossorigin-attribute",
+      "href": "https://immersive-web.github.io/model-element/#crossorigin-attribute",
+      "level": 3,
+      "title": "crossorigin attribute",
+      "alternateIds": [
+        "x4-4-crossorigin-attribute"
+      ],
+      "number": "4.4"
+    },
+    {
+      "id": "height-attribute",
+      "href": "https://immersive-web.github.io/model-element/#height-attribute",
+      "level": 3,
+      "title": "height attribute",
+      "alternateIds": [
+        "x4-5-height-attribute"
+      ],
+      "number": "4.5"
+    },
+    {
+      "id": "loading-attribute",
+      "href": "https://immersive-web.github.io/model-element/#loading-attribute",
+      "level": 3,
+      "title": "loading attribute",
+      "alternateIds": [
+        "x4-6-loading-attribute"
+      ],
+      "number": "4.6"
+    },
+    {
+      "id": "loop-attribute",
+      "href": "https://immersive-web.github.io/model-element/#loop-attribute",
+      "level": 3,
+      "title": "loop attribute",
+      "alternateIds": [
+        "x4-7-loop-attribute"
+      ],
+      "number": "4.7"
+    },
+    {
+      "id": "muted-attribute",
+      "href": "https://immersive-web.github.io/model-element/#muted-attribute",
+      "level": 3,
+      "title": "muted attribute",
+      "alternateIds": [
+        "x4-8-muted-attribute"
+      ],
+      "number": "4.8"
+    },
+    {
+      "id": "poster-attribute",
+      "href": "https://immersive-web.github.io/model-element/#poster-attribute",
+      "level": 3,
+      "title": "poster attribute",
+      "alternateIds": [
+        "x4-9-poster-attribute"
+      ],
+      "number": "4.9"
+    },
+    {
+      "id": "src-attribute",
+      "href": "https://immersive-web.github.io/model-element/#src-attribute",
+      "level": 3,
+      "title": "src attribute",
+      "alternateIds": [
+        "x4-10-src-attribute"
+      ],
+      "number": "4.10"
+    },
+    {
+      "id": "width-attribute",
+      "href": "https://immersive-web.github.io/model-element/#width-attribute",
+      "level": 3,
+      "title": "width attribute",
+      "alternateIds": [
+        "x4-11-width-attribute"
+      ],
+      "number": "4.11"
+    },
+    {
+      "id": "the-htmlmodelelement-interface",
+      "href": "https://immersive-web.github.io/model-element/#the-htmlmodelelement-interface",
+      "level": 2,
+      "title": "The HTMLModelElement interface",
+      "alternateIds": [
+        "x5-the-htmlmodelelement-interface"
+      ],
+      "number": "5"
+    },
+    {
+      "id": "source-element-integration",
+      "href": "https://immersive-web.github.io/model-element/#source-element-integration",
+      "level": 2,
+      "title": "source element integration",
+      "alternateIds": [
+        "x6-source-element-integration"
+      ],
+      "number": "6"
+    },
+    {
+      "id": "the-source-element-s-parent-is-a-model-element",
+      "href": "https://immersive-web.github.io/model-element/#the-source-element-s-parent-is-a-model-element",
+      "level": 3,
+      "title": "The source element's parent is a model element",
+      "alternateIds": [
+        "x6-1-the-source-element-s-parent-is-a-model-element"
+      ],
+      "number": "6.1"
+    },
+    {
+      "id": "interaction",
+      "href": "https://immersive-web.github.io/model-element/#interaction",
+      "level": 2,
+      "title": "Interaction",
+      "alternateIds": [
+        "x7-interaction"
+      ],
+      "number": "7"
+    },
+    {
+      "id": "controls",
+      "href": "https://immersive-web.github.io/model-element/#controls",
+      "level": 2,
+      "title": "Controls",
+      "alternateIds": [
+        "x8-controls"
+      ],
+      "number": "8"
+    },
+    {
+      "id": "rendering",
+      "href": "https://immersive-web.github.io/model-element/#rendering",
+      "level": 2,
+      "title": "Rendering",
+      "alternateIds": [
+        "x9-rendering"
+      ],
+      "number": "9"
+    },
+    {
+      "id": "orientation-camera",
+      "href": "https://immersive-web.github.io/model-element/#orientation-camera",
+      "level": 3,
+      "title": "Orientation/camera",
+      "alternateIds": [
+        "x9-1-orientation-camera"
+      ],
+      "number": "9.1"
+    },
+    {
+      "id": "embedded-content",
+      "href": "https://immersive-web.github.io/model-element/#embedded-content",
+      "level": 3,
+      "title": "Embedded content",
+      "alternateIds": [
+        "x9-2-embedded-content"
+      ],
+      "number": "9.2"
+    },
+    {
+      "id": "events",
+      "href": "https://immersive-web.github.io/model-element/#events",
+      "level": 2,
+      "title": "10. Events",
+      "alternateIds": [
+        "x10-events"
+      ]
+    },
+    {
+      "id": "formats",
+      "href": "https://immersive-web.github.io/model-element/#formats",
+      "level": 2,
+      "title": "11. Formats",
+      "alternateIds": [
+        "x11-formats"
+      ]
+    },
+    {
+      "id": "overlap-with-media-elements",
+      "href": "https://immersive-web.github.io/model-element/#overlap-with-media-elements",
+      "level": 2,
+      "title": "12. Overlap with \"media elements\"",
+      "alternateIds": [
+        "x12-overlap-with-media-elements"
+      ]
+    },
+    {
+      "id": "html-integrations",
+      "href": "https://immersive-web.github.io/model-element/#html-integrations",
+      "level": 2,
+      "title": "13. HTML Integrations",
+      "alternateIds": [
+        "x13-html-integrations"
+      ]
+    },
+    {
+      "id": "preload-link-relationship",
+      "href": "https://immersive-web.github.io/model-element/#preload-link-relationship",
+      "level": 3,
+      "title": "Preload link relationship",
+      "alternateIds": [
+        "x13-1-preload-link-relationship"
+      ],
+      "number": "13.1"
+    },
+    {
+      "id": "integrations-with-source-element",
+      "href": "https://immersive-web.github.io/model-element/#integrations-with-source-element",
+      "level": 3,
+      "title": "Integrations with source element",
+      "alternateIds": [
+        "x13-2-integrations-with-source-element"
+      ],
+      "number": "13.2"
+    },
+    {
+      "id": "link-rel-ar",
+      "href": "https://immersive-web.github.io/model-element/#link-rel-ar",
+      "level": 3,
+      "title": "Link rel=\"ar\"",
+      "alternateIds": [
+        "x13-3-link-rel-ar"
+      ],
+      "number": "13.3"
+    },
+    {
+      "id": "css-integrations",
+      "href": "https://immersive-web.github.io/model-element/#css-integrations",
+      "level": 2,
+      "title": "14. CSS integrations",
+      "alternateIds": [
+        "x14-css-integrations"
+      ]
+    },
+    {
+      "id": "media-playback-states-playing-paused-seeking",
+      "href": "https://immersive-web.github.io/model-element/#media-playback-states-playing-paused-seeking",
+      "level": 3,
+      "title": "Media Playback States (:playing, :paused, :seeking)",
+      "alternateIds": [
+        "x14-1-media-playback-states-playing-paused-seeking"
+      ],
+      "number": "14.1"
+    },
+    {
+      "id": "the-muted-and-volume-locked-pseudo-classes",
+      "href": "https://immersive-web.github.io/model-element/#the-muted-and-volume-locked-pseudo-classes",
+      "level": 3,
+      "title": "The :muted and :volume-locked pseudo-classes",
+      "alternateIds": [
+        "x14-2-the-muted-and-volume-locked-pseudo-classes"
+      ],
+      "number": "14.2"
+    },
+    {
+      "id": "fullscreen-presentation-state-the-fullscreen-pseudo-class",
+      "href": "https://immersive-web.github.io/model-element/#fullscreen-presentation-state-the-fullscreen-pseudo-class",
+      "level": 3,
+      "title": "Fullscreen Presentation State: the :fullscreen pseudo-class",
+      "alternateIds": [
+        "x14-3-fullscreen-presentation-state-the-fullscreen-pseudo-class"
+      ],
+      "number": "14.3"
+    },
+    {
+      "id": "fullscreen-integration",
+      "href": "https://immersive-web.github.io/model-element/#fullscreen-integration",
+      "level": 2,
+      "title": "15. Fullscreen integration",
+      "alternateIds": [
+        "x15-fullscreen-integration"
+      ]
+    },
+    {
+      "id": "fetch-integration",
+      "href": "https://immersive-web.github.io/model-element/#fetch-integration",
+      "level": 2,
+      "title": "16. Fetch integration",
+      "alternateIds": [
+        "x16-fetch-integration"
+      ]
+    },
+    {
+      "id": "model-destination",
+      "href": "https://immersive-web.github.io/model-element/#model-destination",
+      "level": 3,
+      "title": "\"model\" destination",
+      "alternateIds": [
+        "x16-1-model-destination"
+      ],
+      "number": "16.1"
+    },
+    {
+      "id": "privacy-considerations",
+      "href": "https://immersive-web.github.io/model-element/#privacy-considerations",
+      "level": 2,
+      "title": "17. Privacy considerations",
+      "alternateIds": [
+        "x17-privacy-considerations"
+      ]
+    },
+    {
+      "id": "security-considerations",
+      "href": "https://immersive-web.github.io/model-element/#security-considerations",
+      "level": 2,
+      "title": "18. Security considerations",
+      "alternateIds": [
+        "x18-security-considerations"
+      ]
+    },
+    {
+      "id": "cors",
+      "href": "https://immersive-web.github.io/model-element/#cors",
+      "level": 3,
+      "title": "CORS",
+      "alternateIds": [
+        "x18-1-cors"
+      ],
+      "number": "18.1"
+    },
+    {
+      "id": "formats-and-cors",
+      "href": "https://immersive-web.github.io/model-element/#formats-and-cors",
+      "level": 3,
+      "title": "Formats and CORS",
+      "alternateIds": [
+        "x18-2-formats-and-cors"
+      ],
+      "number": "18.2"
+    },
+    {
+      "id": "content-security-policy",
+      "href": "https://immersive-web.github.io/model-element/#content-security-policy",
+      "level": 3,
+      "title": "Content Security Policy",
+      "alternateIds": [
+        "x18-3-content-security-policy"
+      ],
+      "number": "18.3"
+    },
+    {
+      "id": "format-concerns",
+      "href": "https://immersive-web.github.io/model-element/#format-concerns",
+      "level": 3,
+      "title": "Format concerns",
+      "alternateIds": [
+        "x18-4-format-concerns"
+      ],
+      "number": "18.4"
+    },
+    {
+      "id": "accessibility",
+      "href": "https://immersive-web.github.io/model-element/#accessibility",
+      "level": 2,
+      "title": "19. Accessibility",
+      "alternateIds": [
+        "x19-accessibility"
+      ]
+    },
+    {
+      "id": "requirements-for-providing-text-to-act-as-an-alternative-for-3d-content",
+      "href": "https://immersive-web.github.io/model-element/#requirements-for-providing-text-to-act-as-an-alternative-for-3d-content",
+      "level": 3,
+      "title": "Requirements for providing text to act as an alternative for 3D content",
+      "alternateIds": [
+        "x19-1-requirements-for-providing-text-to-act-as-an-alternative-for-3d-content"
+      ],
+      "number": "19.1"
+    },
+    {
+      "id": "for-authors",
+      "href": "https://immersive-web.github.io/model-element/#for-authors",
+      "level": 3,
+      "title": "For authors",
+      "alternateIds": [
+        "x19-2-for-authors"
+      ],
+      "number": "19.2"
+    },
+    {
+      "id": "for-implementers",
+      "href": "https://immersive-web.github.io/model-element/#for-implementers",
+      "level": 3,
+      "title": "For implementers",
+      "alternateIds": [
+        "x19-3-for-implementers"
+      ],
+      "number": "19.3"
+    },
+    {
+      "id": "mime",
+      "href": "https://immersive-web.github.io/model-element/#mime",
+      "level": 2,
+      "title": "20. MIME",
+      "alternateIds": [
+        "x20-mime"
+      ]
+    },
+    {
+      "id": "mime-sniffing",
+      "href": "https://immersive-web.github.io/model-element/#mime-sniffing",
+      "level": 3,
+      "title": "MIME Sniffing",
+      "alternateIds": [
+        "x20-1-mime-sniffing"
+      ],
+      "number": "20.1"
+    },
+    {
+      "id": "conformance",
+      "href": "https://immersive-web.github.io/model-element/#conformance",
+      "level": 2,
+      "title": "21. Conformance",
+      "alternateIds": [
+        "x21-conformance"
+      ]
+    },
+    {
+      "id": "issue-summary",
+      "href": "https://immersive-web.github.io/model-element/#issue-summary",
+      "level": 2,
+      "title": "22. Issue summary",
+      "alternateIds": [
+        "x22-issue-summary"
+      ]
+    },
+    {
+      "id": "change-log",
+      "href": "https://immersive-web.github.io/model-element/#change-log",
+      "level": 2,
+      "title": "23. Change log",
+      "alternateIds": [
+        "x23-change-log"
+      ]
+    },
+    {
+      "id": "index",
+      "href": "https://immersive-web.github.io/model-element/#index",
+      "level": 2,
+      "title": "Index",
+      "alternateIds": [
+        "a-index"
+      ],
+      "number": "A"
+    },
+    {
+      "id": "index-defined-here",
+      "href": "https://immersive-web.github.io/model-element/#index-defined-here",
+      "level": 3,
+      "title": "Terms defined by this specification",
+      "alternateIds": [
+        "a-1-terms-defined-by-this-specification"
+      ],
+      "number": "A.1"
+    },
+    {
+      "id": "index-defined-elsewhere",
+      "href": "https://immersive-web.github.io/model-element/#index-defined-elsewhere",
+      "level": 3,
+      "title": "Terms defined by reference",
+      "alternateIds": [
+        "a-2-terms-defined-by-reference"
+      ],
+      "number": "A.2"
+    },
+    {
+      "id": "references",
+      "href": "https://immersive-web.github.io/model-element/#references",
+      "level": 2,
+      "title": "References",
+      "alternateIds": [
+        "b-references"
+      ],
+      "number": "B"
+    },
+    {
+      "id": "normative-references",
+      "href": "https://immersive-web.github.io/model-element/#normative-references",
+      "level": 3,
+      "title": "Normative references",
+      "alternateIds": [
+        "b-1-normative-references"
+      ],
+      "number": "B.1"
+    },
+    {
+      "id": "informative-references",
+      "href": "https://immersive-web.github.io/model-element/#informative-references",
+      "level": 3,
+      "title": "Informative references",
+      "alternateIds": [
+        "b-2-informative-references"
+      ],
+      "number": "B.2"
+    }
+  ]
+}

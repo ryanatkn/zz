@@ -1,0 +1,152 @@
+{
+  "spec": {
+    "title": "CSSOM View Module",
+    "url": "https://drafts.csswg.org/cssom-view-1/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "CSS-ALIGN-3",
+        "url": "https://drafts.csswg.org/css-align/"
+      },
+      {
+        "name": "CSS-BACKGROUNDS-3",
+        "url": "https://drafts.csswg.org/css-backgrounds/"
+      },
+      {
+        "name": "CSS-BOX-4",
+        "url": "https://drafts.csswg.org/css-box-4/"
+      },
+      {
+        "name": "CSS-BREAK-4",
+        "url": "https://drafts.csswg.org/css-break-4/"
+      },
+      {
+        "name": "CSS-COLOR-4",
+        "url": "https://drafts.csswg.org/css-color-4/"
+      },
+      {
+        "name": "CSS-CONTAIN-2",
+        "url": "https://drafts.csswg.org/css-contain-2/"
+      },
+      {
+        "name": "CSS-DEVICE-ADAPT",
+        "url": "https://drafts.csswg.org/css-viewport/"
+      },
+      {
+        "name": "CSS-DISPLAY-4",
+        "url": "https://drafts.csswg.org/css-display/"
+      },
+      {
+        "name": "CSS-OVERFLOW-3",
+        "url": "https://drafts.csswg.org/css-overflow-3/"
+      },
+      {
+        "name": "CSS-POSITION-3",
+        "url": "https://drafts.csswg.org/css-position-3/"
+      },
+      {
+        "name": "CSS-PSEUDO-4",
+        "url": "https://drafts.csswg.org/css-pseudo-4/"
+      },
+      {
+        "name": "CSS-SCOPING-1",
+        "url": "https://drafts.csswg.org/css-scoping/"
+      },
+      {
+        "name": "CSS-SCROLL-SNAP-1",
+        "url": "https://drafts.csswg.org/css-scroll-snap-1/"
+      },
+      {
+        "name": "CSS-SCROLL-SNAP-2",
+        "url": "https://drafts.csswg.org/css-scroll-snap-2/"
+      },
+      {
+        "name": "CSS-TEXT-3",
+        "url": "https://drafts.csswg.org/css-text-3/"
+      },
+      {
+        "name": "CSS-TEXT-4",
+        "url": "https://drafts.csswg.org/css-text-4/"
+      },
+      {
+        "name": "CSS-TRANSFORMS-1",
+        "url": "https://drafts.csswg.org/css-transforms/"
+      },
+      {
+        "name": "CSS-VALUES",
+        "url": "https://drafts.csswg.org/css-values-3/"
+      },
+      {
+        "name": "CSS-VALUES-4",
+        "url": "https://drafts.csswg.org/css-values-4/"
+      },
+      {
+        "name": "CSS-WRITING-MODES-4",
+        "url": "https://drafts.csswg.org/css-writing-modes-4/"
+      },
+      {
+        "name": "CSS2",
+        "url": "https://drafts.csswg.org/css2/"
+      },
+      {
+        "name": "CSSOM",
+        "url": "https://drafts.csswg.org/cssom/"
+      },
+      {
+        "name": "DOM",
+        "url": "https://dom.spec.whatwg.org/"
+      },
+      {
+        "name": "GEOMETRY-1",
+        "url": "https://drafts.fxtf.org/geometry/"
+      },
+      {
+        "name": "HTML",
+        "url": "https://html.spec.whatwg.org/multipage/"
+      },
+      {
+        "name": "INFRA",
+        "url": "https://infra.spec.whatwg.org/"
+      },
+      {
+        "name": "MEDIAQUERIES-5",
+        "url": "https://drafts.csswg.org/mediaqueries-5/"
+      },
+      {
+        "name": "RFC2119",
+        "url": "https://datatracker.ietf.org/doc/html/rfc2119"
+      },
+      {
+        "name": "SELECTORS-4",
+        "url": "https://drafts.csswg.org/selectors/"
+      },
+      {
+        "name": "SVG11",
+        "url": "https://www.w3.org/TR/SVG11/"
+      },
+      {
+        "name": "SVG2",
+        "url": "https://svgwg.org/svg2-draft/"
+      },
+      {
+        "name": "UIEVENTS",
+        "url": "https://w3c.github.io/uievents/"
+      },
+      {
+        "name": "WEBIDL",
+        "url": "https://webidl.spec.whatwg.org/"
+      }
+    ],
+    "informative": [
+      {
+        "name": "CSS-UI-4",
+        "url": "https://drafts.csswg.org/css-ui-4/"
+      },
+      {
+        "name": "CSSOM-VIEW-1",
+        "url": "https://drafts.csswg.org/cssom-view/"
+      }
+    ]
+  }
+}

@@ -1,0 +1,733 @@
+{
+  "spec": {
+    "title": "CSS Pseudo-Elements Module Level 4",
+    "url": "https://www.w3.org/TR/css-pseudo-4/"
+  },
+  "dfns": [
+    {
+      "id": "selectordef-first-line",
+      "href": "https://www.w3.org/TR/css-pseudo-4/#selectordef-first-line",
+      "linkingText": [
+        "::first-line"
+      ],
+      "localLinkingText": [],
+      "type": "selector",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "first-line-pseudo",
+        "href": "https://www.w3.org/TR/css-pseudo-4/#first-line-pseudo",
+        "title": "First-Line Text: the ::first-line pseudo-element",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "first-formatted-line",
+      "href": "https://www.w3.org/TR/css-pseudo-4/#first-formatted-line",
+      "linkingText": [
+        "first formatted line"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "first-text-line",
+        "href": "https://www.w3.org/TR/css-pseudo-4/#first-text-line",
+        "title": "Finding the First Formatted Line",
+        "number": "2.1.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "fictional-tag-sequence",
+      "href": "https://www.w3.org/TR/css-pseudo-4/#fictional-tag-sequence",
+      "linkingText": [
+        "fictional tag sequence"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "first-line-inheritance",
+        "href": "https://www.w3.org/TR/css-pseudo-4/#first-line-inheritance",
+        "title": "Inheritance and the ::first-line Pseudo-element",
+        "number": "2.1.3"
+      },
+      "definedIn": "example",
+      "links": []
+    },
+    {
+      "id": "selectordef-first-letter",
+      "href": "https://www.w3.org/TR/css-pseudo-4/#selectordef-first-letter",
+      "linkingText": [
+        "::first-letter"
+      ],
+      "localLinkingText": [],
+      "type": "selector",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "first-letter-pseudo",
+        "href": "https://www.w3.org/TR/css-pseudo-4/#first-letter-pseudo",
+        "title": "First-Letter Text: ::first-letter pseudo-element and its ::prefix and ::suffix children",
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "first-letter",
+      "href": "https://www.w3.org/TR/css-pseudo-4/#first-letter",
+      "linkingText": [
+        "first letter"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "first-letter-pseudo",
+        "href": "https://www.w3.org/TR/css-pseudo-4/#first-letter-pseudo",
+        "title": "First-Letter Text: ::first-letter pseudo-element and its ::prefix and ::suffix children",
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "first-letter-text",
+      "href": "https://www.w3.org/TR/css-pseudo-4/#first-letter-text",
+      "linkingText": [
+        "first-letter text"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "first-letter-pseudo",
+        "href": "https://www.w3.org/TR/css-pseudo-4/#first-letter-pseudo",
+        "title": "First-Letter Text: ::first-letter pseudo-element and its ::prefix and ::suffix children",
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "selectordef-first-letter-prefix",
+      "href": "https://www.w3.org/TR/css-pseudo-4/#selectordef-first-letter-prefix",
+      "linkingText": [
+        "::prefix"
+      ],
+      "localLinkingText": [],
+      "type": "selector",
+      "for": [
+        "::first-letter"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "first-letter-pseudo",
+        "href": "https://www.w3.org/TR/css-pseudo-4/#first-letter-pseudo",
+        "title": "First-Letter Text: ::first-letter pseudo-element and its ::prefix and ::suffix children",
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "selectordef-first-letter-suffix",
+      "href": "https://www.w3.org/TR/css-pseudo-4/#selectordef-first-letter-suffix",
+      "linkingText": [
+        "::suffix"
+      ],
+      "localLinkingText": [],
+      "type": "selector",
+      "for": [
+        "::first-letter"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "first-letter-pseudo",
+        "href": "https://www.w3.org/TR/css-pseudo-4/#first-letter-pseudo",
+        "title": "First-Letter Text: ::first-letter pseudo-element and its ::prefix and ::suffix children",
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "highlight-pseudo-element",
+      "href": "https://www.w3.org/TR/css-pseudo-4/#highlight-pseudo-element",
+      "linkingText": [
+        "highlight pseudo-element"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "highlight-selectors",
+        "href": "https://www.w3.org/TR/css-pseudo-4/#highlight-selectors",
+        "title": "Selecting Highlighted Content: the ::selection, ::search-text, ::target-text, ::spelling-error, ::grammar-error, and ::highlight() pseudo-elements",
+        "number": "3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "selectordef-selection",
+      "href": "https://www.w3.org/TR/css-pseudo-4/#selectordef-selection",
+      "linkingText": [
+        "::selection"
+      ],
+      "localLinkingText": [],
+      "type": "selector",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "highlight-selectors",
+        "href": "https://www.w3.org/TR/css-pseudo-4/#highlight-selectors",
+        "title": "Selecting Highlighted Content: the ::selection, ::search-text, ::target-text, ::spelling-error, ::grammar-error, and ::highlight() pseudo-elements",
+        "number": "3.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "selectordef-search-text",
+      "href": "https://www.w3.org/TR/css-pseudo-4/#selectordef-search-text",
+      "linkingText": [
+        "::search-text"
+      ],
+      "localLinkingText": [],
+      "type": "selector",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "highlight-selectors",
+        "href": "https://www.w3.org/TR/css-pseudo-4/#highlight-selectors",
+        "title": "Selecting Highlighted Content: the ::selection, ::search-text, ::target-text, ::spelling-error, ::grammar-error, and ::highlight() pseudo-elements",
+        "number": "3.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "selectordef-target-text",
+      "href": "https://www.w3.org/TR/css-pseudo-4/#selectordef-target-text",
+      "linkingText": [
+        "::target-text"
+      ],
+      "localLinkingText": [],
+      "type": "selector",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "highlight-selectors",
+        "href": "https://www.w3.org/TR/css-pseudo-4/#highlight-selectors",
+        "title": "Selecting Highlighted Content: the ::selection, ::search-text, ::target-text, ::spelling-error, ::grammar-error, and ::highlight() pseudo-elements",
+        "number": "3.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "selectordef-spelling-error",
+      "href": "https://www.w3.org/TR/css-pseudo-4/#selectordef-spelling-error",
+      "linkingText": [
+        "::spelling-error"
+      ],
+      "localLinkingText": [],
+      "type": "selector",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "highlight-selectors",
+        "href": "https://www.w3.org/TR/css-pseudo-4/#highlight-selectors",
+        "title": "Selecting Highlighted Content: the ::selection, ::search-text, ::target-text, ::spelling-error, ::grammar-error, and ::highlight() pseudo-elements",
+        "number": "3.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "selectordef-grammar-error",
+      "href": "https://www.w3.org/TR/css-pseudo-4/#selectordef-grammar-error",
+      "linkingText": [
+        "::grammar-error"
+      ],
+      "localLinkingText": [],
+      "type": "selector",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "highlight-selectors",
+        "href": "https://www.w3.org/TR/css-pseudo-4/#highlight-selectors",
+        "title": "Selecting Highlighted Content: the ::selection, ::search-text, ::target-text, ::spelling-error, ::grammar-error, and ::highlight() pseudo-elements",
+        "number": "3.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "selectordef-highlight-custom-ident",
+      "href": "https://www.w3.org/TR/css-pseudo-4/#selectordef-highlight-custom-ident",
+      "linkingText": [
+        "::highlight(<custom-ident>)"
+      ],
+      "localLinkingText": [],
+      "type": "selector",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "highlight-selectors",
+        "href": "https://www.w3.org/TR/css-pseudo-4/#highlight-selectors",
+        "title": "Selecting Highlighted Content: the ::selection, ::search-text, ::target-text, ::spelling-error, ::grammar-error, and ::highlight() pseudo-elements",
+        "number": "3.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "paired-default-highlight-colors",
+      "href": "https://www.w3.org/TR/css-pseudo-4/#paired-default-highlight-colors",
+      "linkingText": [
+        "paired default highlight colors"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "highlight-ua-styles",
+        "href": "https://www.w3.org/TR/css-pseudo-4/#highlight-ua-styles",
+        "title": "Default UA Styles",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "highlight-overlay",
+      "href": "https://www.w3.org/TR/css-pseudo-4/#highlight-overlay",
+      "linkingText": [
+        "highlight overlay"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "highlight-bounds",
+        "href": "https://www.w3.org/TR/css-pseudo-4/#highlight-bounds",
+        "title": "Area of a Highlight",
+        "number": "3.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "tree-abiding",
+      "href": "https://www.w3.org/TR/css-pseudo-4/#tree-abiding",
+      "linkingText": [
+        "Tree-abiding pseudo-elements"
+      ],
+      "localLinkingText": [
+        "tree-abiding"
+      ],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "treelike",
+        "href": "https://www.w3.org/TR/css-pseudo-4/#treelike",
+        "title": "Tree-Abiding Pseudo-elements",
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "fully-styleable",
+      "href": "https://www.w3.org/TR/css-pseudo-4/#fully-styleable",
+      "linkingText": [
+        "fully styleable pseudo-elements"
+      ],
+      "localLinkingText": [
+        "fully styleable"
+      ],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "treelike",
+        "href": "https://www.w3.org/TR/css-pseudo-4/#treelike",
+        "title": "Tree-Abiding Pseudo-elements",
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "selectordef-before",
+      "href": "https://www.w3.org/TR/css-pseudo-4/#selectordef-before",
+      "linkingText": [
+        "::before"
+      ],
+      "localLinkingText": [],
+      "type": "selector",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "generated-content",
+        "href": "https://www.w3.org/TR/css-pseudo-4/#generated-content",
+        "title": "Generated Content Pseudo-elements: ::before and ::after",
+        "number": "4.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "selectordef-after",
+      "href": "https://www.w3.org/TR/css-pseudo-4/#selectordef-after",
+      "linkingText": [
+        "::after"
+      ],
+      "localLinkingText": [],
+      "type": "selector",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "generated-content",
+        "href": "https://www.w3.org/TR/css-pseudo-4/#generated-content",
+        "title": "Generated Content Pseudo-elements: ::before and ::after",
+        "number": "4.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "selectordef-marker",
+      "href": "https://www.w3.org/TR/css-pseudo-4/#selectordef-marker",
+      "linkingText": [
+        "::marker"
+      ],
+      "localLinkingText": [],
+      "type": "selector",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "marker-pseudo",
+        "href": "https://www.w3.org/TR/css-pseudo-4/#marker-pseudo",
+        "title": "List Markers: the ::marker pseudo-element",
+        "number": "4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "selectordef-placeholder",
+      "href": "https://www.w3.org/TR/css-pseudo-4/#selectordef-placeholder",
+      "linkingText": [
+        "::placeholder"
+      ],
+      "localLinkingText": [],
+      "type": "selector",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "placeholder-pseudo",
+        "href": "https://www.w3.org/TR/css-pseudo-4/#placeholder-pseudo",
+        "title": "Placeholder Input: the ::placeholder pseudo-element",
+        "number": "4.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "element-backed",
+      "href": "https://www.w3.org/TR/css-pseudo-4/#element-backed",
+      "linkingText": [
+        "element-backed",
+        "element-backed pseudo-element"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "element-like",
+        "href": "https://www.w3.org/TR/css-pseudo-4/#element-like",
+        "title": "Element-backed Pseudo-Elements",
+        "number": "5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "selectordef-file-selector-button",
+      "href": "https://www.w3.org/TR/css-pseudo-4/#selectordef-file-selector-button",
+      "linkingText": [
+        "::file-selector-button"
+      ],
+      "localLinkingText": [],
+      "type": "selector",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "file-selector-button-pseudo",
+        "href": "https://www.w3.org/TR/css-pseudo-4/#file-selector-button-pseudo",
+        "title": "File Selector Button: the ::file-selector-button pseudo-element",
+        "number": "5.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "selectordef-details-content",
+      "href": "https://www.w3.org/TR/css-pseudo-4/#selectordef-details-content",
+      "linkingText": [
+        "::details-content"
+      ],
+      "localLinkingText": [],
+      "type": "selector",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "details-content-pseudo",
+        "href": "https://www.w3.org/TR/css-pseudo-4/#details-content-pseudo",
+        "title": "Expandable contents of details element: the ::details-content pseudo-element",
+        "number": "5.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "csspseudoelement",
+      "href": "https://www.w3.org/TR/css-pseudo-4/#csspseudoelement",
+      "linkingText": [
+        "CSSPseudoElement"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CSSPseudoElement-interface",
+        "href": "https://www.w3.org/TR/css-pseudo-4/#CSSPseudoElement-interface",
+        "title": "CSSPseudoElement Interface",
+        "number": "7.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-csspseudoelement-pseudo",
+      "href": "https://www.w3.org/TR/css-pseudo-4/#dom-csspseudoelement-pseudo",
+      "linkingText": [
+        "pseudo(type)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "CSSPseudoElement"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CSSPseudoElement-interface",
+        "href": "https://www.w3.org/TR/css-pseudo-4/#CSSPseudoElement-interface",
+        "title": "CSSPseudoElement Interface",
+        "number": "7.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-csspseudoelement-pseudo-type-type",
+      "href": "https://www.w3.org/TR/css-pseudo-4/#dom-csspseudoelement-pseudo-type-type",
+      "linkingText": [
+        "type"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "CSSPseudoElement/pseudo(type)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CSSPseudoElement-interface",
+        "href": "https://www.w3.org/TR/css-pseudo-4/#CSSPseudoElement-interface",
+        "title": "CSSPseudoElement Interface",
+        "number": "7.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-csspseudoelement-type",
+      "href": "https://www.w3.org/TR/css-pseudo-4/#dom-csspseudoelement-type",
+      "linkingText": [
+        "type"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSPseudoElement"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CSSPseudoElement-interface",
+        "href": "https://www.w3.org/TR/css-pseudo-4/#CSSPseudoElement-interface",
+        "title": "CSSPseudoElement Interface",
+        "number": "7.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-csspseudoelement-element",
+      "href": "https://www.w3.org/TR/css-pseudo-4/#dom-csspseudoelement-element",
+      "linkingText": [
+        "element"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSPseudoElement"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CSSPseudoElement-interface",
+        "href": "https://www.w3.org/TR/css-pseudo-4/#CSSPseudoElement-interface",
+        "title": "CSSPseudoElement Interface",
+        "number": "7.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-csspseudoelement-parent",
+      "href": "https://www.w3.org/TR/css-pseudo-4/#dom-csspseudoelement-parent",
+      "linkingText": [
+        "parent"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSPseudoElement"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CSSPseudoElement-interface",
+        "href": "https://www.w3.org/TR/css-pseudo-4/#CSSPseudoElement-interface",
+        "title": "CSSPseudoElement Interface",
+        "number": "7.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-csspseudoelement-pseudo-type",
+      "href": "https://www.w3.org/TR/css-pseudo-4/#dom-csspseudoelement-pseudo-type",
+      "linkingText": [
+        "pseudo(type)"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSPseudoElement"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "CSSPseudoElement-interface",
+        "href": "https://www.w3.org/TR/css-pseudo-4/#CSSPseudoElement-interface",
+        "title": "CSSPseudoElement Interface",
+        "number": "7.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-element-pseudo-type-type",
+      "href": "https://www.w3.org/TR/css-pseudo-4/#dom-element-pseudo-type-type",
+      "linkingText": [
+        "type"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "Element/pseudo(type)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "window-interface",
+        "href": "https://www.w3.org/TR/css-pseudo-4/#window-interface",
+        "title": "pseudo() method of the Element interface",
+        "number": "7.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-element-pseudo",
+      "href": "https://www.w3.org/TR/css-pseudo-4/#dom-element-pseudo",
+      "linkingText": [
+        "pseudo(type)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "Element"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "window-interface",
+        "href": "https://www.w3.org/TR/css-pseudo-4/#window-interface",
+        "title": "pseudo() method of the Element interface",
+        "number": "7.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

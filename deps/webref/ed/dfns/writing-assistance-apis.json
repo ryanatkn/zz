@@ -1,0 +1,5187 @@
+{
+  "spec": {
+    "title": "Writing Assistance APIs",
+    "url": "https://webmachinelearning.github.io/writing-assistance-apis/"
+  },
+  "dfns": [
+    {
+      "id": "summarizer",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer",
+      "linkingText": [
+        "Summarizer"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-api",
+        "title": "The summarizer API",
+        "number": "2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-summarizer-create-options-options",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizer-create-options-options",
+      "linkingText": [
+        "options"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "Summarizer/create(options)",
+        "Summarizer/create()"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-api",
+        "title": "The summarizer API",
+        "number": "2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-summarizer-availability-options-options",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizer-availability-options-options",
+      "linkingText": [
+        "options"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "Summarizer/availability(options)",
+        "Summarizer/availability()"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-api",
+        "title": "The summarizer API",
+        "number": "2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-summarizer-summarize-input-options-input",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizer-summarize-input-options-input",
+      "linkingText": [
+        "input"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "Summarizer/summarize(input, options)",
+        "Summarizer/summarize(input)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-api",
+        "title": "The summarizer API",
+        "number": "2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-summarizer-summarize-input-options-options",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizer-summarize-input-options-options",
+      "linkingText": [
+        "options"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "Summarizer/summarize(input, options)",
+        "Summarizer/summarize(input)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-api",
+        "title": "The summarizer API",
+        "number": "2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-summarizer-summarizestreaming-input-options-input",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizer-summarizestreaming-input-options-input",
+      "linkingText": [
+        "input"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "Summarizer/summarizeStreaming(input, options)",
+        "Summarizer/summarizeStreaming(input)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-api",
+        "title": "The summarizer API",
+        "number": "2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-summarizer-summarizestreaming-input-options-options",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizer-summarizestreaming-input-options-options",
+      "linkingText": [
+        "options"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "Summarizer/summarizeStreaming(input, options)",
+        "Summarizer/summarizeStreaming(input)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-api",
+        "title": "The summarizer API",
+        "number": "2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-summarizer-measureinputusage-input-options-input",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizer-measureinputusage-input-options-input",
+      "linkingText": [
+        "input"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "Summarizer/measureInputUsage(input, options)",
+        "Summarizer/measureInputUsage(input)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-api",
+        "title": "The summarizer API",
+        "number": "2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-summarizer-measureinputusage-input-options-options",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizer-measureinputusage-input-options-options",
+      "linkingText": [
+        "options"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "Summarizer/measureInputUsage(input, options)",
+        "Summarizer/measureInputUsage(input)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-api",
+        "title": "The summarizer API",
+        "number": "2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dictdef-summarizercreatecoreoptions",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dictdef-summarizercreatecoreoptions",
+      "linkingText": [
+        "SummarizerCreateCoreOptions"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-api",
+        "title": "The summarizer API",
+        "number": "2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-summarizercreatecoreoptions-type",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizercreatecoreoptions-type",
+      "linkingText": [
+        "type"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SummarizerCreateCoreOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-api",
+        "title": "The summarizer API",
+        "number": "2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-summarizercreatecoreoptions-format",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizercreatecoreoptions-format",
+      "linkingText": [
+        "format"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SummarizerCreateCoreOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-api",
+        "title": "The summarizer API",
+        "number": "2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-summarizercreatecoreoptions-length",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizercreatecoreoptions-length",
+      "linkingText": [
+        "length"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SummarizerCreateCoreOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-api",
+        "title": "The summarizer API",
+        "number": "2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-summarizercreatecoreoptions-expectedinputlanguages",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizercreatecoreoptions-expectedinputlanguages",
+      "linkingText": [
+        "expectedInputLanguages"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SummarizerCreateCoreOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-api",
+        "title": "The summarizer API",
+        "number": "2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-summarizercreatecoreoptions-expectedcontextlanguages",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizercreatecoreoptions-expectedcontextlanguages",
+      "linkingText": [
+        "expectedContextLanguages"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SummarizerCreateCoreOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-api",
+        "title": "The summarizer API",
+        "number": "2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-summarizercreatecoreoptions-outputlanguage",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizercreatecoreoptions-outputlanguage",
+      "linkingText": [
+        "outputLanguage"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SummarizerCreateCoreOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-api",
+        "title": "The summarizer API",
+        "number": "2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dictdef-summarizercreateoptions",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dictdef-summarizercreateoptions",
+      "linkingText": [
+        "SummarizerCreateOptions"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-api",
+        "title": "The summarizer API",
+        "number": "2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-summarizercreateoptions-signal",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizercreateoptions-signal",
+      "linkingText": [
+        "signal"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SummarizerCreateOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-api",
+        "title": "The summarizer API",
+        "number": "2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-summarizercreateoptions-monitor",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizercreateoptions-monitor",
+      "linkingText": [
+        "monitor"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SummarizerCreateOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-api",
+        "title": "The summarizer API",
+        "number": "2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-summarizercreateoptions-sharedcontext",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizercreateoptions-sharedcontext",
+      "linkingText": [
+        "sharedContext"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SummarizerCreateOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-api",
+        "title": "The summarizer API",
+        "number": "2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dictdef-summarizersummarizeoptions",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dictdef-summarizersummarizeoptions",
+      "linkingText": [
+        "SummarizerSummarizeOptions"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-api",
+        "title": "The summarizer API",
+        "number": "2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-summarizersummarizeoptions-signal",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizersummarizeoptions-signal",
+      "linkingText": [
+        "signal"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SummarizerSummarizeOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-api",
+        "title": "The summarizer API",
+        "number": "2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-summarizersummarizeoptions-context",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizersummarizeoptions-context",
+      "linkingText": [
+        "context"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "SummarizerSummarizeOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-api",
+        "title": "The summarizer API",
+        "number": "2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "enumdef-summarizertype",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#enumdef-summarizertype",
+      "linkingText": [
+        "SummarizerType"
+      ],
+      "localLinkingText": [],
+      "type": "enum",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-api",
+        "title": "The summarizer API",
+        "number": "2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "enumdef-summarizerformat",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#enumdef-summarizerformat",
+      "linkingText": [
+        "SummarizerFormat"
+      ],
+      "localLinkingText": [],
+      "type": "enum",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-api",
+        "title": "The summarizer API",
+        "number": "2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "enumdef-summarizerlength",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#enumdef-summarizerlength",
+      "linkingText": [
+        "SummarizerLength"
+      ],
+      "localLinkingText": [],
+      "type": "enum",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-api",
+        "title": "The summarizer API",
+        "number": "2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-summarizer-create",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizer-create",
+      "linkingText": [
+        "create(options)",
+        "create()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "Summarizer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-creation",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-creation",
+        "title": "Creation",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "validate-and-canonicalize-summarizer-options",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#validate-and-canonicalize-summarizer-options",
+      "linkingText": [
+        "validate and canonicalize summarizer options"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-creation",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-creation",
+        "title": "Creation",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "download-the-summarizer-model",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#download-the-summarizer-model",
+      "linkingText": [
+        "download the summarizer model"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-creation",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-creation",
+        "title": "Creation",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "initialize-the-summarizer-model",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#initialize-the-summarizer-model",
+      "linkingText": [
+        "initialize the summarizer model"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-creation",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-creation",
+        "title": "Creation",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "create-a-summarizer-object",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#create-a-summarizer-object",
+      "linkingText": [
+        "create a summarizer object"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-creation",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-creation",
+        "title": "Creation",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-summarizer-availability",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizer-availability",
+      "linkingText": [
+        "availability(options)",
+        "availability()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "Summarizer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-availability",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-availability",
+        "title": "Availability",
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "compute-summarizer-options-availability",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#compute-summarizer-options-availability",
+      "linkingText": [
+        "compute summarizer options availability"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-availability",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-availability",
+        "title": "Availability",
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "summarizer-non-language-options-availability",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-non-language-options-availability",
+      "linkingText": [
+        "summarizer non-language options availability"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-availability",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-availability",
+        "title": "Availability",
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "summarizer-language-availabilities-triple",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-language-availabilities-triple",
+      "linkingText": [
+        "summarizer language availabilities triple"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-availability",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-availability",
+        "title": "Availability",
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "summarizer-shared-context",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-shared-context",
+      "linkingText": [
+        "shared context"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "Summarizer"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-summarizer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-summarizer-class",
+        "title": "The Summarizer class",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "summarizer-summary-type",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-summary-type",
+      "linkingText": [
+        "summary type"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "Summarizer"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-summarizer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-summarizer-class",
+        "title": "The Summarizer class",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "summarizer-summary-format",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-summary-format",
+      "linkingText": [
+        "summary format"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "Summarizer"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-summarizer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-summarizer-class",
+        "title": "The Summarizer class",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "summarizer-summary-length",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-summary-length",
+      "linkingText": [
+        "summary length"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "Summarizer"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-summarizer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-summarizer-class",
+        "title": "The Summarizer class",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "summarizer-expected-input-languages",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-expected-input-languages",
+      "linkingText": [
+        "expected input languages"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "Summarizer"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-summarizer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-summarizer-class",
+        "title": "The Summarizer class",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "summarizer-expected-context-languages",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-expected-context-languages",
+      "linkingText": [
+        "expected context languages"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "Summarizer"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-summarizer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-summarizer-class",
+        "title": "The Summarizer class",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "summarizer-output-language",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-output-language",
+      "linkingText": [
+        "output language"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "Summarizer"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-summarizer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-summarizer-class",
+        "title": "The Summarizer class",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "summarizer-input-quota",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-input-quota",
+      "linkingText": [
+        "input quota"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "Summarizer"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-summarizer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-summarizer-class",
+        "title": "The Summarizer class",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-summarizer-sharedcontext",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizer-sharedcontext",
+      "linkingText": [
+        "sharedContext"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Summarizer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-summarizer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-summarizer-class",
+        "title": "The Summarizer class",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-summarizer-type",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizer-type",
+      "linkingText": [
+        "type"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Summarizer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-summarizer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-summarizer-class",
+        "title": "The Summarizer class",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-summarizer-format",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizer-format",
+      "linkingText": [
+        "format"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Summarizer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-summarizer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-summarizer-class",
+        "title": "The Summarizer class",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-summarizer-length",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizer-length",
+      "linkingText": [
+        "length"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Summarizer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-summarizer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-summarizer-class",
+        "title": "The Summarizer class",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-summarizer-expectedinputlanguages",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizer-expectedinputlanguages",
+      "linkingText": [
+        "expectedInputLanguages"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Summarizer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-summarizer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-summarizer-class",
+        "title": "The Summarizer class",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-summarizer-expectedcontextlanguages",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizer-expectedcontextlanguages",
+      "linkingText": [
+        "expectedContextLanguages"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Summarizer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-summarizer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-summarizer-class",
+        "title": "The Summarizer class",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-summarizer-outputlanguage",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizer-outputlanguage",
+      "linkingText": [
+        "outputLanguage"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Summarizer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-summarizer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-summarizer-class",
+        "title": "The Summarizer class",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-summarizer-inputquota",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizer-inputquota",
+      "linkingText": [
+        "inputQuota"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Summarizer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-summarizer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-summarizer-class",
+        "title": "The Summarizer class",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-summarizer-summarize",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizer-summarize",
+      "linkingText": [
+        "summarize(input, options)",
+        "summarize(input)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "Summarizer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-summarizer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-summarizer-class",
+        "title": "The Summarizer class",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-summarizer-summarizestreaming",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizer-summarizestreaming",
+      "linkingText": [
+        "summarizeStreaming(input, options)",
+        "summarizeStreaming(input)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "Summarizer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-summarizer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-summarizer-class",
+        "title": "The Summarizer class",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-summarizer-measureinputusage",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizer-measureinputusage",
+      "linkingText": [
+        "measureInputUsage(input, options)",
+        "measureInputUsage(input)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "Summarizer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-summarizer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-summarizer-class",
+        "title": "The Summarizer class",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "summarize",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarize",
+      "linkingText": [
+        "summarize"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-algorithm",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-algorithm",
+        "title": "The algorithm",
+        "number": "2.4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "measure-summarizer-input-usage",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#measure-summarizer-input-usage",
+      "linkingText": [
+        "measure summarizer input usage"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-usage",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-usage",
+        "title": "Usage",
+        "number": "2.4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-summarizertype-tldr",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizertype-tldr",
+      "linkingText": [
+        "\"tldr\"",
+        "tldr"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "SummarizerType"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-options",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-options",
+        "title": "Options",
+        "number": "2.4.3"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dom-summarizertype-teaser",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizertype-teaser",
+      "linkingText": [
+        "\"teaser\"",
+        "teaser"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "SummarizerType"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-options",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-options",
+        "title": "Options",
+        "number": "2.4.3"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dom-summarizertype-key-points",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizertype-key-points",
+      "linkingText": [
+        "\"key-points\"",
+        "key-points"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "SummarizerType"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-options",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-options",
+        "title": "Options",
+        "number": "2.4.3"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dom-summarizertype-headline",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizertype-headline",
+      "linkingText": [
+        "\"headline\"",
+        "headline"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "SummarizerType"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-options",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-options",
+        "title": "Options",
+        "number": "2.4.3"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dom-summarizerlength-short",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizerlength-short",
+      "linkingText": [
+        "\"short\"",
+        "short"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "SummarizerLength"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-options",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-options",
+        "title": "Options",
+        "number": "2.4.3"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dom-summarizerlength-medium",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizerlength-medium",
+      "linkingText": [
+        "\"medium\"",
+        "medium"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "SummarizerLength"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-options",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-options",
+        "title": "Options",
+        "number": "2.4.3"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dom-summarizerlength-long",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizerlength-long",
+      "linkingText": [
+        "\"long\"",
+        "long"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "SummarizerLength"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-options",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-options",
+        "title": "Options",
+        "number": "2.4.3"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dom-summarizerformat-plain-text",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizerformat-plain-text",
+      "linkingText": [
+        "\"plain-text\"",
+        "plain-text"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "SummarizerFormat"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-options",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-options",
+        "title": "Options",
+        "number": "2.4.3"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dom-summarizerformat-markdown",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-summarizerformat-markdown",
+      "linkingText": [
+        "\"markdown\"",
+        "markdown"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "SummarizerFormat"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-options",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-options",
+        "title": "Options",
+        "number": "2.4.3"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "permissiondef-summarizer",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#permissiondef-summarizer",
+      "linkingText": [
+        "summarizer"
+      ],
+      "localLinkingText": [],
+      "type": "permission",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "summarizer-permissions-policy",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#summarizer-permissions-policy",
+        "title": "Permissions policy integration",
+        "number": "2.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "writer",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer",
+      "linkingText": [
+        "Writer"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "writer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-api",
+        "title": "The writer API",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-writer-create-options-options",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writer-create-options-options",
+      "linkingText": [
+        "options"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "Writer/create(options)",
+        "Writer/create()"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "writer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-api",
+        "title": "The writer API",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-writer-availability-options-options",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writer-availability-options-options",
+      "linkingText": [
+        "options"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "Writer/availability(options)",
+        "Writer/availability()"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "writer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-api",
+        "title": "The writer API",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-writer-write-input-options-input",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writer-write-input-options-input",
+      "linkingText": [
+        "input"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "Writer/write(input, options)",
+        "Writer/write(input)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "writer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-api",
+        "title": "The writer API",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-writer-write-input-options-options",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writer-write-input-options-options",
+      "linkingText": [
+        "options"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "Writer/write(input, options)",
+        "Writer/write(input)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "writer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-api",
+        "title": "The writer API",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-writer-writestreaming-input-options-input",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writer-writestreaming-input-options-input",
+      "linkingText": [
+        "input"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "Writer/writeStreaming(input, options)",
+        "Writer/writeStreaming(input)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "writer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-api",
+        "title": "The writer API",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-writer-writestreaming-input-options-options",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writer-writestreaming-input-options-options",
+      "linkingText": [
+        "options"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "Writer/writeStreaming(input, options)",
+        "Writer/writeStreaming(input)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "writer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-api",
+        "title": "The writer API",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-writer-measureinputusage-input-options-input",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writer-measureinputusage-input-options-input",
+      "linkingText": [
+        "input"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "Writer/measureInputUsage(input, options)",
+        "Writer/measureInputUsage(input)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "writer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-api",
+        "title": "The writer API",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-writer-measureinputusage-input-options-options",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writer-measureinputusage-input-options-options",
+      "linkingText": [
+        "options"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "Writer/measureInputUsage(input, options)",
+        "Writer/measureInputUsage(input)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "writer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-api",
+        "title": "The writer API",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dictdef-writercreatecoreoptions",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dictdef-writercreatecoreoptions",
+      "linkingText": [
+        "WriterCreateCoreOptions"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "writer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-api",
+        "title": "The writer API",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-writercreatecoreoptions-tone",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writercreatecoreoptions-tone",
+      "linkingText": [
+        "tone"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "WriterCreateCoreOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "writer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-api",
+        "title": "The writer API",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-writercreatecoreoptions-format",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writercreatecoreoptions-format",
+      "linkingText": [
+        "format"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "WriterCreateCoreOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "writer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-api",
+        "title": "The writer API",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-writercreatecoreoptions-length",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writercreatecoreoptions-length",
+      "linkingText": [
+        "length"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "WriterCreateCoreOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "writer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-api",
+        "title": "The writer API",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-writercreatecoreoptions-expectedinputlanguages",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writercreatecoreoptions-expectedinputlanguages",
+      "linkingText": [
+        "expectedInputLanguages"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "WriterCreateCoreOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "writer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-api",
+        "title": "The writer API",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-writercreatecoreoptions-expectedcontextlanguages",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writercreatecoreoptions-expectedcontextlanguages",
+      "linkingText": [
+        "expectedContextLanguages"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "WriterCreateCoreOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "writer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-api",
+        "title": "The writer API",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-writercreatecoreoptions-outputlanguage",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writercreatecoreoptions-outputlanguage",
+      "linkingText": [
+        "outputLanguage"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "WriterCreateCoreOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "writer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-api",
+        "title": "The writer API",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dictdef-writercreateoptions",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dictdef-writercreateoptions",
+      "linkingText": [
+        "WriterCreateOptions"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "writer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-api",
+        "title": "The writer API",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-writercreateoptions-signal",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writercreateoptions-signal",
+      "linkingText": [
+        "signal"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "WriterCreateOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "writer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-api",
+        "title": "The writer API",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-writercreateoptions-monitor",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writercreateoptions-monitor",
+      "linkingText": [
+        "monitor"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "WriterCreateOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "writer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-api",
+        "title": "The writer API",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-writercreateoptions-sharedcontext",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writercreateoptions-sharedcontext",
+      "linkingText": [
+        "sharedContext"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "WriterCreateOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "writer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-api",
+        "title": "The writer API",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dictdef-writerwriteoptions",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dictdef-writerwriteoptions",
+      "linkingText": [
+        "WriterWriteOptions"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "writer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-api",
+        "title": "The writer API",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-writerwriteoptions-context",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writerwriteoptions-context",
+      "linkingText": [
+        "context"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "WriterWriteOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "writer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-api",
+        "title": "The writer API",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-writerwriteoptions-signal",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writerwriteoptions-signal",
+      "linkingText": [
+        "signal"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "WriterWriteOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "writer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-api",
+        "title": "The writer API",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "enumdef-writertone",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#enumdef-writertone",
+      "linkingText": [
+        "WriterTone"
+      ],
+      "localLinkingText": [],
+      "type": "enum",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "writer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-api",
+        "title": "The writer API",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "enumdef-writerformat",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#enumdef-writerformat",
+      "linkingText": [
+        "WriterFormat"
+      ],
+      "localLinkingText": [],
+      "type": "enum",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "writer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-api",
+        "title": "The writer API",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "enumdef-writerlength",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#enumdef-writerlength",
+      "linkingText": [
+        "WriterLength"
+      ],
+      "localLinkingText": [],
+      "type": "enum",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "writer-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-api",
+        "title": "The writer API",
+        "number": "3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-writer-create",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writer-create",
+      "linkingText": [
+        "create(options)",
+        "create()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "Writer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "writer-creation",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-creation",
+        "title": "Creation",
+        "number": "3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "validate-and-canonicalize-writer-options",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#validate-and-canonicalize-writer-options",
+      "linkingText": [
+        "validate and canonicalize writer options"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "writer-creation",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-creation",
+        "title": "Creation",
+        "number": "3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "download-the-writer-model",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#download-the-writer-model",
+      "linkingText": [
+        "download the writer model"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "writer-creation",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-creation",
+        "title": "Creation",
+        "number": "3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "initialize-the-writer-model",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#initialize-the-writer-model",
+      "linkingText": [
+        "initialize the writer model"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "writer-creation",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-creation",
+        "title": "Creation",
+        "number": "3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "create-a-writer-object",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#create-a-writer-object",
+      "linkingText": [
+        "create a writer object"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "writer-creation",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-creation",
+        "title": "Creation",
+        "number": "3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-writer-availability",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writer-availability",
+      "linkingText": [
+        "availability(options)",
+        "availability()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "Writer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "writer-availability",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-availability",
+        "title": "Availability",
+        "number": "3.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "compute-writer-options-availability",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#compute-writer-options-availability",
+      "linkingText": [
+        "compute writer options availability"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "writer-availability",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-availability",
+        "title": "Availability",
+        "number": "3.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "writer-non-language-options-availability",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-non-language-options-availability",
+      "linkingText": [
+        "writer non-language options availability"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "writer-availability",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-availability",
+        "title": "Availability",
+        "number": "3.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "writer-language-availabilities-triple",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-language-availabilities-triple",
+      "linkingText": [
+        "writer language availabilities triple"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "writer-availability",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-availability",
+        "title": "Availability",
+        "number": "3.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "writer-shared-context",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-shared-context",
+      "linkingText": [
+        "shared context"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "Writer"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-writer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-writer-class",
+        "title": "The Writer class",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "writer-tone",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-tone",
+      "linkingText": [
+        "tone"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "Writer"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-writer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-writer-class",
+        "title": "The Writer class",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "writer-format",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-format",
+      "linkingText": [
+        "format"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "Writer"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-writer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-writer-class",
+        "title": "The Writer class",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "writer-length",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-length",
+      "linkingText": [
+        "length"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "Writer"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-writer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-writer-class",
+        "title": "The Writer class",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "writer-expected-input-languages",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-expected-input-languages",
+      "linkingText": [
+        "expected input languages"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "Writer"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-writer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-writer-class",
+        "title": "The Writer class",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "writer-expected-context-languages",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-expected-context-languages",
+      "linkingText": [
+        "expected context languages"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "Writer"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-writer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-writer-class",
+        "title": "The Writer class",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "writer-output-language",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-output-language",
+      "linkingText": [
+        "output language"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "Writer"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-writer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-writer-class",
+        "title": "The Writer class",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "writer-input-quota",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-input-quota",
+      "linkingText": [
+        "input quota"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "Writer"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-writer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-writer-class",
+        "title": "The Writer class",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-writer-sharedcontext",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writer-sharedcontext",
+      "linkingText": [
+        "sharedContext"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Writer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-writer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-writer-class",
+        "title": "The Writer class",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-writer-tone",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writer-tone",
+      "linkingText": [
+        "tone"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Writer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-writer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-writer-class",
+        "title": "The Writer class",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-writer-format",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writer-format",
+      "linkingText": [
+        "format"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Writer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-writer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-writer-class",
+        "title": "The Writer class",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-writer-length",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writer-length",
+      "linkingText": [
+        "length"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Writer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-writer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-writer-class",
+        "title": "The Writer class",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-writer-expectedinputlanguages",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writer-expectedinputlanguages",
+      "linkingText": [
+        "expectedInputLanguages"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Writer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-writer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-writer-class",
+        "title": "The Writer class",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-writer-expectedcontextlanguages",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writer-expectedcontextlanguages",
+      "linkingText": [
+        "expectedContextLanguages"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Writer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-writer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-writer-class",
+        "title": "The Writer class",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-writer-outputlanguage",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writer-outputlanguage",
+      "linkingText": [
+        "outputLanguage"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Writer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-writer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-writer-class",
+        "title": "The Writer class",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-writer-inputquota",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writer-inputquota",
+      "linkingText": [
+        "inputQuota"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Writer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-writer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-writer-class",
+        "title": "The Writer class",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-writer-write",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writer-write",
+      "linkingText": [
+        "write(input, options)",
+        "write(input)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "Writer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-writer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-writer-class",
+        "title": "The Writer class",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-writer-writestreaming",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writer-writestreaming",
+      "linkingText": [
+        "writeStreaming(input, options)",
+        "writeStreaming(input)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "Writer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-writer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-writer-class",
+        "title": "The Writer class",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-writer-measureinputusage",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writer-measureinputusage",
+      "linkingText": [
+        "measureInputUsage(input, options)",
+        "measureInputUsage(input)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "Writer"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-writer-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-writer-class",
+        "title": "The Writer class",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "write",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#write",
+      "linkingText": [
+        "write"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "writer-algorithm",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-algorithm",
+        "title": "The algorithm",
+        "number": "3.4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "measure-writer-input-usage",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#measure-writer-input-usage",
+      "linkingText": [
+        "measure writer input usage"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "writer-usage",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-usage",
+        "title": "Usage",
+        "number": "3.4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-writertone-formal",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writertone-formal",
+      "linkingText": [
+        "\"formal\"",
+        "formal"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "WriterTone"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "writer-options",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-options",
+        "title": "Options",
+        "number": "3.4.3"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dom-writertone-neutral",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writertone-neutral",
+      "linkingText": [
+        "\"neutral\"",
+        "neutral"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "WriterTone"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "writer-options",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-options",
+        "title": "Options",
+        "number": "3.4.3"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dom-writertone-casual",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writertone-casual",
+      "linkingText": [
+        "\"casual\"",
+        "casual"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "WriterTone"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "writer-options",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-options",
+        "title": "Options",
+        "number": "3.4.3"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dom-writerlength-short",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writerlength-short",
+      "linkingText": [
+        "\"short\"",
+        "short"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "WriterLength"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "writer-options",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-options",
+        "title": "Options",
+        "number": "3.4.3"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dom-writerlength-medium",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writerlength-medium",
+      "linkingText": [
+        "\"medium\"",
+        "medium"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "WriterLength"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "writer-options",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-options",
+        "title": "Options",
+        "number": "3.4.3"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dom-writerlength-long",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writerlength-long",
+      "linkingText": [
+        "\"long\"",
+        "long"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "WriterLength"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "writer-options",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-options",
+        "title": "Options",
+        "number": "3.4.3"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dom-writerformat-plain-text",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writerformat-plain-text",
+      "linkingText": [
+        "\"plain-text\"",
+        "plain-text"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "WriterFormat"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "writer-options",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-options",
+        "title": "Options",
+        "number": "3.4.3"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dom-writerformat-markdown",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-writerformat-markdown",
+      "linkingText": [
+        "\"markdown\"",
+        "markdown"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "WriterFormat"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "writer-options",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-options",
+        "title": "Options",
+        "number": "3.4.3"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "permissiondef-writer",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#permissiondef-writer",
+      "linkingText": [
+        "writer"
+      ],
+      "localLinkingText": [],
+      "type": "permission",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "writer-permissions-policy",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#writer-permissions-policy",
+        "title": "Permissions policy integration",
+        "number": "3.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "rewriter",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter",
+      "linkingText": [
+        "Rewriter"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-api",
+        "title": "The rewriter API",
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-rewriter-create-options-options",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewriter-create-options-options",
+      "linkingText": [
+        "options"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "Rewriter/create(options)",
+        "Rewriter/create()"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-api",
+        "title": "The rewriter API",
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-rewriter-availability-options-options",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewriter-availability-options-options",
+      "linkingText": [
+        "options"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "Rewriter/availability(options)",
+        "Rewriter/availability()"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-api",
+        "title": "The rewriter API",
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-rewriter-rewrite-input-options-input",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewriter-rewrite-input-options-input",
+      "linkingText": [
+        "input"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "Rewriter/rewrite(input, options)",
+        "Rewriter/rewrite(input)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-api",
+        "title": "The rewriter API",
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-rewriter-rewrite-input-options-options",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewriter-rewrite-input-options-options",
+      "linkingText": [
+        "options"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "Rewriter/rewrite(input, options)",
+        "Rewriter/rewrite(input)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-api",
+        "title": "The rewriter API",
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-rewriter-rewritestreaming-input-options-input",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewriter-rewritestreaming-input-options-input",
+      "linkingText": [
+        "input"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "Rewriter/rewriteStreaming(input, options)",
+        "Rewriter/rewriteStreaming(input)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-api",
+        "title": "The rewriter API",
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-rewriter-rewritestreaming-input-options-options",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewriter-rewritestreaming-input-options-options",
+      "linkingText": [
+        "options"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "Rewriter/rewriteStreaming(input, options)",
+        "Rewriter/rewriteStreaming(input)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-api",
+        "title": "The rewriter API",
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-rewriter-measureinputusage-input-options-input",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewriter-measureinputusage-input-options-input",
+      "linkingText": [
+        "input"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "Rewriter/measureInputUsage(input, options)",
+        "Rewriter/measureInputUsage(input)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-api",
+        "title": "The rewriter API",
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-rewriter-measureinputusage-input-options-options",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewriter-measureinputusage-input-options-options",
+      "linkingText": [
+        "options"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "Rewriter/measureInputUsage(input, options)",
+        "Rewriter/measureInputUsage(input)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-api",
+        "title": "The rewriter API",
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dictdef-rewritercreatecoreoptions",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dictdef-rewritercreatecoreoptions",
+      "linkingText": [
+        "RewriterCreateCoreOptions"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-api",
+        "title": "The rewriter API",
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-rewritercreatecoreoptions-tone",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewritercreatecoreoptions-tone",
+      "linkingText": [
+        "tone"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "RewriterCreateCoreOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-api",
+        "title": "The rewriter API",
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-rewritercreatecoreoptions-format",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewritercreatecoreoptions-format",
+      "linkingText": [
+        "format"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "RewriterCreateCoreOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-api",
+        "title": "The rewriter API",
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-rewritercreatecoreoptions-length",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewritercreatecoreoptions-length",
+      "linkingText": [
+        "length"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "RewriterCreateCoreOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-api",
+        "title": "The rewriter API",
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-rewritercreatecoreoptions-expectedinputlanguages",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewritercreatecoreoptions-expectedinputlanguages",
+      "linkingText": [
+        "expectedInputLanguages"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "RewriterCreateCoreOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-api",
+        "title": "The rewriter API",
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-rewritercreatecoreoptions-expectedcontextlanguages",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewritercreatecoreoptions-expectedcontextlanguages",
+      "linkingText": [
+        "expectedContextLanguages"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "RewriterCreateCoreOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-api",
+        "title": "The rewriter API",
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-rewritercreatecoreoptions-outputlanguage",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewritercreatecoreoptions-outputlanguage",
+      "linkingText": [
+        "outputLanguage"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "RewriterCreateCoreOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-api",
+        "title": "The rewriter API",
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dictdef-rewritercreateoptions",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dictdef-rewritercreateoptions",
+      "linkingText": [
+        "RewriterCreateOptions"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-api",
+        "title": "The rewriter API",
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-rewritercreateoptions-signal",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewritercreateoptions-signal",
+      "linkingText": [
+        "signal"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "RewriterCreateOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-api",
+        "title": "The rewriter API",
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-rewritercreateoptions-monitor",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewritercreateoptions-monitor",
+      "linkingText": [
+        "monitor"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "RewriterCreateOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-api",
+        "title": "The rewriter API",
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-rewritercreateoptions-sharedcontext",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewritercreateoptions-sharedcontext",
+      "linkingText": [
+        "sharedContext"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "RewriterCreateOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-api",
+        "title": "The rewriter API",
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dictdef-rewriterrewriteoptions",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dictdef-rewriterrewriteoptions",
+      "linkingText": [
+        "RewriterRewriteOptions"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-api",
+        "title": "The rewriter API",
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-rewriterrewriteoptions-context",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewriterrewriteoptions-context",
+      "linkingText": [
+        "context"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "RewriterRewriteOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-api",
+        "title": "The rewriter API",
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-rewriterrewriteoptions-signal",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewriterrewriteoptions-signal",
+      "linkingText": [
+        "signal"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "RewriterRewriteOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-api",
+        "title": "The rewriter API",
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "enumdef-rewritertone",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#enumdef-rewritertone",
+      "linkingText": [
+        "RewriterTone"
+      ],
+      "localLinkingText": [],
+      "type": "enum",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-api",
+        "title": "The rewriter API",
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "enumdef-rewriterformat",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#enumdef-rewriterformat",
+      "linkingText": [
+        "RewriterFormat"
+      ],
+      "localLinkingText": [],
+      "type": "enum",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-api",
+        "title": "The rewriter API",
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "enumdef-rewriterlength",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#enumdef-rewriterlength",
+      "linkingText": [
+        "RewriterLength"
+      ],
+      "localLinkingText": [],
+      "type": "enum",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-api",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-api",
+        "title": "The rewriter API",
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-rewriter-create",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewriter-create",
+      "linkingText": [
+        "create(options)",
+        "create()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "Rewriter"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-creation",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-creation",
+        "title": "Creation",
+        "number": "4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "validate-and-canonicalize-rewriter-options",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#validate-and-canonicalize-rewriter-options",
+      "linkingText": [
+        "validate and canonicalize rewriter options"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-creation",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-creation",
+        "title": "Creation",
+        "number": "4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "download-the-rewriter-model",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#download-the-rewriter-model",
+      "linkingText": [
+        "download the rewriter model"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-creation",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-creation",
+        "title": "Creation",
+        "number": "4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "initialize-the-rewriter-model",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#initialize-the-rewriter-model",
+      "linkingText": [
+        "initialize the rewriter model"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-creation",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-creation",
+        "title": "Creation",
+        "number": "4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "create-a-rewriter-object",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#create-a-rewriter-object",
+      "linkingText": [
+        "create a rewriter object"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-creation",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-creation",
+        "title": "Creation",
+        "number": "4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-rewriter-availability",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewriter-availability",
+      "linkingText": [
+        "availability(options)",
+        "availability()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "Rewriter"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-availability",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-availability",
+        "title": "Availability",
+        "number": "4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "compute-rewriter-options-availability",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#compute-rewriter-options-availability",
+      "linkingText": [
+        "compute rewriter options availability"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-availability",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-availability",
+        "title": "Availability",
+        "number": "4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "rewriter-non-language-options-availability",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-non-language-options-availability",
+      "linkingText": [
+        "rewriter non-language options availability"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-availability",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-availability",
+        "title": "Availability",
+        "number": "4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "rewriter-language-availabilities-triple",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-language-availabilities-triple",
+      "linkingText": [
+        "rewriter language availabilities triple"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-availability",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-availability",
+        "title": "Availability",
+        "number": "4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "rewriter-shared-context",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-shared-context",
+      "linkingText": [
+        "shared context"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "Rewriter"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-rewriter-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-rewriter-class",
+        "title": "The Rewriter class",
+        "number": "4.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "rewriter-tone",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-tone",
+      "linkingText": [
+        "tone"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "Rewriter"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-rewriter-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-rewriter-class",
+        "title": "The Rewriter class",
+        "number": "4.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "rewriter-format",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-format",
+      "linkingText": [
+        "format"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "Rewriter"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-rewriter-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-rewriter-class",
+        "title": "The Rewriter class",
+        "number": "4.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "rewriter-length",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-length",
+      "linkingText": [
+        "length"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "Rewriter"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-rewriter-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-rewriter-class",
+        "title": "The Rewriter class",
+        "number": "4.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "rewriter-expected-input-languages",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-expected-input-languages",
+      "linkingText": [
+        "expected input languages"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "Rewriter"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-rewriter-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-rewriter-class",
+        "title": "The Rewriter class",
+        "number": "4.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "rewriter-expected-context-languages",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-expected-context-languages",
+      "linkingText": [
+        "expected context languages"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "Rewriter"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-rewriter-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-rewriter-class",
+        "title": "The Rewriter class",
+        "number": "4.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "rewriter-output-language",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-output-language",
+      "linkingText": [
+        "output language"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "Rewriter"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-rewriter-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-rewriter-class",
+        "title": "The Rewriter class",
+        "number": "4.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "rewriter-input-quota",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-input-quota",
+      "linkingText": [
+        "input quota"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "Rewriter"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-rewriter-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-rewriter-class",
+        "title": "The Rewriter class",
+        "number": "4.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-rewriter-sharedcontext",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewriter-sharedcontext",
+      "linkingText": [
+        "sharedContext"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Rewriter"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-rewriter-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-rewriter-class",
+        "title": "The Rewriter class",
+        "number": "4.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-rewriter-tone",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewriter-tone",
+      "linkingText": [
+        "tone"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Rewriter"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-rewriter-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-rewriter-class",
+        "title": "The Rewriter class",
+        "number": "4.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-rewriter-format",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewriter-format",
+      "linkingText": [
+        "format"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Rewriter"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-rewriter-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-rewriter-class",
+        "title": "The Rewriter class",
+        "number": "4.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-rewriter-length",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewriter-length",
+      "linkingText": [
+        "length"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Rewriter"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-rewriter-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-rewriter-class",
+        "title": "The Rewriter class",
+        "number": "4.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-rewriter-expectedinputlanguages",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewriter-expectedinputlanguages",
+      "linkingText": [
+        "expectedInputLanguages"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Rewriter"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-rewriter-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-rewriter-class",
+        "title": "The Rewriter class",
+        "number": "4.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-rewriter-expectedcontextlanguages",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewriter-expectedcontextlanguages",
+      "linkingText": [
+        "expectedContextLanguages"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Rewriter"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-rewriter-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-rewriter-class",
+        "title": "The Rewriter class",
+        "number": "4.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-rewriter-outputlanguage",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewriter-outputlanguage",
+      "linkingText": [
+        "outputLanguage"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Rewriter"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-rewriter-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-rewriter-class",
+        "title": "The Rewriter class",
+        "number": "4.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-rewriter-inputquota",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewriter-inputquota",
+      "linkingText": [
+        "inputQuota"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Rewriter"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-rewriter-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-rewriter-class",
+        "title": "The Rewriter class",
+        "number": "4.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-rewriter-rewrite",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewriter-rewrite",
+      "linkingText": [
+        "rewrite(input, options)",
+        "rewrite(input)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "Rewriter"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-rewriter-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-rewriter-class",
+        "title": "The Rewriter class",
+        "number": "4.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-rewriter-rewritestreaming",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewriter-rewritestreaming",
+      "linkingText": [
+        "rewriteStreaming(input, options)",
+        "rewriteStreaming(input)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "Rewriter"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-rewriter-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-rewriter-class",
+        "title": "The Rewriter class",
+        "number": "4.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-rewriter-measureinputusage",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewriter-measureinputusage",
+      "linkingText": [
+        "measureInputUsage(input, options)",
+        "measureInputUsage(input)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "Rewriter"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-rewriter-class",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#the-rewriter-class",
+        "title": "The Rewriter class",
+        "number": "4.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "rewrite",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewrite",
+      "linkingText": [
+        "rewrite"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-algorithm",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-algorithm",
+        "title": "The algorithm",
+        "number": "4.4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "measure-rewriter-input-usage",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#measure-rewriter-input-usage",
+      "linkingText": [
+        "measure rewriter input usage"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-usage",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-usage",
+        "title": "Usage",
+        "number": "4.4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-rewritertone-as-is",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewritertone-as-is",
+      "linkingText": [
+        "\"as-is\"",
+        "as-is"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "RewriterTone"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-options",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-options",
+        "title": "Options",
+        "number": "4.4.3"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dom-rewritertone-more-formal",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewritertone-more-formal",
+      "linkingText": [
+        "\"more-formal\"",
+        "more-formal"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "RewriterTone"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-options",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-options",
+        "title": "Options",
+        "number": "4.4.3"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dom-rewritertone-more-casual",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewritertone-more-casual",
+      "linkingText": [
+        "\"more-casual\"",
+        "more-casual"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "RewriterTone"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-options",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-options",
+        "title": "Options",
+        "number": "4.4.3"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dom-rewriterlength-as-is",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewriterlength-as-is",
+      "linkingText": [
+        "\"as-is\"",
+        "as-is"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "RewriterLength"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-options",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-options",
+        "title": "Options",
+        "number": "4.4.3"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dom-rewriterlength-shorter",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewriterlength-shorter",
+      "linkingText": [
+        "\"shorter\"",
+        "shorter"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "RewriterLength"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-options",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-options",
+        "title": "Options",
+        "number": "4.4.3"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dom-rewriterlength-longer",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewriterlength-longer",
+      "linkingText": [
+        "\"longer\"",
+        "longer"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "RewriterLength"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-options",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-options",
+        "title": "Options",
+        "number": "4.4.3"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dom-rewriterformat-as-is",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewriterformat-as-is",
+      "linkingText": [
+        "\"as-is\"",
+        "as-is"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "RewriterFormat"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-options",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-options",
+        "title": "Options",
+        "number": "4.4.3"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dom-rewriterformat-plain-text",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewriterformat-plain-text",
+      "linkingText": [
+        "\"plain-text\"",
+        "plain-text"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "RewriterFormat"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-options",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-options",
+        "title": "Options",
+        "number": "4.4.3"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "dom-rewriterformat-markdown",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-rewriterformat-markdown",
+      "linkingText": [
+        "\"markdown\"",
+        "markdown"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "RewriterFormat"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-options",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-options",
+        "title": "Options",
+        "number": "4.4.3"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "permissiondef-rewriter",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#permissiondef-rewriter",
+      "linkingText": [
+        "rewriter"
+      ],
+      "localLinkingText": [],
+      "type": "permission",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "rewriter-permissions-policy",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#rewriter-permissions-policy",
+        "title": "Permissions policy integration",
+        "number": "4.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "createmonitor",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#createmonitor",
+      "linkingText": [
+        "CreateMonitor"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "shared-apis",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#shared-apis",
+        "title": "Common APIs",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "callbackdef-createmonitorcallback",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#callbackdef-createmonitorcallback",
+      "linkingText": [
+        "CreateMonitorCallback"
+      ],
+      "localLinkingText": [],
+      "type": "callback",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "shared-apis",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#shared-apis",
+        "title": "Common APIs",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-createmonitorcallback-monitor",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-createmonitorcallback-monitor",
+      "linkingText": [
+        "monitor"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "CreateMonitorCallback"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "shared-apis",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#shared-apis",
+        "title": "Common APIs",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "enumdef-availability",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#enumdef-availability",
+      "linkingText": [
+        "Availability"
+      ],
+      "localLinkingText": [],
+      "type": "enum",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "shared-apis",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#shared-apis",
+        "title": "Common APIs",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-availability-unavailable",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-availability-unavailable",
+      "linkingText": [
+        "\"unavailable\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "Availability"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "shared-apis",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#shared-apis",
+        "title": "Common APIs",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-availability-downloadable",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-availability-downloadable",
+      "linkingText": [
+        "\"downloadable\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "Availability"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "shared-apis",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#shared-apis",
+        "title": "Common APIs",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-availability-downloading",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-availability-downloading",
+      "linkingText": [
+        "\"downloading\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "Availability"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "shared-apis",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#shared-apis",
+        "title": "Common APIs",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-availability-available",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-availability-available",
+      "linkingText": [
+        "\"available\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "Availability"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "shared-apis",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#shared-apis",
+        "title": "Common APIs",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "destroyablemodel",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#destroyablemodel",
+      "linkingText": [
+        "DestroyableModel"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "shared-apis",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#shared-apis",
+        "title": "Common APIs",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-createmonitor-ondownloadprogress",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-createmonitor-ondownloadprogress",
+      "linkingText": [
+        "ondownloadprogress"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CreateMonitor"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "shared-apis",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#shared-apis",
+        "title": "Common APIs",
+        "number": "5.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "eventdef-createmonitor-downloadprogress",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#eventdef-createmonitor-downloadprogress",
+      "linkingText": [
+        "downloadprogress"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [
+        "CreateMonitor"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "shared-apis",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#shared-apis",
+        "title": "Common APIs",
+        "number": "5.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "destroyablemodel-destruction-abort-controller",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#destroyablemodel-destruction-abort-controller",
+      "linkingText": [
+        "destruction abort controller"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "DestroyableModel"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "shared-apis",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#shared-apis",
+        "title": "Common APIs",
+        "number": "5.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "initialize-as-a-destroyable",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#initialize-as-a-destroyable",
+      "linkingText": [
+        "initialize as a destroyable"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "shared-apis",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#shared-apis",
+        "title": "Common APIs",
+        "number": "5.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-destroyablemodel-destroy",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#dom-destroyablemodel-destroy",
+      "linkingText": [
+        "destroy()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "DestroyableModel"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "shared-apis",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#shared-apis",
+        "title": "Common APIs",
+        "number": "5.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "destroyablemodel-destroy",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#destroyablemodel-destroy",
+      "linkingText": [
+        "destroy"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "DestroyableModel"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "shared-apis",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#shared-apis",
+        "title": "Common APIs",
+        "number": "5.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "create-an-ai-model-object",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#create-an-ai-model-object",
+      "linkingText": [
+        "create an AI model object"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "supporting-creation",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#supporting-creation",
+        "title": "Creation",
+        "number": "5.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "initialize-and-return-an-ai-model-object",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#initialize-and-return-an-ai-model-object",
+      "linkingText": [
+        "initialize and return an AI model object"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "supporting-creation",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#supporting-creation",
+        "title": "Creation",
+        "number": "5.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "get-an-aggregated-ai-model-result",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#get-an-aggregated-ai-model-result",
+      "linkingText": [
+        "get an aggregated AI model result"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "supporting-results",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#supporting-results",
+        "title": "Obtaining results and usage",
+        "number": "5.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "get-a-streaming-ai-model-result",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#get-a-streaming-ai-model-result",
+      "linkingText": [
+        "get a streaming AI model result"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "supporting-results",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#supporting-results",
+        "title": "Obtaining results and usage",
+        "number": "5.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "measure-ai-model-input-usage",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#measure-ai-model-input-usage",
+      "linkingText": [
+        "measure AI model input usage"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "supporting-results",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#supporting-results",
+        "title": "Obtaining results and usage",
+        "number": "5.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "validate-and-canonicalize-language-tags",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#validate-and-canonicalize-language-tags",
+      "linkingText": [
+        "validate and canonicalize language tags"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "supporting-language-tags",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#supporting-language-tags",
+        "title": "Language tags",
+        "number": "5.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "validate-and-canonicalize-a-single-language-tag",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#validate-and-canonicalize-a-single-language-tag",
+      "linkingText": [
+        "validate and canonicalize a single language tag",
+        "validating and canonicalizing a single language tag"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "supporting-language-tags",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#supporting-language-tags",
+        "title": "Language tags",
+        "number": "5.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "language-tag-set-completeness-rules",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#language-tag-set-completeness-rules",
+      "linkingText": [
+        "language tag set completeness rules"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "supporting-language-tags",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#supporting-language-tags",
+        "title": "Language tags",
+        "number": "5.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "compute-ai-model-availability",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#compute-ai-model-availability",
+      "linkingText": [
+        "compute AI model availability"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "supporting-availability",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#supporting-availability",
+        "title": "Availability",
+        "number": "5.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "availability-minimum-availability",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#availability-minimum-availability",
+      "linkingText": [
+        "minimum availability"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "Availability"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "supporting-availability",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#supporting-availability",
+        "title": "Availability",
+        "number": "5.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "model-availability-currently-supports",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#model-availability-currently-supports",
+      "linkingText": [
+        "currently supports",
+        "currently supported",
+        "can support",
+        "supports"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "model availability"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "supporting-availability",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#supporting-availability",
+        "title": "Availability",
+        "number": "5.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "language-availabilities-partition",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#language-availabilities-partition",
+      "linkingText": [
+        "language availabilities partition"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "supporting-language-availability",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#supporting-language-availability",
+        "title": "Language availability",
+        "number": "5.6"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "language-availabilities-triple",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#language-availabilities-triple",
+      "linkingText": [
+        "language availabilities triple"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "supporting-language-availability",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#supporting-language-availability",
+        "title": "Language availability",
+        "number": "5.6"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "language-availabilities-triple-input-languages",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#language-availabilities-triple-input-languages",
+      "linkingText": [
+        "input languages"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "language availabilities triple"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "supporting-language-availability",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#supporting-language-availability",
+        "title": "Language availability",
+        "number": "5.6"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "language-availabilities-triple-context-languages",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#language-availabilities-triple-context-languages",
+      "linkingText": [
+        "context languages"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "language availabilities triple"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "supporting-language-availability",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#supporting-language-availability",
+        "title": "Language availability",
+        "number": "5.6"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "language-availabilities-triple-output-languages",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#language-availabilities-triple-output-languages",
+      "linkingText": [
+        "output languages"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "language availabilities triple"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "supporting-language-availability",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#supporting-language-availability",
+        "title": "Language availability",
+        "number": "5.6"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "get-the-language-availabilities-partition",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#get-the-language-availabilities-partition",
+      "linkingText": [
+        "get the language availabilities partition"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "supporting-language-availability",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#supporting-language-availability",
+        "title": "Language availability",
+        "number": "5.6"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "compute-language-availability",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#compute-language-availability",
+      "linkingText": [
+        "compute language availability"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "supporting-language-availability",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#supporting-language-availability",
+        "title": "Language availability",
+        "number": "5.6"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "error-information",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#error-information",
+      "linkingText": [
+        "error information"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "supporting-errors",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#supporting-errors",
+        "title": "Errors",
+        "number": "5.7"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "domexception-error-information",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#domexception-error-information",
+      "linkingText": [
+        "DOMException error information"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "supporting-errors",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#supporting-errors",
+        "title": "Errors",
+        "number": "5.7"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "domexception-error-information-name",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#domexception-error-information-name",
+      "linkingText": [
+        "name"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "DOMException error information"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "supporting-errors",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#supporting-errors",
+        "title": "Errors",
+        "number": "5.7"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "domexception-error-information-details",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#domexception-error-information-details",
+      "linkingText": [
+        "details"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "DOMException error information"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "supporting-errors",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#supporting-errors",
+        "title": "Errors",
+        "number": "5.7"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "quota-exceeded-error-information",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#quota-exceeded-error-information",
+      "linkingText": [
+        "quota exceeded error information"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "supporting-errors",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#supporting-errors",
+        "title": "Errors",
+        "number": "5.7"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "quota-exceeded-error-information-requested",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#quota-exceeded-error-information-requested",
+      "linkingText": [
+        "requested"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "quota exceeded error information"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "supporting-errors",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#supporting-errors",
+        "title": "Errors",
+        "number": "5.7"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "quota-exceeded-error-information-quota",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#quota-exceeded-error-information-quota",
+      "linkingText": [
+        "quota"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "quota exceeded error information"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "supporting-errors",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#supporting-errors",
+        "title": "Errors",
+        "number": "5.7"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "convert-error-information-into-an-exception-object",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#convert-error-information-into-an-exception-object",
+      "linkingText": [
+        "convert error information into an exception object"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "supporting-errors",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#supporting-errors",
+        "title": "Errors",
+        "number": "5.7"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "ai-task-source",
+      "href": "https://webmachinelearning.github.io/writing-assistance-apis/#ai-task-source",
+      "linkingText": [
+        "AI task source"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "supporting-task-source",
+        "href": "https://webmachinelearning.github.io/writing-assistance-apis/#supporting-task-source",
+        "title": "Task source",
+        "number": "5.8"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

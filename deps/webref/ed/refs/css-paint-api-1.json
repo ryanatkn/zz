@@ -1,0 +1,83 @@
+{
+  "spec": {
+    "title": "CSS Painting API Level 1",
+    "url": "https://drafts.css-houdini.org/css-paint-api-1/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "CSS-BACKGROUNDS-3",
+        "url": "https://drafts.csswg.org/css-backgrounds/"
+      },
+      {
+        "name": "CSS-CASCADE-5",
+        "url": "https://drafts.csswg.org/css-cascade-5/"
+      },
+      {
+        "name": "CSS-DISPLAY-4",
+        "url": "https://drafts.csswg.org/css-display/"
+      },
+      {
+        "name": "CSS-IMAGES-3",
+        "url": "https://drafts.csswg.org/css-images-3/"
+      },
+      {
+        "name": "CSS-IMAGES-4",
+        "url": "https://drafts.csswg.org/css-images-4/"
+      },
+      {
+        "name": "CSS-PROPERTIES-VALUES-API-1",
+        "url": "https://drafts.css-houdini.org/css-properties-values-api-1/"
+      },
+      {
+        "name": "CSS-SYNTAX-3",
+        "url": "https://drafts.csswg.org/css-syntax/"
+      },
+      {
+        "name": "CSS-TYPED-OM-1",
+        "url": "https://drafts.css-houdini.org/css-typed-om-1/"
+      },
+      {
+        "name": "CSS-UI-4",
+        "url": "https://drafts.csswg.org/css-ui-4/"
+      },
+      {
+        "name": "CSS-VALUES-4",
+        "url": "https://drafts.csswg.org/css-values-4/"
+      },
+      {
+        "name": "CSS-VARIABLES-2",
+        "url": "https://drafts.csswg.org/css-variables-2/"
+      },
+      {
+        "name": "CSSOM-1",
+        "url": "https://drafts.csswg.org/cssom/"
+      },
+      {
+        "name": "CSSOM-VIEW-1",
+        "url": "https://drafts.csswg.org/cssom-view/"
+      },
+      {
+        "name": "DOM",
+        "url": "https://dom.spec.whatwg.org/"
+      },
+      {
+        "name": "HTML",
+        "url": "https://html.spec.whatwg.org/multipage/"
+      },
+      {
+        "name": "INFRA",
+        "url": "https://infra.spec.whatwg.org/"
+      },
+      {
+        "name": "RFC2119",
+        "url": "https://datatracker.ietf.org/doc/html/rfc2119"
+      },
+      {
+        "name": "WEBIDL",
+        "url": "https://webidl.spec.whatwg.org/"
+      }
+    ],
+    "informative": []
+  }
+}

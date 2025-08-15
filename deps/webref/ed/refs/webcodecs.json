@@ -1,0 +1,108 @@
+{
+  "spec": {
+    "title": "WebCodecs",
+    "url": "https://w3c.github.io/webcodecs/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "CSS-IMAGES-3",
+        "url": "https://drafts.csswg.org/css-images-3/"
+      },
+      {
+        "name": "DOM",
+        "url": "https://dom.spec.whatwg.org/"
+      },
+      {
+        "name": "ECMASCRIPT",
+        "url": "https://tc39.es/ecma262/multipage/"
+      },
+      {
+        "name": "GEOMETRY-1",
+        "url": "https://drafts.fxtf.org/geometry/"
+      },
+      {
+        "name": "HTML",
+        "url": "https://html.spec.whatwg.org/multipage/"
+      },
+      {
+        "name": "INFRA",
+        "url": "https://infra.spec.whatwg.org/"
+      },
+      {
+        "name": "MEDIASTREAM-RECORDING",
+        "url": "https://w3c.github.io/mediacapture-record/"
+      },
+      {
+        "name": "MIMESNIFF",
+        "url": "https://mimesniff.spec.whatwg.org/"
+      },
+      {
+        "name": "MST-CONTENT-HINT",
+        "url": "https://w3c.github.io/mst-content-hint/"
+      },
+      {
+        "name": "RFC2119",
+        "url": "https://datatracker.ietf.org/doc/html/rfc2119"
+      },
+      {
+        "name": "STREAMS",
+        "url": "https://streams.spec.whatwg.org/"
+      },
+      {
+        "name": "SVG2",
+        "url": "https://svgwg.org/svg2-draft/"
+      },
+      {
+        "name": "WEBIDL",
+        "url": "https://webidl.spec.whatwg.org/"
+      },
+      {
+        "name": "WebRTC-SVC",
+        "url": "https://w3c.github.io/webrtc-svc/"
+      }
+    ],
+    "informative": [
+      {
+        "name": "H.273",
+        "url": "https://www.itu.int/rec/T-REC-H.273/en"
+      },
+      {
+        "name": "MEDIA-CAPABILITIES",
+        "url": "https://w3c.github.io/media-capabilities/"
+      },
+      {
+        "name": "MEDIA-SOURCE-2",
+        "url": "https://w3c.github.io/media-source/"
+      },
+      {
+        "name": "RFC6381",
+        "url": "https://www.rfc-editor.org/rfc/rfc6381"
+      },
+      {
+        "name": "RFC9110",
+        "url": "https://httpwg.org/specs/rfc9110.html"
+      },
+      {
+        "name": "WEBAUDIO",
+        "url": "https://webaudio.github.io/web-audio-api/"
+      },
+      {
+        "name": "WEBAUDIO-1.1",
+        "url": "https://webaudio.github.io/web-audio-api/"
+      },
+      {
+        "name": "WEBCODECS-CODEC-REGISTRY",
+        "url": "https://w3c.github.io/webcodecs/codec_registry.html"
+      },
+      {
+        "name": "WEBCODECS-VIDEO-FRAME-METADATA-REGISTRY",
+        "url": "https://w3c.github.io/webcodecs/video_frame_metadata_registry.html"
+      },
+      {
+        "name": "WebRTC",
+        "url": "https://w3c.github.io/webrtc-pc/"
+      }
+    ]
+  }
+}

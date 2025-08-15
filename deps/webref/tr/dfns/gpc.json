@@ -1,0 +1,151 @@
+{
+  "spec": {
+    "title": "Global Privacy Control (GPC)",
+    "url": "https://www.w3.org/TR/gpc/"
+  },
+  "dfns": [
+    {
+      "id": "dfn-do-not-sell-or-share-interaction",
+      "href": "https://www.w3.org/TR/gpc/#dfn-do-not-sell-or-share-interaction",
+      "linkingText": [
+        "do-not-sell-or-share interaction"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "definitions",
+        "href": "https://www.w3.org/TR/gpc/#definitions",
+        "title": "Definitions",
+        "alternateIds": [
+          "x2-definitions"
+        ],
+        "number": "2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-preference",
+      "href": "https://www.w3.org/TR/gpc/#dfn-preference",
+      "linkingText": [
+        "preference",
+        "do-not-sell-or-share preference"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "definitions",
+        "href": "https://www.w3.org/TR/gpc/#definitions",
+        "title": "Definitions",
+        "alternateIds": [
+          "x2-definitions"
+        ],
+        "number": "2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-gpcatnavigation",
+      "href": "https://www.w3.org/TR/gpc/#dfn-gpcatnavigation",
+      "linkingText": [
+        "gpcAtNavigation"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "preference-caching",
+        "href": "https://www.w3.org/TR/gpc/#preference-caching",
+        "title": "Preference Caching",
+        "alternateIds": [
+          "x3-2-preference-caching"
+        ],
+        "number": "3.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-sec-gpc",
+      "href": "https://www.w3.org/TR/gpc/#dfn-sec-gpc",
+      "linkingText": [
+        "Sec-GPC"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-sec-gpc-header-field-for-http-requests",
+        "href": "https://www.w3.org/TR/gpc/#the-sec-gpc-header-field-for-http-requests",
+        "title": "The Sec-GPC Header Field for HTTP Requests",
+        "alternateIds": [
+          "x3-3-the-sec-gpc-header-field-for-http-requests"
+        ],
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-globalprivacycontrol",
+      "href": "https://www.w3.org/TR/gpc/#dom-globalprivacycontrol",
+      "linkingText": [
+        "GlobalPrivacyControl"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "javascript-property-to-detect-preference",
+        "href": "https://www.w3.org/TR/gpc/#javascript-property-to-detect-preference",
+        "title": "JavaScript Property to Detect Preference",
+        "alternateIds": [
+          "x3-4-javascript-property-to-detect-preference"
+        ],
+        "number": "3.4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-globalprivacycontrol-globalprivacycontrol",
+      "href": "https://www.w3.org/TR/gpc/#dom-globalprivacycontrol-globalprivacycontrol",
+      "linkingText": [
+        "globalPrivacyControl"
+      ],
+      "localLinkingText": [
+        "GlobalPrivacyControl.globalPrivacyControl"
+      ],
+      "type": "attribute",
+      "for": [
+        "GlobalPrivacyControl"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "javascript-property-to-detect-preference",
+        "href": "https://www.w3.org/TR/gpc/#javascript-property-to-detect-preference",
+        "title": "JavaScript Property to Detect Preference",
+        "alternateIds": [
+          "x3-4-javascript-property-to-detect-preference"
+        ],
+        "number": "3.4"
+      },
+      "definedIn": "pre",
+      "links": []
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "spec": {
+    "title": "Screen Orientation",
+    "url": "https://www.w3.org/TR/screen-orientation/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "appmanifest",
+        "url": "https://www.w3.org/TR/appmanifest/"
+      },
+      {
+        "name": "cssom-view",
+        "url": "https://www.w3.org/TR/cssom-view-1/"
+      },
+      {
+        "name": "dom",
+        "url": "https://dom.spec.whatwg.org/"
+      },
+      {
+        "name": "fullscreen",
+        "url": "https://fullscreen.spec.whatwg.org/"
+      },
+      {
+        "name": "HTML",
+        "url": "https://html.spec.whatwg.org/multipage/"
+      },
+      {
+        "name": "infra",
+        "url": "https://infra.spec.whatwg.org/"
+      },
+      {
+        "name": "mediaqueries-5",
+        "url": "https://www.w3.org/TR/mediaqueries-5/"
+      },
+      {
+        "name": "RFC2119",
+        "url": "https://www.rfc-editor.org/rfc/rfc2119"
+      },
+      {
+        "name": "RFC8174",
+        "url": "https://www.rfc-editor.org/rfc/rfc8174"
+      },
+      {
+        "name": "WCAG21",
+        "url": "https://www.w3.org/TR/WCAG21/"
+      },
+      {
+        "name": "WEBIDL",
+        "url": "https://webidl.spec.whatwg.org/"
+      }
+    ],
+    "informative": []
+  }
+}

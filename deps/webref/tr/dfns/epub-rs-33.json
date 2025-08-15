@@ -1,0 +1,157 @@
+{
+  "spec": {
+    "title": "EPUB Reading Systems 3.3",
+    "url": "https://www.w3.org/TR/epub-rs-33/"
+  },
+  "dfns": [
+    {
+      "id": "dfn-content-display-area",
+      "href": "https://www.w3.org/TR/epub-rs-33/#dfn-content-display-area",
+      "linkingText": [
+        "content display area"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "sec-terminology",
+        "href": "https://www.w3.org/TR/epub-rs-33/#sec-terminology",
+        "title": "Terminology",
+        "alternateIds": [
+          "x1-2-terminology"
+        ],
+        "number": "1.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-obtain-an-expanded-url",
+      "href": "https://www.w3.org/TR/epub-rs-33/#dfn-obtain-an-expanded-url",
+      "linkingText": [
+        "obtain an expanded URL"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sec-property-values",
+        "href": "https://www.w3.org/TR/epub-rs-33/#sec-property-values",
+        "title": "11. Processing property values",
+        "alternateIds": [
+          "x11-processing-property-values"
+        ]
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-epubreadingsystem",
+      "href": "https://www.w3.org/TR/epub-rs-33/#dfn-epubreadingsystem",
+      "linkingText": [
+        "epubReadingSystem"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "app-epubReadingSystem",
+        "href": "https://www.w3.org/TR/epub-rs-33/#app-epubReadingSystem",
+        "title": "epubReadingSystem object",
+        "alternateIds": [
+          "b-epubreadingsystem-object"
+        ],
+        "number": "B"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dom-epubreadingsystem",
+      "href": "https://www.w3.org/TR/epub-rs-33/#dom-epubreadingsystem",
+      "linkingText": [
+        "EpubReadingSystem"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "app-ers-idl",
+        "href": "https://www.w3.org/TR/epub-rs-33/#app-ers-idl",
+        "title": "Interface definition",
+        "alternateIds": [
+          "b-1-interface-definition"
+        ],
+        "number": "B.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-navigator-epubreadingsystem",
+      "href": "https://www.w3.org/TR/epub-rs-33/#dom-navigator-epubreadingsystem",
+      "linkingText": [
+        "epubReadingSystem"
+      ],
+      "localLinkingText": [
+        "Navigator.epubReadingSystem"
+      ],
+      "type": "attribute",
+      "for": [
+        "Navigator"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "app-ers-desc",
+        "href": "https://www.w3.org/TR/epub-rs-33/#app-ers-desc",
+        "title": "Description",
+        "alternateIds": [
+          "b-2-description"
+        ],
+        "number": "B.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-epubreadingsystem-hasfeature",
+      "href": "https://www.w3.org/TR/epub-rs-33/#dom-epubreadingsystem-hasfeature",
+      "linkingText": [
+        "hasFeature()",
+        "hasFeature(feature)",
+        "hasFeature(feature, version)"
+      ],
+      "localLinkingText": [
+        "EpubReadingSystem.hasFeature",
+        "EpubReadingSystem.hasFeature()",
+        "hasFeature"
+      ],
+      "type": "method",
+      "for": [
+        "EpubReadingSystem"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "app-ers-hasFeature-desc",
+        "href": "https://www.w3.org/TR/epub-rs-33/#app-ers-hasFeature-desc",
+        "title": "Description",
+        "alternateIds": [
+          "b-4-1-1-description"
+        ],
+        "number": "B.4.1.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

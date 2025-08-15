@@ -1,0 +1,193 @@
+{
+  "spec": {
+    "title": "Web App Manifest - Application Information",
+    "url": "https://w3c.github.io/manifest-app-info/"
+  },
+  "headings": [
+    {
+      "id": "title",
+      "href": "https://w3c.github.io/manifest-app-info/#title",
+      "level": 1,
+      "title": "Web App Manifest - Application Information"
+    },
+    {
+      "id": "toc",
+      "href": "https://w3c.github.io/manifest-app-info/#toc",
+      "level": 2,
+      "title": "Table of Contents",
+      "alternateIds": [
+        "table-of-contents"
+      ]
+    },
+    {
+      "id": "marketable-web-applications",
+      "href": "https://w3c.github.io/manifest-app-info/#marketable-web-applications",
+      "level": 2,
+      "title": "Marketable web applications",
+      "alternateIds": [
+        "x1-marketable-web-applications"
+      ],
+      "number": "1"
+    },
+    {
+      "id": "supplementary-manifest-members",
+      "href": "https://w3c.github.io/manifest-app-info/#supplementary-manifest-members",
+      "level": 2,
+      "title": "Supplementary manifest members",
+      "alternateIds": [
+        "x2-supplementary-manifest-members"
+      ],
+      "number": "2"
+    },
+    {
+      "id": "categories-member",
+      "href": "https://w3c.github.io/manifest-app-info/#categories-member",
+      "level": 3,
+      "title": "categories member",
+      "alternateIds": [
+        "x2-1-categories-member"
+      ],
+      "number": "2.1"
+    },
+    {
+      "id": "description-member",
+      "href": "https://w3c.github.io/manifest-app-info/#description-member",
+      "level": 3,
+      "title": "description member",
+      "alternateIds": [
+        "x2-2-description-member"
+      ],
+      "number": "2.2"
+    },
+    {
+      "id": "iarc_rating_id-member",
+      "href": "https://w3c.github.io/manifest-app-info/#iarc_rating_id-member",
+      "level": 3,
+      "title": "iarc_rating_id member",
+      "alternateIds": [
+        "x2-3-iarc_rating_id-member"
+      ],
+      "number": "2.3"
+    },
+    {
+      "id": "screenshots-member",
+      "href": "https://w3c.github.io/manifest-app-info/#screenshots-member",
+      "level": 3,
+      "title": "screenshots member",
+      "alternateIds": [
+        "x2-4-screenshots-member"
+      ],
+      "number": "2.4"
+    },
+    {
+      "id": "screenshot-object-and-its-members",
+      "href": "https://w3c.github.io/manifest-app-info/#screenshot-object-and-its-members",
+      "level": 2,
+      "title": "Screenshot object and its members",
+      "alternateIds": [
+        "x3-screenshot-object-and-its-members"
+      ],
+      "number": "3"
+    },
+    {
+      "id": "label-member",
+      "href": "https://w3c.github.io/manifest-app-info/#label-member",
+      "level": 3,
+      "title": "label member",
+      "alternateIds": [
+        "x3-1-label-member"
+      ],
+      "number": "3.1"
+    },
+    {
+      "id": "platform-member",
+      "href": "https://w3c.github.io/manifest-app-info/#platform-member",
+      "level": 3,
+      "title": "platform member",
+      "alternateIds": [
+        "x3-2-platform-member"
+      ],
+      "number": "3.2"
+    },
+    {
+      "id": "form_factor-member",
+      "href": "https://w3c.github.io/manifest-app-info/#form_factor-member",
+      "level": 3,
+      "title": "form_factor member",
+      "alternateIds": [
+        "x3-3-form_factor-member"
+      ],
+      "number": "3.3"
+    },
+    {
+      "id": "internationalization",
+      "href": "https://w3c.github.io/manifest-app-info/#internationalization",
+      "level": 2,
+      "title": "Internationalization",
+      "alternateIds": [
+        "a-internationalization"
+      ],
+      "number": "A"
+    },
+    {
+      "id": "acknowledgements",
+      "href": "https://w3c.github.io/manifest-app-info/#acknowledgements",
+      "level": 2,
+      "title": "Acknowledgements",
+      "alternateIds": [
+        "b-acknowledgements"
+      ],
+      "number": "B"
+    },
+    {
+      "id": "index",
+      "href": "https://w3c.github.io/manifest-app-info/#index",
+      "level": 2,
+      "title": "Index",
+      "alternateIds": [
+        "c-index"
+      ],
+      "number": "C"
+    },
+    {
+      "id": "index-defined-here",
+      "href": "https://w3c.github.io/manifest-app-info/#index-defined-here",
+      "level": 3,
+      "title": "Terms defined by this specification",
+      "alternateIds": [
+        "c-1-terms-defined-by-this-specification"
+      ],
+      "number": "C.1"
+    },
+    {
+      "id": "index-defined-elsewhere",
+      "href": "https://w3c.github.io/manifest-app-info/#index-defined-elsewhere",
+      "level": 3,
+      "title": "Terms defined by reference",
+      "alternateIds": [
+        "c-2-terms-defined-by-reference"
+      ],
+      "number": "C.2"
+    },
+    {
+      "id": "references",
+      "href": "https://w3c.github.io/manifest-app-info/#references",
+      "level": 2,
+      "title": "References",
+      "alternateIds": [
+        "d-references"
+      ],
+      "number": "D"
+    },
+    {
+      "id": "informative-references",
+      "href": "https://w3c.github.io/manifest-app-info/#informative-references",
+      "level": 3,
+      "title": "Informative references",
+      "alternateIds": [
+        "d-1-informative-references"
+      ],
+      "number": "D.1"
+    }
+  ]
+}

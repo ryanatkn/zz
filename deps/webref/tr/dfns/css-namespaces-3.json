@@ -1,0 +1,128 @@
+{
+  "spec": {
+    "title": "CSS Namespaces Module Level 3",
+    "url": "https://www.w3.org/TR/css-namespaces-3/"
+  },
+  "dfns": [
+    {
+      "id": "style-sheet",
+      "href": "https://www.w3.org/TR/css-namespaces-3/#style-sheet",
+      "linkingText": [
+        "style sheet"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "conformance",
+        "href": "https://www.w3.org/TR/css-namespaces-3/#conformance",
+        "title": "Conformance",
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "interpreter",
+      "href": "https://www.w3.org/TR/css-namespaces-3/#interpreter",
+      "linkingText": [
+        "interpreter"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "conformance",
+        "href": "https://www.w3.org/TR/css-namespaces-3/#conformance",
+        "title": "Conformance",
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "expanded-name",
+      "href": "https://www.w3.org/TR/css-namespaces-3/#expanded-name",
+      "linkingText": [
+        "expanded name"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "declaration",
+        "href": "https://www.w3.org/TR/css-namespaces-3/#declaration",
+        "title": "Declaring namespaces: the @namespace rule",
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "namespace-prefix",
+      "href": "https://www.w3.org/TR/css-namespaces-3/#namespace-prefix",
+      "linkingText": [
+        "namespace prefix"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "prefixes",
+        "href": "https://www.w3.org/TR/css-namespaces-3/#prefixes",
+        "title": "Declaring Prefixes",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "default-namespace",
+      "href": "https://www.w3.org/TR/css-namespaces-3/#default-namespace",
+      "linkingText": [
+        "default namespace"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "prefixes",
+        "href": "https://www.w3.org/TR/css-namespaces-3/#prefixes",
+        "title": "Declaring Prefixes",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "css-qualified-name",
+      "href": "https://www.w3.org/TR/css-namespaces-3/#css-qualified-name",
+      "linkingText": [
+        "CSS qualified name"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "css-qnames",
+        "href": "https://www.w3.org/TR/css-namespaces-3/#css-qnames",
+        "title": "CSS Qualified Names",
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "spec": {
+    "title": "MPEG Audio Byte Stream Format",
+    "url": "https://www.w3.org/TR/mse-byte-stream-format-mpeg-audio/"
+  },
+  "dfns": [
+    {
+      "id": "dfn-mpeg-audio-frame",
+      "href": "https://www.w3.org/TR/mse-byte-stream-format-mpeg-audio/#dfn-mpeg-audio-frame",
+      "linkingText": [
+        "MPEG Audio Frame"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "mpeg-audio-frames",
+        "href": "https://www.w3.org/TR/mse-byte-stream-format-mpeg-audio/#mpeg-audio-frames",
+        "title": "MPEG Audio Frames",
+        "alternateIds": [
+          "x3-mpeg-audio-frames"
+        ],
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-metadata-frames",
+      "href": "https://www.w3.org/TR/mse-byte-stream-format-mpeg-audio/#dfn-metadata-frames",
+      "linkingText": [
+        "Metadata Frames"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "mpeg-metadata",
+        "href": "https://www.w3.org/TR/mse-byte-stream-format-mpeg-audio/#mpeg-metadata",
+        "title": "Metadata Frames",
+        "alternateIds": [
+          "x4-metadata-frames"
+        ],
+        "number": "4"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-icecast-header",
+      "href": "https://www.w3.org/TR/mse-byte-stream-format-mpeg-audio/#dfn-icecast-header",
+      "linkingText": [
+        "Icecast header"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "icecast",
+        "href": "https://www.w3.org/TR/mse-byte-stream-format-mpeg-audio/#icecast",
+        "title": "Icecast headers",
+        "alternateIds": [
+          "x4-1-icecast-headers"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

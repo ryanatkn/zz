@@ -1,0 +1,328 @@
+{
+  "spec": {
+    "title": "SVG Strokes",
+    "url": "https://www.w3.org/TR/svg-strokes/"
+  },
+  "dfns": [
+    {
+      "id": "StrokeProperty",
+      "href": "https://www.w3.org/TR/svg-strokes/#StrokeProperty",
+      "linkingText": [
+        "stroke"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "SpecifyingStrokePaint",
+        "href": "https://www.w3.org/TR/svg-strokes/#SpecifyingStrokePaint",
+        "title": "Specifying stroke paint: the ‘stroke’ property",
+        "number": "2.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "StrokeAlignmentProperty",
+      "href": "https://www.w3.org/TR/svg-strokes/#StrokeAlignmentProperty",
+      "linkingText": [
+        "stroke-alignment"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "SpecifyingStrokeAlignment",
+        "href": "https://www.w3.org/TR/svg-strokes/#SpecifyingStrokeAlignment",
+        "title": "Specifying stroke alignment: the ‘stroke-alignment’ property",
+        "number": "2.2"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "StrokeOpacityProperty",
+      "href": "https://www.w3.org/TR/svg-strokes/#StrokeOpacityProperty",
+      "linkingText": [
+        "stroke-opacity"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "StrokeOpacity",
+        "href": "https://www.w3.org/TR/svg-strokes/#StrokeOpacity",
+        "title": "Stroke paint opacity: the ‘stroke-opacity’ property",
+        "number": "2.3"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "StrokeWidthProperty",
+      "href": "https://www.w3.org/TR/svg-strokes/#StrokeWidthProperty",
+      "linkingText": [
+        "stroke-width"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "StrokeWidth",
+        "href": "https://www.w3.org/TR/svg-strokes/#StrokeWidth",
+        "title": "Stroke width: the ‘stroke-width’ property",
+        "number": "2.4"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "StrokeLinecapProperty",
+      "href": "https://www.w3.org/TR/svg-strokes/#StrokeLinecapProperty",
+      "linkingText": [
+        "stroke-linecap"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "LineCaps",
+        "href": "https://www.w3.org/TR/svg-strokes/#LineCaps",
+        "title": "Drawing caps at the ends of strokes: the ‘stroke-linecap’ property",
+        "number": "2.5"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "StrokeLinejoinProperty",
+      "href": "https://www.w3.org/TR/svg-strokes/#StrokeLinejoinProperty",
+      "linkingText": [
+        "stroke-linejoin"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "LineJoin",
+        "href": "https://www.w3.org/TR/svg-strokes/#LineJoin",
+        "title": "Controlling line joins: the ‘stroke-linejoin’ and ‘stroke-miterlimit’ properties",
+        "number": "2.6"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "StrokeMiterlimitProperty",
+      "href": "https://www.w3.org/TR/svg-strokes/#StrokeMiterlimitProperty",
+      "linkingText": [
+        "stroke-miterlimit"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "LineJoin",
+        "href": "https://www.w3.org/TR/svg-strokes/#LineJoin",
+        "title": "Controlling line joins: the ‘stroke-linejoin’ and ‘stroke-miterlimit’ properties",
+        "number": "2.6"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "StrokeDasharrayProperty",
+      "href": "https://www.w3.org/TR/svg-strokes/#StrokeDasharrayProperty",
+      "linkingText": [
+        "stroke-dasharray"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "StrokeDashing",
+        "href": "https://www.w3.org/TR/svg-strokes/#StrokeDashing",
+        "title": "Dashing strokes: the ‘stroke-dasharray’, ‘stroke-dashoffset’, ‘stroke-dashcorner’ and ‘stroke-dashadjust’ properties",
+        "number": "2.7"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "DataTypeDasharray",
+      "href": "https://www.w3.org/TR/svg-strokes/#DataTypeDasharray",
+      "linkingText": [
+        "<dasharray>"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "StrokeDashing",
+        "href": "https://www.w3.org/TR/svg-strokes/#StrokeDashing",
+        "title": "Dashing strokes: the ‘stroke-dasharray’, ‘stroke-dashoffset’, ‘stroke-dashcorner’ and ‘stroke-dashadjust’ properties",
+        "number": "2.7"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "StrokeDashoffsetProperty",
+      "href": "https://www.w3.org/TR/svg-strokes/#StrokeDashoffsetProperty",
+      "linkingText": [
+        "stroke-dashoffset"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "StrokeDashing",
+        "href": "https://www.w3.org/TR/svg-strokes/#StrokeDashing",
+        "title": "Dashing strokes: the ‘stroke-dasharray’, ‘stroke-dashoffset’, ‘stroke-dashcorner’ and ‘stroke-dashadjust’ properties",
+        "number": "2.7"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "StrokeDashcornerProperty",
+      "href": "https://www.w3.org/TR/svg-strokes/#StrokeDashcornerProperty",
+      "linkingText": [
+        "stroke-dashcorner"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "StrokeDashing",
+        "href": "https://www.w3.org/TR/svg-strokes/#StrokeDashing",
+        "title": "Dashing strokes: the ‘stroke-dasharray’, ‘stroke-dashoffset’, ‘stroke-dashcorner’ and ‘stroke-dashadjust’ properties",
+        "number": "2.7"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "StrokeDashadjustProperty",
+      "href": "https://www.w3.org/TR/svg-strokes/#StrokeDashadjustProperty",
+      "linkingText": [
+        "stroke-dashadjust"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "StrokeDashing",
+        "href": "https://www.w3.org/TR/svg-strokes/#StrokeDashing",
+        "title": "Dashing strokes: the ‘stroke-dasharray’, ‘stroke-dashoffset’, ‘stroke-dashcorner’ and ‘stroke-dashadjust’ properties",
+        "number": "2.7"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "TermStrokeShape",
+      "href": "https://www.w3.org/TR/svg-strokes/#TermStrokeShape",
+      "linkingText": [
+        "stroke shape"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "StrokeShape",
+        "href": "https://www.w3.org/TR/svg-strokes/#StrokeShape",
+        "title": "Computing the shape of the stroke",
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "TermDashPositions",
+      "href": "https://www.w3.org/TR/svg-strokes/#TermDashPositions",
+      "linkingText": [
+        "dash positions"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "StrokeShape",
+        "href": "https://www.w3.org/TR/svg-strokes/#StrokeShape",
+        "title": "Computing the shape of the stroke",
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "TermCapShape",
+      "href": "https://www.w3.org/TR/svg-strokes/#TermCapShape",
+      "linkingText": [
+        "cap shapes"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "StrokeShape",
+        "href": "https://www.w3.org/TR/svg-strokes/#StrokeShape",
+        "title": "Computing the shape of the stroke",
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "TermLineJoinShape",
+      "href": "https://www.w3.org/TR/svg-strokes/#TermLineJoinShape",
+      "linkingText": [
+        "line join shape"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "StrokeShape",
+        "href": "https://www.w3.org/TR/svg-strokes/#StrokeShape",
+        "title": "Computing the shape of the stroke",
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

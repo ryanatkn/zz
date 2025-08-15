@@ -1,0 +1,656 @@
+{
+  "spec": {
+    "title": "CSS Color Adjustment Module Level 1",
+    "url": "https://www.w3.org/TR/css-color-adjust-1/"
+  },
+  "dfns": [
+    {
+      "id": "preferred-color-scheme",
+      "href": "https://www.w3.org/TR/css-color-adjust-1/#preferred-color-scheme",
+      "linkingText": [
+        "preferred color scheme"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "preferred",
+        "href": "https://www.w3.org/TR/css-color-adjust-1/#preferred",
+        "title": "Preferred Color Schemes",
+        "number": "2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "color-scheme",
+      "href": "https://www.w3.org/TR/css-color-adjust-1/#color-scheme",
+      "linkingText": [
+        "color scheme"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "preferred",
+        "href": "https://www.w3.org/TR/css-color-adjust-1/#preferred",
+        "title": "Preferred Color Schemes",
+        "number": "2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "light-color-scheme",
+      "href": "https://www.w3.org/TR/css-color-adjust-1/#light-color-scheme",
+      "linkingText": [
+        "light color scheme"
+      ],
+      "localLinkingText": [
+        "light"
+      ],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "preferred",
+        "href": "https://www.w3.org/TR/css-color-adjust-1/#preferred",
+        "title": "Preferred Color Schemes",
+        "number": "2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dark-color-scheme",
+      "href": "https://www.w3.org/TR/css-color-adjust-1/#dark-color-scheme",
+      "linkingText": [
+        "dark color scheme"
+      ],
+      "localLinkingText": [
+        "dark"
+      ],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "preferred",
+        "href": "https://www.w3.org/TR/css-color-adjust-1/#preferred",
+        "title": "Preferred Color Schemes",
+        "number": "2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "propdef-color-scheme",
+      "href": "https://www.w3.org/TR/css-color-adjust-1/#propdef-color-scheme",
+      "linkingText": [
+        "color-scheme"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "color-scheme-prop",
+        "href": "https://www.w3.org/TR/css-color-adjust-1/#color-scheme-prop",
+        "title": "Opting Into a Preferred Color Scheme: the color-scheme property",
+        "number": "2.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "used-color-scheme",
+      "href": "https://www.w3.org/TR/css-color-adjust-1/#used-color-scheme",
+      "linkingText": [
+        "used color scheme"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "color-scheme-prop",
+        "href": "https://www.w3.org/TR/css-color-adjust-1/#color-scheme-prop",
+        "title": "Opting Into a Preferred Color Scheme: the color-scheme property",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "pages-supported-color-schemes",
+      "href": "https://www.w3.org/TR/css-color-adjust-1/#pages-supported-color-schemes",
+      "linkingText": [
+        "page’s supported color schemes"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "color-scheme-prop",
+        "href": "https://www.w3.org/TR/css-color-adjust-1/#color-scheme-prop",
+        "title": "Opting Into a Preferred Color Scheme: the color-scheme property",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "valdef-color-scheme-normal",
+      "href": "https://www.w3.org/TR/css-color-adjust-1/#valdef-color-scheme-normal",
+      "linkingText": [
+        "normal"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "color-scheme"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "color-scheme-prop",
+        "href": "https://www.w3.org/TR/css-color-adjust-1/#color-scheme-prop",
+        "title": "Opting Into a Preferred Color Scheme: the color-scheme property",
+        "number": "2.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-color-scheme-light",
+      "href": "https://www.w3.org/TR/css-color-adjust-1/#valdef-color-scheme-light",
+      "linkingText": [
+        "light"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "color-scheme"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "color-scheme-prop",
+        "href": "https://www.w3.org/TR/css-color-adjust-1/#color-scheme-prop",
+        "title": "Opting Into a Preferred Color Scheme: the color-scheme property",
+        "number": "2.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-color-scheme-dark",
+      "href": "https://www.w3.org/TR/css-color-adjust-1/#valdef-color-scheme-dark",
+      "linkingText": [
+        "dark"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "color-scheme"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "color-scheme-prop",
+        "href": "https://www.w3.org/TR/css-color-adjust-1/#color-scheme-prop",
+        "title": "Opting Into a Preferred Color Scheme: the color-scheme property",
+        "number": "2.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-color-scheme-only",
+      "href": "https://www.w3.org/TR/css-color-adjust-1/#valdef-color-scheme-only",
+      "linkingText": [
+        "only"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "color-scheme"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "color-scheme-prop",
+        "href": "https://www.w3.org/TR/css-color-adjust-1/#color-scheme-prop",
+        "title": "Opting Into a Preferred Color Scheme: the color-scheme property",
+        "number": "2.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "determine-the-used-color-scheme",
+      "href": "https://www.w3.org/TR/css-color-adjust-1/#determine-the-used-color-scheme",
+      "linkingText": [
+        "determine the used color scheme"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "color-scheme-prop",
+        "href": "https://www.w3.org/TR/css-color-adjust-1/#color-scheme-prop",
+        "title": "Opting Into a Preferred Color Scheme: the color-scheme property",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "override-the-color-scheme",
+      "href": "https://www.w3.org/TR/css-color-adjust-1/#override-the-color-scheme",
+      "linkingText": [
+        "override the color scheme"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "color-scheme-override",
+        "href": "https://www.w3.org/TR/css-color-adjust-1/#color-scheme-override",
+        "title": "Overriding the Color Scheme",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "forced-colors-mode",
+      "href": "https://www.w3.org/TR/css-color-adjust-1/#forced-colors-mode",
+      "linkingText": [
+        "Forced colors mode"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "forced",
+        "href": "https://www.w3.org/TR/css-color-adjust-1/#forced",
+        "title": "Forced Color Palettes",
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "propdef-forced-color-adjust",
+      "href": "https://www.w3.org/TR/css-color-adjust-1/#propdef-forced-color-adjust",
+      "linkingText": [
+        "forced-color-adjust"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "forced-color-adjust-prop",
+        "href": "https://www.w3.org/TR/css-color-adjust-1/#forced-color-adjust-prop",
+        "title": "Opting Out of a Forced Color Palette: the forced-color-adjust property",
+        "number": "3.2"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "valdef-forced-color-adjust-auto",
+      "href": "https://www.w3.org/TR/css-color-adjust-1/#valdef-forced-color-adjust-auto",
+      "linkingText": [
+        "auto"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "forced-color-adjust"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "forced-color-adjust-prop",
+        "href": "https://www.w3.org/TR/css-color-adjust-1/#forced-color-adjust-prop",
+        "title": "Opting Out of a Forced Color Palette: the forced-color-adjust property",
+        "number": "3.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-forced-color-adjust-none",
+      "href": "https://www.w3.org/TR/css-color-adjust-1/#valdef-forced-color-adjust-none",
+      "linkingText": [
+        "none"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "forced-color-adjust"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "forced-color-adjust-prop",
+        "href": "https://www.w3.org/TR/css-color-adjust-1/#forced-color-adjust-prop",
+        "title": "Opting Out of a Forced Color Palette: the forced-color-adjust property",
+        "number": "3.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-forced-color-adjust-preserve-parent-color",
+      "href": "https://www.w3.org/TR/css-color-adjust-1/#valdef-forced-color-adjust-preserve-parent-color",
+      "linkingText": [
+        "preserve-parent-color"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "forced-color-adjust"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "forced-color-adjust-prop",
+        "href": "https://www.w3.org/TR/css-color-adjust-1/#forced-color-adjust-prop",
+        "title": "Opting Out of a Forced Color Palette: the forced-color-adjust property",
+        "number": "3.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "propdef-print-color-adjust",
+      "href": "https://www.w3.org/TR/css-color-adjust-1/#propdef-print-color-adjust",
+      "linkingText": [
+        "print-color-adjust"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "print-color-adjust",
+        "href": "https://www.w3.org/TR/css-color-adjust-1/#print-color-adjust",
+        "title": "Ink Economy: the print-color-adjust property",
+        "number": "4.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "valdef-print-color-adjust-economy",
+      "href": "https://www.w3.org/TR/css-color-adjust-1/#valdef-print-color-adjust-economy",
+      "linkingText": [
+        "economy"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "print-color-adjust"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "print-color-adjust",
+        "href": "https://www.w3.org/TR/css-color-adjust-1/#print-color-adjust",
+        "title": "Ink Economy: the print-color-adjust property",
+        "number": "4.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-print-color-adjust-exact",
+      "href": "https://www.w3.org/TR/css-color-adjust-1/#valdef-print-color-adjust-exact",
+      "linkingText": [
+        "exact"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "print-color-adjust"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "print-color-adjust",
+        "href": "https://www.w3.org/TR/css-color-adjust-1/#print-color-adjust",
+        "title": "Ink Economy: the print-color-adjust property",
+        "number": "4.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "propdef-color-adjust",
+      "href": "https://www.w3.org/TR/css-color-adjust-1/#propdef-color-adjust",
+      "linkingText": [
+        "color-adjust"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "color-adjust",
+        "href": "https://www.w3.org/TR/css-color-adjust-1/#color-adjust",
+        "title": "The color-adjust Shorthand",
+        "number": "4.2"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "emulate-forced-colors-mode①",
+      "href": "https://www.w3.org/TR/css-color-adjust-1/#emulate-forced-colors-mode%E2%91%A0",
+      "linkingText": [
+        "Emulate Forced Colors Mode"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "emulate-forced-colors-mode",
+        "href": "https://www.w3.org/TR/css-color-adjust-1/#emulate-forced-colors-mode",
+        "title": "Emulate Forced Colors Mode",
+        "number": "5.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "emulated-forced-colors-theme-data",
+      "href": "https://www.w3.org/TR/css-color-adjust-1/#emulated-forced-colors-theme-data",
+      "linkingText": [
+        "emulated forced colors theme data"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "emulate-forced-colors-mode",
+        "href": "https://www.w3.org/TR/css-color-adjust-1/#emulate-forced-colors-mode",
+        "title": "Emulate Forced Colors Mode",
+        "number": "5.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "enumdef-forcedcolorsmodeautomationtheme",
+      "href": "https://www.w3.org/TR/css-color-adjust-1/#enumdef-forcedcolorsmodeautomationtheme",
+      "linkingText": [
+        "ForcedColorsModeAutomationTheme"
+      ],
+      "localLinkingText": [],
+      "type": "enum",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "emulate-forced-colors-mode",
+        "href": "https://www.w3.org/TR/css-color-adjust-1/#emulate-forced-colors-mode",
+        "title": "Emulate Forced Colors Mode",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-forcedcolorsmodeautomationtheme-none",
+      "href": "https://www.w3.org/TR/css-color-adjust-1/#dom-forcedcolorsmodeautomationtheme-none",
+      "linkingText": [
+        "\"none\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "ForcedColorsModeAutomationTheme"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "emulate-forced-colors-mode",
+        "href": "https://www.w3.org/TR/css-color-adjust-1/#emulate-forced-colors-mode",
+        "title": "Emulate Forced Colors Mode",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-forcedcolorsmodeautomationtheme-light",
+      "href": "https://www.w3.org/TR/css-color-adjust-1/#dom-forcedcolorsmodeautomationtheme-light",
+      "linkingText": [
+        "\"light\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "ForcedColorsModeAutomationTheme"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "emulate-forced-colors-mode",
+        "href": "https://www.w3.org/TR/css-color-adjust-1/#emulate-forced-colors-mode",
+        "title": "Emulate Forced Colors Mode",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-forcedcolorsmodeautomationtheme-dark",
+      "href": "https://www.w3.org/TR/css-color-adjust-1/#dom-forcedcolorsmodeautomationtheme-dark",
+      "linkingText": [
+        "\"dark\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "ForcedColorsModeAutomationTheme"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "emulate-forced-colors-mode",
+        "href": "https://www.w3.org/TR/css-color-adjust-1/#emulate-forced-colors-mode",
+        "title": "Emulate Forced Colors Mode",
+        "number": "5.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "set-emulated-forced-colors-theme-data",
+      "href": "https://www.w3.org/TR/css-color-adjust-1/#set-emulated-forced-colors-theme-data",
+      "linkingText": [
+        "set emulated forced colors theme data"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "emulate-forced-colors-mode",
+        "href": "https://www.w3.org/TR/css-color-adjust-1/#emulate-forced-colors-mode",
+        "title": "Emulate Forced Colors Mode",
+        "number": "5.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "get-emulated-forced-colors-theme-data",
+      "href": "https://www.w3.org/TR/css-color-adjust-1/#get-emulated-forced-colors-theme-data",
+      "linkingText": [
+        "get emulated forced colors theme data"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "emulate-forced-colors-mode",
+        "href": "https://www.w3.org/TR/css-color-adjust-1/#emulate-forced-colors-mode",
+        "title": "Emulate Forced Colors Mode",
+        "number": "5.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "forced-colors-mode-emulation-color-palettes",
+      "href": "https://www.w3.org/TR/css-color-adjust-1/#forced-colors-mode-emulation-color-palettes",
+      "linkingText": [
+        "forced colors mode emulation color palettes"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "forced-color-palettes",
+        "href": "https://www.w3.org/TR/css-color-adjust-1/#forced-color-palettes",
+        "title": "Forced Colors Mode Color Palettes",
+        "number": "5.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

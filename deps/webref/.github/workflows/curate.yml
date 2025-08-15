@@ -1,0 +1,85 @@
+name: Curate data & Prepare package PRs
+
+on:
+  # Runs whenever the `ed` data gets updated on the default branch.
+  # Crawl pushes to default branch but that push won't trigger the workflow
+  # (a workflow cannot be triggered by a push made by another workflow). Hence
+  # the need to react on "workflow_run".
+  workflow_run:
+    workflows:
+      - "Update ED report"
+    types:
+      - completed
+  push:
+    branches:
+      - main
+    paths:
+      - 'ed/**'
+      - 'tools/**'
+  workflow_dispatch:
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout webref
+      uses: actions/checkout@v4
+      with:
+        # Need to checkout all history as curation job also needs to access
+        # the curated branch
+        fetch-depth: 0
+
+    - name: Setup node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Prepare curated and packages data
+      run: npm run curate
+
+    - name: Test curated and packages data
+      run: npm run test
+
+    - name: Commit curated data
+      run: |
+        git config user.name "curation-bot"
+        git config user.email "<>"
+        node tools/commit-curated.js curated stay-on-curated-branch
+
+    - name: Push changes to curated branch
+      uses: ad-m/github-push-action@v0.8.0
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: curated
+
+    - name: Get back to main branch
+      run: git checkout main
+
+    - name: Prepare a pre-release PR for the @webref/css package if needed
+      run: node tools/prepare-release.js css
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Prepare a pre-release PR for the @webref/css6 package if needed
+      run: node tools/prepare-release.js css6
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Prepare a pre-release PR for the @webref/elements package if needed
+      run: node tools/prepare-release.js elements
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Prepare a pre-release PR for the @webref/events package if needed
+      run: node tools/prepare-release.js events
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Prepare a pre-release PR for the @webref/idl package if needed
+      run: node tools/prepare-release.js idl
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,128 @@
+{
+  "spec": {
+    "title": "CSS Namespaces Module Level 3",
+    "url": "https://drafts.csswg.org/css-namespaces-3/"
+  },
+  "dfns": [
+    {
+      "id": "at-ruledef-namespace",
+      "href": "https://drafts.csswg.org/css-namespaces-3/#at-ruledef-namespace",
+      "linkingText": [
+        "@namespace"
+      ],
+      "localLinkingText": [],
+      "type": "at-rule",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "declaration",
+        "href": "https://drafts.csswg.org/css-namespaces-3/#declaration",
+        "title": "Declaring namespaces: the @namespace rule",
+        "number": "2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "expanded-name",
+      "href": "https://drafts.csswg.org/css-namespaces-3/#expanded-name",
+      "linkingText": [
+        "expanded name"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "declaration",
+        "href": "https://drafts.csswg.org/css-namespaces-3/#declaration",
+        "title": "Declaring namespaces: the @namespace rule",
+        "number": "2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "typedef-namespace-prefix",
+      "href": "https://drafts.csswg.org/css-namespaces-3/#typedef-namespace-prefix",
+      "linkingText": [
+        "<namespace-prefix>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "syntax",
+        "href": "https://drafts.csswg.org/css-namespaces-3/#syntax",
+        "title": "Syntax",
+        "number": "2.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "namespace-prefix",
+      "href": "https://drafts.csswg.org/css-namespaces-3/#namespace-prefix",
+      "linkingText": [
+        "namespace prefix"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "prefixes",
+        "href": "https://drafts.csswg.org/css-namespaces-3/#prefixes",
+        "title": "Declaring Prefixes",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "default-namespace",
+      "href": "https://drafts.csswg.org/css-namespaces-3/#default-namespace",
+      "linkingText": [
+        "default namespace"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "prefixes",
+        "href": "https://drafts.csswg.org/css-namespaces-3/#prefixes",
+        "title": "Declaring Prefixes",
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "css-qualified-name",
+      "href": "https://drafts.csswg.org/css-namespaces-3/#css-qualified-name",
+      "linkingText": [
+        "CSS qualified name"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "css-qnames",
+        "href": "https://drafts.csswg.org/css-namespaces-3/#css-qnames",
+        "title": "CSS Qualified Names",
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

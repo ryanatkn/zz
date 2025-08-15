@@ -1,0 +1,318 @@
+{
+  "spec": {
+    "title": "Gyroscope",
+    "url": "https://www.w3.org/TR/gyroscope/"
+  },
+  "dfns": [
+    {
+      "id": "gyroscope-sensor-type",
+      "href": "https://www.w3.org/TR/gyroscope/#gyroscope-sensor-type",
+      "linkingText": [
+        "Gyroscope"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "model",
+        "href": "https://www.w3.org/TR/gyroscope/#model",
+        "title": "Model",
+        "number": "6"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "angular-velocity",
+      "href": "https://www.w3.org/TR/gyroscope/#angular-velocity",
+      "linkingText": [
+        "angular velocity"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/gyroscope/#title",
+        "title": "Gyroscope"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "gyroscope",
+      "href": "https://www.w3.org/TR/gyroscope/#gyroscope",
+      "linkingText": [
+        "Gyroscope"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "gyroscope-interface",
+        "href": "https://www.w3.org/TR/gyroscope/#gyroscope-interface",
+        "title": "The Gyroscope Interface",
+        "number": "7.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-gyroscope-gyroscope-sensoroptions-sensoroptions",
+      "href": "https://www.w3.org/TR/gyroscope/#dom-gyroscope-gyroscope-sensoroptions-sensoroptions",
+      "linkingText": [
+        "sensorOptions"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "Gyroscope/Gyroscope(sensorOptions)",
+        "Gyroscope/constructor(sensorOptions)",
+        "Gyroscope/Gyroscope()",
+        "Gyroscope/constructor()"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/gyroscope/#title",
+        "title": "Gyroscope"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-gyroscope-x",
+      "href": "https://www.w3.org/TR/gyroscope/#dom-gyroscope-x",
+      "linkingText": [
+        "x"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Gyroscope"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/gyroscope/#title",
+        "title": "Gyroscope"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-gyroscope-y",
+      "href": "https://www.w3.org/TR/gyroscope/#dom-gyroscope-y",
+      "linkingText": [
+        "y"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Gyroscope"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/gyroscope/#title",
+        "title": "Gyroscope"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-gyroscope-z",
+      "href": "https://www.w3.org/TR/gyroscope/#dom-gyroscope-z",
+      "linkingText": [
+        "z"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "Gyroscope"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/gyroscope/#title",
+        "title": "Gyroscope"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "enumdef-gyroscopelocalcoordinatesystem",
+      "href": "https://www.w3.org/TR/gyroscope/#enumdef-gyroscopelocalcoordinatesystem",
+      "linkingText": [
+        "GyroscopeLocalCoordinateSystem"
+      ],
+      "localLinkingText": [],
+      "type": "enum",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/gyroscope/#title",
+        "title": "Gyroscope"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-gyroscopelocalcoordinatesystem-device",
+      "href": "https://www.w3.org/TR/gyroscope/#dom-gyroscopelocalcoordinatesystem-device",
+      "linkingText": [
+        "\"device\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "GyroscopeLocalCoordinateSystem"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/gyroscope/#title",
+        "title": "Gyroscope"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-gyroscopelocalcoordinatesystem-screen",
+      "href": "https://www.w3.org/TR/gyroscope/#dom-gyroscopelocalcoordinatesystem-screen",
+      "linkingText": [
+        "\"screen\""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "GyroscopeLocalCoordinateSystem"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/gyroscope/#title",
+        "title": "Gyroscope"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dictdef-gyroscopesensoroptions",
+      "href": "https://www.w3.org/TR/gyroscope/#dictdef-gyroscopesensoroptions",
+      "linkingText": [
+        "GyroscopeSensorOptions"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/gyroscope/#title",
+        "title": "Gyroscope"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-gyroscopesensoroptions-referenceframe",
+      "href": "https://www.w3.org/TR/gyroscope/#dom-gyroscopesensoroptions-referenceframe",
+      "linkingText": [
+        "referenceFrame"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "GyroscopeSensorOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/gyroscope/#title",
+        "title": "Gyroscope"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-gyroscope-gyroscope",
+      "href": "https://www.w3.org/TR/gyroscope/#dom-gyroscope-gyroscope",
+      "linkingText": [
+        "Gyroscope(sensorOptions)",
+        "constructor(sensorOptions)",
+        "Gyroscope()",
+        "constructor()"
+      ],
+      "localLinkingText": [],
+      "type": "constructor",
+      "for": [
+        "Gyroscope"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/gyroscope/#title",
+        "title": "Gyroscope"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "construct-a-gyroscope-object",
+      "href": "https://www.w3.org/TR/gyroscope/#construct-a-gyroscope-object",
+      "linkingText": [
+        "Construct a Gyroscope object"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "construct-a-gyroscope-object",
+        "href": "https://www.w3.org/TR/gyroscope/#construct-a-gyroscope-object",
+        "title": "Construct a Gyroscope object",
+        "number": "8.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "conformant-user-agent",
+      "href": "https://www.w3.org/TR/gyroscope/#conformant-user-agent",
+      "linkingText": [
+        "conformant user agent"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "conformance",
+        "href": "https://www.w3.org/TR/gyroscope/#conformance",
+        "title": "11. Conformance"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "spec": {
+    "title": "WebXR Anchors Module",
+    "url": "https://immersive-web.github.io/anchors/"
+  },
+  "links": {
+    "rawlinks": {
+      "http://lists.w3.org/Archives/Public/public-immersive-web-wg/": {},
+      "http://www.w3.org/TR/": {},
+      "https://datatracker.ietf.org/doc/html/rfc2119": {},
+      "https://developer.mozilla.org/en-US/docs/Web/API/XRAnchor": {},
+      "https://developer.mozilla.org/en-US/docs/Web/API/XRAnchor/anchorSpace": {},
+      "https://developer.mozilla.org/en-US/docs/Web/API/XRAnchor/delete": {},
+      "https://developer.mozilla.org/en-US/docs/Web/API/XRAnchorSet": {},
+      "https://developer.mozilla.org/en-US/docs/Web/API/XRFrame/createAnchor": {},
+      "https://developer.mozilla.org/en-US/docs/Web/API/XRFrame/trackedAnchors": {},
+      "https://developer.mozilla.org/en-US/docs/Web/API/XRHitTestResult/createAnchor": {},
+      "https://drafts.csswg.org/css-writing-modes-4/": {},
+      "https://github.com/immersive-web/anchors/issues": {},
+      "https://html.spec.whatwg.org/multipage/": {},
+      "https://immersive-web.github.io/webxr-ar-module/": {},
+      "https://immersive-web.github.io/webxr/": {},
+      "https://webidl.spec.whatwg.org/": {},
+      "https://www.rfc-editor.org/rfc/rfc9562": {},
+      "https://www.w3.org/groups/wg/immersive-web": {},
+      "https://www.w3.org/groups/wg/immersive-web/ipr": {},
+      "https://www.w3.org/policies/patent-policy/": {
+        "anchors": [
+          "def-essential",
+          "sec-Disclosure"
+        ]
+      },
+      "https://www.w3.org/policies/process/20231103/": {}
+    },
+    "autolinks": {
+      "https://drafts.csswg.org/css-writing-modes-4/": {
+        "anchors": [
+          "css-end"
+        ]
+      },
+      "https://html.spec.whatwg.org/multipage/webappapis.html": {
+        "anchors": [
+          "concept-relevant-realm"
+        ]
+      },
+      "https://immersive-web.github.io/hit-test/": {
+        "anchors": [
+          "xrhittestresult",
+          "xrhittestresult-frame",
+          "xrhittestresult-native-origin",
+          "hit-test"
+        ]
+      },
+      "https://immersive-web.github.io/webxr-ar-module/": {
+        "anchors": [
+          "dom-xrsessionmode-immersive-ar"
+        ]
+      },
+      "https://immersive-web.github.io/webxr/": {
+        "anchors": [
+          "xrspace",
+          "xrsystem",
+          "xrsession",
+          "xrframe",
+          "xrrigidtransform",
+          "dom-xrsessionmode-immersive-vr"
+        ]
+      },
+      "https://webidl.spec.whatwg.org/": {
+        "anchors": [
+          "SecureContext",
+          "Exposed",
+          "idl-promise",
+          "idl-DOMString",
+          "idl-undefined",
+          "invalidstateerror",
+          "a-new-promise",
+          "reject",
+          "resolve",
+          "idl-frozen-array",
+          "SameObject"
+        ]
+      },
+      "https://www.w3.org/TR/webxr/": {
+        "anchors": [
+          "feature-descriptor",
+          "capable-of-supporting",
+          "inline-xr-device",
+          "xrsession-mode",
+          "xrspace-session",
+          "xrspace-native-origin",
+          "xr-device",
+          "xrframe-active",
+          "dom-xrframe-session",
+          "xrsession-list-of-frame-updates",
+          "xrsession-xr-device",
+          "xrspace-effective-origin",
+          "xrframe-time"
+        ]
+      }
+    }
+  }
+}

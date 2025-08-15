@@ -1,0 +1,32 @@
+{
+  "spec": {
+    "title": "WebXR Raw Camera Access Module",
+    "url": "https://immersive-web.github.io/raw-camera-access/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "INFRA",
+        "url": "https://infra.spec.whatwg.org/"
+      },
+      {
+        "name": "RFC2119",
+        "url": "https://datatracker.ietf.org/doc/html/rfc2119"
+      },
+      {
+        "name": "WEBGL-2",
+        "url": "https://www.khronos.org/registry/webgl/specs/latest/2.0/"
+      },
+      {
+        "name": "WEBIDL",
+        "url": "https://webidl.spec.whatwg.org/"
+      }
+    ],
+    "informative": [
+      {
+        "name": "WEBXR",
+        "url": "https://immersive-web.github.io/webxr/"
+      }
+    ]
+  }
+}

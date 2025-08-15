@@ -1,0 +1,100 @@
+{
+  "spec": {
+    "title": "CSS Generated Content Module Level 3",
+    "url": "https://drafts.csswg.org/css-content-3/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "CSS-CASCADE-5",
+        "url": "https://drafts.csswg.org/css-cascade-5/"
+      },
+      {
+        "name": "CSS-CONTAIN-2",
+        "url": "https://drafts.csswg.org/css-contain-2/"
+      },
+      {
+        "name": "CSS-COUNTER-STYLES-3",
+        "url": "https://drafts.csswg.org/css-counter-styles/"
+      },
+      {
+        "name": "CSS-DISPLAY-4",
+        "url": "https://drafts.csswg.org/css-display/"
+      },
+      {
+        "name": "CSS-FORMS-1",
+        "url": "https://drafts.csswg.org/css-forms-1/"
+      },
+      {
+        "name": "CSS-IMAGES-3",
+        "url": "https://drafts.csswg.org/css-images-3/"
+      },
+      {
+        "name": "CSS-IMAGES-4",
+        "url": "https://drafts.csswg.org/css-images-4/"
+      },
+      {
+        "name": "CSS-LISTS-3",
+        "url": "https://drafts.csswg.org/css-lists-3/"
+      },
+      {
+        "name": "CSS-PSEUDO-4",
+        "url": "https://drafts.csswg.org/css-pseudo-4/"
+      },
+      {
+        "name": "CSS-TEXT-4",
+        "url": "https://drafts.csswg.org/css-text-4/"
+      },
+      {
+        "name": "CSS-VALUES-3",
+        "url": "https://drafts.csswg.org/css-values-3/"
+      },
+      {
+        "name": "CSS-VALUES-4",
+        "url": "https://drafts.csswg.org/css-values-4/"
+      },
+      {
+        "name": "CSS-VALUES-5",
+        "url": "https://drafts.csswg.org/css-values-5/"
+      },
+      {
+        "name": "CSS2",
+        "url": "https://drafts.csswg.org/css2/"
+      },
+      {
+        "name": "CSS3-NAMESPACE",
+        "url": "https://drafts.csswg.org/css-namespaces/"
+      },
+      {
+        "name": "CSS3-SPEECH",
+        "url": "https://drafts.csswg.org/css-speech-1/"
+      },
+      {
+        "name": "HTML",
+        "url": "https://html.spec.whatwg.org/multipage/"
+      },
+      {
+        "name": "RFC2119",
+        "url": "https://datatracker.ietf.org/doc/html/rfc2119"
+      },
+      {
+        "name": "SELECTORS-4",
+        "url": "https://drafts.csswg.org/selectors/"
+      }
+    ],
+    "informative": [
+      {
+        "name": "CLDR",
+        "url": "https://cldr.unicode.org/"
+      },
+      {
+        "name": "CSS-TEXT-3",
+        "url": "https://drafts.csswg.org/css-text-3/"
+      },
+      {
+        "name": "DOM",
+        "url": "https://dom.spec.whatwg.org/"
+      }
+    ]
+  }
+}

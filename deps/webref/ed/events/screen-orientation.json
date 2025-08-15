@@ -1,0 +1,20 @@
+{
+  "spec": {
+    "title": "Screen Orientation",
+    "url": "https://w3c.github.io/screen-orientation/"
+  },
+  "events": [
+    {
+      "src": {
+        "format": "fire an event phrasing",
+        "href": "https://w3c.github.io/screen-orientation/#ref-for-index-term-fire-an-event-1"
+      },
+      "href": "https://w3c.github.io/screen-orientation/#dfn-change",
+      "type": "change",
+      "targets": [
+        "ScreenOrientation"
+      ],
+      "interface": "Event"
+    }
+  ]
+}

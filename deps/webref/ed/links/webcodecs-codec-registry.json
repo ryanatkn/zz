@@ -1,0 +1,63 @@
+{
+  "spec": {
+    "title": "WebCodecs Codec Registry",
+    "url": "https://w3c.github.io/webcodecs/codec_registry.html"
+  },
+  "links": {
+    "rawlinks": {
+      "https://github.com/w3c/webcodecs/issues": {},
+      "https://github.com/w3c/webcodecs/issues/": {},
+      "https://lists.w3.org/Archives/Public/public-media-wg/": {},
+      "https://w3c.github.io/webcodecs/": {
+        "anchors": [
+          "privacy-considerations",
+          "security-considerations"
+        ]
+      },
+      "https://w3c.github.io/webcodecs/aac_codec_registration.html": {},
+      "https://w3c.github.io/webcodecs/alaw_codec_registration.html": {},
+      "https://w3c.github.io/webcodecs/av1_codec_registration.html": {},
+      "https://w3c.github.io/webcodecs/avc_codec_registration.html": {},
+      "https://w3c.github.io/webcodecs/flac_codec_registration.html": {},
+      "https://w3c.github.io/webcodecs/hevc_codec_registration.html": {},
+      "https://w3c.github.io/webcodecs/mp3_codec_registration.html": {},
+      "https://w3c.github.io/webcodecs/opus_codec_registration.html": {},
+      "https://w3c.github.io/webcodecs/pcm_codec_registration.html": {},
+      "https://w3c.github.io/webcodecs/ulaw_codec_registration.html": {},
+      "https://w3c.github.io/webcodecs/vorbis_codec_registration.html": {},
+      "https://w3c.github.io/webcodecs/vp8_codec_registration.html": {},
+      "https://w3c.github.io/webcodecs/vp9_codec_registration.html": {},
+      "https://www.w3.org/TR/": {},
+      "https://www.w3.org/TR/webcodecs-aac-codec-registration/": {},
+      "https://www.w3.org/TR/webcodecs-alaw-codec-registration/": {},
+      "https://www.w3.org/TR/webcodecs-av1-codec-registration/": {},
+      "https://www.w3.org/TR/webcodecs-avc-codec-registration/": {},
+      "https://www.w3.org/TR/webcodecs-flac-codec-registration/": {},
+      "https://www.w3.org/TR/webcodecs-hevc-codec-registration/": {},
+      "https://www.w3.org/TR/webcodecs-mp3-codec-registration/": {},
+      "https://www.w3.org/TR/webcodecs-opus-codec-registration/": {},
+      "https://www.w3.org/TR/webcodecs-pcm-codec-registration/": {},
+      "https://www.w3.org/TR/webcodecs-ulaw-codec-registration/": {},
+      "https://www.w3.org/TR/webcodecs-vorbis-codec-registration/": {},
+      "https://www.w3.org/TR/webcodecs-vp8-codec-registration/": {},
+      "https://www.w3.org/TR/webcodecs-vp9-codec-registration/": {},
+      "https://www.w3.org/groups/wg/media/": {},
+      "https://www.w3.org/policies/patent-policy/": {},
+      "https://www.w3.org/policies/process/20231103/": {}
+    },
+    "autolinks": {
+      "https://w3c.github.io/webcodecs/": {
+        "anchors": [
+          "codec-string",
+          "encodedaudiochunk",
+          "encodedvideochunk",
+          "dictdef-audiodecoderconfig",
+          "dictdef-videodecoderconfig",
+          "dom-encodedvideochunk-type-slot",
+          "dictdef-videoencoderconfig",
+          "dictdef-audioencoderconfig"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "spec": {
+    "title": "Secure Contexts",
+    "url": "https://w3c.github.io/webappsec-secure-contexts/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "HTML",
+        "url": "https://html.spec.whatwg.org/multipage/"
+      },
+      {
+        "name": "LET-LOCALHOST-BE-LOCALHOST",
+        "url": "https://datatracker.ietf.org/doc/html/draft-ietf-dnsop-let-localhost-be-localhost"
+      },
+      {
+        "name": "RFC4632",
+        "url": "https://www.rfc-editor.org/rfc/rfc4632"
+      },
+      {
+        "name": "URL",
+        "url": "https://url.spec.whatwg.org/"
+      },
+      {
+        "name": "W3C-PROCESS",
+        "url": "https://www.w3.org/Consortium/Process/"
+      },
+      {
+        "name": "WEBIDL",
+        "url": "https://webidl.spec.whatwg.org/"
+      }
+    ],
+    "informative": [
+      {
+        "name": "COMCAST",
+        "url": "https://arstechnica.com/tech-policy/2014/09/why-comcasts-javascript-ad-injections-threaten-security-net-neutrality/"
+      },
+      {
+        "name": "CREDENTIAL-MANAGEMENT-1",
+        "url": "https://w3c.github.io/webappsec-credential-management/"
+      },
+      {
+        "name": "DISCOVERY-API",
+        "url": "https://dvcs.w3.org/hg/dap/raw-file/tip/discovery-api/Overview.html"
+      },
+      {
+        "name": "ENCRYPTED-MEDIA",
+        "url": "https://w3c.github.io/encrypted-media/"
+      },
+      {
+        "name": "FULLSCREEN",
+        "url": "https://fullscreen.spec.whatwg.org/"
+      },
+      {
+        "name": "GEOLOCATION",
+        "url": "https://w3c.github.io/geolocation-api/"
+      },
+      {
+        "name": "GEOLOCATION-API",
+        "url": "https://w3c.github.io/geolocation-api/"
+      },
+      {
+        "name": "IndexedDB",
+        "url": "https://w3c.github.io/IndexedDB/"
+      },
+      {
+        "name": "MEDIACAPTURE-STREAMS",
+        "url": "https://w3c.github.io/mediacapture-main/"
+      },
+      {
+        "name": "MIX",
+        "url": "https://w3c.github.io/webappsec-mixed-content/"
+      },
+      {
+        "name": "POWERFUL-NEW-FEATURES",
+        "url": "https://www.chromium.org/Home/chromium-security/prefer-secure-origins-for-powerful-new-features"
+      },
+      {
+        "name": "RFC6265",
+        "url": "https://httpwg.org/specs/rfc6265.html"
+      },
+      {
+        "name": "RFC6761",
+        "url": "https://www.rfc-editor.org/rfc/rfc6761"
+      },
+      {
+        "name": "RFC7258",
+        "url": "https://www.rfc-editor.org/rfc/rfc7258"
+      },
+      {
+        "name": "SECURING-WEB",
+        "url": "https://www.w3.org/2001/tag/doc/web-https"
+      },
+      {
+        "name": "SERVICE-WORKERS",
+        "url": "https://w3c.github.io/ServiceWorker/"
+      },
+      {
+        "name": "VERIZON",
+        "url": "http://adage.com/article/digital/verizon-target-mobile-subscribers-ads/293356/"
+      },
+      {
+        "name": "WEB-BLUETOOTH",
+        "url": "https://webbluetoothcg.github.io/web-bluetooth/"
+      },
+      {
+        "name": "WEBCRYPTOAPI",
+        "url": "https://w3c.github.io/webcrypto/"
+      }
+    ]
+  }
+}

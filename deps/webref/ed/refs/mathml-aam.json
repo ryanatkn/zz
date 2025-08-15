@@ -1,0 +1,52 @@
+{
+  "spec": {
+    "title": "MathML Accessibility API Mappings 1.0",
+    "url": "https://w3c.github.io/mathml-aam/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "CORE-AAM-1.2",
+        "url": "https://www.w3.org/TR/core-aam-1.2/"
+      },
+      {
+        "name": "html",
+        "url": "https://html.spec.whatwg.org/multipage/"
+      },
+      {
+        "name": "MathML3",
+        "url": "https://www.w3.org/TR/MathML3/"
+      },
+      {
+        "name": "RFC2119",
+        "url": "https://www.rfc-editor.org/rfc/rfc2119"
+      },
+      {
+        "name": "RFC8174",
+        "url": "https://www.rfc-editor.org/rfc/rfc8174"
+      },
+      {
+        "name": "wai-aria-1.1",
+        "url": "https://www.w3.org/TR/wai-aria-1.1/"
+      }
+    ],
+    "informative": [
+      {
+        "name": "dom",
+        "url": "https://dom.spec.whatwg.org/"
+      },
+      {
+        "name": "infra",
+        "url": "https://infra.spec.whatwg.org/"
+      },
+      {
+        "name": "MathML-Core",
+        "url": "https://mathml-refresh.github.io/mathml-core/"
+      },
+      {
+        "name": "wai-aria",
+        "url": "https://www.w3.org/TR/wai-aria/"
+      }
+    ]
+  }
+}

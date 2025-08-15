@@ -1,0 +1,36 @@
+{
+  "spec": {
+    "title": "HTML Media Capture",
+    "url": "https://w3c.github.io/html-media-capture/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "HTML",
+        "url": "https://html.spec.whatwg.org/multipage/"
+      },
+      {
+        "name": "MEDIACAPTURE-STREAMS",
+        "url": "https://www.w3.org/TR/mediacapture-streams/"
+      },
+      {
+        "name": "RFC2119",
+        "url": "https://www.rfc-editor.org/rfc/rfc2119"
+      },
+      {
+        "name": "RFC8174",
+        "url": "https://www.rfc-editor.org/rfc/rfc8174"
+      },
+      {
+        "name": "WEBIDL",
+        "url": "https://webidl.spec.whatwg.org/"
+      }
+    ],
+    "informative": [
+      {
+        "name": "FILE-API",
+        "url": "https://www.w3.org/TR/FileAPI/"
+      }
+    ]
+  }
+}

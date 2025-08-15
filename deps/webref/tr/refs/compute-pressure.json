@@ -1,0 +1,56 @@
+{
+  "spec": {
+    "title": "Compute Pressure Level 1",
+    "url": "https://www.w3.org/TR/compute-pressure/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "dom",
+        "url": "https://dom.spec.whatwg.org/"
+      },
+      {
+        "name": "hr-time",
+        "url": "https://www.w3.org/TR/hr-time-3/"
+      },
+      {
+        "name": "html",
+        "url": "https://html.spec.whatwg.org/multipage/"
+      },
+      {
+        "name": "infra",
+        "url": "https://infra.spec.whatwg.org/"
+      },
+      {
+        "name": "mediacapture-streams",
+        "url": "https://www.w3.org/TR/mediacapture-streams/"
+      },
+      {
+        "name": "PERMISSIONS-POLICY",
+        "url": "https://www.w3.org/TR/permissions-policy-1/"
+      },
+      {
+        "name": "RFC2119",
+        "url": "https://www.rfc-editor.org/rfc/rfc2119"
+      },
+      {
+        "name": "RFC8174",
+        "url": "https://www.rfc-editor.org/rfc/rfc8174"
+      },
+      {
+        "name": "WEBDRIVER2",
+        "url": "https://www.w3.org/TR/webdriver2/"
+      },
+      {
+        "name": "WEBIDL",
+        "url": "https://webidl.spec.whatwg.org/"
+      }
+    ],
+    "informative": [
+      {
+        "name": "ECMAScript",
+        "url": "https://tc39.es/ecma262/multipage/"
+      }
+    ]
+  }
+}

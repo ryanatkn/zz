@@ -1,0 +1,296 @@
+{
+  "spec": {
+    "title": "RFC 7838 - HTTP Alternative Services",
+    "url": "https://httpwg.org/specs/rfc7838.html"
+  },
+  "headings": [
+    {
+      "id": "rfc.abstract",
+      "href": "https://httpwg.org/specs/rfc7838.html#rfc.abstract",
+      "level": 2,
+      "title": "Abstract"
+    },
+    {
+      "id": "introduction",
+      "href": "https://httpwg.org/specs/rfc7838.html#introduction",
+      "level": 2,
+      "title": "Introduction",
+      "alternateIds": [
+        "rfc.section.1"
+      ],
+      "number": "1"
+    },
+    {
+      "id": "notational-conventions",
+      "href": "https://httpwg.org/specs/rfc7838.html#notational-conventions",
+      "level": 3,
+      "title": "Notational Conventions",
+      "alternateIds": [
+        "rfc.section.1.1"
+      ],
+      "number": "1.1"
+    },
+    {
+      "id": "alternative",
+      "href": "https://httpwg.org/specs/rfc7838.html#alternative",
+      "level": 2,
+      "title": "Alternative Services Concepts",
+      "alternateIds": [
+        "rfc.section.2"
+      ],
+      "number": "2"
+    },
+    {
+      "id": "host_auth",
+      "href": "https://httpwg.org/specs/rfc7838.html#host_auth",
+      "level": 3,
+      "title": "Host Authentication",
+      "alternateIds": [
+        "rfc.section.2.1"
+      ],
+      "number": "2.1"
+    },
+    {
+      "id": "caching",
+      "href": "https://httpwg.org/specs/rfc7838.html#caching",
+      "level": 3,
+      "title": "Alternative Service Caching",
+      "alternateIds": [
+        "rfc.section.2.2"
+      ],
+      "number": "2.2"
+    },
+    {
+      "id": "requiring-server-name-indication",
+      "href": "https://httpwg.org/specs/rfc7838.html#requiring-server-name-indication",
+      "level": 3,
+      "title": "Requiring Server Name Indication",
+      "alternateIds": [
+        "rfc.section.2.3"
+      ],
+      "number": "2.3"
+    },
+    {
+      "id": "switching",
+      "href": "https://httpwg.org/specs/rfc7838.html#switching",
+      "level": 3,
+      "title": "Using Alternative Services",
+      "alternateIds": [
+        "rfc.section.2.4"
+      ],
+      "number": "2.4"
+    },
+    {
+      "id": "alt-svc",
+      "href": "https://httpwg.org/specs/rfc7838.html#alt-svc",
+      "level": 2,
+      "title": "The Alt-Svc HTTP Header Field",
+      "alternateIds": [
+        "rfc.section.3"
+      ],
+      "number": "3"
+    },
+    {
+      "id": "caching-alt-svc-header-field-values",
+      "href": "https://httpwg.org/specs/rfc7838.html#caching-alt-svc-header-field-values",
+      "level": 3,
+      "title": "Caching Alt-Svc Header Field Values",
+      "alternateIds": [
+        "rfc.section.3.1"
+      ],
+      "number": "3.1"
+    },
+    {
+      "id": "frame",
+      "href": "https://httpwg.org/specs/rfc7838.html#frame",
+      "level": 2,
+      "title": "The ALTSVC HTTP/2 Frame",
+      "alternateIds": [
+        "rfc.section.4"
+      ],
+      "number": "4"
+    },
+    {
+      "id": "indicator",
+      "href": "https://httpwg.org/specs/rfc7838.html#indicator",
+      "level": 2,
+      "title": "The Alt-Used HTTP Header Field",
+      "alternateIds": [
+        "rfc.section.5"
+      ],
+      "number": "5"
+    },
+    {
+      "id": "status",
+      "href": "https://httpwg.org/specs/rfc7838.html#status",
+      "level": 2,
+      "title": "The 421 (Misdirected Request) HTTP Status Code",
+      "alternateIds": [
+        "rfc.section.6"
+      ],
+      "number": "6"
+    },
+    {
+      "id": "iana-considerations",
+      "href": "https://httpwg.org/specs/rfc7838.html#iana-considerations",
+      "level": 2,
+      "title": "IANA Considerations",
+      "alternateIds": [
+        "rfc.section.7"
+      ],
+      "number": "7"
+    },
+    {
+      "id": "n-header-field-registrations",
+      "href": "https://httpwg.org/specs/rfc7838.html#n-header-field-registrations",
+      "level": 3,
+      "title": "Header Field Registrations",
+      "alternateIds": [
+        "rfc.section.7.1"
+      ],
+      "number": "7.1"
+    },
+    {
+      "id": "alt-svc-frame-registration",
+      "href": "https://httpwg.org/specs/rfc7838.html#alt-svc-frame-registration",
+      "level": 3,
+      "title": "The ALTSVC HTTP/2 Frame Type",
+      "alternateIds": [
+        "rfc.section.7.2"
+      ],
+      "number": "7.2"
+    },
+    {
+      "id": "iana.parameters",
+      "href": "https://httpwg.org/specs/rfc7838.html#iana.parameters",
+      "level": 3,
+      "title": "Alt-Svc Parameter Registry",
+      "alternateIds": [
+        "rfc.section.7.3"
+      ],
+      "number": "7.3"
+    },
+    {
+      "id": "parameter.registry.procedure",
+      "href": "https://httpwg.org/specs/rfc7838.html#parameter.registry.procedure",
+      "level": 4,
+      "title": "Procedure",
+      "alternateIds": [
+        "rfc.section.7.3.1"
+      ],
+      "number": "7.3.1"
+    },
+    {
+      "id": "parameter.registrations",
+      "href": "https://httpwg.org/specs/rfc7838.html#parameter.registrations",
+      "level": 4,
+      "title": "Registrations",
+      "alternateIds": [
+        "rfc.section.7.3.2"
+      ],
+      "number": "7.3.2"
+    },
+    {
+      "id": "internationalization-considerations",
+      "href": "https://httpwg.org/specs/rfc7838.html#internationalization-considerations",
+      "level": 2,
+      "title": "Internationalization Considerations",
+      "alternateIds": [
+        "rfc.section.8"
+      ],
+      "number": "8"
+    },
+    {
+      "id": "security-considerations",
+      "href": "https://httpwg.org/specs/rfc7838.html#security-considerations",
+      "level": 2,
+      "title": "Security Considerations",
+      "alternateIds": [
+        "rfc.section.9"
+      ],
+      "number": "9"
+    },
+    {
+      "id": "changing-ports",
+      "href": "https://httpwg.org/specs/rfc7838.html#changing-ports",
+      "level": 3,
+      "title": "Changing Ports",
+      "alternateIds": [
+        "rfc.section.9.1"
+      ],
+      "number": "9.1"
+    },
+    {
+      "id": "host_security",
+      "href": "https://httpwg.org/specs/rfc7838.html#host_security",
+      "level": 3,
+      "title": "Changing Hosts",
+      "alternateIds": [
+        "rfc.section.9.2"
+      ],
+      "number": "9.2"
+    },
+    {
+      "id": "changing-protocols",
+      "href": "https://httpwg.org/specs/rfc7838.html#changing-protocols",
+      "level": 3,
+      "title": "Changing Protocols",
+      "alternateIds": [
+        "rfc.section.9.3"
+      ],
+      "number": "9.3"
+    },
+    {
+      "id": "tracking",
+      "href": "https://httpwg.org/specs/rfc7838.html#tracking",
+      "level": 3,
+      "title": "Tracking Clients Using Alternative Services",
+      "alternateIds": [
+        "rfc.section.9.4"
+      ],
+      "number": "9.4"
+    },
+    {
+      "id": "confusion-regarding-request-scheme",
+      "href": "https://httpwg.org/specs/rfc7838.html#confusion-regarding-request-scheme",
+      "level": 3,
+      "title": "Confusion regarding Request Scheme",
+      "alternateIds": [
+        "rfc.section.9.5"
+      ],
+      "number": "9.5"
+    },
+    {
+      "id": "rfc.references",
+      "href": "https://httpwg.org/specs/rfc7838.html#rfc.references",
+      "level": 2,
+      "title": "10. References",
+      "alternateIds": [
+        "rfc.section.10"
+      ]
+    },
+    {
+      "id": "rfc.section.10.1",
+      "href": "https://httpwg.org/specs/rfc7838.html#rfc.section.10.1",
+      "level": 3,
+      "title": "Normative References",
+      "number": "10.1"
+    },
+    {
+      "id": "rfc.section.10.2",
+      "href": "https://httpwg.org/specs/rfc7838.html#rfc.section.10.2",
+      "level": 3,
+      "title": "Informative References",
+      "number": "10.2"
+    },
+    {
+      "id": "acknowledgements",
+      "href": "https://httpwg.org/specs/rfc7838.html#acknowledgements",
+      "level": 2,
+      "title": "Acknowledgements",
+      "alternateIds": [
+        "rfc.section.unnumbered-1"
+      ]
+    }
+  ]
+}

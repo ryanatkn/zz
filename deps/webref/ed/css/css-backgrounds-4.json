@@ -1,0 +1,402 @@
+{
+  "spec": {
+    "title": "CSS Backgrounds Module Level 4",
+    "url": "https://drafts.csswg.org/css-backgrounds-4/"
+  },
+  "properties": [
+    {
+      "name": "background-repeat-x",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#propdef-background-repeat-x",
+      "value": "<repetition>#",
+      "initial": "repeat",
+      "appliesTo": "all elements",
+      "inherited": "no",
+      "percentages": "N/A",
+      "computedValue": "as specified",
+      "canonicalOrder": "per grammar",
+      "animationType": "discrete",
+      "logicalPropertyGroup": "background-repeat",
+      "values": [
+        {
+          "name": "repeat",
+          "prose": "The image is repeated in the given direction as often as needed to cover the background painting area.",
+          "href": "https://drafts.csswg.org/css-backgrounds-4/#valdef-background-repeat-x-repeat",
+          "type": "value",
+          "value": "repeat"
+        },
+        {
+          "name": "space",
+          "prose": "The image is repeated in the given direction as often as will fit within the background positioning area without being clipped and then the repeated images are spaced out to fill the area. The first and last images touch the edges of the area. If the background painting area is larger than the background positioning area, then the pattern repeats to fill the background painting area. The value of background-position for this direction is ignored, unless there is not enough space for two copies of the image in this direction, in which case only one image is placed and background-position determines its position in this direction.",
+          "href": "https://drafts.csswg.org/css-backgrounds-4/#valdef-background-repeat-x-space",
+          "type": "value",
+          "value": "space"
+        },
+        {
+          "name": "round",
+          "prose": "The image is repeated in the given direction as often as will fit within the background positioning area. If it doesn’t fit a whole number of times, it is rescaled so that it does. See the formula under background-size. If the background painting area is larger than the background positioning area, then the pattern repeats to fill the background painting area.",
+          "href": "https://drafts.csswg.org/css-backgrounds-4/#valdef-background-repeat-x-round",
+          "type": "value",
+          "value": "round"
+        },
+        {
+          "name": "no-repeat",
+          "prose": "The image is placed once and not repeated in the given direction.",
+          "href": "https://drafts.csswg.org/css-backgrounds-4/#valdef-background-repeat-x-no-repeat",
+          "type": "value",
+          "value": "no-repeat"
+        }
+      ],
+      "styleDeclaration": [
+        "background-repeat-x",
+        "backgroundRepeatX"
+      ]
+    },
+    {
+      "name": "background-repeat-y",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#propdef-background-repeat-y",
+      "value": "<repetition>#",
+      "initial": "repeat",
+      "appliesTo": "all elements",
+      "inherited": "no",
+      "percentages": "N/A",
+      "computedValue": "as specified",
+      "canonicalOrder": "per grammar",
+      "animationType": "discrete",
+      "logicalPropertyGroup": "background-repeat",
+      "values": [
+        {
+          "name": "repeat",
+          "prose": "The image is repeated in the given direction as often as needed to cover the background painting area.",
+          "href": "https://drafts.csswg.org/css-backgrounds-4/#valdef-background-repeat-x-repeat",
+          "type": "value",
+          "value": "repeat"
+        },
+        {
+          "name": "space",
+          "prose": "The image is repeated in the given direction as often as will fit within the background positioning area without being clipped and then the repeated images are spaced out to fill the area. The first and last images touch the edges of the area. If the background painting area is larger than the background positioning area, then the pattern repeats to fill the background painting area. The value of background-position for this direction is ignored, unless there is not enough space for two copies of the image in this direction, in which case only one image is placed and background-position determines its position in this direction.",
+          "href": "https://drafts.csswg.org/css-backgrounds-4/#valdef-background-repeat-x-space",
+          "type": "value",
+          "value": "space"
+        },
+        {
+          "name": "round",
+          "prose": "The image is repeated in the given direction as often as will fit within the background positioning area. If it doesn’t fit a whole number of times, it is rescaled so that it does. See the formula under background-size. If the background painting area is larger than the background positioning area, then the pattern repeats to fill the background painting area.",
+          "href": "https://drafts.csswg.org/css-backgrounds-4/#valdef-background-repeat-x-round",
+          "type": "value",
+          "value": "round"
+        },
+        {
+          "name": "no-repeat",
+          "prose": "The image is placed once and not repeated in the given direction.",
+          "href": "https://drafts.csswg.org/css-backgrounds-4/#valdef-background-repeat-x-no-repeat",
+          "type": "value",
+          "value": "no-repeat"
+        }
+      ],
+      "styleDeclaration": [
+        "background-repeat-y",
+        "backgroundRepeatY"
+      ]
+    },
+    {
+      "name": "background-repeat-block",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#propdef-background-repeat-block",
+      "value": "<repetition>#",
+      "initial": "repeat",
+      "appliesTo": "all elements",
+      "inherited": "no",
+      "percentages": "N/A",
+      "computedValue": "as specified",
+      "canonicalOrder": "per grammar",
+      "animationType": "discrete",
+      "logicalPropertyGroup": "background-repeat",
+      "values": [
+        {
+          "name": "repeat",
+          "prose": "The image is repeated in the given direction as often as needed to cover the background painting area.",
+          "href": "https://drafts.csswg.org/css-backgrounds-4/#valdef-background-repeat-x-repeat",
+          "type": "value",
+          "value": "repeat"
+        },
+        {
+          "name": "space",
+          "prose": "The image is repeated in the given direction as often as will fit within the background positioning area without being clipped and then the repeated images are spaced out to fill the area. The first and last images touch the edges of the area. If the background painting area is larger than the background positioning area, then the pattern repeats to fill the background painting area. The value of background-position for this direction is ignored, unless there is not enough space for two copies of the image in this direction, in which case only one image is placed and background-position determines its position in this direction.",
+          "href": "https://drafts.csswg.org/css-backgrounds-4/#valdef-background-repeat-x-space",
+          "type": "value",
+          "value": "space"
+        },
+        {
+          "name": "round",
+          "prose": "The image is repeated in the given direction as often as will fit within the background positioning area. If it doesn’t fit a whole number of times, it is rescaled so that it does. See the formula under background-size. If the background painting area is larger than the background positioning area, then the pattern repeats to fill the background painting area.",
+          "href": "https://drafts.csswg.org/css-backgrounds-4/#valdef-background-repeat-x-round",
+          "type": "value",
+          "value": "round"
+        },
+        {
+          "name": "no-repeat",
+          "prose": "The image is placed once and not repeated in the given direction.",
+          "href": "https://drafts.csswg.org/css-backgrounds-4/#valdef-background-repeat-x-no-repeat",
+          "type": "value",
+          "value": "no-repeat"
+        }
+      ],
+      "styleDeclaration": [
+        "background-repeat-block",
+        "backgroundRepeatBlock"
+      ]
+    },
+    {
+      "name": "background-repeat-inline",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#propdef-background-repeat-inline",
+      "value": "<repetition>#",
+      "initial": "repeat",
+      "appliesTo": "all elements",
+      "inherited": "no",
+      "percentages": "N/A",
+      "computedValue": "as specified",
+      "canonicalOrder": "per grammar",
+      "animationType": "discrete",
+      "logicalPropertyGroup": "background-repeat",
+      "values": [
+        {
+          "name": "repeat",
+          "prose": "The image is repeated in the given direction as often as needed to cover the background painting area.",
+          "href": "https://drafts.csswg.org/css-backgrounds-4/#valdef-background-repeat-x-repeat",
+          "type": "value",
+          "value": "repeat"
+        },
+        {
+          "name": "space",
+          "prose": "The image is repeated in the given direction as often as will fit within the background positioning area without being clipped and then the repeated images are spaced out to fill the area. The first and last images touch the edges of the area. If the background painting area is larger than the background positioning area, then the pattern repeats to fill the background painting area. The value of background-position for this direction is ignored, unless there is not enough space for two copies of the image in this direction, in which case only one image is placed and background-position determines its position in this direction.",
+          "href": "https://drafts.csswg.org/css-backgrounds-4/#valdef-background-repeat-x-space",
+          "type": "value",
+          "value": "space"
+        },
+        {
+          "name": "round",
+          "prose": "The image is repeated in the given direction as often as will fit within the background positioning area. If it doesn’t fit a whole number of times, it is rescaled so that it does. See the formula under background-size. If the background painting area is larger than the background positioning area, then the pattern repeats to fill the background painting area.",
+          "href": "https://drafts.csswg.org/css-backgrounds-4/#valdef-background-repeat-x-round",
+          "type": "value",
+          "value": "round"
+        },
+        {
+          "name": "no-repeat",
+          "prose": "The image is placed once and not repeated in the given direction.",
+          "href": "https://drafts.csswg.org/css-backgrounds-4/#valdef-background-repeat-x-no-repeat",
+          "type": "value",
+          "value": "no-repeat"
+        }
+      ],
+      "styleDeclaration": [
+        "background-repeat-inline",
+        "backgroundRepeatInline"
+      ]
+    },
+    {
+      "name": "background-repeat",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#propdef-background-repeat",
+      "value": "<repeat-style>#",
+      "initial": "repeat",
+      "appliesTo": "all elements",
+      "inherited": "no",
+      "percentages": "N/A",
+      "computedValue": "list, each item a pair of keywords, one per dimension",
+      "canonicalOrder": "per grammar",
+      "animationType": "discrete",
+      "values": [
+        {
+          "name": "repeat-x",
+          "prose": "Computes to repeat no-repeat.",
+          "href": "https://drafts.csswg.org/css-backgrounds-4/#valdef-background-repeat-repeat-x",
+          "type": "value",
+          "value": "repeat-x"
+        },
+        {
+          "name": "repeat-y",
+          "prose": "Computes to no-repeat repeat.",
+          "href": "https://drafts.csswg.org/css-backgrounds-4/#valdef-background-repeat-repeat-y",
+          "type": "value",
+          "value": "repeat-y"
+        }
+      ],
+      "styleDeclaration": [
+        "background-repeat",
+        "backgroundRepeat"
+      ]
+    },
+    {
+      "name": "background-position",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#propdef-background-position",
+      "value": "<bg-position>#",
+      "initial": "0% 0%",
+      "appliesTo": "all elements",
+      "inherited": "no",
+      "percentages": "refer to size of background positioning area minus size of background image; see text",
+      "computedValue": "a list, each item a pair of offsets (horizontal and vertical) from the top left origin, each offset given as a computed <length-percentage> value",
+      "canonicalOrder": "per grammar",
+      "animationType": "repeatable list",
+      "styleDeclaration": [
+        "background-position",
+        "backgroundPosition"
+      ]
+    },
+    {
+      "name": "background-position-x",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#propdef-background-position-x",
+      "value": "[ center | [ [ left | right | x-start | x-end ]? <length-percentage>? ]! ]#",
+      "initial": "0%",
+      "appliesTo": "all elements",
+      "inherited": "no",
+      "percentages": "refer to width of background positioning area minus width of background image",
+      "computedValue": "A list, each item consisting of: an offset given as a computed <length-percentage> value, plus an origin keyword",
+      "canonicalOrder": "per grammar",
+      "animationType": "repeatable list",
+      "logicalPropertyGroup": "background-position",
+      "styleDeclaration": [
+        "background-position-x",
+        "backgroundPositionX"
+      ]
+    },
+    {
+      "name": "background-position-y",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#propdef-background-position-y",
+      "value": "[ center | [ [ top | bottom | y-start | y-end ]? <length-percentage>? ]! ]#",
+      "initial": "0%",
+      "appliesTo": "all elements",
+      "inherited": "no",
+      "percentages": "refer to height of background positioning area minus height of background image",
+      "computedValue": "A list, each item consisting of: an offset given as a computed <length-percentage> value, plus an origin keyword",
+      "canonicalOrder": "per grammar",
+      "animationType": "repeatable list",
+      "logicalPropertyGroup": "background-position",
+      "styleDeclaration": [
+        "background-position-y",
+        "backgroundPositionY"
+      ]
+    },
+    {
+      "name": "background-position-inline",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#propdef-background-position-inline",
+      "value": "[ center | [ [ start | end ]? <length-percentage>? ]! ]#",
+      "initial": "0%",
+      "appliesTo": "all elements",
+      "inherited": "no",
+      "percentages": "refer to inline-size of background positioning area minus inline-size of background image",
+      "computedValue": "A list, each item consisting of: an offset given as a computed <length-percentage> value, plus an origin keyword",
+      "canonicalOrder": "per grammar",
+      "animationType": "repeatable list",
+      "logicalPropertyGroup": "background-position",
+      "styleDeclaration": [
+        "background-position-inline",
+        "backgroundPositionInline"
+      ]
+    },
+    {
+      "name": "background-position-block",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#propdef-background-position-block",
+      "value": "[ center | [ [ start | end ]? <length-percentage>? ]! ]#",
+      "initial": "0%",
+      "appliesTo": "all elements",
+      "inherited": "no",
+      "percentages": "refer to size of background positioning area minus size of background image",
+      "computedValue": "A list, each item consisting of: an offset given as a computed <length-percentage> value, plus an origin keyword",
+      "canonicalOrder": "per grammar",
+      "animationType": "repeatable list",
+      "logicalPropertyGroup": "background-position",
+      "styleDeclaration": [
+        "background-position-block",
+        "backgroundPositionBlock"
+      ]
+    },
+    {
+      "name": "background-clip",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#propdef-background-clip",
+      "value": "<bg-clip>#",
+      "initial": "border-box",
+      "appliesTo": "all elements",
+      "inherited": "no",
+      "percentages": "n/a",
+      "computedValue": "as specified",
+      "canonicalOrder": "per grammar",
+      "animationType": "repeatable list",
+      "styleDeclaration": [
+        "background-clip",
+        "backgroundClip"
+      ]
+    },
+    {
+      "name": "background-tbd",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#propdef-background-tbd",
+      "value": "<bg-layer>#",
+      "initial": "see individual properties",
+      "appliesTo": "all elements",
+      "inherited": "no",
+      "percentages": "see individual properties",
+      "computedValue": "see individual properties",
+      "canonicalOrder": "per grammar",
+      "animationType": "see individual properties",
+      "styleDeclaration": [
+        "background-tbd",
+        "backgroundTbd"
+      ]
+    }
+  ],
+  "atrules": [],
+  "selectors": [],
+  "values": [
+    {
+      "name": "<repetition>",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#typedef-repetition",
+      "type": "type",
+      "value": "repeat | space | round | no-repeat"
+    },
+    {
+      "name": "<repeat-style>",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#typedef-repeat-style",
+      "type": "type",
+      "value": "repeat-x | repeat-y | <repetition>{1,2}"
+    },
+    {
+      "name": "<bg-position>",
+      "prose": "Its value is given as a comma-separated list of <bg-position> values, which are interpreted as <position> values with the resized background image as the alignment subject and the background positioning area as the alignment container.",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#typedef-bg-position",
+      "type": "type",
+      "value": "<position> | <position-three>"
+    },
+    {
+      "name": "<position-three>",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#typedef-position-three",
+      "type": "type",
+      "value": "[ [ left | center | right ] && [ [ top | bottom ] <length-percentage> ] | [ [ left | right ] <length-percentage> ] && [ top | center | bottom ] ]"
+    },
+    {
+      "name": "<bg-clip>",
+      "href": "https://drafts.csswg.org/css-backgrounds-4/#typedef-bg-clip",
+      "type": "type",
+      "value": "<visual-box> | border-area| text",
+      "values": [
+        {
+          "name": "<visual-box>",
+          "prose": "The background is painted within (clipped to) the specified box of the element.",
+          "href": "https://drafts.csswg.org/css-backgrounds-4/#valdef-background-clip-visual-box",
+          "type": "value",
+          "value": "<visual-box>"
+        },
+        {
+          "name": "text",
+          "prose": "The background is painted within (clipped to) the intersection of the border box and the geometry of the text in the element and its in-flow and floated descendants.",
+          "href": "https://drafts.csswg.org/css-backgrounds-4/#valdef-background-clip-text",
+          "type": "value",
+          "value": "text"
+        },
+        {
+          "name": "border-area",
+          "prose": "The background is clipped to the area painted by the border, taking border-width and border-style into account but ignoring any transparency introduced by border-color.",
+          "href": "https://drafts.csswg.org/css-backgrounds-4/#valdef-background-clip-border-area",
+          "type": "value",
+          "value": "border-area"
+        }
+      ]
+    }
+  ]
+}

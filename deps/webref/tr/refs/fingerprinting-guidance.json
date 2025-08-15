@@ -1,0 +1,131 @@
+{
+  "spec": {
+    "title": "Mitigating Browser Fingerprinting in Web Specifications",
+    "url": "https://www.w3.org/TR/fingerprinting-guidance/"
+  },
+  "refs": {
+    "normative": [],
+    "informative": [
+      {
+        "name": "BATTERY-STATUS",
+        "url": "https://www.w3.org/TR/battery-status/"
+      },
+      {
+        "name": "BEAUTY-BEAST",
+        "url": "https://inria.hal.science/hal-01285470v2/"
+      },
+      {
+        "name": "client-hints-infrastructure",
+        "url": "https://wicg.github.io/client-hints-infrastructure/"
+      },
+      {
+        "name": "dap-privacy-reqs",
+        "url": "https://www.w3.org/TR/dap-privacy-reqs/"
+      },
+      {
+        "name": "device-posture",
+        "url": "https://www.w3.org/TR/device-posture/"
+      },
+      {
+        "name": "dom",
+        "url": "https://dom.spec.whatwg.org/"
+      },
+      {
+        "name": "EPHEMERAL-FINGERPRINTING",
+        "url": "https://github.com/asankah/ephemeral-fingerprinting"
+      },
+      {
+        "name": "EVERCOOKIE",
+        "url": "https://samy.pl/evercookie/"
+      },
+      {
+        "name": "FLASHCOOKIES",
+        "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=1446862"
+      },
+      {
+        "name": "FLASHCOOKIES-2",
+        "url": "https://ptolemy.berkeley.edu/projects/truststc/education/reu/11/Posters/AyensonMWambachDpaper.pdf"
+      },
+      {
+        "name": "generic-sensor",
+        "url": "https://www.w3.org/TR/generic-sensor/"
+      },
+      {
+        "name": "HIDING-CROWD",
+        "url": "https://inria.hal.science/hal-01718234v2"
+      },
+      {
+        "name": "HSTS-SUPERCOOKIE",
+        "url": "https://github.com/ben174/hsts-cookie"
+      },
+      {
+        "name": "HTML",
+        "url": "https://html.spec.whatwg.org/multipage/"
+      },
+      {
+        "name": "LEAKING-BATTERY",
+        "url": "https://eprint.iacr.org/2015/616.pdf"
+      },
+      {
+        "name": "mediacapture-streams",
+        "url": "https://www.w3.org/TR/mediacapture-streams/"
+      },
+      {
+        "name": "NDSS-FINGERPRINTING",
+        "url": "https://www.microsoft.com/en-us/research/publication/host-fingerprinting-and-tracking-on-the-webprivacy-and-security-implications/"
+      },
+      {
+        "name": "PROXIMITY",
+        "url": "https://www.w3.org/TR/proximity/"
+      },
+      {
+        "name": "RENDERING-CONTENTION",
+        "url": "https://www.usenix.org/system/files/sec22summer_wu.pdf"
+      },
+      {
+        "name": "RFC6265",
+        "url": "https://httpwg.org/specs/rfc6265.html"
+      },
+      {
+        "name": "RFC6454",
+        "url": "https://www.rfc-editor.org/rfc/rfc6454"
+      },
+      {
+        "name": "RFC6973",
+        "url": "https://www.rfc-editor.org/rfc/rfc6973"
+      },
+      {
+        "name": "RFC9110",
+        "url": "https://httpwg.org/specs/rfc9110.html"
+      },
+      {
+        "name": "security-privacy-questionnaire",
+        "url": "https://www.w3.org/TR/security-privacy-questionnaire/"
+      },
+      {
+        "name": "TAG-MINIMIZATION",
+        "url": "https://www.w3.org/2001/tag/doc/APIMinimization"
+      },
+      {
+        "name": "TAG-UNSANCTIONED",
+        "url": "https://w3ctag.github.io/unsanctioned-tracking/"
+      },
+      {
+        "name": "TOR-DESIGN",
+        "url": "https://spec.torproject.org/torbrowser-design"
+      },
+      {
+        "name": "TRACKING-COMPLIANCE",
+        "url": "https://www.w3.org/TR/tracking-compliance/"
+      },
+      {
+        "name": "TRACKING-DNT",
+        "url": "https://www.w3.org/TR/tracking-dnt/"
+      },
+      {
+        "name": "WPM-MILLION",
+        "url": "https://webtransparency.cs.princeton.edu/webcensus/"
+      }
+    ]
+  }
+}

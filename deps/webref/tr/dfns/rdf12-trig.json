@@ -1,0 +1,123 @@
+{
+  "spec": {
+    "title": "RDF 1.2 TriG",
+    "url": "https://www.w3.org/TR/rdf12-trig/"
+  },
+  "dfns": [
+    {
+      "id": "dfn-trig-document",
+      "href": "https://www.w3.org/TR/rdf12-trig/#dfn-trig-document",
+      "linkingText": [
+        "TriG document"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "conformance",
+        "href": "https://www.w3.org/TR/rdf12-trig/#conformance",
+        "title": "Conformance",
+        "alternateIds": [
+          "x3-conformance"
+        ],
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-trig-parser",
+      "href": "https://www.w3.org/TR/rdf12-trig/#dfn-trig-parser",
+      "linkingText": [
+        "TriG parser"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "conformance",
+        "href": "https://www.w3.org/TR/rdf12-trig/#conformance",
+        "title": "Conformance",
+        "alternateIds": [
+          "x3-conformance"
+        ],
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-numeric-escape-sequence",
+      "href": "https://www.w3.org/TR/rdf12-trig/#dfn-numeric-escape-sequence",
+      "linkingText": [
+        "numeric escape sequence"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sec-escapes",
+        "href": "https://www.w3.org/TR/rdf12-trig/#sec-escapes",
+        "title": "Escape Sequences",
+        "alternateIds": [
+          "x4-4-escape-sequences"
+        ],
+        "number": "4.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-string-escape-sequence",
+      "href": "https://www.w3.org/TR/rdf12-trig/#dfn-string-escape-sequence",
+      "linkingText": [
+        "string escape sequence"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sec-escapes",
+        "href": "https://www.w3.org/TR/rdf12-trig/#sec-escapes",
+        "title": "Escape Sequences",
+        "alternateIds": [
+          "x4-4-escape-sequences"
+        ],
+        "number": "4.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-reserved-character-escape-sequence",
+      "href": "https://www.w3.org/TR/rdf12-trig/#dfn-reserved-character-escape-sequence",
+      "linkingText": [
+        "reserved character escape sequence"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "sec-escapes",
+        "href": "https://www.w3.org/TR/rdf12-trig/#sec-escapes",
+        "title": "Escape Sequences",
+        "alternateIds": [
+          "x4-4-escape-sequences"
+        ],
+        "number": "4.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

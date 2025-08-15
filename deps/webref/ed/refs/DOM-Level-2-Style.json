@@ -1,0 +1,15 @@
+{
+  "spec": {
+    "title": "Document Object Model (DOM) Level 2 Style Specification",
+    "url": "https://www.w3.org/TR/DOM-Level-2-Style/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "DOMLevel2HTML",
+        "url": "https://www.w3.org/TR/DOM-Level-2-HTML"
+      }
+    ],
+    "informative": []
+  }
+}

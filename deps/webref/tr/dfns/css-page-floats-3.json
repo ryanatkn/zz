@@ -1,0 +1,798 @@
+{
+  "spec": {
+    "title": "CSS Page Floats",
+    "url": "https://www.w3.org/TR/css-page-floats-3/"
+  },
+  "dfns": [
+    {
+      "id": "float",
+      "href": "https://www.w3.org/TR/css-page-floats-3/#float",
+      "linkingText": [
+        "Float"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "terms",
+        "href": "https://www.w3.org/TR/css-page-floats-3/#terms",
+        "title": "Terminology",
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "float-block-formatting-context",
+      "href": "https://www.w3.org/TR/css-page-floats-3/#float-block-formatting-context",
+      "linkingText": [
+        "Float block formatting context"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "terms",
+        "href": "https://www.w3.org/TR/css-page-floats-3/#terms",
+        "title": "Terminology",
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "float-anchor",
+      "href": "https://www.w3.org/TR/css-page-floats-3/#float-anchor",
+      "linkingText": [
+        "Float anchor"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "terms",
+        "href": "https://www.w3.org/TR/css-page-floats-3/#terms",
+        "title": "Terminology",
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "float-containing-block-formatting-context",
+      "href": "https://www.w3.org/TR/css-page-floats-3/#float-containing-block-formatting-context",
+      "linkingText": [
+        "Float containing block formatting context"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "terms",
+        "href": "https://www.w3.org/TR/css-page-floats-3/#terms",
+        "title": "Terminology",
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "initial-float-reference",
+      "href": "https://www.w3.org/TR/css-page-floats-3/#initial-float-reference",
+      "linkingText": [
+        "Initial float reference"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "terms",
+        "href": "https://www.w3.org/TR/css-page-floats-3/#terms",
+        "title": "Terminology",
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "float-reference",
+      "href": "https://www.w3.org/TR/css-page-floats-3/#float-reference",
+      "linkingText": [
+        "Float reference"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "terms",
+        "href": "https://www.w3.org/TR/css-page-floats-3/#terms",
+        "title": "Terminology",
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "not-overlapping",
+      "href": "https://www.w3.org/TR/css-page-floats-3/#not-overlapping",
+      "linkingText": [
+        "Not overlapping"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "terms",
+        "href": "https://www.w3.org/TR/css-page-floats-3/#terms",
+        "title": "Terminology",
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "propdef-float-reference",
+      "href": "https://www.w3.org/TR/css-page-floats-3/#propdef-float-reference",
+      "linkingText": [
+        "float-reference"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "float-reference-property",
+        "href": "https://www.w3.org/TR/css-page-floats-3/#float-reference-property",
+        "title": "The float-reference property",
+        "number": "3.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "valdef-float-reference-inline",
+      "href": "https://www.w3.org/TR/css-page-floats-3/#valdef-float-reference-inline",
+      "linkingText": [
+        "inline"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "float-reference"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "float-reference-property",
+        "href": "https://www.w3.org/TR/css-page-floats-3/#float-reference-property",
+        "title": "The float-reference property",
+        "number": "3.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-float-reference-column",
+      "href": "https://www.w3.org/TR/css-page-floats-3/#valdef-float-reference-column",
+      "linkingText": [
+        "column"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "float-reference"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "float-reference-property",
+        "href": "https://www.w3.org/TR/css-page-floats-3/#float-reference-property",
+        "title": "The float-reference property",
+        "number": "3.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-float-reference-region",
+      "href": "https://www.w3.org/TR/css-page-floats-3/#valdef-float-reference-region",
+      "linkingText": [
+        "region"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "float-reference"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "float-reference-property",
+        "href": "https://www.w3.org/TR/css-page-floats-3/#float-reference-property",
+        "title": "The float-reference property",
+        "number": "3.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-float-reference-page",
+      "href": "https://www.w3.org/TR/css-page-floats-3/#valdef-float-reference-page",
+      "linkingText": [
+        "page"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "float-reference"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "float-reference-property",
+        "href": "https://www.w3.org/TR/css-page-floats-3/#float-reference-property",
+        "title": "The float-reference property",
+        "number": "3.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "propdef-float",
+      "href": "https://www.w3.org/TR/css-page-floats-3/#propdef-float",
+      "linkingText": [
+        "float"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "float-property",
+        "href": "https://www.w3.org/TR/css-page-floats-3/#float-property",
+        "title": "The float property",
+        "number": "3.2"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "valdef-float-inline-start",
+      "href": "https://www.w3.org/TR/css-page-floats-3/#valdef-float-inline-start",
+      "linkingText": [
+        "inline-start"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "float"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "float-property",
+        "href": "https://www.w3.org/TR/css-page-floats-3/#float-property",
+        "title": "The float property",
+        "number": "3.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-float-inline-end",
+      "href": "https://www.w3.org/TR/css-page-floats-3/#valdef-float-inline-end",
+      "linkingText": [
+        "inline-end"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "float"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "float-property",
+        "href": "https://www.w3.org/TR/css-page-floats-3/#float-property",
+        "title": "The float property",
+        "number": "3.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-float-block-start",
+      "href": "https://www.w3.org/TR/css-page-floats-3/#valdef-float-block-start",
+      "linkingText": [
+        "block-start"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "float"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "float-property",
+        "href": "https://www.w3.org/TR/css-page-floats-3/#float-property",
+        "title": "The float property",
+        "number": "3.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-float-block-end",
+      "href": "https://www.w3.org/TR/css-page-floats-3/#valdef-float-block-end",
+      "linkingText": [
+        "block-end"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "float"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "float-property",
+        "href": "https://www.w3.org/TR/css-page-floats-3/#float-property",
+        "title": "The float property",
+        "number": "3.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-float-left",
+      "href": "https://www.w3.org/TR/css-page-floats-3/#valdef-float-left",
+      "linkingText": [
+        "left"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "float"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "float-property",
+        "href": "https://www.w3.org/TR/css-page-floats-3/#float-property",
+        "title": "The float property",
+        "number": "3.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-float-right",
+      "href": "https://www.w3.org/TR/css-page-floats-3/#valdef-float-right",
+      "linkingText": [
+        "right"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "float"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "float-property",
+        "href": "https://www.w3.org/TR/css-page-floats-3/#float-property",
+        "title": "The float property",
+        "number": "3.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-float-top",
+      "href": "https://www.w3.org/TR/css-page-floats-3/#valdef-float-top",
+      "linkingText": [
+        "top"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "float"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "float-property",
+        "href": "https://www.w3.org/TR/css-page-floats-3/#float-property",
+        "title": "The float property",
+        "number": "3.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-float-bottom",
+      "href": "https://www.w3.org/TR/css-page-floats-3/#valdef-float-bottom",
+      "linkingText": [
+        "bottom"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "float"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "float-property",
+        "href": "https://www.w3.org/TR/css-page-floats-3/#float-property",
+        "title": "The float property",
+        "number": "3.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-float-snap-block-length--start--end--near",
+      "href": "https://www.w3.org/TR/css-page-floats-3/#valdef-float-snap-block-length--start--end--near",
+      "linkingText": [
+        "snap-block(<length> [, start | end | near ]?)"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "float"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "float-property",
+        "href": "https://www.w3.org/TR/css-page-floats-3/#float-property",
+        "title": "The float property",
+        "number": "3.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-float-snap-block",
+      "href": "https://www.w3.org/TR/css-page-floats-3/#valdef-float-snap-block",
+      "linkingText": [
+        "snap-block"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "float"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "float-property",
+        "href": "https://www.w3.org/TR/css-page-floats-3/#float-property",
+        "title": "The float property",
+        "number": "3.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-float-snap-inline-length--left--right--near",
+      "href": "https://www.w3.org/TR/css-page-floats-3/#valdef-float-snap-inline-length--left--right--near",
+      "linkingText": [
+        "snap-inline(<length> [, left | right | near ]?)"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "float"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "float-property",
+        "href": "https://www.w3.org/TR/css-page-floats-3/#float-property",
+        "title": "The float property",
+        "number": "3.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-float-snap-inline",
+      "href": "https://www.w3.org/TR/css-page-floats-3/#valdef-float-snap-inline",
+      "linkingText": [
+        "snap-inline"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "float"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "float-property",
+        "href": "https://www.w3.org/TR/css-page-floats-3/#float-property",
+        "title": "The float property",
+        "number": "3.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-float-none",
+      "href": "https://www.w3.org/TR/css-page-floats-3/#valdef-float-none",
+      "linkingText": [
+        "none"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "float"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "float-property",
+        "href": "https://www.w3.org/TR/css-page-floats-3/#float-property",
+        "title": "The float property",
+        "number": "3.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "propdef-clear",
+      "href": "https://www.w3.org/TR/css-page-floats-3/#propdef-clear",
+      "linkingText": [
+        "clear"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "clearing_page_floats",
+        "href": "https://www.w3.org/TR/css-page-floats-3/#clearing_page_floats",
+        "title": "The clear property",
+        "number": "4"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "valdef-clear-inline-start",
+      "href": "https://www.w3.org/TR/css-page-floats-3/#valdef-clear-inline-start",
+      "linkingText": [
+        "inline-start"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "clear"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "clearing_page_floats",
+        "href": "https://www.w3.org/TR/css-page-floats-3/#clearing_page_floats",
+        "title": "The clear property",
+        "number": "4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-clear-inline-end",
+      "href": "https://www.w3.org/TR/css-page-floats-3/#valdef-clear-inline-end",
+      "linkingText": [
+        "inline-end"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "clear"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "clearing_page_floats",
+        "href": "https://www.w3.org/TR/css-page-floats-3/#clearing_page_floats",
+        "title": "The clear property",
+        "number": "4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-clear-block-start",
+      "href": "https://www.w3.org/TR/css-page-floats-3/#valdef-clear-block-start",
+      "linkingText": [
+        "block-start"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "clear"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "clearing_page_floats",
+        "href": "https://www.w3.org/TR/css-page-floats-3/#clearing_page_floats",
+        "title": "The clear property",
+        "number": "4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-clear-block-end",
+      "href": "https://www.w3.org/TR/css-page-floats-3/#valdef-clear-block-end",
+      "linkingText": [
+        "block-end"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "clear"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "clearing_page_floats",
+        "href": "https://www.w3.org/TR/css-page-floats-3/#clearing_page_floats",
+        "title": "The clear property",
+        "number": "4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-clear-left",
+      "href": "https://www.w3.org/TR/css-page-floats-3/#valdef-clear-left",
+      "linkingText": [
+        "left"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "clear"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "clearing_page_floats",
+        "href": "https://www.w3.org/TR/css-page-floats-3/#clearing_page_floats",
+        "title": "The clear property",
+        "number": "4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-clear-right",
+      "href": "https://www.w3.org/TR/css-page-floats-3/#valdef-clear-right",
+      "linkingText": [
+        "right"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "clear"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "clearing_page_floats",
+        "href": "https://www.w3.org/TR/css-page-floats-3/#clearing_page_floats",
+        "title": "The clear property",
+        "number": "4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-clear-top",
+      "href": "https://www.w3.org/TR/css-page-floats-3/#valdef-clear-top",
+      "linkingText": [
+        "top"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "clear"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "clearing_page_floats",
+        "href": "https://www.w3.org/TR/css-page-floats-3/#clearing_page_floats",
+        "title": "The clear property",
+        "number": "4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-clear-bottom",
+      "href": "https://www.w3.org/TR/css-page-floats-3/#valdef-clear-bottom",
+      "linkingText": [
+        "bottom"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "clear"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "clearing_page_floats",
+        "href": "https://www.w3.org/TR/css-page-floats-3/#clearing_page_floats",
+        "title": "The clear property",
+        "number": "4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "propdef-float-defer",
+      "href": "https://www.w3.org/TR/css-page-floats-3/#propdef-float-defer",
+      "linkingText": [
+        "float-defer"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "float-defer-property",
+        "href": "https://www.w3.org/TR/css-page-floats-3/#float-defer-property",
+        "title": "The float-defer property",
+        "number": "5.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "propdef-float-offset",
+      "href": "https://www.w3.org/TR/css-page-floats-3/#propdef-float-offset",
+      "linkingText": [
+        "float-offset"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-float_offset-property",
+        "href": "https://www.w3.org/TR/css-page-floats-3/#the-float_offset-property",
+        "title": "The float-offset property",
+        "number": "7"
+      },
+      "definedIn": "table",
+      "links": []
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "spec": {
+    "title": "CSS Exclusions Module Level 1",
+    "url": "https://drafts.csswg.org/css-exclusions-1/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "CSS-ANCHOR-POSITION-1",
+        "url": "https://drafts.csswg.org/css-anchor-position-1/"
+      },
+      {
+        "name": "CSS-BOX-4",
+        "url": "https://drafts.csswg.org/css-box-4/"
+      },
+      {
+        "name": "CSS-POSITION-3",
+        "url": "https://drafts.csswg.org/css-position-3/"
+      },
+      {
+        "name": "CSS-VALUES-3",
+        "url": "https://drafts.csswg.org/css-values-3/"
+      },
+      {
+        "name": "CSS-VALUES-4",
+        "url": "https://drafts.csswg.org/css-values-4/"
+      },
+      {
+        "name": "CSS2",
+        "url": "https://drafts.csswg.org/css2/"
+      },
+      {
+        "name": "CSS3-WRITING-MODES",
+        "url": "https://drafts.csswg.org/css-writing-modes-3/"
+      },
+      {
+        "name": "CSS3BOX",
+        "url": "https://drafts.csswg.org/css-box-3/"
+      },
+      {
+        "name": "RFC2119",
+        "url": "https://datatracker.ietf.org/doc/html/rfc2119"
+      }
+    ],
+    "informative": [
+      {
+        "name": "CSS3-FLEXBOX",
+        "url": "https://drafts.csswg.org/css-flexbox-1/"
+      },
+      {
+        "name": "CSS3-GRID-LAYOUT",
+        "url": "https://drafts.csswg.org/css-grid-1/"
+      }
+    ]
+  }
+}

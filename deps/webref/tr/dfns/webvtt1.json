@@ -1,0 +1,4230 @@
+{
+  "spec": {
+    "title": "WebVTT: The Web Video Text Tracks Format",
+    "url": "https://www.w3.org/TR/webvtt1/"
+  },
+  "dfns": [
+    {
+      "id": "webvtt",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt",
+      "linkingText": [
+        "WebVTT"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "introduction",
+        "href": "https://www.w3.org/TR/webvtt1/#introduction",
+        "title": "Introduction",
+        "number": "1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "user-agents-that-do-not-support-css",
+      "href": "https://www.w3.org/TR/webvtt1/#user-agents-that-do-not-support-css",
+      "linkingText": [
+        "User agents that do not support CSS"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "conformance-classes",
+        "href": "https://www.w3.org/TR/webvtt1/#conformance-classes",
+        "title": "Conformance classes",
+        "number": "2.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "user-agents-that-do-not-support-a-full-html-css-engine",
+      "href": "https://www.w3.org/TR/webvtt1/#user-agents-that-do-not-support-a-full-html-css-engine",
+      "linkingText": [
+        "User agents that do not support a full HTML CSS engine"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "conformance-classes",
+        "href": "https://www.w3.org/TR/webvtt1/#conformance-classes",
+        "title": "Conformance classes",
+        "number": "2.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "user-agents-that-support-a-full-html-css-engine",
+      "href": "https://www.w3.org/TR/webvtt1/#user-agents-that-support-a-full-html-css-engine",
+      "linkingText": [
+        "User agents that support a full HTML CSS engine"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "conformance-classes",
+        "href": "https://www.w3.org/TR/webvtt1/#conformance-classes",
+        "title": "Conformance classes",
+        "number": "2.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue",
+      "linkingText": [
+        "WebVTT cue"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "model-cues",
+        "href": "https://www.w3.org/TR/webvtt1/#model-cues",
+        "title": "WebVTT cues",
+        "number": "3.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "cue-text",
+      "href": "https://www.w3.org/TR/webvtt1/#cue-text",
+      "linkingText": [
+        "cue text"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "model-cues",
+        "href": "https://www.w3.org/TR/webvtt1/#model-cues",
+        "title": "WebVTT cues",
+        "number": "3.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-caption-or-subtitle-cue",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-caption-or-subtitle-cue",
+      "linkingText": [
+        "WebVTT caption or subtitle cue"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cues",
+        "href": "https://www.w3.org/TR/webvtt1/#cues",
+        "title": "WebVTT caption or subtitle cues",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-box",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-box",
+      "linkingText": [
+        "WebVTT cue box"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cues",
+        "href": "https://www.w3.org/TR/webvtt1/#cues",
+        "title": "WebVTT caption or subtitle cues",
+        "number": "3.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-writing-direction",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-writing-direction",
+      "linkingText": [
+        "WebVTT cue writing direction"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cues",
+        "href": "https://www.w3.org/TR/webvtt1/#cues",
+        "title": "WebVTT caption or subtitle cues",
+        "number": "3.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-horizontal-writing-direction",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-horizontal-writing-direction",
+      "linkingText": [
+        "WebVTT cue horizontal writing direction"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cues",
+        "href": "https://www.w3.org/TR/webvtt1/#cues",
+        "title": "WebVTT caption or subtitle cues",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-vertical-growing-left-writing-direction",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-vertical-growing-left-writing-direction",
+      "linkingText": [
+        "WebVTT cue vertical growing left writing direction"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cues",
+        "href": "https://www.w3.org/TR/webvtt1/#cues",
+        "title": "WebVTT caption or subtitle cues",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-vertical-growing-right-writing-direction",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-vertical-growing-right-writing-direction",
+      "linkingText": [
+        "WebVTT cue vertical growing right writing direction"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cues",
+        "href": "https://www.w3.org/TR/webvtt1/#cues",
+        "title": "WebVTT caption or subtitle cues",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-snap-to-lines-flag",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-snap-to-lines-flag",
+      "linkingText": [
+        "WebVTT cue snap-to-lines flag"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cues",
+        "href": "https://www.w3.org/TR/webvtt1/#cues",
+        "title": "WebVTT caption or subtitle cues",
+        "number": "3.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-line",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-line",
+      "linkingText": [
+        "WebVTT cue line"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cues",
+        "href": "https://www.w3.org/TR/webvtt1/#cues",
+        "title": "WebVTT caption or subtitle cues",
+        "number": "3.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-line-automatic",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-line-automatic",
+      "linkingText": [
+        "WebVTT cue line automatic"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cues",
+        "href": "https://www.w3.org/TR/webvtt1/#cues",
+        "title": "WebVTT caption or subtitle cues",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "cue-computed-line",
+      "href": "https://www.w3.org/TR/webvtt1/#cue-computed-line",
+      "linkingText": [
+        "cue computed line"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cues",
+        "href": "https://www.w3.org/TR/webvtt1/#cues",
+        "title": "WebVTT caption or subtitle cues",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-line-alignment",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-line-alignment",
+      "linkingText": [
+        "WebVTT cue line alignment"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cues",
+        "href": "https://www.w3.org/TR/webvtt1/#cues",
+        "title": "WebVTT caption or subtitle cues",
+        "number": "3.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-line-start-alignment",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-line-start-alignment",
+      "linkingText": [
+        "WebVTT cue line start alignment"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cues",
+        "href": "https://www.w3.org/TR/webvtt1/#cues",
+        "title": "WebVTT caption or subtitle cues",
+        "number": "3.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-line-center-alignment",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-line-center-alignment",
+      "linkingText": [
+        "WebVTT cue line center alignment"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cues",
+        "href": "https://www.w3.org/TR/webvtt1/#cues",
+        "title": "WebVTT caption or subtitle cues",
+        "number": "3.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-line-end-alignment",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-line-end-alignment",
+      "linkingText": [
+        "WebVTT cue line end alignment"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cues",
+        "href": "https://www.w3.org/TR/webvtt1/#cues",
+        "title": "WebVTT caption or subtitle cues",
+        "number": "3.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-position",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-position",
+      "linkingText": [
+        "WebVTT cue position"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cues",
+        "href": "https://www.w3.org/TR/webvtt1/#cues",
+        "title": "WebVTT caption or subtitle cues",
+        "number": "3.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-automatic-position",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-automatic-position",
+      "linkingText": [
+        "WebVTT cue automatic position"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cues",
+        "href": "https://www.w3.org/TR/webvtt1/#cues",
+        "title": "WebVTT caption or subtitle cues",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "cue-computed-position",
+      "href": "https://www.w3.org/TR/webvtt1/#cue-computed-position",
+      "linkingText": [
+        "cue computed position"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cues",
+        "href": "https://www.w3.org/TR/webvtt1/#cues",
+        "title": "WebVTT caption or subtitle cues",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-position-alignment",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-position-alignment",
+      "linkingText": [
+        "WebVTT cue position alignment"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cues",
+        "href": "https://www.w3.org/TR/webvtt1/#cues",
+        "title": "WebVTT caption or subtitle cues",
+        "number": "3.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-position-line-left-alignment",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-position-line-left-alignment",
+      "linkingText": [
+        "WebVTT cue position line-left alignment"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cues",
+        "href": "https://www.w3.org/TR/webvtt1/#cues",
+        "title": "WebVTT caption or subtitle cues",
+        "number": "3.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-position-center-alignment",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-position-center-alignment",
+      "linkingText": [
+        "WebVTT cue position center alignment"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cues",
+        "href": "https://www.w3.org/TR/webvtt1/#cues",
+        "title": "WebVTT caption or subtitle cues",
+        "number": "3.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-position-line-right-alignment",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-position-line-right-alignment",
+      "linkingText": [
+        "WebVTT cue position line-right alignment"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cues",
+        "href": "https://www.w3.org/TR/webvtt1/#cues",
+        "title": "WebVTT caption or subtitle cues",
+        "number": "3.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-position-automatic-alignment",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-position-automatic-alignment",
+      "linkingText": [
+        "WebVTT cue position automatic alignment"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cues",
+        "href": "https://www.w3.org/TR/webvtt1/#cues",
+        "title": "WebVTT caption or subtitle cues",
+        "number": "3.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "cue-computed-position-alignment",
+      "href": "https://www.w3.org/TR/webvtt1/#cue-computed-position-alignment",
+      "linkingText": [
+        "cue computed position alignment"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cues",
+        "href": "https://www.w3.org/TR/webvtt1/#cues",
+        "title": "WebVTT caption or subtitle cues",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-size",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-size",
+      "linkingText": [
+        "WebVTT cue size"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cues",
+        "href": "https://www.w3.org/TR/webvtt1/#cues",
+        "title": "WebVTT caption or subtitle cues",
+        "number": "3.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-text-alignment",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-text-alignment",
+      "linkingText": [
+        "WebVTT cue text alignment"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cues",
+        "href": "https://www.w3.org/TR/webvtt1/#cues",
+        "title": "WebVTT caption or subtitle cues",
+        "number": "3.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-start-alignment",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-start-alignment",
+      "linkingText": [
+        "WebVTT cue start alignment"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cues",
+        "href": "https://www.w3.org/TR/webvtt1/#cues",
+        "title": "WebVTT caption or subtitle cues",
+        "number": "3.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-center-alignment",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-center-alignment",
+      "linkingText": [
+        "WebVTT cue center alignment"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cues",
+        "href": "https://www.w3.org/TR/webvtt1/#cues",
+        "title": "WebVTT caption or subtitle cues",
+        "number": "3.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-end-alignment",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-end-alignment",
+      "linkingText": [
+        "WebVTT cue end alignment"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cues",
+        "href": "https://www.w3.org/TR/webvtt1/#cues",
+        "title": "WebVTT caption or subtitle cues",
+        "number": "3.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-left-alignment",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-left-alignment",
+      "linkingText": [
+        "WebVTT cue left alignment"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cues",
+        "href": "https://www.w3.org/TR/webvtt1/#cues",
+        "title": "WebVTT caption or subtitle cues",
+        "number": "3.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-right-alignment",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-right-alignment",
+      "linkingText": [
+        "WebVTT cue right alignment"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cues",
+        "href": "https://www.w3.org/TR/webvtt1/#cues",
+        "title": "WebVTT caption or subtitle cues",
+        "number": "3.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-region",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-region",
+      "linkingText": [
+        "WebVTT cue region"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cues",
+        "href": "https://www.w3.org/TR/webvtt1/#cues",
+        "title": "WebVTT caption or subtitle cues",
+        "number": "3.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-region",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-region",
+      "linkingText": [
+        "WebVTT region"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "regions",
+        "href": "https://www.w3.org/TR/webvtt1/#regions",
+        "title": "WebVTT caption or subtitle regions",
+        "number": "3.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-region-identifier",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-region-identifier",
+      "linkingText": [
+        "WebVTT region identifier"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "regions",
+        "href": "https://www.w3.org/TR/webvtt1/#regions",
+        "title": "WebVTT caption or subtitle regions",
+        "number": "3.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-region-width",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-region-width",
+      "linkingText": [
+        "WebVTT region width"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "regions",
+        "href": "https://www.w3.org/TR/webvtt1/#regions",
+        "title": "WebVTT caption or subtitle regions",
+        "number": "3.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-region-lines",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-region-lines",
+      "linkingText": [
+        "WebVTT region lines"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "regions",
+        "href": "https://www.w3.org/TR/webvtt1/#regions",
+        "title": "WebVTT caption or subtitle regions",
+        "number": "3.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-region-anchor",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-region-anchor",
+      "linkingText": [
+        "WebVTT region anchor"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "regions",
+        "href": "https://www.w3.org/TR/webvtt1/#regions",
+        "title": "WebVTT caption or subtitle regions",
+        "number": "3.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-region-viewport-anchor",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-region-viewport-anchor",
+      "linkingText": [
+        "WebVTT region viewport anchor"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "regions",
+        "href": "https://www.w3.org/TR/webvtt1/#regions",
+        "title": "WebVTT caption or subtitle regions",
+        "number": "3.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-region-scroll",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-region-scroll",
+      "linkingText": [
+        "WebVTT region scroll"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "regions",
+        "href": "https://www.w3.org/TR/webvtt1/#regions",
+        "title": "WebVTT caption or subtitle regions",
+        "number": "3.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-region-scroll-none",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-region-scroll-none",
+      "linkingText": [
+        "WebVTT region scroll none"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "regions",
+        "href": "https://www.w3.org/TR/webvtt1/#regions",
+        "title": "WebVTT caption or subtitle regions",
+        "number": "3.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-region-scroll-up",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-region-scroll-up",
+      "linkingText": [
+        "WebVTT region scroll up"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "regions",
+        "href": "https://www.w3.org/TR/webvtt1/#regions",
+        "title": "WebVTT caption or subtitle regions",
+        "number": "3.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "text-track-list-of-regions",
+      "href": "https://www.w3.org/TR/webvtt1/#text-track-list-of-regions",
+      "linkingText": [
+        "text track list of regions"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "regions",
+        "href": "https://www.w3.org/TR/webvtt1/#regions",
+        "title": "WebVTT caption or subtitle regions",
+        "number": "3.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-chapter-cue",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-chapter-cue",
+      "linkingText": [
+        "WebVTT chapter cue"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "chapter-cues",
+        "href": "https://www.w3.org/TR/webvtt1/#chapter-cues",
+        "title": "WebVTT chapter cues",
+        "number": "3.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-metadata-cue",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-metadata-cue",
+      "linkingText": [
+        "WebVTT metadata cue"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "metadata-cues",
+        "href": "https://www.w3.org/TR/webvtt1/#metadata-cues",
+        "title": "WebVTT metadata cues",
+        "number": "3.6"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-file",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-file",
+      "linkingText": [
+        "WebVTT file"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "file-structure",
+        "href": "https://www.w3.org/TR/webvtt1/#file-structure",
+        "title": "WebVTT file structure",
+        "number": "4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-file-body",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-file-body",
+      "linkingText": [
+        "WebVTT file body"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "file-structure",
+        "href": "https://www.w3.org/TR/webvtt1/#file-structure",
+        "title": "WebVTT file structure",
+        "number": "4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-line-terminator",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-line-terminator",
+      "linkingText": [
+        "WebVTT line terminator"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "file-structure",
+        "href": "https://www.w3.org/TR/webvtt1/#file-structure",
+        "title": "WebVTT file structure",
+        "number": "4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-region-definition-block",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-region-definition-block",
+      "linkingText": [
+        "WebVTT region definition block"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "file-structure",
+        "href": "https://www.w3.org/TR/webvtt1/#file-structure",
+        "title": "WebVTT file structure",
+        "number": "4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-style-block",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-style-block",
+      "linkingText": [
+        "WebVTT style block"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "file-structure",
+        "href": "https://www.w3.org/TR/webvtt1/#file-structure",
+        "title": "WebVTT file structure",
+        "number": "4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-block",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-block",
+      "linkingText": [
+        "WebVTT cue block"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "file-structure",
+        "href": "https://www.w3.org/TR/webvtt1/#file-structure",
+        "title": "WebVTT file structure",
+        "number": "4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "cue-payload",
+      "href": "https://www.w3.org/TR/webvtt1/#cue-payload",
+      "linkingText": [
+        "cue payload"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "file-structure",
+        "href": "https://www.w3.org/TR/webvtt1/#file-structure",
+        "title": "WebVTT file structure",
+        "number": "4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-identifier",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-identifier",
+      "linkingText": [
+        "WebVTT cue identifier"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "file-structure",
+        "href": "https://www.w3.org/TR/webvtt1/#file-structure",
+        "title": "WebVTT file structure",
+        "number": "4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-timings",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-timings",
+      "linkingText": [
+        "WebVTT cue timings"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "file-structure",
+        "href": "https://www.w3.org/TR/webvtt1/#file-structure",
+        "title": "WebVTT file structure",
+        "number": "4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-timestamp",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-timestamp",
+      "linkingText": [
+        "WebVTT timestamp"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "file-structure",
+        "href": "https://www.w3.org/TR/webvtt1/#file-structure",
+        "title": "WebVTT file structure",
+        "number": "4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-settings-list",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-settings-list",
+      "linkingText": [
+        "WebVTT cue settings list"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "file-structure",
+        "href": "https://www.w3.org/TR/webvtt1/#file-structure",
+        "title": "WebVTT file structure",
+        "number": "4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-setting",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-setting",
+      "linkingText": [
+        "WebVTT cue setting"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "file-structure",
+        "href": "https://www.w3.org/TR/webvtt1/#file-structure",
+        "title": "WebVTT file structure",
+        "number": "4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-setting-name",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-setting-name",
+      "linkingText": [
+        "WebVTT cue setting name"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "file-structure",
+        "href": "https://www.w3.org/TR/webvtt1/#file-structure",
+        "title": "WebVTT file structure",
+        "number": "4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-setting-value",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-setting-value",
+      "linkingText": [
+        "WebVTT cue setting value"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "file-structure",
+        "href": "https://www.w3.org/TR/webvtt1/#file-structure",
+        "title": "WebVTT file structure",
+        "number": "4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-percentage",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-percentage",
+      "linkingText": [
+        "WebVTT percentage"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "file-structure",
+        "href": "https://www.w3.org/TR/webvtt1/#file-structure",
+        "title": "WebVTT file structure",
+        "number": "4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-comment-block",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-comment-block",
+      "linkingText": [
+        "WebVTT comment block"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "file-structure",
+        "href": "https://www.w3.org/TR/webvtt1/#file-structure",
+        "title": "WebVTT file structure",
+        "number": "4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-metadata-text",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-metadata-text",
+      "linkingText": [
+        "WebVTT metadata text"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "metadata-text",
+        "href": "https://www.w3.org/TR/webvtt1/#metadata-text",
+        "title": "WebVTT metadata text",
+        "number": "4.2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-caption-or-subtitle-cue-text",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-caption-or-subtitle-cue-text",
+      "linkingText": [
+        "WebVTT caption or subtitle cue text"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "caption-text",
+        "href": "https://www.w3.org/TR/webvtt1/#caption-text",
+        "title": "WebVTT caption or subtitle cue text",
+        "number": "4.2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-caption-or-subtitle-cue-components",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-caption-or-subtitle-cue-components",
+      "linkingText": [
+        "WebVTT caption or subtitle cue components"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "caption-text",
+        "href": "https://www.w3.org/TR/webvtt1/#caption-text",
+        "title": "WebVTT caption or subtitle cue text",
+        "number": "4.2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "cue-component-class-names",
+      "href": "https://www.w3.org/TR/webvtt1/#cue-component-class-names",
+      "linkingText": [
+        "cue component class names"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "caption-text",
+        "href": "https://www.w3.org/TR/webvtt1/#caption-text",
+        "title": "WebVTT caption or subtitle cue text",
+        "number": "4.2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-internal-text",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-internal-text",
+      "linkingText": [
+        "WebVTT cue internal text"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "caption-text",
+        "href": "https://www.w3.org/TR/webvtt1/#caption-text",
+        "title": "WebVTT caption or subtitle cue text",
+        "number": "4.2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-class-span",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-class-span",
+      "linkingText": [
+        "WebVTT cue class span"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "caption-text",
+        "href": "https://www.w3.org/TR/webvtt1/#caption-text",
+        "title": "WebVTT caption or subtitle cue text",
+        "number": "4.2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-italics-span",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-italics-span",
+      "linkingText": [
+        "WebVTT cue italics span"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "caption-text",
+        "href": "https://www.w3.org/TR/webvtt1/#caption-text",
+        "title": "WebVTT caption or subtitle cue text",
+        "number": "4.2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-bold-span",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-bold-span",
+      "linkingText": [
+        "WebVTT cue bold span"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "caption-text",
+        "href": "https://www.w3.org/TR/webvtt1/#caption-text",
+        "title": "WebVTT caption or subtitle cue text",
+        "number": "4.2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-underline-span",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-underline-span",
+      "linkingText": [
+        "WebVTT cue underline span"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "caption-text",
+        "href": "https://www.w3.org/TR/webvtt1/#caption-text",
+        "title": "WebVTT caption or subtitle cue text",
+        "number": "4.2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-ruby-span",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-ruby-span",
+      "linkingText": [
+        "WebVTT cue ruby span"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "caption-text",
+        "href": "https://www.w3.org/TR/webvtt1/#caption-text",
+        "title": "WebVTT caption or subtitle cue text",
+        "number": "4.2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-ruby-text-span",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-ruby-text-span",
+      "linkingText": [
+        "WebVTT cue ruby text span"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "caption-text",
+        "href": "https://www.w3.org/TR/webvtt1/#caption-text",
+        "title": "WebVTT caption or subtitle cue text",
+        "number": "4.2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-voice-span",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-voice-span",
+      "linkingText": [
+        "WebVTT cue voice span"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "caption-text",
+        "href": "https://www.w3.org/TR/webvtt1/#caption-text",
+        "title": "WebVTT caption or subtitle cue text",
+        "number": "4.2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-language-span",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-language-span",
+      "linkingText": [
+        "WebVTT cue language span"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "caption-text",
+        "href": "https://www.w3.org/TR/webvtt1/#caption-text",
+        "title": "WebVTT caption or subtitle cue text",
+        "number": "4.2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-span-start-tag",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-span-start-tag",
+      "linkingText": [
+        "WebVTT cue span start tag"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "caption-text",
+        "href": "https://www.w3.org/TR/webvtt1/#caption-text",
+        "title": "WebVTT caption or subtitle cue text",
+        "number": "4.2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-span-end-tag",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-span-end-tag",
+      "linkingText": [
+        "WebVTT cue span end tag"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "caption-text",
+        "href": "https://www.w3.org/TR/webvtt1/#caption-text",
+        "title": "WebVTT caption or subtitle cue text",
+        "number": "4.2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-timestamp",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-timestamp",
+      "linkingText": [
+        "WebVTT cue timestamp"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "caption-text",
+        "href": "https://www.w3.org/TR/webvtt1/#caption-text",
+        "title": "WebVTT caption or subtitle cue text",
+        "number": "4.2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-text-span",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-text-span",
+      "linkingText": [
+        "WebVTT cue text span"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "caption-text",
+        "href": "https://www.w3.org/TR/webvtt1/#caption-text",
+        "title": "WebVTT caption or subtitle cue text",
+        "number": "4.2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-span-start-tag-annotation-text",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-span-start-tag-annotation-text",
+      "linkingText": [
+        "WebVTT cue span start tag annotation text"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "caption-text",
+        "href": "https://www.w3.org/TR/webvtt1/#caption-text",
+        "title": "WebVTT caption or subtitle cue text",
+        "number": "4.2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-chapter-title-text",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-chapter-title-text",
+      "linkingText": [
+        "WebVTT chapter title text"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "chapter-title-text",
+        "href": "https://www.w3.org/TR/webvtt1/#chapter-title-text",
+        "title": "WebVTT chapter title text",
+        "number": "4.2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-region-settings-list",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-region-settings-list",
+      "linkingText": [
+        "WebVTT region settings list"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "region-settings",
+        "href": "https://www.w3.org/TR/webvtt1/#region-settings",
+        "title": "WebVTT region settings",
+        "number": "4.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-region-identifier-setting",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-region-identifier-setting",
+      "linkingText": [
+        "WebVTT region identifier setting"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "region-settings",
+        "href": "https://www.w3.org/TR/webvtt1/#region-settings",
+        "title": "WebVTT region settings",
+        "number": "4.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-region-width-setting",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-region-width-setting",
+      "linkingText": [
+        "WebVTT region width setting"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "region-settings",
+        "href": "https://www.w3.org/TR/webvtt1/#region-settings",
+        "title": "WebVTT region settings",
+        "number": "4.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-region-lines-setting",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-region-lines-setting",
+      "linkingText": [
+        "WebVTT region lines setting"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "region-settings",
+        "href": "https://www.w3.org/TR/webvtt1/#region-settings",
+        "title": "WebVTT region settings",
+        "number": "4.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-region-anchor-setting",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-region-anchor-setting",
+      "linkingText": [
+        "WebVTT region anchor setting"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "region-settings",
+        "href": "https://www.w3.org/TR/webvtt1/#region-settings",
+        "title": "WebVTT region settings",
+        "number": "4.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-region-viewport-anchor-setting",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-region-viewport-anchor-setting",
+      "linkingText": [
+        "WebVTT region viewport anchor setting"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "region-settings",
+        "href": "https://www.w3.org/TR/webvtt1/#region-settings",
+        "title": "WebVTT region settings",
+        "number": "4.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-region-scroll-setting",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-region-scroll-setting",
+      "linkingText": [
+        "WebVTT region scroll setting"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "region-settings",
+        "href": "https://www.w3.org/TR/webvtt1/#region-settings",
+        "title": "WebVTT region settings",
+        "number": "4.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-vertical-text-cue-setting",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-vertical-text-cue-setting",
+      "linkingText": [
+        "WebVTT vertical text cue setting"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-settings",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-settings",
+        "title": "WebVTT cue settings",
+        "number": "4.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-line-cue-setting",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-line-cue-setting",
+      "linkingText": [
+        "WebVTT line cue setting"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-settings",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-settings",
+        "title": "WebVTT cue settings",
+        "number": "4.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-position-cue-setting",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-position-cue-setting",
+      "linkingText": [
+        "WebVTT position cue setting"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-settings",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-settings",
+        "title": "WebVTT cue settings",
+        "number": "4.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-size-cue-setting",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-size-cue-setting",
+      "linkingText": [
+        "WebVTT size cue setting"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-settings",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-settings",
+        "title": "WebVTT cue settings",
+        "number": "4.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-alignment-cue-setting",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-alignment-cue-setting",
+      "linkingText": [
+        "WebVTT alignment cue setting"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-settings",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-settings",
+        "title": "WebVTT cue settings",
+        "number": "4.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-region-cue-setting",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-region-cue-setting",
+      "linkingText": [
+        "WebVTT region cue setting"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-settings",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-settings",
+        "title": "WebVTT cue settings",
+        "number": "4.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-file-using-only-nested-cues",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-file-using-only-nested-cues",
+      "linkingText": [
+        "WebVTT file using only nested cues"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "file-using-only-nested-cues",
+        "href": "https://www.w3.org/TR/webvtt1/#file-using-only-nested-cues",
+        "title": "WebVTT file using only nested cues",
+        "number": "4.5.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-file-using-metadata-content",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-file-using-metadata-content",
+      "linkingText": [
+        "WebVTT file using metadata content"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "file-using-metadata-content",
+        "href": "https://www.w3.org/TR/webvtt1/#file-using-metadata-content",
+        "title": "WebVTT file using metadata content",
+        "number": "4.6.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-file-using-chapter-title-text",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-file-using-chapter-title-text",
+      "linkingText": [
+        "WebVTT file using chapter title text"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "file-using-chapter-title-text",
+        "href": "https://www.w3.org/TR/webvtt1/#file-using-chapter-title-text",
+        "title": "WebVTT file using chapter title text",
+        "number": "4.6.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-file-using-caption-or-subtitle-cue-text",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-file-using-caption-or-subtitle-cue-text",
+      "linkingText": [
+        "WebVTT file using caption or subtitle cue text"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "file-using-cue-text",
+        "href": "https://www.w3.org/TR/webvtt1/#file-using-cue-text",
+        "title": "WebVTT file using caption or subtitle cue text",
+        "number": "4.6.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-parser",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-parser",
+      "linkingText": [
+        "WebVTT parser"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "file-parsing",
+        "href": "https://www.w3.org/TR/webvtt1/#file-parsing",
+        "title": "WebVTT file parsing",
+        "number": "6.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "incremental-webvtt-parser",
+      "href": "https://www.w3.org/TR/webvtt1/#incremental-webvtt-parser",
+      "linkingText": [
+        "incremental WebVTT parser"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "file-parsing",
+        "href": "https://www.w3.org/TR/webvtt1/#file-parsing",
+        "title": "WebVTT file parsing",
+        "number": "6.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-parser-algorithm",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-parser-algorithm",
+      "linkingText": [
+        "WebVTT parser algorithm"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "file-parsing",
+        "href": "https://www.w3.org/TR/webvtt1/#file-parsing",
+        "title": "WebVTT file parsing",
+        "number": "6.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "collect-a-webvtt-block",
+      "href": "https://www.w3.org/TR/webvtt1/#collect-a-webvtt-block",
+      "linkingText": [
+        "collect a WebVTT block"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "file-parsing",
+        "href": "https://www.w3.org/TR/webvtt1/#file-parsing",
+        "title": "WebVTT file parsing",
+        "number": "6.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "collect-webvtt-region-settings",
+      "href": "https://www.w3.org/TR/webvtt1/#collect-webvtt-region-settings",
+      "linkingText": [
+        "collect WebVTT region settings"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "region-settings-parsing",
+        "href": "https://www.w3.org/TR/webvtt1/#region-settings-parsing",
+        "title": "WebVTT region settings parsing",
+        "number": "6.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-region-object",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-region-object",
+      "linkingText": [
+        "WebVTT region object"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "region-settings-parsing",
+        "href": "https://www.w3.org/TR/webvtt1/#region-settings-parsing",
+        "title": "WebVTT region settings parsing",
+        "number": "6.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "parse-a-percentage-string",
+      "href": "https://www.w3.org/TR/webvtt1/#parse-a-percentage-string",
+      "linkingText": [
+        "parse a percentage string"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "region-settings-parsing",
+        "href": "https://www.w3.org/TR/webvtt1/#region-settings-parsing",
+        "title": "WebVTT region settings parsing",
+        "number": "6.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "collect-webvtt-cue-timings-and-settings",
+      "href": "https://www.w3.org/TR/webvtt1/#collect-webvtt-cue-timings-and-settings",
+      "linkingText": [
+        "collect WebVTT cue timings and settings"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-timings-and-settings-parsing",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-timings-and-settings-parsing",
+        "title": "WebVTT cue timings and settings parsing",
+        "number": "6.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "parse-the-webvtt-cue-settings",
+      "href": "https://www.w3.org/TR/webvtt1/#parse-the-webvtt-cue-settings",
+      "linkingText": [
+        "parse the WebVTT cue settings"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-timings-and-settings-parsing",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-timings-and-settings-parsing",
+        "title": "WebVTT cue timings and settings parsing",
+        "number": "6.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "collect-a-webvtt-timestamp",
+      "href": "https://www.w3.org/TR/webvtt1/#collect-a-webvtt-timestamp",
+      "linkingText": [
+        "collect a WebVTT timestamp"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-timings-and-settings-parsing",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-timings-and-settings-parsing",
+        "title": "WebVTT cue timings and settings parsing",
+        "number": "6.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-node-object",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-node-object",
+      "linkingText": [
+        "WebVTT Node Object"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-text-parsing-rules",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-text-parsing-rules",
+        "title": "WebVTT cue text parsing rules",
+        "number": "6.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-internal-node-object",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-internal-node-object",
+      "linkingText": [
+        "WebVTT Internal Node Object"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-text-parsing-rules",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-text-parsing-rules",
+        "title": "WebVTT cue text parsing rules",
+        "number": "6.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-node-objects-applicable-classes",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-node-objects-applicable-classes",
+      "linkingText": [
+        "WebVTT Node Object’s applicable classes"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-text-parsing-rules",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-text-parsing-rules",
+        "title": "WebVTT cue text parsing rules",
+        "number": "6.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-node-objects-applicable-language",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-node-objects-applicable-language",
+      "linkingText": [
+        "WebVTT Node Object’s applicable language"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-text-parsing-rules",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-text-parsing-rules",
+        "title": "WebVTT cue text parsing rules",
+        "number": "6.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "list-of-webvtt-node-objects",
+      "href": "https://www.w3.org/TR/webvtt1/#list-of-webvtt-node-objects",
+      "linkingText": [
+        "List of WebVTT Node Objects"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-text-parsing-rules",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-text-parsing-rules",
+        "title": "WebVTT cue text parsing rules",
+        "number": "6.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-class-object",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-class-object",
+      "linkingText": [
+        "WebVTT Class Object"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-text-parsing-rules",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-text-parsing-rules",
+        "title": "WebVTT cue text parsing rules",
+        "number": "6.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-italic-object",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-italic-object",
+      "linkingText": [
+        "WebVTT Italic Object"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-text-parsing-rules",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-text-parsing-rules",
+        "title": "WebVTT cue text parsing rules",
+        "number": "6.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-bold-object",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-bold-object",
+      "linkingText": [
+        "WebVTT Bold Object"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-text-parsing-rules",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-text-parsing-rules",
+        "title": "WebVTT cue text parsing rules",
+        "number": "6.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-underline-object",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-underline-object",
+      "linkingText": [
+        "WebVTT Underline Object"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-text-parsing-rules",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-text-parsing-rules",
+        "title": "WebVTT cue text parsing rules",
+        "number": "6.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-ruby-object",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-ruby-object",
+      "linkingText": [
+        "WebVTT Ruby Object"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-text-parsing-rules",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-text-parsing-rules",
+        "title": "WebVTT cue text parsing rules",
+        "number": "6.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-ruby-text-object",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-ruby-text-object",
+      "linkingText": [
+        "WebVTT Ruby Text Object"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-text-parsing-rules",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-text-parsing-rules",
+        "title": "WebVTT cue text parsing rules",
+        "number": "6.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-voice-object",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-voice-object",
+      "linkingText": [
+        "WebVTT Voice Object"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-text-parsing-rules",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-text-parsing-rules",
+        "title": "WebVTT cue text parsing rules",
+        "number": "6.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-language-object",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-language-object",
+      "linkingText": [
+        "WebVTT Language Object"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-text-parsing-rules",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-text-parsing-rules",
+        "title": "WebVTT cue text parsing rules",
+        "number": "6.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-leaf-node-object",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-leaf-node-object",
+      "linkingText": [
+        "WebVTT Leaf Node Object"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-text-parsing-rules",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-text-parsing-rules",
+        "title": "WebVTT cue text parsing rules",
+        "number": "6.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-text-object",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-text-object",
+      "linkingText": [
+        "WebVTT Text Object"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-text-parsing-rules",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-text-parsing-rules",
+        "title": "WebVTT cue text parsing rules",
+        "number": "6.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-timestamp-object",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-timestamp-object",
+      "linkingText": [
+        "WebVTT Timestamp Object"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-text-parsing-rules",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-text-parsing-rules",
+        "title": "WebVTT cue text parsing rules",
+        "number": "6.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-text-parsing-rules",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-text-parsing-rules",
+      "linkingText": [
+        "WebVTT cue text parsing rules"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-text-parsing-rules",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-text-parsing-rules",
+        "title": "WebVTT cue text parsing rules",
+        "number": "6.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "attach-a-webvtt-internal-node-object",
+      "href": "https://www.w3.org/TR/webvtt1/#attach-a-webvtt-internal-node-object",
+      "linkingText": [
+        "attach a WebVTT Internal Node Object"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-text-parsing-rules",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-text-parsing-rules",
+        "title": "WebVTT cue text parsing rules",
+        "number": "6.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-text-tokenizer",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-text-tokenizer",
+      "linkingText": [
+        "WebVTT cue text tokenizer"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-text-parsing-rules",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-text-parsing-rules",
+        "title": "WebVTT cue text parsing rules",
+        "number": "6.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-data-state",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-data-state",
+      "linkingText": [
+        "WebVTT data state"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-text-parsing-rules",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-text-parsing-rules",
+        "title": "WebVTT cue text parsing rules",
+        "number": "6.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "html-character-reference-in-data-state",
+      "href": "https://www.w3.org/TR/webvtt1/#html-character-reference-in-data-state",
+      "linkingText": [
+        "HTML character reference in data state"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-text-parsing-rules",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-text-parsing-rules",
+        "title": "WebVTT cue text parsing rules",
+        "number": "6.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-tag-state",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-tag-state",
+      "linkingText": [
+        "WebVTT tag state"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-text-parsing-rules",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-text-parsing-rules",
+        "title": "WebVTT cue text parsing rules",
+        "number": "6.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-start-tag-state",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-start-tag-state",
+      "linkingText": [
+        "WebVTT start tag state"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-text-parsing-rules",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-text-parsing-rules",
+        "title": "WebVTT cue text parsing rules",
+        "number": "6.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-start-tag-class-state",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-start-tag-class-state",
+      "linkingText": [
+        "WebVTT start tag class state"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-text-parsing-rules",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-text-parsing-rules",
+        "title": "WebVTT cue text parsing rules",
+        "number": "6.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-start-tag-annotation-state",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-start-tag-annotation-state",
+      "linkingText": [
+        "WebVTT start tag annotation state"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-text-parsing-rules",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-text-parsing-rules",
+        "title": "WebVTT cue text parsing rules",
+        "number": "6.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "html-character-reference-in-annotation-state",
+      "href": "https://www.w3.org/TR/webvtt1/#html-character-reference-in-annotation-state",
+      "linkingText": [
+        "HTML character reference in annotation state"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-text-parsing-rules",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-text-parsing-rules",
+        "title": "WebVTT cue text parsing rules",
+        "number": "6.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-end-tag-state",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-end-tag-state",
+      "linkingText": [
+        "WebVTT end tag state"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-text-parsing-rules",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-text-parsing-rules",
+        "title": "WebVTT cue text parsing rules",
+        "number": "6.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "webvtt-timestamp-tag-state",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-timestamp-tag-state",
+      "linkingText": [
+        "WebVTT timestamp tag state"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-text-parsing-rules",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-text-parsing-rules",
+        "title": "WebVTT cue text parsing rules",
+        "number": "6.4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "consume-an-html-character-reference",
+      "href": "https://www.w3.org/TR/webvtt1/#consume-an-html-character-reference",
+      "linkingText": [
+        "consume an HTML character reference"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "cue-text-parsing-rules",
+        "href": "https://www.w3.org/TR/webvtt1/#cue-text-parsing-rules",
+        "title": "WebVTT cue text parsing rules",
+        "number": "6.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-text-dom-construction-rules",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-text-dom-construction-rules",
+      "linkingText": [
+        "WebVTT cue text DOM construction rules"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "dom-construction-rules",
+        "href": "https://www.w3.org/TR/webvtt1/#dom-construction-rules",
+        "title": "WebVTT cue text DOM construction rules",
+        "number": "6.5"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "webvtt-rules-for-extracting-the-chapter-title",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-rules-for-extracting-the-chapter-title",
+      "linkingText": [
+        "WebVTT rules for extracting the chapter title"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "rules-for-extracting-the-chapter-title",
+        "href": "https://www.w3.org/TR/webvtt1/#rules-for-extracting-the-chapter-title",
+        "title": "WebVTT rules for extracting the chapter title",
+        "number": "6.6"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "rules-for-updating-the-display-of-webvtt-text-tracks",
+      "href": "https://www.w3.org/TR/webvtt1/#rules-for-updating-the-display-of-webvtt-text-tracks",
+      "linkingText": [
+        "rules for updating the display of WebVTT text tracks"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "processing-model",
+        "href": "https://www.w3.org/TR/webvtt1/#processing-model",
+        "title": "Processing model",
+        "number": "7.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "apply-webvtt-cue-settings",
+      "href": "https://www.w3.org/TR/webvtt1/#apply-webvtt-cue-settings",
+      "linkingText": [
+        "apply WebVTT cue settings"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "processing-cue-settings",
+        "href": "https://www.w3.org/TR/webvtt1/#processing-cue-settings",
+        "title": "Processing cue settings",
+        "number": "7.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "obtain-a-set-of-css-boxes",
+      "href": "https://www.w3.org/TR/webvtt1/#obtain-a-set-of-css-boxes",
+      "linkingText": [
+        "obtain a set of CSS boxes"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "obtaining-css-boxes",
+        "href": "https://www.w3.org/TR/webvtt1/#obtaining-css-boxes",
+        "title": "Obtaining CSS boxes",
+        "number": "7.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "webvtt-cue-background-box",
+      "href": "https://www.w3.org/TR/webvtt1/#webvtt-cue-background-box",
+      "linkingText": [
+        "WebVTT cue background box"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "obtaining-css-boxes",
+        "href": "https://www.w3.org/TR/webvtt1/#obtaining-css-boxes",
+        "title": "Obtaining CSS boxes",
+        "number": "7.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "cue",
+      "href": "https://www.w3.org/TR/webvtt1/#cue",
+      "linkingText": [
+        "::cue"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-cue-pseudo-element",
+        "href": "https://www.w3.org/TR/webvtt1/#the-cue-pseudo-element",
+        "title": "The ::cue pseudo-element",
+        "number": "8.2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "cue-selector",
+      "href": "https://www.w3.org/TR/webvtt1/#cue-selector",
+      "linkingText": [
+        "::cue(selector)"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-cue-pseudo-element",
+        "href": "https://www.w3.org/TR/webvtt1/#the-cue-pseudo-element",
+        "title": "The ::cue pseudo-element",
+        "number": "8.2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "past",
+      "href": "https://www.w3.org/TR/webvtt1/#past",
+      "linkingText": [
+        ":past"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-past-and-future-pseudo-classes",
+        "href": "https://www.w3.org/TR/webvtt1/#the-past-and-future-pseudo-classes",
+        "title": "The :past and :future pseudo-classes",
+        "number": "8.2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "in-the-past",
+      "href": "https://www.w3.org/TR/webvtt1/#in-the-past",
+      "linkingText": [
+        "in the past"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-past-and-future-pseudo-classes",
+        "href": "https://www.w3.org/TR/webvtt1/#the-past-and-future-pseudo-classes",
+        "title": "The :past and :future pseudo-classes",
+        "number": "8.2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "future",
+      "href": "https://www.w3.org/TR/webvtt1/#future",
+      "linkingText": [
+        ":future"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-past-and-future-pseudo-classes",
+        "href": "https://www.w3.org/TR/webvtt1/#the-past-and-future-pseudo-classes",
+        "title": "The :past and :future pseudo-classes",
+        "number": "8.2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "in-the-future",
+      "href": "https://www.w3.org/TR/webvtt1/#in-the-future",
+      "linkingText": [
+        "in the future"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-past-and-future-pseudo-classes",
+        "href": "https://www.w3.org/TR/webvtt1/#the-past-and-future-pseudo-classes",
+        "title": "The :past and :future pseudo-classes",
+        "number": "8.2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "cue-region",
+      "href": "https://www.w3.org/TR/webvtt1/#cue-region",
+      "linkingText": [
+        "::cue-region"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-cue-region-pseudo-element",
+        "href": "https://www.w3.org/TR/webvtt1/#the-cue-region-pseudo-element",
+        "title": "The ::cue-region pseudo-element",
+        "number": "8.2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "cue-region-selector",
+      "href": "https://www.w3.org/TR/webvtt1/#cue-region-selector",
+      "linkingText": [
+        "::cue-region(selector)"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-cue-region-pseudo-element",
+        "href": "https://www.w3.org/TR/webvtt1/#the-cue-region-pseudo-element",
+        "title": "The ::cue-region pseudo-element",
+        "number": "8.2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "enumdef-autokeyword",
+      "href": "https://www.w3.org/TR/webvtt1/#enumdef-autokeyword",
+      "linkingText": [
+        "AutoKeyword"
+      ],
+      "localLinkingText": [],
+      "type": "enum",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-autokeyword-auto",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-autokeyword-auto",
+      "linkingText": [
+        "\"auto\"",
+        "auto"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "AutoKeyword"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "typedefdef-lineandpositionsetting",
+      "href": "https://www.w3.org/TR/webvtt1/#typedefdef-lineandpositionsetting",
+      "linkingText": [
+        "LineAndPositionSetting"
+      ],
+      "localLinkingText": [],
+      "type": "typedef",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "enumdef-directionsetting",
+      "href": "https://www.w3.org/TR/webvtt1/#enumdef-directionsetting",
+      "linkingText": [
+        "DirectionSetting"
+      ],
+      "localLinkingText": [],
+      "type": "enum",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-directionsetting",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-directionsetting",
+      "linkingText": [
+        "\"\"",
+        ""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "DirectionSetting"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-directionsetting-rl",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-directionsetting-rl",
+      "linkingText": [
+        "\"rl\"",
+        "rl"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "DirectionSetting"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-directionsetting-lr",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-directionsetting-lr",
+      "linkingText": [
+        "\"lr\"",
+        "lr"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "DirectionSetting"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "enumdef-linealignsetting",
+      "href": "https://www.w3.org/TR/webvtt1/#enumdef-linealignsetting",
+      "linkingText": [
+        "LineAlignSetting"
+      ],
+      "localLinkingText": [],
+      "type": "enum",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-linealignsetting-start",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-linealignsetting-start",
+      "linkingText": [
+        "\"start\"",
+        "start"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "LineAlignSetting"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-linealignsetting-center",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-linealignsetting-center",
+      "linkingText": [
+        "\"center\"",
+        "center"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "LineAlignSetting"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-linealignsetting-end",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-linealignsetting-end",
+      "linkingText": [
+        "\"end\"",
+        "end"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "LineAlignSetting"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "enumdef-positionalignsetting",
+      "href": "https://www.w3.org/TR/webvtt1/#enumdef-positionalignsetting",
+      "linkingText": [
+        "PositionAlignSetting"
+      ],
+      "localLinkingText": [],
+      "type": "enum",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-positionalignsetting-line-left",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-positionalignsetting-line-left",
+      "linkingText": [
+        "\"line-left\"",
+        "line-left"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "PositionAlignSetting"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-positionalignsetting-center",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-positionalignsetting-center",
+      "linkingText": [
+        "\"center\"",
+        "center"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "PositionAlignSetting"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-positionalignsetting-line-right",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-positionalignsetting-line-right",
+      "linkingText": [
+        "\"line-right\"",
+        "line-right"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "PositionAlignSetting"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-positionalignsetting-auto",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-positionalignsetting-auto",
+      "linkingText": [
+        "\"auto\"",
+        "auto"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "PositionAlignSetting"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "enumdef-alignsetting",
+      "href": "https://www.w3.org/TR/webvtt1/#enumdef-alignsetting",
+      "linkingText": [
+        "AlignSetting"
+      ],
+      "localLinkingText": [],
+      "type": "enum",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-alignsetting-start",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-alignsetting-start",
+      "linkingText": [
+        "\"start\"",
+        "start"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "AlignSetting"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-alignsetting-center",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-alignsetting-center",
+      "linkingText": [
+        "\"center\"",
+        "center"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "AlignSetting"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-alignsetting-end",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-alignsetting-end",
+      "linkingText": [
+        "\"end\"",
+        "end"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "AlignSetting"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-alignsetting-left",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-alignsetting-left",
+      "linkingText": [
+        "\"left\"",
+        "left"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "AlignSetting"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-alignsetting-right",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-alignsetting-right",
+      "linkingText": [
+        "\"right\"",
+        "right"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "AlignSetting"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-vttcue-vttcue-starttime-endtime-text-starttime",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-vttcue-vttcue-starttime-endtime-text-starttime",
+      "linkingText": [
+        "startTime"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "VTTCue/VTTCue(startTime, endTime, text)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-vttcue-vttcue-starttime-endtime-text-endtime",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-vttcue-vttcue-starttime-endtime-text-endtime",
+      "linkingText": [
+        "endTime"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "VTTCue/VTTCue(startTime, endTime, text)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-vttcue-vttcue-starttime-endtime-text-text",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-vttcue-vttcue-starttime-endtime-text-text",
+      "linkingText": [
+        "text"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "VTTCue/VTTCue(startTime, endTime, text)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "vttcue",
+      "href": "https://www.w3.org/TR/webvtt1/#vttcue",
+      "linkingText": [
+        "VTTCue"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-vttcue-vttcue",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-vttcue-vttcue",
+      "linkingText": [
+        "VTTCue(startTime, endTime, text)"
+      ],
+      "localLinkingText": [],
+      "type": "constructor",
+      "for": [
+        "VTTCue"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-vttcue-region",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-vttcue-region",
+      "linkingText": [
+        "region"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "VTTCue"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-vttcue-vertical",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-vttcue-vertical",
+      "linkingText": [
+        "vertical"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "VTTCue"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-vttcue-snaptolines",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-vttcue-snaptolines",
+      "linkingText": [
+        "snapToLines"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "VTTCue"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-vttcue-line",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-vttcue-line",
+      "linkingText": [
+        "line"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "VTTCue"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-vttcue-linealign",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-vttcue-linealign",
+      "linkingText": [
+        "lineAlign"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "VTTCue"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-vttcue-position",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-vttcue-position",
+      "linkingText": [
+        "position"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "VTTCue"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-vttcue-positionalign",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-vttcue-positionalign",
+      "linkingText": [
+        "positionAlign"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "VTTCue"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-vttcue-size",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-vttcue-size",
+      "linkingText": [
+        "size"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "VTTCue"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-vttcue-align",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-vttcue-align",
+      "linkingText": [
+        "align"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "VTTCue"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-vttcue-text",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-vttcue-text",
+      "linkingText": [
+        "text"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "VTTCue"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-vttcue-getcueashtml",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-vttcue-getcueashtml",
+      "linkingText": [
+        "getCueAsHTML()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "VTTCue"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttcue-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttcue-interface",
+        "title": "The VTTCue interface",
+        "number": "9.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "enumdef-scrollsetting",
+      "href": "https://www.w3.org/TR/webvtt1/#enumdef-scrollsetting",
+      "linkingText": [
+        "ScrollSetting"
+      ],
+      "localLinkingText": [],
+      "type": "enum",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttregion-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttregion-interface",
+        "title": "The VTTRegion interface",
+        "number": "9.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-scrollsetting",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-scrollsetting",
+      "linkingText": [
+        "\"\"",
+        ""
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "ScrollSetting"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttregion-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttregion-interface",
+        "title": "The VTTRegion interface",
+        "number": "9.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-scrollsetting-up",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-scrollsetting-up",
+      "linkingText": [
+        "\"up\"",
+        "up"
+      ],
+      "localLinkingText": [],
+      "type": "enum-value",
+      "for": [
+        "ScrollSetting"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttregion-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttregion-interface",
+        "title": "The VTTRegion interface",
+        "number": "9.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "vttregion",
+      "href": "https://www.w3.org/TR/webvtt1/#vttregion",
+      "linkingText": [
+        "VTTRegion"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttregion-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttregion-interface",
+        "title": "The VTTRegion interface",
+        "number": "9.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-vttregion-vttregion",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-vttregion-vttregion",
+      "linkingText": [
+        "VTTRegion()"
+      ],
+      "localLinkingText": [],
+      "type": "constructor",
+      "for": [
+        "VTTRegion"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttregion-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttregion-interface",
+        "title": "The VTTRegion interface",
+        "number": "9.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-vttregion-id",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-vttregion-id",
+      "linkingText": [
+        "id"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "VTTRegion"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttregion-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttregion-interface",
+        "title": "The VTTRegion interface",
+        "number": "9.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-vttregion-width",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-vttregion-width",
+      "linkingText": [
+        "width"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "VTTRegion"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttregion-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttregion-interface",
+        "title": "The VTTRegion interface",
+        "number": "9.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-vttregion-lines",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-vttregion-lines",
+      "linkingText": [
+        "lines"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "VTTRegion"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttregion-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttregion-interface",
+        "title": "The VTTRegion interface",
+        "number": "9.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-vttregion-regionanchorx",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-vttregion-regionanchorx",
+      "linkingText": [
+        "regionAnchorX"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "VTTRegion"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttregion-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttregion-interface",
+        "title": "The VTTRegion interface",
+        "number": "9.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-vttregion-regionanchory",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-vttregion-regionanchory",
+      "linkingText": [
+        "regionAnchorY"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "VTTRegion"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttregion-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttregion-interface",
+        "title": "The VTTRegion interface",
+        "number": "9.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-vttregion-viewportanchorx",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-vttregion-viewportanchorx",
+      "linkingText": [
+        "viewportAnchorX"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "VTTRegion"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttregion-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttregion-interface",
+        "title": "The VTTRegion interface",
+        "number": "9.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-vttregion-viewportanchory",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-vttregion-viewportanchory",
+      "linkingText": [
+        "viewportAnchorY"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "VTTRegion"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttregion-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttregion-interface",
+        "title": "The VTTRegion interface",
+        "number": "9.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-vttregion-scroll",
+      "href": "https://www.w3.org/TR/webvtt1/#dom-vttregion-scroll",
+      "linkingText": [
+        "scroll"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "VTTRegion"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-vttregion-interface",
+        "href": "https://www.w3.org/TR/webvtt1/#the-vttregion-interface",
+        "title": "The VTTRegion interface",
+        "number": "9.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "text-vtt",
+      "href": "https://www.w3.org/TR/webvtt1/#text-vtt",
+      "linkingText": [
+        "text/vtt"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "iana-text-vtt",
+        "href": "https://www.w3.org/TR/webvtt1/#iana-text-vtt",
+        "title": "text/vtt",
+        "number": "10.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    }
+  ]
+}

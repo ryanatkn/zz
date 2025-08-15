@@ -1,0 +1,48 @@
+{
+  "spec": {
+    "title": "Web Locks API",
+    "url": "https://www.w3.org/TR/web-locks/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "CSS21",
+        "url": "https://www.w3.org/TR/CSS21/"
+      },
+      {
+        "name": "DOM",
+        "url": "https://dom.spec.whatwg.org/"
+      },
+      {
+        "name": "HTML",
+        "url": "https://html.spec.whatwg.org/multipage/"
+      },
+      {
+        "name": "INFRA",
+        "url": "https://infra.spec.whatwg.org/"
+      },
+      {
+        "name": "RFC2119",
+        "url": "https://datatracker.ietf.org/doc/html/rfc2119"
+      },
+      {
+        "name": "Storage",
+        "url": "https://storage.spec.whatwg.org/"
+      },
+      {
+        "name": "WEBIDL",
+        "url": "https://webidl.spec.whatwg.org/"
+      }
+    ],
+    "informative": [
+      {
+        "name": "IndexedDB-2",
+        "url": "https://www.w3.org/TR/IndexedDB-2/"
+      },
+      {
+        "name": "Service-Workers",
+        "url": "https://www.w3.org/TR/service-workers/"
+      }
+    ]
+  }
+}

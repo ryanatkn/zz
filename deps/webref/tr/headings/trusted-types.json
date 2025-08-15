@@ -1,0 +1,473 @@
+{
+  "spec": {
+    "title": "Trusted Types",
+    "url": "https://www.w3.org/TR/trusted-types/"
+  },
+  "headings": [
+    {
+      "id": "title",
+      "href": "https://www.w3.org/TR/trusted-types/#title",
+      "level": 1,
+      "title": "Trusted Types"
+    },
+    {
+      "id": "abstract",
+      "href": "https://www.w3.org/TR/trusted-types/#abstract",
+      "level": 2,
+      "title": "Abstract"
+    },
+    {
+      "id": "sotd",
+      "href": "https://www.w3.org/TR/trusted-types/#sotd",
+      "level": 2,
+      "title": "Status of this document"
+    },
+    {
+      "id": "toc",
+      "href": "https://www.w3.org/TR/trusted-types/#toc",
+      "level": 2,
+      "title": "Table of Contents",
+      "alternateIds": [
+        "contents"
+      ]
+    },
+    {
+      "id": "introduction",
+      "href": "https://www.w3.org/TR/trusted-types/#introduction",
+      "level": 2,
+      "title": "Introduction",
+      "number": "1"
+    },
+    {
+      "id": "goals",
+      "href": "https://www.w3.org/TR/trusted-types/#goals",
+      "level": 3,
+      "title": "Goals",
+      "number": "1.1"
+    },
+    {
+      "id": "non-goals",
+      "href": "https://www.w3.org/TR/trusted-types/#non-goals",
+      "level": 3,
+      "title": "Non-goals",
+      "number": "1.2"
+    },
+    {
+      "id": "use-cases",
+      "href": "https://www.w3.org/TR/trusted-types/#use-cases",
+      "level": 3,
+      "title": "Use cases",
+      "number": "1.3"
+    },
+    {
+      "id": "framework",
+      "href": "https://www.w3.org/TR/trusted-types/#framework",
+      "level": 2,
+      "title": "Framework",
+      "number": "2"
+    },
+    {
+      "id": "injection-sinks",
+      "href": "https://www.w3.org/TR/trusted-types/#injection-sinks",
+      "level": 3,
+      "title": "Injection sinks",
+      "number": "2.1"
+    },
+    {
+      "id": "dom-xss-injection-sinks",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-xss-injection-sinks",
+      "level": 4,
+      "title": "DOM XSS injection sinks",
+      "number": "2.1.1"
+    },
+    {
+      "id": "trusted-types",
+      "href": "https://www.w3.org/TR/trusted-types/#trusted-types",
+      "level": 3,
+      "title": "Trusted Types",
+      "number": "2.2"
+    },
+    {
+      "id": "trusted-html",
+      "href": "https://www.w3.org/TR/trusted-types/#trusted-html",
+      "level": 4,
+      "title": "TrustedHTML",
+      "number": "2.2.1"
+    },
+    {
+      "id": "trusted-script",
+      "href": "https://www.w3.org/TR/trusted-types/#trusted-script",
+      "level": 4,
+      "title": "TrustedScript",
+      "number": "2.2.2"
+    },
+    {
+      "id": "trused-script-url",
+      "href": "https://www.w3.org/TR/trusted-types/#trused-script-url",
+      "level": 4,
+      "title": "TrustedScriptURL",
+      "number": "2.2.3"
+    },
+    {
+      "id": "policies-hdr",
+      "href": "https://www.w3.org/TR/trusted-types/#policies-hdr",
+      "level": 3,
+      "title": "Policies",
+      "number": "2.3"
+    },
+    {
+      "id": "trusted-type-policy-factory",
+      "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-factory",
+      "level": 4,
+      "title": "TrustedTypePolicyFactory",
+      "number": "2.3.1"
+    },
+    {
+      "id": "trusted-type-policy",
+      "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy",
+      "level": 4,
+      "title": "TrustedTypePolicy",
+      "number": "2.3.2"
+    },
+    {
+      "id": "trusted-type-policy-options",
+      "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-options",
+      "level": 4,
+      "title": "TrustedTypePolicyOptions",
+      "number": "2.3.3"
+    },
+    {
+      "id": "default-policy-hdr",
+      "href": "https://www.w3.org/TR/trusted-types/#default-policy-hdr",
+      "level": 4,
+      "title": "Default policy",
+      "number": "2.3.4"
+    },
+    {
+      "id": "enforcement-hdr",
+      "href": "https://www.w3.org/TR/trusted-types/#enforcement-hdr",
+      "level": 3,
+      "title": "Enforcement",
+      "number": "2.4"
+    },
+    {
+      "id": "content-security-policy-hdr",
+      "href": "https://www.w3.org/TR/trusted-types/#content-security-policy-hdr",
+      "level": 4,
+      "title": "Content Security Policy",
+      "number": "2.4.1"
+    },
+    {
+      "id": "algorithms",
+      "href": "https://www.w3.org/TR/trusted-types/#algorithms",
+      "level": 2,
+      "title": "Algorithms",
+      "number": "3"
+    },
+    {
+      "id": "create-trusted-type-policy-algorithm",
+      "href": "https://www.w3.org/TR/trusted-types/#create-trusted-type-policy-algorithm",
+      "level": 3,
+      "title": "Create a Trusted Type Policy",
+      "number": "3.1"
+    },
+    {
+      "id": "create-a-trusted-type-algorithm",
+      "href": "https://www.w3.org/TR/trusted-types/#create-a-trusted-type-algorithm",
+      "level": 3,
+      "title": "Create a Trusted Type",
+      "number": "3.2"
+    },
+    {
+      "id": "get-trusted-type-policy-value-algorithm",
+      "href": "https://www.w3.org/TR/trusted-types/#get-trusted-type-policy-value-algorithm",
+      "level": 3,
+      "title": "Get Trusted Type policy value",
+      "number": "3.3"
+    },
+    {
+      "id": "get-trusted-type-compliant-string-algorithm",
+      "href": "https://www.w3.org/TR/trusted-types/#get-trusted-type-compliant-string-algorithm",
+      "level": 3,
+      "title": "Get Trusted Type compliant string",
+      "number": "3.4"
+    },
+    {
+      "id": "process-value-with-a-default-policy-algorithm",
+      "href": "https://www.w3.org/TR/trusted-types/#process-value-with-a-default-policy-algorithm",
+      "level": 3,
+      "title": "Process value with a default policy",
+      "number": "3.5"
+    },
+    {
+      "id": "prepare-script-text",
+      "href": "https://www.w3.org/TR/trusted-types/#prepare-script-text",
+      "level": 3,
+      "title": "Prepare the script text",
+      "number": "3.6"
+    },
+    {
+      "id": "validate-attribute-mutation",
+      "href": "https://www.w3.org/TR/trusted-types/#validate-attribute-mutation",
+      "level": 3,
+      "title": "Get Trusted Types-compliant attribute value",
+      "number": "3.7"
+    },
+    {
+      "id": "get-trusted-type-data-for-attribute",
+      "href": "https://www.w3.org/TR/trusted-types/#get-trusted-type-data-for-attribute",
+      "level": 3,
+      "title": "Get Trusted Type data for attribute",
+      "number": "3.8"
+    },
+    {
+      "id": "integrations",
+      "href": "https://www.w3.org/TR/trusted-types/#integrations",
+      "level": 2,
+      "title": "Integrations",
+      "number": "4"
+    },
+    {
+      "id": "integration-with-html",
+      "href": "https://www.w3.org/TR/trusted-types/#integration-with-html",
+      "level": 3,
+      "title": "Integration with HTML",
+      "number": "4.1"
+    },
+    {
+      "id": "extensions-to-the-windoworworkerglobalscope-interface",
+      "href": "https://www.w3.org/TR/trusted-types/#extensions-to-the-windoworworkerglobalscope-interface",
+      "level": 4,
+      "title": "Extensions to the WindowOrWorkerGlobalScope interface",
+      "number": "4.1.1"
+    },
+    {
+      "id": "enforcement-in-scripts",
+      "href": "https://www.w3.org/TR/trusted-types/#enforcement-in-scripts",
+      "level": 4,
+      "title": "Enforcement for scripts",
+      "number": "4.1.2"
+    },
+    {
+      "id": "slots-with-trusted-values",
+      "href": "https://www.w3.org/TR/trusted-types/#slots-with-trusted-values",
+      "level": 5,
+      "title": "Slots with trusted values",
+      "number": "4.1.2.1"
+    },
+    {
+      "id": "the-innerText-idl-attribute",
+      "href": "https://www.w3.org/TR/trusted-types/#the-innerText-idl-attribute",
+      "level": 5,
+      "title": "The innerText IDL attribute",
+      "number": "4.1.2.2"
+    },
+    {
+      "id": "the-textContent-idl-attribute",
+      "href": "https://www.w3.org/TR/trusted-types/#the-textContent-idl-attribute",
+      "level": 5,
+      "title": "The textContent IDL attribute",
+      "number": "4.1.2.3"
+    },
+    {
+      "id": "the-text-idl-attribute",
+      "href": "https://www.w3.org/TR/trusted-types/#the-text-idl-attribute",
+      "level": 5,
+      "title": "The text IDL attribute",
+      "number": "4.1.2.4"
+    },
+    {
+      "id": "the-src-idl-attribute",
+      "href": "https://www.w3.org/TR/trusted-types/#the-src-idl-attribute",
+      "level": 5,
+      "title": "The src IDL attribute",
+      "number": "4.1.2.5"
+    },
+    {
+      "id": "setting-slot-values-from-parser",
+      "href": "https://www.w3.org/TR/trusted-types/#setting-slot-values-from-parser",
+      "level": 5,
+      "title": "Setting slot values from parser",
+      "number": "4.1.2.6"
+    },
+    {
+      "id": "slot-value-verification",
+      "href": "https://www.w3.org/TR/trusted-types/#slot-value-verification",
+      "level": 5,
+      "title": "Slot value verification",
+      "number": "4.1.2.7"
+    },
+    {
+      "id": "integration-with-dom",
+      "href": "https://www.w3.org/TR/trusted-types/#integration-with-dom",
+      "level": 3,
+      "title": "Integration with DOM",
+      "number": "4.2"
+    },
+    {
+      "id": "integration-with-content-security-policy",
+      "href": "https://www.w3.org/TR/trusted-types/#integration-with-content-security-policy",
+      "level": 3,
+      "title": "Integration with Content Security Policy",
+      "number": "4.3"
+    },
+    {
+      "id": "require-trusted-types-for-csp-directive",
+      "href": "https://www.w3.org/TR/trusted-types/#require-trusted-types-for-csp-directive",
+      "level": 4,
+      "title": "require-trusted-types-for directive",
+      "number": "4.3.1"
+    },
+    {
+      "id": "require-trusted-types-for-pre-navigation-check",
+      "href": "https://www.w3.org/TR/trusted-types/#require-trusted-types-for-pre-navigation-check",
+      "level": 5,
+      "title": "require-trusted-types-for Pre-Navigation check",
+      "number": "4.3.1.1"
+    },
+    {
+      "id": "trusted-types-csp-directive",
+      "href": "https://www.w3.org/TR/trusted-types/#trusted-types-csp-directive",
+      "level": 4,
+      "title": "trusted-types directive",
+      "number": "4.3.2"
+    },
+    {
+      "id": "does-sink-require-trusted-types",
+      "href": "https://www.w3.org/TR/trusted-types/#does-sink-require-trusted-types",
+      "level": 4,
+      "title": "Does sink type require trusted types?",
+      "number": "4.3.3"
+    },
+    {
+      "id": "should-block-sink-type-mismatch",
+      "href": "https://www.w3.org/TR/trusted-types/#should-block-sink-type-mismatch",
+      "level": 4,
+      "title": "Should sink type mismatch violation be blocked by Content Security Policy?",
+      "number": "4.3.4"
+    },
+    {
+      "id": "should-block-create-policy",
+      "href": "https://www.w3.org/TR/trusted-types/#should-block-create-policy",
+      "level": 4,
+      "title": "Should Trusted Type policy creation be blocked by Content Security Policy?",
+      "number": "4.3.5"
+    },
+    {
+      "id": "security-considerations",
+      "href": "https://www.w3.org/TR/trusted-types/#security-considerations",
+      "level": 2,
+      "title": "Security Considerations",
+      "number": "5"
+    },
+    {
+      "id": "cross-document-vectors",
+      "href": "https://www.w3.org/TR/trusted-types/#cross-document-vectors",
+      "level": 3,
+      "title": "Cross-document vectors",
+      "number": "5.1"
+    },
+    {
+      "id": "deprecated-features",
+      "href": "https://www.w3.org/TR/trusted-types/#deprecated-features",
+      "level": 3,
+      "title": "Deprecated features",
+      "number": "5.2"
+    },
+    {
+      "id": "script-gadgets",
+      "href": "https://www.w3.org/TR/trusted-types/#script-gadgets",
+      "level": 3,
+      "title": "Script gadgets",
+      "number": "5.3"
+    },
+    {
+      "id": "best-practices-for-policy-design",
+      "href": "https://www.w3.org/TR/trusted-types/#best-practices-for-policy-design",
+      "level": 3,
+      "title": "Best practices for policy design",
+      "number": "5.4"
+    },
+    {
+      "id": "privacy-considerations",
+      "href": "https://www.w3.org/TR/trusted-types/#privacy-considerations",
+      "level": 2,
+      "title": "Privacy Considerations",
+      "number": "6"
+    },
+    {
+      "id": "implementation-considerations",
+      "href": "https://www.w3.org/TR/trusted-types/#implementation-considerations",
+      "level": 2,
+      "title": "Implementation Considerations",
+      "number": "7"
+    },
+    {
+      "id": "vendor-specific-extensions-and-addons",
+      "href": "https://www.w3.org/TR/trusted-types/#vendor-specific-extensions-and-addons",
+      "level": 3,
+      "title": "Vendor-specific Extensions and Addons",
+      "number": "7.1"
+    },
+    {
+      "id": "w3c-conformance",
+      "href": "https://www.w3.org/TR/trusted-types/#w3c-conformance",
+      "level": 2,
+      "title": "Conformance"
+    },
+    {
+      "id": "w3c-conventions",
+      "href": "https://www.w3.org/TR/trusted-types/#w3c-conventions",
+      "level": 3,
+      "title": "Document conventions"
+    },
+    {
+      "id": "w3c-conformant-algorithms",
+      "href": "https://www.w3.org/TR/trusted-types/#w3c-conformant-algorithms",
+      "level": 3,
+      "title": "Conformant Algorithms"
+    },
+    {
+      "id": "index",
+      "href": "https://www.w3.org/TR/trusted-types/#index",
+      "level": 2,
+      "title": "Index"
+    },
+    {
+      "id": "index-defined-here",
+      "href": "https://www.w3.org/TR/trusted-types/#index-defined-here",
+      "level": 3,
+      "title": "Terms defined by this specification"
+    },
+    {
+      "id": "index-defined-elsewhere",
+      "href": "https://www.w3.org/TR/trusted-types/#index-defined-elsewhere",
+      "level": 3,
+      "title": "Terms defined by reference"
+    },
+    {
+      "id": "references",
+      "href": "https://www.w3.org/TR/trusted-types/#references",
+      "level": 2,
+      "title": "References"
+    },
+    {
+      "id": "normative",
+      "href": "https://www.w3.org/TR/trusted-types/#normative",
+      "level": 3,
+      "title": "Normative References"
+    },
+    {
+      "id": "informative",
+      "href": "https://www.w3.org/TR/trusted-types/#informative",
+      "level": 3,
+      "title": "Informative References"
+    },
+    {
+      "id": "issues-index",
+      "href": "https://www.w3.org/TR/trusted-types/#issues-index",
+      "level": 2,
+      "title": "Issues Index"
+    }
+  ]
+}

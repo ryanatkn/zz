@@ -1,0 +1,337 @@
+{
+  "spec": {
+    "title": "RDF 1.2 XML Syntax",
+    "url": "https://w3c.github.io/rdf-xml/spec/"
+  },
+  "links": {
+    "rawlinks": {
+      "http://standards.iso.org/ittf/PubliclyAvailableStandards/c052348_ISO_IEC_19757-2_2008(E).zip": {},
+      "http://www.w3.org/2001/10/stripes/": {},
+      "https://accu.org/journals/overload/7/34/cornish_515/": {},
+      "https://gdpr.eu/": {},
+      "https://oag.ca.gov/privacy/ccpa": {},
+      "https://termly.io/resources/infographics/privacy-laws-around-the-world/": {},
+      "https://w3c.github.io/rdf-interop/spec/": {},
+      "https://w3c.github.io/rdf-new/spec/": {},
+      "https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-xml/index.html": {
+        "anchors": [
+          "rdf-containers-syntax-vs-schema-test006",
+          "rdf-containers-syntax-vs-schema-error002",
+          "rdfms-difference-between-ID-and-about-test1",
+          "rdfms-difference-between-ID-and-about-test2",
+          "rdfms-difference-between-ID-and-about-error1",
+          "rdf-containers-syntax-vs-schema-test001",
+          "rdf-containers-syntax-vs-schema-test002",
+          "rdf-containers-syntax-vs-schema-test003",
+          "rdf-containers-syntax-vs-schema-test004",
+          "rdf-containers-syntax-vs-schema-test007",
+          "rdf-containers-syntax-vs-schema-test008",
+          "xmlbase-test001",
+          "xmlbase-test002",
+          "xmlbase-test003",
+          "xmlbase-test004",
+          "xmlbase-test006",
+          "xmlbase-test007",
+          "xmlbase-test008",
+          "xmlbase-test009",
+          "xmlbase-test010",
+          "xmlbase-test011",
+          "xmlbase-test013",
+          "xmlbase-test014",
+          "rdf-charmod-uris-test001",
+          "rdf-charmod-uris-test002",
+          "rdf-ns-prefix-confusion-test0001",
+          "rdf-ns-prefix-confusion-test0003",
+          "rdf-ns-prefix-confusion-test0004",
+          "rdf-ns-prefix-confusion-test0005",
+          "rdf-ns-prefix-confusion-test0006",
+          "rdf-ns-prefix-confusion-test0009",
+          "rdf-ns-prefix-confusion-test0010",
+          "rdf-ns-prefix-confusion-test0011",
+          "rdf-ns-prefix-confusion-test0012",
+          "rdf-ns-prefix-confusion-test0013",
+          "rdf-ns-prefix-confusion-test0014",
+          "rdfms-not-id-and-resource-attr-test001",
+          "rdfms-not-id-and-resource-attr-test004",
+          "rdfms-not-id-and-resource-attr-test005",
+          "rdfms-rdf-id-error001",
+          "rdfms-rdf-id-error002",
+          "rdfms-rdf-id-error003",
+          "rdfms-rdf-id-error004",
+          "rdfms-rdf-id-error005",
+          "rdfms-xmllang-test003",
+          "rdfms-xmllang-test004",
+          "rdfms-xmllang-test005",
+          "rdfms-xmllang-test006",
+          "rdfms-empty-property-elements-test002",
+          "rdfms-empty-property-elements-test005",
+          "rdfms-empty-property-elements-test008",
+          "rdfms-empty-property-elements-test011",
+          "rdfms-syntax-incomplete-test001",
+          "rdfms-syntax-incomplete-test002",
+          "rdfms-identity-anon-resources-test001",
+          "rdfms-identity-anon-resources-test002",
+          "rdfms-identity-anon-resources-test003",
+          "rdfms-identity-anon-resources-test004",
+          "rdfms-identity-anon-resources-test005",
+          "unrecognised-xml-attributes-test001",
+          "unrecognised-xml-attributes-test002",
+          "datatypes-test001",
+          "datatypes-test002",
+          "rdf-element-not-mandatory-test001",
+          "rdfms-abouteach-error001",
+          "rdfms-abouteach-error002",
+          "rdfms-rdf-id-error006",
+          "rdfms-rdf-names-use-error-004",
+          "rdfms-rdf-names-use-error-009",
+          "rdfms-rdf-names-use-error-010",
+          "rdfms-rdf-names-use-error-015",
+          "rdfms-rdf-names-use-error-019",
+          "rdfms-rdf-names-use-error-020",
+          "rdfms-syntax-incomplete-error004",
+          "rdfms-syntax-incomplete-test003",
+          "rdfms-syntax-incomplete-test004",
+          "rdfms-syntax-incomplete-error001",
+          "rdfms-syntax-incomplete-error002",
+          "rdfms-syntax-incomplete-error003",
+          "rdfms-syntax-incomplete-error005",
+          "rdfms-syntax-incomplete-error006",
+          "rdf-node-element-test001",
+          "rdfms-empty-property-elements-test001",
+          "rdfms-para196-test001",
+          "rdfms-empty-property-elements-error001",
+          "rdfms-empty-property-elements-error002",
+          "rdfms-empty-property-elements-error003",
+          "rdfms-empty-property-elements-test003",
+          "rdfms-empty-property-elements-test009",
+          "xml-canon-test001",
+          "rdfms-empty-property-elements-test004",
+          "rdfms-empty-property-elements-test010",
+          "rdfms-empty-property-elements-test012",
+          "rdfms-seq-representation-test001",
+          "rdfms-empty-property-elements-test006",
+          "rdfms-seq-representation-test002",
+          "rdfms-empty-property-elements-test013",
+          "rdfms-empty-property-elements-test014",
+          "rdfms-reification-required-test001",
+          "rdfms-reification-required-test002"
+        ]
+      },
+      "https://w3c.github.io/rdf-tests/rdf/rdf12/rdf-xml/eval/index.html": {
+        "anchors": [
+          "rdf12-xml-dir-01",
+          "rdf12-xml-dir-02",
+          "rdf12-xml-dir-03",
+          "rdf12-xml-dir-04",
+          "rdf12-xml-dir-05",
+          "rdf12-xml-dir-06",
+          "rdf12-xml-an-11",
+          "rdf12-xml-an-12",
+          "rdf12-xml-an-01",
+          "rdf12-xml-an-02",
+          "rdf12-xml-an-03",
+          "rdf12-xml-an-13",
+          "rdf12-xml-an-14",
+          "rdf12-xml-an-05",
+          "rdf12-xml-tt-01",
+          "rdf12-xml-tt-02",
+          "rdf12-xml-tt-03",
+          "rdf12-xml-tt-04",
+          "rdf12-xml-tt-05",
+          "rdf12-xml-tt-06",
+          "rdf12-xml-tt-07",
+          "rdf12-xml-tt-08",
+          "rdf12-xml-an-15",
+          "rdf12-xml-an-16",
+          "rdf12-xml-an-04",
+          "rdf12-xml-an-06",
+          "rdf12-xml-an-07",
+          "rdf12-xml-an-08",
+          "rdf12-xml-an-09",
+          "rdf12-xml-an-10"
+        ]
+      },
+      "https://w3c.github.io/sparql-concepts/spec/": {},
+      "https://w3c.github.io/sparql-new/spec/": {},
+      "https://www.rfc-editor.org/info/bcp14": {},
+      "https://www.rfc-editor.org/rfc/rfc2119": {},
+      "https://www.rfc-editor.org/rfc/rfc3870": {
+        "anchors": [
+          "section-6"
+        ]
+      },
+      "https://www.rfc-editor.org/rfc/rfc3986": {
+        "anchors": [
+          "section-5"
+        ]
+      },
+      "https://www.rfc-editor.org/rfc/rfc5646": {},
+      "https://www.rfc-editor.org/rfc/rfc8174": {},
+      "https://www.unicode.org/versions/latest/": {},
+      "https://www.w3.org/2000/03/rdf-tracking/": {
+        "anchors": [
+          "rdfms-aboutEach-on-object",
+          "rdfms-abouteachprefix"
+        ]
+      },
+      "https://www.w3.org/2001/sw/RDFCore/20030123-issues/": {
+        "anchors": [
+          "timbl-01"
+        ]
+      },
+      "https://www.w3.org/2001/tag/2002/0129-mime": {},
+      "https://www.w3.org/2002/06/registering-mediatype": {},
+      "https://www.w3.org/TR/": {},
+      "https://www.w3.org/TR/1999/REC-rdf-syntax-19990222/": {},
+      "https://www.w3.org/TR/2004/REC-rdf-syntax-grammar-20040210/rdfxml.rnc": {},
+      "https://www.w3.org/TR/2004/REC-rdf-syntax-grammar-20040210/rdfxml.rng": {},
+      "https://www.w3.org/TR/SVG/": {},
+      "https://www.w3.org/TR/SVG/metadata.html": {},
+      "https://www.w3.org/TR/SVG11/": {},
+      "https://www.w3.org/TR/charmod/": {},
+      "https://www.w3.org/TR/its/": {},
+      "https://www.w3.org/TR/json-ld11/": {},
+      "https://www.w3.org/TR/nfc/": {},
+      "https://www.w3.org/TR/rdf-schema/": {},
+      "https://www.w3.org/TR/rdf-syntax-grammar/": {},
+      "https://www.w3.org/TR/rdf12-concepts/": {
+        "anchors": [
+          "dfn-triple-term",
+          "dfn-rdf-term",
+          "dfn-object",
+          "dfn-rdf-triple",
+          "dfn-dir-lang-string",
+          "dfn-rdf-graph",
+          "dfn-nodes",
+          "dfn-iri",
+          "dfn-literal",
+          "dfn-blank-node",
+          "dfn-blank-node-identifier",
+          "dfn-base-direction",
+          "dfn-language-tagged-string",
+          "dfn-datatype-iri",
+          "dfn-rdf-vocabulary",
+          "dfn-relative-iri",
+          "dfn-resource",
+          "section-triple-terms",
+          "dfn-reifier",
+          "dfn-subject",
+          "dfn-rdf-document",
+          "defined-version-labels",
+          "dfn-namespace-iri",
+          "dfn-lexical-form",
+          "dfn-language-tag",
+          "dfn-rdf-string",
+          "dfn-rdf-xmlliteral",
+          "dfn-predicate",
+          "dfn-concrete-rdf-syntax"
+        ]
+      },
+      "https://www.w3.org/TR/rdf12-n-quads/": {},
+      "https://www.w3.org/TR/rdf12-n-triples/": {},
+      "https://www.w3.org/TR/rdf12-primer/": {},
+      "https://www.w3.org/TR/rdf12-schema/": {},
+      "https://www.w3.org/TR/rdf12-semantics/": {},
+      "https://www.w3.org/TR/rdf12-trig/": {},
+      "https://www.w3.org/TR/rdf12-turtle/": {},
+      "https://www.w3.org/TR/rdfa-primer/": {},
+      "https://www.w3.org/TR/sparql12-entailment/": {},
+      "https://www.w3.org/TR/sparql12-federated-query/": {},
+      "https://www.w3.org/TR/sparql12-graph-store-protocol/": {},
+      "https://www.w3.org/TR/sparql12-protocol/": {},
+      "https://www.w3.org/TR/sparql12-query/": {},
+      "https://www.w3.org/TR/sparql12-results-csv-tsv/": {},
+      "https://www.w3.org/TR/sparql12-results-json/": {},
+      "https://www.w3.org/TR/sparql12-results-xml/": {},
+      "https://www.w3.org/TR/sparql12-service-description/": {},
+      "https://www.w3.org/TR/sparql12-update/": {},
+      "https://www.w3.org/TR/xml-infoset/": {
+        "anchors": [
+          "infoitem.document",
+          "infoitem.element",
+          "infoitem.attribute",
+          "infoitem.character",
+          "infoitem.pi",
+          "infoitem.rse",
+          "infoitem.comment",
+          "infoitem.doctype",
+          "infoitem.entity.unparsed",
+          "infoitem.notation",
+          "infoitem.namespace",
+          "conformance"
+        ]
+      },
+      "https://www.w3.org/TR/xml-names/": {
+        "anchors": [
+          "NT-QName",
+          "dt-NSName",
+          "NT-LocalPart",
+          "NT-Prefix",
+          "NT-NCName",
+          "ns-qualnames"
+        ]
+      },
+      "https://www.w3.org/TR/xml11/": {
+        "anchors": [
+          "sec-lang-tag",
+          "dt-name",
+          "NT-S",
+          "sec-common-syn",
+          "NT-content",
+          "sec-starttags",
+          "NT-Letter"
+        ]
+      },
+      "https://www.w3.org/TR/xmlbase/": {},
+      "https://www.w3.org/TR/xmlschema11-2/": {
+        "anchors": [
+          "int",
+          "sec-wsnormalization",
+          "anyURI",
+          "anyString"
+        ]
+      },
+      "https://www.w3.org/TR/xpath-10/": {
+        "anchors": [
+          "infoset"
+        ]
+      },
+      "https://www.w3.org/TR/xpath-datamodel-30/": {
+        "anchors": [
+          "sequences"
+        ]
+      },
+      "https://www.w3.org/TR/xpath-functions-30/": {
+        "anchors": [
+          "func-serialize"
+        ]
+      },
+      "https://www.w3.org/groups/wg/rdf-star": {},
+      "https://www.w3.org/groups/wg/rdf-star/ipr": {},
+      "https://www.w3.org/policies/patent-policy/": {
+        "anchors": [
+          "def-essential",
+          "sec-Disclosure"
+        ]
+      },
+      "https://www.w3.org/policies/process/20231103/": {
+        "anchors": [
+          "allow-new-features"
+        ]
+      }
+    },
+    "autolinks": {
+      "https://www.w3.org/TR/xml-names/": {
+        "anchors": [
+          "dt-NSName"
+        ]
+      },
+      "https://www.w3.org/TR/xmlschema11-2/": {
+        "anchors": [
+          "anyURI",
+          "anyString"
+        ]
+      }
+    }
+  }
+}

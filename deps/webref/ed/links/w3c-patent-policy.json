@@ -1,0 +1,57 @@
+{
+  "spec": {
+    "title": "W3C Patent Policy",
+    "url": "https://www.w3.org/policies/patent-policy/"
+  },
+  "links": {
+    "rawlinks": {
+      "https://datatracker.ietf.org/doc/html/rfc2119": {},
+      "https://lists.w3.org/Archives/Public/www-patentpolicy-comment/": {},
+      "https://www.w3.org/Consortium/Patent-Policy-20170801/": {
+        "anchors": [
+          "sec-acknowledgments"
+        ]
+      },
+      "https://www.w3.org/groups/ig/psig/": {},
+      "https://www.w3.org/policies/patent-policy/20200915/": {
+        "anchors": [
+          "sec-acknowledgments"
+        ]
+      },
+      "https://www.w3.org/policies/process/": {
+        "anchors": [
+          "Submission",
+          "rec-rescind",
+          "Consensus"
+        ]
+      }
+    },
+    "autolinks": {
+      "https://www.w3.org/policies/process/": {
+        "anchors": [
+          "GroupsWG",
+          "RecsW3C",
+          "WGCharter",
+          "technical-report",
+          "rec-track",
+          "patent-review-drafts",
+          "cfp",
+          "MemberSubmission",
+          "invited-expert-wg",
+          "fpwd",
+          "RecsWD",
+          "AC",
+          "rec-rescind",
+          "advisory-committee-representative",
+          "RecsCR",
+          "maturity-levels",
+          "Member-only",
+          "ACReview",
+          "def-w3c-decision",
+          "def-Consensus",
+          "team"
+        ]
+      }
+    }
+  }
+}

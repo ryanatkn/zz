@@ -1,0 +1,52 @@
+{
+  "spec": {
+    "title": "MediaStream Recording",
+    "url": "https://www.w3.org/TR/mediastream-recording/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "DOM",
+        "url": "https://dom.spec.whatwg.org/"
+      },
+      {
+        "name": "FileAPI",
+        "url": "https://www.w3.org/TR/FileAPI/"
+      },
+      {
+        "name": "FINGERPRINTING-GUIDANCE",
+        "url": "https://www.w3.org/TR/fingerprinting-guidance/"
+      },
+      {
+        "name": "GETUSERMEDIA",
+        "url": "https://www.w3.org/TR/mediacapture-streams/"
+      },
+      {
+        "name": "HR-TIME",
+        "url": "https://www.w3.org/TR/hr-time-3/"
+      },
+      {
+        "name": "HTML",
+        "url": "https://html.spec.whatwg.org/multipage/"
+      },
+      {
+        "name": "RFC2046",
+        "url": "https://www.rfc-editor.org/rfc/rfc2046"
+      },
+      {
+        "name": "WEBDRIVER-BIDI",
+        "url": "https://www.w3.org/TR/webdriver-bidi/"
+      },
+      {
+        "name": "WEBIDL",
+        "url": "https://webidl.spec.whatwg.org/"
+      }
+    ],
+    "informative": [
+      {
+        "name": "RFC6381",
+        "url": "https://www.rfc-editor.org/rfc/rfc6381"
+      }
+    ]
+  }
+}

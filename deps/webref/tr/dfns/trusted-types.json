@@ -1,0 +1,1967 @@
+{
+  "spec": {
+    "title": "Trusted Types",
+    "url": "https://www.w3.org/TR/trusted-types/"
+  },
+  "dfns": [
+    {
+      "id": "injection-sink",
+      "href": "https://www.w3.org/TR/trusted-types/#injection-sink",
+      "linkingText": [
+        "injection sink"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "injection-sinks",
+        "href": "https://www.w3.org/TR/trusted-types/#injection-sinks",
+        "title": "Injection sinks",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "trusted-type",
+      "href": "https://www.w3.org/TR/trusted-types/#trusted-type",
+      "linkingText": [
+        "Trusted Type"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "trusted-types",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-types",
+        "title": "Trusted Types",
+        "number": "2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "trustedhtml",
+      "href": "https://www.w3.org/TR/trusted-types/#trustedhtml",
+      "linkingText": [
+        "TrustedHTML"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-html",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-html",
+        "title": "TrustedHTML",
+        "number": "2.2.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "trustedhtml-data",
+      "href": "https://www.w3.org/TR/trusted-types/#trustedhtml-data",
+      "linkingText": [
+        "data"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "TrustedHTML"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-html",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-html",
+        "title": "TrustedHTML",
+        "number": "2.2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-trustedhtml-tojson",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-trustedhtml-tojson",
+      "linkingText": [
+        "toJSON()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "TrustedHTML"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-html",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-html",
+        "title": "TrustedHTML",
+        "number": "2.2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "trustedhtml-stringification-behavior",
+      "href": "https://www.w3.org/TR/trusted-types/#trustedhtml-stringification-behavior",
+      "linkingText": [
+        "stringificationbehavior"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "TrustedHTML"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "trusted-html",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-html",
+        "title": "TrustedHTML",
+        "number": "2.2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "trustedscript",
+      "href": "https://www.w3.org/TR/trusted-types/#trustedscript",
+      "linkingText": [
+        "TrustedScript"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-script",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-script",
+        "title": "TrustedScript",
+        "number": "2.2.2"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "trustedscript-data",
+      "href": "https://www.w3.org/TR/trusted-types/#trustedscript-data",
+      "linkingText": [
+        "data"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "TrustedScript"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-script",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-script",
+        "title": "TrustedScript",
+        "number": "2.2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-trustedscript-tojson",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-trustedscript-tojson",
+      "linkingText": [
+        "toJSON()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "TrustedScript"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-script",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-script",
+        "title": "TrustedScript",
+        "number": "2.2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "trustedscript-stringification-behavior",
+      "href": "https://www.w3.org/TR/trusted-types/#trustedscript-stringification-behavior",
+      "linkingText": [
+        "stringificationbehavior"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "TrustedScript"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "trusted-script",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-script",
+        "title": "TrustedScript",
+        "number": "2.2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "trustedscripturl",
+      "href": "https://www.w3.org/TR/trusted-types/#trustedscripturl",
+      "linkingText": [
+        "TrustedScriptURL"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trused-script-url",
+        "href": "https://www.w3.org/TR/trusted-types/#trused-script-url",
+        "title": "TrustedScriptURL",
+        "number": "2.2.3"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "trustedscripturl-data",
+      "href": "https://www.w3.org/TR/trusted-types/#trustedscripturl-data",
+      "linkingText": [
+        "data"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "TrustedScriptURL"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trused-script-url",
+        "href": "https://www.w3.org/TR/trusted-types/#trused-script-url",
+        "title": "TrustedScriptURL",
+        "number": "2.2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-trustedscripturl-tojson",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-trustedscripturl-tojson",
+      "linkingText": [
+        "toJSON()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "TrustedScriptURL"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trused-script-url",
+        "href": "https://www.w3.org/TR/trusted-types/#trused-script-url",
+        "title": "TrustedScriptURL",
+        "number": "2.2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "trustedscripturl-stringification-behavior",
+      "href": "https://www.w3.org/TR/trusted-types/#trustedscripturl-stringification-behavior",
+      "linkingText": [
+        "stringificationbehavior"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "TrustedScriptURL"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "trused-script-url",
+        "href": "https://www.w3.org/TR/trusted-types/#trused-script-url",
+        "title": "TrustedScriptURL",
+        "number": "2.2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "policies",
+      "href": "https://www.w3.org/TR/trusted-types/#policies",
+      "linkingText": [
+        "Policies"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "policies-hdr",
+        "href": "https://www.w3.org/TR/trusted-types/#policies-hdr",
+        "title": "Policies",
+        "number": "2.3"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "trustedtypepolicyfactory",
+      "href": "https://www.w3.org/TR/trusted-types/#trustedtypepolicyfactory",
+      "linkingText": [
+        "TrustedTypePolicyFactory"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy-factory",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-factory",
+        "title": "TrustedTypePolicyFactory",
+        "number": "2.3.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dom-trustedtypepolicyfactory-createpolicy-policyname-policyoptions-policyname",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-trustedtypepolicyfactory-createpolicy-policyname-policyoptions-policyname",
+      "linkingText": [
+        "policyName"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "TrustedTypePolicyFactory/createPolicy(policyName, policyOptions)",
+        "TrustedTypePolicyFactory/createPolicy(policyName)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy-factory",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-factory",
+        "title": "TrustedTypePolicyFactory",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-trustedtypepolicyfactory-createpolicy-policyname-policyoptions-policyoptions",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-trustedtypepolicyfactory-createpolicy-policyname-policyoptions-policyoptions",
+      "linkingText": [
+        "policyOptions"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "TrustedTypePolicyFactory/createPolicy(policyName, policyOptions)",
+        "TrustedTypePolicyFactory/createPolicy(policyName)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy-factory",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-factory",
+        "title": "TrustedTypePolicyFactory",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-trustedtypepolicyfactory-ishtml-value-value",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-trustedtypepolicyfactory-ishtml-value-value",
+      "linkingText": [
+        "value"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "TrustedTypePolicyFactory/isHTML(value)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy-factory",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-factory",
+        "title": "TrustedTypePolicyFactory",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-trustedtypepolicyfactory-isscript-value-value",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-trustedtypepolicyfactory-isscript-value-value",
+      "linkingText": [
+        "value"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "TrustedTypePolicyFactory/isScript(value)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy-factory",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-factory",
+        "title": "TrustedTypePolicyFactory",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-trustedtypepolicyfactory-isscripturl-value-value",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-trustedtypepolicyfactory-isscripturl-value-value",
+      "linkingText": [
+        "value"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "TrustedTypePolicyFactory/isScriptURL(value)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy-factory",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-factory",
+        "title": "TrustedTypePolicyFactory",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-trustedtypepolicyfactory-getattributetype-tagname-attribute-elementns-attrns-tagname",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-trustedtypepolicyfactory-getattributetype-tagname-attribute-elementns-attrns-tagname",
+      "linkingText": [
+        "tagName"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "TrustedTypePolicyFactory/getAttributeType(tagName, attribute, elementNs, attrNs)",
+        "TrustedTypePolicyFactory/getAttributeType(tagName, attribute, elementNs)",
+        "TrustedTypePolicyFactory/getAttributeType(tagName, attribute)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy-factory",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-factory",
+        "title": "TrustedTypePolicyFactory",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-trustedtypepolicyfactory-getattributetype-tagname-attribute-elementns-attrns-attribute",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-trustedtypepolicyfactory-getattributetype-tagname-attribute-elementns-attrns-attribute",
+      "linkingText": [
+        "attribute"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "TrustedTypePolicyFactory/getAttributeType(tagName, attribute, elementNs, attrNs)",
+        "TrustedTypePolicyFactory/getAttributeType(tagName, attribute, elementNs)",
+        "TrustedTypePolicyFactory/getAttributeType(tagName, attribute)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy-factory",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-factory",
+        "title": "TrustedTypePolicyFactory",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-trustedtypepolicyfactory-getattributetype-tagname-attribute-elementns-attrns-elementns",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-trustedtypepolicyfactory-getattributetype-tagname-attribute-elementns-attrns-elementns",
+      "linkingText": [
+        "elementNs"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "TrustedTypePolicyFactory/getAttributeType(tagName, attribute, elementNs, attrNs)",
+        "TrustedTypePolicyFactory/getAttributeType(tagName, attribute, elementNs)",
+        "TrustedTypePolicyFactory/getAttributeType(tagName, attribute)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy-factory",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-factory",
+        "title": "TrustedTypePolicyFactory",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-trustedtypepolicyfactory-getattributetype-tagname-attribute-elementns-attrns-attrns",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-trustedtypepolicyfactory-getattributetype-tagname-attribute-elementns-attrns-attrns",
+      "linkingText": [
+        "attrNs"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "TrustedTypePolicyFactory/getAttributeType(tagName, attribute, elementNs, attrNs)",
+        "TrustedTypePolicyFactory/getAttributeType(tagName, attribute, elementNs)",
+        "TrustedTypePolicyFactory/getAttributeType(tagName, attribute)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy-factory",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-factory",
+        "title": "TrustedTypePolicyFactory",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-trustedtypepolicyfactory-getpropertytype-tagname-property-elementns-tagname",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-trustedtypepolicyfactory-getpropertytype-tagname-property-elementns-tagname",
+      "linkingText": [
+        "tagName"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "TrustedTypePolicyFactory/getPropertyType(tagName, property, elementNs)",
+        "TrustedTypePolicyFactory/getPropertyType(tagName, property)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy-factory",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-factory",
+        "title": "TrustedTypePolicyFactory",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-trustedtypepolicyfactory-getpropertytype-tagname-property-elementns-property",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-trustedtypepolicyfactory-getpropertytype-tagname-property-elementns-property",
+      "linkingText": [
+        "property"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "TrustedTypePolicyFactory/getPropertyType(tagName, property, elementNs)",
+        "TrustedTypePolicyFactory/getPropertyType(tagName, property)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy-factory",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-factory",
+        "title": "TrustedTypePolicyFactory",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-trustedtypepolicyfactory-getpropertytype-tagname-property-elementns-elementns",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-trustedtypepolicyfactory-getpropertytype-tagname-property-elementns-elementns",
+      "linkingText": [
+        "elementNs"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "TrustedTypePolicyFactory/getPropertyType(tagName, property, elementNs)",
+        "TrustedTypePolicyFactory/getPropertyType(tagName, property)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy-factory",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-factory",
+        "title": "TrustedTypePolicyFactory",
+        "number": "2.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "trustedtypepolicyfactory-default-policy",
+      "href": "https://www.w3.org/TR/trusted-types/#trustedtypepolicyfactory-default-policy",
+      "linkingText": [
+        "default policy"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "TrustedTypePolicyFactory"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy-factory",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-factory",
+        "title": "TrustedTypePolicyFactory",
+        "number": "2.3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "trustedtypepolicyfactory-created-policy-names",
+      "href": "https://www.w3.org/TR/trusted-types/#trustedtypepolicyfactory-created-policy-names",
+      "linkingText": [
+        "created policy names"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "TrustedTypePolicyFactory"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy-factory",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-factory",
+        "title": "TrustedTypePolicyFactory",
+        "number": "2.3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-trustedtypepolicyfactory-createpolicy",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-trustedtypepolicyfactory-createpolicy",
+      "linkingText": [
+        "createPolicy(policyName, policyOptions)",
+        "createPolicy(policyName)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "TrustedTypePolicyFactory"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy-factory",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-factory",
+        "title": "TrustedTypePolicyFactory",
+        "number": "2.3.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-trustedtypepolicyfactory-ishtml",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-trustedtypepolicyfactory-ishtml",
+      "linkingText": [
+        "isHTML(value)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "TrustedTypePolicyFactory"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy-factory",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-factory",
+        "title": "TrustedTypePolicyFactory",
+        "number": "2.3.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-trustedtypepolicyfactory-isscript",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-trustedtypepolicyfactory-isscript",
+      "linkingText": [
+        "isScript(value)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "TrustedTypePolicyFactory"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy-factory",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-factory",
+        "title": "TrustedTypePolicyFactory",
+        "number": "2.3.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-trustedtypepolicyfactory-isscripturl",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-trustedtypepolicyfactory-isscripturl",
+      "linkingText": [
+        "isScriptURL(value)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "TrustedTypePolicyFactory"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy-factory",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-factory",
+        "title": "TrustedTypePolicyFactory",
+        "number": "2.3.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-trustedtypepolicyfactory-getpropertytype",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-trustedtypepolicyfactory-getpropertytype",
+      "linkingText": [
+        "getPropertyType(tagName, property, elementNs)",
+        "getPropertyType(tagName, property)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "TrustedTypePolicyFactory"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy-factory",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-factory",
+        "title": "TrustedTypePolicyFactory",
+        "number": "2.3.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-trustedtypepolicyfactory-getattributetype",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-trustedtypepolicyfactory-getattributetype",
+      "linkingText": [
+        "getAttributeType(tagName, attribute, elementNs, attrNs)",
+        "getAttributeType(tagName, attribute, elementNs)",
+        "getAttributeType(tagName, attribute)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "TrustedTypePolicyFactory"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy-factory",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-factory",
+        "title": "TrustedTypePolicyFactory",
+        "number": "2.3.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-trustedtypepolicyfactory-emptyhtml",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-trustedtypepolicyfactory-emptyhtml",
+      "linkingText": [
+        "emptyHTML"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "TrustedTypePolicyFactory"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy-factory",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-factory",
+        "title": "TrustedTypePolicyFactory",
+        "number": "2.3.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-trustedtypepolicyfactory-emptyscript",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-trustedtypepolicyfactory-emptyscript",
+      "linkingText": [
+        "emptyScript"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "TrustedTypePolicyFactory"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy-factory",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-factory",
+        "title": "TrustedTypePolicyFactory",
+        "number": "2.3.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-trustedtypepolicyfactory-defaultpolicy",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-trustedtypepolicyfactory-defaultpolicy",
+      "linkingText": [
+        "defaultPolicy"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "TrustedTypePolicyFactory"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy-factory",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-factory",
+        "title": "TrustedTypePolicyFactory",
+        "number": "2.3.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "trustedtypepolicy",
+      "href": "https://www.w3.org/TR/trusted-types/#trustedtypepolicy",
+      "linkingText": [
+        "TrustedTypePolicy"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy",
+        "title": "TrustedTypePolicy",
+        "number": "2.3.2"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dom-trustedtypepolicy-name",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-trustedtypepolicy-name",
+      "linkingText": [
+        "name"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "TrustedTypePolicy"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy",
+        "title": "TrustedTypePolicy",
+        "number": "2.3.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-trustedtypepolicy-createhtml-input-arguments-input",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-trustedtypepolicy-createhtml-input-arguments-input",
+      "linkingText": [
+        "input"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "TrustedTypePolicy/createHTML(input, ...arguments)",
+        "TrustedTypePolicy/createHTML(input)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy",
+        "title": "TrustedTypePolicy",
+        "number": "2.3.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-trustedtypepolicy-createhtml-input-arguments-arguments",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-trustedtypepolicy-createhtml-input-arguments-arguments",
+      "linkingText": [
+        "arguments"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "TrustedTypePolicy/createHTML(input, ...arguments)",
+        "TrustedTypePolicy/createHTML(input)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy",
+        "title": "TrustedTypePolicy",
+        "number": "2.3.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-trustedtypepolicy-createscript-input-arguments-input",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-trustedtypepolicy-createscript-input-arguments-input",
+      "linkingText": [
+        "input"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "TrustedTypePolicy/createScript(input, ...arguments)",
+        "TrustedTypePolicy/createScript(input)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy",
+        "title": "TrustedTypePolicy",
+        "number": "2.3.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-trustedtypepolicy-createscript-input-arguments-arguments",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-trustedtypepolicy-createscript-input-arguments-arguments",
+      "linkingText": [
+        "arguments"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "TrustedTypePolicy/createScript(input, ...arguments)",
+        "TrustedTypePolicy/createScript(input)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy",
+        "title": "TrustedTypePolicy",
+        "number": "2.3.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-trustedtypepolicy-createscripturl-input-arguments-input",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-trustedtypepolicy-createscripturl-input-arguments-input",
+      "linkingText": [
+        "input"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "TrustedTypePolicy/createScriptURL(input, ...arguments)",
+        "TrustedTypePolicy/createScriptURL(input)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy",
+        "title": "TrustedTypePolicy",
+        "number": "2.3.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-trustedtypepolicy-createscripturl-input-arguments-arguments",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-trustedtypepolicy-createscripturl-input-arguments-arguments",
+      "linkingText": [
+        "arguments"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "TrustedTypePolicy/createScriptURL(input, ...arguments)",
+        "TrustedTypePolicy/createScriptURL(input)"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy",
+        "title": "TrustedTypePolicy",
+        "number": "2.3.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "trustedtypepolicy-name",
+      "href": "https://www.w3.org/TR/trusted-types/#trustedtypepolicy-name",
+      "linkingText": [
+        "name"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "TrustedTypePolicy"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy",
+        "title": "TrustedTypePolicy",
+        "number": "2.3.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "trustedtypepolicy-options",
+      "href": "https://www.w3.org/TR/trusted-types/#trustedtypepolicy-options",
+      "linkingText": [
+        "options"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "TrustedTypePolicy"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy",
+        "title": "TrustedTypePolicy",
+        "number": "2.3.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-trustedtypepolicy-createhtml",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-trustedtypepolicy-createhtml",
+      "linkingText": [
+        "createHTML(input, ...arguments)",
+        "createHTML(input)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "TrustedTypePolicy"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy",
+        "title": "TrustedTypePolicy",
+        "number": "2.3.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-trustedtypepolicy-createscript",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-trustedtypepolicy-createscript",
+      "linkingText": [
+        "createScript(input, ...arguments)",
+        "createScript(input)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "TrustedTypePolicy"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy",
+        "title": "TrustedTypePolicy",
+        "number": "2.3.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-trustedtypepolicy-createscripturl",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-trustedtypepolicy-createscripturl",
+      "linkingText": [
+        "createScriptURL(input, ...arguments)",
+        "createScriptURL(input)"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "TrustedTypePolicy"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy",
+        "title": "TrustedTypePolicy",
+        "number": "2.3.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dictdef-trustedtypepolicyoptions",
+      "href": "https://www.w3.org/TR/trusted-types/#dictdef-trustedtypepolicyoptions",
+      "linkingText": [
+        "TrustedTypePolicyOptions"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy-options",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-options",
+        "title": "TrustedTypePolicyOptions",
+        "number": "2.3.3"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dom-trustedtypepolicyoptions-createhtml",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-trustedtypepolicyoptions-createhtml",
+      "linkingText": [
+        "createHTML"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "TrustedTypePolicyOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy-options",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-options",
+        "title": "TrustedTypePolicyOptions",
+        "number": "2.3.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-trustedtypepolicyoptions-createscript",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-trustedtypepolicyoptions-createscript",
+      "linkingText": [
+        "createScript"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "TrustedTypePolicyOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy-options",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-options",
+        "title": "TrustedTypePolicyOptions",
+        "number": "2.3.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-trustedtypepolicyoptions-createscripturl",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-trustedtypepolicyoptions-createscripturl",
+      "linkingText": [
+        "createScriptURL"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "TrustedTypePolicyOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy-options",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-options",
+        "title": "TrustedTypePolicyOptions",
+        "number": "2.3.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "callbackdef-createhtmlcallback",
+      "href": "https://www.w3.org/TR/trusted-types/#callbackdef-createhtmlcallback",
+      "linkingText": [
+        "CreateHTMLCallback"
+      ],
+      "localLinkingText": [],
+      "type": "callback",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy-options",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-options",
+        "title": "TrustedTypePolicyOptions",
+        "number": "2.3.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-createhtmlcallback-input",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-createhtmlcallback-input",
+      "linkingText": [
+        "input"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "CreateHTMLCallback"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy-options",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-options",
+        "title": "TrustedTypePolicyOptions",
+        "number": "2.3.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-createhtmlcallback-arguments",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-createhtmlcallback-arguments",
+      "linkingText": [
+        "arguments"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "CreateHTMLCallback"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy-options",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-options",
+        "title": "TrustedTypePolicyOptions",
+        "number": "2.3.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "callbackdef-createscriptcallback",
+      "href": "https://www.w3.org/TR/trusted-types/#callbackdef-createscriptcallback",
+      "linkingText": [
+        "CreateScriptCallback"
+      ],
+      "localLinkingText": [],
+      "type": "callback",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy-options",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-options",
+        "title": "TrustedTypePolicyOptions",
+        "number": "2.3.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-createscriptcallback-input",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-createscriptcallback-input",
+      "linkingText": [
+        "input"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "CreateScriptCallback"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy-options",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-options",
+        "title": "TrustedTypePolicyOptions",
+        "number": "2.3.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-createscriptcallback-arguments",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-createscriptcallback-arguments",
+      "linkingText": [
+        "arguments"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "CreateScriptCallback"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy-options",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-options",
+        "title": "TrustedTypePolicyOptions",
+        "number": "2.3.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "callbackdef-createscripturlcallback",
+      "href": "https://www.w3.org/TR/trusted-types/#callbackdef-createscripturlcallback",
+      "linkingText": [
+        "CreateScriptURLCallback"
+      ],
+      "localLinkingText": [],
+      "type": "callback",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy-options",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-options",
+        "title": "TrustedTypePolicyOptions",
+        "number": "2.3.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-createscripturlcallback-input",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-createscripturlcallback-input",
+      "linkingText": [
+        "input"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "CreateScriptURLCallback"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy-options",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-options",
+        "title": "TrustedTypePolicyOptions",
+        "number": "2.3.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-createscripturlcallback-arguments",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-createscripturlcallback-arguments",
+      "linkingText": [
+        "arguments"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "CreateScriptURLCallback"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-type-policy-options",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-type-policy-options",
+        "title": "TrustedTypePolicyOptions",
+        "number": "2.3.3"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "default-policy-explanation",
+      "href": "https://www.w3.org/TR/trusted-types/#default-policy-explanation",
+      "linkingText": [
+        "default-policy-explanation"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "default-policy-hdr",
+        "href": "https://www.w3.org/TR/trusted-types/#default-policy-hdr",
+        "title": "Default policy",
+        "number": "2.3.4"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "enforcement",
+      "href": "https://www.w3.org/TR/trusted-types/#enforcement",
+      "linkingText": [
+        "Enforcement"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "enforcement-hdr",
+        "href": "https://www.w3.org/TR/trusted-types/#enforcement-hdr",
+        "title": "Enforcement",
+        "number": "2.4"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "abstract-opdef-create-a-trusted-type-policy",
+      "href": "https://www.w3.org/TR/trusted-types/#abstract-opdef-create-a-trusted-type-policy",
+      "linkingText": [
+        "Create a Trusted Type Policy"
+      ],
+      "localLinkingText": [],
+      "type": "abstract-op",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "create-trusted-type-policy-algorithm",
+        "href": "https://www.w3.org/TR/trusted-types/#create-trusted-type-policy-algorithm",
+        "title": "Create a Trusted Type Policy",
+        "number": "3.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "abstract-opdef-create-a-trusted-type",
+      "href": "https://www.w3.org/TR/trusted-types/#abstract-opdef-create-a-trusted-type",
+      "linkingText": [
+        "Create a Trusted Type"
+      ],
+      "localLinkingText": [],
+      "type": "abstract-op",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "create-a-trusted-type-algorithm",
+        "href": "https://www.w3.org/TR/trusted-types/#create-a-trusted-type-algorithm",
+        "title": "Create a Trusted Type",
+        "number": "3.2"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "abstract-opdef-get-trusted-type-policy-value",
+      "href": "https://www.w3.org/TR/trusted-types/#abstract-opdef-get-trusted-type-policy-value",
+      "linkingText": [
+        "Get Trusted Type policy value"
+      ],
+      "localLinkingText": [],
+      "type": "abstract-op",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "get-trusted-type-policy-value-algorithm",
+        "href": "https://www.w3.org/TR/trusted-types/#get-trusted-type-policy-value-algorithm",
+        "title": "Get Trusted Type policy value",
+        "number": "3.3"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "abstract-opdef-get-trusted-type-compliant-string",
+      "href": "https://www.w3.org/TR/trusted-types/#abstract-opdef-get-trusted-type-compliant-string",
+      "linkingText": [
+        "Get Trusted Type compliant string"
+      ],
+      "localLinkingText": [],
+      "type": "abstract-op",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "get-trusted-type-compliant-string-algorithm",
+        "href": "https://www.w3.org/TR/trusted-types/#get-trusted-type-compliant-string-algorithm",
+        "title": "Get Trusted Type compliant string",
+        "number": "3.4"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "abstract-opdef-process-value-with-a-default-policy",
+      "href": "https://www.w3.org/TR/trusted-types/#abstract-opdef-process-value-with-a-default-policy",
+      "linkingText": [
+        "Process value with a default policy"
+      ],
+      "localLinkingText": [],
+      "type": "abstract-op",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "process-value-with-a-default-policy-algorithm",
+        "href": "https://www.w3.org/TR/trusted-types/#process-value-with-a-default-policy-algorithm",
+        "title": "Process value with a default policy",
+        "number": "3.5"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "abstract-opdef-prepare-the-script-text",
+      "href": "https://www.w3.org/TR/trusted-types/#abstract-opdef-prepare-the-script-text",
+      "linkingText": [
+        "Prepare the script text"
+      ],
+      "localLinkingText": [],
+      "type": "abstract-op",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "prepare-script-text",
+        "href": "https://www.w3.org/TR/trusted-types/#prepare-script-text",
+        "title": "Prepare the script text",
+        "number": "3.6"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "abstract-opdef-get-trusted-types-compliant-attribute-value",
+      "href": "https://www.w3.org/TR/trusted-types/#abstract-opdef-get-trusted-types-compliant-attribute-value",
+      "linkingText": [
+        "get Trusted Types-compliant attribute value"
+      ],
+      "localLinkingText": [],
+      "type": "abstract-op",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "validate-attribute-mutation",
+        "href": "https://www.w3.org/TR/trusted-types/#validate-attribute-mutation",
+        "title": "Get Trusted Types-compliant attribute value",
+        "number": "3.7"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "abstract-opdef-get-trusted-type-data-for-attribute",
+      "href": "https://www.w3.org/TR/trusted-types/#abstract-opdef-get-trusted-type-data-for-attribute",
+      "linkingText": [
+        "Get Trusted Type data for attribute"
+      ],
+      "localLinkingText": [],
+      "type": "abstract-op",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "get-trusted-type-data-for-attribute",
+        "href": "https://www.w3.org/TR/trusted-types/#get-trusted-type-data-for-attribute",
+        "title": "Get Trusted Type data for attribute",
+        "number": "3.8"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "typedefdef-trustedtype",
+      "href": "https://www.w3.org/TR/trusted-types/#typedefdef-trustedtype",
+      "linkingText": [
+        "TrustedType"
+      ],
+      "localLinkingText": [],
+      "type": "typedef",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "integrations",
+        "href": "https://www.w3.org/TR/trusted-types/#integrations",
+        "title": "Integrations",
+        "number": "4"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "window-trusted-type-policy-factory",
+      "href": "https://www.w3.org/TR/trusted-types/#window-trusted-type-policy-factory",
+      "linkingText": [
+        "trusted type policy factory"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "Window"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "integration-with-html",
+        "href": "https://www.w3.org/TR/trusted-types/#integration-with-html",
+        "title": "Integration with HTML",
+        "number": "4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-windoworworkerglobalscope-trustedtypes",
+      "href": "https://www.w3.org/TR/trusted-types/#dom-windoworworkerglobalscope-trustedtypes",
+      "linkingText": [
+        "trustedTypes"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "WindowOrWorkerGlobalScope"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "extensions-to-the-windoworworkerglobalscope-interface",
+        "href": "https://www.w3.org/TR/trusted-types/#extensions-to-the-windoworworkerglobalscope-interface",
+        "title": "Extensions to the WindowOrWorkerGlobalScope interface",
+        "number": "4.1.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "htmlscriptelement-script-text",
+      "href": "https://www.w3.org/TR/trusted-types/#htmlscriptelement-script-text",
+      "linkingText": [
+        "script text"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "HTMLScriptElement",
+        "SVGScriptElement"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "slots-with-trusted-values",
+        "href": "https://www.w3.org/TR/trusted-types/#slots-with-trusted-values",
+        "title": "Slots with trusted values",
+        "number": "4.1.2.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "require-trusted-types-for-directive",
+      "href": "https://www.w3.org/TR/trusted-types/#require-trusted-types-for-directive",
+      "linkingText": [
+        "require-trusted-types-for-directive"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "require-trusted-types-for-csp-directive",
+        "href": "https://www.w3.org/TR/trusted-types/#require-trusted-types-for-csp-directive",
+        "title": "require-trusted-types-for directive",
+        "number": "4.3.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "trusted-types-sink-group-keyword",
+      "href": "https://www.w3.org/TR/trusted-types/#trusted-types-sink-group-keyword",
+      "linkingText": [
+        "trusted-types-sink-group-keyword"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "require-trusted-types-for-csp-directive",
+        "href": "https://www.w3.org/TR/trusted-types/#require-trusted-types-for-csp-directive",
+        "title": "require-trusted-types-for directive",
+        "number": "4.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "trusted-types-sink-group",
+      "href": "https://www.w3.org/TR/trusted-types/#trusted-types-sink-group",
+      "linkingText": [
+        "trusted-types-sink-group"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "require-trusted-types-for-csp-directive",
+        "href": "https://www.w3.org/TR/trusted-types/#require-trusted-types-for-csp-directive",
+        "title": "require-trusted-types-for directive",
+        "number": "4.3.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "trusted-types-directive",
+      "href": "https://www.w3.org/TR/trusted-types/#trusted-types-directive",
+      "linkingText": [
+        "trusted-types-directive"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "trusted-types-csp-directive",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-types-csp-directive",
+        "title": "trusted-types directive",
+        "number": "4.3.2"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "serialized-tt-configuration",
+      "href": "https://www.w3.org/TR/trusted-types/#serialized-tt-configuration",
+      "linkingText": [
+        "serialized-tt-configuration"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "trusted-types-csp-directive",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-types-csp-directive",
+        "title": "trusted-types directive",
+        "number": "4.3.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "tt-expression",
+      "href": "https://www.w3.org/TR/trusted-types/#tt-expression",
+      "linkingText": [
+        "tt-expression"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "trusted-types-csp-directive",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-types-csp-directive",
+        "title": "trusted-types directive",
+        "number": "4.3.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "tt-wildcard",
+      "href": "https://www.w3.org/TR/trusted-types/#tt-wildcard",
+      "linkingText": [
+        "tt-wildcard"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "trusted-types-csp-directive",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-types-csp-directive",
+        "title": "trusted-types directive",
+        "number": "4.3.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "tt-policy-name",
+      "href": "https://www.w3.org/TR/trusted-types/#tt-policy-name",
+      "linkingText": [
+        "tt-policy-name"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "trusted-types-csp-directive",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-types-csp-directive",
+        "title": "trusted-types directive",
+        "number": "4.3.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "tt-keyword",
+      "href": "https://www.w3.org/TR/trusted-types/#tt-keyword",
+      "linkingText": [
+        "tt-keyword"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "trusted-types-csp-directive",
+        "href": "https://www.w3.org/TR/trusted-types/#trusted-types-csp-directive",
+        "title": "trusted-types directive",
+        "number": "4.3.2"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "abstract-opdef-does-sink-type-require-trusted-types",
+      "href": "https://www.w3.org/TR/trusted-types/#abstract-opdef-does-sink-type-require-trusted-types",
+      "linkingText": [
+        "Does sink type require trusted types?"
+      ],
+      "localLinkingText": [],
+      "type": "abstract-op",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "does-sink-require-trusted-types",
+        "href": "https://www.w3.org/TR/trusted-types/#does-sink-require-trusted-types",
+        "title": "Does sink type require trusted types?",
+        "number": "4.3.3"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "abstract-opdef-should-sink-type-mismatch-violation-be-blocked-by-content-security-policy",
+      "href": "https://www.w3.org/TR/trusted-types/#abstract-opdef-should-sink-type-mismatch-violation-be-blocked-by-content-security-policy",
+      "linkingText": [
+        "Should sink type mismatch violation be blocked by Content Security Policy?"
+      ],
+      "localLinkingText": [],
+      "type": "abstract-op",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "should-block-sink-type-mismatch",
+        "href": "https://www.w3.org/TR/trusted-types/#should-block-sink-type-mismatch",
+        "title": "Should sink type mismatch violation be blocked by Content Security Policy?",
+        "number": "4.3.4"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "abstract-opdef-should-trusted-type-policy-creation-be-blocked-by-content-security-policy",
+      "href": "https://www.w3.org/TR/trusted-types/#abstract-opdef-should-trusted-type-policy-creation-be-blocked-by-content-security-policy",
+      "linkingText": [
+        "Should Trusted Type policy creation be blocked by Content Security Policy?"
+      ],
+      "localLinkingText": [],
+      "type": "abstract-op",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "should-block-create-policy",
+        "href": "https://www.w3.org/TR/trusted-types/#should-block-create-policy",
+        "title": "Should Trusted Type policy creation be blocked by Content Security Policy?",
+        "number": "4.3.5"
+      },
+      "definedIn": "heading",
+      "links": []
+    }
+  ]
+}

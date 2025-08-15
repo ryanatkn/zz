@@ -1,0 +1,1682 @@
+{
+  "spec": {
+    "title": "CSS View Transitions Module Level 1",
+    "url": "https://www.w3.org/TR/css-view-transitions-1/"
+  },
+  "dfns": [
+    {
+      "id": "view-transitions",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#view-transitions",
+      "linkingText": [
+        "view transitions"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "intro",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#intro",
+        "title": "Introduction",
+        "number": "1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "propdef-view-transition-name",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#propdef-view-transition-name",
+      "linkingText": [
+        "view-transition-name"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "view-transition-name-prop",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#view-transition-name-prop",
+        "title": "Tagging Individually Transitioning Subtrees: the view-transition-name property",
+        "number": "2.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "view-transition-name",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#view-transition-name",
+      "linkingText": [
+        "view transition name"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "view-transition-name-prop",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#view-transition-name-prop",
+        "title": "Tagging Individually Transitioning Subtrees: the view-transition-name property",
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "valdef-view-transition-name-none",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#valdef-view-transition-name-none",
+      "linkingText": [
+        "none"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "view-transition-name"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "view-transition-name-prop",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#view-transition-name-prop",
+        "title": "Tagging Individually Transitioning Subtrees: the view-transition-name property",
+        "number": "2.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "pseudo-element-root",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#pseudo-element-root",
+      "linkingText": [
+        "pseudo-element root"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "pseudo-root",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#pseudo-root",
+        "title": "Pseudo-element Trees",
+        "number": "3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "pseudo-element-tree",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#pseudo-element-tree",
+      "linkingText": [
+        "pseudo-element tree"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "pseudo-root",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#pseudo-root",
+        "title": "Pseudo-element Trees",
+        "number": "3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "view-transition-tree",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#view-transition-tree",
+      "linkingText": [
+        "view transition tree"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "view-transition-pseudos",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#view-transition-pseudos",
+        "title": "View Transition Pseudo-elements",
+        "number": "3.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "view-transition-pseudo-elements",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#view-transition-pseudo-elements",
+      "linkingText": [
+        "view transition pseudo-elements"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "view-transition-pseudos",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#view-transition-pseudos",
+        "title": "View Transition Pseudo-elements",
+        "number": "3.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "named-view-transition-pseudo-elements",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#named-view-transition-pseudo-elements",
+      "linkingText": [
+        "named view transition pseudo-elements"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "named-view-transition-pseudo",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#named-view-transition-pseudo",
+        "title": "Named View Transition Pseudo-elements",
+        "number": "3.2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "typedef-pt-name-selector",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#typedef-pt-name-selector",
+      "linkingText": [
+        "<pt-name-selector>"
+      ],
+      "localLinkingText": [],
+      "type": "type",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "named-view-transition-pseudo",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#named-view-transition-pseudo",
+        "title": "Named View Transition Pseudo-elements",
+        "number": "3.2.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "selectordef-view-transition",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#selectordef-view-transition",
+      "linkingText": [
+        "::view-transition"
+      ],
+      "localLinkingText": [],
+      "type": "selector",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "view-transition-pseudo",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#view-transition-pseudo",
+        "title": "View Transition Tree Root: the ::view-transition pseudo-element",
+        "number": "3.2.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "selectordef-view-transition-group",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#selectordef-view-transition-group",
+      "linkingText": [
+        "::view-transition-group()"
+      ],
+      "localLinkingText": [],
+      "type": "selector",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "::view-transition-group",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#%3A%3Aview-transition-group",
+        "title": "View Transition Named Subtree Root: the ::view-transition-group() pseudo-element",
+        "number": "3.2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "selectordef-view-transition-image-pair",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#selectordef-view-transition-image-pair",
+      "linkingText": [
+        "::view-transition-image-pair()"
+      ],
+      "localLinkingText": [],
+      "type": "selector",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "::view-transition-image-pair",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#%3A%3Aview-transition-image-pair",
+        "title": "View Transition Image Pair Isolation: the ::view-transition-image-pair() pseudo-element",
+        "number": "3.2.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "selectordef-view-transition-old",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#selectordef-view-transition-old",
+      "linkingText": [
+        "::view-transition-old()"
+      ],
+      "localLinkingText": [],
+      "type": "selector",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "::view-transition-old",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#%3A%3Aview-transition-old",
+        "title": "View Transition Old State Image: the ::view-transition-old() pseudo-element",
+        "number": "3.2.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "selectordef-view-transition-new",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#selectordef-view-transition-new",
+      "linkingText": [
+        "::view-transition-new()"
+      ],
+      "localLinkingText": [],
+      "type": "selector",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "::view-transition-new",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#%3A%3Aview-transition-new",
+        "title": "View Transition New State Image: the ::view-transition-new() pseudo-element",
+        "number": "3.2.6"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "snapshot-containing-block",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#snapshot-containing-block",
+      "linkingText": [
+        "snapshot containing block"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "snapshot-containing-block-concept",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#snapshot-containing-block-concept",
+        "title": "The Snapshot Containing Block",
+        "number": "4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "snapshot-containing-block-origin",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#snapshot-containing-block-origin",
+      "linkingText": [
+        "snapshot containing block origin"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "snapshot-containing-block-concept",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#snapshot-containing-block-concept",
+        "title": "The Snapshot Containing Block",
+        "number": "4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "snapshot-containing-block-size",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#snapshot-containing-block-size",
+      "linkingText": [
+        "snapshot containing block size"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "snapshot-containing-block-concept",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#snapshot-containing-block-concept",
+        "title": "The Snapshot Containing Block",
+        "number": "4.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "view-transition-layer",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#view-transition-layer",
+      "linkingText": [
+        "view transition layer"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "view-transition-stacking-layer",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#view-transition-stacking-layer",
+        "title": "View Transition Painting Order",
+        "number": "4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "global-view-transition-user-agent-style-sheet",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#global-view-transition-user-agent-style-sheet",
+      "linkingText": [
+        "global view transition user agent style sheet"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "ua-styles",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#ua-styles",
+        "title": "User Agent Stylesheet",
+        "number": "5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-document-startviewtransition-updatecallback-updatecallback",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#dom-document-startviewtransition-updatecallback-updatecallback",
+      "linkingText": [
+        "updateCallback"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "Document/startViewTransition(updateCallback)",
+        "Document/startViewTransition()"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "additions-to-document-api",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#additions-to-document-api",
+        "title": "Additions to Document",
+        "number": "6.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "callbackdef-updatecallback",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#callbackdef-updatecallback",
+      "linkingText": [
+        "UpdateCallback"
+      ],
+      "localLinkingText": [],
+      "type": "callback",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "additions-to-document-api",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#additions-to-document-api",
+        "title": "Additions to Document",
+        "number": "6.1"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-callbackdef-updatecallback⑥",
+          "name": "viewTransition = document.startViewTransition(updateCallback)",
+          "href": "https://www.w3.org/TR/css-view-transitions-1/#ref-for-callbackdef-updatecallback%E2%91%A5",
+          "heading": {
+            "id": "additions-to-document-api",
+            "href": "https://www.w3.org/TR/css-view-transitions-1/#additions-to-document-api",
+            "title": "Additions to Document",
+            "number": "6.1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-document-startviewtransition",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#dom-document-startviewtransition",
+      "linkingText": [
+        "startViewTransition(updateCallback)",
+        "startViewTransition()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "Document"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "ViewTransition-prepare",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#ViewTransition-prepare",
+        "title": "startViewTransition() Method Steps",
+        "number": "6.1.1"
+      },
+      "definedIn": "prose",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-document-startviewtransition③",
+          "name": "viewTransition = document.startViewTransition(updateCallback)",
+          "href": "https://www.w3.org/TR/css-view-transitions-1/#ref-for-dom-document-startviewtransition%E2%91%A2",
+          "heading": {
+            "id": "additions-to-document-api",
+            "href": "https://www.w3.org/TR/css-view-transitions-1/#additions-to-document-api",
+            "title": "Additions to Document",
+            "number": "6.1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "viewtransition",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#viewtransition",
+      "linkingText": [
+        "ViewTransition"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-domtransition-interface",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#the-domtransition-interface",
+        "title": "The ViewTransition interface",
+        "number": "6.2"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-viewtransition②",
+          "name": "viewTransition = document.startViewTransition(updateCallback)",
+          "href": "https://www.w3.org/TR/css-view-transitions-1/#ref-for-viewtransition%E2%91%A1",
+          "heading": {
+            "id": "additions-to-document-api",
+            "href": "https://www.w3.org/TR/css-view-transitions-1/#additions-to-document-api",
+            "title": "Additions to Document",
+            "number": "6.1"
+          }
+        },
+        {
+          "type": "dev",
+          "id": "ref-for-viewtransition⑥",
+          "name": "viewTransition.updateCallbackDone",
+          "href": "https://www.w3.org/TR/css-view-transitions-1/#ref-for-viewtransition%E2%91%A5",
+          "heading": {
+            "id": "the-domtransition-interface",
+            "href": "https://www.w3.org/TR/css-view-transitions-1/#the-domtransition-interface",
+            "title": "The ViewTransition interface",
+            "number": "6.2"
+          }
+        },
+        {
+          "type": "dev",
+          "id": "ref-for-viewtransition⑦",
+          "name": "viewTransition.ready",
+          "href": "https://www.w3.org/TR/css-view-transitions-1/#ref-for-viewtransition%E2%91%A6",
+          "heading": {
+            "id": "the-domtransition-interface",
+            "href": "https://www.w3.org/TR/css-view-transitions-1/#the-domtransition-interface",
+            "title": "The ViewTransition interface",
+            "number": "6.2"
+          }
+        },
+        {
+          "type": "dev",
+          "id": "ref-for-viewtransition⑧",
+          "name": "viewTransition.finished",
+          "href": "https://www.w3.org/TR/css-view-transitions-1/#ref-for-viewtransition%E2%91%A7",
+          "heading": {
+            "id": "the-domtransition-interface",
+            "href": "https://www.w3.org/TR/css-view-transitions-1/#the-domtransition-interface",
+            "title": "The ViewTransition interface",
+            "number": "6.2"
+          }
+        },
+        {
+          "type": "dev",
+          "id": "ref-for-viewtransition⑨",
+          "name": "viewTransition.skipTransition()",
+          "href": "https://www.w3.org/TR/css-view-transitions-1/#ref-for-viewtransition%E2%91%A8",
+          "heading": {
+            "id": "the-domtransition-interface",
+            "href": "https://www.w3.org/TR/css-view-transitions-1/#the-domtransition-interface",
+            "title": "The ViewTransition interface",
+            "number": "6.2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-viewtransition-updatecallbackdone",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#dom-viewtransition-updatecallbackdone",
+      "linkingText": [
+        "updateCallbackDone"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "ViewTransition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-domtransition-interface",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#the-domtransition-interface",
+        "title": "The ViewTransition interface",
+        "number": "6.2"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-viewtransition-updatecallbackdone①",
+          "name": "viewTransition.updateCallbackDone",
+          "href": "https://www.w3.org/TR/css-view-transitions-1/#ref-for-dom-viewtransition-updatecallbackdone%E2%91%A0",
+          "heading": {
+            "id": "the-domtransition-interface",
+            "href": "https://www.w3.org/TR/css-view-transitions-1/#the-domtransition-interface",
+            "title": "The ViewTransition interface",
+            "number": "6.2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-viewtransition-ready",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#dom-viewtransition-ready",
+      "linkingText": [
+        "ready"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "ViewTransition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-domtransition-interface",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#the-domtransition-interface",
+        "title": "The ViewTransition interface",
+        "number": "6.2"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-viewtransition-ready①",
+          "name": "viewTransition.ready",
+          "href": "https://www.w3.org/TR/css-view-transitions-1/#ref-for-dom-viewtransition-ready%E2%91%A0",
+          "heading": {
+            "id": "the-domtransition-interface",
+            "href": "https://www.w3.org/TR/css-view-transitions-1/#the-domtransition-interface",
+            "title": "The ViewTransition interface",
+            "number": "6.2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dom-viewtransition-finished",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#dom-viewtransition-finished",
+      "linkingText": [
+        "finished"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "ViewTransition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-domtransition-interface",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#the-domtransition-interface",
+        "title": "The ViewTransition interface",
+        "number": "6.2"
+      },
+      "definedIn": "pre",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-viewtransition-finished①",
+          "name": "viewTransition.finished",
+          "href": "https://www.w3.org/TR/css-view-transitions-1/#ref-for-dom-viewtransition-finished%E2%91%A0",
+          "heading": {
+            "id": "the-domtransition-interface",
+            "href": "https://www.w3.org/TR/css-view-transitions-1/#the-domtransition-interface",
+            "title": "The ViewTransition interface",
+            "number": "6.2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "viewtransition-named-elements",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#viewtransition-named-elements",
+      "linkingText": [
+        "named elements"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "ViewTransition"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-domtransition-interface",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#the-domtransition-interface",
+        "title": "The ViewTransition interface",
+        "number": "6.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "viewtransition-phase",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#viewtransition-phase",
+      "linkingText": [
+        "phase"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "ViewTransition"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-domtransition-interface",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#the-domtransition-interface",
+        "title": "The ViewTransition interface",
+        "number": "6.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "viewtransition-update-callback",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#viewtransition-update-callback",
+      "linkingText": [
+        "update callback"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "ViewTransition"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-domtransition-interface",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#the-domtransition-interface",
+        "title": "The ViewTransition interface",
+        "number": "6.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "viewtransition-ready-promise",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#viewtransition-ready-promise",
+      "linkingText": [
+        "ready promise"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "ViewTransition"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-domtransition-interface",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#the-domtransition-interface",
+        "title": "The ViewTransition interface",
+        "number": "6.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "viewtransition-update-callback-done-promise",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#viewtransition-update-callback-done-promise",
+      "linkingText": [
+        "update callback done promise"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "ViewTransition"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-domtransition-interface",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#the-domtransition-interface",
+        "title": "The ViewTransition interface",
+        "number": "6.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "viewtransition-finished-promise",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#viewtransition-finished-promise",
+      "linkingText": [
+        "finished promise"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "ViewTransition"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-domtransition-interface",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#the-domtransition-interface",
+        "title": "The ViewTransition interface",
+        "number": "6.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "viewtransition-transition-root-pseudo-element",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#viewtransition-transition-root-pseudo-element",
+      "linkingText": [
+        "transition root pseudo-element"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "ViewTransition"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-domtransition-interface",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#the-domtransition-interface",
+        "title": "The ViewTransition interface",
+        "number": "6.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "viewtransition-initial-snapshot-containing-block-size",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#viewtransition-initial-snapshot-containing-block-size",
+      "linkingText": [
+        "initial snapshot containing block size"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "ViewTransition"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-domtransition-interface",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#the-domtransition-interface",
+        "title": "The ViewTransition interface",
+        "number": "6.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-viewtransition-skiptransition",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#dom-viewtransition-skiptransition",
+      "linkingText": [
+        "skipTransition()"
+      ],
+      "localLinkingText": [],
+      "type": "method",
+      "for": [
+        "ViewTransition"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "ViewTransition-skipTransition",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#ViewTransition-skipTransition",
+        "title": "skipTransition() Method Steps",
+        "number": "6.2.1"
+      },
+      "definedIn": "prose",
+      "links": [
+        {
+          "type": "dev",
+          "id": "ref-for-dom-viewtransition-skiptransition③",
+          "name": "viewTransition.skipTransition()",
+          "href": "https://www.w3.org/TR/css-view-transitions-1/#ref-for-dom-viewtransition-skiptransition%E2%91%A2",
+          "heading": {
+            "id": "the-domtransition-interface",
+            "href": "https://www.w3.org/TR/css-view-transitions-1/#the-domtransition-interface",
+            "title": "The ViewTransition interface",
+            "number": "6.2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "document-active-view-transition",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#document-active-view-transition",
+      "linkingText": [
+        "active view transition"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "document"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "additions-to-document",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#additions-to-document",
+        "title": "Additions to Document",
+        "number": "7.1.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "document-rendering-suppression-for-view-transitions",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#document-rendering-suppression-for-view-transitions",
+      "linkingText": [
+        "rendering suppression for view transitions"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "document"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "additions-to-document",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#additions-to-document",
+        "title": "Additions to Document",
+        "number": "7.1.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "document-dynamic-view-transition-style-sheet",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#document-dynamic-view-transition-style-sheet",
+      "linkingText": [
+        "dynamic view transition style sheet"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "document"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "additions-to-document",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#additions-to-document",
+        "title": "Additions to Document",
+        "number": "7.1.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "document-show-view-transition-tree",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#document-show-view-transition-tree",
+      "linkingText": [
+        "show view transition tree"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "document"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "additions-to-document",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#additions-to-document",
+        "title": "Additions to Document",
+        "number": "7.1.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "captured-in-a-view-transition",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#captured-in-a-view-transition",
+      "linkingText": [
+        "captured in a view transition"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "elements-concept",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#elements-concept",
+        "title": "Additions to Elements",
+        "number": "7.1.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "captured-element",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#captured-element",
+      "linkingText": [
+        "captured element"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "captured-elements",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#captured-elements",
+        "title": "Captured elements",
+        "number": "7.1.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "captured-element-old-image",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#captured-element-old-image",
+      "linkingText": [
+        "old image"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "captured element"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "captured-elements",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#captured-elements",
+        "title": "Captured elements",
+        "number": "7.1.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "captured-element-old-width",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#captured-element-old-width",
+      "linkingText": [
+        "old width"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "captured element"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "captured-elements",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#captured-elements",
+        "title": "Captured elements",
+        "number": "7.1.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "captured-element-old-height",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#captured-element-old-height",
+      "linkingText": [
+        "old height"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "captured element"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "captured-elements",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#captured-elements",
+        "title": "Captured elements",
+        "number": "7.1.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "captured-element-old-transform",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#captured-element-old-transform",
+      "linkingText": [
+        "old transform"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "captured element"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "captured-elements",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#captured-elements",
+        "title": "Captured elements",
+        "number": "7.1.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "captured-element-old-writing-mode",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#captured-element-old-writing-mode",
+      "linkingText": [
+        "old writing-mode"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "captured element"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "captured-elements",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#captured-elements",
+        "title": "Captured elements",
+        "number": "7.1.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "captured-element-old-direction",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#captured-element-old-direction",
+      "linkingText": [
+        "old direction"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "captured element"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "captured-elements",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#captured-elements",
+        "title": "Captured elements",
+        "number": "7.1.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "captured-element-old-text-orientation",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#captured-element-old-text-orientation",
+      "linkingText": [
+        "old text-orientation"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "captured element"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "captured-elements",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#captured-elements",
+        "title": "Captured elements",
+        "number": "7.1.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "captured-element-old-mix-blend-mode",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#captured-element-old-mix-blend-mode",
+      "linkingText": [
+        "old mix-blend-mode"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "captured element"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "captured-elements",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#captured-elements",
+        "title": "Captured elements",
+        "number": "7.1.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "captured-element-old-backdrop-filter",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#captured-element-old-backdrop-filter",
+      "linkingText": [
+        "old backdrop-filter"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "captured element"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "captured-elements",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#captured-elements",
+        "title": "Captured elements",
+        "number": "7.1.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "captured-element-old-color-scheme",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#captured-element-old-color-scheme",
+      "linkingText": [
+        "old color-scheme"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "captured element"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "captured-elements",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#captured-elements",
+        "title": "Captured elements",
+        "number": "7.1.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "captured-element-new-element",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#captured-element-new-element",
+      "linkingText": [
+        "new element"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "captured element"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "captured-elements",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#captured-elements",
+        "title": "Captured elements",
+        "number": "7.1.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "captured-element-style-definitions",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#captured-element-style-definitions",
+      "linkingText": [
+        "style definitions"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "captured element"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "captured-elements",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#captured-elements",
+        "title": "Captured elements",
+        "number": "7.1.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "captured-element-group-keyframes",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#captured-element-group-keyframes",
+      "linkingText": [
+        "group keyframes"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "captured element"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "captured-elements",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#captured-elements",
+        "title": "Captured elements",
+        "number": "7.1.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "captured-element-group-animation-name-rule",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#captured-element-group-animation-name-rule",
+      "linkingText": [
+        "group animation name rule"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "captured element"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "captured-elements",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#captured-elements",
+        "title": "Captured elements",
+        "number": "7.1.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "captured-element-group-styles-rule",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#captured-element-group-styles-rule",
+      "linkingText": [
+        "group styles rule"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "captured element"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "captured-elements",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#captured-elements",
+        "title": "Captured elements",
+        "number": "7.1.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "captured-element-image-pair-isolation-rule",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#captured-element-image-pair-isolation-rule",
+      "linkingText": [
+        "image pair isolation rule"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "captured element"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "captured-elements",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#captured-elements",
+        "title": "Captured elements",
+        "number": "7.1.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "captured-element-image-animation-name-rule",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#captured-element-image-animation-name-rule",
+      "linkingText": [
+        "image animation name rule"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [
+        "captured element"
+      ],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "captured-elements",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#captured-elements",
+        "title": "Captured elements",
+        "number": "7.1.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "perform-pending-transition-operations",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#perform-pending-transition-operations",
+      "linkingText": [
+        "perform pending transition operations"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "perform-pending-transition-operations-algorithm",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#perform-pending-transition-operations-algorithm",
+        "title": "Perform pending transition operations",
+        "number": "7.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "setup-view-transition",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#setup-view-transition",
+      "linkingText": [
+        "setup view transition"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "setup-view-transition-algorithm",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#setup-view-transition-algorithm",
+        "title": "Setup view transition",
+        "number": "7.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "activate-view-transition",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#activate-view-transition",
+      "linkingText": [
+        "activate view transition"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "setup-view-transition-algorithm",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#setup-view-transition-algorithm",
+        "title": "Setup view transition",
+        "number": "7.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "capture-the-old-state",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#capture-the-old-state",
+      "linkingText": [
+        "capture the old state"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "capture-old-state-algorithm",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#capture-old-state-algorithm",
+        "title": "Capture the old state",
+        "number": "7.3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "capture-the-new-state",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#capture-the-new-state",
+      "linkingText": [
+        "capture the new state"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "capture-new-state-algorithm",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#capture-new-state-algorithm",
+        "title": "Capture the new state",
+        "number": "7.3.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "setup-transition-pseudo-elements",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#setup-transition-pseudo-elements",
+      "linkingText": [
+        "setup transition pseudo-elements"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "setup-transition-pseudo-elements-algorithm",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#setup-transition-pseudo-elements-algorithm",
+        "title": "Setup transition pseudo-elements",
+        "number": "7.3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "call-the-update-callback",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#call-the-update-callback",
+      "linkingText": [
+        "call the update callback"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "call-dom-update-callback-algorithm",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#call-dom-update-callback-algorithm",
+        "title": "Call the update callback",
+        "number": "7.4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "skip-the-view-transition",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#skip-the-view-transition",
+      "linkingText": [
+        "skip the view transition"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "skip-the-view-transition-algorithm",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#skip-the-view-transition-algorithm",
+        "title": "Skip the view transition",
+        "number": "7.5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "view-transition-page-visibility-change-steps",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#view-transition-page-visibility-change-steps",
+      "linkingText": [
+        "view transition page-visibility change steps"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "page-visibility-change-steps",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#page-visibility-change-steps",
+        "title": "View transition page-visibility change steps",
+        "number": "7.6"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "capture-the-image",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#capture-the-image",
+      "linkingText": [
+        "capture the image",
+        "capturing the image"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "capture-the-image-algorithm",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#capture-the-image-algorithm",
+        "title": "Capture the image",
+        "number": "7.7"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "capture-rendering-characteristics",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#capture-rendering-characteristics",
+      "linkingText": [
+        "capture rendering characteristics"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "capture-rendering-characteristics-algorithm",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#capture-rendering-characteristics-algorithm",
+        "title": "Capture rendering characteristics",
+        "number": "7.7.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "handle-transition-frame",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#handle-transition-frame",
+      "linkingText": [
+        "handle transition frame"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "handle-transition-frame-algorithm",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#handle-transition-frame-algorithm",
+        "title": "Handle transition frame",
+        "number": "7.8"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "update-pseudo-element-styles",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#update-pseudo-element-styles",
+      "linkingText": [
+        "update pseudo-element styles"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "style-transition-pseudo-elements-algorithm",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#style-transition-pseudo-elements-algorithm",
+        "title": "Update pseudo-element styles",
+        "number": "7.9"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "clear-view-transition",
+      "href": "https://www.w3.org/TR/css-view-transitions-1/#clear-view-transition",
+      "linkingText": [
+        "clear view transition"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "clear-view-transition-algorithm",
+        "href": "https://www.w3.org/TR/css-view-transitions-1/#clear-view-transition-algorithm",
+        "title": "Clear view transition",
+        "number": "7.10"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

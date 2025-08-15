@@ -1,0 +1,363 @@
+{
+  "spec": {
+    "title": "Proximity Sensor",
+    "url": "https://www.w3.org/TR/proximity/"
+  },
+  "dfns": [
+    {
+      "id": "proximity-sensor-feature",
+      "href": "https://www.w3.org/TR/proximity/#proximity-sensor-feature",
+      "linkingText": [
+        "proximity-sensor-feature"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "permissions-policy-integration",
+        "href": "https://www.w3.org/TR/proximity/#permissions-policy-integration",
+        "title": "Permissions Policy integration",
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "proximity-sensor-sensor-type",
+      "href": "https://www.w3.org/TR/proximity/#proximity-sensor-sensor-type",
+      "linkingText": [
+        "Proximity Sensor"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "model",
+        "href": "https://www.w3.org/TR/proximity/#model",
+        "title": "Model",
+        "number": "5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "permissiondef-proximity",
+      "href": "https://www.w3.org/TR/proximity/#permissiondef-proximity",
+      "linkingText": [
+        "proximity"
+      ],
+      "localLinkingText": [],
+      "type": "permission",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "model",
+        "href": "https://www.w3.org/TR/proximity/#model",
+        "title": "Model",
+        "number": "5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "proximity-virtual-sensor-type",
+      "href": "https://www.w3.org/TR/proximity/#proximity-virtual-sensor-type",
+      "linkingText": [
+        "proximity virtual sensor type"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "model",
+        "href": "https://www.w3.org/TR/proximity/#model",
+        "title": "Model",
+        "number": "5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "distance",
+      "href": "https://www.w3.org/TR/proximity/#distance",
+      "linkingText": [
+        "distance"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "model",
+        "href": "https://www.w3.org/TR/proximity/#model",
+        "title": "Model",
+        "number": "5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "sensing-range",
+      "href": "https://www.w3.org/TR/proximity/#sensing-range",
+      "linkingText": [
+        "sensing range"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "model",
+        "href": "https://www.w3.org/TR/proximity/#model",
+        "title": "Model",
+        "number": "5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "max",
+      "href": "https://www.w3.org/TR/proximity/#max",
+      "linkingText": [
+        "max"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "model",
+        "href": "https://www.w3.org/TR/proximity/#model",
+        "title": "Model",
+        "number": "5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "near",
+      "href": "https://www.w3.org/TR/proximity/#near",
+      "linkingText": [
+        "near"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "model",
+        "href": "https://www.w3.org/TR/proximity/#model",
+        "title": "Model",
+        "number": "5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "proximitysensor",
+      "href": "https://www.w3.org/TR/proximity/#proximitysensor",
+      "linkingText": [
+        "ProximitySensor"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "proximity-sensor-interface",
+        "href": "https://www.w3.org/TR/proximity/#proximity-sensor-interface",
+        "title": "The ProximitySensor Interface",
+        "number": "6.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-proximitysensor-proximitysensor",
+      "href": "https://www.w3.org/TR/proximity/#dom-proximitysensor-proximitysensor",
+      "linkingText": [
+        "ProximitySensor(sensorOptions)",
+        "constructor(sensorOptions)",
+        "ProximitySensor()",
+        "constructor()"
+      ],
+      "localLinkingText": [],
+      "type": "constructor",
+      "for": [
+        "ProximitySensor"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "proximity-sensor-interface",
+        "href": "https://www.w3.org/TR/proximity/#proximity-sensor-interface",
+        "title": "The ProximitySensor Interface",
+        "number": "6.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-proximitysensor-proximitysensor-sensoroptions-sensoroptions",
+      "href": "https://www.w3.org/TR/proximity/#dom-proximitysensor-proximitysensor-sensoroptions-sensoroptions",
+      "linkingText": [
+        "sensorOptions"
+      ],
+      "localLinkingText": [],
+      "type": "argument",
+      "for": [
+        "ProximitySensor/ProximitySensor(sensorOptions)",
+        "ProximitySensor/constructor(sensorOptions)",
+        "ProximitySensor/ProximitySensor()",
+        "ProximitySensor/constructor()"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "proximity-sensor-interface",
+        "href": "https://www.w3.org/TR/proximity/#proximity-sensor-interface",
+        "title": "The ProximitySensor Interface",
+        "number": "6.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-proximitysensor-distance",
+      "href": "https://www.w3.org/TR/proximity/#dom-proximitysensor-distance",
+      "linkingText": [
+        "distance"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "ProximitySensor"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "proximity-sensor-interface",
+        "href": "https://www.w3.org/TR/proximity/#proximity-sensor-interface",
+        "title": "The ProximitySensor Interface",
+        "number": "6.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-proximitysensor-max",
+      "href": "https://www.w3.org/TR/proximity/#dom-proximitysensor-max",
+      "linkingText": [
+        "max"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "ProximitySensor"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "proximity-sensor-interface",
+        "href": "https://www.w3.org/TR/proximity/#proximity-sensor-interface",
+        "title": "The ProximitySensor Interface",
+        "number": "6.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-proximitysensor-near",
+      "href": "https://www.w3.org/TR/proximity/#dom-proximitysensor-near",
+      "linkingText": [
+        "near"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "ProximitySensor"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "proximity-sensor-interface",
+        "href": "https://www.w3.org/TR/proximity/#proximity-sensor-interface",
+        "title": "The ProximitySensor Interface",
+        "number": "6.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "construct-a-proximity-sensor-object",
+      "href": "https://www.w3.org/TR/proximity/#construct-a-proximity-sensor-object",
+      "linkingText": [
+        "Construct a proximity sensor object"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "construct-a-proximity-sensor-object",
+        "href": "https://www.w3.org/TR/proximity/#construct-a-proximity-sensor-object",
+        "title": "Construct a proximity sensor object",
+        "number": "7.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "proximity-reading-parsing-algorithm",
+      "href": "https://www.w3.org/TR/proximity/#proximity-reading-parsing-algorithm",
+      "linkingText": [
+        "Proximity reading parsing algorithm"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "proximity-reading-parsing-algorithm",
+        "href": "https://www.w3.org/TR/proximity/#proximity-reading-parsing-algorithm",
+        "title": "Proximity reading parsing algorithm",
+        "number": "8.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "conformant-user-agent",
+      "href": "https://www.w3.org/TR/proximity/#conformant-user-agent",
+      "linkingText": [
+        "conformant user agent"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "conformance",
+        "href": "https://www.w3.org/TR/proximity/#conformance",
+        "title": "11. Conformance"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

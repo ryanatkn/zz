@@ -1,0 +1,329 @@
+{
+  "spec": {
+    "title": "The <model> element",
+    "url": "https://immersive-web.github.io/model-element/"
+  },
+  "dfns": [
+    {
+      "id": "dfn-model",
+      "href": "https://immersive-web.github.io/model-element/#dfn-model",
+      "linkingText": [
+        "model"
+      ],
+      "localLinkingText": [],
+      "type": "element",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-model-element",
+        "href": "https://immersive-web.github.io/model-element/#the-model-element",
+        "title": "The model element",
+        "alternateIds": [
+          "x4-the-model-element"
+        ],
+        "number": "4"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-autoplay",
+      "href": "https://immersive-web.github.io/model-element/#dfn-autoplay",
+      "linkingText": [
+        "autoplay"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "model"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "autoplay-attribute",
+        "href": "https://immersive-web.github.io/model-element/#autoplay-attribute",
+        "title": "autoplay attribute",
+        "alternateIds": [
+          "x4-1-autoplay-attribute"
+        ],
+        "number": "4.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-interactive",
+      "href": "https://immersive-web.github.io/model-element/#dfn-interactive",
+      "linkingText": [
+        "interactive"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "model"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "interactive-attribute",
+        "href": "https://immersive-web.github.io/model-element/#interactive-attribute",
+        "title": "interactive attribute",
+        "alternateIds": [
+          "x4-2-interactive-attribute"
+        ],
+        "number": "4.2"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-controls",
+      "href": "https://immersive-web.github.io/model-element/#dfn-controls",
+      "linkingText": [
+        "controls"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "model"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "controls-attribute",
+        "href": "https://immersive-web.github.io/model-element/#controls-attribute",
+        "title": "controls attribute",
+        "alternateIds": [
+          "x4-3-controls-attribute"
+        ],
+        "number": "4.3"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-crossorigin",
+      "href": "https://immersive-web.github.io/model-element/#dfn-crossorigin",
+      "linkingText": [
+        "crossorigin"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "model"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "crossorigin-attribute",
+        "href": "https://immersive-web.github.io/model-element/#crossorigin-attribute",
+        "title": "crossorigin attribute",
+        "alternateIds": [
+          "x4-4-crossorigin-attribute"
+        ],
+        "number": "4.4"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-height",
+      "href": "https://immersive-web.github.io/model-element/#dfn-height",
+      "linkingText": [
+        "height"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "model"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "height-attribute",
+        "href": "https://immersive-web.github.io/model-element/#height-attribute",
+        "title": "height attribute",
+        "alternateIds": [
+          "x4-5-height-attribute"
+        ],
+        "number": "4.5"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-loading",
+      "href": "https://immersive-web.github.io/model-element/#dfn-loading",
+      "linkingText": [
+        "loading"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "model"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "loading-attribute",
+        "href": "https://immersive-web.github.io/model-element/#loading-attribute",
+        "title": "loading attribute",
+        "alternateIds": [
+          "x4-6-loading-attribute"
+        ],
+        "number": "4.6"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-loop",
+      "href": "https://immersive-web.github.io/model-element/#dfn-loop",
+      "linkingText": [
+        "loop"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "model"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "loop-attribute",
+        "href": "https://immersive-web.github.io/model-element/#loop-attribute",
+        "title": "loop attribute",
+        "alternateIds": [
+          "x4-7-loop-attribute"
+        ],
+        "number": "4.7"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-muted",
+      "href": "https://immersive-web.github.io/model-element/#dfn-muted",
+      "linkingText": [
+        "muted"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "model"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "muted-attribute",
+        "href": "https://immersive-web.github.io/model-element/#muted-attribute",
+        "title": "muted attribute",
+        "alternateIds": [
+          "x4-8-muted-attribute"
+        ],
+        "number": "4.8"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-poster",
+      "href": "https://immersive-web.github.io/model-element/#dfn-poster",
+      "linkingText": [
+        "poster"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "model"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "poster-attribute",
+        "href": "https://immersive-web.github.io/model-element/#poster-attribute",
+        "title": "poster attribute",
+        "alternateIds": [
+          "x4-9-poster-attribute"
+        ],
+        "number": "4.9"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-src",
+      "href": "https://immersive-web.github.io/model-element/#dfn-src",
+      "linkingText": [
+        "src"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "model"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "src-attribute",
+        "href": "https://immersive-web.github.io/model-element/#src-attribute",
+        "title": "src attribute",
+        "alternateIds": [
+          "x4-10-src-attribute"
+        ],
+        "number": "4.10"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-width",
+      "href": "https://immersive-web.github.io/model-element/#dfn-width",
+      "linkingText": [
+        "width"
+      ],
+      "localLinkingText": [],
+      "type": "element-attr",
+      "for": [
+        "model"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "width-attribute",
+        "href": "https://immersive-web.github.io/model-element/#width-attribute",
+        "title": "width attribute",
+        "alternateIds": [
+          "x4-11-width-attribute"
+        ],
+        "number": "4.11"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dom-htmlmodelelement",
+      "href": "https://immersive-web.github.io/model-element/#dom-htmlmodelelement",
+      "linkingText": [
+        "HTMLModelElement"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-htmlmodelelement-interface",
+        "href": "https://immersive-web.github.io/model-element/#the-htmlmodelelement-interface",
+        "title": "The HTMLModelElement interface",
+        "alternateIds": [
+          "x5-the-htmlmodelelement-interface"
+        ],
+        "number": "5"
+      },
+      "definedIn": "pre",
+      "links": []
+    }
+  ]
+}

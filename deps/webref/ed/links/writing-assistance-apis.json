@@ -1,0 +1,230 @@
+{
+  "spec": {
+    "title": "Writing Assistance APIs",
+    "url": "https://webmachinelearning.github.io/writing-assistance-apis/"
+  },
+  "links": {
+    "rawlinks": {
+      "http://www.w3.org/community/": {},
+      "https://arxiv.org/abs/2404.08335": {},
+      "https://dom.spec.whatwg.org/": {},
+      "https://fetch.spec.whatwg.org/": {},
+      "https://github.com/webmachinelearning/writing-assistance-apis/blob/main/README.md": {},
+      "https://github.com/webmachinelearning/writing-assistance-apis/issues/38": {},
+      "https://github.com/whatwg/webidl/pull/1465": {},
+      "https://html.spec.whatwg.org/multipage/": {},
+      "https://infra.spec.whatwg.org/": {},
+      "https://spec.commonmark.org/": {},
+      "https://storage.spec.whatwg.org/": {},
+      "https://streams.spec.whatwg.org/": {},
+      "https://tc39.es/ecma262/multipage/": {},
+      "https://tc39.es/ecma402/": {},
+      "https://w3c.github.io/hr-time/": {},
+      "https://w3c.github.io/webappsec-permissions-policy/": {},
+      "https://webidl.spec.whatwg.org/": {},
+      "https://worldpopulationreview.com/country-rankings/internet-speeds-by-country": {},
+      "https://www.w3.org/community/about/agreements/cla/": {},
+      "https://www.w3.org/community/webmachinelearning/": {},
+      "https://xhr.spec.whatwg.org/": {}
+    },
+    "autolinks": {
+      "https://dom.spec.whatwg.org/": {
+        "anchors": [
+          "abortsignal",
+          "eventtarget",
+          "abortcontroller",
+          "create-a-dependent-abort-signal",
+          "abortcontroller-signal",
+          "abortcontroller-signal-abort",
+          "abortsignal-aborted",
+          "abortsignal-abort-reason",
+          "abortsignal-add",
+          "concept-event-fire"
+        ]
+      },
+      "https://fetch.spec.whatwg.org/": {
+        "anchors": [
+          "dom-global-fetch"
+        ]
+      },
+      "https://html.spec.whatwg.org/multipage/document-sequences.html": {
+        "anchors": [
+          "fully-active"
+        ]
+      },
+      "https://html.spec.whatwg.org/multipage/iframe-embed-object.html": {
+        "anchors": [
+          "allowed-to-use"
+        ]
+      },
+      "https://html.spec.whatwg.org/multipage/infrastructure.html": {
+        "anchors": [
+          "in-parallel"
+        ]
+      },
+      "https://html.spec.whatwg.org/multipage/interaction.html": {
+        "anchors": [
+          "transient-activation",
+          "consume-user-activation",
+          "tracking-user-activation"
+        ]
+      },
+      "https://html.spec.whatwg.org/multipage/nav-history-apis.html": {
+        "anchors": [
+          "window",
+          "concept-document-window"
+        ]
+      },
+      "https://html.spec.whatwg.org/multipage/system-state.html": {
+        "anchors": [
+          "dom-navigator-useragent"
+        ]
+      },
+      "https://html.spec.whatwg.org/multipage/webappapis.html": {
+        "anchors": [
+          "concept-agent-event-loop",
+          "eventhandler",
+          "event-handlers",
+          "event-handler-event-type",
+          "event-handler-idl-attributes",
+          "concept-relevant-realm",
+          "concept-realm-global",
+          "event-loop",
+          "queue-a-global-task",
+          "concept-relevant-global",
+          "concept-task",
+          "current-global-object",
+          "concept-global-object-realm"
+        ]
+      },
+      "https://infra.spec.whatwg.org/": {
+        "anchors": [
+          "assert",
+          "implementation-defined",
+          "map-exists",
+          "list-is-empty",
+          "string",
+          "iteration-break",
+          "string-length",
+          "ordered-map",
+          "abort-when",
+          "if-aborted",
+          "set-append",
+          "list",
+          "ordered-set",
+          "list-iterate",
+          "list-item",
+          "list-contain",
+          "map-getting-the-keys",
+          "map-getting-the-values",
+          "struct",
+          "struct-item",
+          "set-union",
+          "list-replace"
+        ]
+      },
+      "https://storage.spec.whatwg.org/": {
+        "anchors": [
+          "storage-key"
+        ]
+      },
+      "https://streams.spec.whatwg.org/": {
+        "anchors": [
+          "readablestream",
+          "readablestream-error",
+          "readablestream-cancel",
+          "rs-cancel",
+          "readablestream-set-up",
+          "readablestream-set-up-cancelalgorithm",
+          "readablestream-enqueue",
+          "readablestream-close"
+        ]
+      },
+      "https://tc39.es/ecma262/": {
+        "anchors": [
+          "current-realm",
+          "eqn-floor"
+        ]
+      },
+      "https://tc39.es/ecma262/multipage/executable-code-and-execution-contexts.html": {
+        "anchors": [
+          "realm",
+          "surrounding-agent"
+        ]
+      },
+      "https://tc39.es/ecma402/": {
+        "anchors": [
+          "sec-lookupmatchinglocalebybestfit",
+          "sec-isstructurallyvalidlanguagetag",
+          "sec-canonicalizeunicodelocaleid",
+          "sec-language-tags",
+          "sec-internal-slots"
+        ]
+      },
+      "https://w3c.github.io/hr-time/": {
+        "anchors": [
+          "dfn-monotonic-clock",
+          "monotonic-clock-unsafe-current-time"
+        ]
+      },
+      "https://w3c.github.io/webappsec-permissions-policy/": {
+        "anchors": [
+          "policy-controlled-feature",
+          "policy-controlled-feature-default-allowlist",
+          "default-allowlist-self"
+        ]
+      },
+      "https://webidl.spec.whatwg.org/": {
+        "anchors": [
+          "Exposed",
+          "SecureContext",
+          "idl-promise",
+          "idl-DOMString",
+          "idl-frozen-array",
+          "idl-double",
+          "idl-unrestricted-double",
+          "idl-sequence",
+          "operationerror",
+          "dfn-create-frozen-array",
+          "this",
+          "idl-DOMException",
+          "domexception-name",
+          "notallowederror",
+          "notreadableerror",
+          "notsupportederror",
+          "unknownerror",
+          "idl-undefined",
+          "dfn-interface",
+          "include",
+          "new",
+          "aborterror",
+          "a-promise-rejected-with",
+          "invalidstateerror",
+          "a-new-promise",
+          "reject",
+          "invoke-a-callback-function",
+          "networkerror",
+          "implements",
+          "resolve",
+          "exceptiondef-rangeerror",
+          "a-promise-resolved-with"
+        ]
+      },
+      "https://whatpr.org/webidl/1465.html": {
+        "anchors": [
+          "quotaexceedederror-requested",
+          "quotaexceedederror-quota",
+          "quotaexceedederror"
+        ]
+      },
+      "https://xhr.spec.whatwg.org/": {
+        "anchors": [
+          "progressevent",
+          "dom-progressevent-loaded",
+          "dom-progressevent-total",
+          "dom-progressevent-lengthcomputable"
+        ]
+      }
+    }
+  }
+}

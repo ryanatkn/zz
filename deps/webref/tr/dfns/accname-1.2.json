@@ -1,0 +1,102 @@
+{
+  "spec": {
+    "title": "Accessible Name and Description Computation 1.2",
+    "url": "https://www.w3.org/TR/accname-1.2/"
+  },
+  "dfns": [
+    {
+      "id": "dfn-assistive-technologies",
+      "href": "https://www.w3.org/TR/accname-1.2/#dfn-assistive-technologies",
+      "linkingText": [
+        "assistive technologies",
+        "assistive technology",
+        "Assistive Technologies"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "terms",
+        "href": "https://www.w3.org/TR/accname-1.2/#terms",
+        "title": "Important Terms",
+        "alternateIds": [
+          "x2-important-terms"
+        ],
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-accessible-description",
+      "href": "https://www.w3.org/TR/accname-1.2/#dfn-accessible-description",
+      "linkingText": [
+        "Accessible Description"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": true,
+      "heading": {
+        "id": "terms",
+        "href": "https://www.w3.org/TR/accname-1.2/#terms",
+        "title": "Important Terms",
+        "alternateIds": [
+          "x2-important-terms"
+        ],
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-accessible-name",
+      "href": "https://www.w3.org/TR/accname-1.2/#dfn-accessible-name",
+      "linkingText": [
+        "Accessible Name"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": true,
+      "heading": {
+        "id": "terms",
+        "href": "https://www.w3.org/TR/accname-1.2/#terms",
+        "title": "Important Terms",
+        "alternateIds": [
+          "x2-important-terms"
+        ],
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-tooltip-attribute",
+      "href": "https://www.w3.org/TR/accname-1.2/#dfn-tooltip-attribute",
+      "linkingText": [
+        "Tooltip attribute"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": true,
+      "heading": {
+        "id": "terms",
+        "href": "https://www.w3.org/TR/accname-1.2/#terms",
+        "title": "Important Terms",
+        "alternateIds": [
+          "x2-important-terms"
+        ],
+        "number": "2"
+      },
+      "definedIn": "dt",
+      "links": []
+    }
+  ]
+}

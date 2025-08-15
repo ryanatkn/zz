@@ -1,0 +1,34 @@
+{
+  "spec": {
+    "title": "Selectors Level 5",
+    "url": "https://drafts.csswg.org/selectors-5/"
+  },
+  "properties": [],
+  "atrules": [],
+  "selectors": [
+    {
+      "name": ":local-link",
+      "prose": "The :local-link pseudo-class allows authors to style hyperlinks based on the users current location within a site and to differentiate site-internal versus site-external links.",
+      "href": "https://drafts.csswg.org/selectors-5/#local-link-pseudo",
+      "value": ":local-link"
+    },
+    {
+      "name": ":state()",
+      "value": ":state( <ident> )",
+      "href": "https://drafts.csswg.org/selectors-5/#state-pseudo"
+    },
+    {
+      "name": ":heading",
+      "prose": "The (non-functional) :heading pseudo-class matches an element which has a heading level, with respect to the semantics defined by the document language (e.g. [HTML5]).",
+      "href": "https://drafts.csswg.org/selectors-5/#heading-pseudo",
+      "value": ":heading"
+    },
+    {
+      "name": ":heading()",
+      "prose": "As a functional pseudo-class, :heading() notation represents elements that have a heading level among An+B. The syntax is:",
+      "href": "https://drafts.csswg.org/selectors-5/#heading-functional-pseudo",
+      "value": ":heading( <An+B># )"
+    }
+  ],
+  "values": []
+}

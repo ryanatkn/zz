@@ -1,0 +1,171 @@
+{
+  "spec": {
+    "title": "CSS Nesting Module",
+    "url": "https://drafts.csswg.org/css-nesting-1/"
+  },
+  "dfns": [
+    {
+      "id": "nested-style-rule",
+      "href": "https://drafts.csswg.org/css-nesting-1/#nested-style-rule",
+      "linkingText": [
+        "nested style rule",
+        "nesting style rule"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "nesting",
+        "href": "https://drafts.csswg.org/css-nesting-1/#nesting",
+        "title": "Nesting Style Rules",
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "contain-the-nesting-selector",
+      "href": "https://drafts.csswg.org/css-nesting-1/#contain-the-nesting-selector",
+      "linkingText": [
+        "contain the nesting selector"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "syntax",
+        "href": "https://drafts.csswg.org/css-nesting-1/#syntax",
+        "title": "Syntax",
+        "number": "3.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "nested-group-rules",
+      "href": "https://drafts.csswg.org/css-nesting-1/#nested-group-rules",
+      "linkingText": [
+        "nested group rules"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "conditionals",
+        "href": "https://drafts.csswg.org/css-nesting-1/#conditionals",
+        "title": "Nesting Other At-Rules",
+        "number": "3.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "nesting-selector",
+      "href": "https://drafts.csswg.org/css-nesting-1/#nesting-selector",
+      "linkingText": [
+        "nesting selector"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "nest-selector",
+        "href": "https://drafts.csswg.org/css-nesting-1/#nest-selector",
+        "title": "Nesting Selector: the & selector",
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "selectordef-",
+      "href": "https://drafts.csswg.org/css-nesting-1/#selectordef-",
+      "linkingText": [
+        "&"
+      ],
+      "localLinkingText": [],
+      "type": "selector",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "nest-selector",
+        "href": "https://drafts.csswg.org/css-nesting-1/#nest-selector",
+        "title": "Nesting Selector: the & selector",
+        "number": "4"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "nested-declarations-rule①",
+      "href": "https://drafts.csswg.org/css-nesting-1/#nested-declarations-rule%E2%91%A0",
+      "linkingText": [
+        "nested declarations rule"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "nested-declarations-rule",
+        "href": "https://drafts.csswg.org/css-nesting-1/#nested-declarations-rule",
+        "title": "The Nested Declarations Rule",
+        "number": "5"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "cssnesteddeclarations",
+      "href": "https://drafts.csswg.org/css-nesting-1/#cssnesteddeclarations",
+      "linkingText": [
+        "CSSNestedDeclarations"
+      ],
+      "localLinkingText": [],
+      "type": "interface",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-cssnestrule",
+        "href": "https://drafts.csswg.org/css-nesting-1/#the-cssnestrule",
+        "title": "The CSSNestedDeclarations Interface",
+        "number": "6.1"
+      },
+      "definedIn": "pre",
+      "links": []
+    },
+    {
+      "id": "dom-cssnesteddeclarations-style",
+      "href": "https://drafts.csswg.org/css-nesting-1/#dom-cssnesteddeclarations-style",
+      "linkingText": [
+        "style"
+      ],
+      "localLinkingText": [],
+      "type": "attribute",
+      "for": [
+        "CSSNestedDeclarations"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "the-cssnestrule",
+        "href": "https://drafts.csswg.org/css-nesting-1/#the-cssnestrule",
+        "title": "The CSSNestedDeclarations Interface",
+        "number": "6.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

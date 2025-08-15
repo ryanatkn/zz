@@ -1,0 +1,811 @@
+{
+  "spec": {
+    "title": "CSS Overflow Module Level 4",
+    "url": "https://www.w3.org/TR/css-overflow-4/"
+  },
+  "dfns": [
+    {
+      "id": "propdef-overflow-clip-margin-top",
+      "href": "https://www.w3.org/TR/css-overflow-4/#propdef-overflow-clip-margin-top",
+      "linkingText": [
+        "overflow-clip-margin-top"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "overflow-clip-margin",
+        "href": "https://www.w3.org/TR/css-overflow-4/#overflow-clip-margin",
+        "title": "Expanding Clipping Bounds: the overflow-clip-margin-* properties",
+        "number": "3.2"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "propdef-overflow-clip-margin-right",
+      "href": "https://www.w3.org/TR/css-overflow-4/#propdef-overflow-clip-margin-right",
+      "linkingText": [
+        "overflow-clip-margin-right"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "overflow-clip-margin",
+        "href": "https://www.w3.org/TR/css-overflow-4/#overflow-clip-margin",
+        "title": "Expanding Clipping Bounds: the overflow-clip-margin-* properties",
+        "number": "3.2"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "propdef-overflow-clip-margin-bottom",
+      "href": "https://www.w3.org/TR/css-overflow-4/#propdef-overflow-clip-margin-bottom",
+      "linkingText": [
+        "overflow-clip-margin-bottom"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "overflow-clip-margin",
+        "href": "https://www.w3.org/TR/css-overflow-4/#overflow-clip-margin",
+        "title": "Expanding Clipping Bounds: the overflow-clip-margin-* properties",
+        "number": "3.2"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "propdef-overflow-clip-margin-left",
+      "href": "https://www.w3.org/TR/css-overflow-4/#propdef-overflow-clip-margin-left",
+      "linkingText": [
+        "overflow-clip-margin-left"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "overflow-clip-margin",
+        "href": "https://www.w3.org/TR/css-overflow-4/#overflow-clip-margin",
+        "title": "Expanding Clipping Bounds: the overflow-clip-margin-* properties",
+        "number": "3.2"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "propdef-overflow-clip-margin-block-start",
+      "href": "https://www.w3.org/TR/css-overflow-4/#propdef-overflow-clip-margin-block-start",
+      "linkingText": [
+        "overflow-clip-margin-block-start"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "overflow-clip-margin",
+        "href": "https://www.w3.org/TR/css-overflow-4/#overflow-clip-margin",
+        "title": "Expanding Clipping Bounds: the overflow-clip-margin-* properties",
+        "number": "3.2"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "propdef-overflow-clip-margin-inline-start",
+      "href": "https://www.w3.org/TR/css-overflow-4/#propdef-overflow-clip-margin-inline-start",
+      "linkingText": [
+        "overflow-clip-margin-inline-start"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "overflow-clip-margin",
+        "href": "https://www.w3.org/TR/css-overflow-4/#overflow-clip-margin",
+        "title": "Expanding Clipping Bounds: the overflow-clip-margin-* properties",
+        "number": "3.2"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "propdef-overflow-clip-margin-block-end",
+      "href": "https://www.w3.org/TR/css-overflow-4/#propdef-overflow-clip-margin-block-end",
+      "linkingText": [
+        "overflow-clip-margin-block-end"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "overflow-clip-margin",
+        "href": "https://www.w3.org/TR/css-overflow-4/#overflow-clip-margin",
+        "title": "Expanding Clipping Bounds: the overflow-clip-margin-* properties",
+        "number": "3.2"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "propdef-overflow-clip-margin-inline-end",
+      "href": "https://www.w3.org/TR/css-overflow-4/#propdef-overflow-clip-margin-inline-end",
+      "linkingText": [
+        "overflow-clip-margin-inline-end"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "overflow-clip-margin",
+        "href": "https://www.w3.org/TR/css-overflow-4/#overflow-clip-margin",
+        "title": "Expanding Clipping Bounds: the overflow-clip-margin-* properties",
+        "number": "3.2"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "propdef-overflow-clip-margin",
+      "href": "https://www.w3.org/TR/css-overflow-4/#propdef-overflow-clip-margin",
+      "linkingText": [
+        "overflow-clip-margin"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "overflow-clip-margin",
+        "href": "https://www.w3.org/TR/css-overflow-4/#overflow-clip-margin",
+        "title": "Expanding Clipping Bounds: the overflow-clip-margin-* properties",
+        "number": "3.2"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "propdef-overflow-clip-margin-inline",
+      "href": "https://www.w3.org/TR/css-overflow-4/#propdef-overflow-clip-margin-inline",
+      "linkingText": [
+        "overflow-clip-margin-inline"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "overflow-clip-margin",
+        "href": "https://www.w3.org/TR/css-overflow-4/#overflow-clip-margin",
+        "title": "Expanding Clipping Bounds: the overflow-clip-margin-* properties",
+        "number": "3.2"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "propdef-overflow-clip-margin-block",
+      "href": "https://www.w3.org/TR/css-overflow-4/#propdef-overflow-clip-margin-block",
+      "linkingText": [
+        "overflow-clip-margin-block"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "overflow-clip-margin",
+        "href": "https://www.w3.org/TR/css-overflow-4/#overflow-clip-margin",
+        "title": "Expanding Clipping Bounds: the overflow-clip-margin-* properties",
+        "number": "3.2"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "overflow-clip-edge",
+      "href": "https://www.w3.org/TR/css-overflow-4/#overflow-clip-edge",
+      "linkingText": [
+        "overflow clip edge"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "overflow-clip-margin",
+        "href": "https://www.w3.org/TR/css-overflow-4/#overflow-clip-margin",
+        "title": "Expanding Clipping Bounds: the overflow-clip-margin-* properties",
+        "number": "3.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "propdef-text-overflow",
+      "href": "https://www.w3.org/TR/css-overflow-4/#propdef-text-overflow",
+      "linkingText": [
+        "text-overflow"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "text-overflow",
+        "href": "https://www.w3.org/TR/css-overflow-4/#text-overflow",
+        "title": "Inline Overflow Ellipsis: the text-overflow property",
+        "number": "4.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "overflow-clip",
+      "href": "https://www.w3.org/TR/css-overflow-4/#overflow-clip",
+      "linkingText": [
+        "clip"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "text-overflow"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "text-overflow",
+        "href": "https://www.w3.org/TR/css-overflow-4/#text-overflow",
+        "title": "Inline Overflow Ellipsis: the text-overflow property",
+        "number": "4.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "overflow-ellipsis",
+      "href": "https://www.w3.org/TR/css-overflow-4/#overflow-ellipsis",
+      "linkingText": [
+        "ellipsis"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "text-overflow"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "text-overflow",
+        "href": "https://www.w3.org/TR/css-overflow-4/#text-overflow",
+        "title": "Inline Overflow Ellipsis: the text-overflow property",
+        "number": "4.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "funcdef-text-overflow-fade",
+      "href": "https://www.w3.org/TR/css-overflow-4/#funcdef-text-overflow-fade",
+      "linkingText": [
+        "fade()"
+      ],
+      "localLinkingText": [],
+      "type": "function",
+      "for": [
+        "text-overflow"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/css-overflow-4/#title",
+        "title": "CSS Overflow Module Level 4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-text-overflow-fade",
+      "href": "https://www.w3.org/TR/css-overflow-4/#valdef-text-overflow-fade",
+      "linkingText": [
+        "fade"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "text-overflow"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/css-overflow-4/#title",
+        "title": "CSS Overflow Module Level 4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "propdef-block-ellipsis",
+      "href": "https://www.w3.org/TR/css-overflow-4/#propdef-block-ellipsis",
+      "linkingText": [
+        "block-ellipsis"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "block-ellipsis",
+        "href": "https://www.w3.org/TR/css-overflow-4/#block-ellipsis",
+        "title": "Indicating Block-Axis Overflow: the block-ellipsis property",
+        "number": "4.2"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "block-overflow-ellipsis",
+      "href": "https://www.w3.org/TR/css-overflow-4/#block-overflow-ellipsis",
+      "linkingText": [
+        "block overflow ellipsis"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "block-ellipsis",
+        "href": "https://www.w3.org/TR/css-overflow-4/#block-ellipsis",
+        "title": "Indicating Block-Axis Overflow: the block-ellipsis property",
+        "number": "4.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "valdef-block-ellipsis-none",
+      "href": "https://www.w3.org/TR/css-overflow-4/#valdef-block-ellipsis-none",
+      "linkingText": [
+        "none"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "block-ellipsis"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/css-overflow-4/#title",
+        "title": "CSS Overflow Module Level 4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-block-ellipsis-auto",
+      "href": "https://www.w3.org/TR/css-overflow-4/#valdef-block-ellipsis-auto",
+      "linkingText": [
+        "auto"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "block-ellipsis"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/css-overflow-4/#title",
+        "title": "CSS Overflow Module Level 4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "propdef-line-clamp",
+      "href": "https://www.w3.org/TR/css-overflow-4/#propdef-line-clamp",
+      "linkingText": [
+        "line-clamp"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "line-clamp",
+        "href": "https://www.w3.org/TR/css-overflow-4/#line-clamp",
+        "title": "Limiting Visible Lines: the line-clamp shorthand property",
+        "number": "5.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "valdef-line-clamp-none",
+      "href": "https://www.w3.org/TR/css-overflow-4/#valdef-line-clamp-none",
+      "linkingText": [
+        "none"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "line-clamp"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "line-clamp",
+        "href": "https://www.w3.org/TR/css-overflow-4/#line-clamp",
+        "title": "Limiting Visible Lines: the line-clamp shorthand property",
+        "number": "5.1"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-line-clamp-integer-1--block-ellipsis",
+      "href": "https://www.w3.org/TR/css-overflow-4/#valdef-line-clamp-integer-1--block-ellipsis",
+      "linkingText": [
+        "<integer [1,∞]> <block-ellipsis>?"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "line-clamp"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/css-overflow-4/#title",
+        "title": "CSS Overflow Module Level 4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "propdef--webkit-line-clamp",
+      "href": "https://www.w3.org/TR/css-overflow-4/#propdef--webkit-line-clamp",
+      "linkingText": [
+        "-webkit-line-clamp"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "webkit-line-clamp",
+        "href": "https://www.w3.org/TR/css-overflow-4/#webkit-line-clamp",
+        "title": "Legacy compatibility",
+        "number": "5.1.1"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "valdef-continue--webkit-discard",
+      "href": "https://www.w3.org/TR/css-overflow-4/#valdef-continue--webkit-discard",
+      "linkingText": [
+        "-webkit-discard"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "continue"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "webkit-line-clamp",
+        "href": "https://www.w3.org/TR/css-overflow-4/#webkit-line-clamp",
+        "title": "Legacy compatibility",
+        "number": "5.1.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "propdef-max-lines",
+      "href": "https://www.w3.org/TR/css-overflow-4/#propdef-max-lines",
+      "linkingText": [
+        "max-lines"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "max-lines",
+        "href": "https://www.w3.org/TR/css-overflow-4/#max-lines",
+        "title": "Forcing a Break After a Set Number of Lines: the max-lines property",
+        "number": "5.2"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "valdef-max-lines-none",
+      "href": "https://www.w3.org/TR/css-overflow-4/#valdef-max-lines-none",
+      "linkingText": [
+        "none"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "max-lines"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "max-lines",
+        "href": "https://www.w3.org/TR/css-overflow-4/#max-lines",
+        "title": "Forcing a Break After a Set Number of Lines: the max-lines property",
+        "number": "5.2"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "propdef-continue",
+      "href": "https://www.w3.org/TR/css-overflow-4/#propdef-continue",
+      "linkingText": [
+        "continue"
+      ],
+      "localLinkingText": [],
+      "type": "property",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "continue",
+        "href": "https://www.w3.org/TR/css-overflow-4/#continue",
+        "title": "Fragmentation of Overflow: the continue property",
+        "number": "5.3"
+      },
+      "definedIn": "table",
+      "links": []
+    },
+    {
+      "id": "valdef-continue-auto",
+      "href": "https://www.w3.org/TR/css-overflow-4/#valdef-continue-auto",
+      "linkingText": [
+        "auto"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "continue"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "continue",
+        "href": "https://www.w3.org/TR/css-overflow-4/#continue",
+        "title": "Fragmentation of Overflow: the continue property",
+        "number": "5.3"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-continue-discard",
+      "href": "https://www.w3.org/TR/css-overflow-4/#valdef-continue-discard",
+      "linkingText": [
+        "discard"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "continue"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/css-overflow-4/#title",
+        "title": "CSS Overflow Module Level 4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-continue-overflow",
+      "href": "https://www.w3.org/TR/css-overflow-4/#valdef-continue-overflow",
+      "linkingText": [
+        "overflow"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "continue"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "channelling-overflow",
+        "href": "https://www.w3.org/TR/css-overflow-4/#channelling-overflow",
+        "title": "Channeling Overflow: the continue property"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-continue-paginate",
+      "href": "https://www.w3.org/TR/css-overflow-4/#valdef-continue-paginate",
+      "linkingText": [
+        "paginate"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "continue"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/css-overflow-4/#title",
+        "title": "CSS Overflow Module Level 4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-continue-fragments",
+      "href": "https://www.w3.org/TR/css-overflow-4/#valdef-continue-fragments",
+      "linkingText": [
+        "fragments"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "continue"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/css-overflow-4/#title",
+        "title": "CSS Overflow Module Level 4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "fragment-box",
+      "href": "https://www.w3.org/TR/css-overflow-4/#fragment-box",
+      "linkingText": [
+        "fragment box"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "fragment-overflow",
+        "href": "https://www.w3.org/TR/css-overflow-4/#fragment-overflow",
+        "title": "Fragmented Overflow"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "selectordef-nth-fragment",
+      "href": "https://www.w3.org/TR/css-overflow-4/#selectordef-nth-fragment",
+      "linkingText": [
+        "::nth-fragment()"
+      ],
+      "localLinkingText": [],
+      "type": "selector",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "fragment-pseudo-element",
+        "href": "https://www.w3.org/TR/css-overflow-4/#fragment-pseudo-element",
+        "title": "The ::nth-fragment() pseudo-element"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "valdef-scrollbar-gutter-always",
+      "href": "https://www.w3.org/TR/css-overflow-4/#valdef-scrollbar-gutter-always",
+      "linkingText": [
+        "always"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "scrollbar-gutter"
+      ],
+      "access": "public",
+      "informative": true,
+      "heading": {
+        "id": "sbg-ext",
+        "href": "https://www.w3.org/TR/css-overflow-4/#sbg-ext",
+        "title": "Possible extensions for scrollbar-gutter",
+        "number": "B"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-scrollbar-gutter-force",
+      "href": "https://www.w3.org/TR/css-overflow-4/#valdef-scrollbar-gutter-force",
+      "linkingText": [
+        "force"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "scrollbar-gutter"
+      ],
+      "access": "public",
+      "informative": true,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/css-overflow-4/#title",
+        "title": "CSS Overflow Module Level 4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "valdef-scrollbar-gutter-match-parent",
+      "href": "https://www.w3.org/TR/css-overflow-4/#valdef-scrollbar-gutter-match-parent",
+      "linkingText": [
+        "match-parent"
+      ],
+      "localLinkingText": [],
+      "type": "value",
+      "for": [
+        "scrollbar-gutter"
+      ],
+      "access": "public",
+      "informative": true,
+      "heading": {
+        "id": "title",
+        "href": "https://www.w3.org/TR/css-overflow-4/#title",
+        "title": "CSS Overflow Module Level 4"
+      },
+      "definedIn": "dt",
+      "links": []
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "spec": {
+    "title": "CSS Conditional Rules Module Level 4",
+    "url": "https://drafts.csswg.org/css-conditional-4/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "CSS-CONDITIONAL-3",
+        "url": "https://drafts.csswg.org/css-conditional-3/"
+      },
+      {
+        "name": "CSS-VALUES-4",
+        "url": "https://drafts.csswg.org/css-values-4/"
+      },
+      {
+        "name": "RFC2119",
+        "url": "https://datatracker.ietf.org/doc/html/rfc2119"
+      },
+      {
+        "name": "SELECTORS-4",
+        "url": "https://drafts.csswg.org/selectors/"
+      }
+    ],
+    "informative": [
+      {
+        "name": "CSS-NAMESPACES-3",
+        "url": "https://drafts.csswg.org/css-namespaces/"
+      }
+    ]
+  }
+}

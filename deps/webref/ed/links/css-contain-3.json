@@ -1,0 +1,120 @@
+{
+  "spec": {
+    "title": "CSS Containment Module Level 3",
+    "url": "https://drafts.csswg.org/css-contain-3/"
+  },
+  "links": {
+    "rawlinks": {
+      "http://lists.w3.org/Archives/Public/public-css-testsuite": {},
+      "http://www.w3.org/Style/CSS/Test/": {},
+      "http://www.w3.org/TR/CSS/": {
+        "anchors": [
+          "future-proofing",
+          "unstable",
+          "proprietary-extension"
+        ]
+      },
+      "http://www.w3.org/TR/CSS21/conform.html": {
+        "anchors": [
+          "style-sheet",
+          "user-agent",
+          "ignore"
+        ]
+      },
+      "https://datatracker.ietf.org/doc/html/rfc2119": {},
+      "https://developer.mozilla.org/en-US/docs/Web/API/CSSContainerRule": {},
+      "https://developer.mozilla.org/en-US/docs/Web/API/CSSContainerRule/containerName": {},
+      "https://developer.mozilla.org/en-US/docs/Web/API/CSSContainerRule/containerQuery": {},
+      "https://developer.mozilla.org/en-US/docs/Web/CSS/@container": {},
+      "https://developer.mozilla.org/en-US/docs/Web/CSS/contain": {
+        "anchors": [
+          "inline-size"
+        ]
+      },
+      "https://developer.mozilla.org/en-US/docs/Web/CSS/container": {},
+      "https://developer.mozilla.org/en-US/docs/Web/CSS/container-name": {},
+      "https://developer.mozilla.org/en-US/docs/Web/CSS/container-type": {},
+      "https://drafts.csswg.org/css-cascade-5/": {},
+      "https://drafts.csswg.org/css-conditional-5/": {},
+      "https://drafts.csswg.org/css-contain-2/": {},
+      "https://drafts.csswg.org/css-values-4/": {},
+      "https://drafts.csswg.org/css-variables-2/": {},
+      "https://drafts.csswg.org/mediaqueries-5/": {},
+      "https://github.com/w3c/csswg-drafts/issues": {},
+      "https://github.com/w3c/csswg-drafts/issues/1031": {},
+      "https://github.com/w3c/csswg-drafts/issues/10433": {},
+      "https://github.com/w3c/csswg-drafts/issues/5984": {},
+      "https://github.com/w3c/csswg-drafts/issues/6393": {},
+      "https://github.com/w3c/csswg-drafts/issues/6396": {},
+      "https://github.com/w3c/csswg-drafts/issues/6402": {},
+      "https://github.com/w3c/csswg-drafts/issues/6405": {},
+      "https://github.com/w3c/csswg-drafts/issues/6644": {},
+      "https://github.com/w3c/csswg-drafts/issues/6711": {},
+      "https://github.com/w3c/csswg-drafts/issues/6870": {},
+      "https://github.com/w3c/csswg-drafts/issues/7033": {},
+      "https://github.com/w3c/csswg-drafts/issues/7066": {},
+      "https://github.com/w3c/csswg-drafts/issues/7080": {},
+      "https://github.com/w3c/csswg-drafts/issues/7095": {},
+      "https://github.com/w3c/csswg-drafts/issues/7142": {},
+      "https://github.com/w3c/csswg-drafts/issues/7181": {},
+      "https://github.com/w3c/csswg-drafts/issues/7402": {},
+      "https://github.com/w3c/csswg-drafts/issues/7551": {},
+      "https://github.com/w3c/csswg-drafts/issues/7669": {},
+      "https://github.com/w3c/csswg-drafts/issues/8088": {},
+      "https://github.com/w3c/csswg-drafts/issues/8600": {},
+      "https://lists.w3.org/Archives/Public/public-css-archive/": {},
+      "https://lists.w3.org/Archives/Public/www-style/": {},
+      "https://www.w3.org/TR/2021/WD-css-contain-3-20211221/": {},
+      "https://www.w3.org/TR/2022/WD-css-contain-3-20220818/": {},
+      "https://www.w3.org/TR/CSS/": {},
+      "https://www.w3.org/TR/css-contain-2/": {},
+      "https://www.w3.org/policies/process/20231103/": {}
+    },
+    "autolinks": {
+      "https://drafts.csswg.org/css-cascade-5/": {
+        "anchors": [
+          "shorthand-property",
+          "cascade-dependent-keyword"
+        ]
+      },
+      "https://drafts.csswg.org/css-conditional-5/": {
+        "anchors": [
+          "dom-csscontainerrule-containername",
+          "dom-csscontainerrule-containerquery",
+          "propdef-container-type",
+          "valdef-container-type-normal",
+          "container-size-query",
+          "typedef-container-condition",
+          "propdef-container-name",
+          "propdef-container",
+          "container-style-query",
+          "typedef-size-feature",
+          "query-container",
+          "container-query"
+        ]
+      },
+      "https://drafts.csswg.org/css-contain-2/": {
+        "anchors": [
+          "propdef-contain",
+          "inline-size-containment"
+        ]
+      },
+      "https://drafts.csswg.org/css-values-4/": {
+        "anchors": [
+          "string-value",
+          "identifier-value"
+        ]
+      },
+      "https://drafts.csswg.org/css-variables-2/": {
+        "anchors": [
+          "funcdef-var"
+        ]
+      },
+      "https://drafts.csswg.org/mediaqueries-5/": {
+        "anchors": [
+          "typedef-general-enclosed"
+        ]
+      }
+    }
+  }
+}

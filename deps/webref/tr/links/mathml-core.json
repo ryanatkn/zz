@@ -1,0 +1,173 @@
+{
+  "spec": {
+    "title": "MathML Core",
+    "url": "https://www.w3.org/TR/mathml-core/"
+  },
+  "links": {
+    "rawlinks": {
+      "https://dom.spec.whatwg.org/": {},
+      "https://drafts.css-houdini.org/": {},
+      "https://frederic-wang.fr/2016/04/16/opentype-math-in-harfbuzz/": {},
+      "https://github.com/w3c/mathml-core/issues/76": {},
+      "https://github.com/w3c/mathml-core/issues/77": {},
+      "https://github.com/w3c/mathml-core/issues/78": {},
+      "https://github.com/w3c/mathml-core/issues/?q=is%3Aissue+is%3Aopen+label%3A%22css%2Fhtml5%22": {},
+      "https://github.com/w3c/mathml-core/issues/?q=is%3Aissue+is%3Aopen+label%3A%22need+specification+update%22": {},
+      "https://github.com/w3c/mathml-core/issues/?q=is%3Aissue+is%3Aopen+label%3A%22needs-tests%22": {},
+      "https://github.com/w3c/mathml-core/issues/?q=is%3Aissue+is%3Aopen+label%3A%22opentype%2Ftex%22": {},
+      "https://github.com/w3c/mathml/issues?q=is%3Aissue+is%3Aopen+label%3A%22MathML+Core%22": {},
+      "https://github.com/whatwg/html/pull/5248": {},
+      "https://html.spec.whatwg.org/": {
+        "anchors": [
+          "embedding-custom-non-visible-data-with-the-data-*-attributes",
+          "presentational-hints",
+          "event-handlers-on-elements,-document-objects,-and-window-objects",
+          "webappapis",
+          "htmlorsvgelement",
+          "focus",
+          "algorithm-for-processing-rows",
+          "html-integration-point",
+          "security-with-canvas-elements"
+        ]
+      },
+      "https://html.spec.whatwg.org/multipage/": {},
+      "https://infra.spec.whatwg.org/": {
+        "anchors": [
+          "assert"
+        ]
+      },
+      "https://w3c.github.io/mathml/": {},
+      "https://webidl.spec.whatwg.org/": {},
+      "https://wpt.fyi/results/?label=master&label=experimental&aligned&q=math%20%20not%28path%3A%2Fjs%29": {},
+      "https://www.iso.org/standard/74461.html": {},
+      "https://www.rfc-editor.org/rfc/rfc2119": {},
+      "https://www.tug.org/TUGboat/tb30-1/tb94vieth.pdf": {},
+      "https://www.unicode.org/versions/latest/": {},
+      "https://www.w3.org/TR/": {},
+      "https://www.w3.org/TR/CSS2/": {},
+      "https://www.w3.org/TR/CSS2/box.html": {
+        "anchors": [
+          "collapsing-margins"
+        ]
+      },
+      "https://www.w3.org/TR/CSS2/zindex.html": {
+        "anchors": [
+          "painting-order"
+        ]
+      },
+      "https://www.w3.org/TR/CSS22/visuren.html": {
+        "anchors": [
+          "float-position"
+        ]
+      },
+      "https://www.w3.org/TR/MathML3/": {},
+      "https://www.w3.org/TR/MathML3/appendixe.html": {},
+      "https://www.w3.org/TR/SVG/": {},
+      "https://www.w3.org/TR/SVG/embedded.html": {
+        "anchors": [
+          "ForeignObjectElement"
+        ]
+      },
+      "https://www.w3.org/TR/css-cascade-4/": {
+        "anchors": [
+          "initial-values",
+          "applies-to",
+          "inherited-property",
+          "computed"
+        ]
+      },
+      "https://www.w3.org/TR/css-display-3/": {
+        "anchors": [
+          "unbox-mathml"
+        ]
+      },
+      "https://www.w3.org/TR/css-fonts-4/": {
+        "anchors": [
+          "security"
+        ]
+      },
+      "https://www.w3.org/TR/css-layout-api-1/": {
+        "anchors": [
+          "registering-layout"
+        ]
+      },
+      "https://www.w3.org/TR/css-position-3/": {
+        "anchors": [
+          "absolute-position",
+          "fixed-position"
+        ]
+      },
+      "https://www.w3.org/TR/css-text-4/": {},
+      "https://www.w3.org/TR/css-values-4/": {
+        "anchors": [
+          "value-defs",
+          "comb-any",
+          "comb-one"
+        ]
+      },
+      "https://www.w3.org/TR/css-values/": {
+        "anchors": [
+          "percentages"
+        ]
+      },
+      "https://www.w3.org/TR/css-writing-modes-4/": {},
+      "https://www.w3.org/TR/cssom/": {
+        "anchors": [
+          "serializing-css-values"
+        ]
+      },
+      "https://www.w3.org/TR/selectors-3/": {
+        "anchors": [
+          "title"
+        ]
+      },
+      "https://www.w3.org/TR/web-animations/": {
+        "anchors": [
+          "animation-type"
+        ]
+      },
+      "https://www.w3.org/TR/xml-entity-names/": {},
+      "https://www.w3.org/groups/wg/math": {},
+      "https://www.w3.org/groups/wg/math/ipr": {},
+      "https://www.w3.org/policies/patent-policy/": {
+        "anchors": [
+          "sec-Requirements",
+          "def-essential",
+          "sec-Disclosure"
+        ]
+      },
+      "https://www.w3.org/policies/process/20231103/": {
+        "anchors": [
+          "recs-and-notes",
+          "dfn-wide-review"
+        ]
+      }
+    },
+    "autolinks": {
+      "https://html.spec.whatwg.org/": {
+        "anchors": [
+          "htmlorsvgelement"
+        ]
+      },
+      "https://webidl.spec.whatwg.org/": {},
+      "https://www.w3.org/TR/css-color-4/": {
+        "anchors": [
+          "propdef-color"
+        ]
+      },
+      "https://www.w3.org/TR/css-display-3/": {
+        "anchors": [
+          "typedef-display-outside",
+          "typedef-display-inside"
+        ]
+      },
+      "https://www.w3.org/TR/css-values-4/": {
+        "anchors": [
+          "integer-value",
+          "typedef-length-percentage",
+          "comb-one"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,224 @@
+{
+  "spec": {
+    "title": "Web Neural Network API",
+    "url": "https://www.w3.org/TR/webnn/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "ECMASCRIPT",
+        "url": "https://tc39.es/ecma262/multipage/"
+      },
+      {
+        "name": "HTML",
+        "url": "https://html.spec.whatwg.org/multipage/"
+      },
+      {
+        "name": "INFRA",
+        "url": "https://infra.spec.whatwg.org/"
+      },
+      {
+        "name": "NUMPY-BROADCASTING-RULE",
+        "url": "https://numpy.org/doc/stable/user/basics.broadcasting.html#general-broadcasting-rules"
+      },
+      {
+        "name": "PERMISSIONS-POLICY-1",
+        "url": "https://www.w3.org/TR/permissions-policy-1/"
+      },
+      {
+        "name": "RFC2119",
+        "url": "https://datatracker.ietf.org/doc/html/rfc2119"
+      },
+      {
+        "name": "WEBGPU",
+        "url": "https://www.w3.org/TR/webgpu/"
+      },
+      {
+        "name": "WEBIDL",
+        "url": "https://webidl.spec.whatwg.org/"
+      }
+    ],
+    "informative": [
+      {
+        "name": "Batch-Normalization",
+        "url": "https://arxiv.org/abs/1502.03167"
+      },
+      {
+        "name": "ContextualLoss",
+        "url": "https://arxiv.org/abs/1803.02077"
+      },
+      {
+        "name": "DeepLabv3+",
+        "url": "https://arxiv.org/abs/1802.02611"
+      },
+      {
+        "name": "DeepMoji",
+        "url": "https://arxiv.org/abs/1708.00524"
+      },
+      {
+        "name": "ELU",
+        "url": "https://arxiv.org/abs/1511.07289"
+      },
+      {
+        "name": "Error-Function",
+        "url": "https://books.google.com/books?id=2CAqsF-RebgC&pg=PA110"
+      },
+      {
+        "name": "FaceForensics++",
+        "url": "https://github.com/ondyari/FaceForensics"
+      },
+      {
+        "name": "FaceNet",
+        "url": "https://arxiv.org/abs/1503.03832"
+      },
+      {
+        "name": "FAN",
+        "url": "https://arxiv.org/abs/1703.07332"
+      },
+      {
+        "name": "GNMT",
+        "url": "https://github.com/tensorflow/nmt"
+      },
+      {
+        "name": "GPT2",
+        "url": "https://d4mucfpksywv.cloudfront.net/better-language-models/language-models.pdf"
+      },
+      {
+        "name": "GRU",
+        "url": "https://arxiv.org/pdf/1406.1078.pdf"
+      },
+      {
+        "name": "HR-TIME-3",
+        "url": "https://www.w3.org/TR/hr-time-3/"
+      },
+      {
+        "name": "IEEE-754-2019",
+        "url": "https://ieeexplore.ieee.org/document/8766229"
+      },
+      {
+        "name": "IM2TXT",
+        "url": "https://arxiv.org/abs/1609.06647"
+      },
+      {
+        "name": "Instance-Normalization",
+        "url": "https://arxiv.org/abs/1607.08022"
+      },
+      {
+        "name": "Layer-Normalization",
+        "url": "https://arxiv.org/abs/1607.06450"
+      },
+      {
+        "name": "LDM",
+        "url": "https://arxiv.org/abs/2112.10752"
+      },
+      {
+        "name": "LeakyReLU",
+        "url": "https://pdfs.semanticscholar.org/367f/2c63a6f6a10b3b64b8729d601e69337ee3cc.pdf"
+      },
+      {
+        "name": "LLAMA-2-7B",
+        "url": "https://arxiv.org/abs/2307.09288"
+      },
+      {
+        "name": "LSTM",
+        "url": "https://doi.org/10.1162/neco.1997.9.8.1735"
+      },
+      {
+        "name": "m2m100_418M",
+        "url": "https://arxiv.org/abs/2010.11125"
+      },
+      {
+        "name": "MaskR-CNN",
+        "url": "https://arxiv.org/abs/1703.06870"
+      },
+      {
+        "name": "MobileNetV3",
+        "url": "https://arxiv.org/pdf/1905.02244"
+      },
+      {
+        "name": "MODELS",
+        "url": "https://github.com/webmachinelearning/webnn/blob/master/op_compatibility/first_wave_models.md"
+      },
+      {
+        "name": "NumPy",
+        "url": "https://numpy.org/doc/stable/"
+      },
+      {
+        "name": "OpenNMT",
+        "url": "https://arxiv.org/abs/1701.02810"
+      },
+      {
+        "name": "PairedCycleGAN",
+        "url": "http://openaccess.thecvf.com/content_cvpr_2018/html/Chang_PairedCycleGAN_Asymmetric_Style_CVPR_2018_paper.html"
+      },
+      {
+        "name": "PoseNet",
+        "url": "https://medium.com/tensorflow/real-time-human-pose-estimation-in-the-browser-with-tensorflow-js-7dd0bc881cd5"
+      },
+      {
+        "name": "POWERFUL-FEATURES",
+        "url": "https://www.w3.org/TR/secure-contexts/"
+      },
+      {
+        "name": "Prefix-sum",
+        "url": "https://en.wikipedia.org/wiki/Prefix_sum"
+      },
+      {
+        "name": "RNNoise",
+        "url": "https://github.com/xiph/rnnoise"
+      },
+      {
+        "name": "SECURITY-PRIVACY-QUESTIONNAIRE",
+        "url": "https://www.w3.org/TR/security-privacy-questionnaire/"
+      },
+      {
+        "name": "SegAny",
+        "url": "https://arxiv.org/abs/2304.02643"
+      },
+      {
+        "name": "SRGAN",
+        "url": "https://arxiv.org/abs/1609.04802"
+      },
+      {
+        "name": "SSD",
+        "url": "https://arxiv.org/abs/1512.02325"
+      },
+      {
+        "name": "T5-SMALL",
+        "url": "https://jmlr.org/papers/volume21/20-074/20-074.pdf"
+      },
+      {
+        "name": "UTR36",
+        "url": "https://www.unicode.org/reports/tr36/tr36-15.html"
+      },
+      {
+        "name": "UTS55",
+        "url": "https://www.unicode.org/reports/tr55/tr55-5.html"
+      },
+      {
+        "name": "Video-Summarization-with-LSTM",
+        "url": "http://www-scf.usc.edu/~zhan355/ke_eccv2016.pdf"
+      },
+      {
+        "name": "WASM-JS-API-2",
+        "url": "https://www.w3.org/TR/wasm-js-api-2/"
+      },
+      {
+        "name": "WCAG",
+        "url": "https://www.w3.org/TR/WCAG22/"
+      },
+      {
+        "name": "WEBMACHINELEARNING-ETHICS",
+        "url": "https://www.w3.org/TR/webmachinelearning-ethics/"
+      },
+      {
+        "name": "Whisper",
+        "url": "https://arxiv.org/abs/2212.04356"
+      },
+      {
+        "name": "YOLO",
+        "url": "https://arxiv.org/abs/1506.02640"
+      }
+    ]
+  }
+}

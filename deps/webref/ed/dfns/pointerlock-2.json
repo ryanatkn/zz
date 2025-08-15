@@ -1,0 +1,529 @@
+{
+  "spec": {
+    "title": "Pointer Lock 2.0",
+    "url": "https://w3c.github.io/pointerlock/"
+  },
+  "dfns": [
+    {
+      "id": "dfn-pointer-lock-state",
+      "href": "https://w3c.github.io/pointerlock/#dfn-pointer-lock-state",
+      "linkingText": [
+        "pointer lock state"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-pointer-lock-state-definition",
+        "href": "https://w3c.github.io/pointerlock/#the-pointer-lock-state-definition",
+        "title": "The pointer lock state definition",
+        "alternateIds": [
+          "x2-1-the-pointer-lock-state-definition"
+        ],
+        "number": "2.1"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-pointer-lock-target",
+      "href": "https://w3c.github.io/pointerlock/#dfn-pointer-lock-target",
+      "linkingText": [
+        "pointer-lock target"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-pointer-lock-state-definition",
+        "href": "https://w3c.github.io/pointerlock/#the-pointer-lock-state-definition",
+        "title": "The pointer lock state definition",
+        "alternateIds": [
+          "x2-1-the-pointer-lock-state-definition"
+        ],
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-pointer-lock-options",
+      "href": "https://w3c.github.io/pointerlock/#dfn-pointer-lock-options",
+      "linkingText": [
+        "pointer-lock options"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-pointer-lock-state-definition",
+        "href": "https://w3c.github.io/pointerlock/#the-pointer-lock-state-definition",
+        "title": "The pointer lock state definition",
+        "alternateIds": [
+          "x2-1-the-pointer-lock-state-definition"
+        ],
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-cursor-position",
+      "href": "https://w3c.github.io/pointerlock/#dfn-cursor-position",
+      "linkingText": [
+        "cursor position"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "the-pointer-lock-state-definition",
+        "href": "https://w3c.github.io/pointerlock/#the-pointer-lock-state-definition",
+        "title": "The pointer lock state definition",
+        "alternateIds": [
+          "x2-1-the-pointer-lock-state-definition"
+        ],
+        "number": "2.1"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-pointerlockoptions",
+      "href": "https://w3c.github.io/pointerlock/#dom-pointerlockoptions",
+      "linkingText": [
+        "PointerLockOptions"
+      ],
+      "localLinkingText": [],
+      "type": "dictionary",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "pointerlockoptions-dictionary",
+        "href": "https://w3c.github.io/pointerlock/#pointerlockoptions-dictionary",
+        "title": "PointerLockOptions dictionary",
+        "alternateIds": [
+          "x2-2-pointerlockoptions-dictionary"
+        ],
+        "number": "2.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-pointerlockoptions-unadjustedmovement",
+      "href": "https://w3c.github.io/pointerlock/#dom-pointerlockoptions-unadjustedmovement",
+      "linkingText": [
+        "unadjustedMovement"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "PointerLockOptions"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "pointerlockoptions-dictionary",
+        "href": "https://w3c.github.io/pointerlock/#pointerlockoptions-dictionary",
+        "title": "PointerLockOptions dictionary",
+        "alternateIds": [
+          "x2-2-pointerlockoptions-dictionary"
+        ],
+        "number": "2.2"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-pointerlockchange",
+      "href": "https://w3c.github.io/pointerlock/#dfn-pointerlockchange",
+      "linkingText": [
+        "pointerlockchange"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "pointerlockchange-and-pointerlockerror-events",
+        "href": "https://w3c.github.io/pointerlock/#pointerlockchange-and-pointerlockerror-events",
+        "title": "pointerlockchange and pointerlockerror Events",
+        "alternateIds": [
+          "x2-3-pointerlockchange-and-pointerlockerror-events"
+        ],
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-pointerlockerror",
+      "href": "https://w3c.github.io/pointerlock/#dfn-pointerlockerror",
+      "linkingText": [
+        "pointerlockerror"
+      ],
+      "localLinkingText": [],
+      "type": "event",
+      "for": [],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "pointerlockchange-and-pointerlockerror-events",
+        "href": "https://w3c.github.io/pointerlock/#pointerlockchange-and-pointerlockerror-events",
+        "title": "pointerlockchange and pointerlockerror Events",
+        "alternateIds": [
+          "x2-3-pointerlockchange-and-pointerlockerror-events"
+        ],
+        "number": "2.3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-exit-pointer-lock",
+      "href": "https://w3c.github.io/pointerlock/#dfn-exit-pointer-lock",
+      "linkingText": [
+        "Exit Pointer Lock"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "exit-pointer-lock",
+        "href": "https://w3c.github.io/pointerlock/#exit-pointer-lock",
+        "title": "Exit Pointer Lock",
+        "alternateIds": [
+          "x2-4-exit-pointer-lock"
+        ],
+        "number": "2.4"
+      },
+      "definedIn": "heading",
+      "links": []
+    },
+    {
+      "id": "dfn-lock-requests-queue",
+      "href": "https://w3c.github.io/pointerlock/#dfn-lock-requests-queue",
+      "linkingText": [
+        "lock requests queue"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "requestPointerLock",
+        "href": "https://w3c.github.io/pointerlock/#requestPointerLock",
+        "title": "Extensions to the Element Interface",
+        "alternateIds": [
+          "x3-extensions-to-the-element-interface"
+        ],
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-element-requestpointerlock",
+      "href": "https://w3c.github.io/pointerlock/#dom-element-requestpointerlock",
+      "linkingText": [
+        "requestPointerLock()",
+        "requestPointerLock(options)"
+      ],
+      "localLinkingText": [
+        "Element.requestPointerLock",
+        "Element.requestPointerLock()",
+        "requestPointerLock"
+      ],
+      "type": "method",
+      "for": [
+        "Element"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "requestPointerLock",
+        "href": "https://w3c.github.io/pointerlock/#requestPointerLock",
+        "title": "Extensions to the Element Interface",
+        "alternateIds": [
+          "x3-extensions-to-the-element-interface"
+        ],
+        "number": "3"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dom-document-onpointerlockchange",
+      "href": "https://w3c.github.io/pointerlock/#dom-document-onpointerlockchange",
+      "linkingText": [
+        "onpointerlockchange"
+      ],
+      "localLinkingText": [
+        "Document.onpointerlockchange"
+      ],
+      "type": "attribute",
+      "for": [
+        "Document"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "extensions-to-the-document-interface",
+        "href": "https://w3c.github.io/pointerlock/#extensions-to-the-document-interface",
+        "title": "Extensions to the Document Interface",
+        "alternateIds": [
+          "x4-extensions-to-the-document-interface"
+        ],
+        "number": "4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-document-onpointerlockerror",
+      "href": "https://w3c.github.io/pointerlock/#dom-document-onpointerlockerror",
+      "linkingText": [
+        "onpointerlockerror"
+      ],
+      "localLinkingText": [
+        "Document.onpointerlockerror"
+      ],
+      "type": "attribute",
+      "for": [
+        "Document"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "extensions-to-the-document-interface",
+        "href": "https://w3c.github.io/pointerlock/#extensions-to-the-document-interface",
+        "title": "Extensions to the Document Interface",
+        "alternateIds": [
+          "x4-extensions-to-the-document-interface"
+        ],
+        "number": "4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-document-exitpointerlock",
+      "href": "https://w3c.github.io/pointerlock/#dom-document-exitpointerlock",
+      "linkingText": [
+        "exitPointerLock()"
+      ],
+      "localLinkingText": [
+        "Document.exitPointerLock",
+        "Document.exitPointerLock()",
+        "exitPointerLock"
+      ],
+      "type": "method",
+      "for": [
+        "Document"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "extensions-to-the-document-interface",
+        "href": "https://w3c.github.io/pointerlock/#extensions-to-the-document-interface",
+        "title": "Extensions to the Document Interface",
+        "alternateIds": [
+          "x4-extensions-to-the-document-interface"
+        ],
+        "number": "4"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-documentorshadowroot-pointerlockelement",
+      "href": "https://w3c.github.io/pointerlock/#dom-documentorshadowroot-pointerlockelement",
+      "linkingText": [
+        "pointerLockElement"
+      ],
+      "localLinkingText": [
+        "DocumentOrShadowRoot.pointerLockElement"
+      ],
+      "type": "attribute",
+      "for": [
+        "DocumentOrShadowRoot"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "extensions-to-the-documentorshadowroot-mixin",
+        "href": "https://w3c.github.io/pointerlock/#extensions-to-the-documentorshadowroot-mixin",
+        "title": "Extensions to the DocumentOrShadowRoot Mixin",
+        "alternateIds": [
+          "x5-extensions-to-the-documentorshadowroot-mixin"
+        ],
+        "number": "5"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-mouseevent-movementx",
+      "href": "https://w3c.github.io/pointerlock/#dom-mouseevent-movementx",
+      "linkingText": [
+        "movementX"
+      ],
+      "localLinkingText": [
+        "MouseEvent.movementX"
+      ],
+      "type": "attribute",
+      "for": [
+        "MouseEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "extensions-to-the-mouseevent-interface",
+        "href": "https://w3c.github.io/pointerlock/#extensions-to-the-mouseevent-interface",
+        "title": "Extensions to the MouseEvent Interface",
+        "alternateIds": [
+          "x6-extensions-to-the-mouseevent-interface"
+        ],
+        "number": "6"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-mouseevent-movementy",
+      "href": "https://w3c.github.io/pointerlock/#dom-mouseevent-movementy",
+      "linkingText": [
+        "movementY"
+      ],
+      "localLinkingText": [
+        "MouseEvent.movementY"
+      ],
+      "type": "attribute",
+      "for": [
+        "MouseEvent"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "extensions-to-the-mouseevent-interface",
+        "href": "https://w3c.github.io/pointerlock/#extensions-to-the-mouseevent-interface",
+        "title": "Extensions to the MouseEvent Interface",
+        "alternateIds": [
+          "x6-extensions-to-the-mouseevent-interface"
+        ],
+        "number": "6"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-mouseeventinit-movementx",
+      "href": "https://w3c.github.io/pointerlock/#dom-mouseeventinit-movementx",
+      "linkingText": [
+        "movementX"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "MouseEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "extensions-to-the-mouseeventinit-dictionary",
+        "href": "https://w3c.github.io/pointerlock/#extensions-to-the-mouseeventinit-dictionary",
+        "title": "Extensions to the MouseEventInit Dictionary",
+        "alternateIds": [
+          "x7-extensions-to-the-mouseeventinit-dictionary"
+        ],
+        "number": "7"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dom-mouseeventinit-movementy",
+      "href": "https://w3c.github.io/pointerlock/#dom-mouseeventinit-movementy",
+      "linkingText": [
+        "movementY"
+      ],
+      "localLinkingText": [],
+      "type": "dict-member",
+      "for": [
+        "MouseEventInit"
+      ],
+      "access": "public",
+      "informative": false,
+      "heading": {
+        "id": "extensions-to-the-mouseeventinit-dictionary",
+        "href": "https://w3c.github.io/pointerlock/#extensions-to-the-mouseeventinit-dictionary",
+        "title": "Extensions to the MouseEventInit Dictionary",
+        "alternateIds": [
+          "x7-extensions-to-the-mouseeventinit-dictionary"
+        ],
+        "number": "7"
+      },
+      "definedIn": "dt",
+      "links": []
+    },
+    {
+      "id": "dfn-default-unlock-gesture",
+      "href": "https://w3c.github.io/pointerlock/#dfn-default-unlock-gesture",
+      "linkingText": [
+        "default unlock gesture"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "requirements",
+        "href": "https://w3c.github.io/pointerlock/#requirements",
+        "title": "Requirements",
+        "alternateIds": [
+          "x8-requirements"
+        ],
+        "number": "8"
+      },
+      "definedIn": "prose",
+      "links": []
+    },
+    {
+      "id": "dfn-user-agent",
+      "href": "https://w3c.github.io/pointerlock/#dfn-user-agent",
+      "linkingText": [
+        "user agent"
+      ],
+      "localLinkingText": [],
+      "type": "dfn",
+      "for": [],
+      "access": "private",
+      "informative": false,
+      "heading": {
+        "id": "conformance",
+        "href": "https://w3c.github.io/pointerlock/#conformance",
+        "title": "12. Conformance",
+        "alternateIds": [
+          "x12-conformance"
+        ]
+      },
+      "definedIn": "prose",
+      "links": []
+    }
+  ]
+}

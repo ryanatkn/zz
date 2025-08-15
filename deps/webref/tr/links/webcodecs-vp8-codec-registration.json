@@ -1,0 +1,40 @@
+{
+  "spec": {
+    "title": "VP8 WebCodecs Registration",
+    "url": "https://www.w3.org/TR/webcodecs-vp8-codec-registration/"
+  },
+  "links": {
+    "rawlinks": {
+      "https://datatracker.ietf.org/doc/html/rfc2119": {},
+      "https://datatracker.ietf.org/doc/html/rfc6386": {},
+      "https://github.com/w3c/webcodecs/issues": {},
+      "https://lists.w3.org/Archives/Public/public-media-wg/": {},
+      "https://www.w3.org/TR/": {},
+      "https://www.w3.org/TR/webcodecs-codec-registry/": {},
+      "https://www.w3.org/TR/webcodecs/": {
+        "anchors": [
+          "privacy-considerations",
+          "security-considerations"
+        ]
+      },
+      "https://www.w3.org/groups/wg/media": {},
+      "https://www.w3.org/policies/patent-policy/": {},
+      "https://www.w3.org/policies/process/20231103/": {
+        "anchors": [
+          "recs-and-notes"
+        ]
+      }
+    },
+    "autolinks": {
+      "https://www.w3.org/TR/webcodecs/": {
+        "anchors": [
+          "encodedvideochunk",
+          "dom-encodedvideochunk-internal-data-slot",
+          "dom-videodecoderconfig-description",
+          "dom-encodedvideochunk-type-slot",
+          "dom-encodedvideochunktype-key"
+        ]
+      }
+    }
+  }
+}

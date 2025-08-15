@@ -1,0 +1,32 @@
+{
+  "spec": {
+    "title": "FLAC WebCodecs Registration",
+    "url": "https://www.w3.org/TR/webcodecs-flac-codec-registration/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "RFC2119",
+        "url": "https://datatracker.ietf.org/doc/html/rfc2119"
+      },
+      {
+        "name": "WEBCODECS",
+        "url": "https://www.w3.org/TR/webcodecs/"
+      },
+      {
+        "name": "WEBIDL",
+        "url": "https://webidl.spec.whatwg.org/"
+      }
+    ],
+    "informative": [
+      {
+        "name": "FLAC",
+        "url": "https://datatracker.ietf.org/doc/draft-ietf-cellar-flac"
+      },
+      {
+        "name": "WEBCODECS-CODEC-REGISTRY",
+        "url": "https://www.w3.org/TR/webcodecs-codec-registry/"
+      }
+    ]
+  }
+}

@@ -1,0 +1,153 @@
+{
+  "spec": {
+    "title": "Badging API",
+    "url": "https://w3c.github.io/badging/"
+  },
+  "headings": [
+    {
+      "id": "title",
+      "href": "https://w3c.github.io/badging/#title",
+      "level": 1,
+      "title": "Badging API"
+    },
+    {
+      "id": "toc",
+      "href": "https://w3c.github.io/badging/#toc",
+      "level": 2,
+      "title": "Table of Contents",
+      "alternateIds": [
+        "table-of-contents"
+      ]
+    },
+    {
+      "id": "usage-examples",
+      "href": "https://w3c.github.io/badging/#usage-examples",
+      "level": 2,
+      "title": "Usage examples",
+      "alternateIds": [
+        "x1-usage-examples"
+      ],
+      "number": "1"
+    },
+    {
+      "id": "model",
+      "href": "https://w3c.github.io/badging/#model",
+      "level": 2,
+      "title": "Model",
+      "alternateIds": [
+        "x2-model"
+      ],
+      "number": "2"
+    },
+    {
+      "id": "presentation",
+      "href": "https://w3c.github.io/badging/#presentation",
+      "level": 2,
+      "title": "Displaying a badge",
+      "alternateIds": [
+        "x3-displaying-a-badge"
+      ],
+      "number": "3"
+    },
+    {
+      "id": "extensions-to-the-navigator-and-workernavigator-interfaces",
+      "href": "https://w3c.github.io/badging/#extensions-to-the-navigator-and-workernavigator-interfaces",
+      "level": 2,
+      "title": "Extensions to the Navigator and WorkerNavigator interfaces",
+      "alternateIds": [
+        "x4-extensions-to-the-navigator-and-workernavigator-interfaces"
+      ],
+      "number": "4"
+    },
+    {
+      "id": "setappbadge-method",
+      "href": "https://w3c.github.io/badging/#setappbadge-method",
+      "level": 3,
+      "title": "setAppBadge() method",
+      "alternateIds": [
+        "x4-1-setappbadge-method"
+      ],
+      "number": "4.1"
+    },
+    {
+      "id": "clearappbadge-method",
+      "href": "https://w3c.github.io/badging/#clearappbadge-method",
+      "level": 3,
+      "title": "clearAppBadge() method",
+      "alternateIds": [
+        "x4-2-clearappbadge-method"
+      ],
+      "number": "4.2"
+    },
+    {
+      "id": "setting-the-application-badge",
+      "href": "https://w3c.github.io/badging/#setting-the-application-badge",
+      "level": 2,
+      "title": "Setting the application badge",
+      "alternateIds": [
+        "x5-setting-the-application-badge"
+      ],
+      "number": "5"
+    },
+    {
+      "id": "privacy-considerations",
+      "href": "https://w3c.github.io/badging/#privacy-considerations",
+      "level": 2,
+      "title": "Privacy considerations",
+      "alternateIds": [
+        "x6-privacy-considerations"
+      ],
+      "number": "6"
+    },
+    {
+      "id": "security-considerations",
+      "href": "https://w3c.github.io/badging/#security-considerations",
+      "level": 2,
+      "title": "Security considerations",
+      "alternateIds": [
+        "x7-security-considerations"
+      ],
+      "number": "7"
+    },
+    {
+      "id": "accessibility-considerations",
+      "href": "https://w3c.github.io/badging/#accessibility-considerations",
+      "level": 2,
+      "title": "Accessibility considerations",
+      "alternateIds": [
+        "x8-accessibility-considerations"
+      ],
+      "number": "8"
+    },
+    {
+      "id": "conformance",
+      "href": "https://w3c.github.io/badging/#conformance",
+      "level": 2,
+      "title": "Conformance",
+      "alternateIds": [
+        "x9-conformance"
+      ],
+      "number": "9"
+    },
+    {
+      "id": "references",
+      "href": "https://w3c.github.io/badging/#references",
+      "level": 2,
+      "title": "References",
+      "alternateIds": [
+        "a-references"
+      ],
+      "number": "A"
+    },
+    {
+      "id": "normative-references",
+      "href": "https://w3c.github.io/badging/#normative-references",
+      "level": 3,
+      "title": "Normative references",
+      "alternateIds": [
+        "a-1-normative-references"
+      ],
+      "number": "A.1"
+    }
+  ]
+}

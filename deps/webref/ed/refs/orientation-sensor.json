@@ -1,0 +1,72 @@
+{
+  "spec": {
+    "title": "Orientation Sensor",
+    "url": "https://w3c.github.io/orientation-sensor/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "ACCELEROMETER",
+        "url": "https://w3c.github.io/accelerometer/"
+      },
+      {
+        "name": "GENERIC-SENSOR",
+        "url": "https://w3c.github.io/sensors/"
+      },
+      {
+        "name": "GEOMETRY-1",
+        "url": "https://drafts.fxtf.org/geometry/"
+      },
+      {
+        "name": "GYROSCOPE",
+        "url": "https://w3c.github.io/gyroscope/"
+      },
+      {
+        "name": "INFRA",
+        "url": "https://infra.spec.whatwg.org/"
+      },
+      {
+        "name": "MAGNETOMETER",
+        "url": "https://w3c.github.io/magnetometer/"
+      },
+      {
+        "name": "MOTION-SENSORS",
+        "url": "https://w3c.github.io/motion-sensors/"
+      },
+      {
+        "name": "ORIENTATION-EVENT",
+        "url": "https://w3c.github.io/deviceorientation/"
+      },
+      {
+        "name": "PERMISSIONS-POLICY-1",
+        "url": "https://w3c.github.io/webappsec-permissions-policy/"
+      },
+      {
+        "name": "RFC2119",
+        "url": "https://datatracker.ietf.org/doc/html/rfc2119"
+      },
+      {
+        "name": "WEBIDL",
+        "url": "https://webidl.spec.whatwg.org/"
+      }
+    ],
+    "informative": [
+      {
+        "name": "HTML",
+        "url": "https://html.spec.whatwg.org/multipage/"
+      },
+      {
+        "name": "QUATCONV",
+        "url": "https://www.cs.cmu.edu/afs/cs/academic/class/15462-s14/www/lec_slides/3DRotationNotes.pdf"
+      },
+      {
+        "name": "QUATERNIONS",
+        "url": "https://en.wikipedia.org/wiki/Quaternion"
+      },
+      {
+        "name": "SI",
+        "url": "http://www.bipm.org/en/publications/si-brochure/"
+      }
+    ]
+  }
+}

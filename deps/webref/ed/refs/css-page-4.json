@@ -1,0 +1,39 @@
+{
+  "spec": {
+    "title": "Proposals for the future of CSS Paged Media",
+    "url": "https://drafts.csswg.org/css-page-4/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "CSS21",
+        "url": "https://drafts.csswg.org/css2/"
+      },
+      {
+        "name": "CSS3-EXCLUSIONS",
+        "url": "https://drafts.csswg.org/css-exclusions/"
+      },
+      {
+        "name": "CSS3-GRID-LAYOUT",
+        "url": "https://drafts.csswg.org/css-grid-1/"
+      },
+      {
+        "name": "CSS3-REGIONS",
+        "url": "https://drafts.csswg.org/css-regions/"
+      },
+      {
+        "name": "CSS3GCPM",
+        "url": "https://drafts.csswg.org/css-gcpm/"
+      },
+      {
+        "name": "CSS3PAGE",
+        "url": "https://drafts.csswg.org/css-page-3/"
+      },
+      {
+        "name": "RFC2119",
+        "url": "https://datatracker.ietf.org/doc/html/rfc2119"
+      }
+    ],
+    "informative": []
+  }
+}

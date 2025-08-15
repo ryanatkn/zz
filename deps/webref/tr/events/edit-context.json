@@ -1,0 +1,70 @@
+{
+  "spec": {
+    "title": "EditContext API",
+    "url": "https://www.w3.org/TR/edit-context/"
+  },
+  "events": [
+    {
+      "src": {
+        "format": "fire an event phrasing",
+        "href": "https://www.w3.org/TR/edit-context/#update-the-editcontext"
+      },
+      "href": "https://w3c.github.io/uievents/#event-type-compositionstart",
+      "type": "compositionstart",
+      "targets": [
+        "EditContext"
+      ],
+      "interface": "CompositionEvent",
+      "isExtension": true
+    },
+    {
+      "src": {
+        "format": "fire an event phrasing",
+        "href": "https://www.w3.org/TR/edit-context/#update-the-editcontext"
+      },
+      "href": "https://w3c.github.io/uievents/#event-type-compositionend",
+      "type": "compositionend",
+      "targets": [
+        "EditContext"
+      ],
+      "interface": "CompositionEvent",
+      "isExtension": true
+    },
+    {
+      "src": {
+        "format": "fire an event phrasing",
+        "href": "https://www.w3.org/TR/edit-context/#dispatch-text-update-event"
+      },
+      "href": "https://www.w3.org/TR/edit-context/#dispatch-text-update-event",
+      "type": "textupdate",
+      "interface": "TextUpdateEvent",
+      "targets": [
+        "EditContext"
+      ]
+    },
+    {
+      "src": {
+        "format": "fire an event phrasing",
+        "href": "https://www.w3.org/TR/edit-context/#dispatch-text-format-update-event"
+      },
+      "href": "https://www.w3.org/TR/edit-context/#dispatch-text-format-update-event",
+      "type": "textformatupdate",
+      "interface": "TextFormatUpdateEvent",
+      "targets": [
+        "EditContext"
+      ]
+    },
+    {
+      "src": {
+        "format": "fire an event phrasing",
+        "href": "https://www.w3.org/TR/edit-context/#dispatch-character-bounds-update-event"
+      },
+      "href": "https://www.w3.org/TR/edit-context/#dispatch-character-bounds-update-event",
+      "type": "characterboundsupdate",
+      "interface": "CharacterBoundsUpdateEvent",
+      "targets": [
+        "EditContext"
+      ]
+    }
+  ]
+}

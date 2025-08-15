@@ -1,0 +1,61 @@
+From faaa4cf0e963176563339e6befb3fb84077d5f7f Mon Sep 17 00:00:00 2001
+From: Francois Daoust <fd@tidoust.net>
+Date: Thu, 6 Mar 2025 16:31:29 +0100
+Subject: [PATCH] Fix IDL of SVG spec
+
+HTMLHyperlinkElementUtils: https://github.com/w3c/svgwg/issues/312
+
+Also drop `SVGPathElement`, now that SVG Paths is also being crawled, pending
+clarification of status between SVG 2 and SVG Paths.
+---
+ ed/idl/SVG.idl | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
+
+diff --git a/ed/idl/SVG.idl b/ed/idl/SVG.idl
+index 9ce619d1e..5dff2947b 100644
+--- a/ed/idl/SVG.idl
++++ b/ed/idl/SVG.idl
+@@ -13,7 +13,6 @@ interface SVGElement : Element {
+ };
+ 
+ SVGElement includes GlobalEventHandlers;
+-SVGElement includes DocumentAndElementEventHandlers;
+ SVGElement includes SVGElementInstance;
+ SVGElement includes HTMLOrSVGElement;
+ 
+@@ -419,10 +418,6 @@ interface SVGAnimatedPreserveAspectRatio {
+   [SameObject] readonly attribute SVGPreserveAspectRatio animVal;
+ };
+ 
+-[Exposed=Window]
+-interface SVGPathElement : SVGGeometryElement {
+-};
+-
+ [Exposed=Window]
+ interface SVGRectElement : SVGGeometryElement {
+   [SameObject] readonly attribute SVGAnimatedLength x;
+@@ -673,7 +668,20 @@ interface SVGAElement : SVGGraphicsElement {
+ };
+ 
+ SVGAElement includes SVGURIReference;
+-SVGAElement includes HTMLHyperlinkElementUtils;
++
++// Inline HTMLHyperlinkElementUtils except href, which conflicts.
++partial interface SVGAElement {
++  readonly attribute USVString origin;
++  [CEReactions] attribute USVString protocol;
++  [CEReactions] attribute USVString username;
++  [CEReactions] attribute USVString password;
++  [CEReactions] attribute USVString host;
++  [CEReactions] attribute USVString hostname;
++  [CEReactions] attribute USVString port;
++  [CEReactions] attribute USVString pathname;
++  [CEReactions] attribute USVString search;
++  [CEReactions] attribute USVString hash;
++};
+ 
+ [Exposed=Window]
+ interface SVGViewElement : SVGElement {};
+-- 
+2.37.1.windows.1
+

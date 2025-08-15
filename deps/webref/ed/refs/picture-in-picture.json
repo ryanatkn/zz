@@ -1,0 +1,60 @@
+{
+  "spec": {
+    "title": "Picture-in-Picture",
+    "url": "https://w3c.github.io/picture-in-picture/"
+  },
+  "refs": {
+    "normative": [
+      {
+        "name": "CSS-VALUES-4",
+        "url": "https://drafts.csswg.org/css-values-4/"
+      },
+      {
+        "name": "DOM",
+        "url": "https://dom.spec.whatwg.org/"
+      },
+      {
+        "name": "FULLSCREEN",
+        "url": "https://fullscreen.spec.whatwg.org/"
+      },
+      {
+        "name": "HTML",
+        "url": "https://html.spec.whatwg.org/multipage/"
+      },
+      {
+        "name": "INFRA",
+        "url": "https://infra.spec.whatwg.org/"
+      },
+      {
+        "name": "PERMISSIONS-POLICY-1",
+        "url": "https://w3c.github.io/webappsec-permissions-policy/"
+      },
+      {
+        "name": "Remote-Playback",
+        "url": "https://w3c.github.io/remote-playback/"
+      },
+      {
+        "name": "RFC2119",
+        "url": "https://datatracker.ietf.org/doc/html/rfc2119"
+      },
+      {
+        "name": "SELECTORS-4",
+        "url": "https://drafts.csswg.org/selectors/"
+      },
+      {
+        "name": "WEBIDL",
+        "url": "https://webidl.spec.whatwg.org/"
+      }
+    ],
+    "informative": [
+      {
+        "name": "MediaSession",
+        "url": "https://w3c.github.io/mediasession/"
+      },
+      {
+        "name": "SECURE-CONTEXTS",
+        "url": "https://w3c.github.io/webappsec-secure-contexts/"
+      }
+    ]
+  }
+}

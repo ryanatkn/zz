@@ -1,0 +1,43 @@
+{
+  "spec": {
+    "title": "MP3 WebCodecs Registration",
+    "url": "https://www.w3.org/TR/webcodecs-mp3-codec-registration/"
+  },
+  "links": {
+    "rawlinks": {
+      "https://datatracker.ietf.org/doc/html/rfc2119": {},
+      "https://github.com/w3c/webcodecs/issues": {},
+      "https://lists.w3.org/Archives/Public/public-media-wg/": {},
+      "https://www.iso.org/standard/26797.html": {},
+      "https://www.w3.org/TR/": {},
+      "https://www.w3.org/TR/webcodecs-codec-registry/": {},
+      "https://www.w3.org/TR/webcodecs/": {
+        "anchors": [
+          "config-codec-string",
+          "privacy-considerations",
+          "security-considerations"
+        ]
+      },
+      "https://www.w3.org/groups/wg/media/": {},
+      "https://www.w3.org/policies/patent-policy/": {},
+      "https://www.w3.org/policies/process/20231103/": {
+        "anchors": [
+          "recs-and-notes"
+        ]
+      }
+    },
+    "autolinks": {
+      "https://www.w3.org/TR/webcodecs/": {
+        "anchors": [
+          "dom-audiodecoderconfig-description",
+          "encodedaudiochunk",
+          "dom-encodedaudiochunk-internal-data-slot",
+          "dom-encodedaudiochunk-type-slot",
+          "dom-audiodecoderconfig-samplerate",
+          "dom-audiodecoderconfig-numberofchannels",
+          "dom-encodedaudiochunktype-key"
+        ]
+      }
+    }
+  }
+}

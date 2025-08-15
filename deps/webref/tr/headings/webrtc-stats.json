@@ -1,0 +1,576 @@
+{
+  "spec": {
+    "title": "Identifiers for WebRTC's Statistics API",
+    "url": "https://www.w3.org/TR/webrtc-stats/"
+  },
+  "headings": [
+    {
+      "id": "title",
+      "href": "https://www.w3.org/TR/webrtc-stats/#title",
+      "level": 1,
+      "title": "Identifiers for WebRTC's Statistics API"
+    },
+    {
+      "id": "toc",
+      "href": "https://www.w3.org/TR/webrtc-stats/#toc",
+      "level": 2,
+      "title": "Table of Contents",
+      "alternateIds": [
+        "table-of-contents"
+      ]
+    },
+    {
+      "id": "introduction",
+      "href": "https://www.w3.org/TR/webrtc-stats/#introduction",
+      "level": 2,
+      "title": "Introduction",
+      "alternateIds": [
+        "x1-introduction"
+      ],
+      "number": "1"
+    },
+    {
+      "id": "conformance",
+      "href": "https://www.w3.org/TR/webrtc-stats/#conformance",
+      "level": 2,
+      "title": "Conformance",
+      "alternateIds": [
+        "x2-conformance"
+      ],
+      "number": "2"
+    },
+    {
+      "id": "terminology",
+      "href": "https://www.w3.org/TR/webrtc-stats/#terminology",
+      "level": 2,
+      "title": "Terminology",
+      "alternateIds": [
+        "x3-terminology"
+      ],
+      "number": "3"
+    },
+    {
+      "id": "basic-concepts",
+      "href": "https://www.w3.org/TR/webrtc-stats/#basic-concepts",
+      "level": 2,
+      "title": "Basic concepts",
+      "alternateIds": [
+        "x4-basic-concepts"
+      ],
+      "number": "4"
+    },
+    {
+      "id": "guidelines-for-design-of-stats-objects",
+      "href": "https://www.w3.org/TR/webrtc-stats/#guidelines-for-design-of-stats-objects",
+      "level": 3,
+      "title": "Guidelines for design of stats objects",
+      "alternateIds": [
+        "x4-1-guidelines-for-design-of-stats-objects"
+      ],
+      "number": "4.1"
+    },
+    {
+      "id": "guidelines-for-implementing-stats-objects",
+      "href": "https://www.w3.org/TR/webrtc-stats/#guidelines-for-implementing-stats-objects",
+      "level": 3,
+      "title": "Guidelines for implementing stats objects",
+      "alternateIds": [
+        "x4-2-guidelines-for-implementing-stats-objects"
+      ],
+      "number": "4.2"
+    },
+    {
+      "id": "lifetime-considerations-for-monitored-objects",
+      "href": "https://www.w3.org/TR/webrtc-stats/#lifetime-considerations-for-monitored-objects",
+      "level": 3,
+      "title": "Lifetime considerations for monitored objects",
+      "alternateIds": [
+        "x4-3-lifetime-considerations-for-monitored-objects"
+      ],
+      "number": "4.3"
+    },
+    {
+      "id": "guidelines-for-getstats-results-caching-throttling",
+      "href": "https://www.w3.org/TR/webrtc-stats/#guidelines-for-getstats-results-caching-throttling",
+      "level": 3,
+      "title": "Guidelines for getStats() results caching/throttling",
+      "alternateIds": [
+        "x4-4-guidelines-for-getstats-results-caching-throttling"
+      ],
+      "number": "4.4"
+    },
+    {
+      "id": "maintenance-procedures-for-stats-object-types",
+      "href": "https://www.w3.org/TR/webrtc-stats/#maintenance-procedures-for-stats-object-types",
+      "level": 2,
+      "title": "Maintenance procedures for stats object types",
+      "alternateIds": [
+        "x5-maintenance-procedures-for-stats-object-types"
+      ],
+      "number": "5"
+    },
+    {
+      "id": "adding-new-stats-objects",
+      "href": "https://www.w3.org/TR/webrtc-stats/#adding-new-stats-objects",
+      "level": 3,
+      "title": "Adding new stats objects",
+      "alternateIds": [
+        "x5-1-adding-new-stats-objects"
+      ],
+      "number": "5.1"
+    },
+    {
+      "id": "procedures-for-mitigating-privacy-concerns",
+      "href": "https://www.w3.org/TR/webrtc-stats/#procedures-for-mitigating-privacy-concerns",
+      "level": 2,
+      "title": "Procedures for mitigating privacy concerns",
+      "alternateIds": [
+        "x6-procedures-for-mitigating-privacy-concerns"
+      ],
+      "number": "6"
+    },
+    {
+      "id": "limiting-exposure-of-hardware-capabilities",
+      "href": "https://www.w3.org/TR/webrtc-stats/#limiting-exposure-of-hardware-capabilities",
+      "level": 3,
+      "title": "Limiting exposure of hardware capabilities",
+      "alternateIds": [
+        "x6-1-limiting-exposure-of-hardware-capabilities"
+      ],
+      "number": "6.1"
+    },
+    {
+      "id": "rtctatstype-*",
+      "href": "https://www.w3.org/TR/webrtc-stats/#rtctatstype-*",
+      "level": 2,
+      "title": "RTCStatsType",
+      "alternateIds": [
+        "x7-rtcstatstype"
+      ],
+      "number": "7"
+    },
+    {
+      "id": "rtcstatstype-str*",
+      "href": "https://www.w3.org/TR/webrtc-stats/#rtcstatstype-str*",
+      "level": 3,
+      "title": "RTCStatsType enum",
+      "alternateIds": [
+        "x7-1-rtcstatstype-enum"
+      ],
+      "number": "7.1"
+    },
+    {
+      "id": "stats-dictionaries",
+      "href": "https://www.w3.org/TR/webrtc-stats/#stats-dictionaries",
+      "level": 2,
+      "title": "Stats dictionaries",
+      "alternateIds": [
+        "x8-stats-dictionaries"
+      ],
+      "number": "8"
+    },
+    {
+      "id": "the-rtp-statistics-hierarchy",
+      "href": "https://www.w3.org/TR/webrtc-stats/#the-rtp-statistics-hierarchy",
+      "level": 3,
+      "title": "The RTP statistics hierarchy",
+      "alternateIds": [
+        "x8-1-the-rtp-statistics-hierarchy"
+      ],
+      "number": "8.1"
+    },
+    {
+      "id": "streamstats-dict*",
+      "href": "https://www.w3.org/TR/webrtc-stats/#streamstats-dict*",
+      "level": 3,
+      "title": "RTCRtpStreamStats dictionary",
+      "alternateIds": [
+        "x8-2-rtcrtpstreamstats-dictionary"
+      ],
+      "number": "8.2"
+    },
+    {
+      "id": "dictionary-rtcrtpstreamstats-members",
+      "href": "https://www.w3.org/TR/webrtc-stats/#dictionary-rtcrtpstreamstats-members",
+      "level": 4,
+      "title": "Dictionary RTCRtpStreamStats Members"
+    },
+    {
+      "id": "codec-dict*",
+      "href": "https://www.w3.org/TR/webrtc-stats/#codec-dict*",
+      "level": 3,
+      "title": "RTCCodecStats dictionary",
+      "alternateIds": [
+        "x8-3-rtccodecstats-dictionary"
+      ],
+      "number": "8.3"
+    },
+    {
+      "id": "dictionary-rtccodecstats-members",
+      "href": "https://www.w3.org/TR/webrtc-stats/#dictionary-rtccodecstats-members",
+      "level": 4,
+      "title": "Dictionary RTCCodecStats Members"
+    },
+    {
+      "id": "receivedrtpstats-dict*",
+      "href": "https://www.w3.org/TR/webrtc-stats/#receivedrtpstats-dict*",
+      "level": 3,
+      "title": "RTCReceivedRtpStreamStats dictionary",
+      "alternateIds": [
+        "x8-4-rtcreceivedrtpstreamstats-dictionary"
+      ],
+      "number": "8.4"
+    },
+    {
+      "id": "dictionary-rtcreceivedrtpstreamstats-members",
+      "href": "https://www.w3.org/TR/webrtc-stats/#dictionary-rtcreceivedrtpstreamstats-members",
+      "level": 4,
+      "title": "Dictionary RTCReceivedRtpStreamStats Members"
+    },
+    {
+      "id": "inboundrtpstats-dict*",
+      "href": "https://www.w3.org/TR/webrtc-stats/#inboundrtpstats-dict*",
+      "level": 3,
+      "title": "RTCInboundRtpStreamStats dictionary",
+      "alternateIds": [
+        "x8-5-rtcinboundrtpstreamstats-dictionary"
+      ],
+      "number": "8.5"
+    },
+    {
+      "id": "dictionary-rtcinboundrtpstreamstats-members",
+      "href": "https://www.w3.org/TR/webrtc-stats/#dictionary-rtcinboundrtpstreamstats-members",
+      "level": 4,
+      "title": "Dictionary RTCInboundRtpStreamStats Members"
+    },
+    {
+      "id": "remoteinboundrtpstats-dict*",
+      "href": "https://www.w3.org/TR/webrtc-stats/#remoteinboundrtpstats-dict*",
+      "level": 3,
+      "title": "RTCRemoteInboundRtpStreamStats dictionary",
+      "alternateIds": [
+        "x8-6-rtcremoteinboundrtpstreamstats-dictionary"
+      ],
+      "number": "8.6"
+    },
+    {
+      "id": "dictionary-rtcremoteinboundrtpstreamstats-members",
+      "href": "https://www.w3.org/TR/webrtc-stats/#dictionary-rtcremoteinboundrtpstreamstats-members",
+      "level": 4,
+      "title": "Dictionary RTCRemoteInboundRtpStreamStats Members"
+    },
+    {
+      "id": "sentrtpstats-dict*",
+      "href": "https://www.w3.org/TR/webrtc-stats/#sentrtpstats-dict*",
+      "level": 3,
+      "title": "RTCSentRtpStreamStats dictionary",
+      "alternateIds": [
+        "x8-7-rtcsentrtpstreamstats-dictionary"
+      ],
+      "number": "8.7"
+    },
+    {
+      "id": "dictionary-rtcsentrtpstreamstats-members",
+      "href": "https://www.w3.org/TR/webrtc-stats/#dictionary-rtcsentrtpstreamstats-members",
+      "level": 4,
+      "title": "Dictionary RTCSentRtpStreamStats Members"
+    },
+    {
+      "id": "outboundrtpstats-dict*",
+      "href": "https://www.w3.org/TR/webrtc-stats/#outboundrtpstats-dict*",
+      "level": 3,
+      "title": "RTCOutboundRtpStreamStats dictionary",
+      "alternateIds": [
+        "x8-8-rtcoutboundrtpstreamstats-dictionary"
+      ],
+      "number": "8.8"
+    },
+    {
+      "id": "dictionary-rtcoutboundrtpstreamstats-members",
+      "href": "https://www.w3.org/TR/webrtc-stats/#dictionary-rtcoutboundrtpstreamstats-members",
+      "level": 4,
+      "title": "Dictionary RTCOutboundRtpStreamStats Members"
+    },
+    {
+      "id": "rtcqualitylimitationreason-enum",
+      "href": "https://www.w3.org/TR/webrtc-stats/#rtcqualitylimitationreason-enum",
+      "level": 3,
+      "title": "RTCQualityLimitationReason enum",
+      "alternateIds": [
+        "x8-9-rtcqualitylimitationreason-enum"
+      ],
+      "number": "8.9"
+    },
+    {
+      "id": "remoteoutboundrtpstats-dict*",
+      "href": "https://www.w3.org/TR/webrtc-stats/#remoteoutboundrtpstats-dict*",
+      "level": 3,
+      "title": "RTCRemoteOutboundRtpStreamStats dictionary",
+      "alternateIds": [
+        "x8-10-rtcremoteoutboundrtpstreamstats-dictionary"
+      ],
+      "number": "8.10"
+    },
+    {
+      "id": "dictionary-rtcremoteoutboundrtpstreamstats-members",
+      "href": "https://www.w3.org/TR/webrtc-stats/#dictionary-rtcremoteoutboundrtpstreamstats-members",
+      "level": 4,
+      "title": "Dictionary RTCRemoteOutboundRtpStreamStats Members"
+    },
+    {
+      "id": "mediasourcestats-dict*",
+      "href": "https://www.w3.org/TR/webrtc-stats/#mediasourcestats-dict*",
+      "level": 3,
+      "title": "RTCMediaSourceStats dictionary",
+      "alternateIds": [
+        "x8-11-rtcmediasourcestats-dictionary"
+      ],
+      "number": "8.11"
+    },
+    {
+      "id": "dictionary-rtcmediasourcestats-members",
+      "href": "https://www.w3.org/TR/webrtc-stats/#dictionary-rtcmediasourcestats-members",
+      "level": 4,
+      "title": "Dictionary RTCMediaSourceStats Members"
+    },
+    {
+      "id": "audiosourcestats-dict*",
+      "href": "https://www.w3.org/TR/webrtc-stats/#audiosourcestats-dict*",
+      "level": 3,
+      "title": "RTCAudioSourceStats dictionary",
+      "alternateIds": [
+        "x8-12-rtcaudiosourcestats-dictionary"
+      ],
+      "number": "8.12"
+    },
+    {
+      "id": "dictionary-rtcaudiosourcestats-members",
+      "href": "https://www.w3.org/TR/webrtc-stats/#dictionary-rtcaudiosourcestats-members",
+      "level": 4,
+      "title": "Dictionary RTCAudioSourceStats Members"
+    },
+    {
+      "id": "videosourcestats-dict*",
+      "href": "https://www.w3.org/TR/webrtc-stats/#videosourcestats-dict*",
+      "level": 3,
+      "title": "RTCVideoSourceStats dictionary",
+      "alternateIds": [
+        "x8-13-rtcvideosourcestats-dictionary"
+      ],
+      "number": "8.13"
+    },
+    {
+      "id": "dictionary-rtcvideosourcestats-members",
+      "href": "https://www.w3.org/TR/webrtc-stats/#dictionary-rtcvideosourcestats-members",
+      "level": 4,
+      "title": "Dictionary RTCVideoSourceStats Members"
+    },
+    {
+      "id": "playoutstats-dict*",
+      "href": "https://www.w3.org/TR/webrtc-stats/#playoutstats-dict*",
+      "level": 3,
+      "title": "RTCAudioPlayoutStats dictionary",
+      "alternateIds": [
+        "x8-14-rtcaudioplayoutstats-dictionary"
+      ],
+      "number": "8.14"
+    },
+    {
+      "id": "dictionary-rtcaudioplayoutstats-members",
+      "href": "https://www.w3.org/TR/webrtc-stats/#dictionary-rtcaudioplayoutstats-members",
+      "level": 4,
+      "title": "Dictionary RTCAudioPlayoutStats Members"
+    },
+    {
+      "id": "pcstats-dict*",
+      "href": "https://www.w3.org/TR/webrtc-stats/#pcstats-dict*",
+      "level": 3,
+      "title": "RTCPeerConnectionStats dictionary",
+      "alternateIds": [
+        "x8-15-rtcpeerconnectionstats-dictionary"
+      ],
+      "number": "8.15"
+    },
+    {
+      "id": "dictionary-rtcpeerconnectionstats-members",
+      "href": "https://www.w3.org/TR/webrtc-stats/#dictionary-rtcpeerconnectionstats-members",
+      "level": 4,
+      "title": "Dictionary RTCPeerConnectionStats Members"
+    },
+    {
+      "id": "dcstats-dict*",
+      "href": "https://www.w3.org/TR/webrtc-stats/#dcstats-dict*",
+      "level": 3,
+      "title": "RTCDataChannelStats dictionary",
+      "alternateIds": [
+        "x8-16-rtcdatachannelstats-dictionary"
+      ],
+      "number": "8.16"
+    },
+    {
+      "id": "dictionary-rtcdatachannelstats-members",
+      "href": "https://www.w3.org/TR/webrtc-stats/#dictionary-rtcdatachannelstats-members",
+      "level": 4,
+      "title": "Dictionary RTCDataChannelStats Members"
+    },
+    {
+      "id": "transportstats-dict*",
+      "href": "https://www.w3.org/TR/webrtc-stats/#transportstats-dict*",
+      "level": 3,
+      "title": "RTCTransportStats dictionary",
+      "alternateIds": [
+        "x8-17-rtctransportstats-dictionary"
+      ],
+      "number": "8.17"
+    },
+    {
+      "id": "dictionary-rtctransportstats-members",
+      "href": "https://www.w3.org/TR/webrtc-stats/#dictionary-rtctransportstats-members",
+      "level": 4,
+      "title": "Dictionary RTCTransportStats Members"
+    },
+    {
+      "id": "rtcdtlsrole-enum",
+      "href": "https://www.w3.org/TR/webrtc-stats/#rtcdtlsrole-enum",
+      "level": 4,
+      "title": "RTCDtlsRole enum"
+    },
+    {
+      "id": "icecandidate-dict*",
+      "href": "https://www.w3.org/TR/webrtc-stats/#icecandidate-dict*",
+      "level": 3,
+      "title": "RTCIceCandidateStats dictionary",
+      "alternateIds": [
+        "x8-18-rtcicecandidatestats-dictionary"
+      ],
+      "number": "8.18"
+    },
+    {
+      "id": "dictionary-rtcicecandidatestats-members",
+      "href": "https://www.w3.org/TR/webrtc-stats/#dictionary-rtcicecandidatestats-members",
+      "level": 4,
+      "title": "Dictionary RTCIceCandidateStats Members"
+    },
+    {
+      "id": "candidatepair-dict*",
+      "href": "https://www.w3.org/TR/webrtc-stats/#candidatepair-dict*",
+      "level": 3,
+      "title": "RTCIceCandidatePairStats dictionary",
+      "alternateIds": [
+        "x8-19-rtcicecandidatepairstats-dictionary"
+      ],
+      "number": "8.19"
+    },
+    {
+      "id": "dictionary-rtcicecandidatepairstats-members",
+      "href": "https://www.w3.org/TR/webrtc-stats/#dictionary-rtcicecandidatepairstats-members",
+      "level": 4,
+      "title": "Dictionary RTCIceCandidatePairStats Members"
+    },
+    {
+      "id": "rtcstatsicecandidatepairstate-enum",
+      "href": "https://www.w3.org/TR/webrtc-stats/#rtcstatsicecandidatepairstate-enum",
+      "level": 4,
+      "title": "RTCStatsIceCandidatePairState enum",
+      "alternateIds": [
+        "x8-19-1-rtcstatsicecandidatepairstate-enum"
+      ],
+      "number": "8.19.1"
+    },
+    {
+      "id": "certificatestats-dict*",
+      "href": "https://www.w3.org/TR/webrtc-stats/#certificatestats-dict*",
+      "level": 3,
+      "title": "RTCCertificateStats dictionary",
+      "alternateIds": [
+        "x8-20-rtccertificatestats-dictionary"
+      ],
+      "number": "8.20"
+    },
+    {
+      "id": "dictionary-rtccertificatestats-members",
+      "href": "https://www.w3.org/TR/webrtc-stats/#dictionary-rtccertificatestats-members",
+      "level": 4,
+      "title": "Dictionary RTCCertificateStats Members"
+    },
+    {
+      "id": "examples",
+      "href": "https://www.w3.org/TR/webrtc-stats/#examples",
+      "level": 2,
+      "title": "Examples",
+      "alternateIds": [
+        "x9-examples"
+      ],
+      "number": "9"
+    },
+    {
+      "id": "example-of-a-stats-application",
+      "href": "https://www.w3.org/TR/webrtc-stats/#example-of-a-stats-application",
+      "level": 3,
+      "title": "Example of a stats application",
+      "alternateIds": [
+        "x9-1-example-of-a-stats-application"
+      ],
+      "number": "9.1"
+    },
+    {
+      "id": "security-and-privacy-considerations",
+      "href": "https://www.w3.org/TR/webrtc-stats/#security-and-privacy-considerations",
+      "level": 2,
+      "title": "10. Security and Privacy Considerations",
+      "alternateIds": [
+        "x10-security-and-privacy-considerations"
+      ]
+    },
+    {
+      "id": "summary",
+      "href": "https://www.w3.org/TR/webrtc-stats/#summary",
+      "level": 2,
+      "title": "Summary of WebRTC stats fields per type",
+      "alternateIds": [
+        "a-summary-of-webrtc-stats-fields-per-type"
+      ],
+      "number": "A"
+    },
+    {
+      "id": "acknowledgements",
+      "href": "https://www.w3.org/TR/webrtc-stats/#acknowledgements",
+      "level": 2,
+      "title": "Acknowledgements",
+      "alternateIds": [
+        "b-acknowledgements"
+      ],
+      "number": "B"
+    },
+    {
+      "id": "references",
+      "href": "https://www.w3.org/TR/webrtc-stats/#references",
+      "level": 2,
+      "title": "References",
+      "alternateIds": [
+        "c-references"
+      ],
+      "number": "C"
+    },
+    {
+      "id": "normative-references",
+      "href": "https://www.w3.org/TR/webrtc-stats/#normative-references",
+      "level": 3,
+      "title": "Normative references",
+      "alternateIds": [
+        "c-1-normative-references"
+      ],
+      "number": "C.1"
+    },
+    {
+      "id": "informative-references",
+      "href": "https://www.w3.org/TR/webrtc-stats/#informative-references",
+      "level": 3,
+      "title": "Informative references",
+      "alternateIds": [
+        "c-2-informative-references"
+      ],
+      "number": "C.2"
+    }
+  ]
+}

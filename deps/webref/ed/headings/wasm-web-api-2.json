@@ -1,0 +1,157 @@
+{
+  "spec": {
+    "title": "WebAssembly Web API",
+    "url": "https://webassembly.github.io/spec/web-api/"
+  },
+  "headings": [
+    {
+      "id": "title",
+      "href": "https://webassembly.github.io/spec/web-api/#title",
+      "level": 1,
+      "title": "WebAssembly Web API"
+    },
+    {
+      "id": "abstract",
+      "href": "https://webassembly.github.io/spec/web-api/#abstract",
+      "level": 2,
+      "title": "Abstract"
+    },
+    {
+      "id": "sotd",
+      "href": "https://webassembly.github.io/spec/web-api/#sotd",
+      "level": 2,
+      "title": "Status of this document"
+    },
+    {
+      "id": "toc",
+      "href": "https://webassembly.github.io/spec/web-api/#toc",
+      "level": 2,
+      "title": "Table of Contents",
+      "alternateIds": [
+        "contents"
+      ]
+    },
+    {
+      "id": "intro",
+      "href": "https://webassembly.github.io/spec/web-api/#intro",
+      "level": 2,
+      "title": "Introduction",
+      "number": "1"
+    },
+    {
+      "id": "streaming-modules",
+      "href": "https://webassembly.github.io/spec/web-api/#streaming-modules",
+      "level": 2,
+      "title": "Streaming Module Compilation and Instantiation",
+      "number": "2"
+    },
+    {
+      "id": "serialization",
+      "href": "https://webassembly.github.io/spec/web-api/#serialization",
+      "level": 2,
+      "title": "Serialization",
+      "number": "3"
+    },
+    {
+      "id": "conventions",
+      "href": "https://webassembly.github.io/spec/web-api/#conventions",
+      "level": 2,
+      "title": "Developer-Facing Display Conventions",
+      "number": "4"
+    },
+    {
+      "id": "mediaType",
+      "href": "https://webassembly.github.io/spec/web-api/#mediaType",
+      "level": 2,
+      "title": "Media-type Registration",
+      "number": "5"
+    },
+    {
+      "id": "security-considerations",
+      "href": "https://webassembly.github.io/spec/web-api/#security-considerations",
+      "level": 2,
+      "title": "Security and Privacy Considerations",
+      "number": "6"
+    },
+    {
+      "id": "change-history",
+      "href": "https://webassembly.github.io/spec/web-api/#change-history",
+      "level": 2,
+      "title": "Change History",
+      "number": "7"
+    },
+    {
+      "id": "release-20",
+      "href": "https://webassembly.github.io/spec/web-api/#release-20",
+      "level": 3,
+      "title": "Release 2.0",
+      "number": "7.1"
+    },
+    {
+      "id": "changes-registration",
+      "href": "https://webassembly.github.io/spec/web-api/#changes-registration",
+      "level": 4,
+      "title": "Media-type Registraton Completed"
+    },
+    {
+      "id": "w3c-conformance",
+      "href": "https://webassembly.github.io/spec/web-api/#w3c-conformance",
+      "level": 2,
+      "title": "Conformance"
+    },
+    {
+      "id": "w3c-conventions",
+      "href": "https://webassembly.github.io/spec/web-api/#w3c-conventions",
+      "level": 3,
+      "title": "Document conventions"
+    },
+    {
+      "id": "w3c-conformant-algorithms",
+      "href": "https://webassembly.github.io/spec/web-api/#w3c-conformant-algorithms",
+      "level": 3,
+      "title": "Conformant Algorithms"
+    },
+    {
+      "id": "index",
+      "href": "https://webassembly.github.io/spec/web-api/#index",
+      "level": 2,
+      "title": "Index"
+    },
+    {
+      "id": "index-defined-here",
+      "href": "https://webassembly.github.io/spec/web-api/#index-defined-here",
+      "level": 3,
+      "title": "Terms defined by this specification"
+    },
+    {
+      "id": "index-defined-elsewhere",
+      "href": "https://webassembly.github.io/spec/web-api/#index-defined-elsewhere",
+      "level": 3,
+      "title": "Terms defined by reference"
+    },
+    {
+      "id": "references",
+      "href": "https://webassembly.github.io/spec/web-api/#references",
+      "level": 2,
+      "title": "References"
+    },
+    {
+      "id": "normative",
+      "href": "https://webassembly.github.io/spec/web-api/#normative",
+      "level": 3,
+      "title": "Normative References"
+    },
+    {
+      "id": "informative",
+      "href": "https://webassembly.github.io/spec/web-api/#informative",
+      "level": 3,
+      "title": "Informative References"
+    },
+    {
+      "id": "idl-index",
+      "href": "https://webassembly.github.io/spec/web-api/#idl-index",
+      "level": 2,
+      "title": "IDL Index"
+    }
+  ]
+}

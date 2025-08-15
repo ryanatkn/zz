@@ -46,7 +46,9 @@ pub fn isStructuralNode(kind: []const u8) bool {
     return std.mem.eql(u8, kind, "element") or
         std.mem.eql(u8, kind, "start_tag") or
         std.mem.eql(u8, kind, "end_tag") or
-        std.mem.eql(u8, kind, "attribute");
+        std.mem.eql(u8, kind, "attribute") or
+        std.mem.eql(u8, kind, "doctype") or
+        std.mem.eql(u8, kind, "text");
 }
 
 /// Check if node is an HTML element

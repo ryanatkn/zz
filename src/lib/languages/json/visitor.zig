@@ -14,8 +14,8 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
     }
 
     if (context.flags.signatures) {
-        // Extract object keys only
-        if (isKey(node.kind)) {
+        // Extract object key-value pairs (pairs contain keys)
+        if (isPairNode(node.kind)) {
             try context.appendNode(node);
         }
     }
@@ -43,9 +43,8 @@ pub fn isStructuralNode(node_type: []const u8) bool {
         std.mem.eql(u8, node_type, "document");
 }
 
-pub fn isKey(node_type: []const u8) bool {
-    return std.mem.eql(u8, node_type, "string");
-    // TODO: Add context checking to distinguish keys from values
+pub fn isPairNode(node_type: []const u8) bool {
+    return std.mem.eql(u8, node_type, "pair");
 }
 
 pub fn isTypedValue(node_type: []const u8) bool {

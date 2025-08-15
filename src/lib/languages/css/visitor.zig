@@ -29,13 +29,20 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
         }
     }
 
-    // Structure elements (media queries, keyframes)
+    // Structure elements (media queries, keyframes) and types (selectors, properties)
     if (context.flags.structure or context.flags.types) {
         if (std.mem.eql(u8, node_type, "media_statement") or
             std.mem.eql(u8, node_type, "keyframes_statement") or
             std.mem.eql(u8, node_type, "supports_statement") or
             std.mem.eql(u8, node_type, "property_name") or
-            std.mem.eql(u8, node_type, "custom_property_name"))
+            std.mem.eql(u8, node_type, "custom_property_name") or
+            std.mem.eql(u8, node_type, "rule_set") or
+            std.mem.eql(u8, node_type, "class_selector") or
+            std.mem.eql(u8, node_type, "id_selector") or
+            std.mem.eql(u8, node_type, "pseudo_class_selector") or
+            std.mem.eql(u8, node_type, "at_rule") or
+            std.mem.eql(u8, node_type, "declaration") or
+            std.mem.eql(u8, node_type, "import_statement"))
         {
             try context.appendNode(node);
             return;

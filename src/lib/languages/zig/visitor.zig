@@ -7,7 +7,7 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
     // Extract based on node type and flags
     if (context.flags.signatures or context.flags.structure) {
         // Extract function definitions
-        if (isFunctionNode(node.kind)) {
+        if (isFunctionNode(node.kind, node.text)) {
             try context.appendNode(node);
         }
     }
@@ -20,8 +20,8 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
     }
 
     if (context.flags.imports) {
-        // Extract @import statements
-        if (isImportNode(node.kind)) {
+        // Extract @import statements - look for VarDecl containing @import
+        if (isImportNode(node.kind, node.text)) {
             try context.appendNode(node);
         }
     }
@@ -56,45 +56,53 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !void {
 }
 
 /// Check if node represents a function
-fn isFunctionNode(kind: []const u8) bool {
-    return std.mem.eql(u8, kind, "function") or
-        std.mem.eql(u8, kind, "fn_decl") or
-        std.mem.eql(u8, kind, "function_declaration");
+fn isFunctionNode(kind: []const u8, text: []const u8) bool {
+    if (std.mem.eql(u8, kind, "FnProto")) {
+        return true;
+    }
+    // Check if Decl contains a function
+    if (std.mem.eql(u8, kind, "Decl")) {
+        return std.mem.indexOf(u8, text, "fn ") != null;
+    }
+    return false;
 }
 
 /// Check if node represents a type definition
 fn isTypeNode(kind: []const u8) bool {
-    return std.mem.eql(u8, kind, "struct_decl") or
-        std.mem.eql(u8, kind, "enum_decl") or
-        std.mem.eql(u8, kind, "union_decl") or
-        std.mem.eql(u8, kind, "error_set_decl") or
-        std.mem.eql(u8, kind, "var_decl") or
-        std.mem.eql(u8, kind, "const_decl");
+    return std.mem.eql(u8, kind, "struct") or
+        std.mem.eql(u8, kind, "enum") or
+        std.mem.eql(u8, kind, "union") or
+        std.mem.eql(u8, kind, "ErrorSetDecl") or
+        std.mem.eql(u8, kind, "VarDecl");
 }
 
 /// Check if node represents an import
-fn isImportNode(kind: []const u8) bool {
-    return std.mem.eql(u8, kind, "builtin_call") or
-        std.mem.eql(u8, kind, "@import") or
-        std.mem.eql(u8, kind, "@cImport");
+fn isImportNode(kind: []const u8, text: []const u8) bool {
+    // Look for BUILTINIDENTIFIER that is @import
+    if (std.mem.eql(u8, kind, "BUILTINIDENTIFIER")) {
+        return std.mem.indexOf(u8, text, "@import") != null;
+    }
+    // Look for VarDecl containing @import
+    if (std.mem.eql(u8, kind, "VarDecl")) {
+        return std.mem.indexOf(u8, text, "@import") != null;
+    }
+    return false;
 }
 
 /// Check if node represents documentation
 fn isDocNode(kind: []const u8) bool {
     return std.mem.eql(u8, kind, "doc_comment") or
-        std.mem.eql(u8, kind, "comment");
+        std.mem.eql(u8, kind, "container_doc_comment") or
+        std.mem.eql(u8, kind, "line_comment");
 }
 
 /// Check if node represents a test
 fn isTestNode(kind: []const u8) bool {
-    return std.mem.eql(u8, kind, "test_decl") or
-        std.mem.eql(u8, kind, "test");
+    return std.mem.eql(u8, kind, "TestDecl");
 }
 
 /// Check if node represents an error-related construct
 fn isErrorNode(kind: []const u8) bool {
-    return std.mem.eql(u8, kind, "error_set_decl") or
-        std.mem.eql(u8, kind, "error_value") or
-        std.mem.eql(u8, kind, "try_expression") or
-        std.mem.eql(u8, kind, "catch_expression");
+    return std.mem.eql(u8, kind, "ErrorSetDecl") or
+        std.mem.eql(u8, kind, "ErrorUnionExpr");
 }

@@ -257,22 +257,23 @@ fn detectLanguageFromContent(content: []const u8) Language {
         // Look for CSS-specific patterns
         if (std.mem.indexOf(u8, content, ":") != null and
             (std.mem.indexOf(u8, content, "color:") != null or
-             std.mem.indexOf(u8, content, "background:") != null or
-             std.mem.indexOf(u8, content, "margin:") != null or
-             std.mem.indexOf(u8, content, "padding:") != null or
-             std.mem.indexOf(u8, content, "display:") != null or
-             std.mem.indexOf(u8, content, "width:") != null or
-             std.mem.indexOf(u8, content, "height:") != null or
-             std.mem.indexOf(u8, content, "font-") != null or
-             std.mem.indexOf(u8, content, "border") != null or
-             std.mem.indexOf(u8, content, "flex") != null or
-             std.mem.indexOf(u8, content, "gap:") != null or
-             std.mem.indexOf(u8, content, "position:") != null or
-             std.mem.indexOf(u8, content, "z-index:") != null or
-             std.mem.indexOf(u8, content, "opacity:") != null)) {
+                std.mem.indexOf(u8, content, "background:") != null or
+                std.mem.indexOf(u8, content, "margin:") != null or
+                std.mem.indexOf(u8, content, "padding:") != null or
+                std.mem.indexOf(u8, content, "display:") != null or
+                std.mem.indexOf(u8, content, "width:") != null or
+                std.mem.indexOf(u8, content, "height:") != null or
+                std.mem.indexOf(u8, content, "font-") != null or
+                std.mem.indexOf(u8, content, "border") != null or
+                std.mem.indexOf(u8, content, "flex") != null or
+                std.mem.indexOf(u8, content, "gap:") != null or
+                std.mem.indexOf(u8, content, "position:") != null or
+                std.mem.indexOf(u8, content, "z-index:") != null or
+                std.mem.indexOf(u8, content, "opacity:") != null))
+        {
             return .css;
         }
-        
+
         // Check for CSS selectors (starts with . or # or element name)
         var lines = std.mem.splitScalar(u8, content, '\n');
         while (lines.next()) |line| {
@@ -281,7 +282,8 @@ fn detectLanguageFromContent(content: []const u8) Language {
                 // CSS selector patterns
                 if (trimmed_line[0] == '.' or trimmed_line[0] == '#' or
                     std.mem.indexOf(u8, trimmed_line, " {") != null or
-                    std.mem.indexOf(u8, trimmed_line, "}{") != null) {
+                    std.mem.indexOf(u8, trimmed_line, "}{") != null)
+                {
                     return .css;
                 }
             }

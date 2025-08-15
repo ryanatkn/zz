@@ -4,13 +4,7 @@ const LineBuilder = @import("../../parsing/formatter.zig").LineBuilder;
 const FormatterOptions = @import("../../parsing/formatter.zig").FormatterOptions;
 
 /// Format TypeScript using AST-based approach
-pub fn formatAst(
-    allocator: std.mem.Allocator,
-    node: ts.Node,
-    source: []const u8,
-    builder: *LineBuilder,
-    options: FormatterOptions
-) !void {
+pub fn formatAst(allocator: std.mem.Allocator, node: ts.Node, source: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
     _ = allocator;
     try formatTypeScriptNode(node, source, builder, 0, options);
 }
@@ -88,7 +82,6 @@ fn formatFunction(node: ts.Node, source: []const u8, builder: *LineBuilder, dept
 
 /// Format TypeScript interface
 fn formatInterface(node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) std.mem.Allocator.Error!void {
-
     try builder.appendIndent();
 
     if (node.childByFieldName("name")) |name_node| {
@@ -115,7 +108,6 @@ fn formatInterface(node: ts.Node, source: []const u8, builder: *LineBuilder, dep
 
 /// Format TypeScript class
 fn formatClass(node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) std.mem.Allocator.Error!void {
-
     try builder.appendIndent();
     try builder.append("class ");
 

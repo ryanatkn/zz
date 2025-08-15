@@ -17,13 +17,7 @@ pub fn format(allocator: std.mem.Allocator, source: []const u8, options: Formatt
 // AST-based HTML formatting
 
 /// Format HTML using AST-based approach
-pub fn formatAst(
-    allocator: std.mem.Allocator,
-    node: ts.Node,
-    source: []const u8,
-    builder: *LineBuilder,
-    options: FormatterOptions
-) !void {
+pub fn formatAst(allocator: std.mem.Allocator, node: ts.Node, source: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
     _ = allocator;
     try formatHtmlNode(node, source, builder, 0, options);
 }
@@ -57,47 +51,111 @@ fn formatHtmlNode(node: ts.Node, source: []const u8, builder: *LineBuilder, dept
 
 /// Format HTML element
 fn formatHtmlElement(node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) std.mem.Allocator.Error!void {
+    const child_count = node.childCount();
 
-    // Get tag name to check if it's a void element
-    var tag_name: []const u8 = "";
-    if (node.childByFieldName("start_tag")) |start_tag| {
-        if (start_tag.childByFieldName("name")) |name_node| {
-            tag_name = getNodeText(name_node, source);
+    // Find start_tag and end_tag from children
+    var start_tag: ?ts.Node = null;
+    var end_tag: ?ts.Node = null;
+
+    var i: u32 = 0;
+    while (i < child_count) : (i += 1) {
+        if (node.child(i)) |child| {
+            const child_type = child.kind();
+            if (std.mem.eql(u8, child_type, "start_tag")) {
+                start_tag = child;
+            } else if (std.mem.eql(u8, child_type, "end_tag")) {
+                end_tag = child;
+            }
         }
     }
 
-    const is_void = isVoidElement(tag_name);
+    // Check content type
+    const content_type = getContentType(node, source);
 
     // Format start tag
-    if (node.childByFieldName("start_tag")) |start_tag| {
-        try builder.appendIndent();
-        try appendNodeText(start_tag, source, builder);
-        try builder.newline();
-
-        // Only indent if not a void element
-        if (!is_void) {
-            builder.indent();
+    if (start_tag) |start| {
+        if (content_type == .text_only) {
+            // For text_only, start tag goes on same line as content
+            try builder.appendIndent();
+            try appendNodeText(start, source, builder);
+        } else {
+            // For other types, start tag goes on separate line
+            try builder.appendIndent();
+            try appendNodeText(start, source, builder);
+            try builder.newline();
         }
     }
 
-    // Format content (children)
-    if (!is_void) {
-        const child_count = node.childCount();
-        var i: u32 = 0;
-        while (i < child_count) : (i += 1) {
-            if (node.child(i)) |child| {
+    if (content_type == .text_only) {
+        // Format as completely inline: <tag>text</tag>
+        var j: u32 = 0;
+        while (j < child_count) : (j += 1) {
+            if (node.child(j)) |child| {
+                const child_type = child.kind();
+                if (std.mem.eql(u8, child_type, "text")) {
+                    const text = getNodeText(child, source);
+                    const trimmed = std.mem.trim(u8, text, " \t\r\n");
+                    if (trimmed.len > 0) {
+                        try builder.append(trimmed);
+                    }
+                }
+            }
+        }
+    } else if (content_type == .mixed_inline) {
+        // Format inline content on one line with proper indentation
+        builder.indent();
+        try builder.appendIndent();
+
+        var j: u32 = 0;
+        while (j < child_count) : (j += 1) {
+            if (node.child(j)) |child| {
+                const child_type = child.kind();
+                if (std.mem.eql(u8, child_type, "text")) {
+                    const text = getNodeText(child, source);
+                    const trimmed = std.mem.trim(u8, text, " \t\r\n");
+                    if (trimmed.len > 0) {
+                        try builder.append(trimmed);
+                        if (hasNonEndTagSibling(node, j)) {
+                            try builder.append(" ");
+                        }
+                    }
+                } else if (std.mem.eql(u8, child_type, "element")) {
+                    try appendNodeText(child, source, builder);
+                    if (hasNonEndTagSibling(node, j)) {
+                        try builder.append(" ");
+                    }
+                }
+            }
+        }
+
+        try builder.newline();
+        builder.dedent();
+    } else if (content_type == .block) {
+        // Format block content with each child on separate lines
+        builder.indent();
+        var j: u32 = 0;
+        while (j < child_count) : (j += 1) {
+            if (node.child(j)) |child| {
                 const child_type = child.kind();
                 if (!std.mem.eql(u8, child_type, "start_tag") and !std.mem.eql(u8, child_type, "end_tag")) {
                     try formatHtmlNode(child, source, builder, depth + 1, options);
                 }
             }
         }
+        builder.dedent();
+    }
+    // For .empty content type, do nothing
 
-        // Format end tag
-        if (node.childByFieldName("end_tag")) |end_tag| {
-            builder.dedent();
+    // Format end tag
+    if (end_tag) |end| {
+        if (content_type == .text_only) {
+            // For text_only, end tag goes on same line
+            try appendNodeText(end, source, builder);
+            try builder.newline();
+        } else {
+            // For other types, end tag goes on separate line with proper indentation
             try builder.appendIndent();
-            try appendNodeText(end_tag, source, builder);
+            try appendNodeText(end, source, builder);
             try builder.newline();
         }
     }
@@ -129,12 +187,93 @@ fn formatHtmlText(node: ts.Node, source: []const u8, builder: *LineBuilder, dept
 
     const text = getNodeText(node, source);
     const trimmed = std.mem.trim(u8, text, " \t\r\n");
-    
+
     if (trimmed.len > 0) {
+        // Text nodes should only be called in block context now
+        // Add proper indentation and newlines for block text
         try builder.appendIndent();
         try builder.append(trimmed);
         try builder.newline();
     }
+}
+
+/// Content type for HTML elements
+const ContentType = enum {
+    text_only, // Only text content - format inline
+    mixed_inline, // Text + elements - format on separate line but inline
+    block, // Only elements - format as block
+    empty, // No content
+};
+
+/// Determine the content type of an HTML element
+fn getContentType(node: ts.Node, source: []const u8) ContentType {
+    const child_count = node.childCount();
+    var has_text = false;
+    var has_element = false;
+
+    var i: u32 = 0;
+    while (i < child_count) : (i += 1) {
+        if (node.child(i)) |child| {
+            const child_type = child.kind();
+            if (std.mem.eql(u8, child_type, "text")) {
+                const text = getNodeText(child, source);
+                if (std.mem.trim(u8, text, " \t\r\n").len > 0) {
+                    has_text = true;
+                }
+            } else if (std.mem.eql(u8, child_type, "element")) {
+                has_element = true;
+            }
+        }
+    }
+
+    if (has_text and has_element) {
+        return .mixed_inline;
+    } else if (has_text and !has_element) {
+        return .text_only;
+    } else if (!has_text and has_element) {
+        return .block;
+    } else {
+        return .empty;
+    }
+}
+
+/// Check if there's a non-end-tag sibling after the given index
+fn hasNonEndTagSibling(node: ts.Node, current_index: u32) bool {
+    const child_count = node.childCount();
+    var i = current_index + 1;
+    while (i < child_count) : (i += 1) {
+        if (node.child(i)) |child| {
+            const child_type = child.kind();
+            if (!std.mem.eql(u8, child_type, "end_tag")) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+/// Check if a node has a following sibling that would need spacing
+fn hasFollowingSibling(node: ts.Node) bool {
+    const parent = node.parent() orelse return false;
+    const child_count = parent.childCount();
+
+    var i: u32 = 0;
+    while (i < child_count) : (i += 1) {
+        if (parent.child(i)) |child| {
+            if (child.eql(node)) {
+                // Found this node, check if there's a next sibling
+                if (i + 1 < child_count) {
+                    if (parent.child(i + 1)) |next_sibling| {
+                        const next_type = next_sibling.kind();
+                        // Add space before elements but not before end tags
+                        return std.mem.eql(u8, next_type, "element");
+                    }
+                }
+                return false;
+            }
+        }
+    }
+    return false;
 }
 
 /// Helper function to get node text from source
@@ -155,11 +294,8 @@ fn appendNodeText(node: ts.Node, source: []const u8, builder: *LineBuilder) !voi
 
 /// Check if a tag is a void element (self-closing)
 fn isVoidElement(tag_name: []const u8) bool {
-    const void_elements = [_][]const u8{
-        "area", "base", "br", "col", "embed", "hr", "img", "input",
-        "link", "meta", "param", "source", "track", "wbr"
-    };
-    
+    const void_elements = [_][]const u8{ "area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr" };
+
     for (void_elements) |void_tag| {
         if (std.mem.eql(u8, tag_name, void_tag)) {
             return true;

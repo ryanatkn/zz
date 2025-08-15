@@ -220,21 +220,21 @@ test "fixture-based formatter tests" {
     // The CSS formatter is not handling minified input correctly
     // TODO: ZON parser memory leak - we're not freeing ZON data to avoid segfault
     // See fixture_loader.zig:187 for detailed explanation
-    
+
     // Temporarily enabled to diagnose issues
     var runner = FixtureRunner.init(testing.allocator) catch |err| {
         std.log.err("Failed to initialize FixtureRunner: {}", .{err});
         return;
     };
     defer runner.deinit();
-    
+
     std.log.info("Starting formatter tests for all languages", .{});
-    
+
     runner.runFormatterTests() catch |err| {
         std.log.err("Formatter tests failed: {}", .{err});
         return err;
     };
-    
+
     std.log.info("All formatter tests completed successfully", .{});
 }
 

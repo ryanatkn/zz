@@ -229,32 +229,32 @@ pub const ExtractionTestContext = struct {
 // Tests for the ExtractionTestContext itself
 test "ExtractionTestContext basic usage" {
     var context = ExtractionTestContext.init(testing.allocator, .zig);
-    
+
     const source = "pub fn test() void {}";
     try context.expectNonEmpty(source);
 }
 
 test "ExtractionTestContext signature extraction" {
     var context = ExtractionTestContext.init(testing.allocator, .zig);
-    
+
     const source = "pub fn add(a: i32, b: i32) i32 { return a + b; }";
     const expected_signatures = [_][]const u8{"pub fn add(a: i32, b: i32) i32"};
-    
+
     try context.expectSignatures(source, &expected_signatures);
 }
 
 test "ExtractionTestContext structure expectations" {
     var context = ExtractionTestContext.init(testing.allocator, .zig);
-    
+
     const source = "const std = @import(\"std\");\npub fn test() void {}";
     const expected_parts = [_][]const u8{ "@import", "pub fn test" };
-    
+
     try context.expectStructure(source, &expected_parts);
 }
 
 test "ExtractionTestContext flag combinations" {
     var context = ExtractionTestContext.init(testing.allocator, .zig);
-    
+
     const source = "/// Documentation\npub fn test() void { const x = 42; }";
     const test_cases = [_]struct {
         flags: ExtractionFlags,
@@ -267,6 +267,6 @@ test "ExtractionTestContext flag combinations" {
             .expected_excludes = &[_][]const u8{"const x = 42"},
         },
     };
-    
+
     try context.testFlagCombinations(source, &test_cases);
 }

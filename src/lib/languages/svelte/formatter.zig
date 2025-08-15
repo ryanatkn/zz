@@ -4,13 +4,7 @@ const LineBuilder = @import("../../parsing/formatter.zig").LineBuilder;
 const FormatterOptions = @import("../../parsing/formatter.zig").FormatterOptions;
 
 /// Format Svelte using AST-based approach
-pub fn formatAst(
-    allocator: std.mem.Allocator,
-    node: ts.Node,
-    source: []const u8,
-    builder: *LineBuilder,
-    options: FormatterOptions
-) !void {
+pub fn formatAst(allocator: std.mem.Allocator, node: ts.Node, source: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
     _ = allocator;
     try formatSvelteNode(node, source, builder, 0, options);
 }
@@ -70,7 +64,7 @@ fn formatSvelteScript(node: ts.Node, source: []const u8, builder: *LineBuilder, 
         if (std.mem.lastIndexOf(u8, script_text, "</script>")) |end_tag_start| {
             const content = script_text[start_tag_end + 1 .. end_tag_start];
             const trimmed_content = std.mem.trim(u8, content, " \t\n\r");
-            
+
             if (trimmed_content.len > 0) {
                 // Split content into lines and indent each line
                 var lines = std.mem.splitScalar(u8, trimmed_content, '\n');
@@ -104,7 +98,7 @@ fn formatSvelteStyle(node: ts.Node, source: []const u8, builder: *LineBuilder, d
         if (std.mem.lastIndexOf(u8, style_text, "</style>")) |end_tag_start| {
             const content = style_text[start_tag_end + 1 .. end_tag_start];
             const trimmed_content = std.mem.trim(u8, content, " \t\n\r");
-            
+
             if (trimmed_content.len > 0) {
                 // Split content into lines and indent each line
                 var lines = std.mem.splitScalar(u8, trimmed_content, '\n');

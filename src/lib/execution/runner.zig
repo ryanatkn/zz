@@ -14,7 +14,6 @@ pub const CommandResult = struct {
 };
 
 /// Terminal interface type for animation support
-
 /// Execute a command and capture its output
 pub fn executeCommand(
     allocator: std.mem.Allocator,

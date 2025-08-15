@@ -35,7 +35,7 @@ const ExpressionState = struct {
         "function(",
         "() =>",
     },
-    
+
     const ExpressionType = enum {
         none,
         derived_by,
@@ -68,7 +68,7 @@ fn extractWithSectionTracking(_: std.mem.Allocator, source: []const u8, flags: E
     var context = SvelteContext{};
     var lines = std.mem.splitScalar(u8, source, '\n');
     var need_newline = false;
-    
+
     // Multi-line expression tracking
     var expression_state = ExpressionState{};
 
@@ -132,19 +132,19 @@ fn extractWithSectionTracking(_: std.mem.Allocator, source: []const u8, flags: E
                 // For function signatures, remove opening brace if present (but not for multi-line expressions)
                 if (flags.signatures and !expression_state.in_multi_line_expression and
                     ((std.mem.startsWith(u8, trimmed, "function ") or
-                    std.mem.startsWith(u8, trimmed, "async function ") or
-                    std.mem.startsWith(u8, trimmed, "export function ") or
-                    std.mem.startsWith(u8, trimmed, "export async function ")) and
-                    std.mem.endsWith(u8, trimmed, " {")))
+                        std.mem.startsWith(u8, trimmed, "async function ") or
+                        std.mem.startsWith(u8, trimmed, "export function ") or
+                        std.mem.startsWith(u8, trimmed, "export async function ")) and
+                        std.mem.endsWith(u8, trimmed, " {")))
                 {
                     // Remove the " {" suffix to get just the signature
                     trimmed = trimmed[0 .. trimmed.len - 2];
                 } else if (flags.signatures and !expression_state.in_multi_line_expression and
                     ((std.mem.startsWith(u8, trimmed, "function ") or
-                    std.mem.startsWith(u8, trimmed, "async function ") or
-                    std.mem.startsWith(u8, trimmed, "export function ") or
-                    std.mem.startsWith(u8, trimmed, "export async function ")) and
-                    std.mem.endsWith(u8, trimmed, "{")))
+                        std.mem.startsWith(u8, trimmed, "async function ") or
+                        std.mem.startsWith(u8, trimmed, "export function ") or
+                        std.mem.startsWith(u8, trimmed, "export async function ")) and
+                        std.mem.endsWith(u8, trimmed, "{")))
                 {
                     // Remove the "{" suffix (no space before brace)
                     trimmed = trimmed[0 .. trimmed.len - 1];
@@ -277,10 +277,11 @@ fn shouldIncludeScriptLine(line: []const u8, flags: ExtractionFlags) bool {
             return true;
         }
         // Only include re-export statements, not variable exports
-        if (std.mem.startsWith(u8, trimmed, "export ") and 
+        if (std.mem.startsWith(u8, trimmed, "export ") and
             !std.mem.startsWith(u8, trimmed, "export let ") and
             !std.mem.startsWith(u8, trimmed, "export const ") and
-            !std.mem.startsWith(u8, trimmed, "export function ")) {
+            !std.mem.startsWith(u8, trimmed, "export function "))
+        {
             return true;
         }
     }
@@ -331,7 +332,7 @@ fn updateExpressionState(state: *ExpressionState, line: []const u8) void {
     // First count brackets on current line
     var line_brace_count: i32 = 0;
     var line_paren_count: i32 = 0;
-    
+
     for (line) |char| {
         switch (char) {
             '{' => line_brace_count += 1,
@@ -341,7 +342,7 @@ fn updateExpressionState(state: *ExpressionState, line: []const u8) void {
             else => {},
         }
     }
-    
+
     // Check if we're starting a multi-line expression
     if (!state.in_multi_line_expression) {
         // Check for Svelte 5 runes with function bodies that likely span multiple lines
@@ -360,7 +361,7 @@ fn updateExpressionState(state: *ExpressionState, line: []const u8) void {
         // Update bracket depth based on current line
         state.brace_depth = @intCast(@max(0, @as(i32, @intCast(state.brace_depth)) + line_brace_count));
         state.paren_depth = @intCast(@max(0, @as(i32, @intCast(state.paren_depth)) + line_paren_count));
-        
+
         // Check if expression is complete (all brackets closed)
         if (state.brace_depth == 0 and state.paren_depth == 0) {
             // For $derived.by and $effect, expression ends when brackets are balanced

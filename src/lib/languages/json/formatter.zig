@@ -11,7 +11,7 @@ pub fn format(allocator: std.mem.Allocator, source: []const u8, options: Formatt
         return allocator.dupe(u8, source);
     };
     defer formatter.deinit();
-    
+
     return formatter.format(source);
 }
 
@@ -179,13 +179,7 @@ fn writeEscapedString(builder: *LineBuilder, s: []const u8) !void {
 // AST-based JSON formatting
 
 /// Format JSON using AST-based approach
-pub fn formatAst(
-    allocator: std.mem.Allocator,
-    node: ts.Node,
-    source: []const u8,
-    builder: *LineBuilder,
-    options: FormatterOptions
-) !void {
+pub fn formatAst(allocator: std.mem.Allocator, node: ts.Node, source: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
     _ = allocator;
     try formatJsonNode(node, source, builder, 0, options);
 }
@@ -217,7 +211,6 @@ fn formatJsonNode(node: ts.Node, source: []const u8, builder: *LineBuilder, dept
 
 /// Format JSON object
 fn formatJsonObject(node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) std.mem.Allocator.Error!void {
-
     try builder.append("{");
 
     const child_count = node.childCount();
@@ -246,7 +239,7 @@ fn formatJsonObject(node: ts.Node, source: []const u8, builder: *LineBuilder, de
     if (options.sort_keys) {
         const Context = struct {
             source: []const u8,
-            
+
             fn lessThan(ctx: @This(), lhs: ts.Node, rhs: ts.Node) bool {
                 const lhs_key = getJsonPairKey(lhs, ctx.source) orelse "";
                 const rhs_key = getJsonPairKey(rhs, ctx.source) orelse "";
@@ -277,9 +270,8 @@ fn formatJsonObject(node: ts.Node, source: []const u8, builder: *LineBuilder, de
     try builder.append("}");
 }
 
-/// Format JSON array  
+/// Format JSON array
 fn formatJsonArray(node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) std.mem.Allocator.Error!void {
-
     try builder.append("[");
 
     const child_count = node.childCount();

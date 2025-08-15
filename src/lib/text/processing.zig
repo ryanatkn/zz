@@ -3,7 +3,6 @@ const collections = @import("../core/collections.zig");
 
 /// String processing utilities to consolidate 10+ repeated splitScalar patterns
 /// Provides common text processing operations with consistent error handling
-
 /// Process lines with state context
 pub fn processLinesWithState(
     comptime StateType: type,
@@ -142,7 +141,7 @@ pub fn linesContaining(
 ) ![][]const u8 {
     const predicate = struct {
         search: []const u8,
-        
+
         fn contains(self: @This(), line: []const u8) bool {
             return std.mem.indexOf(u8, line, self.search) != null;
         }
@@ -170,7 +169,7 @@ pub fn linesWithPrefix(
 ) ![][]const u8 {
     const predicate = struct {
         prefix_str: []const u8,
-        
+
         fn hasPrefix(self: @This(), line: []const u8) bool {
             return std.mem.startsWith(u8, line, self.prefix_str);
         }
@@ -217,11 +216,11 @@ pub fn freeSplitResult(allocator: std.mem.Allocator, parts: [][]const u8) void {
 // Tests for text processing utilities
 test "splitAndTrim basic functionality" {
     const testing = std.testing;
-    
+
     const content = "hello , world , test ";
     const parts = try splitAndTrim(testing.allocator, content, ',');
     defer freeSplitResult(testing.allocator, parts);
-    
+
     try testing.expectEqual(@as(usize, 3), parts.len);
     try testing.expectEqualStrings("hello", parts[0]);
     try testing.expectEqualStrings("world", parts[1]);
@@ -230,36 +229,36 @@ test "splitAndTrim basic functionality" {
 
 test "processLines callback" {
     const testing = std.testing;
-    
+
     var line_count: usize = 0;
     const counter = struct {
         count: *usize,
-        
+
         fn countLine(self: @This(), line: []const u8) void {
             _ = line;
             self.count.* += 1;
         }
     }{ .count = &line_count };
-    
+
     const content = "line1\nline2\nline3";
     processLinesWithState(@TypeOf(counter), content, counter, @TypeOf(counter).countLine);
-    
+
     try testing.expectEqual(@as(usize, 3), line_count);
 }
 
 test "filterLines functionality" {
     const testing = std.testing;
-    
+
     const predicate = struct {
         fn isNotEmpty(line: []const u8) bool {
             return std.mem.trim(u8, line, " \t").len > 0;
         }
     }.isNotEmpty;
-    
+
     const content = "line1\n   \nline3\n\nline5";
     const results = try filterLines(testing.allocator, content, predicate);
     defer freeSplitResult(testing.allocator, results);
-    
+
     try testing.expectEqual(@as(usize, 3), results.len);
     try testing.expectEqualStrings("line1", results[0]);
     try testing.expectEqualStrings("line3", results[1]);
@@ -268,11 +267,11 @@ test "filterLines functionality" {
 
 test "linesContaining functionality" {
     const testing = std.testing;
-    
+
     const content = "function test()\nconst value = 42\nfunction helper()";
     const results = try linesContaining(testing.allocator, content, "function");
     defer freeSplitResult(testing.allocator, results);
-    
+
     try testing.expectEqual(@as(usize, 2), results.len);
     try testing.expectEqualStrings("function test()", results[0]);
     try testing.expectEqualStrings("function helper()", results[1]);
@@ -280,20 +279,20 @@ test "linesContaining functionality" {
 
 test "countLines and countNonEmptyLines" {
     const testing = std.testing;
-    
+
     const content = "line1\n\nline3\n   \nline5";
-    
+
     try testing.expectEqual(@as(usize, 5), countLines(content));
     try testing.expectEqual(@as(usize, 3), countNonEmptyLines(content));
 }
 
 test "parseCommaSeparated convenience" {
     const testing = std.testing;
-    
+
     const content = "apple, banana,cherry ,  date  ";
     const results = try parseCommaSeparated(testing.allocator, content);
     defer freeSplitResult(testing.allocator, results);
-    
+
     try testing.expectEqual(@as(usize, 4), results.len);
     try testing.expectEqualStrings("apple", results[0]);
     try testing.expectEqualStrings("banana", results[1]);

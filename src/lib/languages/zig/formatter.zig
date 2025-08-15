@@ -16,13 +16,7 @@ pub fn format(allocator: std.mem.Allocator, source: []const u8, options: Formatt
 // AST-based Zig formatting
 
 /// Format Zig using AST-based approach
-pub fn formatAst(
-    allocator: std.mem.Allocator,
-    node: ts.Node,
-    source: []const u8,
-    builder: *LineBuilder,
-    options: FormatterOptions
-) !void {
+pub fn formatAst(allocator: std.mem.Allocator, node: ts.Node, source: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
     _ = allocator;
     try formatZigNode(node, source, builder, 0, options);
 }
@@ -60,7 +54,6 @@ fn formatZigNode(node: ts.Node, source: []const u8, builder: *LineBuilder, depth
 
 /// Format Zig function
 fn formatZigFunction(node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) std.mem.Allocator.Error!void {
-
     try builder.appendIndent();
 
     // Check if it's a public function
@@ -106,7 +99,6 @@ fn formatZigFunction(node: ts.Node, source: []const u8, builder: *LineBuilder, d
 
 /// Format Zig struct
 fn formatZigStruct(node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) std.mem.Allocator.Error!void {
-
     try builder.appendIndent();
 
     // Check if it's public
@@ -132,8 +124,9 @@ fn formatZigStruct(node: ts.Node, source: []const u8, builder: *LineBuilder, dep
     while (i < child_count) : (i += 1) {
         if (node.child(i)) |child| {
             const child_type = child.kind();
-            if (std.mem.eql(u8, child_type, "field_declaration") or 
-                std.mem.eql(u8, child_type, "function_declaration")) {
+            if (std.mem.eql(u8, child_type, "field_declaration") or
+                std.mem.eql(u8, child_type, "function_declaration"))
+            {
                 try formatZigNode(child, source, builder, depth + 1, options);
             }
         }
@@ -237,7 +230,6 @@ fn formatZigUnion(node: ts.Node, source: []const u8, builder: *LineBuilder, dept
 
 /// Format Zig test
 fn formatZigTest(node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) std.mem.Allocator.Error!void {
-
     try builder.appendIndent();
     try builder.append("test ");
 

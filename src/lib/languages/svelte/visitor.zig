@@ -62,13 +62,13 @@ fn handleScriptElement(context: *ExtractionContext, node: *const Node) !void {
     // For signatures/imports/types, we only want the JavaScript content (no script tags)
     if (context.flags.signatures or context.flags.imports or context.flags.types) {
         var found_content = false;
-        
+
         const child_count = node.childCount();
         var i: u32 = 0;
         while (i < child_count) : (i += 1) {
             if (node.child(i, context.source)) |child| {
                 const child_type = child.kind;
-                
+
                 // Extract and parse the raw JavaScript content (no tags)
                 if (std.mem.eql(u8, child_type, "raw_text")) {
                     try extractJavaScriptContent(context, &child);
@@ -95,13 +95,13 @@ fn handleStyleElement(context: *ExtractionContext, node: *const Node) !void {
     // For types flag, we want CSS content (no style tags for consistency with signatures)
     if (context.flags.types) {
         var found_content = false;
-        
+
         const child_count = node.childCount();
         var i: u32 = 0;
         while (i < child_count) : (i += 1) {
             if (node.child(i, context.source)) |child| {
                 const child_type = child.kind;
-                
+
                 // Extract the raw CSS content (no tags)
                 if (std.mem.eql(u8, child_type, "raw_text")) {
                     try context.appendNode(&child);
@@ -121,7 +121,7 @@ fn handleStyleElement(context: *ExtractionContext, node: *const Node) !void {
 fn extractJavaScriptContent(context: *ExtractionContext, raw_text_node: *const Node) !void {
     // Get the raw JavaScript source
     const js_source = raw_text_node.text;
-    
+
     // For signatures extraction, we need to parse the JavaScript and extract relevant parts
     if (context.flags.signatures) {
         try extractJavaScriptSignatures(context, js_source);
@@ -130,7 +130,7 @@ fn extractJavaScriptContent(context: *ExtractionContext, raw_text_node: *const N
     else if (context.flags.imports) {
         try extractJavaScriptImports(context, js_source);
     }
-    // For types extraction, extract type-related declarations  
+    // For types extraction, extract type-related declarations
     else if (context.flags.types) {
         try extractJavaScriptTypes(context, js_source);
     }
@@ -143,11 +143,11 @@ fn extractJavaScriptContent(context: *ExtractionContext, raw_text_node: *const N
 /// Extract JavaScript signatures (functions, variables, runes)
 fn extractJavaScriptSignatures(context: *ExtractionContext, js_source: []const u8) !void {
     var lines = std.mem.splitScalar(u8, js_source, '\n');
-    
+
     while (lines.next()) |line| {
         const trimmed = std.mem.trim(u8, line, " \t\r\n");
         if (trimmed.len == 0) continue;
-        
+
         // Check for Svelte 5 runes
         if (std.mem.indexOf(u8, trimmed, "$state") != null or
             std.mem.indexOf(u8, trimmed, "$derived") != null or
@@ -159,7 +159,7 @@ fn extractJavaScriptSignatures(context: *ExtractionContext, js_source: []const u
             try context.appendText("\n");
             continue;
         }
-        
+
         // Function signatures
         if (std.mem.startsWith(u8, trimmed, "function ") or
             std.mem.startsWith(u8, trimmed, "export function "))
@@ -175,7 +175,7 @@ fn extractJavaScriptSignatures(context: *ExtractionContext, js_source: []const u
             try context.appendText("\n");
             continue;
         }
-        
+
         // Variable declarations
         if (std.mem.startsWith(u8, trimmed, "const ") or
             std.mem.startsWith(u8, trimmed, "let ") or
@@ -186,7 +186,7 @@ fn extractJavaScriptSignatures(context: *ExtractionContext, js_source: []const u
             try context.appendText("\n");
             continue;
         }
-        
+
         // Svelte 4 reactive statements
         if (std.mem.startsWith(u8, trimmed, "$:")) {
             try context.appendText(trimmed);
@@ -199,23 +199,24 @@ fn extractJavaScriptSignatures(context: *ExtractionContext, js_source: []const u
 /// Extract JavaScript imports
 fn extractJavaScriptImports(context: *ExtractionContext, js_source: []const u8) !void {
     var lines = std.mem.splitScalar(u8, js_source, '\n');
-    
+
     while (lines.next()) |line| {
         const trimmed = std.mem.trim(u8, line, " \t\r\n");
         if (trimmed.len == 0) continue;
-        
+
         // Import statements
         if (std.mem.startsWith(u8, trimmed, "import ")) {
             try context.appendText(trimmed);
             try context.appendText("\n");
             continue;
         }
-        
+
         // Re-export statements (not variable exports)
-        if (std.mem.startsWith(u8, trimmed, "export ") and 
+        if (std.mem.startsWith(u8, trimmed, "export ") and
             !std.mem.startsWith(u8, trimmed, "export let ") and
             !std.mem.startsWith(u8, trimmed, "export const ") and
-            !std.mem.startsWith(u8, trimmed, "export function ")) {
+            !std.mem.startsWith(u8, trimmed, "export function "))
+        {
             try context.appendText(trimmed);
             try context.appendText("\n");
             continue;
@@ -226,11 +227,11 @@ fn extractJavaScriptImports(context: *ExtractionContext, js_source: []const u8) 
 /// Extract JavaScript types and state declarations
 fn extractJavaScriptTypes(context: *ExtractionContext, js_source: []const u8) !void {
     var lines = std.mem.splitScalar(u8, js_source, '\n');
-    
+
     while (lines.next()) |line| {
         const trimmed = std.mem.trim(u8, line, " \t\r\n");
         if (trimmed.len == 0) continue;
-        
+
         // Variable declarations that define types/state
         if (std.mem.startsWith(u8, trimmed, "let ") or
             std.mem.startsWith(u8, trimmed, "const ") or
@@ -241,7 +242,7 @@ fn extractJavaScriptTypes(context: *ExtractionContext, js_source: []const u8) !v
             try context.appendText("\n");
             continue;
         }
-        
+
         // Svelte 5 state declarations
         if (std.mem.indexOf(u8, trimmed, "$state") != null or
             std.mem.indexOf(u8, trimmed, "$derived") != null)

@@ -69,7 +69,6 @@ pub const Formatter = struct {
             return FormatterError.FormattingFailed;
         };
     }
-
 };
 
 // Helper functions for formatters
@@ -149,6 +148,12 @@ pub const LineBuilder = struct {
 
     pub fn shouldBreakLine(self: *LineBuilder, additional_length: u32) bool {
         return self.current_line_length + additional_length > self.options.line_width;
+    }
+
+    pub fn trimTrailingNewline(self: *LineBuilder) void {
+        if (self.buffer.items.len > 0 and self.buffer.items[self.buffer.items.len - 1] == '\n') {
+            _ = self.buffer.pop();
+        }
     }
 
     pub fn toOwnedSlice(self: *LineBuilder) ![]const u8 {

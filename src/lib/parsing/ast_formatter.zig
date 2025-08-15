@@ -113,6 +113,11 @@ pub const AstFormatter = struct {
             },
         }
 
+        // Trim trailing newline for HTML output before converting to owned slice
+        if (self.language == .html) {
+            builder.trimTrailingNewline();
+        }
+
         const result = try builder.toOwnedSlice();
 
         // Cache the result if cache is available
@@ -126,8 +131,6 @@ pub const AstFormatter = struct {
 
         return result;
     }
-
-
 
     /// Create a cache key for the given source and formatter options
     fn createCacheKey(self: *Self, source: []const u8, file_path: []const u8) AstCacheKey {

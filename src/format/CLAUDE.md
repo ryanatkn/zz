@@ -210,10 +210,10 @@ zz format "src/**/*.{json,css,html}"
 - Fix memory leak
 - Add configuration file support
 - Implement TypeScript formatter with tree-sitter
-- Add Python formatter
+- Consider ZON formatter for configuration files
 
 ### Phase 3 (Future)
-- Rust, Go formatters
+- Additional language formatters if needed
 - Editor integration support
 - Format-on-save hooks
 - Style preset library

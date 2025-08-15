@@ -19,7 +19,7 @@ Parser reliability has been restored, error handling enhanced, and test quality 
 - **✅ ~50% Code Reduction Achieved** - 10+ old modules → 6 clean new modules
 - **✅ All Compilation Errors Fixed** - Project builds cleanly after aggressive refactoring
 - **✅ 96.2% Test Pass Rate** - 330/343 tests passing, hanging test issue resolved
-- **✅ Eliminated Anti-patterns** - ManagedArrayList gone, JavaScript cruft removed
+- **✅ Eliminated Anti-patterns** - ManagedArrayList gone, JS cruft removed
 
 ### Previous Achievements  
 - **Code Formatter Implementation** - Language-aware pretty printing for JSON, CSS, HTML, Zig
@@ -221,7 +221,7 @@ With parser extraction now fully functional, error handling enhanced, and format
 - **Ownership patterns** - Clear initOwning/initBorrowing semantics
 - **✅ Memory leaks ELIMINATED** - ZON parsing, test fixtures, all formatter issues fixed\n- **✅ 100% test pass rate** - All tests passing, zero failures or leaks\n- **Memory management** - Arena allocators, proper defer patterns, zon_memory.zig
 - **Collection anti-patterns** - ManagedArrayList eliminated
-- **JavaScript cruft** - Language-agnostic imports/exports
+- **JS cruft** - Language-agnostic imports/exports
 - Parser simple extraction (fixed)
 - Error message quality (enhanced)
 - Test validation depth (improved)

@@ -41,12 +41,12 @@ Sophisticated file aggregation with intelligent code extraction, 40-60% glob spe
 **Flag Combination:** Multiple flags can be combined: `--signatures --types --docs`
 
 **Supported Languages:**
-- **Zig** - Functions, structs, enums, tests, errors, imports
-- **JS/TypeScript** - Functions, classes, interfaces, imports
-- **Python** - Functions, classes, decorators, imports
-- **Rust** - Functions, structs, enums, traits, tests, errors
-- **Go** - Functions, structs, interfaces, packages, errors
-- **C/C++** - Functions, structs, typedefs, includes
+- **Zig** - Functions, structs, enums, tests, errors, imports, documentation
+- **TypeScript/JS** - Functions, classes, interfaces, imports, types
+- **Svelte** - Components, scripts, styles, reactive statements, runes
+- **HTML** - Elements, attributes, structure, event handlers
+- **CSS** - Selectors, properties, variables, media queries
+- **JSON** - Structure validation, key extraction, schema analysis
 - **Fallback** - Plain text extraction for unsupported languages
 
 ### Glob Pattern Support

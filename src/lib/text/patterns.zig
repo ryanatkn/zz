@@ -107,7 +107,7 @@ pub fn extractAllBetween(
 
 /// Common code patterns for various languages
 pub const Patterns = struct {
-    // TypeScript/JavaScript patterns
+    // TypeScript/JS patterns
     pub const ts_functions = [_][]const u8{
         "function ",
         "export function ",

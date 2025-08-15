@@ -29,7 +29,7 @@ test "Svelte script extraction" {
     const flags = ExtractionFlags{ .signatures = true };
     try extract(allocator, source, flags, &result);
 
-    // Should contain JavaScript function from script section
+    // Should contain JS function from script section
     try testing.expect(std.mem.indexOf(u8, result.items, "function handleClick") != null);
 }
 

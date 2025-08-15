@@ -1,7 +1,7 @@
 const std = @import("std");
 
 /// Language-agnostic import/export tracking and resolution
-/// Eliminates JavaScript-specific cruft with clean, generic patterns
+/// Eliminates JS-specific cruft with clean, generic patterns
 
 // ============================================================================
 // Core Types

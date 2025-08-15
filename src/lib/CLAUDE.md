@@ -137,17 +137,14 @@ benchmarkGlobPatterns()  // Pattern matching
 
 **Supported Languages:**
 ```zig
-// Comprehensive language support with file extension mapping
+// Core supported languages with file extension mapping
 .zig     -> Language.zig          // Primary language
-.c, .h   -> Language.c            // C programming
-.cpp, .hpp, .cc, .cxx -> Language.cpp  // C++
-.js, .jsx -> Language.javascript  // JS
-.ts, .tsx -> Language.typescript  // TypeScript  
-.py      -> Language.python       // Python
-.rs      -> Language.rust         // Rust
-.go      -> Language.go           // Go
-.java    -> Language.java         // Java
-.*       -> Language.generic      // Fallback
+.ts, .js -> Language.typescript   // TypeScript/JS
+.svelte  -> Language.svelte       // Svelte components
+.html    -> Language.html         // HTML documents
+.css     -> Language.css          // CSS stylesheets
+.json    -> Language.json         // JSON data
+.*       -> Language.unknown      // Fallback
 ```
 
 **Detection API:**
@@ -211,13 +208,12 @@ const overview_flags = ExtractionFlags{
 ### Current Implementation: Text-Based Extraction
 
 **Language-Specific Patterns:**
-- **Zig:** `pub fn`, `const`, `var`, `struct`, `enum`, `@import`
-- **C/C++:** Function signatures, struct/class definitions, #include statements
-- **JS/TypeScript:** Function declarations, class definitions, import/export
-- **Python:** def, class, import statements with proper indentation handling
-- **Rust:** fn, struct, enum, use statements, impl blocks
-- **Go:** func, struct, type, import declarations
-- **Java:** method signatures, class definitions, import statements
+- **Zig:** `pub fn`, `const`, `var`, `struct`, `enum`, `@import`, tests, documentation
+- **TypeScript/JS:** Function declarations, class definitions, import/export, interfaces
+- **Svelte:** Components, reactive statements, runes, script/style sections
+- **HTML:** Elements, attributes, structure, event handlers
+- **CSS:** Selectors, properties, variables, media queries, rules
+- **JSON:** Structure validation, key extraction, schema analysis
 
 **Text Processing Features:**
 - **Multi-line aware:** Handles function signatures spanning multiple lines

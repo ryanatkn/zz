@@ -48,7 +48,6 @@ pub const LanguageImpl = struct {
     /// Get tree-sitter grammar
     grammar: *const fn () *ts.Language,
 
-
     /// AST visitor function - returns true to continue recursion, false to skip children
     visitor: *const fn (context: *ExtractionContext, node: *const Node) anyerror!bool,
 
@@ -90,7 +89,7 @@ pub const LanguageRegistry = struct {
             .format = json_formatter.format,
         });
 
-        // TypeScript (and JavaScript)
+        // TypeScript (and JS)
         try self.implementations.put(Language.typescript, LanguageImpl{
             .name = "typescript",
             .grammar = ts_grammar.grammar,
@@ -141,11 +140,11 @@ pub const LanguageRegistry = struct {
         return self.implementations.contains(language);
     }
 
-    /// Set AST cache for performance optimization  
+    /// Set AST cache for performance optimization
     pub fn setAstCache(self: *LanguageRegistry, ast_cache: *AstCache) void {
         self.ast_cache = ast_cache;
     }
-    
+
     /// Get AST cache statistics
     pub fn getAstCacheStats(self: *LanguageRegistry) ?AstCache.CacheStats {
         if (self.ast_cache) |cache| {
@@ -153,22 +152,21 @@ pub const LanguageRegistry = struct {
         }
         return null;
     }
-    
+
     /// Generate cache key for extraction request
     fn generateCacheKey(source: []const u8, flags: ExtractionFlags) AstCacheKey {
         // Hash the source content
         var file_hasher = std.hash.XxHash64.init(0);
         file_hasher.update(source);
         const file_hash = file_hasher.final();
-        
+
         // Hash the extraction flags
         var flags_hasher = std.hash.XxHash64.init(0);
         flags_hasher.update(std.mem.asBytes(&flags));
         const flags_hash = flags_hasher.final();
-        
+
         return AstCacheKey.init(file_hash, 1, flags_hash); // parser version = 1
     }
-
 
     /// Extract code using tree-sitter AST with optional caching
     pub fn extract(
@@ -376,17 +374,17 @@ test "LanguageRegistry extraction" {
 
 test "LanguageRegistry AST cache functionality" {
     const allocator = std.testing.allocator;
-    
+
     var registry = LanguageRegistry.init(allocator);
     defer registry.deinit();
-    
+
     var ast_cache = AstCache.init(allocator, 10, 1); // 10 entries, 1MB
     defer ast_cache.deinit();
-    
+
     // Enable AST caching
     registry.setAstCache(&ast_cache);
-    
-    const svelte_source = 
+
+    const svelte_source =
         \\<script>
         \\    export let name = 'World';
         \\    function greet() {
@@ -395,16 +393,16 @@ test "LanguageRegistry AST cache functionality" {
         \\</script>
         \\<div>Hello {name}!</div>
     ;
-    
+
     const flags = ExtractionFlags{ .signatures = true };
 
     // First extraction - should be a cache miss
     var result1 = std.ArrayList(u8).init(allocator);
     defer result1.deinit();
-    
+
     try registry.extract(allocator, Language.svelte, svelte_source, flags, &result1);
     try std.testing.expect(result1.items.len > 0);
-    
+
     // Verify cache stats - should have 1 miss
     const stats1 = registry.getAstCacheStats().?;
     try std.testing.expect(stats1.misses == 1);
@@ -413,37 +411,37 @@ test "LanguageRegistry AST cache functionality" {
     // Second extraction with same source and flags - should be a cache hit
     var result2 = std.ArrayList(u8).init(allocator);
     defer result2.deinit();
-    
+
     try registry.extract(allocator, Language.svelte, svelte_source, flags, &result2);
     try std.testing.expect(result2.items.len > 0);
-    
+
     // Verify cache stats - should have 1 miss, 1 hit
     const stats2 = registry.getAstCacheStats().?;
     try std.testing.expect(stats2.misses == 1);
     try std.testing.expect(stats2.hits == 1);
-    
+
     // Results should be identical
     try std.testing.expect(std.mem.eql(u8, result1.items, result2.items));
-    
+
     // Third extraction with different flags - should be another cache miss
     var result3 = std.ArrayList(u8).init(allocator);
     defer result3.deinit();
-    
+
     const structure_flags = ExtractionFlags{ .structure = true };
     try registry.extract(allocator, Language.svelte, svelte_source, structure_flags, &result3);
     try std.testing.expect(result3.items.len > 0);
-    
+
     // Verify cache stats - should have 2 misses, 1 hit
     const stats3 = registry.getAstCacheStats().?;
     try std.testing.expect(stats3.misses == 2);
     try std.testing.expect(stats3.hits == 1);
-    
+
     // Fourth extraction with same flags as second - should be cache hit
     var result4 = std.ArrayList(u8).init(allocator);
     defer result4.deinit();
-    
+
     try registry.extract(allocator, Language.svelte, svelte_source, flags, &result4);
-    
+
     // Verify cache stats - should have 2 misses, 2 hits
     const stats4 = registry.getAstCacheStats().?;
     try std.testing.expect(stats4.misses == 2);

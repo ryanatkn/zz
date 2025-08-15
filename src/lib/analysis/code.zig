@@ -159,7 +159,7 @@ pub const CodeAnalysis = struct {
                 }
             }
 
-            // TypeScript/JavaScript functions
+            // TypeScript/JS functions
             if (std.mem.indexOf(u8, trimmed, "function ") != null) {
                 const start = std.mem.indexOf(u8, trimmed, "function ").? + 9;
                 const end = std.mem.indexOf(u8, trimmed[start..], "(");
@@ -379,7 +379,7 @@ pub const CodeAnalysis = struct {
                 if (std.mem.indexOf(u8, trimmed, "@import(\"") != null) {
                     try self.extractZigImport(file_path, trimmed, line_number);
                 }
-                // TypeScript/JavaScript imports
+                // TypeScript/JS imports
                 else if (std.mem.startsWith(u8, trimmed, "import ")) {
                     try self.extractJsImport(file_path, trimmed, line_number);
                 }

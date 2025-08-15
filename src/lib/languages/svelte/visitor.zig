@@ -4,7 +4,7 @@ const ExtractionContext = @import("../../tree_sitter/visitor.zig").ExtractionCon
 const builders = @import("../../text/builders.zig");
 
 /// AST-based extraction visitor for Svelte with proper section handling
-/// Returns true to continue recursion, false to skip children  
+/// Returns true to continue recursion, false to skip children
 pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
     const node_type = node.kind;
 
@@ -18,10 +18,10 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
         return true; // Continue recursion for other nodes
     }
 
-    // Signatures: Extract JavaScript content from script elements only
+    // Signatures: Extract JS content from script elements only
     if (context.flags.signatures and !context.flags.structure and !context.flags.types) {
         if (std.mem.eql(u8, node_type, "script_element")) {
-            // TODO: Extract only the JavaScript content, not the script tags
+            // TODO: Extract only the JS content, not the script tags
             // For now, extract signatures from the script content
             try extractSignaturesFromScript(context, node);
             return false;
@@ -38,7 +38,7 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
             try appendNormalizedSvelteSection(context, node);
             return false; // Skip children to avoid duplication
         }
-        
+
         // For the template section, only extract top-level elements
         if (std.mem.eql(u8, node_type, "element")) {
             // Check if this is a top-level template element by looking at parent depth
@@ -62,7 +62,7 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
     // Imports: Extract import statements from script elements
     if (context.flags.imports and !context.flags.structure and !context.flags.signatures and !context.flags.types) {
         if (std.mem.eql(u8, node_type, "script_element")) {
-            // Extract only import statements from the JavaScript content
+            // Extract only import statements from the JS content
             try extractImportsFromScript(context, node);
             return false;
         }
@@ -78,7 +78,7 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
             return false; // Skip children
         }
     }
-    
+
     // Default: continue recursion to child nodes
     return true;
 }
@@ -91,14 +91,14 @@ fn extractImportsFromScript(context: *ExtractionContext, script_node: *const Nod
     while (i < child_count) : (i += 1) {
         if (script_node.child(i, context.source)) |child| {
             if (std.mem.eql(u8, child.kind, "raw_text")) {
-                // Extract JavaScript imports from the raw content
+                // Extract JS imports from the raw content
                 const js_content = child.text;
-                try extractJavaScriptImports(context, js_content);
+                try extractJSImports(context, js_content);
                 return;
             }
         }
     }
-    
+
     // Fallback if no raw_text found
     try context.appendNode(script_node);
 }
@@ -111,20 +111,19 @@ fn extractSignaturesFromScript(context: *ExtractionContext, script_node: *const 
     while (i < child_count) : (i += 1) {
         if (script_node.child(i, context.source)) |child| {
             if (std.mem.eql(u8, child.kind, "raw_text")) {
-                // Extract JavaScript signatures from the raw content
+                // Extract JS signatures from the raw content
                 const js_content = child.text;
-                try extractJavaScriptSignatures(context, js_content);
+                try extractJSSignatures(context, js_content);
                 return;
             }
         }
     }
-    
+
     // Fallback if no raw_text found
     try context.appendSignature(script_node);
 }
 
-
-/// Handle script_element nodes - extract JavaScript content based on flags
+/// Handle script_element nodes - extract JS content based on flags
 fn handleScriptElement(context: *ExtractionContext, node: *const Node) !void {
     // For structure extraction, include the entire script element (but only if it has content)
     if (context.flags.structure) {
@@ -135,7 +134,7 @@ fn handleScriptElement(context: *ExtractionContext, node: *const Node) !void {
         return;
     }
 
-    // For signatures/imports/types, we only want the JavaScript content (no script tags)
+    // For signatures/imports/types, we only want the JS content (no script tags)
     if (context.flags.signatures or context.flags.imports or context.flags.types) {
         var found_content = false;
 
@@ -145,9 +144,9 @@ fn handleScriptElement(context: *ExtractionContext, node: *const Node) !void {
             if (node.child(i, context.source)) |child| {
                 const child_type = child.kind;
 
-                // Extract and parse the raw JavaScript content (no tags)
+                // Extract and parse the raw JS content (no tags)
                 if (std.mem.eql(u8, child_type, "raw_text")) {
-                    try extractJavaScriptContent(context, &child);
+                    try extractJSContent(context, &child);
                     found_content = true;
                 }
             }
@@ -196,22 +195,22 @@ fn handleStyleElement(context: *ExtractionContext, node: *const Node) !void {
     }
 }
 
-/// Extract JavaScript content from raw_text node and filter based on flags
-fn extractJavaScriptContent(context: *ExtractionContext, raw_text_node: *const Node) !void {
-    // Get the raw JavaScript source
+/// Extract JS content from raw_text node and filter based on flags
+fn extractJSContent(context: *ExtractionContext, raw_text_node: *const Node) !void {
+    // Get the raw JS source
     const js_source = raw_text_node.text;
 
-    // For signatures extraction, we need to parse the JavaScript and extract relevant parts
+    // For signatures extraction, we need to parse the JS and extract relevant parts
     if (context.flags.signatures) {
-        try extractJavaScriptSignatures(context, js_source);
+        try extractJSSignatures(context, js_source);
     }
     // For imports extraction, extract import statements
     else if (context.flags.imports) {
-        try extractJavaScriptImports(context, js_source);
+        try extractJSImports(context, js_source);
     }
     // For types extraction, extract type-related declarations
     else if (context.flags.types) {
-        try extractJavaScriptTypes(context, js_source);
+        try extractJSTypes(context, js_source);
     }
     // Otherwise, include the full content
     else {
@@ -219,8 +218,8 @@ fn extractJavaScriptContent(context: *ExtractionContext, raw_text_node: *const N
     }
 }
 
-/// Extract JavaScript signatures (functions, variables, runes)
-fn extractJavaScriptSignatures(context: *ExtractionContext, js_source: []const u8) !void {
+/// Extract JS signatures (functions, variables, runes)
+fn extractJSSignatures(context: *ExtractionContext, js_source: []const u8) !void {
     var lines = std.mem.splitScalar(u8, js_source, '\n');
     var inside_multiline_expression = false;
     var brace_count: i32 = 0;
@@ -235,17 +234,17 @@ fn extractJavaScriptSignatures(context: *ExtractionContext, js_source: []const u
         // Handle multi-line expressions
         if (inside_multiline_expression) {
             try expression_lines.append(line);
-            
+
             // Count braces to track when expression ends
             for (trimmed) |char| {
                 if (char == '{') brace_count += 1;
                 if (char == '}') brace_count -= 1;
             }
-            
+
             // If we're back to the original brace level, expression is complete
             if (brace_count <= 0) {
                 inside_multiline_expression = false;
-                
+
                 // Extract the complete expression (excluding closing braces)
                 for (expression_lines.items) |expr_line| {
                     const expr_trimmed = std.mem.trim(u8, expr_line, " \t\r\n");
@@ -254,7 +253,7 @@ fn extractJavaScriptSignatures(context: *ExtractionContext, js_source: []const u
                         try context.appendText(expr_trimmed);
                     }
                 }
-                
+
                 // Reset for next expression
                 current_expression_start = null;
                 expression_lines.clearRetainingCapacity();
@@ -265,7 +264,7 @@ fn extractJavaScriptSignatures(context: *ExtractionContext, js_source: []const u
 
         // Check for multi-line expressions like $derived.by(() => { or $effect(() => {
         if ((std.mem.indexOf(u8, trimmed, "$derived.by") != null or
-             std.mem.indexOf(u8, trimmed, "$effect") != null) and
+            std.mem.indexOf(u8, trimmed, "$effect") != null) and
             std.mem.indexOf(u8, trimmed, "{") != null)
         {
             // Count initial braces in this line
@@ -273,7 +272,7 @@ fn extractJavaScriptSignatures(context: *ExtractionContext, js_source: []const u
                 if (char == '{') brace_count += 1;
                 if (char == '}') brace_count -= 1;
             }
-            
+
             // If line doesn't close the expression, start multi-line tracking
             if (brace_count > 0) {
                 inside_multiline_expression = true;
@@ -328,8 +327,8 @@ fn extractJavaScriptSignatures(context: *ExtractionContext, js_source: []const u
     }
 }
 
-/// Extract JavaScript imports
-fn extractJavaScriptImports(context: *ExtractionContext, js_source: []const u8) !void {
+/// Extract JS imports
+fn extractJSImports(context: *ExtractionContext, js_source: []const u8) !void {
     var lines = std.mem.splitScalar(u8, js_source, '\n');
 
     while (lines.next()) |line| {
@@ -354,8 +353,8 @@ fn extractJavaScriptImports(context: *ExtractionContext, js_source: []const u8) 
     }
 }
 
-/// Extract JavaScript types and state declarations
-fn extractJavaScriptTypes(context: *ExtractionContext, js_source: []const u8) !void {
+/// Extract JS types and state declarations
+fn extractJSTypes(context: *ExtractionContext, js_source: []const u8) !void {
     var lines = std.mem.splitScalar(u8, js_source, '\n');
 
     while (lines.next()) |line| {
@@ -388,11 +387,11 @@ fn extractJavaScriptTypes(context: *ExtractionContext, js_source: []const u8) !v
 fn hasNonEmptyContent(node: *const Node, source: []const u8) bool {
     const child_count = node.childCount();
     var i: u32 = 0;
-    
+
     while (i < child_count) : (i += 1) {
         if (node.child(i, source)) |child| {
             const child_type = child.kind;
-            
+
             // Look for raw_text nodes with actual content
             if (std.mem.eql(u8, child_type, "raw_text")) {
                 const content = std.mem.trim(u8, child.text, " \t\r\n");
@@ -402,7 +401,7 @@ fn hasNonEmptyContent(node: *const Node, source: []const u8) bool {
             }
         }
     }
-    
+
     return false;
 }
 
@@ -412,12 +411,12 @@ fn appendNormalizedSvelteSection(context: *ExtractionContext, node: *const Node)
     var lines = std.mem.splitScalar(u8, node.text, '\n');
     var builder = builders.ResultBuilder.init(context.allocator);
     defer builder.deinit();
-    
+
     var inside_content_block = false;
-    
+
     while (lines.next()) |line| {
         const trimmed = std.mem.trim(u8, line, " \t");
-        
+
         // Detect when we're inside the content block (after opening tag)
         if (std.mem.indexOf(u8, trimmed, ">") != null and !inside_content_block) {
             inside_content_block = true;
@@ -425,22 +424,22 @@ fn appendNormalizedSvelteSection(context: *ExtractionContext, node: *const Node)
         if (std.mem.indexOf(u8, trimmed, "</") != null and inside_content_block) {
             inside_content_block = false;
         }
-        
+
         // Skip all blank lines inside content blocks for structure extraction
         if (trimmed.len == 0 and inside_content_block) {
             // Skip blank lines inside script/style content
             continue;
         }
-        
+
         // Append all other lines
         try builders.appendLine(builder.list(), line);
     }
-    
+
     // Remove trailing newline if present
     if (builder.len() > 0 and builder.items()[builder.len() - 1] == '\n') {
         _ = builder.list().pop();
     }
-    
+
     // Append the normalized content with automatic newline handling
     try builders.appendMaybe(context.result, builder.items(), !std.mem.endsWith(u8, builder.items(), "\n"));
 }
@@ -449,12 +448,12 @@ fn appendNormalizedSvelteSection(context: *ExtractionContext, node: *const Node)
 fn isClosingLine(line: []const u8) bool {
     // Check for common closing patterns like "});", "})", "};", etc.
     const patterns = [_][]const u8{ "});", "})", "};", "}" };
-    
+
     for (patterns) |pattern| {
         if (std.mem.eql(u8, line, pattern)) {
             return true;
         }
     }
-    
+
     return false;
 }

@@ -575,7 +575,7 @@ pub fn getAstCacheKey(self: *FileTracker, file_path: []const u8, extraction_flag
 - **Composable extraction:** Combine flags like `--signatures --types`
 - **Language detection:** Automatic based on file extension
 - **Graceful fallback:** Falls back to text extraction for unsupported languages
-- **Extensible:** Architecture ready for TypeScript, Rust, Go, Python grammars
+- **Extensible:** Architecture ready for future language grammars
 
 **Glob Pattern Support:**
 - Basic wildcards: `*.zig`, `test?.zig`
@@ -716,8 +716,14 @@ git commit -m "Update vendored dependencies"
   - Update title: `# TODO: Task Name` → `# ✅ COMPLETED: Task Name`
   - Add completion date and final status summary
   - Keep file in root to show what major work has been accomplished
+- **Validation before archival** (for complex architecture migrations):
+  - Run validation session to verify implementation matches design intent
+  - Machine develops complete understanding of relevant codebase parts
+  - Validate local file state against TODO documentation claims
+  - User and machine independently verify results, conclusions, and presented data
+  - Only after convening and getting user approval does the machine proceed to archive validated TODO files
 - **Permanent docs** (README.md, CLAUDE.md) remain unprefixed in root
-- **Only archive to `docs/archive/`** when TODO docs become stale or superseded
+- **Only archive to `docs/archive/`** when TODO docs become stale, superseded, or fully validated as complete
 - **Always commit todo docs** to git both during work and after completion
 - This workflow ensures completed work remains visible while tracking major accomplishments
 

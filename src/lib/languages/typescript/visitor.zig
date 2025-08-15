@@ -32,11 +32,15 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
     if (context.flags.types and !context.flags.structure) {
         if (std.mem.eql(u8, node_type, "interface_declaration") or
             std.mem.eql(u8, node_type, "type_alias_declaration") or
-            std.mem.eql(u8, node_type, "class_declaration") or
             std.mem.eql(u8, node_type, "enum_declaration"))
         {
-            // TODO: Consider extracting only type structure without method implementations
+            // Extract full interface/type/enum declarations
             try context.appendNode(node);
+            return false;
+        }
+        if (std.mem.eql(u8, node_type, "class_declaration")) {
+            // For classes, extract only type structure without method implementations
+            try appendClassTypeStructure(context, node);
             return false;
         }
     }
@@ -89,4 +93,62 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
     }
 
     return true; // Continue recursion by default
+}
+
+/// Helper function to extract only the type structure of a class
+/// Includes field declarations and constructor signature, but excludes method implementations
+fn appendClassTypeStructure(context: *ExtractionContext, node: *const Node) !void {
+    var lines = std.mem.splitScalar(u8, node.text, '\n');
+    var normalized = std.ArrayList(u8).init(context.allocator);
+    defer normalized.deinit();
+    
+    var prev_line_was_blank = false;
+    
+    while (lines.next()) |line| {
+        const trimmed = std.mem.trim(u8, line, " \t");
+        
+        // Check if this line starts a method (but not constructor)
+        const is_method_start = trimmed.len > 0 and
+            (std.mem.indexOf(u8, trimmed, "(") != null and 
+             std.mem.indexOf(u8, trimmed, ")") != null and
+             std.mem.endsWith(u8, trimmed, "{")) and
+            std.mem.indexOf(u8, trimmed, "constructor") == null;
+        
+        // If this is a method start, stop processing here
+        if (is_method_start) {
+            break;
+        }
+        
+        // Skip blank lines to normalize whitespace
+        if (trimmed.len == 0) {
+            if (!prev_line_was_blank) {
+                // Skip this blank line
+                prev_line_was_blank = true;
+            }
+            continue;
+        }
+        
+        // Include non-blank line
+        try normalized.appendSlice(line);
+        try normalized.append('\n');
+        prev_line_was_blank = false;
+    }
+    
+    // Ensure we end with the class closing brace
+    const result = normalized.items;
+    if (result.len > 0 and !std.mem.endsWith(u8, result, "}")) {
+        try normalized.append('}');
+        try normalized.append('\n');
+    }
+    
+    // Remove trailing newline if present
+    if (normalized.items.len > 0 and normalized.items[normalized.items.len - 1] == '\n') {
+        _ = normalized.pop();
+    }
+    
+    // Append the normalized content
+    try context.result.appendSlice(normalized.items);
+    if (!std.mem.endsWith(u8, normalized.items, "\n")) {
+        try context.result.append('\n');
+    }
 }

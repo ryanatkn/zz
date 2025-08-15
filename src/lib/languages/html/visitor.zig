@@ -16,7 +16,7 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
     } else if (context.flags.structure) {
         // Extract complete HTML structure - only the root document to avoid duplicates
         if (std.mem.eql(u8, node.kind, "document")) {
-            try context.appendNode(node);
+            try appendNormalizedHtmlDocument(context, node);
             return false; // Skip children - we have the full document
         }
     } else if (context.flags.types and !context.flags.signatures and !context.flags.structure) {
@@ -87,4 +87,34 @@ pub fn isVoidElement(tag: []const u8) bool {
         }
     }
     return false;
+}
+
+/// Helper function to normalize HTML document for structure extraction
+/// Removes all indentation to match test expectations
+fn appendNormalizedHtmlDocument(context: *ExtractionContext, node: *const Node) !void {
+    var lines = std.mem.splitScalar(u8, node.text, '\n');
+    var normalized = std.ArrayList(u8).init(context.allocator);
+    defer normalized.deinit();
+    
+    while (lines.next()) |line| {
+        // Remove leading whitespace (indentation) from each line
+        const trimmed_start = std.mem.trimLeft(u8, line, " \t");
+        
+        // Only append if not empty after trimming
+        if (trimmed_start.len > 0) {
+            try normalized.appendSlice(trimmed_start);
+            try normalized.append('\n');
+        }
+    }
+    
+    // Remove trailing newline if present
+    if (normalized.items.len > 0 and normalized.items[normalized.items.len - 1] == '\n') {
+        _ = normalized.pop();
+    }
+    
+    // Append the normalized content
+    try context.result.appendSlice(normalized.items);
+    if (!std.mem.endsWith(u8, normalized.items, "\n")) {
+        try context.result.append('\n');
+    }
 }

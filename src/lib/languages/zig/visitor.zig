@@ -133,15 +133,7 @@ fn extractTypeDefinition(context: *ExtractionContext, node: *const Node) !void {
     // For VarDecl nodes containing type definitions, we need to extract just the type
     // structure but exclude method implementations
     if (std.mem.eql(u8, node.kind, "VarDecl")) {
-        const text = node.text;
-        
-        // TODO: For now, extract the full VarDecl node text
-        // Later we can implement more sophisticated filtering to remove method bodies
-        // but keep field definitions
-        try context.result.appendSlice(text);
-        if (!std.mem.endsWith(u8, text, "\n")) {
-            try context.result.append('\n');
-        }
+        try appendZigStructTypeOnly(context, node);
         return;
     }
     
@@ -191,6 +183,72 @@ fn appendZigSignature(context: *ExtractionContext, node: *const Node) !void {
     // Fall back to basic signature
     try context.result.appendSlice(basic_signature);
     if (!std.mem.endsWith(u8, basic_signature, "\n")) {
+        try context.result.append('\n');
+    }
+}
+
+/// Extract only the struct type definition without method implementations
+fn appendZigStructTypeOnly(context: *ExtractionContext, node: *const Node) !void {
+    var lines = std.mem.splitScalar(u8, node.text, '\n');
+    var normalized = std.ArrayList(u8).init(context.allocator);
+    defer normalized.deinit();
+    
+    var inside_method = false;
+    var brace_count: i32 = 0;
+    var method_start_brace_count: i32 = 0;
+    
+    while (lines.next()) |line| {
+        const trimmed = std.mem.trim(u8, line, " \t");
+        
+        // Count braces in this line
+        var line_brace_delta: i32 = 0;
+        for (line) |char| {
+            if (char == '{') {
+                line_brace_delta += 1;
+            } else if (char == '}') {
+                line_brace_delta -= 1;
+            }
+        }
+        
+        // Check if this line starts a method
+        const is_method_start = !inside_method and trimmed.len > 0 and
+            (std.mem.indexOf(u8, trimmed, "pub fn ") != null or
+             std.mem.indexOf(u8, trimmed, "fn ") != null) and
+            std.mem.indexOf(u8, trimmed, "(") != null;
+        
+        if (is_method_start) {
+            inside_method = true;
+            method_start_brace_count = brace_count;
+        }
+        
+        // Update brace count after checking for method start
+        brace_count += line_brace_delta;
+        
+        // Check if we've exited the method
+        if (inside_method and brace_count <= method_start_brace_count) {
+            inside_method = false;
+        }
+        
+        // Skip lines that are inside methods
+        if (inside_method) {
+            continue;
+        }
+        
+        // Include non-method lines, but skip empty lines to normalize whitespace
+        if (trimmed.len > 0) {
+            try normalized.appendSlice(line);
+            try normalized.append('\n');
+        }
+    }
+    
+    // Remove trailing newline if present
+    if (normalized.items.len > 0 and normalized.items[normalized.items.len - 1] == '\n') {
+        _ = normalized.pop();
+    }
+    
+    // Append the normalized content
+    try context.result.appendSlice(normalized.items);
+    if (!std.mem.endsWith(u8, normalized.items, "\n")) {
         try context.result.append('\n');
     }
 }

@@ -9,3 +9,6 @@ zig-out/
 # Temporary files
 *.tmp
 .tmp*
+
+# TODO temporary
+deps/webref 

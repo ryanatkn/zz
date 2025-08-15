@@ -47,7 +47,12 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
             std.mem.eql(u8, node_type, "supports_statement") or
             std.mem.eql(u8, node_type, "import_statement"))
         {
-            try context.appendNode(node);
+            // For media statements, normalize whitespace by removing extra blank lines
+            if (std.mem.eql(u8, node_type, "media_statement")) {
+                try appendNormalizedMediaStatement(context, node);
+            } else {
+                try context.appendNode(node);
+            }
             // If this is a container element (media, keyframes, etc.), skip children
             // because we've already captured the complete structure including nested rules
             if (std.mem.eql(u8, node_type, "media_statement") or
@@ -90,4 +95,54 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
     
     // Default: continue recursion to child nodes
     return true;
+}
+
+/// Helper function to normalize media statement whitespace for structure extraction
+fn appendNormalizedMediaStatement(context: *ExtractionContext, node: *const Node) !void {
+    var lines = std.mem.splitScalar(u8, node.text, '\n');
+    var normalized = std.ArrayList(u8).init(context.allocator);
+    defer normalized.deinit();
+    
+    var inside_media_block = false;
+    var brace_count: i32 = 0;
+    
+    while (lines.next()) |line| {
+        const trimmed = std.mem.trim(u8, line, " \t");
+        
+        // Count braces to track nesting level
+        for (line) |char| {
+            if (char == '{') {
+                brace_count += 1;
+                if (brace_count == 1) {
+                    inside_media_block = true;
+                }
+            } else if (char == '}') {
+                brace_count -= 1;
+                if (brace_count == 0) {
+                    inside_media_block = false;
+                }
+            }
+        }
+        
+        // Skip blank lines inside media block for structure extraction
+        if (trimmed.len == 0 and inside_media_block) {
+            // Skip this blank line to normalize media query structure
+            continue;
+        }
+        
+        // Append non-blank lines or blank lines outside media block
+        try normalized.appendSlice(line);
+        try normalized.append('\n');
+    }
+    
+    // Remove trailing newline if present
+    if (normalized.items.len > 0 and normalized.items[normalized.items.len - 1] == '\n') {
+        _ = normalized.pop();
+    }
+    
+    // Append the normalized content
+    try context.result.appendSlice(normalized.items);
+    if (!std.mem.endsWith(u8, normalized.items, "\n")) {
+        try context.result.append('\n');
+    }
 }

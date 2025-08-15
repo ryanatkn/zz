@@ -1,0 +1,729 @@
+# The Comprehensive Guide to Zig Anti-Patterns
+
+## Table of Contents
+1. [Core Philosophy](#core-philosophy)
+2. [Performance Anti-Patterns](#performance-anti-patterns)
+3. [Memory Management Anti-Patterns](#memory-management-anti-patterns)
+4. [Comptime & Metaprogramming Anti-Patterns](#comptime--metaprogramming-anti-patterns)
+5. [Error Handling Anti-Patterns](#error-handling-anti-patterns)
+6. [Concurrency & Async Anti-Patterns](#concurrency--async-anti-patterns)
+7. [API Design Anti-Patterns](#api-design-anti-patterns)
+8. [Build System & Tooling Anti-Patterns](#build-system--tooling-anti-patterns)
+9. [C Interop Anti-Patterns](#c-interop-anti-patterns)
+10. [Quick Reference Checklist](#quick-reference-checklist)
+
+## Core Philosophy
+
+Zig's design principles that anti-patterns violate:
+- **Explicit control** - No hidden control flow or allocations
+- **Optimal performance** - Zero-cost abstractions, cache-friendly by default
+- **Compile-time guarantees** - Catch errors at compile time when possible
+- **No hidden complexity** - What you see is what you get
+
+## Performance Anti-Patterns
+
+### 1. Cache-Hostile Data Structures
+
+**Anti-Pattern:** Using Array-of-Structures (AoS) when Structure-of-Arrays (SoA) would be more cache-efficient.
+
+```zig
+// ANTI-PATTERN: AoS layout causes cache misses
+const Entity = struct {
+    position: Vec3,      // 12 bytes
+    velocity: Vec3,      // 12 bytes
+    health: f32,         // 4 bytes
+    is_active: bool,     // 1 byte + padding
+    // Total: 32 bytes per entity
+};
+var entities: [1000]Entity = undefined;
+
+// Processing only positions loads entire structs
+fn updatePositions() void {
+    for (entities) |*e| {
+        e.position = e.position.add(e.velocity);
+        // Loaded 32 bytes but only used 24
+    }
+}
+```
+
+**Better Approach:** Use SoA for hot data paths:
+
+```zig
+// IDIOMATIC: SoA layout for cache efficiency
+const Entities = struct {
+    positions: [1000]Vec3,
+    velocities: [1000]Vec3,
+    health: [1000]f32,
+    is_active: [1000]bool,
+};
+var entities: Entities = undefined;
+
+fn updatePositions() void {
+    for (entities.positions, entities.velocities) |*pos, vel| {
+        pos.* = pos.add(vel);
+        // Only loads the data we actually use
+    }
+}
+```
+
+### 2. Branch Misprediction Patterns
+
+**Anti-Pattern:** Unpredictable branches in hot loops.
+
+```zig
+// ANTI-PATTERN: Unpredictable branch
+fn processData(data: []u32) u32 {
+    var sum: u32 = 0;
+    for (data) |val| {
+        if (val > 128) {  // Random data = 50% misprediction
+            sum += val;
+        }
+    }
+    return sum;
+}
+```
+
+**Better Approach:** Use branchless techniques or sort data first:
+
+```zig
+// IDIOMATIC: Branchless version
+fn processDataBranchless(data: []u32) u32 {
+    var sum: u32 = 0;
+    for (data) |val| {
+        const mask = @as(u32, @boolToInt(val > 128)) * std.math.maxInt(u32);
+        sum += val & mask;
+    }
+    return sum;
+}
+
+// Or sort first if amortized over many operations
+fn processDataSorted(data: []u32) u32 {
+    std.sort.sort(u32, data, {}, comptime std.sort.asc(u32));
+    // Now branch is predictable
+    var sum: u32 = 0;
+    for (data) |val| {
+        if (val > 128) sum += val;
+    }
+    return sum;
+}
+```
+
+### 3. Unnecessary Allocations in Hot Paths
+
+**Anti-Pattern:** Allocating temporary buffers repeatedly in performance-critical code.
+
+```zig
+// ANTI-PATTERN: Allocation in hot path
+fn processMessage(allocator: *std.mem.Allocator, msg: []const u8) !void {
+    for (0..1000) |_| {
+        // Allocates and frees 1000 times!
+        const buffer = try allocator.alloc(u8, 256);
+        defer allocator.free(buffer);
+        // ... process ...
+    }
+}
+```
+
+**Better Approach:** Reuse buffers or stack-allocate:
+
+```zig
+// IDIOMATIC: Stack buffer or reused heap buffer
+fn processMessage(msg: []const u8) !void {
+    var stack_buffer: [256]u8 = undefined;
+    for (0..1000) |_| {
+        // No allocation, uses stack
+        // ... process using stack_buffer ...
+    }
+}
+
+// Or with a reusable buffer
+const MessageProcessor = struct {
+    buffer: [256]u8,
+    
+    fn processMessage(self: *MessageProcessor, msg: []const u8) void {
+        // Reuses the same buffer
+        // ... process using self.buffer ...
+    }
+};
+```
+
+### 4. False Sharing in Concurrent Code
+
+**Anti-Pattern:** Placing frequently-modified variables by different threads in the same cache line.
+
+```zig
+// ANTI-PATTERN: False sharing
+const WorkerData = struct {
+    thread_1_counter: u64,  // Same cache line!
+    thread_2_counter: u64,  // Causes contention
+};
+```
+
+**Better Approach:** Pad to cache line boundaries:
+
+```zig
+// IDIOMATIC: Avoid false sharing with padding
+const CACHE_LINE = 64;
+const WorkerData = struct {
+    thread_1_counter: u64,
+    _pad1: [CACHE_LINE - @sizeOf(u64)]u8,
+    thread_2_counter: u64,
+    _pad2: [CACHE_LINE - @sizeOf(u64)]u8,
+};
+```
+
+### 5. Missed SIMD Opportunities
+
+**Anti-Pattern:** Scalar operations on arrays where SIMD would be beneficial.
+
+```zig
+// ANTI-PATTERN: Scalar operations
+fn addArrays(a: []f32, b: []f32, result: []f32) void {
+    for (a, b, result) |av, bv, *r| {
+        r.* = av + bv;  // One element at a time
+    }
+}
+```
+
+**Better Approach:** Use vector operations:
+
+```zig
+// IDIOMATIC: SIMD operations
+fn addArraysSIMD(a: []f32, b: []f32, result: []f32) void {
+    const vec_size = 4;
+    const Vec4 = @Vector(vec_size, f32);
+    
+    var i: usize = 0;
+    while (i + vec_size <= a.len) : (i += vec_size) {
+        const va: Vec4 = a[i..][0..vec_size].*;
+        const vb: Vec4 = b[i..][0..vec_size].*;
+        result[i..][0..vec_size].* = va + vb;
+    }
+    
+    // Handle remainder
+    while (i < a.len) : (i += 1) {
+        result[i] = a[i] + b[i];
+    }
+}
+```
+
+### 6. Excessive Pointer Indirection
+
+**Anti-Pattern:** Multiple levels of pointer indirection hurting cache locality.
+
+```zig
+// ANTI-PATTERN: Too much indirection
+const Node = struct {
+    data: *Data,
+    next: ?*Node,
+};
+const Data = struct {
+    value: *Value,
+};
+const Value = struct {
+    actual: u32,
+};
+// Accessing node.data.value.actual requires 3 memory loads!
+```
+
+**Better Approach:** Flatten when possible:
+
+```zig
+// IDIOMATIC: Reduce indirection
+const Node = struct {
+    value: u32,  // Data inline
+    next: ?*Node,
+};
+```
+
+## Memory Management Anti-Patterns
+
+### 7. Allocator Ignorance
+
+**Anti-Pattern:** Functions that allocate without accepting an allocator parameter.
+
+```zig
+// ANTI-PATTERN: Hidden allocation
+fn createBuffer() ![]u8 {
+    return try std.heap.page_allocator.alloc(u8, 1024);
+}
+```
+
+**Better Approach:** Always pass allocators explicitly:
+
+```zig
+// IDIOMATIC: Explicit allocator
+fn createBuffer(allocator: std.mem.Allocator) ![]u8 {
+    return try allocator.alloc(u8, 1024);
+}
+```
+
+### 8. Lifetime Confusion
+
+**Anti-Pattern:** Returning pointers to stack memory or temporary values.
+
+```zig
+// ANTI-PATTERN: Dangling pointer
+fn getName() *const [10]u8 {
+    const name = "temporary";  // Stack allocated
+    return &name;  // Returns pointer to dead memory!
+}
+```
+
+**Better Approach:** Return by value or use caller-provided storage:
+
+```zig
+// IDIOMATIC: Safe lifetime management
+fn getName(buffer: []u8) ![]u8 {
+    const name = "temporary";
+    if (buffer.len < name.len) return error.BufferTooSmall;
+    @memcpy(buffer[0..name.len], name);
+    return buffer[0..name.len];
+}
+```
+
+### 9. ArrayList Slice Invalidation
+
+**Anti-Pattern:** Holding slices to ArrayList's items across operations that may reallocate.
+
+```zig
+// ANTI-PATTERN: Slice becomes invalid
+var list = std.ArrayList(u8).init(allocator);
+const slice = list.items;
+try list.append('x');  // May reallocate!
+// slice is now dangling
+```
+
+**Better Approach:** Re-acquire slices after modifications:
+
+```zig
+// IDIOMATIC: Safe slice usage
+var list = std.ArrayList(u8).init(allocator);
+try list.append('x');
+const slice = list.items;  // Get slice after all modifications
+```
+
+### 10. Defer Scope Misunderstanding
+
+**Anti-Pattern:** Expecting defer to run per-iteration in loops.
+
+```zig
+// ANTI-PATTERN: All defers stack up
+for (files) |path| {
+    const f = try openFile(path);
+    defer f.close();  // Closes only when function exits!
+}
+```
+
+**Better Approach:** Use block scope for per-iteration cleanup:
+
+```zig
+// IDIOMATIC: Per-iteration cleanup
+for (files) |path| {
+    {
+        const f = try openFile(path);
+        defer f.close();  // Closes at block end
+        // use f
+    }
+}
+```
+
+## Comptime & Metaprogramming Anti-Patterns
+
+### 11. Comptime Computation Explosion
+
+**Anti-Pattern:** Heavy computation at compile time.
+
+```zig
+// ANTI-PATTERN: Massive compile-time work
+const lookup_table = comptime blk: {
+    var table: [1_000_000]u64 = undefined;
+    for (&table, 0..) |*entry, i| {
+        entry.* = expensiveComputation(i);
+    }
+    break :blk table;
+};
+```
+
+**Better Approach:** Use build.zig to pre-generate or compute at runtime:
+
+```zig
+// IDIOMATIC: Generate once, embed result
+const lookup_table = @embedFile("precomputed_table.bin");
+
+// Or lazy runtime initialization
+var lookup_table: ?[1_000_000]u64 = null;
+fn getTable() []const u64 {
+    if (lookup_table == null) {
+        lookup_table = computeTable();
+    }
+    return &lookup_table.?;
+}
+```
+
+### 12. Comptime Type Validation Neglect
+
+**Anti-Pattern:** Using anytype without validation.
+
+```zig
+// ANTI-PATTERN: No type checking
+fn process(value: anytype) void {
+    _ = value.field;  // Cryptic error if field doesn't exist
+}
+```
+
+**Better Approach:** Validate at comptime:
+
+```zig
+// IDIOMATIC: Explicit validation
+fn process(value: anytype) void {
+    const T = @TypeOf(value);
+    comptime {
+        if (!@hasField(T, "field")) {
+            @compileError("Type " ++ @typeName(T) ++ " must have 'field'");
+        }
+    }
+    _ = value.field;
+}
+```
+
+## Error Handling Anti-Patterns
+
+### 13. Error Swallowing
+
+**Anti-Pattern:** Silently catching and ignoring errors.
+
+```zig
+// ANTI-PATTERN: Hidden failure
+_ = riskyOperation() catch {};
+```
+
+**Better Approach:** Handle or propagate meaningfully:
+
+```zig
+// IDIOMATIC: Explicit handling
+riskyOperation() catch |err| {
+    std.log.err("Operation failed: {}", .{err});
+    return err;
+};
+```
+
+### 14. anyerror Overuse
+
+**Anti-Pattern:** Using anyerror when specific error sets would be clearer.
+
+```zig
+// ANTI-PATTERN: Too generic
+fn parseConfig() anyerror!Config {
+    // ...
+}
+```
+
+**Better Approach:** Define specific error sets:
+
+```zig
+// IDIOMATIC: Specific errors
+const ConfigError = error{
+    InvalidFormat,
+    MissingField,
+    InvalidValue,
+};
+
+fn parseConfig() ConfigError!Config {
+    // ...
+}
+```
+
+## Concurrency & Async Anti-Patterns
+
+### 15. Data Race Patterns
+
+**Anti-Pattern:** Unprotected shared mutable state.
+
+```zig
+// ANTI-PATTERN: Race condition
+var global_counter: u64 = 0;
+
+fn incrementCounter() void {
+    global_counter += 1;  // Not atomic!
+}
+```
+
+**Better Approach:** Use atomics or synchronization:
+
+```zig
+// IDIOMATIC: Thread-safe
+var global_counter: std.atomic.Atomic(u64) = std.atomic.Atomic(u64).init(0);
+
+fn incrementCounter() void {
+    _ = global_counter.fetchAdd(1, .Monotonic);
+}
+```
+
+### 16. Async Function Lifetime Issues
+
+**Anti-Pattern:** Storing references to async frame locals.
+
+```zig
+// ANTI-PATTERN: Dangling reference to async frame
+const Frame = struct {
+    ptr: *u32,
+};
+
+fn asyncFunc() !void {
+    var local: u32 = 42;
+    const frame = Frame{ .ptr = &local };
+    suspendAndStoreFrame(frame);  // local dies when function suspends!
+}
+```
+
+**Better Approach:** Copy data or use heap allocation:
+
+```zig
+// IDIOMATIC: Safe async data
+const Frame = struct {
+    value: u32,  // Copy, not reference
+};
+
+fn asyncFunc() !void {
+    var local: u32 = 42;
+    const frame = Frame{ .value = local };
+    suspendAndStoreFrame(frame);
+}
+```
+
+## API Design Anti-Patterns
+
+### 17. Leaking Implementation Details
+
+**Anti-Pattern:** Exposing internal structures in public APIs.
+
+```zig
+// ANTI-PATTERN: Exposes internals
+pub const HashMap = struct {
+    buckets: []Bucket,  // Internal detail exposed!
+    size: usize,
+    // ...
+};
+```
+
+**Better Approach:** Use opaque pointers:
+
+```zig
+// IDIOMATIC: Hidden implementation
+pub const HashMap = opaque {};
+
+pub fn createHashMap(allocator: std.mem.Allocator) !*HashMap {
+    // ...
+}
+
+pub fn hashMapGet(map: *HashMap, key: []const u8) ?*Value {
+    // ...
+}
+```
+
+### 18. Inconsistent Naming
+
+**Anti-Pattern:** Mixing naming conventions.
+
+```zig
+// ANTI-PATTERN: Inconsistent
+const myStruct = struct {
+    SomeField: u32,
+    another_field: u32,
+    YetAnother: u32,
+};
+```
+
+**Better Approach:** Follow Zig conventions:
+
+```zig
+// IDIOMATIC: Consistent naming
+const MyStruct = struct {
+    some_field: u32,
+    another_field: u32,
+    yet_another: u32,
+};
+```
+
+## Build System & Tooling Anti-Patterns
+
+### 19. Build Script Complexity
+
+**Anti-Pattern:** Overly complex build.zig files.
+
+```zig
+// ANTI-PATTERN: Too much logic in build.zig
+pub fn build(b: *std.Build) void {
+    // 500 lines of complex conditionals and custom logic
+    if (detectOS()) {
+        if (checkCompiler()) {
+            // ...
+        }
+    }
+}
+```
+
+**Better Approach:** Keep build.zig simple, extract complexity:
+
+```zig
+// IDIOMATIC: Simple build.zig
+const build_config = @import("build_config.zig");
+
+pub fn build(b: *std.Build) void {
+    const target = b.standardTargetOptions(.{});
+    const optimize = b.standardOptimizeOption(.{});
+    
+    const exe = b.addExecutable(.{
+        .name = "app",
+        .root_source_file = .{ .path = "src/main.zig" },
+        .target = target,
+        .optimize = optimize,
+    });
+    
+    build_config.configure(exe, b);
+    b.installArtifact(exe);
+}
+```
+
+### 20. Missing Test Coverage
+
+**Anti-Pattern:** No tests for unsafe or complex code.
+
+```zig
+// ANTI-PATTERN: Complex logic without tests
+pub fn complexAlgorithm(data: []const u8) u32 {
+    // 100 lines of intricate logic
+    // No test block!
+}
+```
+
+**Better Approach:** Always test complex or unsafe code:
+
+```zig
+// IDIOMATIC: Comprehensive testing
+pub fn complexAlgorithm(data: []const u8) u32 {
+    // implementation
+}
+
+test "complexAlgorithm handles empty input" {
+    try std.testing.expectEqual(@as(u32, 0), complexAlgorithm(&.{}));
+}
+
+test "complexAlgorithm handles normal cases" {
+    const input = "test";
+    const expected: u32 = 42;
+    try std.testing.expectEqual(expected, complexAlgorithm(input));
+}
+
+test "complexAlgorithm handles edge cases" {
+    // Test boundary conditions
+}
+```
+
+## C Interop Anti-Patterns
+
+### 21. Ignoring C Conventions
+
+**Anti-Pattern:** Not respecting C's memory model and conventions.
+
+```zig
+// ANTI-PATTERN: Returning Zig slice to C
+export fn getData() []u8 {
+    return &some_data;  // C doesn't understand slices!
+}
+```
+
+**Better Approach:** Use C-compatible types:
+
+```zig
+// IDIOMATIC: C-compatible interface
+export fn getData(out_ptr: *[*]u8, out_len: *usize) void {
+    out_ptr.* = &some_data;
+    out_len.* = some_data.len;
+}
+```
+
+### 22. Incorrect errno Handling
+
+**Anti-Pattern:** Not preserving errno across C calls.
+
+```zig
+// ANTI-PATTERN: errno lost
+const result = c.some_c_function();
+doSomethingElse();  // Might change errno!
+if (result < 0) {
+    const err = c.errno;  // Wrong errno!
+}
+```
+
+**Better Approach:** Capture errno immediately:
+
+```zig
+// IDIOMATIC: Preserve errno
+const result = c.some_c_function();
+const saved_errno = c.errno;  // Capture immediately
+doSomethingElse();
+if (result < 0) {
+    handleError(saved_errno);
+}
+```
+
+## Quick Reference Checklist
+
+### Performance
+- [ ] Use SoA for hot data paths
+- [ ] Minimize unpredictable branches
+- [ ] Avoid allocations in loops
+- [ ] Prevent false sharing
+- [ ] Consider SIMD for array operations
+- [ ] Reduce pointer indirection
+
+### Memory Management
+- [ ] Always pass allocators explicitly
+- [ ] Never return stack pointers
+- [ ] Re-acquire ArrayList slices after modifications
+- [ ] Use block scope for per-iteration defer
+- [ ] Track ownership clearly
+
+### Comptime
+- [ ] Keep comptime computation minimal
+- [ ] Validate anytype parameters
+- [ ] Avoid I/O in comptime
+- [ ] Use @embedFile for large data
+
+### Error Handling
+- [ ] Never swallow errors silently
+- [ ] Use specific error sets
+- [ ] Handle errors at appropriate levels
+- [ ] Use errdefer for error-path cleanup
+
+### Concurrency
+- [ ] Protect shared mutable state
+- [ ] Use atomics for simple counters
+- [ ] Avoid async frame lifetime issues
+- [ ] Prevent false sharing
+
+### API Design
+- [ ] Hide implementation details
+- [ ] Follow naming conventions
+- [ ] Document ownership
+- [ ] Provide type-safe interfaces
+
+### Build & Testing
+- [ ] Keep build.zig simple
+- [ ] Test all unsafe code
+- [ ] Test edge cases
+- [ ] Use std.testing utilities
+
+### C Interop
+- [ ] Use C-compatible types at boundaries
+- [ ] Preserve errno correctly
+- [ ] Handle null pointers from C
+- [ ] Match C calling conventions
+
+## Conclusion
+
+Zig's philosophy of explicit control and zero-cost abstractions requires discipline. These anti-patterns represent the most common ways that code can violate Zig's principles, leading to poor performance, bugs, or unmaintainable code. By understanding not just what to avoid but *why* these patterns are problematic in Zig's model, you can write code that is fast, safe, and truly "Ziggy".
+
+Remember: when in doubt, choose explicitness over cleverness, measure before optimizing, and always consider who owns the memory.

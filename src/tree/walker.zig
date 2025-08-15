@@ -1,4 +1,5 @@
 const std = @import("std");
+const collections = @import("../lib/core/collections.zig");
 
 const Config = @import("config.zig").Config;
 const Entry = @import("entry.zig").Entry;
@@ -91,7 +92,7 @@ pub const Walker = struct {
         var iter_dir = dir;
         defer iter_dir.close();
 
-        var entries = std.ArrayList(std.fs.Dir.Entry).init(self.allocator);
+        var entries = collections.List(std.fs.Dir.Entry).init(self.allocator);
         defer entries.deinit();
 
         var iterator = try iter_dir.iterate(self.allocator);

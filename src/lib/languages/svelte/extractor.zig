@@ -62,12 +62,18 @@ fn extractWithSectionTracking(_: std.mem.Allocator, source: []const u8, flags: E
         if (!should_include) {
             switch (context.current_section) {
                 .script => {
-                    if (flags.signatures or flags.imports or flags.types) {
+                    if (flags.structure) {
+                        // For structure extraction, include ALL script content
+                        should_include = !isSectionBoundary(line);
+                    } else if (flags.signatures or flags.imports or flags.types) {
                         should_include = shouldIncludeScriptLine(line, flags);
                     }
                 },
                 .style => {
-                    if (flags.types or flags.structure) {
+                    if (flags.structure) {
+                        // For structure extraction, include ALL style content
+                        should_include = !isSectionBoundary(line);
+                    } else if (flags.types) {
                         should_include = shouldIncludeStyleLine(line, flags);
                     }
                 },
@@ -250,16 +256,8 @@ fn shouldIncludeTemplateLine(line: []const u8, flags: ExtractionFlags) bool {
     const trimmed = std.mem.trim(u8, line, " \t");
 
     if (flags.structure) {
-        // HTML elements and Svelte control flow
-        if (trimmed.len > 0 and (std.mem.indexOf(u8, trimmed, "<") != null or
-            std.mem.indexOf(u8, trimmed, "{#") != null or // Control flow blocks
-            std.mem.indexOf(u8, trimmed, "{:") != null or // Else blocks
-            std.mem.indexOf(u8, trimmed, "{/") != null or // End blocks
-            std.mem.indexOf(u8, trimmed, "{@") != null or // Render statements
-            std.mem.indexOf(u8, trimmed, "bind:") != null or
-            std.mem.indexOf(u8, trimmed, "on:") != null or
-            std.mem.indexOf(u8, trimmed, "onclick") != null))
-        {
+        // Include ALL non-empty lines in template for structure extraction
+        if (trimmed.len > 0) {
             return true;
         }
     }

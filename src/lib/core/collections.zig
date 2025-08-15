@@ -15,17 +15,16 @@ pub fn toOwnedSlice(comptime T: type, list: *List(T)) ![]T {
     return list.toOwnedSlice();
 }
 
-/// Deduplicate slice elements
-pub fn deduplicate(comptime T: type, allocator: std.mem.Allocator, items: []const T) ![]T {
-    var result = List(T).init(allocator);
+/// Deduplicate slice elements (specialized for strings)
+pub fn deduplicateStrings(allocator: std.mem.Allocator, items: []const []const u8) ![][]const u8 {
+    var result = List([]const u8).init(allocator);
     defer result.deinit();
 
-    var seen = Set.init(allocator);
+    var seen = StringSet.init(allocator);
     defer seen.deinit();
 
     for (items) |item| {
-        const key = if (T == []const u8) item else @as([]const u8, @ptrCast(&item));
-        const entry = try seen.getOrPut(key);
+        const entry = try seen.getOrPut(item);
         if (!entry.found_existing) {
             try result.append(item);
         }
@@ -201,11 +200,11 @@ test "stdlib aliases work correctly" {
     try testing.expect(list.items[0] == 42);
 }
 
-test "deduplicate removes duplicates" {
+test "deduplicateStrings removes duplicates" {
     const testing = std.testing;
 
     const items = [_][]const u8{ "a", "b", "a", "c", "b" };
-    const result = try deduplicate([]const u8, testing.allocator, &items);
+    const result = try deduplicateStrings(testing.allocator, &items);
     defer testing.allocator.free(result);
 
     try testing.expect(result.len == 3); // a, b, c
@@ -217,7 +216,7 @@ test "filter works correctly" {
     const items = [_]i32{ 1, 2, 3, 4, 5 };
     const isEven = struct {
         fn func(x: i32) bool {
-            return x % 2 == 0;
+            return @rem(x, 2) == 0;
         }
     }.func;
 

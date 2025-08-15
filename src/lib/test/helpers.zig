@@ -38,14 +38,14 @@ pub fn testScope(allocator: std.mem.Allocator, comptime testFn: anytype) !void {
 pub const TestContextBuilder = struct {
     allocator: std.mem.Allocator,
     use_mock_fs: bool = true,
-    files: std.ArrayList([]const u8),
-    dirs: std.ArrayList([]const u8),
+    files: collections.List([]const u8),
+    dirs: collections.List([]const u8),
 
     pub fn init(allocator: std.mem.Allocator) TestContextBuilder {
         return .{
             .allocator = allocator,
-            .files = std.ArrayList([]const u8).init(allocator),
-            .dirs = std.ArrayList([]const u8).init(allocator),
+            .files = collections.List([]const u8).init(allocator),
+            .dirs = collections.List([]const u8).init(allocator),
         };
     }
 
@@ -660,17 +660,17 @@ pub const Assertions = struct {
 /// Builder for creating test file structures
 pub const FileStructureBuilder = struct {
     allocator: std.mem.Allocator,
-    files: std.ArrayList([]const u8),
+    files: collections.List([]const u8),
 
     pub fn init(allocator: std.mem.Allocator) FileStructureBuilder {
         return .{
             .allocator = allocator,
-            .files = std.ArrayList([]const u8).init(allocator),
+            .files = collections.List([]const u8).init(allocator),
         };
     }
 
     pub fn addZigFile(self: *FileStructureBuilder, path: []const u8, functions: []const []const u8) !*FileStructureBuilder {
-        var content = std.ArrayList(u8).init(self.allocator);
+        var content = collections.List(u8).init(self.allocator);
         defer content.deinit();
 
         try content.appendSlice("const std = @import(\"std\");\n\n");

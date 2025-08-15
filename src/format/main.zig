@@ -1,4 +1,5 @@
 const std = @import("std");
+const collections = @import("../lib/core/collections.zig");
 const FilesystemInterface = @import("../lib/core/filesystem.zig").FilesystemInterface;
 const Language = @import("../lib/language/detection.zig").Language;
 const Formatter = @import("../lib/parsing/formatter.zig").Formatter;
@@ -14,7 +15,7 @@ const Args = @import("../lib/args.zig").Args;
 const CommonFlags = @import("../lib/args.zig").CommonFlags;
 
 const FormatArgs = struct {
-    files: std.ArrayList([]const u8),
+    files: collections.List([]const u8),
     write: bool = false,
     check: bool = false,
     stdin: bool = false,
@@ -85,7 +86,7 @@ pub fn run(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: 
     };
 
     // Expand globs and collect files
-    var all_files = std.ArrayList([]const u8).init(allocator);
+    var all_files = collections.List([]const u8).init(allocator);
     defer {
         for (all_files.items) |file| {
             allocator.free(file);
@@ -251,13 +252,40 @@ fn detectLanguageFromContent(content: []const u8) Language {
         return .html;
     }
 
-    // CSS detection
-    if (std.mem.indexOf(u8, content, "{") != null and
-        (std.mem.indexOf(u8, content, "color:") != null or
-            std.mem.indexOf(u8, content, "background:") != null or
-            std.mem.indexOf(u8, content, "margin:") != null))
-    {
-        return .css;
+    // CSS detection - improved heuristics
+    if (std.mem.indexOf(u8, content, "{") != null and std.mem.indexOf(u8, content, "}") != null) {
+        // Look for CSS-specific patterns
+        if (std.mem.indexOf(u8, content, ":") != null and
+            (std.mem.indexOf(u8, content, "color:") != null or
+             std.mem.indexOf(u8, content, "background:") != null or
+             std.mem.indexOf(u8, content, "margin:") != null or
+             std.mem.indexOf(u8, content, "padding:") != null or
+             std.mem.indexOf(u8, content, "display:") != null or
+             std.mem.indexOf(u8, content, "width:") != null or
+             std.mem.indexOf(u8, content, "height:") != null or
+             std.mem.indexOf(u8, content, "font-") != null or
+             std.mem.indexOf(u8, content, "border") != null or
+             std.mem.indexOf(u8, content, "flex") != null or
+             std.mem.indexOf(u8, content, "gap:") != null or
+             std.mem.indexOf(u8, content, "position:") != null or
+             std.mem.indexOf(u8, content, "z-index:") != null or
+             std.mem.indexOf(u8, content, "opacity:") != null)) {
+            return .css;
+        }
+        
+        // Check for CSS selectors (starts with . or # or element name)
+        var lines = std.mem.splitScalar(u8, content, '\n');
+        while (lines.next()) |line| {
+            const trimmed_line = std.mem.trim(u8, line, " \t\r");
+            if (trimmed_line.len > 0) {
+                // CSS selector patterns
+                if (trimmed_line[0] == '.' or trimmed_line[0] == '#' or
+                    std.mem.indexOf(u8, trimmed_line, " {") != null or
+                    std.mem.indexOf(u8, trimmed_line, "}{") != null) {
+                    return .css;
+                }
+            }
+        }
     }
 
     // Zig detection
@@ -272,7 +300,7 @@ fn detectLanguageFromContent(content: []const u8) Language {
 
 fn parseArgs(allocator: std.mem.Allocator, args: [][:0]const u8, base_options: FormatterOptions) !FormatArgs {
     var result = FormatArgs{
-        .files = std.ArrayList([]const u8).init(allocator),
+        .files = collections.List([]const u8).init(allocator),
         .options = base_options, // Start with config file options
     };
 

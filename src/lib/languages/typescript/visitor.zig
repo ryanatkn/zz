@@ -6,9 +6,10 @@ const ExtractionContext = @import("../../tree_sitter/visitor.zig").ExtractionCon
 /// Returns true to continue recursion, false to skip children
 pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
     const node_type = node.kind;
+    
 
-    // Functions and methods
-    if (context.flags.signatures and !context.flags.structure and !context.flags.types) {
+    // Functions and methods (when signatures flag is set)
+    if (context.flags.signatures and !context.flags.structure) {
         if (std.mem.eql(u8, node_type, "function_declaration") or
             std.mem.eql(u8, node_type, "method_definition"))
         {
@@ -27,8 +28,8 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
         }
     }
 
-    // Types and interfaces
-    if (context.flags.types and !context.flags.structure and !context.flags.signatures) {
+    // Types and interfaces (when types flag is set)  
+    if (context.flags.types and !context.flags.structure) {
         if (std.mem.eql(u8, node_type, "interface_declaration") or
             std.mem.eql(u8, node_type, "type_alias_declaration") or
             std.mem.eql(u8, node_type, "class_declaration") or
@@ -38,7 +39,10 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
             try context.appendNode(node);
             return false;
         }
-    } else if (context.flags.structure) {
+    }
+
+    // Structure elements - complete TypeScript structure  
+    if (context.flags.structure) {
         // For structure, extract both functions and types
         if (std.mem.eql(u8, node_type, "interface_declaration") or
             std.mem.eql(u8, node_type, "type_alias_declaration") or

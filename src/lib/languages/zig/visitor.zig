@@ -9,20 +9,20 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
     if (context.flags.signatures and !context.flags.structure and !context.flags.types) {
         // For signatures only, extract only function definitions
         if (isFunctionNode(node.kind, node.text)) {
-            try context.appendSignature(node);
+            try appendZigSignature(context, node);
         }
         // Don't extract type nodes when only signatures are requested
         // Always continue recursion to find functions inside structs/types
         return true;
     } else if (context.flags.types and !context.flags.structure and !context.flags.signatures) {
         // For types only, extract type definitions without method implementations
-        if (isTypeNode(node.kind)) {
+        if (isTypeNode(node.kind, node.text)) {
             try extractTypeDefinition(context, node);
             return false; // Skip children to avoid method implementations
         }
     } else if (context.flags.structure) {
         // For structure, extract both functions and types
-        if (isFunctionNode(node.kind, node.text) or isTypeNode(node.kind)) {
+        if (isFunctionNode(node.kind, node.text) or isTypeNode(node.kind, node.text)) {
             try context.appendNode(node);
         }
     } else if (context.flags.imports) {
@@ -58,15 +58,7 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
 
 /// Check if node represents a function
 fn isFunctionNode(kind: []const u8, text: []const u8) bool {
-    // Look for Decl nodes that contain function declarations (includes pub)
-    if (std.mem.eql(u8, kind, "Decl")) {
-        // Only match if it contains "fn " and doesn't start with "const" (to avoid structs)
-        const contains_fn = std.mem.indexOf(u8, text, "fn ") != null;
-        const not_const_decl = !std.mem.startsWith(u8, std.mem.trim(u8, text, " \t\n\r"), "const");
-        return contains_fn and not_const_decl;
-    }
-    
-    // Also try VarDecl nodes that might contain full function declarations with pub
+    // Look for VarDecl nodes that contain full function declarations (includes pub/priv)
     if (std.mem.eql(u8, kind, "VarDecl")) {
         const contains_fn = std.mem.indexOf(u8, text, "fn ") != null;
         const not_import = std.mem.indexOf(u8, text, "@import") == null;
@@ -74,17 +66,35 @@ fn isFunctionNode(kind: []const u8, text: []const u8) bool {
         return contains_fn and not_import and not_struct_def;
     }
     
+    // Look for Decl nodes that contain function declarations (but these miss pub keyword)
+    if (std.mem.eql(u8, kind, "Decl")) {
+        // Only match if it contains "fn " and doesn't start with "const" (to avoid structs)
+        const contains_fn = std.mem.indexOf(u8, text, "fn ") != null;
+        const not_const_decl = !std.mem.startsWith(u8, std.mem.trim(u8, text, " \t\n\r"), "const");
+        return contains_fn and not_const_decl;
+    }
+    
     return false;
 }
 
 /// Check if node represents a type definition
-fn isTypeNode(kind: []const u8) bool {
-    // Be more specific about type nodes to avoid extracting variable declarations
+fn isTypeNode(kind: []const u8, text: []const u8) bool {
+    // Look for VarDecl nodes that contain type definitions
+    if (std.mem.eql(u8, kind, "VarDecl")) {
+        const trimmed = std.mem.trim(u8, text, " \t\n\r");
+        // Check if it's a type declaration (const Name = struct/enum/union)
+        if (std.mem.startsWith(u8, trimmed, "const ") or std.mem.startsWith(u8, trimmed, "pub const ")) {
+            return std.mem.indexOf(u8, text, "struct") != null or
+                   std.mem.indexOf(u8, text, "enum") != null or
+                   std.mem.indexOf(u8, text, "union") != null;
+        }
+    }
+    
+    // Also handle direct struct/enum/union nodes (but these are usually incomplete)
     return std.mem.eql(u8, kind, "struct") or
         std.mem.eql(u8, kind, "enum") or
         std.mem.eql(u8, kind, "union") or
         std.mem.eql(u8, kind, "ErrorSetDecl");
-    // TODO: VarDecl was causing issues - need to be more specific about when to include it
 }
 
 /// Check if node represents an import
@@ -120,8 +130,67 @@ fn isErrorNode(kind: []const u8) bool {
 
 /// Extract type definition without method implementations
 fn extractTypeDefinition(context: *ExtractionContext, node: *const Node) !void {
-    // TODO: Implement proper type extraction that excludes method bodies
-    // For now, fall back to full node extraction until we can analyze the AST structure
-    // to separate type fields from method implementations
+    // For VarDecl nodes containing type definitions, we need to extract just the type
+    // structure but exclude method implementations
+    if (std.mem.eql(u8, node.kind, "VarDecl")) {
+        const text = node.text;
+        
+        // TODO: For now, extract the full VarDecl node text
+        // Later we can implement more sophisticated filtering to remove method bodies
+        // but keep field definitions
+        try context.result.appendSlice(text);
+        if (!std.mem.endsWith(u8, text, "\n")) {
+            try context.result.append('\n');
+        }
+        return;
+    }
+    
+    // Fall back to full node extraction for other node types
     try context.appendNode(node);
+}
+
+/// Append Zig function signature with proper pub keyword handling
+fn appendZigSignature(context: *ExtractionContext, node: *const Node) !void {
+    const basic_signature = @import("../../tree_sitter/visitor.zig").extractSignatureFromText(node.text);
+    
+    // Check if the signature is missing 'pub' but should have it
+    if (std.mem.indexOf(u8, basic_signature, "fn ") != null and 
+        std.mem.indexOf(u8, basic_signature, "pub ") == null) {
+        
+        // Look in the original source to see if this function has 'pub'
+        if (std.mem.indexOf(u8, context.source, node.text)) |node_pos| {
+            // Look backwards from the node position to find 'pub'
+            const search_start = if (node_pos >= 20) node_pos - 20 else 0;
+            const search_text = context.source[search_start..node_pos];
+            
+            if (std.mem.lastIndexOf(u8, search_text, "pub")) |pub_relative_pos| {
+                const pub_pos = search_start + pub_relative_pos;
+                
+                // Check that 'pub' is followed by whitespace and is close to our node
+                if (pub_pos + 3 < context.source.len and 
+                    std.ascii.isWhitespace(context.source[pub_pos + 3])) {
+                    
+                    const text_between = context.source[pub_pos + 3..node_pos];
+                    // Only include 'pub' if there's minimal text between (whitespace/newlines)
+                    const is_close = std.mem.trim(u8, text_between, " \t\n\r").len == 0;
+                    
+                    if (is_close) {
+                        // Prepend 'pub ' to the signature
+                        try context.result.appendSlice("pub ");
+                        try context.result.appendSlice(basic_signature);
+                        if (!std.mem.endsWith(u8, basic_signature, "\n")) {
+                            try context.result.append('\n');
+                        }
+                        return;
+                    }
+                }
+            }
+        }
+    }
+    
+    // Fall back to basic signature
+    try context.result.appendSlice(basic_signature);
+    if (!std.mem.endsWith(u8, basic_signature, "\n")) {
+        try context.result.append('\n');
+    }
 }

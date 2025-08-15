@@ -6,6 +6,7 @@ const ExtractionContext = @import("../../tree_sitter/visitor.zig").ExtractionCon
 /// Returns true to continue recursion, false to skip children
 pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
     const node_type = node.kind;
+    
 
     // Selectors (for signatures flag)
     if (context.flags.signatures and !context.flags.structure and !context.flags.types) {
@@ -58,14 +59,12 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
         }
     }
 
-    // Types - CSS properties and selectors only  
+    // Types - CSS rule sets, selectors, and imports 
     if (context.flags.types and !context.flags.structure and !context.flags.signatures) {
-        if (std.mem.eql(u8, node_type, "property_name") or
-            std.mem.eql(u8, node_type, "custom_property_name") or
-            std.mem.eql(u8, node_type, "class_selector") or
-            std.mem.eql(u8, node_type, "id_selector") or
-            std.mem.eql(u8, node_type, "type_selector") or
-            std.mem.eql(u8, node_type, "pseudo_class_selector"))
+        if (std.mem.eql(u8, node_type, "rule_set") or
+            std.mem.eql(u8, node_type, "import_statement") or
+            std.mem.eql(u8, node_type, "media_statement") or
+            std.mem.eql(u8, node_type, "keyframes_statement"))
         {
             try context.appendNode(node);
             return false; // Skip children for types

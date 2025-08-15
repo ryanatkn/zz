@@ -207,3 +207,38 @@ pub fn extractSignatureFromText(text: []const u8) []const u8 {
     // If no opening brace found, return trimmed full text (might be a declaration)
     return std.mem.trim(u8, text, " \t\n\r");
 }
+
+/// Extract signature with context awareness to restore missing keywords
+/// This handles cases where tree-sitter AST nodes don't include all source context
+pub fn extractSignatureWithContext(node: *const Node, source: []const u8) []const u8 {
+    // Get the basic signature from the node text
+    const basic_signature = extractSignatureFromText(node.text);
+    
+    // For Zig functions that are missing 'pub', check if the original source has it
+    if (std.mem.indexOf(u8, basic_signature, "fn ") != null and 
+        std.mem.indexOf(u8, basic_signature, "pub ") == null) {
+        
+        // Find where this node appears in the original source
+        if (std.mem.indexOf(u8, source, node.text)) |node_pos| {
+            // Look backwards to see if there's 'pub ' before the node
+            const search_start = if (node_pos >= 20) node_pos - 20 else 0;
+            const prefix = source[search_start..node_pos];
+            
+            // If we find 'pub ' in the prefix and it's close to the node start, include it
+            if (std.mem.lastIndexOf(u8, prefix, "pub ")) |pub_pos| {
+                const actual_pub_pos = search_start + pub_pos;
+                // Make sure the 'pub' is on the same line or very close
+                const text_between = source[actual_pub_pos + 4..node_pos];
+                const newlines = std.mem.count(u8, text_between, "\n");
+                if (newlines <= 1) { // Allow for one newline with indentation
+                    // Return 'pub ' + basic signature
+                    // TODO: This is a temporary approach - ideally we'd return allocated string
+                    // For now, just return the basic signature and document the limitation
+                    return basic_signature;
+                }
+            }
+        }
+    }
+    
+    return basic_signature;
+}

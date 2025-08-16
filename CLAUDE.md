@@ -219,16 +219,6 @@ $ zig build test 2>&1 | rg "pattern"                  # Alternative: pipe output
 - **Current behavior**: No matches exit with status 0 (success)
 - **Future enhancement**: Will error on no matches to catch typos and improve CI safety
 
-### Common Test Filters
-```bash
-$ zig build test -Dtest-filter="CLI module"           # CLI module tests
-$ zig build test -Dtest-filter="benchmark"            # Benchmark tests  
-$ zig build test -Dtest-filter="filter"               # Filter/pattern matching tests
-$ zig build test -Dtest-filter="path"                 # Path utility tests
-$ zig build test -Dtest-filter="glob"                 # Glob pattern tests
-$ zig build test -Dtest-filter="tree.*filter"         # Tree filtering tests (regex)
-```
-
 ### Debugging Test Filters
 ```bash
 # Verify filter is working (shows --test-filter in command)

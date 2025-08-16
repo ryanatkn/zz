@@ -9,9 +9,11 @@ const path = @import("../core/path.zig");
 const FilesystemInterface = @import("../filesystem/interface.zig").FilesystemInterface;
 const RealFilesystem = @import("../filesystem/real.zig").RealFilesystem;
 
-// Import terminal utilities for colored output  
+// Import terminal utilities for colored output and progress indicators
 const terminal = @import("../terminal/terminal.zig");
 const Color = @import("../terminal/colors.zig").Color;
+const ProgressIndicator = @import("../terminal/progress.zig").ProgressIndicator;
+const SimpleProgress = @import("../terminal/progress.zig").SimpleProgress;
 
 /// Core dependency management functionality
 pub const DependencyManager = struct {
@@ -226,15 +228,26 @@ pub const DependencyManager = struct {
             }
         }
 
-        // Clone to temp directory
-        try self.logStep("Fetching {s} ({s})", .{ dep.name, dep.version });
-        try self.git.clone(dep.url, dep.version, temp_dir);
+        // Clone to temp directory with progress indicator
+        const clone_message = try std.fmt.allocPrint(self.allocator, "Fetching {s} ({s})", .{ dep.name, dep.version });
+        defer self.allocator.free(clone_message);
+        
+        var progress = ProgressIndicator.init(self.allocator, clone_message);
+        var frame_count: u32 = 0;
+        
+        // Show initial progress
+        try progress.tick();
+        
+        // Start clone operation in a way that allows progress updates
+        try self.git.cloneWithProgress(dep.url, dep.version, temp_dir, &progress, &frame_count);
 
         // Get commit hash before removing .git
+        try SimpleProgress.show("Getting commit hash");
         const commit_hash = try self.git.getCommitHash(temp_dir);
         defer self.allocator.free(commit_hash);
 
         // Clean the cloned repository
+        try SimpleProgress.show("Cleaning repository");
         try self.git.removeGitDirectory(temp_dir);
         try self.operations.removeFiles(temp_dir, dep.remove_files);
 
@@ -250,6 +263,7 @@ pub const DependencyManager = struct {
         try self.versioning.saveVersionInfo(temp_dir, &version_info);
 
         // Atomic move to final location
+        try SimpleProgress.show("Installing dependency");
         io.deleteTree(dep_dir) catch {};
 
         try self.operations.atomicMove(temp_dir, dep_dir);
@@ -385,7 +399,7 @@ pub const DependencyManager = struct {
     }
 
     /// Pattern matching for dependency names
-    fn matchesPattern(self: *Self, name: []const u8, pattern: []const u8) bool {
+    pub fn matchesPattern(self: *Self, name: []const u8, pattern: []const u8) bool {
         _ = self;
         // Simple glob matching for now
         if (std.mem.eql(u8, pattern, "*")) return true;

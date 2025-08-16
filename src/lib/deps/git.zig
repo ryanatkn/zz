@@ -1,7 +1,9 @@
 const std = @import("std");
 const io = @import("../core/io.zig");
+const process = @import("../core/process.zig");
 const FilesystemInterface = @import("../filesystem/interface.zig").FilesystemInterface;
 const RealFilesystem = @import("../filesystem/real.zig").RealFilesystem;
+const ProgressIndicator = @import("../terminal/progress.zig").ProgressIndicator;
 
 /// Git operations wrapper for dependency management
 pub const Git = struct {
@@ -27,7 +29,7 @@ pub const Git = struct {
         var args = std.ArrayList([]const u8).init(self.allocator);
         defer args.deinit();
 
-        try args.appendSlice(&.{ "git", "clone", "--quiet", "--depth", "1" });
+        try args.appendSlice(&.{ "clone", "--quiet", "--depth", "1" });
 
         // Add branch argument if not main/master
         if (!std.mem.eql(u8, version, "main") and !std.mem.eql(u8, version, "master")) {
@@ -36,47 +38,66 @@ pub const Git = struct {
 
         try args.appendSlice(&.{ url, dest });
 
-        // Execute git clone
-        var child = std.process.Child.init(args.items, self.allocator);
-        child.stdout_behavior = .Ignore;
-        child.stderr_behavior = .Inherit;
-
-        const result = try child.spawnAndWait();
-        switch (result) {
-            .Exited => |code| {
-                if (code != 0) {
-                    return error.GitCloneFailed;
-                }
-            },
-            else => return error.GitCloneFailed,
+        // Execute git clone using process utilities
+        var git_args = try process.buildGitArgs(self.allocator, args.items);
+        defer git_args.deinit();
+        
+        var result = try process.executeCommandWithInheritedStderr(self.allocator, git_args.items);
+        defer result.deinit();
+        
+        if (result.exit_code != 0) {
+            return error.GitCloneFailed;
         }
+    }
+
+    /// Clone a git repository with progress indication
+    pub fn cloneWithProgress(self: *Self, url: []const u8, version: []const u8, dest: []const u8, progress: *ProgressIndicator, frame_count: *u32) !void {
+        _ = frame_count; // Suppress unused parameter warning
+        
+        // Prepare git clone arguments
+        var args = std.ArrayList([]const u8).init(self.allocator);
+        defer args.deinit();
+
+        try args.appendSlice(&.{ "clone", "--quiet", "--depth", "1" });
+
+        // Add branch argument if not main/master
+        if (!std.mem.eql(u8, version, "main") and !std.mem.eql(u8, version, "master")) {
+            try args.appendSlice(&.{ "--branch", version });
+        }
+
+        try args.appendSlice(&.{ url, dest });
+
+        // Execute git clone using process utilities with progress updates
+        var git_args = try process.buildGitArgs(self.allocator, args.items);
+        defer git_args.deinit();
+        
+        // Simple approach: just run the command and show completion
+        var result = try process.executeCommandWithInheritedStderr(self.allocator, git_args.items);
+        defer result.deinit();
+        
+        if (result.exit_code != 0) {
+            try progress.fail("Git clone failed");
+            return error.GitCloneFailed;
+        }
+        
+        try progress.complete("Fetched successfully");
     }
 
     /// Get the commit hash of a git repository
     pub fn getCommitHash(self: *Self, dir: []const u8) ![]u8 {
-        const args = &.{ "git", "-C", dir, "rev-parse", "HEAD" };
+        const args = &.{ "-C", dir, "rev-parse", "HEAD" };
 
-        var child = std.process.Child.init(args, self.allocator);
-        child.stdout_behavior = .Pipe;
-        child.stderr_behavior = .Ignore;
-
-        try child.spawn();
-
-        var stdout_buf: [1024]u8 = undefined;
-        const stdout_len = try child.stdout.?.read(&stdout_buf);
+        var git_args = try process.buildGitArgs(self.allocator, args);
+        defer git_args.deinit();
         
-        const result = try child.wait();
-        switch (result) {
-            .Exited => |code| {
-                if (code != 0) {
-                    return error.GitHashFailed;
-                }
-            },
-            else => return error.GitHashFailed,
-        }
-
-        const hash = std.mem.trim(u8, stdout_buf[0..stdout_len], " \t\r\n");
-        return try self.allocator.dupe(u8, hash);
+        const output = process.executeCommandForOutput(self.allocator, git_args.items) catch {
+            return error.GitHashFailed;
+        };
+        defer self.allocator.free(output);
+        
+        return process.parseCommandOutput(self.allocator, output) catch {
+            return error.GitHashFailed;
+        };
     }
 
     /// Check if a directory is a git repository

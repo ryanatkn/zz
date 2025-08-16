@@ -1,17 +1,8 @@
 const std = @import("std");
+const process = @import("../core/process.zig");
 
-/// Result of executing a command
-pub const CommandResult = struct {
-    stdout: []u8,
-    stderr: []u8,
-    exit_code: u8,
-    allocator: std.mem.Allocator,
-
-    pub fn deinit(self: *CommandResult) void {
-        self.allocator.free(self.stdout);
-        self.allocator.free(self.stderr);
-    }
-};
+/// Re-export CommandResult from process module for compatibility
+pub const CommandResult = process.CommandResult;
 
 /// Terminal interface type for animation support
 /// Execute a command and capture its output
@@ -41,11 +32,6 @@ pub fn executeCommandWithAnimation(
         try argv.append(arg);
     }
 
-    // Create the child process
-    var child = std.process.Child.init(argv.items, allocator);
-    child.stdout_behavior = .Pipe;
-    child.stderr_behavior = .Pipe;
-
     // Show stylized message for long-running commands
     if (@TypeOf(terminal) != @TypeOf(null)) {
         if (std.mem.eql(u8, command, "benchmark")) {
@@ -57,31 +43,8 @@ pub fn executeCommandWithAnimation(
         }
     }
 
-    // Spawn and wait for completion
-    try child.spawn();
-
-    // Read stdout
-    const stdout = try child.stdout.?.reader().readAllAlloc(allocator, 1024 * 1024);
-    errdefer allocator.free(stdout);
-
-    // Read stderr
-    const stderr = try child.stderr.?.reader().readAllAlloc(allocator, 1024 * 1024);
-    errdefer allocator.free(stderr);
-
-    // Wait for the process to finish
-    const result = try child.wait();
-
-    const exit_code = switch (result) {
-        .Exited => |code| code,
-        else => 255,
-    };
-
-    return CommandResult{
-        .stdout = stdout,
-        .stderr = stderr,
-        .exit_code = exit_code,
-        .allocator = allocator,
-    };
+    // Use our process utilities for execution
+    return process.executeCommand(allocator, argv.items);
 }
 
 /// Execute a command with a timeout

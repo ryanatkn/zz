@@ -185,3 +185,172 @@ test "ZON parsing debugging - understand structure" {
         }
     }
 }
+
+test "Versioning module - semantic version comparison" {
+    const testing = std.testing;
+    const allocator = testing.allocator;
+    const Versioning = @import("versioning.zig").Versioning;
+    
+    var mock_fs = MockFilesystem.init(allocator);
+    defer mock_fs.deinit();
+    
+    var versioning = Versioning.initWithFilesystem(allocator, mock_fs.interface());
+    
+    // Test version comparison using compareVersions
+    try testing.expectEqual(std.math.Order.gt, try versioning.compareVersions("v1.2.3", "v1.2.2"));
+    try testing.expectEqual(std.math.Order.gt, try versioning.compareVersions("v2.0.0", "v1.9.9"));
+    try testing.expectEqual(std.math.Order.lt, try versioning.compareVersions("v1.2.2", "v1.2.3"));
+    try testing.expectEqual(std.math.Order.eq, try versioning.compareVersions("v1.2.3", "v1.2.3"));
+    
+    // Test semantic version parsing
+    const sem_ver = try Versioning.parseSemanticVersion("v1.2.3");
+    try testing.expectEqual(@as(u32, 1), sem_ver.major);
+    try testing.expectEqual(@as(u32, 2), sem_ver.minor);
+    try testing.expectEqual(@as(u32, 3), sem_ver.patch);
+}
+
+test "Versioning module - needsUpdate with mock filesystem" {
+    const testing = std.testing;
+    const allocator = testing.allocator;
+    const Versioning = @import("versioning.zig").Versioning;
+    
+    var mock_fs = MockFilesystem.init(allocator);
+    defer mock_fs.deinit();
+    
+    // Add test directory structure
+    try mock_fs.addDirectory("deps");
+    try mock_fs.addDirectory("deps/test-dep");
+    try mock_fs.addFile("deps/test-dep/.version", "Repository: https://github.com/test/repo\nVersion: v1.0.0\nCommit: abc123\nUpdated: 1706123456\nUpdated-By: test\n");
+    
+    var versioning = Versioning.initWithFilesystem(allocator, mock_fs.interface());
+    
+    // Test that same version doesn't need update
+    try testing.expect(!try versioning.needsUpdate("test-dep", "v1.0.0", "deps"));
+    
+    // Test that newer version needs update
+    try testing.expect(try versioning.needsUpdate("test-dep", "v1.1.0", "deps"));
+    
+    // Test that missing dependency needs update
+    try testing.expect(try versioning.needsUpdate("missing-dep", "v1.0.0", "deps"));
+}
+
+test "Pattern matching in dependency manager" {
+    const testing = std.testing;
+    const allocator = testing.allocator;
+    
+    var mock_fs = MockFilesystem.init(allocator);
+    defer mock_fs.deinit();
+    
+    var manager = DependencyManager.initWithFilesystem(allocator, "deps", mock_fs.interface());
+    
+    // Test exact match
+    try testing.expect(manager.matchesPattern("tree-sitter", "tree-sitter"));
+    try testing.expect(!manager.matchesPattern("tree-sitter", "zig-tree-sitter"));
+    
+    // Test wildcard patterns
+    try testing.expect(manager.matchesPattern("tree-sitter", "tree*"));
+    try testing.expect(manager.matchesPattern("tree-sitter-css", "tree*"));
+    try testing.expect(!manager.matchesPattern("zig-tree-sitter", "tree*"));
+    
+    // Test suffix patterns
+    try testing.expect(manager.matchesPattern("tree-sitter", "*sitter"));
+    try testing.expect(manager.matchesPattern("zig-tree-sitter", "*sitter"));
+    try testing.expect(!manager.matchesPattern("tree-sitter-css", "*sitter"));
+    
+    // Test universal pattern
+    try testing.expect(manager.matchesPattern("anything", "*"));
+}
+
+test "Config module - dependency memory management" {
+    const testing = std.testing;
+    const allocator = testing.allocator;
+    
+    // Test hardcoded config creation
+    var zon_config = try config.DepsZonConfig.createHardcoded(allocator);
+    try zon_config.initHardcodedDependencies();
+    defer zon_config.deinit();
+    
+    // Verify all 9 dependencies are present
+    try testing.expectEqual(@as(usize, 9), zon_config.dependencies.count());
+    
+    // Test specific dependencies
+    try testing.expect(zon_config.dependencies.contains("tree-sitter"));
+    try testing.expect(zon_config.dependencies.contains("zig-tree-sitter"));
+    try testing.expect(zon_config.dependencies.contains("tree-sitter-zig"));
+    try testing.expect(zon_config.dependencies.contains("zig-spec"));
+    
+    // Convert to DepsConfig and verify
+    var deps_config = try zon_config.toDepsConfig(allocator);
+    defer deps_config.deinit(allocator);
+    
+    try testing.expectEqual(@as(usize, 9), deps_config.dependencies.count());
+}
+
+test "Config module - version info serialization" {
+    const testing = std.testing;
+    const allocator = testing.allocator;
+    
+    const version_info = config.VersionInfo{
+        .repository = "https://github.com/test/repo.git",
+        .version = "v1.0.0",
+        .commit = "abc123def456",
+        .updated = 1704067200, // 2024-01-01 00:00:00 UTC
+        .updated_by = "test@example.com",
+    };
+    
+    // Test serialization
+    const content = try version_info.toContent(allocator);
+    defer allocator.free(content);
+    
+    // Verify content contains expected fields
+    try testing.expect(std.mem.indexOf(u8, content, "Repository: https://github.com/test/repo.git") != null);
+    try testing.expect(std.mem.indexOf(u8, content, "Version: v1.0.0") != null);
+    try testing.expect(std.mem.indexOf(u8, content, "Commit: abc123def456") != null);
+    
+    // Test deserialization
+    const parsed = try config.VersionInfo.parseFromContent(allocator, content);
+    defer parsed.deinit(allocator);
+    
+    try testing.expectEqualStrings(version_info.repository, parsed.repository);
+    try testing.expectEqualStrings(version_info.version, parsed.version);
+    try testing.expectEqualStrings(version_info.commit, parsed.commit);
+}
+
+test "Lock module - PID management" {
+    const testing = std.testing;
+    const allocator = testing.allocator;
+    const LockGuard = @import("lock.zig").LockGuard;
+    
+    // Test lock acquisition and release (using real filesystem since lock uses PID operations)
+    var lock = LockGuard.acquire(allocator, "/tmp") catch |err| switch (err) {
+        error.LockHeld => {
+            // Lock already held, which is fine for testing
+            return;
+        },
+        else => return err,
+    };
+    defer lock.deinit();
+    
+    // The lock was successfully acquired and will be released by deinit
+}
+
+test "Process module integration" {
+    const testing = std.testing;
+    const allocator = testing.allocator;
+    const process = @import("../core/process.zig");
+    
+    // Test git args building
+    var git_args = try process.buildGitArgs(allocator, &.{ "status", "--porcelain" });
+    defer git_args.deinit();
+    
+    try testing.expectEqualStrings("git", git_args.items[0]);
+    try testing.expectEqualStrings("status", git_args.items[1]);
+    try testing.expectEqualStrings("--porcelain", git_args.items[2]);
+    
+    // Test command output parsing
+    const raw_output = "  abc123def456  \n  ";
+    const parsed = try process.parseCommandOutput(allocator, raw_output);
+    defer allocator.free(parsed);
+    
+    try testing.expectEqualStrings("abc123def456", parsed);
+}

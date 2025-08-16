@@ -5,7 +5,7 @@
 zz is a CLI in Zig written by Claude Code and designed by people.
 For the companion GUI see [Zzz](https://github.com/ryanatkn/zzz).
 
-> status: vibe-engineered slop level 1
+> **status**: vibe-engineered slop level 1
 
 Fast command-line utilities in Zig for POSIX systems. LLM prompt generation with AST-based code extraction, directory trees, and performance benchmarking. **100% terminal-based**.
 

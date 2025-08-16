@@ -148,6 +148,12 @@ pub const DependencyManager = struct {
                 }
             }
 
+            if (options.update_pattern) |pattern| {
+                if (!self.matchesPattern(dep.name, pattern)) {
+                    continue;
+                }
+            }
+
             const dep_dir = try std.fmt.allocPrint(self.allocator, "{s}/{s}", .{ self.deps_dir, dep.name });
             defer self.allocator.free(dep_dir);
 
@@ -157,14 +163,20 @@ pub const DependencyManager = struct {
                 try self.logStep("Would INSTALL {s} ({s})", .{ dep.name, dep.version });
                 try result.would_install.append(dep.name);
             } else {
-                const needs_update = try self.versioning.needsUpdate(dep.name, dep.version, self.deps_dir);
+                const needs_update = if (options.force_all or options.force_dep != null)
+                    true
+                else
+                    try self.versioning.needsUpdate(dep.name, dep.version, self.deps_dir);
+                    
                 if (needs_update) {
                     const version_info = try self.versioning.loadVersionInfo(dep_dir);
                     if (version_info) |vi| {
                         defer vi.deinit(self.allocator);
-                        try self.logStep("Would UPDATE {s} from {s} to {s}", .{ dep.name, vi.version, dep.version });
+                        const force_msg = if (options.force_all or options.force_dep != null) " (forced)" else "";
+                        try self.logStep("Would UPDATE {s} from {s} to {s}{s}", .{ dep.name, vi.version, dep.version, force_msg });
                     } else {
-                        try self.logStep("Would UPDATE {s} to {s}", .{ dep.name, dep.version });
+                        const force_msg = if (options.force_all or options.force_dep != null) " (forced)" else "";
+                        try self.logStep("Would UPDATE {s} to {s}{s}", .{ dep.name, dep.version, force_msg });
                     }
                     try result.would_update.append(dep.name);
                 } else {
@@ -278,7 +290,27 @@ pub const DependencyManager = struct {
                     status = "Outdated";
                     status_color = Color.yellow;
                 }
-                last_updated = "TODO"; // Parse from timestamp
+                // Format timestamp to human-readable date
+                if (vi.updated > 0) {
+                    const time_info = std.time.epoch.EpochSeconds{ .secs = @intCast(vi.updated) };
+                    const epoch_day = time_info.getEpochDay();
+                    const year_day = epoch_day.calculateYearDay();
+                    const month_day = year_day.calculateMonthDay();
+                    
+                    const formatted = try std.fmt.allocPrint(self.allocator, "{d:0>4}-{d:0>2}-{d:0>2}", .{
+                        year_day.year,
+                        month_day.month.numeric(),
+                        month_day.day_index + 1,
+                    });
+                    defer self.allocator.free(formatted);
+                    
+                    // Copy to a buffer that won't be freed immediately
+                    var date_buf: [24]u8 = undefined;
+                    const copied = std.fmt.bufPrint(&date_buf, "{s}", .{formatted}) catch "Invalid date";
+                    last_updated = copied;
+                } else {
+                    last_updated = "Unknown";
+                }
             }
 
             try stdout.print("║ {s:<14} ║ {s:<15} ║ {s}{s:<13}{s} ║ {s:<24} ║\n", .{
@@ -296,9 +328,60 @@ pub const DependencyManager = struct {
 
     /// Print plain status table
     fn printPlainTable(self: *Self, dependencies: []const config.Dependency) !void {
-        _ = self;
-        _ = dependencies;
-        // TODO: Implement plain table output
+        const stdout = std.io.getStdOut().writer();
+
+        try stdout.writeAll("Dependency Status Report\n");
+        try stdout.writeAll("================================\n");
+        try stdout.writeAll("Name                | Expected        | Status        | Last Updated\n");
+        try stdout.writeAll("-------------------|-----------------|---------------|------------------------\n");
+
+        for (dependencies) |dep| {
+            const dep_dir = try std.fmt.allocPrint(self.allocator, "{s}/{s}", .{ self.deps_dir, dep.name });
+            defer self.allocator.free(dep_dir);
+
+            var status: []const u8 = "Missing";
+            var last_updated: []const u8 = "Never";
+
+            const version_info = try self.versioning.loadVersionInfo(dep_dir);
+            if (version_info) |vi| {
+                defer vi.deinit(self.allocator);
+
+                if (std.mem.eql(u8, vi.version, dep.version)) {
+                    status = "Up to date";
+                } else {
+                    status = "Outdated";
+                }
+                
+                // Format timestamp to human-readable date
+                if (vi.updated > 0) {
+                    const time_info = std.time.epoch.EpochSeconds{ .secs = @intCast(vi.updated) };
+                    const epoch_day = time_info.getEpochDay();
+                    const year_day = epoch_day.calculateYearDay();
+                    const month_day = year_day.calculateMonthDay();
+                    
+                    const formatted = try std.fmt.allocPrint(self.allocator, "{d:0>4}-{d:0>2}-{d:0>2}", .{
+                        year_day.year,
+                        month_day.month.numeric(),
+                        month_day.day_index + 1,
+                    });
+                    defer self.allocator.free(formatted);
+                    
+                    // Copy to a buffer that won't be freed immediately
+                    var date_buf: [24]u8 = undefined;
+                    const copied = std.fmt.bufPrint(&date_buf, "{s}", .{formatted}) catch "Invalid date";
+                    last_updated = copied;
+                } else {
+                    last_updated = "Unknown";
+                }
+            }
+
+            try stdout.print("{s:<18} | {s:<15} | {s:<13} | {s:<24}\n", .{
+                dep.name,
+                dep.version,
+                status,
+                last_updated,
+            });
+        }
     }
 
     /// Pattern matching for dependency names

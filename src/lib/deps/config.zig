@@ -207,6 +207,9 @@ pub const UpdateOptions = struct {
 pub const DepsZonConfig = struct {
     dependencies: std.StringHashMap(DependencyZonEntry),
     settings: ?SettingsStruct = null,
+    allocator: std.mem.Allocator,
+    /// Track if strings were allocated (ZON parsed) or are literals (hardcoded)
+    owns_strings: bool = false,
 
     /// Parse dependencies from ZON content using explicit structure definition
     pub fn parseFromZonContent(allocator: std.mem.Allocator, content: []const u8) !DepsZonConfig {
@@ -297,6 +300,8 @@ pub const DepsZonConfig = struct {
         return DepsZonConfig{
             .dependencies = dependencies,
             .settings = settings,
+            .allocator = allocator,
+            .owns_strings = true, // ZON parsed strings need freeing
         };
     }
 
@@ -343,85 +348,11 @@ pub const DepsZonConfig = struct {
         return deps_config;
     }
     
-    /// Create from hardcoded data (temporary until proper ZON parsing)
+    /// Create from hardcoded data (temporary until proper ZON parsing)  
+    /// This version uses string literals that don't need freeing
     pub fn createHardcoded(allocator: std.mem.Allocator) !DepsZonConfig {
-        var dependencies = std.StringHashMap(DependencyZonEntry).init(allocator);
-        
-        // Add all 9 dependencies
-        try dependencies.put("tree-sitter", DependencyZonEntry{
-            .url = "https://github.com/tree-sitter/tree-sitter.git",
-            .version = "v0.25.0",
-            .remove_files = &.{ "build.zig", "build.zig.zon" },
-            .preserve_files = &.{},
-            .patches = &.{},
-        });
-        
-        try dependencies.put("zig-tree-sitter", DependencyZonEntry{
-            .url = "https://github.com/tree-sitter/zig-tree-sitter.git",
-            .version = "v0.25.0",
-            .remove_files = &.{ "build.zig", "build.zig.zon" },
-            .preserve_files = &.{},
-            .patches = &.{},
-        });
-        
-        try dependencies.put("tree-sitter-zig", DependencyZonEntry{
-            .url = "https://github.com/maxxnino/tree-sitter-zig.git",
-            .version = "main",
-            .remove_files = &.{ "build.zig", "build.zig.zon" },
-            .preserve_files = &.{},
-            .patches = &.{},
-        });
-        
-        try dependencies.put("zig-spec", DependencyZonEntry{
-            .url = "https://github.com/ziglang/zig-spec.git",
-            .version = "main",
-            .remove_files = &.{},
-            .preserve_files = &.{},
-            .patches = &.{},
-        });
-        
-        try dependencies.put("tree-sitter-svelte", DependencyZonEntry{
-            .url = "https://github.com/tree-sitter-grammars/tree-sitter-svelte.git",
-            .version = "v1.0.2",
-            .remove_files = &.{ "build.zig", "build.zig.zon" },
-            .preserve_files = &.{},
-            .patches = &.{},
-        });
-        
-        try dependencies.put("tree-sitter-css", DependencyZonEntry{
-            .url = "https://github.com/tree-sitter/tree-sitter-css.git",
-            .version = "v0.23.0",
-            .remove_files = &.{ "build.zig", "build.zig.zon" },
-            .preserve_files = &.{},
-            .patches = &.{},
-        });
-        
-        try dependencies.put("tree-sitter-typescript", DependencyZonEntry{
-            .url = "https://github.com/tree-sitter/tree-sitter-typescript.git",
-            .version = "v0.23.2",
-            .remove_files = &.{ "build.zig", "build.zig.zon" },
-            .preserve_files = &.{},
-            .patches = &.{},
-        });
-        
-        try dependencies.put("tree-sitter-json", DependencyZonEntry{
-            .url = "https://github.com/tree-sitter/tree-sitter-json.git",
-            .version = "v0.24.8",
-            .remove_files = &.{ "build.zig", "build.zig.zon" },
-            .preserve_files = &.{},
-            .patches = &.{},
-        });
-        
-        try dependencies.put("tree-sitter-html", DependencyZonEntry{
-            .url = "https://github.com/tree-sitter/tree-sitter-html.git",
-            .version = "v0.23.0",
-            .remove_files = &.{ "build.zig", "build.zig.zon" },
-            .preserve_files = &.{},
-            .patches = &.{},
-        });
-        
         return DepsZonConfig{
-            .dependencies = dependencies,
+            .dependencies = std.StringHashMap(DependencyZonEntry).init(allocator),
             .settings = SettingsStruct{
                 .deps_dir = "deps",
                 .backup_enabled = true,
@@ -429,11 +360,127 @@ pub const DepsZonConfig = struct {
                 .clone_retries = 3,
                 .clone_timeout_seconds = 60,
             },
+            .allocator = allocator,
+            .owns_strings = false, // Hardcoded literals don't need freeing
         };
     }
     
-    /// Free the dependencies HashMap
+    /// Initialize hardcoded dependencies without memory allocation
+    /// This creates a clean separation between parsed (allocated) and hardcoded (literal) dependencies
+    pub fn initHardcodedDependencies(self: *DepsZonConfig) !void {
+        // Add all 9 dependencies using string literals
+        try self.dependencies.put("tree-sitter", DependencyZonEntry{
+            .url = "https://github.com/tree-sitter/tree-sitter.git",
+            .version = "v0.25.0",
+            .remove_files = &.{ "build.zig", "build.zig.zon" },
+            .preserve_files = &.{},
+            .patches = &.{},
+        });
+        
+        try self.dependencies.put("zig-tree-sitter", DependencyZonEntry{
+            .url = "https://github.com/tree-sitter/zig-tree-sitter.git",
+            .version = "v0.25.0",
+            .remove_files = &.{ "build.zig", "build.zig.zon" },
+            .preserve_files = &.{},
+            .patches = &.{},
+        });
+        
+        try self.dependencies.put("tree-sitter-zig", DependencyZonEntry{
+            .url = "https://github.com/maxxnino/tree-sitter-zig.git",
+            .version = "main",
+            .remove_files = &.{ "build.zig", "build.zig.zon" },
+            .preserve_files = &.{},
+            .patches = &.{},
+        });
+        
+        try self.dependencies.put("zig-spec", DependencyZonEntry{
+            .url = "https://github.com/ziglang/zig-spec.git",
+            .version = "main",
+            .remove_files = &.{},
+            .preserve_files = &.{},
+            .patches = &.{},
+        });
+        
+        try self.dependencies.put("tree-sitter-svelte", DependencyZonEntry{
+            .url = "https://github.com/tree-sitter-grammars/tree-sitter-svelte.git",
+            .version = "v1.0.2",
+            .remove_files = &.{ "build.zig", "build.zig.zon" },
+            .preserve_files = &.{},
+            .patches = &.{},
+        });
+        
+        try self.dependencies.put("tree-sitter-css", DependencyZonEntry{
+            .url = "https://github.com/tree-sitter/tree-sitter-css.git",
+            .version = "v0.23.0",
+            .remove_files = &.{ "build.zig", "build.zig.zon" },
+            .preserve_files = &.{},
+            .patches = &.{},
+        });
+        
+        try self.dependencies.put("tree-sitter-typescript", DependencyZonEntry{
+            .url = "https://github.com/tree-sitter/tree-sitter-typescript.git",
+            .version = "v0.23.2",
+            .remove_files = &.{ "build.zig", "build.zig.zon" },
+            .preserve_files = &.{},
+            .patches = &.{},
+        });
+        
+        try self.dependencies.put("tree-sitter-json", DependencyZonEntry{
+            .url = "https://github.com/tree-sitter/tree-sitter-json.git",
+            .version = "v0.24.8",
+            .remove_files = &.{ "build.zig", "build.zig.zon" },
+            .preserve_files = &.{},
+            .patches = &.{},
+        });
+        
+        try self.dependencies.put("tree-sitter-html", DependencyZonEntry{
+            .url = "https://github.com/tree-sitter/tree-sitter-html.git",
+            .version = "v0.23.0",
+            .remove_files = &.{ "build.zig", "build.zig.zon" },
+            .preserve_files = &.{},
+            .patches = &.{},
+        });
+    }
+    
+    /// Free the dependencies HashMap and all allocated memory
     pub fn deinit(self: *DepsZonConfig) void {
+        // Only free allocated strings if they were from ZON parsing
+        if (self.owns_strings) {
+            var iterator = self.dependencies.iterator();
+            while (iterator.next()) |entry| {
+                // Free the key (dependency name)
+                self.allocator.free(entry.key_ptr.*);
+                
+                // Free the value (DependencyZonEntry) 
+                const dep = entry.value_ptr.*;
+                self.allocator.free(dep.url);
+                self.allocator.free(dep.version);
+                
+                // Free string arrays
+                for (dep.remove_files) |file| {
+                    self.allocator.free(file);
+                }
+                self.allocator.free(dep.remove_files);
+                
+                for (dep.preserve_files) |file| {
+                    self.allocator.free(file);
+                }
+                self.allocator.free(dep.preserve_files);
+                
+                for (dep.patches) |patch| {
+                    self.allocator.free(patch);
+                }
+                self.allocator.free(dep.patches);
+            }
+            
+            // Free settings if allocated
+            if (self.settings) |settings| {
+                if (settings.deps_dir) |dir| {
+                    self.allocator.free(dir);
+                }
+            }
+        }
+        
         self.dependencies.deinit();
     }
 };

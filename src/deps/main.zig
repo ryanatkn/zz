@@ -116,26 +116,35 @@ pub fn run(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: 
 
 /// Load dependency configuration from deps.zon
 fn loadDepsConfig(allocator: std.mem.Allocator) !config.DepsConfig {
-    // Read deps.zon file
-    const content = io.readFile(allocator, "deps.zon") catch |err| switch (err) {
+    // Temporarily disable ZON parsing to fix memory issues
+    // TODO: Re-enable ZON parsing after fixing memory corruption
+    
+    // Read deps.zon file (but ignore for now)
+    if (io.readFile(allocator, "deps.zon")) |content| {
+        defer allocator.free(content);
+        std.log.info("Found deps.zon but using hardcoded config (ZON parsing temporarily disabled for stability)", .{});
+    } else |err| switch (err) {
         error.FileNotFound => {
-            // File not found - use hardcoded config as fallback
-            var zon_config = try config.DepsZonConfig.createHardcoded(allocator);
-            defer zon_config.deinit();
-            return zon_config.toDepsConfig(allocator);
+            std.log.info("No deps.zon found, using hardcoded config", .{});
         },
         else => return err,
-    };
-    defer allocator.free(content);
+    }
     
-    // Parse ZON content
-    var zon_config = config.DepsZonConfig.parseFromZonContent(allocator, content) catch |err| {
-        // Parse error - use hardcoded config as fallback
-        std.log.warn("Failed to parse deps.zon, using hardcoded config: {}", .{err});
+    var zon_config = blk: {
         var fallback_config = try config.DepsZonConfig.createHardcoded(allocator);
-        defer fallback_config.deinit();
-        return fallback_config.toDepsConfig(allocator);
+        try fallback_config.initHardcodedDependencies();
+        break :blk fallback_config;
     };
+    
+    // Parse ZON content - DISABLED due to memory corruption
+    // var zon_config = config.DepsZonConfig.parseFromZonContent(allocator, content) catch |err| {
+    //     // Parse error - use hardcoded config as fallback
+    //     std.log.warn("Failed to parse deps.zon, using hardcoded config: {}", .{err});
+    //     var fallback_config = try config.DepsZonConfig.createHardcoded(allocator);
+    //     try fallback_config.initHardcodedDependencies();
+    //     defer fallback_config.deinit();
+    //     return fallback_config.toDepsConfig(allocator);
+    // };
     defer zon_config.deinit();
     
     return zon_config.toDepsConfig(allocator);
@@ -260,8 +269,8 @@ fn showUsage(program_name: []const u8) !void {
     try stdout.writeAll("  --list                   List all dependencies and their status\n");
     try stdout.writeAll("  --dry-run                Show what would be updated without doing it\n");
     try stdout.writeAll("  --force                  Force update all dependencies\n");
-    try stdout.writeAll("  --force-dep NAME         Force update specific dependency\n");
-    try stdout.writeAll("  --update-pattern PATTERN Update dependencies matching pattern (glob)\n");
+    try stdout.writeAll("  --force-dep=NAME         Force update specific dependency\n");
+    try stdout.writeAll("  --update-pattern=PATTERN Update dependencies matching pattern (glob)\n");
     try stdout.writeAll("  --no-backup              Disable automatic backups\n");
     try stdout.writeAll("  --no-color               Disable colored output\n");
     try stdout.writeAll("  --verbose, -v            Enable verbose output\n");
@@ -286,8 +295,8 @@ fn showDetailedHelp() !void {
     try stdout.writeAll("  zz deps --check                    # Check status (good for CI)\n");
     try stdout.writeAll("  zz deps --list                     # Show detailed status table\n");
     try stdout.writeAll("  zz deps --dry-run                  # Preview what would change\n");
-    try stdout.writeAll("  zz deps --force-dep tree-sitter    # Force update tree-sitter only\n");
-    try stdout.writeAll("  zz deps --update-pattern \"tree*\"   # Update all tree-sitter deps\n");
+    try stdout.writeAll("  zz deps --force-dep=tree-sitter    # Force update tree-sitter only\n");
+    try stdout.writeAll("  zz deps --update-pattern=\"tree*\"   # Update all tree-sitter deps\n");
     try stdout.writeAll("\nConfiguration:\n");
     try stdout.writeAll("  Dependencies are declared in deps.zon at the project root.\n");
     try stdout.writeAll("  See existing deps.zon for configuration format.\n");

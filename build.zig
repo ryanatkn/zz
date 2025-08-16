@@ -231,6 +231,38 @@ pub fn build(b: *std.Build) void {
     update_readme_cmd.step.dependOn(b.getInstallStep());
 
     update_readme_step.dependOn(&update_readme_cmd.step);
+
+    // Dependency management steps
+    const deps_step = b.step("deps", "Manage vendored dependencies (interactive menu)");
+    const deps_run = b.addRunArtifact(exe);
+    deps_run.addArg("deps");
+    if (b.args) |args| deps_run.addArgs(args);
+    deps_run.step.dependOn(b.getInstallStep());
+    deps_step.dependOn(&deps_run.step);
+
+    const deps_update_step = b.step("deps-update", "Update all vendored dependencies");
+    const deps_update_run = b.addRunArtifact(exe);
+    deps_update_run.addArgs(&.{ "deps", "--update" });
+    deps_update_run.step.dependOn(b.getInstallStep());
+    deps_update_step.dependOn(&deps_update_run.step);
+
+    const deps_check_step = b.step("deps-check", "Check dependency status (CI-friendly)");
+    const deps_check_run = b.addRunArtifact(exe);
+    deps_check_run.addArgs(&.{ "deps", "--check" });
+    deps_check_run.step.dependOn(b.getInstallStep());
+    deps_check_step.dependOn(&deps_check_run.step);
+
+    const deps_list_step = b.step("deps-list", "List all dependencies with status");
+    const deps_list_run = b.addRunArtifact(exe);
+    deps_list_run.addArgs(&.{ "deps", "--list" });
+    deps_list_run.step.dependOn(b.getInstallStep());
+    deps_list_step.dependOn(&deps_list_run.step);
+
+    const deps_dry_run_step = b.step("deps-dry-run", "Show what dependencies would be updated");
+    const deps_dry_run_run = b.addRunArtifact(exe);
+    deps_dry_run_run.addArgs(&.{ "deps", "--dry-run" });
+    deps_dry_run_run.step.dependOn(b.getInstallStep());
+    deps_dry_run_step.dependOn(&deps_dry_run_run.step);
 }
 
 // Helper functions

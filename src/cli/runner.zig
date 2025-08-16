@@ -8,6 +8,7 @@ const prompt = @import("../prompt/main.zig");
 const benchmark = @import("../benchmark/main.zig");
 const format = @import("../format/main.zig");
 const demo = @import("../demo.zig");
+const deps = @import("../deps/main.zig");
 const errors = @import("../lib/core/errors.zig");
 
 pub const Runner = struct {
@@ -78,6 +79,15 @@ pub const Runner = struct {
                     const stderr = std.io.getStdErr().writer();
                     const error_msg = errors.getMessage(err);
                     stderr.print("Demo command failed: {s}\n", .{error_msg}) catch {};
+                    return err;
+                };
+            },
+            .deps => {
+                // Pass full args and filesystem to deps module
+                deps.run(self.allocator, self.filesystem, args) catch |err| {
+                    const stderr = std.io.getStdErr().writer();
+                    const error_msg = errors.getMessage(err);
+                    stderr.print("Deps command failed: {s}\n", .{error_msg}) catch {};
                     return err;
                 };
             },

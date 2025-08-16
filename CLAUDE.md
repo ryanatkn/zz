@@ -183,6 +183,17 @@ $ zig build run -- prompt [args]        # Run prompt command in development
 $ zig build run -- benchmark [args]     # Run benchmarks
 $ zig build run -- format [args]        # Run formatter in development
 $ zig build run -- demo [args]          # Run demo in development
+$ zig build run -- deps [args]          # Run dependency management
+
+# Dependency management commands
+$ zz deps --list                    # Show dependency status table
+$ zz deps --check                   # Check if updates needed (CI-friendly)
+$ zz deps --update                  # Update all dependencies (TODO: git operations)
+$ zz deps --dry-run                 # Preview what would be updated
+$ zz deps --force                   # Force update all dependencies
+$ zz deps --force-dep tree-sitter   # Force update specific dependency
+$ zig build deps-list               # Same as zz deps --list via build system
+$ zig build deps-check              # Same as zz deps --check via build system
 
 # Help commands
 $ zz -h                          # Brief help overview
@@ -209,9 +220,87 @@ For detailed benchmarking guide, see [docs/benchmarking.md](docs/benchmarking.md
 
 ## Module Structure
 
-Modular architecture with clean separation: CLI (`src/cli/`), Tree (`src/tree/`), Prompt (`src/prompt/`), Format (`src/format/`), Demo (`src/demo.zig`), Benchmark (`src/benchmark/`), Config (`src/config/`), and shared infrastructure in `src/lib/`.
+Modular architecture with clean separation: CLI (`src/cli/`), Tree (`src/tree/`), Prompt (`src/prompt/`), Format (`src/format/`), Demo (`src/demo.zig`), Benchmark (`src/benchmark/`), Config (`src/config/`), Deps (`src/lib/deps/` and `src/deps/`), and shared infrastructure in `src/lib/`.
 
 For detailed module architecture, see [docs/module-architecture.md](docs/module-architecture.md).
+
+## Dependency Management System
+
+Pure Zig replacement for shell-based dependency management (`scripts/update-deps.sh`). Provides type-safe, performant vendored dependency management.
+
+**Key Features:**
+- **Status checking:** List all 9 dependencies with colored status output
+- **Memory safe:** RAII patterns and proper ownership tracking
+- **Lock files:** PID-based locks prevent concurrent updates
+- **Version tracking:** Semantic version comparison with `.version` files
+- **Atomic operations:** Backup and rollback for safe updates
+- **CI-friendly:** Exit code 1 when updates needed for automation
+- **Filesystem abstraction:** MockFilesystem enables deterministic testing
+- **Configuration:** `deps.zon` file with all dependencies (currently hardcoded fallback)
+
+**Architecture:**
+
+```
+src/lib/deps/              # Core dependency management library
+├── config.zig            # DepsZonConfig, Dependency, VersionInfo structures
+├── manager.zig           # DependencyManager orchestration logic
+├── versioning.zig        # Semantic version parsing using core/version.zig
+├── operations.zig        # Atomic operations using core/io.zig
+├── lock.zig              # POSIX-portable lock management
+├── git.zig               # Git wrapper (clone, hash, cleanup)
+├── utils.zig             # Utilities using core/path.zig
+└── test.zig              # MockFilesystem integration tests
+
+src/deps/
+└── main.zig              # CLI entry point and argument parsing
+
+deps.zon                  # Dependency configuration (9 dependencies)
+```
+
+**Integration with Core Libraries:**
+- `core/io.zig` - All file operations (readFile, writeFile, deleteTree)
+- `core/path.zig` - Path manipulation (joinPath, basename)
+- `core/version.zig` - Semantic version parsing (extracted primitive)
+- `terminal/colors.zig` - Colored terminal output
+- `filesystem/interface.zig` - Filesystem abstraction for testing
+- `memory/zon.zig` - Safe ZON parsing with managed memory
+
+**Testing & Quality:**
+- 15+ unit tests across all modules
+- MockFilesystem enables deterministic CI/CD testing
+- Zero direct filesystem calls - all through core/io.zig
+- POSIX portable - uses std.c.getpid() not Linux-specific calls
+- Memory safe - proper cleanup with RAII patterns
+- Graceful degradation - fallback to hardcoded config on parse errors
+
+**Current Status:**
+- ✅ All 9 dependencies recognized and tracked
+- ✅ Status checking and reporting working
+- ✅ Memory management without leaks
+- ✅ CI-friendly exit codes
+- 🚧 Git operations (clone/update) not yet connected
+- 🚧 ZON parsing uses hardcoded fallback (dynamic parsing TODO)
+
+**Usage Examples:**
+```bash
+# Check dependency status
+$ zz deps --list
+╔══════════════════════════════════════════════════════╗
+║                   Dependencies                        ║
+╠════════════════╦═════════════╦═══════════════════════╣
+║ tree-sitter    ║ v0.25.0     ║ Up to date            ║
+║ tree-sitter-zig║ main        ║ Needs update          ║
+╚════════════════╩═════════════╩═══════════════════════╝
+
+# CI integration
+$ zz deps --check || echo "Updates needed!"
+
+# Preview changes
+$ zz deps --dry-run
+```
+
+**Documentation:**
+See [docs/deps.md](docs/deps.md) for comprehensive usage guide, architecture details, and migration instructions from shell scripts.
 
 ## Filesystem Abstraction Layer
 

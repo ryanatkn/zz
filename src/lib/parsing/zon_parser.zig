@@ -1,4 +1,5 @@
 const std = @import("std");
+const io = @import("../core/io.zig");
 
 /// Utility for parsing ZON (Zig Object Notation) files
 pub const ZonParser = struct {
@@ -23,7 +24,7 @@ pub const ZonParser = struct {
         file_path: []const u8,
         max_size: usize,
     ) !T {
-        const content = try std.fs.cwd().readFileAlloc(allocator, file_path, max_size);
+        const content = try io.readFile(allocator, file_path, max_size);
         defer allocator.free(content);
 
         return parseFromSlice(T, allocator, content);

@@ -5,7 +5,7 @@
 zz is a CLI in Zig written by Claude Code and designed by people.
 For the companion GUI see [Zzz](https://github.com/ryanatkn/zzz).
 
-> **status**: vibe-engineered slop level 1
+> **status**: [vibe-engineered](./docs/vibe-engineering.md) slop level 1
 
 Fast command-line utilities for exploring and understanding codebases. Features AST-based code extraction, directory visualization, and code formatting.
 
@@ -14,6 +14,7 @@ Fast command-line utilities for exploring and understanding codebases. Features 
 - 🌳 **Smart directory trees** - Fast traversal with gitignore support
 - 📝 **LLM prompt generation** - Create context-aware prompts from your codebase
 - 🎨 **Code formatting** - Language-aware formatting for multiple file types
+- 📦 **Dependency management** - Track and manage vendored dependencies
 - ⚡ **High performance** - Optimized for speed with Zig
 
 ## Quick Start
@@ -27,6 +28,10 @@ zz prompt src/ --types --docs            # Extract types and documentation
 # Format code
 zz format config.json --write            # Format JSON in-place
 zz format "*.css" --check                # Check CSS formatting
+
+# Manage dependencies
+zz deps --list                           # Check dependency status
+zz deps --check                          # CI-friendly update check
 
 # Interactive demo
 zz demo                                  # See zz in action
@@ -108,7 +113,25 @@ zz demo                      # Interactive terminal demo
 zz demo --non-interactive    # Script-friendly output
 ```
 
+### `zz deps` - Manage vendored dependencies
+
+```bash
+zz deps --list               # Show all dependencies and their status
+zz deps --check              # Check if updates needed (CI-friendly)
+zz deps --dry-run            # Preview what would be updated
+zz deps --help               # Show detailed help
+```
+
+**Features:**
+- Track 9 vendored tree-sitter dependencies
+- Version checking with semantic versioning
+- CI-friendly exit codes (1 if updates needed)
+- Colored status output
+- Lock file support for concurrent safety
+
 ## Configuration
+
+### `zz.zon` - General configuration
 
 Create `zz.zon` in your project root:
 
@@ -130,6 +153,27 @@ Create `zz.zon` in your project root:
     
     // Gitignore support (default: true)
     .respect_gitignore = true,
+}
+```
+
+### `deps.zon` - Dependency configuration
+
+Manage vendored dependencies:
+
+```zon
+.{
+    .dependencies = .{
+        .@"tree-sitter" = .{
+            .url = "https://github.com/tree-sitter/tree-sitter.git",
+            .version = "v0.25.0",
+            .remove_files = &.{ "build.zig", "build.zig.zon" },
+        },
+        // ... more dependencies
+    },
+    .settings = .{
+        .deps_dir = "deps",
+        .backup_enabled = true,
+    },
 }
 ```
 
@@ -177,6 +221,7 @@ zz format style.css --indent-size=2 --write
 - [**Module Architecture**](docs/module-architecture.md) - System design
 - [**Language Support**](docs/language-support.md) - AST extraction details
 - [**Configuration**](docs/configuration.md) - Full configuration options
+- [**Dependency Management**](docs/deps.md) - Managing vendored dependencies
 - [**Testing**](docs/testing.md) - Running tests
 - [**Benchmarking**](docs/benchmarking.md) - Performance testing
 

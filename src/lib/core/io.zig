@@ -21,7 +21,8 @@ pub fn readFileOptional(allocator: std.mem.Allocator, path: []const u8) !?[]u8 {
         else => return err,
     };
     defer file.close();
-    return file.readToEndAlloc(allocator, 1024 * 1024 * 1024);
+    const content = try file.readToEndAlloc(allocator, 1024 * 1024 * 1024);
+    return content;
 }
 
 /// Write content to file
@@ -95,6 +96,93 @@ pub fn ensureDir(path: []const u8) !void {
         error.PathAlreadyExists => {}, // Already exists
         else => return err,
     };
+}
+
+/// Delete directory tree, ignoring if it doesn't exist
+pub fn deleteTree(path: []const u8) !void {
+    std.fs.cwd().deleteTree(path) catch |err| {
+        // Simply ignore FileNotFound without switch
+        if (err == error.FileNotFound) return;
+        return err;
+    };
+}
+
+/// Delete file, ignoring if it doesn't exist  
+pub fn deleteFile(path: []const u8) !void {
+    std.fs.cwd().deleteFile(path) catch |err| switch (err) {
+        error.FileNotFound => {}, // Ignore if doesn't exist
+        else => return err,
+    };
+}
+
+/// Rename file or directory
+pub fn rename(old_path: []const u8, new_path: []const u8) !void {
+    try std.fs.cwd().rename(old_path, new_path);
+}
+
+/// Atomic move operation (rename with optional cross-device support)
+pub fn atomicMove(source: []const u8, dest: []const u8) !void {
+    // First try simple rename (works if same filesystem)
+    std.fs.cwd().rename(source, dest) catch |err| switch (err) {
+        error.RenameAcrossMountPoints, error.AccessDenied => {
+            // Fall back to copy + delete for cross-device moves
+            const stat = try std.fs.cwd().statFile(source);
+            if (stat.kind == .directory) {
+                try copyDirectory(std.heap.page_allocator, source, dest);
+                try deleteTree(source);
+            } else {
+                try copyFile(source, dest);
+                try deleteFile(source);
+            }
+        },
+        else => return err,
+    };
+}
+
+/// Copy a file from source to destination
+pub fn copyFile(source_path: []const u8, dest_path: []const u8) !void {
+    try std.fs.cwd().copyFile(source_path, std.fs.cwd(), dest_path, .{});
+}
+
+/// Copy a directory recursively
+pub fn copyDirectory(allocator: std.mem.Allocator, source_path: []const u8, dest_path: []const u8) !void {
+    // Create destination directory
+    try ensureDir(dest_path);
+    
+    // Open source directory
+    var source_dir = try std.fs.cwd().openDir(source_path, .{ .iterate = true });
+    defer source_dir.close();
+    
+    // Iterate through source directory
+    var walker = try source_dir.walk(allocator);
+    defer walker.deinit();
+    
+    while (try walker.next()) |entry| {
+        const source_item = try std.fmt.allocPrint(allocator, "{s}/{s}", .{ source_path, entry.path });
+        defer allocator.free(source_item);
+        
+        const dest_item = try std.fmt.allocPrint(allocator, "{s}/{s}", .{ dest_path, entry.path });
+        defer allocator.free(dest_item);
+        
+        switch (entry.kind) {
+            .directory => try ensureDir(dest_item),
+            .file => {
+                // Ensure parent directory exists
+                if (std.fs.path.dirname(dest_item)) |parent| {
+                    try ensureDir(parent);
+                }
+                try copyFile(source_item, dest_item);
+            },
+            else => {}, // Skip other file types
+        }
+    }
+}
+
+/// Read file with size limit
+pub fn readFileWithLimit(allocator: std.mem.Allocator, path: []const u8, max_size: usize) ![]u8 {
+    const file = try std.fs.cwd().openFile(path, .{});
+    defer file.close();
+    return file.readToEndAlloc(allocator, max_size);
 }
 
 // ============================================================================
@@ -331,4 +419,82 @@ test "environment variables" {
 test "color support" {
     // Just test it doesn't crash
     _ = supportsColors();
+}
+
+test "rename and atomic operations" {
+    const testing = std.testing;
+    const test_dir = "test_io_ops";
+    
+    // Create test directory
+    try ensureDir(test_dir);
+    defer deleteTree(test_dir) catch {};
+    
+    // Test file operations
+    const test_file = test_dir ++ "/test.txt";
+    const renamed_file = test_dir ++ "/renamed.txt";
+    try writeFile(test_file, "test content");
+    
+    // Test rename
+    try rename(test_file, renamed_file);
+    try testing.expect(!fileExists(test_file));
+    try testing.expect(fileExists(renamed_file));
+    
+    // Test copyFile
+    const copied_file = test_dir ++ "/copied.txt";
+    try copyFile(renamed_file, copied_file);
+    try testing.expect(fileExists(renamed_file));
+    try testing.expect(fileExists(copied_file));
+    
+    // Verify content
+    const content = try readFile(testing.allocator, copied_file);
+    defer testing.allocator.free(content);
+    try testing.expectEqualStrings("test content", content);
+}
+
+test "copyDirectory" {
+    const testing = std.testing;
+    const source_dir = "test_copy_source";
+    const dest_dir = "test_copy_dest";
+    
+    // Create source directory structure
+    try ensureDir(source_dir);
+    defer deleteTree(source_dir) catch {};
+    try ensureDir(source_dir ++ "/subdir");
+    try writeFile(source_dir ++ "/file1.txt", "content1");
+    try writeFile(source_dir ++ "/subdir/file2.txt", "content2");
+    
+    // Copy directory
+    try copyDirectory(testing.allocator, source_dir, dest_dir);
+    defer deleteTree(dest_dir) catch {};
+    
+    // Verify structure
+    try testing.expect(fileExists(dest_dir ++ "/file1.txt"));
+    try testing.expect(fileExists(dest_dir ++ "/subdir/file2.txt"));
+    
+    // Verify content
+    const content1 = try readFile(testing.allocator, dest_dir ++ "/file1.txt");
+    defer testing.allocator.free(content1);
+    try testing.expectEqualStrings("content1", content1);
+    
+    const content2 = try readFile(testing.allocator, dest_dir ++ "/subdir/file2.txt");
+    defer testing.allocator.free(content2);
+    try testing.expectEqualStrings("content2", content2);
+}
+
+test "readFileWithLimit" {
+    const testing = std.testing;
+    const test_file = "test_limit.txt";
+    
+    try writeFile(test_file, "short content");
+    defer deleteFile(test_file) catch {};
+    
+    // Read with sufficient limit
+    const content = try readFileWithLimit(testing.allocator, test_file, 1024);
+    defer testing.allocator.free(content);
+    try testing.expectEqualStrings("short content", content);
+    
+    // Read with exact limit
+    const exact = try readFileWithLimit(testing.allocator, test_file, 13);
+    defer testing.allocator.free(exact);
+    try testing.expectEqualStrings("short content", exact);
 }

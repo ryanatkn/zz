@@ -367,7 +367,7 @@ test "path traversal prevention" {
 #### Automated Security Scanning
 ```bash
 # Static analysis for security issues
-zig test src/test.zig --test-filter "security"
+zig build test -Dtest-filter="security"
 
 # Memory safety verification
 zig build -Doptimize=Debug -Dsanitize-thread -Dsanitize-memory

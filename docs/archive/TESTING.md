@@ -48,11 +48,11 @@ zig test src/prompt/test.zig
 ### Filtered Tests
 ```bash
 # Run tests matching a pattern
-zig test src/test.zig --test-filter "path"
-zig test src/test.zig --test-filter "tree.*filter"
+zig build test -Dtest-filter="path"
+zig build test -Dtest-filter="tree.*filter"
 
 # Skip certain tests
-zig test src/test.zig --test-filter "^((?!slow).)*$"
+zig build test -Dtest-filter="^((?!slow).)*$"
 ```
 
 ## Writing Tests

@@ -197,11 +197,49 @@ $ zz help                        # Same as --help
 
 ## Testing
 
+### Running Tests
 ```bash
-$ zig build test                                       # Run all tests with output
+$ zig build test                                       # Run all tests
+$ zig build test -Dtest-filter="pattern"              # Run only tests matching pattern
+$ zig build test -Dtest-filter="CLI module"           # Example: run CLI tests
+$ zig build test -Dtest-filter="path operations"      # Example: run path utility tests
+$ zig build test --verbose                            # Show build commands and execution
+$ zig build test 2>&1 | rg "pattern"                  # Alternative: pipe output to filter
 
 # Note: Direct `zig test src/test.zig` will NOT work due to tree-sitter module dependencies
 # Always use `zig build test` which properly configures modules and links libraries
+```
+
+### Understanding Test Output
+- **No output after filter = no matches**: If you see only the filter line and nothing else, your pattern didn't match any tests
+- **Test sections show matches**: Look for "=== Module Tests ===" sections - these indicate tests ran
+- **Success is mostly silent**: Passing tests produce minimal output (Zig convention)
+- **Use --verbose**: See which tests are being run and verify filters work
+- **Test summary**: Shows at the end when tests actually run (e.g., "328/332 passed")
+
+### Common Test Filters
+```bash
+$ zig build test -Dtest-filter="CLI module"           # CLI module tests
+$ zig build test -Dtest-filter="benchmark"            # Benchmark tests  
+$ zig build test -Dtest-filter="filter"               # Filter/pattern matching tests
+$ zig build test -Dtest-filter="path"                 # Path utility tests
+$ zig build test -Dtest-filter="glob"                 # Glob pattern tests
+$ zig build test -Dtest-filter="tree.*filter"         # Tree filtering tests (regex)
+```
+
+### Debugging Test Filters
+```bash
+# Verify filter is working (shows --test-filter in command)
+$ zig build test -Dtest-filter="CLI" --verbose 2>&1 | rg "test-filter"
+
+# See what test sections exist (these are what you can filter on)
+$ zig build test 2>&1 | rg "=== .* ==="
+
+# Find actual test names in source code
+$ rg "^test \"" src/ | head -10
+
+# Test with broader pattern if no matches
+$ zig build test -Dtest-filter="test"  # Very broad - should match many
 ```
 
 Comprehensive test suite covers configuration parsing, directory filtering, performance optimization, edge cases, security patterns, and AST-based extraction. 
@@ -750,7 +788,6 @@ Core documentation is organized in `docs/archive/` for additional reference:
 
 - [docs/archive/ARCHITECTURE.md](docs/archive/ARCHITECTURE.md) - System design and module relationships
 - [docs/archive/PERFORMANCE.md](docs/archive/PERFORMANCE.md) - Optimization guide and benchmarks
-- [docs/archive/CONTRIBUTING.md](docs/archive/CONTRIBUTING.md) - How to contribute effectively
 - [docs/archive/PATTERNS.md](docs/archive/PATTERNS.md) - Pattern matching implementation details
 - [docs/archive/TESTING.md](docs/archive/TESTING.md) - Testing strategy and coverage
 - [docs/archive/TROUBLESHOOTING.md](docs/archive/TROUBLESHOOTING.md) - Common issues and solutions

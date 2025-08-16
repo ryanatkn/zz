@@ -236,6 +236,7 @@ pub fn build(b: *std.Build) void {
 // Helper functions
 
 fn addTestSteps(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.builtin.OptimizeMode) void {
+    const test_filter = b.option([]const u8, "test-filter", "Run only tests matching this pattern");
     // Create tree-sitter module for tests
     const tree_sitter_module = b.addModule("tree-sitter", .{
         .root_source_file = b.path("deps/zig-tree-sitter/src/root.zig"),
@@ -360,6 +361,7 @@ fn addTestSteps(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.b
         .root_source_file = b.path("src/test.zig"),
         .target = target,
         .optimize = optimize,
+        .filters = if (test_filter) |filter| &.{filter} else &.{},
     });
     test_all.root_module.addImport("tree-sitter", tree_sitter_module);
     test_all.linkLibrary(tree_sitter_lib);
@@ -374,9 +376,20 @@ fn addTestSteps(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.b
     // Create test step
     const test_step = b.step("test", "Run all tests");
 
-    // Run tests and show output
-    const run_test = b.addRunArtifact(test_all);
-    test_step.dependOn(&run_test.step);
+    // Run tests with filtering feedback
+    if (test_filter) |filter| {
+        // Show what filter is being applied
+        const filter_info_cmd = b.addSystemCommand(&.{ "echo", b.fmt("Filter: '{s}' (no output = no matches)", .{filter}) });
+        test_step.dependOn(&filter_info_cmd.step);
+        
+        const run_test = b.addRunArtifact(test_all);
+        run_test.step.dependOn(&filter_info_cmd.step);
+        test_step.dependOn(&run_test.step);
+    } else {
+        // Normal test run without filter
+        const run_test = b.addRunArtifact(test_all);
+        test_step.dependOn(&run_test.step);
+    }
 
     // Note: Individual module tests (test-tree, test-prompt, etc.) were removed
     // due to complexity with module imports creating circular dependencies.

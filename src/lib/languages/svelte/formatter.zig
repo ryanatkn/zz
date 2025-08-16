@@ -287,11 +287,10 @@ fn formatJavaScriptContent(js_content: []const u8, builder: *LineBuilder, option
             const next_is_function = std.mem.indexOf(u8, next, "function ") != null;
             const next_is_reactive = std.mem.startsWith(u8, next, "$:");
             
-            // Add blank line when transitioning from variable declarations to reactive statements
+            // Add blank line when transitioning from variable declarations to reactive statements  
             if (current_is_declaration and next_is_reactive) {
-                try builder.newline();
-                try builder.appendIndent();
-                try builder.newline();
+                try builder.appendIndent();  // Add indented blank line
+                try builder.newline();  // Complete the blank line
             }
             // Or between function and non-function
             else if (current_is_function != next_is_function) {

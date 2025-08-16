@@ -300,8 +300,8 @@ if (change > 0.2) { // Change from 0.2 to 0.3 for 30% threshold
 
 **Solution:**
 ```bash
-# Run tests with --test-filter to isolate
-zig test src/test.zig --test-filter "specific test"
+# Run tests with -Dtest-filter to isolate
+zig build test -Dtest-filter="specific test"
 
 # Check for test pollution (shared state)
 # Each test should be independent

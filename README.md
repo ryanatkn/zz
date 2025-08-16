@@ -197,7 +197,6 @@ Create a `zz.zon` file in any directory to customize behavior:
 
 **Archive** (`docs/archive/`):
 - [ARCHITECTURE.md](docs/archive/ARCHITECTURE.md) - System design
-- [CONTRIBUTING.md](docs/archive/CONTRIBUTING.md) - Contribution guide
 - [PERFORMANCE.md](docs/archive/PERFORMANCE.md) - Optimizations
 - [PATTERNS.md](docs/archive/PATTERNS.md) - Pattern matching
 - [TESTING.md](docs/archive/TESTING.md) - Test strategy

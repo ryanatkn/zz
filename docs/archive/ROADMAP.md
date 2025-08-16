@@ -385,17 +385,6 @@ $ zz watch --pattern="*.zig" --notify
 4. **Testing** - All features must be tested
 5. **Documentation** - All features must be documented
 
-## Contributing
-
-We welcome contributions! Priority areas:
-1. Performance optimizations
-2. Test coverage improvements
-3. Documentation enhancements
-4. Bug fixes
-5. Platform-specific optimizations
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
 ## Release Schedule
 
 | Version | Target Date | Focus |

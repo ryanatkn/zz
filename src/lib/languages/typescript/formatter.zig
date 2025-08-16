@@ -3,6 +3,10 @@ const ts = @import("tree-sitter");
 const LineBuilder = @import("../../parsing/formatter.zig").LineBuilder;
 const FormatterOptions = @import("../../parsing/formatter.zig").FormatterOptions;
 
+// Import TypeScript-specific modules
+const NodeUtils = @import("../../language/node_utils.zig").NodeUtils;
+const TypeScriptHelpers = @import("formatting_helpers.zig").TypeScriptFormattingHelpers;
+
 /// Format TypeScript using AST-based approach
 pub fn formatAst(allocator: std.mem.Allocator, node: ts.Node, source: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
     _ = allocator;
@@ -40,16 +44,16 @@ fn formatTypeScriptNode(node: ts.Node, source: []const u8, builder: *LineBuilder
         }
     } else if (std.mem.eql(u8, node_type, "ERROR")) {
         // For ERROR nodes (malformed code), preserve the original text exactly
-        try appendNodeText(node, source, builder);
+        try NodeUtils.appendNodeText(node, source, builder);
     } else {
         // For other unknown nodes, just append text without recursion
-        try appendNodeText(node, source, builder);
+        try NodeUtils.appendNodeText(node, source, builder);
     }
 }
 
 /// Format TypeScript parameters with proper spacing and line breaking
 fn formatParameters(params_node: ts.Node, source: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
-    const params_text = getNodeText(params_node, source);
+    const params_text = NodeUtils.getNodeText(params_node, source);
     
     // Check if we need to break across multiple lines
     const estimated_length = params_text.len + 20; // Include function name and return type
@@ -226,7 +230,7 @@ fn formatFunction(node: ts.Node, source: []const u8, builder: *LineBuilder, dept
 
     // Extract function signature and format it
     if (node.childByFieldName("name")) |name_node| {
-        const name_text = getNodeText(name_node, source);
+        const name_text = NodeUtils.getNodeText(name_node, source);
 
         // Format: function name(params): returnType {
         try builder.append("function ");
@@ -234,14 +238,14 @@ fn formatFunction(node: ts.Node, source: []const u8, builder: *LineBuilder, dept
 
         var used_multiline_params = false;
         if (node.childByFieldName("parameters")) |params_node| {
-            const params_text = getNodeText(params_node, source);
+            const params_text = NodeUtils.getNodeText(params_node, source);
             const estimated_length = params_text.len + 20;
             used_multiline_params = estimated_length > options.line_width;
             try formatParameters(params_node, source, builder, options);
         }
 
         if (node.childByFieldName("return_type")) |return_node| {
-            const return_text = getNodeText(return_node, source);
+            const return_text = NodeUtils.getNodeText(return_node, source);
             
             if (used_multiline_params) {
                 try formatReturnTypeMultiline(return_text, builder);
@@ -257,7 +261,7 @@ fn formatFunction(node: ts.Node, source: []const u8, builder: *LineBuilder, dept
         if (node.childByFieldName("body")) |body_node| {
             builder.indent();
             try builder.appendIndent();
-            const body_text = getNodeText(body_node, source);
+            const body_text = NodeUtils.getNodeText(body_node, source);
             // Remove braces from body text and format content
             if (std.mem.startsWith(u8, body_text, "{") and std.mem.endsWith(u8, body_text, "}")) {
                 const inner_body = std.mem.trim(u8, body_text[1..body_text.len-1], " \t\r\n");
@@ -274,7 +278,7 @@ fn formatFunction(node: ts.Node, source: []const u8, builder: *LineBuilder, dept
         try builder.newline();
     } else {
         // Fallback to raw node text if field extraction fails
-        try appendNodeText(node, source, builder);
+        try NodeUtils.appendNodeText(node, source, builder);
     }
 }
 
@@ -283,7 +287,7 @@ fn formatInterface(node: ts.Node, source: []const u8, builder: *LineBuilder, dep
     try builder.appendIndent();
 
     if (node.childByFieldName("name")) |name_node| {
-        const name_text = getNodeText(name_node, source);
+        const name_text = NodeUtils.getNodeText(name_node, source);
         try builder.append("interface ");
         try builder.append(name_text);
         try builder.append(" {");
@@ -300,7 +304,7 @@ fn formatInterface(node: ts.Node, source: []const u8, builder: *LineBuilder, dep
         try builder.append("}");
         try builder.newline();
     } else {
-        try appendNodeText(node, source, builder);
+        try NodeUtils.appendNodeText(node, source, builder);
     }
 }
 
@@ -309,7 +313,7 @@ fn formatInterfaceBody(body_node: ts.Node, source: []const u8, builder: *LineBui
     _ = depth;
     
     // Get the raw body text and parse interface properties
-    const body_text = getNodeText(body_node, source);
+    const body_text = NodeUtils.getNodeText(body_node, source);
     
     // Remove outer braces if present
     var content = body_text;
@@ -459,13 +463,13 @@ fn formatClass(node: ts.Node, source: []const u8, builder: *LineBuilder, depth: 
 
     // Class name
     if (node.childByFieldName("name")) |name_node| {
-        const name_text = getNodeText(name_node, source);
+        const name_text = NodeUtils.getNodeText(name_node, source);
         try builder.append(name_text);
     }
 
     // Handle generic type parameters
     if (node.childByFieldName("type_parameters")) |type_params_node| {
-        const type_params_text = getNodeText(type_params_node, source);
+        const type_params_text = NodeUtils.getNodeText(type_params_node, source);
         try formatGenericParameters(type_params_text, builder);
     }
 
@@ -516,7 +520,7 @@ fn formatClassBody(body_node: ts.Node, source: []const u8, builder: *LineBuilder
 /// Format individual class members (properties and methods)
 fn formatClassMember(member_node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) !void {
     const member_type = member_node.kind();
-    const member_text = getNodeText(member_node, source);
+    const member_text = NodeUtils.getNodeText(member_node, source);
     
     if (std.mem.eql(u8, member_type, "property_signature") or
         std.mem.eql(u8, member_type, "field_definition") or
@@ -845,25 +849,11 @@ fn formatTypeAlias(node: ts.Node, source: []const u8, builder: *LineBuilder, dep
     _ = options;
 
     try builder.appendIndent();
-    try appendNodeText(node, source, builder);
+    try NodeUtils.appendNodeText(node, source, builder);
     try builder.newline();
 }
 
-/// Helper function to get node text from source
-fn getNodeText(node: ts.Node, source: []const u8) []const u8 {
-    const start = node.startByte();
-    const end = node.endByte();
-    if (end <= source.len and start <= end) {
-        return source[start..end];
-    }
-    return "";
-}
-
-/// Helper function to append node text to builder
-fn appendNodeText(node: ts.Node, source: []const u8, builder: *LineBuilder) !void {
-    const text = getNodeText(node, source);
-    try builder.append(text);
-}
+// Note: NodeUtils.getNodeText and NodeUtils.appendNodeText now use shared AstHelpers
 
 /// Check if a node represents a TypeScript function
 pub fn isTypeScriptFunction(node_type: []const u8) bool {
@@ -884,7 +874,7 @@ pub fn isTypeScriptType(node_type: []const u8) bool {
 fn formatVariableDeclaration(node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) std.mem.Allocator.Error!void {
     _ = depth;
     
-    const node_text = getNodeText(node, source);
+    const node_text = NodeUtils.getNodeText(node, source);
     
     // Check if this contains an arrow function
     if (std.mem.indexOf(u8, node_text, "=>") != null) {
@@ -1117,7 +1107,7 @@ pub fn format(allocator: std.mem.Allocator, source: []const u8, options: Formatt
 fn formatImportStatement(node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) !void {
     _ = depth;
     
-    const import_text = getNodeText(node, source);
+    const import_text = NodeUtils.getNodeText(node, source);
     try formatImportExportWithSpacing(import_text, builder, options);
     try builder.append(";");
     try builder.newline();
@@ -1127,7 +1117,7 @@ fn formatImportStatement(node: ts.Node, source: []const u8, builder: *LineBuilde
 fn formatExportStatement(node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) !void {
     _ = depth;
     
-    const export_text = getNodeText(node, source);
+    const export_text = NodeUtils.getNodeText(node, source);
     try formatImportExportWithSpacing(export_text, builder, options);
     try builder.append(";");
     try builder.newline();

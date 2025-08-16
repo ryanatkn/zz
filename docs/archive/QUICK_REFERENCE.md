@@ -304,6 +304,5 @@ cat zz.zon
 
 - [Full Documentation](README.md)
 - [Architecture](ARCHITECTURE.md)
-- [Contributing](CONTRIBUTING.md)
 - [Troubleshooting](TROUBLESHOOTING.md)
 - [Patterns & Recipes](PATTERNS.md)

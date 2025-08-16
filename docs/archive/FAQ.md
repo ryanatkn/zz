@@ -234,9 +234,6 @@ zig build -Doptimize=ReleaseFast
 ./zig-out/bin/zz benchmark
 ```
 
-### How do I add custom benchmarks?
-See [CONTRIBUTING.md](CONTRIBUTING.md) for details on adding benchmarks.
-
 ## Configuration Questions
 
 ### Where does zz look for configuration?
@@ -291,13 +288,6 @@ Yes, zz is designed for large codebases:
 - Use depth limiting for massive trees
 
 ## Development Questions
-
-### How do I contribute to zz?
-See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines. We welcome:
-- Performance improvements
-- Bug fixes
-- Documentation updates
-- Test coverage increases
 
 ### What's the development philosophy?
 - **Performance first**: Every change must maintain or improve speed

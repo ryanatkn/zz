@@ -101,7 +101,20 @@
                     .expected =
                     \\class DataStore<T> {
                     \\    private items: T[] = [];
+                    \\    
                     \\    constructor(private name: string) {}
+                    \\    
+                    \\    add(item: T): void {
+                    \\        this.items.push(item);
+                    \\    }
+                    \\    
+                    \\    getAll(): T[] {
+                    \\        return [...this.items];
+                    \\    }
+                    \\    
+                    \\    findById(id: string): T | undefined {
+                    \\        return this.items.find((item: any) => item.id === id);
+                    \\    }
                     \\}
                     \\type EventHandler<T = any> = (event: T) => void;
                     \\enum Status {
@@ -155,9 +168,6 @@
                     \\import type { User, ApiResponse } from './types';
                     \\import * as utils from '../utils';
                     \\import config from '../config.json';
-                    \\export interface Props {
-                    \\export const UserProfile: Component<Props> =
-                    \\export default UserProfile;
                     ,
                 },
                 .{
@@ -202,6 +212,309 @@
                     \\type PartialUser = Partial<User>;
                     \\type RequiredUser = Required<User>;
                     \\type UserKeys = keyof User;
+                    ,
+                },
+            },
+        },
+        .{
+            .name = "docs_and_comments",
+            .source =
+            \\/**
+            \\ * User management service
+            \\ * @param config Service configuration
+            \\ */
+            \\export class UserService {
+            \\    /**
+            \\     * Create a new user
+            \\     * @param userData User data to create
+            \\     * @returns Promise resolving to created user
+            \\     */
+            \\    async createUser(userData: CreateUserData): Promise<User> {
+            \\        // Validate user data first
+            \\        this.validateUserData(userData);
+            \\        return this.repository.save(userData);
+            \\    }
+            \\}
+            \\
+            \\// Utility function for formatting
+            \\function formatName(name: string): string {
+            \\    return name.trim().toLowerCase();
+            \\}
+            ,
+            .extraction_tests = .{
+                .{
+                    .flags = .{ .docs = true },
+                    .expected =
+                    \\/**
+                    \\ * User management service
+                    \\ * @param config Service configuration
+                    \\ */
+                    \\/**
+                    \\     * Create a new user
+                    \\     * @param userData User data to create
+                    \\     * @returns Promise resolving to created user
+                    \\     */
+                    \\// Validate user data first
+                    \\// Utility function for formatting
+                    ,
+                },
+                .{
+                    .flags = .{ .signatures = true },
+                    .expected =
+                    \\async createUser(userData: CreateUserData): Promise<User>
+                    \\function formatName(name: string): string
+                    ,
+                },
+            },
+        },
+        .{
+            .name = "error_handling",
+            .source =
+            \\interface CustomError extends Error {
+            \\    code: number;
+            \\    details?: string;
+            \\}
+            \\
+            \\class ValidationError extends Error {
+            \\    constructor(message: string) {
+            \\        super(message);
+            \\        this.name = 'ValidationError';
+            \\    }
+            \\}
+            \\
+            \\function processData(data: any): Result<ProcessedData, CustomError> {
+            \\    try {
+            \\        validateData(data);
+            \\        return processValidData(data);
+            \\    } catch (error) {
+            \\        if (error instanceof ValidationError) {
+            \\            throw new CustomError('Data validation failed');
+            \\        }
+            \\        throw error;
+            \\    } finally {
+            \\        cleanupResources();
+            \\    }
+            \\}
+            ,
+            .extraction_tests = .{
+                .{
+                    .flags = .{ .errors = true },
+                    .expected =
+                    \\interface CustomError extends Error {
+                    \\    code: number;
+                    \\    details?: string;
+                    \\}
+                    \\try {
+                    \\        validateData(data);
+                    \\        return processValidData(data);
+                    \\    } catch (error) {
+                    \\        if (error instanceof ValidationError) {
+                    \\            throw new CustomError('Data validation failed');
+                    \\        }
+                    \\        throw error;
+                    \\    } finally {
+                    \\        cleanupResources();
+                    \\    }
+                    ,
+                },
+                .{
+                    .flags = .{ .types = true },
+                    .expected =
+                    \\interface CustomError extends Error {
+                    \\    code: number;
+                    \\    details?: string;
+                    \\}
+                    \\class ValidationError extends Error {
+                    \\    constructor(message: string) {
+                    \\        super(message);
+                    \\        this.name = 'ValidationError';
+                    \\    }
+                    \\}
+                    ,
+                },
+            },
+        },
+        .{
+            .name = "structure_overview",
+            .source =
+            \\import { Database } from './database';
+            \\import type { Config } from './config';
+            \\
+            \\export interface UserRepository {
+            \\    findById(id: string): Promise<User | null>;
+            \\    save(user: User): Promise<User>;
+            \\}
+            \\
+            \\export class DefaultUserRepository implements UserRepository {
+            \\    constructor(private db: Database) {}
+            \\    
+            \\    async findById(id: string): Promise<User | null> {
+            \\        const result = await this.db.query('SELECT * FROM users WHERE id = ?', [id]);
+            \\        return result ? this.mapToUser(result) : null;
+            \\    }
+            \\    
+            \\    async save(user: User): Promise<User> {
+            \\        return this.db.insert('users', user);
+            \\    }
+            \\}
+            \\
+            \\export function createUserRepository(config: Config): UserRepository {
+            \\    const db = new Database(config.dbUrl);
+            \\    return new DefaultUserRepository(db);
+            \\}
+            ,
+            .extraction_tests = .{
+                .{
+                    .flags = .{ .structure = true },
+                    .expected =
+                    \\interface UserRepository {
+                    \\    findById(id: string): Promise<User | null>;
+                    \\    save(user: User): Promise<User>;
+                    \\}
+                    \\class DefaultUserRepository implements UserRepository {
+                    \\    constructor(private db: Database) {}
+                    \\    
+                    \\    async findById(id: string): Promise<User | null> {
+                    \\        const result = await this.db.query('SELECT * FROM users WHERE id = ?', [id]);
+                    \\        return result ? this.mapToUser(result) : null;
+                    \\    }
+                    \\    
+                    \\    async save(user: User): Promise<User> {
+                    \\        return this.db.insert('users', user);
+                    \\    }
+                    \\}
+                    \\function createUserRepository(config: Config): UserRepository {
+                    \\    const db = new Database(config.dbUrl);
+                    \\    return new DefaultUserRepository(db);
+                    \\}
+                    ,
+                },
+                .{
+                    .flags = .{ .imports = true },
+                    .expected =
+                    \\import { Database } from './database';
+                    \\import type { Config } from './config';
+                    ,
+                },
+            },
+        },
+        .{
+            .name = "test_cases",
+            .source =
+            \\import { describe, it, expect, beforeEach } from 'vitest';
+            \\import { UserService } from '../src/UserService';
+            \\
+            \\describe('UserService', () => {
+            \\    let userService: UserService;
+            \\    
+            \\    beforeEach(() => {
+            \\        userService = new UserService();
+            \\    });
+            \\    
+            \\    it('should create a user', async () => {
+            \\        const userData = { name: 'John', email: 'john@example.com' };
+            \\        const user = await userService.createUser(userData);
+            \\        expect(user.id).toBeDefined();
+            \\    });
+            \\    
+            \\    test('should validate user data', () => {
+            \\        const invalidData = { name: '' };
+            \\        expect(() => userService.validateUser(invalidData)).toThrow();
+            \\    });
+            \\});
+            ,
+            .extraction_tests = .{
+                .{
+                    .flags = .{ .tests = true },
+                    .expected =
+                    \\describe('UserService', () => {
+                    \\    let userService: UserService;
+                    \\    
+                    \\    beforeEach(() => {
+                    \\        userService = new UserService();
+                    \\    });
+                    \\    
+                    \\    it('should create a user', async () => {
+                    \\        const userData = { name: 'John', email: 'john@example.com' };
+                    \\        const user = await userService.createUser(userData);
+                    \\        expect(user.id).toBeDefined();
+                    \\    });
+                    \\    
+                    \\    test('should validate user data', () => {
+                    \\        const invalidData = { name: '' };
+                    \\        expect(() => userService.validateUser(invalidData)).toThrow();
+                    \\    });
+                    \\})
+                    ,
+                },
+                .{
+                    .flags = .{ .imports = true },
+                    .expected =
+                    \\import { describe, it, expect, beforeEach } from 'vitest';
+                    \\import { UserService } from '../src/UserService';
+                    ,
+                },
+            },
+        },
+        .{
+            .name = "combined_flags",
+            .source =
+            \\/**
+            \\ * Service for managing user operations
+            \\ */
+            \\export interface UserService {
+            \\    createUser(data: UserData): Promise<User>;
+            \\    updateUser(id: string, data: Partial<UserData>): Promise<User>;
+            \\}
+            \\
+            \\export class DatabaseUserService implements UserService {
+            \\    constructor(private repo: UserRepository) {}
+            \\    
+            \\    async createUser(data: UserData): Promise<User> {
+            \\        try {
+            \\            return await this.repo.save(data);
+            \\        } catch (error) {
+            \\            throw new Error('Failed to create user');
+            \\        }
+            \\    }
+            \\    
+            \\    async updateUser(id: string, data: Partial<UserData>): Promise<User> {
+            \\        return this.repo.update(id, data);
+            \\    }
+            \\}
+            ,
+            .extraction_tests = .{
+                .{
+                    .flags = .{ .signatures = true, .types = true },
+                    .expected =
+                    \\class DatabaseUserService implements UserService {
+                    \\    constructor(private repo: UserRepository) {}
+                    \\    
+                    \\    async createUser(data: UserData): Promise<User> {
+                    \\        try {
+                    \\            return await this.repo.save(data);
+                    \\        } catch (error) {
+                    \\            throw new Error('Failed to create user');
+                    \\        }
+                    \\    }
+                    \\    
+                    \\    async updateUser(id: string, data: Partial<UserData>): Promise<User> {
+                    \\        return this.repo.update(id, data);
+                    \\    }
+                    \\}
+                    ,
+                },
+                .{
+                    .flags = .{ .docs = true, .errors = true },
+                    .expected =
+                    \\/**
+                    \\ * Service for managing user operations
+                    \\ */
+                    \\try {
+                    \\            return await this.repo.save(data);
+                    \\        } catch (error) {
+                    \\            throw new Error('Failed to create user');
+                    \\        }
                     ,
                 },
             },

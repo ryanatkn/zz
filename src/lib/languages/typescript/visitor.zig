@@ -8,14 +8,50 @@ const builders = @import("../../text/builders.zig");
 pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
     const node_type = node.kind;
     
+    // Documentation comments (JSDoc, block comments, line comments)
+    if (context.flags.docs) {
+        if (std.mem.eql(u8, node_type, "comment") or
+            std.mem.eql(u8, node_type, "jsdoc") or
+            std.mem.startsWith(u8, node_type, "comment_"))
+        {
+            try context.appendNode(node);
+            return false;
+        }
+    }
+
+    // Error handling patterns (try/catch, throw, Error types)
+    if (context.flags.errors) {
+        if (std.mem.eql(u8, node_type, "try_statement") or
+            std.mem.eql(u8, node_type, "catch_clause") or
+            std.mem.eql(u8, node_type, "throw_statement") or
+            std.mem.eql(u8, node_type, "finally_clause"))
+        {
+            try context.appendNode(node);
+            return false;
+        }
+        // Error types and interfaces
+        const text = node.text;
+        if (std.mem.indexOf(u8, text, "Error") != null and
+            (std.mem.eql(u8, node_type, "type_alias_declaration") or
+             std.mem.eql(u8, node_type, "interface_declaration")))
+        {
+            try context.appendNode(node);
+            return false;
+        }
+    }
 
     // Functions and methods (when signatures flag is set)
-    if (context.flags.signatures and !context.flags.structure) {
+    if (context.flags.signatures) {
         if (std.mem.eql(u8, node_type, "function_declaration") or
             std.mem.eql(u8, node_type, "method_definition"))
         {
             // For function declarations, extract just the signature part
             try context.appendSignature(node);
+            return false;
+        }
+        // Handle classes - extract method signatures only
+        if (std.mem.eql(u8, node_type, "class_declaration")) {
+            try appendClassSignaturesSimple(context, node);
             return false;
         }
         // Arrow functions need special handling - look for variable declarations containing arrow functions
@@ -43,7 +79,7 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
     }
 
     // Types and interfaces (when types flag is set)  
-    if (context.flags.types and !context.flags.structure) {
+    if (context.flags.types and !context.flags.signatures) {
         if (std.mem.eql(u8, node_type, "interface_declaration") or
             std.mem.eql(u8, node_type, "type_alias_declaration") or
             std.mem.eql(u8, node_type, "enum_declaration"))
@@ -53,8 +89,9 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
             return false;
         }
         if (std.mem.eql(u8, node_type, "class_declaration")) {
-            // For classes, extract only type structure without method implementations
-            try appendClassTypeStructure(context, node);
+            // For now, extract the full class declaration 
+            // TODO: Implement proper type structure extraction
+            try context.appendNode(node);
             return false;
         }
     }
@@ -66,29 +103,28 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
         }
     }
 
-    // Structure elements - complete TypeScript structure  
+    // Structure elements - complete TypeScript structure without duplication
     if (context.flags.structure) {
-        // For structure, extract both functions and types
+        // For structure, extract both functions and types but avoid duplication
         if (std.mem.eql(u8, node_type, "interface_declaration") or
             std.mem.eql(u8, node_type, "type_alias_declaration") or
             std.mem.eql(u8, node_type, "class_declaration") or
             std.mem.eql(u8, node_type, "enum_declaration") or
-            std.mem.eql(u8, node_type, "function_declaration") or
-            std.mem.eql(u8, node_type, "method_definition"))
+            std.mem.eql(u8, node_type, "function_declaration"))
         {
             try context.appendNode(node);
+            return false; // Skip children to avoid duplication
         }
     }
 
-    // Imports and exports
+    // Imports only (no exports when imports flag is set)
     if (context.flags.imports and !context.flags.structure and !context.flags.signatures and !context.flags.types) {
         if (std.mem.eql(u8, node_type, "import_statement")) {
             try context.appendNode(node);
             return false;
         }
+        // Skip exports in imports-only mode
         if (std.mem.eql(u8, node_type, "export_statement")) {
-            // For exports, extract only the signature/declaration part
-            try appendExportSignature(context, node);
             return false;
         }
     }
@@ -163,46 +199,105 @@ fn appendExportSignature(context: *ExtractionContext, node: *const Node) !void {
 /// Helper function to extract only the type structure of a class
 /// Includes field declarations and constructor signature, but excludes method implementations
 fn appendClassTypeStructure(context: *ExtractionContext, node: *const Node) !void {
-    var lines = std.mem.splitScalar(u8, node.text, '\n');
+    const text = node.text;
+    var lines = std.mem.splitScalar(u8, text, '\n');
     var builder = builders.ResultBuilder.init(context.allocator);
     defer builder.deinit();
     
-    var prev_line_was_blank = false;
+    var in_constructor = false;
+    var constructor_brace_count: i32 = 0;
+    var skip_method = false;
+    var method_brace_count: i32 = 0;
     
     while (lines.next()) |line| {
         const trimmed = std.mem.trim(u8, line, " \t");
         
-        // Check if this line starts a method (but not constructor)
-        const is_method_start = trimmed.len > 0 and
-            (std.mem.indexOf(u8, trimmed, "(") != null and 
-             std.mem.indexOf(u8, trimmed, ")") != null and
-             std.mem.endsWith(u8, trimmed, "{")) and
-            std.mem.indexOf(u8, trimmed, "constructor") == null;
-        
-        // If this is a method start, stop processing here
-        if (is_method_start) {
-            break;
+        // Skip empty lines
+        if (trimmed.len == 0) {
+            continue;
         }
         
-        // Skip blank lines to normalize whitespace
-        if (trimmed.len == 0) {
-            if (!prev_line_was_blank) {
-                // Skip this blank line
-                prev_line_was_blank = true;
+        // Check if this is a method declaration (not constructor)
+        if (!in_constructor and !skip_method and trimmed.len > 0) {
+            const has_params = std.mem.indexOf(u8, trimmed, "(") != null and std.mem.indexOf(u8, trimmed, ")") != null;
+            const has_brace = std.mem.indexOf(u8, trimmed, "{") != null;
+            const is_constructor = std.mem.indexOf(u8, trimmed, "constructor") != null;
+            
+            if (has_params and has_brace and !is_constructor) {
+                // This is a method, skip it
+                skip_method = true;
+                method_brace_count = 1; // Count the opening brace
+                continue;
+            } else if (is_constructor) {
+                in_constructor = true;
+                if (has_brace) {
+                    constructor_brace_count = 1;
+                }
+                // For constructor, extract just the signature with proper indentation
+                if (std.mem.indexOf(u8, trimmed, "{")) |brace_pos| {
+                    const signature = std.mem.trim(u8, trimmed[0..brace_pos], " \t");
+                    // Preserve the original indentation from the line
+                    const indent_end = std.mem.indexOf(u8, line, signature) orelse 0;
+                    const indentation = line[0..indent_end];
+                    try builder.append(indentation);
+                    try builder.append(signature);
+                    try builder.append(" {}");
+                    try builder.appendChar('\n');
+                } else {
+                    try builder.append(line);
+                    try builder.appendChar('\n');
+                }
+                continue;
+            }
+        }
+        
+        // Handle constructor body (skip it)
+        if (in_constructor) {
+            // Count braces to know when constructor ends
+            var i: usize = 0;
+            while (i < trimmed.len) {
+                if (trimmed[i] == '{') {
+                    constructor_brace_count += 1;
+                } else if (trimmed[i] == '}') {
+                    constructor_brace_count -= 1;
+                    if (constructor_brace_count == 0) {
+                        in_constructor = false;
+                        break;
+                    }
+                }
+                i += 1;
             }
             continue;
         }
         
-        // Include non-blank line
-        try builders.appendLine(builder.list(), line);
-        prev_line_was_blank = false;
+        // Handle method body (skip it)
+        if (skip_method) {
+            // Count braces to know when method ends
+            var i: usize = 0;
+            while (i < trimmed.len) {
+                if (trimmed[i] == '{') {
+                    method_brace_count += 1;
+                } else if (trimmed[i] == '}') {
+                    method_brace_count -= 1;
+                    if (method_brace_count == 0) {
+                        skip_method = false;
+                        break;
+                    }
+                }
+                i += 1;
+            }
+            continue;
+        }
+        
+        // Include class declaration, field declarations, etc.
+        try builder.append(line);
+        try builder.appendChar('\n');
     }
     
-    // Ensure we end with the class closing brace
-    const result = builder.items();
-    if (result.len > 0 and !std.mem.endsWith(u8, result, "}")) {
+    // Ensure class ends with closing brace if it doesn't already
+    const result_text = builder.items();
+    if (result_text.len > 0 and !std.mem.endsWith(u8, result_text, "}") and !std.mem.endsWith(u8, result_text, "}\n")) {
         try builder.append("}");
-        try builder.appendChar('\n');
     }
     
     // Remove trailing newline if present
@@ -210,8 +305,59 @@ fn appendClassTypeStructure(context: *ExtractionContext, node: *const Node) !voi
         _ = builder.list().pop();
     }
     
-    // Append the normalized content with automatic newline handling
-    try builders.appendMaybe(context.result, builder.items(), !std.mem.endsWith(u8, builder.items(), "\n"));
+    // Append the result
+    try context.result.appendSlice(builder.items());
+    if (!std.mem.endsWith(u8, context.result.items, "\n")) {
+        try context.result.append('\n');
+    }
+}
+
+/// Extract method signatures from a class declaration (simple text-based approach)
+fn appendClassSignaturesSimple(context: *ExtractionContext, node: *const Node) !void {
+    const text = node.text;
+    var lines = std.mem.splitScalar(u8, text, '\n');
+    
+    // Skip class declaration line
+    _ = lines.next();
+    
+    while (lines.next()) |line| {
+        const trimmed = std.mem.trim(u8, line, " \t");
+        
+        // Skip empty lines, comments, closing braces, and code statements
+        if (trimmed.len == 0 or 
+            std.mem.startsWith(u8, trimmed, "//") or
+            std.mem.startsWith(u8, trimmed, "/*") or
+            std.mem.startsWith(u8, trimmed, "*") or
+            std.mem.eql(u8, trimmed, "}") or
+            std.mem.startsWith(u8, trimmed, "this.") or
+            std.mem.startsWith(u8, trimmed, "return") or
+            std.mem.startsWith(u8, trimmed, "console.") or
+            std.mem.startsWith(u8, trimmed, "await") or
+            std.mem.startsWith(u8, trimmed, "const") or
+            std.mem.startsWith(u8, trimmed, "let") or
+            std.mem.startsWith(u8, trimmed, "var") or
+            std.mem.startsWith(u8, trimmed, "if") or
+            std.mem.startsWith(u8, trimmed, "try") or
+            std.mem.startsWith(u8, trimmed, "} catch") or
+            std.mem.startsWith(u8, trimmed, "} finally"))
+        {
+            continue;
+        }
+        
+        // Look for method signatures - must have parentheses and be at the beginning of a line
+        if (std.mem.indexOf(u8, trimmed, "(") != null and 
+            std.mem.indexOf(u8, trimmed, ")") != null and
+            !std.mem.startsWith(u8, trimmed, "}")) 
+        {
+            // This looks like a method signature if it has an opening brace at the end
+            if (std.mem.indexOf(u8, trimmed, "{")) |brace_pos| {
+                // Extract signature up to opening brace
+                const signature = std.mem.trim(u8, trimmed[0..brace_pos], " \t");
+                try context.result.appendSlice(signature);
+                try context.result.append('\n');
+            }
+        }
+    }
 }
 
 /// Extract arrow function signature including parameters

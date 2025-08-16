@@ -51,10 +51,10 @@ Add `~/.zz/bin` to your PATH.
 zig version  # Requires 0.14.1+
 
 # After installation
-zz tree                        # Show directory tree
 zz prompt "src/**/*.zig"       # Generate LLM prompt
-zz benchmark --format=pretty   # Run performance benchmarks
 zz format config.json          # Format code files
+zz tree                        # Show directory tree
+zz benchmark --format=pretty   # Run performance benchmarks
 zz demo                        # Run interactive terminal demo
 ```
 
@@ -89,14 +89,14 @@ zz demo                        # Run interactive terminal demo
 ### Performance benchmarking
 - Color-coded terminal output
 - Formats: markdown, JSON, CSV, pretty
-- Baseline comparison, 20% regression threshold
+- Baseline comparison with regression threshold
 - Configurable duration per benchmark
 
 ### Incremental processing & caching
 - AST cache with selective invalidation
 - Dependency tracking with cascade updates
 - xxHash change detection
-- 95% cache hit rate
+- high cache hit rate
 - LRU eviction
 
 ## Commands

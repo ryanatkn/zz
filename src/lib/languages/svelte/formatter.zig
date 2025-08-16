@@ -74,8 +74,6 @@ fn formatSvelteScript(node: ts.Node, source: []const u8, builder: *LineBuilder, 
     }
 
     try builder.append("</script>");
-    try builder.newline();
-    try builder.newline(); // Add blank line after script section
 }
 
 /// Format Svelte style section
@@ -253,7 +251,13 @@ fn formatJavaScriptContent(js_content: []const u8, builder: *LineBuilder, option
     // Format each statement
     for (statements.items, 0..) |statement, i| {
         try builder.append("    "); // 4-space indent
-        try formatJavaScriptStatement(statement, builder, options);
+        
+        // Check if this is a reactive statement
+        if (std.mem.startsWith(u8, statement, "$:")) {
+            try formatReactiveStatement(statement, builder, options);
+        } else {
+            try formatJavaScriptStatement(statement, builder, options);
+        }
         
         // Only add semicolon for non-function statements
         if (std.mem.indexOf(u8, statement, "function ") == null) {
@@ -262,13 +266,17 @@ fn formatJavaScriptContent(js_content: []const u8, builder: *LineBuilder, option
         
         try builder.newline();
         
-        // Add blank line only between different statement types (variable vs function)
+        // Add blank line only between different statement types (variable vs reactive vs function)
         if (i < statements.items.len - 1) {
             const current_is_function = std.mem.indexOf(u8, statement, "function ") != null;
+            const current_is_reactive = std.mem.startsWith(u8, statement, "$:");
             const next_is_function = std.mem.indexOf(u8, statements.items[i + 1], "function ") != null;
+            const next_is_reactive = std.mem.startsWith(u8, statements.items[i + 1], "$:");
             
-            // Add blank line if transitioning between variable declarations and functions
-            if (current_is_function != next_is_function) {
+            // Add blank line if transitioning from non-reactive to reactive, or between different statement types
+            if ((!current_is_reactive and next_is_reactive) or 
+                (current_is_function != next_is_function)) {
+                try builder.append("    "); // Add proper indentation for empty line
                 try builder.newline();
             }
         }
@@ -349,6 +357,18 @@ fn isInlineElement(node: ts.Node, source: []const u8) bool {
     // Check content length - if short, keep inline
     const element_text = getNodeText(node, source);
     return element_text.len < 60; // Arbitrary threshold for inline vs block
+}
+
+/// Format a reactive statement with proper spacing
+fn formatReactiveStatement(statement: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
+    // Skip the "$: " part and format the rest
+    if (statement.len > 3) {
+        const reactive_content = std.mem.trim(u8, statement[2..], " \t");
+        try builder.append("$: ");
+        try formatJavaScriptBasic(reactive_content, builder, options);
+    } else {
+        try builder.append(statement);
+    }
 }
 
 /// Format a single JavaScript statement with proper spacing
@@ -446,11 +466,23 @@ fn formatJavaScriptBasic(statement: []const u8, builder: *LineBuilder, options: 
                 if (i + 1 < statement.len and statement[i + 1] != ' ') {
                     try builder.append(" ");
                 }
-            } else if (char == '+') {
-                // Add spaces around + if not present (for string concatenation)
+            } else if (char == '+' or char == '-' or char == '*') {
+                // Add spaces around arithmetic operators if not present
                 if (i > 0 and statement[i-1] != ' ') {
                     try builder.append(" ");
                 }
+                try builder.append(&[_]u8{char});
+                if (i + 1 < statement.len and statement[i + 1] != ' ') {
+                    try builder.append(" ");
+                }
+            } else if (char == ',') {
+                // Add space after comma if not present
+                try builder.append(&[_]u8{char});
+                if (i + 1 < statement.len and statement[i + 1] != ' ') {
+                    try builder.append(" ");
+                }
+            } else if (char == ':' and i > 0) {
+                // Add space after colon if not present (for object properties and console.log)
                 try builder.append(&[_]u8{char});
                 if (i + 1 < statement.len and statement[i + 1] != ' ') {
                     try builder.append(" ");

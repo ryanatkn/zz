@@ -25,6 +25,10 @@ fn formatTypeScriptNode(node: ts.Node, source: []const u8, builder: *LineBuilder
     } else if (std.mem.eql(u8, node_type, "variable_declarator") or std.mem.eql(u8, node_type, "lexical_declaration")) {
         // Handle arrow functions and variable declarations
         try formatVariableDeclaration(node, source, builder, depth, options);
+    } else if (std.mem.eql(u8, node_type, "import_statement")) {
+        try formatImportStatement(node, source, builder, depth, options);
+    } else if (std.mem.eql(u8, node_type, "export_statement")) {
+        try formatExportStatement(node, source, builder, depth, options);
     } else if (std.mem.eql(u8, node_type, "program") or std.mem.eql(u8, node_type, "source_file")) {
         // For container nodes, recurse into children
         const child_count = node.childCount();
@@ -1107,5 +1111,100 @@ pub fn format(allocator: std.mem.Allocator, source: []const u8, options: Formatt
     defer formatter.deinit();
 
     return formatter.format(source);
+}
+
+/// Format import statement with proper spacing and line breaks
+fn formatImportStatement(node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) !void {
+    _ = depth;
+    
+    const import_text = getNodeText(node, source);
+    try formatImportExportWithSpacing(import_text, builder, options);
+    try builder.append(";");
+    try builder.newline();
+}
+
+/// Format export statement with proper spacing and line breaks  
+fn formatExportStatement(node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) !void {
+    _ = depth;
+    
+    const export_text = getNodeText(node, source);
+    try formatImportExportWithSpacing(export_text, builder, options);
+    try builder.append(";");
+    try builder.newline();
+}
+
+/// Format import/export with proper spacing and line breaks for long lists
+fn formatImportExportWithSpacing(statement: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
+    // Find the keyword and module parts
+    var keyword_end: usize = 0;
+    var brace_start: ?usize = null;
+    var brace_end: ?usize = null;
+    var from_start: ?usize = null;
+    
+    // Find keyword (import/export)
+    if (std.mem.indexOf(u8, statement, "import")) |pos| {
+        keyword_end = pos + 6;
+    } else if (std.mem.indexOf(u8, statement, "export")) |pos| {
+        keyword_end = pos + 6;
+    }
+    
+    // Find braces and from clause
+    brace_start = std.mem.indexOf(u8, statement, "{");
+    brace_end = std.mem.lastIndexOf(u8, statement, "}");
+    from_start = std.mem.indexOf(u8, statement, "from");
+    
+    if (brace_start != null and brace_end != null and brace_start.? < brace_end.?) {
+        // Has import/export list in braces
+        const before_brace = std.mem.trim(u8, statement[0..brace_start.?], " \t");
+        const brace_content = std.mem.trim(u8, statement[brace_start.? + 1..brace_end.?], " \t\n\r");
+        const after_brace = std.mem.trim(u8, statement[brace_end.? + 1..], " \t");
+        
+        // Check if we need multiline formatting
+        const estimated_length = before_brace.len + brace_content.len + after_brace.len + 4;
+        const should_multiline = estimated_length > options.line_width;
+        
+        if (should_multiline and brace_content.len > 0) {
+            // Multiline format
+            try builder.append(before_brace);
+            try builder.append(" {");
+            try builder.newline();
+            
+            // Split imports by comma and format each
+            var import_items = std.mem.splitScalar(u8, brace_content, ',');
+            var first = true;
+            while (import_items.next()) |item| {
+                const trimmed_item = std.mem.trim(u8, item, " \t\n\r");
+                if (trimmed_item.len > 0) {
+                    if (!first) try builder.newline();
+                    try builder.append("    ");
+                    try builder.append(trimmed_item);
+                    if (import_items.peek() != null) {
+                        try builder.append(",");
+                    }
+                    first = false;
+                }
+            }
+            
+            try builder.newline();
+            try builder.append("}");
+            if (after_brace.len > 0) {
+                try builder.append(" ");
+                try builder.append(after_brace);
+            }
+        } else {
+            // Single line format
+            try builder.append(before_brace);
+            try builder.append(" { ");
+            try builder.append(brace_content);
+            try builder.append(" }");
+            if (after_brace.len > 0) {
+                try builder.append(" ");
+                try builder.append(after_brace);
+            }
+        }
+    } else {
+        // No braces, just format normally
+        try builder.append(statement);
+    }
 }
 

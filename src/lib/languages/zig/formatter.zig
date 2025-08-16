@@ -493,13 +493,20 @@ fn formatStatementWithSpacing(statement: []const u8, builder: *LineBuilder) !voi
         const char = statement[i];
         
         if (char == '=') {
-            // Add spaces around =
-            if (i > 0 and statement[i-1] != ' ') {
-                try builder.append(" ");
-            }
-            try builder.append(&[_]u8{char});
-            if (i + 1 < statement.len and statement[i + 1] != ' ') {
-                try builder.append(" ");
+            // Add spaces around = but not for == (equality)
+            if (i + 1 < statement.len and statement[i + 1] == '=') {
+                // This is == (equality), don't add spaces individually
+                try builder.append("==");
+                i += 1; // Skip the next =
+            } else {
+                // Single = (assignment), add spaces
+                if (i > 0 and statement[i-1] != ' ') {
+                    try builder.append(" ");
+                }
+                try builder.append(&[_]u8{char});
+                if (i + 1 < statement.len and statement[i + 1] != ' ') {
+                    try builder.append(" ");
+                }
             }
         } else if (char == '+' or char == '-' or char == '*') {
             // Add spaces around arithmetic operators
@@ -516,9 +523,56 @@ fn formatStatementWithSpacing(statement: []const u8, builder: *LineBuilder) !voi
                 try builder.append(" ");
             }
             try builder.append(&[_]u8{char});
+        } else if (char == ',') {
+            // Add space after comma if not present
+            try builder.append(&[_]u8{char});
+            if (i + 1 < statement.len and statement[i + 1] != ' ') {
+                try builder.append(" ");
+            }
         } else {
             try builder.append(&[_]u8{char});
         }
+    }
+}
+
+/// Format test with proper spacing and body expansion
+fn formatTestWithSpacing(test_text: []const u8, builder: *LineBuilder) !void {
+    // Find test name between "test" and "{"
+    if (std.mem.indexOf(u8, test_text, "test")) |test_pos| {
+        if (std.mem.indexOf(u8, test_text, "{")) |brace_pos| {
+            const test_part = std.mem.trim(u8, test_text[test_pos..brace_pos], " \t");
+            
+            // Format "test" keyword and name with proper spacing
+            if (std.mem.indexOf(u8, test_part, "\"")) |quote_start| {
+                const before_quote = std.mem.trim(u8, test_part[0..quote_start], " \t");
+                const after_quote = std.mem.trim(u8, test_part[quote_start..], " \t");
+                
+                try builder.append(before_quote);
+                try builder.append(" ");
+                try builder.append(after_quote);
+            } else {
+                try formatStatementWithSpacing(test_part, builder);
+            }
+            
+            try builder.append(" {");
+            try builder.newline();
+            
+            // Format test body
+            const body_end = std.mem.lastIndexOf(u8, test_text, "}") orelse test_text.len;
+            const body_content = std.mem.trim(u8, test_text[brace_pos + 1..body_end], " \t\n\r");
+            
+            if (body_content.len > 0) {
+                try formatFunctionBody(body_content, builder);
+            }
+            
+            try builder.append("}");
+        } else {
+            // No body, just format as basic statement
+            try formatStatementWithSpacing(test_text, builder);
+        }
+    } else {
+        // Fallback
+        try formatStatementWithSpacing(test_text, builder);
     }
 }
 
@@ -781,27 +835,12 @@ fn formatZigUnion(node: ts.Node, source: []const u8, builder: *LineBuilder, dept
 
 /// Format Zig test
 fn formatZigTest(node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) std.mem.Allocator.Error!void {
+    _ = depth;
+    _ = options;
+    
+    const test_text = getNodeText(node, source);
     try builder.appendIndent();
-    try builder.append("test ");
-
-    // Test name
-    if (node.childByFieldName("name")) |name_node| {
-        const name_text = getNodeText(name_node, source);
-        try builder.append(name_text);
-    }
-
-    try builder.append(" {");
-    try builder.newline();
-
-    // Test body
-    if (node.childByFieldName("body")) |body_node| {
-        builder.indent();
-        try formatZigNode(body_node, source, builder, depth + 1, options);
-        builder.dedent();
-    }
-
-    try builder.appendIndent();
-    try builder.append("}");
+    try formatTestWithSpacing(test_text, builder);
     try builder.newline();
 }
 

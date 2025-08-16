@@ -49,8 +49,8 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
             try context.appendSignature(node);
             return false;
         }
-        // Handle classes - extract method signatures only
-        if (std.mem.eql(u8, node_type, "class_declaration")) {
+        // Handle classes - extract method signatures only (unless types flag is also set)
+        if (std.mem.eql(u8, node_type, "class_declaration") and !context.flags.types) {
             try appendClassSignaturesSimple(context, node);
             return false;
         }
@@ -79,7 +79,7 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
     }
 
     // Types and interfaces (when types flag is set)  
-    if (context.flags.types and !context.flags.signatures) {
+    if (context.flags.types) {
         if (std.mem.eql(u8, node_type, "interface_declaration") or
             std.mem.eql(u8, node_type, "type_alias_declaration") or
             std.mem.eql(u8, node_type, "enum_declaration"))
@@ -89,10 +89,15 @@ pub fn visitor(context: *ExtractionContext, node: *const Node) !bool {
             return false;
         }
         if (std.mem.eql(u8, node_type, "class_declaration")) {
-            // For now, extract the full class declaration 
-            // TODO: Implement proper type structure extraction
-            try context.appendNode(node);
-            return false;
+            if (context.flags.signatures) {
+                // When both types and signatures are set, extract full class content
+                try context.appendNode(node);
+                return false;
+            } else {
+                // Types only - extract the full class declaration 
+                try context.appendNode(node);
+                return false;
+            }
         }
     }
     
@@ -324,6 +329,7 @@ fn appendClassSignaturesSimple(context: *ExtractionContext, node: *const Node) !
         const trimmed = std.mem.trim(u8, line, " \t");
         
         // Skip empty lines, comments, closing braces, and code statements
+        // Note: Don't skip constructor signatures
         if (trimmed.len == 0 or 
             std.mem.startsWith(u8, trimmed, "//") or
             std.mem.startsWith(u8, trimmed, "/*") or
@@ -333,7 +339,7 @@ fn appendClassSignaturesSimple(context: *ExtractionContext, node: *const Node) !
             std.mem.startsWith(u8, trimmed, "return") or
             std.mem.startsWith(u8, trimmed, "console.") or
             std.mem.startsWith(u8, trimmed, "await") or
-            std.mem.startsWith(u8, trimmed, "const") or
+            (std.mem.startsWith(u8, trimmed, "const") and !std.mem.startsWith(u8, trimmed, "constructor")) or
             std.mem.startsWith(u8, trimmed, "let") or
             std.mem.startsWith(u8, trimmed, "var") or
             std.mem.startsWith(u8, trimmed, "if") or

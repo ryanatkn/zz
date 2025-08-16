@@ -7,25 +7,21 @@ For the companion GUI see [Zzz](https://github.com/ryanatkn/zzz).
 
 > **status**: vibe-engineered slop level 1
 
-Fast command-line utilities in Zig for POSIX systems. LLM prompt generation with AST-based code extraction, directory trees, and performance benchmarking. **100% terminal-based**.
+Fast command-line utilities in Zig for POSIX systems.
+Features LLM prompt generation with AST-based code extraction (using tree-sitter),
+directory trees, and performance benchmarking.
 
-**Platforms:** Linux, macOS, BSD, POSIX. No Windows.
+**Platforms:** Linux, macOS, BSD (POSIX). No Windows.
 
-**Languages:** AST extraction for TypeScript, CSS, HTML, JSON, Zig, Svelte.
+**Languages:** AST extraction (work in progress) for TypeScript, CSS, HTML, JSON, Zig, Svelte.
 
 **Performance:** Optimized paths, patterns, incremental processing, AST caching.
 
 **Architecture:** Modular `src/lib/` with filesystem abstraction, unified patterns, AST extraction. See [docs/archive/ARCHITECTURE.md](./docs/archive/ARCHITECTURE.md).
 
-## Requirements
-
-- Zig 0.14.1 or later
-- POSIX-compliant operating system (Linux, macOS, BSD)
-- Git (for cloning the repository)
-
-Dependencies vendored in `deps/`. See [deps/README.md](deps/README.md).
-
 ## Installation
+
+Requires Zig ^0.14.1.
 
 ```bash
 # Clone with vendored dependencies
@@ -68,8 +64,8 @@ zz demo                        # Run interactive terminal demo
 - Arena allocators
 
 ### Prompt generation
-- **AST-based extraction** via NodeVisitor pattern
-- **Language support**:
+- **AST-based extraction** (work in progress)
+- **Language support**: 
   - TypeScript: Interfaces, types, classes, functions (.ts)
   - CSS: Selectors, variables, media queries
   - HTML: Structure, elements, attributes
@@ -81,7 +77,7 @@ zz demo                        # Run interactive terminal demo
 - Directory recursion, glob patterns, deduplication
 - Smart fence detection, XML-tagged markdown output
 
-### Code formatting
+### Code formatting (work in progress)
 - **Languages**: Zig (`zig fmt`), JSON, HTML, CSS, TypeScript, Svelte
 - **Options**: `--write` (in-place), `--check` (verify), `--stdin`, `--indent-size=N`, `--indent-style=space|tab`, `--line-width=N`
 - Glob patterns supported
@@ -105,7 +101,7 @@ zz demo                        # Run interactive terminal demo
 zz tree [dir] [depth] [opts]    # Directory tree
 zz prompt [files...] [opts]     # LLM prompt
 zz benchmark [opts]              # Performance tests
-zz format [files...] [opts]      # Format code
+zz format [files...] [opts]      # Format code - work in progress
 zz demo [opts]                   # Interactive demo
 zz help, --help, -h              # Help
 

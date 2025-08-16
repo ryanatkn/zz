@@ -108,9 +108,21 @@ fn formatZigNode(node: ts.Node, source: []const u8, builder: *LineBuilder, depth
 fn isFunctionDecl(text: []const u8) bool {
     const contains_fn = std.mem.indexOf(u8, text, "fn ") != null;
     const not_import = std.mem.indexOf(u8, text, "@import") == null;
-    const not_type_def = std.mem.indexOf(u8, text, "struct") == null and
-                         std.mem.indexOf(u8, text, "enum") == null and
-                         std.mem.indexOf(u8, text, "union") == null;
+    
+    // Check if this starts with a function declaration pattern
+    // Functions can contain struct/enum/union in their return statements
+    const trimmed = std.mem.trim(u8, text, " \t\n\r");
+    const starts_with_fn = std.mem.startsWith(u8, trimmed, "fn ") or
+                           std.mem.startsWith(u8, trimmed, "pub fn ");
+    
+    // If it doesn't start with fn, then check for type definitions
+    const not_type_def = if (!starts_with_fn) 
+        std.mem.indexOf(u8, text, "struct") == null and
+        std.mem.indexOf(u8, text, "enum") == null and
+        std.mem.indexOf(u8, text, "union") == null
+    else
+        true; // If it starts with fn, it's a function regardless of content
+    
     return contains_fn and not_import and not_type_def;
 }
 
@@ -281,7 +293,6 @@ fn isTopLevelDecl(node_type: []const u8, text: []const u8) bool {
 fn formatPubDecl(pub_text: []const u8, decl_text: []const u8, decl_type: []const u8, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) !void {
     _ = source;
     _ = depth;
-    _ = options;
     
     // Combine pub + declaration text
     const combined_text = try std.fmt.allocPrint(builder.allocator, "{s} {s}", .{ pub_text, decl_text });
@@ -290,7 +301,7 @@ fn formatPubDecl(pub_text: []const u8, decl_text: []const u8, decl_type: []const
     // Format based on the declaration type
     if (std.mem.eql(u8, decl_type, "Decl") and isFunctionDecl(combined_text)) {
         try builder.appendIndent();
-        try formatFunctionWithSpacing(combined_text, builder);
+        try formatFunctionWithSpacing(combined_text, builder, options);
         try builder.newline();
     } else {
         // Fallback - format with basic spacing
@@ -303,18 +314,17 @@ fn formatPubDecl(pub_text: []const u8, decl_text: []const u8, decl_type: []const
 /// Format Zig function
 fn formatZigFunction(node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) std.mem.Allocator.Error!void {
     _ = depth;
-    _ = options;
     
     const func_text = getNodeText(node, source);
     try builder.appendIndent();
     
     // Parse and format the function with proper spacing
-    try formatFunctionWithSpacing(func_text, builder);
+    try formatFunctionWithSpacing(func_text, builder, options);
     try builder.newline();
 }
 
 /// Format function with proper spacing around parentheses, return types, and braces
-fn formatFunctionWithSpacing(func_text: []const u8, builder: *LineBuilder) !void {
+fn formatFunctionWithSpacing(func_text: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
     // Find key positions
     var fn_pos: ?usize = null;
     var paren_pos: ?usize = null;
@@ -343,7 +353,7 @@ fn formatFunctionWithSpacing(func_text: []const u8, builder: *LineBuilder) !void
     if (fn_pos != null and paren_pos != null and brace_pos != null) {
         // Format signature part (up to opening brace)
         const signature = func_text[0..brace_pos.?];
-        try formatFunctionSignature(signature, builder);
+        try formatFunctionSignature(signature, builder, options);
         
         try builder.append(" {");
         
@@ -371,8 +381,8 @@ fn formatFunctionWithSpacing(func_text: []const u8, builder: *LineBuilder) !void
     }
 }
 
-/// Format function signature with proper spacing
-fn formatFunctionSignature(signature: []const u8, builder: *LineBuilder) !void {
+/// Format function signature with proper spacing and multiline support
+fn formatFunctionSignature(signature: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
     // First handle the pub fn keyword spacing
     if (std.mem.indexOf(u8, signature, "pubfn")) |pos| {
         // Replace "pubfn" with "pub fn"
@@ -381,11 +391,198 @@ fn formatFunctionSignature(signature: []const u8, builder: *LineBuilder) !void {
         
         // Continue with the rest after "pubfn"
         const rest = signature[pos + 5..];
-        try formatSignatureRest(rest, builder);
+        try formatSignatureWithOptions(rest, builder, options);
         return;
     }
     
-    // Regular character-by-character formatting
+    try formatSignatureWithOptions(signature, builder, options);
+}
+
+/// Format signature with line width awareness and multiline parameter support
+fn formatSignatureWithOptions(signature: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
+    // Find function name and parameter section
+    if (std.mem.indexOf(u8, signature, "(")) |paren_start| {
+        if (std.mem.lastIndexOf(u8, signature, ")")) |paren_end| {
+            // Extract parts
+            const func_name_part = signature[0..paren_start];
+            const params_part = signature[paren_start + 1..paren_end];
+            const return_part = if (paren_end + 1 < signature.len) signature[paren_end + 1..] else "";
+            
+            // Format function name part with proper spacing
+            try formatFunctionNamePart(func_name_part, builder);
+            
+            // Check if we need multiline formatting
+            const total_width = func_name_part.len + params_part.len + return_part.len + 2; // +2 for parentheses
+            if (total_width > options.line_width and params_part.len > 0) {
+                // Use multiline format
+                try builder.append("(");
+                try builder.newline();
+                builder.indent();
+                
+                try formatParametersMultiline(params_part, builder, options);
+                
+                builder.dedent();
+                try builder.appendIndent();
+                try builder.append(")");
+            } else {
+                // Use single line format
+                try builder.append("(");
+                try formatParametersSingleLine(params_part, builder);
+                try builder.append(")");
+            }
+            
+            // Format return type
+            if (return_part.len > 0) {
+                try builder.append(" ");
+                try formatReturnType(return_part, builder);
+            }
+            
+            return;
+        }
+    }
+    
+    // Fallback - basic formatting without parameter parsing
+    try formatBasicSignature(signature, builder);
+}
+
+/// Format function name part with proper spacing
+fn formatFunctionNamePart(name_part: []const u8, builder: *LineBuilder) !void {
+    var i: usize = 0;
+    while (i < name_part.len) : (i += 1) {
+        const char = name_part[i];
+        if (char == ':') {
+            try builder.append(&[_]u8{char});
+            // Add space after : if not present
+            if (i + 1 < name_part.len and name_part[i + 1] != ' ') {
+                try builder.append(" ");
+            }
+        } else {
+            try builder.append(&[_]u8{char});
+        }
+    }
+}
+
+/// Format parameters in multiline style
+fn formatParametersMultiline(params: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
+    if (params.len == 0) return;
+    
+    var param_start: usize = 0;
+    var depth: i32 = 0;
+    var in_string: bool = false;
+    var string_char: u8 = 0;
+    
+    for (params, 0..) |char, i| {
+        // Track string boundaries
+        if (!in_string and (char == '\'' or char == '"')) {
+            in_string = true;
+            string_char = char;
+        } else if (in_string and char == string_char) {
+            in_string = false;
+        }
+        
+        if (!in_string) {
+            if (char == '<' or char == '(' or char == '[') {
+                depth += 1;
+            } else if (char == '>' or char == ')' or char == ']') {
+                depth -= 1;
+            } else if (char == ',' and depth == 0) {
+                // Found parameter boundary
+                const param = std.mem.trim(u8, params[param_start..i], " \t\n\r");
+                if (param.len > 0) {
+                    try builder.appendIndent();
+                    try formatSingleParameter(param, builder);
+                    try builder.append(",");
+                    try builder.newline();
+                }
+                param_start = i + 1;
+            }
+        }
+    }
+    
+    // Handle last parameter
+    const last_param = std.mem.trim(u8, params[param_start..], " \t\n\r");
+    if (last_param.len > 0) {
+        try builder.appendIndent();
+        try formatSingleParameter(last_param, builder);
+        if (options.trailing_comma) {
+            try builder.append(",");
+        }
+        try builder.newline();
+    }
+}
+
+/// Format parameters in single line style
+fn formatParametersSingleLine(params: []const u8, builder: *LineBuilder) !void {
+    if (params.len == 0) return;
+    
+    var param_start: usize = 0;
+    var depth: i32 = 0;
+    var in_string: bool = false;
+    var string_char: u8 = 0;
+    var first_param = true;
+    
+    for (params, 0..) |char, i| {
+        // Track string boundaries
+        if (!in_string and (char == '\'' or char == '"')) {
+            in_string = true;
+            string_char = char;
+        } else if (in_string and char == string_char) {
+            in_string = false;
+        }
+        
+        if (!in_string) {
+            if (char == '<' or char == '(' or char == '[') {
+                depth += 1;
+            } else if (char == '>' or char == ')' or char == ']') {
+                depth -= 1;
+            } else if (char == ',' and depth == 0) {
+                // Found parameter boundary
+                const param = std.mem.trim(u8, params[param_start..i], " \t\n\r");
+                if (param.len > 0) {
+                    if (!first_param) try builder.append(" ");
+                    try formatSingleParameter(param, builder);
+                    try builder.append(",");
+                    first_param = false;
+                }
+                param_start = i + 1;
+            }
+        }
+    }
+    
+    // Handle last parameter
+    const last_param = std.mem.trim(u8, params[param_start..], " \t\n\r");
+    if (last_param.len > 0) {
+        if (!first_param) try builder.append(" ");
+        try formatSingleParameter(last_param, builder);
+    }
+}
+
+/// Format a single parameter with proper type annotation spacing
+fn formatSingleParameter(param: []const u8, builder: *LineBuilder) !void {
+    // Look for the colon that separates param name from type
+    if (std.mem.indexOf(u8, param, ":")) |colon_pos| {
+        const param_name = std.mem.trim(u8, param[0..colon_pos], " \t");
+        const param_type = std.mem.trim(u8, param[colon_pos + 1..], " \t");
+        
+        try builder.append(param_name);
+        try builder.append(": ");
+        try builder.append(param_type);
+    } else {
+        // No type annotation, just format as-is
+        try builder.append(param);
+    }
+}
+
+/// Format return type with proper spacing
+fn formatReturnType(return_part: []const u8, builder: *LineBuilder) !void {
+    const trimmed = std.mem.trim(u8, return_part, " \t");
+    if (trimmed.len > 0) {
+        try builder.append(trimmed);
+    }
+}
+
+/// Fallback basic signature formatting
+fn formatBasicSignature(signature: []const u8, builder: *LineBuilder) !void {
     var i: usize = 0;
     while (i < signature.len) : (i += 1) {
         const char = signature[i];
@@ -415,36 +612,6 @@ fn formatFunctionSignature(signature: []const u8, builder: *LineBuilder) !void {
     }
 }
 
-/// Format the rest of the signature after keywords
-fn formatSignatureRest(rest: []const u8, builder: *LineBuilder) !void {
-    var i: usize = 0;
-    while (i < rest.len) : (i += 1) {
-        const char = rest[i];
-        if (char == '(') {
-            try builder.append(&[_]u8{char});
-        } else if (char == ')') {
-            try builder.append(&[_]u8{char});
-            // Add space after ) if followed by non-space (return type)
-            if (i + 1 < rest.len and rest[i + 1] != ' ' and rest[i + 1] != '{') {
-                try builder.append(" ");
-            }
-        } else if (char == ':') {
-            try builder.append(&[_]u8{char});
-            // Add space after : if not present
-            if (i + 1 < rest.len and rest[i + 1] != ' ') {
-                try builder.append(" ");
-            }
-        } else if (char == ',') {
-            try builder.append(&[_]u8{char});
-            // Add space after , if not present
-            if (i + 1 < rest.len and rest[i + 1] != ' ') {
-                try builder.append(" ");
-            }
-        } else {
-            try builder.append(&[_]u8{char});
-        }
-    }
-}
 
 /// Format function body with proper spacing and statement expansion
 fn formatFunctionBody(body: []const u8, builder: *LineBuilder) !void {
@@ -500,7 +667,6 @@ fn formatZigStatement(statement: []const u8, builder: *LineBuilder) !void {
 
 /// Format enum body from text when AST is not available
 fn formatEnumBodyFromText(enum_text: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
-    _ = options;
     
     // Find the content between { and }
     const start = std.mem.indexOf(u8, enum_text, "{") orelse return;
@@ -563,7 +729,7 @@ fn formatEnumBodyFromText(enum_text: []const u8, builder: *LineBuilder, options:
                                     // Found end of function
                                     const fn_text = body_text[fn_start..j + 1];
                                     try builder.appendIndent();
-                                    try formatFunctionWithSpacing(fn_text, builder);
+                                    try formatFunctionWithSpacing(fn_text, builder, options);
                                     try builder.newline();
                                     i = j;
                                     field_start = j + 1;
@@ -584,7 +750,7 @@ fn formatEnumBodyFromText(enum_text: []const u8, builder: *LineBuilder, options:
                 if (std.mem.indexOf(u8, remaining, "fn ") != null) {
                     try builder.newline();
                     try builder.appendIndent();
-                    try formatFunctionWithSpacing(remaining, builder);
+                    try formatFunctionWithSpacing(remaining, builder, options);
                     try builder.newline();
                 } else {
                     // Regular field
@@ -717,19 +883,19 @@ fn formatReturnWithStruct(statement: []const u8, builder: *LineBuilder) !void {
     
     // Find the struct literal part
     if (std.mem.indexOf(u8, statement, "{")) |brace_start| {
-        // Format "return StructName"
-        const return_part = std.mem.trim(u8, statement[0..brace_start], " \t");
-        try formatStatementWithSpacing(return_part, builder);
-        try builder.append("{");
-        try builder.newline();
-        
-        builder.indent();
-        
         // Extract and format struct fields
         const struct_end = std.mem.lastIndexOf(u8, statement, "}") orelse statement.len;
         const struct_content = std.mem.trim(u8, statement[brace_start + 1..struct_end], " \t\n\r");
         
+        // Format "return StructName"
+        const return_part = std.mem.trim(u8, statement[0..brace_start], " \t");
+        try formatStatementWithSpacing(return_part, builder);
+        
         if (struct_content.len > 0) {
+            // Non-empty struct - use multiline format
+            try builder.append("{");
+            try builder.newline();
+            builder.indent();
             // Split by comma and format each field
             var field_start: usize = 0;
             var j: usize = 0;
@@ -756,11 +922,14 @@ fn formatReturnWithStruct(statement: []const u8, builder: *LineBuilder) !void {
                     try builder.newline();
                 }
             }
+            
+            builder.dedent();
+            try builder.appendIndent();
+            try builder.append("}");
+        } else {
+            // Empty struct - use inline format
+            try builder.append("{}");
         }
-        
-        builder.dedent();
-        try builder.appendIndent();
-        try builder.append("}");
     } else {
         // No struct literal, just format normally
         try formatStatementWithSpacing(statement, builder);
@@ -1103,7 +1272,7 @@ fn formatEnumBody(container: ts.Node, source: []const u8, builder: *LineBuilder,
                 // Format methods inside enums  
                 if (std.mem.indexOf(u8, node_text, "fn ")) |_| {
                     try builder.appendIndent();
-                    try formatFunctionWithSpacing(node_text, builder);
+                    try formatFunctionWithSpacing(node_text, builder, options);
                     try builder.newline();
                 } else {
                     try formatZigNode(child, source, builder, depth, options);
@@ -1210,7 +1379,6 @@ fn formatFieldWithSpacing(field_text: []const u8, builder: *LineBuilder) !void {
 fn formatPubMethod(pub_node: ts.Node, decl_node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) !void {
     _ = pub_node;
     _ = depth;
-    _ = options;
     
     try builder.appendIndent();
     
@@ -1220,7 +1388,7 @@ fn formatPubMethod(pub_node: ts.Node, decl_node: ts.Node, source: []const u8, bu
     defer builder.allocator.free(combined_text);
     
     // Format the combined pub method
-    try formatFunctionWithSpacing(combined_text, builder);
+    try formatFunctionWithSpacing(combined_text, builder, options);
     try builder.newline();
 }
 

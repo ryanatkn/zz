@@ -67,8 +67,10 @@ fn formatSvelteScript(node: ts.Node, source: []const u8, builder: *LineBuilder, 
             const trimmed_content = std.mem.trim(u8, content, " \t\n\r");
 
             if (trimmed_content.len > 0) {
-                // Format JavaScript content
+                // Format JavaScript content with proper indentation
+                builder.indent();
                 try formatJavaScriptContent(trimmed_content, builder, options);
+                builder.dedent();
             }
         }
     }
@@ -93,7 +95,10 @@ fn formatSvelteStyle(node: ts.Node, source: []const u8, builder: *LineBuilder, d
             const trimmed_content = std.mem.trim(u8, content, " \t\n\r");
 
             if (trimmed_content.len > 0) {
+                // Format CSS content with proper indentation
+                builder.indent();
                 try formatCSSContent(trimmed_content, builder, options);
+                builder.dedent();
             }
         }
     }
@@ -131,7 +136,7 @@ fn formatCSSContent(css_content: []const u8, builder: *LineBuilder, options: For
                 const properties = std.mem.trim(u8, css_content[brace_start + 1 .. rule_end - 1], " \t\n\r");
                 
                 // Format the rule
-                try builder.append("    "); // 4-space indent
+                try builder.appendIndent();
                 try builder.append(selector);
                 try builder.append(" {");
                 try builder.newline();
@@ -140,7 +145,8 @@ fn formatCSSContent(css_content: []const u8, builder: *LineBuilder, options: For
                     try formatCSSProperties(properties, builder);
                 }
                 
-                try builder.append("    }"); // 4-space indent for closing brace
+                try builder.appendIndent();
+                try builder.append("}");
                 try builder.newline();
                 
                 // Add blank line between rules
@@ -168,7 +174,8 @@ fn formatCSSProperties(properties: []const u8, builder: *LineBuilder) !void {
     while (prop_iter.next()) |property| {
         const trimmed_prop = std.mem.trim(u8, property, " \t\n\r");
         if (trimmed_prop.len > 0) {
-            try builder.append("        "); // 8-space indent for properties
+            try builder.appendIndent();
+            try builder.appendIndent(); // Double indent for properties within rules
             
             // Format property with proper spacing around colon
             if (std.mem.indexOf(u8, trimmed_prop, ":")) |colon_pos| {
@@ -252,7 +259,7 @@ fn formatJavaScriptContent(js_content: []const u8, builder: *LineBuilder, option
     
     // Format each statement
     for (statements.items, 0..) |statement, i| {
-        try builder.append("    "); // 4-space indent
+        try builder.appendIndent();
         
         // Check if this is a reactive statement
         if (std.mem.startsWith(u8, statement, "$:")) {
@@ -271,13 +278,19 @@ fn formatJavaScriptContent(js_content: []const u8, builder: *LineBuilder, option
         // Add blank line only between different statement types (variable vs reactive vs function)
         if (i < statements.items.len - 1) {
             const current_is_function = std.mem.indexOf(u8, statement, "function ") != null;
-            const current_is_reactive = std.mem.startsWith(u8, statement, "$:");
+            const current_is_declaration = std.mem.startsWith(u8, statement, "let ") or 
+                                           std.mem.startsWith(u8, statement, "const ") or
+                                           std.mem.startsWith(u8, statement, "var ") or
+                                           std.mem.startsWith(u8, statement, "export let");
+            
             const next = statements.items[i + 1];
             const next_is_function = std.mem.indexOf(u8, next, "function ") != null;
             const next_is_reactive = std.mem.startsWith(u8, next, "$:");
             
-            // Add blank line when transitioning from regular to reactive statements
-            if (!current_is_reactive and next_is_reactive) {
+            // Add blank line when transitioning from variable declarations to reactive statements
+            if (current_is_declaration and next_is_reactive) {
+                try builder.newline();
+                try builder.appendIndent();
                 try builder.newline();
             }
             // Or between function and non-function
@@ -407,14 +420,14 @@ fn formatJavaScriptFunction(statement: []const u8, builder: *LineBuilder, option
             if (body_content.len > 0) {
                 builder.indent();
                 try builder.appendIndent();
-                try builder.append("    "); // Add additional 4 spaces for function body
                 try formatJavaScriptBasic(body_content, builder, options);
                 try builder.newline();
                 builder.dedent();
             }
         }
         
-        try builder.append("    }"); // Use fixed 4-space indentation for function closing brace
+        try builder.appendIndent();
+        try builder.append("}");
     } else {
         // No body, just format as basic statement
         try formatJavaScriptBasic(statement, builder, options);

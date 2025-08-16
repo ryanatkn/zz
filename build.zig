@@ -378,8 +378,8 @@ fn addTestSteps(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.b
 
     // Run tests with filtering feedback
     if (test_filter) |filter| {
-        // Show what filter is being applied
-        const filter_info_cmd = b.addSystemCommand(&.{ "echo", b.fmt("Filter: '{s}' (no output = no matches)", .{filter}) });
+        // Show filter being applied
+        const filter_info_cmd = b.addSystemCommand(&.{ "echo", b.fmt("Filter: '{s}' (no output = no matches, exits 0 for now)", .{filter}) });
         test_step.dependOn(&filter_info_cmd.step);
         
         const run_test = b.addRunArtifact(test_all);

@@ -216,6 +216,8 @@ $ zig build test 2>&1 | rg "pattern"                  # Alternative: pipe output
 - **Success is mostly silent**: Passing tests produce minimal output (Zig convention)
 - **Use --verbose**: See which tests are being run and verify filters work
 - **Test summary**: Shows at the end when tests actually run (e.g., "328/332 passed")
+- **Current behavior**: No matches exit with status 0 (success)
+- **Future enhancement**: Will error on no matches to catch typos and improve CI safety
 
 ### Common Test Filters
 ```bash

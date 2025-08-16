@@ -124,9 +124,9 @@ test "ZON parsing with simple dependency structure" {
         \\        .@"tree-sitter" = .{
         \\            .url = "https://github.com/tree-sitter/tree-sitter.git",
         \\            .version = "v0.25.0",
-        \\            .remove_files = &.{ "build.zig" },
-        \\            .preserve_files = &.{},
-        \\            .patches = &.{},
+        \\            .remove_files = .{ "build.zig" },
+        \\            .preserve_files = .{},
+        \\            .patches = .{},
         \\        },
         \\    },
         \\}
@@ -137,13 +137,13 @@ test "ZON parsing with simple dependency structure" {
     // Try parsing with a minimal structure first
     const MinimalConfig = struct {
         dependencies: struct {
-            @"tree-sitter": ?struct {
+            @"tree-sitter": struct {
                 url: []const u8,
                 version: []const u8,
-                remove_files: []const []const u8 = &.{},
-                preserve_files: []const []const u8 = &.{},
-                patches: []const []const u8 = &.{},
-            } = null,
+                remove_files: []const []const u8,
+                preserve_files: []const []const u8,
+                patches: []const []const u8,
+            },
         },
     };
     
@@ -151,11 +151,8 @@ test "ZON parsing with simple dependency structure" {
     defer ZonParser.free(allocator, parsed);
     
     // Verify parsing succeeded
-    try testing.expect(parsed.dependencies.@"tree-sitter" != null);
-    if (parsed.dependencies.@"tree-sitter") |dep| {
-        try testing.expectEqualStrings("https://github.com/tree-sitter/tree-sitter.git", dep.url);
-        try testing.expectEqualStrings("v0.25.0", dep.version);
-    }
+    try testing.expectEqualStrings("https://github.com/tree-sitter/tree-sitter.git", parsed.dependencies.@"tree-sitter".url);
+    try testing.expectEqualStrings("v0.25.0", parsed.dependencies.@"tree-sitter".version);
 }
 
 test "ZON parsing debugging - understand structure" {

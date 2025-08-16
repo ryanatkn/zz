@@ -203,28 +203,109 @@ pub const UpdateOptions = struct {
     retries: u32 = 3,
 };
 
-/// ZON configuration structure - use generic approach for dynamic dependencies
+/// ZON configuration structure - direct mapping to deps.zon format
 pub const DepsZonConfig = struct {
-    // Parse as generic structure to handle dynamic field names
     dependencies: std.StringHashMap(DependencyZonEntry),
     settings: ?SettingsStruct = null,
 
-    /// Parse dependencies from ZON content manually
+    /// Parse dependencies from ZON content using explicit structure definition
     pub fn parseFromZonContent(allocator: std.mem.Allocator, content: []const u8) !DepsZonConfig {
-        _ = content; // TODO: Implement proper dynamic ZON parsing when Zig supports it better
-        // For now, return empty config - will be parsed from hardcoded data
+        const ZonCore = @import("../core/zon.zig").ZonCore;
+        
+        // Define the exact structure that matches deps.zon
+        const RawDepsZon = struct {
+            dependencies: struct {
+                @"tree-sitter": DependencyZonEntry,
+                @"zig-tree-sitter": DependencyZonEntry,
+                @"tree-sitter-zig": DependencyZonEntry,
+                @"zig-spec": DependencyZonEntry,
+                @"tree-sitter-svelte": DependencyZonEntry,
+                @"tree-sitter-css": DependencyZonEntry,
+                @"tree-sitter-typescript": DependencyZonEntry,
+                @"tree-sitter-json": DependencyZonEntry,
+                @"tree-sitter-html": DependencyZonEntry,
+            },
+            settings: SettingsStruct,
+        };
+        
+        // Parse the ZON content
+        const parsed = ZonCore.parseFromSlice(RawDepsZon, allocator, content) catch {
+            // Fallback to hardcoded on parse error
+            return createHardcoded(allocator);
+        };
+        
+        // Convert to HashMap structure - need to duplicate all strings since we'll free parsed data
+        var dependencies = std.StringHashMap(DependencyZonEntry).init(allocator);
+        
+        // Helper function to duplicate dependency entry with all strings
+        const duplicateDepEntry = struct {
+            fn dupe(alloc: std.mem.Allocator, source: DependencyZonEntry) !DependencyZonEntry {
+                var remove_files = std.ArrayList([]const u8).init(alloc);
+                defer remove_files.deinit();
+                for (source.remove_files) |file| {
+                    try remove_files.append(try alloc.dupe(u8, file));
+                }
+                
+                var preserve_files = std.ArrayList([]const u8).init(alloc);
+                defer preserve_files.deinit();
+                for (source.preserve_files) |file| {
+                    try preserve_files.append(try alloc.dupe(u8, file));
+                }
+                
+                var patches = std.ArrayList([]const u8).init(alloc);
+                defer patches.deinit();
+                for (source.patches) |patch| {
+                    try patches.append(try alloc.dupe(u8, patch));
+                }
+                
+                return DependencyZonEntry{
+                    .url = try alloc.dupe(u8, source.url),
+                    .version = try alloc.dupe(u8, source.version),
+                    .remove_files = try remove_files.toOwnedSlice(),
+                    .preserve_files = try preserve_files.toOwnedSlice(),
+                    .patches = try patches.toOwnedSlice(),
+                };
+            }
+        }.dupe;
+        
+        // Add all dependencies to the HashMap with duplicated strings
+        try dependencies.put(try allocator.dupe(u8, "tree-sitter"), try duplicateDepEntry(allocator, parsed.dependencies.@"tree-sitter"));
+        try dependencies.put(try allocator.dupe(u8, "zig-tree-sitter"), try duplicateDepEntry(allocator, parsed.dependencies.@"zig-tree-sitter"));
+        try dependencies.put(try allocator.dupe(u8, "tree-sitter-zig"), try duplicateDepEntry(allocator, parsed.dependencies.@"tree-sitter-zig"));
+        try dependencies.put(try allocator.dupe(u8, "zig-spec"), try duplicateDepEntry(allocator, parsed.dependencies.@"zig-spec"));
+        try dependencies.put(try allocator.dupe(u8, "tree-sitter-svelte"), try duplicateDepEntry(allocator, parsed.dependencies.@"tree-sitter-svelte"));
+        try dependencies.put(try allocator.dupe(u8, "tree-sitter-css"), try duplicateDepEntry(allocator, parsed.dependencies.@"tree-sitter-css"));
+        try dependencies.put(try allocator.dupe(u8, "tree-sitter-typescript"), try duplicateDepEntry(allocator, parsed.dependencies.@"tree-sitter-typescript"));
+        try dependencies.put(try allocator.dupe(u8, "tree-sitter-json"), try duplicateDepEntry(allocator, parsed.dependencies.@"tree-sitter-json"));
+        try dependencies.put(try allocator.dupe(u8, "tree-sitter-html"), try duplicateDepEntry(allocator, parsed.dependencies.@"tree-sitter-html"));
+        
+        // Duplicate settings 
+        var settings: ?SettingsStruct = null;
+        if (parsed.settings.deps_dir) |dir| {
+            settings = SettingsStruct{
+                .deps_dir = try allocator.dupe(u8, dir),
+                .backup_enabled = parsed.settings.backup_enabled,
+                .lock_timeout_seconds = parsed.settings.lock_timeout_seconds,
+                .clone_retries = parsed.settings.clone_retries,
+                .clone_timeout_seconds = parsed.settings.clone_timeout_seconds,
+            };
+        }
+        
+        // Free the parsed data now that we've copied everything
+        ZonCore.free(allocator, parsed);
+        
         return DepsZonConfig{
-            .dependencies = std.StringHashMap(DependencyZonEntry).init(allocator),
-            .settings = null,
+            .dependencies = dependencies,
+            .settings = settings,
         };
     }
 
     pub const DependencyZonEntry = struct {
         url: []const u8,
         version: []const u8,
-        remove_files: []const []const u8 = &.{},
-        preserve_files: []const []const u8 = &.{},
-        patches: []const []const u8 = &.{},
+        remove_files: []const []const u8,
+        preserve_files: []const []const u8,
+        patches: []const []const u8,
     };
 
     pub const SettingsStruct = struct {

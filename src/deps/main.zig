@@ -4,6 +4,7 @@ const config = @import("../lib/deps/config.zig");
 const zon_parser = @import("../lib/parsing/zon_parser.zig");
 const FilesystemInterface = @import("../lib/core/filesystem.zig").FilesystemInterface;
 const Args = @import("../lib/args.zig").Args;
+const io = @import("../lib/core/io.zig");
 
 /// CLI entry point for dependency management
 pub fn run(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: [][:0]const u8) !void {
@@ -115,9 +116,26 @@ pub fn run(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: 
 
 /// Load dependency configuration from deps.zon
 fn loadDepsConfig(allocator: std.mem.Allocator) !config.DepsConfig {
-    // For now, always use hardcoded config with all 9 dependencies
-    // TODO: Implement proper dynamic ZON parsing when Zig supports it better
-    var zon_config = try config.DepsZonConfig.createHardcoded(allocator);
+    // Read deps.zon file
+    const content = io.readFile(allocator, "deps.zon") catch |err| switch (err) {
+        error.FileNotFound => {
+            // File not found - use hardcoded config as fallback
+            var zon_config = try config.DepsZonConfig.createHardcoded(allocator);
+            defer zon_config.deinit();
+            return zon_config.toDepsConfig(allocator);
+        },
+        else => return err,
+    };
+    defer allocator.free(content);
+    
+    // Parse ZON content
+    var zon_config = config.DepsZonConfig.parseFromZonContent(allocator, content) catch |err| {
+        // Parse error - use hardcoded config as fallback
+        std.log.warn("Failed to parse deps.zon, using hardcoded config: {}", .{err});
+        var fallback_config = try config.DepsZonConfig.createHardcoded(allocator);
+        defer fallback_config.deinit();
+        return fallback_config.toDepsConfig(allocator);
+    };
     defer zon_config.deinit();
     
     return zon_config.toDepsConfig(allocator);

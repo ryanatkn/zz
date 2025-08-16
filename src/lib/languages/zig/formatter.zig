@@ -170,6 +170,72 @@ fn formatStructDeclaration(struct_text: []const u8, builder: *LineBuilder) !void
     }
 }
 
+fn formatEnumDeclaration(enum_text: []const u8, builder: *LineBuilder) !void {
+    const trimmed = std.mem.trim(u8, enum_text, " \t\n\r");
+    
+    // Find "=enum" or "enum" to separate declaration from body
+    if (std.mem.indexOf(u8, trimmed, "=enum")) |enum_pos| {
+        const declaration = std.mem.trim(u8, trimmed[0..enum_pos], " \t");
+        // Add proper spacing around keywords and identifiers
+        try formatZigDeclaration(declaration, builder);
+    } else if (std.mem.indexOf(u8, trimmed, "enum")) |enum_pos| {
+        const declaration = std.mem.trim(u8, trimmed[0..enum_pos], " \t");
+        if (declaration.len > 0) {
+            try formatZigDeclaration(declaration, builder);
+        }
+    } else {
+        // Fallback: just append the text
+        try builder.append(trimmed);
+    }
+}
+
+fn formatUnionDeclaration(union_text: []const u8, builder: *LineBuilder) !void {
+    const trimmed = std.mem.trim(u8, union_text, " \t\n\r");
+    
+    // Find the union keyword - could be =union or just union
+    // Need to handle union(enum) specially
+    if (std.mem.indexOf(u8, trimmed, "=union(")) |union_pos| {
+        // Tagged union case: const Value=union(enum){...
+        const declaration = std.mem.trim(u8, trimmed[0..union_pos], " \t");
+        try formatZigDeclaration(declaration, builder);
+        // Add the union part with proper spacing
+        try builder.append(" = union(enum)");
+    } else if (std.mem.indexOf(u8, trimmed, "=union")) |union_pos| {
+        // Regular union: const Value=union{...
+        const declaration = std.mem.trim(u8, trimmed[0..union_pos], " \t");
+        try formatZigDeclaration(declaration, builder);
+        // Add the union part with proper spacing
+        try builder.append(" = union");
+    } else if (std.mem.indexOf(u8, trimmed, " union(")) |union_pos| {
+        // Space before union(
+        const declaration = std.mem.trim(u8, trimmed[0..union_pos], " \t");
+        if (declaration.len > 0) {
+            try formatZigDeclaration(declaration, builder);
+        }
+        try builder.append(" union(enum)");
+    } else if (std.mem.indexOf(u8, trimmed, " union")) |union_pos| {
+        // Space before union
+        const declaration = std.mem.trim(u8, trimmed[0..union_pos], " \t");
+        if (declaration.len > 0) {
+            try formatZigDeclaration(declaration, builder);
+        }
+        try builder.append(" union");
+    } else {
+        // Fallback: just output const Name if we can extract it
+        if (std.mem.indexOf(u8, trimmed, "const ")) |_| {
+            // Extract the name between const and = or {
+            if (std.mem.indexOf(u8, trimmed, "=")) |eq_pos| {
+                const decl = std.mem.trim(u8, trimmed[0..eq_pos], " \t");
+                try formatZigDeclaration(decl, builder);
+            } else {
+                try builder.append(trimmed);
+            }
+        } else {
+            try builder.append(trimmed);
+        }
+    }
+}
+
 /// Format Zig declaration with spacing around keywords
 fn formatZigDeclaration(declaration: []const u8, builder: *LineBuilder) !void {
     var i: usize = 0;
@@ -432,8 +498,223 @@ fn formatZigStatement(statement: []const u8, builder: *LineBuilder) !void {
     }
 }
 
+/// Format enum body from text when AST is not available
+fn formatEnumBodyFromText(enum_text: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
+    _ = options;
+    
+    // Find the content between { and }
+    const start = std.mem.indexOf(u8, enum_text, "{") orelse return;
+    const end = std.mem.lastIndexOf(u8, enum_text, "}") orelse return;
+    
+    if (end <= start + 1) return;
+    
+    const body_text = enum_text[start + 1 .. end];
+    
+    // Check if there's a function inside (pub fn)
+    if (std.mem.indexOf(u8, body_text, "pub fn") != null or std.mem.indexOf(u8, body_text, "fn ") != null) {
+        // Parse enum fields and methods
+        var i: usize = 0;
+        var field_start: usize = 0;
+        var depth: u32 = 0;
+        
+        while (i < body_text.len) : (i += 1) {
+            const char = body_text[i];
+            
+            if (char == '{') {
+                depth += 1;
+            } else if (char == '}') {
+                if (depth > 0) depth -= 1;
+            } else if (char == ',' and depth == 0) {
+                // Found field separator at top level
+                const field = std.mem.trim(u8, body_text[field_start..i], " \t\n\r");
+                if (field.len > 0) {
+                    try builder.appendIndent();
+                    try builder.append(field);
+                    try builder.append(",");
+                    try builder.newline();
+                }
+                field_start = i + 1;
+            } else if (depth == 0) {
+                // Check for function start
+                if (body_text.len > i + 6 and std.mem.eql(u8, body_text[i..i + 6], "pub fn")) {
+                    // Process any remaining field before the function
+                    const field = std.mem.trim(u8, body_text[field_start..i], " \t\n\r,");
+                    if (field.len > 0) {
+                        try builder.appendIndent();
+                        try builder.append(field);
+                        try builder.append(",");
+                        try builder.newline();
+                    }
+                    
+                    // Add blank line before method
+                    try builder.newline();
+                    
+                    // Find the end of the function
+                    var fn_depth: u32 = 0;
+                    const fn_start = i;
+                    var j = i;
+                    while (j < body_text.len) : (j += 1) {
+                        if (body_text[j] == '{') {
+                            fn_depth += 1;
+                        } else if (body_text[j] == '}') {
+                            if (fn_depth > 0) {
+                                fn_depth -= 1;
+                                if (fn_depth == 0) {
+                                    // Found end of function
+                                    const fn_text = body_text[fn_start..j + 1];
+                                    try builder.appendIndent();
+                                    try formatFunctionWithSpacing(fn_text, builder);
+                                    try builder.newline();
+                                    i = j;
+                                    field_start = j + 1;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Process any remaining content
+        if (field_start < body_text.len) {
+            const remaining = std.mem.trim(u8, body_text[field_start..], " \t\n\r,;");
+            if (remaining.len > 0) {
+                // Check if it's a function
+                if (std.mem.indexOf(u8, remaining, "fn ") != null) {
+                    try builder.newline();
+                    try builder.appendIndent();
+                    try formatFunctionWithSpacing(remaining, builder);
+                    try builder.newline();
+                } else {
+                    // Regular field
+                    try builder.appendIndent();
+                    try builder.append(remaining);
+                    try builder.append(",");
+                    try builder.newline();
+                }
+            }
+        }
+    } else {
+        // Simple enum with just fields
+        var iter = std.mem.tokenizeScalar(u8, body_text, ',');
+        while (iter.next()) |field| {
+            const trimmed = std.mem.trim(u8, field, " \t\n\r");
+            if (trimmed.len > 0) {
+                try builder.appendIndent();
+                try builder.append(trimmed);
+                try builder.append(",");
+                try builder.newline();
+            }
+        }
+    }
+}
+
+/// Format union body from text when AST is not available
+fn formatUnionBodyFromText(union_text: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
+    _ = options;
+    
+    // Find the content between { and }
+    const start = std.mem.indexOf(u8, union_text, "{") orelse return;
+    const end = std.mem.lastIndexOf(u8, union_text, "}") orelse return;
+    
+    if (end <= start + 1) return;
+    
+    const body_text = union_text[start + 1 .. end];
+    
+    // Parse union fields
+    var iter = std.mem.tokenizeScalar(u8, body_text, ',');
+    while (iter.next()) |field| {
+        const trimmed = std.mem.trim(u8, field, " \t\n\r");
+        if (trimmed.len > 0) {
+            try builder.appendIndent();
+            // Add spacing around : for union fields  
+            if (std.mem.indexOf(u8, trimmed, ":")) |colon_pos| {
+                const field_name = std.mem.trim(u8, trimmed[0..colon_pos], " \t");
+                const field_type = std.mem.trim(u8, trimmed[colon_pos + 1..], " \t");
+                try builder.append(field_name);
+                try builder.append(": ");
+                try builder.append(field_type);
+            } else {
+                try builder.append(trimmed);
+            }
+            try builder.append(",");
+            try builder.newline();
+        }
+    }
+}
+
+/// Format struct body from text when AST is not available
+fn formatStructBodyFromText(struct_text: []const u8, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) !void {
+    _ = source;
+    _ = depth;
+    _ = options;
+    
+    // Find the content between { and }
+    const start = std.mem.indexOf(u8, struct_text, "{") orelse return;
+    const end = std.mem.lastIndexOf(u8, struct_text, "}") orelse return;
+    
+    if (end <= start + 1) return;
+    
+    const body_text = struct_text[start + 1 .. end];
+    
+    // Simple field parsing for structs
+    var lines = std.mem.tokenizeScalar(u8, body_text, '\n');
+    while (lines.next()) |line| {
+        const trimmed = std.mem.trim(u8, line, " \t\r");
+        if (trimmed.len > 0) {
+            try builder.appendIndent();
+            try formatStatementWithSpacing(trimmed, builder);
+            try builder.newline();
+        }
+    }
+}
+
 /// Format return statement with struct literal expansion
 fn formatReturnWithStruct(statement: []const u8, builder: *LineBuilder) !void {
+    // Check if this is a switch expression
+    if (std.mem.indexOf(u8, statement, "switch")) |_| {
+        // This is a return with switch expression
+        // Format the "return switch (...)" part
+        if (std.mem.indexOf(u8, statement, "{")) |brace_pos| {
+            var return_part = std.ArrayList(u8).init(builder.allocator);
+            defer return_part.deinit();
+            try return_part.appendSlice(statement[0..brace_pos]);
+            
+            // Apply spacing fixes to the return part
+            const fixed_return = try formatSwitchExpression(return_part.items, builder.allocator);
+            defer builder.allocator.free(fixed_return);
+            try builder.append(fixed_return);
+            try builder.append(" {");
+            try builder.newline();
+            
+            // Format switch cases
+            builder.indent();
+            const body_end = std.mem.lastIndexOf(u8, statement, "}") orelse statement.len;
+            const cases = statement[brace_pos + 1 .. body_end];
+            
+            // Split by comma to get each case
+            var case_iter = std.mem.tokenizeScalar(u8, cases, ',');
+            while (case_iter.next()) |case| {
+                const trimmed_case = std.mem.trim(u8, case, " \t\n\r");
+                if (trimmed_case.len > 0) {
+                    try builder.appendIndent();
+                    try formatStatementWithSpacing(trimmed_case, builder);
+                    try builder.append(",");
+                    try builder.newline();
+                }
+            }
+            
+            builder.dedent();
+            try builder.appendIndent();
+            try builder.append("}");
+            return;
+        }
+        // Fallback
+        try formatStatementWithSpacing(statement, builder);
+        return;
+    }
+    
     // Find the struct literal part
     if (std.mem.indexOf(u8, statement, "{")) |brace_start| {
         // Format "return StructName"
@@ -486,47 +767,126 @@ fn formatReturnWithStruct(statement: []const u8, builder: *LineBuilder) !void {
     }
 }
 
+/// Format switch expression header with proper spacing
+fn formatSwitchExpression(expr: []const u8, allocator: std.mem.Allocator) ![]const u8 {
+    var result = std.ArrayList(u8).init(allocator);
+    defer result.deinit();
+    
+    // Fix "switch(" to "switch ("
+    if (std.mem.indexOf(u8, expr, "switch(")) |pos| {
+        try result.appendSlice(expr[0..pos]);
+        try result.appendSlice("switch (");
+        try result.appendSlice(expr[pos + 7..]);
+    } else {
+        try result.appendSlice(expr);
+    }
+    
+    // Fix ")  " to ") " if there are multiple spaces
+    var final_result = std.ArrayList(u8).init(allocator);
+    var i: usize = 0;
+    var prev_was_space = false;
+    while (i < result.items.len) : (i += 1) {
+        const char = result.items[i];
+        if (char == ' ') {
+            if (!prev_was_space) {
+                try final_result.append(char);
+            }
+            prev_was_space = true;
+        } else {
+            try final_result.append(char);
+            prev_was_space = false;
+        }
+    }
+    
+    return final_result.toOwnedSlice();
+}
+
 /// Format statement with proper spacing around operators
 fn formatStatementWithSpacing(statement: []const u8, builder: *LineBuilder) !void {
     var i: usize = 0;
-    while (i < statement.len) : (i += 1) {
-        const char = statement[i];
+    
+    // Check if statement contains "switch(" and replace with "switch ("
+    const fixed_statement = if (std.mem.indexOf(u8, statement, "switch(")) |pos| blk: {
+        var fixed = std.ArrayList(u8).init(builder.allocator);
+        defer fixed.deinit();
+        try fixed.appendSlice(statement[0..pos + 6]); // up to and including "switch"
+        try fixed.append(' ');
+        try fixed.appendSlice(statement[pos + 6..]); // from "(" onwards
+        break :blk try builder.allocator.dupe(u8, fixed.items);
+    } else statement;
+    defer if (fixed_statement.ptr != statement.ptr) builder.allocator.free(fixed_statement);
+    
+    // Check if statement contains "){"
+    const spaced_statement = if (std.mem.indexOf(u8, fixed_statement, "){")) |pos| blk: {
+        var spaced = std.ArrayList(u8).init(builder.allocator);
+        defer spaced.deinit();
+        try spaced.appendSlice(fixed_statement[0..pos + 1]); // up to and including ")"
+        try spaced.append(' ');
+        try spaced.appendSlice(fixed_statement[pos + 1..]); // from "{" onwards
+        break :blk try builder.allocator.dupe(u8, spaced.items);
+    } else fixed_statement;
+    defer if (spaced_statement.ptr != fixed_statement.ptr and spaced_statement.ptr != statement.ptr) 
+        builder.allocator.free(spaced_statement);
+    
+    while (i < spaced_statement.len) : (i += 1) {
+        const char = spaced_statement[i];
         
         if (char == '=') {
-            // Add spaces around = but not for == (equality)
-            if (i + 1 < statement.len and statement[i + 1] == '=') {
-                // This is == (equality), don't add spaces individually
+            // Check for => (arrow) operator
+            if (i + 1 < spaced_statement.len and spaced_statement[i + 1] == '>') {
+                // This is => (arrow), add spaces around it
+                if (i > 0 and spaced_statement[i-1] != ' ') {
+                    try builder.append(" ");
+                }
+                try builder.append("=>");
+                if (i + 2 < spaced_statement.len and spaced_statement[i + 2] != ' ') {
+                    try builder.append(" ");
+                }
+                i += 1; // Skip the next >
+            } else if (i + 1 < spaced_statement.len and spaced_statement[i + 1] == '=') {
+                // This is == (equality), add spaces around it
+                if (i > 0 and spaced_statement[i-1] != ' ') {
+                    try builder.append(" ");
+                }
                 try builder.append("==");
+                if (i + 2 < spaced_statement.len and spaced_statement[i + 2] != ' ') {
+                    try builder.append(" ");
+                }
                 i += 1; // Skip the next =
             } else {
                 // Single = (assignment), add spaces
-                if (i > 0 and statement[i-1] != ' ') {
+                if (i > 0 and spaced_statement[i-1] != ' ') {
                     try builder.append(" ");
                 }
                 try builder.append(&[_]u8{char});
-                if (i + 1 < statement.len and statement[i + 1] != ' ') {
+                if (i + 1 < spaced_statement.len and spaced_statement[i + 1] != ' ') {
                     try builder.append(" ");
                 }
             }
         } else if (char == '+' or char == '-' or char == '*') {
             // Add spaces around arithmetic operators
-            if (i > 0 and statement[i-1] != ' ') {
+            if (i > 0 and spaced_statement[i-1] != ' ') {
                 try builder.append(" ");
             }
             try builder.append(&[_]u8{char});
-            if (i + 1 < statement.len and statement[i + 1] != ' ') {
+            if (i + 1 < spaced_statement.len and spaced_statement[i + 1] != ' ') {
                 try builder.append(" ");
             }
         } else if (char == '@') {
-            // Add space before @ functions
-            if (i > 0 and statement[i-1] != ' ') {
+            // @ functions like @import - don't add space before if it's = @
+            if (i > 0 and spaced_statement[i-1] == '=') {
+                // This is after =, the space is already added by = handling
+                try builder.append(&[_]u8{char});
+            } else if (i > 0 and spaced_statement[i-1] != ' ') {
                 try builder.append(" ");
+                try builder.append(&[_]u8{char});
+            } else {
+                try builder.append(&[_]u8{char});
             }
-            try builder.append(&[_]u8{char});
         } else if (char == ',') {
             // Add space after comma if not present
             try builder.append(&[_]u8{char});
-            if (i + 1 < statement.len and statement[i + 1] != ' ') {
+            if (i + 1 < spaced_statement.len and spaced_statement[i + 1] != ' ') {
                 try builder.append(" ");
             }
         } else {
@@ -562,7 +922,11 @@ fn formatTestWithSpacing(test_text: []const u8, builder: *LineBuilder) !void {
             const body_content = std.mem.trim(u8, test_text[brace_pos + 1..body_end], " \t\n\r");
             
             if (body_content.len > 0) {
+                builder.indent();
+                try builder.appendIndent();
                 try formatFunctionBody(body_content, builder);
+                try builder.newline();
+                builder.dedent();
             }
             
             try builder.append("}");
@@ -598,11 +962,26 @@ fn formatWithBasicSpacing(text: []const u8, builder: *LineBuilder) !void {
 fn formatZigStruct(node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) std.mem.Allocator.Error!void {
     try builder.appendIndent();
 
-    // Parse and format the complete struct declaration
+    // Parse and format the complete struct/enum/union declaration
     const struct_text = getNodeText(node, source);
-    try formatStructDeclaration(struct_text, builder);
+    
+    // Determine the type (struct, enum, or union)
+    // Check union first since union(enum) would match both
+    const is_union = std.mem.indexOf(u8, struct_text, "union") != null;
+    const is_enum = !is_union and std.mem.indexOf(u8, struct_text, "enum") != null;
+    
+    if (is_union) {
+        try formatUnionDeclaration(struct_text, builder);
+        // formatUnionDeclaration now handles the complete declaration including " = union(enum)"
+        try builder.append(" {");
+    } else if (is_enum) {
+        try formatEnumDeclaration(struct_text, builder);
+        try builder.append(" = enum {");
+    } else {
+        try formatStructDeclaration(struct_text, builder);
+        try builder.append(" = struct {");
+    }
 
-    try builder.append(" = struct {");
     try builder.newline();
 
     // Navigate to the actual struct body (ContainerDecl)
@@ -610,7 +989,24 @@ fn formatZigStruct(node: ts.Node, source: []const u8, builder: *LineBuilder, dep
     if (container_decl) |container| {
         // Format struct body
         builder.indent();
-        try formatStructBody(container, source, builder, depth + 1, options);
+        if (is_enum) {
+            try formatEnumBody(container, source, builder, depth + 1, options);
+        } else if (is_union) {
+            try formatUnionBody(container, source, builder, depth + 1, options);
+        } else {
+            try formatStructBody(container, source, builder, depth + 1, options);
+        }
+        builder.dedent();
+    } else {
+        // Fallback: Try to parse the text directly when AST structure is not available
+        builder.indent();
+        if (is_enum) {
+            try formatEnumBodyFromText(struct_text, builder, options);
+        } else if (is_union) {
+            try formatUnionBodyFromText(struct_text, builder, options);
+        } else {
+            try formatStructBodyFromText(struct_text, source, builder, depth + 1, options);
+        }
         builder.dedent();
     }
 
@@ -662,6 +1058,82 @@ fn findContainerDecl(node: ts.Node) ?ts.Node {
 }
 
 /// Format the contents of a struct body (ContainerDecl children)
+fn formatEnumBody(container: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) !void {
+    const child_count = container.childCount();
+    var i: u32 = 0;
+    var prev_was_field = false;
+    
+    while (i < child_count) : (i += 1) {
+        if (container.child(i)) |child| {
+            const child_type = child.kind();
+            const child_text = getNodeText(child, source);
+            
+            if (std.mem.eql(u8, child_type, "ContainerField") or std.mem.eql(u8, child_type, "IDENTIFIER")) {
+                // Format enum field
+                const trimmed = std.mem.trim(u8, child_text, " \t\n\r,");
+                if (trimmed.len > 0) {
+                    try builder.appendIndent();
+                    try builder.append(trimmed);
+                    try builder.append(",");
+                    try builder.newline();
+                    prev_was_field = true;
+                }
+            } else if (std.mem.eql(u8, child_type, "pub")) {
+                // Handle pub + following declaration (method in enum)
+                if (i + 1 < child_count) {
+                    if (container.child(i + 1)) |next_child| {
+                        if (std.mem.eql(u8, next_child.kind(), "Decl")) {
+                            // Add blank line before methods
+                            if (prev_was_field) {
+                                try builder.newline();
+                            }
+                            
+                            try formatPubMethod(child, next_child, source, builder, depth, options);
+                            prev_was_field = false;
+                            i += 1; // Skip the next node since we processed it
+                        }
+                    }
+                }
+            } else if (std.mem.eql(u8, child_type, "Decl") or std.mem.eql(u8, child_type, "FnProto")) {
+                // Non-pub method or function in enum
+                if (prev_was_field) {
+                    try builder.newline();
+                }
+                const node_text = getNodeText(child, source);
+                // Format methods inside enums  
+                if (std.mem.indexOf(u8, node_text, "fn ")) |_| {
+                    try builder.appendIndent();
+                    try formatFunctionWithSpacing(node_text, builder);
+                    try builder.newline();
+                } else {
+                    try formatZigNode(child, source, builder, depth, options);
+                }
+                prev_was_field = false;
+            }
+            // Skip other tokens like '{', '}', ',', 'enum'
+        }
+    }
+}
+
+fn formatUnionBody(container: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) !void {
+    const child_count = container.childCount();
+    var i: u32 = 0;
+    
+    while (i < child_count) : (i += 1) {
+        if (container.child(i)) |child| {
+            const child_type = child.kind();
+            
+            if (std.mem.eql(u8, child_type, "ContainerField")) {
+                // Format union field
+                try formatUnionField(child, source, builder);
+            }
+            // Skip other tokens
+        }
+    }
+    _ = depth;
+    _ = options;
+}
+
 fn formatStructBody(container: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) !void {
     const child_count = container.childCount();
     var i: u32 = 0;
@@ -704,6 +1176,15 @@ fn formatStructBody(container: ts.Node, source: []const u8, builder: *LineBuilde
 
 /// Format a struct field (ContainerField)
 fn formatStructField(node: ts.Node, source: []const u8, builder: *LineBuilder) !void {
+    try builder.appendIndent();
+    const field_text = getNodeText(node, source);
+    // Format field with proper spacing around colon
+    try formatFieldWithSpacing(field_text, builder);
+    try builder.append(",");
+    try builder.newline();
+}
+
+fn formatUnionField(node: ts.Node, source: []const u8, builder: *LineBuilder) !void {
     try builder.appendIndent();
     const field_text = getNodeText(node, source);
     // Format field with proper spacing around colon

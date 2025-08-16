@@ -74,6 +74,8 @@ fn formatSvelteScript(node: ts.Node, source: []const u8, builder: *LineBuilder, 
     }
 
     try builder.append("</script>");
+    try builder.newline();
+    try builder.newline();
 }
 
 /// Format Svelte style section
@@ -270,13 +272,16 @@ fn formatJavaScriptContent(js_content: []const u8, builder: *LineBuilder, option
         if (i < statements.items.len - 1) {
             const current_is_function = std.mem.indexOf(u8, statement, "function ") != null;
             const current_is_reactive = std.mem.startsWith(u8, statement, "$:");
-            const next_is_function = std.mem.indexOf(u8, statements.items[i + 1], "function ") != null;
-            const next_is_reactive = std.mem.startsWith(u8, statements.items[i + 1], "$:");
+            const next = statements.items[i + 1];
+            const next_is_function = std.mem.indexOf(u8, next, "function ") != null;
+            const next_is_reactive = std.mem.startsWith(u8, next, "$:");
             
-            // Add blank line if transitioning from non-reactive to reactive, or between different statement types
-            if ((!current_is_reactive and next_is_reactive) or 
-                (current_is_function != next_is_function)) {
-                try builder.append("    "); // Add proper indentation for empty line
+            // Add blank line when transitioning from regular to reactive statements
+            if (!current_is_reactive and next_is_reactive) {
+                try builder.newline();
+            }
+            // Or between function and non-function
+            else if (current_is_function != next_is_function) {
                 try builder.newline();
             }
         }
@@ -418,20 +423,13 @@ fn formatJavaScriptFunction(statement: []const u8, builder: *LineBuilder, option
 
 /// Format function signature with proper spacing around parentheses
 fn formatFunctionSignature(signature: []const u8, builder: *LineBuilder) !void {
-    var i: usize = 0;
-    while (i < signature.len) : (i += 1) {
-        const char = signature[i];
-        
-        if (char == '(') {
-            try builder.append("()");
-            // Skip to end of parameters
-            while (i < signature.len and signature[i] != ')') : (i += 1) {}
-        } else if (char == ')') {
-            // Skip - already handled by (
-            continue;
-        } else {
-            try builder.append(&[_]u8{char});
-        }
+    // Just use the signature as-is but with proper spacing
+    // e.g., "function greet" stays as "function greet"
+    try builder.append(signature);
+    
+    // Add parentheses if not present
+    if (std.mem.indexOf(u8, signature, "(") == null) {
+        try builder.append("()");
     }
 }
 

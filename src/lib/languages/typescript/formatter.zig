@@ -334,7 +334,7 @@ fn formatInterfaceBody(body_node: ts.Node, source: []const u8, builder: *LineBui
                     if (property.len > 0) {
                         try builder.appendIndent();
                         try formatInterfaceProperty(property, builder, options);
-                        try builder.append(";");
+                        try builder.append(if (options.trailing_comma) "," else ";");
                         try builder.newline();
                     }
                     property_start = i + 1;
@@ -350,7 +350,7 @@ fn formatInterfaceBody(body_node: ts.Node, source: []const u8, builder: *LineBui
         if (last_property.len > 0) {
             try builder.appendIndent();
             try formatInterfaceProperty(last_property, builder, options);
-            try builder.append(";");
+            try builder.append(if (options.trailing_comma) "," else ";");
             try builder.newline();
         }
     }
@@ -1135,6 +1135,9 @@ fn formatExportStatement(node: ts.Node, source: []const u8, builder: *LineBuilde
 
 /// Format import/export with proper spacing and line breaks for long lists
 fn formatImportExportWithSpacing(statement: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
+    // Remove trailing semicolon if present (we'll add it later)
+    const trimmed_statement = std.mem.trimRight(u8, statement, "; \t");
+    
     // Find the keyword and module parts
     var keyword_end: usize = 0;
     var brace_start: ?usize = null;
@@ -1142,26 +1145,27 @@ fn formatImportExportWithSpacing(statement: []const u8, builder: *LineBuilder, o
     var from_start: ?usize = null;
     
     // Find keyword (import/export)
-    if (std.mem.indexOf(u8, statement, "import")) |pos| {
+    if (std.mem.indexOf(u8, trimmed_statement, "import")) |pos| {
         keyword_end = pos + 6;
-    } else if (std.mem.indexOf(u8, statement, "export")) |pos| {
+    } else if (std.mem.indexOf(u8, trimmed_statement, "export")) |pos| {
         keyword_end = pos + 6;
     }
     
     // Find braces and from clause
-    brace_start = std.mem.indexOf(u8, statement, "{");
-    brace_end = std.mem.lastIndexOf(u8, statement, "}");
-    from_start = std.mem.indexOf(u8, statement, "from");
+    brace_start = std.mem.indexOf(u8, trimmed_statement, "{");
+    brace_end = std.mem.lastIndexOf(u8, trimmed_statement, "}");
+    from_start = std.mem.indexOf(u8, trimmed_statement, "from");
     
     if (brace_start != null and brace_end != null and brace_start.? < brace_end.?) {
         // Has import/export list in braces
-        const before_brace = std.mem.trim(u8, statement[0..brace_start.?], " \t");
-        const brace_content = std.mem.trim(u8, statement[brace_start.? + 1..brace_end.?], " \t\n\r");
-        const after_brace = std.mem.trim(u8, statement[brace_end.? + 1..], " \t");
+        const before_brace = std.mem.trim(u8, trimmed_statement[0..brace_start.?], " \t");
+        const brace_content = std.mem.trim(u8, trimmed_statement[brace_start.? + 1..brace_end.?], " \t\n\r");
+        var after_brace = std.mem.trim(u8, trimmed_statement[brace_end.? + 1..], " \t");
         
-        // Check if we need multiline formatting
+        // Check if we need multiline formatting - if there are multiple items (has comma) or long content
+        const has_multiple_items = std.mem.indexOf(u8, brace_content, ",") != null;
         const estimated_length = before_brace.len + brace_content.len + after_brace.len + 4;
-        const should_multiline = estimated_length > options.line_width;
+        const should_multiline = has_multiple_items or estimated_length > options.line_width;
         
         if (should_multiline and brace_content.len > 0) {
             // Multiline format
@@ -1170,26 +1174,46 @@ fn formatImportExportWithSpacing(statement: []const u8, builder: *LineBuilder, o
             try builder.newline();
             
             // Split imports by comma and format each
+            var items_list = std.ArrayList([]const u8).init(builder.allocator);
+            defer items_list.deinit();
+            
             var import_items = std.mem.splitScalar(u8, brace_content, ',');
-            var first = true;
             while (import_items.next()) |item| {
                 const trimmed_item = std.mem.trim(u8, item, " \t\n\r");
                 if (trimmed_item.len > 0) {
-                    if (!first) try builder.newline();
-                    try builder.append("    ");
-                    try builder.append(trimmed_item);
-                    if (import_items.peek() != null) {
-                        try builder.append(",");
-                    }
-                    first = false;
+                    try items_list.append(trimmed_item);
                 }
             }
             
-            try builder.newline();
+            // Now format each item
+            for (items_list.items, 0..) |item, i| {
+                try builder.append("    ");
+                try builder.append(item);
+                // Add comma except for last item
+                if (i < items_list.items.len - 1) {
+                    try builder.append(",");
+                }
+                try builder.newline();
+            }
+            
             try builder.append("}");
+            
+            // Handle the from clause with proper spacing
             if (after_brace.len > 0) {
-                try builder.append(" ");
-                try builder.append(after_brace);
+                // Check if it starts with "from" and needs space
+                if (std.mem.startsWith(u8, after_brace, "from")) {
+                    try builder.append(" ");
+                    try builder.append("from");
+                    // Add space after from and before the module string
+                    const from_content = std.mem.trim(u8, after_brace[4..], " \t");
+                    if (from_content.len > 0) {
+                        try builder.append(" ");
+                        try builder.append(from_content);
+                    }
+                } else {
+                    try builder.append(" ");
+                    try builder.append(after_brace);
+                }
             }
         } else {
             // Single line format
@@ -1197,14 +1221,28 @@ fn formatImportExportWithSpacing(statement: []const u8, builder: *LineBuilder, o
             try builder.append(" { ");
             try builder.append(brace_content);
             try builder.append(" }");
+            
+            // Handle the from clause with proper spacing
             if (after_brace.len > 0) {
-                try builder.append(" ");
-                try builder.append(after_brace);
+                // Check if it starts with "from" and needs space
+                if (std.mem.startsWith(u8, after_brace, "from")) {
+                    try builder.append(" ");
+                    try builder.append("from");
+                    // Add space after from and before the module string
+                    const from_content = std.mem.trim(u8, after_brace[4..], " \t");
+                    if (from_content.len > 0) {
+                        try builder.append(" ");
+                        try builder.append(from_content);
+                    }
+                } else {
+                    try builder.append(" ");
+                    try builder.append(after_brace);
+                }
             }
         }
     } else {
         // No braces, just format normally
-        try builder.append(statement);
+        try builder.append(trimmed_statement);
     }
 }
 

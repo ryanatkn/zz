@@ -218,8 +218,10 @@ Issues and discussions are welcome, but reviewing code is time consuming,
 so I will likely reject many well-meaning PRs, and re-implement if I agree with the idea.
 So if you don't mind the rejection and just care about getting the change in,
 PRs are very much encouraged! They are excellent for concrete discussion.
+
 Not every PR needs an issue but it's usually
 preferred to reference one or more issues and discussions.
+
 ## Demo
 
 zz has an interactive terminal demo:
@@ -235,8 +237,14 @@ zz demo --non-interactive
 zz demo --output=demo.md -n
 ```
 
-
-
 ## License
 
-Un
+[Unlicense](./license) (public domain)
+
+
+## Credits
+
+Built with:
+- [Zig](https://ziglang.org/) - systems programming language
+- [tree-sitter & friends](./deps/CREDITS.md) - parsers and grammars
+- [Claude Code](https://claude.ai/code) - AI-powered development

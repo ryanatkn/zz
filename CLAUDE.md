@@ -192,356 +192,50 @@ $ zz help                        # Same as --help
 
 ## Testing
 
-### Running Tests
-```bash
-$ zig build test                                       # Run all tests
-$ zig build test -Dtest-filter="pattern"              # Run only tests matching pattern
-$ zig build test --verbose                            # Show build commands and execution
-$ zig build test 2>&1 | rg "pattern"                  # Alternative: pipe output to filter
+Run all tests with `zig build test` or filter with `-Dtest-filter="pattern"`. Tests use mock filesystem for isolation.
 
-# Note: Direct `zig test src/test.zig` will NOT work due to tree-sitter module dependencies
-# Always use `zig build test` which properly configures modules and links libraries
-```
-
-### Understanding Test Output
-- **No output after filter = no matches**: If you see only the filter line and nothing else, your pattern didn't match any tests
-- **Test sections show matches**: Look for "=== Module Tests ===" sections - these indicate tests ran
-- **Success is mostly silent**: Passing tests produce minimal output (Zig convention)
-- **Use --verbose**: See which tests are being run and verify filters work
-- **Test summary**: Shows at the end when tests actually run (e.g., "328/332 passed")
-- **Current behavior**: No matches exit with status 0 (success)
-- **Future enhancement**: Will error on no matches to catch typos and improve CI safety
+For comprehensive testing guide, see [docs/testing.md](docs/testing.md).
 
 ## Benchmarking
 
-Performance benchmarking is critical for maintaining and improving the efficiency of zz. The benchmark system follows Unix philosophy: the CLI outputs to stdout, and users control file management.
+Performance benchmarking follows Unix philosophy: CLI outputs to stdout, users control file management. Multiple formats (markdown, json, csv, pretty), baseline comparison, regression detection.
 
-### Design Philosophy
-- **CLI is pure**: `zz benchmark` always outputs to stdout
-- **Multiple formats**: markdown (default), json, csv, pretty
-- **Build commands add convenience**: Handle file management for common workflows
-- **Composable**: Works with Unix pipes and redirects
-
-### CLI Usage (outputs to stdout)
 ```bash
-# Default: markdown format to stdout (2 seconds per benchmark)
-$ zz benchmark
-
-# Different output formats
-$ zz benchmark --format=pretty             # Clean color terminal output with status indicators
-$ zz benchmark --format=json               # Machine-readable JSON
-$ zz benchmark --format=csv                # Spreadsheet-compatible CSV
-
-# Control timing and what runs
-$ zz benchmark --duration=1s               # Run each benchmark for 1 second
-$ zz benchmark --duration=500ms            # Run each benchmark for 500 milliseconds
-$ zz benchmark --only=path,string          # Run specific benchmarks
-$ zz benchmark --skip=glob                 # Skip specific benchmarks
-
-# Duration control for more stable results
-$ zz benchmark --duration-multiplier=2.0   # 2x longer for all benchmarks
-
-# Save results via shell redirect
-$ zz benchmark > results.md                # Save to any file
-$ zz benchmark | grep "Path"               # Pipe to other tools
-$ zz benchmark --format=json | jq '.results[]'  # Process JSON output
-
-# Baseline comparison (auto-loads if exists)
-$ zz benchmark --baseline=old.md           # Compare with specific baseline
-$ zz benchmark --no-compare                # Disable auto-comparison
+$ zz benchmark --format=pretty     # Color terminal output
+$ zig build benchmark               # Save to latest.md, compare baseline
 ```
 
-### Build Commands (project workflow)
-```bash
-# Common workflow with file management
-$ zig build benchmark                      # Save to latest.md, compare, show pretty output
-$ zig build benchmark-baseline             # Create/update baseline.md
-$ zig build benchmark-stdout               # Pretty output without saving
-
-# Release mode benchmarking (longer duration for more stable results)
-$ zig build -Doptimize=ReleaseFast
-$ ./zig-out/bin/zz benchmark --duration=5s
-```
-
-**Benchmark Features:**
-- Multiple output formats for different use cases
-- Automatic baseline comparison (when benchmarks/baseline.md exists)
-- Regression detection with exit code 1 (20% threshold)
-- Clean separation: CLI for data, build commands for workflow
-- Clean color-enhanced terminal output with status indicators
-- Human-readable time units (ns, μs, ms, s)
-- **Duration multiplier system** - Allows extending benchmark duration for more stable results
-
-**Performance Baselines (Release build, 2025-08-13):**
-- Path operations: ~11μs per operation
-- String pooling: ~11ns per operation
-- Memory pools: ~11μs per allocation/release cycle
-- Glob patterns: ~4ns per operation
-- Code extraction: ~21μs per extraction
-- Benchmark execution: ~10 seconds total
-- Regression threshold: 20%
-- Time-based execution: 2 seconds default per benchmark
-
-**When to Run Benchmarks:**
-- Before and after implementing optimizations
-- When modifying core infrastructure (`src/lib/`)
-- To verify performance improvements are maintained
-- During development of new features that impact performance
-- In CI/CD to catch performance regressions
-
-> TODO benchmarking needs better DX and features
+For detailed benchmarking guide, see [docs/benchmarking.md](docs/benchmarking.md).
 
 ## Module Structure
 
-**Core Architecture:**
-- **CLI Module:** `src/cli/` - Command parsing, validation, and dispatch system
-- **Tree Module:** `src/tree/` - Directory traversal with configurable filtering and multiple output formats
-- **Prompt Module:** `src/prompt/` - LLM prompt generation with glob support, smart fencing, and deduplication
-- **Format Module:** `src/format/` - Language-aware code formatting with configurable styles
-- **Demo Module:** `src/demo.zig` - Interactive demonstration of zz capabilities with terminal output
-- **Benchmark Module:** `src/benchmark/` - Performance measurement and regression detection
-- **Config Module:** `src/config/` - Configuration system with ZON parsing and pattern resolution
-- **Lib Module:** `src/lib/` - Consolidated infrastructure and utilities (Phase 5 reorganization)
+Modular architecture with clean separation: CLI (`src/cli/`), Tree (`src/tree/`), Prompt (`src/prompt/`), Format (`src/format/`), Demo (`src/demo.zig`), Benchmark (`src/benchmark/`), Config (`src/config/`), and shared infrastructure in `src/lib/`.
 
-**Key Components:**
-- **Shared Configuration:** Root-level `zz.zon` with cross-cutting concerns (ignore patterns, hidden files, symlink behavior)
-- **Performance Optimizations:** Early directory skip, memory management, efficient traversal, arena allocators
-- **Modular Design:** Clean interfaces with shared utilities and consolidated implementations
-- **POSIX-Only Utilities:** Custom path operations optimized for POSIX systems (leaner than std.fs.path)
-
-**Shared Infrastructure in `src/lib/`:**
-
-*Core Utilities (`src/lib/core/`):*
-- **`path.zig`** - POSIX-only path utilities with direct buffer manipulation
-- **`traversal.zig`** - Unified directory traversal with filesystem abstraction
-- **`filesystem.zig`** - Consolidated error handling patterns for filesystem operations
-- **`collections.zig`** - Memory-managed collections with RAII cleanup
-- **`errors.zig`** - Centralized error handling patterns
-- **`io.zig`** - I/O utilities and file operations
-- **`ownership.zig`** - Memory ownership patterns
-
-*Analysis Infrastructure (`src/lib/analysis/`):*
-- **`cache.zig`** - AST cache system with LRU eviction
-- **`incremental.zig`** - Incremental processing with dependency tracking
-- **`semantic.zig`** - Semantic analysis and code understanding
-- **`code.zig`** - Code analysis patterns and utilities
-
-*Memory Management (`src/lib/memory/`):*
-- **`pools.zig`** - ArrayList and memory pool reuse
-- **`scoped.zig`** - Scoped allocation patterns
-- **`zon.zig`** - ZON-specific memory management
-
-*Parsing Infrastructure (`src/lib/parsing/`):*
-- **`matcher.zig`** - Pattern matching engine with optimized fast/slow paths
-- **`glob.zig`** - Glob pattern implementation
-- **`gitignore.zig`** - Gitignore pattern support
-- **`formatter.zig`** - Core formatting infrastructure
-- **`ast_formatter.zig`** - AST-based formatting
-- **`cached_formatter.zig`** - Formatter with caching support
-
-*Language Support (`src/lib/language/`, `src/lib/extractors/`, `src/lib/parsers/`, `src/lib/formatters/`):*
-- Complete AST support for CSS, HTML, JSON, TypeScript, Svelte, and Zig
-- Unified extraction interface with walkNode() implementations
-- Language-specific formatters with smart indentation
-- Tree-sitter integration layer
-
-*Test Infrastructure (`src/lib/test/`):*
-- **`helpers.zig`** - Test utilities and contexts (consolidated from test_helpers.zig)
-- **`fixture_loader.zig`** - Test fixture loading
-- **`fixture_runner.zig`** - Test fixture execution
-- Language-specific test fixtures
-
-**Adding New Commands:**
-1. Add to `Command` enum in `src/cli/command.zig`
-2. Update parsing and help text in `src/cli/help.zig`
-3. Add handler in `src/cli/runner.zig`  
-4. Complex features get dedicated module with `run(allocator, args)` interface
-5. Use shared utilities from `src/lib/` for common operations
-
-**Demo Module Features:**
-- **Interactive Mode:** Full terminal experience with colors, animations, and user interaction
-- **Non-interactive Mode:** Clean text output suitable for documentation and CI
-- **File Output:** `--output=<file>` flag to write demo content to files
-- **Terminal Integration:** Uses `src/lib/terminal.zig` for consistent terminal handling
-- **Language Showcase:** Demonstrates AST extraction across TypeScript, CSS, HTML, JSON, and Svelte
-- **Enhanced Animation:** Benchmark progress uses subtle pulse effect with bold styling for better visibility
+For detailed module architecture, see [docs/module-architecture.md](docs/module-architecture.md).
 
 ## Filesystem Abstraction Layer
 
-**Architecture:**
-- **`src/lib/filesystem/`** - Complete filesystem abstraction with parameterized dependencies for testing
-  - `interface.zig` - Abstract interfaces: `FilesystemInterface`, `DirHandle`, `FileHandle`, `DirIterator`
-  - `real.zig` - Production implementation using actual filesystem operations
-  - `mock.zig` - Test implementation with in-memory filesystem simulation
-- **Parameterized Dependencies:** All modules accept `FilesystemInterface` parameter for testability
-- **Zero Performance Impact:** Interfaces use vtables with static dispatch where possible
+Complete filesystem abstraction enables deterministic testing without real I/O. Mock and real implementations with zero performance impact.
 
-**Benefits:**
-- Complete test isolation without real I/O
-- Deterministic testing with controlled filesystem state
-- Ability to test error conditions (permission denied, disk full, etc.)
-- No test artifacts in working directory
-- Ready for async Zig
+For implementation details, see [docs/filesystem-abstraction.md](docs/filesystem-abstraction.md).
 
 ## Configuration System
 
-**Modular Configuration Architecture:**
-- **Root-level config** in `zz.zon` - Single source of truth for cross-cutting concerns
-- **`src/config/`** - Modular configuration system with clean separation of concerns:
-  - `shared.zig` - Core types and SharedConfig structure  
-  - `zon.zig` - ZON file loading with integrated configuration resolution
-  - `resolver.zig` - Pattern resolution with defaults and custom patterns
-- **`src/patterns/`** - High-performance unified pattern matching engine:
-  - `matcher.zig` - Optimized pattern matching with fast/slow paths (90/10 split)
-  - `gitignore.zig` - Stateless gitignore pattern logic
-- **`src/config.zig`** - Clean public API facade for backward compatibility
-- **Both tree and prompt modules** use the same underlying configuration system
+Modular ZON-based configuration with pattern matching, gitignore support, and command-specific overrides. Root `zz.zon` provides single source of truth.
 
-**Configuration Format:**
-```zon
-.{
-    // Base patterns behavior: "extend" (defaults + user) or provide custom array
-    .base_patterns = "extend",
-    
-    // Additional patterns to ignore (added to defaults when base_patterns = "extend")
-    .ignored_patterns = .{
-        "logs",
-        "custom_dir",
-    },
-    
-    // Files to completely hide (not displayed at all)
-    .hidden_files = .{
-        "custom.hidden",
-    },
-    
-    // Symlink behavior: "skip" (default), "follow", or "show"
-    .symlink_behavior = "skip",
-    
-    // Gitignore support: true (default) respects .gitignore files, false disables
-    .respect_gitignore = true,
-    
-    // Command-specific overrides (optional)
-    .tree = .{
-        // Tree-specific settings go here if needed in future
-    },
-    
-    .prompt = .{
-        // Prompt-specific settings go here if needed in future
-    },
-    
-    .format = .{
-        // Format-specific settings (optional)
-        .indent_size = 4,
-        .indent_style = "space", // or "tab"
-        .line_width = 100,
-        .trailing_comma = false, // for JSON
-        .sort_keys = false,       // for JSON
-    },
-}
-```
-
-**Pattern Resolution:**
-- **"extend" mode:** Combines built-in defaults with your custom patterns
-- **Custom array mode:** Use only your specified patterns, no defaults
-- **Safe matching:** Exact path component matching prevents leaky substring matches
-- **Default ignored patterns:** `.git`, `node_modules`, `.zig-cache`, `zig-out`, build directories, etc.
-- **Default hidden files:** `.DS_Store`, `Thumbs.db`
-- **Gitignore integration:** Automatically reads and applies `.gitignore` patterns by default
-  - Files matching gitignore patterns are completely hidden (like `git ls-files` behavior)  
-  - Directories matching gitignore patterns show as `[...]`
-  - Use `--no-gitignore` flag to disable gitignore filtering
-
-**Cross-module DRY Helpers:**
-- `shouldIgnorePath()` - Shared ignore logic for both tree and prompt
-- `shouldHideFile()` - Shared file hiding logic  
-- `handleSymlink()` - Shared symlink behavior
+For configuration format and options, see [docs/configuration.md](docs/configuration.md).
 
 ## Language Support
 
-**Supported Languages with Complete AST Integration:**
-- **Zig** - Full AST support for functions, types, tests, docs
-- **CSS** - Selectors, properties, variables, media queries  
-- **HTML** - Elements, attributes, semantic structure, event handlers
-- **JSON** - Structure validation, key extraction, schema analysis
-- **TypeScript** - Functions, interfaces, types (.ts files only, no .tsx)
-- **Svelte** - Multi-section components (script/style/template) with section-aware parsing
+Complete AST integration for Zig, CSS, HTML, JSON, TypeScript (.ts), and Svelte. Real tree-sitter parsing with extraction flags.
+
+For language features and extraction capabilities, see [docs/language-support.md](docs/language-support.md).
 
 ## AST Integration Framework
 
-**Unified NodeVisitor Pattern:**
-All language parsers implement a consistent `walkNode()` interface using the NodeVisitor pattern for extensible AST traversal:
+Unified NodeVisitor pattern for all language parsers. Incremental processing with smart AST cache invalidation and dependency tracking.
 
-```zig
-// Example: CSS AST extraction
-pub fn walkNode(allocator: std.mem.Allocator, root: *const AstNode, source: []const u8, flags: ExtractionFlags, result: *std.ArrayList(u8)) !void {
-    var extraction_context = ExtractionContext{
-        .allocator = allocator,
-        .result = result,
-        .flags = flags,
-        .source = source,
-    };
-    
-    var visitor = NodeVisitor.init(allocator, cssExtractionVisitor, &extraction_context);
-    try visitor.traverse(root, source);
-}
-```
-
-**Language-Specific Implementations:**
-- **HTML Parser**: Element detection, structure analysis, event handler extraction
-- **JSON Parser**: Structural nodes, key extraction, schema analysis, type detection
-- **Svelte Parser**: Section-aware parsing (script/style/template), reactive statements, props extraction
-- **CSS Parser**: Selector matching, rule extraction, variable detection, media queries
-- **TypeScript Parser**: Enhanced with dependency analysis and import extraction
-- **Zig Parser**: Maintains existing tree-sitter integration while conforming to unified interface
-
-**Mock AST Framework:**
-- Complete AST abstraction layer using `AstNode` structure
-- Generic pointer support for future tree-sitter integration
-- Mock implementations for testing without external dependencies
-- Visitor pattern supports both real and mock AST traversal
-
-## Incremental Processing with AST Cache
-
-**AST Cache Integration:**
-The incremental processing system now includes sophisticated AST cache management:
-
-```zig
-// FileTracker with AST cache support
-pub const FileTracker = struct {
-    allocator: std.mem.Allocator,
-    files: std.HashMap([]const u8, FileState, std.hash_map.StringContext, 80),
-    dependency_graph: DependencyGraph,
-    change_detector: ChangeDetector,
-    ast_cache: ?*AstCache, // Optional AST cache for invalidation
-};
-```
-
-**Smart Cache Invalidation:**
-- **File Hash-based Keys**: AST cache entries keyed by file hash + extraction flags
-- **Selective Invalidation**: `invalidateByFileHash()` removes only entries for changed files
-- **Cascade Invalidation**: Automatically invalidates dependent files when imports change
-- **Dependency Tracking**: Uses dependency graph to identify affected files
-
-**Cache Key Generation:**
-```zig
-// Generate cache key for file with extraction flags
-pub fn getAstCacheKey(self: *FileTracker, file_path: []const u8, extraction_flags_hash: u64) ?AstCacheKey {
-    if (self.files.get(file_path)) |file_state| {
-        return AstCacheKey.init(
-            file_state.hash,
-            1, // parser version
-            extraction_flags_hash
-        );
-    }
-    return null;
-}
-```
-
-**Performance Benefits:**
-- **Incremental Parsing**: Only re-parse files that have actually changed
-- **Cache Efficiency**: High cache hit rate for unchanged files with different extraction flags
-- **Memory Management**: LRU eviction with configurable memory limits
-- **Dependency Optimization**: Cascade invalidation prevents stale cache entries
+For AST architecture and cache details, see [docs/ast-integration.md](docs/ast-integration.md).
 
 ## Prompt Module Features
 
@@ -657,58 +351,15 @@ The project is configured for optimal Claude Code usage:
 
 **Best Practices:**
 - Always use `rg` for text search instead of `grep` or `find`
-- Use `zz` commands for benchmarking and testing
+- Use `zig build test` for testing and `zig build benchmark` for benchmarking
+- Use `zz` commands for exploring code with semantic extraction (`zz prompt`, `zz tree`, etc.)
 - Leverage Claude Code's native Grep tool which uses ripgrep internally
 
 ## Development Workflow
 
-**Managing Vendored Dependencies:**
+Manage vendored dependencies with `./scripts/update-deps.sh`. Use TODO_*.md workflow for major tasks. Test with `zig build test`.
 
-The project uses vendored dependencies for tree-sitter libraries to ensure reliable, reproducible builds without network access.
-
-```bash
-# Check current state (idempotent - safe to run anytime)
-./scripts/update-deps.sh
-
-# Force update all dependencies
-./scripts/update-deps.sh --force
-
-# Force update specific dependency
-./scripts/update-deps.sh --force-dep tree-sitter
-
-# View help and available dependencies
-./scripts/update-deps.sh --help
-```
-
-**Script Features:**
-- **Idempotent:** Only updates when versions change or files are missing
-- **Efficient:** Skips up-to-date dependencies, uses shallow git clones
-- **Clean:** Removes `.git` directories and incompatible build files
-- **Versioned:** Creates `.version` files for tracking
-
-**After updating dependencies:**
-```bash
-zig build test           # Verify everything works
-git add deps/            # Commit vendored code
-git commit -m "Update vendored dependencies"
-```
-
-**Workflow with root TODO_*.md docs:**
-- **Active TODO docs** should be placed in root directory with `TODO_*.md` prefix and caps like TODO_FOO.md or TODO_BAR.md for high visibility
-- **Completed TODO docs** should be **updated in place** with completion status, not moved
-  - Update title: `# TODO: Task Name` → `# ✅ COMPLETED: Task Name`
-  - Add completion date and final status summary
-  - Keep file in root to show what major work has been accomplished
-- **Validation before archival** (for complex architecture migrations):
-  - Run validation session to verify implementation matches design intent
-  - Machine develops complete understanding of relevant codebase parts
-  - Validate local file state against TODO documentation claims
-  - User and machine independently verify results, conclusions, and presented data
-  - Only after convening and getting user approval does the machine proceed to archive validated TODO files
-- **Permanent docs** (README.md, CLAUDE.md) remain unprefixed in root
-- **Only archive to `docs/archive/`** when TODO docs become stale, superseded, or fully validated as complete
-- **Always commit todo docs** to git both during work and after completion
-- This workflow ensures completed work remains visible while tracking major accomplishments
+For comprehensive workflow guide, see [docs/development-workflow.md](docs/development-workflow.md).
 
 ## Related Documentation
 
@@ -737,7 +388,7 @@ When selecting tasks:
 
 - We want idiomatic Zig, taking more after C than C++
 - Do not support backwards compatibility unless explicitly asked
-- Never deprecate or preserve backwards compatibility unless explicitly requested
+- Never deprecate or preserve legacy code unless explicitly requested, default to deleting old code aggressively
 - Never re-export in modules unless explicitly justified with a comment or requested (do not ever use the facade pattern, it's a code smell to us)
 - Focus on performance and clean architecture
 - This is a CLI utilities project - no graphics or game functionality

@@ -7,7 +7,6 @@ const NodeUtils = @import("../../language/node_utils.zig").NodeUtils;
 pub const TypeScriptInterfaceFormatter = struct {
     /// Format TypeScript interface declaration
     pub fn formatInterface(node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) !void {
-        
         const child_count = node.childCount();
         var i: u32 = 0;
         
@@ -25,7 +24,7 @@ pub const TypeScriptInterfaceFormatter = struct {
                 
                 if (std.mem.eql(u8, child_type, "export")) {
                     has_export = true;
-                } else if (std.mem.eql(u8, child_type, "identifier")) {
+                } else if (std.mem.eql(u8, child_type, "identifier") or std.mem.eql(u8, child_type, "type_identifier")) {
                     if (interface_name == null) {
                         interface_name = child_text;
                     }
@@ -33,7 +32,7 @@ pub const TypeScriptInterfaceFormatter = struct {
                     generic_params = child_text;
                 } else if (std.mem.eql(u8, child_type, "extends_clause")) {
                     extends_clause = child_text;
-                } else if (std.mem.eql(u8, child_type, "object_type")) {
+                } else if (std.mem.eql(u8, child_type, "object_type") or std.mem.eql(u8, child_type, "interface_body")) {
                     body_node = child;
                 }
             }

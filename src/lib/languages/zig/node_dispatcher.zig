@@ -105,6 +105,7 @@ pub const ZigNodeDispatcher = struct {
                         
                         // Combine pub + declaration
                         try formatPubDecl(child_text, next_text, next_type, source, builder, depth, options);
+                        try builder.newline();
                         
                         prev_was_decl = true;
                         i += 1; // Skip the next node since we processed it
@@ -119,7 +120,12 @@ pub const ZigNodeDispatcher = struct {
                 
                 try formatNode(child, source, builder, depth, options);
                 
-                prev_was_decl = isTopLevelDecl(child_type, child_text);
+                if (isTopLevelDecl(child_type, child_text)) {
+                    try builder.newline();
+                    prev_was_decl = true;
+                } else {
+                    prev_was_decl = false;
+                }
             }
         }
     }
@@ -138,7 +144,7 @@ pub const ZigNodeDispatcher = struct {
         
         // Dispatch based on declaration type
         if (ZigFunctionFormatter.isFunctionDecl(decl_text)) {
-            try ZigDeclarationFormatter.formatDeclaration(pub_decl_text.items, builder);
+            try ZigFunctionFormatter.formatFunctionWithSpacing(pub_decl_text.items, builder, options);
         } else if (ZigDeclarationFormatter.isTypeDecl(decl_text)) {
             try ZigDeclarationFormatter.formatDeclaration(pub_decl_text.items, builder);
         } else if (ZigImportFormatter.isImportDecl(decl_text)) {
@@ -149,7 +155,6 @@ pub const ZigNodeDispatcher = struct {
         
         _ = decl_type; // Unused but kept for future use
         _ = depth; // Unused but kept for API consistency
-        _ = options; // Unused but kept for API consistency
     }
 
     /// Check if this is a top-level declaration that needs spacing

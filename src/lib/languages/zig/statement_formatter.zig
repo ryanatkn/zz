@@ -10,6 +10,7 @@ pub const ZigStatementFormatter = struct {
     pub fn formatFunctionBody(body: []const u8, builder: *LineBuilder) !void {
         // Simple function body formatting - delegate to statement formatting
         try formatStatement(body, builder);
+        try builder.newline();
     }
 
     /// Format Zig statement with proper spacing
@@ -194,7 +195,65 @@ pub const ZigStatementFormatter = struct {
     /// Format generic statement
     fn formatGenericStatement(statement: []const u8, builder: *LineBuilder) !void {
         const trimmed = std.mem.trim(u8, statement, " \t\n\r");
-        try builder.append(trimmed);
+        
+        // Add proper indentation
+        try builder.appendIndent();
+        
+        // Format with proper spacing
+        try formatStatementWithSpacing(trimmed, builder);
+    }
+    
+    /// Format statement with proper spacing around operators and punctuation
+    fn formatStatementWithSpacing(statement: []const u8, builder: *LineBuilder) !void {
+        var i: usize = 0;
+        var in_string = false;
+        var string_char: u8 = 0;
+        
+        while (i < statement.len) {
+            const c = statement[i];
+            
+            // Handle string boundaries
+            if (!in_string and (c == '"' or c == '\'')) {
+                in_string = true;
+                string_char = c;
+                try builder.append(&[_]u8{c});
+                i += 1;
+                continue;
+            } else if (in_string and c == string_char) {
+                in_string = false;
+                try builder.append(&[_]u8{c});
+                i += 1;
+                continue;
+            } else if (in_string) {
+                try builder.append(&[_]u8{c});
+                i += 1;
+                continue;
+            }
+            
+            // Format spacing around special characters
+            if (c == ',' and i + 1 < statement.len) {
+                try builder.append(",");
+                // Add space after comma if not already there
+                if (statement[i + 1] != ' ') {
+                    try builder.append(" ");
+                }
+                i += 1;
+                continue;
+            }
+            
+            if (c == ' ') {
+                // Only add space if we haven't just added one
+                if (builder.buffer.items.len > 0 and
+                    builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
+                    try builder.append(" ");
+                }
+                i += 1;
+                continue;
+            }
+            
+            try builder.append(&[_]u8{c});
+            i += 1;
+        }
     }
 
     /// Format return statement with struct type definition

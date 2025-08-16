@@ -211,9 +211,12 @@ fn parseFormatterOptions(options_data: FormatterOptionsData) FormatterOptions {
     return FormatterOptions{
         .indent_size = options_data.indent_size,
         .indent_style = options_data.indent_style,
-        .line_width = options_data.line_width,
+        .line_width = @as(u32, options_data.line_width), // Convert u16 to u32
+        .preserve_newlines = true, // Default value
         .trailing_comma = options_data.trailing_comma,
         .sort_keys = options_data.sort_keys,
+        .quote_style = .preserve, // Default value
+        .use_ast = true, // Default value for tests
     };
 }
 
@@ -303,6 +306,6 @@ test "parseFormatterOptions" {
     const options = parseFormatterOptions(options_data);
     try testing.expectEqual(@as(u8, 2), options.indent_size);
     try testing.expectEqual(IndentStyle.tab, options.indent_style);
-    try testing.expectEqual(@as(u16, 120), options.line_width);
+    try testing.expectEqual(@as(u32, 120), options.line_width); // Changed to u32
     try testing.expect(options.trailing_comma);
 }

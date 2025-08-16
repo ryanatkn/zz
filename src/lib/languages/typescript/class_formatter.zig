@@ -7,7 +7,6 @@ const NodeUtils = @import("../../language/node_utils.zig").NodeUtils;
 pub const TypeScriptClassFormatter = struct {
     /// Format TypeScript class declaration
     pub fn formatClass(node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) !void {
-        
         const child_count = node.childCount();
         var i: u32 = 0;
         
@@ -29,7 +28,7 @@ pub const TypeScriptClassFormatter = struct {
                     has_export = true;
                 } else if (std.mem.eql(u8, child_type, "abstract")) {
                     has_abstract = true;
-                } else if (std.mem.eql(u8, child_type, "identifier")) {
+                } else if (std.mem.eql(u8, child_type, "identifier") or std.mem.eql(u8, child_type, "type_identifier")) {
                     if (class_name == null) {
                         class_name = child_text;
                     }

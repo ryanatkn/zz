@@ -15,6 +15,13 @@ const TypeScriptImportFormatter = @import("import_formatter.zig").TypeScriptImpo
 /// Format TypeScript using AST-based approach - main entry point
 pub fn formatAst(allocator: std.mem.Allocator, node: ts.Node, source: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
     _ = allocator;
+    
+    // Check if the AST contains only ERROR nodes - if so, fallback to source
+    if (isOnlyErrorNodes(node)) {
+        try builder.append(source);
+        return;
+    }
+    
     try formatTypeScriptNode(node, source, builder, 0, options);
 }
 
@@ -61,4 +68,32 @@ fn formatContainerNode(node: ts.Node, source: []const u8, builder: *LineBuilder,
             try formatTypeScriptNode(child, source, builder, depth, options);
         }
     }
+}
+
+/// Check if node tree contains only ERROR nodes (failed parse)
+fn isOnlyErrorNodes(node: ts.Node) bool {
+    const node_type = node.kind();
+    
+    // If this node is an ERROR, check if the whole tree is errors
+    if (std.mem.eql(u8, node_type, "ERROR")) {
+        return true;
+    }
+    
+    // For program/source_file nodes, check if all children are errors
+    if (std.mem.eql(u8, node_type, "program") or std.mem.eql(u8, node_type, "source_file")) {
+        const child_count = node.childCount();
+        if (child_count == 0) return false;
+        
+        var i: u32 = 0;
+        while (i < child_count) : (i += 1) {
+            if (node.child(i)) |child| {
+                if (!std.mem.eql(u8, child.kind(), "ERROR")) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    
+    return false;
 }

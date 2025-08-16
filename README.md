@@ -7,239 +7,224 @@ For the companion GUI see [Zzz](https://github.com/ryanatkn/zzz).
 
 > **status**: vibe-engineered slop level 1
 
-Fast command-line utilities in Zig for POSIX systems.
-Features LLM prompt generation with AST-based code extraction (using tree-sitter),
-directory trees, and performance benchmarking.
+Fast command-line utilities for exploring and understanding codebases. Features AST-based code extraction, directory visualization, and code formatting.
 
-**Platforms:** Linux, macOS, BSD (POSIX). No Windows.
+**Key Features:**
+- 🔍 **Semantic code extraction** - Extract functions, types, and docs using real AST parsing
+- 🌳 **Smart directory trees** - Fast traversal with gitignore support
+- 📝 **LLM prompt generation** - Create context-aware prompts from your codebase
+- 🎨 **Code formatting** - Language-aware formatting for multiple file types
+- ⚡ **High performance** - Optimized for speed with Zig
 
-**Languages:** AST extraction (work in progress) for TypeScript, CSS, HTML, JSON, Zig, Svelte.
+## Quick Start
 
-**Performance:** Optimized paths, patterns, incremental processing, AST caching.
+```bash
+# Explore a codebase
+zz tree                                  # Visualize project structure
+zz prompt "src/**/*.ts" --signatures     # Extract TypeScript function signatures
+zz prompt src/ --types --docs            # Extract types and documentation
 
-**Architecture:** Modular `src/lib/` with filesystem abstraction, unified patterns, AST extraction. See [docs/archive/ARCHITECTURE.md](./docs/archive/ARCHITECTURE.md).
+# Format code
+zz format config.json --write            # Format JSON in-place
+zz format "*.css" --check                # Check CSS formatting
+
+# Interactive demo
+zz demo                                  # See zz in action
+```
 
 ## Installation
 
-Requires Zig ^0.14.1.
+Requires [Zig](https://ziglang.org/) 0.14.1 or later.
 
 ```bash
-# Clone with vendored dependencies
+# Clone and build
 git clone https://github.com/ryanatkn/zz.git
 cd zz
 
 # Install to ~/.zz/bin (recommended)
-zig build install-user
-
-# Install to custom location
-zig build install-user -Dprefix=~/my-tools
-
-# Production install (optimized)
 zig build install-user -Doptimize=ReleaseFast
+
+# Add to PATH
+echo 'export PATH="$HOME/.zz/bin:$PATH"' >> ~/.bashrc  # or ~/.zshrc
 ```
-
-Add `~/.zz/bin` to your PATH.
-
-## Quick start
-
-```bash
-# Check requirements
-zig version  # Requires 0.14.1+
-
-# After installation
-zz prompt "src/**/*.zig"       # Generate LLM prompt
-zz format config.json          # Format code files
-zz tree                        # Show directory tree
-zz benchmark --format=pretty   # Run performance benchmarks
-zz demo                        # Run interactive terminal demo
-```
-
-## Features
-
-### Tree visualization
-- Fast directory traversal
-- Tree and list formats
-- Pattern matching with `.gitignore` support
-- Configurable depth limits
-- Arena allocators
-
-### Prompt generation
-- **AST-based extraction** (work in progress)
-- **Language support**: 
-  - TypeScript: Interfaces, types, classes, functions (.ts)
-  - CSS: Selectors, variables, media queries
-  - HTML: Structure, elements, attributes
-  - JSON: Keys, structure, schema
-  - Zig: Functions, structs, tests
-  - Svelte: Multi-section components
-- **Extraction flags**: `--signatures`, `--types`, `--docs`, `--imports`, `--errors`, `--tests`, `--structure`, `--full` (default)
-- **Combine flags**: `zz prompt src/ --signatures --types`
-- Directory recursion, glob patterns, deduplication
-- Smart fence detection, XML-tagged markdown output
-
-### Code formatting (work in progress)
-- **Languages**: Zig (`zig fmt`), JSON, HTML, CSS, TypeScript, Svelte
-- **Options**: `--write` (in-place), `--check` (verify), `--stdin`, `--indent-size=N`, `--indent-style=space|tab`, `--line-width=N`
-- Glob patterns supported
-
-### Performance benchmarking
-- Color-coded terminal output
-- Formats: markdown, JSON, CSV, pretty
-- Baseline comparison with regression threshold
-- Configurable duration per benchmark
-
-### Incremental processing & caching
-- AST cache with selective invalidation
-- Dependency tracking with cascade updates
-- xxHash change detection
-- high cache hit rate
-- LRU eviction
 
 ## Commands
 
-```bash
-zz tree [dir] [depth] [opts]    # Directory tree
-zz prompt [files...] [opts]     # LLM prompt
-zz benchmark [opts]              # Performance tests
-zz format [files...] [opts]      # Format code - work in progress
-zz demo [opts]                   # Interactive demo
-zz help, --help, -h              # Help
+### `zz prompt` - Generate LLM prompts from code
 
-# Common options:
---format=tree|list|json|csv|pretty|markdown
---no-gitignore, --show-hidden
---write, --check, --stdin
---prepend=TEXT, --append=TEXT
---allow-empty-glob, --allow-missing
---duration=2s, --baseline=FILE
---indent-size=4, --indent-style=space|tab
+Extract specific code elements using AST parsing:
+
+```bash
+zz prompt "src/**/*.ts" --signatures     # Function signatures only
+zz prompt src/ --types --docs            # Types and documentation
+zz prompt app.ts --imports --errors      # Dependencies and error handling
+zz prompt . --full                       # Everything (default)
 ```
 
-## Examples
+**Supported languages:** TypeScript, CSS, HTML, JSON, Zig, Svelte
+
+**Extraction flags:**
+- `--signatures` - Functions and methods
+- `--types` - Type definitions, interfaces, structs
+- `--docs` - Documentation comments
+- `--imports` - Import statements
+- `--errors` - Error handling patterns
+- `--tests` - Test blocks
+- `--structure` - Code structure outline
+- `--full` - Complete source (default)
+
+### `zz tree` - Visualize directory structure
 
 ```bash
-# Tree visualization
-zz tree                          # Current directory
-zz tree src/ 2                   # src directory, 2 levels deep
-zz tree --format=list            # Flat list format
-zz tree -f list                  # Same as above using short flag
+zz tree                    # Current directory
+zz tree src/ 2             # Specific directory, max depth 2
+zz tree --format=list      # Flat list instead of tree
+zz tree --no-gitignore     # Include gitignored files
+```
 
-# Prompt generation
-zz prompt "src/**/*.zig"                 # All Zig files
-zz prompt src/ docs/                     # Multiple directories  
-zz prompt app.ts --signatures --types    # TypeScript interfaces and functions
-zz prompt style.css --types              # CSS variables and selectors
-zz prompt config.json --structure        # JSON keys and structure
+### `zz format` - Format code files
 
-# Code formatting
-zz format config.json                    # Format and output to stdout
-zz format config.json --write            # Format file in-place
-zz format "src/**/*.json" --check        # Check if JSON files are formatted
+```bash
+zz format config.json                    # Output formatted to stdout
+zz format config.json --write            # Format in-place
+zz format "src/**/*.json" --check        # Check if formatted
 echo '{"a":1}' | zz format --stdin       # Format from stdin
-zz format "*.css" --indent-size=2        # Format CSS with 2-space indent
-
-# Benchmarks
-zz benchmark                              # Markdown to stdout
-zz benchmark --format=pretty              # Terminal output
-zz benchmark > benchmarks/baseline.md     # Save baseline
-zig build benchmark                       # Save to latest.md with comparison
 ```
 
+**Supported:** JSON, CSS, HTML, Zig (via `zig fmt`)
 
-**Exit codes:** `0` success, `1` error
+### `zz benchmark` - Performance testing
+
+```bash
+zz benchmark --format=pretty              # Colored terminal output
+zz benchmark --format=json                # Machine-readable results
+zz benchmark --baseline=old.md            # Compare with baseline
+```
+
+### `zz demo` - Interactive demonstration
+
+```bash
+zz demo                      # Interactive terminal demo
+zz demo --non-interactive    # Script-friendly output
+```
 
 ## Configuration
 
-Create a `zz.zon` file in any directory to customize behavior:
+Create `zz.zon` in your project root:
 
 ```zon
 .{
-    // Base patterns: "extend" (defaults + custom) or custom array
+    // Extend or replace default ignore patterns
     .base_patterns = "extend",
     
-    // Additional ignore patterns (tree and prompt)
+    // Additional patterns to ignore
     .ignored_patterns = .{
-        "logs",
-        "custom_build_dir",
+        "vendor",
+        "*.log",
     },
     
-    // Files to completely hide 
+    // Files to completely hide
     .hidden_files = .{
-        "secret.key",
+        ".env",
     },
     
-    // Symlink behavior: "skip", "follow", or "show"
-    .symlink_behavior = "skip",
-    
-    // Gitignore support: true (default) or false
+    // Gitignore support (default: true)
     .respect_gitignore = true,
 }
 ```
 
-**Features:**
-- Root-level config shared by all commands
-- Extend mode adds to defaults, custom mode replaces them
-- Exact path component matching
-- Per-directory configs
+## Examples
 
-**Default ignores:** `.git`, `node_modules`, `.zig-cache`, `zig-out`, `build`, `dist`, `target`, `__pycache__`, `venv`, `tmp`
+### Generate focused prompts for LLMs
 
-**Gitignore:**
-- Auto-reads `.gitignore` files
-- Matched files hidden, directories show as `[...]`
-- Disable with `--no-gitignore` or `respect_gitignore = false`
-- Supports wildcards, negation, directory patterns
+```bash
+# Extract TypeScript interfaces and function signatures
+zz prompt "src/**/*.ts" --signatures --types
 
+# Get CSS structure for refactoring
+zz prompt "styles/*.css" --structure
+
+# Create comprehensive documentation prompt
+zz prompt src/ docs/ --docs --types
+```
+
+### Explore project structure
+
+```bash
+# Quick overview
+zz tree --format=tree
+
+# Find all test files
+zz tree --format=list | grep test
+
+# See everything including hidden files
+zz tree --no-gitignore --show-hidden
+```
+
+### Format code consistently
+
+```bash
+# Check all JSON files
+zz format "**/*.json" --check
+
+# Format with custom settings
+zz format style.css --indent-size=2 --write
+```
 
 ## Documentation
 
-- **[CLAUDE.md](CLAUDE.md)** - Development guide and implementation details
+- [**Development Guide**](CLAUDE.md) - Architecture and contributing
+- [**Module Architecture**](docs/module-architecture.md) - System design
+- [**Language Support**](docs/language-support.md) - AST extraction details
+- [**Configuration**](docs/configuration.md) - Full configuration options
+- [**Testing**](docs/testing.md) - Running tests
+- [**Benchmarking**](docs/benchmarking.md) - Performance testing
 
-**Archive** (`docs/archive/`):
-- [ARCHITECTURE.md](docs/archive/ARCHITECTURE.md) - System design
-- [PERFORMANCE.md](docs/archive/PERFORMANCE.md) - Optimizations
-- [PATTERNS.md](docs/archive/PATTERNS.md) - Pattern matching
-- [TESTING.md](docs/archive/TESTING.md) - Test strategy
-- [TROUBLESHOOTING.md](docs/archive/TROUBLESHOOTING.md) - Common issues
+## Development
 
+```bash
+# Run tests
+zig build test
+zig build test -Dtest-filter="tree"
 
-## Technical documentation
+# Run benchmarks
+zig build benchmark                      # Run and save results
+zig build benchmark-baseline             # Create baseline
 
-See [CLAUDE.md](CLAUDE.md) for architecture and development details.
+# Development commands
+zig build run -- tree                    # Run tree command
+zig build run -- prompt src/             # Run prompt command
+```
+
+## Platform Support
+
+- ✅ Linux, macOS, BSD (all POSIX systems)
+- ❌ Windows (no plans for support)
+
+## Performance
+
+- Optimized path operations for POSIX
+- AST caching with incremental updates
+- Memory pooling and arena allocators
+- Fast pattern matching with gitignore support
 
 ## Contributing
 
-Issues and discussions are welcome, but reviewing code is time consuming,
-so I will likely reject many well-meaning PRs, and re-implement if I agree with the idea.
-So if you don't mind the rejection and just care about getting the change in,
-PRs are very much encouraged! They are excellent for concrete discussion.
+Issues and discussions welcome! PRs are encouraged for concrete discussion, though I may re-implement rather than merge directly to maintain consistency.
 
-Not every PR needs an issue but it's usually
-preferred to reference one or more issues and discussions.
+See [CLAUDE.md](CLAUDE.md) for development guidelines.
 
-## Demo
+## Related Projects
 
-zz has an interactive terminal demo:
-
-```bash
-# Run the interactive demo
-zz demo
-
-# Run in non-interactive mode (for documentation)
-zz demo --non-interactive
-
-# Save demo output to file
-zz demo --output=demo.md -n
-```
+- [Zzz](https://github.com/ryanatkn/zzz) - GUI companion for zz
 
 ## License
 
 [Unlicense](./license) (public domain)
 
-
 ## Credits
 
 Built with:
-- [Zig](https://ziglang.org/) - systems programming language
-- [tree-sitter & friends](./deps/CREDITS.md) - parsers and grammars
-- [Claude Code](https://claude.ai/code) - AI-powered development
+- [Zig](https://ziglang.org/) - Systems programming language
+- [tree-sitter](./deps/CREDITS.md) - AST parsing
+- [Claude Code](https://claude.ai/code) - AI-assisted development

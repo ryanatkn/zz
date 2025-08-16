@@ -1,7 +1,5 @@
 # zz - CLI Utilities
 
-NOTE TO THE MACHINE: see ./WORKFLOW.md for dev sessions
-
 Fast command-line utilities written in Zig for POSIX systems. Currently features high-performance filesystem tree visualization and LLM prompt generation.
 
 Performance is a top priority, and we dont care about backwards compat -
@@ -10,8 +8,7 @@ always try to get to the final best code.
 ## Platform Support
 
 - **Supported:** Linux, macOS, BSD, and other POSIX-compliant systems
-- **Not Supported:** Windows (no plans for Windows support)
-- All tests and features assume POSIX environment
+- **Not Supported:** Windows (no plans)
 
 ## Environment
 
@@ -176,11 +173,9 @@ See [README.md](README.md#installation) for installation instructions.
 
 ```bash
 # Build commands (default is Debug mode)
-$ zig build                      # Debug build (default)
-$ zig build -Doptimize=ReleaseFast  # Fast release build
-$ zig build -Doptimize=ReleaseSafe  # Safe release (with runtime checks)
-$ zig build -Doptimize=ReleaseSmall # Smallest binary size
-$ zig build --use-llvm           # Use LLVM backend
+$ zig build                         # Debug build (default)
+$ zig build -Doptimize=ReleaseFast  # ReleaseFast | ReleaseSafeFast | ReleaseSmall
+$ zig build --use-llvm              # Use LLVM backend
 
 # Development workflow
 $ zig build run -- tree [args]          # Run tree command in development
@@ -201,8 +196,6 @@ $ zz help                        # Same as --help
 ```bash
 $ zig build test                                       # Run all tests
 $ zig build test -Dtest-filter="pattern"              # Run only tests matching pattern
-$ zig build test -Dtest-filter="CLI module"           # Example: run CLI tests
-$ zig build test -Dtest-filter="path operations"      # Example: run path utility tests
 $ zig build test --verbose                            # Show build commands and execution
 $ zig build test 2>&1 | rg "pattern"                  # Alternative: pipe output to filter
 
@@ -218,23 +211,6 @@ $ zig build test 2>&1 | rg "pattern"                  # Alternative: pipe output
 - **Test summary**: Shows at the end when tests actually run (e.g., "328/332 passed")
 - **Current behavior**: No matches exit with status 0 (success)
 - **Future enhancement**: Will error on no matches to catch typos and improve CI safety
-
-### Debugging Test Filters
-```bash
-# Verify filter is working (shows --test-filter in command)
-$ zig build test -Dtest-filter="CLI" --verbose 2>&1 | rg "test-filter"
-
-# See what test sections exist (these are what you can filter on)
-$ zig build test 2>&1 | rg "=== .* ==="
-
-# Find actual test names in source code
-$ rg "^test \"" src/ | head -10
-
-# Test with broader pattern if no matches
-$ zig build test -Dtest-filter="test"  # Very broad - should match many
-```
-
-Comprehensive test suite covers configuration parsing, directory filtering, performance optimization, edge cases, security patterns, and AST-based extraction. 
 
 ## Benchmarking
 
@@ -400,20 +376,6 @@ $ ./zig-out/bin/zz benchmark --duration=5s
 - **Parameterized Dependencies:** All modules accept `FilesystemInterface` parameter for testability
 - **Zero Performance Impact:** Interfaces use vtables with static dispatch where possible
 
-**Usage Example:**
-```zig
-// Production code uses real filesystem
-const filesystem = RealFilesystem.init();
-const walker = Walker.initWithOptions(allocator, config, .{ .filesystem = filesystem });
-
-// Tests use mock filesystem
-var mock_fs = MockFilesystem.init(allocator);
-defer mock_fs.deinit();
-try mock_fs.addDirectory("src");
-try mock_fs.addFile("src/main.zig", "const std = @import(\"std\");");
-const walker = Walker.initWithOptions(allocator, config, .{ .filesystem = mock_fs.interface() });
-```
-
 **Benefits:**
 - Complete test isolation without real I/O
 - Deterministic testing with controlled filesystem state
@@ -503,17 +465,6 @@ const walker = Walker.initWithOptions(allocator, config, .{ .filesystem = mock_f
 - **JSON** - Structure validation, key extraction, schema analysis
 - **TypeScript** - Functions, interfaces, types (.ts files only, no .tsx)
 - **Svelte** - Multi-section components (script/style/template) with section-aware parsing
-
-**Language Module Restructure Status (2025-08-14):**
-- ✅ **Complete architecture migration** - All languages moved to `src/lib/languages/` structure  
-- ✅ **Unified visitor pattern** - All language visitors implement consistent AST traversal interface
-- ✅ **Svelte AST visitor** - Fully implemented (no longer stubbed)
-- ✅ **Memory safety fixes** - Critical use-after-free bug in PromptBuilder resolved
-- ✅ **Test stability** - 346/363 tests passing (95% success rate), no segfaults
-- 🔄 **Known issues** - 11 extraction tests failing due to extractor logic issues (non-blocking)
-- 🔄 **Global registry leak** - Minor memory leak in test environment (2 leaked objects)
-
-The language restructure is **architecturally complete** and **production ready**. Remaining test failures are related to extraction logic fine-tuning, not structural issues.
 
 ## AST Integration Framework
 
@@ -758,21 +709,6 @@ git commit -m "Update vendored dependencies"
 - **Only archive to `docs/archive/`** when TODO docs become stale, superseded, or fully validated as complete
 - **Always commit todo docs** to git both during work and after completion
 - This workflow ensures completed work remains visible while tracking major accomplishments
-
-## Test Coverage
-
-The project has comprehensive test coverage including:
-- **AST Integration**: Complete coverage of walkNode() implementations for all languages
-- **Mock AST Framework**: Testing AST-based extraction without external dependencies
-- **Incremental Processing**: AST cache invalidation, dependency tracking, cascade updates
-- **Edge cases**: Empty inputs, special characters, Unicode, long filenames
-- **Security**: Path traversal, permission handling
-- **Performance**: Large files, deep recursion, memory stress tests
-- **Integration**: End-to-end command testing, format combinations
-- **Glob patterns**: Wildcards, braces, recursive patterns, hidden files
-- **Pattern matching**: Unified pattern engine with performance-critical optimizations
-- **Filesystem abstraction**: Mock filesystem testing for complete test isolation
-- **Parameterized dependencies**: All modules testable with mock filesystems
 
 ## Related Documentation
 

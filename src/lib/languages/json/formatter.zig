@@ -3,17 +3,6 @@ const ts = @import("tree-sitter");
 const FormatterOptions = @import("../../parsing/formatter.zig").FormatterOptions;
 const LineBuilder = @import("../../parsing/formatter.zig").LineBuilder;
 
-/// Format JSON source using AST-based approach
-pub fn format(allocator: std.mem.Allocator, source: []const u8, options: FormatterOptions) ![]const u8 {
-    // Use the AST formatter infrastructure
-    var formatter = @import("../../parsing/ast_formatter.zig").AstFormatter.init(allocator, .json, options) catch {
-        // If AST formatting fails, return original source
-        return allocator.dupe(u8, source);
-    };
-    defer formatter.deinit();
-
-    return formatter.format(source);
-}
 
 // Formatting implementation
 fn formatValue(builder: *LineBuilder, value: std.json.Value, options: FormatterOptions) anyerror!void {

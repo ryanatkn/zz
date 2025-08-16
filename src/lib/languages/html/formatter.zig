@@ -4,15 +4,6 @@ const FormatterOptions = @import("../../parsing/formatter.zig").FormatterOptions
 const LineBuilder = @import("../../parsing/formatter.zig").LineBuilder;
 const visitor_mod = @import("visitor.zig");
 
-// Legacy format function for backwards compatibility - delegates to AST formatter
-pub fn format(allocator: std.mem.Allocator, source: []const u8, options: FormatterOptions) ![]const u8 {
-    // TODO: This will be removed once we fully transition to AST-only formatting
-    // For now, return error to force use of AST formatter
-    _ = allocator;
-    _ = source;
-    _ = options;
-    return error.UnsupportedOperation;
-}
 
 // AST-based HTML formatting
 

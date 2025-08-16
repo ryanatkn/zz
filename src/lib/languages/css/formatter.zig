@@ -538,20 +538,3 @@ pub fn isCssRule(node_type: []const u8) bool {
         std.mem.eql(u8, node_type, "declaration");
 }
 
-/// Format CSS source using AST-based approach
-pub fn format(allocator: std.mem.Allocator, source: []const u8, options: FormatterOptions) ![]const u8 {
-    // Use the AST formatter infrastructure
-    var formatter = @import("../../parsing/ast_formatter.zig").AstFormatter.init(allocator, .css, options) catch |err| {
-        // If AST formatting fails, return original source
-        std.log.debug("CSS formatter AST init failed: {}", .{err});
-        return allocator.dupe(u8, source);
-    };
-    defer formatter.deinit();
-
-    const result = formatter.format(source) catch |err| {
-        std.log.debug("CSS formatter format failed: {}", .{err});
-        return allocator.dupe(u8, source);
-    };
-
-    return result;
-}

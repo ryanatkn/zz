@@ -533,12 +533,3 @@ pub fn isSvelteReactive(node_type: []const u8) bool {
         std.mem.eql(u8, node_type, "labeled_statement"); // $: statements
 }
 
-// Legacy format function for backwards compatibility - delegates to AST formatter
-pub fn format(allocator: std.mem.Allocator, source: []const u8, options: FormatterOptions) ![]const u8 {
-    // TODO: This will be removed once we fully transition to AST-only formatting
-    // For now, return error to force use of AST formatter
-    _ = allocator;
-    _ = source;
-    _ = options;
-    return error.UnsupportedOperation;
-}

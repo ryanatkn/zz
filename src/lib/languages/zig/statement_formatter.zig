@@ -6,6 +6,12 @@ const ZigBodyFormatter = @import("body_formatter.zig").ZigBodyFormatter;
 /// Zig-specific statement formatting functionality
 pub const ZigStatementFormatter = struct {
 
+    /// Format function body with proper statement formatting
+    pub fn formatFunctionBody(body: []const u8, builder: *LineBuilder) !void {
+        // Simple function body formatting - delegate to statement formatting
+        try formatStatement(body, builder);
+    }
+
     /// Format Zig statement with proper spacing
     pub fn formatStatement(statement: []const u8, builder: *LineBuilder) !void {
         const trimmed = std.mem.trim(u8, statement, " \t\n\r");

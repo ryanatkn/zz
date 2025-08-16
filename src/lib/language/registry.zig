@@ -50,9 +50,6 @@ pub const LanguageImpl = struct {
 
     /// AST visitor function - returns true to continue recursion, false to skip children
     visitor: *const fn (context: *ExtractionContext, node: *const Node) anyerror!bool,
-
-    /// Format source code
-    format: *const fn (allocator: std.mem.Allocator, source: []const u8, options: FormatterOptions) anyerror![]const u8,
 };
 
 /// Language registry for managing all supported languages
@@ -86,7 +83,6 @@ pub const LanguageRegistry = struct {
             .name = "json",
             .grammar = json_grammar.grammar,
             .visitor = json_visitor.visitor,
-            .format = json_formatter.format,
         });
 
         // TypeScript (and JS)
@@ -94,7 +90,6 @@ pub const LanguageRegistry = struct {
             .name = "typescript",
             .grammar = ts_grammar.grammar,
             .visitor = ts_visitor.visitor,
-            .format = ts_formatter.format,
         });
 
         // CSS
@@ -102,7 +97,6 @@ pub const LanguageRegistry = struct {
             .name = "css",
             .grammar = css_grammar.grammar,
             .visitor = css_visitor.visitor,
-            .format = css_formatter.format,
         });
 
         // HTML
@@ -110,7 +104,6 @@ pub const LanguageRegistry = struct {
             .name = "html",
             .grammar = html_grammar.grammar,
             .visitor = html_visitor.visitor,
-            .format = html_formatter.format,
         });
 
         // Zig
@@ -118,7 +111,6 @@ pub const LanguageRegistry = struct {
             .name = "zig",
             .grammar = zig_grammar.grammar,
             .visitor = zig_visitor.visitor,
-            .format = zig_formatter.format,
         });
 
         // Svelte
@@ -126,7 +118,6 @@ pub const LanguageRegistry = struct {
             .name = "svelte",
             .grammar = svelte_grammar.grammar,
             .visitor = svelte_visitor.visitor,
-            .format = svelte_formatter.format,
         });
     }
 
@@ -261,8 +252,16 @@ pub const LanguageRegistry = struct {
         source: []const u8,
         options: FormatterOptions,
     ) ![]const u8 {
-        if (self.getLanguage(language)) |lang_impl| {
-            return lang_impl.format(allocator, source, options);
+        // Check if language is supported
+        if (self.getLanguage(language)) |_| {
+            // Use AstFormatter directly for all languages
+            var formatter = @import("../parsing/ast_formatter.zig").AstFormatter.init(allocator, language, options) catch {
+                // If AST formatting fails, return original source
+                return allocator.dupe(u8, source);
+            };
+            defer formatter.deinit();
+            
+            return formatter.format(source);
         } else {
             // Fallback: return original source for unsupported languages
             return allocator.dupe(u8, source);

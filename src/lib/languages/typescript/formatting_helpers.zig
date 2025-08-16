@@ -86,7 +86,7 @@ pub const TypeScriptFormattingHelpers = struct {
 
     /// Format TypeScript parameters with type annotations
     fn formatTypeScriptParameters(params: []const u8, builder: *LineBuilder) !void {
-        var param_iter = std.mem.split(u8, params, ",");
+        var param_iter = std.mem.splitSequence(u8, params, ",");
         var first = true;
         
         while (param_iter.next()) |param| {

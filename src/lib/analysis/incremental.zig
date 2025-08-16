@@ -25,10 +25,6 @@ pub const FileState = struct {
     unresolved_dependencies: [][]const u8, // External/unresolved dependencies
     dependents: [][]const u8, // Files that depend on this file
 
-    // Legacy fields for backward compatibility
-    imports: [][]const u8, // Simple import paths (derived from imports_detailed)
-    exports: [][]const u8, // Simple export names (derived from exports_detailed)
-
     // Import analysis metadata
     import_hash: ?u64, // Hash of import structure for change detection
     last_import_analysis: i64, // When imports were last analyzed
@@ -65,51 +61,6 @@ pub const FileState = struct {
             allocator.free(dependent);
         }
         allocator.free(self.dependents);
-
-        // Clean up legacy fields
-        for (self.imports) |import| {
-            allocator.free(import);
-        }
-        allocator.free(self.imports);
-
-        for (self.exports) |export_name| {
-            allocator.free(export_name);
-        }
-        allocator.free(self.exports);
-    }
-
-    /// Update legacy import/export fields from detailed analysis
-    pub fn updateLegacyFields(self: *FileState, allocator: std.mem.Allocator) !void {
-        // Free existing legacy fields
-        for (self.imports) |import| {
-            allocator.free(import);
-        }
-        allocator.free(self.imports);
-
-        for (self.exports) |export_name| {
-            allocator.free(export_name);
-        }
-        allocator.free(self.exports);
-
-        // Create new legacy fields from detailed analysis
-        var import_paths = std.ArrayList([]const u8).init(allocator);
-        defer import_paths.deinit();
-
-        for (self.imports_detailed) |import_info| {
-            try import_paths.append(try allocator.dupe(u8, import_info.import_path));
-        }
-        self.imports = try import_paths.toOwnedSlice();
-
-        var export_names = std.ArrayList([]const u8).init(allocator);
-        defer export_names.deinit();
-
-        for (self.exports_detailed) |export_info| {
-            if (export_info.is_default) {
-                try export_names.append(try allocator.dupe(u8, "default"));
-            }
-            // Add more export name extraction logic as needed
-        }
-        self.exports = try export_names.toOwnedSlice();
     }
 
     /// Check if imports have changed by comparing hash
@@ -321,7 +272,7 @@ pub const DependencyGraph = struct {
         const import_hash = self.calculateImportHash(extraction_result.imports);
 
         // Create detailed file state
-        var file_state = FileState{
+        const file_state = FileState{
             .path = try self.allocator.dupe(u8, file_path),
             .hash = try hashFile(self.allocator, file_path),
             .mtime = try getFileModTime(file_path),
@@ -333,14 +284,9 @@ pub const DependencyGraph = struct {
             .resolved_dependencies = try resolved_dependencies.toOwnedSlice(),
             .unresolved_dependencies = try unresolved_dependencies.toOwnedSlice(),
             .dependents = &.{},
-            .imports = &.{}, // Will be updated by updateLegacyFields
-            .exports = &.{}, // Will be updated by updateLegacyFields
             .import_hash = import_hash,
             .last_import_analysis = std.time.nanoTimestamp(),
         };
-
-        // Update legacy fields for backward compatibility
-        try file_state.updateLegacyFields(self.allocator);
 
         self.stats.total_files += 1;
 
@@ -598,8 +544,6 @@ pub const ChangeDetector = struct {
                     .resolved_dependencies = &.{},
                     .unresolved_dependencies = &.{},
                     .dependents = &.{},
-                    .imports = &.{},
-                    .exports = &.{},
                     .import_hash = null,
                     .last_import_analysis = 0,
                 },
@@ -650,8 +594,6 @@ pub const ChangeDetector = struct {
                 .resolved_dependencies = &.{}, // Will be updated after analysis
                 .unresolved_dependencies = &.{}, // Will be updated after analysis
                 .dependents = &.{}, // Will be updated after analysis
-                .imports = &.{}, // Will be updated after analysis
-                .exports = &.{}, // Will be updated after analysis
                 .import_hash = null, // Will be updated after analysis
                 .last_import_analysis = 0, // Will be updated after analysis
             },

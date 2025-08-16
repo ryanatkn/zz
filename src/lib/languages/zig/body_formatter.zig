@@ -8,6 +8,24 @@ const ZigDeclarationFormatter = @import("declaration_formatter.zig").ZigDeclarat
 /// Zig-specific body formatting for structs, enums, and unions
 pub const ZigBodyFormatter = struct {
 
+    /// Format struct body from text (compatibility function)
+    pub fn formatStructBodyFromText(struct_text: []const u8, builder: *LineBuilder) !void {
+        // Simple delegation to formatStructBody
+        try formatStructBody(std.heap.page_allocator, builder, struct_text);
+    }
+
+    /// Format enum body from text (compatibility function)
+    pub fn formatEnumBodyFromText(enum_text: []const u8, builder: *LineBuilder) !void {
+        // Simple delegation to formatEnumBody
+        try formatEnumBody(std.heap.page_allocator, builder, enum_text);
+    }
+
+    /// Format union body from text (compatibility function)
+    pub fn formatUnionBodyFromText(union_text: []const u8, builder: *LineBuilder) !void {
+        // Simple delegation to formatUnionBody
+        try formatUnionBody(std.heap.page_allocator, builder, union_text);
+    }
+
     /// Format struct body with fields and methods
     pub fn formatStructBody(allocator: std.mem.Allocator, builder: *LineBuilder, content: []const u8) !void {
         const members = try parseStructMembers(allocator, content);

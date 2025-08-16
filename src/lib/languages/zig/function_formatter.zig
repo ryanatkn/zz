@@ -47,39 +47,45 @@ pub const ZigFunctionFormatter = struct {
         }
     }
 
-    /// Format function signature with proper parameter handling
+    /// Format function signature with proper spacing and multiline support
     pub fn formatFunctionSignature(signature: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
-        // Check for complex signatures that need special handling
-        if (shouldUseAdvancedFormatting(signature)) {
-            try formatSignatureWithOptions(signature, builder, options);
-        } else {
-            try formatBasicSignature(signature, builder);
+        // First handle the pub fn keyword spacing
+        if (std.mem.indexOf(u8, signature, "pubfn")) |pos| {
+            // Replace "pubfn" with "pub fn"
+            try builder.append(signature[0..pos]);
+            try builder.append("pub fn");
+            
+            // Continue with the rest after "pubfn"
+            const rest = signature[pos + 5..];
+            try formatSignatureWithOptions(rest, builder, options);
+            return;
         }
+        
+        try formatSignatureWithOptions(signature, builder, options);
     }
 
-    /// Format signature with parameter parsing and line width awareness
+    /// Format signature with line width awareness and multiline parameter support
     fn formatSignatureWithOptions(signature: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
-        // Find function name and parameters
+        // Find function name and parameter section
         if (std.mem.indexOf(u8, signature, "(")) |paren_start| {
             if (std.mem.lastIndexOf(u8, signature, ")")) |paren_end| {
-                // Format function name part
-                const name_part = std.mem.trim(u8, signature[0..paren_start], " \t");
-                try formatFunctionNamePart(name_part, builder);
-                
-                // Extract parameters and return type
+                // Extract parts
+                const func_name_part = signature[0..paren_start];
                 const params_part = signature[paren_start + 1..paren_end];
-                const return_part = if (paren_end + 1 < signature.len) 
-                    std.mem.trim(u8, signature[paren_end + 1..], " \t") 
-                else 
-                    "";
+                const return_part = if (paren_end + 1 < signature.len) signature[paren_end + 1..] else "";
                 
-                // Decide on parameter formatting style
-                if (shouldUseMultilineParams(params_part, options)) {
+                // Format function name part with proper spacing
+                try formatFunctionNamePart(func_name_part, builder);
+                
+                // Check if we need multiline formatting
+                const total_width = func_name_part.len + params_part.len + return_part.len + 2; // +2 for parentheses
+                if (total_width > options.line_width and params_part.len > 0) {
+                    // Use multiline format
                     try builder.append("(");
                     try builder.newline();
                     builder.indent();
                     
-                    try formatParametersMultiline(params_part, builder, options);
+                    try formatParametersMultilineLocal(params_part, builder, options);
                     
                     builder.dedent();
                     try builder.appendIndent();
@@ -87,7 +93,7 @@ pub const ZigFunctionFormatter = struct {
                 } else {
                     // Use single line format
                     try builder.append("(");
-                    try formatParametersSingleLine(params_part, builder);
+                    try formatParametersSingleLineLocal(params_part, builder);
                     try builder.append(")");
                 }
                 
@@ -107,48 +113,126 @@ pub const ZigFunctionFormatter = struct {
 
     /// Format function name part with proper spacing
     fn formatFunctionNamePart(name_part: []const u8, builder: *LineBuilder) !void {
-        try ZigUtils.formatDeclarationWithSpacing(name_part, builder);
+        var i: usize = 0;
+        while (i < name_part.len) : (i += 1) {
+            const char = name_part[i];
+            if (char == ':') {
+                try builder.append(&[_]u8{char});
+                // Add space after : if not present
+                if (i + 1 < name_part.len and name_part[i + 1] != ' ') {
+                    try builder.append(" ");
+                }
+            } else {
+                try builder.append(&[_]u8{char});
+            }
+        }
     }
 
     /// Format parameters in multiline style
-    fn formatParametersMultiline(params: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
+    fn formatParametersMultilineLocal(params: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
         if (params.len == 0) return;
         
-        const param_list = try ZigUtils.splitByDelimiter(builder.allocator, params, ',');
-        defer builder.allocator.free(param_list);
+        var param_start: usize = 0;
+        var depth: i32 = 0;
+        var in_string: bool = false;
+        var string_char: u8 = 0;
         
-        for (param_list, 0..) |param, i| {
-            const trimmed = std.mem.trim(u8, param, " \t\n\r");
-            if (trimmed.len > 0) {
-                try builder.appendIndent();
-                try ZigParameterFormatter.formatSingleParameter(trimmed, builder);
-                if (i < param_list.len - 1) {
-                    try builder.append(",");
-                }
-                if (options.trailing_comma and i == param_list.len - 1) {
-                    try builder.append(",");
-                }
-                try builder.newline();
+        for (params, 0..) |char, i| {
+            // Track string boundaries
+            if (!in_string and (char == '\'' or char == '"')) {
+                in_string = true;
+                string_char = char;
+            } else if (in_string and char == string_char) {
+                in_string = false;
             }
+            
+            // Skip processing inside strings
+            if (in_string) continue;
+            
+            // Track parentheses depth for nested types
+            if (char == '(') {
+                depth += 1;
+            } else if (char == ')') {
+                depth -= 1;
+            } else if (char == ',' and depth == 0) {
+                // Found parameter boundary
+                const param = std.mem.trim(u8, params[param_start..i], " \t\n");
+                if (param.len > 0) {
+                    try builder.appendIndent();
+                    try formatSingleParameter(param, builder);
+                    try builder.append(",");
+                    try builder.newline();
+                }
+                param_start = i + 1;
+            }
+        }
+        
+        // Handle last parameter
+        const last_param = std.mem.trim(u8, params[param_start..], " \t\n");
+        if (last_param.len > 0) {
+            try builder.appendIndent();
+            try formatSingleParameter(last_param, builder);
+            if (options.trailing_comma) {
+                try builder.append(",");
+            }
+            try builder.newline();
         }
     }
 
     /// Format parameters in single line style
-    fn formatParametersSingleLine(params: []const u8, builder: *LineBuilder) !void {
+    fn formatParametersSingleLineLocal(params: []const u8, builder: *LineBuilder) !void {
         if (params.len == 0) return;
         
-        const param_list = try ZigUtils.splitByDelimiter(builder.allocator, params, ',');
-        defer builder.allocator.free(param_list);
+        var param_start: usize = 0;
+        var depth: i32 = 0;
+        var in_string: bool = false;
+        var string_char: u8 = 0;
+        var first_param = true;
         
-        for (param_list, 0..) |param, i| {
-            const trimmed = std.mem.trim(u8, param, " \t\n\r");
-            if (trimmed.len > 0) {
-                try ZigParameterFormatter.formatSingleParameter(trimmed, builder);
-                if (i < param_list.len - 1) {
-                    try builder.append(", ");
+        for (params, 0..) |char, i| {
+            // Track string boundaries
+            if (!in_string and (char == '\'' or char == '"')) {
+                in_string = true;
+                string_char = char;
+            } else if (in_string and char == string_char) {
+                in_string = false;
+            }
+            
+            // Skip processing inside strings
+            if (in_string) continue;
+            
+            // Track parentheses depth for nested types
+            if (char == '(') {
+                depth += 1;
+            } else if (char == ')') {
+                depth -= 1;
+            } else if (char == ',' and depth == 0) {
+                // Found parameter boundary
+                const param = std.mem.trim(u8, params[param_start..i], " \t\n");
+                if (param.len > 0) {
+                    if (!first_param) {
+                        try builder.append(", ");
+                    }
+                    try formatSingleParameter(param, builder);
+                    first_param = false;
                 }
+                param_start = i + 1;
             }
         }
+        
+        // Handle last parameter
+        const last_param = std.mem.trim(u8, params[param_start..], " \t\n");
+        if (last_param.len > 0) {
+            if (!first_param) {
+                try builder.append(", ");
+            }
+            try formatSingleParameter(last_param, builder);
+        }
+    }
+
+    /// Format single parameter with proper colon spacing
+    fn formatSingleParameter(param: []const u8, builder: *LineBuilder) !void {
+        return ZigParameterFormatter.formatSingleParameter(param, builder);
     }
 
     /// Format return type with proper spacing
@@ -159,136 +243,68 @@ pub const ZigFunctionFormatter = struct {
         }
     }
 
-    /// Fallback basic signature formatting
+    /// Format basic signature without advanced parameter parsing
     fn formatBasicSignature(signature: []const u8, builder: *LineBuilder) !void {
-        try ZigUtils.formatDeclarationWithSpacing(signature, builder);
+        var i: usize = 0;
+        var in_string = false;
+        var escape_next = false;
+
+        while (i < signature.len) {
+            const c = signature[i];
+
+            if (escape_next) {
+                try builder.append(&[_]u8{c});
+                escape_next = false;
+                i += 1;
+                continue;
+            }
+
+            if (c == '\\' and in_string) {
+                escape_next = true;
+                try builder.append(&[_]u8{c});
+                i += 1;
+                continue;
+            }
+
+            if (c == '"') {
+                in_string = !in_string;
+                try builder.append(&[_]u8{c});
+                i += 1;
+                continue;
+            }
+
+            if (in_string) {
+                try builder.append(&[_]u8{c});
+                i += 1;
+                continue;
+            }
+
+            if (c == ' ') {
+                // Only add space if we haven't just added one
+                if (builder.buffer.items.len > 0 and
+                    builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
+                    try builder.append(" ");
+                }
+                i += 1;
+                continue;
+            }
+
+            try builder.append(&[_]u8{c});
+            i += 1;
+        }
     }
 
     /// Format function body with proper indentation
     fn formatFunctionBody(body: []const u8, builder: *LineBuilder) !void {
-        // Split body into statements and format each
-        const statements = try splitIntoStatements(builder.allocator, body);
-        defer {
-            for (statements) |stmt| {
-                builder.allocator.free(stmt);
-            }
-            builder.allocator.free(statements);
-        }
-        
-        for (statements, 0..) |statement, i| {
-            const trimmed = std.mem.trim(u8, statement, " \t\n\r");
-            if (trimmed.len > 0) {
-                try builder.appendIndent();
-                try ZigStatementFormatter.formatStatement(trimmed, builder);
-                try builder.newline();
-                
-                // Add spacing between different types of statements
-                if (i < statements.len - 1 and shouldAddSpacingAfterStatement(trimmed)) {
-                    try builder.newline();
-                }
-            }
-        }
+        return ZigStatementFormatter.formatFunctionBody(body, builder);
     }
 
-    /// Check if signature should use advanced formatting
-    fn shouldUseAdvancedFormatting(signature: []const u8) bool {
-        // Use advanced formatting for complex signatures
-        return std.mem.indexOf(u8, signature, "comptime") != null or
-               std.mem.indexOf(u8, signature, "anytype") != null or
-               signature.len > 50; // Arbitrary threshold
-    }
-
-    /// Check if parameters should use multiline format
-    fn shouldUseMultilineParams(params_part: []const u8, options: FormatterOptions) bool {
-        if (params_part.len == 0) return false;
-        
-        // Count commas to estimate parameter count
-        var comma_count: u32 = 0;
-        for (params_part) |char| {
-            if (char == ',') comma_count += 1;
-        }
-        
-        // Use multiline if more than 2 parameters or total length exceeds limit
-        return comma_count > 1 or params_part.len > options.line_width - 20;
-    }
-
-    /// Split function body into statements
-    fn splitIntoStatements(allocator: std.mem.Allocator, body: []const u8) ![][]const u8 {
-        var statements = std.ArrayList([]const u8).init(allocator);
-        defer statements.deinit();
-        
-        var start: usize = 0;
-        var brace_depth: i32 = 0;
-        var in_string: bool = false;
-        var string_char: u8 = 0;
-        
-        for (body, 0..) |char, i| {
-            // Handle string boundaries
-            if (!in_string and (char == '"' or char == '\'')) {
-                in_string = true;
-                string_char = char;
-            } else if (in_string and char == string_char) {
-                in_string = false;
-            }
-            
-            if (!in_string) {
-                switch (char) {
-                    '{' => brace_depth += 1,
-                    '}' => brace_depth -= 1,
-                    ';' => {
-                        if (brace_depth == 0) {
-                            const stmt = std.mem.trim(u8, body[start..i], " \t\n\r");
-                            if (stmt.len > 0) {
-                                try statements.append(try allocator.dupe(u8, stmt));
-                            }
-                            start = i + 1;
-                        }
-                    },
-                    '\n' => {
-                        // Handle statements that don't end with semicolon
-                        if (brace_depth == 0 and i > start) {
-                            const potential_stmt = std.mem.trim(u8, body[start..i], " \t\n\r");
-                            if (potential_stmt.len > 0 and !std.mem.endsWith(u8, potential_stmt, ",")) {
-                                // Check if this looks like a complete statement
-                                if (isCompleteStatement(potential_stmt)) {
-                                    try statements.append(try allocator.dupe(u8, potential_stmt));
-                                    start = i + 1;
-                                }
-                            }
-                        }
-                    },
-                    else => {},
-                }
-            }
-        }
-        
-        // Handle final statement
-        if (start < body.len) {
-            const final_stmt = std.mem.trim(u8, body[start..], " \t\n\r");
-            if (final_stmt.len > 0) {
-                try statements.append(try allocator.dupe(u8, final_stmt));
-            }
-        }
-        
-        return statements.toOwnedSlice();
-    }
-
-    /// Check if text represents a complete statement
-    fn isCompleteStatement(text: []const u8) bool {
-        const trimmed = std.mem.trim(u8, text, " \t\n\r");
-        return std.mem.startsWith(u8, trimmed, "return ") or
-               std.mem.startsWith(u8, trimmed, "if ") or
-               std.mem.startsWith(u8, trimmed, "while ") or
-               std.mem.startsWith(u8, trimmed, "for ") or
-               std.mem.indexOf(u8, trimmed, " = ") != null;
-    }
-
-    /// Check if spacing should be added after this statement
-    fn shouldAddSpacingAfterStatement(statement: []const u8) bool {
-        const trimmed = std.mem.trim(u8, statement, " \t\n\r");
-        return std.mem.startsWith(u8, trimmed, "const ") or
-               std.mem.startsWith(u8, trimmed, "var ") or
-               std.mem.indexOf(u8, trimmed, "struct") != null or
-               std.mem.indexOf(u8, trimmed, "enum") != null;
+    /// Check if text represents a function declaration
+    pub fn isFunctionDecl(text: []const u8) bool {
+        // Look for function patterns
+        return std.mem.indexOf(u8, text, "fn ") != null or 
+               std.mem.indexOf(u8, text, "pub fn") != null or
+               std.mem.indexOf(u8, text, "inline fn") != null or
+               std.mem.indexOf(u8, text, "export fn") != null;
     }
 };

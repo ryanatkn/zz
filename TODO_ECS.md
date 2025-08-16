@@ -1,5 +1,7 @@
 # ECS Architecture Migration
 
+// TODO measure this before switching over
+
 ## Status: Planning
 
 Performance-critical ECS for file processing, AST operations, and parallel traversal.

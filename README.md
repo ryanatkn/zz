@@ -3,8 +3,7 @@
 > ⚠️ AI slop code and docs, may be unstable and bad
 
 zz is a CLI in Zig written by Claude Code and designed by people.
-For the companion GUI see [Zzz](https://github.com/ryanatkn/zzz)
-and [ztack.net](https://www.ztack.net/) for a web+ stack.
+For the companion GUI see [Zzz](https://github.com/ryanatkn/zzz).
 
 > status: vibe-engineered slop level 1
 
@@ -240,4 +239,4 @@ zz demo --output=demo.md -n
 
 ## License
 
-See individual component licenses in their respective directories.
+Un

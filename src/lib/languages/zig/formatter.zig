@@ -10,7 +10,6 @@ const ZigNodeDispatcher = @import("node_dispatcher.zig").ZigNodeDispatcher;
 /// Format Zig using AST-based approach - main entry point
 pub fn formatAst(allocator: std.mem.Allocator, node: ts.Node, source: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
     _ = allocator;
-    std.debug.print("[DEBUG] Zig formatAst called\n", .{});
     
     // Delegate all formatting to the node dispatcher
     try ZigNodeDispatcher.formatNode(node, source, builder, 0, options);

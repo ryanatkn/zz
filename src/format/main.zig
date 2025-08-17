@@ -218,7 +218,6 @@ fn formatStdin(allocator: std.mem.Allocator, options: FormatterOptions) !void {
 
     // Try to detect language from content (simple heuristic)
     const language = detectLanguageFromContent(content);
-    std.debug.print("[DEBUG] Language detection result: {}\n", .{language});
 
     var formatter = Formatter.init(allocator, language, options);
     const formatted = formatter.format(content) catch |err| {

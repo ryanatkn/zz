@@ -92,7 +92,6 @@ pub const AstFormatter = struct {
         // Try AST-based formatting first
         const tree = self.parser.parse(source) catch {
             // On parse failure, return original source
-            std.debug.print("[DEBUG] AST parse failed, returning original source\n", .{});
             return self.allocator.dupe(u8, source);
         };
         defer tree.destroy();
@@ -102,8 +101,6 @@ pub const AstFormatter = struct {
         // Check if the parse resulted in ERROR nodes (malformed/partial parse)
         if (self.hasErrorNodes(root)) {
             // Return original source for malformed code
-            std.debug.print("[DEBUG] AST has error nodes:\n", .{});
-            self.debugPrintNodes(root, 0, 3); // Print first 3 levels
             return self.allocator.dupe(u8, source);
         }
 

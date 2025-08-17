@@ -1,6 +1,7 @@
 const std = @import("std");
 const ZonParser = @import("../languages/zon/parser.zig").ZonParser;
 const DependencyInfo = @import("../languages/zon/parser.zig").DependencyInfo;
+const struct_utils = @import("../core/struct_utils.zig");
 
 /// Configuration for a single dependency
 pub const Dependency = struct {
@@ -263,6 +264,7 @@ pub const DepsZonConfig = struct {
         }
         
         // Clean up ZON dependencies properly using the parser's method
+        // NOTE: Must be done AFTER we've finished using the data, not before
         zon_parser.freeDependencies(&zon_dependencies);
         
         // Default settings (safe literals)
@@ -322,7 +324,8 @@ pub const DepsZonConfig = struct {
             const dep_value = entry.value_ptr.*;
             
             
-            const hash_entry = DepsConfig.DependencyEntry{
+            // Use generic struct cloning to handle string duplication
+            var hash_entry = try struct_utils.cloneStruct(DepsConfig.DependencyEntry, allocator, DepsConfig.DependencyEntry{
                 .url = dep_value.url,
                 .version = dep_value.version,
                 .include = dep_value.include,
@@ -332,7 +335,9 @@ pub const DepsZonConfig = struct {
                 .category = dep_value.category,
                 .language = dep_value.language,
                 .purpose = dep_value.purpose,
-            };
+                .owns_memory = false, // Will be overridden
+            });
+            hash_entry.owns_memory = true; // We cloned these strings, so we own them
             
             const key_copy = try allocator.dupe(u8, dep_name);
             try deps_config.dependencies.put(key_copy, hash_entry);
@@ -392,13 +397,19 @@ pub const DepsConfig = struct {
         category: ?[]const u8 = null,
         language: ?[]const u8 = null,
         purpose: ?[]const u8 = null,
+        // Track if this entry owns its memory (true for allocated, false for literals)
+        owns_memory: bool = true,
     };
 
     pub fn deinit(self: *DepsConfig, allocator: std.mem.Allocator) void {
-        // Free all keys in the hash map
+        // Free all keys and values in the hash map
         var iterator = self.dependencies.iterator();
         while (iterator.next()) |entry| {
             allocator.free(entry.key_ptr.*);
+            
+            // Use generic struct freeing
+            const dep = entry.value_ptr.*;
+            struct_utils.freeStruct(DependencyEntry, allocator, dep, dep.owns_memory);
         }
         self.dependencies.deinit();
     }
@@ -410,20 +421,21 @@ pub const DepsConfig = struct {
 
         var iterator = self.dependencies.iterator();
         while (iterator.next()) |entry| {
-            
-            const dep = Dependency{
-                .name = try allocator.dupe(u8, entry.key_ptr.*),
-                .url = try allocator.dupe(u8, entry.value_ptr.url),
-                .version = try allocator.dupe(u8, entry.value_ptr.version),
-                .include = try allocator.dupe([]const u8, entry.value_ptr.include),
-                .exclude = try allocator.dupe([]const u8, entry.value_ptr.exclude),
-                .preserve_files = try allocator.dupe([]const u8, entry.value_ptr.preserve_files),
-                .patches = try allocator.dupe([]const u8, entry.value_ptr.patches),
-                .category = if (entry.value_ptr.category) |cat| try allocator.dupe(u8, cat) else null,
-                .language = if (entry.value_ptr.language) |lang| try allocator.dupe(u8, lang) else null,
-                .purpose = if (entry.value_ptr.purpose) |purpose| try allocator.dupe(u8, purpose) else null,
-                .owns_memory = true, // These are allocated, so we own them
-            };
+            // Use generic struct cloning for the dependency conversion
+            var dep = try struct_utils.cloneStruct(Dependency, allocator, Dependency{
+                .name = entry.key_ptr.*,
+                .url = entry.value_ptr.url,
+                .version = entry.value_ptr.version,
+                .include = entry.value_ptr.include,
+                .exclude = entry.value_ptr.exclude,
+                .preserve_files = entry.value_ptr.preserve_files,
+                .patches = entry.value_ptr.patches,
+                .category = entry.value_ptr.category,
+                .language = entry.value_ptr.language,
+                .purpose = entry.value_ptr.purpose,
+                .owns_memory = false, // Will be overridden
+            });
+            dep.owns_memory = true; // These are allocated, so we own them
             try deps.append(dep);
         }
 
@@ -546,6 +558,7 @@ test "DepsConfig operations" {
         .exclude = &.{},
         .preserve_files = &.{},
         .patches = &.{},
+        .owns_memory = false, // Test uses string literals
     });
     
     // Convert to Dependencies array

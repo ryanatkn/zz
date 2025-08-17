@@ -63,6 +63,7 @@ pub const Versioning = struct {
         defer self.allocator.free(version_file);
 
         const cwd = self.filesystem.cwd();
+        defer cwd.close();
         const version_content = cwd.readFileAlloc(self.allocator, version_file, 1024) catch |err| switch (err) {
             error.FileNotFound, error.AccessDenied, error.NotDir => return true, // No version file, needs update
             else => return err,

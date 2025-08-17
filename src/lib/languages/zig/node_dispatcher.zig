@@ -17,10 +17,7 @@ pub const ZigNodeDispatcher = struct {
     pub fn formatNode(node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) anyerror!void {
         const node_type = node.kind();
 
-        // Debug output for development
-        if (depth <= 1) {
-            std.debug.print("[DEBUG] Zig Node at depth {d}: {s}\n", .{ depth, node_type });
-        }
+        // Node type dispatching logic
 
         // Dispatch based on node type and content
         if (std.mem.eql(u8, node_type, "VarDecl")) {

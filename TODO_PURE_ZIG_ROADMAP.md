@@ -65,23 +65,26 @@ Transform **zz** from a CLI tool into a comprehensive **Zig library for language
 - [x] Create modular architecture - 20+ files for clean separation
 - [ ] Design `src/lib/grammar/precedence.zig` - Operator precedence (deferred)
 
-**Deliverable**: ✅ Working grammar definition system with 47+ tests
+**Deliverable**: ✅ Working grammar definition system with 60+ tests
 
-#### Week 2: Parser Generator
-- [ ] Create `src/lib/parser/generator.zig` - Generate parsers from grammars
-- [ ] Implement `src/lib/parser/engine.zig` - Core parsing algorithms
-- [ ] Add `src/lib/parser/recovery.zig` - Error recovery
-- [ ] Design `src/lib/parser/incremental.zig` - Incremental parsing
+#### Week 2: Parser & AST [COMPLETED ✅]
+- [x] Create `src/lib/parser/parser.zig` - Recursive descent parser
+- [x] Implement `src/lib/parser/context.zig` - Parse context with error tracking
+- [x] Add `src/lib/parser/mod.zig` - Clean parser API
+- [x] Create `src/lib/ast/node.zig` - Generic AST node types
+- [x] Implement `src/lib/ast/visitor.zig` - Visitor pattern
+- [x] Add `src/lib/ast/walker.zig` - Tree traversal utilities
+- [x] Complete grammar-to-AST pipeline
 
-**Deliverable**: Parser generator that produces working parsers
+**Deliverable**: ✅ Complete parsing system with AST generation
 
-#### Week 3: AST Infrastructure
-- [ ] Create `src/lib/ast/node.zig` - Base AST node types
-- [ ] Implement `src/lib/ast/visitor.zig` - Visitor pattern
-- [ ] Add `src/lib/ast/walker.zig` - Tree traversal utilities
-- [ ] Design `src/lib/ast/trivia.zig` - Whitespace/comment preservation
+#### Week 3: Real-World Applications
+- [ ] Complete JSON parser implementation
+- [ ] CLI argument parser using grammar system  
+- [ ] Performance benchmarking vs existing solutions
+- [ ] Error recovery and better diagnostics
 
-**Deliverable**: Complete AST infrastructure with visitor pattern
+**Deliverable**: Production-ready parsers for common use cases
 
 ---
 

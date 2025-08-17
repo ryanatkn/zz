@@ -108,7 +108,7 @@ pub const PerfTest = struct {
     pub fn begin(name: []const u8) PerfTest {
         return .{
             .name = name,
-            .start_time = std.time.nanoTimestamp(),
+            .start_time = @intCast(std.time.nanoTimestamp()),
         };
     }
     

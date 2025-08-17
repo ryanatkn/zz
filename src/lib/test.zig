@@ -2,8 +2,16 @@
 const std = @import("std");
 const testing = std.testing;
 
+// Export modules for tests
+pub const grammar = @import("grammar/mod.zig");
+pub const parser = @import("parser/mod.zig");
+
 test {
+    // Grammar tests
+    _ = @import("grammar/grammar_test.zig");
     // Parser tests
+    _ = @import("parser/test.zig");
+    // Legacy tests
     _ = @import("test/parser_test.zig");
     // Cached formatter tests
     _ = @import("test/cached_formatter_test.zig");

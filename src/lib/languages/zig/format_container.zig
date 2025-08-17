@@ -113,10 +113,13 @@ pub const FormatContainer = struct {
 
     /// Extract struct name from declaration text
     fn extractStructName(text: []const u8) ?[]const u8 {
-        // Look for pattern: const Name = struct
+        // Look for pattern: const Name = struct or const Name=struct
         if (std.mem.indexOf(u8, text, "const ")) |start| {
             const after_const = text[start + "const ".len..];
+            // Try spaced equals first, then unspaced
             if (std.mem.indexOf(u8, after_const, " =")) |equals_pos| {
+                return std.mem.trim(u8, after_const[0..equals_pos], " \t");
+            } else if (std.mem.indexOf(u8, after_const, "=")) |equals_pos| {
                 return std.mem.trim(u8, after_const[0..equals_pos], " \t");
             }
         }
@@ -125,10 +128,13 @@ pub const FormatContainer = struct {
 
     /// Extract enum name from declaration text
     fn extractEnumName(text: []const u8) ?[]const u8 {
-        // Look for pattern: const Name = enum
+        // Look for pattern: const Name = enum or const Name=enum
         if (std.mem.indexOf(u8, text, "const ")) |start| {
             const after_const = text[start + "const ".len..];
+            // Try spaced equals first, then unspaced
             if (std.mem.indexOf(u8, after_const, " =")) |equals_pos| {
+                return std.mem.trim(u8, after_const[0..equals_pos], " \t");
+            } else if (std.mem.indexOf(u8, after_const, "=")) |equals_pos| {
                 return std.mem.trim(u8, after_const[0..equals_pos], " \t");
             }
         }
@@ -137,10 +143,13 @@ pub const FormatContainer = struct {
 
     /// Extract union name from declaration text
     fn extractUnionName(text: []const u8) ?[]const u8 {
-        // Look for pattern: const Name = union
+        // Look for pattern: const Name = union or const Name=union
         if (std.mem.indexOf(u8, text, "const ")) |start| {
             const after_const = text[start + "const ".len..];
+            // Try spaced equals first, then unspaced
             if (std.mem.indexOf(u8, after_const, " =")) |equals_pos| {
+                return std.mem.trim(u8, after_const[0..equals_pos], " \t");
+            } else if (std.mem.indexOf(u8, after_const, "=")) |equals_pos| {
                 return std.mem.trim(u8, after_const[0..equals_pos], " \t");
             }
         }

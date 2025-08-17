@@ -4,6 +4,9 @@ const LineBuilder = @import("../../parsing/formatter.zig").LineBuilder;
 const FormatterOptions = @import("../../parsing/formatter.zig").FormatterOptions;
 const NodeUtils = @import("../../language/node_utils.zig").NodeUtils;
 const TypeScriptHelpers = @import("formatting_helpers.zig").TypeScriptFormattingHelpers;
+const builders = @import("../../text/builders.zig");
+const collections = @import("../../core/collections.zig");
+const processing = @import("../../text/processing.zig");
 
 pub const FormatFunction = struct {
     /// Format TypeScript function declaration
@@ -173,21 +176,22 @@ pub const FormatFunction = struct {
         try builder.newline();
         builder.indent();
         
-        // Split parameters by comma (simple approach)
-        var params = std.mem.splitSequence(u8, content, ",");
-        var first = true;
-        
-        while (params.next()) |param| {
-            const trimmed = std.mem.trim(u8, param, " \t\n");
-            if (trimmed.len > 0) {
-                if (!first) {
-                    try builder.append(",");
-                    try builder.newline();
-                }
-                try builder.appendIndent();
-                try formatSingleParameter(trimmed, builder);
-                first = false;
+        // Split parameters by comma using common utility
+        const params = try processing.splitAndTrim(builder.allocator, content, ',');
+        defer {
+            for (params) |param| {
+                builder.allocator.free(param);
             }
+            builder.allocator.free(params);
+        }
+        
+        for (params, 0..) |param, i| {
+            if (i > 0) {
+                try builder.append(",");
+                try builder.newline();
+            }
+            try builder.appendIndent();
+            try formatSingleParameter(param, builder);
         }
         
         try builder.newline();
@@ -201,19 +205,20 @@ pub const FormatFunction = struct {
         try builder.append("(");
         
         if (content.len > 0) {
-            // Split parameters by comma
-            var params = std.mem.splitSequence(u8, content, ",");
-            var first = true;
-            
-            while (params.next()) |param| {
-                const trimmed = std.mem.trim(u8, param, " \t\n");
-                if (trimmed.len > 0) {
-                    if (!first) {
-                        try builder.append(", ");
-                    }
-                    try formatSingleParameter(trimmed, builder);
-                    first = false;
+            // Split parameters by comma using common utility
+            const params = try processing.splitAndTrim(builder.allocator, content, ',');
+            defer {
+                for (params) |param| {
+                    builder.allocator.free(param);
                 }
+                builder.allocator.free(params);
+            }
+            
+            for (params, 0..) |param, i| {
+                if (i > 0) {
+                    try builder.append(", ");
+                }
+                try formatSingleParameter(param, builder);
             }
         }
         
@@ -354,19 +359,37 @@ pub const FormatFunction = struct {
         
         const body_text = NodeUtils.getNodeText(body_node, source);
         
+        // Remove outer braces from statement_block if present
+        var content = body_text;
+        if (std.mem.startsWith(u8, content, "{") and std.mem.endsWith(u8, content, "}")) {
+            content = std.mem.trim(u8, content[1..content.len-1], " \t\n\r");
+        }
+        
         // Simple body formatting - just add newlines and indentation
         try builder.newline();
         builder.indent();
         
-        var lines = std.mem.splitSequence(u8, body_text, "\n");
-        while (lines.next()) |line| {
-            const trimmed = std.mem.trim(u8, line, " \t");
-            if (trimmed.len > 0 and !std.mem.eql(u8, trimmed, "{") and !std.mem.eql(u8, trimmed, "}")) {
-                try builder.appendIndent();
-                try builder.append(trimmed);
-                try builder.newline();
-            }
-        }
+        // Use common line processing utility
+        const ProcessLineCtx = struct {
+            builder: *LineBuilder,
+        };
+        const ctx = ProcessLineCtx{ .builder = builder };
+        
+        processing.processLinesWithState(
+            ProcessLineCtx,
+            content,
+            ctx,
+            struct {
+                fn processLine(context: ProcessLineCtx, line: []const u8) void {
+                    const trimmed = std.mem.trim(u8, line, " \t");
+                    if (trimmed.len > 0) {
+                        context.builder.appendIndent() catch return;
+                        context.builder.append(trimmed) catch return;
+                        context.builder.newline() catch return;
+                    }
+                }
+            }.processLine,
+        );
         
         builder.dedent();
         try builder.appendIndent();

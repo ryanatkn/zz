@@ -26,7 +26,14 @@ fn formatSvelteNode(node: ts.Node, source: []const u8, builder: *LineBuilder, de
         var i: u32 = 0;
         while (i < child_count) : (i += 1) {
             if (node.child(i)) |child| {
+                const child_type = child.kind();
                 try formatSvelteNode(child, source, builder, depth, options);
+                
+                // Add spacing between major sections (script, style, template)
+                if (i < child_count - 1 and (std.mem.eql(u8, child_type, "script_element") or 
+                                              std.mem.eql(u8, child_type, "style_element"))) {
+                    try builder.newline();
+                }
             }
         }
     } else if (std.mem.eql(u8, node_type, "element")) {
@@ -76,7 +83,6 @@ fn formatSvelteScript(node: ts.Node, source: []const u8, builder: *LineBuilder, 
     }
 
     try builder.append("</script>");
-    try builder.newline();
     try builder.newline();
 }
 

@@ -1,53 +1,15 @@
 const std = @import("std");
 const LineBuilder = @import("../../parsing/formatter.zig").LineBuilder;
 const FormatterOptions = @import("../../parsing/formatter.zig").FormatterOptions;
+const delimiters = @import("../../text/delimiters.zig");
 
 /// TypeScript-specific utilities extracted from generic helpers
 pub const TypeScriptUtils = struct {
 
     /// Split text by delimiter, respecting nested structures
+    /// Delegates to common language-agnostic utility
     pub fn splitByDelimiter(allocator: std.mem.Allocator, text: []const u8, delimiter: u8) ![][]const u8 {
-        var parts = std.ArrayList([]const u8).init(allocator);
-        defer parts.deinit();
-
-        var start: usize = 0;
-        var depth: i32 = 0;
-        var in_string: bool = false;
-        var string_char: u8 = 0;
-
-        for (text, 0..) |char, i| {
-            // Track string boundaries
-            if (!in_string and (char == '"' or char == '\'' or char == '`')) {
-                in_string = true;
-                string_char = char;
-            } else if (in_string and char == string_char) {
-                in_string = false;
-            }
-
-            if (!in_string) {
-                switch (char) {
-                    '(', '[', '{', '<' => depth += 1,
-                    ')', ']', '}', '>' => depth -= 1,
-                    else => {
-                        if (char == delimiter and depth == 0) {
-                            const part = std.mem.trim(u8, text[start..i], " \t\n\r");
-                            if (part.len > 0) {
-                                try parts.append(try allocator.dupe(u8, part));
-                            }
-                            start = i + 1;
-                        }
-                    },
-                }
-            }
-        }
-
-        // Handle final part
-        const final_part = std.mem.trim(u8, text[start..], " \t\n\r");
-        if (final_part.len > 0) {
-            try parts.append(try allocator.dupe(u8, final_part));
-        }
-
-        return parts.toOwnedSlice();
+        return delimiters.splitRespectingNesting(allocator, text, delimiter);
     }
 
     /// Format declaration with TypeScript-style spacing

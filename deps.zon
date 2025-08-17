@@ -9,7 +9,6 @@
             .exclude = .{ "build.zig", "build.zig.zon", "test/", "script/", "*.md" },
             .preserve_files = .{},
             .patches = .{},
-            // Optional metadata for documentation generation
             .category = "core",
             .purpose = "Core tree-sitter parsing engine written in C",
         },
@@ -20,7 +19,6 @@
             .exclude = .{ "build.zig", "build.zig.zon", "*.md" },
             .preserve_files = .{},
             .patches = .{},
-            // Optional metadata for documentation generation
             .category = "core", 
             .purpose = "Official Zig language bindings to tree-sitter C API",
         },
@@ -31,7 +29,6 @@
             .exclude = .{ "build.zig", "build.zig.zon", "*.md" },
             .preserve_files = .{},
             .patches = .{},
-            // Optional metadata for documentation generation
             .category = "grammar",
             .language = "zig",
             .purpose = "Tree-sitter grammar for parsing Zig language files",
@@ -43,7 +40,6 @@
             .exclude = .{},
             .preserve_files = .{},
             .patches = .{},
-            // Optional metadata for documentation generation
             .category = "reference",
             .purpose = "Official Zig language specification and grammar reference",
         },
@@ -54,7 +50,6 @@
             .exclude = .{ "build.zig", "build.zig.zon", "*.md", "test/" },
             .preserve_files = .{},
             .patches = .{},
-            // Optional metadata for documentation generation
             .category = "grammar",
             .language = "svelte",
             .purpose = "Tree-sitter grammar for parsing Svelte component files",
@@ -66,7 +61,6 @@
             .exclude = .{ "build.zig", "build.zig.zon", "*.md", "test/" },
             .preserve_files = .{},
             .patches = .{},
-            // Optional metadata for documentation generation
             .category = "grammar",
             .language = "css",
             .purpose = "Tree-sitter grammar for parsing CSS stylesheets",
@@ -78,7 +72,6 @@
             .exclude = .{ "build.zig", "build.zig.zon", "*.md", "test/" },
             .preserve_files = .{},
             .patches = .{},
-            // Optional metadata for documentation generation
             .category = "grammar",
             .language = "typescript",
             .purpose = "Tree-sitter grammar for parsing TypeScript language files",
@@ -90,7 +83,6 @@
             .exclude = .{ "build.zig", "build.zig.zon", "*.md", "test/" },
             .preserve_files = .{},
             .patches = .{},
-            // Optional metadata for documentation generation
             .category = "grammar",
             .language = "json",
             .purpose = "Tree-sitter grammar for parsing JSON data files",
@@ -102,7 +94,6 @@
             .exclude = .{ "build.zig", "build.zig.zon", "*.md", "test/" },
             .preserve_files = .{},
             .patches = .{},
-            // Optional metadata for documentation generation
             .category = "grammar",
             .language = "html",
             .purpose = "Tree-sitter grammar for parsing HTML documents",
@@ -114,7 +105,6 @@
             .exclude = .{ "*.md", "test/", "tools/", "packages/" },
             .preserve_files = .{},
             .patches = .{},
-            // Optional metadata for documentation generation
             .category = "reference",
             .purpose = "W3C Web specifications and API reference data for CSS/HTML validation",
         },

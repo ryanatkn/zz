@@ -52,6 +52,20 @@ pub const CoordinateConverter = @import("math/coordinates.zig").CoordinateConver
 pub const SpanOps = @import("math/span_ops.zig").SpanOps;
 
 // ============================================================================
+// Collections - High-performance data structures for fact management
+// ============================================================================
+
+/// Fact indexing and storage systems
+pub const collections = @import("collections/mod.zig");
+
+// Export key collections for direct access
+pub const FactIndex = collections.FactIndex;
+pub const QueryCache = collections.QueryCache;
+pub const Query = collections.Query;
+pub const FactStorageSystem = collections.FactStorageSystem;
+pub const FactPoolManager = collections.FactPoolManager;
+
+// ============================================================================
 // Convenience Functions - Common operations
 // ============================================================================
 

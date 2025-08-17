@@ -12,3 +12,7 @@ test "foundation math" {
     _ = @import("math/coordinates.zig");
     _ = @import("math/span_ops.zig");
 }
+
+test "foundation collections" {
+    _ = @import("collections/test.zig");
+}

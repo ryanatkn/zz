@@ -1,5 +1,7 @@
 # Filesystem Abstraction Layer
 
+> ⚠️ AI slop code and docs, is unstable and full of lies
+
 ## Architecture
 
 - **`src/lib/filesystem/`** - Complete filesystem abstraction with parameterized dependencies for testing

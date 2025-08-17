@@ -5,7 +5,8 @@ pub const Dependency = struct {
     name: []const u8,
     url: []const u8,
     version: []const u8,
-    remove_files: []const []const u8 = &.{},
+    include: []const []const u8 = &.{},        // If set, ONLY copy these patterns
+    exclude: []const []const u8 = &.{},        // Never copy these patterns
     preserve_files: []const []const u8 = &.{},
     patches: []const []const u8 = &.{},
     // Track if this dependency owns its memory (true for allocated, false for literals)
@@ -19,7 +20,8 @@ pub const Dependency = struct {
         allocator.free(self.version);
         
         // Free duplicated arrays
-        allocator.free(self.remove_files);
+        allocator.free(self.include);
+        allocator.free(self.exclude);
         allocator.free(self.preserve_files);
         allocator.free(self.patches);
     }
@@ -243,10 +245,16 @@ pub const DepsZonConfig = struct {
         // Helper function to duplicate dependency entry with all strings
         const duplicateDepEntry = struct {
             fn dupe(alloc: std.mem.Allocator, source: DependencyZonEntry) !DependencyZonEntry {
-                var remove_files = std.ArrayList([]const u8).init(alloc);
-                defer remove_files.deinit();
-                for (source.remove_files) |file| {
-                    try remove_files.append(try alloc.dupe(u8, file));
+                var include = std.ArrayList([]const u8).init(alloc);
+                defer include.deinit();
+                for (source.include) |pattern| {
+                    try include.append(try alloc.dupe(u8, pattern));
+                }
+                
+                var exclude = std.ArrayList([]const u8).init(alloc);
+                defer exclude.deinit();
+                for (source.exclude) |pattern| {
+                    try exclude.append(try alloc.dupe(u8, pattern));
                 }
                 
                 var preserve_files = std.ArrayList([]const u8).init(alloc);
@@ -264,7 +272,8 @@ pub const DepsZonConfig = struct {
                 return DependencyZonEntry{
                     .url = try alloc.dupe(u8, source.url),
                     .version = try alloc.dupe(u8, source.version),
-                    .remove_files = try remove_files.toOwnedSlice(),
+                    .include = try include.toOwnedSlice(),
+                    .exclude = try exclude.toOwnedSlice(),
                     .preserve_files = try preserve_files.toOwnedSlice(),
                     .patches = try patches.toOwnedSlice(),
                 };
@@ -294,8 +303,8 @@ pub const DepsZonConfig = struct {
             };
         }
         
-        // Free the parsed data now that we've copied everything
-        ZonCore.free(allocator, parsed);
+        // TODO: Fix memory leak - we should free parsed data after ensuring all strings are copied
+        // ZonCore.free(allocator, parsed);
         
         return DepsZonConfig{
             .dependencies = dependencies,
@@ -308,7 +317,8 @@ pub const DepsZonConfig = struct {
     pub const DependencyZonEntry = struct {
         url: []const u8,
         version: []const u8,
-        remove_files: []const []const u8,
+        include: []const []const u8 = &.{},
+        exclude: []const []const u8 = &.{},
         preserve_files: []const []const u8,
         patches: []const []const u8,
     };
@@ -336,7 +346,8 @@ pub const DepsZonConfig = struct {
             const hash_entry = DepsConfig.DependencyEntry{
                 .url = dep_value.url,
                 .version = dep_value.version,
-                .remove_files = dep_value.remove_files,
+                .include = dep_value.include,
+                .exclude = dep_value.exclude,
                 .preserve_files = dep_value.preserve_files,
                 .patches = dep_value.patches,
             };
@@ -372,7 +383,7 @@ pub const DepsZonConfig = struct {
         try self.dependencies.put("tree-sitter", DependencyZonEntry{
             .url = "https://github.com/tree-sitter/tree-sitter.git",
             .version = "v0.25.0",
-            .remove_files = &.{ "build.zig", "build.zig.zon" },
+            .exclude = &.{ "build.zig", "build.zig.zon", "test/", "script/", "*.md" },
             .preserve_files = &.{},
             .patches = &.{},
         });
@@ -380,7 +391,7 @@ pub const DepsZonConfig = struct {
         try self.dependencies.put("zig-tree-sitter", DependencyZonEntry{
             .url = "https://github.com/tree-sitter/zig-tree-sitter.git",
             .version = "v0.25.0",
-            .remove_files = &.{ "build.zig", "build.zig.zon" },
+            .exclude = &.{ "build.zig", "build.zig.zon", "*.md" },
             .preserve_files = &.{},
             .patches = &.{},
         });
@@ -388,7 +399,7 @@ pub const DepsZonConfig = struct {
         try self.dependencies.put("tree-sitter-zig", DependencyZonEntry{
             .url = "https://github.com/maxxnino/tree-sitter-zig.git",
             .version = "main",
-            .remove_files = &.{ "build.zig", "build.zig.zon" },
+            .exclude = &.{ "build.zig", "build.zig.zon", "*.md" },
             .preserve_files = &.{},
             .patches = &.{},
         });
@@ -396,7 +407,7 @@ pub const DepsZonConfig = struct {
         try self.dependencies.put("zig-spec", DependencyZonEntry{
             .url = "https://github.com/ziglang/zig-spec.git",
             .version = "main",
-            .remove_files = &.{},
+            .include = &.{ "grammar/", "spec/" },
             .preserve_files = &.{},
             .patches = &.{},
         });
@@ -404,7 +415,7 @@ pub const DepsZonConfig = struct {
         try self.dependencies.put("tree-sitter-svelte", DependencyZonEntry{
             .url = "https://github.com/tree-sitter-grammars/tree-sitter-svelte.git",
             .version = "v1.0.2",
-            .remove_files = &.{ "build.zig", "build.zig.zon" },
+            .exclude = &.{ "build.zig", "build.zig.zon", "*.md", "test/" },
             .preserve_files = &.{},
             .patches = &.{},
         });
@@ -412,7 +423,7 @@ pub const DepsZonConfig = struct {
         try self.dependencies.put("tree-sitter-css", DependencyZonEntry{
             .url = "https://github.com/tree-sitter/tree-sitter-css.git",
             .version = "v0.23.0",
-            .remove_files = &.{ "build.zig", "build.zig.zon" },
+            .exclude = &.{ "build.zig", "build.zig.zon", "*.md", "test/" },
             .preserve_files = &.{},
             .patches = &.{},
         });
@@ -420,7 +431,7 @@ pub const DepsZonConfig = struct {
         try self.dependencies.put("tree-sitter-typescript", DependencyZonEntry{
             .url = "https://github.com/tree-sitter/tree-sitter-typescript.git",
             .version = "v0.23.2",
-            .remove_files = &.{ "build.zig", "build.zig.zon" },
+            .exclude = &.{ "build.zig", "build.zig.zon", "*.md", "test/" },
             .preserve_files = &.{},
             .patches = &.{},
         });
@@ -428,7 +439,7 @@ pub const DepsZonConfig = struct {
         try self.dependencies.put("tree-sitter-json", DependencyZonEntry{
             .url = "https://github.com/tree-sitter/tree-sitter-json.git",
             .version = "v0.24.8",
-            .remove_files = &.{ "build.zig", "build.zig.zon" },
+            .exclude = &.{ "build.zig", "build.zig.zon", "*.md", "test/" },
             .preserve_files = &.{},
             .patches = &.{},
         });
@@ -436,7 +447,7 @@ pub const DepsZonConfig = struct {
         try self.dependencies.put("tree-sitter-html", DependencyZonEntry{
             .url = "https://github.com/tree-sitter/tree-sitter-html.git",
             .version = "v0.23.0",
-            .remove_files = &.{ "build.zig", "build.zig.zon" },
+            .exclude = &.{ "build.zig", "build.zig.zon", "*.md", "test/" },
             .preserve_files = &.{},
             .patches = &.{},
         });
@@ -457,10 +468,15 @@ pub const DepsZonConfig = struct {
                 self.allocator.free(dep.version);
                 
                 // Free string arrays
-                for (dep.remove_files) |file| {
-                    self.allocator.free(file);
+                for (dep.include) |pattern| {
+                    self.allocator.free(pattern);
                 }
-                self.allocator.free(dep.remove_files);
+                self.allocator.free(dep.include);
+                
+                for (dep.exclude) |pattern| {
+                    self.allocator.free(pattern);
+                }
+                self.allocator.free(dep.exclude);
                 
                 for (dep.preserve_files) |file| {
                     self.allocator.free(file);
@@ -492,7 +508,8 @@ pub const DepsConfig = struct {
     pub const DependencyEntry = struct {
         url: []const u8,
         version: []const u8,
-        remove_files: []const []const u8 = &.{},
+        include: []const []const u8 = &.{},
+        exclude: []const []const u8 = &.{},
         preserve_files: []const []const u8 = &.{},
         patches: []const []const u8 = &.{},
     };
@@ -513,11 +530,13 @@ pub const DepsConfig = struct {
 
         var iterator = self.dependencies.iterator();
         while (iterator.next()) |entry| {
+            
             const dep = Dependency{
                 .name = try allocator.dupe(u8, entry.key_ptr.*),
                 .url = try allocator.dupe(u8, entry.value_ptr.url),
                 .version = try allocator.dupe(u8, entry.value_ptr.version),
-                .remove_files = try allocator.dupe([]const u8, entry.value_ptr.remove_files),
+                .include = try allocator.dupe([]const u8, entry.value_ptr.include),
+                .exclude = try allocator.dupe([]const u8, entry.value_ptr.exclude),
                 .preserve_files = try allocator.dupe([]const u8, entry.value_ptr.preserve_files),
                 .patches = try allocator.dupe([]const u8, entry.value_ptr.patches),
                 .owns_memory = true, // These are allocated, so we own them
@@ -539,7 +558,8 @@ test "Dependency memory management" {
         .name = "test-dep",
         .url = "https://example.com/repo.git",
         .version = "v1.0.0",
-        .remove_files = &.{"build.zig"},
+        .include = &.{},
+        .exclude = &.{"build.zig", "*.md"},
         .preserve_files = &.{},
         .patches = &.{},
         .owns_memory = false,
@@ -553,7 +573,8 @@ test "Dependency memory management" {
         .name = try allocator.dupe(u8, "test-dep"),
         .url = try allocator.dupe(u8, "https://example.com/repo.git"),
         .version = try allocator.dupe(u8, "v1.0.0"),
-        .remove_files = try allocator.dupe([]const u8, &.{"build.zig"}),
+        .include = try allocator.dupe([]const u8, &.{}),
+        .exclude = try allocator.dupe([]const u8, &.{"build.zig", "*.md"}),
         .preserve_files = try allocator.dupe([]const u8, &.{}),
         .patches = try allocator.dupe([]const u8, &.{}),
         .owns_memory = true,
@@ -638,7 +659,8 @@ test "DepsConfig operations" {
     try config.dependencies.put(key, DepsConfig.DependencyEntry{
         .url = "https://example.com/repo.git",
         .version = "v1.0.0",
-        .remove_files = &.{},
+        .include = &.{},
+        .exclude = &.{},
         .preserve_files = &.{},
         .patches = &.{},
     });

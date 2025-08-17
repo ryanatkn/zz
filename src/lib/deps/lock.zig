@@ -1,5 +1,6 @@
 const std = @import("std");
 const io = @import("../core/io.zig");
+const path = @import("../core/path.zig");
 
 /// Lock file management for preventing concurrent dependency updates
 pub const Lock = struct {
@@ -10,7 +11,7 @@ pub const Lock = struct {
     const Self = @This();
 
     pub fn init(allocator: std.mem.Allocator, deps_dir: []const u8) !Self {
-        const lock_file_path = try std.fmt.allocPrint(allocator, "{s}/.update-deps.lock", .{deps_dir});
+        const lock_file_path = try path.joinPath(allocator, deps_dir, ".update-deps.lock");
         // Use POSIX-portable getpid
         const pid = std.c.getpid();
 

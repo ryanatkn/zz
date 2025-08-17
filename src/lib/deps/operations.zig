@@ -53,16 +53,6 @@ pub const Operations = struct {
         try self.copyDirectoryRecursive(backup_path, target_dir);
     }
 
-    /// Remove files from a directory based on patterns
-    pub fn removeFiles(self: *Self, dir: []const u8, files_to_remove: []const []const u8) !void {
-        for (files_to_remove) |file_pattern| {
-            const file_path = try path.joinPath(self.allocator, dir, file_pattern);
-            defer self.allocator.free(file_path);
-
-            // Use existing error handling for file deletion
-            try errors.deleteFile(file_path);
-        }
-    }
 
     /// Preserve files from a directory (copy to temp location)
     pub fn preserveFiles(self: *Self, dir: []const u8, files_to_preserve: []const []const u8) ![][]u8 {

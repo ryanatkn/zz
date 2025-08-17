@@ -1,5 +1,7 @@
 # Testing Guide
 
+> ⚠️ AI slop code and docs, is unstable and full of lies
+
 ## Running Tests
 ```bash
 $ zig build test                                       # Run all tests

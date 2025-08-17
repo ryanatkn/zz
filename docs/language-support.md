@@ -1,5 +1,7 @@
 # Language Support
 
+> ⚠️ AI slop code and docs, is unstable and full of lies
+
 ## Supported Languages with Complete AST Integration
 
 - **Zig** - Full AST support for functions, types, tests, docs

@@ -1,5 +1,7 @@
 # Development Workflow
 
+> ⚠️ AI slop code and docs, is unstable and full of lies
+
 ## Managing Vendored Dependencies
 
 The project uses vendored dependencies for tree-sitter libraries to ensure reliable, reproducible builds without network access.

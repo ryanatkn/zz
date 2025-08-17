@@ -1,5 +1,7 @@
 # Benchmarking Guide
 
+> ⚠️ AI slop code and docs, is unstable and full of lies
+
 Performance benchmarking is critical for maintaining and improving the efficiency of zz. The benchmark system follows Unix philosophy: the CLI outputs to stdout, and users control file management.
 
 ## Design Philosophy

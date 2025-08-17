@@ -1,5 +1,7 @@
 # Glob Pattern Reference
 
+> ⚠️ AI slop code and docs, is unstable and full of lies
+
 ## Overview
 The `zz prompt` command supports advanced glob patterns for flexible file selection. Patterns are processed from left to right, with special characters providing powerful matching capabilities.
 

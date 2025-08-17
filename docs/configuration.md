@@ -1,5 +1,7 @@
 # Configuration System
 
+> ⚠️ AI slop code and docs, is unstable and full of lies
+
 ## Architecture
 
 **Modular Configuration Architecture:**

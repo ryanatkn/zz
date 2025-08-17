@@ -5,18 +5,82 @@ const io = @import("io.zig");
 /// Centralizes all ZON operations with proper error handling and memory management
 pub const ZonCore = struct {
     /// Parse ZON content from a slice into the specified type
-    /// Handles null-termination automatically
+    /// Handles null-termination and comment stripping automatically
     pub fn parseFromSlice(
         comptime T: type,
         allocator: std.mem.Allocator,
         content: []const u8,
     ) !T {
+        // Strip comments from ZON content since std.zon.parse doesn't handle them well
+        const cleaned_content = try stripComments(allocator, content);
+        defer allocator.free(cleaned_content);
+        
         // Add null terminator for ZON parsing - ZON requires null-terminated strings
-        const null_terminated = try allocator.dupeZ(u8, content);
+        const null_terminated = try allocator.dupeZ(u8, cleaned_content);
         defer allocator.free(null_terminated);
 
         // Parse using Zig's built-in ZON parser
         return std.zon.parse.fromSlice(T, allocator, null_terminated, null, .{});
+    }
+    
+    /// Strip line comments from ZON content
+    /// Removes // comments while preserving string literals
+    fn stripComments(allocator: std.mem.Allocator, content: []const u8) ![]u8 {
+        var result = std.ArrayList(u8).init(allocator);
+        defer result.deinit();
+        
+        var in_string = false;
+        var escape_next = false;
+        var i: usize = 0;
+        
+        while (i < content.len) {
+            const c = content[i];
+            
+            if (escape_next) {
+                try result.append(c);
+                escape_next = false;
+                i += 1;
+                continue;
+            }
+            
+            if (in_string) {
+                try result.append(c);
+                if (c == '\\') {
+                    escape_next = true;
+                } else if (c == '"') {
+                    in_string = false;
+                }
+                i += 1;
+                continue;
+            }
+            
+            // Not in string
+            if (c == '"') {
+                in_string = true;
+                try result.append(c);
+                i += 1;
+                continue;
+            }
+            
+            // Check for comment start
+            if (c == '/' and i + 1 < content.len and content[i + 1] == '/') {
+                // Skip to end of line
+                while (i < content.len and content[i] != '\n') {
+                    i += 1;
+                }
+                // Keep the newline if present
+                if (i < content.len and content[i] == '\n') {
+                    try result.append('\n');
+                    i += 1;
+                }
+                continue;
+            }
+            
+            try result.append(c);
+            i += 1;
+        }
+        
+        return result.toOwnedSlice();
     }
 
     /// Parse ZON content from a file into the specified type
@@ -308,4 +372,51 @@ test "ZonValidator required fields" {
     // Should fail validation for missing optional field treated as required
     try testing.expectError(error.RequiredFieldMissing, 
         ZonValidator.validateRequiredFields(TestStruct, invalid_struct, &.{"count"}));
+}
+
+test "ZonCore comment stripping" {
+    const testing = std.testing;
+
+    const TestStruct = struct {
+        name: []const u8,
+        count: u32,
+    };
+
+    const test_content_with_comments =
+        \\// This is a comment
+        \\// Another comment
+        \\.{
+        \\    .name = "test", // inline comment
+        \\    .count = 42,
+        \\}
+    ;
+
+    const parsed = try ZonCore.parseFromSlice(TestStruct, testing.allocator, test_content_with_comments);
+    defer ZonCore.free(testing.allocator, parsed);
+
+    try testing.expectEqualStrings("test", parsed.name);
+    try testing.expectEqual(@as(u32, 42), parsed.count);
+}
+
+test "ZonCore comment stripping preserves strings" {
+    const testing = std.testing;
+
+    const TestStruct = struct {
+        url: []const u8,
+        description: []const u8,
+    };
+
+    const test_content_with_string_containing_slashes =
+        \\// Configuration file
+        \\.{
+        \\    .url = "https://github.com/test/repo.git", // Repository URL
+        \\    .description = "Contains // in string",
+        \\}
+    ;
+
+    const parsed = try ZonCore.parseFromSlice(TestStruct, testing.allocator, test_content_with_string_containing_slashes);
+    defer ZonCore.free(testing.allocator, parsed);
+
+    try testing.expectEqualStrings("https://github.com/test/repo.git", parsed.url);
+    try testing.expectEqualStrings("Contains // in string", parsed.description);
 }

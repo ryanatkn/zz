@@ -1,5 +1,7 @@
 # Vibe Engineering
 
+> ⚠️ AI slop code and docs, is unstable and full of lies
+
 ## Definition
 
 Vibe engineering is a software development methodology that combines rigorous measurement with progressive automation, focusing on module interfaces rather than implementation details. It contrasts with "vibe coding" - the practice of making technical decisions based on intuition, trends, or aesthetic preferences without empirical validation.

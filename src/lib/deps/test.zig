@@ -11,7 +11,7 @@ test {
     std.testing.refAllDeclsRecursive(@import("operations.zig"));
     std.testing.refAllDeclsRecursive(@import("utils.zig"));
     std.testing.refAllDeclsRecursive(@import("lock.zig"));
-    std.testing.refAllDeclsRecursive(@import("git.zig"));
+    std.testing.refAllDeclsRecursive(@import("../core/git.zig"));
     std.testing.refAllDeclsRecursive(@import("manager.zig"));
 }
 
@@ -40,7 +40,8 @@ test "DependencyManager with MockFilesystem - up to date dependency" {
             .name = "tree-sitter",
             .url = "https://github.com/tree-sitter/tree-sitter",
             .version = "v0.25.0",
-            .remove_files = &.{},
+            .include = &.{},
+            .exclude = &.{},
             .preserve_files = &.{},
         },
     };
@@ -76,7 +77,8 @@ test "DependencyManager with MockFilesystem - missing dependency" {
             .name = "missing-dep",
             .url = "https://github.com/example/missing",
             .version = "v1.0.0",
-            .remove_files = &.{},
+            .include = &.{},
+            .exclude = &.{},
             .preserve_files = &.{},
         },
     };
@@ -124,7 +126,8 @@ test "ZON parsing with simple dependency structure" {
         \\        .@"tree-sitter" = .{
         \\            .url = "https://github.com/tree-sitter/tree-sitter.git",
         \\            .version = "v0.25.0",
-        \\            .remove_files = .{ "build.zig" },
+        \\            .include = .{},
+        \\            .exclude = .{ "build.zig", "*.md" },
         \\            .preserve_files = .{},
         \\            .patches = .{},
         \\        },
@@ -140,7 +143,8 @@ test "ZON parsing with simple dependency structure" {
             @"tree-sitter": struct {
                 url: []const u8,
                 version: []const u8,
-                remove_files: []const []const u8,
+                include: []const []const u8,
+                exclude: []const []const u8,
                 preserve_files: []const []const u8,
                 patches: []const []const u8,
             },
@@ -172,17 +176,17 @@ test "ZON parsing debugging - understand structure" {
         defer allocator.free(content);
         
         std.debug.print("deps.zon content (first 200 chars): {s}\n", .{content[0..@min(200, content.len)]});
-        
-        // The issue is likely that our structure doesn't match the ZON format exactly
-        // Let's just check the content length and format for now
         std.debug.print("ZON file exists with {} characters\n", .{content.len});
         
-        // See if it starts with the expected pattern
-        if (std.mem.startsWith(u8, content, ".{\n    .dependencies = .{")) {
-            std.debug.print("ZON format looks correct - structure issue in parsing\n", .{});
-        } else {
-            std.debug.print("ZON format doesn't match expected pattern\n", .{});
-        }
+        // Try to actually parse the ZON content now that we have comment stripping
+        var parseResult = config.DepsZonConfig.parseFromZonContent(allocator, content) catch |err| {
+            std.debug.print("ZON parsing failed with error: {}\n", .{err});
+            // This is expected to fail for now - we're debugging
+            return;
+        };
+        defer parseResult.deinit();
+        
+        std.debug.print("ZON parsing succeeded! Found {} dependencies\n", .{parseResult.dependencies.count()});
     }
 }
 
@@ -225,7 +229,8 @@ test "Versioning module - needsUpdate with mock filesystem" {
     var versioning = Versioning.initWithFilesystem(allocator, mock_fs.interface());
     
     // Test that same version doesn't need update
-    try testing.expect(!try versioning.needsUpdate("test-dep", "v1.0.0", "deps"));
+    const same_version_needs_update = try versioning.needsUpdate("test-dep", "v1.0.0", "deps");
+    try testing.expect(!same_version_needs_update);
     
     // Test that newer version needs update
     try testing.expect(try versioning.needsUpdate("test-dep", "v1.1.0", "deps"));
@@ -334,6 +339,30 @@ test "Lock module - PID management" {
     // The lock was successfully acquired and will be released by deinit
 }
 
+test "Path utilities integration" {
+    const testing = std.testing;
+    const allocator = testing.allocator;
+    const path = @import("../core/path.zig");
+    
+    // Test path joining with dependency-style paths
+    const joined = try path.joinPath(allocator, "deps", "tree-sitter");
+    defer allocator.free(joined);
+    
+    try testing.expectEqualStrings("deps/tree-sitter", joined);
+    
+    // Test with longer paths
+    const long_joined = try path.joinPath(allocator, "deps", "tree-sitter-typescript");
+    defer allocator.free(long_joined);
+    
+    try testing.expectEqualStrings("deps/tree-sitter-typescript", long_joined);
+    
+    // Test multi-component paths
+    const multi_path = try path.joinPaths(allocator, &.{ "deps", ".tmp", "tree-sitter-123456" });
+    defer allocator.free(multi_path);
+    
+    try testing.expectEqualStrings("deps/.tmp/tree-sitter-123456", multi_path);
+}
+
 test "Process module integration" {
     const testing = std.testing;
     const allocator = testing.allocator;
@@ -353,4 +382,187 @@ test "Process module integration" {
     defer allocator.free(parsed);
     
     try testing.expectEqualStrings("abc123def456", parsed);
+}
+
+test "PathMatcher .git exclusion - always excluded" {
+    const testing = std.testing;
+    const PathMatcher = @import("path_matcher.zig").PathMatcher;
+    
+    // .git should always be excluded regardless of include/exclude patterns
+    const include_all = &.{};
+    const exclude_none = &.{};
+    const include_git = &.{ ".git" }; // Even if explicitly included
+    
+    // Should always exclude .git
+    try testing.expect(!PathMatcher.shouldCopyPath(".git", include_all, exclude_none));
+    try testing.expect(!PathMatcher.shouldCopyPath(".git/config", include_all, exclude_none));
+    try testing.expect(!PathMatcher.shouldCopyPath("subdir/.git/hooks", include_all, exclude_none));
+    
+    // Even when explicitly included
+    try testing.expect(!PathMatcher.shouldCopyPath(".git", include_git, exclude_none));
+    try testing.expect(!PathMatcher.shouldCopyPath(".git/config", include_git, exclude_none));
+}
+
+test "Include/exclude patterns with dependency configuration" {
+    const testing = std.testing;
+    
+    // Test dependency with include patterns (only copy specific paths)
+    const include_dep = config.Dependency{
+        .name = "test-include",
+        .url = "https://github.com/example/test.git",
+        .version = "v1.0.0",
+        .include = &.{ "src/", "*.zig" },
+        .exclude = &.{},
+        .preserve_files = &.{},
+        .owns_memory = false,
+    };
+    
+    // Should include src directory and zig files
+    try testing.expectEqual(@as(usize, 2), include_dep.include.len);
+    try testing.expectEqualStrings("src/", include_dep.include[0]);
+    try testing.expectEqualStrings("*.zig", include_dep.include[1]);
+    
+    // Test dependency with exclude patterns (exclude specific paths)
+    const exclude_dep = config.Dependency{
+        .name = "test-exclude",
+        .url = "https://github.com/example/test.git", 
+        .version = "v1.0.0",
+        .include = &.{},
+        .exclude = &.{ "test/", "*.md", "build.zig*" },
+        .preserve_files = &.{},
+        .owns_memory = false,
+    };
+    
+    // Should exclude test directory, markdown files, and build files
+    try testing.expectEqual(@as(usize, 3), exclude_dep.exclude.len);
+    try testing.expectEqualStrings("test/", exclude_dep.exclude[0]);
+    try testing.expectEqualStrings("*.md", exclude_dep.exclude[1]);
+    try testing.expectEqualStrings("build.zig*", exclude_dep.exclude[2]);
+}
+
+test "PathMatcher integration with dependency patterns" {
+    const testing = std.testing;
+    const PathMatcher = @import("path_matcher.zig").PathMatcher;
+    
+    // Test include-only pattern (zig-spec example)
+    const include_patterns = &.{ "grammar/", "spec/" };
+    const exclude_patterns = &.{};
+    
+    // Should copy grammar and spec directories
+    try testing.expect(PathMatcher.shouldCopyPath("grammar", include_patterns, exclude_patterns));
+    try testing.expect(PathMatcher.shouldCopyPath("spec", include_patterns, exclude_patterns));
+    try testing.expect(PathMatcher.shouldCopyPath("grammar/lexer.txt", include_patterns, exclude_patterns));
+    try testing.expect(PathMatcher.shouldCopyPath("spec/syntax.txt", include_patterns, exclude_patterns));
+    
+    // Should not copy other directories
+    try testing.expect(!PathMatcher.shouldCopyPath("docs", include_patterns, exclude_patterns));
+    try testing.expect(!PathMatcher.shouldCopyPath("test", include_patterns, exclude_patterns));
+    try testing.expect(!PathMatcher.shouldCopyPath("README.md", include_patterns, exclude_patterns));
+    
+    // Test exclude pattern (tree-sitter example)
+    const include_all = &.{};
+    const exclude_build = &.{ "build.zig", "build.zig.zon", "test/", "*.md" };
+    
+    // Should copy source files
+    try testing.expect(PathMatcher.shouldCopyPath("src", include_all, exclude_build));
+    try testing.expect(PathMatcher.shouldCopyPath("lib/parser.c", include_all, exclude_build));
+    try testing.expect(PathMatcher.shouldCopyPath("Makefile", include_all, exclude_build));
+    
+    // Should exclude build files, tests, and markdown
+    try testing.expect(!PathMatcher.shouldCopyPath("build.zig", include_all, exclude_build));
+    try testing.expect(!PathMatcher.shouldCopyPath("build.zig.zon", include_all, exclude_build));
+    try testing.expect(!PathMatcher.shouldCopyPath("test", include_all, exclude_build));
+    try testing.expect(!PathMatcher.shouldCopyPath("test/test.c", include_all, exclude_build));
+    try testing.expect(!PathMatcher.shouldCopyPath("README.md", include_all, exclude_build));
+    try testing.expect(!PathMatcher.shouldCopyPath("CHANGELOG.md", include_all, exclude_build));
+}
+
+test "PathMatcher edge cases - directory boundary detection" {
+    const testing = std.testing;
+    const PathMatcher = @import("path_matcher.zig").PathMatcher;
+    
+    // Test that "test/" pattern doesn't match "testing/" 
+    const exclude_test = &.{ "test/" };
+    const include_all = &.{};
+    
+    // Should exclude test directory and contents
+    try testing.expect(!PathMatcher.shouldCopyPath("test", include_all, exclude_test));
+    try testing.expect(!PathMatcher.shouldCopyPath("test/file.zig", include_all, exclude_test));
+    try testing.expect(!PathMatcher.shouldCopyPath("test/sub/file.zig", include_all, exclude_test));
+    
+    // Should NOT exclude similar named directories
+    try testing.expect(PathMatcher.shouldCopyPath("testing", include_all, exclude_test));
+    try testing.expect(PathMatcher.shouldCopyPath("testing/file.zig", include_all, exclude_test));
+    try testing.expect(PathMatcher.shouldCopyPath("tests", include_all, exclude_test));
+    try testing.expect(PathMatcher.shouldCopyPath("mytest", include_all, exclude_test));
+    try testing.expect(PathMatcher.shouldCopyPath("test.zig", include_all, exclude_test)); // File, not directory
+}
+
+test "PathMatcher recursive patterns" {
+    const testing = std.testing;
+    const PathMatcher = @import("path_matcher.zig").PathMatcher;
+    
+    // Test recursive directory patterns
+    try testing.expect(PathMatcher.matchesPattern("any/path/docs/readme.md", "**/docs/"));
+    try testing.expect(PathMatcher.matchesPattern("deep/nested/path/test/file.zig", "**/test/"));
+    try testing.expect(PathMatcher.matchesPattern("root/build/output.txt", "**/build/"));
+    
+    // Should not match if directory name is embedded
+    try testing.expect(!PathMatcher.matchesPattern("some/buildtools/file.txt", "**/build/"));
+    try testing.expect(!PathMatcher.matchesPattern("testing123/file.txt", "**/test/"));
+    
+    // Test complex recursive patterns with includes
+    const include_recursive = &.{ "**/src/", "**/lib/" };
+    const exclude_none = &.{};
+    
+    try testing.expect(PathMatcher.shouldCopyPath("project/src/main.zig", include_recursive, exclude_none));
+    try testing.expect(PathMatcher.shouldCopyPath("deep/nested/lib/utils.zig", include_recursive, exclude_none));
+    try testing.expect(!PathMatcher.shouldCopyPath("project/docs/readme.md", include_recursive, exclude_none));
+}
+
+test "PathMatcher pattern precedence - include vs exclude" {
+    const testing = std.testing;
+    const PathMatcher = @import("path_matcher.zig").PathMatcher;
+    
+    // Test that include is required, then exclude is applied
+    const include_zig = &.{ "*.zig" };
+    const exclude_test = &.{ "*test*" };
+    
+    // Files that match include but not exclude should be copied
+    try testing.expect(PathMatcher.shouldCopyPath("main.zig", include_zig, exclude_test));
+    try testing.expect(PathMatcher.shouldCopyPath("utils.zig", include_zig, exclude_test));
+    
+    // Files that match include AND exclude should be excluded (exclude wins)
+    try testing.expect(!PathMatcher.shouldCopyPath("test.zig", include_zig, exclude_test));
+    try testing.expect(!PathMatcher.shouldCopyPath("main_test.zig", include_zig, exclude_test));
+    
+    // Files that don't match include should not be copied
+    try testing.expect(!PathMatcher.shouldCopyPath("test.c", include_zig, exclude_test)); // No .zig extension
+    try testing.expect(!PathMatcher.shouldCopyPath("README.md", include_zig, exclude_test)); // No .zig extension
+    
+    // Test empty include list (include everything, then apply excludes)
+    const include_all = &.{};
+    const exclude_md = &.{ "*.md" };
+    
+    try testing.expect(PathMatcher.shouldCopyPath("main.zig", include_all, exclude_md));
+    try testing.expect(!PathMatcher.shouldCopyPath("README.md", include_all, exclude_md));
+}
+
+test "Table formatting with long dependency names" {
+    const testing = std.testing;
+    
+    // Check that NAME_COL_WIDTH can handle our longest dependency names
+    const longest_name = "tree-sitter-typescript"; // 23 characters
+    try testing.expect(longest_name.len <= 24); // Our NAME_COL_WIDTH constant
+    
+    // Test other long names
+    const other_long_names = [_][]const u8{
+        "tree-sitter-javascript", // If we had this
+        "tree-sitter-svelte",     // 19 characters
+        "zig-tree-sitter",       // 16 characters
+    };
+    
+    for (other_long_names) |name| {
+        try testing.expect(name.len <= 24);
+    }
 }

@@ -1,6 +1,6 @@
 const std = @import("std");
 const config = @import("config.zig");
-const Git = @import("git.zig").Git;
+const Git = @import("../core/git.zig").Git;
 const Versioning = @import("versioning.zig").Versioning;
 const Operations = @import("operations.zig").Operations;
 const LockGuard = @import("lock.zig").LockGuard;
@@ -110,7 +110,7 @@ pub const DependencyManager = struct {
         for (dependencies) |dep| {
             const needs_update = try self.versioning.needsUpdate(dep.name, dep.version, self.deps_dir);
             
-            const dep_dir = try std.fmt.allocPrint(self.allocator, "{s}/{s}", .{ self.deps_dir, dep.name });
+            const dep_dir = try path.joinPath(self.allocator, self.deps_dir, dep.name);
             defer self.allocator.free(dep_dir);
 
             const exists = io.fileExists(dep_dir) or io.isDirectory(dep_dir);
@@ -156,7 +156,7 @@ pub const DependencyManager = struct {
                 }
             }
 
-            const dep_dir = try std.fmt.allocPrint(self.allocator, "{s}/{s}", .{ self.deps_dir, dep.name });
+            const dep_dir = try path.joinPath(self.allocator, self.deps_dir, dep.name);
             defer self.allocator.free(dep_dir);
 
             const exists = io.fileExists(dep_dir) or io.isDirectory(dep_dir);
@@ -194,14 +194,17 @@ pub const DependencyManager = struct {
     /// Update a single dependency
     fn updateSingleDependency(self: *Self, dep: *const config.Dependency, options: config.UpdateOptions, result: *UpdateResult) !void {
         _ = result;
-        const dep_dir = try std.fmt.allocPrint(self.allocator, "{s}/{s}", .{ self.deps_dir, dep.name });
+        const dep_dir = try path.joinPath(self.allocator, self.deps_dir, dep.name);
         defer self.allocator.free(dep_dir);
 
-        const temp_dir = try std.fmt.allocPrint(self.allocator, "{s}/.tmp/{s}-{d}", .{ self.deps_dir, dep.name, std.time.timestamp() });
+        const temp_name = try std.fmt.allocPrint(self.allocator, "{s}-{d}", .{ dep.name, std.time.timestamp() });
+        defer self.allocator.free(temp_name);
+        const temp_parent = try path.joinPath(self.allocator, self.deps_dir, ".tmp");
+        defer self.allocator.free(temp_parent);
+        const temp_dir = try path.joinPath(self.allocator, temp_parent, temp_name);
         defer self.allocator.free(temp_dir);
 
         // Create temp directory
-        const temp_parent = path.dirname(temp_dir);
         try io.ensureDir(temp_parent);
 
         // Create backup if directory exists and backup is enabled
@@ -238,18 +241,9 @@ pub const DependencyManager = struct {
         // Show initial progress
         try progress.tick();
         
-        // Start clone operation in a way that allows progress updates
-        try self.git.cloneWithProgress(dep.url, dep.version, temp_dir, &progress, &frame_count);
-
-        // Get commit hash before removing .git
-        try SimpleProgress.show("Getting commit hash");
-        const commit_hash = try self.git.getCommitHash(temp_dir);
+        // Start clone operation and get commit hash with pattern filtering
+        const commit_hash = try self.git.cloneWithProgress(dep.url, dep.version, temp_dir, dep.include, dep.exclude, &progress, &frame_count);
         defer self.allocator.free(commit_hash);
-
-        // Clean the cloned repository
-        try SimpleProgress.show("Cleaning repository");
-        try self.git.removeGitDirectory(temp_dir);
-        try self.operations.removeFiles(temp_dir, dep.remove_files);
 
         // Create version info
         const version_info = config.VersionInfo{
@@ -274,19 +268,25 @@ pub const DependencyManager = struct {
         }
     }
 
+    // Table layout constants
+    const NAME_COL_WIDTH = 24;
+    const VERSION_COL_WIDTH = 15;
+    const STATUS_COL_WIDTH = 13;
+    const DATE_COL_WIDTH = 24;
+    
     /// Print colored status table
     fn printColoredTable(self: *Self, dependencies: []const config.Dependency) !void {
         const stdout = std.io.getStdOut().writer();
 
         try stdout.print("{s}Dependency Status Report{s}\n", .{ Color.bold, Color.reset });
-        try stdout.writeAll("╔══════════════════════════════════════════════════════════════════════════════╗\n");
-        try stdout.writeAll("║                               Dependencies                                   ║\n");
-        try stdout.writeAll("╠════════════════╦═════════════════╦═══════════════╦══════════════════════════╣\n");
-        try stdout.writeAll("║ Name           ║ Expected        ║ Status        ║ Last Updated             ║\n");
-        try stdout.writeAll("╠════════════════╬═════════════════╬═══════════════╬══════════════════════════╣\n");
+        try stdout.writeAll("╔══════════════════════════════════════════════════════════════════════════════════════╗\n");
+        try stdout.writeAll("║                                 Dependencies                                         ║\n");
+        try stdout.writeAll("╠════════════════════════╦═════════════════╦═══════════════╦══════════════════════════╣\n");
+        try stdout.writeAll("║ Name                   ║ Expected        ║ Status        ║ Last Updated             ║\n");
+        try stdout.writeAll("╠════════════════════════╬═════════════════╬═══════════════╬══════════════════════════╣\n");
 
         for (dependencies) |dep| {
-            const dep_dir = try std.fmt.allocPrint(self.allocator, "{s}/{s}", .{ self.deps_dir, dep.name });
+            const dep_dir = try path.joinPath(self.allocator, self.deps_dir, dep.name);
             defer self.allocator.free(dep_dir);
 
             var status: []const u8 = "Missing";
@@ -327,7 +327,7 @@ pub const DependencyManager = struct {
                 }
             }
 
-            try stdout.print("║ {s:<14} ║ {s:<15} ║ {s}{s:<13}{s} ║ {s:<24} ║\n", .{
+            try stdout.print("║ {s:<24} ║ {s:<15} ║ {s}{s:<13}{s} ║ {s:<24} ║\n", .{
                 dep.name,
                 dep.version,
                 status_color,
@@ -337,7 +337,7 @@ pub const DependencyManager = struct {
             });
         }
 
-        try stdout.writeAll("╚════════════════╩═════════════════╩═══════════════╩══════════════════════════╝\n");
+        try stdout.writeAll("╚════════════════════════╩═════════════════╩═══════════════╩══════════════════════════╝\n");
     }
 
     /// Print plain status table
@@ -346,11 +346,11 @@ pub const DependencyManager = struct {
 
         try stdout.writeAll("Dependency Status Report\n");
         try stdout.writeAll("================================\n");
-        try stdout.writeAll("Name                | Expected        | Status        | Last Updated\n");
-        try stdout.writeAll("-------------------|-----------------|---------------|------------------------\n");
+        try stdout.writeAll("Name                     | Expected        | Status        | Last Updated\n");
+        try stdout.writeAll("------------------------|-----------------|---------------|------------------------\n");
 
         for (dependencies) |dep| {
-            const dep_dir = try std.fmt.allocPrint(self.allocator, "{s}/{s}", .{ self.deps_dir, dep.name });
+            const dep_dir = try path.joinPath(self.allocator, self.deps_dir, dep.name);
             defer self.allocator.free(dep_dir);
 
             var status: []const u8 = "Missing";
@@ -389,7 +389,7 @@ pub const DependencyManager = struct {
                 }
             }
 
-            try stdout.print("{s:<18} | {s:<15} | {s:<13} | {s:<24}\n", .{
+            try stdout.print("{s:<24} | {s:<15} | {s:<13} | {s:<24}\n", .{
                 dep.name,
                 dep.version,
                 status,

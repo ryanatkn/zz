@@ -1,5 +1,7 @@
 # AST Integration Framework
 
+> ⚠️ AI slop code and docs, is unstable and full of lies
+
 ## Unified NodeVisitor Pattern
 
 All language parsers implement a consistent `walkNode()` interface using the NodeVisitor pattern for extensible AST traversal:

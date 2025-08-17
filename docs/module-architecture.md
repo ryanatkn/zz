@@ -1,5 +1,7 @@
 # Module Architecture
 
+> ⚠️ AI slop code and docs, is unstable and full of lies
+
 ## Core Architecture
 
 - **CLI Module:** `src/cli/` - Command parsing, validation, and dispatch system

@@ -1,5 +1,7 @@
 # Dependency Management System
 
+> ⚠️ AI slop code and docs, is unstable and full of lies
+
 ## Overview
 
 The `zz deps` command provides a pure Zig replacement for shell-based dependency management. Originally implemented as `scripts/update-deps.sh`, the new system offers type safety, memory safety, cross-platform compatibility, and better performance through compiled code.

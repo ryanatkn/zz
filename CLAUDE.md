@@ -187,12 +187,6 @@ See [docs/llm-guidelines.md](docs/llm-guidelines.md) for detailed development ph
 
 ## Notes
 
-### For Contributors
-- Start with high impact, low effort items
-- Add tests for all new features
-- Benchmark performance impacts
-- Keep the Unix philosophy in mind
-
 ### For LLMs
 See [docs/llm-guidelines.md](docs/llm-guidelines.md) for complete guidelines. Key points:
 - Performance is a feature
@@ -201,17 +195,6 @@ See [docs/llm-guidelines.md](docs/llm-guidelines.md) for complete guidelines. Ke
 - Always update documentation
 - Leave `// TODO` comments for unknowns
 
-### Important Files
-- `TODO_LANGUAGES.md` - Formatter refactoring history
-- `.claude/config.json` - Claude Code tool preferences
-
-## Current Status
-
-- **378/383 tests passing** (98.7%)
-- **C-style formatter architecture** implemented for Zig/TypeScript
-- **Production ready** for tree, prompt, and basic formatting
-- Active development on advanced formatting features
-
 ---
 
-*Remember: Performance is the top priority. Every cycle and byte count.*
+*Remember: Performance is the top priority -- every cycle and byte count but context is everything.*

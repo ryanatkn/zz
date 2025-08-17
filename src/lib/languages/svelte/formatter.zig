@@ -289,8 +289,7 @@ fn formatJavaScriptContent(js_content: []const u8, builder: *LineBuilder, option
             
             // Add blank line when transitioning from variable declarations to reactive statements  
             if (current_is_declaration and next_is_reactive) {
-                try builder.appendIndent();  // Add indented blank line
-                try builder.newline();  // Complete the blank line
+                try builder.newline();  // Add a blank line (no indentation on blank lines)
             }
             // Or between function and non-function
             else if (current_is_function != next_is_function) {

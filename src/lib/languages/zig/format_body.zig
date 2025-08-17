@@ -10,8 +10,67 @@ pub const FormatBody = struct {
 
     /// Format struct body from text (compatibility function)
     pub fn formatStructBodyFromText(struct_text: []const u8, builder: *LineBuilder) !void {
-        // Simple delegation to formatStructBody
-        try formatStructBody(std.heap.page_allocator, builder, struct_text);
+        // Extract the struct declaration components
+        // Pattern: const Name = struct { ... }
+        
+        // Find "struct" keyword
+        const struct_keyword_pos = std.mem.indexOf(u8, struct_text, "struct") orelse {
+            // Fallback: just append the text
+            try builder.append(struct_text);
+            return;
+        };
+        
+        // Find opening brace after "struct"
+        const brace_start = std.mem.indexOfPos(u8, struct_text, struct_keyword_pos, "{") orelse {
+            // Fallback: just append the text
+            try builder.append(struct_text);
+            return;
+        };
+        
+        // Find matching closing brace
+        var brace_depth: u32 = 1;
+        var brace_end = brace_start + 1;
+        while (brace_end < struct_text.len and brace_depth > 0) {
+            if (struct_text[brace_end] == '{') {
+                brace_depth += 1;
+            } else if (struct_text[brace_end] == '}') {
+                brace_depth -= 1;
+            }
+            brace_end += 1;
+        }
+        
+        if (brace_depth != 0) {
+            // Unmatched braces, fallback
+            try builder.append(struct_text);
+            return;
+        }
+        
+        // Extract components
+        const declaration_part = std.mem.trim(u8, struct_text[0..struct_keyword_pos], " \t");
+        const body_content = std.mem.trim(u8, struct_text[brace_start + 1..brace_end - 1], " \t\n\r");
+        
+        // Format the declaration
+        try builder.append(declaration_part);
+        try builder.append("struct {");
+        try builder.newline();
+        builder.indent();
+        
+        // Format the body content
+        if (body_content.len > 0) {
+            try formatStructBody(std.heap.page_allocator, builder, body_content);
+        }
+        
+        builder.dedent();
+        try builder.appendIndent();
+        try builder.append("}");
+        
+        // Add semicolon if present in original
+        if (brace_end < struct_text.len) {
+            const after_brace = std.mem.trim(u8, struct_text[brace_end..], " \t");
+            if (std.mem.startsWith(u8, after_brace, ";")) {
+                try builder.append(";");
+            }
+        }
     }
 
     /// Format enum body from text (compatibility function)
@@ -115,54 +174,94 @@ pub const FormatBody = struct {
         var members = std.ArrayList([]const u8).init(allocator);
         defer members.deinit();
 
-        var start: usize = 0;
-        var brace_depth: i32 = 0;
-        var in_string: bool = false;
-        var string_char: u8 = 0;
-
-        for (content, 0..) |char, i| {
-            // Handle string boundaries
-            if (!in_string and (char == '\"' or char == '\'')) {
-                in_string = true;
-                string_char = char;
-            } else if (in_string and char == string_char) {
-                in_string = false;
+        // Simple approach: look for commas at top level and "pub fn" patterns
+        var pos: usize = 0;
+        
+        // First, extract simple fields (before any functions)
+        // Look for pattern: name:type,name:type
+        while (pos < content.len) {
+            // Skip whitespace
+            while (pos < content.len and (content[pos] == ' ' or content[pos] == '\t' or content[pos] == '\n')) {
+                pos += 1;
             }
-
-            if (!in_string) {
-                switch (char) {
-                    '{' => brace_depth += 1,
-                    '}' => {
-                        brace_depth -= 1;
-                        // If we're back to depth 0, this might be the end of a method
-                        if (brace_depth == 0) {
-                            const member = std.mem.trim(u8, content[start..i+1], " \t\n\r");
-                            if (member.len > 0) {
-                                try members.append(try allocator.dupe(u8, member));
-                            }
-                            start = i + 1;
-                        }
-                    },
-                    ',' => {
-                        // Field separator at top level
-                        if (brace_depth == 0) {
-                            const member = std.mem.trim(u8, content[start..i], " \t\n\r");
-                            if (member.len > 0) {
-                                try members.append(try allocator.dupe(u8, member));
-                            }
-                            start = i + 1;
-                        }
-                    },
-                    else => {},
+            
+            if (pos >= content.len) break;
+            
+            // Check if we hit a function
+            if (std.mem.startsWith(u8, content[pos..], "pub fn") or
+                (pos > 0 and content[pos-1] == ',' and std.mem.startsWith(u8, content[pos..], "pub fn"))) {
+                break; // Stop field parsing, functions start here
+            }
+            
+            // Look for field pattern: identifier:type
+            const field_start = pos;
+            var colon_pos: ?usize = null;
+            
+            // Find the colon
+            while (pos < content.len and content[pos] != ',' and !std.mem.startsWith(u8, content[pos..], "pub fn")) {
+                if (content[pos] == ':' and colon_pos == null) {
+                    colon_pos = pos;
+                }
+                pos += 1;
+            }
+            
+            if (colon_pos) |_| {
+                // We found a field
+                const field_end = pos;
+                if (pos < content.len and content[pos] == ',') {
+                    pos += 1; // Skip comma
+                }
+                
+                const field = std.mem.trim(u8, content[field_start..field_end], " \t\n\r,");
+                if (field.len > 0) {
+                    try members.append(try allocator.dupe(u8, field));
+                }
+            } else {
+                // Not a field, move on
+                if (pos < content.len and content[pos] == ',') {
+                    pos += 1;
                 }
             }
         }
-
-        // Handle final member if no trailing comma
-        if (start < content.len) {
-            const member = std.mem.trim(u8, content[start..], " \t\n\r");
-            if (member.len > 0) {
-                try members.append(try allocator.dupe(u8, member));
+        
+        // Now extract functions
+        while (pos < content.len) {
+            // Skip whitespace
+            while (pos < content.len and (content[pos] == ' ' or content[pos] == '\t' or content[pos] == '\n')) {
+                pos += 1;
+            }
+            
+            if (pos >= content.len) break;
+            
+            // Look for function start
+            if (std.mem.startsWith(u8, content[pos..], "pub fn") or std.mem.startsWith(u8, content[pos..], "fn")) {
+                // Find the end of the function (matching closing brace)
+                if (std.mem.indexOfPos(u8, content, pos, "{")) |fn_brace_start| {
+                    var brace_depth: u32 = 1;
+                    var fn_end = fn_brace_start + 1;
+                    while (fn_end < content.len and brace_depth > 0) {
+                        if (content[fn_end] == '{') {
+                            brace_depth += 1;
+                        } else if (content[fn_end] == '}') {
+                            brace_depth -= 1;
+                        }
+                        fn_end += 1;
+                    }
+                    
+                    if (brace_depth == 0) {
+                        const function = content[pos..fn_end];
+                        try members.append(try allocator.dupe(u8, function));
+                        pos = fn_end;
+                    } else {
+                        // Unmatched braces, skip
+                        pos += 1;
+                    }
+                } else {
+                    // No opening brace found, skip
+                    pos += 1;
+                }
+            } else {
+                pos += 1;
             }
         }
 
@@ -177,16 +276,51 @@ pub const FormatBody = struct {
             const body_end = std.mem.lastIndexOf(u8, method, "}") orelse method.len;
             const body = std.mem.trim(u8, method[brace_pos + 1..body_end], " \t\n\r");
             
-            // Format signature
-            try formatFunctionSignature(allocator, builder, signature);
+            // Format the signature with proper spacing
+            try formatFunctionSignatureWithSpacing(allocator, builder, signature);
             try builder.append(" {");
             
             if (body.len > 0) {
                 try builder.newline();
                 builder.indent();
-                try builder.appendIndent();
-                try formatDeclarationWithSpacing(body, builder);
-                try builder.newline();
+                
+                // Parse body statements
+                var statements = std.ArrayList([]const u8).init(allocator);
+                defer statements.deinit();
+                
+                // Split body by semicolons or other statement boundaries
+                var stmt_start: usize = 0;
+                var in_string = false;
+                for (body, 0..) |c, i| {
+                    if (c == '"' and (i == 0 or body[i-1] != '\\')) {
+                        in_string = !in_string;
+                    }
+                    
+                    if (!in_string and c == ';') {
+                        const stmt = std.mem.trim(u8, body[stmt_start..i], " \t\n\r");
+                        if (stmt.len > 0) {
+                            try statements.append(stmt);
+                        }
+                        stmt_start = i + 1;
+                    }
+                }
+                
+                // Add last statement if no trailing semicolon
+                if (stmt_start < body.len) {
+                    const stmt = std.mem.trim(u8, body[stmt_start..], " \t\n\r");
+                    if (stmt.len > 0) {
+                        try statements.append(stmt);
+                    }
+                }
+                
+                // Format each statement
+                for (statements.items) |stmt| {
+                    try builder.appendIndent();
+                    try formatStatementWithSpacing(stmt, builder);
+                    try builder.append(";");
+                    try builder.newline();
+                }
+                
                 builder.dedent();
                 try builder.appendIndent();
             }
@@ -194,7 +328,7 @@ pub const FormatBody = struct {
             try builder.append("}");
         } else {
             // No body, just format the signature
-            try formatFunctionSignature(allocator, builder, method);
+            try formatFunctionSignatureWithSpacing(allocator, builder, method);
         }
     }
 
@@ -272,6 +406,107 @@ pub const FormatBody = struct {
         _ = allocator;
         // Simple signature formatting - delegate to more specialized function if needed
         try builder.append(std.mem.trim(u8, signature, " \t"));
+    }
+    
+    fn formatFunctionSignatureWithSpacing(allocator: std.mem.Allocator, builder: *LineBuilder, signature: []const u8) !void {
+        _ = allocator;
+        // Format function signature with proper spacing
+        var i: usize = 0;
+        while (i < signature.len) {
+            const c = signature[i];
+            
+            // Add spacing around colons
+            if (c == ':') {
+                try builder.append(": ");
+                i += 1;
+                // Skip any spaces after colon in original
+                while (i < signature.len and signature[i] == ' ') {
+                    i += 1;
+                }
+                continue;
+            }
+            
+            // Add spacing around parentheses
+            if (c == '(') {
+                try builder.append("(");
+                i += 1;
+                continue;
+            }
+            
+            if (c == ')') {
+                try builder.append(")");
+                i += 1;
+                // Check if there's a return type after
+                while (i < signature.len and signature[i] == ' ') {
+                    i += 1;
+                }
+                continue;
+            }
+            
+            // Add spacing around equals
+            if (c == '=') {
+                try builder.append(" = ");
+                i += 1;
+                // Skip any spaces after equals in original
+                while (i < signature.len and signature[i] == ' ') {
+                    i += 1;
+                }
+                continue;
+            }
+            
+            try builder.append(&[_]u8{c});
+            i += 1;
+        }
+    }
+    
+    fn formatStatementWithSpacing(statement: []const u8, builder: *LineBuilder) !void {
+        // Format statement with proper spacing
+        var i: usize = 0;
+        while (i < statement.len) {
+            const c = statement[i];
+            
+            // Add spacing around operators
+            if (c == '=' and i > 0 and statement[i-1] != '=' and i + 1 < statement.len and statement[i+1] != '=') {
+                try builder.append(" = ");
+                i += 1;
+                // Skip any spaces after equals in original
+                while (i < statement.len and statement[i] == ' ') {
+                    i += 1;
+                }
+                continue;
+            }
+            
+            if (c == '-' or c == '+' or c == '*' or c == '/') {
+                // Check if it's an operator (not part of number or @sqrt)
+                if (i > 0 and statement[i-1] != '@' and statement[i-1] != '.' and 
+                    i + 1 < statement.len and statement[i+1] != '.' and statement[i+1] != '=') {
+                    try builder.append(" ");
+                    try builder.append(&[_]u8{c});
+                    try builder.append(" ");
+                    i += 1;
+                    // Skip any spaces after operator in original
+                    while (i < statement.len and statement[i] == ' ') {
+                        i += 1;
+                    }
+                    continue;
+                }
+            }
+            
+            // Handle builtin functions like @sqrt
+            if (c == '@') {
+                // Copy the entire builtin function call
+                var end = i + 1;
+                while (end < statement.len and (std.ascii.isAlphabetic(statement[end]) or statement[end] == '(')) {
+                    end += 1;
+                }
+                try builder.append(statement[i..end]);
+                i = end;
+                continue;
+            }
+            
+            try builder.append(&[_]u8{c});
+            i += 1;
+        }
     }
 
     fn formatDeclarationWithSpacing(declaration: []const u8, builder: *LineBuilder) !void {

@@ -133,23 +133,36 @@ pub const FormatFunction = struct {
     fn formatParameters(params_node: ts.Node, source: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
         const params_text = NodeUtils.getNodeText(params_node, source);
         
-        // Check if we need multiline formatting
-        if (params_text.len > options.line_width) {
-            try formatParametersMultiline(params_text, builder, options);
-        } else {
-            try formatParametersSingleLine(params_text, builder);
-        }
-    }
-
-    /// Format parameters in multiline style
-    fn formatParametersMultiline(params_text: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
-        _ = options;
-        
-        // Remove outer parentheses
+        // Remove outer parentheses to check content length
         var content = params_text;
         if (std.mem.startsWith(u8, content, "(") and std.mem.endsWith(u8, content, ")")) {
             content = content[1..content.len-1];
         }
+        
+        // Estimate the current line length (approximation based on current buffer content)
+        // Look for the last newline to estimate current line length
+        var current_line_length: usize = 0;
+        if (builder.buffer.items.len > 0) {
+            if (std.mem.lastIndexOf(u8, builder.buffer.items, "\n")) |last_newline| {
+                current_line_length = builder.buffer.items.len - last_newline - 1;
+            } else {
+                current_line_length = builder.buffer.items.len;
+            }
+        }
+        
+        const total_length = current_line_length + content.len + 2; // +2 for parentheses
+        
+        // Check if we need multiline formatting based on line width
+        if (total_length > options.line_width and content.len > 0) {
+            try formatParametersMultiline(content, builder, options);
+        } else {
+            try formatParametersSingleLine(content, builder);
+        }
+    }
+
+    /// Format parameters in multiline style
+    fn formatParametersMultiline(content: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
+        _ = options;
         
         if (content.len == 0) {
             try builder.append("()");
@@ -184,13 +197,7 @@ pub const FormatFunction = struct {
     }
 
     /// Format parameters in single line style
-    fn formatParametersSingleLine(params_text: []const u8, builder: *LineBuilder) !void {
-        // Remove outer parentheses
-        var content = params_text;
-        if (std.mem.startsWith(u8, content, "(") and std.mem.endsWith(u8, content, ")")) {
-            content = content[1..content.len-1];
-        }
-        
+    fn formatParametersSingleLine(content: []const u8, builder: *LineBuilder) !void {
         try builder.append("(");
         
         if (content.len > 0) {
@@ -278,10 +285,66 @@ pub const FormatFunction = struct {
 
     /// Format return type annotation
     fn formatReturnType(return_text: []const u8, builder: *LineBuilder) !void {
-        const trimmed = std.mem.trim(u8, return_text, " \t");
+        var trimmed = std.mem.trim(u8, return_text, " \t");
         if (trimmed.len > 0) {
-            try builder.append(" ");
-            try builder.append(trimmed);
+            // Handle TypeScript return type formatting:
+            // The return_text may start with colon, so we need to format it properly
+            if (std.mem.startsWith(u8, trimmed, ":")) {
+                // Add colon with proper spacing
+                try builder.append(": ");
+                trimmed = std.mem.trim(u8, trimmed[1..], " \t");
+            } else {
+                // No colon present, just add space
+                try builder.append(" ");
+            }
+            
+            // Format union types with proper spacing
+            try formatTypeWithSpacing(trimmed, builder);
+        }
+    }
+    
+    /// Format type with proper spacing for union types
+    fn formatTypeWithSpacing(type_text: []const u8, builder: *LineBuilder) !void {
+        var i: usize = 0;
+        var in_angle_brackets: u32 = 0;
+        
+        while (i < type_text.len) {
+            const c = type_text[i];
+            
+            if (c == '<') {
+                in_angle_brackets += 1;
+                try builder.append(&[_]u8{c});
+                i += 1;
+                continue;
+            }
+            
+            if (c == '>') {
+                if (in_angle_brackets > 0) {
+                    in_angle_brackets -= 1;
+                }
+                try builder.append(&[_]u8{c});
+                i += 1;
+                continue;
+            }
+            
+            // Format union types with spacing: User | null instead of User|null
+            if (c == '|' and in_angle_brackets == 0) {
+                // Add space before if not already present
+                if (builder.buffer.items.len > 0 and 
+                    builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
+                    try builder.append(" ");
+                }
+                try builder.append("|");
+                i += 1;
+                // Add space after
+                if (i < type_text.len and type_text[i] != ' ') {
+                    try builder.append(" ");
+                }
+                continue;
+            }
+            
+            try builder.append(&[_]u8{c});
+            i += 1;
         }
     }
 

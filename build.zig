@@ -52,6 +52,9 @@ pub fn build(b: *std.Build) void {
     });
 
     // Build tree-sitter core library
+    // @dep-info: tree-sitter
+    // @dep-type: static_library
+    // @dep-purpose: Core tree-sitter parsing engine written in C
     const tree_sitter_lib = b.addStaticLibrary(.{
         .name = "tree-sitter",
         .target = target,
@@ -68,6 +71,10 @@ pub fn build(b: *std.Build) void {
     tree_sitter_lib.linkLibC();
 
     // Add tree-sitter-zig grammar C library
+    // @dep-info: tree-sitter-zig
+    // @dep-type: static_library
+    // @dep-language: zig
+    // @dep-purpose: Tree-sitter grammar for parsing Zig language files
     const tree_sitter_zig_lib = b.addStaticLibrary(.{
         .name = "tree-sitter-zig",
         .target = target,
@@ -82,6 +89,10 @@ pub fn build(b: *std.Build) void {
     tree_sitter_zig_lib.linkLibC();
 
     // Add tree-sitter-css grammar C library
+    // @dep-info: tree-sitter-css
+    // @dep-type: static_library
+    // @dep-language: css
+    // @dep-purpose: Tree-sitter grammar for parsing CSS stylesheets
     const tree_sitter_css_lib = b.addStaticLibrary(.{
         .name = "tree-sitter-css",
         .target = target,
@@ -99,6 +110,10 @@ pub fn build(b: *std.Build) void {
     tree_sitter_css_lib.linkLibC();
 
     // Add tree-sitter-html grammar C library
+    // @dep-info: tree-sitter-html
+    // @dep-type: static_library
+    // @dep-language: html
+    // @dep-purpose: Tree-sitter grammar for parsing HTML documents
     const tree_sitter_html_lib = b.addStaticLibrary(.{
         .name = "tree-sitter-html",
         .target = target,
@@ -116,6 +131,10 @@ pub fn build(b: *std.Build) void {
     tree_sitter_html_lib.linkLibC();
 
     // Add tree-sitter-json grammar C library
+    // @dep-info: tree-sitter-json
+    // @dep-type: static_library
+    // @dep-language: json
+    // @dep-purpose: Tree-sitter grammar for parsing JSON data files
     const tree_sitter_json_lib = b.addStaticLibrary(.{
         .name = "tree-sitter-json",
         .target = target,
@@ -130,6 +149,10 @@ pub fn build(b: *std.Build) void {
     tree_sitter_json_lib.linkLibC();
 
     // Add tree-sitter-typescript grammar C library
+    // @dep-info: tree-sitter-typescript
+    // @dep-type: static_library
+    // @dep-language: typescript
+    // @dep-purpose: Tree-sitter grammar for parsing TypeScript language files
     const tree_sitter_typescript_lib = b.addStaticLibrary(.{
         .name = "tree-sitter-typescript",
         .target = target,
@@ -147,6 +170,10 @@ pub fn build(b: *std.Build) void {
     tree_sitter_typescript_lib.linkLibC();
 
     // Add tree-sitter-svelte grammar C library
+    // @dep-info: tree-sitter-svelte
+    // @dep-type: static_library
+    // @dep-language: svelte
+    // @dep-purpose: Tree-sitter grammar for parsing Svelte component files
     const tree_sitter_svelte_lib = b.addStaticLibrary(.{
         .name = "tree-sitter-svelte",
         .target = target,

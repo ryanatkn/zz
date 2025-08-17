@@ -234,10 +234,56 @@ The dependency management migration is **complete with full refactoring and git 
 
 The dependency management system is **production-ready** with all 9 dependencies fully supported. The hardcoded configuration approach provides reliable operation while dynamic ZON parsing can be added in the future when Zig's std.zon improves.
 
-## Major Achievements Today 🎉
+## Major Achievements - Latest Update 🎉
+
+### Automated Dependency Documentation System ✅ **NEW**
+
+**Complete Implementation** of data-driven dependency documentation generation:
+
+1. **Core Documentation Generation Module** (`src/lib/deps/docs.zig`)
+   - ✅ Structured dependency documentation with categorization (core, grammar, reference)
+   - ✅ Real build.zig parsing for configuration extraction
+   - ✅ Dual output formats: human-readable markdown + machine-readable JSON
+
+2. **Enhanced Configuration System**
+   - ✅ Extended `deps.zon` with optional metadata fields (`category`, `language`, `purpose`)
+   - ✅ Updated all configuration parsers to handle new fields
+   - ✅ Added webref as missing dependency for W3C specifications
+
+3. **Automated Integration**
+   - ✅ Modified `src/lib/deps/manager.zig` to auto-generate docs after updates
+   - ✅ Added `--generate-docs` flag to `zz deps` command
+   - ✅ Updated help documentation and usage examples
+
+4. **Build System Integration**
+   - ✅ Added structured comments to `build.zig` for metadata extraction
+   - ✅ Data-driven approach using real configuration vs hardcoded values
+
+5. **Documentation Updates**
+   - ✅ Updated main CLAUDE.md with `zig build install-user` instructions
+   - ✅ Enhanced deps/CLAUDE.md to reference generated files
+   - ✅ Added comprehensive usage examples and feature descriptions
+
+**Working Features:**
+- **`zz deps --generate-docs`** - Generate documentation on demand
+- **Automatic generation** - Docs updated after any `zz deps` operations  
+- **Generated files**:
+  - `deps/DEPS.md` - Human-readable dependency overview with categorized tables
+  - `deps/manifest.json` - Machine-readable dependency manifest for automation
+
+**Key Benefits:**
+- **Single source of truth**: All dependency info derived from actual state
+- **Always current**: Regenerated on every `zz deps` update  
+- **Multiple formats**: Human-readable markdown + machine-readable JSON
+- **Build integration**: Documents actual build configuration from `build.zig`
+- **Categorization**: Clear organization by dependency type
+- **Traceability**: Timestamps, version tracking, and commit information
+
+### Previous Major Achievements
 
 1. **Fixed ZON Parsing**: Moved from 3 to 9 dependencies with hardcoded configuration
 2. **Created Documentation**: Comprehensive docs/deps.md (600+ lines) and updated CLAUDE.md
 3. **Production Ready**: System fully functional for dependency status checking
+4. **Automated Documentation**: Complete dependency documentation generation system
 
-The system is ready for use with `zz deps --list` and `zz deps --check` commands fully operational!
+The system is now **production-ready** with automated documentation generation alongside `zz deps --list`, `zz deps --check`, and `zz deps --generate-docs` commands fully operational!

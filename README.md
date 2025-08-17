@@ -255,7 +255,10 @@ zig build run -- prompt src/             # Run prompt command
 
 ## Contributing
 
-Issues and discussions welcome! PRs are encouraged for concrete discussion, though I may re-implement rather than merge directly to maintain consistency.
+Issues and discussions and **deleted code** are all very welcome!
+PRs are encouraged for concrete discussion, 
+but I will probably re-implement rather than merge
+most code additions for various reasons (including security).
 
 See [CLAUDE.md](CLAUDE.md) for development guidelines.
 

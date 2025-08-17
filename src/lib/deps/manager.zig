@@ -1,5 +1,6 @@
 const std = @import("std");
 const config = @import("config.zig");
+const docs = @import("docs.zig");
 const Git = @import("../core/git.zig").Git;
 const Versioning = @import("versioning.zig").Versioning;
 const Operations = @import("operations.zig").Operations;
@@ -97,6 +98,14 @@ pub const DependencyManager = struct {
 
             try result.updated.append(dep.name);
             try self.logSuccess("{s} updated successfully", .{dep.name});
+        }
+
+        // Generate documentation after successful updates
+        if (result.updated.items.len > 0) {
+            self.generateDocumentation(dependencies) catch |err| {
+                try self.logWarning("Failed to generate dependency documentation: {}", .{err});
+                // Don't fail the update operation for documentation errors
+            };
         }
 
         return result;
@@ -443,6 +452,26 @@ pub const DependencyManager = struct {
         _ = self;
         const stderr = std.io.getStdErr().writer();
         try stderr.print("  ✗ " ++ fmt ++ "\n", args);
+    }
+
+    fn logWarning(self: *Self, comptime fmt: []const u8, args: anytype) !void {
+        _ = self;
+        const stderr = std.io.getStdErr().writer();
+        try stderr.print("  ⚠ " ++ fmt ++ "\n", args);
+    }
+
+    /// Generate dependency documentation (DEPS.md and manifest.json)
+    fn generateDocumentation(self: *Self, dependencies: []const config.Dependency) !void {
+        try self.logInfo("Generating dependency documentation...", .{});
+
+        var doc_generator = docs.DocumentationGenerator.initWithFilesystem(
+            self.allocator,
+            self.filesystem,
+            self.deps_dir
+        );
+
+        try doc_generator.generateDocumentation(dependencies);
+        try self.logSuccess("Generated DEPS.md and manifest.json", .{});
     }
 };
 

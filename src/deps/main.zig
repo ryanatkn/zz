@@ -45,6 +45,8 @@ pub fn run(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: 
             options.color = false;
         } else if (Args.isBoolFlag(arg, "no-backup", null)) {
             options.backup = false;
+        } else if (Args.isBoolFlag(arg, "generate-docs", null)) {
+            options.generate_docs = true;
         } else if (Args.parseFlag(arg, "force-dep", null)) |dep_name| {
             options.force_dep = dep_name;
         } else if (Args.parseFlag(arg, "update-pattern", null)) |pattern| {
@@ -101,6 +103,9 @@ pub fn run(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: 
         if (result.missing.items.len > 0 or result.need_update.items.len > 0) {
             std.process.exit(1);
         }
+    } else if (options.generate_docs) {
+        // Generate documentation only
+        try generateDocumentationOnly(allocator, &dep_manager, dependencies);
     } else {
         // Update dependencies
         var result = try dep_manager.updateDependencies(dependencies, options);
@@ -117,16 +122,27 @@ pub fn run(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: 
 
 /// Load dependency configuration from deps.zon
 fn loadDepsConfig(allocator: std.mem.Allocator) !config.DepsConfig {
-    // TODO: ZON parsing has segfault issues - keeping disabled for now
-    // The memory leak is fixed but there are still pointer invalidation issues
-    // When parseFromZonContent tries to duplicate strings from freed parsed data
+    // TODO: If ZON parsing fails with segfaults, may need alternative approach
     
-    std.log.info("Using hardcoded dependency config (ZON parsing disabled due to segfault)", .{});
-    var fallback_config = try config.DepsZonConfig.createHardcoded(allocator);
-    try fallback_config.initHardcodedDependencies();
-    const fallback_deps_config = try fallback_config.toDepsConfig(allocator);
-    fallback_config.deinit();
-    return fallback_deps_config;
+    // Read deps.zon file
+    const deps_file_content = std.fs.cwd().readFileAlloc(allocator, "deps.zon", 1024 * 1024) catch |err| switch (err) {
+        error.FileNotFound => {
+            std.log.err("deps.zon file not found in current directory", .{});
+            return err;
+        },
+        else => return err,
+    };
+    defer allocator.free(deps_file_content);
+    
+    // Parse ZON content
+    var zon_config = config.DepsZonConfig.parseFromZonContent(allocator, deps_file_content) catch |err| {
+        std.log.err("Failed to parse deps.zon: {}", .{err});
+        return err;
+    };
+    defer zon_config.deinit();
+    
+    const deps_config = try zon_config.toDepsConfig(allocator);
+    return deps_config;
 }
 
 
@@ -237,6 +253,24 @@ fn printUpdateResults(result: *const manager.UpdateResult, options: config.Updat
     }
 }
 
+/// Generate dependency documentation only (without updating)
+fn generateDocumentationOnly(allocator: std.mem.Allocator, dep_manager: *manager.DependencyManager, dependencies: []const config.Dependency) !void {
+    const docs = @import("../lib/deps/docs.zig");
+    
+    const stdout = std.io.getStdOut().writer();
+    try stdout.print("📦 Generating dependency documentation...\n", .{});
+    
+    var doc_generator = docs.DocumentationGenerator.init(allocator, dep_manager.deps_dir);
+    
+    doc_generator.generateDocumentation(dependencies) catch |err| {
+        const stderr = std.io.getStdErr().writer();
+        try stderr.print("  ✗ Failed to generate dependency documentation: {}\n", .{err});
+        return err;
+    };
+    
+    try stdout.print("  ✓ Generated DEPS.md and manifest.json\n", .{});
+}
+
 /// Show usage information
 fn showUsage(program_name: []const u8) !void {
     const stdout = std.io.getStdOut().writer();
@@ -253,6 +287,7 @@ fn showUsage(program_name: []const u8) !void {
     try stdout.writeAll("  --update-pattern=PATTERN Update dependencies matching pattern (glob)\n");
     try stdout.writeAll("  --no-backup              Disable automatic backups\n");
     try stdout.writeAll("  --no-color               Disable colored output\n");
+    try stdout.writeAll("  --generate-docs          Generate dependency documentation (DEPS.md, manifest.json)\n");
     try stdout.writeAll("  --verbose, -v            Enable verbose output\n");
     try stdout.writeAll("  --help, -h               Show this help\n");
 }
@@ -278,6 +313,7 @@ fn showDetailedHelp() !void {
     try stdout.writeAll("  zz deps update --force              # Force update all deps\n");
     try stdout.writeAll("  zz deps update --force-dep=tree-sitter # Force update tree-sitter only\n");
     try stdout.writeAll("  zz deps update --update-pattern=\"tree*\" # Update all tree-sitter deps\n");
+    try stdout.writeAll("  zz deps --generate-docs             # Generate documentation only\n");
     try stdout.writeAll("\nConfiguration:\n");
     try stdout.writeAll("  Dependencies are declared in deps.zon at the project root.\n");
     try stdout.writeAll("  See existing deps.zon for configuration format.\n");

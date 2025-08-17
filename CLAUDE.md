@@ -50,9 +50,13 @@ For detailed architecture, see [docs/module-architecture.md](docs/module-archite
 ## Quick Start
 
 ```bash
-# Install
+# Install (User)
 $ git clone https://github.com/user/zz
 $ cd zz
+$ zig build install-user             # Install to ~/.zz/bin/
+$ export PATH="$PATH:$HOME/.zz/bin"  # Add to PATH
+
+# Install (System-wide, alternative)
 $ zig build -Doptimize=ReleaseFast
 $ sudo cp zig-out/bin/zz /usr/local/bin/
 
@@ -61,6 +65,7 @@ $ zz tree                           # Show directory tree
 $ zz prompt "src/**/*.zig"          # Generate LLM prompt
 $ zz format config.json --write     # Format file in-place
 $ zz deps --list                    # Check dependency status
+$ zz deps --generate-docs           # Generate dependency documentation
 ```
 
 ## Commands Overview

@@ -4,7 +4,7 @@ const LineBuilder = @import("../../parsing/formatter.zig").LineBuilder;
 const FormatterOptions = @import("../../parsing/formatter.zig").FormatterOptions;
 const NodeUtils = @import("../../language/node_utils.zig").NodeUtils;
 
-pub const TypeScriptInterfaceFormatter = struct {
+pub const FormatInterface = struct {
     /// Format TypeScript interface declaration
     pub fn formatInterface(node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) !void {
         const child_count = node.childCount();

@@ -4,7 +4,7 @@ const LineBuilder = @import("../../parsing/formatter.zig").LineBuilder;
 const FormatterOptions = @import("../../parsing/formatter.zig").FormatterOptions;
 const NodeUtils = @import("../../language/node_utils.zig").NodeUtils;
 
-pub const ZigImportFormatter = struct {
+pub const FormatImport = struct {
     /// Format Zig @import statement
     pub fn formatImport(node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) !void {
         _ = depth;

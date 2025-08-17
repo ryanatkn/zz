@@ -1,10 +1,10 @@
 const std = @import("std");
 const LineBuilder = @import("../../parsing/formatter.zig").LineBuilder;
-const ZigDeclarationFormatter = @import("declaration_formatter.zig").ZigDeclarationFormatter;
-const ZigBodyFormatter = @import("body_formatter.zig").ZigBodyFormatter;
+const FormatDeclaration = @import("format_declaration.zig").FormatDeclaration;
+const FormatBody = @import("format_body.zig").FormatBody;
 
 /// Zig-specific statement formatting functionality
-pub const ZigStatementFormatter = struct {
+pub const FormatStatement = struct {
 
     /// Format function body with proper statement formatting
     pub fn formatFunctionBody(body: []const u8, builder: *LineBuilder) !void {
@@ -81,7 +81,7 @@ pub const ZigStatementFormatter = struct {
             const var_part = std.mem.trim(u8, trimmed[0..equals_pos], " \t");
             const import_part = std.mem.trim(u8, trimmed[equals_pos + 3..], " \t");
             
-            try ZigDeclarationFormatter.formatDeclaration(var_part, builder);
+            try FormatDeclaration.formatDeclaration(var_part, builder);
             try builder.append(" = ");
             try builder.append(import_part);
         } else {
@@ -99,12 +99,12 @@ pub const ZigStatementFormatter = struct {
             const decl_part = std.mem.trim(u8, trimmed[0..equals_pos], " \t");
             const value_part = std.mem.trim(u8, trimmed[equals_pos + 3..], " \t");
             
-            try ZigDeclarationFormatter.formatDeclaration(decl_part, builder);
+            try FormatDeclaration.formatDeclaration(decl_part, builder);
             try builder.append(" = ");
             try formatExpression(value_part, builder);
         } else {
             // Declaration without assignment
-            try ZigDeclarationFormatter.formatDeclaration(trimmed, builder);
+            try FormatDeclaration.formatDeclaration(trimmed, builder);
         }
     }
 
@@ -261,7 +261,7 @@ pub const ZigStatementFormatter = struct {
         if (std.mem.indexOf(u8, statement, "{")) |brace_start| {
             // Format "return struct"
             const return_part = std.mem.trim(u8, statement[0..brace_start], " \t");
-            try ZigDeclarationFormatter.formatDeclaration(return_part, builder);
+            try FormatDeclaration.formatDeclaration(return_part, builder);
             try builder.append(" {");
             try builder.newline();
             
@@ -271,7 +271,7 @@ pub const ZigStatementFormatter = struct {
             
             if (struct_content.len > 0) {
                 builder.indent();
-                try ZigBodyFormatter.formatStructBody(allocator, builder, struct_content);
+                try FormatBody.formatStructBody(allocator, builder, struct_content);
                 builder.dedent();
             }
             
@@ -284,7 +284,7 @@ pub const ZigStatementFormatter = struct {
     fn formatStructLiteralReturn(allocator: std.mem.Allocator, builder: *LineBuilder, statement: []const u8) !void {
         if (std.mem.indexOf(u8, statement, "{")) |brace_start| {
             const return_part = std.mem.trim(u8, statement[0..brace_start], " \t");
-            try ZigDeclarationFormatter.formatDeclaration(return_part, builder);
+            try FormatDeclaration.formatDeclaration(return_part, builder);
             
             const struct_end = std.mem.lastIndexOf(u8, statement, "}") orelse statement.len;
             const struct_content = std.mem.trim(u8, statement[brace_start + 1..struct_end], " \t\n\r");
@@ -295,7 +295,7 @@ pub const ZigStatementFormatter = struct {
                 builder.indent();
                 
                 // Format struct literal fields with proper spacing
-                try ZigBodyFormatter.formatStructLiteralContent(allocator, builder, struct_content);
+                try FormatBody.formatStructLiteralContent(allocator, builder, struct_content);
                 
                 builder.dedent();
                 try builder.appendIndent();

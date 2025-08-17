@@ -3,9 +3,9 @@ const ts = @import("tree-sitter");
 const LineBuilder = @import("../../parsing/formatter.zig").LineBuilder;
 const FormatterOptions = @import("../../parsing/formatter.zig").FormatterOptions;
 const NodeUtils = @import("../../language/node_utils.zig").NodeUtils;
-const ZigBodyFormatter = @import("body_formatter.zig").ZigBodyFormatter;
+const FormatBody = @import("format_body.zig").FormatBody;
 
-pub const ZigContainerFormatter = struct {
+pub const FormatContainer = struct {
     /// Format Zig struct declaration
     pub fn formatStruct(node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) !void {
         if (findContainerDecl(node)) |container| {
@@ -291,19 +291,19 @@ pub const ZigContainerFormatter = struct {
         _ = source;
         _ = depth;
         _ = options;
-        try ZigBodyFormatter.formatStructBodyFromText(struct_text, builder);
+        try FormatBody.formatStructBodyFromText(struct_text, builder);
     }
 
     /// Text-based fallback formatting for enum body
     fn formatEnumBodyFromText(enum_text: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
         _ = options;
-        try ZigBodyFormatter.formatEnumBodyFromText(enum_text, builder);
+        try FormatBody.formatEnumBodyFromText(enum_text, builder);
     }
 
     /// Text-based fallback formatting for union body
     fn formatUnionBodyFromText(union_text: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
         _ = options;
-        try ZigBodyFormatter.formatUnionBodyFromText(union_text, builder);
+        try FormatBody.formatUnionBodyFromText(union_text, builder);
     }
 
     // Forward declaration for formatZigNode (will be imported from main formatter)

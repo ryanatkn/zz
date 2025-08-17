@@ -84,13 +84,43 @@ $ zig version
     │   │   │   ├── interface.zig      # Abstract interfaces (FilesystemInterface, DirHandle)
     │   │   │   ├── mock.zig           # Mock implementation for testing
     │   │   │   └── real.zig           # Real filesystem for production
-    │   │   ├── formatters             # Language-specific formatters
-    │   │   │   ├── css.zig            # CSS formatting
-    │   │   │   ├── html.zig           # HTML formatting
-    │   │   │   ├── json.zig           # JSON formatting with smart indentation
-    │   │   │   ├── svelte.zig         # Svelte formatting
-    │   │   │   ├── typescript.zig     # TypeScript formatting
-    │   │   │   └── zig.zig            # Zig formatting integration
+    │   │   ├── languages              # Language-specific implementations (C-style naming)
+    │   │   │   ├── css/               # CSS language support
+    │   │   │   │   ├── formatter.zig  # Main CSS formatter
+    │   │   │   │   └── [other files]  # Grammar, visitor, tests
+    │   │   │   ├── html/              # HTML language support  
+    │   │   │   │   ├── formatter.zig  # Main HTML formatter
+    │   │   │   │   └── [other files]  # Grammar, visitor, tests
+    │   │   │   ├── json/              # JSON language support
+    │   │   │   │   ├── formatter.zig  # Main JSON formatter
+    │   │   │   │   └── [other files]  # Grammar, visitor, tests  
+    │   │   │   ├── svelte/            # Svelte language support
+    │   │   │   │   ├── formatter.zig  # Main Svelte formatter
+    │   │   │   │   └── [other files]  # Grammar, visitor, tests
+    │   │   │   ├── typescript/        # TypeScript language support (modular)
+    │   │   │   │   ├── formatter.zig  # Main orchestration (62 lines)
+    │   │   │   │   ├── format_class.zig        # Class declaration formatting
+    │   │   │   │   ├── format_function.zig     # Function formatting
+    │   │   │   │   ├── format_interface.zig    # Interface formatting
+    │   │   │   │   ├── format_parameter.zig    # Parameter formatting  
+    │   │   │   │   ├── format_type.zig         # Type alias formatting
+    │   │   │   │   ├── format_import.zig       # Import/export formatting
+    │   │   │   │   ├── typescript_utils.zig    # TypeScript utilities
+    │   │   │   │   └── [other files]           # Grammar, visitor, tests
+    │   │   │   └── zig/               # Zig language support (modular)
+    │   │   │       ├── formatter.zig          # Main orchestration (37 lines)
+    │   │   │       ├── node_dispatcher.zig    # AST node routing
+    │   │   │       ├── format_function.zig    # Function formatting
+    │   │   │       ├── format_parameter.zig   # Parameter formatting
+    │   │   │       ├── format_declaration.zig # Declaration formatting
+    │   │   │       ├── format_body.zig        # Container body formatting
+    │   │   │       ├── format_statement.zig   # Statement formatting
+    │   │   │       ├── format_container.zig   # Struct/enum/union formatting
+    │   │   │       ├── format_import.zig      # @import formatting
+    │   │   │       ├── format_variable.zig    # Variable formatting
+    │   │   │       ├── format_test.zig        # Test block formatting
+    │   │   │       ├── zig_utils.zig          # Zig utilities
+    │   │   │       └── [other files]          # Grammar, visitor, tests
     │   │   ├── language               # Language detection and management
     │   │   │   ├── detection.zig      # File extension to language mapping
     │   │   │   ├── extractor.zig      # Unified extraction interface
@@ -415,11 +445,17 @@ For AST architecture and cache details, see [docs/ast-integration.md](docs/ast-i
 - `--line-width=N`: Maximum line width (default: 100)
 
 **Implementation Details:**
-- **Core Infrastructure:** `src/lib/formatter.zig` - Language dispatch and utilities
-- **Language Formatters:** `src/lib/formatters/` - Per-language implementations
+- **Core Infrastructure:** `src/lib/parsing/formatter.zig` - Language dispatch and utilities
+- **Language Formatters:** `src/lib/languages/` - Per-language implementations with C-style naming
 - **CLI Integration:** `src/format/main.zig` - Command handling and file processing
 - **Glob Support:** Uses same GlobExpander as prompt module
 - **Memory Management:** LineBuilder utility for efficient string building
+
+**C-Style Architecture (2025-08):**
+- **File Naming:** All formatters use `format_{feature}.zig` pattern for clear organization
+- **TypeScript:** `format_class.zig`, `format_function.zig`, `format_interface.zig`, etc.
+- **Zig:** `format_declaration.zig`, `format_statement.zig`, `format_container.zig`, etc.
+- **Struct Names:** Simplified without language prefixes (e.g., `FormatClass`, `FormatFunction`)
 
 **Usage Examples:**
 ```bash
@@ -490,7 +526,6 @@ When selecting tasks:
     or have understanding they don't, and when in doubt, ask clarifying questions
 - Keep modules self-contained and focused on their specific purpose
 - We have `rg` (ripgrep) installed, so always prefer `rg` over `grep` and `find`
-- Never use `sed` or write Bash loops to edit files, prefer direct editing instead
 - Claude Code is configured to prefer `rg` via `.claude/config.json` allowedCommands
 - Always update docs at ./CLAUDE.md and ./README.md
 - Always include tests for new functionality and newly handled edge cases

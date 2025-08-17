@@ -5,11 +5,11 @@ const FormatterOptions = @import("../../parsing/formatter.zig").FormatterOptions
 const NodeUtils = @import("../../language/node_utils.zig").NodeUtils;
 
 // Import all TypeScript formatter modules
-const TypeScriptFunctionFormatter = @import("function_formatter.zig").TypeScriptFunctionFormatter;
-const TypeScriptInterfaceFormatter = @import("interface_formatter.zig").TypeScriptInterfaceFormatter;
-const TypeScriptClassFormatter = @import("class_formatter.zig").TypeScriptClassFormatter;
-const TypeScriptTypeFormatter = @import("type_formatter.zig").TypeScriptTypeFormatter;
-const TypeScriptImportFormatter = @import("import_formatter.zig").TypeScriptImportFormatter;
+const FormatFunction = @import("format_function.zig").FormatFunction;
+const FormatInterface = @import("format_interface.zig").FormatInterface;
+const FormatClass = @import("format_class.zig").FormatClass;
+const FormatType = @import("format_type.zig").FormatType;
+const FormatImport = @import("format_import.zig").FormatImport;
 
 
 /// Format TypeScript using AST-based approach - main entry point
@@ -31,20 +31,20 @@ fn formatTypeScriptNode(node: ts.Node, source: []const u8, builder: *LineBuilder
 
     // Dispatch to specialized formatters based on node type
     if (std.mem.eql(u8, node_type, "function_declaration")) {
-        try TypeScriptFunctionFormatter.formatFunction(node, source, builder, depth, options);
+        try FormatFunction.formatFunction(node, source, builder, depth, options);
     } else if (std.mem.eql(u8, node_type, "interface_declaration")) {
-        try TypeScriptInterfaceFormatter.formatInterface(node, source, builder, depth, options);
+        try FormatInterface.formatInterface(node, source, builder, depth, options);
     } else if (std.mem.eql(u8, node_type, "class_declaration")) {
-        try TypeScriptClassFormatter.formatClass(node, source, builder, depth, options);
+        try FormatClass.formatClass(node, source, builder, depth, options);
     } else if (std.mem.eql(u8, node_type, "type_alias_declaration")) {
-        try TypeScriptTypeFormatter.formatTypeAlias(node, source, builder, depth, options);
+        try FormatType.formatTypeAlias(node, source, builder, depth, options);
     } else if (std.mem.eql(u8, node_type, "variable_declarator") or 
               std.mem.eql(u8, node_type, "lexical_declaration")) {
-        try TypeScriptTypeFormatter.formatVariableDeclaration(node, source, builder, depth, options);
+        try FormatType.formatVariableDeclaration(node, source, builder, depth, options);
     } else if (std.mem.eql(u8, node_type, "import_statement")) {
-        try TypeScriptImportFormatter.formatImportStatement(node, source, builder, depth, options);
+        try FormatImport.formatImportStatement(node, source, builder, depth, options);
     } else if (std.mem.eql(u8, node_type, "export_statement")) {
-        try TypeScriptImportFormatter.formatExportStatement(node, source, builder, depth, options);
+        try FormatImport.formatExportStatement(node, source, builder, depth, options);
     } else if (std.mem.eql(u8, node_type, "program") or 
               std.mem.eql(u8, node_type, "source_file")) {
         // For container nodes, recurse into children

@@ -4,7 +4,7 @@ const FormatterOptions = @import("../../parsing/formatter.zig").FormatterOptions
 const ZigUtils = @import("zig_utils.zig").ZigUtils;
 
 /// Zig-specific parameter formatting functionality
-pub const ZigParameterFormatter = struct {
+pub const FormatParameter = struct {
 
     /// Format a single Zig parameter with proper colon spacing
     pub fn formatSingleParameter(param: []const u8, builder: *LineBuilder) !void {

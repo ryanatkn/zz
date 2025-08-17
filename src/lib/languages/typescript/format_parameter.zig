@@ -2,7 +2,7 @@ const std = @import("std");
 const LineBuilder = @import("../../parsing/formatter.zig").LineBuilder;
 const FormatterOptions = @import("../../parsing/formatter.zig").FormatterOptions;
 
-pub const TypeScriptParameterFormatter = struct {
+pub const FormatParameter = struct {
     /// Format TypeScript parameter with proper spacing (space before and after colon)
     pub fn formatSingleParameter(param: []const u8, builder: *LineBuilder) !void {
         var i: usize = 0;

@@ -168,10 +168,10 @@ The formatter refactoring objective has been **successfully completed**:
 - **Cleaned**: Removed all Zig-style comments from generic helpers
 
 **Phase 2 - New Zig-Specific Modules Created:**
-- **`parameter_formatter.zig`** (167 lines): Zig colon spacing, comptime support, parameter lists
-- **`declaration_formatter.zig`** (205 lines): pub/const/var declarations, struct/enum/union declarations
-- **`body_formatter.zig`** (261 lines): struct/enum/union body formatting, literal content
-- **`statement_formatter.zig`** (304 lines): return statements, assignments, control flow, tests
+- **`format_parameter.zig`** (167 lines): Zig colon spacing, comptime support, parameter lists
+- **`format_declaration.zig`** (205 lines): pub/const/var declarations, struct/enum/union declarations
+- **`format_body.zig`** (261 lines): struct/enum/union body formatting, literal content
+- **`format_statement.zig`** (304 lines): return statements, assignments, control flow, tests
 
 **Phase 3 - Integration and Delegation:**
 - **Updated**: `formatting_helpers.zig` now delegates to specialized modules
@@ -189,12 +189,18 @@ The formatter refactoring objective has been **successfully completed**:
 **Current State:**
 ```
 src/lib/languages/zig/
-├── formatter.zig           (1590 lines - main AST traversal)
+├── formatter.zig           (37 lines - main orchestration) 
 ├── formatting_helpers.zig  (263 lines - coordination layer)
-├── parameter_formatter.zig (167 lines - Zig parameter handling)  
-├── declaration_formatter.zig (205 lines - Zig declarations)
-├── body_formatter.zig      (261 lines - struct/enum/union bodies)
-├── statement_formatter.zig (304 lines - Zig statements)
+├── format_parameter.zig    (167 lines - Zig parameter handling)  
+├── format_declaration.zig  (205 lines - Zig declarations)
+├── format_body.zig         (261 lines - struct/enum/union bodies)
+├── format_statement.zig    (304 lines - Zig statements)
+├── format_function.zig     (294 lines - function formatting)
+├── format_container.zig    (container struct/enum/union)
+├── format_import.zig       (@import statement handling)
+├── format_variable.zig     (variable declarations)
+├── format_test.zig         (test block formatting)
+├── node_dispatcher.zig     (AST node routing logic)
 └── [other files...]        (grammar, visitor, tests)
 ```
 
@@ -221,13 +227,18 @@ src/lib/language/
 └── [other core files...]
 
 src/lib/languages/zig/      (3872 lines total - fully self-contained)
-├── formatter.zig           (1588 lines - main formatter)
+├── formatter.zig           (37 lines - main orchestration)
+├── node_dispatcher.zig     (190+ lines - AST node routing)
 ├── zig_utils.zig           (204 lines - Zig-specific utilities)
-├── parameter_formatter.zig (167 lines - parameter handling)
-├── declaration_formatter.zig (205 lines - declarations)
-├── body_formatter.zig      (261 lines - struct/enum/union bodies)
-├── statement_formatter.zig (304 lines - statements & control flow)
-├── function_formatter.zig  (294 lines - function formatting)
+├── format_parameter.zig    (167 lines - parameter handling)
+├── format_declaration.zig  (205 lines - declarations)
+├── format_body.zig         (261 lines - struct/enum/union bodies)
+├── format_statement.zig    (304 lines - statements & control flow)
+├── format_function.zig     (294 lines - function formatting)
+├── format_container.zig    (container formatting)
+├── format_import.zig       (@import formatting)
+├── format_variable.zig     (variable declarations)
+├── format_test.zig         (test block formatting)
 ├── formatting_helpers.zig  (262 lines - coordination)
 └── [other files...]
 
@@ -273,15 +284,15 @@ The formatter refactoring has been **COMPLETELY SUCCESSFUL** with far better res
 src/lib/languages/zig/
 ├── formatter.zig             (37 lines - orchestration only)
 ├── node_dispatcher.zig        (190+ lines - node routing)
-├── function_formatter.zig     (310+ lines - function handling)
-├── parameter_formatter.zig    (167 lines - parameter spacing)
-├── declaration_formatter.zig  (205 lines - declarations)
-├── body_formatter.zig         (261 lines - container bodies)
-├── statement_formatter.zig    (304 lines - statements)
-├── container_formatter.zig    (280+ lines - struct/enum/union)
-├── import_formatter.zig       (90+ lines - @import handling)
-├── variable_formatter.zig     (170+ lines - variable declarations)
-├── test_formatter.zig         (180+ lines - test blocks)
+├── format_function.zig        (310+ lines - function handling)
+├── format_parameter.zig       (167 lines - parameter spacing)
+├── format_declaration.zig     (205 lines - declarations)
+├── format_body.zig            (261 lines - container bodies)
+├── format_statement.zig       (304 lines - statements)
+├── format_container.zig       (280+ lines - struct/enum/union)
+├── format_import.zig          (90+ lines - @import handling)
+├── format_variable.zig        (170+ lines - variable declarations)
+├── format_test.zig            (180+ lines - test blocks)
 └── zig_utils.zig             (204 lines - Zig-specific utilities)
 ```
 
@@ -289,12 +300,12 @@ src/lib/languages/zig/
 ```
 src/lib/languages/typescript/
 ├── formatter.zig             (62 lines - orchestration only)
-├── function_formatter.zig    (320+ lines - functions & arrows)
-├── interface_formatter.zig   (280+ lines - interface handling)
-├── class_formatter.zig       (400+ lines - class formatting)
-├── parameter_formatter.zig   (320+ lines - parameter handling)
-├── type_formatter.zig        (390+ lines - type declarations)
-├── import_formatter.zig      (280+ lines - import/export)
+├── format_function.zig       (320+ lines - functions & arrows)
+├── format_interface.zig      (280+ lines - interface handling)
+├── format_class.zig          (400+ lines - class formatting)
+├── format_parameter.zig      (320+ lines - parameter handling)
+├── format_type.zig           (390+ lines - type declarations)
+├── format_import.zig         (280+ lines - import/export)
 └── typescript_utils.zig      (205 lines - TypeScript utilities)
 ```
 
@@ -463,12 +474,152 @@ The formatter architecture is now **PRODUCTION READY** with clean separation, ze
 
 **Verdict**: The project is now in **significantly more stable state** with core infrastructure issues resolved. The remaining issues are primarily related to formatter edge cases rather than critical system functionality.
 
+### 🏷️ **Round 14 - C-Style Naming Convention Refactoring (2025-08-17)**
+
+**✅ COMPLETED: Complete Transformation to C-Style Naming Conventions**
+
+**Objective:** Transform formatter module naming from `{feature}_formatter.zig` pattern to cleaner C-style `format_{feature}.zig` pattern for better directory scanning and code organization.
+
+#### **File Renaming Transformation**
+
+**TypeScript Modules (6 files):**
+```
+Before → After
+class_formatter.zig      → format_class.zig
+function_formatter.zig   → format_function.zig
+interface_formatter.zig  → format_interface.zig
+parameter_formatter.zig  → format_parameter.zig
+type_formatter.zig       → format_type.zig
+import_formatter.zig     → format_import.zig
+```
+
+**Zig Modules (9 files):**
+```
+Before → After
+function_formatter.zig   → format_function.zig
+parameter_formatter.zig  → format_parameter.zig
+declaration_formatter.zig → format_declaration.zig
+body_formatter.zig       → format_body.zig
+statement_formatter.zig  → format_statement.zig
+container_formatter.zig  → format_container.zig
+import_formatter.zig     → format_import.zig
+variable_formatter.zig   → format_variable.zig
+test_formatter.zig       → format_test.zig
+```
+
+#### **Struct Name Simplification**
+
+**Removed Language Prefixes (Idiomatic Zig):**
+```
+Before → After
+TypeScriptClassFormatter     → FormatClass
+TypeScriptFunctionFormatter  → FormatFunction
+TypeScriptInterfaceFormatter → FormatInterface
+TypeScriptParameterFormatter → FormatParameter
+TypeScriptTypeFormatter      → FormatType
+TypeScriptImportFormatter    → FormatImport
+
+ZigFunctionFormatter   → FormatFunction
+ZigParameterFormatter  → FormatParameter
+ZigDeclarationFormatter → FormatDeclaration
+ZigBodyFormatter       → FormatBody
+ZigStatementFormatter  → FormatStatement
+ZigContainerFormatter  → FormatContainer
+ZigImportFormatter     → FormatImport
+ZigVariableFormatter   → FormatVariable
+ZigTestFormatter       → FormatTest
+```
+
+#### **Updated Import Patterns**
+
+**Before:**
+```zig
+const TypeScriptClassFormatter = @import("class_formatter.zig").TypeScriptClassFormatter;
+const ZigFunctionFormatter = @import("function_formatter.zig").ZigFunctionFormatter;
+```
+
+**After:**
+```zig
+const FormatClass = @import("format_class.zig").FormatClass;
+const FormatFunction = @import("format_function.zig").FormatFunction;
+```
+
+#### **Benefits Achieved**
+
+✅ **Clear Visual Grouping**: All formatting files start with `format_` prefix  
+✅ **C-Style Conventions**: Follows verb_noun pattern typical in C codebases  
+✅ **Better Directory Scanning**: Easy to identify formatter files at a glance  
+✅ **Idiomatic Zig**: Removed redundant language prefixes (context from directory)  
+✅ **Shorter Names**: Cleaner, more readable struct and function names  
+✅ **No Regressions**: Maintained 378/383 test pass rate (98.7%)
+
+#### **Current Architecture (Post-Refactoring)**
+
+**TypeScript Formatter Directory:**
+```
+src/lib/languages/typescript/
+├── format_class.zig         # Class declaration formatting
+├── format_function.zig      # Function and arrow function formatting  
+├── format_interface.zig     # Interface declaration formatting
+├── format_parameter.zig     # Parameter list formatting
+├── format_type.zig          # Type alias and union formatting
+├── format_import.zig        # Import/export statement formatting
+├── formatter.zig            # Main orchestration (62 lines)
+├── formatting_helpers.zig   # TypeScript-specific utilities
+├── typescript_utils.zig     # Language utilities
+└── [other files...]
+```
+
+**Zig Formatter Directory:**
+```
+src/lib/languages/zig/
+├── format_function.zig      # Function declaration formatting
+├── format_parameter.zig     # Parameter and argument formatting
+├── format_declaration.zig   # Variable and type declarations
+├── format_body.zig          # Struct/enum/union body formatting
+├── format_statement.zig     # Statement and control flow formatting
+├── format_container.zig     # Container (struct/enum/union) formatting
+├── format_import.zig        # @import statement formatting
+├── format_variable.zig      # Variable declaration formatting
+├── format_test.zig          # Test block formatting
+├── node_dispatcher.zig      # AST node routing logic
+├── formatter.zig            # Main orchestration (37 lines)
+├── formatting_helpers.zig   # Zig-specific utilities
+├── zig_utils.zig           # Language utilities
+└── [other files...]
+```
+
+#### **Migration Pattern for Future Languages**
+
+This refactoring establishes the standard pattern for all future language formatters:
+
+1. **File Naming**: `format_{feature}.zig` (verb_noun C-style)
+2. **Struct Naming**: `Format{Feature}` (remove language prefix)
+3. **Import Pattern**: Context from directory path, not struct name
+4. **Clear Separation**: All formatting files grouped with `format_` prefix
+
+**Ready for Application to:**
+- CSS, HTML, JSON, Svelte formatters (currently using basic patterns)
+- Future language additions (consistent naming from day one)
+
+#### **Technical Achievement**
+
+The C-style naming refactoring represents a **complete organizational transformation** of the formatter architecture:
+
+- **15 files renamed** across 2 languages
+- **15 struct names simplified** 
+- **All import statements updated** in orchestration files
+- **Zero functionality regression** (same 378/383 test results)
+- **Established consistent patterns** for future development
+
+This refactoring creates a much cleaner, more scannable codebase that follows C-style naming conventions while being idiomatic Zig. The `format_` prefix makes formatter responsibilities immediately clear!
+
 ### 🔄 Future Enhancements (Now Lower Priority)
 
-**Phase 2 - Additional Languages:**
-- Apply established patterns to HTML, CSS, JSON, Svelte formatters
-- Each language gets complete modular treatment
-- Continue the zero-monolith policy
+**Phase 2 - Apply C-Style Naming to Remaining Languages:**
+- Transform CSS, HTML, JSON, Svelte formatters to use `format_` prefix pattern
+- Apply same struct name simplification (remove language prefixes)
+- Maintain consistency across all language modules
 
 **Phase 3 - Advanced Features:**
 - Performance benchmarking of modular architecture

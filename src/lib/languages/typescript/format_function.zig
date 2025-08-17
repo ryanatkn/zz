@@ -5,7 +5,7 @@ const FormatterOptions = @import("../../parsing/formatter.zig").FormatterOptions
 const NodeUtils = @import("../../language/node_utils.zig").NodeUtils;
 const TypeScriptHelpers = @import("formatting_helpers.zig").TypeScriptFormattingHelpers;
 
-pub const TypeScriptFunctionFormatter = struct {
+pub const FormatFunction = struct {
     /// Format TypeScript function declaration
     pub fn formatFunction(node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) !void {
         _ = depth;

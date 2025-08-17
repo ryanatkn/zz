@@ -4,11 +4,11 @@ const LineBuilder = @import("../../parsing/formatter.zig").LineBuilder;
 const FormatterOptions = @import("../../parsing/formatter.zig").FormatterOptions;
 const NodeUtils = @import("../../language/node_utils.zig").NodeUtils;
 const ZigUtils = @import("zig_utils.zig").ZigUtils;
-const ZigParameterFormatter = @import("parameter_formatter.zig").ZigParameterFormatter;
-const ZigStatementFormatter = @import("statement_formatter.zig").ZigStatementFormatter;
+const FormatParameter = @import("format_parameter.zig").FormatParameter;
+const FormatStatement = @import("format_statement.zig").FormatStatement;
 
 /// Zig-specific function formatting functionality
-pub const ZigFunctionFormatter = struct {
+pub const FormatFunction = struct {
 
     /// Format Zig function node (AST-based)
     pub fn formatFunction(node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) !void {
@@ -232,7 +232,7 @@ pub const ZigFunctionFormatter = struct {
 
     /// Format single parameter with proper colon spacing
     fn formatSingleParameter(param: []const u8, builder: *LineBuilder) !void {
-        return ZigParameterFormatter.formatSingleParameter(param, builder);
+        return FormatParameter.formatSingleParameter(param, builder);
     }
 
     /// Format return type with proper spacing
@@ -296,7 +296,7 @@ pub const ZigFunctionFormatter = struct {
 
     /// Format function body with proper indentation
     fn formatFunctionBody(body: []const u8, builder: *LineBuilder) !void {
-        return ZigStatementFormatter.formatFunctionBody(body, builder);
+        return FormatStatement.formatFunctionBody(body, builder);
     }
 
     /// Check if text represents a function declaration

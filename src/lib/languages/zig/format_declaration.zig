@@ -2,7 +2,7 @@ const std = @import("std");
 const LineBuilder = @import("../../parsing/formatter.zig").LineBuilder;
 
 /// Zig-specific declaration formatting functionality
-pub const ZigDeclarationFormatter = struct {
+pub const FormatDeclaration = struct {
 
     /// Format Zig declaration with proper spacing around keywords
     pub fn formatDeclaration(declaration: []const u8, builder: *LineBuilder) !void {

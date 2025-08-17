@@ -3,10 +3,10 @@ const ts = @import("tree-sitter");
 const LineBuilder = @import("../../parsing/formatter.zig").LineBuilder;
 const FormatterOptions = @import("../../parsing/formatter.zig").FormatterOptions;
 const ZigUtils = @import("zig_utils.zig").ZigUtils;
-const ZigDeclarationFormatter = @import("declaration_formatter.zig").ZigDeclarationFormatter;
+const FormatDeclaration = @import("format_declaration.zig").FormatDeclaration;
 
 /// Zig-specific body formatting for structs, enums, and unions
-pub const ZigBodyFormatter = struct {
+pub const FormatBody = struct {
 
     /// Format struct body from text (compatibility function)
     pub fn formatStructBodyFromText(struct_text: []const u8, builder: *LineBuilder) !void {
@@ -264,7 +264,7 @@ pub const ZigBodyFormatter = struct {
 
     /// Check if member is a function declaration
     fn isFunctionDeclaration(text: []const u8) bool {
-        return ZigDeclarationFormatter.isFunctionDecl(text);
+        return FormatDeclaration.isFunctionDecl(text);
     }
 
     // Forward declarations to avoid circular dependencies
@@ -275,6 +275,6 @@ pub const ZigBodyFormatter = struct {
     }
 
     fn formatDeclarationWithSpacing(declaration: []const u8, builder: *LineBuilder) !void {
-        try ZigDeclarationFormatter.formatDeclaration(declaration, builder);
+        try FormatDeclaration.formatDeclaration(declaration, builder);
     }
 };

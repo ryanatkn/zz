@@ -142,7 +142,6 @@ When selecting tasks:
 - Address duplicated code and antipatterns
 - Keep modules self-contained and focused on their specific purpose
 - We have `rg` (ripgrep) installed, so always prefer `rg` over `grep` and `find`
-- Never use `sed` or write Bash loops to edit files, prefer direct editing instead
 - Always update docs at ./CLAUDE.md and ./README.md
 - Always include tests for new functionality and newly handled edge cases
 - Leave `// TODO terse explanation` when you encounter unknowns

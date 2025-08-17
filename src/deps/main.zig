@@ -258,17 +258,36 @@ fn generateDocumentationOnly(allocator: std.mem.Allocator, dep_manager: *manager
     const docs = @import("../lib/deps/docs/mod.zig");
     
     const stdout = std.io.getStdOut().writer();
-    try stdout.print("📦 Generating dependency documentation...\n", .{});
     
     var doc_generator = docs.DocumentationGenerator.init(allocator, dep_manager.deps_dir);
     
-    doc_generator.generateDocumentation(dependencies) catch |err| {
-        const stderr = std.io.getStdErr().writer();
-        try stderr.print("  ✗ Failed to generate dependency documentation: {}\n", .{err});
-        return err;
+    // Check if regeneration is needed
+    const needs_regen = doc_generator.needsRegeneration() catch {
+        // If we can't check, assume we need to regenerate
+        try stdout.print("📦 Generating dependency documentation (change detection failed)...\n", .{});
+        doc_generator.generateDocumentation(dependencies) catch |gen_err| {
+            const stderr = std.io.getStdErr().writer();
+            try stderr.print("  ✗ Failed to generate dependency documentation: {}\n", .{gen_err});
+            return gen_err;
+        };
+        try stdout.print("  ✓ Generated manifest.json\n", .{});
+        return;
     };
     
-    try stdout.print("  ✓ Generated manifest.json\n", .{});
+    if (needs_regen) {
+        try stdout.print("📦 Generating dependency documentation...\n", .{});
+        
+        doc_generator.generateDocumentation(dependencies) catch |err| {
+            const stderr = std.io.getStdErr().writer();
+            try stderr.print("  ✗ Failed to generate dependency documentation: {}\n", .{err});
+            return err;
+        };
+        
+        try stdout.print("  ✓ Generated manifest.json\n", .{});
+    } else {
+        try stdout.print("📦 Dependency documentation up to date (no changes in deps.zon)\n", .{});
+        try stdout.print("  ✓ Skipped manifest generation\n", .{});
+    }
 }
 
 /// Show usage information

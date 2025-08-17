@@ -176,14 +176,14 @@ pub const Token = struct {
         if (self.text.len == 0) return null;
         
         return switch (self.text[0]) {
-            '(' => .paren,
-            ')' => .paren,
-            '[' => .bracket,
-            ']' => .bracket,
-            '{' => .brace,
-            '}' => .brace,
-            '<' => .angle,
-            '>' => .angle,
+            '(' => .open_paren,
+            ')' => .close_paren,
+            '[' => .open_bracket,
+            ']' => .close_bracket,
+            '{' => .open_brace,
+            '}' => .close_brace,
+            '<' => .open_angle,
+            '>' => .close_angle,
             else => null,
         };
     }
@@ -272,10 +272,14 @@ pub const TokenFlags = struct {
 
 /// Types of delimiters for bracket matching
 pub const DelimiterType = enum {
-    paren,   // ( )
-    bracket, // [ ]
-    brace,   // { }
-    angle,   // < >
+    open_paren,   // (
+    close_paren,  // )
+    open_bracket, // [
+    close_bracket,// ]
+    open_brace,   // {
+    close_brace,  // }
+    open_angle,   // <
+    close_angle,  // >
 };
 
 /// Stream of tokens with utilities for processing
@@ -461,9 +465,9 @@ test "Token delimiter types and matching" {
     const close_paren = Token.closeDelimiter(span, ")", 0);
     const open_brace = Token.openDelimiter(span, "{", 1);
 
-    try testing.expectEqual(DelimiterType.paren, open_paren.getDelimiterType());
-    try testing.expectEqual(DelimiterType.paren, close_paren.getDelimiterType());
-    try testing.expectEqual(DelimiterType.brace, open_brace.getDelimiterType());
+    try testing.expectEqual(DelimiterType.open_paren, open_paren.getDelimiterType());
+    try testing.expectEqual(DelimiterType.close_paren, close_paren.getDelimiterType());
+    try testing.expectEqual(DelimiterType.open_brace, open_brace.getDelimiterType());
 
     try testing.expect(open_paren.isMatchingPair(close_paren));
     try testing.expect(!open_paren.isMatchingPair(open_brace));

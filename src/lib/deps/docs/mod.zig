@@ -5,6 +5,7 @@ const path = @import("../../core/path.zig");
 const collections = @import("../../core/collections.zig");
 const FilesystemInterface = @import("../../filesystem/interface.zig").FilesystemInterface;
 const RealFilesystem = @import("../../filesystem/real.zig").RealFilesystem;
+const hashing = @import("../hashing.zig");
 
 // Re-export types and submodules
 pub const DependencyCategory = @import("types.zig").DependencyCategory;
@@ -40,6 +41,16 @@ pub const DocumentationGenerator = struct {
             .deps_dir = deps_dir,
             .build_parser = build_parser.BuildParser.init(allocator),
         };
+    }
+    
+    /// Check if manifest needs regeneration
+    pub fn needsRegeneration(self: *Self) !bool {
+        var detector = hashing.ChangeDetector.init(self.allocator);
+        const deps_zon_path = "deps.zon";
+        const state_path = try path.joinPath(self.allocator, self.deps_dir, ".deps_state");
+        defer self.allocator.free(state_path);
+        
+        return detector.hasChanged(deps_zon_path, state_path);
     }
     
     /// Generate manifest.json from current dependency state
@@ -163,7 +174,7 @@ pub const DocumentationGenerator = struct {
     /// Extract language from grammar dependency name
     fn extractLanguage(self: *Self, name: []const u8) !?[]const u8 {
         if (std.mem.startsWith(u8, name, "tree-sitter-")) {
-            const lang = name[13..]; // Skip "tree-sitter-"
+            const lang = name[12..]; // Skip "tree-sitter-" (12 chars)
             return try self.allocator.dupe(u8, lang);
         }
         return null;
@@ -178,7 +189,7 @@ pub const DocumentationGenerator = struct {
         } else if (std.mem.eql(u8, name, "zig-spec")) {
             return try self.allocator.dupe(u8, "Zig language specification and grammar reference");
         } else if (std.mem.startsWith(u8, name, "tree-sitter-")) {
-            const lang = name[13..];
+            const lang = name[12..]; // Skip "tree-sitter-" (12 chars)
             return try std.fmt.allocPrint(self.allocator, "{s} language grammar for tree-sitter", .{lang});
         } else {
             return try std.fmt.allocPrint(self.allocator, "Dependency: {s}", .{name});

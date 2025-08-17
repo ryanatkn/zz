@@ -6,6 +6,9 @@ zig-out/
 # Dependency backup system
 .backups
 
+# Dependency state tracking (local cache)
+deps/.deps_state
+
 # Temporary files
 *.tmp
 .tmp*

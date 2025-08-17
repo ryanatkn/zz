@@ -117,6 +117,7 @@ See [docs/format-features.md](docs/format-features.md) for language support.
 $ zz deps --check                   # Check if updates needed
 $ zz deps --update                  # Update dependencies
 $ zz deps --force-dep tree-sitter   # Force update specific dep
+$ zz deps --generate-manifest       # Generate manifest.json (smart detection)
 ```
 See [docs/deps.md](docs/deps.md) for architecture details.
 

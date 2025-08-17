@@ -268,7 +268,7 @@ pub const StreamingLexer = struct {
         
         // Brackets
         if (self.isBracketChar(ch)) {
-            self.scanner.advance();
+            _ = self.scanner.advance();
             return self.getBracketTokenKind(ch);
         }
         
@@ -279,7 +279,7 @@ pub const StreamingLexer = struct {
         }
         
         // Single character tokens
-        self.scanner.advance();
+        _ = self.scanner.advance();
         return .unknown;
     }
     
@@ -322,7 +322,7 @@ pub const StreamingLexer = struct {
                     depth += 1;
                 } else if (self.isCloseBracket(ch)) {
                     if (depth > 0) depth -= 1;
-                    try self.bracket_tracker.exitBracket(pos, depth);
+                    _ = try self.bracket_tracker.exitBracket(pos, depth);
                 }
             }
             pos += 1;
@@ -409,9 +409,9 @@ pub const StreamingLexer = struct {
     fn getBracketTokenKind(self: *StreamingLexer, ch: u8) TokenKind {
         _ = self;
         return switch (ch) {
-            '(', ')' => .parenthesis,
-            '[', ']' => .bracket,
-            '{', '}' => .brace,
+            '(', ')' => .delimiter,
+            '[', ']' => .delimiter,
+            '{', '}' => .delimiter,
             else => .unknown,
         };
     }

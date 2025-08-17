@@ -5,6 +5,7 @@ const Git = @import("../core/git.zig").Git;
 const Versioning = @import("versioning.zig").Versioning;
 const Operations = @import("operations.zig").Operations;
 const LockGuard = @import("lock.zig").LockGuard;
+// const parallel = @import("parallel.zig"); // TODO: Re-enable when compilation issues are fixed
 const io = @import("../core/io.zig");
 const path = @import("../core/path.zig");
 const errors = @import("../core/errors.zig");
@@ -143,6 +144,13 @@ pub const DependencyManager = struct {
 
         return result;
     }
+    
+    // TODO: Implement parallel checking - currently disabled due to compilation issues
+    // /// Check status of all dependencies using parallel execution for better performance
+    // pub fn checkDependenciesParallel(self: *Self, dependencies: []const config.Dependency) !CheckResult {
+    //     // Implementation temporarily disabled
+    //     return self.checkDependencies(dependencies);
+    // }
 
     /// List all dependencies with their status
     pub fn listDependencies(self: *Self, dependencies: []const config.Dependency, options: config.UpdateOptions) !void {

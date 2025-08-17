@@ -171,24 +171,31 @@ a language parser, which our code uses to parse files of that type.
 
 The `deps/` directory is managed by our type-safe dependency management system in `src/lib/deps/` and the `zz deps` command.
 
+### Key Improvements (2024)
+
+- **Fixed Language Corruption**: Resolved buffer overrun bug (13→12 char offset)
+- **Eliminated Timestamp Churn**: Manifest uses deterministic content
+- **Smart Change Detection**: Content hashing prevents unnecessary regeneration
+- **Complete Dependency Coverage**: All 11 dependencies properly processed
+
 ### Automated Documentation Generation
 
-The dependency system now includes automated documentation generation that creates up-to-date reference files:
+The dependency system includes intelligent documentation generation:
 
-- **`deps/manifest.json`** - Machine-readable dependency manifest for programmatic access
+- **`deps/manifest.json`** - Machine-readable dependency manifest
+- **`deps/.deps_state`** - Tracks deps.zon changes via content hashing
 
-These files are automatically updated whenever dependencies are modified via `zz deps` operations, or can be generated on-demand with:
+Generate or update documentation with:
 
 ```bash
-zz deps --generate-manifest
+zz deps --generate-manifest  # Only regenerates if deps.zon changed
 ```
 
-The generated documentation includes:
-- Dependency categorization (core libraries, language grammars, reference docs)
-- Current versions and repository links
-- Build integration details extracted from `build.zig`
-- Language-specific information for grammar dependencies
-- Purpose descriptions from metadata in `deps.zon`
+Features:
+- **Change Detection**: XxHash64 of deps.zon content
+- **Deterministic Output**: No timestamps or variable content
+- **Efficient Caching**: Skips generation when nothing changed
+- **Complete Enumeration**: All dependencies from deps.zon included
 
 ### Configuration: deps.zon
 

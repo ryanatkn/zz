@@ -608,7 +608,7 @@ parser/stratified/ depends on:
 |-------|-----------------|--------|-------------------|
 | 1-2 | Foundation types compile and test | ✅ COMPLETED | August 2025 |
 | 3 | Lexer <0.1ms for viewport | ✅ COMPLETED | August 2025 |
-| 4 | Structural parser <1ms | 🚧 NEXT | Week 8 |
+| 4 | Structural parser <1ms | ✅ COMPLETED | August 2025 |
 | 5 | Fact stream with deltas working | ⏳ PENDING | Week 10 |
 | 6 | Detailed parser integrated | ⏳ PENDING | Week 12 |
 | 7 | Basic speculation working | ⏳ PENDING | Week 14 |
@@ -627,15 +627,15 @@ parser/stratified/ depends on:
 2. **✅ COMPLETED**: Implement Span and Fact types
 3. **✅ COMPLETED**: Build specialized collections
 4. **✅ COMPLETED**: Implement complete lexical layer
-5. **🚧 CURRENT PHASE**: Begin structural parser implementation
-6. **📋 UPCOMING**: Integrate detailed parser and build CLI parser POC
+5. **✅ COMPLETED**: Implement structural parser (Layer 1)
+6. **🚧 CURRENT PHASE**: Integrate detailed parser and build CLI parser POC
 
-### Immediate Next Actions (Phase 4)
-1. Create `src/lib/parser/structural/` module structure
-2. Implement block boundary detection with <1ms targets
-3. Add error recovery regions and parse boundaries
-4. Design Layer 2 integration points
-5. Build CLI parser proof-of-concept using lexical layer
+### Immediate Next Actions (Phase 5)
+1. ✅ Create `src/lib/parser/structural/` module structure
+2. ✅ Implement block boundary detection with <1ms targets
+3. ✅ Add error recovery regions and parse boundaries
+4. ✅ Design Layer 2 integration points
+5. **📋 NEXT**: Build CLI parser proof-of-concept using lexical layer
 
 ## Conclusion
 

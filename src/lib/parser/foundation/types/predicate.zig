@@ -271,11 +271,14 @@ pub const TokenKind = enum {
     keyword,
     operator,
     literal,
+    string_literal,
+    number_literal,
     delimiter,
     whitespace,
     comment,
     newline,
     eof,
+    unknown,
 };
 
 /// Boundary kinds for structural facts

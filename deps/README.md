@@ -8,39 +8,55 @@ This directory contains vendored dependencies for the zz project. We vendor thes
 
 ## Current Dependencies
 
-| Dependency | Version | Purpose | Source |
-|------------|---------|---------|--------|
-| tree-sitter | v0.25.0 | Core syntax tree parsing library (C) | https://github.com/tree-sitter/tree-sitter |
-| zig-tree-sitter | v0.25.0 | Zig bindings for tree-sitter API | https://github.com/tree-sitter/zig-tree-sitter |
-| tree-sitter-zig | main | Zig language grammar (C parser) | https://github.com/maxxnino/tree-sitter-zig |
-| zig-spec | main | Zig language specification (docs only) | https://github.com/ziglang/zig-spec |
+| Dependency | Version | Purpose | Language |
+|------------|---------|---------|----------|
+| tree-sitter | v0.25.0 | Core syntax tree parsing library (C) | Core |
+| zig-tree-sitter | v0.25.0 | Zig bindings for tree-sitter API | Core |
+| tree-sitter-zig | main | Zig language grammar | zig |
+| tree-sitter-css | v0.23.0 | CSS language grammar | css |
+| tree-sitter-html | v0.23.0 | HTML language grammar | html |
+| tree-sitter-json | v0.24.8 | JSON language grammar | json |
+| tree-sitter-typescript | v0.23.2 | TypeScript/JavaScript grammar | typescript |
+| tree-sitter-svelte | v1.0.2 | Svelte component grammar | svelte |
+| zig-spec | main | Zig language specification (reference) | - |
+| webref | main | W3C web specs reference data | - |
 
 ### Dependency Relationships
 
 - **tree-sitter**: Core C library that all parsing depends on
 - **zig-tree-sitter**: Provides Zig API to use tree-sitter (imported as module)
-- **tree-sitter-zig**: Provides `tree_sitter_zig()` C function for parsing Zig code
-- **zig-spec**: Reference documentation, not compiled
+- **tree-sitter-{lang}**: Language grammars providing `tree_sitter_{lang}()` C functions
+- **zig-spec** & **webref**: Reference documentation, not compiled
 
 See [deps/CLAUDE.md](CLAUDE.md) for detailed technical explanation.
 
-## Updating Dependencies
+## Dependency Management
 
-### Quick Start
+### Using the zz CLI
 
 ```bash
-# Check if updates are needed (safe to run anytime)
-./scripts/update-deps.sh
+# Check dependency status
+zz deps --check
 
-# Force update all dependencies
-./scripts/update-deps.sh --force
+# Generate/update manifest.json (auto-detects changes)
+zz deps --generate-manifest
 
-# Update specific dependency only
-./scripts/update-deps.sh --force-dep tree-sitter
+# Update all dependencies
+zz deps update
 
-# Show help and available options
-./scripts/update-deps.sh --help
+# Dry run to see what would change
+zz deps update --dry-run
+
+# Force update specific dependency
+zz deps update --force-dep tree-sitter
 ```
+
+### Automatic Features
+
+- **Change Detection**: Only regenerates manifest when deps.zon changes
+- **Smart Caching**: Uses content hashing to detect changes efficiently
+- **No Timestamp Churn**: Manifest has deterministic content (no git noise)
+- **All Dependencies**: Correctly processes all 11 vendored dependencies
 
 ### What the Script Does
 

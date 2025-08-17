@@ -137,7 +137,7 @@ pub const BuildParser = struct {
         
         // Generate parser function for grammars
         if (std.mem.startsWith(u8, dep_name, "tree-sitter-")) {
-            const lang = dep_name[13..];
+            const lang = dep_name[12..]; // Skip "tree-sitter-" (12 chars)
             parser_function = try std.fmt.allocPrint(self.allocator, "tree_sitter_{s}", .{lang});
         }
         

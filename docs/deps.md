@@ -1,7 +1,5 @@
 # Dependency Management System
 
-> ⚠️ AI slop code and docs, is unstable and full of lies
-
 ## Overview
 
 The `zz deps` command provides a pure Zig replacement for shell-based dependency management.
@@ -45,7 +43,8 @@ zig build install --prefix ~/.local
 ### Common Commands
 
 ```bash
-# List all dependencies and their status
+# List all dependencies and their status (default)
+zz deps
 zz deps --list
 
 # Check if updates are needed (CI-friendly, exit 1 if updates needed)
@@ -65,6 +64,9 @@ zz deps --force-dep tree-sitter
 
 # Update dependencies matching pattern
 zz deps --update-pattern "tree*"
+
+# Generate/update manifest.json (with smart change detection)
+zz deps --generate-manifest
 
 # Show detailed help
 zz deps --help

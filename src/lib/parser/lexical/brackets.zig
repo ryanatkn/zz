@@ -75,7 +75,7 @@ pub const BracketTracker = struct {
             return null;
         }
         
-        const open_info = self.bracket_stack.pop();
+        const open_info = self.bracket_stack.pop() orelse return null;
         const close_type = self.getClosingType(open_info.bracket_type);
         
         // Create pair information
@@ -113,8 +113,13 @@ pub const BracketTracker = struct {
         return pair;
     }
     
-    /// Find the matching bracket for a position
+    /// Find the matching bracket for a position (read-only, no stats)
     pub fn findPair(self: BracketTracker, position: usize) ?usize {
+        return self.pair_map.get(position);
+    }
+    
+    /// Find the matching bracket for a position with stats tracking
+    pub fn findPairWithStats(self: *BracketTracker, position: usize) ?usize {
         const timer = std.time.nanoTimestamp();
         defer {
             const elapsed: u64 = @intCast(std.time.nanoTimestamp() - timer);
@@ -245,9 +250,11 @@ pub const BracketTracker = struct {
             .open_paren => .close_paren,
             .open_bracket => .close_bracket,
             .open_brace => .close_brace,
+            .open_angle => .close_angle,
             .close_paren => .open_paren,  // For symmetry
             .close_bracket => .open_bracket,
             .close_brace => .open_brace,
+            .close_angle => .open_angle,
         };
     }
     

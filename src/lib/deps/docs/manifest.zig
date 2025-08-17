@@ -2,7 +2,6 @@ const std = @import("std");
 const path = @import("../../core/path.zig");
 const io = @import("../../core/io.zig");
 const builders = @import("../../text/builders.zig");
-const datetime = @import("../../core/datetime.zig");
 
 const DependencyDoc = @import("types.zig").DependencyDoc;
 
@@ -26,13 +25,6 @@ pub const ManifestGenerator = struct {
         defer builder.deinit();
         
         try builder.appendLine("{");
-        
-        // Generate current ISO 8601 timestamp
-        const current_date = datetime.getCurrentDate();
-        const datetime_str = try current_date.formatDateTime(self.allocator);
-        defer self.allocator.free(datetime_str);
-        
-        try builder.appendLineFmt("  \"generated\": \"{s}\",", .{datetime_str});
         try builder.appendLine("  \"generator\": \"zz-deps-v1.0.0\",");
         try builder.appendLine("  \"dependencies\": {");
         

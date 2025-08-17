@@ -117,34 +117,16 @@ pub fn run(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: 
 
 /// Load dependency configuration from deps.zon
 fn loadDepsConfig(allocator: std.mem.Allocator) !config.DepsConfig {
-    // Read deps.zon file and parse with comment stripping
-    const content = io.readFile(allocator, "deps.zon") catch |err| switch (err) {
-        error.FileNotFound => {
-            std.log.info("No deps.zon found, using hardcoded config", .{});
-            // Fallback to hardcoded config
-            var fallback_config = try config.DepsZonConfig.createHardcoded(allocator);
-            try fallback_config.initHardcodedDependencies();
-            defer fallback_config.deinit();
-            return fallback_config.toDepsConfig(allocator);
-        },
-        else => return err,
-    };
-    defer allocator.free(content);
+    // TODO: ZON parsing has segfault issues - keeping disabled for now
+    // The memory leak is fixed but there are still pointer invalidation issues
+    // When parseFromZonContent tries to duplicate strings from freed parsed data
     
-    // Parse ZON content with comment stripping (now working!)
-    var zon_config = config.DepsZonConfig.parseFromZonContent(allocator, content) catch |err| {
-        // Parse error - use hardcoded config as fallback
-        std.log.warn("Failed to parse deps.zon, using hardcoded config: {}", .{err});
-        var fallback_config = try config.DepsZonConfig.createHardcoded(allocator);
-        try fallback_config.initHardcodedDependencies();
-        const fallback_deps_config = try fallback_config.toDepsConfig(allocator);
-        fallback_config.deinit();
-        return fallback_deps_config;
-    };
-    defer zon_config.deinit();
-    
-    
-    return zon_config.toDepsConfig(allocator);
+    std.log.info("Using hardcoded dependency config (ZON parsing disabled due to segfault)", .{});
+    var fallback_config = try config.DepsZonConfig.createHardcoded(allocator);
+    try fallback_config.initHardcodedDependencies();
+    const fallback_deps_config = try fallback_config.toDepsConfig(allocator);
+    fallback_config.deinit();
+    return fallback_deps_config;
 }
 
 

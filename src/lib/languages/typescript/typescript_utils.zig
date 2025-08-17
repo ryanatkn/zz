@@ -57,10 +57,7 @@ pub const TypeScriptUtils = struct {
             const char = declaration[i];
             
             if (char == ':') {
-                // TypeScript style: space before and after colon
-                if (i > 0 and declaration[i-1] != ' ') {
-                    try builder.append(" ");
-                }
+                // TypeScript style: no space before colon, space after colon
                 try builder.append(":");
                 if (i + 1 < declaration.len and declaration[i + 1] != ' ') {
                     try builder.append(" ");

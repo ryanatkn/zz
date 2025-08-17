@@ -13,8 +13,8 @@
     // When base_patterns = "extend", these are ADDED to the built-in defaults:
     // Built-in defaults: ".git", ".svn", ".hg", "node_modules", "dist", "build",
     //                   "target", "__pycache__", "venv", "env", "tmp", "temp",
-    //                   ".zig-cache", "zig-out"
-    .ignored_patterns = .{"docs/archive"},
+    //                   ".zig-cache", "zig-out", "deps", "archive"
+    // .ignored_patterns = .{},
 
     // Files to completely hide (not displayed at all in tree output)
     // Built-in defaults: ".DS_Store", "Thumbs.db"

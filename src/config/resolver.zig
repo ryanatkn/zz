@@ -14,6 +14,7 @@ pub const PatternResolver = struct {
     const default_ignored = [_][]const u8{
         ".git",        ".svn", ".hg", "node_modules", "dist", "build",      "target",
         "__pycache__", "venv", "env", "tmp",          "temp", ".zig-cache", "zig-out",
+        "deps",        "archive",
     };
 
     const default_hidden = [_][]const u8{ ".DS_Store", "Thumbs.db" };

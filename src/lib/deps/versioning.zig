@@ -35,25 +35,37 @@ pub const Versioning = struct {
         const target_dir = try utils.Utils.buildPath(self.allocator, &.{ deps_dir, dep_name });
         defer self.allocator.free(target_dir);
 
-        // Check if directory exists
-        if (!utils.Utils.directoryExists(target_dir)) {
-            return true; // Needs update if missing
+        // Check if directory exists using filesystem interface
+        const target_stat = self.filesystem.statFile(self.allocator, target_dir) catch |err| switch (err) {
+            error.FileNotFound, error.AccessDenied, error.NotDir => return true, // Missing directory, needs update
+            else => return err,
+        };
+        if (target_stat.kind != .directory) {
+            return true; // Not a directory, needs update
         }
 
         // Check if .git directory exists (not properly vendored)
         const git_dir = try utils.Utils.buildPath(self.allocator, &.{ target_dir, ".git" });
         defer self.allocator.free(git_dir);
 
-        if (utils.Utils.directoryExists(git_dir)) {
-            return true; // .git directory exists, needs cleanup
+        // If .git directory exists, we need cleanup
+        if (self.filesystem.statFile(self.allocator, git_dir)) |stat| {
+            if (stat.kind == .directory) {
+                return true; // .git directory exists, needs cleanup
+            }
+        } else |err| switch (err) {
+            error.FileNotFound, error.AccessDenied, error.NotDir => {}, // No .git, which is what we want
+            else => return err,
         }
 
         // Check version file
         const version_file = try utils.Utils.buildPath(self.allocator, &.{ target_dir, ".version" });
         defer self.allocator.free(version_file);
 
-        const version_content = (try utils.Utils.readFileOptional(self.allocator, version_file, 1024)) orelse {
-            return true; // No version file, needs update
+        const cwd = self.filesystem.cwd();
+        const version_content = cwd.readFileAlloc(self.allocator, version_file, 1024) catch |err| switch (err) {
+            error.FileNotFound, error.AccessDenied, error.NotDir => return true, // No version file, needs update
+            else => return err,
         };
         defer self.allocator.free(version_content);
 

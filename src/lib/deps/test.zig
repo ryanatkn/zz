@@ -29,7 +29,7 @@ test "DependencyManager with MockFilesystem - up to date dependency" {
     // Add deps directory structure
     try mock_fs.addDirectory("deps");
     try mock_fs.addDirectory("deps/tree-sitter");
-    try mock_fs.addFile("deps/tree-sitter/.version", "repository=https://github.com/tree-sitter/tree-sitter\nversion=v0.25.0\ncommit=abc123\nupdated=1706123456\nupdated_by=test\n");
+    try mock_fs.addFile("deps/tree-sitter/.version", "Repository: https://github.com/tree-sitter/tree-sitter\nVersion: v0.25.0\nCommit: abc123\nUpdated: 1706123456\nUpdated-By: test\n");
     
     // Create dependency manager with mock filesystem
     var manager = DependencyManager.initWithFilesystem(allocator, "deps", mock_fs.interface());

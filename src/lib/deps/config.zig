@@ -238,6 +238,7 @@ pub const DepsZonConfig = struct {
             // Fallback to hardcoded on parse error
             return createHardcoded(allocator);
         };
+        defer ZonCore.free(allocator, parsed); // Properly free the parsed ZON data
         
         // Convert to HashMap structure - need to duplicate all strings since we'll free parsed data
         var dependencies = std.StringHashMap(DependencyZonEntry).init(allocator);
@@ -303,8 +304,6 @@ pub const DepsZonConfig = struct {
             };
         }
         
-        // TODO: Fix memory leak - we should free parsed data after ensuring all strings are copied
-        // ZonCore.free(allocator, parsed);
         
         return DepsZonConfig{
             .dependencies = dependencies,

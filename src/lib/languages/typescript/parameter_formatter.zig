@@ -72,11 +72,7 @@ pub const TypeScriptParameterFormatter = struct {
             }
 
             if (c == ':' and !in_generic) {
-                // TypeScript style: space before and after colon
-                if (builder.buffer.items.len > 0 and 
-                    builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
-                    try builder.append(" ");
-                }
+                // TypeScript style: no space before colon, space after colon
                 try builder.append(":");
                 i += 1;
                 

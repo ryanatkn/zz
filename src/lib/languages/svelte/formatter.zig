@@ -2,6 +2,7 @@ const std = @import("std");
 const ts = @import("tree-sitter");
 const LineBuilder = @import("../../parsing/formatter.zig").LineBuilder;
 const FormatterOptions = @import("../../parsing/formatter.zig").FormatterOptions;
+const NodeUtils = @import("../../language/node_utils.zig").NodeUtils;
 
 /// Format Svelte using AST-based approach
 pub fn formatAst(allocator: std.mem.Allocator, node: ts.Node, source: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
@@ -39,9 +40,12 @@ fn formatSvelteNode(node: ts.Node, source: []const u8, builder: *LineBuilder, de
     } else if (std.mem.eql(u8, node_type, "element")) {
         // Handle HTML elements with proper indentation
         try formatSvelteElement(node, source, builder, depth, options);
+    } else if (isSvelteTemplateDirective(node_type)) {
+        // Handle Svelte template directives like {#if}, {:else}, {/if}, {#each}
+        try formatSvelteTemplateDirective(node, source, builder, depth, options);
     } else if (std.mem.eql(u8, node_type, "start_tag") or std.mem.eql(u8, node_type, "end_tag") or std.mem.eql(u8, node_type, "text")) {
         // Handle HTML tags and text content
-        const element_text = getNodeText(node, source);
+        const element_text = NodeUtils.getNodeText(node, source);
         const trimmed = std.mem.trim(u8, element_text, " \t\n\r");
         if (trimmed.len > 0) {
             try builder.appendIndent();
@@ -49,12 +53,17 @@ fn formatSvelteNode(node: ts.Node, source: []const u8, builder: *LineBuilder, de
             try builder.newline();
         }
     } else {
-        // For unknown nodes, just append text without recursion
-        try appendNodeText(node, source, builder);
-        // Add newline if the text doesn't end with one
-        const text = getNodeText(node, source);
-        if (text.len > 0 and text[text.len - 1] != '\n') {
-            try builder.newline();
+        // For unknown nodes, check if it's a template directive by content
+        const node_text = NodeUtils.getNodeText(node, source);
+        if (isSvelteDirectiveText(node_text)) {
+            try formatSvelteTemplateDirective(node, source, builder, depth, options);
+        } else {
+            // For unknown nodes, just append text without recursion
+            try NodeUtils.appendNodeText(node, source, builder);
+            // Add newline if the text doesn't end with one
+            if (node_text.len > 0 and node_text[node_text.len - 1] != '\n') {
+                try builder.newline();
+            }
         }
     }
 }
@@ -67,7 +76,7 @@ fn formatSvelteScript(node: ts.Node, source: []const u8, builder: *LineBuilder, 
     try builder.newline();
 
     // Extract script content and format it line by line
-    const script_text = getNodeText(node, source);
+    const script_text = NodeUtils.getNodeText(node, source);
     if (std.mem.indexOf(u8, script_text, ">")) |start_tag_end| {
         if (std.mem.lastIndexOf(u8, script_text, "</script>")) |end_tag_start| {
             const content = script_text[start_tag_end + 1 .. end_tag_start];
@@ -94,7 +103,7 @@ fn formatSvelteStyle(node: ts.Node, source: []const u8, builder: *LineBuilder, d
     try builder.newline();
 
     // Extract style content and format it as CSS
-    const style_text = getNodeText(node, source);
+    const style_text = NodeUtils.getNodeText(node, source);
     if (std.mem.indexOf(u8, style_text, ">")) |start_tag_end| {
         if (std.mem.lastIndexOf(u8, style_text, "</style>")) |end_tag_start| {
             const content = style_text[start_tag_end + 1 .. end_tag_start];
@@ -209,7 +218,7 @@ fn formatSvelteReactive(node: ts.Node, source: []const u8, builder: *LineBuilder
 
     try builder.appendIndent();
     try builder.append("$: ");
-    try appendNodeText(node, source, builder);
+    try NodeUtils.appendNodeText(node, source, builder);
     try builder.newline();
 }
 
@@ -313,7 +322,7 @@ fn formatSvelteElement(node: ts.Node, source: []const u8, builder: *LineBuilder,
     if (is_inline) {
         // Format inline element on a single line
         try builder.appendIndent();
-        const element_text = getNodeText(node, source);
+        const element_text = NodeUtils.getNodeText(node, source);
         try builder.append(element_text);
         try builder.newline();
     } else {
@@ -327,14 +336,14 @@ fn formatSvelteElement(node: ts.Node, source: []const u8, builder: *LineBuilder,
                 
                 if (std.mem.eql(u8, child_type, "start_tag")) {
                     try builder.appendIndent();
-                    const tag_text = getNodeText(child, source);
+                    const tag_text = NodeUtils.getNodeText(child, source);
                     try builder.append(tag_text);
                     try builder.newline();
                     builder.indent();
                 } else if (std.mem.eql(u8, child_type, "end_tag")) {
                     builder.dedent();
                     try builder.appendIndent();
-                    const tag_text = getNodeText(child, source);
+                    const tag_text = NodeUtils.getNodeText(child, source);
                     try builder.append(tag_text);
                     try builder.newline();
                 } else if (std.mem.eql(u8, child_type, "element")) {
@@ -377,7 +386,7 @@ fn isInlineElement(node: ts.Node, source: []const u8) bool {
     }
     
     // Check content length - if short, keep inline
-    const element_text = getNodeText(node, source);
+    const element_text = NodeUtils.getNodeText(node, source);
     return element_text.len < 60; // Arbitrary threshold for inline vs block
 }
 
@@ -509,21 +518,6 @@ fn formatJavaScriptBasic(statement: []const u8, builder: *LineBuilder, options: 
     }
 }
 
-/// Helper function to get node text from source
-fn getNodeText(node: ts.Node, source: []const u8) []const u8 {
-    const start = node.startByte();
-    const end = node.endByte();
-    if (end <= source.len and start <= end) {
-        return source[start..end];
-    }
-    return "";
-}
-
-/// Helper function to append node text to builder
-fn appendNodeText(node: ts.Node, source: []const u8, builder: *LineBuilder) !void {
-    const text = getNodeText(node, source);
-    try builder.append(text);
-}
 
 /// Check if a node represents a Svelte section
 pub fn isSvelteSection(node_type: []const u8) bool {
@@ -536,5 +530,80 @@ pub fn isSvelteSection(node_type: []const u8) bool {
 pub fn isSvelteReactive(node_type: []const u8) bool {
     return std.mem.eql(u8, node_type, "reactive_statement") or
         std.mem.eql(u8, node_type, "labeled_statement"); // $: statements
+}
+
+/// Check if a node type represents a Svelte template directive
+fn isSvelteTemplateDirective(node_type: []const u8) bool {
+    return std.mem.eql(u8, node_type, "if_statement") or
+           std.mem.eql(u8, node_type, "each_statement") or
+           std.mem.eql(u8, node_type, "await_statement") or
+           std.mem.eql(u8, node_type, "key_statement") or
+           std.mem.eql(u8, node_type, "template_directive") or
+           std.mem.eql(u8, node_type, "block_directive");
+}
+
+/// Check if text content looks like a Svelte directive
+fn isSvelteDirectiveText(text: []const u8) bool {
+    const trimmed = std.mem.trim(u8, text, " \t\n\r");
+    return std.mem.startsWith(u8, trimmed, "{#") or
+           std.mem.startsWith(u8, trimmed, "{:") or
+           std.mem.startsWith(u8, trimmed, "{/");
+}
+
+/// Format Svelte template directive with proper indentation
+fn formatSvelteTemplateDirective(node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) !void {
+    const directive_text = NodeUtils.getNodeText(node, source);
+    const trimmed = std.mem.trim(u8, directive_text, " \t\n\r");
+    
+    if (trimmed.len == 0) return;
+    
+    // Determine directive type and indentation
+    if (std.mem.startsWith(u8, trimmed, "{#")) {
+        // Opening directive: {#if}, {#each}, etc.
+        try builder.appendIndent();
+        try builder.append(trimmed);
+        try builder.newline();
+        
+        // Increase indentation for content inside the block
+        builder.indent();
+        
+        // Format children with increased indentation
+        try formatDirectiveChildren(node, source, builder, depth + 1, options);
+        
+        builder.dedent();
+    } else if (std.mem.startsWith(u8, trimmed, "{:")) {
+        // Middle directive: {:else}, {:then}, {:catch}
+        builder.dedent(); // Decrease indentation temporarily
+        try builder.appendIndent();
+        try builder.append(trimmed);
+        try builder.newline();
+        builder.indent(); // Restore indentation for following content
+        
+        // Format children
+        try formatDirectiveChildren(node, source, builder, depth, options);
+    } else if (std.mem.startsWith(u8, trimmed, "{/")) {
+        // Closing directive: {/if}, {/each}, etc.
+        // Already dedented by the opening directive handler
+        try builder.appendIndent();
+        try builder.append(trimmed);
+        try builder.newline();
+    } else {
+        // Regular content with proper indentation
+        try builder.appendIndent();
+        try builder.append(trimmed);
+        try builder.newline();
+    }
+}
+
+/// Format children of a directive with proper indentation
+fn formatDirectiveChildren(node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) !void {
+    const child_count = node.childCount();
+    var i: u32 = 0;
+    
+    while (i < child_count) : (i += 1) {
+        if (node.child(i)) |child| {
+            try formatSvelteNode(child, source, builder, depth, options);
+        }
+    }
 }
 

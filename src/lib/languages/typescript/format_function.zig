@@ -333,7 +333,7 @@ pub const FormatFunction = struct {
             }
             
             // Format union types with spacing: User | null instead of User|null
-            if (c == '|' and in_angle_brackets == 0) {
+            if (c == '|') {
                 // Add space before if not already present
                 if (builder.buffer.items.len > 0 and 
                     builder.buffer.items[builder.buffer.items.len - 1] != ' ') {

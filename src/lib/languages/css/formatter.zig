@@ -2,6 +2,7 @@ const std = @import("std");
 const ts = @import("tree-sitter");
 const LineBuilder = @import("../../parsing/formatter.zig").LineBuilder;
 const FormatterOptions = @import("../../parsing/formatter.zig").FormatterOptions;
+const NodeUtils = @import("../../language/node_utils.zig").NodeUtils;
 
 /// Format CSS using AST-based approach
 pub fn formatAst(allocator: std.mem.Allocator, node: ts.Node, source: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
@@ -84,7 +85,7 @@ fn formatRuleSet(node: ts.Node, source: []const u8, builder: *LineBuilder, depth
             const child_type = child.kind();
             if (std.mem.eql(u8, child_type, "selectors")) {
                 try builder.appendIndent();
-                try appendNodeText(child, source, builder);
+                try NodeUtils.appendNodeText(child, source, builder);
                 try builder.append(" {");
                 try builder.newline();
                 selectors_found = true;
@@ -140,7 +141,7 @@ fn formatBlock(node: ts.Node, source: []const u8, builder: *LineBuilder, options
                 while (j < decl_child_count) : (j += 1) {
                     if (child.child(j)) |decl_child| {
                         if (std.mem.eql(u8, decl_child.kind(), "property_name")) {
-                            const prop_text = getNodeText(decl_child, source);
+                            const prop_text = NodeUtils.getNodeText(decl_child, source);
                             max_prop_len = @max(max_prop_len, prop_text.len);
                             min_prop_len = @min(min_prop_len, prop_text.len);
                             break;
@@ -202,13 +203,13 @@ fn formatBlock(node: ts.Node, source: []const u8, builder: *LineBuilder, options
                 try formatDeclarationWithInlineComment(child, source, builder, options, should_align, max_prop_len, inline_comment, declarations.items.len);
             } else if (std.mem.eql(u8, child_type, "comment")) {
                 try builder.appendIndent();
-                try appendNodeText(child, source, builder);
+                try NodeUtils.appendNodeText(child, source, builder);
                 try builder.newline();
             } else if (std.mem.eql(u8, child_type, "rule_set")) {
                 // Nested rule - TODO: handle properly without circular reference
                 // For now, just output as-is
                 try builder.appendIndent();
-                try appendNodeText(child, source, builder);
+                try NodeUtils.appendNodeText(child, source, builder);
                 try builder.newline();
             }
         }
@@ -230,9 +231,9 @@ fn formatDeclarationWithInlineComment(node: ts.Node, source: []const u8, builder
         if (node.child(i)) |child| {
             const child_type = child.kind();
             if (std.mem.eql(u8, child_type, "property_name")) {
-                const prop_text = getNodeText(child, source);
+                const prop_text = NodeUtils.getNodeText(child, source);
                 property_len = prop_text.len;
-                try appendNodeText(child, source, builder);
+                try NodeUtils.appendNodeText(child, source, builder);
                 try builder.append(":");
 
                 // Add alignment spaces if needed
@@ -258,8 +259,8 @@ fn formatDeclarationWithInlineComment(node: ts.Node, source: []const u8, builder
 
     if (!property_found) {
         // If no property_name field, output the whole declaration
-        try appendNodeText(node, source, builder);
-        if (!std.mem.endsWith(u8, getNodeText(node, source), ";")) {
+        try NodeUtils.appendNodeText(node, source, builder);
+        if (!std.mem.endsWith(u8, NodeUtils.getNodeText(node, source), ";")) {
             try builder.append(";");
         }
         try builder.newline();
@@ -272,7 +273,7 @@ fn formatDeclarationWithInlineComment(node: ts.Node, source: []const u8, builder
     while (value_start_index < child_count) : (value_start_index += 1) {
         if (node.child(value_start_index)) |child| {
             const child_type = child.kind();
-            const child_text = getNodeText(child, source);
+            const child_text = NodeUtils.getNodeText(child, source);
 
             // Skip comments within declaration (they're handled separately)
             if (std.mem.eql(u8, child_type, "comment")) {
@@ -300,9 +301,9 @@ fn formatDeclarationWithInlineComment(node: ts.Node, source: []const u8, builder
                 // Handle important flag
                 if (std.mem.eql(u8, child_type, "important")) {
                     try builder.append("!");
-                    try appendNodeText(child, source, builder);
+                    try NodeUtils.appendNodeText(child, source, builder);
                 } else {
-                    try appendNodeText(child, source, builder);
+                    try NodeUtils.appendNodeText(child, source, builder);
                 }
 
                 first_value = false;
@@ -315,7 +316,7 @@ fn formatDeclarationWithInlineComment(node: ts.Node, source: []const u8, builder
     // If there was an inline comment, add it after the semicolon
     if (inline_comment) |comment| {
         try builder.append(" ");
-        try appendNodeText(comment, source, builder);
+        try NodeUtils.appendNodeText(comment, source, builder);
     }
 
     try builder.newline();
@@ -342,7 +343,7 @@ fn formatCallExpression(node: ts.Node, source: []const u8, builder: *LineBuilder
         if (node.child(i)) |child| {
             const child_type = child.kind();
             if (std.mem.eql(u8, child_type, "function_name")) {
-                try appendNodeText(child, source, builder);
+                try NodeUtils.appendNodeText(child, source, builder);
                 try builder.append("(");
                 break;
             }
@@ -362,7 +363,7 @@ fn formatCallExpression(node: ts.Node, source: []const u8, builder: *LineBuilder
 
                 while (j < args_child_count) : (j += 1) {
                     if (child.child(j)) |arg| {
-                        const arg_text = getNodeText(arg, source);
+                        const arg_text = NodeUtils.getNodeText(arg, source);
 
                         // Skip parentheses and commas
                         if (std.mem.eql(u8, arg_text, "(") or
@@ -375,7 +376,7 @@ fn formatCallExpression(node: ts.Node, source: []const u8, builder: *LineBuilder
                         if (!first_arg) {
                             try builder.append(", ");
                         }
-                        try appendNodeText(arg, source, builder);
+                        try NodeUtils.appendNodeText(arg, source, builder);
                         first_arg = false;
                     }
                 }
@@ -412,7 +413,7 @@ fn formatMediaStatement(node: ts.Node, source: []const u8, builder: *LineBuilder
                 if (query_found) {
                     try builder.append(", ");
                 }
-                try appendNodeText(child, source, builder);
+                try NodeUtils.appendNodeText(child, source, builder);
                 query_found = true;
             } else if (std.mem.eql(u8, child_type, "block")) {
                 // Found the block, format it
@@ -455,7 +456,7 @@ fn formatMediaBlock(node: ts.Node, source: []const u8, builder: *LineBuilder, de
                 }
             } else if (std.mem.eql(u8, child_type, "comment")) {
                 try builder.appendIndent();
-                try appendNodeText(child, source, builder);
+                try NodeUtils.appendNodeText(child, source, builder);
                 try builder.newline();
             }
 
@@ -470,10 +471,10 @@ fn formatAtRule(node: ts.Node, source: []const u8, builder: *LineBuilder, depth:
     _ = options;
 
     try builder.appendIndent();
-    try appendNodeText(node, source, builder);
+    try NodeUtils.appendNodeText(node, source, builder);
 
     // Ensure at-rules end with semicolon
-    const text = getNodeText(node, source);
+    const text = NodeUtils.getNodeText(node, source);
     if (!std.mem.endsWith(u8, text, ";")) {
         try builder.append(";");
     }
@@ -486,10 +487,10 @@ fn formatImportStatement(node: ts.Node, source: []const u8, builder: *LineBuilde
     _ = options;
 
     try builder.appendIndent();
-    try appendNodeText(node, source, builder);
+    try NodeUtils.appendNodeText(node, source, builder);
 
     // Ensure import ends with semicolon
-    const text = getNodeText(node, source);
+    const text = NodeUtils.getNodeText(node, source);
     if (!std.mem.endsWith(u8, text, ";")) {
         try builder.append(";");
     }
@@ -502,7 +503,7 @@ fn formatComment(node: ts.Node, source: []const u8, builder: *LineBuilder, depth
     _ = options;
 
     try builder.appendIndent();
-    try appendNodeText(node, source, builder);
+    try NodeUtils.appendNodeText(node, source, builder);
     try builder.newline();
 }
 
@@ -512,24 +513,9 @@ fn formatCommentNoNewline(node: ts.Node, source: []const u8, builder: *LineBuild
     _ = options;
 
     try builder.appendIndent();
-    try appendNodeText(node, source, builder);
+    try NodeUtils.appendNodeText(node, source, builder);
 }
 
-/// Helper function to get node text from source
-fn getNodeText(node: ts.Node, source: []const u8) []const u8 {
-    const start = node.startByte();
-    const end = node.endByte();
-    if (end <= source.len and start <= end) {
-        return source[start..end];
-    }
-    return "";
-}
-
-/// Helper function to append node text to builder
-fn appendNodeText(node: ts.Node, source: []const u8, builder: *LineBuilder) !void {
-    const text = getNodeText(node, source);
-    try builder.append(text);
-}
 
 /// Check if a node represents a CSS rule
 pub fn isCssRule(node_type: []const u8) bool {

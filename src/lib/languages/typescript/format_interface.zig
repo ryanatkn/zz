@@ -115,7 +115,7 @@ pub const FormatInterface = struct {
         
         // Check if this is a complex property that needs special formatting
         if (std.mem.indexOf(u8, trimmed, "=>") != null or
-            std.mem.indexOf(u8, trimmed, "{\n") != null or
+            std.mem.indexOf(u8, trimmed, "{") != null or
             trimmed.len > options.line_width) {
             try formatNestedProperty(trimmed, builder, options);
         } else {
@@ -169,11 +169,7 @@ pub const FormatInterface = struct {
             }
 
             if (c == ':') {
-                // TypeScript style: space before and after colon
-                if (builder.buffer.items.len > 0 and 
-                    builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
-                    try builder.append(" ");
-                }
+                // TypeScript style: no space before colon, space after colon
                 try builder.append(":");
                 i += 1;
                 
@@ -213,28 +209,88 @@ pub const FormatInterface = struct {
 
     /// Format complex properties with multiline support
     fn formatNestedProperty(property: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
-        _ = options;
-        
-        // For now, just format with basic spacing
-        var lines = std.mem.splitSequence(u8, property, "\n");
-        var first_line = true;
-        
-        while (lines.next()) |line| {
-            const trimmed = std.mem.trim(u8, line, " \t");
-            if (trimmed.len > 0) {
-                if (!first_line) {
-                    try builder.newline();
-                    try builder.appendIndent();
+        // Check if this is an object type property
+        if (std.mem.indexOf(u8, property, "{") != null) {
+            try formatObjectTypeProperty(property, builder, options);
+        } else {
+            // For other complex properties, just format with basic spacing
+            var lines = std.mem.splitSequence(u8, property, "\n");
+            var first_line = true;
+            
+            while (lines.next()) |line| {
+                const trimmed = std.mem.trim(u8, line, " \t");
+                if (trimmed.len > 0) {
+                    if (!first_line) {
+                        try builder.newline();
+                        try builder.appendIndent();
+                    }
+                    try builder.append(trimmed);
+                    first_line = false;
                 }
-                try builder.append(trimmed);
-                first_line = false;
+            }
+            
+            // Ensure semicolon at end
+            if (builder.buffer.items.len > 0 and
+                builder.buffer.items[builder.buffer.items.len - 1] != ';') {
+                try builder.append(";");
             }
         }
+    }
+    
+    /// Format object type property (e.g., profile: { bio: string; avatar?: string; })
+    fn formatObjectTypeProperty(property: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
+        _ = options;
         
-        // Ensure semicolon at end
-        if (builder.buffer.items.len > 0 and
-            builder.buffer.items[builder.buffer.items.len - 1] != ';') {
-            try builder.append(";");
+        // Find the colon and object start
+        if (std.mem.indexOf(u8, property, ":")) |colon_pos| {
+            const prop_name = std.mem.trim(u8, property[0..colon_pos], " \t");
+            const remaining = std.mem.trim(u8, property[colon_pos + 1..], " \t");
+            
+            // Add property name and colon
+            try builder.append(prop_name);
+            try builder.append(": ");
+            
+            if (std.mem.indexOf(u8, remaining, "{")) |brace_pos| {
+                const before_brace = std.mem.trim(u8, remaining[0..brace_pos], " \t");
+                if (before_brace.len > 0) {
+                    try builder.append(before_brace);
+                    try builder.append(" ");
+                }
+                
+                // Format object content
+                try builder.append("{");
+                try builder.newline();
+                builder.indent();
+                
+                // Extract content between braces
+                if (std.mem.lastIndexOf(u8, remaining, "}")) |end_brace_pos| {
+                    const content = std.mem.trim(u8, remaining[brace_pos + 1..end_brace_pos], " \t\n");
+                    
+                    // Split by semicolon and format each property
+                    var parts = std.mem.splitSequence(u8, content, ";");
+                    while (parts.next()) |part| {
+                        const trimmed = std.mem.trim(u8, part, " \t\n");
+                        if (trimmed.len > 0) {
+                            try builder.appendIndent();
+                            try formatSimpleProperty(trimmed, builder);
+                            try builder.newline();
+                        }
+                    }
+                }
+                
+                builder.dedent();
+                try builder.appendIndent();
+                try builder.append("};");
+            } else {
+                // No braces, just add the remaining content
+                try builder.append(remaining);
+                if (!std.mem.endsWith(u8, remaining, ";")) {
+                    try builder.append(";");
+                }
+            }
+        } else {
+            // No colon found, just append as simple property
+            try formatSimpleProperty(property, builder);
         }
     }
 

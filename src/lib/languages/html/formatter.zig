@@ -3,6 +3,7 @@ const ts = @import("tree-sitter");
 const FormatterOptions = @import("../../parsing/formatter.zig").FormatterOptions;
 const LineBuilder = @import("../../parsing/formatter.zig").LineBuilder;
 const visitor_mod = @import("visitor.zig");
+const NodeUtils = @import("../../language/node_utils.zig").NodeUtils;
 
 
 // AST-based HTML formatting
@@ -41,13 +42,13 @@ fn formatHtmlNode(node: ts.Node, source: []const u8, builder: *LineBuilder, dept
         try builder.append("<!-- UNKNOWN: ");
         try builder.append(node_type);
         try builder.append(" -->");
-        try appendNodeText(node, source, builder);
+        try NodeUtils.appendNodeText(node, source, builder);
     }
 }
 
 /// Format start tag conditionally with attribute line wrapping only when needed
 fn formatStartTagConditionally(start_tag: ts.Node, source: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
-    const tag_text = getNodeText(start_tag, source);
+    const tag_text = NodeUtils.getNodeText(start_tag, source);
     
     // Only apply attribute wrapping for specific tags that commonly have many attributes
     const needs_attribute_wrapping = shouldWrapAttributes(tag_text, options);
@@ -60,7 +61,7 @@ fn formatStartTagConditionally(start_tag: ts.Node, source: []const u8, builder: 
             try normalizeSelfClosingTag(tag_text, builder);
         } else {
             // Use original formatting for regular tags
-            try appendNodeText(start_tag, source, builder);
+            try NodeUtils.appendNodeText(start_tag, source, builder);
         }
     }
 }
@@ -102,7 +103,7 @@ fn shouldWrapAttributes(tag_text: []const u8, options: FormatterOptions) bool {
 
 /// Format start tag with attribute line wrapping
 fn formatStartTagWithWrapping(start_tag: ts.Node, source: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
-    const tag_text = getNodeText(start_tag, source);
+    const tag_text = NodeUtils.getNodeText(start_tag, source);
     
     // Only apply attribute wrapping if the tag has multiple attributes and exceeds line width
     const should_wrap_attributes = tag_text.len > options.line_width and hasMultipleAttributes(tag_text);
@@ -271,7 +272,7 @@ fn formatHtmlElement(node: ts.Node, source: []const u8, builder: *LineBuilder, d
             if (node.child(j)) |child| {
                 const child_type = child.kind();
                 if (std.mem.eql(u8, child_type, "text")) {
-                    const text = getNodeText(child, source);
+                    const text = NodeUtils.getNodeText(child, source);
                     const trimmed = std.mem.trim(u8, text, " \t\r\n");
                     if (trimmed.len > 0) {
                         try builder.append(trimmed);
@@ -289,7 +290,7 @@ fn formatHtmlElement(node: ts.Node, source: []const u8, builder: *LineBuilder, d
             if (node.child(j)) |child| {
                 const child_type = child.kind();
                 if (std.mem.eql(u8, child_type, "text")) {
-                    const text = getNodeText(child, source);
+                    const text = NodeUtils.getNodeText(child, source);
                     const trimmed = std.mem.trim(u8, text, " \t\r\n");
                     if (trimmed.len > 0) {
                         try builder.append(trimmed);
@@ -298,7 +299,7 @@ fn formatHtmlElement(node: ts.Node, source: []const u8, builder: *LineBuilder, d
                         }
                     }
                 } else if (std.mem.eql(u8, child_type, "element") or std.mem.eql(u8, child_type, "self_closing_tag")) {
-                    try appendNodeText(child, source, builder);
+                    try NodeUtils.appendNodeText(child, source, builder);
                     if (shouldAddSpaceAfterElement(node, j, source)) {
                         try builder.append(" ");
                     }
@@ -328,12 +329,12 @@ fn formatHtmlElement(node: ts.Node, source: []const u8, builder: *LineBuilder, d
     if (end_tag) |end| {
         if (content_type == .text_only) {
             // For text_only, end tag goes on same line
-            try appendNodeText(end, source, builder);
+            try NodeUtils.appendNodeText(end, source, builder);
             try builder.newline();
         } else {
             // For other types, end tag goes on separate line with proper indentation
             try builder.appendIndent();
-            try appendNodeText(end, source, builder);
+            try NodeUtils.appendNodeText(end, source, builder);
             try builder.newline();
         }
     }
@@ -345,7 +346,7 @@ fn formatHtmlComment(node: ts.Node, source: []const u8, builder: *LineBuilder, d
     _ = options;
 
     try builder.appendIndent();
-    try appendNodeText(node, source, builder);
+    try NodeUtils.appendNodeText(node, source, builder);
     try builder.newline();
 }
 
@@ -366,7 +367,7 @@ fn formatHtmlDoctype(node: ts.Node, source: []const u8, builder: *LineBuilder, d
     _ = depth;
     _ = options;
 
-    try appendNodeText(node, source, builder);
+    try NodeUtils.appendNodeText(node, source, builder);
     try builder.newline();
 }
 
@@ -375,7 +376,7 @@ fn formatHtmlText(node: ts.Node, source: []const u8, builder: *LineBuilder, dept
     _ = depth;
     _ = options;
 
-    const text = getNodeText(node, source);
+    const text = NodeUtils.getNodeText(node, source);
     const trimmed = std.mem.trim(u8, text, " \t\r\n");
 
     if (trimmed.len > 0) {
@@ -406,7 +407,7 @@ fn getContentType(node: ts.Node, source: []const u8) ContentType {
         if (node.child(i)) |child| {
             const child_type = child.kind();
             if (std.mem.eql(u8, child_type, "text")) {
-                const text = getNodeText(child, source);
+                const text = NodeUtils.getNodeText(child, source);
                 const trimmed = std.mem.trim(u8, text, " \t\r\n");
                 // Only count as text if it has non-whitespace content
                 if (trimmed.len > 0) {
@@ -457,7 +458,7 @@ fn shouldAddSpaceAfterElement(node: ts.Node, current_index: u32, source: []const
             
             if (std.mem.eql(u8, child_type, "text")) {
                 // Check if the text starts with punctuation - if so, don't add space
-                const text = getNodeText(child, source);
+                const text = NodeUtils.getNodeText(child, source);
                 const trimmed = std.mem.trim(u8, text, " \t\r\n");
                 if (trimmed.len > 0) {
                     const first_char = trimmed[0];
@@ -501,21 +502,6 @@ fn hasFollowingSibling(node: ts.Node) bool {
     return false;
 }
 
-/// Helper function to get node text from source
-fn getNodeText(node: ts.Node, source: []const u8) []const u8 {
-    const start = node.startByte();
-    const end = node.endByte();
-    if (end <= source.len and start <= end) {
-        return source[start..end];
-    }
-    return "";
-}
-
-/// Helper function to append node text to builder
-fn appendNodeText(node: ts.Node, source: []const u8, builder: *LineBuilder) !void {
-    const text = getNodeText(node, source);
-    try builder.append(text);
-}
 
 /// Check if a tag is a void element (self-closing)
 fn isVoidElement(tag_name: []const u8) bool {

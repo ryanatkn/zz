@@ -301,10 +301,20 @@ pub const FormatFunction = struct {
 
     /// Check if text represents a function declaration
     pub fn isFunctionDecl(text: []const u8) bool {
-        // Look for function patterns
-        return std.mem.indexOf(u8, text, "fn ") != null or 
-               std.mem.indexOf(u8, text, "pub fn") != null or
-               std.mem.indexOf(u8, text, "inline fn") != null or
-               std.mem.indexOf(u8, text, "export fn") != null;
+        // First check if this is a struct/enum/union declaration that happens to contain functions
+        if (std.mem.indexOf(u8, text, "struct") != null or
+            std.mem.indexOf(u8, text, "enum") != null or
+            std.mem.indexOf(u8, text, "union") != null) {
+            return false;
+        }
+        
+        // Look for function patterns at the beginning of the declaration
+        const trimmed = std.mem.trim(u8, text, " \t\n\r");
+        return std.mem.startsWith(u8, trimmed, "fn ") or 
+               std.mem.startsWith(u8, trimmed, "pub fn") or
+               std.mem.startsWith(u8, trimmed, "inline fn") or
+               std.mem.startsWith(u8, trimmed, "export fn") or
+               std.mem.startsWith(u8, trimmed, "async fn") or
+               std.mem.startsWith(u8, trimmed, "extern fn");
     }
 };

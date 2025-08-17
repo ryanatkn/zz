@@ -2,6 +2,7 @@ const std = @import("std");
 const ts = @import("tree-sitter");
 const FormatterOptions = @import("../../parsing/formatter.zig").FormatterOptions;
 const LineBuilder = @import("../../parsing/formatter.zig").LineBuilder;
+const NodeUtils = @import("../../language/node_utils.zig").NodeUtils;
 
 
 // Formatting implementation
@@ -194,7 +195,7 @@ fn formatJsonNode(node: ts.Node, source: []const u8, builder: *LineBuilder, dept
         }
     } else {
         // For leaf nodes (string, number, boolean, null), just append text
-        try appendNodeText(node, source, builder);
+        try NodeUtils.appendNodeText(node, source, builder);
     }
 }
 
@@ -346,7 +347,7 @@ fn formatJsonPair(node: ts.Node, source: []const u8, builder: *LineBuilder, dept
     }
 
     if (key_node) |key| {
-        try appendNodeText(key, source, builder);
+        try NodeUtils.appendNodeText(key, source, builder);
         try builder.append(": ");
     }
 
@@ -355,21 +356,6 @@ fn formatJsonPair(node: ts.Node, source: []const u8, builder: *LineBuilder, dept
     }
 }
 
-/// Helper function to get node text from source
-fn getNodeText(node: ts.Node, source: []const u8) []const u8 {
-    const start = node.startByte();
-    const end = node.endByte();
-    if (end <= source.len and start <= end) {
-        return source[start..end];
-    }
-    return "";
-}
-
-/// Helper function to append node text to builder
-fn appendNodeText(node: ts.Node, source: []const u8, builder: *LineBuilder) !void {
-    const text = getNodeText(node, source);
-    try builder.append(text);
-}
 
 /// Get key from JSON pair node for sorting
 fn getJsonPairKey(node: ts.Node, source: []const u8) ?[]const u8 {
@@ -379,7 +365,7 @@ fn getJsonPairKey(node: ts.Node, source: []const u8) ?[]const u8 {
         if (node.child(i)) |child| {
             const child_type = child.kind();
             if (std.mem.eql(u8, child_type, "string")) {
-                const key_text = getNodeText(child, source);
+                const key_text = NodeUtils.getNodeText(child, source);
                 // Remove quotes for comparison
                 if (key_text.len >= 2 and key_text[0] == '"' and key_text[key_text.len - 1] == '"') {
                     return key_text[1 .. key_text.len - 1];

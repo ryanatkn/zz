@@ -76,7 +76,7 @@ pub const FormatBody = struct {
         try builder.appendIndent();
         try builder.append("}");
         
-        // Add semicolon if present in original
+        // Only add semicolon if input had one
         if (brace_end < struct_text.len) {
             const after_brace = std.mem.trim(u8, struct_text[brace_end..], " \t");
             if (std.mem.startsWith(u8, after_brace, ";")) {
@@ -107,17 +107,24 @@ pub const FormatBody = struct {
             allocator.free(members);
         }
 
+        var first_function = true;
         for (members, 0..) |member, i| {
-            try builder.appendIndent();
-            
             if (isFunctionDeclaration(member)) {
+                // Add blank line before first function
+                if (first_function) {
+                    try builder.newline();
+                    first_function = false;
+                }
+                
+                try builder.appendIndent();
                 try formatStructMethod(allocator, builder, member);
-                // Add blank line after methods
+                // Add blank line after methods (except last)
                 if (i < members.len - 1) {
                     try builder.newline();
                     try builder.newline();
                 }
             } else {
+                try builder.appendIndent();
                 try formatFieldDeclaration(member, builder);
                 try builder.append(",");
                 try builder.newline();
@@ -521,6 +528,12 @@ pub const FormatBody = struct {
     }
     
     fn formatStatementWithSpacing(statement: []const u8, builder: *LineBuilder) !void {
+        // Check if this statement contains a struct literal
+        if (std.mem.indexOf(u8, statement, "{") != null and std.mem.indexOf(u8, statement, "}") != null) {
+            try formatStatementWithStructLiteral(std.heap.page_allocator, statement, builder);
+            return;
+        }
+        
         // Format statement with proper spacing
         var i: usize = 0;
         while (i < statement.len) {
@@ -571,6 +584,44 @@ pub const FormatBody = struct {
             
             try builder.append(&[_]u8{c});
             i += 1;
+        }
+    }
+    
+    /// Format statement that contains struct literals
+    fn formatStatementWithStructLiteral(allocator: std.mem.Allocator, statement: []const u8, builder: *LineBuilder) !void {
+        // Find struct literal pattern: TypeName{...}
+        if (std.mem.indexOf(u8, statement, "{")) |brace_start| {
+            // Get the part before the brace
+            const before_brace = std.mem.trim(u8, statement[0..brace_start], " \t");
+            try builder.append(before_brace);
+            try builder.append("{");
+            
+            // Find matching closing brace
+            if (std.mem.lastIndexOf(u8, statement, "}")) |brace_end| {
+                const content = std.mem.trim(u8, statement[brace_start + 1..brace_end], " \t");
+                
+                if (content.len > 0) {
+                    try builder.newline();
+                    builder.indent();
+                    
+                    // Format the struct literal content
+                    try formatStructLiteralContent(allocator, builder, content);
+                    
+                    builder.dedent();
+                    try builder.appendIndent();
+                }
+                
+                try builder.append("}");
+                
+                // Handle any content after the closing brace
+                const after_brace = std.mem.trim(u8, statement[brace_end + 1..], " \t");
+                if (after_brace.len > 0) {
+                    try builder.append(after_brace);
+                }
+            }
+        } else {
+            // Fallback: just append the statement as-is
+            try builder.append(statement);
         }
     }
 

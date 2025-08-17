@@ -2,16 +2,24 @@
 
 > ⚠️ AI slop code and docs, is unstable and full of lies
 
+## 🚀 Architecture Evolution
+
+We're transitioning from tree-sitter to a **Pure Zig grammar system**, transforming zz into a comprehensive language tooling library. See [TODO_PURE_ZIG_ROADMAP.md](../TODO_PURE_ZIG_ROADMAP.md) for details.
+
 ## Core Architecture
 
+### CLI Modules (Application Layer)
 - **CLI Module:** `src/cli/` - Command parsing, validation, and dispatch system
 - **Tree Module:** `src/tree/` - Directory traversal with configurable filtering and multiple output formats
-- **Prompt Module:** `src/prompt/` - LLM prompt generation with glob support, smart fencing, and deduplication
-- **Format Module:** `src/format/` - Language-aware code formatting with configurable styles
-- **Demo Module:** `src/demo.zig` - Interactive demonstration of zz capabilities with terminal output
+- **Prompt Module:** `src/prompt/` - LLM prompt generation using lib/ast
+- **Format Module:** `src/format/` - CLI formatting commands using lib/formatting
+- **Demo Module:** `src/demo.zig` - Interactive demonstration of zz capabilities
 - **Benchmark Module:** `src/benchmark/` - Performance measurement and regression detection
-- **Config Module:** `src/config/` - Configuration system with ZON parsing and pattern resolution
-- **Lib Module:** `src/lib/` - Consolidated infrastructure and utilities (Phase 5 reorganization)
+- **Config Module:** `src/config/` - Configuration system with ZON parsing
+- **Deps Module:** `src/deps/` - Dependency management CLI
+
+### Library Modules (Reusable Infrastructure)
+- **Lib Module:** `src/lib/` - **The heart of zz** - Reusable language tooling library
 
 ## Key Components
 
@@ -22,6 +30,50 @@
 
 ## Shared Infrastructure in `src/lib/`
 
+### 🆕 Grammar System (`src/lib/grammar/`)
+- **`grammar.zig`** - Grammar definition DSL for defining language syntax
+- **`rule.zig`** - Rule types and combinators (seq, choice, repeat, etc.)
+- **`builder.zig`** - Fluent API for building grammars
+- **`precedence.zig`** - Operator precedence and associativity
+- **`validation.zig`** - Grammar validation and conflict detection
+
+### 🆕 Parser Infrastructure (`src/lib/parser/`)
+- **`parser.zig`** - Parser interface and base types
+- **`generator.zig`** - Generate parsers from grammar definitions
+- **`engine.zig`** - Core parsing algorithms (Packrat with memoization)
+- **`incremental.zig`** - Incremental parsing for editor integration
+- **`recovery.zig`** - Error recovery strategies
+
+### 🆕 AST Infrastructure (`src/lib/ast/`)
+- **`node.zig`** - Base AST node types with embedded metadata
+- **`visitor.zig`** - Visitor pattern for AST traversal
+- **`walker.zig`** - Tree walking utilities
+- **`builder.zig`** - AST construction helpers
+- **`metadata.zig`** - Semantic information layer
+- **`trivia.zig`** - Comment and whitespace preservation
+
+### 🆕 Transformation (`src/lib/transform/`)
+- **`transformer.zig`** - AST transformation framework
+- **`rewriter.zig`** - Code rewriting utilities
+- **`generator.zig`** - Code generation from AST
+- **`optimizer.zig`** - AST optimization passes
+
+### 🆕 Formatting Engine (`src/lib/formatting/`)
+- **`formatter.zig`** - Format model and engine
+- **`rules.zig`** - Formatting rules and configuration
+- **`context.zig`** - Formatting context tracking
+- **`renderer.zig`** - Render formatted AST to text
+
+### Language Implementations (`src/lib/languages/`)
+Each language gets its own subdirectory with:
+- **`grammar.zig`** - Language grammar definition
+- **`ast.zig`** - Language-specific AST nodes
+- **`formatter.zig`** - AST-based formatter
+- **`analyzer.zig`** - Semantic analysis
+- **`linter.zig`** - Language-specific lint rules
+
+Current languages: zig, typescript, css, html, json, svelte
+
 ### Core Utilities (`src/lib/core/`)
 - **`path.zig`** - POSIX-only path utilities with direct buffer manipulation
 - **`traversal.zig`** - Unified directory traversal with filesystem abstraction
@@ -30,35 +82,20 @@
 - **`errors.zig`** - Centralized error handling patterns
 - **`io.zig`** - I/O utilities and file operations
 - **`ownership.zig`** - Memory ownership patterns
+- **`cache.zig`** - Caching infrastructure for ASTs and results
 
 ### Analysis Infrastructure (`src/lib/analysis/`)
-- **`cache.zig`** - AST cache system with LRU eviction
-- **`incremental.zig`** - Incremental processing with dependency tracking
-- **`semantic.zig`** - Semantic analysis and code understanding
-- **`code.zig`** - Code analysis patterns and utilities
+- **`semantic.zig`** - Semantic analysis framework
+- **`linter.zig`** - Linting rule engine
+- **`complexity.zig`** - Code complexity metrics
+- **`dependencies.zig`** - Dependency analysis
+- **`symbols.zig`** - Symbol table management
 
-### Memory Management (`src/lib/memory/`)
-- **`pools.zig`** - ArrayList and memory pool reuse
-- **`scoped.zig`** - Scoped allocation patterns
-- **`zon.zig`** - ZON-specific memory management
-
-### Parsing Infrastructure (`src/lib/parsing/`)
-- **`matcher.zig`** - Pattern matching engine with optimized fast/slow paths
+### Legacy Infrastructure (`src/lib/parsing/`) - TO BE REMOVED
+- **`matcher.zig`** - Pattern matching engine
 - **`glob.zig`** - Glob pattern implementation
 - **`gitignore.zig`** - Gitignore pattern support
-- **`formatter.zig`** - Core formatting infrastructure
-- **`ast_formatter.zig`** - AST-based formatting
-- **`cached_formatter.zig`** - Formatter with caching support
-
-### Language Support
-- **`src/lib/language/`** - Language detection and management
-  - `detection.zig` - File extension to language mapping
-  - `extractor.zig` - Unified extraction interface
-  - `flags.zig` - Extraction flags and options
-  - `tree_sitter.zig` - Tree-sitter integration layer
-- **`src/lib/extractors/`** - Language-specific code extractors
-- **`src/lib/parsers/`** - Language parsers with AST support
-- **`src/lib/formatters/`** - Language-specific formatters
+- **`tree_sitter.zig`** - Tree-sitter FFI (removing)
 
 Complete AST support for CSS, HTML, JSON, TypeScript, Svelte, and Zig with:
 - Unified extraction interface with walkNode() implementations

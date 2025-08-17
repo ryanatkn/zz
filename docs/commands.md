@@ -126,6 +126,47 @@ $ zig build benchmark               # Save to latest.md, compare baseline
 
 See [benchmarking.md](benchmarking.md) for detailed benchmark guide.
 
+## Echo Command
+
+Modern text output with JSON escaping, colors, and conveniences.
+
+```bash
+# Basic usage (POSIX-compatible)
+$ zz echo "Hello, World!"            # Standard output
+$ zz echo -n "prompt> "              # No trailing newline
+$ zz echo -e "Line1\nLine2"          # Enable escape sequences
+
+# JSON output (for safe scripting)
+$ zz echo --json 'Path: C:\file'     # Outputs: "Path: C:\\file"
+$ cat data.txt | zz echo --stdin --json  # JSON-escape file contents
+
+# Colored output
+$ zz echo --color=red --bold "Error!"     # Red bold text
+$ zz echo --color=green "Success"         # Green text
+$ NO_COLOR=1 zz echo --color=red "text"   # Respects NO_COLOR env
+
+# Testing and data generation
+$ zz echo --repeat=1000 "test"            # Repeat 1000 times
+$ zz echo --repeat=100 "x" | wc -c        # Count characters
+
+# Custom separators
+$ zz echo --sep=", " one two three        # Output: "one, two, three"
+$ zz echo --null file1 file2 | xargs -0   # Null-separated for pipelines
+```
+
+Options:
+- `-n`: Suppress trailing newline
+- `-e`: Enable escape sequences (\n, \t, \xHH, \0NNN)
+- `-E`: Disable escape sequences (default)
+- `--json`: Output as JSON string
+- `--repeat=N`: Repeat output N times (max 10000)
+- `--sep=STRING`: Separator between arguments
+- `--null`: Use null byte separator
+- `--stdin`: Read from stdin
+- `--color=COLOR`: ANSI colors (red, green, blue, etc.)
+- `--bold`: Bold text
+- `--no-color`: Disable colors
+
 ## Testing
 
 ```bash

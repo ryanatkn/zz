@@ -7,15 +7,18 @@ For the companion GUI see [Zzz](https://github.com/ryanatkn/zzz).
 
 > **status**: [vibe-engineered](./docs/vibe-engineering.md) slop level 1
 
-Fast command-line utilities for exploring and understanding codebases. Features AST-based code extraction, directory visualization, and code formatting.
+Fast command-line utilities for exploring and understanding codebases. Built on a **Pure Zig language tooling library** featuring native AST parsing, code formatting, and semantic analysis.
+
+**🚀 Architecture Evolution**: We're replacing tree-sitter with a Pure Zig grammar system. See [TODO_PURE_ZIG_ROADMAP.md](TODO_PURE_ZIG_ROADMAP.md) for details.
 
 **Key Features:**
-- 🔍 **Semantic code extraction** - Extract functions, types, and docs using real AST parsing
+- 🔍 **Semantic code extraction** - Extract functions, types, and docs using pure Zig AST parsing
 - 🌳 **Smart directory trees** - Fast traversal with gitignore support
 - 📝 **LLM prompt generation** - Create context-aware prompts from your codebase
-- 🎨 **Code formatting** - Language-aware formatting for multiple file types
-- 📦 **Dependency management** - Track and manage vendored dependencies
-- ⚡ **High performance** - Optimized for speed with Zig
+- 🎨 **Code formatting** - AST-based formatting for multiple languages
+- 💬 **Modern echo** - Fast text output with JSON escaping and colors
+- 📚 **Language tooling library** - Reusable Zig modules for parsers, ASTs, and analysis
+- ⚡ **High performance** - Pure Zig, no FFI overhead
 
 ## Quick Start
 
@@ -28,6 +31,11 @@ zz prompt src/ --types --docs            # Extract types and documentation
 # Format code
 zz format config.json --write            # Format JSON in-place
 zz format "*.css" --check                # Check CSS formatting
+
+# Text output
+zz echo --json 'Path: C:\file'          # JSON-escaped output
+zz echo --color=red --bold "Error!"     # Colored terminal output
+zz echo --repeat=1000 "test" | wc -l    # Generate test data
 
 # Manage dependencies
 zz deps --list                           # Check dependency status
@@ -274,5 +282,5 @@ See [CLAUDE.md](CLAUDE.md) for development guidelines.
 
 Built with:
 - [Zig](https://ziglang.org/) - Systems programming language
-- [tree-sitter](./deps/CREDITS.md) - AST parsing
 - [Claude Code](https://claude.ai/code) - AI-assisted development
+- Pure Zig grammar system (replacing tree-sitter)

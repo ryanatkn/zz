@@ -7,6 +7,7 @@ const tree = @import("../tree/main.zig");
 const prompt = @import("../prompt/main.zig");
 const benchmark = @import("../benchmark/main.zig");
 const format = @import("../format/main.zig");
+const echo = @import("../echo/main.zig");
 const demo = @import("../demo.zig");
 const deps = @import("../deps/main.zig");
 const errors = @import("../lib/core/errors.zig");
@@ -70,6 +71,15 @@ pub const Runner = struct {
                     const stderr = std.io.getStdErr().writer();
                     const error_msg = errors.getMessage(err);
                     stderr.print("Format command failed: {s}\n", .{error_msg}) catch {};
+                    return err;
+                };
+            },
+            .echo => {
+                // Pass full args to echo module (echo doesn't need filesystem)
+                echo.run(self.allocator, args) catch |err| {
+                    const stderr = std.io.getStdErr().writer();
+                    const error_msg = errors.getMessage(err);
+                    stderr.print("Echo command failed: {s}\n", .{error_msg}) catch {};
                     return err;
                 };
             },

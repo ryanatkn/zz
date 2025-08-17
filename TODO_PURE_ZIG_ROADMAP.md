@@ -1,0 +1,286 @@
+# Pure Zig Grammar System - Implementation Roadmap
+
+## Vision
+
+Transform **zz** from a CLI tool into a comprehensive **Zig library for language tooling**, providing reusable modules for building parsers, formatters, linters, language servers, and compilers.
+
+### Core Philosophy
+- **Library-first**: Every component is a reusable library module
+- **Pure Zig**: No FFI, no C dependencies, idiomatic Zig throughout  
+- **Performance**: Zero-allocation APIs, compile-time optimization
+- **Extensibility**: Easy to add new languages and features
+
+## Architecture Overview
+
+```
+┌─────────────────────────────────────────────┐
+│                  zz CLI                      │
+└─────────────────┬───────────────────────────┘
+                  │ uses
+┌─────────────────▼───────────────────────────┐
+│              src/lib/ (Library Modules)      │
+├──────────────────────────────────────────────┤
+│ ┌──────────┐ ┌──────────┐ ┌──────────────┐ │
+│ │ grammar/ │ │ parser/  │ │     ast/     │ │
+│ └────┬─────┘ └────┬─────┘ └──────┬───────┘ │
+│      │            │               │         │
+│      └────────────┼───────────────┘         │
+│                   │                         │
+│ ┌──────────────────▼────────────────────┐  │
+│ │           languages/                  │  │
+│ │  ┌─────┐ ┌──────────┐ ┌──────────┐  │  │
+│ │  │ zig │ │typescript│ │   css    │  │  │
+│ │  └─────┘ └──────────┘ └──────────┘  │  │
+│ └────────────────────────────────────────┘  │
+│                                             │
+│ ┌──────────┐ ┌──────────┐ ┌──────────────┐ │
+│ │transform/│ │analysis/ │ │ formatting/  │ │
+│ └──────────┘ └──────────┘ └──────────────┘ │
+└──────────────────────────────────────────────┘
+```
+
+## Implementation Phases
+
+### 🎯 Phase 1: Foundation (Weeks 1-3)
+**Goal**: Core grammar and parser infrastructure
+
+#### Week 1: Grammar System
+- [ ] Create `src/lib/grammar/grammar.zig` - Grammar DSL
+- [ ] Implement `src/lib/grammar/rule.zig` - Rule combinators
+- [ ] Add `src/lib/grammar/builder.zig` - Fluent grammar builder API
+- [ ] Design `src/lib/grammar/precedence.zig` - Operator precedence
+
+**Deliverable**: Working grammar definition system with tests
+
+#### Week 2: Parser Generator
+- [ ] Create `src/lib/parser/generator.zig` - Generate parsers from grammars
+- [ ] Implement `src/lib/parser/engine.zig` - Core parsing algorithms
+- [ ] Add `src/lib/parser/recovery.zig` - Error recovery
+- [ ] Design `src/lib/parser/incremental.zig` - Incremental parsing
+
+**Deliverable**: Parser generator that produces working parsers
+
+#### Week 3: AST Infrastructure
+- [ ] Create `src/lib/ast/node.zig` - Base AST node types
+- [ ] Implement `src/lib/ast/visitor.zig` - Visitor pattern
+- [ ] Add `src/lib/ast/walker.zig` - Tree traversal utilities
+- [ ] Design `src/lib/ast/trivia.zig` - Whitespace/comment preservation
+
+**Deliverable**: Complete AST infrastructure with visitor pattern
+
+---
+
+### 🚀 Phase 2: Language Implementation (Weeks 4-6)
+**Goal**: Prove the system with Zig language support
+
+#### Week 4: Zig Grammar
+- [ ] Create `src/lib/languages/zig/grammar.zig` - Complete Zig grammar
+- [ ] Define `src/lib/languages/zig/ast.zig` - Zig-specific AST nodes
+- [ ] Implement parser generation for Zig
+- [ ] Validate against zig-spec test cases
+
+**Deliverable**: Working Zig parser passing spec tests
+
+#### Week 5: Zig Formatter
+- [ ] Port `src/lib/languages/zig/formatter.zig` to pure AST
+- [ ] Remove text manipulation code
+- [ ] Implement format model approach
+- [ ] Validate against existing test suite
+
+**Deliverable**: AST-based Zig formatter passing all tests
+
+#### Week 6: Performance Validation
+- [ ] Benchmark parser performance vs tree-sitter
+- [ ] Memory usage profiling
+- [ ] Optimization pass
+- [ ] Real-world testing on large codebases
+
+**Deliverable**: Performance report and optimizations
+
+---
+
+### 🔧 Phase 3: Feature Expansion (Weeks 7-9)
+**Goal**: Add TypeScript and demonstrate multi-language support
+
+#### Week 7: TypeScript Grammar
+- [ ] Create `src/lib/languages/typescript/grammar.zig`
+- [ ] Define `src/lib/languages/typescript/ast.zig`
+- [ ] Handle TypeScript-specific constructs (types, generics)
+- [ ] Test against real TypeScript codebases
+
+**Deliverable**: Working TypeScript parser
+
+#### Week 8: TypeScript Formatter
+- [ ] Implement `src/lib/languages/typescript/formatter.zig`
+- [ ] Handle JSX/TSX if applicable
+- [ ] Port existing tests
+- [ ] Validate formatting quality
+
+**Deliverable**: TypeScript formatter matching current quality
+
+#### Week 9: Additional Languages
+- [ ] CSS grammar and formatter
+- [ ] HTML grammar and formatter
+- [ ] JSON grammar and formatter
+- [ ] Basic Svelte support
+
+**Deliverable**: Multi-language support demonstrated
+
+---
+
+### 📊 Phase 4: Advanced Features (Weeks 10-12)
+**Goal**: Leverage pure AST for new capabilities
+
+#### Week 10: Analysis Framework
+- [ ] Implement `src/lib/analysis/linter.zig` - Linting engine
+- [ ] Create `src/lib/analysis/semantic.zig` - Semantic analysis
+- [ ] Add `src/lib/analysis/complexity.zig` - Metrics
+- [ ] Design rule system for extensibility
+
+**Deliverable**: Working linter with example rules
+
+#### Week 11: Transformation Tools
+- [ ] Create `src/lib/transform/rewriter.zig` - AST rewriting
+- [ ] Implement `src/lib/transform/generator.zig` - Code generation
+- [ ] Add refactoring capabilities
+- [ ] Test with real refactoring scenarios
+
+**Deliverable**: Code transformation capabilities
+
+#### Week 12: Integration & Polish
+- [ ] Update CLI to use new library modules
+- [ ] Migrate prompt extraction to new AST
+- [ ] Update tree command if needed
+- [ ] Comprehensive testing
+
+**Deliverable**: Fully integrated system
+
+---
+
+### 🧹 Phase 5: Cleanup (Week 13)
+**Goal**: Remove old dependencies and finalize
+
+- [ ] Delete `deps/tree-sitter*` directories
+- [ ] Remove all FFI code
+- [ ] Clean up `build.zig`
+- [ ] Update all documentation
+- [ ] Create migration guide
+- [ ] Performance benchmarks
+
+**Deliverable**: Clean, pure Zig codebase
+
+## Success Metrics
+
+### Performance Targets
+- **Parse speed**: < 50ms for 10K LOC file
+- **Memory usage**: < 5x source file size
+- **Incremental parse**: < 5ms for typical edit
+
+### Quality Targets
+- **Test coverage**: 100% of existing tests pass
+- **Formatter quality**: Identical or better output
+- **Error recovery**: Parse 95%+ of malformed code
+
+### Adoption Targets
+- **API usability**: Clean, documented public API
+- **Extensibility**: New language in < 3 days
+- **Reusability**: Modules usable in other projects
+
+## Technical Decisions
+
+### Parser Algorithm
+**Choice**: Packrat Parser with Memoization
+- **Why**: Good performance, handles left recursion
+- **Alternative**: Generated LR parser (more complex)
+
+### AST Representation
+**Choice**: Tagged Union with Embedded Metadata
+- **Why**: Type-safe, efficient, idiomatic Zig
+- **Alternative**: Polymorphic nodes (not Zig-like)
+
+### Memory Management
+**Choice**: Arena Allocators per Parse
+- **Why**: Fast allocation, simple cleanup
+- **Alternative**: Reference counting (complex)
+
+### Error Recovery
+**Choice**: Panic Mode with Synchronization Points
+- **Why**: Simple, effective, predictable
+- **Alternative**: Error productions (grammar bloat)
+
+## Risk Mitigation
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Performance regression | High | Continuous benchmarking, optimization budget |
+| Grammar complexity | Medium | Start simple, iterative enhancement |
+| Breaking changes | High | Comprehensive test suite, gradual migration |
+| Scope creep | Medium | Strict phase boundaries, feature freeze periods |
+| Memory usage | Medium | Arena allocators, lazy evaluation |
+
+## Module Interface Examples
+
+### Grammar Definition
+```zig
+const grammar = Grammar.builder()
+    .rule("function", seq(.{
+        opt("pub"),
+        keyword("fn"),
+        field("name", rule("identifier")),
+        field("params", rule("parameter_list")),
+        opt(field("return_type", rule("type"))),
+        field("body", rule("block")),
+    }))
+    .precedence(.{
+        .{ .left, 1, "or" },
+        .{ .left, 2, "and" },
+        .{ .left, 3, "equality" },
+    })
+    .build();
+```
+
+### Parser Usage
+```zig
+const parser = Parser.fromGrammar(grammar);
+const ast = try parser.parse(source_code);
+
+// Visit all functions
+var visitor = FunctionVisitor{};
+try ast.accept(&visitor);
+```
+
+### Formatter Usage
+```zig
+const formatter = ZigFormatter.init(.{
+    .indent_size = 4,
+    .line_width = 100,
+});
+const formatted = try formatter.format(ast);
+```
+
+## Timeline Summary
+
+**Total Duration**: 13 weeks (3 months)
+
+- **Month 1**: Foundation + Zig implementation
+- **Month 2**: Multi-language support + features  
+- **Month 3**: Advanced features + cleanup
+
+**Key Milestones**:
+- Week 3: Core system working
+- Week 6: Zig fully ported
+- Week 9: Multi-language support
+- Week 12: Feature complete
+- Week 13: Production ready
+
+## Next Immediate Steps
+
+1. **Create grammar module structure** in `src/lib/grammar/`
+2. **Design grammar DSL** with builder pattern
+3. **Implement basic rule combinators**
+4. **Write comprehensive tests**
+5. **Document public API**
+
+---
+
+*This roadmap is a living document. Updates will track progress and refine estimates based on actual implementation experience.*

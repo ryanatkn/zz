@@ -1,8 +1,21 @@
-# zz - CLI Utilities
+# zz - Language Tooling Library & CLI
 
-Fast command-line utilities written in Zig for POSIX systems. High-performance filesystem tree visualization, LLM prompt generation, and code formatting.
+Fast command-line utilities and **reusable language tooling library** written in pure Zig for POSIX systems. Features native AST parsing, code formatting, and semantic analysis without external dependencies.
 
 **Performance is the top priority** - we don't care about backwards compat, always aim for the final best code.
+
+## 🚀 Major Architecture Decision: Pure Zig Grammar System
+
+We are replacing tree-sitter with a **Pure Zig grammar and parser system**. This transforms zz from a CLI tool into a comprehensive language tooling library with reusable modules for building parsers, formatters, linters, and more.
+
+**Key Benefits:**
+- **No FFI overhead** - Pure Zig throughout
+- **Complete control** - We own the entire stack
+- **Library-first design** - Every component is reusable
+- **Better performance** - Compile-time optimizations, zero allocations
+- **Easier debugging** - Single language, no C boundaries
+
+See [TODO_PURE_ZIG_ROADMAP.md](TODO_PURE_ZIG_ROADMAP.md) for implementation details.
 
 ## Platform Support
 
@@ -16,7 +29,7 @@ $ zig version
 0.14.1
 ```
 
-**Vendored Dependencies:** All tree-sitter libraries vendored in `deps/` for reliability. See `deps/README.md` for details.
+**Migration Note:** Currently using vendored tree-sitter in `deps/`, transitioning to Pure Zig. See roadmap for details.
 
 ## Project Structure
 
@@ -24,23 +37,28 @@ $ zig version
 src/
 ├── cli/                 # Command parsing & execution
 ├── config/              # Configuration system (ZON-based)
-├── lib/                 # Core infrastructure
-│   ├── analysis/        # Code analysis & AST caching
+├── lib/                 # Reusable library modules (the heart of zz)
+│   ├── grammar/         # Grammar definition DSL (NEW)
+│   ├── parser/          # Parser generation & engine (NEW)
+│   ├── ast/             # Unified AST infrastructure (NEW)
+│   ├── transform/       # AST transformations (NEW)
+│   ├── analysis/        # Semantic analysis & linting
+│   ├── formatting/      # Format model & engine (NEW)
+│   ├── languages/       # Language-specific implementations
+│   │   ├── zig/         # Zig grammar, AST, formatter
+│   │   ├── typescript/  # TypeScript grammar, AST, formatter
+│   │   ├── css/         # CSS grammar, AST, formatter
+│   │   ├── html/        # HTML grammar, AST, formatter
+│   │   ├── json/        # JSON grammar, AST, formatter
+│   │   └── svelte/      # Svelte multi-language support
 │   ├── core/            # Core utilities (io, path, collections)
 │   ├── deps/            # Dependency management system
 │   ├── filesystem/      # Filesystem abstraction layer
-│   ├── languages/       # Language implementations (C-style format_*.zig)
-│   │   ├── css/         # CSS support
-│   │   ├── html/        # HTML support
-│   │   ├── json/        # JSON support
-│   │   ├── svelte/      # Svelte support
-│   │   ├── typescript/  # TypeScript (modular formatters)
-│   │   └── zig/         # Zig (modular formatters)
-│   ├── parsing/         # Parser infrastructure
+│   ├── parsing/         # Legacy parser infrastructure (removing)
 │   └── test/            # Test framework & fixtures
-├── prompt/              # LLM prompt generation (AST-based extraction)
-├── tree/                # Directory visualization (high-performance)
-├── format/              # Code formatting module
+├── prompt/              # LLM prompt generation (uses lib/ast)
+├── tree/                # Directory visualization
+├── format/              # CLI formatting commands (uses lib/formatting)
 ├── benchmark/           # Performance benchmarking
 └── deps/                # Dependency management CLI
 ```

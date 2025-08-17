@@ -1,23 +1,23 @@
 # TODO_PARSER - Complete Language Tooling Implementation Plan
 
-**Status**: Pure Zig Stratified Parser Complete | Tree-sitter Removed | 527/546 tests passing (96.5%)  
+**Status**: Pure Zig Stratified Parser Complete | Tree-sitter Removed | 528/546 tests passing (96.7%)  
 **Goal**: Full parsing, formatting, and linting for Zig, TypeScript, CSS, HTML, JSON, Svelte  
-**Last Updated**: 2025-08-17 - Test fixes completed, parser stabilized
+**Last Updated**: 2025-08-17 - State machine token matching fixed, ZON parser improved
 
 ## 🔍 Current State Assessment
 
 ### Test Status
-- **527/546 tests passing** (96.5% pass rate) 
-- **19 test failures** primarily in:
-  - State machine transition table (needs token text matching, not just TokenKind)
-  - Format config tests (ZON parsing issues)
-  - Dependency manager tests
-  - Some memory leaks in test cleanup
+- **528/546 tests passing** (96.7% pass rate) 
+- **18 test failures** primarily in:
+  - Format config tests (ZON parsing partially fixed but needs more work)
+  - Dependency manager tests  
+  - Some memory leaks in test cleanup (2 leaked)
+  - Performance threshold warnings in structural parser
 
 ### Architecture Achievements
 ✅ **Pure Zig Stratified Parser** - Three-layer system complete:
 - Layer 0 (Lexical): <0.1ms viewport tokenization (✅ Fixed tokenization, scanner, brackets)
-- Layer 1 (Structural): <1ms boundary detection (⚠️ State machine needs token text matching)
+- Layer 1 (Structural): <1ms boundary detection (✅ State machine now uses token text matching)
 - Layer 2 (Detailed): <10ms detailed parsing
 
 ✅ **Tree-sitter Removal** - Complete elimination of C dependencies
@@ -30,10 +30,10 @@
 - Memory management improvements (fixed double free, segfaults)
 
 ⚠️ **Incomplete Areas**:
-- Language-specific grammars not fully implemented
+- Language-specific grammars not fully implemented (started pluggable system)
 - Format system has placeholder implementations
-- No linting system
-- State machine transitions need refinement
+- No linting system  
+- ZON parser needs proper implementation (currently uses heuristics)
 
 ## 🎯 Integration Approaches
 
@@ -163,10 +163,11 @@ src/lib/parser/
    - **Fix**: Explicit matching (open_paren → close_paren)
    - **Lesson**: Bracket matching needs explicit pair definitions
 
-5. **State Machine Limitations**
-   - **Issue**: Transition table uses TokenKind enum index, can't distinguish "fn" from "struct"
-   - **Fix**: Would need token text matching or separate token types
-   - **Lesson**: State machines need finer-grained token discrimination
+5. **State Machine Token Matching** (✅ FIXED)
+   - **Issue**: Transition table used TokenKind enum index, couldn't distinguish "fn" from "struct"
+   - **Fix**: Added processKeywordToken() that checks token.text for keywords
+   - **Lesson**: Keywords require text matching, not just TokenKind
+   - **Result**: State machine now correctly identifies Zig/TypeScript keywords
 
 ### Architectural Insights
 
@@ -185,10 +186,13 @@ src/lib/parser/
    - Max depth needs to track actual nesting
    - Consider using bracket stack for better accuracy
 
-4. **ZON Parser Stub**
-   - Current stub always returns hardcoded values
-   - Needs proper parsing or better error detection
-   - Consider using std.json as interim solution
+4. **ZON Parser Implementation** (⚠️ PARTIAL)
+   - Previous stub always returned hardcoded values
+   - Added heuristic parsing for common fields
+   - Two competing implementations exist:
+     - `/lib/parsing/zon_parser.zig` (used by config)
+     - `/lib/languages/zon/parser.zig` (standalone)
+   - Still needs proper AST-based parsing using std.zig.Ast
 
 ## 📋 Module Implementation Plan
 
@@ -234,10 +238,24 @@ src/lib/parser/
 ```
 
 #### 1.4 Remaining Issues (🔄 IN PROGRESS)
-- State machine needs token text matching (not just TokenKind)
-- ZON parser needs real implementation
-- Some test memory leaks need cleanup
-- Format config tests failing
+- ✅ State machine token text matching - FIXED
+- ⚠️ ZON parser needs complete implementation (partial fix applied)
+- ⚠️ Some test memory leaks need cleanup (2 remaining)
+- ⚠️ Format config tests failing (needs better ZON parsing)
+
+### Phase 1.5: Pluggable Grammar System (🔄 STARTED)
+**Goal**: Replace hardcoded language logic with grammar definitions
+
+#### Work Started:
+- Created grammar language definitions structure
+- Started Zig and TypeScript grammar files
+- Began GrammarRegistry for language management
+- **Decision**: Postponed for simpler immediate fixes
+
+#### Future Work:
+- Complete grammar DSL implementation
+- Migrate all language-specific code to grammars
+- Make parser truly language-agnostic
 
 ### Phase 2: Language Grammar Implementation (Week 2-3)
 
@@ -692,16 +710,39 @@ pub fn loadPlugin(path: []const u8) !Plugin {
 4. **Plugin API**: Determine if/how to support third-party language plugins
 5. **LSP Priority**: Decide if LSP should be part of initial release or future enhancement
 
+## 📈 Progress Summary
+
+### Completed
+- ✅ Tree-sitter removal complete
+- ✅ Pure Zig Stratified Parser implemented
+- ✅ State machine token text matching fixed
+- ✅ Basic boundary detection working
+- ✅ Memory management improvements (double free, segfaults fixed)
+- ✅ 528/546 tests passing (96.7%)
+
+### In Progress
+- 🔄 ZON parser implementation (partial)
+- 🔄 Pluggable grammar system (started but postponed)
+- 🔄 Format config integration
+
+### Todo
+- ❌ Complete ZON parser with AST
+- ❌ Fix remaining 18 test failures
+- ❌ Fix 2 memory leaks
+- ❌ Complete language grammars
+- ❌ Implement formatters
+- ❌ Implement linters
+
 ## ✅ Definition of Done
 
-- [ ] All 546 tests passing (100% pass rate)
+- [ ] All 546 tests passing (100% pass rate) - Currently 528/546 (96.7%)
 - [ ] Complete parsing for Zig, TypeScript, CSS, HTML, JSON, Svelte
 - [ ] Formatting works for all supported languages
 - [ ] Basic linting rules implemented
 - [ ] Performance targets met
 - [ ] Documentation complete
 - [ ] CLI commands intuitive and fast
-- [ ] Memory leaks fixed
+- [ ] Memory leaks fixed - 2 remaining
 - [ ] Ready for production use
 
 ---
@@ -710,5 +751,6 @@ pub fn loadPlugin(path: []const u8) !Plugin {
 - *TODO_LANGUAGES.md (formatter architecture)*
 - *TODO_PURE_ZIG_PARSER_STATUS.md (parser implementation)*  
 - *TREE_SITTER_REMOVAL_COMPLETE.md (migration status)*
+- *cli_parser_poc.zig (proof of concept - removed)*
 
-*Last Updated: 2025-08-17*
+*Last Updated: 2025-08-17 - Session 2*

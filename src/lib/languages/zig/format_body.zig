@@ -6,6 +6,7 @@ const ZigUtils = @import("zig_utils.zig").ZigUtils;
 const FormatDeclaration = @import("format_declaration.zig").FormatDeclaration;
 const builders = @import("../../text/builders.zig");
 const collections = @import("../../core/collections.zig");
+const ZigFormattingHelpers = @import("formatting_helpers.zig").ZigFormattingHelpers;
 
 /// Zig-specific body formatting for structs, enums, and unions
 pub const FormatBody = struct {
@@ -238,7 +239,8 @@ pub const FormatBody = struct {
 
     /// Format struct body with fields and methods
     pub fn formatStructBody(allocator: std.mem.Allocator, builder: *LineBuilder, content: []const u8) !void {
-        const members = try parseStructMembers(allocator, content);
+        // Use consolidated helper for member parsing
+        const members = try ZigFormattingHelpers.parseContainerMembers(allocator, content);
         defer {
             for (members) |member| {
                 allocator.free(member);
@@ -248,7 +250,7 @@ pub const FormatBody = struct {
 
         var first_function = true;
         for (members, 0..) |member, i| {
-            if (isFunctionDeclaration(member)) {
+            if (ZigFormattingHelpers.isFunctionDeclaration(member)) {
                 // Add blank line before first function
                 if (first_function) {
                     try builder.newline();
@@ -357,120 +359,6 @@ pub const FormatBody = struct {
         }
     }
 
-    /// Parse struct content into individual members (fields and methods)
-    fn parseStructMembers(allocator: std.mem.Allocator, content: []const u8) ![][]const u8 {
-        var members = collections.List([]const u8).init(allocator);
-        defer members.deinit();
-
-        var pos: usize = 0;
-        
-        // First pass: extract simple fields that come before any functions
-        // Look for pattern: name:type (followed by comma or "pub")
-        while (pos < content.len) {
-            // Skip whitespace
-            while (pos < content.len and (content[pos] == ' ' or content[pos] == '\t' or content[pos] == '\n')) {
-                pos += 1;
-            }
-            
-            if (pos >= content.len) break;
-            
-            // Check if we hit a function - "pub fn" can be directly after a comma with no space
-            if (std.mem.startsWith(u8, content[pos..], "pub fn") or
-                std.mem.startsWith(u8, content[pos..], "fn")) {
-                break; // Stop field parsing, functions start here
-            }
-            
-            // For compressed input like "x:f32,y:f32,pub fn", we need to look for the next comma or "pub"
-            const field_start = pos;
-            var colon_pos: ?usize = null;
-            var field_end: usize = pos;
-            
-            // Find the field boundary (next comma or start of "pub")
-            while (pos < content.len) {
-                if (content[pos] == ':' and colon_pos == null) {
-                    colon_pos = pos;
-                }
-                
-                // Check for comma or start of pub fn
-                if (content[pos] == ',') {
-                    field_end = pos;
-                    pos += 1; // Skip comma
-                    break;
-                }
-                
-                // Check if "pub" starts at current position
-                if (std.mem.startsWith(u8, content[pos..], "pub fn") or 
-                    std.mem.startsWith(u8, content[pos..], "fn")) {
-                    field_end = pos;
-                    break;
-                }
-                
-                pos += 1;
-            }
-            
-            // If we found a colon, it's a field
-            if (colon_pos) |_| {
-                const field = std.mem.trim(u8, content[field_start..field_end], " \t\n\r,");
-                if (field.len > 0) {
-                    try members.append(try allocator.dupe(u8, field));
-                }
-            }
-            
-            // If we hit a function, break out
-            if (field_end < content.len and (std.mem.startsWith(u8, content[field_end..], "pub fn") or
-                                             std.mem.startsWith(u8, content[field_end..], "fn"))) {
-                pos = field_end;
-                break;
-            }
-        }
-        
-        // Second pass: extract functions
-        while (pos < content.len) {
-            // Skip whitespace
-            while (pos < content.len and (content[pos] == ' ' or content[pos] == '\t' or content[pos] == '\n')) {
-                pos += 1;
-            }
-            
-            if (pos >= content.len) break;
-            
-            // Look for function start
-            if (std.mem.startsWith(u8, content[pos..], "pub fn") or std.mem.startsWith(u8, content[pos..], "fn")) {
-                const fn_start = pos;
-                
-                // Find the opening brace
-                if (std.mem.indexOfPos(u8, content, pos, "{")) |fn_brace_start| {
-                    var brace_depth: u32 = 1;
-                    var fn_end = fn_brace_start + 1;
-                    
-                    // Find matching closing brace
-                    while (fn_end < content.len and brace_depth > 0) {
-                        if (content[fn_end] == '{') {
-                            brace_depth += 1;
-                        } else if (content[fn_end] == '}') {
-                            brace_depth -= 1;
-                        }
-                        fn_end += 1;
-                    }
-                    
-                    if (brace_depth == 0) {
-                        const function = content[fn_start..fn_end];
-                        try members.append(try allocator.dupe(u8, function));
-                        pos = fn_end;
-                    } else {
-                        // Unmatched braces, skip this character
-                        pos += 1;
-                    }
-                } else {
-                    // No opening brace found, skip
-                    pos += 1;
-                }
-            } else {
-                pos += 1;
-            }
-        }
-
-        return members.toOwnedSlice();
-    }
 
     /// Format struct method with proper spacing
     fn formatStructMethod(allocator: std.mem.Allocator, builder: *LineBuilder, method: []const u8) !void {
@@ -538,18 +426,8 @@ pub const FormatBody = struct {
 
     /// Format field declaration with proper spacing
     fn formatFieldDeclaration(field: []const u8, builder: *LineBuilder) !void {
-        // Look for colon to separate field name from type
-        if (std.mem.indexOf(u8, field, ":")) |colon_pos| {
-            const field_name = std.mem.trim(u8, field[0..colon_pos], " \t");
-            const field_type = std.mem.trim(u8, field[colon_pos + 1..], " \t");
-            
-            try builder.append(field_name);
-            try builder.append(": ");
-            try builder.append(field_type);
-        } else {
-            // No type annotation or different format
-            try builder.append(std.mem.trim(u8, field, " \t"));
-        }
+        // Use consolidated helper for field formatting
+        try ZigFormattingHelpers.formatFieldWithColon(field, builder);
     }
 
     /// Format enum value with optional explicit value
@@ -683,98 +561,21 @@ pub const FormatBody = struct {
 
     /// Check if member is a function declaration
     fn isFunctionDeclaration(text: []const u8) bool {
-        return FormatDeclaration.isFunctionDecl(text);
+        return ZigFormattingHelpers.isFunctionDeclaration(text);
     }
 
     // Forward declarations to avoid circular dependencies
     fn formatFunctionSignature(allocator: std.mem.Allocator, builder: *LineBuilder, signature: []const u8) !void {
         _ = allocator;
-        // Simple signature formatting - delegate to more specialized function if needed
-        try builder.append(std.mem.trim(u8, signature, " \t"));
+        // Use consolidated helper for signature formatting
+        const trimmed = std.mem.trim(u8, signature, " \t");
+        try ZigFormattingHelpers.formatWithZigSpacing(trimmed, builder);
     }
     
     fn formatFunctionSignatureWithSpacing(allocator: std.mem.Allocator, builder: *LineBuilder, signature: []const u8) !void {
         _ = allocator;
-        // Format function signature with proper spacing
-        var i: usize = 0;
-        var prev_was_identifier = false;
-        
-        while (i < signature.len) {
-            const c = signature[i];
-            
-            // Add spacing around colons
-            if (c == ':') {
-                // Remove any trailing space before colon (Zig style)
-                if (builder.buffer.items.len > 0 and builder.buffer.items[builder.buffer.items.len - 1] == ' ') {
-                    _ = builder.buffer.pop();
-                }
-                try builder.append(": ");
-                i += 1;
-                // Skip any spaces after colon in original
-                while (i < signature.len and signature[i] == ' ') {
-                    i += 1;
-                }
-                prev_was_identifier = false;
-                continue;
-            }
-            
-            // Handle parentheses with proper spacing
-            if (c == '(') {
-                try builder.append("(");
-                i += 1;
-                prev_was_identifier = false;
-                continue;
-            }
-            
-            if (c == ')') {
-                try builder.append(")");
-                i += 1;
-                // Skip spaces and check for return type
-                while (i < signature.len and signature[i] == ' ') {
-                    i += 1;
-                }
-                // If there's more content, add a space before return type
-                if (i < signature.len and signature[i] != '{' and signature[i] != ';') {
-                    try builder.append(" ");
-                }
-                prev_was_identifier = false;
-                continue;
-            }
-            
-            // Handle commas with proper spacing
-            if (c == ',') {
-                try builder.append(", ");
-                i += 1;
-                // Skip any spaces after comma in original
-                while (i < signature.len and signature[i] == ' ') {
-                    i += 1;
-                }
-                prev_was_identifier = false;
-                continue;
-            }
-            
-            // Add spacing between keywords and identifiers
-            if (std.ascii.isAlphabetic(c) or c == '_') {
-                // Check if we need space before this identifier
-                if (prev_was_identifier and builder.buffer.items.len > 0) {
-                    const last_char = builder.buffer.items[builder.buffer.items.len - 1];
-                    if (last_char != ' ' and last_char != '(' and last_char != ':') {
-                        // Check for keywords that need spacing
-                        const remaining = signature[i..];
-                        if (std.mem.startsWith(u8, remaining, "pub ") or
-                            std.mem.startsWith(u8, remaining, "fn ")) {
-                            try builder.append(" ");
-                        }
-                    }
-                }
-                prev_was_identifier = true;
-            } else {
-                prev_was_identifier = false;
-            }
-            
-            try builder.append(&[_]u8{c});
-            i += 1;
-        }
+        // Use consolidated helper for function signature formatting
+        try ZigFormattingHelpers.formatWithZigSpacing(signature, builder);
     }
     
     fn formatStatementWithSpacing(statement: []const u8, builder: *LineBuilder) !void {
@@ -784,87 +585,8 @@ pub const FormatBody = struct {
             return;
         }
         
-        // Format statement with proper spacing
-        var i: usize = 0;
-        while (i < statement.len) {
-            const c = statement[i];
-            
-            // Handle arrow operator =>
-            if (c == '=' and i + 1 < statement.len and statement[i+1] == '>') {
-                // Ensure space before arrow
-                if (builder.buffer.items.len > 0 and
-                    builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
-                    try builder.append(" ");
-                }
-                try builder.append("=> ");
-                i += 2;
-                // Skip any spaces after arrow in original
-                while (i < statement.len and statement[i] == ' ') {
-                    i += 1;
-                }
-                continue;
-            }
-            
-            // Add spacing around operators
-            if (c == '=' and i > 0 and statement[i-1] != '=' and i + 1 < statement.len and statement[i+1] != '=') {
-                try builder.append(" = ");
-                i += 1;
-                // Skip any spaces after equals in original
-                while (i < statement.len and statement[i] == ' ') {
-                    i += 1;
-                }
-                continue;
-            }
-            
-            if (c == '-' or c == '+' or c == '*' or c == '/') {
-                // Check if it's an operator (not part of number or @sqrt)
-                if (i > 0 and statement[i-1] != '@' and statement[i-1] != '.' and 
-                    i + 1 < statement.len and statement[i+1] != '.' and statement[i+1] != '=') {
-                    try builder.append(" ");
-                    try builder.append(&[_]u8{c});
-                    try builder.append(" ");
-                    i += 1;
-                    // Skip any spaces after operator in original
-                    while (i < statement.len and statement[i] == ' ') {
-                        i += 1;
-                    }
-                    continue;
-                }
-            }
-            
-            // Handle function calls with parentheses (like switch(...))
-            if (c == '(' and i > 0) {
-                // Check if previous character is alphanumeric (function name)
-                const prev_char = statement[i-1];
-                if (std.ascii.isAlphanumeric(prev_char) or prev_char == '_') {
-                    // Add space before opening parenthesis for function calls
-                    try builder.append(" (");
-                } else {
-                    try builder.append(&[_]u8{c});
-                }
-                i += 1;
-                continue;
-            }
-            
-            // Handle builtin functions like @sqrt
-            if (c == '@') {
-                // Add space before @ if needed (for "return@sqrt" -> "return @sqrt")
-                if (i > 0 and std.ascii.isAlphabetic(statement[i-1])) {
-                    try builder.append(" ");
-                }
-                // Copy the entire builtin function call
-                var end = i + 1;
-                while (end < statement.len and (std.ascii.isAlphabetic(statement[end]) or statement[end] == '(')) {
-                    end += 1;
-                }
-                try builder.append(statement[i..end]);
-                i = end;
-                continue;
-            }
-            
-            try builder.append(&[_]u8{c});
-            i += 1;
-        }
+        // Use consolidated helper for statement spacing
+        try ZigFormattingHelpers.formatWithZigSpacing(statement, builder);
     }
     
     /// Format statement that contains struct literals

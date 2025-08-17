@@ -4,6 +4,7 @@ const LineBuilder = @import("../../parsing/formatter.zig").LineBuilder;
 const FormatterOptions = @import("../../parsing/formatter.zig").FormatterOptions;
 const NodeUtils = @import("../../language/node_utils.zig").NodeUtils;
 const FormatBody = @import("format_body.zig").FormatBody;
+const ZigFormattingHelpers = @import("formatting_helpers.zig").ZigFormattingHelpers;
 
 pub const FormatContainer = struct {
     /// Format Zig struct declaration
@@ -13,18 +14,15 @@ pub const FormatContainer = struct {
             
             // Extract the struct name and format declaration
             if (extractStructName(struct_text)) |name| {
-                try builder.append("const ");
-                try builder.append(name);
-                try builder.append(" = struct {");
-                try builder.newline();
-                builder.indent();
+                const signature = try std.fmt.allocPrint(builder.allocator, "const {s} = struct", .{name});
+                defer builder.allocator.free(signature);
                 
-                // Format the struct body
-                try formatStructBody(container, source, builder, depth + 1, options);
+                // Get the struct body content as text
+                const body_content = getContainerBodyText(container, source);
                 
-                builder.dedent();
-                try builder.appendIndent();
-                try builder.append("};");
+                // Use consolidated block formatting helper
+                try ZigFormattingHelpers.formatBlockWithBraces(builder, signature, body_content, true);
+                try builder.append(";");
             } else {
                 // Fallback: format as text
                 try formatStructBodyFromText(struct_text, source, builder, depth, options);
@@ -38,23 +36,21 @@ pub const FormatContainer = struct {
 
     /// Format Zig enum declaration
     pub fn formatEnum(node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) !void {
+        _ = depth;
         if (findContainerDecl(node)) |container| {
             const enum_text = NodeUtils.getNodeText(node, source);
             
             // Extract the enum name and format declaration
             if (extractEnumName(enum_text)) |name| {
-                try builder.append("const ");
-                try builder.append(name);
-                try builder.append(" = enum {");
-                try builder.newline();
-                builder.indent();
+                const signature = try std.fmt.allocPrint(builder.allocator, "const {s} = enum", .{name});
+                defer builder.allocator.free(signature);
                 
-                // Format the enum body
-                try formatEnumBody(container, source, builder, depth + 1, options);
+                // Get the enum body content as text
+                const body_content = getContainerBodyText(container, source);
                 
-                builder.dedent();
-                try builder.appendIndent();
-                try builder.append("};");
+                // Use consolidated block formatting helper
+                try ZigFormattingHelpers.formatBlockWithBraces(builder, signature, body_content, true);
+                try builder.append(";");
             } else {
                 // Fallback: format as text
                 try formatEnumBodyFromText(enum_text, builder, options);
@@ -68,23 +64,21 @@ pub const FormatContainer = struct {
 
     /// Format Zig union declaration
     pub fn formatUnion(node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) !void {
+        _ = depth;
         if (findContainerDecl(node)) |container| {
             const union_text = NodeUtils.getNodeText(node, source);
             
             // Extract the union name and format declaration
             if (extractUnionName(union_text)) |name| {
-                try builder.append("const ");
-                try builder.append(name);
-                try builder.append(" = union {");
-                try builder.newline();
-                builder.indent();
+                const signature = try std.fmt.allocPrint(builder.allocator, "const {s} = union", .{name});
+                defer builder.allocator.free(signature);
                 
-                // Format the union body
-                try formatUnionBody(container, source, builder, depth + 1, options);
+                // Get the union body content as text
+                const body_content = getContainerBodyText(container, source);
                 
-                builder.dedent();
-                try builder.appendIndent();
-                try builder.append("};");
+                // Use consolidated block formatting helper
+                try ZigFormattingHelpers.formatBlockWithBraces(builder, signature, body_content, true);
+                try builder.append(";");
             } else {
                 // Fallback: format as text
                 try formatUnionBodyFromText(union_text, builder, options);
@@ -113,47 +107,20 @@ pub const FormatContainer = struct {
 
     /// Extract struct name from declaration text
     fn extractStructName(text: []const u8) ?[]const u8 {
-        // Look for pattern: const Name = struct or const Name=struct
-        if (std.mem.indexOf(u8, text, "const ")) |start| {
-            const after_const = text[start + "const ".len..];
-            // Try spaced equals first, then unspaced
-            if (std.mem.indexOf(u8, after_const, " =")) |equals_pos| {
-                return std.mem.trim(u8, after_const[0..equals_pos], " \t");
-            } else if (std.mem.indexOf(u8, after_const, "=")) |equals_pos| {
-                return std.mem.trim(u8, after_const[0..equals_pos], " \t");
-            }
-        }
-        return null;
+        // Use consolidated helper for name extraction
+        return ZigFormattingHelpers.extractDeclarationName(text);
     }
 
     /// Extract enum name from declaration text
     fn extractEnumName(text: []const u8) ?[]const u8 {
-        // Look for pattern: const Name = enum or const Name=enum
-        if (std.mem.indexOf(u8, text, "const ")) |start| {
-            const after_const = text[start + "const ".len..];
-            // Try spaced equals first, then unspaced
-            if (std.mem.indexOf(u8, after_const, " =")) |equals_pos| {
-                return std.mem.trim(u8, after_const[0..equals_pos], " \t");
-            } else if (std.mem.indexOf(u8, after_const, "=")) |equals_pos| {
-                return std.mem.trim(u8, after_const[0..equals_pos], " \t");
-            }
-        }
-        return null;
+        // Use consolidated helper for name extraction
+        return ZigFormattingHelpers.extractDeclarationName(text);
     }
 
     /// Extract union name from declaration text
     fn extractUnionName(text: []const u8) ?[]const u8 {
-        // Look for pattern: const Name = union or const Name=union
-        if (std.mem.indexOf(u8, text, "const ")) |start| {
-            const after_const = text[start + "const ".len..];
-            // Try spaced equals first, then unspaced
-            if (std.mem.indexOf(u8, after_const, " =")) |equals_pos| {
-                return std.mem.trim(u8, after_const[0..equals_pos], " \t");
-            } else if (std.mem.indexOf(u8, after_const, "=")) |equals_pos| {
-                return std.mem.trim(u8, after_const[0..equals_pos], " \t");
-            }
-        }
-        return null;
+        // Use consolidated helper for name extraction
+        return ZigFormattingHelpers.extractDeclarationName(text);
     }
 
     /// Format struct body using AST nodes
@@ -240,59 +207,8 @@ pub const FormatContainer = struct {
 
     /// Format field with proper spacing around colons
     fn formatFieldWithSpacing(field_text: []const u8, builder: *LineBuilder) !void {
-        var i: usize = 0;
-        var in_string = false;
-        var escape_next = false;
-
-        while (i < field_text.len) {
-            const c = field_text[i];
-
-            if (escape_next) {
-                try builder.append(&[_]u8{c});
-                escape_next = false;
-                i += 1;
-                continue;
-            }
-
-            if (c == '\\' and in_string) {
-                escape_next = true;
-                try builder.append(&[_]u8{c});
-                i += 1;
-                continue;
-            }
-
-            if (c == '"') {
-                in_string = !in_string;
-                try builder.append(&[_]u8{c});
-                i += 1;
-                continue;
-            }
-
-            if (in_string) {
-                try builder.append(&[_]u8{c});
-                i += 1;
-                continue;
-            }
-
-            if (c == ':') {
-                // Zig style: no space before colon, space after
-                while (builder.buffer.items.len > 0 and 
-                       builder.buffer.items[builder.buffer.items.len - 1] == ' ') {
-                    _ = builder.buffer.pop();
-                }
-                try builder.append(":");
-                i += 1;
-                
-                // Ensure space after colon if next char isn't space
-                if (i < field_text.len and field_text[i] != ' ') {
-                    try builder.append(" ");
-                }
-                continue;
-            }
-
-            try builder.append(&[_]u8{c});
-            i += 1;
-        }
+        // Use consolidated helper for field formatting
+        try ZigFormattingHelpers.formatFieldWithColon(field_text, builder);
     }
 
     /// Text-based fallback formatting for struct body
@@ -313,6 +229,11 @@ pub const FormatContainer = struct {
     fn formatUnionBodyFromText(union_text: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
         _ = options;
         try FormatBody.formatUnionBodyFromText(union_text, builder);
+    }
+
+    /// Extract container body text from AST node
+    fn getContainerBodyText(container: ts.Node, source: []const u8) []const u8 {
+        return NodeUtils.getNodeText(container, source);
     }
 
     // Forward declaration for formatZigNode (will be imported from main formatter)

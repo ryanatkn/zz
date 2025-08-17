@@ -2,7 +2,6 @@ const std = @import("std");
 const LineBuilder = @import("../../parsing/formatter.zig").LineBuilder;
 const FormatterOptions = @import("../../parsing/formatter.zig").FormatterOptions;
 const ZigUtils = @import("zig_utils.zig").ZigUtils;
-const ZigSpacingHelpers = @import("spacing_helpers.zig").ZigSpacingHelpers;
 const ZigFormattingHelpers = @import("formatting_helpers.zig").ZigFormattingHelpers;
 
 /// Zig-specific parameter formatting functionality
@@ -10,8 +9,8 @@ pub const FormatParameter = struct {
 
     /// Format a single Zig parameter with proper colon spacing
     pub fn formatSingleParameter(param: []const u8, builder: *LineBuilder) !void {
-        // Use consolidated colon spacing helper
-        try ZigSpacingHelpers.formatColonSpacing(param, builder);
+        // Use consolidated spacing helper for consistency
+        try ZigFormattingHelpers.formatWithZigSpacing(param, builder);
     }
 
     /// Format Zig parameter list with proper spacing and multiline handling

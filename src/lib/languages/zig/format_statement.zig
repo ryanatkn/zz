@@ -2,6 +2,7 @@ const std = @import("std");
 const LineBuilder = @import("../../parsing/formatter.zig").LineBuilder;
 const FormatDeclaration = @import("format_declaration.zig").FormatDeclaration;
 const FormatBody = @import("format_body.zig").FormatBody;
+const ZigFormattingHelpers = @import("formatting_helpers.zig").ZigFormattingHelpers;
 
 /// Zig-specific statement formatting functionality
 pub const FormatStatement = struct {
@@ -29,8 +30,8 @@ pub const FormatStatement = struct {
         } else if (std.mem.startsWith(u8, trimmed, "switch ")) {
             try formatSwitchStatement(statement, builder);
         } else {
-            // Generic statement formatting
-            try formatGenericStatement(statement, builder);
+            // Generic statement formatting using consolidated helper
+            try ZigFormattingHelpers.formatWithZigSpacing(trimmed, builder);
         }
     }
 
@@ -115,9 +116,9 @@ pub const FormatStatement = struct {
         if (std.mem.startsWith(u8, trimmed, "return ")) {
             try builder.append("return ");
             const return_value = std.mem.trim(u8, trimmed[7..], " \t");
-            try formatExpression(return_value, builder);
+            try ZigFormattingHelpers.formatWithZigSpacing(return_value, builder);
         } else {
-            try builder.append(trimmed);
+            try ZigFormattingHelpers.formatWithZigSpacing(trimmed, builder);
         }
     }
 
@@ -125,16 +126,8 @@ pub const FormatStatement = struct {
     fn formatAssignmentStatement(statement: []const u8, builder: *LineBuilder) !void {
         const trimmed = std.mem.trim(u8, statement, " \t\n\r");
         
-        if (std.mem.indexOf(u8, trimmed, " = ")) |equals_pos| {
-            const lhs = std.mem.trim(u8, trimmed[0..equals_pos], " \t");
-            const rhs = std.mem.trim(u8, trimmed[equals_pos + 3..], " \t");
-            
-            try builder.append(lhs);
-            try builder.append(" = ");
-            try formatExpression(rhs, builder);
-        } else {
-            try builder.append(trimmed);
-        }
+        // Use consolidated helper for proper assignment formatting
+        try ZigFormattingHelpers.formatWithZigSpacing(trimmed, builder);
     }
 
     /// Format control flow statement (if, while, for)
@@ -199,61 +192,14 @@ pub const FormatStatement = struct {
         // Add proper indentation
         try builder.appendIndent();
         
-        // Format with proper spacing
-        try formatStatementWithSpacing(trimmed, builder);
+        // Format with consolidated helper
+        try ZigFormattingHelpers.formatWithZigSpacing(trimmed, builder);
     }
     
     /// Format statement with proper spacing around operators and punctuation
     fn formatStatementWithSpacing(statement: []const u8, builder: *LineBuilder) !void {
-        var i: usize = 0;
-        var in_string = false;
-        var string_char: u8 = 0;
-        
-        while (i < statement.len) {
-            const c = statement[i];
-            
-            // Handle string boundaries
-            if (!in_string and (c == '"' or c == '\'')) {
-                in_string = true;
-                string_char = c;
-                try builder.append(&[_]u8{c});
-                i += 1;
-                continue;
-            } else if (in_string and c == string_char) {
-                in_string = false;
-                try builder.append(&[_]u8{c});
-                i += 1;
-                continue;
-            } else if (in_string) {
-                try builder.append(&[_]u8{c});
-                i += 1;
-                continue;
-            }
-            
-            // Format spacing around special characters
-            if (c == ',' and i + 1 < statement.len) {
-                try builder.append(",");
-                // Add space after comma if not already there
-                if (statement[i + 1] != ' ') {
-                    try builder.append(" ");
-                }
-                i += 1;
-                continue;
-            }
-            
-            if (c == ' ') {
-                // Only add space if we haven't just added one
-                if (builder.buffer.items.len > 0 and
-                    builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
-                    try builder.append(" ");
-                }
-                i += 1;
-                continue;
-            }
-            
-            try builder.append(&[_]u8{c});
-            i += 1;
-        }
+        // Use consolidated helper for all spacing rules
+        try ZigFormattingHelpers.formatWithZigSpacing(statement, builder);
     }
 
     /// Format return statement with struct type definition
@@ -365,6 +311,7 @@ pub const FormatStatement = struct {
 
     /// Format expression
     fn formatExpression(expression: []const u8, builder: *LineBuilder) !void {
-        try builder.append(std.mem.trim(u8, expression, " \t"));
+        const trimmed = std.mem.trim(u8, expression, " \t");
+        try ZigFormattingHelpers.formatWithZigSpacing(trimmed, builder);
     }
 };

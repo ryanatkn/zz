@@ -420,6 +420,41 @@ pub const ZigFormattingHelpers = struct {
                 continue;
             }
 
+            // Handle arithmetic operators
+            if ((c == '+' or c == '-' or c == '*' or c == '/') and
+                // Avoid double operators like ++, --, etc.
+                (i + 1 >= text.len or text[i + 1] != c) and
+                // Not part of a negative number
+                !(c == '-' and i > 0 and (text[i-1] == '(' or text[i-1] == ',' or text[i-1] == '=' or text[i-1] == ' ')) and
+                // Not in a compound assignment
+                (i + 1 >= text.len or text[i + 1] != '=')) {
+                
+                // Ensure space before operator
+                if (builder.buffer.items.len > 0 and 
+                    builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
+                    try builder.append(" ");
+                }
+                try builder.append(&[_]u8{c});
+                i += 1;
+                
+                // Ensure space after operator if next char isn't space
+                if (i < text.len and text[i] != ' ') {
+                    try builder.append(" ");
+                }
+                continue;
+            }
+            
+            // Handle builtin functions like @sqrt
+            if (c == '@') {
+                // Add space before @ if needed (for "return@sqrt" -> "return @sqrt")
+                if (i > 0 and std.ascii.isAlphabetic(text[i-1])) {
+                    try builder.append(" ");
+                }
+                try builder.append(&[_]u8{c});
+                i += 1;
+                continue;
+            }
+
             // Handle space normalization
             if (c == ' ') {
                 // Only add space if we haven't just added one

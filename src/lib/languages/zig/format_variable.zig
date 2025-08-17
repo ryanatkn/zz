@@ -4,7 +4,6 @@ const LineBuilder = @import("../../parsing/formatter.zig").LineBuilder;
 const FormatterOptions = @import("../../parsing/formatter.zig").FormatterOptions;
 const NodeUtils = @import("../../language/node_utils.zig").NodeUtils;
 const ZigFormattingHelpers = @import("formatting_helpers.zig").ZigFormattingHelpers;
-const ZigSpacingHelpers = @import("spacing_helpers.zig").ZigSpacingHelpers;
 
 pub const FormatVariable = struct {
     /// Format Zig variable declaration

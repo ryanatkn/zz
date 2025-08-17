@@ -3,6 +3,7 @@ const ts = @import("tree-sitter");
 const LineBuilder = @import("../../parsing/formatter.zig").LineBuilder;
 const FormatterOptions = @import("../../parsing/formatter.zig").FormatterOptions;
 const NodeUtils = @import("../../language/node_utils.zig").NodeUtils;
+const ZigFormattingHelpers = @import("formatting_helpers.zig").ZigFormattingHelpers;
 
 pub const FormatTest = struct {
     /// Format Zig test declaration
@@ -15,173 +16,25 @@ pub const FormatTest = struct {
 
     /// Format test declaration with proper spacing and indentation
     pub fn formatTestWithSpacing(test_text: []const u8, builder: *LineBuilder) !void {
-        var i: usize = 0;
-        var in_string = false;
-        var escape_next = false;
-        var in_comment = false;
-        var brace_depth: u32 = 0;
-        var in_test_body = false;
-        var need_indent = false;
-
-        while (i < test_text.len) {
-            const c = test_text[i];
-
-            if (escape_next) {
-                try builder.append(&[_]u8{c});
-                escape_next = false;
-                i += 1;
-                continue;
-            }
-
-            if (c == '\\' and in_string) {
-                escape_next = true;
-                try builder.append(&[_]u8{c});
-                i += 1;
-                continue;
-            }
-
-            if (c == '"' and !in_comment) {
-                // Add space before quote if we just finished "test" and there's no space
-                if (!in_string and i >= 4 and 
-                    builder.buffer.items.len >= 4 and
-                    std.mem.endsWith(u8, builder.buffer.items, "test") and
-                    builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
-                    try builder.append(" ");
-                }
-                in_string = !in_string;
-                try builder.append(&[_]u8{c});
-                i += 1;
-                continue;
-            }
-
-            if (!in_string and i + 1 < test_text.len and test_text[i] == '/' and test_text[i + 1] == '/') {
-                in_comment = true;
-                try builder.append(&[_]u8{c});
-                i += 1;
-                continue;
-            }
-
-            if (in_comment and c == '\n') {
-                in_comment = false;
-                try builder.append(&[_]u8{c});
-                i += 1;
-                continue;
-            }
-
-            if (in_string or in_comment) {
-                try builder.append(&[_]u8{c});
-                i += 1;
-                continue;
-            }
-
-            if (c == '{') {
-                brace_depth += 1;
-                if (brace_depth == 1) {
-                    in_test_body = true;
-                    need_indent = true;
-                    // Add space before opening brace if there isn't one
-                    if (builder.buffer.items.len > 0 and
-                        builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
-                        try builder.append(" ");
-                    }
-                    try builder.append(&[_]u8{c});
-                    try builder.newline();
-                    builder.indent();
-                } else {
-                    try builder.append(&[_]u8{c});
-                }
-                i += 1;
-                continue;
-            }
-
-            if (c == '}') {
-                if (brace_depth == 1 and in_test_body) {
-                    builder.dedent();
-                    try builder.appendIndent();
-                    try builder.append(&[_]u8{c});
-                    in_test_body = false;
-                } else {
-                    try builder.append(&[_]u8{c});
-                }
-                if (brace_depth > 0) {
-                    brace_depth -= 1;
-                }
-                i += 1;
-                continue;
-            }
-
-            if (c == '\n' and in_test_body) {
-                try builder.newline();
-                try builder.appendIndent();
-                i += 1;
-                continue;
-            }
-
-            if (c == ';' and in_test_body and brace_depth == 1) {
-                // Add semicolon and newline for statements in test body
-                try builder.append(";");
-                try builder.newline();
-                need_indent = true;
-                i += 1;
-                continue;
-            }
-
-            if (c == ' ') {
-                // Only add space if we haven't just added one
-                if (builder.buffer.items.len > 0 and
-                    builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
-                    try builder.append(" ");
-                }
-                i += 1;
-                continue;
-            }
-
-            // Add indentation for first non-whitespace character in test body
-            if (need_indent and c != ' ' and c != '\t' and c != '\n' and c != '\r') {
-                try builder.appendIndent();
-                need_indent = false;
-            }
-
-            // Add spaces around operators in test body
-            if (in_test_body and !in_string and !in_comment) {
-                if ((c == '+' or c == '-' or c == '*' or c == '=' or c == '!') and
-                    i + 1 < test_text.len and test_text[i + 1] != '=' and test_text[i + 1] != c) {
-                    // Add space before operator if needed
-                    if (builder.buffer.items.len > 0 and
-                        builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
-                        try builder.append(" ");
-                    }
-                    try builder.append(&[_]u8{c});
-                    // Add space after operator if needed
-                    if (i + 1 < test_text.len and test_text[i + 1] != ' ') {
-                        try builder.append(" ");
-                    }
-                    i += 1;
-                    continue;
-                } else if (c == '=' and i + 1 < test_text.len and test_text[i + 1] == '=') {
-                    // Handle == operator
-                    if (builder.buffer.items.len > 0 and
-                        builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
-                        try builder.append(" ");
-                    }
-                    try builder.append("==");
-                    if (i + 2 < test_text.len and test_text[i + 2] != ' ') {
-                        try builder.append(" ");
-                    }
-                    i += 2;
-                    continue;
-                }
-            }
-
-            try builder.append(&[_]u8{c});
-            i += 1;
+        // Find the test signature and body parts
+        if (std.mem.indexOf(u8, test_text, "{")) |brace_pos| {
+            const signature = std.mem.trim(u8, test_text[0..brace_pos], " \t");
+            const body_start = brace_pos + 1;
+            const body_end = std.mem.lastIndexOf(u8, test_text, "}") orelse test_text.len;
+            const body = std.mem.trim(u8, test_text[body_start..body_end], " \t\n\r");
+            
+            // Use consolidated block formatting helper
+            try ZigFormattingHelpers.formatBlockWithBraces(builder, signature, body, true);
+        } else {
+            // Test declaration without body - format signature with consolidated helper
+            try ZigFormattingHelpers.formatWithZigSpacing(test_text, builder);
         }
     }
 
     /// Check if text represents a test declaration
     pub fn isTestDecl(text: []const u8) bool {
-        return std.mem.startsWith(u8, text, "test ") or 
-               std.mem.indexOf(u8, text, " test ") != null;
+        // Use consolidated helper for declaration classification
+        return ZigFormattingHelpers.classifyDeclaration(text) == .test_decl;
     }
 
     /// Extract test name from test declaration

@@ -4,7 +4,7 @@ const LineBuilder = @import("../../parsing/formatter.zig").LineBuilder;
 const FormatterOptions = @import("../../parsing/formatter.zig").FormatterOptions;
 const NodeUtils = @import("../../language/node_utils.zig").NodeUtils;
 const TypeScriptHelpers = @import("formatting_helpers.zig").TypeScriptFormattingHelpers;
-const builders = @import("../../text/builders.zig");
+const TypeScriptSpacing = @import("spacing_helpers.zig").TypeScriptSpacingHelpers;
 const collections = @import("../../core/collections.zig");
 const processing = @import("../../text/processing.zig");
 
@@ -97,263 +97,51 @@ pub const FormatFunction = struct {
         try builder.newline();
     }
 
-    /// Format arrow functions
+    /// Format arrow functions using consolidated helpers
     fn formatArrowFunction(func_text: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
-        // Find the arrow position
-        if (std.mem.indexOf(u8, func_text, "=>")) |arrow_pos| {
-            const signature_part = std.mem.trim(u8, func_text[0..arrow_pos], " \t");
-            const body_part = std.mem.trim(u8, func_text[arrow_pos + 2..], " \t");
-            
-            try builder.appendIndent();
-            try builder.append(signature_part);
-            try builder.append(" => ");
-            
-            // Check if body is a block or expression
-            if (std.mem.startsWith(u8, body_part, "{")) {
-                try builder.append(body_part);
-            } else {
-                // Single expression - check line length
-                if (signature_part.len + body_part.len + 4 > options.line_width) {
-                    try builder.newline();
-                    builder.indent();
-                    try builder.appendIndent();
-                    try builder.append(body_part);
-                    builder.dedent();
-                } else {
-                    try builder.append(body_part);
-                }
-            }
-        } else {
-            // Fallback - just append the text
-            try builder.appendIndent();
-            try builder.append(func_text);
-        }
+        try builder.appendIndent();
+        
+        // Use consolidated arrow function helper
+        try TypeScriptHelpers.formatArrowFunction(builder.allocator, builder, func_text, options);
         
         try builder.newline();
     }
 
-    /// Format function parameters
+    /// Format function parameters using consolidated helpers
     fn formatParameters(params_node: ts.Node, source: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
         const params_text = NodeUtils.getNodeText(params_node, source);
         
-        // Remove outer parentheses to check content length
+        // Remove outer parentheses to get content
         var content = params_text;
         if (std.mem.startsWith(u8, content, "(") and std.mem.endsWith(u8, content, ")")) {
             content = content[1..content.len-1];
         }
         
-        // Estimate the current line length (approximation based on current buffer content)
-        // Look for the last newline to estimate current line length
-        var current_line_length: usize = 0;
-        if (builder.buffer.items.len > 0) {
-            if (std.mem.lastIndexOf(u8, builder.buffer.items, "\n")) |last_newline| {
-                current_line_length = builder.buffer.items.len - last_newline - 1;
-            } else {
-                current_line_length = builder.buffer.items.len;
-            }
-        }
-        
-        const total_length = current_line_length + content.len + 2; // +2 for parentheses
-        
-        // Check if we need multiline formatting based on line width
-        if (total_length > options.line_width and content.len > 0) {
-            try formatParametersMultiline(content, builder, options);
-        } else {
-            try formatParametersSingleLine(content, builder);
-        }
+        // Use consolidated parameter list formatter
+        try TypeScriptHelpers.formatParameterList(builder.allocator, content, builder, options);
     }
 
-    /// Format parameters in multiline style
-    fn formatParametersMultiline(content: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
-        _ = options;
-        
-        if (content.len == 0) {
-            try builder.append("()");
-            return;
-        }
-        
-        try builder.append("(");
-        try builder.newline();
-        builder.indent();
-        
-        // Split parameters by comma using common utility
-        const params = try processing.splitAndTrim(builder.allocator, content, ',');
-        defer {
-            for (params) |param| {
-                builder.allocator.free(param);
-            }
-            builder.allocator.free(params);
-        }
-        
-        for (params, 0..) |param, i| {
-            if (i > 0) {
-                try builder.append(",");
-                try builder.newline();
-            }
-            try builder.appendIndent();
-            try formatSingleParameter(param, builder);
-        }
-        
-        try builder.newline();
-        builder.dedent();
-        try builder.appendIndent();
-        try builder.append(")");
-    }
 
-    /// Format parameters in single line style
-    fn formatParametersSingleLine(content: []const u8, builder: *LineBuilder) !void {
-        try builder.append("(");
-        
-        if (content.len > 0) {
-            // Split parameters by comma using common utility
-            const params = try processing.splitAndTrim(builder.allocator, content, ',');
-            defer {
-                for (params) |param| {
-                    builder.allocator.free(param);
-                }
-                builder.allocator.free(params);
-            }
-            
-            for (params, 0..) |param, i| {
-                if (i > 0) {
-                    try builder.append(", ");
-                }
-                try formatSingleParameter(param, builder);
-            }
-        }
-        
-        try builder.append(")");
-    }
 
-    /// Format single parameter with TypeScript-style spacing
+    /// Format single parameter using consolidated spacing helpers
     fn formatSingleParameter(param: []const u8, builder: *LineBuilder) !void {
-        var i: usize = 0;
-        var in_string = false;
-        var escape_next = false;
-
-        while (i < param.len) {
-            const c = param[i];
-
-            if (escape_next) {
-                try builder.append(&[_]u8{c});
-                escape_next = false;
-                i += 1;
-                continue;
-            }
-
-            if (c == '\\' and in_string) {
-                escape_next = true;
-                try builder.append(&[_]u8{c});
-                i += 1;
-                continue;
-            }
-
-            if (c == '"' or c == '\'') {
-                in_string = !in_string;
-                try builder.append(&[_]u8{c});
-                i += 1;
-                continue;
-            }
-
-            if (in_string) {
-                try builder.append(&[_]u8{c});
-                i += 1;
-                continue;
-            }
-
-            if (c == ':') {
-                // TypeScript style: no space before colon, space after colon
-                try builder.append(":");
-                i += 1;
-                
-                // Ensure space after colon
-                if (i < param.len and param[i] != ' ') {
-                    try builder.append(" ");
-                }
-                continue;
-            }
-
-            if (c == ' ') {
-                // Only add space if we haven't just added one
-                if (builder.buffer.items.len > 0 and
-                    builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
-                    try builder.append(" ");
-                }
-                i += 1;
-                continue;
-            }
-
-            try builder.append(&[_]u8{c});
-            i += 1;
-        }
+        try TypeScriptHelpers.formatPropertyWithSpacing(param, builder);
     }
 
-    /// Format return type annotation
+    /// Format return type annotation using consolidated helpers
     fn formatReturnType(return_text: []const u8, builder: *LineBuilder) !void {
-        var trimmed = std.mem.trim(u8, return_text, " \t");
+        const trimmed = std.mem.trim(u8, return_text, " \t");
         if (trimmed.len > 0) {
-            // Handle TypeScript return type formatting:
-            // The return_text may start with colon, so we need to format it properly
-            if (std.mem.startsWith(u8, trimmed, ":")) {
-                // Add colon with proper spacing
-                try builder.append(": ");
-                trimmed = std.mem.trim(u8, trimmed[1..], " \t");
-            } else {
-                // No colon present, just add space
+            if (!std.mem.startsWith(u8, trimmed, ":")) {
                 try builder.append(" ");
             }
-            
-            // Format union types with proper spacing
-            try formatTypeWithSpacing(trimmed, builder);
+            // Use consolidated TypeScript spacing helper
+            try TypeScriptHelpers.formatWithTypeScriptSpacing(trimmed, builder);
         }
     }
     
-    /// Format type with proper spacing for union types
-    fn formatTypeWithSpacing(type_text: []const u8, builder: *LineBuilder) !void {
-        var i: usize = 0;
-        var in_angle_brackets: u32 = 0;
-        
-        while (i < type_text.len) {
-            const c = type_text[i];
-            
-            if (c == '<') {
-                in_angle_brackets += 1;
-                try builder.append(&[_]u8{c});
-                i += 1;
-                continue;
-            }
-            
-            if (c == '>') {
-                if (in_angle_brackets > 0) {
-                    in_angle_brackets -= 1;
-                }
-                try builder.append(&[_]u8{c});
-                i += 1;
-                continue;
-            }
-            
-            // Format union types with spacing: User | null instead of User|null
-            if (c == '|') {
-                // Add space before if not already present
-                if (builder.buffer.items.len > 0 and 
-                    builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
-                    try builder.append(" ");
-                }
-                try builder.append("|");
-                i += 1;
-                // Add space after
-                if (i < type_text.len and type_text[i] != ' ') {
-                    try builder.append(" ");
-                }
-                continue;
-            }
-            
-            try builder.append(&[_]u8{c});
-            i += 1;
-        }
-    }
 
-    /// Format function body
+    /// Format function body using consolidated helpers
     fn formatFunctionBody(body_node: ts.Node, source: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
         _ = options;
         
@@ -369,27 +157,16 @@ pub const FormatFunction = struct {
         try builder.newline();
         builder.indent();
         
-        // Use common line processing utility
-        const ProcessLineCtx = struct {
-            builder: *LineBuilder,
-        };
-        const ctx = ProcessLineCtx{ .builder = builder };
-        
-        processing.processLinesWithState(
-            ProcessLineCtx,
-            content,
-            ctx,
-            struct {
-                fn processLine(context: ProcessLineCtx, line: []const u8) void {
-                    const trimmed = std.mem.trim(u8, line, " \t");
-                    if (trimmed.len > 0) {
-                        context.builder.appendIndent() catch return;
-                        context.builder.append(trimmed) catch return;
-                        context.builder.newline() catch return;
-                    }
-                }
-            }.processLine,
-        );
+        // Split by lines and format each
+        var lines = std.mem.splitSequence(u8, content, "\n");
+        while (lines.next()) |line| {
+            const trimmed = std.mem.trim(u8, line, " \t");
+            if (trimmed.len > 0) {
+                try builder.appendIndent();
+                try TypeScriptHelpers.formatWithTypeScriptSpacing(trimmed, builder);
+                try builder.newline();
+            }
+        }
         
         builder.dedent();
         try builder.appendIndent();

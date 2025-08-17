@@ -3,8 +3,11 @@ const ts = @import("tree-sitter");
 const LineBuilder = @import("../../parsing/formatter.zig").LineBuilder;
 const FormatterOptions = @import("../../parsing/formatter.zig").FormatterOptions;
 const TypeScriptUtils = @import("typescript_utils.zig").TypeScriptUtils;
+const collections = @import("../../core/collections.zig");
+const DelimiterTracker = @import("../../text/delimiters.zig").DelimiterTracker;
+const processing = @import("../../text/processing.zig");
 
-/// TypeScript-specific formatting helpers
+/// TypeScript-specific formatting helpers - Consolidated from all format modules
 pub const TypeScriptFormattingHelpers = struct {
 
     /// Format TypeScript interface with proper spacing
@@ -53,14 +56,14 @@ pub const TypeScriptFormattingHelpers = struct {
         
         // Check if this is a method signature
         if (std.mem.indexOf(u8, property, "(") != null and std.mem.indexOf(u8, property, ")") != null) {
-            try formatMethodSignature(property, builder);
+            try formatInterfaceMethodSignature(property, builder);
         } else {
             try TypeScriptUtils.formatFieldDeclaration(property, builder);
         }
     }
 
     /// Format method signature in interface
-    fn formatMethodSignature(method: []const u8, builder: *LineBuilder) !void {
+    fn formatInterfaceMethodSignature(method: []const u8, builder: *LineBuilder) !void {
         // Find parameter section
         if (std.mem.indexOf(u8, method, "(")) |paren_start| {
             if (std.mem.lastIndexOf(u8, method, ")")) |paren_end| {
@@ -365,5 +368,673 @@ pub const TypeScriptFormattingHelpers = struct {
                std.mem.startsWith(u8, trimmed, "type ") or
                std.mem.startsWith(u8, trimmed, "class ") or
                std.mem.startsWith(u8, trimmed, "enum ");
+    }
+
+    // === NEW CONSOLIDATED HELPERS ===
+
+    /// Format text with proper TypeScript spacing for all operators and punctuation
+    /// Consolidates spacing logic from format_function, format_class, format_interface, etc.
+    pub fn formatWithTypeScriptSpacing(text: []const u8, builder: *LineBuilder) !void {
+        var tracker = DelimiterTracker{};
+        var i: usize = 0;
+        var escape_next = false;
+        var in_comment = false;
+        var in_template = false;
+        var template_depth: u32 = 0;
+
+        while (i < text.len) {
+            const c = text[i];
+
+            // Handle escape sequences
+            if (escape_next) {
+                try builder.append(&[_]u8{c});
+                escape_next = false;
+                i += 1;
+                continue;
+            }
+
+            if (c == '\\' and (tracker.in_string or in_template)) {
+                escape_next = true;
+                try builder.append(&[_]u8{c});
+                i += 1;
+                continue;
+            }
+
+            // Handle comment detection
+            if (!tracker.in_string and !in_template and i + 1 < text.len and c == '/' and text[i + 1] == '/') {
+                in_comment = true;
+                try builder.append(&[_]u8{c});
+                i += 1;
+                continue;
+            }
+
+            if (in_comment and c == '\n') {
+                in_comment = false;
+                try builder.append(&[_]u8{c});
+                i += 1;
+                continue;
+            }
+
+            if (in_comment) {
+                try builder.append(&[_]u8{c});
+                i += 1;
+                continue;
+            }
+
+            // Handle template literals
+            if (!tracker.in_string and c == '`') {
+                in_template = !in_template;
+                if (in_template) {
+                    template_depth = 1;
+                } else {
+                    template_depth = 0;
+                }
+                try builder.append(&[_]u8{c});
+                i += 1;
+                continue;
+            }
+
+            if (in_template) {
+                if (c == '{' and i > 0 and text[i - 1] == '$') {
+                    template_depth += 1;
+                } else if (c == '}' and template_depth > 1) {
+                    template_depth -= 1;
+                }
+                try builder.append(&[_]u8{c});
+                i += 1;
+                continue;
+            }
+
+            // Track delimiters and strings
+            tracker.trackChar(c);
+
+            if (tracker.in_string) {
+                try builder.append(&[_]u8{c});
+                i += 1;
+                continue;
+            }
+
+            // Handle colon spacing (TypeScript style: no space before, space after)
+            if (c == ':') {
+                // Remove any trailing space before colon
+                while (builder.buffer.items.len > 0 and 
+                       builder.buffer.items[builder.buffer.items.len - 1] == ' ') {
+                    _ = builder.buffer.pop();
+                }
+                try builder.append(":");
+                i += 1;
+                
+                // Ensure space after colon if next char isn't space
+                if (i < text.len and text[i] != ' ') {
+                    try builder.append(" ");
+                }
+                continue;
+            }
+
+            // Handle equals spacing (space before and after)
+            if (c == '=') {
+                // Check for == or === operators
+                if (i + 1 < text.len and text[i + 1] == '=') {
+                    // Ensure space before ==
+                    if (builder.buffer.items.len > 0 and 
+                        builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
+                        try builder.append(" ");
+                    }
+                    if (i + 2 < text.len and text[i + 2] == '=') {
+                        try builder.append("===");
+                        i += 3;
+                    } else {
+                        try builder.append("==");
+                        i += 2;
+                    }
+                    
+                    // Ensure space after operator if next char isn't space
+                    if (i < text.len and text[i] != ' ') {
+                        try builder.append(" ");
+                    }
+                    continue;
+                }
+                
+                // Check for => arrow operator
+                if (i + 1 < text.len and text[i + 1] == '>') {
+                    // Ensure space before =>
+                    if (builder.buffer.items.len > 0 and 
+                        builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
+                        try builder.append(" ");
+                    }
+                    try builder.append("=> ");
+                    i += 2;
+                    continue;
+                }
+                
+                // Regular assignment =
+                // Ensure space before =
+                if (builder.buffer.items.len > 0 and 
+                    builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
+                    try builder.append(" ");
+                }
+                try builder.append("=");
+                i += 1;
+                
+                // Ensure space after = if next char isn't space
+                if (i < text.len and text[i] != ' ') {
+                    try builder.append(" ");
+                }
+                continue;
+            }
+
+            // Handle union and intersection types (| and &)
+            if (c == '|' or c == '&') {
+                // Ensure space before operator
+                if (builder.buffer.items.len > 0 and 
+                    builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
+                    try builder.append(" ");
+                }
+                try builder.append(&[_]u8{c});
+                i += 1;
+                
+                // Ensure space after operator if next char isn't space
+                if (i < text.len and text[i] != ' ') {
+                    try builder.append(" ");
+                }
+                continue;
+            }
+
+            // Handle comma spacing
+            if (c == ',') {
+                try builder.append(",");
+                i += 1;
+                
+                // Ensure space after comma if next char isn't space or newline
+                if (i < text.len and text[i] != ' ' and text[i] != '\n') {
+                    try builder.append(" ");
+                }
+                continue;
+            }
+
+            // Handle space normalization
+            if (c == ' ') {
+                // Only add space if we haven't just added one
+                if (builder.buffer.items.len > 0 and
+                    builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
+                    try builder.append(" ");
+                }
+                i += 1;
+                continue;
+            }
+
+            try builder.append(&[_]u8{c});
+            i += 1;
+        }
+    }
+
+    /// Split parameters/fields by comma while preserving strings and nested structures
+    /// Enhanced version that uses DelimiterTracker for reliability
+    pub fn splitByCommaPreservingStructure(allocator: std.mem.Allocator, text: []const u8) ![][]const u8 {
+        var result = collections.List([]const u8).init(allocator);
+        defer result.deinit();
+        
+        var start: usize = 0;
+        var i: usize = 0;
+        var tracker = DelimiterTracker{};
+        var in_template = false;
+        var template_depth: u32 = 0;
+        
+        while (i < text.len) {
+            const c = text[i];
+            
+            // Handle template literals
+            if (!tracker.in_string and c == '`') {
+                in_template = !in_template;
+                if (in_template) {
+                    template_depth = 1;
+                } else {
+                    template_depth = 0;
+                }
+                i += 1;
+                continue;
+            }
+            
+            if (in_template) {
+                if (c == '{' and i > 0 and text[i - 1] == '$') {
+                    template_depth += 1;
+                } else if (c == '}' and template_depth > 1) {
+                    template_depth -= 1;
+                }
+                i += 1;
+                continue;
+            }
+            
+            tracker.trackChar(c);
+            
+            // Split on comma only when at top level
+            if (c == ',' and tracker.isTopLevel()) {
+                const segment = std.mem.trim(u8, text[start..i], " \t\n\r");
+                if (segment.len > 0) {
+                    try result.append(try allocator.dupe(u8, segment));
+                }
+                start = i + 1;
+            }
+            
+            i += 1;
+        }
+        
+        // Add final segment
+        if (start < text.len) {
+            const segment = std.mem.trim(u8, text[start..], " \t\n\r");
+            if (segment.len > 0) {
+                try result.append(try allocator.dupe(u8, segment));
+            }
+        }
+        
+        return result.toOwnedSlice();
+    }
+
+    /// Format property with TypeScript-style spacing (properties and interface members)
+    /// Consolidates property formatting from format_class and format_interface
+    pub fn formatPropertyWithSpacing(property: []const u8, builder: *LineBuilder) !void {
+        var i: usize = 0;
+        var in_string = false;
+        var string_char: u8 = 0;
+        var escape_next = false;
+        var in_generic = false;
+        var generic_depth: u32 = 0;
+
+        while (i < property.len) {
+            const c = property[i];
+
+            if (escape_next) {
+                try builder.append(&[_]u8{c});
+                escape_next = false;
+                i += 1;
+                continue;
+            }
+
+            if (c == '\\' and in_string) {
+                escape_next = true;
+                try builder.append(&[_]u8{c});
+                i += 1;
+                continue;
+            }
+
+            if (!in_string and (c == '"' or c == '\'' or c == '`')) {
+                in_string = true;
+                string_char = c;
+                try builder.append(&[_]u8{c});
+                i += 1;
+                continue;
+            }
+
+            if (in_string and c == string_char) {
+                in_string = false;
+                try builder.append(&[_]u8{c});
+                i += 1;
+                continue;
+            }
+
+            if (in_string) {
+                try builder.append(&[_]u8{c});
+                i += 1;
+                continue;
+            }
+
+            // Track generic type parameters
+            if (c == '<') {
+                in_generic = true;
+                generic_depth += 1;
+                try builder.append(&[_]u8{c});
+                i += 1;
+                continue;
+            }
+
+            if (c == '>') {
+                if (generic_depth > 0) {
+                    generic_depth -= 1;
+                    if (generic_depth == 0) {
+                        in_generic = false;
+                    }
+                }
+                try builder.append(&[_]u8{c});
+                i += 1;
+                continue;
+            }
+
+            if (c == ':' and !in_generic) {
+                // TypeScript style: no space before colon, space after colon
+                try builder.append(":");
+                i += 1;
+                
+                // Ensure space after colon if next char isn't space
+                if (i < property.len and property[i] != ' ') {
+                    try builder.append(" ");
+                }
+                continue;
+            }
+
+            if (c == '=') {
+                // Ensure space around assignment
+                if (builder.buffer.items.len > 0 and 
+                    builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
+                    try builder.append(" ");
+                }
+                try builder.append("=");
+                i += 1;
+                
+                // Ensure space after equals
+                if (i < property.len and property[i] != ' ') {
+                    try builder.append(" ");
+                }
+                continue;
+            }
+
+            if (c == '|' or c == '&') {
+                // Ensure space around union and intersection types
+                if (builder.buffer.items.len > 0 and 
+                    builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
+                    try builder.append(" ");
+                }
+                try builder.append(&[_]u8{c});
+                i += 1;
+                
+                // Ensure space after operator
+                if (i < property.len and property[i] != ' ') {
+                    try builder.append(" ");
+                }
+                continue;
+            }
+
+            if (c == ' ') {
+                // Only add space if we haven't just added one
+                if (builder.buffer.items.len > 0 and
+                    builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
+                    try builder.append(" ");
+                }
+                i += 1;
+                continue;
+            }
+
+            try builder.append(&[_]u8{c});
+            i += 1;
+        }
+    }
+
+    /// Format generic parameters with proper spacing
+    /// Consolidates generic parameter handling from format_class and format_interface
+    pub fn formatGenericParameters(type_params: []const u8, builder: *LineBuilder) !void {
+        var i: usize = 0;
+        var in_string = false;
+        var string_char: u8 = 0;
+        var prev_was_space = false;
+        
+        while (i < type_params.len) {
+            const c = type_params[i];
+            
+            if (!in_string and (c == '"' or c == '\'' or c == '`')) {
+                in_string = true;
+                string_char = c;
+                try builder.append(&[_]u8{c});
+                prev_was_space = false;
+            } else if (in_string and c == string_char) {
+                in_string = false;
+                try builder.append(&[_]u8{c});
+                prev_was_space = false;
+            } else if (in_string) {
+                try builder.append(&[_]u8{c});
+                prev_was_space = false;
+            } else if (c == ',') {
+                try builder.append(",");
+                // Add space after comma
+                if (i + 1 < type_params.len and type_params[i + 1] != ' ') {
+                    try builder.append(" ");
+                }
+                prev_was_space = true;
+            } else if (c == ' ') {
+                if (!prev_was_space) {
+                    try builder.append(" ");
+                    prev_was_space = true;
+                }
+            } else {
+                try builder.append(&[_]u8{c});
+                prev_was_space = false;
+            }
+            
+            i += 1;
+        }
+    }
+
+    /// Format method signature with proper parameter handling
+    /// Consolidates method signature formatting from format_function and format_class
+    pub fn formatMethodSignature(allocator: std.mem.Allocator, signature: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
+        // Find parameter section
+        if (std.mem.indexOf(u8, signature, "(")) |paren_start| {
+            if (std.mem.lastIndexOf(u8, signature, ")")) |paren_end| {
+                // Extract parts
+                const method_name_part = std.mem.trim(u8, signature[0..paren_start], " \t");
+                const params_part = signature[paren_start + 1..paren_end];
+                const return_part = if (paren_end + 1 < signature.len) std.mem.trim(u8, signature[paren_end + 1..], " \t") else "";
+                
+                // Format method name part with proper spacing
+                try formatWithTypeScriptSpacing(method_name_part, builder);
+                
+                // Format parameters
+                try formatParameterList(allocator, params_part, builder, options);
+                
+                // Format return type
+                if (return_part.len > 0) {
+                    if (!std.mem.startsWith(u8, return_part, ":")) {
+                        try builder.append(" ");
+                    }
+                    try formatWithTypeScriptSpacing(return_part, builder);
+                }
+                
+                return;
+            }
+        }
+        
+        // Fallback - basic formatting without parameter parsing
+        try formatWithTypeScriptSpacing(signature, builder);
+    }
+
+    /// Format parameter list with multiline/single line support
+    /// Consolidates parameter formatting from format_function and format_parameter
+    pub fn formatParameterList(allocator: std.mem.Allocator, params: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
+        try builder.append("(");
+        
+        if (params.len == 0) {
+            try builder.append(")");
+            return;
+        }
+        
+        // Use consolidated parameter splitting helper
+        const param_list = try splitByCommaPreservingStructure(allocator, params);
+        defer {
+            for (param_list) |param| {
+                allocator.free(param);
+            }
+            allocator.free(param_list);
+        }
+        
+        // Calculate current line length
+        var current_line_length: usize = 0;
+        if (builder.buffer.items.len > 0) {
+            if (std.mem.lastIndexOf(u8, builder.buffer.items, "\n")) |last_newline| {
+                current_line_length = builder.buffer.items.len - last_newline - 1;
+            } else {
+                current_line_length = builder.buffer.items.len;
+            }
+        }
+        
+        // Check if we need multiline formatting
+        var total_length: usize = current_line_length;
+        for (param_list) |param| {
+            total_length += param.len + 2; // +2 for ", "
+        }
+        total_length += 1; // +1 for closing parenthesis
+        
+        const use_multiline = total_length > options.line_width or 
+                              std.mem.indexOf(u8, params, "\n") != null;
+        
+        if (use_multiline) {
+            try builder.newline();
+            builder.indent();
+            
+            for (param_list, 0..) |param, i| {
+                try builder.appendIndent();
+                try formatPropertyWithSpacing(param, builder);
+                if (i < param_list.len - 1 or options.trailing_comma) {
+                    try builder.append(",");
+                }
+                try builder.newline();
+            }
+            
+            builder.dedent();
+            try builder.appendIndent();
+        } else {
+            for (param_list, 0..) |param, i| {
+                if (i > 0) {
+                    try builder.append(", ");
+                }
+                try formatPropertyWithSpacing(param, builder);
+            }
+        }
+        
+        try builder.append(")");
+    }
+
+    /// Classify TypeScript declaration type for consistent handling
+    /// Consolidates type checking from multiple format modules
+    pub const TypeScriptDeclarationType = enum {
+        function,
+        arrow_function,
+        class,
+        interface,
+        type_alias,
+        enum_type,
+        import_decl,
+        export_decl,
+        variable,
+        constant,
+        unknown,
+    };
+
+    pub fn classifyTypeScriptDeclaration(text: []const u8) TypeScriptDeclarationType {
+        const trimmed = std.mem.trim(u8, text, " \t\n\r");
+        
+        // Check for arrow functions first (most specific)
+        if (std.mem.indexOf(u8, trimmed, "=>") != null) {
+            return .arrow_function;
+        }
+        
+        // Check for imports/exports
+        if (std.mem.startsWith(u8, trimmed, "import ") or
+            std.mem.startsWith(u8, trimmed, "export ")) {
+            if (std.mem.indexOf(u8, trimmed, "import") != null) {
+                return .import_decl;
+            } else {
+                return .export_decl;
+            }
+        }
+        
+        // Check for function declarations
+        if (std.mem.startsWith(u8, trimmed, "function ") or 
+            std.mem.startsWith(u8, trimmed, "async function ") or
+            std.mem.startsWith(u8, trimmed, "export function ")) {
+            return .function;
+        }
+        
+        // Check for type declarations
+        if (std.mem.startsWith(u8, trimmed, "interface ") or
+            std.mem.startsWith(u8, trimmed, "export interface ")) {
+            return .interface;
+        }
+        
+        if (std.mem.startsWith(u8, trimmed, "type ") or
+            std.mem.startsWith(u8, trimmed, "export type ")) {
+            return .type_alias;
+        }
+        
+        if (std.mem.startsWith(u8, trimmed, "class ") or
+            std.mem.startsWith(u8, trimmed, "export class ") or
+            std.mem.startsWith(u8, trimmed, "abstract class ")) {
+            return .class;
+        }
+        
+        if (std.mem.startsWith(u8, trimmed, "enum ") or
+            std.mem.startsWith(u8, trimmed, "export enum ")) {
+            return .enum_type;
+        }
+        
+        // Check for variables and constants
+        if (std.mem.startsWith(u8, trimmed, "const ") or
+            std.mem.startsWith(u8, trimmed, "export const ")) {
+            return .constant;
+        }
+        
+        if (std.mem.startsWith(u8, trimmed, "let ") or
+            std.mem.startsWith(u8, trimmed, "var ") or
+            std.mem.startsWith(u8, trimmed, "export let ") or
+            std.mem.startsWith(u8, trimmed, "export var ")) {
+            return .variable;
+        }
+        
+        return .unknown;
+    }
+
+    /// Extract declaration name from any TypeScript declaration pattern
+    /// Consolidates name extraction from format modules
+    pub fn extractDeclarationName(text: []const u8) ?[]const u8 {
+        const trimmed = std.mem.trim(u8, text, " \t\n\r");
+        
+        // Handle various declaration patterns
+        var start_pos: usize = 0;
+        
+        if (std.mem.startsWith(u8, trimmed, "export ")) {
+            start_pos = 7; // length of "export "
+        }
+        
+        const remaining = trimmed[start_pos..];
+        
+        if (std.mem.startsWith(u8, remaining, "const ")) {
+            start_pos += 6; // length of "const "
+        } else if (std.mem.startsWith(u8, remaining, "let ")) {
+            start_pos += 4; // length of "let "
+        } else if (std.mem.startsWith(u8, remaining, "var ")) {
+            start_pos += 4; // length of "var "
+        } else if (std.mem.startsWith(u8, remaining, "function ")) {
+            start_pos += 9; // length of "function "
+        } else if (std.mem.startsWith(u8, remaining, "async function ")) {
+            start_pos += 15; // length of "async function "
+        } else if (std.mem.startsWith(u8, remaining, "class ")) {
+            start_pos += 6; // length of "class "
+        } else if (std.mem.startsWith(u8, remaining, "abstract class ")) {
+            start_pos += 15; // length of "abstract class "
+        } else if (std.mem.startsWith(u8, remaining, "interface ")) {
+            start_pos += 10; // length of "interface "
+        } else if (std.mem.startsWith(u8, remaining, "type ")) {
+            start_pos += 5; // length of "type "
+        } else if (std.mem.startsWith(u8, remaining, "enum ")) {
+            start_pos += 5; // length of "enum "
+        } else {
+            return null;
+        }
+        
+        // Find the end of the name (before "=", "(", ":", "<", or "{")
+        var end_pos: usize = trimmed.len;
+        const delimiters = [_][]const u8{ " =", "(", ":", "<", "{", " extends", " implements", " " };
+        
+        for (delimiters) |delimiter| {
+            if (std.mem.indexOfPos(u8, trimmed, start_pos, delimiter)) |pos| {
+                end_pos = @min(end_pos, pos);
+            }
+        }
+        
+        if (end_pos > start_pos) {
+            const name = std.mem.trim(u8, trimmed[start_pos..end_pos], " \t");
+            if (name.len > 0) {
+                return name;
+            }
+        }
+        
+        return null;
     }
 };

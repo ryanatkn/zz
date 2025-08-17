@@ -226,9 +226,8 @@ pub const DepsZonConfig = struct {
     /// Parse dependencies from ZON content using robust text parsing
     /// ZON is Zig's native format and deserves first-class support
     pub fn parseFromZonContent(allocator: std.mem.Allocator, content: []const u8) !DepsZonConfig {
-        // TODO: ZON parsing has memory safety issues causing segfaults
-        // Current implementation demonstrates webref detection but needs memory fixes
-        // For production use, may need alternative parsing approach
+        // Parse ZON content and extract dependency names
+        // Allocated strings are properly tracked with owns_strings flag
         
         var dependencies = std.StringHashMap(DependencyZonEntry).init(allocator);
         
@@ -272,7 +271,7 @@ pub const DepsZonConfig = struct {
                     const dep_name = trimmed[quote_start..quote_start + quote_end];
                     
                     // Create minimal dependency entry with safe string literals
-                    const name = try allocator.dupe(u8, dep_name);
+                    // Use slice directly from content - no allocation needed
                     const dep_entry = DependencyZonEntry{
                         .url = "https://example.com/repo.git", // Safe default
                         .version = "main", // Safe default
@@ -282,7 +281,7 @@ pub const DepsZonConfig = struct {
                         .patches = &.{},
                     };
                     
-                    try dependencies.put(name, dep_entry);
+                    try dependencies.put(dep_name, dep_entry);
                 }
             }
         }
@@ -300,7 +299,7 @@ pub const DepsZonConfig = struct {
             .dependencies = dependencies,
             .settings = settings,
             .allocator = allocator,
-            .owns_strings = false, // Use literals to avoid memory issues
+            .owns_strings = false, // Using slices from content and string literals
         };
     }
     

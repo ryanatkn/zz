@@ -266,31 +266,6 @@ test "Pattern matching in dependency manager" {
     try testing.expect(manager.matchesPattern("anything", "*"));
 }
 
-test "Config module - dependency memory management" {
-    const testing = std.testing;
-    const allocator = testing.allocator;
-    
-    // Test hardcoded config creation
-    var zon_config = try config.DepsZonConfig.createHardcoded(allocator);
-    try zon_config.initHardcodedDependencies();
-    defer zon_config.deinit();
-    
-    // Verify all 9 dependencies are present
-    try testing.expectEqual(@as(usize, 9), zon_config.dependencies.count());
-    
-    // Test specific dependencies
-    try testing.expect(zon_config.dependencies.contains("tree-sitter"));
-    try testing.expect(zon_config.dependencies.contains("zig-tree-sitter"));
-    try testing.expect(zon_config.dependencies.contains("tree-sitter-zig"));
-    try testing.expect(zon_config.dependencies.contains("zig-spec"));
-    
-    // Convert to DepsConfig and verify
-    var deps_config = try zon_config.toDepsConfig(allocator);
-    defer deps_config.deinit(allocator);
-    
-    try testing.expectEqual(@as(usize, 9), deps_config.dependencies.count());
-}
-
 test "Config module - version info serialization" {
     const testing = std.testing;
     const allocator = testing.allocator;

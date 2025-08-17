@@ -1,7 +1,7 @@
 const std = @import("std");
 const testing = std.testing;
-const Parser = @import("parser.zig").Parser;
-const ParseResult = @import("parser.zig").ParseResult;
+const Parser = @import("detailed/parser.zig").Parser;
+const ParseResult = @import("detailed/parser.zig").ParseResult;
 
 // Import grammar module directly
 const grammar_mod = @import("../grammar/mod.zig");

@@ -44,6 +44,21 @@ pub const Grammar = struct {
         self.rules.deinit();
     }
     
+    /// Create a simple default grammar for testing
+    pub fn default() Grammar {
+        var grammar = Grammar{
+            .allocator = std.heap.page_allocator,  // Use page allocator for default
+            .rules = std.StringHashMap(rule.Rule).init(std.heap.page_allocator),
+            .start_rule = "document",
+        };
+        
+        // Add a simple terminal rule for basic parsing
+        const terminal_rule = rule.Rule{ .terminal = .{ .literal = "" } };
+        grammar.rules.put("document", terminal_rule) catch {};
+        
+        return grammar;
+    }
+    
     /// Get a rule by name
     pub fn getRule(self: Grammar, name: []const u8) ?rule.Rule {
         return self.rules.get(name);

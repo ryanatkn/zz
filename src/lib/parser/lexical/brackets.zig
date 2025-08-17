@@ -49,10 +49,14 @@ pub const BracketTracker = struct {
     
     /// Enter a new bracket (opening bracket)
     pub fn enterBracket(self: *BracketTracker, position: usize, bracket_type: DelimiterType, depth: u16) !void {
+        _ = depth; // Use stack size for actual depth tracking
+        
+        const actual_depth: u16 = @intCast(self.bracket_stack.items.len + 1);
+        
         const info = BracketInfo{
             .position = position,
             .bracket_type = bracket_type,
-            .depth = depth,
+            .depth = actual_depth,
             .is_open = true,
             .pair_position = null,
         };
@@ -60,8 +64,8 @@ pub const BracketTracker = struct {
         try self.bracket_stack.append(info);
         try self.info_map.put(position, info);
         
-        if (depth > self.max_depth) {
-            self.max_depth = depth;
+        if (actual_depth > self.max_depth) {
+            self.max_depth = actual_depth;
         }
         
         self.stats.brackets_opened += 1;

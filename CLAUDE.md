@@ -29,7 +29,7 @@ $ zig version
 0.14.1
 ```
 
-**Migration Note:** Currently using vendored tree-sitter in `deps/`, transitioning to Pure Zig. See roadmap for details.
+**Architecture:** Pure Zig Stratified Parser - tree-sitter removal complete. Three-layer system (Lexical, Structural, Detailed) with fact-based intermediate representation.
 
 ## Project Structure
 
@@ -39,9 +39,12 @@ src/
 ├── config/              # Configuration system (ZON-based)
 ├── lib/                 # Reusable library modules (the heart of zz)
 │   ├── grammar/         # Grammar definition DSL (NEW)
-│   ├── parser/          # Parser generation & engine (NEW)
-│   ├── ast/             # Unified AST infrastructure (NEW)
-│   ├── transform/       # AST transformations (NEW)
+│   ├── parser/          # Pure Zig Stratified Parser (Complete)
+│   │   ├── foundation/  # Foundation types (Span, Fact, Token, Predicate)
+│   │   ├── lexical/     # Layer 0: Streaming tokenizer (<0.1ms)
+│   │   ├── structural/  # Layer 1: Boundary detection (<1ms)
+│   │   └── detailed/    # Layer 2: Detailed parsing (<10ms)
+│   ├── ast/             # Unified AST infrastructure
 │   ├── analysis/        # Semantic analysis & linting
 │   ├── formatting/      # Format model & engine (NEW)
 │   ├── languages/       # Language-specific implementations
@@ -54,7 +57,7 @@ src/
 │   ├── core/            # Core utilities (io, path, collections)
 │   ├── deps/            # Dependency management system
 │   ├── filesystem/      # Filesystem abstraction layer
-│   ├── parsing/         # Legacy parser infrastructure (removing)
+│   ├── parsing/         # Legacy parser infrastructure (maintained for compatibility)
 │   └── test/            # Test framework & fixtures
 ├── prompt/              # LLM prompt generation (uses lib/ast)
 ├── tree/                # Directory visualization
@@ -139,7 +142,7 @@ $ zig build benchmark               # Run performance benchmarks
 ## Key Features
 
 ### Language Support
-- **Full AST Support:** Zig, TypeScript, JavaScript, CSS, HTML, JSON, Svelte
+- **Full AST Support:** Zig, TypeScript, CSS, HTML, JSON, Svelte
 - **Real tree-sitter parsing** for semantic code understanding
 - **C-style modular formatters** (`format_*.zig` pattern)
 - See [docs/language-support.md](docs/language-support.md)

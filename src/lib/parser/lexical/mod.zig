@@ -86,8 +86,13 @@ pub const TokenDelta = struct {
     }
     
     pub fn deinit(self: *TokenDelta, allocator: std.mem.Allocator) void {
-        allocator.free(self.removed);
-        allocator.free(self.added);
+        // Only free if not pointing to static empty slices
+        if (self.removed.len > 0) {
+            allocator.free(self.removed);
+        }
+        if (self.added.len > 0) {
+            allocator.free(self.added);
+        }
     }
 };
 
@@ -182,15 +187,17 @@ pub const LexerConfig = struct {
 pub const Language = enum {
     zig,
     typescript,
-    javascript,
     json,
+    css,
+    html,
     generic,
     
     pub fn fromExtension(ext: []const u8) Language {
         if (std.mem.eql(u8, ext, ".zig")) return .zig;
         if (std.mem.eql(u8, ext, ".ts")) return .typescript;
-        if (std.mem.eql(u8, ext, ".js")) return .javascript;
         if (std.mem.eql(u8, ext, ".json")) return .json;
+        if (std.mem.eql(u8, ext, ".css")) return .css;
+        if (std.mem.eql(u8, ext, ".html") or std.mem.eql(u8, ext, ".htm")) return .html;
         return .generic;
     }
 };
@@ -335,8 +342,10 @@ test "language detection" {
     
     try testing.expectEqual(Language.zig, Language.fromExtension(".zig"));
     try testing.expectEqual(Language.typescript, Language.fromExtension(".ts"));
-    try testing.expectEqual(Language.javascript, Language.fromExtension(".js"));
     try testing.expectEqual(Language.json, Language.fromExtension(".json"));
+    try testing.expectEqual(Language.css, Language.fromExtension(".css"));
+    try testing.expectEqual(Language.html, Language.fromExtension(".html"));
+    try testing.expectEqual(Language.html, Language.fromExtension(".htm"));
     try testing.expectEqual(Language.generic, Language.fromExtension(".xyz"));
 }
 

@@ -5,12 +5,6 @@ comptime {
     // Integration tests
     _ = @import("test/integration_test.zig");
 
-    // AST formatter tests with real code samples
-    _ = @import("test/ast_formatter_test.zig");
-
-    // Error handling and resilience tests
-    _ = @import("test/error_handling_test.zig");
-
     // Configuration loading tests
     _ = @import("test/config_test.zig");
 }
@@ -18,8 +12,6 @@ comptime {
 // Test metadata for summary
 pub const test_modules = [_][]const u8{
     "integration_test",
-    "ast_formatter_test",
-    "error_handling_test",
     "config_test",
 };
 

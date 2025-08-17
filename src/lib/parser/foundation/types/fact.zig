@@ -395,7 +395,7 @@ test "Fact span operations" {
 test "Fact ordering" {
     const span1 = Span.init(10, 20);
     const span2 = Span.init(15, 25);
-    const predicate = @import("predicate.zig").Predicate{ .is_node = .declaration };
+    const predicate = @import("predicate.zig").Predicate{ .is_node = .rule };
     
     const fact1 = Fact.simple(1, span1, predicate, 0);
     const fact2 = Fact.simple(2, span2, predicate, 0);

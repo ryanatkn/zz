@@ -19,7 +19,7 @@ pub const LanguageMatchers = struct {
     pub fn isBoundaryStart(self: LanguageMatchers, token: Token) bool {
         return switch (self.language) {
             .zig => ZigMatcher.isBoundaryStart(token),
-            .typescript, .javascript => TypeScriptMatcher.isBoundaryStart(token),
+            .typescript => TypeScriptMatcher.isBoundaryStart(token),
             .json => JSONMatcher.isBoundaryStart(token),
             else => GenericMatcher.isBoundaryStart(token),
         };
@@ -29,7 +29,7 @@ pub const LanguageMatchers = struct {
     pub fn getBoundaryKind(self: LanguageMatchers, token: Token) ?BoundaryKind {
         return switch (self.language) {
             .zig => ZigMatcher.getBoundaryKind(token),
-            .typescript, .javascript => TypeScriptMatcher.getBoundaryKind(token),
+            .typescript => TypeScriptMatcher.getBoundaryKind(token),
             .json => JSONMatcher.getBoundaryKind(token),
             else => GenericMatcher.getBoundaryKind(token),
         };
@@ -44,7 +44,7 @@ pub const LanguageMatchers = struct {
     ) f32 {
         return switch (self.language) {
             .zig => ZigMatcher.getBoundaryConfidence(tokens, start_idx, kind),
-            .typescript, .javascript => TypeScriptMatcher.getBoundaryConfidence(tokens, start_idx, kind),
+            .typescript => TypeScriptMatcher.getBoundaryConfidence(tokens, start_idx, kind),
             .json => JSONMatcher.getBoundaryConfidence(tokens, start_idx, kind),
             else => GenericMatcher.getBoundaryConfidence(tokens, start_idx, kind),
         };
@@ -211,7 +211,7 @@ pub const ZigMatcher = struct {
     }
 };
 
-/// TypeScript/JavaScript pattern matcher
+/// TypeScript pattern matcher
 pub const TypeScriptMatcher = struct {
     /// Check if token indicates boundary start
     pub fn isBoundaryStart(token: Token) bool {

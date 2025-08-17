@@ -471,21 +471,23 @@ test "incremental updates" {
     var parser = try StructuralParser.init(testing.allocator, config);
     defer parser.deinit();
     
-    // Create token delta
-    const added_tokens = [_]Token{
-        Token.simple(Span.init(100, 102), .keyword, "fn", 0),
-        Token.simple(Span.init(103, 107), .identifier, "new", 0),
-    };
-    
+    // Create token delta with proper allocation
     var delta = TokenDelta.init(testing.allocator);
-    defer delta.deinit(testing.allocator);
     
-    delta.added = @constCast(&added_tokens);
+    // Create properly allocated tokens
+    const added_tokens = try testing.allocator.alloc(Token, 2);
+    added_tokens[0] = Token.simple(Span.init(100, 102), .keyword, "fn", 0);
+    added_tokens[1] = Token.simple(Span.init(103, 107), .identifier, "new", 0);
+    
+    delta.added = added_tokens;
     delta.affected_range = Span.init(100, 107);
     delta.generation = 1;
     
     var structural_delta = try parser.processTokenDelta(delta);
     defer structural_delta.deinit(testing.allocator);
+    
+    // Clean up delta properly
+    delta.deinit(testing.allocator);
     
     try testing.expectEqual(@as(Generation, 1), structural_delta.generation);
 }

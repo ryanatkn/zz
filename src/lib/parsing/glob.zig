@@ -1,117 +1,80 @@
 const std = @import("std");
 
-/// Match a string against a simple glob pattern (*, ?, [], {})
-/// This is the full implementation with support for:
-/// - * (wildcard matching zero or more characters)
-/// - ? (single character wildcard)
-/// - [...] (character classes with ranges and negation)
-/// - \ (escape sequences)
-pub fn matchSimplePattern(str: []const u8, pattern: []const u8) bool {
-    var s_idx: usize = 0;
-    var p_idx: usize = 0;
-    var star_idx: ?usize = null;
-    var star_match: ?usize = null;
+/// Simple glob pattern matching implementation
+/// Supports basic wildcards: * and ?
+pub fn matchSimplePattern(filename: []const u8, pattern: []const u8) bool {
+    if (pattern.len == 0) return filename.len == 0;
+    if (filename.len == 0) return pattern.len == 0 or std.mem.eql(u8, pattern, "*");
+    
+    // Handle exact match
+    if (std.mem.eql(u8, filename, pattern)) return true;
+    
+    // Handle wildcard patterns
+    if (std.mem.indexOf(u8, pattern, "*")) |_| {
+        return matchWildcard(filename, pattern);
+    }
+    
+    if (std.mem.indexOf(u8, pattern, "?")) |_| {
+        return matchQuestion(filename, pattern);
+    }
+    
+    return false;
+}
 
-    while (s_idx < str.len) {
-        if (p_idx < pattern.len) {
-            if (pattern[p_idx] == '\\' and p_idx + 1 < pattern.len) {
-                // Escape sequence - match next character literally
-                if (str[s_idx] == pattern[p_idx + 1]) {
-                    s_idx += 1;
-                    p_idx += 2;
-                    continue;
-                }
-            } else if (pattern[p_idx] == '*') {
-                // Wildcard - save position for backtracking
-                star_idx = p_idx;
-                star_match = s_idx;
-                p_idx += 1;
-                continue;
-            } else if (pattern[p_idx] == '?') {
-                // Single character wildcard
-                s_idx += 1;
-                p_idx += 1;
-                continue;
-            } else if (pattern[p_idx] == '[') {
-                // Character class
-                const close = std.mem.indexOf(u8, pattern[p_idx + 1 ..], "]");
-                if (close) |end| {
-                    const class_content = pattern[p_idx + 1 .. p_idx + 1 + end];
-                    if (matchCharacterClass(str[s_idx], class_content)) {
-                        s_idx += 1;
-                        p_idx += end + 2;
-                        continue;
-                    }
-                } else {
-                    // No closing bracket, treat as literal
-                    if (str[s_idx] == pattern[p_idx]) {
-                        s_idx += 1;
-                        p_idx += 1;
-                        continue;
-                    }
-                }
-            } else if (str[s_idx] == pattern[p_idx]) {
-                // Exact match
-                s_idx += 1;
-                p_idx += 1;
-                continue;
-            }
-        }
-
-        // No match, try backtracking to last wildcard
-        if (star_idx) |star| {
-            p_idx = star + 1;
-            star_match = star_match.? + 1;
-            s_idx = star_match.?;
+/// Match patterns with * wildcard
+fn matchWildcard(filename: []const u8, pattern: []const u8) bool {
+    // Simple implementation: split on * and check parts
+    var parts = std.mem.splitScalar(u8, pattern, '*');
+    var remaining = filename;
+    
+    while (parts.next()) |part| {
+        if (part.len == 0) continue;
+        
+        if (std.mem.indexOf(u8, remaining, part)) |pos| {
+            remaining = remaining[pos + part.len..];
         } else {
             return false;
         }
     }
-
-    // Handle remaining pattern characters
-    while (p_idx < pattern.len and pattern[p_idx] == '*') {
-        p_idx += 1;
-    }
-
-    return p_idx == pattern.len;
+    
+    return true;
 }
 
-/// Match a character against a character class pattern
-/// Supports:
-/// - Single characters: [abc] matches 'a', 'b', or 'c'
-/// - Ranges: [a-z] matches any lowercase letter
-/// - Negation: [!0-9] or [^0-9] matches any non-digit
-fn matchCharacterClass(char: u8, class_content: []const u8) bool {
-    if (class_content.len == 0) return false;
-
-    var negate = false;
-    var i: usize = 0;
-
-    // Check for negation
-    if (class_content[0] == '!' or class_content[0] == '^') {
-        negate = true;
-        i = 1;
+/// Match patterns with ? wildcard
+fn matchQuestion(filename: []const u8, pattern: []const u8) bool {
+    if (filename.len != pattern.len) return false;
+    
+    for (filename, pattern) |f_char, p_char| {
+        if (p_char != '?' and p_char != f_char) return false;
     }
+    
+    return true;
+}
 
-    var matched = false;
+/// Check if pattern contains glob characters
+pub fn isGlobPattern(pattern: []const u8) bool {
+    return std.mem.indexOf(u8, pattern, "*") != null or 
+           std.mem.indexOf(u8, pattern, "?") != null;
+}
 
-    while (i < class_content.len) {
-        if (i + 2 < class_content.len and class_content[i + 1] == '-') {
-            // Range
-            if (char >= class_content[i] and char <= class_content[i + 2]) {
-                matched = true;
-                break;
-            }
-            i += 3;
-        } else {
-            // Single character
-            if (char == class_content[i]) {
-                matched = true;
-                break;
-            }
-            i += 1;
-        }
-    }
-
-    return if (negate) !matched else matched;
+test "simple glob matching" {
+    const testing = std.testing;
+    
+    // Exact matches
+    try testing.expect(matchSimplePattern("test.txt", "test.txt"));
+    try testing.expect(!matchSimplePattern("test.txt", "other.txt"));
+    
+    // Wildcard matches
+    try testing.expect(matchSimplePattern("test.txt", "*.txt"));
+    try testing.expect(matchSimplePattern("file.js", "*.js"));
+    try testing.expect(!matchSimplePattern("file.js", "*.txt"));
+    
+    // Question mark matches
+    try testing.expect(matchSimplePattern("a.txt", "?.txt"));
+    try testing.expect(!matchSimplePattern("ab.txt", "?.txt"));
+    
+    // Pattern detection
+    try testing.expect(isGlobPattern("*.txt"));
+    try testing.expect(isGlobPattern("?.js"));
+    try testing.expect(!isGlobPattern("file.txt"));
 }

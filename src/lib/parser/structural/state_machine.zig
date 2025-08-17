@@ -194,9 +194,6 @@ pub const StateMachine = struct {
     
     /// Process a token and return state transition
     pub fn processToken(self: *StateMachine, token: Token) StateTransition {
-        const token_idx = @intFromEnum(token.kind);
-        const state_idx = @intFromEnum(self.context.current_state);
-        
         // Update bracket depth and trivia status
         self.updateContextFromToken(token);
         
@@ -210,7 +207,17 @@ pub const StateMachine = struct {
             return StateTransition.success(.error_recovery);
         }
         
-        // Look up transition in table
+        // Check for keyword-specific transitions first (token text matters)
+        if (token.kind == .keyword) {
+            if (self.processKeywordToken(token)) |transition| {
+                self.applyTransition(transition);
+                return transition;
+            }
+        }
+        
+        // Look up transition in table for non-keywords
+        const state_idx = @intFromEnum(self.context.current_state);
+        const token_idx = @intFromEnum(token.kind);
         if (self.transition_table[state_idx][token_idx]) |transition| {
             self.applyTransition(transition);
             return transition;
@@ -250,11 +257,48 @@ pub const StateMachine = struct {
     // Private Implementation
     // ========================================================================
     
+    /// Process keyword token with text-based matching
+    fn processKeywordToken(self: *StateMachine, token: Token) ?StateTransition {
+        switch (self.context.language) {
+            .zig => return self.processZigKeyword(token),
+            .typescript => return self.processTypeScriptKeyword(token),
+            else => return null,
+        }
+    }
+    
+    /// Process Zig-specific keywords
+    fn processZigKeyword(self: *StateMachine, token: Token) ?StateTransition {
+        if (self.context.current_state != .top_level) return null;
+        
+        if (std.mem.eql(u8, token.text, "fn")) {
+            return StateTransition.boundary(.function_signature, 0.95);
+        } else if (std.mem.eql(u8, token.text, "struct")) {
+            return StateTransition.boundary(.struct_signature, 0.95);
+        } else if (std.mem.eql(u8, token.text, "enum")) {
+            return StateTransition.boundary(.enum_signature, 0.95);
+        }
+        
+        return null;
+    }
+    
+    /// Process TypeScript-specific keywords
+    fn processTypeScriptKeyword(self: *StateMachine, token: Token) ?StateTransition {
+        if (self.context.current_state != .top_level) return null;
+        
+        if (std.mem.eql(u8, token.text, "function")) {
+            return StateTransition.boundary(.function_signature, 0.9);
+        } else if (std.mem.eql(u8, token.text, "class")) {
+            return StateTransition.boundary(.class_signature, 0.9);
+        }
+        
+        return null;
+    }
+    
     /// Build transition table for fast state lookups
     fn buildTransitionTable(self: *StateMachine) void {
         switch (self.context.language) {
             .zig => self.buildZigTransitions(),
-            .typescript, .javascript => self.buildTSTransitions(),
+            .typescript => self.buildTSTransitions(),
             .json => self.buildJSONTransitions(),
             else => self.buildGenericTransitions(),
         }
@@ -262,19 +306,11 @@ pub const StateMachine = struct {
     
     /// Build Zig-specific transition table
     fn buildZigTransitions(self: *StateMachine) void {
-        const fn_idx = @intFromEnum(TokenKind.keyword); // "fn" keyword
-        const struct_idx = @intFromEnum(TokenKind.keyword); // "struct" keyword
-        const enum_idx = @intFromEnum(TokenKind.keyword); // "enum" keyword
+        // Keywords are now handled by processKeywordToken
         const open_brace_idx = @intFromEnum(TokenKind.delimiter); // "{"
         const close_brace_idx = @intFromEnum(TokenKind.delimiter); // "}"
         _ = @intFromEnum(TokenKind.delimiter); // open_paren_idx - unused for now
         _ = @intFromEnum(TokenKind.delimiter); // close_paren_idx - unused for now
-        
-        // Top level transitions
-        const top_level_idx = @intFromEnum(ParseState.top_level);
-        self.transition_table[top_level_idx][fn_idx] = StateTransition.boundary(.function_signature, 0.95);
-        self.transition_table[top_level_idx][struct_idx] = StateTransition.boundary(.struct_signature, 0.95);
-        self.transition_table[top_level_idx][enum_idx] = StateTransition.boundary(.enum_signature, 0.95);
         
         // Function signature -> body
         const fn_sig_idx = @intFromEnum(ParseState.function_signature);
@@ -298,17 +334,11 @@ pub const StateMachine = struct {
         self.transition_table[block_idx][close_brace_idx] = StateTransition.success(.function_body);
     }
     
-    /// Build TypeScript/JavaScript transition table
+    /// Build TypeScript transition table
     fn buildTSTransitions(self: *StateMachine) void {
-        // Similar structure to Zig but with different keywords
-        const function_idx = @intFromEnum(TokenKind.keyword); // "function"
-        const class_idx = @intFromEnum(TokenKind.keyword); // "class"
-        _ = @intFromEnum(TokenKind.delimiter); // open_brace_idx - unused for now
-        _ = @intFromEnum(TokenKind.delimiter); // close_brace_idx - unused for now
-        
-        const top_level_idx = @intFromEnum(ParseState.top_level);
-        self.transition_table[top_level_idx][function_idx] = StateTransition.boundary(.function_signature, 0.9);
-        self.transition_table[top_level_idx][class_idx] = StateTransition.boundary(.class_signature, 0.9);
+        _ = self;
+        // Keywords are now handled by processKeywordToken
+        // Non-keyword transitions for TypeScript would go here
     }
     
     /// Build JSON transition table (simpler)
@@ -385,12 +415,36 @@ pub const StateMachine = struct {
     
     /// Check if token is unexpected in current state
     fn isUnexpectedToken(self: StateMachine, token: Token) bool {
-        // Very basic error detection
-        _ = self;
-        return switch (token.kind) {
-            .eof => false, // EOF is always valid
-            else => false, // For now, be permissive
-        };
+        // Check for mismatched brackets
+        if (token.kind == .delimiter) {
+            // Check if closing bracket without matching open
+            if (token.text.len == 1) {
+                const ch = token.text[0];
+                switch (ch) {
+                    ')', ']', '}' => {
+                        // Closing bracket - check if we have matching open
+                        // For now, just check bracket depth
+                        if (self.context.bracket_depth == 0) {
+                            return true; // Unexpected closing bracket
+                        }
+                    },
+                    else => {},
+                }
+            }
+        }
+        
+        // Check for specific state violations
+        switch (self.context.current_state) {
+            .function_signature => {
+                // After opening paren, expect params or closing paren
+                if (self.context.bracket_depth > 0 and token.kind == .delimiter and token.text[0] == '{') {
+                    return true; // Opening brace without closing paren
+                }
+            },
+            else => {},
+        }
+        
+        return false;
     }
 };
 

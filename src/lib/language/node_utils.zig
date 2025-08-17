@@ -1,10 +1,15 @@
 const std = @import("std");
-const ts = @import("tree-sitter");
+// TODO: Convert to use Pure Zig AST instead of tree-sitter
+// const ts = @import("tree-sitter");
 const LineBuilder = @import("../parsing/formatter.zig").LineBuilder;
 
 /// Tree-sitter node utilities - truly generic AST helpers that work across all languages
+/// TODO: Convert to use Pure Zig AST instead of tree-sitter
 pub const NodeUtils = struct {
+    // Temporarily disabled while transitioning to Pure Zig parser
+    // All functions below will be converted to work with our AST.Node type
     
+    /*
     /// Extract text from tree-sitter node
     pub fn getNodeText(node: ts.Node, source: []const u8) []const u8 {
         const start = node.startByte();
@@ -158,4 +163,5 @@ pub const NodeUtils = struct {
             }
         }
     }
+    */
 };

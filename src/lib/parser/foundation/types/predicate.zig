@@ -83,6 +83,109 @@ pub const Predicate = union(enum) {
     in_scope: ScopeId,
     
     // =====================================================
+    // Additional semantic predicates
+    // =====================================================
+    
+    /// Span represents a function declaration
+    is_function,
+    
+    /// Span represents a struct declaration  
+    is_struct,
+    
+    /// Span represents a variable declaration
+    is_variable,
+    
+    /// Span represents a constant declaration
+    is_constant,
+    
+    /// Span represents an import statement
+    is_import,
+    
+    /// Span represents a type definition
+    is_type,
+    
+    /// Span represents an enum declaration
+    is_enum,
+    
+    /// Span represents a field declaration
+    is_field,
+    
+    /// Span represents a parameter
+    is_parameter,
+    
+    /// Span represents a function call
+    is_function_call,
+    
+    /// Span represents an identifier
+    is_identifier,
+    
+    /// Span represents a literal value
+    is_literal,
+    
+    /// Span represents a block/scope
+    is_block,
+    
+    /// Span represents an assignment
+    is_assignment,
+    
+    /// Span represents a binary expression
+    is_binary_expression,
+    
+    /// Span represents a unary expression
+    is_unary_expression,
+    
+    /// Span represents an if statement
+    is_if_statement,
+    
+    /// Span represents a while loop
+    is_while_loop,
+    
+    /// Span represents a for loop
+    is_for_loop,
+    
+    /// Span represents a return statement
+    is_return_statement,
+    
+    /// Span represents a comment
+    is_comment,
+    
+    /// Span is public/exported
+    is_public,
+    
+    /// Span is mutable
+    is_mutable,
+    
+    /// Span is documentation
+    is_documentation,
+    
+    /// Span has return type
+    has_return_type,
+    
+    /// Span has complexity measure
+    has_complexity,
+    
+    /// Span has field count
+    has_field_count,
+    
+    /// Span has variant count
+    has_variant_count,
+    
+    /// Span has alias
+    has_alias,
+    
+    /// Span has argument count
+    has_argument_count,
+    
+    /// Span has literal type
+    has_literal_type,
+    
+    /// Span has else clause
+    has_else_clause,
+    
+    /// Span has return value
+    has_return_value,
+    
+    // =====================================================
     // Editor Facts - From Editor Integration
     // =====================================================
     
@@ -157,6 +260,41 @@ pub const Predicate = union(enum) {
             .confidence => |conf| try writer.print("confidence({d:.2})", .{conf}),
             .from_layer => |layer| try writer.print("from_layer({s})", .{@tagName(layer)}),
             .is_speculative => try writer.writeAll("is_speculative"),
+            
+            // Additional semantic predicates
+            .is_function => try writer.writeAll("is_function"),
+            .is_struct => try writer.writeAll("is_struct"),
+            .is_variable => try writer.writeAll("is_variable"),
+            .is_constant => try writer.writeAll("is_constant"),
+            .is_import => try writer.writeAll("is_import"),
+            .is_type => try writer.writeAll("is_type"),
+            .is_enum => try writer.writeAll("is_enum"),
+            .is_field => try writer.writeAll("is_field"),
+            .is_parameter => try writer.writeAll("is_parameter"),
+            .is_function_call => try writer.writeAll("is_function_call"),
+            .is_identifier => try writer.writeAll("is_identifier"),
+            .is_literal => try writer.writeAll("is_literal"),
+            .is_block => try writer.writeAll("is_block"),
+            .is_assignment => try writer.writeAll("is_assignment"),
+            .is_binary_expression => try writer.writeAll("is_binary_expression"),
+            .is_unary_expression => try writer.writeAll("is_unary_expression"),
+            .is_if_statement => try writer.writeAll("is_if_statement"),
+            .is_while_loop => try writer.writeAll("is_while_loop"),
+            .is_for_loop => try writer.writeAll("is_for_loop"),
+            .is_return_statement => try writer.writeAll("is_return_statement"),
+            .is_comment => try writer.writeAll("is_comment"),
+            .is_public => try writer.writeAll("is_public"),
+            .is_mutable => try writer.writeAll("is_mutable"),
+            .is_documentation => try writer.writeAll("is_documentation"),
+            .has_return_type => try writer.writeAll("has_return_type"),
+            .has_complexity => try writer.writeAll("has_complexity"),
+            .has_field_count => try writer.writeAll("has_field_count"),
+            .has_variant_count => try writer.writeAll("has_variant_count"),
+            .has_alias => try writer.writeAll("has_alias"),
+            .has_argument_count => try writer.writeAll("has_argument_count"),
+            .has_literal_type => try writer.writeAll("has_literal_type"),
+            .has_else_clause => try writer.writeAll("has_else_clause"),
+            .has_return_value => try writer.writeAll("has_return_value"),
         }
     }
     
@@ -166,7 +304,14 @@ pub const Predicate = union(enum) {
             .is_token, .has_text, .bracket_depth, .is_open_delimiter, .is_close_delimiter, .is_trivia => .lexical,
             .is_boundary, .is_error_region, .is_foldable, .indent_level => .structural,
             .is_node, .has_child, .has_parent, .precedes, .follows, .has_field => .syntactic,
-            .binds_symbol, .references_symbol, .has_type, .has_value, .in_scope => .semantic,
+            .binds_symbol, .references_symbol, .has_type, .has_value, .in_scope,
+            .is_function, .is_struct, .is_variable, .is_constant, .is_import, .is_type, .is_enum,
+            .is_field, .is_parameter, .is_function_call, .is_identifier, .is_literal, .is_block,
+            .is_assignment, .is_binary_expression, .is_unary_expression, .is_if_statement,
+            .is_while_loop, .is_for_loop, .is_return_statement, .is_comment, .is_public,
+            .is_mutable, .is_documentation, .has_return_type, .has_complexity, .has_field_count,
+            .has_variant_count, .has_alias, .has_argument_count, .has_literal_type,
+            .has_else_clause, .has_return_value => .semantic,
             .highlight_color, .has_diagnostic, .is_selected, .is_visible, .is_dirty => .editor,
             .derived_from, .confidence, .from_layer, .is_speculative => .meta,
         };
@@ -286,7 +431,9 @@ pub const BoundaryKind = enum {
     function,
     class,
     struct_,
+    struct_definition,
     enum_,
+    enum_definition,
     block,
     module,
     namespace,
@@ -294,14 +441,11 @@ pub const BoundaryKind = enum {
 
 /// Node kinds for syntactic facts
 pub const NodeKind = enum {
-    declaration,
-    statement,
-    expression,
-    type_annotation,
-    parameter,
-    argument,
-    field,
-    method,
+    terminal,
+    rule,
+    list,
+    optional,
+    error_recovery,
 };
 
 /// Highlight kinds for editor facts
@@ -379,7 +523,7 @@ test "Predicate creation and formatting" {
 test "Predicate categories" {
     const lexical_pred = Predicate{ .is_token = .identifier };
     const structural_pred = Predicate{ .is_boundary = .function };
-    const syntactic_pred = Predicate{ .is_node = .declaration };
+    const syntactic_pred = Predicate{ .is_node = .rule };
     const semantic_pred = Predicate{ .binds_symbol = 123 };
     const editor_pred = Predicate{ .highlight_color = .keyword };
     const meta_pred = Predicate{ .confidence = 0.95 };

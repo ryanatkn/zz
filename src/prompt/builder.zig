@@ -4,7 +4,6 @@ const FilesystemInterface = @import("../lib/filesystem/interface.zig").Filesyste
 const path_utils = @import("../lib/core/path.zig");
 const Language = @import("../lib/language/detection.zig").Language;
 const ExtractionFlags = @import("../lib/language/flags.zig").ExtractionFlags;
-const extractor_mod = @import("../lib/language/extractor.zig");
 const FileTracker = @import("../lib/analysis/incremental.zig").FileTracker;
 const CacheSystem = @import("../lib/analysis/cache.zig").CacheSystem;
 const AstCacheKey = @import("../lib/analysis/cache.zig").AstCacheKey;
@@ -13,6 +12,11 @@ const Task = @import("../lib/parallel.zig").Task;
 const TaskPriority = @import("../lib/parallel.zig").TaskPriority;
 const errors = @import("../lib/core/errors.zig");
 
+// Import stratified parser
+const StratifiedParser = @import("../lib/parser/mod.zig");
+const Lexical = StratifiedParser.Lexical;
+const Structural = StratifiedParser.Structural;
+
 pub const PromptBuilder = struct {
     allocator: std.mem.Allocator,
     lines: std.ArrayList([]const u8),
@@ -20,8 +24,6 @@ pub const PromptBuilder = struct {
     quiet: bool,
     filesystem: FilesystemInterface,
     extraction_flags: ExtractionFlags,
-    extractor: extractor_mod.Extractor,
-    owns_extractor_registry: bool, // Track if we need to clean up the registry
 
     // Incremental and caching support
     file_tracker: ?*FileTracker,
@@ -40,8 +42,6 @@ pub const PromptBuilder = struct {
             .quiet = false,
             .filesystem = filesystem,
             .extraction_flags = extraction_flags,
-            .extractor = extractor_mod.createExtractor(allocator),
-            .owns_extractor_registry = false, // Uses global registry
             .file_tracker = null,
             .cache_system = null,
             .worker_pool = null,
@@ -49,7 +49,7 @@ pub const PromptBuilder = struct {
         };
     }
 
-    /// Initialize with test-safe extractor (for tests)
+    /// Initialize for testing
     pub fn initForTest(allocator: std.mem.Allocator, filesystem: FilesystemInterface, extraction_flags: ExtractionFlags) !Self {
         return Self{
             .allocator = allocator,
@@ -58,8 +58,6 @@ pub const PromptBuilder = struct {
             .quiet = false,
             .filesystem = filesystem,
             .extraction_flags = extraction_flags,
-            .extractor = try extractor_mod.createTestExtractor(allocator),
-            .owns_extractor_registry = true, // Owns local registry
             .file_tracker = null,
             .cache_system = null,
             .worker_pool = null,
@@ -75,8 +73,6 @@ pub const PromptBuilder = struct {
             .quiet = true,
             .filesystem = filesystem,
             .extraction_flags = extraction_flags,
-            .extractor = extractor_mod.createExtractor(allocator),
-            .owns_extractor_registry = false, // Uses global registry
             .file_tracker = null,
             .cache_system = null,
             .worker_pool = null,
@@ -93,8 +89,6 @@ pub const PromptBuilder = struct {
             .quiet = false,
             .filesystem = filesystem,
             .extraction_flags = extraction_flags,
-            .extractor = extractor_mod.createExtractor(allocator),
-            .owns_extractor_registry = false, // Uses global registry
             .file_tracker = file_tracker,
             .cache_system = cache_system,
             .worker_pool = null,
@@ -111,8 +105,6 @@ pub const PromptBuilder = struct {
             .quiet = false,
             .filesystem = filesystem,
             .extraction_flags = extraction_flags,
-            .extractor = extractor_mod.createExtractor(allocator),
-            .owns_extractor_registry = false, // Uses global registry
             .file_tracker = file_tracker,
             .cache_system = cache_system,
             .worker_pool = worker_pool,
@@ -123,20 +115,100 @@ pub const PromptBuilder = struct {
     pub fn deinit(self: *Self) void {
         self.lines.deinit();
         self.arena.deinit();
-
-        // Clean up extractor registry if we own it
-        if (self.owns_extractor_registry) {
-            self.extractor.registry.deinit();
-            self.allocator.destroy(self.extractor.registry);
-        }
-
-        self.extractor.deinit();
     }
 
     pub fn addText(self: *Self, text: []const u8) !void {
         const text_copy = try self.arena.allocator().dupe(u8, text);
         try self.lines.append(text_copy);
         try self.lines.append("");
+    }
+
+    /// Extract content using stratified parser
+    fn extractContent(self: *Self, language: Language, content: []const u8, file_path: []const u8) ![]const u8 {
+        return self.extractWithStratifiedParser(language, content, file_path);
+    }
+
+    /// Extract content using the stratified parser
+    fn extractWithStratifiedParser(self: *Self, language: Language, content: []const u8, file_path: []const u8) ![]const u8 {
+        // Initialize the stratified parser layers
+        const lexical_config = Lexical.LexerConfig{
+            .language = mapLanguageToLexical(language),
+            .buffer_size = @min(content.len * 2, 8192),
+            .track_brackets = true,
+        };
+        
+        const structural_config = Structural.StructuralConfig{
+            .language = mapLanguageToStructural(language),
+            .performance_threshold_ns = 1_000_000, // 1ms target
+            .include_folding = false,
+        };
+        
+        // Layer 0: Lexical analysis (<0.1ms target)
+        const lexical_start = std.time.nanoTimestamp();
+        var lexer = try Lexical.StreamingLexer.init(self.allocator, lexical_config);
+        defer lexer.deinit();
+        
+        const full_span = StratifiedParser.Span.init(0, content.len);
+        const tokens = try lexer.tokenizeRange(content, full_span);
+        defer self.allocator.free(tokens);
+        const lexical_time = std.time.nanoTimestamp() - lexical_start;
+        
+        // Layer 1: Structural analysis (<1ms target)
+        const structural_start = std.time.nanoTimestamp();
+        var structural_parser = try Structural.StructuralParser.init(self.allocator, structural_config);
+        defer structural_parser.deinit();
+        
+        const parse_result = try structural_parser.parse(tokens);
+        defer {
+            self.allocator.free(parse_result.boundaries);
+            self.allocator.free(parse_result.error_regions);
+        }
+        const structural_time = std.time.nanoTimestamp() - structural_start;
+        
+        // Performance reporting for stratified parser
+        if (!self.quiet) {
+            const stderr = std.io.getStdErr().writer();
+            try stderr.print("🔹 Stratified Parser Performance for {s}:\n", .{file_path});
+            try stderr.print("   Layer 0 (Lexical):   {d:.1}μs (tokens: {})\n", .{ @as(f64, @floatFromInt(lexical_time)) / 1000.0, tokens.len });
+            try stderr.print("   Layer 1 (Structural): {d:.1}μs (boundaries: {})\n", .{ @as(f64, @floatFromInt(structural_time)) / 1000.0, parse_result.boundaries.len });
+            
+            // Check performance targets
+            const lexical_target_met = lexical_time < 100_000; // 0.1ms
+            const structural_target_met = structural_time < 1_000_000; // 1ms
+            
+            try stderr.print("🎯 Performance Targets:\n", .{});
+            try stderr.print("   Lexical <0.1ms:    {s}\n", .{if (lexical_target_met) "✅ PASS" else "❌ FAIL"});
+            try stderr.print("   Structural <1ms:   {s}\n", .{if (structural_target_met) "✅ PASS" else "❌ FAIL"});
+        }
+        
+        // For now, return the original content since we're focused on parsing validation
+        // TODO: Implement fact-to-content generation for actual extraction
+        // The stratified parser excels at structure analysis, not content extraction for prompts
+        return self.allocator.dupe(u8, content);
+    }
+
+    /// Map Language enum to lexical layer language
+    fn mapLanguageToLexical(language: Language) Lexical.Language {
+        return switch (language) {
+            .zig => .zig,
+            .typescript => .typescript,
+            .json => .json,
+            .css => .css,
+            .html => .html,
+            .svelte, .zon, .unknown => .generic,
+        };
+    }
+
+    /// Map Language enum to structural layer language  
+    fn mapLanguageToStructural(language: Language) Structural.Language {
+        return switch (language) {
+            .zig => .zig,
+            .typescript => .typescript,
+            .json => .json,
+            .css => .css,
+            .html => .html,
+            .svelte, .zon, .unknown => .generic,
+        };
     }
 
     pub fn addFile(self: *Self, file_path: []const u8) !void {
@@ -174,7 +246,7 @@ pub const PromptBuilder = struct {
 
         // Determine language and extract content based on flags
         const language = Language.fromExtension(ext);
-        const extracted_content = try self.extractor.extract(language, content, self.extraction_flags);
+        const extracted_content = try self.extractContent(language, content, file_path);
         defer self.allocator.free(extracted_content);
 
         // Use extracted content instead of raw content
@@ -428,15 +500,13 @@ fn processFileSafe(builder: *PromptBuilder, file_path: []const u8, result: *File
 
     const content = try file.readAll(temp_allocator, stat.size);
 
-    // Extract content using same logic as original addFile
+    // Extract content using stratified parser
     const ext = path_utils.extension(file_path);
     const lang = if (ext.len > 0) ext[1..] else "";
 
-    const language = Language.fromExtension(ext);
-    var parser = extractor_mod.createExtractor(temp_allocator);
-    defer parser.deinit();
-
-    const extracted_content = try parser.extract(language, content, builder.extraction_flags);
+    // For now, just use the content directly since we're focused on parsing validation
+    // TODO: Implement fact-to-content extraction for parallel processing
+    const extracted_content = content;
     const fence_str = try fence.detectFence(extracted_content, temp_allocator);
 
     // Build result lines

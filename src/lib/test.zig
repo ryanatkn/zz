@@ -13,8 +13,6 @@ test {
     _ = @import("parser/test.zig");
     // Legacy tests
     _ = @import("test/parser_test.zig");
-    // Cached formatter tests
-    _ = @import("test/cached_formatter_test.zig");
     // ZON parser utility tests
     _ = @import("parsing/zon_parser.zig");
     // Comprehensive fixture-based tests

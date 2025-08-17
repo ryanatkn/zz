@@ -85,16 +85,11 @@ test "explicit ignore returns correct error code" {
 
     // For this test, we test the gitignore mechanism directly
     const GitignorePatterns = @import("../../lib/parsing/gitignore.zig").GitignorePatterns;
-    const gitignore_patterns = try GitignorePatterns.loadFromDir(allocator, tmp_dir.dir, ".gitignore");
-    defer {
-        for (gitignore_patterns) |pattern| {
-            allocator.free(pattern);
-        }
-        allocator.free(gitignore_patterns);
-    }
+    var gitignore_patterns = try GitignorePatterns.loadFromDirHandle(allocator, tmp_dir.dir, ".gitignore");
+    defer gitignore_patterns.deinit();
 
     // Test that the file is detected as ignored by gitignore patterns
-    try std.testing.expect(GitignorePatterns.shouldIgnore(gitignore_patterns, "debug.log"));
+    try std.testing.expect(gitignore_patterns.shouldIgnore("debug.log"));
 
     // The actual integration test would run prompt_main.runQuiet() but we test the core logic here
     // This verifies that the shouldIgnore mechanism works correctly for explicit files

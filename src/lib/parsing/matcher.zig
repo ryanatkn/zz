@@ -1,87 +1,118 @@
 const std = @import("std");
-const path_utils = @import("../core/path.zig");
 
+/// Simple pattern matcher for file paths and content
 pub const PatternMatcher = struct {
-    /// Unified pattern matching with optimized fast/slow path decision
-    /// PERFORMANCE CRITICAL: Preserves 90/10 fast/slow path split from original
-    /// Consolidates: matchesSimpleComponent, matchesSimpleComponentInline,
-    ///               matchesPathComponent, matchesPathSegment
-    pub fn matchesPattern(path: []const u8, pattern: []const u8) bool {
-        // Fast path: Simple patterns without slashes (90% of use cases)
-        // PERFORMANCE: This handles the majority of patterns efficiently
-        if (std.mem.indexOf(u8, pattern, "/") == null) {
-            return matchesSimpleComponentOptimized(path, pattern);
+    allocator: std.mem.Allocator,
+    patterns: [][]const u8,
+    
+    pub fn init(allocator: std.mem.Allocator, patterns: []const []const u8) !PatternMatcher {
+        var owned_patterns = try allocator.alloc([]const u8, patterns.len);
+        for (patterns, 0..) |pattern, i| {
+            owned_patterns[i] = try allocator.dupe(u8, pattern);
         }
-
-        // Slow path: Complex path segment patterns (10% of use cases)
-        return matchesPathSegment(path, pattern);
+        
+        return PatternMatcher{
+            .allocator = allocator,
+            .patterns = owned_patterns,
+        };
     }
-
+    
+    pub fn deinit(self: *PatternMatcher) void {
+        for (self.patterns) |pattern| {
+            self.allocator.free(pattern);
+        }
+        self.allocator.free(self.patterns);
+    }
+    
+    /// Check if path matches any pattern
+    pub fn matches(self: *const PatternMatcher, path: []const u8) bool {
+        for (self.patterns) |pattern| {
+            if (matchPattern(path, pattern)) return true;
+        }
+        return false;
+    }
+    
+    /// Add a new pattern
+    pub fn addPattern(self: *PatternMatcher, pattern: []const u8) !void {
+        const new_patterns = try self.allocator.realloc(self.patterns, self.patterns.len + 1);
+        new_patterns[new_patterns.len - 1] = try self.allocator.dupe(u8, pattern);
+        self.patterns = new_patterns;
+    }
+    
     /// Check if pattern contains glob characters
     pub fn hasGlobChars(pattern: []const u8) bool {
-        return std.mem.indexOf(u8, pattern, "*") != null or
-            std.mem.indexOf(u8, pattern, "?") != null;
+        return std.mem.indexOf(u8, pattern, "*") != null or 
+               std.mem.indexOf(u8, pattern, "?") != null or
+               std.mem.indexOf(u8, pattern, "[") != null;
     }
-
-    /// Simple glob pattern matching (basic implementation)
-    pub fn matchSimplePattern(text: []const u8, pattern: []const u8) bool {
-        // This is a simplified version - for full implementation,
-        // should delegate to the glob module's matching logic
-        if (std.mem.indexOf(u8, pattern, "*") == null and std.mem.indexOf(u8, pattern, "?") == null) {
-            return std.mem.eql(u8, text, pattern);
-        }
-
-        // Basic wildcard matching
-        if (std.mem.eql(u8, pattern, "*")) return true;
-
-        if (std.mem.startsWith(u8, pattern, "*.")) {
-            const ext = pattern[2..];
-            return std.mem.endsWith(u8, text, ext);
-        }
-
-        // For more complex patterns, this should use proper glob matching
-        return false;
+    
+    /// Check if path matches pattern (static version)
+    pub fn matchesPattern(path: []const u8, pattern: []const u8) bool {
+        return matchPattern(path, pattern);
     }
-
-    /// Fast path: Optimized matching for simple component patterns (no slashes)
-    /// PERFORMANCE CRITICAL: Preserves all original optimizations from hot path
-    /// - Quick basename check first (most common case)
-    /// - Early exit for single-component paths
-    /// - Inline for maximum performance in hot loop
-    inline fn matchesSimpleComponentOptimized(path: []const u8, pattern: []const u8) bool {
-        // PERFORMANCE: Quick basename check first (most common case)
-        const basename = path_utils.basename(path);
-        if (std.mem.eql(u8, basename, pattern)) {
-            return true;
-        }
-
-        // PERFORMANCE: Early exit optimization for single-component paths
-        // Only do expensive component iteration if basename doesn't match
-        // and the path contains separators
-        if (std.mem.indexOf(u8, path, "/") == null) {
-            return false; // Single component path already checked via basename
-        }
-
-        // Check each path component for exact match
-        var parts = std.mem.splitScalar(u8, path, '/');
-        while (parts.next()) |part| {
-            if (std.mem.eql(u8, part, pattern)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /// Slow path: Complex matching for path segment patterns (with slashes)
-    fn matchesPathSegment(path: []const u8, pattern: []const u8) bool {
-        // Check if path ends with the pattern
-        if (std.mem.endsWith(u8, path, pattern)) {
-            // Ensure it's a proper path boundary (not a substring)
-            if (path.len == pattern.len or path[path.len - pattern.len - 1] == '/') {
-                return true;
-            }
-        }
-        return false;
+    
+    /// Simple pattern matching for filenames
+    pub fn matchSimplePattern(filename: []const u8, pattern: []const u8) bool {
+        return matchWildcard(filename, pattern);
     }
 };
+
+/// Match a single pattern against a path
+fn matchPattern(path: []const u8, pattern: []const u8) bool {
+    // Handle exact matches
+    if (std.mem.eql(u8, path, pattern)) return true;
+    
+    // Handle wildcard patterns
+    if (std.mem.indexOf(u8, pattern, "*")) |_| {
+        return matchWildcard(path, pattern);
+    }
+    
+    // Handle path component matches (not substring)
+    // Check if pattern appears as a complete path component
+    if (std.mem.indexOf(u8, path, pattern)) |pos| {
+        // Check if it's at the start or preceded by a path separator
+        const at_start = pos == 0;
+        const after_sep = pos > 0 and path[pos - 1] == '/';
+        if (!at_start and !after_sep) return false;
+        
+        // Check if it's at the end or followed by a path separator
+        const end_pos = pos + pattern.len;
+        const at_end = end_pos == path.len;
+        const before_sep = end_pos < path.len and path[end_pos] == '/';
+        
+        return at_end or before_sep;
+    }
+    
+    return false;
+}
+
+/// Simple wildcard matching
+fn matchWildcard(path: []const u8, pattern: []const u8) bool {
+    var parts = std.mem.splitScalar(u8, pattern, '*');
+    var remaining = path;
+    
+    while (parts.next()) |part| {
+        if (part.len == 0) continue;
+        
+        if (std.mem.indexOf(u8, remaining, part)) |pos| {
+            remaining = remaining[pos + part.len..];
+        } else {
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+test "pattern matching" {
+    const testing = std.testing;
+    
+    const patterns = [_][]const u8{ "*.zig", "test_*", "src/" };
+    var matcher = try PatternMatcher.init(testing.allocator, &patterns);
+    defer matcher.deinit();
+    
+    try testing.expect(matcher.matches("main.zig"));
+    try testing.expect(matcher.matches("test_parser.zig"));
+    try testing.expect(matcher.matches("src/main.zig"));
+    try testing.expect(!matcher.matches("README.md"));
+}

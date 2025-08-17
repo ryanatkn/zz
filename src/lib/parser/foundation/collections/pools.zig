@@ -524,7 +524,6 @@ test "FactPool basic operations" {
     
     // Acquire fact (should allocate new)
     const fact1 = try pool.acquire();
-    defer pool.release(fact1);
     
     var stats = pool.getStats();
     try testing.expectEqual(@as(usize, 1), stats.pool_misses);

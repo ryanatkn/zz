@@ -30,7 +30,7 @@ $ zz prompt --imports --signatures "*.py"       # Dependencies and API surface
 
 ### Language Support
 
-- **Full AST Support**: Zig, TypeScript, JavaScript, CSS, HTML, JSON, Svelte
+- **Full AST Support**: Zig, TypeScript, CSS, HTML, JSON, Svelte
 - **Language Detection**: Automatic based on file extension
 - **Graceful Fallback**: Falls back to text extraction for unsupported languages
 - **Extensible Architecture**: Ready for future language grammars
@@ -53,7 +53,7 @@ Powerful file matching with Unix-style glob patterns:
 
 These patterns are specially optimized for performance:
 - `*.{zig,c,h}` - Systems programming files
-- `*.{js,ts,jsx,tsx}` - JavaScript/TypeScript files
+- `*.{js,ts,jsx,tsx}` - TypeScript files
 - `*.{md,txt,rst}` - Documentation files
 - `*.{json,yaml,yml,toml}` - Configuration files
 

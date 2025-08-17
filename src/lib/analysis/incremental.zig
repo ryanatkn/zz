@@ -4,7 +4,7 @@ const AstCacheKey = @import("cache.zig").AstCacheKey;
 const imports_mod = @import("../parsing/imports.zig");
 const ImportInfo = imports_mod.Import;
 const ExtractionResult = imports_mod.ExtractionResult;
-const TreeSitterParser = @import("../language/tree_sitter.zig").TreeSitterParser;
+// TreeSitterParser removed - using stratified parser instead
 const Language = @import("../language/detection.zig").Language;
 const io = @import("../core/io.zig");
 const errors = @import("../core/errors.zig");

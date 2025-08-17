@@ -1,146 +1,52 @@
 const std = @import("std");
-const AstFormatter = @import("ast_formatter.zig").AstFormatter;
-const AstCache = @import("../analysis/cache.zig").AstCache;
-const AstCacheKey = @import("../analysis/cache.zig").AstCacheKey;
 const FormatterOptions = @import("formatter.zig").FormatterOptions;
-const Language = @import("../language/detection.zig").Language;
-const FileTracker = @import("../analysis/incremental.zig").FileTracker;
 
-/// A formatter manager that coordinates AST formatters with shared caching
+/// Legacy cached formatter compatibility stub - delegates to stratified parser
 pub const CachedFormatterManager = struct {
     allocator: std.mem.Allocator,
-    cache: AstCache,
-    file_tracker: ?*FileTracker,
-    formatters: std.HashMap(Language, AstFormatter, LanguageContext, 80),
-
-    const Self = @This();
-
-    const LanguageContext = struct {
-        pub fn hash(self: @This(), s: Language) u64 {
-            _ = self;
-            return @intFromEnum(s);
-        }
-        pub fn eql(self: @This(), a: Language, b: Language) bool {
-            _ = self;
-            return a == b;
-        }
-    };
-
-    pub fn init(allocator: std.mem.Allocator, max_cache_entries: usize) !Self {
-        const cache = AstCache.init(allocator, max_cache_entries, 64); // 64MB max memory
-
-        return Self{
+    cache: std.StringHashMap([]u8),
+    
+    pub fn init(allocator: std.mem.Allocator) CachedFormatterManager {
+        return CachedFormatterManager{
             .allocator = allocator,
-            .cache = cache,
-            .file_tracker = null,
-            .formatters = std.HashMap(Language, AstFormatter, LanguageContext, 80).init(allocator),
+            .cache = std.StringHashMap([]u8).init(allocator),
         };
     }
-
-    pub fn initWithFileTracker(allocator: std.mem.Allocator, max_cache_entries: usize, file_tracker: *FileTracker) !Self {
-        const cache = AstCache.init(allocator, max_cache_entries, 64); // 64MB max memory
-
-        // Integrate cache with file tracker for automatic invalidation
-        file_tracker.ast_cache = &cache;
-
-        return Self{
-            .allocator = allocator,
-            .cache = cache,
-            .file_tracker = file_tracker,
-            .formatters = std.HashMap(Language, AstFormatter, LanguageContext, 80).init(allocator),
-        };
-    }
-
-    pub fn deinit(self: *Self) void {
-        // Clean up all formatters
-        var iter = self.formatters.iterator();
-        while (iter.next()) |entry| {
-            entry.value_ptr.deinit();
+    
+    pub fn deinit(self: *CachedFormatterManager) void {
+        var iterator = self.cache.iterator();
+        while (iterator.next()) |entry| {
+            self.allocator.free(entry.key_ptr.*);
+            self.allocator.free(entry.value_ptr.*);
         }
-        self.formatters.deinit();
-
         self.cache.deinit();
     }
-
-    /// Get or create a formatter for the specified language
-    pub fn getFormatter(self: *Self, language: Language, options: FormatterOptions) !*AstFormatter {
-        // Check if we already have a formatter for this language
-        if (self.formatters.getPtr(language)) |formatter| {
-            // Update options if they've changed
-            formatter.options = options;
-            return formatter;
+    
+    /// Format with caching (stub implementation)
+    pub fn formatCached(self: *CachedFormatterManager, key: []const u8, content: []const u8, options: FormatterOptions) ![]u8 {
+        _ = options;
+        
+        if (self.cache.get(key)) |cached| {
+            return try self.allocator.dupe(u8, cached);
         }
-
-        // Create new formatter with cache integration
-        const formatter = try AstFormatter.initWithCache(self.allocator, language, options, &self.cache);
-
-        // Store in our cache
-        try self.formatters.put(language, formatter);
-
-        return self.formatters.getPtr(language).?;
+        
+        // For now, just store and return the content
+        // In the future, this would use the stratified parser for formatting
+        const result = try self.allocator.dupe(u8, content);
+        const owned_key = try self.allocator.dupe(u8, key);
+        const cached_result = try self.allocator.dupe(u8, result);
+        
+        try self.cache.put(owned_key, cached_result);
+        return result;
     }
-
-    /// Format a file with automatic language detection and caching
-    pub fn formatFile(self: *Self, file_path: []const u8, source: []const u8, options: FormatterOptions) ![]const u8 {
-        // Detect language from file extension
-        const language = Language.fromExtension(std.fs.path.extension(file_path));
-
-        if (language == .unknown) {
-            // Return original source for unknown file types
-            return self.allocator.dupe(u8, source);
+    
+    /// Clear the cache
+    pub fn clearCache(self: *CachedFormatterManager) void {
+        var iterator = self.cache.iterator();
+        while (iterator.next()) |entry| {
+            self.allocator.free(entry.key_ptr.*);
+            self.allocator.free(entry.value_ptr.*);
         }
-
-        // For languages that don't support AST formatting, use the regular formatter
-        if (language == .json or language == .zig or language == .html) {
-            const Formatter = @import("formatter.zig").Formatter;
-            var formatter = Formatter.init(self.allocator, language, options);
-            return formatter.format(source);
-        }
-
-        // Get or create formatter for this language
-        var formatter = try self.getFormatter(language, options);
-
-        // Format with file path for better caching
-        return formatter.formatWithFilePath(source, file_path);
-    }
-
-    /// Format source with explicit language
-    pub fn formatSource(self: *Self, language: Language, source: []const u8, options: FormatterOptions) ![]const u8 {
-        if (language == .unknown) {
-            return self.allocator.dupe(u8, source);
-        }
-
-        var formatter = try self.getFormatter(language, options);
-        return formatter.format(source);
-    }
-
-    /// Invalidate cache entries for a specific file
-    pub fn invalidateFile(self: *Self, file_path: []const u8) void {
-        if (self.file_tracker) |tracker| {
-            // Use the public interface for cache invalidation
-            tracker.invalidateAstCacheForFiles(&[_][]const u8{file_path}) catch {
-                // If invalidation fails, clear entire cache as fallback
-                self.cache.clear();
-            };
-        } else {
-            // Without FileTracker, we can't efficiently invalidate specific files
-            // Future: could implement manual cache key invalidation here using file_path
-            // For now, users should use FileTracker integration for proper cache invalidation
-        }
-    }
-
-    /// Get cache statistics
-    pub fn getCacheStats(self: *Self) AstCache.CacheStats {
-        return self.cache.getStats();
-    }
-
-    /// Clear the entire cache
-    pub fn clearCache(self: *Self) void {
-        self.cache.clear();
-    }
-
-    /// Get the number of cached formatters
-    pub fn getFormatterCount(self: *Self) usize {
-        return self.formatters.count();
+        self.cache.clearAndFree();
     }
 };

@@ -174,7 +174,8 @@ pub const ZonLoader = struct {
         var gitignore_patterns: []const []const u8 = &[_][]const u8{};
 
         if (respect_gitignore) {
-            gitignore_patterns = GitignorePatterns.loadFromDir(self.allocator, dir, ".gitignore") catch &[_][]const u8{}; // Ignore errors, use empty patterns
+            const gitignore = GitignorePatterns.loadFromDirHandle(self.allocator, dir, ".gitignore") catch GitignorePatterns.init(self.allocator, &[_][]const u8{});
+            gitignore_patterns = gitignore.patterns; // Extract patterns from struct
         }
 
         // Resolve symlink behavior (default to skip)
@@ -216,7 +217,8 @@ pub const ZonLoader = struct {
         var gitignore_patterns: []const []const u8 = &[_][]const u8{};
 
         if (respect_gitignore) {
-            gitignore_patterns = GitignorePatterns.loadFromDirHandle(self.allocator, dir, ".gitignore") catch &[_][]const u8{}; // Ignore errors, use empty patterns
+            const gitignore = GitignorePatterns.loadFromDirHandle(self.allocator, dir, ".gitignore") catch GitignorePatterns.init(self.allocator, &[_][]const u8{});
+            gitignore_patterns = gitignore.patterns; // Extract patterns from struct
         }
 
         // Resolve symlink behavior (default to skip)

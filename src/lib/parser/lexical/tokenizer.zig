@@ -434,8 +434,10 @@ pub const StreamingLexer = struct {
     fn classifyIdentifier(self: *StreamingLexer, text: []const u8) TokenKind {
         return switch (self.config.language) {
             .zig => self.classifyZigIdentifier(text),
-            .typescript, .javascript => self.classifyTSIdentifier(text),
+            .typescript => self.classifyTSIdentifier(text),
             .json => .string_literal, // JSON only has string values
+            .css => self.classifyCSSIdentifier(text),
+            .html => self.classifyHTMLIdentifier(text),
             .generic => .identifier,
         };
     }
@@ -461,7 +463,7 @@ pub const StreamingLexer = struct {
         return .identifier;
     }
     
-    /// Classify TypeScript/JavaScript identifier
+    /// Classify TypeScript identifier
     fn classifyTSIdentifier(self: *StreamingLexer, text: []const u8) TokenKind {
         _ = self;
         if (std.mem.eql(u8, text, "function")) return .keyword;
@@ -478,6 +480,63 @@ pub const StreamingLexer = struct {
         if (std.mem.eql(u8, text, "return")) return .keyword;
         if (std.mem.eql(u8, text, "import")) return .keyword;
         if (std.mem.eql(u8, text, "export")) return .keyword;
+        return .identifier;
+    }
+    
+    /// Classify CSS identifier
+    fn classifyCSSIdentifier(self: *StreamingLexer, text: []const u8) TokenKind {
+        _ = self;
+        // CSS properties
+        if (std.mem.eql(u8, text, "color")) return .keyword;
+        if (std.mem.eql(u8, text, "background")) return .keyword;
+        if (std.mem.eql(u8, text, "margin")) return .keyword;
+        if (std.mem.eql(u8, text, "padding")) return .keyword;
+        if (std.mem.eql(u8, text, "display")) return .keyword;
+        if (std.mem.eql(u8, text, "position")) return .keyword;
+        if (std.mem.eql(u8, text, "width")) return .keyword;
+        if (std.mem.eql(u8, text, "height")) return .keyword;
+        if (std.mem.eql(u8, text, "border")) return .keyword;
+        if (std.mem.eql(u8, text, "font")) return .keyword;
+        if (std.mem.eql(u8, text, "text")) return .keyword;
+        if (std.mem.eql(u8, text, "flex")) return .keyword;
+        if (std.mem.eql(u8, text, "grid")) return .keyword;
+        // CSS values
+        if (std.mem.eql(u8, text, "none")) return .keyword;
+        if (std.mem.eql(u8, text, "block")) return .keyword;
+        if (std.mem.eql(u8, text, "inline")) return .keyword;
+        if (std.mem.eql(u8, text, "relative")) return .keyword;
+        if (std.mem.eql(u8, text, "absolute")) return .keyword;
+        if (std.mem.eql(u8, text, "fixed")) return .keyword;
+        return .identifier;
+    }
+    
+    /// Classify HTML identifier
+    fn classifyHTMLIdentifier(self: *StreamingLexer, text: []const u8) TokenKind {
+        _ = self;
+        // HTML tags
+        if (std.mem.eql(u8, text, "html")) return .keyword;
+        if (std.mem.eql(u8, text, "head")) return .keyword;
+        if (std.mem.eql(u8, text, "body")) return .keyword;
+        if (std.mem.eql(u8, text, "div")) return .keyword;
+        if (std.mem.eql(u8, text, "span")) return .keyword;
+        if (std.mem.eql(u8, text, "p")) return .keyword;
+        if (std.mem.eql(u8, text, "a")) return .keyword;
+        if (std.mem.eql(u8, text, "img")) return .keyword;
+        if (std.mem.eql(u8, text, "input")) return .keyword;
+        if (std.mem.eql(u8, text, "button")) return .keyword;
+        if (std.mem.eql(u8, text, "form")) return .keyword;
+        if (std.mem.eql(u8, text, "script")) return .keyword;
+        if (std.mem.eql(u8, text, "style")) return .keyword;
+        if (std.mem.eql(u8, text, "meta")) return .keyword;
+        if (std.mem.eql(u8, text, "title")) return .keyword;
+        if (std.mem.eql(u8, text, "link")) return .keyword;
+        // HTML attributes
+        if (std.mem.eql(u8, text, "class")) return .keyword;
+        if (std.mem.eql(u8, text, "id")) return .keyword;
+        if (std.mem.eql(u8, text, "src")) return .keyword;
+        if (std.mem.eql(u8, text, "href")) return .keyword;
+        if (std.mem.eql(u8, text, "type")) return .keyword;
+        if (std.mem.eql(u8, text, "value")) return .keyword;
         return .identifier;
     }
     

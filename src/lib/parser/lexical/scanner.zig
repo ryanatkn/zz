@@ -310,12 +310,15 @@ pub const Scanner = struct {
     
     /// Check if character can start an identifier
     pub fn isIdentifierStart(self: Scanner, ch: u8) bool {
-        return self.char_table[ch] == .alpha or ch == '_';
+        return self.char_table[ch] == .alpha or 
+               self.char_table[ch] == .hex_alpha or 
+               ch == '_';
     }
     
     /// Check if character can be part of an identifier
     pub fn isIdentifierChar(self: Scanner, ch: u8) bool {
         return self.char_table[ch] == .alpha or 
+               self.char_table[ch] == .hex_alpha or
                self.char_table[ch] == .digit or 
                ch == '_';
     }

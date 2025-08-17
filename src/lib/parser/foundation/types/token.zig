@@ -193,8 +193,17 @@ pub const Token = struct {
         const self_type = self.getDelimiterType() orelse return false;
         const other_type = other.getDelimiterType() orelse return false;
         
-        return self_type == other_type and 
-               self.isOpenDelimiter() != other.isOpenDelimiter();
+        // Check if they form a matching pair (e.g., open_paren with close_paren)
+        return switch (self_type) {
+            .open_paren => other_type == .close_paren,
+            .close_paren => other_type == .open_paren,
+            .open_bracket => other_type == .close_bracket,
+            .close_bracket => other_type == .open_bracket,
+            .open_brace => other_type == .close_brace,
+            .close_brace => other_type == .open_brace,
+            .open_angle => other_type == .close_angle,
+            .close_angle => other_type == .open_angle,
+        };
     }
 
     /// Compare tokens by their spans for ordering

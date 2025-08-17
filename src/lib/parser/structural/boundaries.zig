@@ -131,7 +131,7 @@ pub const BoundaryDetector = struct {
     pub fn init(allocator: std.mem.Allocator, language: Language) BoundaryDetector {
         const patterns = switch (language) {
             .zig => &ZIG_PATTERNS,
-            .typescript, .javascript => &TS_PATTERNS,
+            .typescript => &TS_PATTERNS,
             .json => &JSON_PATTERNS,
             else => &GENERIC_PATTERNS,
         };
@@ -291,7 +291,7 @@ pub const BoundaryDetector = struct {
     fn isClosingToken(self: *BoundaryDetector, token: Token, boundary_kind: BoundaryKind) bool {
         _ = self;
         return switch (boundary_kind) {
-            .function, .struct_, .enum_, .class, .block => 
+            .function, .struct_, .struct_definition, .enum_, .enum_definition, .class, .block => 
                 token.kind == .delimiter and std.mem.eql(u8, token.text, "}"),
             .module, .namespace => 
                 // Modules typically don't have explicit closing
@@ -429,7 +429,7 @@ const ZIG_PATTERNS = [_]BoundaryPattern{
     ),
 };
 
-/// TypeScript/JavaScript boundary patterns
+/// TypeScript boundary patterns
 const TS_PATTERNS = [_]BoundaryPattern{
     // Function definition
     BoundaryPattern.init(

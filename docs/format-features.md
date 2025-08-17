@@ -39,7 +39,7 @@ Languages with complete AST-driven formatting:
 - Statement and expression formatting
 - Comment preservation
 
-#### TypeScript/JavaScript
+#### TypeScript
 - Full AST-based formatting (modular architecture)
 - Function and arrow function formatting
 - Class and interface formatting
@@ -133,7 +133,7 @@ $ zz format --sort-keys              # Sort object keys
 $ zz format --compact                # Minimal whitespace
 ```
 
-#### JavaScript/TypeScript Options
+#### TypeScript Options
 ```bash
 $ zz format --quote-style=single     # Use single quotes
 $ zz format --quote-style=double     # Use double quotes

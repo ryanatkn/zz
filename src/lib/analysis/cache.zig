@@ -232,7 +232,7 @@ pub const AstCache = struct {
 /// Parser instance for language-specific parsing
 pub const ParserInstance = struct {
     language: []const u8,
-    parser: ?*anyopaque, // Placeholder for future tree-sitter Parser pointer
+    parser: ?*anyopaque, // Placeholder for Pure Zig parser pointer
     version: u32,
     created_at: i64,
     last_used: i64,
@@ -252,8 +252,8 @@ pub const ParserInstance = struct {
 
     pub fn deinit(self: *ParserInstance, allocator: std.mem.Allocator) void {
         if (self.parser) |parser| {
-            _ = parser; // Placeholder for tree-sitter parser cleanup
-            // Future: tree-sitter parser deletion
+            _ = parser; // Placeholder for Pure Zig parser cleanup
+            // Future: Pure Zig parser deletion
         }
         allocator.free(self.language);
     }
@@ -322,7 +322,7 @@ pub const ParserCache = struct {
         const parser_instance = ParserInstance.init(language_key, 1);
 
         // Parser initialization placeholder - currently tracks metadata only
-        // Future: Initialize tree-sitter parser based on language
+        // Future: Initialize Pure Zig parser based on language
 
         try self.parsers.put(language_key, parser_instance);
         self.stats.initializations += 1;

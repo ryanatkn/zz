@@ -1,6 +1,7 @@
 const std = @import("std");
 const PatternMatcher = @import("parsing/matcher.zig").PatternMatcher;
 const GitignorePatterns = @import("parsing/gitignore.zig").GitignorePatterns;
+const shouldIgnoreWithPatterns = @import("parsing/gitignore.zig").shouldIgnoreWithPatterns;
 const path_utils = @import("core/path.zig");
 
 // Re-export public types for API compatibility
@@ -20,7 +21,7 @@ pub fn shouldIgnorePath(config: SharedConfig, path: []const u8) bool {
     }
 
     // Check gitignore patterns first (if enabled)
-    if (config.respect_gitignore and GitignorePatterns.shouldIgnore(config.gitignore_patterns, path)) {
+    if (config.respect_gitignore and shouldIgnoreWithPatterns(path, config.gitignore_patterns)) {
         return true;
     }
 

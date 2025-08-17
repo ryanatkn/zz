@@ -143,8 +143,10 @@ test "lexical viewport performance simulation" {
 test "lexical language detection" {
     try testing.expectEqual(lexical.Language.zig, lexical.Language.fromExtension(".zig"));
     try testing.expectEqual(lexical.Language.typescript, lexical.Language.fromExtension(".ts"));
-    try testing.expectEqual(lexical.Language.javascript, lexical.Language.fromExtension(".js"));
     try testing.expectEqual(lexical.Language.json, lexical.Language.fromExtension(".json"));
+    try testing.expectEqual(lexical.Language.css, lexical.Language.fromExtension(".css"));
+    try testing.expectEqual(lexical.Language.html, lexical.Language.fromExtension(".html"));
+    try testing.expectEqual(lexical.Language.html, lexical.Language.fromExtension(".htm"));
     try testing.expectEqual(lexical.Language.generic, lexical.Language.fromExtension(".xyz"));
 }
 

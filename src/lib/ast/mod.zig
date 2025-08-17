@@ -7,6 +7,9 @@ const std = @import("std");
 /// Generic AST node that can represent any parsed structure
 pub const Node = @import("node.zig").Node;
 
+/// Alias for Node for compatibility
+pub const ASTNode = Node;
+
 /// Visitor pattern for AST traversal
 pub const Visitor = @import("visitor.zig").Visitor;
 

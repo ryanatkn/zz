@@ -24,6 +24,49 @@ pub const ComplexQuery = @import("query_cache.zig").ComplexQuery;
 
 /// Memory pools for efficient fact allocation
 pub const FactPool = @import("pools.zig").FactPool;
+
+/// Streaming interface for processing facts
+pub const FactStream = struct {
+    allocator: std.mem.Allocator,
+    
+    pub fn init(allocator: std.mem.Allocator) FactStream {
+        return .{ .allocator = allocator };
+    }
+    
+    pub fn deinit(self: *FactStream) void {
+        _ = self;
+    }
+    
+    /// Process a batch of facts
+    pub fn processBatch(self: *FactStream, facts: []const @import("../types/fact.zig").Fact) !void {
+        _ = self;
+        _ = facts;
+        // Stub implementation
+    }
+};
+
+/// Represents changes to facts between generations or updates
+pub const FactDelta = struct {
+    added: []const @import("../types/fact.zig").Fact,
+    removed: []const @import("../types/fact.zig").Fact,
+    modified: []const @import("../types/fact.zig").Fact,
+    
+    pub fn init(
+        added: []const @import("../types/fact.zig").Fact,
+        removed: []const @import("../types/fact.zig").Fact,
+        modified: []const @import("../types/fact.zig").Fact,
+    ) FactDelta {
+        return .{
+            .added = added,
+            .removed = removed,
+            .modified = modified,
+        };
+    }
+    
+    pub fn isEmpty(self: FactDelta) bool {
+        return self.added.len == 0 and self.removed.len == 0 and self.modified.len == 0;
+    }
+};
 pub const FactIdArrayPool = @import("pools.zig").FactIdArrayPool;
 pub const FactArena = @import("pools.zig").FactArena;
 pub const FactPoolManager = @import("pools.zig").FactPoolManager;

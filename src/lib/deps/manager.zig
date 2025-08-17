@@ -7,6 +7,8 @@ const Operations = @import("operations.zig").Operations;
 const LockGuard = @import("lock.zig").LockGuard;
 const io = @import("../core/io.zig");
 const path = @import("../core/path.zig");
+const errors = @import("../core/errors.zig");
+const collections = @import("../core/collections.zig");
 const FilesystemInterface = @import("../filesystem/interface.zig").FilesystemInterface;
 const RealFilesystem = @import("../filesystem/real.zig").RealFilesystem;
 
@@ -92,7 +94,13 @@ pub const DependencyManager = struct {
             // Update dependency
             self.updateSingleDependency(&dep, options, &result) catch |err| {
                 try result.failed.append(dep.name);
-                try self.logError("Failed to update {s}: {}", .{ dep.name, err });
+                
+                // Provide specific error messages for dependency validation errors
+                if (errors.isDependencyError(err)) {
+                    try self.logError("Failed to update {s}: {s}", .{ dep.name, errors.getMessage(err) });
+                } else {
+                    try self.logError("Failed to update {s}: {}", .{ dep.name, err });
+                }
                 continue;
             };
 
@@ -477,21 +485,21 @@ pub const DependencyManager = struct {
 
 /// Result of update operation
 pub const UpdateResult = struct {
-    updated: std.ArrayList([]const u8),
-    skipped: std.ArrayList([]const u8),
-    failed: std.ArrayList([]const u8),
-    would_install: std.ArrayList([]const u8),
-    would_update: std.ArrayList([]const u8),
+    updated: collections.List([]const u8),
+    skipped: collections.List([]const u8),
+    failed: collections.List([]const u8),
+    would_install: collections.List([]const u8),
+    would_update: collections.List([]const u8),
 
     const Self = @This();
 
     pub fn init(allocator: std.mem.Allocator) Self {
         return Self{
-            .updated = std.ArrayList([]const u8).init(allocator),
-            .skipped = std.ArrayList([]const u8).init(allocator),
-            .failed = std.ArrayList([]const u8).init(allocator),
-            .would_install = std.ArrayList([]const u8).init(allocator),
-            .would_update = std.ArrayList([]const u8).init(allocator),
+            .updated = collections.List([]const u8).init(allocator),
+            .skipped = collections.List([]const u8).init(allocator),
+            .failed = collections.List([]const u8).init(allocator),
+            .would_install = collections.List([]const u8).init(allocator),
+            .would_update = collections.List([]const u8).init(allocator),
         };
     }
 
@@ -506,17 +514,17 @@ pub const UpdateResult = struct {
 
 /// Result of check operation
 pub const CheckResult = struct {
-    up_to_date: std.ArrayList([]const u8),
-    need_update: std.ArrayList([]const u8),
-    missing: std.ArrayList([]const u8),
+    up_to_date: collections.List([]const u8),
+    need_update: collections.List([]const u8),
+    missing: collections.List([]const u8),
 
     const Self = @This();
 
     pub fn init(allocator: std.mem.Allocator) Self {
         return Self{
-            .up_to_date = std.ArrayList([]const u8).init(allocator),
-            .need_update = std.ArrayList([]const u8).init(allocator),
-            .missing = std.ArrayList([]const u8).init(allocator),
+            .up_to_date = collections.List([]const u8).init(allocator),
+            .need_update = collections.List([]const u8).init(allocator),
+            .missing = collections.List([]const u8).init(allocator),
         };
     }
 

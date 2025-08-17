@@ -1,8 +1,0 @@
-- assess TODO_DOC.md
-- do the thing
-  - submit optional elicitations to the user as you gather context
-  - use the CLI `zz prompt` for language-aware information extraction
-  - run tests and get output
-  - maybe repeat
-- update TODO_DOC.md
-- commit with message

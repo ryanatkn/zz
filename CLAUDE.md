@@ -203,7 +203,6 @@ See [docs/llm-guidelines.md](docs/llm-guidelines.md) for complete guidelines. Ke
 
 ### Important Files
 - `TODO_LANGUAGES.md` - Formatter refactoring history
-- `WORKFLOW.md` - Development session notes
 - `.claude/config.json` - Claude Code tool preferences
 
 ## Current Status

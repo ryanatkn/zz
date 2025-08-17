@@ -2,6 +2,7 @@ const std = @import("std");
 const path = @import("../core/path.zig");
 const errors = @import("../core/errors.zig");
 const io = @import("../core/io.zig");
+const collections = @import("../core/collections.zig");
 const FilesystemInterface = @import("../filesystem/interface.zig").FilesystemInterface;
 const RealFilesystem = @import("../filesystem/real.zig").RealFilesystem;
 
@@ -56,7 +57,7 @@ pub const Operations = struct {
 
     /// Preserve files from a directory (copy to temp location)
     pub fn preserveFiles(self: *Self, dir: []const u8, files_to_preserve: []const []const u8) ![][]u8 {
-        var preserved_files = std.ArrayList([]u8).init(self.allocator);
+        var preserved_files = collections.List([]u8).init(self.allocator);
         defer preserved_files.deinit();
 
         for (files_to_preserve) |file_pattern| {

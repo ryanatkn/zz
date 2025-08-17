@@ -2,6 +2,7 @@ const std = @import("std");
 const ZonParser = @import("../languages/zon/parser.zig").ZonParser;
 const DependencyInfo = @import("../languages/zon/parser.zig").DependencyInfo;
 const struct_utils = @import("../core/struct_utils.zig");
+const collections = @import("../core/collections.zig");
 
 /// Configuration for a single dependency
 pub const Dependency = struct {
@@ -416,7 +417,7 @@ pub const DepsConfig = struct {
 
     /// Convert to array of Dependency structs
     pub fn toDependencies(self: *const DepsConfig, allocator: std.mem.Allocator) ![]Dependency {
-        var deps = std.ArrayList(Dependency).init(allocator);
+        var deps = collections.List(Dependency).init(allocator);
         defer deps.deinit();
 
         var iterator = self.dependencies.iterator();

@@ -3,6 +3,8 @@ const config = @import("config.zig");
 const utils = @import("utils.zig");
 const io = @import("../core/io.zig");
 const path = @import("../core/path.zig");
+const collections = @import("../core/collections.zig");
+const builders = @import("../text/builders.zig");
 const FilesystemInterface = @import("../filesystem/interface.zig").FilesystemInterface;
 const RealFilesystem = @import("../filesystem/real.zig").RealFilesystem;
 
@@ -100,7 +102,7 @@ pub const DocumentationGenerator = struct {
     /// Generate both DEPS.md and manifest.json from current dependency state
     pub fn generateDocumentation(self: *Self, dependencies: []const config.Dependency) !void {
         // Collect dependency documentation
-        var dep_docs = std.ArrayList(DependencyDoc).init(self.allocator);
+        var dep_docs = collections.List(DependencyDoc).init(self.allocator);
         defer {
             for (dep_docs.items) |*doc| {
                 doc.deinit(self.allocator);
@@ -130,7 +132,7 @@ pub const DocumentationGenerator = struct {
         defer self.allocator.free(version_file);
         
         // Read .version file content
-        const content = utils.Utils.readFileOptional(self.allocator, version_file, 1024) catch |err| switch (err) {
+        const content = io.readFileOptional(self.allocator, version_file) catch |err| switch (err) {
             error.FileNotFound => {
                 // Create a default version info if file doesn't exist
                 return DependencyDoc{
@@ -247,7 +249,7 @@ pub const DocumentationGenerator = struct {
         // Parse build.zig to extract actual build configuration
         const build_zig_path = "build.zig"; // Relative to project root
         
-        const build_content = utils.Utils.readFileOptional(self.allocator, build_zig_path, 1024 * 1024) catch |err| switch (err) {
+        const build_content = io.readFileOptional(self.allocator, build_zig_path) catch |err| switch (err) {
             error.FileNotFound => {
                 // Fallback to hardcoded values if build.zig can't be read
                 return self.extractBuildInfoFallback(name);
@@ -265,11 +267,11 @@ pub const DocumentationGenerator = struct {
     
     /// Parse build.zig content to extract dependency configuration
     fn parseBuildZigForDependency(self: *Self, content: []const u8, dep_name: []const u8) !BuildConfig {
-        var source_files = std.ArrayList([]const u8).init(self.allocator);
+        var source_files = collections.List([]const u8).init(self.allocator);
         defer source_files.deinit();
-        var include_paths = std.ArrayList([]const u8).init(self.allocator);
+        var include_paths = collections.List([]const u8).init(self.allocator);
         defer include_paths.deinit();
-        var flags = std.ArrayList([]const u8).init(self.allocator);
+        var flags = collections.List([]const u8).init(self.allocator);
         defer flags.deinit();
         
         var build_type: []const u8 = "unknown";
@@ -351,7 +353,7 @@ pub const DocumentationGenerator = struct {
     }
     
     /// Extract source file paths from addCSourceFile(s) lines
-    fn extractSourceFiles(self: *Self, line: []const u8, source_files: *std.ArrayList([]const u8)) !void {
+    fn extractSourceFiles(self: *Self, line: []const u8, source_files: *collections.List([]const u8)) !void {
         // Look for .file = b.path("...") or .files = &.{"...", "..."}
         if (std.mem.indexOf(u8, line, ".file = b.path(\"")) |start| {
             const quote_start = start + 15; // Length of ".file = b.path(\""
@@ -390,7 +392,7 @@ pub const DocumentationGenerator = struct {
     }
     
     /// Extract include path from addIncludePath lines
-    fn extractIncludePath(self: *Self, line: []const u8, include_paths: *std.ArrayList([]const u8), dep_name: []const u8) !void {
+    fn extractIncludePath(self: *Self, line: []const u8, include_paths: *collections.List([]const u8), dep_name: []const u8) !void {
         if (std.mem.indexOf(u8, line, "addIncludePath(b.path(\"")) |start| {
             const quote_start = start + 23; // Length of "addIncludePath(b.path(\""
             if (std.mem.indexOfPos(u8, line, quote_start, "\"")) |quote_end| {
@@ -416,7 +418,7 @@ pub const DocumentationGenerator = struct {
     }
     
     /// Extract compiler flags from .flags = arrays
-    fn extractFlags(self: *Self, line: []const u8, flags: *std.ArrayList([]const u8)) !void {
+    fn extractFlags(self: *Self, line: []const u8, flags: *collections.List([]const u8)) !void {
         if (std.mem.indexOf(u8, line, ".flags = &.{")) |start| {
             const brace_start = std.mem.indexOf(u8, line[start..], "{").? + start + 1;
             const brace_end = std.mem.lastIndexOf(u8, line, "}") orelse line.len;
@@ -467,7 +469,7 @@ pub const DocumentationGenerator = struct {
             const lang = name[13..];
             
             // Determine source files based on language (some have scanner.c)
-            var source_files_list = std.ArrayList([]const u8).init(self.allocator);
+            var source_files_list = collections.List([]const u8).init(self.allocator);
             defer source_files_list.deinit();
             
             try source_files_list.append(try self.allocator.dupe(u8, "src/parser.c"));
@@ -505,27 +507,36 @@ pub const DocumentationGenerator = struct {
     
     /// Generate DEPS.md markdown documentation
     fn generateMarkdownDocs(self: *Self, dep_docs: []const DependencyDoc) !void {
-        var content = std.ArrayList(u8).init(self.allocator);
+        var content = collections.List(u8).init(self.allocator);
         defer content.deinit();
         
         const writer = content.writer();
         
         // Header
         try writer.print("# Dependency Manifest\n", .{});
-        try writer.print("Generated: {d}-{d:0>2}-{d:0>2} by zz deps\n\n", .{ 
-            2025, 8, 17  // TODO: Use actual current date
-        });
+        
+        // Get current date
+        const timestamp = std.time.timestamp();
+        const epoch_days = @divFloor(timestamp, 86400) + 719163; // Unix epoch to days since year 1
+        
+        // Simple date calculation (good enough for documentation)
+        const year = @divFloor(epoch_days, 365) + 1;
+        const day_of_year = @mod(epoch_days, 365);
+        const month = @min(12, @divFloor(day_of_year, 30) + 1);
+        const day = @min(31, @mod(day_of_year, 30) + 1);
+        
+        try writer.print("Generated: {d}-{d:0>2}-{d:0>2} by zz deps\n\n", .{ year, month, day });
         
         // Summary
         try writer.print("## Summary\n", .{});
         try writer.print("Total Dependencies: {d}\n\n", .{dep_docs.len});
         
         // Group by category
-        var core_deps = std.ArrayList(*const DependencyDoc).init(self.allocator);
+        var core_deps = collections.List(*const DependencyDoc).init(self.allocator);
         defer core_deps.deinit();
-        var grammar_deps = std.ArrayList(*const DependencyDoc).init(self.allocator);
+        var grammar_deps = collections.List(*const DependencyDoc).init(self.allocator);
         defer grammar_deps.deinit();
-        var reference_deps = std.ArrayList(*const DependencyDoc).init(self.allocator);
+        var reference_deps = collections.List(*const DependencyDoc).init(self.allocator);
         defer reference_deps.deinit();
         
         for (dep_docs) |*doc| {
@@ -598,13 +609,27 @@ pub const DocumentationGenerator = struct {
     
     /// Generate manifest.json machine-readable documentation
     fn generateManifest(self: *Self, dep_docs: []const DependencyDoc) !void {
-        var content = std.ArrayList(u8).init(self.allocator);
+        var content = collections.List(u8).init(self.allocator);
         defer content.deinit();
         
         const writer = content.writer();
         
         try writer.print("{{\n", .{});
-        try writer.print("  \"generated\": \"2025-08-17T10:30:00Z\",\n", .{});
+        
+        // Generate current ISO 8601 timestamp
+        const timestamp = std.time.timestamp();
+        const epoch_days = @divFloor(timestamp, 86400) + 719163;
+        const seconds_today = @mod(timestamp, 86400);
+        const hour = @divFloor(seconds_today, 3600);
+        const minute = @divFloor(@mod(seconds_today, 3600), 60);
+        const second = @mod(seconds_today, 60);
+        
+        const year = @divFloor(epoch_days, 365) + 1;
+        const day_of_year = @mod(epoch_days, 365);
+        const month = @min(12, @divFloor(day_of_year, 30) + 1);
+        const day = @min(31, @mod(day_of_year, 30) + 1);
+        
+        try writer.print("  \"generated\": \"{d}-{d:0>2}-{d:0>2}T{d:0>2}:{d:0>2}:{d:0>2}Z\",\n", .{ year, month, day, hour, minute, second });
         try writer.print("  \"generator\": \"zz-deps-v1.0.0\",\n", .{});
         try writer.print("  \"dependencies\": {{\n", .{});
         

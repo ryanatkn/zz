@@ -2,10 +2,12 @@ const std = @import("std");
 const io = @import("../core/io.zig");
 const process = @import("../core/process.zig");
 const path = @import("../core/path.zig");
+const errors = @import("../core/errors.zig");
 const FilesystemInterface = @import("../filesystem/interface.zig").FilesystemInterface;
 const RealFilesystem = @import("../filesystem/real.zig").RealFilesystem;
 const ProgressIndicator = @import("../terminal/progress.zig").ProgressIndicator;
 const PathMatcher = @import("../deps/path_matcher.zig").PathMatcher;
+const PatternValidator = @import("../deps/pattern_validator.zig").PatternValidator;
 
 /// Git operations wrapper for dependency management
 pub const Git = struct {
@@ -67,6 +69,9 @@ pub const Git = struct {
             return error.GitCloneFailed;
         }
         
+        // Validate include patterns match files in the repository (without progress indicator)
+        try self.validatePatternsQuiet(temp_clone, include_patterns, exclude_patterns);
+        
         // Copy files from temp to dest with pattern filtering
         try self.copyDirectorySelective(temp_clone, dest, include_patterns, exclude_patterns);
     }
@@ -119,6 +124,9 @@ pub const Git = struct {
         
         // Get commit hash before copying files
         const commit_hash = try self.getCommitHash(temp_clone);
+        
+        // Validate include patterns match files in the repository
+        try self.validatePatterns(temp_clone, include_patterns, exclude_patterns, progress);
         
         // Copy files from temp to dest with pattern filtering
         try self.copyDirectorySelective(temp_clone, dest, include_patterns, exclude_patterns);
@@ -193,6 +201,67 @@ pub const Git = struct {
                 },
                 else => continue, // Skip symlinks, etc.
             }
+        }
+    }
+    
+    /// Validate include/exclude patterns against repository files
+    fn validatePatterns(self: *Self, repo_dir: []const u8, include_patterns: []const []const u8, exclude_patterns: []const []const u8, progress: *ProgressIndicator) !void {
+        // Only validate if include patterns are specified
+        if (include_patterns.len == 0) return;
+        
+        var validator = PatternValidator.init(self.allocator, self.filesystem);
+        
+        // Check if repository has any files
+        if (!try validator.hasFiles(repo_dir)) {
+            try progress.fail("Repository is empty");
+            return error.EmptyRepository;
+        }
+        
+        var validation_result = validator.validateIncludePatterns(repo_dir, include_patterns, exclude_patterns) catch |err| {
+            try progress.fail("Pattern validation failed");
+            return err;
+        };
+        defer validation_result.deinit();
+        
+        // If any include patterns failed to match, provide detailed error
+        if (validation_result.failed_patterns.items.len > 0) {
+            const error_msg = try validation_result.formatError(self.allocator);
+            defer self.allocator.free(error_msg);
+            
+            // Log detailed error to stderr
+            const stderr = std.io.getStdErr().writer();
+            try stderr.print("\n{s}\n", .{error_msg});
+            
+            try progress.fail("Include patterns did not match any files");
+            return error.NoIncludeMatches;
+        }
+    }
+    
+    /// Validate patterns without progress indicator (for non-progress clone)
+    fn validatePatternsQuiet(self: *Self, repo_dir: []const u8, include_patterns: []const []const u8, exclude_patterns: []const []const u8) !void {
+        // Only validate if include patterns are specified
+        if (include_patterns.len == 0) return;
+        
+        var validator = PatternValidator.init(self.allocator, self.filesystem);
+        
+        // Check if repository has any files
+        if (!try validator.hasFiles(repo_dir)) {
+            return error.EmptyRepository;
+        }
+        
+        var validation_result = try validator.validateIncludePatterns(repo_dir, include_patterns, exclude_patterns);
+        defer validation_result.deinit();
+        
+        // If any include patterns failed to match, provide detailed error
+        if (validation_result.failed_patterns.items.len > 0) {
+            const error_msg = try validation_result.formatError(self.allocator);
+            defer self.allocator.free(error_msg);
+            
+            // Log detailed error to stderr
+            const stderr = std.io.getStdErr().writer();
+            try stderr.print("\n{s}\n", .{error_msg});
+            
+            return error.NoIncludeMatches;
         }
     }
 };

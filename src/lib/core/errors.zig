@@ -105,6 +105,18 @@ pub fn isNetworkError(err: anyerror) bool {
     };
 }
 
+/// Check if error is dependency-related
+pub fn isDependencyError(err: anyerror) bool {
+    return switch (err) {
+        error.NoIncludeMatches,
+        error.InvalidPattern,
+        error.EmptyRepository,
+        error.PatternValidationFailed,
+        => true,
+        else => false,
+    };
+}
+
 // ============================================================================
 // Error Messages
 // ============================================================================
@@ -130,6 +142,10 @@ pub fn getMessage(err: anyerror) []const u8 {
         error.NetworkUnreachable => "Network unreachable",
         error.BrokenPipe => "Broken pipe",
         error.Unexpected => "Unexpected error",
+        error.NoIncludeMatches => "Include patterns did not match any files",
+        error.InvalidPattern => "Invalid pattern syntax",
+        error.EmptyRepository => "Repository contains no files",
+        error.PatternValidationFailed => "Pattern validation failed",
         else => "Unknown error",
     };
 }
@@ -245,6 +261,10 @@ test "error classification" {
     try testing.expect(isNetworkError(error.ConnectionRefused));
     try testing.expect(isNetworkError(error.BrokenPipe));
     try testing.expect(!isNetworkError(error.FileNotFound));
+
+    try testing.expect(isDependencyError(error.NoIncludeMatches));
+    try testing.expect(isDependencyError(error.InvalidPattern));
+    try testing.expect(!isDependencyError(error.FileNotFound));
 }
 
 test "error messages" {
@@ -252,6 +272,7 @@ test "error messages" {
 
     try testing.expectEqualStrings("File not found", getMessage(error.FileNotFound));
     try testing.expectEqualStrings("Out of memory", getMessage(error.OutOfMemory));
+    try testing.expectEqualStrings("Include patterns did not match any files", getMessage(error.NoIncludeMatches));
     try testing.expectEqualStrings("Unknown error", getMessage(error.InvalidCharacter));
 }
 

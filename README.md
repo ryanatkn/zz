@@ -9,7 +9,7 @@ For the companion GUI see [Zzz](https://github.com/ryanatkn/zzz).
 
 Fast command-line utilities for exploring and understanding codebases. Built on a **Pure Zig language tooling library** featuring native AST parsing, code formatting, and semantic analysis.
 
-**🚀 Architecture Evolution**: We're replacing tree-sitter with a Pure Zig grammar system. See [TODO_PURE_ZIG_ROADMAP.md](TODO_PURE_ZIG_ROADMAP.md) for details.
+**Architecture Evolution**: We're replacing tree-sitter with a Pure Zig grammar system. See [TODO_PURE_ZIG_ROADMAP.md](TODO_PURE_ZIG_ROADMAP.md) for details.
 
 **Key Features:**
 - 🔍 **Semantic code extraction** - Extract functions, types, and docs using pure Zig AST parsing

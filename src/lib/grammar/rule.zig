@@ -5,6 +5,23 @@ const MatchResult = test_framework.MatchResult;
 const TestContext = test_framework.TestContext;
 const TestHelpers = test_framework.TestHelpers;
 
+// Import all rule types
+const rule_terminal = @import("rule_terminal.zig");
+const rule_sequence = @import("rule_sequence.zig");
+const rule_choice = @import("rule_choice.zig");
+const rule_optional = @import("rule_optional.zig");
+const rule_repeat = @import("rule_repeat.zig");
+const rule_repeat1 = @import("rule_repeat1.zig");
+const rule_helpers = @import("rule_helpers.zig");
+
+// Re-export rule types
+pub const Terminal = rule_terminal.Terminal;
+pub const Sequence = rule_sequence.Sequence;
+pub const Choice = rule_choice.Choice;
+pub const Optional = rule_optional.Optional;
+pub const Repeat = rule_repeat.Repeat;
+pub const Repeat1 = rule_repeat1.Repeat1;
+
 /// Base rule interface for grammar definitions
 /// All rule types implement this pattern for matching input
 pub const Rule = union(enum) {
@@ -40,243 +57,16 @@ pub const Rule = union(enum) {
     }
 };
 
-/// Terminal rule - matches a literal string
-pub const Terminal = struct {
-    literal: []const u8,
-    
-    pub fn init(literal: []const u8) Terminal {
-        return .{ .literal = literal };
-    }
-    
-    pub fn match(self: Terminal, ctx: *TestContext) MatchResult {
-        const remaining = ctx.remaining();
-        
-        // Check if we have enough input
-        if (remaining.len < self.literal.len) {
-            return MatchResult.failure();
-        }
-        
-        // Check if input starts with our literal
-        if (std.mem.startsWith(u8, remaining, self.literal)) {
-            ctx.advance(self.literal.len);
-            return MatchResult.init(true, self.literal.len, remaining);
-        }
-        
-        return MatchResult.failure();
-    }
-    
-    pub fn toRule(self: Terminal) Rule {
-        return .{ .terminal = self };
-    }
-};
-
-/// Sequence rule - matches multiple rules in order
-pub const Sequence = struct {
-    rules: []const Rule,
-    allocator: std.mem.Allocator,
-    
-    pub fn init(allocator: std.mem.Allocator, rules: []const Rule) !Sequence {
-        const rules_copy = try allocator.dupe(Rule, rules);
-        return .{
-            .rules = rules_copy,
-            .allocator = allocator,
-        };
-    }
-    
-    pub fn deinit(self: *Sequence) void {
-        self.allocator.free(self.rules);
-    }
-    
-    pub fn match(self: Sequence, ctx: *TestContext) MatchResult {
-        const start_pos = ctx.position;
-        var total_consumed: usize = 0;
-        
-        // Try to match each rule in sequence
-        for (self.rules) |rule| {
-            const result = rule.match(ctx);
-            if (!result.success) {
-                // Failed - restore position and return failure
-                ctx.position = start_pos;
-                return MatchResult.failure();
-            }
-            total_consumed += result.consumed;
-        }
-        
-        // All rules matched successfully
-        return MatchResult.init(true, total_consumed, ctx.input[start_pos..]);
-    }
-    
-    pub fn toRule(self: Sequence) Rule {
-        return .{ .sequence = self };
-    }
-};
-
-/// Choice rule - matches one of several alternatives
-pub const Choice = struct {
-    choices: []const Rule,
-    allocator: std.mem.Allocator,
-    
-    pub fn init(allocator: std.mem.Allocator, choices: []const Rule) !Choice {
-        const choices_copy = try allocator.dupe(Rule, choices);
-        return .{
-            .choices = choices_copy,
-            .allocator = allocator,
-        };
-    }
-    
-    pub fn deinit(self: *Choice) void {
-        self.allocator.free(self.choices);
-    }
-    
-    pub fn match(self: Choice, ctx: *TestContext) MatchResult {
-        const start_pos = ctx.position;
-        
-        // Try each choice in order
-        for (self.choices) |choice_rule| {
-            const result = choice_rule.match(ctx);
-            if (result.success) {
-                return result;
-            }
-            // Reset position for next attempt
-            ctx.position = start_pos;
-        }
-        
-        // No choices matched
-        return MatchResult.failure();
-    }
-    
-    pub fn toRule(self: Choice) Rule {
-        return .{ .choice = self };
-    }
-};
-
-/// Optional rule - matches zero or one occurrence
-pub const Optional = struct {
-    rule: *const Rule,
-    
-    pub fn init(rule: *const Rule) Optional {
-        return .{ .rule = rule };
-    }
-    
-    pub fn match(self: Optional, ctx: *TestContext) MatchResult {
-        const result = self.rule.match(ctx);
-        if (result.success) {
-            return result;
-        }
-        // Optional always succeeds, even if underlying rule doesn't match
-        return MatchResult.init(true, 0, ctx.remaining());
-    }
-    
-    pub fn toRule(self: Optional) Rule {
-        return .{ .optional = self };
-    }
-};
-
-/// Repeat rule - matches zero or more occurrences
-pub const Repeat = struct {
-    rule: *const Rule,
-    
-    pub fn init(rule: *const Rule) Repeat {
-        return .{ .rule = rule };
-    }
-    
-    pub fn match(self: Repeat, ctx: *TestContext) MatchResult {
-        const start_pos = ctx.position;
-        var total_consumed: usize = 0;
-        
-        // Keep matching while we can
-        while (true) {
-            const result = self.rule.match(ctx);
-            if (!result.success) {
-                break;
-            }
-            total_consumed += result.consumed;
-            
-            // Prevent infinite loops on zero-width matches
-            if (result.consumed == 0) {
-                break;
-            }
-        }
-        
-        // Repeat always succeeds (zero or more)
-        return MatchResult.init(true, total_consumed, ctx.input[start_pos..]);
-    }
-    
-    pub fn toRule(self: Repeat) Rule {
-        return .{ .repeat = self };
-    }
-};
-
-/// Repeat1 rule - matches one or more occurrences
-pub const Repeat1 = struct {
-    rule: *const Rule,
-    
-    pub fn init(rule: *const Rule) Repeat1 {
-        return .{ .rule = rule };
-    }
-    
-    pub fn match(self: Repeat1, ctx: *TestContext) MatchResult {
-        const start_pos = ctx.position;
-        
-        // Must match at least once
-        const first = self.rule.match(ctx);
-        if (!first.success) {
-            return MatchResult.failure();
-        }
-        
-        var total_consumed = first.consumed;
-        
-        // Then match zero or more times
-        while (true) {
-            const result = self.rule.match(ctx);
-            if (!result.success) {
-                break;
-            }
-            total_consumed += result.consumed;
-            
-            // Prevent infinite loops
-            if (result.consumed == 0) {
-                break;
-            }
-        }
-        
-        return MatchResult.init(true, total_consumed, ctx.input[start_pos..]);
-    }
-    
-    pub fn toRule(self: Repeat1) Rule {
-        return .{ .repeat1 = self };
-    }
-};
-
-// Helper functions for convenient rule creation
-pub fn terminal(literal: []const u8) Rule {
-    return Terminal.init(literal).toRule();
-}
-
-pub fn sequence(allocator: std.mem.Allocator, rules: []const Rule) !Rule {
-    const seq = try Sequence.init(allocator, rules);
-    return seq.toRule();
-}
-
-pub fn choice(allocator: std.mem.Allocator, choices: []const Rule) !Rule {
-    const ch = try Choice.init(allocator, choices);
-    return ch.toRule();
-}
-
-pub fn optional(rule: *const Rule) Rule {
-    return Optional.init(rule).toRule();
-}
-
-pub fn repeat(rule: *const Rule) Rule {
-    return Repeat.init(rule).toRule();
-}
-
-pub fn repeat1(rule: *const Rule) Rule {
-    return Repeat1.init(rule).toRule();
-}
+// Re-export helper functions
+pub const terminal = rule_helpers.terminal;
+pub const sequence = rule_helpers.sequence;
+pub const choice = rule_helpers.choice;
+pub const optional = rule_helpers.optional;
+pub const repeat = rule_helpers.repeat;
+pub const repeat1 = rule_helpers.repeat1;
 
 // ============================================================================
-// Tests
+// Tests - Keep these for compatibility
 // ============================================================================
 
 test "Terminal matches literal string" {

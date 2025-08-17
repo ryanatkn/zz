@@ -2,7 +2,7 @@
 
 > ⚠️ AI slop code and docs, is unstable and full of lies
 
-## 🚀 Architecture Evolution
+## Architecture Evolution
 
 We're transitioning from tree-sitter to a **Pure Zig grammar system**, transforming zz into a comprehensive language tooling library. See [TODO_PURE_ZIG_ROADMAP.md](../TODO_PURE_ZIG_ROADMAP.md) for details.
 

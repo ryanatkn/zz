@@ -4,41 +4,44 @@
 
 ### ✅ What We Have Working
 - **Test Framework**: Complete with `MatchResult`, `TestContext`, helpers
-- **Rule System**: Terminal, Sequence, Choice, Optional, Repeat, Repeat1
-- **Validated Examples**: Arithmetic, simple JSON, nested parentheses
-- **20 passing tests** demonstrating core functionality
+- **Rule System**: Terminal, Sequence, Choice, Optional, Repeat, Repeat1  
+- **Grammar Builder**: ✅ Fluent API with rule references
+- **Module Architecture**: ✅ Clean separation (grammar.zig, builder.zig, mod.zig)
+- **Validation System**: ✅ Undefined reference detection, circular dependency detection
+- **Rule Resolution**: ✅ Converting ExtendedRules to basic Rules
+- **Validated Examples**: Arithmetic with references, JSON objects, nested structures
+- **47 passing tests** across all modules
 
 ### 📍 Where We Are
-Foundation proven, ready to build upward incrementally.
+Grammar foundation complete! Ready for AST generation and parser implementation.
+
+### ⚠️ Known Issues
+- Memory leaks in nested rule allocation (needs refinement for production)
 
 ## Immediate Next Steps (Week 1)
 
-### Step 1: Grammar Builder API
-**Goal**: Make grammar definition more ergonomic
+### ✅ Step 1: Grammar Builder API [COMPLETED]
+**Result**: Fluent API with rule references working
 
-#### 1.1 Create `src/lib/grammar/builder.zig`
+#### ✅ 1.1 Created `src/lib/grammar/builder.zig`
 ```zig
-const grammar = Grammar.builder(allocator)
-    .define("digit", choice(&.{"0", "1", "2", ...}))
-    .define("number", repeat1(ref("digit")))
-    .define("operator", choice(&.{"+", "-", "*", "/"}))
-    .define("expression", seq(&.{
-        ref("number"),
-        ref("operator"), 
-        ref("number")
-    }))
-    .build();
+// Working implementation:
+var builder = Grammar.builder(allocator);
+_ = try builder.define("digit", choice(&.{"0", "1", "2", ...}));
+_ = try builder.define("number", repeat1(&ref("digit")));
+_ = builder.start("expression");
+var grammar = try builder.build();
 ```
 
-**Key Decisions Needed**:
-- [ ] Rule reference syntax (`ref("name")` vs `@"name"` vs other)
-- [ ] Memory management strategy (who owns rule definitions?)
-- [ ] Error handling for undefined references
+**Decisions Made**:
+- ✅ Rule reference syntax: `ref("name")` 
+- ✅ Memory management: Grammar owns compiled rules
+- ✅ Error handling: Returns errors for undefined references
 
-#### 1.2 Grammar Validation
-- Detect undefined rule references
-- Detect circular dependencies (for now, disallow)
-- Validate start rule exists
+#### ✅ 1.2 Grammar Validation [COMPLETED]
+- ✅ Detect undefined rule references
+- ✅ Detect circular dependencies (disallowed)
+- ✅ Validate start rule exists
 
 ### Step 2: Simple AST Generation
 **Goal**: Convert matches to traversable tree structure

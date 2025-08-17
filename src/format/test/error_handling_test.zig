@@ -53,7 +53,7 @@ test "malformed TypeScript function" {
         const is_original_preserved = std.mem.eql(u8, result, source);
         const is_reasonable_length = result.len >= source.len * 80 / 100; // Allow 20% reduction max
         const is_empty_fallback = result.len == 0;
-        
+
         if (!is_original_preserved and !is_reasonable_length and !is_empty_fallback) {
             std.debug.print("Test {}: malformed source '{s}' (len={}) -> result '{s}' (len={})\n", .{ i, source, source.len, result, result.len });
             std.debug.print("Expected: original preserved OR reasonable length (>= {}%) OR empty fallback\n", .{80});
@@ -224,7 +224,7 @@ test "unicode and special characters" {
     const unicode_sources = [_][]const u8{
         "function тест() { return 'Привет мир'; }", // Cyrillic
         "function 测试() { return '你好世界'; }", // Chinese
-        "function test() { return '🚀 emoji 🎉'; }", // Emoji
+        "function test() { return '💨 emoji 🎉'; }", // Emoji
         "function test() { return 'line1\\nline2'; }", // Escape sequences
         "function test() { return 'quote\\'test'; }", // Escaped quotes
         "/* 多行注释\n   with unicode */ function test() {}", // Unicode comments

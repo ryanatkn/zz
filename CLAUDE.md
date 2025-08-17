@@ -4,7 +4,7 @@ Fast command-line utilities and **reusable language tooling library** written in
 
 **Performance is the top priority** - we don't care about backwards compat, always aim for the final best code.
 
-## 🚀 Major Architecture Decision: Pure Zig Grammar System
+## Major Architecture Decision: Pure Zig Grammar System
 
 We are replacing tree-sitter with a **Pure Zig grammar and parser system**. This transforms zz from a CLI tool into a comprehensive language tooling library with reusable modules for building parsers, formatters, linters, and more.
 

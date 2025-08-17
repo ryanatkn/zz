@@ -1,7 +1,7 @@
 const std = @import("std");
 const config = @import("config.zig");
-const utils = @import("utils.zig");
 const io = @import("../core/io.zig");
+const path = @import("../core/path.zig");
 const FilesystemInterface = @import("../filesystem/interface.zig").FilesystemInterface;
 const RealFilesystem = @import("../filesystem/real.zig").RealFilesystem;
 
@@ -32,7 +32,7 @@ pub const Versioning = struct {
 
     /// Check if a dependency needs to be updated
     pub fn needsUpdate(self: *Self, dep_name: []const u8, expected_version: []const u8, deps_dir: []const u8) !bool {
-        const target_dir = try utils.Utils.buildPath(self.allocator, &.{ deps_dir, dep_name });
+        const target_dir = try path.joinPath(self.allocator, deps_dir, dep_name);
         defer self.allocator.free(target_dir);
 
         // Check if directory exists using filesystem interface
@@ -45,7 +45,7 @@ pub const Versioning = struct {
         }
 
         // Check if .git directory exists (not properly vendored)
-        const git_dir = try utils.Utils.buildPath(self.allocator, &.{ target_dir, ".git" });
+        const git_dir = try path.joinPath(self.allocator, target_dir, ".git");
         defer self.allocator.free(git_dir);
 
         // If .git directory exists, we need cleanup
@@ -59,7 +59,7 @@ pub const Versioning = struct {
         }
 
         // Check version file
-        const version_file = try utils.Utils.buildPath(self.allocator, &.{ target_dir, ".version" });
+        const version_file = try path.joinPath(self.allocator, target_dir, ".version");
         defer self.allocator.free(version_file);
 
         const cwd = self.filesystem.cwd();
@@ -79,10 +79,10 @@ pub const Versioning = struct {
 
     /// Load version information from a dependency directory
     pub fn loadVersionInfo(self: *Self, dep_dir: []const u8) !?config.VersionInfo {
-        const version_file = try utils.Utils.buildPath(self.allocator, &.{ dep_dir, ".version" });
+        const version_file = try path.joinPath(self.allocator, dep_dir, ".version");
         defer self.allocator.free(version_file);
 
-        const content = (try utils.Utils.readFileOptional(self.allocator, version_file, 1024)) orelse return null;
+        const content = (try io.readFileOptional(self.allocator, version_file)) orelse return null;
         defer self.allocator.free(content);
 
         return try config.VersionInfo.parseFromContent(self.allocator, content);
@@ -90,7 +90,7 @@ pub const Versioning = struct {
 
     /// Save version information to a dependency directory
     pub fn saveVersionInfo(self: *Self, dep_dir: []const u8, version_info: *const config.VersionInfo) !void {
-        const version_file = try utils.Utils.buildPath(self.allocator, &.{ dep_dir, ".version" });
+        const version_file = try path.joinPath(self.allocator, dep_dir, ".version");
         defer self.allocator.free(version_file);
 
         const content = try version_info.toContent(self.allocator);
@@ -130,6 +130,14 @@ pub const Versioning = struct {
         return std.math.order(parsed1.patch, parsed2.patch);
     }
 
+    /// Remove 'v' prefix from version string if present
+    fn cleanVersionString(version: []const u8) []const u8 {
+        return if (std.mem.startsWith(u8, version, "v"))
+            version[1..]
+        else
+            version;
+    }
+
     /// Parse version string to detect major version changes
     pub fn detectMajorVersionChange(self: *Self, old_version: []const u8, new_version: []const u8) !bool {
         _ = self;
@@ -142,7 +150,7 @@ pub const Versioning = struct {
     }
 
     pub fn extractMajorVersion(version: []const u8) !u32 {
-        const clean_version = utils.Utils.cleanVersionString(version);
+        const clean_version = cleanVersionString(version);
 
         // Find first dot or end of string
         var end_idx: usize = 0;
@@ -164,7 +172,7 @@ pub const Versioning = struct {
     
     /// Parse semantic version string (e.g., "v1.2.3" or "1.2.3")
     pub fn parseSemanticVersion(version: []const u8) !SemanticVersion {
-        const clean_version = utils.Utils.cleanVersionString(version);
+        const clean_version = cleanVersionString(version);
 
         // Split by dots
         var parts = std.mem.splitSequence(u8, clean_version, ".");

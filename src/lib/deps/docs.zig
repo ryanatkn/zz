@@ -1,6 +1,5 @@
 const std = @import("std");
 const config = @import("config.zig");
-const utils = @import("utils.zig");
 const io = @import("../core/io.zig");
 const path = @import("../core/path.zig");
 const collections = @import("../core/collections.zig");
@@ -507,13 +506,11 @@ pub const DocumentationGenerator = struct {
     
     /// Generate DEPS.md markdown documentation
     fn generateMarkdownDocs(self: *Self, dep_docs: []const DependencyDoc) !void {
-        var content = collections.List(u8).init(self.allocator);
-        defer content.deinit();
-        
-        const writer = content.writer();
+        var builder = builders.ResultBuilder.init(self.allocator);
+        defer builder.deinit();
         
         // Header
-        try writer.print("# Dependency Manifest\n", .{});
+        try builder.appendLine("# Dependency Manifest");
         
         // Get current date
         const timestamp = std.time.timestamp();
@@ -525,11 +522,13 @@ pub const DocumentationGenerator = struct {
         const month = @min(12, @divFloor(day_of_year, 30) + 1);
         const day = @min(31, @mod(day_of_year, 30) + 1);
         
-        try writer.print("Generated: {d}-{d:0>2}-{d:0>2} by zz deps\n\n", .{ year, month, day });
+        try builder.appendLineFmt("Generated: {d}-{d:0>2}-{d:0>2} by zz deps", .{ year, month, day });
+        try builder.appendLine("");
         
         // Summary
-        try writer.print("## Summary\n", .{});
-        try writer.print("Total Dependencies: {d}\n\n", .{dep_docs.len});
+        try builder.appendLine("## Summary");
+        try builder.appendLineFmt("Total Dependencies: {d}", .{dep_docs.len});
+        try builder.appendLine("");
         
         // Group by category
         var core_deps = collections.List(*const DependencyDoc).init(self.allocator);
@@ -549,31 +548,33 @@ pub const DocumentationGenerator = struct {
         
         // Core Libraries section
         if (core_deps.items.len > 0) {
-            try writer.print("## {s} ({d})\n\n", .{ DependencyCategory.core.displayName(), core_deps.items.len });
-            try writer.print("| Dependency | Version | Repository | Purpose |\n", .{});
-            try writer.print("|------------|---------|------------|----------|\n", .{});
+            try builder.appendLineFmt("## {s} ({d})", .{ DependencyCategory.core.displayName(), core_deps.items.len });
+            try builder.appendLine("");
+            try builder.appendLine("| Dependency | Version | Repository | Purpose |");
+            try builder.appendLine("|------------|---------|------------|----------|");
             
             for (core_deps.items) |doc| {
-                try writer.print("| {s} | {s} | [GitHub]({s}) | {s} |\n", .{
+                try builder.appendLineFmt("| {s} | {s} | [GitHub]({s}) | {s} |", .{
                     doc.name,
                     doc.version_info.version,
                     doc.version_info.repository,
                     doc.purpose,
                 });
             }
-            try writer.print("\n", .{});
+            try builder.appendLine("");
         }
         
         // Grammar Libraries section
         if (grammar_deps.items.len > 0) {
-            try writer.print("## {s} ({d})\n\n", .{ DependencyCategory.grammar.displayName(), grammar_deps.items.len });
-            try writer.print("| Dependency | Version | Language | Parser Function | Purpose |\n", .{});
-            try writer.print("|------------|---------|----------|-----------------|----------|\n", .{});
+            try builder.appendLineFmt("## {s} ({d})", .{ DependencyCategory.grammar.displayName(), grammar_deps.items.len });
+            try builder.appendLine("");
+            try builder.appendLine("| Dependency | Version | Language | Parser Function | Purpose |");
+            try builder.appendLine("|------------|---------|----------|-----------------|----------|");
             
             for (grammar_deps.items) |doc| {
                 const lang = doc.language orelse "unknown";
                 const parser_func = doc.build_config.parser_function orelse "unknown";
-                try writer.print("| {s} | {s} | {s} | `{s}()` | {s} |\n", .{
+                try builder.appendLineFmt("| {s} | {s} | {s} | `{s}()` | {s} |", .{
                     doc.name,
                     doc.version_info.version,
                     lang,
@@ -581,40 +582,39 @@ pub const DocumentationGenerator = struct {
                     doc.purpose,
                 });
             }
-            try writer.print("\n", .{});
+            try builder.appendLine("");
         }
         
         // Reference Documentation section
         if (reference_deps.items.len > 0) {
-            try writer.print("## {s} ({d})\n\n", .{ DependencyCategory.reference.displayName(), reference_deps.items.len });
-            try writer.print("| Dependency | Version | Purpose |\n", .{});
-            try writer.print("|------------|---------|----------|\n", .{});
+            try builder.appendLineFmt("## {s} ({d})", .{ DependencyCategory.reference.displayName(), reference_deps.items.len });
+            try builder.appendLine("");
+            try builder.appendLine("| Dependency | Version | Purpose |");
+            try builder.appendLine("|------------|---------|----------|");
             
             for (reference_deps.items) |doc| {
-                try writer.print("| {s} | {s} | {s} |\n", .{
+                try builder.appendLineFmt("| {s} | {s} | {s} |", .{
                     doc.name,
                     doc.version_info.version,
                     doc.purpose,
                 });
             }
-            try writer.print("\n", .{});
+            try builder.appendLine("");
         }
         
         // Write to file
         const deps_md_path = try path.joinPath(self.allocator, self.deps_dir, "DEPS.md");
         defer self.allocator.free(deps_md_path);
         
-        try io.writeFile(deps_md_path, content.items);
+        try io.writeFile(deps_md_path, builder.items());
     }
     
     /// Generate manifest.json machine-readable documentation
     fn generateManifest(self: *Self, dep_docs: []const DependencyDoc) !void {
-        var content = collections.List(u8).init(self.allocator);
-        defer content.deinit();
+        var builder = builders.ResultBuilder.init(self.allocator);
+        defer builder.deinit();
         
-        const writer = content.writer();
-        
-        try writer.print("{{\n", .{});
+        try builder.appendLine("{");
         
         // Generate current ISO 8601 timestamp
         const timestamp = std.time.timestamp();
@@ -629,41 +629,42 @@ pub const DocumentationGenerator = struct {
         const month = @min(12, @divFloor(day_of_year, 30) + 1);
         const day = @min(31, @mod(day_of_year, 30) + 1);
         
-        try writer.print("  \"generated\": \"{d}-{d:0>2}-{d:0>2}T{d:0>2}:{d:0>2}:{d:0>2}Z\",\n", .{ year, month, day, hour, minute, second });
-        try writer.print("  \"generator\": \"zz-deps-v1.0.0\",\n", .{});
-        try writer.print("  \"dependencies\": {{\n", .{});
+        try builder.appendLineFmt("  \"generated\": \"{d}-{d:0>2}-{d:0>2}T{d:0>2}:{d:0>2}:{d:0>2}Z\",", .{ year, month, day, hour, minute, second });
+        try builder.appendLine("  \"generator\": \"zz-deps-v1.0.0\",");
+        try builder.appendLine("  \"dependencies\": {");
         
         for (dep_docs, 0..) |doc, i| {
-            try writer.print("    \"{s}\": {{\n", .{doc.name});
-            try writer.print("      \"category\": \"{s}\",\n", .{doc.category.toString()});
-            try writer.print("      \"version\": \"{s}\",\n", .{doc.version_info.version});
-            try writer.print("      \"repository\": \"{s}\",\n", .{doc.version_info.repository});
-            try writer.print("      \"commit\": \"{s}\",\n", .{doc.version_info.commit});
-            try writer.print("      \"purpose\": \"{s}\"", .{doc.purpose});
+            try builder.appendLineFmt("    \"{s}\": {{", .{doc.name});
+            try builder.appendLineFmt("      \"category\": \"{s}\",", .{doc.category.toString()});
+            try builder.appendLineFmt("      \"version\": \"{s}\",", .{doc.version_info.version});
+            try builder.appendLineFmt("      \"repository\": \"{s}\",", .{doc.version_info.repository});
+            try builder.appendLineFmt("      \"commit\": \"{s}\",", .{doc.version_info.commit});
+            try builder.appendFmt("      \"purpose\": \"{s}\"", .{doc.purpose});
             
             if (doc.language) |lang| {
-                try writer.print(",\n      \"language\": \"{s}\"", .{lang});
+                try builder.appendFmt(",\n      \"language\": \"{s}\"", .{lang});
             }
             
             if (doc.build_config.parser_function) |func| {
-                try writer.print(",\n      \"parser_function\": \"{s}\"", .{func});
+                try builder.appendFmt(",\n      \"parser_function\": \"{s}\"", .{func});
             }
             
-            try writer.print("\n    }}", .{});
+            try builder.appendLine("");
+            try builder.append("    }");
             
             if (i < dep_docs.len - 1) {
-                try writer.print(",", .{});
+                try builder.append(",");
             }
-            try writer.print("\n", .{});
+            try builder.appendLine("");
         }
         
-        try writer.print("  }}\n", .{});
-        try writer.print("}}\n", .{});
+        try builder.appendLine("  }");
+        try builder.appendLine("}");
         
         // Write to file
         const manifest_path = try path.joinPath(self.allocator, self.deps_dir, "manifest.json");
         defer self.allocator.free(manifest_path);
         
-        try io.writeFile(manifest_path, content.items);
+        try io.writeFile(manifest_path, builder.items());
     }
 };

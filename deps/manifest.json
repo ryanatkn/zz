@@ -1,5 +1,5 @@
 {
-  "generated": "2025-08-17T10:30:00Z",
+  "generated": "2026-+12-+26T+11:+13:+16Z",
   "generator": "zz-deps-v1.0.0",
   "dependencies": {
     "zig-tree-sitter": {
@@ -15,6 +15,13 @@
       "repository": "https://github.com/ziglang/zig-spec.git",
       "commit": "c356a5517e967a5976358e86b096625c5585af23",
       "purpose": "Zig language specification and grammar reference"
+    },
+    "webref": {
+      "category": "reference",
+      "version": "main",
+      "repository": "https://github.com/w3c/webref.git",
+      "commit": "17f080039cfa6e14044c292d1643af0a3ddd86ce",
+      "purpose": "Dependency: webref"
     },
     "tree-sitter": {
       "category": "core",

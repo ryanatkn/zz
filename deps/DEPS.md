@@ -1,8 +1,8 @@
 # Dependency Manifest
-Generated: 2025-08-17 by zz deps
+Generated: 2026-+12-+26 by zz deps
 
 ## Summary
-Total Dependencies: 9
+Total Dependencies: 10
 
 ## Core Libraries (2)
 
@@ -22,9 +22,10 @@ Total Dependencies: 9
 | tree-sitter-html | v0.23.0 | tml | `tree_sitter_tml()` | tml language grammar for tree-sitter |
 | tree-sitter-json | v0.24.8 | son | `tree_sitter_son()` | son language grammar for tree-sitter |
 
-## Reference Documentation (1)
+## Reference Documentation (2)
 
 | Dependency | Version | Purpose |
 |------------|---------|----------|
 | zig-spec | main | Zig language specification and grammar reference |
+| webref | main | Dependency: webref |
 

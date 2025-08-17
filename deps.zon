@@ -119,13 +119,4 @@
             .purpose = "W3C Web specifications and API reference data for CSS/HTML validation",
         },
     },
-    
-    // Global settings for dependency management
-    .settings = .{
-        .deps_dir = "deps",
-        .backup_enabled = true,
-        .lock_timeout_seconds = 300,
-        .clone_retries = 3,
-        .clone_timeout_seconds = 60,
-    },
 }

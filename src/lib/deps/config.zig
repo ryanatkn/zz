@@ -1,4 +1,6 @@
 const std = @import("std");
+const ZonParser = @import("../languages/zon/parser.zig").ZonParser;
+const DependencyInfo = @import("../languages/zon/parser.zig").DependencyInfo;
 
 /// Configuration for a single dependency
 pub const Dependency = struct {
@@ -212,6 +214,8 @@ pub const UpdateOptions = struct {
     color: bool = true,
     backup: bool = true,
     retries: u32 = 3,
+    /// Respect semantic version tags - don't upgrade from tags to main branch
+    respect_semantic_versions: bool = true,
     generate_docs: bool = false,
 };
 
@@ -223,68 +227,43 @@ pub const DepsZonConfig = struct {
     /// Track if strings were allocated (ZON parsed) or are literals (hardcoded)
     owns_strings: bool = false,
 
-    /// Parse dependencies from ZON content using robust text parsing
-    /// ZON is Zig's native format and deserves first-class support
+    /// Parse dependencies from ZON content using the dedicated ZON module
+    /// This eliminates the memory leak and provides proper string management
+
     pub fn parseFromZonContent(allocator: std.mem.Allocator, content: []const u8) !DepsZonConfig {
-        // Parse ZON content and extract dependency names
-        // Allocated strings are properly tracked with owns_strings flag
+        // Use the dedicated ZON module for proper parsing and memory management
+        var zon_parser = ZonParser.init(allocator);
         
+        // Parse dependencies using the ZON module
+        var zon_dependencies = try zon_parser.parseDependencies(content);
+        
+        // Convert ZON module results to our internal format
         var dependencies = std.StringHashMap(DependencyZonEntry).init(allocator);
         
-        // Simple dependency detection - find all dependency names
-        // This detects all dependencies including webref from deps.zon
-        var lines = std.mem.splitSequence(u8, content, "\n");
-        var in_dependencies = false;
-        var deps_brace_count: i32 = 0;
-        
-        while (lines.next()) |line| {
-            const trimmed = std.mem.trim(u8, line, " \t\r");
-            if (trimmed.len == 0) continue;
-            if (std.mem.startsWith(u8, trimmed, "//")) continue;
+        var zon_iterator = zon_dependencies.iterator();
+        while (zon_iterator.next()) |entry| {
+            const dep_name_orig = entry.key_ptr.*;
+            const dep_info = entry.value_ptr.*;
             
-            // Start of dependencies section
-            if (std.mem.indexOf(u8, trimmed, ".dependencies")) |_| {
-                in_dependencies = true;
-                // Look for opening brace on this line or next
-                for (trimmed) |c| {
-                    if (c == '{') deps_brace_count += 1;
-                }
-                continue;
-            }
+            // Duplicate all strings to ensure proper ownership in our structure
+            const dep_name = try allocator.dupe(u8, dep_name_orig);
+            const dep_entry = DependencyZonEntry{
+                .url = if (dep_info.url) |url| try allocator.dupe(u8, url) else try allocator.dupe(u8, "https://example.com/repo.git"),
+                .version = if (dep_info.version) |version| try allocator.dupe(u8, version) else try allocator.dupe(u8, "main"),
+                .include = &.{},
+                .exclude = &.{},
+                .preserve_files = &.{},
+                .patches = &.{},
+                .category = null,
+                .language = null,
+                .purpose = null,
+            };
             
-            if (!in_dependencies) continue;
-            
-            // Count braces to track nesting level
-            for (trimmed) |c| {
-                if (c == '{') deps_brace_count += 1;
-                if (c == '}') deps_brace_count -= 1;
-            }
-            
-            // Exit dependencies section when we close the main dependencies brace
-            if (deps_brace_count <= 0) break;
-            
-            // Look for dependency name pattern: .@"dep-name" = .{
-            if (std.mem.indexOf(u8, trimmed, ".@\"")) |start| {
-                // Extract dependency name
-                const quote_start = start + 3;
-                if (std.mem.indexOf(u8, trimmed[quote_start..], "\"")) |quote_end| {
-                    const dep_name = trimmed[quote_start..quote_start + quote_end];
-                    
-                    // Create minimal dependency entry with safe string literals
-                    // Use slice directly from content - no allocation needed
-                    const dep_entry = DependencyZonEntry{
-                        .url = "https://example.com/repo.git", // Safe default
-                        .version = "main", // Safe default
-                        .include = &.{},
-                        .exclude = &.{},
-                        .preserve_files = &.{},
-                        .patches = &.{},
-                    };
-                    
-                    try dependencies.put(dep_name, dep_entry);
-                }
-            }
+            try dependencies.put(dep_name, dep_entry);
         }
+        
+        // Clean up ZON dependencies properly using the parser's method
+        zon_parser.freeDependencies(&zon_dependencies);
         
         // Default settings (safe literals)
         const settings = SettingsStruct{
@@ -299,7 +278,7 @@ pub const DepsZonConfig = struct {
             .dependencies = dependencies,
             .settings = settings,
             .allocator = allocator,
-            .owns_strings = false, // Using slices from content and string literals
+            .owns_strings = true, // ZON module provides properly allocated strings
         };
     }
     
@@ -326,6 +305,8 @@ pub const DepsZonConfig = struct {
         lock_timeout_seconds: ?u32 = null,
         clone_retries: ?u32 = null,
         clone_timeout_seconds: ?u32 = null,
+        /// Respect semantic version tags - don't upgrade from tags to main branch
+        respect_semantic_versions: ?bool = null,
     };
 
     /// Convert to DepsConfig format for use by dependency manager
@@ -339,6 +320,7 @@ pub const DepsZonConfig = struct {
         while (iterator.next()) |entry| {
             const dep_name = entry.key_ptr.*;
             const dep_value = entry.value_ptr.*;
+            
             
             const hash_entry = DepsConfig.DependencyEntry{
                 .url = dep_value.url,
@@ -363,44 +345,30 @@ pub const DepsZonConfig = struct {
     
     /// Free the dependencies HashMap and all allocated memory
     pub fn deinit(self: *DepsZonConfig) void {
-        // Only free allocated strings if they were from ZON parsing
+        // Free all allocated strings if they were from ZON parsing
         if (self.owns_strings) {
             var iterator = self.dependencies.iterator();
             while (iterator.next()) |entry| {
-                // Free the key (dependency name)
+                // Free the key (dependency name) - always allocated
                 self.allocator.free(entry.key_ptr.*);
                 
-                // Free the value (DependencyZonEntry) 
+                // Free the value strings - all are allocated by our conversion
                 const dep = entry.value_ptr.*;
                 self.allocator.free(dep.url);
                 self.allocator.free(dep.version);
                 
-                // Free string arrays
-                for (dep.include) |pattern| {
-                    self.allocator.free(pattern);
-                }
-                self.allocator.free(dep.include);
-                
-                for (dep.exclude) |pattern| {
-                    self.allocator.free(pattern);
-                }
-                self.allocator.free(dep.exclude);
-                
-                for (dep.preserve_files) |file| {
-                    self.allocator.free(file);
-                }
-                self.allocator.free(dep.preserve_files);
-                
-                for (dep.patches) |patch| {
-                    self.allocator.free(patch);
-                }
-                self.allocator.free(dep.patches);
+                // Free string arrays (these are currently empty slices, safe to skip)
+                // The include, exclude, preserve_files, patches arrays are currently literals
+                // No need to free them in the current implementation
             }
             
-            // Free settings if allocated
+            // Free settings if allocated (currently using literals)
             if (self.settings) |settings| {
                 if (settings.deps_dir) |dir| {
-                    self.allocator.free(dir);
+                    // Only free if it's not a literal
+                    if (!std.mem.eql(u8, dir, "deps")) {
+                        self.allocator.free(dir);
+                    }
                 }
             }
         }

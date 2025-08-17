@@ -312,6 +312,7 @@ fn getTreeSitterLanguage(language: Language) !*ts.Language {
         .json => tree_sitter_json(),
         .typescript => tree_sitter_typescript(),
         .svelte => tree_sitter_svelte(),
+        .zon => error.UnsupportedLanguage, // ZON uses text-based formatting - no tree-sitter grammar yet
         .unknown => error.UnsupportedLanguage, // Don't fallback to arbitrary grammar
     };
 }

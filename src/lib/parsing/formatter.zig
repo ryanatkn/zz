@@ -53,7 +53,7 @@ pub const Formatter = struct {
     /// Check if this language supports AST-based formatting
     fn supportsAstFormatting(self: *Self) bool {
         return switch (self.language) {
-            .typescript, .svelte, .css, .json, .html, .zig => true, // All languages now support AST formatting
+            .typescript, .svelte, .css, .json, .html, .zig, .zon => true, // All languages now support AST formatting
             .unknown => false,
         };
     }

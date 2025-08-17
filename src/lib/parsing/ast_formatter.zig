@@ -18,6 +18,17 @@ pub const AstFormatter = struct {
     const Self = @This();
 
     pub fn init(allocator: std.mem.Allocator, language: Language, options: FormatterOptions) !Self {
+        // Special case for ZON - use text-based formatting, no tree-sitter needed
+        if (language == .zon) {
+            return Self{
+                .allocator = allocator,
+                .parser = undefined, // Not used for ZON
+                .options = options,
+                .language = language,
+                .cache = null,
+            };
+        }
+        
         const parser = TreeSitterParser.init(allocator, language) catch {
             // Tree-sitter initialization failed (version incompatibility, unsupported language, etc.)
             return error.UnsupportedLanguage;
@@ -48,7 +59,10 @@ pub const AstFormatter = struct {
     }
 
     pub fn deinit(self: *Self) void {
-        self.parser.deinit();
+        // Only deinit parser if it was initialized (not for ZON)
+        if (self.language != .zon) {
+            self.parser.deinit();
+        }
     }
 
     /// Format source code using AST-based approach with fallback to original
@@ -67,6 +81,12 @@ pub const AstFormatter = struct {
                     return self.allocator.dupe(u8, cached_content);
                 }
             }
+        }
+
+        // Special handling for ZON - use text-based formatting since no tree-sitter grammar exists
+        if (self.language == .zon) {
+            const zon_formatter = @import("../languages/zon/formatter.zig");
+            return zon_formatter.formatZon(self.allocator, source, self.options);
         }
 
         // Try AST-based formatting first

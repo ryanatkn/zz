@@ -8,6 +8,7 @@ pub const Language = enum {
     json,
     typescript,
     svelte,
+    zon,
     unknown,
 
     pub fn fromExtension(ext: []const u8) Language {
@@ -17,6 +18,7 @@ pub const Language = enum {
         if (std.mem.eql(u8, ext, ".json")) return .json;
         if (std.mem.eql(u8, ext, ".ts")) return .typescript;
         if (std.mem.eql(u8, ext, ".svelte")) return .svelte;
+        if (std.mem.eql(u8, ext, ".zon")) return .zon;
         return .unknown;
     }
 
@@ -34,6 +36,7 @@ pub const Language = enum {
             .json => "json",
             .typescript => "typescript",
             .svelte => "svelte",
+            .zon => "zon",
             .unknown => "unknown",
         };
     }
@@ -54,5 +57,6 @@ test "language detection" {
     try testing.expect(detectLanguage("data.json") == .json);
     try testing.expect(detectLanguage("app.ts") == .typescript);
     try testing.expect(detectLanguage("component.svelte") == .svelte);
+    try testing.expect(detectLanguage("deps.zon") == .zon);
     try testing.expect(detectLanguage("unknown.xyz") == .unknown);
 }

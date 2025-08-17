@@ -579,8 +579,27 @@ pub const FormatBody = struct {
     }
     
     fn formatStatementWithSpacing(statement: []const u8, builder: *LineBuilder) !void {
+        // Check if this is a switch statement - these have braces but aren't struct literals
+        if (std.mem.indexOf(u8, statement, "switch") != null) {
+            // Use consolidated helper for switch statement spacing
+            try ZigFormattingHelpers.formatWithZigSpacing(statement, builder);
+            return;
+        }
+        
         // Check if this statement contains a struct literal
         if (std.mem.indexOf(u8, statement, "{") != null and std.mem.indexOf(u8, statement, "}") != null) {
+            // Look for patterns that indicate this is NOT a struct literal:
+            // - Contains "if" (if statements)
+            // - Contains "while" (while loops)
+            // - Contains "for" (for loops)
+            // These all have braces but aren't struct literals
+            if (std.mem.indexOf(u8, statement, "if ") != null or
+                std.mem.indexOf(u8, statement, "while ") != null or
+                std.mem.indexOf(u8, statement, "for ") != null) {
+                try ZigFormattingHelpers.formatWithZigSpacing(statement, builder);
+                return;
+            }
+            
             try formatStatementWithStructLiteral(std.heap.page_allocator, statement, builder);
             return;
         }
@@ -633,29 +652,59 @@ pub const FormatBody = struct {
     
     /// Format union type declaration (e.g. "union(enum)" with proper spacing)
     fn formatUnionTypeDeclaration(union_type: []const u8, builder: *LineBuilder) !void {
-        // Look for parentheses in union type
-        if (std.mem.indexOf(u8, union_type, "(")) |paren_start| {
-            if (std.mem.lastIndexOf(u8, union_type, ")")) |paren_end| {
-                const before_paren = std.mem.trim(u8, union_type[0..paren_start], " \t");
-                const inside_paren = std.mem.trim(u8, union_type[paren_start + 1..paren_end], " \t");
-                const after_paren = std.mem.trim(u8, union_type[paren_end + 1..], " \t");
-                
-                try builder.append(before_paren);
-                try builder.append("(");
-                try builder.append(inside_paren);
-                try builder.append(")");
-                
-                if (after_paren.len > 0) {
-                    try builder.append(" ");
-                    try builder.append(after_paren);
+        // Clean up the union type string - it might contain "union" keyword
+        const trimmed = std.mem.trim(u8, union_type, " \t");
+        
+        // Check if it starts with "union" keyword
+        if (std.mem.startsWith(u8, trimmed, "union")) {
+            const after_union = std.mem.trim(u8, trimmed[5..], " \t");
+            
+            // Look for parentheses in union type
+            if (std.mem.indexOf(u8, after_union, "(")) |paren_start| {
+                if (std.mem.lastIndexOf(u8, after_union, ")")) |paren_end| {
+                    // Ensure we have valid content
+                    if (paren_start == 0) {
+                        // union(enum) format
+                        const inside_paren = std.mem.trim(u8, after_union[paren_start + 1..paren_end], " \t=");
+                        const after_paren = std.mem.trim(u8, after_union[paren_end + 1..], " \t");
+                        
+                        try builder.append("union(");
+                        try builder.append(inside_paren);
+                        try builder.append(")");
+                        
+                        if (after_paren.len > 0) {
+                            try builder.append(" ");
+                            try builder.append(after_paren);
+                        }
+                    } else {
+                        // Something before the parenthesis
+                        const before_paren = std.mem.trim(u8, after_union[0..paren_start], " \t");
+                        const inside_paren = std.mem.trim(u8, after_union[paren_start + 1..paren_end], " \t=");
+                        
+                        try builder.append("union");
+                        if (before_paren.len > 0) {
+                            try builder.append(" ");
+                            try builder.append(before_paren);
+                        }
+                        try builder.append("(");
+                        try builder.append(inside_paren);
+                        try builder.append(")");
+                    }
+                } else {
+                    // Malformed, just append union
+                    try builder.append("union");
                 }
             } else {
-                // Malformed, just append as-is
-                try builder.append(union_type);
+                // Simple union without parentheses
+                try builder.append("union");
+                if (after_union.len > 0) {
+                    try builder.append(" ");
+                    try builder.append(after_union);
+                }
             }
         } else {
-            // Simple union, just append
-            try builder.append(union_type);
+            // Doesn't start with union, just clean it up
+            try builder.append(trimmed);
         }
     }
 };

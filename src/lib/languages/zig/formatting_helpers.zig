@@ -338,6 +338,37 @@ pub const ZigFormattingHelpers = struct {
                 continue;
             }
 
+            // Handle dot (.) - need to check for enum values like .red
+            if (c == '.') {
+                try builder.append(&[_]u8{c});
+                i += 1;
+                
+                // Check if we're about to process an identifier followed by =>
+                // Look ahead to see if this is ".identifier=>" pattern
+                var lookahead = i;
+                while (lookahead < text.len and (std.ascii.isAlphanumeric(text[lookahead]) or text[lookahead] == '_')) {
+                    lookahead += 1;
+                }
+                
+                // If we found an identifier followed by =>, don't add space before =
+                if (lookahead < text.len - 1 and text[lookahead] == '=' and text[lookahead + 1] == '>') {
+                    // Process the identifier without adding space
+                    while (i < lookahead) {
+                        try builder.append(&[_]u8{text[i]});
+                        i += 1;
+                    }
+                    // Now we're at the = of =>
+                    try builder.append(" => ");
+                    i += 2; // Skip =>
+                    // Skip any trailing spaces
+                    while (i < text.len and text[i] == ' ') {
+                        i += 1;
+                    }
+                    continue;
+                }
+                continue;
+            }
+            
             // Handle colon spacing (Zig style: no space before, space after)
             if (c == ':') {
                 // Remove any trailing space before colon
@@ -357,6 +388,25 @@ pub const ZigFormattingHelpers = struct {
 
             // Handle equals spacing (space before and after)
             if (c == '=') {
+                // IMPORTANT: Check for => arrow operator FIRST
+                if (i + 1 < text.len and text[i + 1] == '>') {
+                    // Remove any trailing space that might have been added
+                    while (builder.buffer.items.len > 0 and 
+                           builder.buffer.items[builder.buffer.items.len - 1] == ' ') {
+                        _ = builder.buffer.pop();
+                    }
+                    
+                    // Now add the proper spacing for =>
+                    try builder.append(" => ");
+                    i += 2;
+                    
+                    // Skip any spaces that follow in the original text
+                    while (i < text.len and text[i] == ' ') {
+                        i += 1;
+                    }
+                    continue;
+                }
+                
                 // Check for == operator
                 if (i + 1 < text.len and text[i + 1] == '=') {
                     // Ensure space before ==
@@ -371,18 +421,6 @@ pub const ZigFormattingHelpers = struct {
                     if (i < text.len and text[i] != ' ') {
                         try builder.append(" ");
                     }
-                    continue;
-                }
-                
-                // Check for => arrow operator
-                if (i + 1 < text.len and text[i + 1] == '>') {
-                    // Ensure space before =>
-                    if (builder.buffer.items.len > 0 and 
-                        builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
-                        try builder.append(" ");
-                    }
-                    try builder.append("=> ");
-                    i += 2;
                     continue;
                 }
                 
@@ -402,6 +440,7 @@ pub const ZigFormattingHelpers = struct {
                 continue;
             }
 
+            
             // Handle parentheses spacing for function signatures
             if (c == ')') {
                 try builder.append(&[_]u8{c});
@@ -418,10 +457,10 @@ pub const ZigFormattingHelpers = struct {
                     }
                     
                     // Only add space if this looks like a function return type
-                    // (next character is alphabetic, not punctuation like ';')
+                    // (next character is alphabetic or '[' for array types, not punctuation like ';')
                     if (next_i < text.len and 
-                        text[next_i] != '{' and text[next_i] != '\n' and text[next_i] != ';' and
-                        std.ascii.isAlphabetic(text[next_i])) {
+                        text[next_i] != '{' and text[next_i] != '\n' and text[next_i] != ';' and text[next_i] != ',' and
+                        (std.ascii.isAlphabetic(text[next_i]) or text[next_i] == '[' or text[next_i] == '?' or text[next_i] == '!')) {
                         // Skip the spaces we found
                         i = next_i;
                         try builder.append(" ");
@@ -479,6 +518,32 @@ pub const ZigFormattingHelpers = struct {
             }
 
 
+            // Handle 's' - check for switch keyword
+            if (c == 's' and i + 5 < text.len) {
+                // Check if this is the switch keyword
+                if (std.mem.eql(u8, text[i..i+6], "switch")) {
+                    // Check boundaries - must not be part of another identifier
+                    const prev_ok = (i == 0 or !std.ascii.isAlphanumeric(text[i-1]));
+                    const next_ok = (i + 6 >= text.len or !std.ascii.isAlphanumeric(text[i+6]));
+                    
+                    if (prev_ok and next_ok) {
+                        try builder.append("switch");
+                        i += 6;
+                        
+                        // Skip spaces after switch
+                        while (i < text.len and text[i] == ' ') {
+                            i += 1;
+                        }
+                        
+                        // Add space before parenthesis
+                        if (i < text.len and text[i] == '(') {
+                            try builder.append(" ");
+                        }
+                        continue;
+                    }
+                }
+            }
+            
             // Handle space normalization
             if (c == ' ') {
                 // Only add space if we haven't just added one

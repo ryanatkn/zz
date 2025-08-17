@@ -106,27 +106,235 @@ pub const TypeScriptFormattingHelpers = struct {
 
     /// Format arrow function with proper spacing
     pub fn formatArrowFunction(allocator: std.mem.Allocator, builder: *LineBuilder, arrow_fn: []const u8, options: FormatterOptions) !void {
+        // Check if this looks like a variable assignment with arrow function
+        var arrow_start: usize = 0;
+        if (std.mem.indexOf(u8, arrow_fn, "=")) |equals_pos| {
+            // Check if this is "const name = (...) =>" pattern
+            if (std.mem.indexOf(u8, arrow_fn[equals_pos..], "=>") != null) {
+                // Format the declaration part first
+                const decl_part = std.mem.trim(u8, arrow_fn[0..equals_pos], " \t");
+                try builder.append(decl_part);
+                try builder.append(" = ");
+                arrow_start = equals_pos + 1;
+            }
+        }
+        
+        const arrow_part = std.mem.trim(u8, arrow_fn[arrow_start..], " \t");
+        
         // Split by => to get parameters and body
-        if (std.mem.indexOf(u8, arrow_fn, "=>")) |arrow_pos| {
-            const params_part = std.mem.trim(u8, arrow_fn[0..arrow_pos], " \t");
-            const body_part = std.mem.trim(u8, arrow_fn[arrow_pos + 2..], " \t");
+        if (std.mem.indexOf(u8, arrow_part, "=>")) |arrow_pos| {
+            const params_part = std.mem.trim(u8, arrow_part[0..arrow_pos], " \t");
+            const body_part = std.mem.trim(u8, arrow_part[arrow_pos + 2..], " \t");
             
             // Format parameters
             if (std.mem.startsWith(u8, params_part, "(") and std.mem.endsWith(u8, params_part, ")")) {
+                try builder.append("(");
                 const params = params_part[1..params_part.len-1];
-                try TypeScriptUtils.formatParameterList(allocator, builder, params, options);
+                // Format parameters with proper spacing
+                try formatWithTypeScriptSpacing(params, builder);
+                try builder.append(")");
             } else {
                 try builder.append(params_part);
             }
             
-            try builder.append(" => ");
+            try builder.append(" =>");
             
-            // Format body
-            if (std.mem.startsWith(u8, body_part, "{")) {
+            // Check if body contains method chaining (multiple dots not in strings)
+            if (containsMethodChaining(body_part)) {
+                try formatMethodChainBody(allocator, builder, body_part, options);
+            } else if (std.mem.startsWith(u8, body_part, "{")) {
                 try formatArrowFunctionBody(allocator, builder, body_part, options);
             } else {
+                try builder.append(" ");
                 try builder.append(body_part);
             }
+        }
+    }
+    
+    /// Check if text contains method chaining (multiple method calls)
+    fn containsMethodChaining(text: []const u8) bool {
+        var dot_count: usize = 0;
+        var in_string = false;
+        var string_char: u8 = 0;
+        
+        for (text) |c| {
+            if (!in_string and (c == '"' or c == '\'' or c == '`')) {
+                in_string = true;
+                string_char = c;
+            } else if (in_string and c == string_char) {
+                in_string = false;
+            } else if (!in_string and c == '.') {
+                dot_count += 1;
+                if (dot_count >= 2) return true;
+            }
+        }
+        return false;
+    }
+    
+    /// Format method chain body with proper indentation
+    fn formatMethodChainBody(allocator: std.mem.Allocator, builder: *LineBuilder, body: []const u8, options: FormatterOptions) !void {
+        _ = options;
+        
+        // Split the chain by dots while preserving expressions
+        var parts = collections.List([]const u8).init(allocator);
+        defer parts.deinit();
+        
+        var current_start: usize = 0;
+        var i: usize = 0;
+        var paren_depth: i32 = 0;
+        var brace_depth: i32 = 0;
+        var in_string = false;
+        var string_char: u8 = 0;
+        
+        while (i < body.len) {
+            const c = body[i];
+            
+            if (!in_string) {
+                if (c == '"' or c == '\'' or c == '`') {
+                    in_string = true;
+                    string_char = c;
+                } else if (c == '(') {
+                    paren_depth += 1;
+                } else if (c == ')') {
+                    paren_depth -= 1;
+                } else if (c == '{') {
+                    brace_depth += 1;
+                } else if (c == '}') {
+                    brace_depth -= 1;
+                } else if (c == '.' and paren_depth == 0 and brace_depth == 0 and i > current_start) {
+                    // Found a chain point
+                    const part = std.mem.trim(u8, body[current_start..i], " \t");
+                    if (part.len > 0) {
+                        try parts.append(part);
+                    }
+                    current_start = i; // Include the dot in the next part
+                }
+            } else if (c == string_char and (i == 0 or body[i-1] != '\\')) {
+                in_string = false;
+            }
+            
+            i += 1;
+        }
+        
+        // Add the last part
+        if (current_start < body.len) {
+            const part = std.mem.trim(u8, body[current_start..], " \t");
+            if (part.len > 0) {
+                try parts.append(part);
+            }
+        }
+        
+        // Format the chain with proper indentation
+        if (parts.items.len > 0) {
+            try builder.newline();
+            builder.indent();
+            
+            for (parts.items, 0..) |part, idx| {
+                try builder.appendIndent();
+                
+                // Check if this part contains an arrow function (like .map(user => ...))
+                if (std.mem.indexOf(u8, part, "=>") != null) {
+                    // Format the method call with arrow function
+                    try formatChainedMethodWithArrow(allocator, builder, part);
+                } else if (idx > 0 or std.mem.startsWith(u8, part, ".")) {
+                    // Already has dot or is continuation
+                    try builder.append(part);
+                } else {
+                    // First part without dot
+                    try builder.append(part);
+                }
+                
+                // Add semicolon at the end of the last part
+                if (idx == parts.items.len - 1 and std.mem.endsWith(u8, body, ";")) {
+                    try builder.append(";");
+                }
+                
+                if (idx < parts.items.len - 1) {
+                    try builder.newline();
+                }
+            }
+            
+            builder.dedent();
+        } else {
+            // Fallback
+            try builder.append(" ");
+            try builder.append(body);
+        }
+    }
+
+    /// Format chained method with arrow function (like .map(user => user.email))
+    fn formatChainedMethodWithArrow(allocator: std.mem.Allocator, builder: *LineBuilder, method_call: []const u8) !void {
+        _ = allocator;
+        
+        // Find the arrow position
+        if (std.mem.indexOf(u8, method_call, "=>")) |arrow_pos| {
+            // Find the method name and opening paren
+            if (std.mem.indexOf(u8, method_call, "(")) |paren_pos| {
+                // Method name part (e.g., ".filter" or ".map")
+                const method_name = method_call[0..paren_pos];
+                try builder.append(method_name);
+                try builder.append("(");
+                
+                // Arrow function parameters
+                const params_part = std.mem.trim(u8, method_call[paren_pos + 1..arrow_pos], " \t");
+                try builder.append(params_part);
+                try builder.append(" => ");
+                
+                // Arrow function body
+                var body_part = std.mem.trim(u8, method_call[arrow_pos + 2..], " \t");
+                
+                // Remove trailing parenthesis if present
+                if (std.mem.endsWith(u8, body_part, ")")) {
+                    body_part = body_part[0..body_part.len - 1];
+                }
+                
+                // Check if body is an object literal
+                if (std.mem.startsWith(u8, body_part, "({") and std.mem.endsWith(u8, body_part, "})")) {
+                    // Object literal return - format specially
+                    try builder.append("({");
+                    try builder.newline();
+                    builder.indent();
+                    
+                    // Extract object content
+                    const obj_content = std.mem.trim(u8, body_part[2..body_part.len - 2], " \t");
+                    
+                    // Split by commas and format each property
+                    var props = std.mem.splitSequence(u8, obj_content, ",");
+                    while (props.next()) |prop| {
+                        const prop_trimmed = std.mem.trim(u8, prop, " \t\n\r");
+                        if (prop_trimmed.len > 0) {
+                            try builder.appendIndent();
+                            // Check for spread operator
+                            if (std.mem.startsWith(u8, prop_trimmed, "...")) {
+                                try builder.append(prop_trimmed);
+                            } else {
+                                try formatPropertyWithSpacing(prop_trimmed, builder);
+                            }
+                            
+                            // Add comma if not the last property
+                            if (props.peek() != null or std.mem.endsWith(u8, obj_content, ",")) {
+                                try builder.append(",");
+                            }
+                            try builder.newline();
+                        }
+                    }
+                    
+                    builder.dedent();
+                    try builder.appendIndent();
+                    try builder.append("})");
+                } else {
+                    // Simple body
+                    try builder.append(body_part);
+                }
+                
+                try builder.append(")");
+            } else {
+                // Fallback - no parentheses found
+                try builder.append(method_call);
+            }
+        } else {
+            // No arrow function, just append as-is
+            try builder.append(method_call);
         }
     }
 

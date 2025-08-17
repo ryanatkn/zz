@@ -1,5 +1,5 @@
 const std = @import("std");
-const FilesystemInterface = @import("../lib/core/filesystem.zig").FilesystemInterface;
+const FilesystemInterface = @import("../lib/filesystem/interface.zig").FilesystemInterface;
 const SharedConfig = @import("../config.zig").SharedConfig;
 const ZonLoader = @import("../config.zig").ZonLoader;
 const shouldIgnorePath = @import("../config.zig").shouldIgnorePath;

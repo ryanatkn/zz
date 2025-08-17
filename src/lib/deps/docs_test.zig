@@ -39,12 +39,6 @@ test "DocumentationGenerator - can be initialized" {
     _ = generator; // Just verify it compiles and can be created
 }
 
-// Language extraction is tested through dependency creation
-
-// Purpose generation is tested through dependency creation
-
-// Markdown generation removed - focusing on JSON manifest only
-
 test "ManifestGenerator - basic structure" {
     const testing = std.testing;
     const allocator = testing.allocator;
@@ -53,10 +47,6 @@ test "ManifestGenerator - basic structure" {
     const generator = docs.ManifestGenerator.init(allocator, "test_deps");
     _ = generator; // Just verify it compiles and can be created
 }
-
-// Source file extraction is tested through build config parsing
-
-// Flag extraction is tested through build config parsing
 
 test "BuildConfig - memory management" {
     const testing = std.testing;

@@ -1,6 +1,6 @@
 const std = @import("std");
 const fence = @import("fence.zig");
-const FilesystemInterface = @import("../lib/core/filesystem.zig").FilesystemInterface;
+const FilesystemInterface = @import("../lib/filesystem/interface.zig").FilesystemInterface;
 const path_utils = @import("../lib/core/path.zig");
 const Language = @import("../lib/language/detection.zig").Language;
 const ExtractionFlags = @import("../lib/language/flags.zig").ExtractionFlags;

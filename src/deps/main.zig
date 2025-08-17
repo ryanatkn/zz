@@ -2,7 +2,7 @@ const std = @import("std");
 const manager = @import("../lib/deps/manager.zig");
 const config = @import("../lib/deps/config.zig");
 const zon_parser = @import("../lib/parsing/zon_parser.zig");
-const FilesystemInterface = @import("../lib/core/filesystem.zig").FilesystemInterface;
+const FilesystemInterface = @import("../lib/filesystem/interface.zig").FilesystemInterface;
 const Args = @import("../lib/args.zig").Args;
 const io = @import("../lib/core/io.zig");
 
@@ -45,7 +45,7 @@ pub fn run(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: 
             options.color = false;
         } else if (Args.isBoolFlag(arg, "no-backup", null)) {
             options.backup = false;
-        } else if (Args.isBoolFlag(arg, "generate-docs", null)) {
+        } else if (Args.isBoolFlag(arg, "generate-manifest", null)) {
             options.generate_docs = true;
         } else if (Args.parseFlag(arg, "force-dep", null)) |dep_name| {
             options.force_dep = dep_name;
@@ -122,7 +122,7 @@ pub fn run(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: 
 
 /// Load dependency configuration from deps.zon
 fn loadDepsConfig(allocator: std.mem.Allocator) !config.DepsConfig {
-    // TODO: If ZON parsing fails with segfaults, may need alternative approach
+    // ZON parsing now stable with dedicated parser
     
     // Read deps.zon file
     const deps_file_content = std.fs.cwd().readFileAlloc(allocator, "deps.zon", 1024 * 1024) catch |err| switch (err) {
@@ -287,7 +287,7 @@ fn showUsage(program_name: []const u8) !void {
     try stdout.writeAll("  --update-pattern=PATTERN Update dependencies matching pattern (glob)\n");
     try stdout.writeAll("  --no-backup              Disable automatic backups\n");
     try stdout.writeAll("  --no-color               Disable colored output\n");
-    try stdout.writeAll("  --generate-docs          Generate dependency manifest.json\n");
+    try stdout.writeAll("  --generate-manifest      Generate dependency manifest.json\n");
     try stdout.writeAll("  --verbose, -v            Enable verbose output\n");
     try stdout.writeAll("  --help, -h               Show this help\n");
 }
@@ -313,7 +313,7 @@ fn showDetailedHelp() !void {
     try stdout.writeAll("  zz deps update --force              # Force update all deps\n");
     try stdout.writeAll("  zz deps update --force-dep=tree-sitter # Force update tree-sitter only\n");
     try stdout.writeAll("  zz deps update --update-pattern=\"tree*\" # Update all tree-sitter deps\n");
-    try stdout.writeAll("  zz deps --generate-docs             # Generate manifest.json only\n");
+    try stdout.writeAll("  zz deps --generate-manifest         # Generate manifest.json only\n");
     try stdout.writeAll("\nConfiguration:\n");
     try stdout.writeAll("  Dependencies are declared in deps.zon at the project root.\n");
     try stdout.writeAll("  See existing deps.zon for configuration format.\n");

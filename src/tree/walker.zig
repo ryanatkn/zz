@@ -6,7 +6,7 @@ const Entry = @import("entry.zig").Entry;
 const Filter = @import("filter.zig").Filter;
 const Formatter = @import("formatter.zig").Formatter;
 const PathBuilder = @import("path_builder.zig").PathBuilder;
-const FilesystemInterface = @import("../lib/core/filesystem.zig").FilesystemInterface;
+const FilesystemInterface = @import("../lib/filesystem/interface.zig").FilesystemInterface;
 const PathCache = @import("../lib/memory/pools.zig").PathCache;
 const errors = @import("../lib/core/errors.zig");
 

@@ -147,10 +147,7 @@ pub const VersionInfo = struct {
         return total_days;
     }
     
-    /// Check if a year is a leap year
-    fn isLeapYear(year: u32) bool {
-        return (year % 4 == 0 and year % 100 != 0) or (year % 400 == 0);
-    }
+    // isLeapYear function removed - not used in approximate date calculations
 
     /// Generate .version file content
     pub fn toContent(self: *const VersionInfo, allocator: std.mem.Allocator) ![]u8 {
@@ -208,7 +205,7 @@ pub const UpdateOptions = struct {
     retries: u32 = 3,
     /// Respect semantic version tags - don't upgrade from tags to main branch
     respect_semantic_versions: bool = true,
-    generate_docs: bool = false,
+    generate_docs: bool = false, // Note: Field name kept for compatibility
 };
 
 /// ZON configuration structure - direct mapping to deps.zon format
@@ -517,19 +514,7 @@ test "parseTimestamp" {
     try testing.expectEqual(@as(i64, 0), invalid3);
 }
 
-test "isLeapYear" {
-    const testing = std.testing;
-    
-    // Test leap years
-    try testing.expect(VersionInfo.isLeapYear(2000)); // Divisible by 400
-    try testing.expect(VersionInfo.isLeapYear(2004)); // Divisible by 4
-    try testing.expect(VersionInfo.isLeapYear(2020)); // Divisible by 4
-    
-    // Test non-leap years
-    try testing.expect(!VersionInfo.isLeapYear(1900)); // Divisible by 100 but not 400
-    try testing.expect(!VersionInfo.isLeapYear(2001)); // Not divisible by 4
-    try testing.expect(!VersionInfo.isLeapYear(2100)); // Divisible by 100 but not 400
-}
+// isLeapYear test removed - function no longer exists
 
 test "DepsConfig operations" {
     const testing = std.testing;

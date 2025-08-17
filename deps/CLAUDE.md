@@ -180,7 +180,7 @@ The dependency system now includes automated documentation generation that creat
 These files are automatically updated whenever dependencies are modified via `zz deps` operations, or can be generated on-demand with:
 
 ```bash
-zz deps --generate-docs
+zz deps --generate-manifest
 ```
 
 The generated documentation includes:

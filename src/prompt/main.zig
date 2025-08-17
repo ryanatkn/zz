@@ -1,5 +1,5 @@
 const std = @import("std");
-const FilesystemInterface = @import("../lib/core/filesystem.zig").FilesystemInterface;
+const FilesystemInterface = @import("../lib/filesystem/interface.zig").FilesystemInterface;
 const path_utils = @import("../lib/core/path.zig");
 
 pub const Config = @import("config.zig").Config;

@@ -252,7 +252,7 @@ The dependency management system is **production-ready** with all 9 dependencies
 
 3. **Automated Integration**
    - ✅ Modified `src/lib/deps/manager.zig` to auto-generate docs after updates
-   - ✅ Added `--generate-docs` flag to `zz deps` command
+   - ✅ Added `--generate-manifest` flag to `zz deps` command
    - ✅ Updated help documentation and usage examples
 
 4. **Build System Integration**
@@ -265,7 +265,7 @@ The dependency management system is **production-ready** with all 9 dependencies
    - ✅ Added comprehensive usage examples and feature descriptions
 
 **Working Features:**
-- **`zz deps --generate-docs`** - Generate documentation on demand
+- **`zz deps --generate-manifest`** - Generate manifest.json on demand
 - **Automatic generation** - Docs updated after any `zz deps` operations  
 - **Generated files**:
   - `deps/manifest.json` - Machine-readable dependency manifest for automation
@@ -285,4 +285,4 @@ The dependency management system is **production-ready** with all 9 dependencies
 3. **Production Ready**: System fully functional for dependency status checking
 4. **Automated Documentation**: Complete dependency documentation generation system
 
-The system is now **production-ready** with automated documentation generation alongside `zz deps --list`, `zz deps --check`, and `zz deps --generate-docs` commands fully operational!
+The system is now **production-ready** with automated documentation generation alongside `zz deps --list`, `zz deps --check`, and `zz deps --generate-manifest` commands fully operational!

@@ -73,7 +73,6 @@ pub const FormatInterface = struct {
         try builder.appendIndent();
         try builder.append("}");
         try builder.newline();
-        try builder.newline();
     }
 
     /// Format interface body with proper member handling

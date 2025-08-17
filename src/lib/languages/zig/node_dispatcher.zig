@@ -16,6 +16,7 @@ pub const ZigNodeDispatcher = struct {
     /// Main entry point for formatting any Zig node
     pub fn formatNode(node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) anyerror!void {
         const node_type = node.kind();
+        
 
         // Node type dispatching logic
 

@@ -76,9 +76,9 @@ pub const FormatBody = struct {
         try builder.appendIndent();
         try builder.append("}");
         
-        // Only add semicolon if input had one
+        // Only add semicolon if input had one after the struct body
         if (brace_end < struct_text.len) {
-            const after_brace = std.mem.trim(u8, struct_text[brace_end..], " \t");
+            const after_brace = std.mem.trim(u8, struct_text[brace_end..], " \t\n\r");
             if (std.mem.startsWith(u8, after_brace, ";")) {
                 try builder.append(";");
             }
@@ -118,9 +118,9 @@ pub const FormatBody = struct {
                 
                 try builder.appendIndent();
                 try formatStructMethod(allocator, builder, member);
+                try builder.newline();
                 // Add blank line after methods (except last)
                 if (i < members.len - 1) {
-                    try builder.newline();
                     try builder.newline();
                 }
             } else {

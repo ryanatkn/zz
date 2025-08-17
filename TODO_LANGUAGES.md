@@ -19,27 +19,35 @@
 
 ### Recent Session Accomplishments (2025-01-17)
 - **✅ TypeScript union spacing**: Fixed `User|null` → `User | null` in generic types
-- **✅ Zig struct formatting**: 95% complete - proper fields, methods, blank lines, struct literals
+- **✅ Zig struct formatting**: Fixed extra closing brace `}};` → `};` 
+- **✅ TypeScript interface formatting**: Fixed extra trailing newline
+- **✅ Zig test formatting**: Fixed missing spaces and indentation in test declarations
 - **✅ NodeUtils consolidation**: Eliminated duplicate `getNodeText()`/`appendNodeText()` across 4 formatters
-- **✅ No regressions**: All consolidation work maintained 98.8% test pass rate
+- **✅ Systematic debugging**: Added AST node type analysis and character-level formatting fixes
 
-## 🎯 Next Priority Actions
+## 🎯 Current Status & Next Priority Actions
 
-### High Priority - Fix Remaining 3 Test Failures
-1. **Zig `struct_formatting` (Minor)** 
-   - Issue: Extra closing brace `}};` instead of `};`
-   - Status: 95% complete - main functionality works perfectly
-   - Fix: Debug brace handling in text-based struct formatter
+### Test Fixes Completed This Session
+1. **✅ Zig `struct_formatting`** - Fixed extra closing brace `}};` → `};`
+2. **✅ TypeScript `interface_formatting`** - Fixed extra trailing newline causing invisible character mismatch
+3. **✅ Zig `test_formatting`** - Fixed missing spaces and indentation in test declarations (`test"name"{...}` → `test "name" { ... }`)
 
-2. **TypeScript interface formatting (Edge case)**
-   - Issue: Minor whitespace discrepancy in interface formatting
-   - Status: Expected vs actual output appear identical (possible invisible chars)
-   - Fix: Debug character-level formatting differences
+### High Priority - Fix Remaining Test Failures (Current: 413/418)
+1. **TypeScript `arrow_function_formatting`** 
+   - Issue: Arrow function body not formatted with proper line breaks and method chaining
+   - Expected: Multi-line with proper indentation for chained methods
+   - Actual: Single line without proper spacing
+   - Status: **IN PROGRESS**
 
-3. **Svelte template directives (Complex)**
-   - Issue: `{#if}`, `{:else}`, `{/if}` not properly indented
-   - Status: Current approach using AST directive detection causes duplication
-   - Fix: **Refactor to modular architecture** (see below)
+2. **Zig `enum_union_formatting`** (New failure revealed)
+   - Issue: Enum/union formatting not working correctly
+   - Status: Newly discovered after fixing test_formatting
+   - Fix: Debug enum/union formatter logic
+
+3. **Svelte `complex_template_formatting`** (Complex)
+   - Issue: Template directives `{#if}`, `{:else}`, `{/if}` duplicated and incorrectly formatted
+   - Status: AST processing causing double handling
+   - Fix: Disable duplicate processing OR implement modular architecture
 
 ### Medium Priority - Svelte Modular Refactor (Recommended)
 1. **Extract Svelte to C-style modules** (following Zig/TypeScript pattern):
@@ -110,12 +118,19 @@ Analyze remaining duplicate patterns for extraction potential
 **Current State Analysis:**
 - **98.8% test pass rate achieved** (413/418 tests)
 - **170+ lines eliminated** through systematic consolidation
-- **3 remaining test failures** - all edge cases, core functionality working
+- **Fixed 3 major test failures** this session (struct, interface, test formatting)
+- **3 remaining test failures** - TypeScript arrow functions, Zig enum/union, Svelte templates
 - **Svelte formatter** is the last large monolithic formatter (620+ lines)
 
-**Recommended Next Steps:**
-1. **Fix 3 remaining test edge cases** → 99%+ pass rate
-2. **Extract Svelte to modular C-style architecture** → consistency with Zig/TypeScript
-3. **Complete delimiters.zig integration** → final 30-line reduction
+**Progress This Session:**
+- ✅ **Zig struct extra brace fixed** - Resolved newline issue after struct methods
+- ✅ **TypeScript interface trailing newline fixed** - Removed double newline
+- ✅ **Zig test formatting completely rebuilt** - Added spacing, indentation, operator formatting
+- 🔄 **Revealed hidden test failures** - enum_union_formatting was masked by test_formatting
 
-**Success Metrics:** 415+ tests passing, Svelte modularization completed, <200 total lines eliminated through consolidation.
+**Immediate Next Steps:**
+1. **Fix TypeScript arrow function line width/chaining** → 414/418 tests
+2. **Fix Zig enum/union formatting** → 415/418 tests ✅ (Goal achieved!)
+3. **Fix Svelte template directive duplication** → 416/418 tests (bonus)
+
+**Success Metrics:** 415+ tests passing (99.3%+), systematic debugging approach established, major formatter issues resolved.

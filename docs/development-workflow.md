@@ -4,34 +4,7 @@
 
 ## Managing Vendored Dependencies
 
-The project uses vendored dependencies for tree-sitter libraries to ensure reliable, reproducible builds without network access.
-
-```bash
-# Check current state (idempotent - safe to run anytime)
-./scripts/update-deps.sh
-
-# Force update all dependencies
-./scripts/update-deps.sh --force
-
-# Force update specific dependency
-./scripts/update-deps.sh --force-dep tree-sitter
-
-# View help and available dependencies
-./scripts/update-deps.sh --help
-```
-
-### Script Features
-- **Idempotent:** Only updates when versions change or files are missing
-- **Efficient:** Skips up-to-date dependencies, uses shallow git clones
-- **Clean:** Removes `.git` directories and incompatible build files
-- **Versioned:** Creates `.version` files for tracking
-
-### After Updating Dependencies
-```bash
-zig build test           # Verify everything works
-git add deps/            # Commit vendored code
-git commit -m "Update vendored dependencies"
-```
+See [./deps.md](./deps.md).
 
 ## TODO Document Workflow
 

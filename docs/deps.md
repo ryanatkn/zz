@@ -4,7 +4,8 @@
 
 ## Overview
 
-The `zz deps` command provides a pure Zig replacement for shell-based dependency management. Originally implemented as `scripts/update-deps.sh`, the new system offers type safety, memory safety, cross-platform compatibility, and better performance through compiled code.
+The `zz deps` command provides a pure Zig replacement for shell-based dependency management.
+Compared to Bash scripts, it offers type safety and high performance through compiled code.
 
 ### Design Philosophy
 

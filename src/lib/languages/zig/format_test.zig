@@ -21,6 +21,7 @@ pub const FormatTest = struct {
         var in_comment = false;
         var brace_depth: u32 = 0;
         var in_test_body = false;
+        var need_indent = false;
 
         while (i < test_text.len) {
             const c = test_text[i];
@@ -40,6 +41,13 @@ pub const FormatTest = struct {
             }
 
             if (c == '"' and !in_comment) {
+                // Add space before quote if we just finished "test" and there's no space
+                if (!in_string and i >= 4 and 
+                    builder.buffer.items.len >= 4 and
+                    std.mem.endsWith(u8, builder.buffer.items, "test") and
+                    builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
+                    try builder.append(" ");
+                }
                 in_string = !in_string;
                 try builder.append(&[_]u8{c});
                 i += 1;
@@ -70,6 +78,12 @@ pub const FormatTest = struct {
                 brace_depth += 1;
                 if (brace_depth == 1) {
                     in_test_body = true;
+                    need_indent = true;
+                    // Add space before opening brace if there isn't one
+                    if (builder.buffer.items.len > 0 and
+                        builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
+                        try builder.append(" ");
+                    }
                     try builder.append(&[_]u8{c});
                     try builder.newline();
                     builder.indent();
@@ -103,6 +117,15 @@ pub const FormatTest = struct {
                 continue;
             }
 
+            if (c == ';' and in_test_body and brace_depth == 1) {
+                // Add semicolon and newline for statements in test body
+                try builder.append(";");
+                try builder.newline();
+                need_indent = true;
+                i += 1;
+                continue;
+            }
+
             if (c == ' ') {
                 // Only add space if we haven't just added one
                 if (builder.buffer.items.len > 0 and
@@ -111,6 +134,43 @@ pub const FormatTest = struct {
                 }
                 i += 1;
                 continue;
+            }
+
+            // Add indentation for first non-whitespace character in test body
+            if (need_indent and c != ' ' and c != '\t' and c != '\n' and c != '\r') {
+                try builder.appendIndent();
+                need_indent = false;
+            }
+
+            // Add spaces around operators in test body
+            if (in_test_body and !in_string and !in_comment) {
+                if ((c == '+' or c == '-' or c == '*' or c == '=' or c == '!') and
+                    i + 1 < test_text.len and test_text[i + 1] != '=' and test_text[i + 1] != c) {
+                    // Add space before operator if needed
+                    if (builder.buffer.items.len > 0 and
+                        builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
+                        try builder.append(" ");
+                    }
+                    try builder.append(&[_]u8{c});
+                    // Add space after operator if needed
+                    if (i + 1 < test_text.len and test_text[i + 1] != ' ') {
+                        try builder.append(" ");
+                    }
+                    i += 1;
+                    continue;
+                } else if (c == '=' and i + 1 < test_text.len and test_text[i + 1] == '=') {
+                    // Handle == operator
+                    if (builder.buffer.items.len > 0 and
+                        builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
+                        try builder.append(" ");
+                    }
+                    try builder.append("==");
+                    if (i + 2 < test_text.len and test_text[i + 2] != ' ') {
+                        try builder.append(" ");
+                    }
+                    i += 2;
+                    continue;
+                }
             }
 
             try builder.append(&[_]u8{c});

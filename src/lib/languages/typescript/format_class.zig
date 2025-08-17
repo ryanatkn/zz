@@ -3,6 +3,8 @@ const ts = @import("tree-sitter");
 const LineBuilder = @import("../../parsing/formatter.zig").LineBuilder;
 const FormatterOptions = @import("../../parsing/formatter.zig").FormatterOptions;
 const NodeUtils = @import("../../language/node_utils.zig").NodeUtils;
+const TypeScriptHelpers = @import("formatting_helpers.zig").TypeScriptFormattingHelpers;
+const TypeScriptSpacing = @import("spacing_helpers.zig").TypeScriptSpacingHelpers;
 
 pub const FormatClass = struct {
     /// Format TypeScript class declaration
@@ -69,7 +71,7 @@ pub const FormatClass = struct {
         
         // Add generic parameters
         if (generic_params) |generics| {
-            try formatGenericParameters(generics, builder);
+            try TypeScriptHelpers.formatGenericParameters(generics, builder);
         }
         
         // Add heritage clauses
@@ -149,7 +151,7 @@ pub const FormatClass = struct {
         builder.dedent();
     }
 
-    /// Format individual class members
+    /// Format individual class members using consolidated helpers
     fn formatClassMember(member_node: ts.Node, source: []const u8, builder: *LineBuilder, depth: u32, options: FormatterOptions) !void {
         _ = depth;
         
@@ -160,119 +162,24 @@ pub const FormatClass = struct {
             try formatMethodWithSpacing(member_text, builder, options);
         } else if (std.mem.eql(u8, member_type, "field_definition") or
                   std.mem.eql(u8, member_type, "property_definition")) {
-            try formatPropertyWithSpacing(member_text, builder);
-        } else {
-            // Fallback - format with basic spacing
             try builder.appendIndent();
-            try formatWithBasicSpacing(member_text, builder);
+            try TypeScriptHelpers.formatPropertyWithSpacing(member_text, builder);
+            // Ensure semicolon at end for properties
+            if (builder.buffer.items.len > 0 and
+                builder.buffer.items[builder.buffer.items.len - 1] != ';' and
+                builder.buffer.items[builder.buffer.items.len - 1] != '}') {
+                try builder.append(";");
+            }
+            try builder.newline();
+        } else {
+            // Fallback - format with consolidated spacing
+            try builder.appendIndent();
+            try TypeScriptHelpers.formatWithTypeScriptSpacing(member_text, builder);
             try builder.newline();
         }
     }
 
-    /// Format class property with proper spacing
-    fn formatPropertyWithSpacing(property_text: []const u8, builder: *LineBuilder) !void {
-        try builder.appendIndent();
-        
-        var i: usize = 0;
-        var in_string = false;
-        var string_char: u8 = 0;
-        var escape_next = false;
-
-        while (i < property_text.len) {
-            const c = property_text[i];
-
-            if (escape_next) {
-                try builder.append(&[_]u8{c});
-                escape_next = false;
-                i += 1;
-                continue;
-            }
-
-            if (c == '\\' and in_string) {
-                escape_next = true;
-                try builder.append(&[_]u8{c});
-                i += 1;
-                continue;
-            }
-
-            if (!in_string and (c == '"' or c == '\'' or c == '`')) {
-                in_string = true;
-                string_char = c;
-                try builder.append(&[_]u8{c});
-                i += 1;
-                continue;
-            }
-
-            if (in_string and c == string_char) {
-                in_string = false;
-                try builder.append(&[_]u8{c});
-                i += 1;
-                continue;
-            }
-
-            if (in_string) {
-                try builder.append(&[_]u8{c});
-                i += 1;
-                continue;
-            }
-
-            if (c == ':') {
-                // TypeScript style: space before and after colon
-                if (builder.buffer.items.len > 0 and 
-                    builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
-                    try builder.append(" ");
-                }
-                try builder.append(":");
-                i += 1;
-                
-                // Ensure space after colon
-                if (i < property_text.len and property_text[i] != ' ') {
-                    try builder.append(" ");
-                }
-                continue;
-            }
-
-            if (c == '=') {
-                // Ensure space around assignment
-                if (builder.buffer.items.len > 0 and 
-                    builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
-                    try builder.append(" ");
-                }
-                try builder.append("=");
-                i += 1;
-                
-                // Ensure space after equals
-                if (i < property_text.len and property_text[i] != ' ') {
-                    try builder.append(" ");
-                }
-                continue;
-            }
-
-            if (c == ' ') {
-                // Only add space if we haven't just added one
-                if (builder.buffer.items.len > 0 and
-                    builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
-                    try builder.append(" ");
-                }
-                i += 1;
-                continue;
-            }
-
-            try builder.append(&[_]u8{c});
-            i += 1;
-        }
-        
-        // Ensure semicolon at end for properties
-        if (builder.buffer.items.len > 0 and
-            builder.buffer.items[builder.buffer.items.len - 1] != ';' and
-            builder.buffer.items[builder.buffer.items.len - 1] != '}') {
-            try builder.append(";");
-        }
-        
-        try builder.newline();
-    }
-
-    /// Format class method with proper spacing
+    /// Format class method using consolidated helpers
     fn formatMethodWithSpacing(method_text: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
         // Check if it's a single line or multiline method
         if (std.mem.indexOf(u8, method_text, "{\n") != null or
@@ -283,14 +190,14 @@ pub const FormatClass = struct {
         }
     }
 
-    /// Format single line method
+    /// Format single line method using consolidated helpers
     fn formatSingleLineMethod(method_text: []const u8, builder: *LineBuilder) !void {
         try builder.appendIndent();
-        try formatWithBasicSpacing(method_text, builder);
+        try TypeScriptHelpers.formatWithTypeScriptSpacing(method_text, builder);
         try builder.newline();
     }
 
-    /// Format multiline method with proper indentation
+    /// Format multiline method using consolidated helpers
     fn formatMultiLineMethod(method_text: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
         // Find the opening brace
         if (std.mem.indexOf(u8, method_text, "{")) |brace_pos| {
@@ -299,9 +206,9 @@ pub const FormatClass = struct {
             const body_end = std.mem.lastIndexOf(u8, method_text, "}") orelse method_text.len;
             const body = std.mem.trim(u8, method_text[body_start..body_end], " \t\n\r");
             
-            // Format signature
+            // Format signature using consolidated helper
             try builder.appendIndent();
-            try formatMethodSignature(signature, builder, options);
+            try TypeScriptHelpers.formatMethodSignature(builder.allocator, signature, builder, options);
             try builder.append(" {");
             
             // Format body
@@ -314,7 +221,7 @@ pub const FormatClass = struct {
                     const trimmed = std.mem.trim(u8, line, " \t");
                     if (trimmed.len > 0) {
                         try builder.appendIndent();
-                        try builder.append(trimmed);
+                        try TypeScriptHelpers.formatWithTypeScriptSpacing(trimmed, builder);
                         try builder.newline();
                     }
                 }
@@ -327,127 +234,10 @@ pub const FormatClass = struct {
         } else {
             // No body, just format as signature
             try builder.appendIndent();
-            try formatMethodSignature(method_text, builder, options);
+            try TypeScriptHelpers.formatMethodSignature(builder.allocator, method_text, builder, options);
         }
         
         try builder.newline();
-    }
-
-    /// Format method signature
-    fn formatMethodSignature(signature: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
-        // For now, delegate to parameter formatting
-        try formatMethodParameters(signature, builder, options);
-    }
-
-    /// Format method parameters
-    fn formatMethodParameters(params_text: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
-        _ = options;
-        
-        // Simple approach - clean up basic spacing
-        var i: usize = 0;
-        var in_string = false;
-        var string_char: u8 = 0;
-        var prev_was_space = false;
-
-        while (i < params_text.len) {
-            const c = params_text[i];
-
-            if (!in_string and (c == '"' or c == '\'' or c == '`')) {
-                in_string = true;
-                string_char = c;
-                try builder.append(&[_]u8{c});
-                prev_was_space = false;
-            } else if (in_string and c == string_char) {
-                in_string = false;
-                try builder.append(&[_]u8{c});
-                prev_was_space = false;
-            } else if (in_string) {
-                try builder.append(&[_]u8{c});
-                prev_was_space = false;
-            } else if (c == ' ') {
-                if (!prev_was_space) {
-                    try builder.append(" ");
-                    prev_was_space = true;
-                }
-            } else {
-                try builder.append(&[_]u8{c});
-                prev_was_space = false;
-            }
-
-            i += 1;
-        }
-    }
-
-    /// Format with basic spacing cleanup
-    fn formatWithBasicSpacing(text: []const u8, builder: *LineBuilder) !void {
-        var i: usize = 0;
-        var in_string = false;
-        var string_char: u8 = 0;
-        var prev_was_space = false;
-
-        while (i < text.len) {
-            const c = text[i];
-
-            if (!in_string and (c == '"' or c == '\'' or c == '`')) {
-                in_string = true;
-                string_char = c;
-                try builder.append(&[_]u8{c});
-                prev_was_space = false;
-            } else if (in_string and c == string_char) {
-                in_string = false;
-                try builder.append(&[_]u8{c});
-                prev_was_space = false;
-            } else if (in_string) {
-                try builder.append(&[_]u8{c});
-                prev_was_space = false;
-            } else if (c == ' ') {
-                if (!prev_was_space) {
-                    try builder.append(" ");
-                    prev_was_space = true;
-                }
-            } else {
-                try builder.append(&[_]u8{c});
-                prev_was_space = false;
-            }
-
-            i += 1;
-        }
-    }
-
-    /// Format generic parameters
-    fn formatGenericParameters(type_params: []const u8, builder: *LineBuilder) !void {
-        // Simple approach - just clean up spacing
-        var cleaned = std.ArrayList(u8).init(std.heap.page_allocator);
-        defer cleaned.deinit();
-        
-        var i: usize = 0;
-        var in_string = false;
-        var prev_was_space = false;
-        
-        while (i < type_params.len) {
-            const c = type_params[i];
-            
-            if (c == '"' or c == '\'') {
-                in_string = !in_string;
-                try cleaned.append(c);
-                prev_was_space = false;
-            } else if (in_string) {
-                try cleaned.append(c);
-                prev_was_space = false;
-            } else if (c == ' ') {
-                if (!prev_was_space) {
-                    try cleaned.append(' ');
-                    prev_was_space = true;
-                }
-            } else {
-                try cleaned.append(c);
-                prev_was_space = false;
-            }
-            
-            i += 1;
-        }
-        
-        try builder.append(cleaned.items);
     }
 
     /// Check if node represents a class
@@ -455,25 +245,8 @@ pub const FormatClass = struct {
         return std.mem.eql(u8, node_type, "class_declaration");
     }
 
-    /// Extract class name from declaration
+    /// Extract class name from declaration using consolidated helper
     pub fn extractClassName(class_text: []const u8) ?[]const u8 {
-        // Look for "class Name" pattern
-        if (std.mem.indexOf(u8, class_text, "class ")) |start| {
-            const after_class = class_text[start + "class ".len..];
-            
-            // Find the end of the name (space, <, {, extends, implements, or end)
-            var end_pos: usize = 0;
-            for (after_class) |c| {
-                if (c == ' ' or c == '<' or c == '{' or c == '\n') {
-                    break;
-                }
-                end_pos += 1;
-            }
-            
-            if (end_pos > 0) {
-                return after_class[0..end_pos];
-            }
-        }
-        return null;
+        return TypeScriptHelpers.extractDeclarationName(class_text);
     }
 };

@@ -3,6 +3,8 @@ const ts = @import("tree-sitter");
 const LineBuilder = @import("../../parsing/formatter.zig").LineBuilder;
 const FormatterOptions = @import("../../parsing/formatter.zig").FormatterOptions;
 const NodeUtils = @import("../../language/node_utils.zig").NodeUtils;
+const TypeScriptHelpers = @import("formatting_helpers.zig").TypeScriptFormattingHelpers;
+const TypeScriptSpacing = @import("spacing_helpers.zig").TypeScriptSpacingHelpers;
 
 pub const FormatImport = struct {
     /// Format TypeScript import statement
@@ -27,212 +29,14 @@ pub const FormatImport = struct {
         try builder.newline();
     }
 
-    /// Format import statement with proper spacing
+    /// Format import statement with proper spacing using consolidated helpers
     fn formatImportWithSpacing(import_text: []const u8, builder: *LineBuilder) !void {
-        var i: usize = 0;
-        var in_string = false;
-        var string_char: u8 = 0;
-        var escape_next = false;
-        var in_braces = false;
-        var brace_depth: u32 = 0;
-
-        while (i < import_text.len) {
-            const c = import_text[i];
-
-            if (escape_next) {
-                try builder.append(&[_]u8{c});
-                escape_next = false;
-                i += 1;
-                continue;
-            }
-
-            if (c == '\\' and in_string) {
-                escape_next = true;
-                try builder.append(&[_]u8{c});
-                i += 1;
-                continue;
-            }
-
-            if (!in_string and (c == '"' or c == '\'' or c == '`')) {
-                in_string = true;
-                string_char = c;
-                try builder.append(&[_]u8{c});
-                i += 1;
-                continue;
-            }
-
-            if (in_string and c == string_char) {
-                in_string = false;
-                try builder.append(&[_]u8{c});
-                i += 1;
-                continue;
-            }
-
-            if (in_string) {
-                try builder.append(&[_]u8{c});
-                i += 1;
-                continue;
-            }
-
-            if (c == '{') {
-                in_braces = true;
-                brace_depth += 1;
-                try builder.append(&[_]u8{c});
-                i += 1;
-                
-                // Add space after opening brace if next char isn't space
-                if (i < import_text.len and import_text[i] != ' ') {
-                    try builder.append(" ");
-                }
-                continue;
-            }
-
-            if (c == '}') {
-                if (brace_depth > 0) {
-                    brace_depth -= 1;
-                    if (brace_depth == 0) {
-                        in_braces = false;
-                    }
-                }
-                
-                // Add space before closing brace if previous char isn't space
-                if (builder.buffer.items.len > 0 and 
-                    builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
-                    try builder.append(" ");
-                }
-                try builder.append(&[_]u8{c});
-                i += 1;
-                continue;
-            }
-
-            if (c == ',' and in_braces) {
-                try builder.append(&[_]u8{c});
-                i += 1;
-                
-                // Add space after comma
-                if (i < import_text.len and import_text[i] != ' ') {
-                    try builder.append(" ");
-                }
-                continue;
-            }
-
-            if (c == ' ') {
-                // Only add space if we haven't just added one
-                if (builder.buffer.items.len > 0 and
-                    builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
-                    try builder.append(" ");
-                }
-                i += 1;
-                continue;
-            }
-
-            try builder.append(&[_]u8{c});
-            i += 1;
-        }
+        try TypeScriptHelpers.formatWithTypeScriptSpacing(import_text, builder);
     }
 
-    /// Format export statement with proper spacing
+    /// Format export statement with proper spacing using consolidated helpers
     fn formatExportWithSpacing(export_text: []const u8, builder: *LineBuilder) !void {
-        var i: usize = 0;
-        var in_string = false;
-        var string_char: u8 = 0;
-        var escape_next = false;
-        var in_braces = false;
-        var brace_depth: u32 = 0;
-
-        while (i < export_text.len) {
-            const c = export_text[i];
-
-            if (escape_next) {
-                try builder.append(&[_]u8{c});
-                escape_next = false;
-                i += 1;
-                continue;
-            }
-
-            if (c == '\\' and in_string) {
-                escape_next = true;
-                try builder.append(&[_]u8{c});
-                i += 1;
-                continue;
-            }
-
-            if (!in_string and (c == '"' or c == '\'' or c == '`')) {
-                in_string = true;
-                string_char = c;
-                try builder.append(&[_]u8{c});
-                i += 1;
-                continue;
-            }
-
-            if (in_string and c == string_char) {
-                in_string = false;
-                try builder.append(&[_]u8{c});
-                i += 1;
-                continue;
-            }
-
-            if (in_string) {
-                try builder.append(&[_]u8{c});
-                i += 1;
-                continue;
-            }
-
-            if (c == '{') {
-                in_braces = true;
-                brace_depth += 1;
-                try builder.append(&[_]u8{c});
-                i += 1;
-                
-                // Add space after opening brace if next char isn't space
-                if (i < export_text.len and export_text[i] != ' ') {
-                    try builder.append(" ");
-                }
-                continue;
-            }
-
-            if (c == '}') {
-                if (brace_depth > 0) {
-                    brace_depth -= 1;
-                    if (brace_depth == 0) {
-                        in_braces = false;
-                    }
-                }
-                
-                // Add space before closing brace if previous char isn't space
-                if (builder.buffer.items.len > 0 and 
-                    builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
-                    try builder.append(" ");
-                }
-                try builder.append(&[_]u8{c});
-                i += 1;
-                continue;
-            }
-
-            if (c == ',' and in_braces) {
-                try builder.append(&[_]u8{c});
-                i += 1;
-                
-                // Add space after comma
-                if (i < export_text.len and export_text[i] != ' ') {
-                    try builder.append(" ");
-                }
-                continue;
-            }
-
-            if (c == ' ') {
-                // Only add space if we haven't just added one
-                if (builder.buffer.items.len > 0 and
-                    builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
-                    try builder.append(" ");
-                }
-                i += 1;
-                continue;
-            }
-
-            try builder.append(&[_]u8{c});
-            i += 1;
-        }
+        try TypeScriptHelpers.formatWithTypeScriptSpacing(export_text, builder);
     }
 
     /// Check if statement is an import

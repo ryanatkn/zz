@@ -9,6 +9,7 @@ test {
     std.testing.refAllDeclsRecursive(@import("lock.zig"));
     std.testing.refAllDeclsRecursive(@import("../core/git.zig"));
     std.testing.refAllDeclsRecursive(@import("manager.zig"));
+    std.testing.refAllDeclsRecursive(@import("docs/mod.zig"));
 }
 
 // Import all focused test modules
@@ -19,4 +20,6 @@ test {
     _ = @import("path_matcher_test.zig");
     _ = @import("pattern_validator_test.zig");
     _ = @import("integration_test.zig");
+    _ = @import("docs_test.zig");
+    _ = @import("integration_docs_test.zig");
 }

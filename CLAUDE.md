@@ -65,7 +65,7 @@ $ zz tree                           # Show directory tree
 $ zz prompt "src/**/*.zig"          # Generate LLM prompt
 $ zz format config.json --write     # Format file in-place
 $ zz deps --list                    # Check dependency status
-$ zz deps --generate-docs           # Generate dependency documentation
+$ zz deps --generate-docs           # Generate dependency manifest.json
 ```
 
 ## Commands Overview

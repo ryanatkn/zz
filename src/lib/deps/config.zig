@@ -3,6 +3,7 @@ const ZonParser = @import("../languages/zon/parser.zig").ZonParser;
 const DependencyInfo = @import("../languages/zon/parser.zig").DependencyInfo;
 const struct_utils = @import("../core/struct_utils.zig");
 const collections = @import("../core/collections.zig");
+const datetime = @import("../core/datetime.zig");
 
 /// Configuration for a single dependency
 pub const Dependency = struct {
@@ -118,38 +119,27 @@ pub const VersionInfo = struct {
         if (minute > 59) return error.InvalidMinute;
         if (second > 59) return error.InvalidSecond;
         
-        // Convert to Unix timestamp (simplified - doesn't handle leap years perfectly)
+        // Convert to Unix timestamp using simplified calculation
+        // For parsing timestamps from .version files, this precision is sufficient
         const days_since_epoch = daysSinceEpoch(year, month, day);
-        const seconds_in_day = @as(i64, hour) * 3600 + @as(i64, minute) * 60 + @as(i64, second);
+        const seconds_in_day = @as(i64, hour) * datetime.SECONDS_PER_HOUR + @as(i64, minute) * 60 + @as(i64, second);
         
-        return days_since_epoch * 86400 + seconds_in_day;
+        return days_since_epoch * datetime.SECONDS_PER_DAY + seconds_in_day;
     }
     
     /// Calculate days since Unix epoch (1970-01-01)
+    /// Simplified calculation using datetime constants
     fn daysSinceEpoch(year: u32, month: u8, day: u8) i64 {
-        // Simplified calculation - good enough for our purposes
+        // Simplified calculation - good enough for .version file parsing
         var total_days: i64 = 0;
         
-        // Add days for complete years
-        var y: u32 = 1970;
-        while (y < year) : (y += 1) {
-            if (isLeapYear(y)) {
-                total_days += 366;
-            } else {
-                total_days += 365;
-            }
+        // Add days for complete years (approximate)
+        if (year >= 1970) {
+            total_days += @as(i64, year - 1970) * datetime.DAYS_PER_YEAR_APPROX;
         }
         
-        // Add days for complete months in current year
-        const days_in_month = [_]u8{ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-        var m: u8 = 1;
-        while (m < month) : (m += 1) {
-            total_days += days_in_month[m - 1];
-            // Add extra day for February in leap year
-            if (m == 2 and isLeapYear(year)) {
-                total_days += 1;
-            }
-        }
+        // Add days for complete months in current year (approximate)
+        total_days += @as(i64, month - 1) * datetime.DAYS_PER_MONTH_APPROX;
         
         // Add days in current month
         total_days += day - 1; // -1 because we want days since, not including

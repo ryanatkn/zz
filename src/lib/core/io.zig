@@ -1,5 +1,7 @@
 const std = @import("std");
 
+// TODO we need to parameterize by this `io` instead of importing it directly for async Zig
+
 /// I/O utilities consolidating file_helpers.zig and io_helpers.zig
 /// Clean, idiomatic Zig with direct stdlib usage
 
@@ -107,7 +109,7 @@ pub fn deleteTree(path: []const u8) !void {
     };
 }
 
-/// Delete file, ignoring if it doesn't exist  
+/// Delete file, ignoring if it doesn't exist
 pub fn deleteFile(path: []const u8) !void {
     std.fs.cwd().deleteFile(path) catch |err| switch (err) {
         error.FileNotFound => {}, // Ignore if doesn't exist
@@ -148,22 +150,22 @@ pub fn copyFile(source_path: []const u8, dest_path: []const u8) !void {
 pub fn copyDirectory(allocator: std.mem.Allocator, source_path: []const u8, dest_path: []const u8) !void {
     // Create destination directory
     try ensureDir(dest_path);
-    
+
     // Open source directory
     var source_dir = try std.fs.cwd().openDir(source_path, .{ .iterate = true });
     defer source_dir.close();
-    
+
     // Iterate through source directory
     var walker = try source_dir.walk(allocator);
     defer walker.deinit();
-    
+
     while (try walker.next()) |entry| {
         const source_item = try std.fmt.allocPrint(allocator, "{s}/{s}", .{ source_path, entry.path });
         defer allocator.free(source_item);
-        
+
         const dest_item = try std.fmt.allocPrint(allocator, "{s}/{s}", .{ dest_path, entry.path });
         defer allocator.free(dest_item);
-        
+
         switch (entry.kind) {
             .directory => try ensureDir(dest_item),
             .file => {
@@ -424,27 +426,27 @@ test "color support" {
 test "rename and atomic operations" {
     const testing = std.testing;
     const test_dir = "test_io_ops";
-    
+
     // Create test directory
     try ensureDir(test_dir);
     defer deleteTree(test_dir) catch {};
-    
+
     // Test file operations
     const test_file = test_dir ++ "/test.txt";
     const renamed_file = test_dir ++ "/renamed.txt";
     try writeFile(test_file, "test content");
-    
+
     // Test rename
     try rename(test_file, renamed_file);
     try testing.expect(!fileExists(test_file));
     try testing.expect(fileExists(renamed_file));
-    
+
     // Test copyFile
     const copied_file = test_dir ++ "/copied.txt";
     try copyFile(renamed_file, copied_file);
     try testing.expect(fileExists(renamed_file));
     try testing.expect(fileExists(copied_file));
-    
+
     // Verify content
     const content = try readFile(testing.allocator, copied_file);
     defer testing.allocator.free(content);
@@ -455,27 +457,27 @@ test "copyDirectory" {
     const testing = std.testing;
     const source_dir = "test_copy_source";
     const dest_dir = "test_copy_dest";
-    
+
     // Create source directory structure
     try ensureDir(source_dir);
     defer deleteTree(source_dir) catch {};
     try ensureDir(source_dir ++ "/subdir");
     try writeFile(source_dir ++ "/file1.txt", "content1");
     try writeFile(source_dir ++ "/subdir/file2.txt", "content2");
-    
+
     // Copy directory
     try copyDirectory(testing.allocator, source_dir, dest_dir);
     defer deleteTree(dest_dir) catch {};
-    
+
     // Verify structure
     try testing.expect(fileExists(dest_dir ++ "/file1.txt"));
     try testing.expect(fileExists(dest_dir ++ "/subdir/file2.txt"));
-    
+
     // Verify content
     const content1 = try readFile(testing.allocator, dest_dir ++ "/file1.txt");
     defer testing.allocator.free(content1);
     try testing.expectEqualStrings("content1", content1);
-    
+
     const content2 = try readFile(testing.allocator, dest_dir ++ "/subdir/file2.txt");
     defer testing.allocator.free(content2);
     try testing.expectEqualStrings("content2", content2);
@@ -484,15 +486,15 @@ test "copyDirectory" {
 test "readFileWithLimit" {
     const testing = std.testing;
     const test_file = "test_limit.txt";
-    
+
     try writeFile(test_file, "short content");
     defer deleteFile(test_file) catch {};
-    
+
     // Read with sufficient limit
     const content = try readFileWithLimit(testing.allocator, test_file, 1024);
     defer testing.allocator.free(content);
     try testing.expectEqualStrings("short content", content);
-    
+
     // Read with exact limit
     const exact = try readFileWithLimit(testing.allocator, test_file, 13);
     defer testing.allocator.free(exact);

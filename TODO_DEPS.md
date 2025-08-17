@@ -268,7 +268,6 @@ The dependency management system is **production-ready** with all 9 dependencies
 - **`zz deps --generate-docs`** - Generate documentation on demand
 - **Automatic generation** - Docs updated after any `zz deps` operations  
 - **Generated files**:
-  - `deps/DEPS.md` - Human-readable dependency overview with categorized tables
   - `deps/manifest.json` - Machine-readable dependency manifest for automation
 
 **Key Benefits:**

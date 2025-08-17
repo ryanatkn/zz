@@ -255,7 +255,7 @@ fn printUpdateResults(result: *const manager.UpdateResult, options: config.Updat
 
 /// Generate dependency documentation only (without updating)
 fn generateDocumentationOnly(allocator: std.mem.Allocator, dep_manager: *manager.DependencyManager, dependencies: []const config.Dependency) !void {
-    const docs = @import("../lib/deps/docs.zig");
+    const docs = @import("../lib/deps/docs/mod.zig");
     
     const stdout = std.io.getStdOut().writer();
     try stdout.print("📦 Generating dependency documentation...\n", .{});
@@ -268,7 +268,7 @@ fn generateDocumentationOnly(allocator: std.mem.Allocator, dep_manager: *manager
         return err;
     };
     
-    try stdout.print("  ✓ Generated DEPS.md and manifest.json\n", .{});
+    try stdout.print("  ✓ Generated manifest.json\n", .{});
 }
 
 /// Show usage information
@@ -287,7 +287,7 @@ fn showUsage(program_name: []const u8) !void {
     try stdout.writeAll("  --update-pattern=PATTERN Update dependencies matching pattern (glob)\n");
     try stdout.writeAll("  --no-backup              Disable automatic backups\n");
     try stdout.writeAll("  --no-color               Disable colored output\n");
-    try stdout.writeAll("  --generate-docs          Generate dependency documentation (DEPS.md, manifest.json)\n");
+    try stdout.writeAll("  --generate-docs          Generate dependency manifest.json\n");
     try stdout.writeAll("  --verbose, -v            Enable verbose output\n");
     try stdout.writeAll("  --help, -h               Show this help\n");
 }
@@ -313,7 +313,7 @@ fn showDetailedHelp() !void {
     try stdout.writeAll("  zz deps update --force              # Force update all deps\n");
     try stdout.writeAll("  zz deps update --force-dep=tree-sitter # Force update tree-sitter only\n");
     try stdout.writeAll("  zz deps update --update-pattern=\"tree*\" # Update all tree-sitter deps\n");
-    try stdout.writeAll("  zz deps --generate-docs             # Generate documentation only\n");
+    try stdout.writeAll("  zz deps --generate-docs             # Generate manifest.json only\n");
     try stdout.writeAll("\nConfiguration:\n");
     try stdout.writeAll("  Dependencies are declared in deps.zon at the project root.\n");
     try stdout.writeAll("  See existing deps.zon for configuration format.\n");

@@ -115,6 +115,7 @@ pub const Operations = struct {
         // Then move temp to final destination
         io.rename(temp_dest, destination) catch |err| {
             // If final move fails, try to restore from temp
+            // Safe to ignore: If restore fails, original source is already gone - nothing we can do
             io.rename(temp_dest, source) catch {};
             return err;
         };

@@ -35,6 +35,7 @@ pub const Lock = struct {
             // Parse PID from lock file
             const existing_pid = std.fmt.parseInt(std.process.Child.Id, std.mem.trim(u8, content, " \t\r\n"), 10) catch {
                 // Invalid lock file, remove it
+                // Safe to ignore: If removal fails, we'll just overwrite it anyway
                 self.removeStale() catch {};
                 return self.createLock();
             };
@@ -55,6 +56,7 @@ pub const Lock = struct {
 
     /// Release the lock
     pub fn release(self: *Self) void {
+        // Safe to ignore: If lock file doesn't exist or can't be deleted, that's fine
         io.deleteFile(self.lock_file_path) catch {};
     }
 
@@ -68,6 +70,7 @@ pub const Lock = struct {
 
     /// Remove stale lock file
     fn removeStale(self: *Self) !void {
+        // Safe to ignore: If file doesn't exist or can't be deleted, that's what we wanted anyway
         io.deleteFile(self.lock_file_path) catch {};
     }
 
@@ -116,6 +119,7 @@ test "Lock acquisition and release" {
     // Create temporary directory for testing
     const temp_dir = "test_lock_dir";
     try io.ensureDir(temp_dir);
+    // Safe to ignore: Test cleanup - if deletion fails, it's not critical
     defer io.deleteTree(temp_dir) catch {};
     
     // Test basic lock acquisition
@@ -157,6 +161,7 @@ test "LockGuard RAII" {
     // Create temporary directory for testing
     const temp_dir = "test_lockguard_dir";
     try io.ensureDir(temp_dir);
+    // Safe to ignore: Test cleanup - if deletion fails, it's not critical
     defer io.deleteTree(temp_dir) catch {};
     
     // Test RAII lock guard

@@ -13,4 +13,6 @@ test {
     _ = @import("test/fixture_loader.zig");
     // Fixture runner tests (with defensive error handling and logging)
     _ = @import("test/fixture_runner.zig");
+    // Core module tests
+    _ = @import("core/datetime_test.zig");
 }

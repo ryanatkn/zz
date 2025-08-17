@@ -54,26 +54,27 @@ test "ZON parsing debugging - understand structure" {
     const io = @import("../core/io.zig");
     const deps_zon_content = io.readFileOptional(allocator, "deps.zon") catch |err| switch (err) {
         else => {
-            std.debug.print("Could not read deps.zon: {}\n", .{err});
-            return; // Skip test if file doesn't exist
+            // Skip test if file doesn't exist - this is expected in some environments
+            return;
         },
     };
     
     if (deps_zon_content) |content| {
         defer allocator.free(content);
         
-        std.debug.print("deps.zon content (first 200 chars): {s}\n", .{content[0..@min(200, content.len)]});
-        std.debug.print("ZON file exists with {} characters\n", .{content.len});
+        // Verify that ZON content exists and has reasonable size
+        try testing.expect(content.len > 100);
+        try testing.expect(content.len < 10000);
         
         // Try to actually parse the ZON content now that we have comment stripping
-        var parseResult = config.DepsZonConfig.parseFromZonContent(allocator, content) catch |err| {
-            std.debug.print("ZON parsing failed with error: {}\n", .{err});
-            // This is expected to fail for now - we're debugging
+        var parseResult = config.DepsZonConfig.parseFromZonContent(allocator, content) catch {
+            // ZON parsing may fail due to complex syntax - this is expected during development
             return;
         };
         defer parseResult.deinit();
         
-        std.debug.print("ZON parsing succeeded! Found {} dependencies\n", .{parseResult.dependencies.count()});
+        // Verify that parsing succeeded and found some dependencies
+        try testing.expect(parseResult.dependencies.count() > 0);
     }
 }
 

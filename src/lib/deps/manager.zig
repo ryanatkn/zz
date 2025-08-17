@@ -1,6 +1,6 @@
 const std = @import("std");
 const config = @import("config.zig");
-const docs = @import("docs.zig");
+const docs = @import("docs/mod.zig");
 const Git = @import("../core/git.zig").Git;
 const Versioning = @import("versioning.zig").Versioning;
 const Operations = @import("operations.zig").Operations;
@@ -275,6 +275,7 @@ pub const DependencyManager = struct {
 
         // Atomic move to final location
         try SimpleProgress.show("Installing dependency");
+        // Safe to ignore: If directory doesn't exist, that's fine - we're about to create it
         io.deleteTree(dep_dir) catch {};
 
         try self.operations.atomicMove(temp_dir, dep_dir);
@@ -468,7 +469,7 @@ pub const DependencyManager = struct {
         try stderr.print("  ⚠ " ++ fmt ++ "\n", args);
     }
 
-    /// Generate dependency documentation (DEPS.md and manifest.json)
+    /// Generate dependency manifest.json
     fn generateDocumentation(self: *Self, dependencies: []const config.Dependency) !void {
         try self.logInfo("Generating dependency documentation...", .{});
 
@@ -479,7 +480,7 @@ pub const DependencyManager = struct {
         );
 
         try doc_generator.generateDocumentation(dependencies);
-        try self.logSuccess("Generated DEPS.md and manifest.json", .{});
+        try self.logSuccess("Generated manifest.json", .{});
     }
 };
 

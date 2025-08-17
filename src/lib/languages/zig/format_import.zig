@@ -3,6 +3,7 @@ const ts = @import("tree-sitter");
 const LineBuilder = @import("../../parsing/formatter.zig").LineBuilder;
 const FormatterOptions = @import("../../parsing/formatter.zig").FormatterOptions;
 const NodeUtils = @import("../../language/node_utils.zig").NodeUtils;
+const ZigFormattingHelpers = @import("formatting_helpers.zig").ZigFormattingHelpers;
 
 pub const FormatImport = struct {
     /// Format Zig @import statement
@@ -15,77 +16,13 @@ pub const FormatImport = struct {
 
     /// Format import statement with proper spacing around = and keywords
     pub fn formatImportWithSpacing(import_text: []const u8, builder: *LineBuilder) !void {
-        var i: usize = 0;
-        var in_string = false;
-        var escape_next = false;
-        var after_equals = false;
-
-        while (i < import_text.len) {
-            const c = import_text[i];
-
-            if (escape_next) {
-                try builder.append(&[_]u8{c});
-                escape_next = false;
-                i += 1;
-                continue;
-            }
-
-            if (c == '\\' and in_string) {
-                escape_next = true;
-                try builder.append(&[_]u8{c});
-                i += 1;
-                continue;
-            }
-
-            if (c == '"') {
-                in_string = !in_string;
-                try builder.append(&[_]u8{c});
-                i += 1;
-                continue;
-            }
-
-            if (in_string) {
-                try builder.append(&[_]u8{c});
-                i += 1;
-                continue;
-            }
-
-            if (c == '=') {
-                // Ensure space before =
-                if (builder.buffer.items.len > 0 and 
-                    builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
-                    try builder.append(" ");
-                }
-                try builder.append("=");
-                after_equals = true;
-                i += 1;
-                
-                // Ensure space after = if next char isn't space
-                if (i < import_text.len and import_text[i] != ' ') {
-                    try builder.append(" ");
-                }
-                continue;
-            }
-
-            if (c == ' ') {
-                // Only add space if we haven't just added one
-                if (builder.buffer.items.len > 0 and
-                    builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
-                    try builder.append(" ");
-                }
-                i += 1;
-                continue;
-            }
-
-            try builder.append(&[_]u8{c});
-            i += 1;
-        }
+        // Use consolidated Zig spacing helper instead of duplicate logic
+        try ZigFormattingHelpers.formatWithZigSpacing(import_text, builder);
     }
 
     /// Check if text represents an @import declaration
     pub fn isImportDecl(text: []const u8) bool {
-        // Look for @import pattern
-        return std.mem.indexOf(u8, text, "@import") != null;
+        return ZigFormattingHelpers.classifyDeclaration(text) == .import;
     }
 
     /// Extract imported module name from @import statement

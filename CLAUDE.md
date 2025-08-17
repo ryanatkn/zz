@@ -197,4 +197,5 @@ See [docs/llm-guidelines.md](docs/llm-guidelines.md) for complete guidelines. Ke
 
 ---
 
-*Remember: Performance is the top priority -- every cycle and byte count but context is everything.*
+_Remember: Performance is the top priority -- every cycle and byte count
+but context is everything and the big picture UX matters most._

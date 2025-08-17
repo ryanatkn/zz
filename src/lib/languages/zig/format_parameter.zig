@@ -2,36 +2,16 @@ const std = @import("std");
 const LineBuilder = @import("../../parsing/formatter.zig").LineBuilder;
 const FormatterOptions = @import("../../parsing/formatter.zig").FormatterOptions;
 const ZigUtils = @import("zig_utils.zig").ZigUtils;
+const ZigSpacingHelpers = @import("spacing_helpers.zig").ZigSpacingHelpers;
+const ZigFormattingHelpers = @import("formatting_helpers.zig").ZigFormattingHelpers;
 
 /// Zig-specific parameter formatting functionality
 pub const FormatParameter = struct {
 
     /// Format a single Zig parameter with proper colon spacing
     pub fn formatSingleParameter(param: []const u8, builder: *LineBuilder) !void {
-        // Zig-specific colon spacing: x: f32, not x : f32
-        var result = std.ArrayList(u8).init(builder.allocator);
-        defer result.deinit();
-
-        var i: usize = 0;
-        while (i < param.len) : (i += 1) {
-            const char = param[i];
-            
-            if (char == ':' and i > 0 and i + 1 < param.len) {
-                // Remove any space before colon (Zig style: x: f32, not x : f32)
-                while (result.items.len > 0 and result.items[result.items.len - 1] == ' ') {
-                    _ = result.pop();
-                }
-                try result.append(':');
-                // Add space after colon if not present
-                if (param[i + 1] != ' ') {
-                    try result.append(' ');
-                }
-            } else {
-                try result.append(char);
-            }
-        }
-        
-        try builder.append(std.mem.trim(u8, result.items, " \t"));
+        // Use consolidated colon spacing helper
+        try ZigSpacingHelpers.formatColonSpacing(param, builder);
     }
 
     /// Format Zig parameter list with proper spacing and multiline handling
@@ -41,8 +21,8 @@ pub const FormatParameter = struct {
             return;
         }
 
-        // Split parameters by comma
-        const params = try ZigUtils.splitByDelimiter(allocator, params_text, ',');
+        // Use consolidated parameter splitting helper
+        const params = try ZigFormattingHelpers.splitByCommaPreservingStructure(allocator, params_text);
         defer allocator.free(params);
 
         // Calculate total length for multiline decision
@@ -90,7 +70,7 @@ pub const FormatParameter = struct {
             return;
         }
 
-        const params = try ZigUtils.splitByDelimiter(allocator, params_text, ',');
+        const params = try ZigFormattingHelpers.splitByCommaPreservingStructure(allocator, params_text);
         defer allocator.free(params);
 
         // Always use multiline for comptime signatures as they tend to be complex
@@ -127,7 +107,7 @@ pub const FormatParameter = struct {
         if (std.mem.indexOf(u8, signature, "(")) |start| {
             if (std.mem.lastIndexOf(u8, signature, ")")) |end| {
                 const params_text = signature[start + 1..end];
-                const params = try ZigUtils.splitByDelimiter(allocator, params_text, ',');
+                const params = try ZigFormattingHelpers.splitByCommaPreservingStructure(allocator, params_text);
                 
                 var types = std.ArrayList([]const u8).init(allocator);
                 defer types.deinit();

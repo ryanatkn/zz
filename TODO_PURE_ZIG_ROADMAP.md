@@ -206,10 +206,21 @@ Transform **zz** from a CLI tool into a comprehensive **Zig library for language
 
 ## Technical Decisions
 
-### Parser Algorithm
-**Choice**: Packrat Parser with Memoization
-- **Why**: Good performance, handles left recursion
-- **Alternative**: Generated LR parser (more complex)
+### Parser Algorithm Evolution
+**Phase 1 (Current)**: Recursive Descent Parser
+- **Status**: ✅ Implemented and working
+- **Purpose**: Foundation for testing grammar system
+- **Limitations**: Performance not suitable for real-time editing
+
+**Phase 2 (Next)**: Stratified Parser Architecture
+- **Status**: 📋 Planned (see TODO_PURE_ZIG_PLAN.md)
+- **Purpose**: <1ms latency for editor interactions
+- **Features**: Layered parsing, fact streams, speculative execution
+- **Timeline**: 24 weeks implementation plan
+
+**Original Plan**: Packrat Parser with Memoization
+- **Status**: Superseded by Stratified Architecture
+- **Rationale**: Stratified approach offers better incremental updates
 
 ### AST Representation
 **Choice**: Tagged Union with Embedded Metadata
@@ -293,11 +304,19 @@ const formatted = try formatter.format(ast);
 
 ## Next Immediate Steps
 
-1. **Create grammar module structure** in `src/lib/grammar/`
-2. **Design grammar DSL** with builder pattern
-3. **Implement basic rule combinators**
-4. **Write comprehensive tests**
-5. **Document public API**
+### ✅ Completed (Phase 1)
+1. **Created grammar module structure** in `src/lib/grammar/`
+2. **Designed grammar DSL** with builder pattern
+3. **Implemented rule combinators** (Terminal, Sequence, Choice, Optional, Repeat, Repeat1)
+4. **Written comprehensive tests** (60+ passing)
+5. **Documented public API** via mod.zig facades
+
+### 📋 Next Steps (Stratified Parser)
+1. **Review TODO_PURE_ZIG_PLAN.md** for detailed 24-week roadmap
+2. **Begin Phase 1**: Foundation types and infrastructure
+3. **Create** `src/lib/parser/foundation/` module structure
+4. **Implement** Span, Fact, and specialized collections
+5. **Migrate** existing modules to stratified architecture
 
 ---
 

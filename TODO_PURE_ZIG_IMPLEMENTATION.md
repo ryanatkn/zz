@@ -20,6 +20,26 @@
 ### ⚠️ Known Issues
 - Memory leaks in nested rule allocation (needs refinement for production)
 
+## 🚀 Next Phase: Stratified Parser Architecture
+
+### Transition Strategy
+The current recursive descent parser serves as our **Phase 0 Foundation**. We're now transitioning to a sophisticated **Stratified Parser Architecture** designed for <1ms editor interactions.
+
+**See TODO_PURE_ZIG_PLAN.md for complete 24-week implementation roadmap**
+
+### Why Stratified Parser?
+- **Performance**: <1ms latency for critical operations (vs current 10-50ms)
+- **Incremental**: Zero-copy differential updates
+- **Predictive**: Speculative execution for instant response
+- **Editor-Optimized**: Designed for real-time code editing
+
+### Migration Path
+1. **Keep current parser working** (fallback option)
+2. **Build stratified parser in parallel** (new modules)
+3. **Test with CLI argument parser** (dogfooding)
+4. **Gradual command migration** (one at a time)
+5. **Performance validation** (benchmarks required)
+
 ## Immediate Next Steps (Week 1)
 
 ### ✅ Step 1: Grammar Builder API [COMPLETED]

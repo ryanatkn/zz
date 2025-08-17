@@ -41,10 +41,25 @@
    - Status: Current approach using AST directive detection causes duplication
    - Fix: **Refactor to modular architecture** (see below)
 
-### Medium Priority - Extend Integration  
-1. **Migrate CSS/HTML/JSON/Svelte** to common delimiters (~50 lines reduction)
-2. **Memory pooling** - Apply `src/lib/memory/pools.zig` to formatters
-3. **Error standardization** - Unified error handling patterns
+### Medium Priority - Svelte Modular Refactor (Recommended)
+1. **Extract Svelte to C-style modules** (following Zig/TypeScript pattern):
+   ```bash
+   src/lib/languages/svelte/
+   ├── formatter.zig           # Main orchestration (delegation only)
+   ├── format_script.zig       # JavaScript/TypeScript <script> sections  
+   ├── format_style.zig        # CSS <style> sections
+   ├── format_template.zig     # HTML template + Svelte directives
+   ├── format_directive.zig    # Svelte-specific: {#if}, {#each}, {:else}, etc.
+   └── format_reactive.zig     # Reactive statements: $: declarations
+   ```
+   **Benefits**: 
+   - Isolate template directive logic for easier debugging
+   - Follow established C-style naming pattern  
+   - Enable focused fixes for `{#if}`/`{:else}`/`{/if}` indentation
+   - Reduce formatter.zig from 620+ lines to ~50 lines orchestration
+
+2. **Migrate remaining to delimiters.zig** (~30 lines reduction)
+3. **Memory pooling** - Apply `src/lib/memory/pools.zig` to formatters
 
 ### Lower Priority - Performance
 1. **Formatter benchmarks** - Measure modular architecture performance impact
@@ -53,25 +68,22 @@
 
 ## 🔧 Implementation Roadmap
 
-### Phase 1: Fix Test Failures (High Impact)
+### Phase 1: Fix Remaining Test Failures (High Impact)
 ```bash
-# Fix Zig struct parsing
-src/lib/languages/zig/format_container.zig - extractStructName() 
-src/lib/languages/zig/format_body.zig - parseStructMembers()
+# Fix Zig struct ending brace issue
+src/lib/languages/zig/format_body.zig - formatStructBodyFromText() brace handling
 
-# Fix TypeScript union spacing  
-src/lib/languages/typescript/format_type.zig - formatTypeWithSpacing()
+# Debug TypeScript interface whitespace
+src/lib/languages/typescript/format_interface.zig - character-level comparison
 
-# Debug Svelte templates
-src/lib/languages/svelte/formatter.zig - template handling
+# Modularize Svelte formatter (recommended approach)
+src/lib/languages/svelte/ - Extract to format_*.zig modules
 ```
 
-### Phase 2: Extend Common Patterns (Medium Impact)
+### Phase 2: Complete Consolidation (Medium Impact)  
 ```bash
-# Apply delimiters.zig to remaining languages
-src/lib/languages/css/formatter.zig
-src/lib/languages/html/formatter.zig  
-src/lib/languages/json/formatter.zig
+# Apply delimiters.zig to remaining formatters (~30 lines reduction)
+# Note: CSS/HTML/JSON already use NodeUtils, delimiters integration next
 
 # Add memory pooling
 src/lib/memory/pools.zig integration across formatters
@@ -93,7 +105,17 @@ Analyze remaining duplicate patterns for extraction potential
 - Common utility integration working across languages ✅  
 - C-style naming conventions established ✅
 - Memory management patterns standardized ✅
+- NodeUtils consolidation completed across all formatters ✅
 
-**Current Focus:** Fix remaining edge cases to achieve 99%+ test pass rate while continuing code quality improvements through common module integration.
+**Current State Analysis:**
+- **98.8% test pass rate achieved** (413/418 tests)
+- **170+ lines eliminated** through systematic consolidation
+- **3 remaining test failures** - all edge cases, core functionality working
+- **Svelte formatter** is the last large monolithic formatter (620+ lines)
 
-**Success Metrics:** 415+ tests passing, <50 additional duplicate lines eliminated, formatter performance benchmarks established.
+**Recommended Next Steps:**
+1. **Fix 3 remaining test edge cases** → 99%+ pass rate
+2. **Extract Svelte to modular C-style architecture** → consistency with Zig/TypeScript
+3. **Complete delimiters.zig integration** → final 30-line reduction
+
+**Success Metrics:** 415+ tests passing, Svelte modularization completed, <200 total lines eliminated through consolidation.

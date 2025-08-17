@@ -102,15 +102,26 @@ pub const FormatType = struct {
                 // Block body
                 try formatTypeBlockBody(after_arrow, builder, options);
             } else {
-                // Expression body
-                if (before_arrow.len + after_arrow.len + 4 > options.line_width) {
+                // Expression body - check for method chaining
+                if (std.mem.indexOf(u8, after_arrow, ".") != null and 
+                    (before_arrow.len + after_arrow.len + 4 > options.line_width or
+                     std.mem.indexOf(u8, after_arrow, ").") != null)) {
+                    // Method chaining detected or line too long
                     try builder.newline();
                     builder.indent();
-                    try builder.appendIndent();
-                    try builder.append(after_arrow);
+                    try formatMethodChain(after_arrow, builder, options);
                     builder.dedent();
                 } else {
-                    try builder.append(after_arrow);
+                    // Simple expression
+                    if (before_arrow.len + after_arrow.len + 4 > options.line_width) {
+                        try builder.newline();
+                        builder.indent();
+                        try builder.appendIndent();
+                        try formatArrowFunctionExpression(after_arrow, builder);
+                        builder.dedent();
+                    } else {
+                        try formatArrowFunctionExpression(after_arrow, builder);
+                    }
                 }
             }
         } else {
@@ -197,17 +208,18 @@ pub const FormatType = struct {
             }
 
             if (c == ':' and !in_generic) {
-                // TypeScript style: space before and after colon
+                // TypeScript style: no space before colon, space after
+                // Remove any trailing space before colon
                 if (builder.buffer.items.len > 0 and 
-                    builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
-                    try builder.append(" ");
+                    builder.buffer.items[builder.buffer.items.len - 1] == ' ') {
+                    _ = builder.buffer.pop();
                 }
-                try builder.append(":");
+                try builder.append(": ");
                 i += 1;
                 
-                // Ensure space after colon
-                if (i < declaration.len and declaration[i] != ' ') {
-                    try builder.append(" ");
+                // Skip any spaces after colon in original
+                while (i < declaration.len and declaration[i] == ' ') {
+                    i += 1;
                 }
                 continue;
             }
@@ -394,5 +406,209 @@ pub const FormatType = struct {
     /// Check if text contains arrow function
     pub fn isArrowFunction(text: []const u8) bool {
         return std.mem.indexOf(u8, text, "=>") != null;
+    }
+    
+    /// Format method chain with proper line breaks
+    fn formatMethodChain(chain: []const u8, builder: *LineBuilder, options: FormatterOptions) !void {
+        // Look for method calls and split them
+        var start: usize = 0;
+        var i: usize = 0;
+        var in_string = false;
+        var paren_depth: u32 = 0;
+        var brace_depth: u32 = 0;
+        var first_segment = true;
+        
+        while (i < chain.len) {
+            const c = chain[i];
+            
+            if (c == '"' or c == '\'' or c == '`') {
+                in_string = !in_string;
+            } else if (!in_string) {
+                if (c == '(') {
+                    paren_depth += 1;
+                } else if (c == ')') {
+                    paren_depth -= 1;
+                } else if (c == '{') {
+                    brace_depth += 1;
+                } else if (c == '}') {
+                    brace_depth -= 1;
+                } else if (c == '.' and paren_depth == 0 and brace_depth == 0) {
+                    // Found method chain break point - handle any segment before this dot
+                    const segment = std.mem.trim(u8, chain[start..i], " \t");
+                    if (segment.len > 0) {
+                        if (first_segment) {
+                            try builder.appendIndent();
+                            first_segment = false;
+                        } else {
+                            try builder.newline();
+                            try builder.appendIndent();
+                        }
+                        try formatArrowFunctionExpression(segment, builder);
+                        try builder.newline();
+                        try builder.appendIndent();
+                        try builder.append(".");
+                    }
+                    start = i + 1;
+                    i += 1;
+                    continue;
+                }
+            }
+            i += 1;
+        }
+        
+        // Format the final segment
+        if (start < chain.len) {
+            const segment = std.mem.trim(u8, chain[start..], " \t");
+            if (segment.len > 0) {
+                if (first_segment) {
+                    try builder.appendIndent();
+                } else {
+                    // This is a method call continuation
+                }
+                try formatArrowFunctionExpression(segment, builder);
+            }
+        }
+        
+        _ = options;
+    }
+    
+    /// Format arrow function expression with proper spacing
+    fn formatArrowFunctionExpression(expr: []const u8, builder: *LineBuilder) !void {
+        var i: usize = 0;
+        var in_string = false;
+        var paren_depth: u32 = 0;
+        
+        while (i < expr.len) {
+            const c = expr[i];
+            
+            if (c == '"' or c == '\'' or c == '`') {
+                in_string = !in_string;
+                try builder.append(&[_]u8{c});
+            } else if (!in_string) {
+                if (c == '(') {
+                    paren_depth += 1;
+                    try builder.append(&[_]u8{c});
+                } else if (c == ')') {
+                    paren_depth -= 1;
+                    try builder.append(&[_]u8{c});
+                } else if (c == '=' and i + 1 < expr.len and expr[i + 1] == '>') {
+                    // Arrow function
+                    try builder.append(" => ");
+                    i += 2;
+                    continue;
+                } else if (c == '{' and paren_depth == 0) {
+                    // Object literal - format with proper spacing
+                    try formatObjectLiteral(expr[i..], builder);
+                    break;
+                } else if (c == ' ') {
+                    // Only add space if previous char isn't space
+                    if (builder.buffer.items.len > 0 and
+                        builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
+                        try builder.append(" ");
+                    }
+                } else {
+                    try builder.append(&[_]u8{c});
+                }
+            } else {
+                try builder.append(&[_]u8{c});
+            }
+            i += 1;
+        }
+    }
+    
+    /// Format object literal with line breaks
+    fn formatObjectLiteral(obj: []const u8, builder: *LineBuilder) !void {
+        if (!std.mem.startsWith(u8, obj, "{")) {
+            try builder.append(obj);
+            return;
+        }
+        
+        // Find matching closing brace
+        var brace_depth: u32 = 0;
+        var end_pos: usize = 0;
+        for (obj, 0..) |c, i| {
+            if (c == '{') {
+                brace_depth += 1;
+            } else if (c == '}') {
+                brace_depth -= 1;
+                if (brace_depth == 0) {
+                    end_pos = i;
+                    break;
+                }
+            }
+        }
+        
+        if (end_pos == 0) {
+            try builder.append(obj);
+            return;
+        }
+        
+        const content = std.mem.trim(u8, obj[1..end_pos], " \t\n\r");
+        
+        try builder.append("({");
+        if (content.len > 0) {
+            try builder.newline();
+            builder.indent();
+            
+            // Split by comma and format each property
+            var prop_start: usize = 0;
+            var i: usize = 0;
+            var in_string = false;
+            var nested_depth: u32 = 0;
+            
+            while (i < content.len) {
+                const c = content[i];
+                if (c == '"' or c == '\'' or c == '`') {
+                    in_string = !in_string;
+                } else if (!in_string) {
+                    if (c == '{' or c == '[' or c == '(') {
+                        nested_depth += 1;
+                    } else if (c == '}' or c == ']' or c == ')') {
+                        nested_depth -= 1;
+                    } else if (c == ',' and nested_depth == 0) {
+                        const prop = std.mem.trim(u8, content[prop_start..i], " \t");
+                        if (prop.len > 0) {
+                            try builder.appendIndent();
+                            try formatObjectProperty(prop, builder);
+                            try builder.append(",");
+                            try builder.newline();
+                        }
+                        prop_start = i + 1;
+                    }
+                }
+                i += 1;
+            }
+            
+            // Handle last property
+            if (prop_start < content.len) {
+                const prop = std.mem.trim(u8, content[prop_start..], " \t");
+                if (prop.len > 0) {
+                    try builder.appendIndent();
+                    try formatObjectProperty(prop, builder);
+                    try builder.newline();
+                }
+            }
+            
+            builder.dedent();
+            try builder.appendIndent();
+        }
+        try builder.append("})");
+        
+        // Append anything after the object literal
+        if (end_pos + 1 < obj.len) {
+            try builder.append(obj[end_pos + 1..]);
+        }
+    }
+    
+    /// Format object property
+    fn formatObjectProperty(prop: []const u8, builder: *LineBuilder) !void {
+        // Look for spread operator
+        if (std.mem.startsWith(u8, prop, "...")) {
+            try builder.append("...");
+            try builder.append(std.mem.trim(u8, prop[3..], " \t"));
+        } else {
+            // Regular property
+            try builder.append(prop);
+        }
     }
 };

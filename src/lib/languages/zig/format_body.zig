@@ -87,14 +87,153 @@ pub const FormatBody = struct {
 
     /// Format enum body from text (compatibility function)
     pub fn formatEnumBodyFromText(enum_text: []const u8, builder: *LineBuilder) !void {
-        // Simple delegation to formatEnumBody
-        try formatEnumBody(std.heap.page_allocator, builder, enum_text);
+        // Parse the entire enum declaration and format it properly
+        
+        // Find "enum" keyword
+        const enum_keyword_pos = std.mem.indexOf(u8, enum_text, "enum") orelse {
+            // Fallback: just append the text
+            try builder.append(enum_text);
+            return;
+        };
+        
+        // Find opening brace after "enum"
+        const brace_start = std.mem.indexOfPos(u8, enum_text, enum_keyword_pos, "{") orelse {
+            // Fallback: just append the text
+            try builder.append(enum_text);
+            return;
+        };
+        
+        // Find matching closing brace
+        var brace_depth: u32 = 1;
+        var brace_end = brace_start + 1;
+        while (brace_end < enum_text.len and brace_depth > 0) {
+            if (enum_text[brace_end] == '{') {
+                brace_depth += 1;
+            } else if (enum_text[brace_end] == '}') {
+                brace_depth -= 1;
+            }
+            brace_end += 1;
+        }
+        
+        if (brace_depth != 0) {
+            // Unmatched braces, fallback
+            try builder.append(enum_text);
+            return;
+        }
+        
+        // Extract components
+        const declaration_part = std.mem.trim(u8, enum_text[0..enum_keyword_pos], " \t");
+        const body_content = std.mem.trim(u8, enum_text[brace_start + 1..brace_end - 1], " \t\n\r");
+        
+        // Format the declaration with proper spacing
+        if (declaration_part.len > 0) {
+            if (std.mem.endsWith(u8, declaration_part, "=")) {
+                // Remove the = and add it back with proper spacing
+                const name_part = std.mem.trimRight(u8, declaration_part[0..declaration_part.len-1], " \t");
+                try builder.append(name_part);
+                try builder.append(" = ");
+            } else {
+                try builder.append(declaration_part);
+                try builder.append(" = ");
+            }
+        }
+        try builder.append("enum {");
+        try builder.newline();
+        builder.indent();
+        
+        // Format the body content with enum-specific logic
+        if (body_content.len > 0) {
+            try formatEnumBodyContent(std.heap.page_allocator, builder, body_content);
+        }
+        
+        builder.dedent();
+        try builder.appendIndent();
+        try builder.append("}");
+        
+        // Only add semicolon if input had one after the enum body
+        if (brace_end < enum_text.len) {
+            const after_brace = std.mem.trim(u8, enum_text[brace_end..], " \t\n\r");
+            if (std.mem.startsWith(u8, after_brace, ";")) {
+                try builder.append(";");
+            }
+        }
     }
 
     /// Format union body from text (compatibility function)
     pub fn formatUnionBodyFromText(union_text: []const u8, builder: *LineBuilder) !void {
-        // Simple delegation to formatUnionBody
-        try formatUnionBody(std.heap.page_allocator, builder, union_text);
+        // Parse the entire union declaration and format it properly
+        
+        // Find "union" keyword
+        const union_keyword_pos = std.mem.indexOf(u8, union_text, "union") orelse {
+            // Fallback: just append the text
+            try builder.append(union_text);
+            return;
+        };
+        
+        // Find opening brace after "union"
+        const brace_start = std.mem.indexOfPos(u8, union_text, union_keyword_pos, "{") orelse {
+            // Fallback: just append the text
+            try builder.append(union_text);
+            return;
+        };
+        
+        // Find matching closing brace
+        var brace_depth: u32 = 1;
+        var brace_end = brace_start + 1;
+        while (brace_end < union_text.len and brace_depth > 0) {
+            if (union_text[brace_end] == '{') {
+                brace_depth += 1;
+            } else if (union_text[brace_end] == '}') {
+                brace_depth -= 1;
+            }
+            brace_end += 1;
+        }
+        
+        if (brace_depth != 0) {
+            // Unmatched braces, fallback
+            try builder.append(union_text);
+            return;
+        }
+        
+        // Extract components
+        const declaration_part = std.mem.trim(u8, union_text[0..union_keyword_pos], " \t");
+        const union_type_part = std.mem.trim(u8, union_text[union_keyword_pos..brace_start], " \t");
+        const body_content = std.mem.trim(u8, union_text[brace_start + 1..brace_end - 1], " \t\n\r");
+        
+        // Format the declaration with proper spacing
+        if (declaration_part.len > 0) {
+            if (std.mem.endsWith(u8, declaration_part, "=")) {
+                // Remove the = and add it back with proper spacing
+                const name_part = std.mem.trimRight(u8, declaration_part[0..declaration_part.len-1], " \t");
+                try builder.append(name_part);
+                try builder.append(" = ");
+            } else {
+                try builder.append(declaration_part);
+                try builder.append(" = ");
+            }
+        }
+        // Format union type part with proper spacing (e.g., "union(enum)")
+        try formatUnionTypeDeclaration(union_type_part, builder);
+        try builder.append(" {");
+        try builder.newline();
+        builder.indent();
+        
+        // Format the body content
+        if (body_content.len > 0) {
+            try formatUnionBodyContent(std.heap.page_allocator, builder, body_content);
+        }
+        
+        builder.dedent();
+        try builder.appendIndent();
+        try builder.append("}");
+        
+        // Only add semicolon if input had one after the union body
+        if (brace_end < union_text.len) {
+            const after_brace = std.mem.trim(u8, union_text[brace_end..], " \t\n\r");
+            if (std.mem.startsWith(u8, after_brace, ";")) {
+                try builder.append(";");
+            }
+        }
     }
 
     /// Format struct body with fields and methods
@@ -132,26 +271,56 @@ pub const FormatBody = struct {
         }
     }
 
-    /// Format enum body with proper value alignment
+    /// Format enum body content (AST-based - for when we have parsed enum body)
     pub fn formatEnumBody(allocator: std.mem.Allocator, builder: *LineBuilder, content: []const u8) !void {
-        const values = try ZigUtils.splitByDelimiter(allocator, content, ',');
-        defer allocator.free(values);
+        try formatEnumBodyContent(allocator, builder, content);
+    }
 
-        for (values, 0..) |value, i| {
-            const trimmed = std.mem.trim(u8, value, " \t\n\r");
-            if (trimmed.len > 0) {
-                try builder.appendIndent();
-                try formatEnumValue(trimmed, builder);
-                if (i < values.len - 1) {
-                    try builder.append(",");
+    /// Format enum body content (shared between AST and text-based)
+    fn formatEnumBodyContent(allocator: std.mem.Allocator, builder: *LineBuilder, content: []const u8) !void {
+        // Use the new helper to parse members (both values and methods)
+        const ZigHelpers = @import("formatting_helpers.zig").ZigFormattingHelpers;
+        const members = try ZigHelpers.parseContainerMembers(allocator, content);
+        defer {
+            for (members) |member| {
+                allocator.free(member);
+            }
+            allocator.free(members);
+        }
+
+        var first_function = true;
+        for (members, 0..) |member, i| {
+            if (ZigHelpers.isFunctionDeclaration(member)) {
+                // Add blank line before first function
+                if (first_function) {
+                    try builder.newline();
+                    first_function = false;
                 }
+                
+                try builder.appendIndent();
+                try formatEnumMethod(allocator, builder, member);
+                try builder.newline();
+                // Add blank line after methods (except last)
+                if (i < members.len - 1) {
+                    try builder.newline();
+                }
+            } else {
+                // Enum value
+                try builder.appendIndent();
+                try formatEnumValue(member, builder);
+                try builder.append(",");
                 try builder.newline();
             }
         }
     }
 
-    /// Format union body similar to enum
+    /// Format union body (AST-based - for when we have parsed union body)
     pub fn formatUnionBody(allocator: std.mem.Allocator, builder: *LineBuilder, content: []const u8) !void {
+        try formatUnionBodyContent(allocator, builder, content);
+    }
+    
+    /// Format union body content (shared between AST and text-based)
+    fn formatUnionBodyContent(allocator: std.mem.Allocator, builder: *LineBuilder, content: []const u8) !void {
         const values = try ZigUtils.splitByDelimiter(allocator, content, ',');
         defer allocator.free(values);
 
@@ -431,6 +600,87 @@ pub const FormatBody = struct {
         }
     }
 
+    /// Format enum method (similar to struct method)
+    fn formatEnumMethod(allocator: std.mem.Allocator, builder: *LineBuilder, method: []const u8) !void {
+        if (std.mem.indexOf(u8, method, "{")) |brace_pos| {
+            const signature = std.mem.trim(u8, method[0..brace_pos], " \t");
+            const body_end = std.mem.lastIndexOf(u8, method, "}") orelse method.len;
+            const body = std.mem.trim(u8, method[brace_pos + 1..body_end], " \t\n\r");
+            
+            // Format the signature with proper spacing
+            try formatFunctionSignatureWithSpacing(allocator, builder, signature);
+            try builder.append(" {");
+            
+            if (body.len > 0) {
+                try builder.newline();
+                builder.indent();
+                
+                // Format body statements
+                try formatFunctionBodyStatements(allocator, builder, body);
+                
+                builder.dedent();
+                try builder.appendIndent();
+            }
+            
+            try builder.append("}");
+        } else {
+            // No body, just format the signature
+            try formatFunctionSignatureWithSpacing(allocator, builder, method);
+        }
+    }
+
+    /// Format union method (similar to enum method)
+    fn formatUnionMethod(allocator: std.mem.Allocator, builder: *LineBuilder, method: []const u8) !void {
+        try formatEnumMethod(allocator, builder, method);
+    }
+
+    /// Format function body statements
+    fn formatFunctionBodyStatements(allocator: std.mem.Allocator, builder: *LineBuilder, body: []const u8) !void {
+        // Split body by semicolons to get statements
+        var statements = collections.List([]const u8).init(allocator);
+        defer statements.deinit();
+        
+        var stmt_start: usize = 0;
+        var in_string = false;
+        var brace_depth: u32 = 0;
+        
+        for (body, 0..) |c, i| {
+            if (c == '"' and (i == 0 or body[i-1] != '\\')) {
+                in_string = !in_string;
+            }
+            
+            if (!in_string) {
+                if (c == '{') {
+                    brace_depth += 1;
+                } else if (c == '}') {
+                    brace_depth -= 1;
+                } else if (c == ';' and brace_depth == 0) {
+                    const stmt = std.mem.trim(u8, body[stmt_start..i], " \t\n\r");
+                    if (stmt.len > 0) {
+                        try statements.append(stmt);
+                    }
+                    stmt_start = i + 1;
+                }
+            }
+        }
+        
+        // Add last statement if no trailing semicolon
+        if (stmt_start < body.len) {
+            const stmt = std.mem.trim(u8, body[stmt_start..], " \t\n\r");
+            if (stmt.len > 0) {
+                try statements.append(stmt);
+            }
+        }
+        
+        // Format each statement
+        for (statements.items) |stmt| {
+            try builder.appendIndent();
+            try formatStatementWithSpacing(stmt, builder);
+            try builder.append(";");
+            try builder.newline();
+        }
+    }
+
     /// Check if member is a function declaration
     fn isFunctionDeclaration(text: []const u8) bool {
         return FormatDeclaration.isFunctionDecl(text);
@@ -539,6 +789,22 @@ pub const FormatBody = struct {
         while (i < statement.len) {
             const c = statement[i];
             
+            // Handle arrow operator =>
+            if (c == '=' and i + 1 < statement.len and statement[i+1] == '>') {
+                // Ensure space before arrow
+                if (builder.buffer.items.len > 0 and
+                    builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
+                    try builder.append(" ");
+                }
+                try builder.append("=> ");
+                i += 2;
+                // Skip any spaces after arrow in original
+                while (i < statement.len and statement[i] == ' ') {
+                    i += 1;
+                }
+                continue;
+            }
+            
             // Add spacing around operators
             if (c == '=' and i > 0 and statement[i-1] != '=' and i + 1 < statement.len and statement[i+1] != '=') {
                 try builder.append(" = ");
@@ -564,6 +830,20 @@ pub const FormatBody = struct {
                     }
                     continue;
                 }
+            }
+            
+            // Handle function calls with parentheses (like switch(...))
+            if (c == '(' and i > 0) {
+                // Check if previous character is alphanumeric (function name)
+                const prev_char = statement[i-1];
+                if (std.ascii.isAlphanumeric(prev_char) or prev_char == '_') {
+                    // Add space before opening parenthesis for function calls
+                    try builder.append(" (");
+                } else {
+                    try builder.append(&[_]u8{c});
+                }
+                i += 1;
+                continue;
             }
             
             // Handle builtin functions like @sqrt
@@ -627,5 +907,33 @@ pub const FormatBody = struct {
 
     fn formatDeclarationWithSpacing(declaration: []const u8, builder: *LineBuilder) !void {
         try FormatDeclaration.formatDeclaration(declaration, builder);
+    }
+    
+    /// Format union type declaration (e.g. "union(enum)" with proper spacing)
+    fn formatUnionTypeDeclaration(union_type: []const u8, builder: *LineBuilder) !void {
+        // Look for parentheses in union type
+        if (std.mem.indexOf(u8, union_type, "(")) |paren_start| {
+            if (std.mem.lastIndexOf(u8, union_type, ")")) |paren_end| {
+                const before_paren = std.mem.trim(u8, union_type[0..paren_start], " \t");
+                const inside_paren = std.mem.trim(u8, union_type[paren_start + 1..paren_end], " \t");
+                const after_paren = std.mem.trim(u8, union_type[paren_end + 1..], " \t");
+                
+                try builder.append(before_paren);
+                try builder.append("(");
+                try builder.append(inside_paren);
+                try builder.append(")");
+                
+                if (after_paren.len > 0) {
+                    try builder.append(" ");
+                    try builder.append(after_paren);
+                }
+            } else {
+                // Malformed, just append as-is
+                try builder.append(union_type);
+            }
+        } else {
+            // Simple union, just append
+            try builder.append(union_type);
+        }
     }
 };

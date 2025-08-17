@@ -24,6 +24,10 @@
 - **✅ Zig test formatting**: Fixed missing spaces and indentation in test declarations
 - **✅ NodeUtils consolidation**: Eliminated duplicate `getNodeText()`/`appendNodeText()` across 4 formatters
 - **✅ Systematic debugging**: Added AST node type analysis and character-level formatting fixes
+- **✅ Zig formatting_helpers.zig**: Consolidated common patterns, eliminated ~100+ lines of duplicate code
+- **✅ Zig enum formatting**: Fixed enum values, method spacing, arrow operators (`=> "red"` vs `= >"red"`)
+- **✅ TypeScript colon spacing**: Fixed parameter types (`(users: User[])` vs `(users : User[])`)
+- **✅ Method chaining detection**: Improved TypeScript arrow function line breaking
 
 ## 🎯 Current Status & Next Priority Actions
 
@@ -31,18 +35,23 @@
 1. **✅ Zig `struct_formatting`** - Fixed extra closing brace `}};` → `};`
 2. **✅ TypeScript `interface_formatting`** - Fixed extra trailing newline causing invisible character mismatch
 3. **✅ Zig `test_formatting`** - Fixed missing spaces and indentation in test declarations (`test"name"{...}` → `test "name" { ... }`)
+4. **🔄 Zig `enum_union_formatting`** - Major progress: enum formatting fixed (values, methods, spacing), union has multiple-declaration complexity
+5. **🔄 TypeScript `arrow_function_formatting`** - Improved: colon spacing fixed, method chaining partially working, object literals need refinement
 
 ### High Priority - Fix Remaining Test Failures (Current: 413/418)
-1. **TypeScript `arrow_function_formatting`** 
-   - Issue: Arrow function body not formatted with proper line breaks and method chaining
-   - Expected: Multi-line with proper indentation for chained methods
-   - Actual: Single line without proper spacing
-   - Status: **IN PROGRESS**
+1. **Zig `enum_union_formatting`** - **MAJOR PROGRESS**
+   - ✅ **Enum part working**: Values (red, green, blue) format correctly with methods
+   - ✅ **Arrow operators fixed**: `=> "red"` instead of `= >"red"`
+   - ✅ **Function call spacing**: `switch (self)` instead of `switch(self)`
+   - 🔄 **Union part complex**: Multiple declarations in one test (`const Color=...;const Value=...`)
+   - **Remaining issue**: Text parser should split multiple declarations or handle them sequentially
 
-2. **Zig `enum_union_formatting`** (New failure revealed)
-   - Issue: Enum/union formatting not working correctly
-   - Status: Newly discovered after fixing test_formatting
-   - Fix: Debug enum/union formatter logic
+2. **TypeScript `arrow_function_formatting`** - **SIGNIFICANT PROGRESS**
+   - ✅ **Colon spacing fixed**: `(users: User[])` instead of `(users : User[])`
+   - ✅ **Method chaining detection**: Breaking at `.filter()` and `.map()` calls
+   - ✅ **Line width awareness**: Proper line breaking for long expressions
+   - 🔄 **Object literal formatting**: `({...user,processed:true})` needs proper line breaks
+   - **Status**: Very close to passing, needs object literal refinement
 
 3. **Svelte `complex_template_formatting`** (Complex)
    - Issue: Template directives `{#if}`, `{:else}`, `{/if}` duplicated and incorrectly formatted
@@ -123,14 +132,26 @@ Analyze remaining duplicate patterns for extraction potential
 - **Svelte formatter** is the last large monolithic formatter (620+ lines)
 
 **Progress This Session:**
-- ✅ **Zig struct extra brace fixed** - Resolved newline issue after struct methods
-- ✅ **TypeScript interface trailing newline fixed** - Removed double newline
-- ✅ **Zig test formatting completely rebuilt** - Added spacing, indentation, operator formatting
-- 🔄 **Revealed hidden test failures** - enum_union_formatting was masked by test_formatting
+- ✅ **Zig formatting_helpers.zig consolidation** - Created reusable helpers, eliminated ~100+ lines duplicate code
+- ✅ **Zig enum formatting major fix** - Values, methods, arrow operators, function call spacing all working
+- ✅ **TypeScript colon spacing fixed** - Proper parameter type formatting
+- ✅ **Method chaining detection** - TypeScript arrow functions now break at proper points
+- ✅ **Text-based enum parsing** - Robust parsing of enum declarations with mixed values and methods
+- 🔄 **Revealed complexity in multi-declaration tests** - Union test contains multiple `const` declarations
+
+**Current Analysis:**
+- **Enum formatting breakthrough**: The most complex formatter issue resolved
+- **TypeScript very close**: Method chaining working, object literals need refinement  
+- **Union issue is architectural**: Multiple declarations should be split at higher level
+- **Strong foundation established**: Zig helpers consolidation provides excellent patterns for future work
 
 **Immediate Next Steps:**
-1. **Fix TypeScript arrow function line width/chaining** → 414/418 tests
-2. **Fix Zig enum/union formatting** → 415/418 tests ✅ (Goal achieved!)
-3. **Fix Svelte template directive duplication** → 416/418 tests (bonus)
+1. **Refine TypeScript object literal formatting** → Potential 414/418 tests
+2. **Address union multiple-declaration parsing** → Potential 415/418 tests ✅ (Goal achievable!)
+3. **Apply Zig helpers pattern to other format_*.zig modules** → Code quality improvement
 
-**Success Metrics:** 415+ tests passing (99.3%+), systematic debugging approach established, major formatter issues resolved.
+**Success Metrics:** 
+- **Current**: 413/418 tests (98.8%) - maintained while fixing major underlying issues
+- **Target**: 415+ tests (99.3%) - achievable with union declaration parsing and TypeScript object literal fixes
+- **Quality**: ~100+ lines eliminated, systematic debugging established, major enum formatting breakthrough
+- **Foundation**: Excellent consolidation patterns established for continued improvement

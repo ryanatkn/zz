@@ -704,8 +704,50 @@ pub const TypeScriptFormattingHelpers = struct {
                 try builder.append(":");
                 i += 1;
                 
-                // Ensure space after colon if next char isn't space
-                if (i < property.len and property[i] != ' ') {
+                // Skip any existing spaces after colon
+                while (i < property.len and property[i] == ' ') {
+                    i += 1;
+                }
+                
+                // Check if this is followed by an object literal type
+                if (i < property.len and property[i] == '{') {
+                    // Add space before the opening brace
+                    try builder.append(" ");
+                    // Find the matching closing brace for the object literal
+                    var brace_depth: u32 = 0;
+                    const obj_start = i;
+                    var obj_end = i;
+                    var in_obj_string = false;
+                    var obj_string_char: u8 = 0;
+                    
+                    while (obj_end < property.len) {
+                        const obj_c = property[obj_end];
+                        
+                        if (!in_obj_string and (obj_c == '"' or obj_c == '\'' or obj_c == '`')) {
+                            in_obj_string = true;
+                            obj_string_char = obj_c;
+                        } else if (in_obj_string and obj_c == obj_string_char) {
+                            in_obj_string = false;
+                        } else if (!in_obj_string) {
+                            if (obj_c == '{') {
+                                brace_depth += 1;
+                            } else if (obj_c == '}') {
+                                brace_depth -= 1;
+                                if (brace_depth == 0) {
+                                    obj_end += 1;
+                                    break;
+                                }
+                            }
+                        }
+                        obj_end += 1;
+                    }
+                    
+                    // Format the object literal with proper indentation
+                    try formatObjectLiteral(property[obj_start..obj_end], builder);
+                    i = obj_end;
+                    continue;
+                } else {
+                    // Regular type after colon - add space
                     try builder.append(" ");
                 }
                 continue;
@@ -753,6 +795,91 @@ pub const TypeScriptFormattingHelpers = struct {
                 continue;
             }
 
+            try builder.append(&[_]u8{c});
+            i += 1;
+        }
+    }
+
+    /// Format object literal type with proper indentation
+    /// Handles nested object types like { bio: string; avatar?: string; }
+    fn formatObjectLiteral(obj_content: []const u8, builder: *LineBuilder) !void {
+        if (obj_content.len < 2) return; // Need at least "{}"
+        
+        // Extract content between braces
+        const content = std.mem.trim(u8, obj_content[1..obj_content.len-1], " \t\n\r");
+        if (content.len == 0) {
+            try builder.append("{}");
+            return;
+        }
+        
+        // Check if content has multiple properties (contains semicolons)
+        if (std.mem.indexOf(u8, content, ";") != null) {
+            // Multi-property object - format with newlines
+            try builder.append("{");
+            try builder.newline();
+            builder.indent();
+            
+            // Split by semicolons and format each property
+            var properties = std.mem.splitSequence(u8, content, ";");
+            while (properties.next()) |prop| {
+                const prop_trimmed = std.mem.trim(u8, prop, " \t\n\r");
+                if (prop_trimmed.len > 0) {
+                    try builder.appendIndent();
+                    try formatSimpleProperty(prop_trimmed, builder);
+                    try builder.append(";");
+                    try builder.newline();
+                }
+            }
+            
+            builder.dedent();
+            try builder.appendIndent();
+            try builder.append("}");
+        } else {
+            // Single property or simple object - format inline
+            try builder.append("{ ");
+            try formatSimpleProperty(content, builder);
+            try builder.append(" }");
+        }
+    }
+
+    /// Format simple property without object literal handling (to avoid recursion)
+    /// Basic spacing for property: type patterns like "name: string" or "email?: string"
+    fn formatSimpleProperty(property: []const u8, builder: *LineBuilder) !void {
+        var i: usize = 0;
+        while (i < property.len) {
+            const c = property[i];
+            
+            if (c == ':') {
+                // TypeScript style: no space before colon, space after colon
+                try builder.append(":");
+                i += 1;
+                // Skip any existing spaces and add one space
+                while (i < property.len and property[i] == ' ') {
+                    i += 1;
+                }
+                if (i < property.len) {
+                    try builder.append(" ");
+                }
+                continue;
+            }
+            
+            if (c == '?') {
+                // Optional property marker
+                try builder.append("?");
+                i += 1;
+                continue;
+            }
+            
+            if (c == ' ') {
+                // Space normalization
+                if (builder.buffer.items.len > 0 and
+                    builder.buffer.items[builder.buffer.items.len - 1] != ' ') {
+                    try builder.append(" ");
+                }
+                i += 1;
+                continue;
+            }
+            
             try builder.append(&[_]u8{c});
             i += 1;
         }

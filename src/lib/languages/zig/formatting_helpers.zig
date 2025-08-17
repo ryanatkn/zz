@@ -270,6 +270,29 @@ pub const ZigFormattingHelpers = struct {
         while (i < text.len) {
             const c = text[i];
 
+            // Handle "test" keyword followed immediately by quote - add space and handle entire string
+            if (c == '"' and i >= 4 and 
+                std.mem.eql(u8, text[i-4..i], "test") and
+                (i == 4 or !std.ascii.isAlphabetic(text[i-5]))) {
+                // Add space before the quote for test declarations
+                try builder.append(" ");
+                
+                // Find the closing quote and copy the entire string
+                const string_start = i;
+                var string_end = i + 1;
+                while (string_end < text.len and text[string_end] != '"') {
+                    string_end += 1;
+                }
+                if (string_end < text.len) {
+                    string_end += 1; // Include closing quote
+                }
+                
+                // Copy the entire string including quotes
+                try builder.append(text[string_start..string_end]);
+                i = string_end;
+                continue;
+            }
+
             // Handle escape sequences
             if (escape_next) {
                 try builder.append(&[_]u8{c});
@@ -455,6 +478,7 @@ pub const ZigFormattingHelpers = struct {
                 continue;
             }
 
+
             // Handle space normalization
             if (c == ' ') {
                 // Only add space if we haven't just added one
@@ -551,13 +575,14 @@ pub const ZigFormattingHelpers = struct {
         const trimmed = std.mem.trim(u8, body, " \t\n\r");
         if (trimmed.len == 0) return;
         
-        // Split by lines and format each statement
-        var lines = std.mem.splitSequence(u8, trimmed, "\n");
-        while (lines.next()) |line| {
-            const line_trimmed = std.mem.trim(u8, line, " \t");
-            if (line_trimmed.len > 0) {
+        // Split by semicolons for Zig statements, then by lines
+        var statements = std.mem.splitSequence(u8, trimmed, ";");
+        while (statements.next()) |statement| {
+            const stmt_trimmed = std.mem.trim(u8, statement, " \t\n\r");
+            if (stmt_trimmed.len > 0) {
                 try builder.appendIndent();
-                try formatWithZigSpacing(line_trimmed, builder);
+                try formatWithZigSpacing(stmt_trimmed, builder);
+                try builder.append(";");
                 try builder.newline();
             }
         }

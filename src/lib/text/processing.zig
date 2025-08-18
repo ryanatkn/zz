@@ -3,6 +3,48 @@ const collections = @import("../core/collections.zig");
 
 /// String processing utilities to consolidate 10+ repeated splitScalar patterns
 /// Provides common text processing operations with consistent error handling
+
+/// Check if a line starts with any of the given prefixes
+pub fn startsWithAny(text: []const u8, prefixes: []const []const u8) bool {
+    for (prefixes) |prefix| {
+        if (std.mem.startsWith(u8, text, prefix)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/// Check if a line contains any of the given substrings
+pub fn containsAny(text: []const u8, substrings: []const []const u8) bool {
+    for (substrings) |substring| {
+        if (std.mem.indexOf(u8, text, substring) != null) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/// Check if text is a comment line
+pub fn isComment(text: []const u8, style: CommentStyle) bool {
+    const trimmed = std.mem.trim(u8, text, " \t");
+
+    return switch (style) {
+        .c_style => std.mem.startsWith(u8, trimmed, "//") or
+            std.mem.startsWith(u8, trimmed, "/*") or
+            std.mem.startsWith(u8, trimmed, "*"),
+        .hash => std.mem.startsWith(u8, trimmed, "#"),
+        .html => std.mem.startsWith(u8, trimmed, "<!--"),
+        .sql => std.mem.startsWith(u8, trimmed, "--"),
+    };
+}
+
+pub const CommentStyle = enum {
+    c_style, // // or /* */
+    hash, // #
+    html, // <!-- -->
+    sql, // --
+};
+
 /// Process lines with state context
 pub fn processLinesWithState(
     comptime StateType: type,

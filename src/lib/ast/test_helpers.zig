@@ -49,7 +49,7 @@ pub const ASTTestHelpers = struct {
     /// ```
     pub fn createStructuredAST(
         allocator: std.mem.Allocator,
-        structure: ASTStructure,
+        comptime structure: ASTStructure,
     ) !AST {
         return try createMockAST(allocator, structure);
     }
@@ -248,8 +248,8 @@ pub const ASTTestHelpers = struct {
 // ============================================================================
 
 test "create simple ZON AST" {
-    const ast = try ASTTestHelpers.createZonAST(testing.allocator, ".{ .name = \"test\", .version = \"1.0\" }");
-    defer @constCast(ast).deinit();
+    var ast = try ASTTestHelpers.createZonAST(testing.allocator, ".{ .name = \"test\", .version = \"1.0\" }");
+    defer ast.deinit();
 
     try testing.expectEqualStrings("object", ast.root.rule_name);
     try testing.expect(ast.root.children.len > 0);
@@ -262,7 +262,7 @@ test "create simple object AST" {
     };
 
     var ast = try ASTTestHelpers.createSimpleObject(testing.allocator, &fields);
-    defer @constCast(ast).deinit();
+    defer ast.deinit();
 
     try ASTTestHelpers.assertASTStructure(&ast.root, "object", 2);
 }
@@ -271,7 +271,7 @@ test "create simple array AST" {
     const items = [_][]const u8{ "item1", "item2", "item3" };
 
     var ast = try ASTTestHelpers.createSimpleArray(testing.allocator, &items);
-    defer @constCast(ast).deinit();
+    defer ast.deinit();
 
     try ASTTestHelpers.assertASTStructure(&ast.root, "array", 3);
 }
@@ -283,7 +283,7 @@ test "create structured AST" {
     } };
 
     var ast = try ASTTestHelpers.createStructuredAST(testing.allocator, structure);
-    defer @constCast(ast).deinit();
+    defer ast.deinit();
 
     try ASTTestHelpers.assertASTStructure(&ast.root, "object", 2);
 }

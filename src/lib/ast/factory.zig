@@ -338,7 +338,10 @@ fn createMockNode(factory: *ASTFactory, structure: ASTStructure, start_pos: usiz
         },
         .string => |value| return try factory.createString(value, start_pos, start_pos + value.len + 2),
         .number => |value| return try factory.createNumber(value, start_pos, start_pos + 8), // Approximate
-        .boolean => |value| return try factory.createBoolean(value, start_pos, start_pos + if (value) 4 else 5),
+        .boolean => |value| {
+            const len: usize = if (value) 4 else 5;
+            return try factory.createBoolean(value, start_pos, start_pos + len);
+        },
         .null_value => return try factory.createNull(start_pos, start_pos + 4),
         .identifier => |name| return try factory.createIdentifier(name, start_pos, start_pos + name.len),
     }

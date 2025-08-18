@@ -1,4 +1,5 @@
 const std = @import("std");
+const char = @import("../char/mod.zig");
 const config = @import("config.zig");
 const io = @import("../core/io.zig");
 const path = @import("../core/path.zig");
@@ -154,12 +155,12 @@ pub const Versioning = struct {
 
         // Find first dot or end of string
         var end_idx: usize = 0;
-        for (clean_version, 0..) |char, idx| {
-            if (char == '.') {
+        for (clean_version, 0..) |ch, idx| {
+            if (ch == '.') {
                 end_idx = idx;
                 break;
             }
-            if (!std.ascii.isDigit(char)) {
+            if (!char.isDigit(ch)) {
                 break;
             }
             end_idx = idx + 1;

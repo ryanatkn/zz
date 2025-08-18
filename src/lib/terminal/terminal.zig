@@ -1,4 +1,5 @@
 const std = @import("std");
+const char = @import("../char/mod.zig");
 const colors = @import("colors.zig");
 const control = @import("control.zig");
 const animation = @import("animation.zig");
@@ -255,7 +256,7 @@ pub fn stripColors(allocator: std.mem.Allocator, text: []const u8) ![]u8 {
         if (i + 1 < text.len and text[i] == '\x1b' and text[i + 1] == '[') {
             // Skip ANSI escape sequence
             i += 2;
-            while (i < text.len and !std.ascii.isAlphabetic(text[i])) {
+            while (i < text.len and !char.isAlpha(text[i])) {
                 i += 1;
             }
             if (i < text.len) i += 1; // Skip the letter

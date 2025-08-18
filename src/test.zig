@@ -2,7 +2,6 @@
 // Usage: zig test src/test.zig
 
 const std = @import("std");
-// const extractor = @import("lib/language/extractor.zig"); // Removed - using stratified parser
 
 // Import all test modules - this ensures their test blocks are included
 test {

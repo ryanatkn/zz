@@ -1,4 +1,5 @@
 const std = @import("std");
+const char = @import("../char/mod.zig");
 
 /// Format options for different output contexts
 pub const FormatOptions = struct {
@@ -49,7 +50,7 @@ pub fn stripAnsiCodes(allocator: std.mem.Allocator, text: []const u8) ![]u8 {
             while (i < text.len) {
                 const c = text[i];
                 i += 1;
-                if (std.ascii.isAlphabetic(c)) {
+                if (char.isAlpha(c)) {
                     break;
                 }
             }

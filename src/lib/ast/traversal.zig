@@ -33,20 +33,16 @@ pub const TraversalContext = struct {
     }
 
     pub fn deinit(self: *TraversalContext) void {
-        for (self.path.items) |segment| {
-            self.allocator.free(segment);
-        }
         self.path.deinit();
     }
 
     pub fn pushPath(self: *TraversalContext, segment: []const u8) !void {
-        try self.path.append(try self.allocator.dupe(u8, segment));
+        try self.path.append(segment);  // Don't duplicate, just store reference
     }
 
     pub fn popPath(self: *TraversalContext) void {
         if (self.path.items.len > 0) {
-            const last = self.path.pop();
-            self.allocator.free(last);
+            _ = self.path.pop();
         }
     }
 
@@ -276,6 +272,7 @@ pub fn hasRuleName(comptime rule_name: []const u8) PredicateFn {
     }.predicate;
 }
 
+
 pub fn hasMinChildren(min_count: usize) PredicateFn {
     return struct {
         const min = min_count;
@@ -315,8 +312,22 @@ pub fn findNodesByRule(
     root: *const Node,
     rule_name: []const u8,
 ) ![]const *const Node {
-    const traversal = ASTTraversal.init(allocator);
-    return traversal.findNodes(root, hasRuleName(rule_name));
+    var results = std.ArrayList(*const Node).init(allocator);
+    try collectNodesByRuleName(root, rule_name, &results);
+    return results.toOwnedSlice();
+}
+
+fn collectNodesByRuleName(
+    node: *const Node,
+    rule_name: []const u8,
+    results: *std.ArrayList(*const Node),
+) !void {
+    if (std.mem.eql(u8, node.rule_name, rule_name)) {
+        try results.append(node);
+    }
+    for (node.children) |*child| {
+        try collectNodesByRuleName(child, rule_name, results);
+    }
 }
 
 /// Count total nodes in AST

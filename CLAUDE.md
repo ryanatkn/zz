@@ -50,8 +50,13 @@ src/
 │   │   └── filesystem.zig   # Filesystem utilities
 │   ├── patterns/        # Pattern matching utilities
 │   │   ├── glob.zig         # Glob pattern matching
-│   │   ├── gitignore.zig    # Gitignore pattern handling
-│   │   └── text.zig         # Text pattern utilities
+│   │   └── gitignore.zig    # Gitignore pattern handling
+│   ├── text/            # Text processing utilities  
+│   │   ├── delimiters.zig   # Delimiter tracking and balanced parsing
+│   │   ├── processing.zig   # Line processing and text utilities
+│   │   ├── builders.zig     # StringBuilder utilities
+│   │   ├── formatting.zig   # Format utilities (ANSI stripping, etc.)
+│   │   └── line_processing.zig # Line-based operations
 │   ├── ast/             # Enhanced AST infrastructure
 │   │   ├── mod.zig          # AST type definition
 │   │   ├── node.zig         # Core Node types

@@ -131,6 +131,68 @@ pub fn findMatchingDelimiter(
     return null;
 }
 
+/// Count occurrences of a character in text
+pub fn countChar(text: []const u8, char: u8) usize {
+    var count: usize = 0;
+    for (text) |c| {
+        if (c == char) count += 1;
+    }
+    return count;
+}
+
+/// Count balance of opening and closing characters (e.g., braces)
+pub fn countBalance(text: []const u8, open: u8, close: u8) i32 {
+    var balance: i32 = 0;
+    for (text) |c| {
+        if (c == open) balance += 1;
+        if (c == close) balance -= 1;
+    }
+    return balance;
+}
+
+/// Extract content between delimiters (e.g., between < and >)
+/// This is a simpler version that doesn't require balanced delimiters
+pub fn extractBetween(
+    text: []const u8,
+    open_delim: []const u8,
+    close_delim: []const u8,
+) ?[]const u8 {
+    if (std.mem.indexOf(u8, text, open_delim)) |start| {
+        const content_start = start + open_delim.len;
+        if (std.mem.indexOf(u8, text[content_start..], close_delim)) |end| {
+            return text[content_start .. content_start + end];
+        }
+    }
+    return null;
+}
+
+/// Extract all occurrences between delimiters
+pub fn extractAllBetween(
+    allocator: std.mem.Allocator,
+    text: []const u8,
+    open_delim: []const u8,
+    close_delim: []const u8,
+) !std.ArrayList([]const u8) {
+    var results = std.ArrayList([]const u8).init(allocator);
+    var pos: usize = 0;
+
+    while (pos < text.len) {
+        if (std.mem.indexOf(u8, text[pos..], open_delim)) |start| {
+            const abs_start = pos + start;
+            const content_start = abs_start + open_delim.len;
+            if (std.mem.indexOf(u8, text[content_start..], close_delim)) |end| {
+                const content = text[content_start .. content_start + end];
+                try results.append(content);
+                pos = content_start + end + close_delim.len;
+                continue;
+            }
+        }
+        break;
+    }
+
+    return results;
+}
+
 /// Extract content between balanced delimiters
 /// Returns the content between the delimiters, or null if not balanced
 pub fn extractBetweenDelimiters(

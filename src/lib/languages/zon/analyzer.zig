@@ -607,7 +607,7 @@ pub const ZonAnalyzer = struct {
         // Get basic AST statistics using ASTUtils
         const ast_stats = common.ASTUtils.getASTStatistics(&node);
         stats.total_nodes = @intCast(ast_stats.total_nodes);
-        stats.max_depth = ast_stats.max_depth;
+        stats.max_depth = @intCast(ast_stats.max_depth);
 
         // Use visitor pattern to count specific ZON node types
         const visitor = struct {

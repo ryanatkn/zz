@@ -170,34 +170,14 @@ for (files) |file| {
 }
 ```
 
-## Text Pattern Utilities (`text.zig`)
+## Text Utilities
 
-### Features
-- **Pattern Checking:** `startsWithAny()`, `containsAny()`
-- **Character Counting:** `countChar()`, `countBalance()`
-- **Delimiter Matching:** `findClosingDelimiter()`, `extractBetween()`
+**Note:** Text pattern utilities have been moved to the `lib/text/` module for better organization:
+- **Text processing:** See `lib/text/processing.zig` for `startsWithAny()`, `containsAny()`, etc.
+- **Delimiter operations:** See `lib/text/delimiters.zig` for `countBalance()`, `extractBetween()`, etc.
+- **String building:** See `lib/text/builders.zig` for efficient string construction
 
-### API
-```zig
-// Check if text starts with any pattern
-const prefixes = [_][]const u8{ "pub fn", "fn", "test" };
-if (startsWithAny(line, &prefixes)) { ... }
-
-// Count balance of braces
-const balance = countBalance(text, '{', '}');  // Returns i32
-
-// Extract content between delimiters
-const content = extractBetween(text, "<", ">");  // Returns ?[]const u8
-
-// Find closing delimiter
-const close_pos = findClosingDelimiter(text, 0, '{', '}');  // Returns ?usize
-```
-
-### Use Cases
-- Language-agnostic pattern detection
-- Balanced delimiter tracking
-- Template/tag extraction
-- Generic text analysis
+The patterns module now focuses exclusively on file path patterns (glob and gitignore).
 
 ## ZON Serialization
 
@@ -224,16 +204,19 @@ Deserialization maintains pattern semantics and performance.
 
 ## Migration from Legacy
 
-**Before (lib/parsing/):**
+**Before (scattered locations):**
 ```zig
 const glob = @import("lib/parsing/glob.zig");
 const gitignore = @import("lib/parsing/gitignore.zig");
+const text_patterns = @import("lib/patterns/text.zig");  // OLD
 ```
 
-**After (patterns module):**
+**After (organized modules):**
 ```zig
 const glob = @import("lib/patterns/glob.zig");
 const gitignore = @import("lib/patterns/gitignore.zig");
+const text = @import("lib/text/processing.zig");  // Text utilities moved here
+const delimiters = @import("lib/text/delimiters.zig");  // Delimiter operations here
 ```
 
 ## Development Guidelines

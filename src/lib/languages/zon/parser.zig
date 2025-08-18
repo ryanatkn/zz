@@ -1,12 +1,13 @@
-const std = @import("std");
-const Token = @import("../../parser/foundation/types/token.zig").Token;
-const TokenKind = @import("../../parser/foundation/types/predicate.zig").TokenKind;
-const AST = @import("../../parser/ast/mod.zig").AST;
-const Node = @import("../../ast/mod.zig").Node;
-const NodeType = @import("../../ast/mod.zig").NodeType;
-const Span = @import("../../parser/foundation/types/span.zig").Span;
-const ParseContext = @import("memory.zig").ParseContext;
-const utils = @import("utils.zig");
+const common = @import("common.zig");
+const std = common.std;
+const Token = common.Token;
+const TokenKind = common.TokenKind;
+const AST = common.AST;
+const Node = common.Node;
+const NodeType = common.NodeType;
+const Span = common.Span;
+const ParseContext = common.ParseContext;
+const utils = common.utils;
 
 /// ZON parser using our AST infrastructure
 ///

@@ -71,9 +71,10 @@ pub const BoundaryCache = @import("detailed/cache.zig").BoundaryCache;
 // Re-export AST types when they exist
 // ============================================================================
 
-// TODO: Will be available when AST module is implemented
-// pub const Node = @import("../ast/mod.zig").Node;
-// pub const Visitor = @import("../ast/mod.zig").Visitor;
+// AST types are now available
+pub const AST = @import("../ast/mod.zig").AST;
+pub const Node = @import("../ast/mod.zig").Node;
+pub const Visitor = @import("../ast/mod.zig").Visitor;
 
 // ============================================================================
 // Complete Stratified Parser API Summary

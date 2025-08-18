@@ -9,7 +9,7 @@ const Fact = @import("../foundation/types/fact.zig").Fact;
 const ParseBoundary = @import("../structural/mod.zig").ParseBoundary;
 
 // Import AST types
-const AST = @import("../ast/mod.zig").AST;
+const AST = @import("../../ast/mod.zig").AST;
 const ASTNode = @import("../../ast/mod.zig").Node;
 
 // Import detailed parser components

@@ -5,8 +5,8 @@ const Span = @import("../foundation/types/span.zig").Span;
 const Token = @import("../foundation/types/token.zig").Token;
 
 // Import AST types
-const AST = @import("../ast/mod.zig").AST;
-const ASTNode = @import("../ast/mod.zig").ASTNode;
+const AST = @import("../../ast/mod.zig").AST;
+const ASTNode = @import("../../ast/mod.zig").ASTNode;
 
 /// Handles disambiguation of ambiguous language constructs
 /// Some language constructs can be interpreted in multiple ways depending on context.

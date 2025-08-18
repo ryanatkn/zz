@@ -8,10 +8,10 @@ const Span = @import("../foundation/types/span.zig").Span;
 const Predicate = @import("../foundation/types/predicate.zig").Predicate;
 const Value = @import("../foundation/types/predicate.zig").Value;
 
-// Import AST types (these will need to be defined)
-const AST = @import("../ast/mod.zig").AST;
+// Import AST types
+const AST = @import("../../ast/mod.zig").AST;
 const ASTNode = @import("../../ast/mod.zig").ASTNode;
-const NodeKind = @import("../ast/mod.zig").NodeKind;
+const NodeKind = @import("../../ast/mod.zig").NodeKind;
 
 // Import structural types
 const ParseBoundary = @import("../structural/mod.zig").ParseBoundary;

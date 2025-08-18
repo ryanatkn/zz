@@ -29,3 +29,31 @@ pub const NodeType = @import("node.zig").NodeType;
 
 pub const createNode = @import("node.zig").createNode;
 pub const createLeafNode = @import("node.zig").createLeafNode;
+
+// ============================================================================
+// AST Structure
+// ============================================================================
+
+/// Complete AST structure with memory management
+pub const AST = struct {
+    root: ASTNode,
+    allocator: std.mem.Allocator,
+    /// Texts allocated during parsing that are owned by this AST
+    owned_texts: []const []const u8,
+    /// Original source text (optional)
+    source: []const u8 = "",
+
+    pub fn deinit(self: *AST) void {
+        // Free the AST tree
+        self.root.deinit(self.allocator);
+        
+        // Free all owned texts allocated during parsing
+        for (self.owned_texts) |text| {
+            self.allocator.free(text);
+        }
+        self.allocator.free(self.owned_texts);
+    }
+};
+
+/// Alias for AST compatibility
+pub const NodeKind = NodeType;

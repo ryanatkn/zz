@@ -10,7 +10,7 @@ pub const std = @import("std");
 // Core AST and parser types
 pub const Node = @import("../../ast/mod.zig").Node;
 pub const NodeType = @import("../../ast/mod.zig").NodeType;
-pub const AST = @import("../../parser/ast/mod.zig").AST;
+pub const AST = @import("../../ast/mod.zig").AST;
 
 // Parser foundation types
 pub const Token = @import("../../parser/foundation/types/token.zig").Token;

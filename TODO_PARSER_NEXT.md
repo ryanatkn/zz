@@ -82,6 +82,13 @@ Reusable pattern matching:
 - `gitignore.zig`: Ignore pattern handling
 - `path.zig`: Path-aware pattern matching
 
+### Grammar Module (`lib/grammar/`)
+Pure Zig grammar definition system:
+- `builder.zig`: DSL for defining grammars
+- `rule.zig`: Grammar rule types and combinators
+- `resolver.zig`: Reference resolution and validation
+- `languages/`: Language-specific grammar definitions
+
 ## 📊 Current Metrics
 
 ### Test Coverage

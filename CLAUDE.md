@@ -88,7 +88,6 @@ src/
 │   │   ├── html/        # HTML with patterns.zig
 │   │   └── svelte/      # Svelte stub
 │   ├── grammar/         # Grammar definition DSL
-│   ├── text/            # Text processing utilities
 │   ├── memory/          # Memory management utilities
 │   ├── filesystem/      # Filesystem abstraction layer
 │   └── test/            # Test framework & fixtures
@@ -183,6 +182,13 @@ $ zig build benchmark               # Run performance benchmarks
 - **Extensible:** Easy to add new languages via interface implementation
 - See [TODO_PARSER_NEXT.md](TODO_PARSER_NEXT.md) for implementation details
 
+### Transform Pipeline Architecture (Planned)
+- **Bidirectional Transforms:** Encode ↔ Decode operations with symmetry
+- **Pipeline Composition:** Chain transforms like Unix pipes
+- **AST Preservation:** Format-aware operations beyond std library
+- **Encoding Primitives:** Language-specific escaping, smart indentation
+- See [TODO_SERIALIZATION.md](TODO_SERIALIZATION.md) for architecture details
+
 ### Performance Optimizations
 - Early directory skipping for ignored paths
 - Memory pool allocators and arena allocation
@@ -242,6 +248,8 @@ See [docs/llm-guidelines.md](docs/llm-guidelines.md) for detailed development ph
 - [docs/ast-integration.md](docs/ast-integration.md) - AST framework
 - [docs/benchmarking.md](docs/benchmarking.md) - Performance testing
 - [docs/testing.md](docs/testing.md) - Testing strategy
+- [TODO_PARSER_NEXT.md](TODO_PARSER_NEXT.md) - Language implementation roadmap
+- [TODO_SERIALIZATION.md](TODO_SERIALIZATION.md) - Transform pipeline architecture
 
 ## Notes
 

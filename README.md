@@ -9,7 +9,7 @@ For the companion GUI see [Zzz](https://github.com/ryanatkn/zzz).
 
 Fast command-line utilities for exploring and understanding codebases. Built on a **Pure Zig language tooling library** featuring native AST parsing, code formatting, and semantic analysis.
 
-**Architecture Evolution**: We're replacing tree-sitter with a Pure Zig grammar system. See [TODO_PURE_ZIG_ROADMAP.md](TODO_PURE_ZIG_ROADMAP.md) for details.
+**Architecture**: Pure Zig Stratified Parser with unified language support. Tree-sitter removal complete. See [TODO_PARSER_NEXT.md](TODO_PARSER_NEXT.md) for implementation details.
 
 **Key Features:**
 - 🔍 **Semantic code extraction** - Extract functions, types, and docs using pure Zig AST parsing
@@ -74,7 +74,7 @@ zz prompt app.ts --imports --errors      # Dependencies and error handling
 zz prompt . --full                       # Everything (default)
 ```
 
-**Supported languages:** TypeScript, CSS, HTML, JSON, Zig, Svelte
+**Supported languages:** TypeScript, CSS, HTML, JSON, ZON, Zig, Svelte
 
 **Extraction flags:**
 - `--signatures` - Functions and methods
@@ -104,7 +104,7 @@ zz format "src/**/*.json" --check        # Check if formatted
 echo '{"a":1}' | zz format --stdin       # Format from stdin
 ```
 
-**Supported:** JSON, CSS, HTML, Zig (via `zig fmt`)
+**Supported:** JSON, ZON, CSS, HTML, Zig (via `zig fmt`), TypeScript, Svelte
 
 ### `zz benchmark` - Performance testing
 
@@ -131,9 +131,8 @@ zz deps --help               # Show detailed help
 ```
 
 **Features:**
-- Track 9 vendored tree-sitter dependencies
-- Version checking with semantic versioning
-- CI-friendly exit codes (1 if updates needed)
+- Track dependencies with semantic versioning
+- CI-friendly exit codes (1 if updates needed)  
 - Colored status output
 - Lock file support for concurrent safety
 
@@ -282,5 +281,5 @@ See [CLAUDE.md](CLAUDE.md) for development guidelines.
 
 Built with:
 - [Zig](https://ziglang.org/) - Systems programming language
-- [Claude Code](https://claude.ai/code) - AI-assisted development
+- [Claude Code](https://claude.ai/code) - AI-assisted development, thank you Anthropic people
 - Pure Zig grammar system (replacing tree-sitter)

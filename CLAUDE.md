@@ -47,12 +47,21 @@ src/
 │   ├── ast/             # Unified AST infrastructure
 │   ├── analysis/        # Semantic analysis & linting
 │   ├── formatting/      # Format model & engine (NEW)
-│   ├── languages/       # Language-specific implementations
-│   │   ├── zig/         # Zig grammar, AST, formatter
-│   │   ├── typescript/  # TypeScript grammar, AST, formatter
-│   │   ├── css/         # CSS grammar, AST, formatter
-│   │   ├── html/        # HTML grammar, AST, formatter
-│   │   ├── json/        # JSON grammar, AST, formatter
+│   ├── languages/       # Unified language implementations (NEW)
+│   │   ├── mod.zig      # Language registry and dispatch
+│   │   ├── interface.zig # Language support contracts
+│   │   ├── registry.zig # Enhanced language registry with caching
+│   │   ├── common/      # Shared utilities for all languages
+│   │   │   ├── tokens.zig    # Common token types and patterns
+│   │   │   ├── patterns.zig  # Shared parsing patterns
+│   │   │   ├── formatting.zig # FormatBuilder and utilities
+│   │   │   └── analysis.zig   # SymbolTable and analysis tools
+│   │   ├── zig/         # Zig lexer, parser, formatter
+│   │   ├── typescript/  # TypeScript lexer, parser, formatter
+│   │   ├── css/         # CSS lexer, parser, formatter
+│   │   ├── html/        # HTML lexer, parser, formatter
+│   │   ├── json/        # JSON lexer, parser, formatter
+│   │   ├── zon/         # ZON lexer, parser, formatter
 │   │   └── svelte/      # Svelte multi-language support
 │   ├── core/            # Core utilities (io, path, collections)
 │   ├── deps/            # Dependency management system
@@ -141,11 +150,14 @@ $ zig build benchmark               # Run performance benchmarks
 
 ## Key Features
 
-### Language Support
-- **Full AST Support:** Zig, TypeScript, CSS, HTML, JSON, Svelte
-- **Real tree-sitter parsing** for semantic code understanding
-- **C-style modular formatters** (`format_*.zig` pattern)
-- See [docs/language-support.md](docs/language-support.md)
+### Unified Language Support
+- **7 Languages:** Zig, TypeScript, CSS, HTML, JSON, ZON, Svelte
+- **Pure Zig Stratified Parser:** Three-layer architecture (lexical, structural, detailed)
+- **Unified Interface:** All languages implement common LanguageSupport contract
+- **Shared Infrastructure:** Common utilities for tokens, patterns, formatting, analysis
+- **Performance Optimized:** Registry caching, shared patterns, <10ms parsing targets
+- **Extensible:** Easy to add new languages via interface implementation
+- See [TODO_PARSER_NEXT.md](TODO_PARSER_NEXT.md) for implementation details
 
 ### Performance Optimizations
 - Early directory skipping for ignored paths

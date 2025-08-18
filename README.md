@@ -86,6 +86,24 @@ zz prompt . --full                       # Everything (default)
 - `--structure` - Code structure outline
 - `--full` - Complete source (default)
 
+### `zz benchmark` - Performance testing
+
+Run performance benchmarks with baseline comparison:
+
+```bash
+zz benchmark                     # Run all benchmarks (markdown format)
+zz benchmark --format pretty     # Pretty terminal output
+zz benchmark --only path,memory  # Run specific benchmarks
+zz benchmark --duration 5s       # Extended duration for stability
+```
+
+Build commands for common workflows:
+```bash
+zig build benchmark              # Run and compare with baseline
+zig build benchmark-baseline     # Save new baseline
+zig build benchmark-stdout       # Pretty output only
+```
+
 ### `zz tree` - Visualize directory structure
 
 ```bash

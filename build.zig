@@ -67,7 +67,7 @@ pub fn build(b: *std.Build) void {
 
     // Benchmark step - save to latest.md and compare
     const benchmark_step = b.step("benchmark", "Run benchmarks, save to latest.md, compare with baseline");
-    const benchmark_cmd = b.addSystemCommand(&.{ "sh", "-c", "./zig-out/bin/zz benchmark > benchmarks/latest.md && ./zig-out/bin/zz benchmark --format=pretty" });
+    const benchmark_cmd = b.addSystemCommand(&.{ "sh", "-c", "mkdir -p benchmarks && ./zig-out/bin/zz benchmark > benchmarks/latest.md && ./zig-out/bin/zz benchmark --format pretty" });
     benchmark_cmd.step.dependOn(b.getInstallStep());
     benchmark_step.dependOn(&benchmark_cmd.step);
 
@@ -80,7 +80,7 @@ pub fn build(b: *std.Build) void {
     // Benchmark stdout step - just show pretty output
     const benchmark_stdout_step = b.step("benchmark-stdout", "Run benchmarks and show pretty output");
     const stdout_run = b.addRunArtifact(exe);
-    stdout_run.addArgs(&.{ "benchmark", "--format=pretty" });
+    stdout_run.addArgs(&.{ "benchmark", "--format", "pretty" });
     stdout_run.step.dependOn(b.getInstallStep());
     benchmark_stdout_step.dependOn(&stdout_run.step);
 

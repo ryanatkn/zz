@@ -83,19 +83,19 @@ pub const JsonLexer = struct {
 
         return switch (ch) {
             '{' => {
-                self.advance();
+                _ = self.advance();
                 return self.makeToken(.delimiter, start_pos, "{");
             },
             '}' => {
-                self.advance();
+                _ = self.advance();
                 return self.makeToken(.delimiter, start_pos, "}");
             },
             '[' => {
-                self.advance();
+                _ = self.advance();
                 return self.makeToken(.delimiter, start_pos, "[");
             },
             ']' => {
-                self.advance();
+                _ = self.advance();
                 return self.makeToken(.delimiter, start_pos, "]");
             },
             ',' => {
@@ -244,11 +244,11 @@ pub const JsonLexer = struct {
         while (!self.isAtEnd()) {
             const ch = self.peek();
             if (char.isWhitespace(ch)) {
-                self.advance();
+                _ = self.advance();
             } else if (ch == '\n') {
                 self.line += 1;
                 self.column = 1;
-                self.advance();
+                _ = self.advance();
             } else {
                 break;
             }

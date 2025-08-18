@@ -1,24 +1,203 @@
 const std = @import("std");
+const benchmark_lib = @import("../lib/benchmark/mod.zig");
+const BenchmarkRunner = benchmark_lib.BenchmarkRunner;
+const BenchmarkOptions = benchmark_lib.BenchmarkOptions;
+const BenchmarkSuite = benchmark_lib.BenchmarkSuite;
+const OutputFormat = benchmark_lib.OutputFormat;
 
-// NOTE: Legacy benchmark.zig deleted - this module needs reimplementation
-// TODO: Reimplement benchmark functionality in new architecture
+// Import benchmark suites
+const core_benchmarks = @import("suites/core.zig");
+const language_benchmarks = @import("suites/languages.zig");
 
-pub const OutputFormat = enum {
-    markdown,
-    json,
-    csv,
-    pretty,
-
-    pub fn fromString(s: []const u8) ?OutputFormat {
-        if (std.mem.eql(u8, s, "markdown")) return .markdown;
-        if (std.mem.eql(u8, s, "json")) return .json;
-        if (std.mem.eql(u8, s, "csv")) return .csv;
-        if (std.mem.eql(u8, s, "pretty")) return .pretty;
-        return null;
+pub fn run(allocator: std.mem.Allocator, args: [][:0]const u8) !void {
+    var options = BenchmarkOptions{};
+    
+    // Parse command line arguments
+    var i: usize = 1; // Skip program name
+    while (i < args.len) : (i += 1) {
+        const arg = args[i];
+        
+        if (std.mem.eql(u8, arg, "--format")) {
+            i += 1;
+            if (i >= args.len) {
+                std.debug.print("Error: --format requires a value\n", .{});
+                return;
+            }
+            options.format = OutputFormat.fromString(args[i]) orelse {
+                std.debug.print("Error: Invalid format '{s}'. Use: markdown, json, csv, pretty\n", .{args[i]});
+                return;
+            };
+        } else if (std.mem.eql(u8, arg, "--duration")) {
+            i += 1;
+            if (i >= args.len) {
+                std.debug.print("Error: --duration requires a value\n", .{});
+                return;
+            }
+            options.duration_ns = benchmark_lib.parseDuration(args[i]) catch {
+                std.debug.print("Error: Invalid duration '{s}'. Use format like '2s', '500ms', or nanoseconds\n", .{args[i]});
+                return;
+            };
+        } else if (std.mem.eql(u8, arg, "--duration-multiplier")) {
+            i += 1;
+            if (i >= args.len) {
+                std.debug.print("Error: --duration-multiplier requires a value\n", .{});
+                return;
+            }
+            options.duration_multiplier = std.fmt.parseFloat(f64, args[i]) catch {
+                std.debug.print("Error: Invalid duration multiplier '{s}'\n", .{args[i]});
+                return;
+            };
+        } else if (std.mem.eql(u8, arg, "--baseline")) {
+            i += 1;
+            if (i >= args.len) {
+                std.debug.print("Error: --baseline requires a value\n", .{});
+                return;
+            }
+            options.baseline = args[i];
+        } else if (std.mem.eql(u8, arg, "--no-compare")) {
+            options.no_compare = true;
+        } else if (std.mem.eql(u8, arg, "--only")) {
+            i += 1;
+            if (i >= args.len) {
+                std.debug.print("Error: --only requires a value\n", .{});
+                return;
+            }
+            options.only = args[i];
+        } else if (std.mem.eql(u8, arg, "--skip")) {
+            i += 1;
+            if (i >= args.len) {
+                std.debug.print("Error: --skip requires a value\n", .{});
+                return;
+            }
+            options.skip = args[i];
+        } else if (std.mem.eql(u8, arg, "--no-warmup")) {
+            options.warmup = false;
+        } else if (std.mem.eql(u8, arg, "-h") or std.mem.eql(u8, arg, "--help")) {
+            try printHelp();
+            return;
+        } else if (std.mem.startsWith(u8, arg, "-")) {
+            std.debug.print("Error: Unknown option '{s}'\n", .{arg});
+            try printHelp();
+            return;
+        }
     }
-};
+    
+    // Set default baseline if not specified and comparison is enabled
+    if (!options.no_compare and options.baseline == null) {
+        options.baseline = "benchmarks/baseline.md";
+    }
+    
+    var runner = BenchmarkRunner.init(allocator, options);
+    defer runner.deinit();
+    
+    // Load baseline for comparison if specified
+    if (options.baseline) |baseline_path| {
+        if (!options.no_compare) {
+            runner.loadBaseline(baseline_path) catch |err| switch (err) {
+                benchmark_lib.BenchmarkError.BaselineNotFound => {
+                    // Baseline not found is not an error - just continue without comparison
+                },
+                else => {
+                    std.debug.print("Warning: Could not load baseline from '{s}': {}\n", .{ baseline_path, err });
+                },
+            };
+        }
+    }
+    
+    // Register all benchmark suites
+    try registerBenchmarkSuites(&runner);
+    
+    // Run benchmarks
+    try runner.runAll();
+    
+    // Output results
+    const stdout = std.io.getStdOut().writer();
+    try runner.outputResults(stdout);
+    
+    // Check for regressions and exit with appropriate code
+    if (runner.checkRegressions()) {
+        std.process.exit(1);
+    }
+}
 
-pub fn run(_: std.mem.Allocator, _: [][:0]const u8) !void {
-    std.debug.print("Benchmark functionality temporarily disabled - lib/benchmark.zig was deleted during legacy cleanup\n", .{});
-    std.debug.print("TODO: Reimplement benchmarking in new architecture\n", .{});
+fn registerBenchmarkSuites(runner: *BenchmarkRunner) !void {
+    // Core module benchmarks
+    try runner.registerSuite(BenchmarkSuite{
+        .name = "path",
+        .variance_multiplier = 2.0, // I/O dependent
+        .runFn = core_benchmarks.runPathBenchmarks,
+    });
+    
+    try runner.registerSuite(BenchmarkSuite{
+        .name = "memory",
+        .variance_multiplier = 3.0, // Allocation dependent
+        .runFn = core_benchmarks.runMemoryBenchmarks,
+    });
+    
+    try runner.registerSuite(BenchmarkSuite{
+        .name = "patterns",
+        .variance_multiplier = 2.0, // Pattern matching variability
+        .runFn = core_benchmarks.runPatternBenchmarks,
+    });
+    
+    try runner.registerSuite(BenchmarkSuite{
+        .name = "text",
+        .variance_multiplier = 1.0, // CPU bound
+        .runFn = core_benchmarks.runTextBenchmarks,
+    });
+    
+    try runner.registerSuite(BenchmarkSuite{
+        .name = "char",
+        .variance_multiplier = 1.0, // CPU bound
+        .runFn = core_benchmarks.runCharBenchmarks,
+    });
+    
+    // Language benchmarks
+    try runner.registerSuite(BenchmarkSuite{
+        .name = "json",
+        .variance_multiplier = 1.5, // Language processing
+        .runFn = language_benchmarks.runJsonBenchmarks,
+    });
+    
+    try runner.registerSuite(BenchmarkSuite{
+        .name = "zon",
+        .variance_multiplier = 1.5, // Language processing
+        .runFn = language_benchmarks.runZonBenchmarks,
+    });
+    
+    try runner.registerSuite(BenchmarkSuite{
+        .name = "parser",
+        .variance_multiplier = 1.5, // Parsing complexity
+        .runFn = language_benchmarks.runParserBenchmarks,
+    });
+}
+
+fn printHelp() !void {
+    const help_text =
+        \\Usage: zz benchmark [options]
+        \\
+        \\Options:
+        \\  --format FORMAT           Output format (markdown, json, csv, pretty) [default: markdown]
+        \\  --duration TIME           Duration to run each benchmark (e.g. 2s, 500ms) [default: 2s]
+        \\  --duration-multiplier N   Extra duration multiplier [default: 1.0]
+        \\  --baseline FILE           Custom baseline file [default: benchmarks/baseline.md]
+        \\  --no-compare              Disable baseline comparison
+        \\  --only=LIST               Run only specified benchmarks (comma-separated)
+        \\  --skip=LIST               Skip specified benchmarks (comma-separated)
+        \\  --no-warmup               Skip warmup phase
+        \\  -h, --help                Show this help
+        \\
+        \\Examples:
+        \\  zz benchmark                                    # Run all benchmarks with markdown output
+        \\  zz benchmark --format pretty                   # Pretty terminal output
+        \\  zz benchmark --only path,memory                # Run only path and memory benchmarks
+        \\  zz benchmark --duration 5s --duration-multiplier 2.0  # Extended duration for stability
+        \\  zz benchmark --no-compare                      # Skip baseline comparison
+        \\
+        \\Benchmark suites: path, memory, patterns, text, char, json, zon, parser
+        \\
+    ;
+    
+    const stderr = std.io.getStdErr().writer();
+    try stderr.writeAll(help_text);
 }

@@ -253,6 +253,12 @@ pub const AstConverter = @import("ast_converter.zig").AstConverter;
 pub const ZonSerializer = @import("serializer.zig").ZonSerializer;
 pub const ZonValidator = @import("validator.zig").ZonValidator;
 
+// Transform pipeline components
+pub const transform = @import("transform.zig");
+pub const ZonTransformPipeline = transform.ZonTransformPipeline;
+pub const ZonLexicalTransform = transform.ZonLexicalTransform;
+pub const ZonSyntacticTransform = transform.ZonSyntacticTransform;
+
 // ============================================================================
 // Compatibility Functions (for replacing old ZON parser)
 // ============================================================================

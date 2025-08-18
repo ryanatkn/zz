@@ -20,6 +20,12 @@ const JsonFormatter = @import("formatter.zig").JsonFormatter;
 const JsonLinter = @import("linter.zig").JsonLinter;
 const JsonAnalyzer = @import("analyzer.zig").JsonAnalyzer;
 
+// Transform pipeline support
+pub const transform = @import("transform.zig");
+pub const JsonTransformPipeline = transform.JsonTransformPipeline;
+pub const JsonLexicalTransform = transform.JsonLexicalTransform;
+pub const JsonSyntacticTransform = transform.JsonSyntacticTransform;
+
 /// Complete JSON language support implementation
 ///
 /// This module provides full JSON parsing, formatting, linting, and analysis

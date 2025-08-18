@@ -1,4 +1,5 @@
 const std = @import("std");
+const char = @import("../../char/mod.zig");
 
 /// Character-level scanner with UTF-8 support and SIMD preparation
 ///
@@ -119,7 +120,8 @@ pub const Scanner = struct {
 
     /// Skip whitespace characters
     pub fn skipWhitespace(self: *Scanner) void {
-        while (!self.at_end and self.isWhitespace(self.current_char)) {
+        const new_pos = char.skipWhitespace(self.text, self.position);
+        while (self.position < new_pos) {
             _ = self.advance();
         }
     }
@@ -288,39 +290,38 @@ pub const Scanner = struct {
 
     /// Check if character is whitespace
     pub fn isWhitespace(self: Scanner, ch: u8) bool {
-        return self.char_table[ch] == .whitespace;
+        _ = self;
+        return char.isWhitespace(ch) or char.isNewline(ch);
     }
 
     /// Check if character is a digit
     pub fn isDigit(self: Scanner, ch: u8) bool {
-        return self.char_table[ch] == .digit;
+        _ = self;
+        return char.isDigit(ch);
     }
 
     /// Check if character is a hex digit
     pub fn isHexDigit(self: Scanner, ch: u8) bool {
-        return self.char_table[ch] == .digit or
-            self.char_table[ch] == .hex_alpha;
+        _ = self;
+        return char.isHexDigit(ch);
     }
 
     /// Check if character is a binary digit
     pub fn isBinaryDigit(self: Scanner, ch: u8) bool {
         _ = self;
-        return ch == '0' or ch == '1';
+        return char.isBinaryDigit(ch);
     }
 
     /// Check if character can start an identifier
     pub fn isIdentifierStart(self: Scanner, ch: u8) bool {
-        return self.char_table[ch] == .alpha or
-            self.char_table[ch] == .hex_alpha or
-            ch == '_';
+        _ = self;
+        return char.isIdentifierStart(ch);
     }
 
     /// Check if character can be part of an identifier
     pub fn isIdentifierChar(self: Scanner, ch: u8) bool {
-        return self.char_table[ch] == .alpha or
-            self.char_table[ch] == .hex_alpha or
-            self.char_table[ch] == .digit or
-            ch == '_';
+        _ = self;
+        return char.isIdentifierChar(ch);
     }
 
     /// Check if character is an operator
@@ -363,7 +364,7 @@ pub const Scanner = struct {
     pub fn advanceUTF8(self: *Scanner) !u21 {
         if (self.at_end) return 0;
 
-        const char = try self.getCurrentUTF8();
+        const ch = try self.getCurrentUTF8();
         const len = std.unicode.utf8ByteSequenceLength(self.current_char) catch 1;
 
         // Advance by UTF-8 character length
@@ -371,7 +372,7 @@ pub const Scanner = struct {
             _ = self.advance();
         }
 
-        return char;
+        return ch;
     }
 
     // ========================================================================

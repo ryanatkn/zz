@@ -5,12 +5,13 @@
 
 // Re-export all common utilities
 pub const tokens = @import("tokens.zig");
-pub const patterns = @import("patterns.zig");
 pub const formatting = @import("formatting.zig");
 pub const analysis = @import("analysis.zig");
 
+// Note: patterns.zig has been removed - use char module instead:
+// const char = @import("../../char/mod.zig");
+
 // Convenience re-exports of commonly used types
 pub const CommonToken = tokens.CommonToken;
-pub const Pattern = patterns.Pattern;
 pub const FormatBuilder = formatting.FormatBuilder;
 pub const SymbolTable = analysis.SymbolTable;

@@ -6,6 +6,7 @@ const Generation = @import("../foundation/types/fact.zig").Generation;
 const FactPoolManager = @import("../foundation/collections/pools.zig").FactPoolManager;
 
 const Scanner = @import("scanner.zig").Scanner;
+const char = @import("../../char/mod.zig");
 const BracketTracker = @import("brackets.zig").BracketTracker;
 const Buffer = @import("buffer.zig").Buffer;
 
@@ -361,13 +362,13 @@ pub const StreamingLexer = struct {
     /// Check if character is whitespace
     fn isWhitespace(self: *StreamingLexer, ch: u8) bool {
         _ = self;
-        return ch == ' ' or ch == '\t' or ch == '\n' or ch == '\r';
+        return char.isWhitespaceOrNewline(ch);
     }
 
     /// Check if character is digit
     fn isDigit(self: *StreamingLexer, ch: u8) bool {
         _ = self;
-        return ch >= '0' and ch <= '9';
+        return char.isDigit(ch);
     }
 
     /// Check if character can start an identifier

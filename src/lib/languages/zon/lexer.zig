@@ -3,6 +3,7 @@ const Token = @import("../../parser/foundation/types/token.zig").Token;
 const TokenKind = @import("../../parser/foundation/types/predicate.zig").TokenKind;
 const Span = @import("../../parser/foundation/types/span.zig").Span;
 const TokenFlags = @import("../../parser/foundation/types/token.zig").TokenFlags;
+const char = @import("../../char/mod.zig");
 
 /// High-performance ZON lexer using stratified parser infrastructure
 ///
@@ -372,14 +373,14 @@ pub const ZonLexer = struct {
         }
 
         // Decimal number
-        while (self.position < self.source.len and std.ascii.isDigit(self.currentChar())) {
+        while (self.position < self.source.len and char.isDigit(self.currentChar())) {
             self.advance();
         }
 
         // Check for decimal point
         if (self.position < self.source.len and self.currentChar() == '.') {
             self.advance();
-            while (self.position < self.source.len and std.ascii.isDigit(self.currentChar())) {
+            while (self.position < self.source.len and char.isDigit(self.currentChar())) {
                 self.advance();
             }
         }
@@ -390,7 +391,7 @@ pub const ZonLexer = struct {
             if (self.position < self.source.len and (self.currentChar() == '+' or self.currentChar() == '-')) {
                 self.advance();
             }
-            while (self.position < self.source.len and std.ascii.isDigit(self.currentChar())) {
+            while (self.position < self.source.len and char.isDigit(self.currentChar())) {
                 self.advance();
             }
         }
@@ -469,14 +470,8 @@ pub const ZonLexer = struct {
     }
 
     fn skipWhitespace(self: *Self) void {
-        while (self.position < self.source.len) {
-            const ch = self.currentChar();
-            if (ch == ' ' or ch == '\t' or ch == '\r') {
-                self.advance();
-            } else {
-                break;
-            }
-        }
+        const new_pos = char.skipWhitespace(self.source, self.position);
+        self.position = new_pos;
     }
 
     fn addToken(self: *Self, kind: TokenKind, span: Span, text: []const u8, flags: TokenFlags) !void {
@@ -491,23 +486,23 @@ pub const ZonLexer = struct {
     }
 
     fn isIdentifierStart(ch: u8) bool {
-        return std.ascii.isAlphabetic(ch) or ch == '_';
+        return char.isIdentifierStart(ch);
     }
 
     fn isIdentifierContinue(ch: u8) bool {
-        return std.ascii.isAlphanumeric(ch) or ch == '_';
+        return char.isIdentifierChar(ch);
     }
 
     fn isHexDigit(ch: u8) bool {
-        return std.ascii.isDigit(ch) or (ch >= 'a' and ch <= 'f') or (ch >= 'A' and ch <= 'F');
+        return char.isHexDigit(ch);
     }
 
     fn isBinaryDigit(ch: u8) bool {
-        return ch == '0' or ch == '1';
+        return char.isBinaryDigit(ch);
     }
 
     fn isOctalDigit(ch: u8) bool {
-        return ch >= '0' and ch <= '7';
+        return char.isOctalDigit(ch);
     }
 };
 

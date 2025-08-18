@@ -3,6 +3,7 @@ const Token = @import("../../parser/foundation/types/token.zig").Token;
 const TokenKind = @import("../../parser/foundation/types/predicate.zig").TokenKind;
 const Span = @import("../../parser/foundation/types/span.zig").Span;
 const TokenFlags = @import("../../parser/foundation/types/token.zig").TokenFlags;
+const char = @import("../../char/mod.zig");
 
 /// High-performance JSON lexer using stratified parser infrastructure
 ///
@@ -149,8 +150,8 @@ pub const JsonLexer = struct {
         // Handle integer part
         if (self.peek() == '0') {
             self.advance();
-        } else if (self.isDigit(self.peek())) {
-            while (self.isDigit(self.peek())) {
+        } else if (char.isDigit(self.peek())) {
+            while (char.isDigit(self.peek())) {
                 self.advance();
             }
         } else {
@@ -160,10 +161,10 @@ pub const JsonLexer = struct {
         // Handle decimal part
         if (self.peek() == '.') {
             self.advance();
-            if (!self.isDigit(self.peek())) {
+            if (!char.isDigit(self.peek())) {
                 return error.InvalidNumber;
             }
-            while (self.isDigit(self.peek())) {
+            while (char.isDigit(self.peek())) {
                 self.advance();
             }
         }
@@ -174,10 +175,10 @@ pub const JsonLexer = struct {
             if (self.peek() == '+' or self.peek() == '-') {
                 self.advance();
             }
-            if (!self.isDigit(self.peek())) {
+            if (!char.isDigit(self.peek())) {
                 return error.InvalidNumber;
             }
-            while (self.isDigit(self.peek())) {
+            while (char.isDigit(self.peek())) {
                 self.advance();
             }
         }
@@ -241,16 +242,15 @@ pub const JsonLexer = struct {
 
     fn skipWhitespace(self: *Self) void {
         while (!self.isAtEnd()) {
-            switch (self.peek()) {
-                ' ', '\r', '\t' => {
-                    self.advance();
-                },
-                '\n' => {
-                    self.line += 1;
-                    self.column = 1;
-                    self.advance();
-                },
-                else => break,
+            const ch = self.peek();
+            if (char.isWhitespace(ch)) {
+                self.advance();
+            } else if (ch == '\n') {
+                self.line += 1;
+                self.column = 1;
+                self.advance();
+            } else {
+                break;
             }
         }
     }
@@ -285,7 +285,7 @@ pub const JsonLexer = struct {
     }
 
     fn isDigit(ch: u8) bool {
-        return ch >= '0' and ch <= '9';
+        return char.isDigit(ch);
     }
 };
 

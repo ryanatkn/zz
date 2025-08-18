@@ -1,9 +1,9 @@
 # TODO_PARSER_NEXT - Unified Language Module Architecture
 
-**Status**: JSON ✅ Complete | ZON ✅ Complete | 537/569 Tests Passing | **🏗️ PATTERN ORGANIZATION & LEXER UTILS COMPLETE**
+**Status**: JSON ✅ Complete | ZON ✅ Complete | 537/569 Tests Passing | **🎯 CENTRALIZED CHAR MODULE COMPLETE**
 **Primary Goal**: Full support for JSON and ZON languages  
 **Secondary Goal**: Unified architecture for all 7 languages (TypeScript, Svelte, JSON, Zig, ZON, CSS, HTML)  
-**Last Updated**: 2025-08-18 - **PATTERN REFACTORING** - Language patterns properly organized, shared lexer utilities created!
+**Last Updated**: 2025-08-18 - **CHAR MODULE CONSOLIDATION** - Single source of truth for all character operations!
 
 **📚 Updated Docs**: `docs/ast-integration.md`, `docs/language-support.md`, `docs/module-architecture.md` - Reflect Pure Zig architecture, deleted legacy code, current status
 
@@ -20,10 +20,11 @@
 **🎉 UTILITY INTEGRATION STATUS:**
 - ✅ **Analyzers**: Both JSON & ZON refactored to use AST utilities
 - 🔄 **Formatters**: JSON partially refactored with visitor pattern (needs completion)
-- ✅ **Pattern Organization**: Language patterns moved to respective modules
-- ✅ **Lexer Utilities**: Shared utilities created in `parser/lexical/utils.zig`
-- 🔄 **Parsers**: Not yet using text utilities  
-- 🔄 **Lexers**: Not yet using shared utilities (ready to integrate)
+- ✅ **Character Module**: Centralized `src/lib/char/` eliminates all duplication!
+  - All lexers now use char module (JSON, ZON, scanner, tokenizer)
+  - ~300+ lines of duplicate code eliminated
+  - Single source of truth for character operations
+- ✅ **Pattern Organization**: Language patterns in respective modules
 - ✅ **Memory**: Core utilities created and working
 
 **🎉 MAJOR ARCHITECTURAL REFACTORING COMPLETED:**
@@ -35,9 +36,16 @@
 - `extraction.zig` - ExtractionFlags for code analysis configuration
 - Other core utilities (path, collections, filesystem)
 
+#### **Character Utilities** (`src/lib/char/`) **NEW!**
+- `predicates.zig` - All character classification (isDigit, isAlpha, isWhitespace, etc.)
+- `consumers.zig` - Text consumption utilities (skipWhitespace, consumeString, consumeNumber)
+- `mod.zig` - Clean module exports
+- Eliminates duplication across lexers, parsers, and language implementations
+
 #### **Pattern Matching** (`src/lib/patterns/`)
 - `glob.zig` - High-performance glob pattern matching
 - `gitignore.zig` - Gitignore pattern handling with ZON support
+- `text.zig` - Generic text utilities (cleaned up, language patterns removed)
 - Optimized for POSIX systems, zero allocations where possible
 
 #### **Enhanced AST Infrastructure** (`src/lib/ast/`)

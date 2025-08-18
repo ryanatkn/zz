@@ -18,7 +18,7 @@ Fast command-line utilities for exploring and understanding codebases. Built on 
 - 🎨 **Code formatting** - AST-based formatting for multiple languages
 - 💬 **Modern echo** - Fast text output with JSON escaping and colors
 - 📚 **Language tooling library** - Reusable Zig modules for parsers, ASTs, and analysis
-- ⚡ **High performance** - Pure Zig, no FFI overhead
+- ⚡ **High performance** - Pure Zig, no FFI overhead, centralized utilities
 
 ## Quick Start
 

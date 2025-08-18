@@ -1,20 +1,20 @@
 # TODO_PARSER_NEXT_STEPS
 
-## ✅ Completed (Latest Session - Pattern Organization & Lexer Utils)
-- **Created language-specific pattern modules** (clean architecture!)
-  - `typescript/patterns.zig` - Functions, types, imports, keywords
-  - `zig/patterns.zig` - Functions, declarations, types, builtins
-  - `css/patterns.zig` - Selectors, at-rules, properties, units
-  - `html/patterns.zig` - Void elements, attributes, input types
-- **Cleaned up `patterns/text.zig`** - Removed all language-specific patterns
-- **Created `parser/lexical/utils.zig`** - Shared lexer utilities
-  - Character predicates: `isDigit()`, `isAlpha()`, `isHexDigit()`
-  - Token consumers: `consumeString()`, `consumeNumber()`, `consumeIdentifier()`
-  - Comment handlers: `consumeSingleLineComment()`, `consumeMultiLineComment()`
-  - Whitespace utilities: `skipWhitespace()`, `skipWhitespaceAndNewlines()`
+## ✅ Completed (Latest Session - Centralized Character Module)
+- **Created centralized `src/lib/char/` module** - Single source of truth!
+  - `predicates.zig` - All character classification (isDigit, isAlpha, etc.)
+  - `consumers.zig` - Text consumption utilities (skipWhitespace, consumeString, etc.)
+  - `mod.zig` - Clean module exports
+- **Eliminated 5+ duplicate implementations of skipWhitespace**
+  - Updated `parser/lexical/scanner.zig` to use char module
+  - Updated `parser/lexical/tokenizer.zig` to use char module
+  - Updated `languages/json/lexer.zig` to use char module
+  - Updated `languages/zon/lexer.zig` to use char module
+- **Cleaned up `parser/lexical/utils.zig`** - Now just re-exports char module
+- **Deleted `languages/common/patterns.zig`** - Fully replaced by char module
+- **Created language-specific pattern modules** (from previous session)
+  - `typescript/patterns.zig`, `zig/patterns.zig`, `css/patterns.zig`, `html/patterns.zig`
 - **Started JSON formatter refactoring** to use visitor pattern
-  - Added `ASTTraversal` and `ASTUtils` imports
-  - Modified to use `*const Node` for immutability
 
 ## ✅ Previous Session Completions
 - Fixed `memory.zig` compilation errors (MemoryPool & ScopedAllocator)
@@ -51,15 +51,15 @@
    - Visitor pattern consistently applied
 
 ## 🚀 Next Priority Tasks
-1. Fix AST module compilation errors
-2. Complete JSON/ZON formatter visitor pattern refactoring
-3. Update JSON/ZON lexers to use shared `lexical/utils.zig`
-4. Update parsers to use `patterns/text.zig` utilities
-5. Apply memory utilities throughout codebase
+1. Fix AST module compilation errors (7 errors remaining)
+2. Complete ZON formatter visitor pattern refactoring
+3. Apply memory utilities throughout codebase
+4. Continue unifying shared utilities across modules
 
 ## 📊 Metrics
+- **Code reduction: ~300+ lines eliminated** through char module consolidation
 - Code organization: ~400+ lines of patterns properly placed
-- Potential reduction: ~100+ lines from lexer deduplication
+- Duplication eliminated: 5+ skipWhitespace, 3+ isDigit implementations
 - Test status: 537/569 passing (94.5%)
 - Languages with patterns: 4/7 (TypeScript, Zig, CSS, HTML)
 - Memory leak stable at 6

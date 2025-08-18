@@ -3,6 +3,8 @@ const AST = @import("../../ast/mod.zig").AST;
 const Node = @import("../../ast/mod.zig").Node;
 const NodeType = @import("../../ast/mod.zig").NodeType;
 const FormatOptions = @import("../interface.zig").FormatOptions;
+const ASTTraversal = @import("../../ast/traversal.zig").ASTTraversal;
+const ASTUtils = @import("../../ast/utils.zig").ASTUtils;
 
 /// High-performance JSON formatter with configurable output
 ///
@@ -59,10 +61,23 @@ pub const JsonFormatter = struct {
         self.output.deinit();
     }
 
-    /// Format JSON AST to string
+    /// Format JSON AST to string using visitor pattern
     pub fn format(self: *Self, ast: AST) ![]const u8 {
         if (ast.root) |root| {
-            try self.formatNode(root);
+            // Create traversal context
+            var traversal = ASTTraversal.init(self.allocator);
+            
+            // Use visitor pattern to format the tree
+            const visitor = struct {
+                fn visit(node: *const Node, context: ?*anyopaque) anyerror!bool {
+                    const formatter = @as(*JsonFormatter, @ptrCast(@alignCast(context.?)));
+                    try formatter.formatNodeVisitor(node);
+                    return false; // We handle children manually for proper formatting
+                }
+            }.visit;
+            
+            // Start traversal
+            try traversal.walk(root, visitor, self, .depth_first_pre);
         }
 
         // Add final newline if not compact
@@ -73,7 +88,7 @@ pub const JsonFormatter = struct {
         return self.output.toOwnedSlice();
     }
 
-    fn formatNode(self: *Self, node: *Node) !void {
+    fn formatNodeVisitor(self: *Self, node: *const Node) !void {
         switch (node.node_type) {
             .json_string => try self.formatString(node),
             .json_number => try self.formatNumber(node),
@@ -88,8 +103,13 @@ pub const JsonFormatter = struct {
             },
         }
     }
+    
+    fn formatNode(self: *Self, node: *const Node) !void {
+        // Delegate to visitor for consistency
+        try self.formatNodeVisitor(node);
+    }
 
-    fn formatString(self: *Self, node: *Node) !void {
+    fn formatString(self: *Self, node: *const Node) !void {
         const raw_value = node.value orelse "\"\"";
 
         if (self.options.quote_style == .preserve or self.options.quote_style == .double) {
@@ -108,24 +128,24 @@ pub const JsonFormatter = struct {
         self.updateLinePosition(raw_value.len);
     }
 
-    fn formatNumber(self: *Self, node: *Node) !void {
+    fn formatNumber(self: *Self, node: *const Node) !void {
         const value = node.value orelse "0";
         try self.output.appendSlice(value);
         self.updateLinePosition(value.len);
     }
 
-    fn formatBoolean(self: *Self, node: *Node) !void {
+    fn formatBoolean(self: *Self, node: *const Node) !void {
         const value = node.value orelse "false";
         try self.output.appendSlice(value);
         self.updateLinePosition(value.len);
     }
 
-    fn formatNull(self: *Self, _: *Node) !void {
+    fn formatNull(self: *Self, _: *const Node) !void {
         try self.output.appendSlice("null");
         self.updateLinePosition(4);
     }
 
-    fn formatObject(self: *Self, node: *Node) !void {
+    fn formatObject(self: *Self, node: *const Node) !void {
         const members = node.children orelse &.{};
 
         if (members.len == 0) {
@@ -145,7 +165,7 @@ pub const JsonFormatter = struct {
         }
 
         // Sort members if requested
-        var sorted_members: []const *Node = undefined;
+        var sorted_members: []const Node = undefined;
         var member_indices: std.ArrayList(usize) = undefined;
 
         if (self.options.sort_keys) {
@@ -158,7 +178,7 @@ pub const JsonFormatter = struct {
 
             std.sort.insertion(usize, member_indices.items, members, memberCompareFn);
 
-            var sorted_list = std.ArrayList(*Node).init(self.allocator);
+            var sorted_list = std.ArrayList(Node).init(self.allocator);
             defer sorted_list.deinit();
 
             for (member_indices.items) |idx| {
@@ -178,7 +198,7 @@ pub const JsonFormatter = struct {
                 self.updateLinePosition(1);
             }
 
-            try self.formatNode(member);
+            try self.formatNode(&member);
 
             const is_last = i == sorted_members.len - 1;
             if (!is_last) {
@@ -204,7 +224,7 @@ pub const JsonFormatter = struct {
         self.updateLinePosition(1);
     }
 
-    fn formatArray(self: *Self, node: *Node) !void {
+    fn formatArray(self: *Self, node: *const Node) !void {
         const elements = node.children orelse &.{};
 
         if (elements.len == 0) {
@@ -231,7 +251,7 @@ pub const JsonFormatter = struct {
                 self.updateLinePosition(1);
             }
 
-            try self.formatNode(element);
+            try self.formatNode(&element);
 
             const is_last = i == elements.len - 1;
             if (!is_last) {
@@ -257,14 +277,14 @@ pub const JsonFormatter = struct {
         self.updateLinePosition(1);
     }
 
-    fn formatMember(self: *Self, node: *Node) !void {
+    fn formatMember(self: *Self, node: *const Node) !void {
         const children = node.children orelse &.{};
         if (children.len != 2) return;
 
         const key = children[0];
         const value = children[1];
 
-        try self.formatNode(key);
+        try self.formatNode(&key);
 
         try self.output.append(':');
         self.updateLinePosition(1);
@@ -274,10 +294,10 @@ pub const JsonFormatter = struct {
             self.updateLinePosition(1);
         }
 
-        try self.formatNode(value);
+        try self.formatNode(&value);
     }
 
-    fn shouldCompactObject(self: *Self, node: *Node) bool {
+    fn shouldCompactObject(self: *Self, node: *const Node) bool {
         if (self.options.force_compact) return true;
         if (self.options.force_multiline) return false;
         if (!self.options.compact_objects) return false;
@@ -298,7 +318,7 @@ pub const JsonFormatter = struct {
         return estimated_size <= self.options.line_width / 2;
     }
 
-    fn shouldCompactArray(self: *Self, node: *Node) bool {
+    fn shouldCompactArray(self: *Self, node: *const Node) bool {
         if (self.options.force_compact) return true;
         if (self.options.force_multiline) return false;
         if (!self.options.compact_arrays) return false;
@@ -327,7 +347,7 @@ pub const JsonFormatter = struct {
         return estimated_size <= self.options.line_width / 2;
     }
 
-    fn estimateNodeSize(self: *Self, node: *Node) u32 {
+    fn estimateNodeSize(self: *Self, node: *const Node) u32 {
         return switch (node.node_type) {
             .json_string => if (node.value) |v| @intCast(v.len) else 2,
             .json_number => if (node.value) |v| @intCast(v.len) else 1,
@@ -377,9 +397,9 @@ pub const JsonFormatter = struct {
         self.line_position += @intCast(chars);
     }
 
-    fn memberCompareFn(members: []const *Node, a_idx: usize, b_idx: usize) bool {
-        const a = members[a_idx];
-        const b = members[b_idx];
+    fn memberCompareFn(members: []const Node, a_idx: usize, b_idx: usize) bool {
+        const a = &members[a_idx];
+        const b = &members[b_idx];
 
         // Both should be member nodes with key as first child
         const a_children = a.children orelse return false;

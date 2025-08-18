@@ -105,114 +105,12 @@ pub fn extractAllBetween(
     return results;
 }
 
-/// Common code patterns for various languages
-pub const Patterns = struct {
-    // TypeScript/JS patterns
-    pub const ts_functions = [_][]const u8{
-        "function ",
-        "export function ",
-        "export async function ",
-        "async function ",
-        "const ",
-        "let ",
-        "var ",
-    };
-
-    pub const ts_types = [_][]const u8{
-        "interface ",
-        "export interface ",
-        "type ",
-        "export type ",
-        "class ",
-        "export class ",
-        "enum ",
-        "export enum ",
-    };
-
-    pub const ts_imports = [_][]const u8{
-        "import ",
-        "export ",
-        "require(",
-    };
-
-    // CSS patterns
-    pub const css_selectors = [_][]const u8{
-        ".", // class
-        "#", // id
-        "[", // attribute
-        ":", // pseudo
-    };
-
-    pub const css_at_rules = [_][]const u8{
-        "@import",
-        "@media",
-        "@keyframes",
-        "@supports",
-        "@font-face",
-    };
-
-    // HTML patterns
-    pub const html_void_elements = [_][]const u8{
-        "area",
-        "base",
-        "br",
-        "col",
-        "embed",
-        "hr",
-        "img",
-        "input",
-        "link",
-        "meta",
-        "param",
-        "source",
-        "track",
-        "wbr",
-    };
-
-    // Zig patterns (comprehensive)
-    pub const zig_functions = [_][]const u8{
-        "pub fn ",
-        "fn ",
-        "export fn ",
-        "inline fn ",
-        "test ",
-    };
-
-    pub const zig_declarations = [_][]const u8{
-        "pub fn ",
-        "fn ",
-        "pub const ",
-        "const ",
-        "pub var ",
-        "var ",
-        "test ",
-        "comptime ",
-        "threadlocal ",
-    };
-
-    pub const zig_types = [_][]const u8{
-        "struct",
-        "enum",
-        "union",
-        "error",
-        "packed struct",
-        "extern struct",
-        "opaque",
-    };
-
-    pub const zig_docs = [_][]const u8{
-        "///",
-        "//!",
-    };
-
-    // JSON patterns
-    pub const json_structural = [_][]const u8{
-        "{",
-        "}",
-        "[",
-        "]",
-    };
-};
+// Language-specific patterns have been moved to their respective modules:
+// - TypeScript patterns: src/lib/languages/typescript/patterns.zig
+// - Zig patterns: src/lib/languages/zig/patterns.zig
+// - CSS patterns: src/lib/languages/css/patterns.zig
+// - HTML patterns: src/lib/languages/html/patterns.zig
+// - JSON patterns: can be added to src/lib/languages/json/patterns.zig if needed
 
 /// Check if text is a comment line
 pub fn isComment(text: []const u8, style: CommentStyle) bool {
@@ -235,30 +133,7 @@ pub const CommentStyle = enum {
     sql, // --
 };
 
-/// Extract tag name from HTML/XML tag
-pub fn extractTagName(tag: []const u8) ?[]const u8 {
-    var start: usize = 0;
-    if (std.mem.startsWith(u8, tag, "</")) {
-        start = 2;
-    } else if (std.mem.startsWith(u8, tag, "<")) {
-        start = 1;
-    } else {
-        return null;
-    }
-
-    var end = start;
-    while (end < tag.len) : (end += 1) {
-        const c = tag[end];
-        if (c == ' ' or c == '>' or c == '/' or c == '\t' or c == '\n') {
-            break;
-        }
-    }
-
-    return if (end > start) tag[start..end] else null;
-}
-
-// Language patterns moved to individual extractor modules
-// Each language (css.zig, html.zig, etc.) now owns its patterns
+// Tag extraction moved to src/lib/languages/html/patterns.zig
 
 test "startsWithAny" {
     const text = "export function test()";
@@ -295,12 +170,7 @@ test "extractBetween" {
     try std.testing.expectEqualStrings("console.log('test');", content.?);
 }
 
-test "extractTagName" {
-    try std.testing.expectEqualStrings("div", extractTagName("<div>").?);
-    try std.testing.expectEqualStrings("div", extractTagName("</div>").?);
-    try std.testing.expectEqualStrings("input", extractTagName("<input type='text'>").?);
-    try std.testing.expect(extractTagName("not a tag") == null);
-}
+// extractTagName test removed - function moved to src/lib/languages/html/patterns.zig
 
 test "isComment" {
     try std.testing.expect(isComment("// comment", .c_style));

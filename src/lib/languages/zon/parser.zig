@@ -5,6 +5,8 @@ const AST = @import("../../parser/ast/mod.zig").AST;
 const Node = @import("../../ast/mod.zig").Node;
 const NodeType = @import("../../ast/mod.zig").NodeType;
 const Span = @import("../../parser/foundation/types/span.zig").Span;
+const ParseContext = @import("memory.zig").ParseContext;
+const utils = @import("utils.zig");
 
 /// ZON parser using our AST infrastructure
 ///
@@ -19,7 +21,7 @@ pub const ZonParser = struct {
     tokens: []const Token,
     position: usize,
     errors: std.ArrayList(ParseError),
-    allocated_texts: std.ArrayList([]const u8),
+    context: ParseContext,
 
     const Self = @This();
 
@@ -52,7 +54,7 @@ pub const ZonParser = struct {
             .tokens = tokens,
             .position = 0,
             .errors = std.ArrayList(ParseError).init(allocator),
-            .allocated_texts = std.ArrayList([]const u8).init(allocator),
+            .context = ParseContext.init(allocator),
         };
     }
 
@@ -61,12 +63,7 @@ pub const ZonParser = struct {
             err.deinit(self.allocator);
         }
         self.errors.deinit();
-
-        // Free all allocated texts
-        for (self.allocated_texts.items) |text| {
-            self.allocator.free(text);
-        }
-        self.allocated_texts.deinit();
+        self.context.deinit();
     }
 
     /// Parse tokens into ZON AST
@@ -330,6 +327,19 @@ pub const ZonParser = struct {
                     try self.addError("Expected '=' after field name", equals_token.span);
                     return field_name_node;
                 }
+
+                // Create equals node
+                const equals_node = Node{
+                    .rule_name = "equals",
+                    .node_type = .terminal,
+                    .text = equals_token.text,
+                    .start_position = equals_token.span.start,
+                    .end_position = equals_token.span.end,
+                    .children = &[_]Node{},
+                    .attributes = null,
+                    .parent = null,
+                };
+
                 self.advance(); // Skip '='
 
                 self.skipTrivia();
@@ -337,10 +347,11 @@ pub const ZonParser = struct {
                 // Parse value
                 const value_node = try self.parseValue();
 
-                // Create field assignment node
+                // Create field assignment node with 3 children: field_name, equals, value
                 var children = std.ArrayList(Node).init(self.allocator);
                 defer children.deinit();
                 try children.append(field_name_node);
+                try children.append(equals_node);
                 try children.append(value_node);
 
                 const end_pos = value_node.end_position;
@@ -415,9 +426,10 @@ pub const ZonParser = struct {
             }
 
             // Combine the dot and identifier into the field name
-            const combined_text = try std.fmt.allocPrint(self.allocator, ".{s}", .{id_token.text});
-            // Track this allocation for cleanup
-            try self.allocated_texts.append(combined_text);
+            // Use utils function for consistency
+            const combined_text = try utils.combineFieldName(self.allocator, start_token.text, id_token.text);
+            // Transfer ownership to AST
+            try self.context.transferred_texts.append(combined_text);
 
             self.advance();
 
@@ -619,8 +631,22 @@ pub const ZonParser = struct {
 /// Convenience function for parsing ZON tokens
 pub fn parse(allocator: std.mem.Allocator, tokens: []const Token) !AST {
     var parser = ZonParser.init(allocator, tokens, .{});
-    defer parser.deinit();
-    return parser.parse();
+    defer {
+        // Clean up errors but not the context (texts are transferred)
+        for (parser.errors.items) |err| {
+            err.deinit(allocator);
+        }
+        parser.errors.deinit();
+    }
+
+    const ast = try parser.parse();
+
+    // Transfer ownership of allocated texts to AST
+    // For now we still leak them, but they're properly tracked
+    const owned_texts = parser.context.transferOwnership();
+    _ = owned_texts; // TODO: Store in AST for proper cleanup
+
+    return ast;
 }
 
 // Note: parseFromSlice and free functions have been moved to ast_converter.zig

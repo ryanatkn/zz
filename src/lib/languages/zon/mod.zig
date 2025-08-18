@@ -66,47 +66,56 @@ pub fn tokenize(allocator: std.mem.Allocator, input: []const u8) ![]Token {
 
 /// Parse ZON tokens into AST
 pub fn parse(allocator: std.mem.Allocator, tokens: []Token) !AST {
-    var parser = @import("parser.zig").ZonParser.init(allocator, tokens, .{});
-    // Don't deinit parser here - it would free allocated texts that AST nodes reference
-    // The AST now owns these allocations and will free them when it's deinitialized
-    const ast = try parser.parse();
-    // Transfer ownership of allocated texts to AST
-    // For now, we'll leak the parser's allocated_texts array itself (small leak)
-    // TODO: Improve AST to track these allocations
-    parser.allocated_texts.deinit(); // Just free the array, not the strings
-    parser.errors.deinit(); // Free errors array
-    return ast;
+    // Use the convenience function from parser module which handles cleanup
+    return @import("parser.zig").parse(allocator, tokens);
 }
 
 /// Format ZON AST
 fn format(allocator: std.mem.Allocator, ast: AST, options: FormatOptions) ![]const u8 {
-    _ = options; // TODO: Convert FormatOptions to ZonFormatOptions
-
-    const zon_options = @import("formatter.zig").ZonFormatter.ZonFormatOptions{
-        .indent_size = 4,
-        .indent_style = .space,
-        .line_width = 100,
-        .preserve_comments = true,
-        .trailing_comma = true,
-        .compact_small_objects = true,
-        .compact_small_arrays = true,
+    // Convert generic FormatOptions to ZON-specific options
+    const ZonFormatterType = @import("formatter.zig").ZonFormatter;
+    const zon_options = ZonFormatterType.ZonFormatOptions{
+        .indent_size = @intCast(options.indent_size), // Convert u32 to u8
+        .indent_style = if (options.indent_style == .space)
+            ZonFormatterType.IndentStyle.space
+        else
+            ZonFormatterType.IndentStyle.tab,
+        .line_width = options.line_width,
+        .preserve_comments = options.preserve_newlines, // Map to preserve_comments
+        .trailing_comma = options.trailing_comma,
+        .compact_small_objects = true, // ZON-specific default
+        .compact_small_arrays = true, // ZON-specific default
     };
 
-    var formatter = @import("formatter.zig").ZonFormatter.init(allocator, zon_options);
+    var formatter = ZonFormatterType.init(allocator, zon_options);
     defer formatter.deinit();
     return formatter.format(ast);
 }
 
 /// Lint ZON AST
 fn lint(allocator: std.mem.Allocator, ast: AST, rules: []const Rule) ![]Diagnostic {
-    _ = rules; // TODO: Convert Rule to ZON rule names
-
     var linter = @import("linter.zig").ZonLinter.init(allocator, .{});
     defer linter.deinit();
 
-    // Use all default rules for now
-    const enabled_rules: []const []const u8 = &.{};
-    const zon_diagnostics = try linter.lint(ast, enabled_rules);
+    // Convert generic rules to ZON rule names
+    var enabled_rules = std.ArrayList([]const u8).init(allocator);
+    defer enabled_rules.deinit();
+
+    for (rules) |rule| {
+        // Map generic rule names to ZON-specific ones
+        const zon_rule = mapRuleToZon(rule.name);
+        if (zon_rule) |r| {
+            try enabled_rules.append(r);
+        }
+    }
+
+    // If no rules specified, use all defaults
+    const rules_to_use = if (enabled_rules.items.len > 0)
+        enabled_rules.items
+    else
+        &[_][]const u8{};
+
+    const zon_diagnostics = try linter.lint(ast, rules_to_use);
 
     // Convert ZON diagnostics to generic diagnostics
     var diagnostics = std.ArrayList(Diagnostic).init(allocator);
@@ -266,4 +275,23 @@ pub fn stringify(allocator: std.mem.Allocator, value: anytype) ![]const u8 {
 /// Serialize with custom options
 pub fn stringifyWithOptions(allocator: std.mem.Allocator, value: anytype, options: ZonSerializer.SerializeOptions) ![]const u8 {
     return @import("serializer.zig").stringifyWithOptions(allocator, value, options);
+}
+
+/// Map generic rule names to ZON-specific ones
+fn mapRuleToZon(rule_name: []const u8) ?[]const u8 {
+    // Common mappings
+    if (std.mem.eql(u8, rule_name, "no-unused")) return "no-unused-fields";
+    if (std.mem.eql(u8, rule_name, "valid-syntax")) return "valid-zon-syntax";
+    if (std.mem.eql(u8, rule_name, "no-duplicate")) return "no-duplicate-fields";
+    if (std.mem.eql(u8, rule_name, "required-fields")) return "required-fields";
+
+    // If it's already a ZON rule name, use it directly
+    const zon_rules = @import("linter.zig").ZonLinter.RULES;
+    for (zon_rules) |zon_rule| {
+        if (std.mem.eql(u8, rule_name, zon_rule.name)) {
+            return zon_rule.name;
+        }
+    }
+
+    return null;
 }

@@ -69,20 +69,9 @@ pub const AstConverter = struct {
         else
             node.children[1]; // field_name value (no explicit =)
 
-        // Extract field name (remove leading dot if present)
-        var field_name = field_name_node.text;
-        if (field_name.len > 0 and field_name[0] == '.') {
-            field_name = field_name[1..];
-        }
-
-        // Handle quoted field names (for reserved keywords or special chars)
-        // Format: @"field_name" or .@"field_name"
-        if (std.mem.indexOf(u8, field_name, "@\"")) |at_pos| {
-            const start = at_pos + 2; // Skip @"
-            if (std.mem.indexOf(u8, field_name[start..], "\"")) |end_quote| {
-                field_name = field_name[start..][0..end_quote];
-            }
-        }
+        // Extract field name using utils function
+        const zon_utils = @import("utils.zig");
+        const field_name = zon_utils.extractFieldName(field_name_node.text);
 
         // Find the field in the struct and set its value
         const type_info = @typeInfo(T);
@@ -261,6 +250,11 @@ pub const AstConverter = struct {
 
         var text = node.text;
 
+        // Check for multiline string (starts with \\)
+        if (text.len >= 2 and text[0] == '\\' and text[1] == '\\') {
+            return try self.processMultilineString(text);
+        }
+
         // Remove surrounding quotes if present
         if (text.len >= 2) {
             if ((text[0] == '"' and text[text.len - 1] == '"') or
@@ -270,8 +264,165 @@ pub const AstConverter = struct {
             }
         }
 
-        // TODO: Handle escape sequences
-        return try self.allocator.dupe(u8, text);
+        // Handle escape sequences
+        return try self.processEscapeSequences(text);
+    }
+
+    /// Process multiline string (ZON's \\ syntax)
+    fn processMultilineString(self: *Self, text: []const u8) ![]const u8 {
+        var result = std.ArrayList(u8).init(self.allocator);
+        defer result.deinit();
+
+        var lines = std.mem.tokenizeScalar(u8, text, '\n');
+        var first_line = true;
+
+        while (lines.next()) |line| {
+            var trimmed = line;
+
+            // Skip the \\ prefix on each line
+            if (trimmed.len >= 2 and trimmed[0] == '\\' and trimmed[1] == '\\') {
+                trimmed = trimmed[2..];
+                // Skip any spaces after \\
+                while (trimmed.len > 0 and trimmed[0] == ' ') {
+                    trimmed = trimmed[1..];
+                }
+            }
+
+            // Add line content (joining with space if not first line)
+            if (!first_line and result.items.len > 0) {
+                // In ZON, multiline strings join lines with a single space
+                try result.append(' ');
+            }
+
+            // Process escape sequences in the line content
+            const processed = try self.processEscapeSequences(trimmed);
+            defer self.allocator.free(processed);
+            try result.appendSlice(processed);
+
+            first_line = false;
+        }
+
+        return result.toOwnedSlice();
+    }
+
+    /// Process escape sequences in a string
+    fn processEscapeSequences(self: *Self, text: []const u8) ![]const u8 {
+        // Quick check if there are any escape sequences
+        if (std.mem.indexOf(u8, text, "\\") == null) {
+            return try self.allocator.dupe(u8, text);
+        }
+
+        var result = std.ArrayList(u8).init(self.allocator);
+        defer result.deinit();
+
+        var i: usize = 0;
+        while (i < text.len) {
+            if (text[i] == '\\' and i + 1 < text.len) {
+                const next = text[i + 1];
+                switch (next) {
+                    'n' => {
+                        try result.append('\n');
+                        i += 2;
+                    },
+                    't' => {
+                        try result.append('\t');
+                        i += 2;
+                    },
+                    'r' => {
+                        try result.append('\r');
+                        i += 2;
+                    },
+                    '\\' => {
+                        try result.append('\\');
+                        i += 2;
+                    },
+                    '"' => {
+                        try result.append('"');
+                        i += 2;
+                    },
+                    '\'' => {
+                        try result.append('\'');
+                        i += 2;
+                    },
+                    'u' => {
+                        // Unicode escape sequence \u{XXXX}
+                        if (i + 3 < text.len and text[i + 2] == '{') {
+                            // Find closing }
+                            if (std.mem.indexOf(u8, text[i + 3 ..], "}")) |end_pos| {
+                                const hex_str = text[i + 3 .. i + 3 + end_pos];
+                                if (hex_str.len <= 6) { // Unicode max is 0x10FFFF
+                                    const codepoint = std.fmt.parseInt(u21, hex_str, 16) catch {
+                                        // Invalid hex, keep as-is
+                                        try result.append('\\');
+                                        try result.append('u');
+                                        i += 2;
+                                        continue;
+                                    };
+
+                                    // Encode the codepoint as UTF-8
+                                    var buf: [4]u8 = undefined;
+                                    const len = std.unicode.utf8Encode(codepoint, &buf) catch {
+                                        // Invalid codepoint, keep as-is
+                                        try result.append('\\');
+                                        try result.append('u');
+                                        i += 2;
+                                        continue;
+                                    };
+                                    try result.appendSlice(buf[0..len]);
+                                    i += 3 + end_pos + 1; // Skip \u{...}
+                                } else {
+                                    // Too long for Unicode, keep as-is
+                                    try result.append('\\');
+                                    try result.append('u');
+                                    i += 2;
+                                }
+                            } else {
+                                // No closing }, keep as-is
+                                try result.append('\\');
+                                try result.append('u');
+                                i += 2;
+                            }
+                        } else {
+                            // Not a valid Unicode escape, keep as-is
+                            try result.append('\\');
+                            try result.append('u');
+                            i += 2;
+                        }
+                    },
+                    'x' => {
+                        // Hex escape sequence \xXX
+                        if (i + 3 < text.len) {
+                            const hex_str = text[i + 2 .. i + 4];
+                            const byte = std.fmt.parseInt(u8, hex_str, 16) catch {
+                                // Invalid hex, keep as-is
+                                try result.append('\\');
+                                try result.append('x');
+                                i += 2;
+                                continue;
+                            };
+                            try result.append(byte);
+                            i += 4; // Skip \xXX
+                        } else {
+                            // Not enough chars, keep as-is
+                            try result.append('\\');
+                            try result.append('x');
+                            i += 2;
+                        }
+                    },
+                    else => {
+                        // Unknown escape sequence, keep the backslash
+                        try result.append('\\');
+                        try result.append(next);
+                        i += 2;
+                    },
+                }
+            } else {
+                try result.append(text[i]);
+                i += 1;
+            }
+        }
+
+        return result.toOwnedSlice();
     }
 
     /// Find an object node within the AST
@@ -483,11 +634,9 @@ fn freeValue(comptime T: type, allocator: std.mem.Allocator, value: T) void {
     }
 }
 
-// TODO: Future enhancements
-// - Support for multiline strings
-// - Handle escape sequences in strings
-// - Support for arrays and nested arrays
+// Future enhancements:
 // - Better error messages with source locations
 // - Support for unions
 // - Handle circular references
 // - Streaming parser for large files
+// - Improve memory management for allocated texts

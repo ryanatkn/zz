@@ -258,11 +258,9 @@ pub const ZonLinter = struct {
                 const field_name_node = child.children[0];
                 const field_text = field_name_node.text;
 
-                // Extract field name (remove leading dot if present)
-                const key_name = if (field_text.len > 0 and field_text[0] == '.')
-                    field_text[1..]
-                else
-                    field_text;
+                // Extract field name using utils
+                const zon_utils = @import("utils.zig");
+                const key_name = zon_utils.extractFieldName(field_text);
 
                 if (seen_keys.get(key_name)) |previous_span| {
                     // Duplicate key found
@@ -360,11 +358,9 @@ pub const ZonLinter = struct {
                 const field_name_node = child.children[0];
                 const field_text = field_name_node.text;
 
-                // Extract field name
-                const field_name = if (field_text.len > 0 and field_text[0] == '.')
-                    field_text[1..]
-                else
-                    field_text;
+                // Extract field name using utils
+                const zon_utils = @import("utils.zig");
+                const field_name = zon_utils.extractFieldName(field_text);
 
                 // Check for build.zig.zon specific fields
                 if (std.mem.eql(u8, field_name, "name") or

@@ -3,6 +3,7 @@ const Language = @import("../language/detection.zig").Language;
 const ExtractionFlags = @import("../language/flags.zig").ExtractionFlags;
 const FormatterOptions = @import("../parsing/formatter.zig").FormatterOptions;
 const IndentStyle = @import("../parsing/formatter.zig").IndentStyle;
+const zon = @import("../languages/zon/mod.zig");
 
 /// A single test case for parser extraction
 pub const ExtractionTest = struct {
@@ -130,23 +131,17 @@ pub const SafeZonFixtureLoader = struct {
     }
 
     /// Parse a ZON fixture file into structured test data
-    /// Uses arena allocator to avoid std.zon.parse.free() segfault
+    /// Uses our ZON parser instead of std.zon to avoid segfaults
     fn parseZonFixture(self: SafeZonFixtureLoader, content: []const u8, language: Language) !LanguageFixtures {
         std.log.debug("parseZonFixture: Starting for language {}", .{language});
 
         // Create arena for ZON parsing - will clean up automatically
         var arena = std.heap.ArenaAllocator.init(self.allocator);
-        defer arena.deinit(); // This avoids calling std.zon.parse.free()
+        defer arena.deinit();
 
-        // Add null terminator for ZON parsing
-        const null_terminated = try arena.allocator().dupeZ(u8, content);
-
-        // Parse ZON content with arena allocator
-        const data = std.zon.parse.fromSlice(TestFixtureData, arena.allocator(), null_terminated, null, .{}) catch |err| {
-            std.log.err("parseZonFixture: ZON parse error: {}", .{err});
-            return err;
-        };
-        // Note: We don't call std.zon.parse.free() - arena.deinit() handles cleanup
+        // Parse ZON content with our parser
+        const data = try zon.parseFromSlice(TestFixtureData, arena.allocator(), content);
+        // Note: Our parser handles cleanup internally
 
         std.log.debug("parseZonFixture: Successfully parsed ZON, copying data...", .{});
 

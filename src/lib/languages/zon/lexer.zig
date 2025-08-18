@@ -199,15 +199,65 @@ pub const ZonLexer = struct {
         if (self.position < self.source.len and self.currentChar() == '\\') {
             self.advance(); // Skip second backslash
 
-            // Continue until end of line or file
-            while (self.position < self.source.len and self.currentChar() != '\n') {
-                self.advance();
+            // Collect the entire multiline string
+            var string_content = std.ArrayList(u8).init(self.allocator);
+            defer string_content.deinit();
+
+            // Add the opening marker
+            try string_content.appendSlice("\\\\");
+
+            // Continue collecting lines until we hit a non-continuation line
+            while (self.position < self.source.len) {
+                // Collect current line
+                const line_start = self.position;
+                while (self.position < self.source.len and self.currentChar() != '\n') {
+                    self.advance();
+                }
+
+                // Add line content
+                try string_content.appendSlice(self.source[line_start..self.position]);
+
+                // Check if we're at end of file
+                if (self.position >= self.source.len) {
+                    break;
+                }
+
+                // Skip the newline
+                if (self.position < self.source.len and self.currentChar() == '\n') {
+                    self.advance();
+                    self.line += 1;
+                    self.column = 1;
+                }
+
+                // Skip leading whitespace on next line
+                while (self.position < self.source.len and
+                    (self.currentChar() == ' ' or self.currentChar() == '\t'))
+                {
+                    self.advance();
+                }
+
+                // Check if the next line starts with \\
+                if (self.position + 1 < self.source.len and
+                    self.source[self.position] == '\\' and
+                    self.source[self.position + 1] == '\\')
+                {
+                    // It's a continuation line
+                    self.advance(); // Skip first backslash
+                    self.advance(); // Skip second backslash
+                    // The line content will be collected in the next iteration
+                } else {
+                    // Not a continuation, we're done
+                    break;
+                }
             }
 
             const span = Span{
                 .start = start_pos,
                 .end = self.position,
             };
+
+            // For now, just return the raw text including the \\ markers
+            // The ast_converter will need to handle the processing
             const text = self.source[start_pos..self.position];
             try self.addToken(TokenKind.string_literal, span, text, .{});
         } else {

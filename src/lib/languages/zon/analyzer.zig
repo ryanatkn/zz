@@ -339,14 +339,14 @@ pub const ZonAnalyzer = struct {
         for (object_node.children) |child| {
             if (std.mem.eql(u8, child.rule_name, "field_assignment") and child.children.len >= 2) {
                 const field_name_node = child.children[0];
-                const value_node = child.children[1];
-
-                // Extract field name (remove leading dot)
-                const field_text = field_name_node.text;
-                const field_name = if (field_text.len > 0 and field_text[0] == '.')
-                    field_text[1..]
+                const value_node = if (child.children.len >= 3)
+                    child.children[2] // field_name = value (with equals token)
                 else
-                    field_text;
+                    child.children[1]; // field_name value (no equals token)
+
+                // Extract field name using utils function
+                const zon_utils = @import("utils.zig");
+                const field_name = zon_utils.extractFieldName(field_name_node.text);
 
                 const field_type = try self.inferType(value_node);
 
@@ -468,14 +468,14 @@ pub const ZonAnalyzer = struct {
             .rule => {
                 if (std.mem.eql(u8, node.rule_name, "field_assignment") and node.children.len >= 2) {
                     const field_name_node = node.children[0];
-                    const value_node = node.children[1];
-
-                    // Extract field name
-                    const field_text = field_name_node.text;
-                    const field_name = if (field_text.len > 0 and field_text[0] == '.')
-                        field_text[1..]
+                    const value_node = if (node.children.len >= 3)
+                        node.children[2] // field_name = value (with equals token)
                     else
-                        field_text;
+                        node.children[1]; // field_name value (no equals token)
+
+                    // Extract field name using utils function
+                    const zon_utils = @import("utils.zig");
+                    const field_name = zon_utils.extractFieldName(field_name_node.text);
 
                     const symbol = Symbol{
                         .name = try self.allocator.dupe(u8, field_name),
@@ -518,13 +518,14 @@ pub const ZonAnalyzer = struct {
         for (root_node.children) |child| {
             if (std.mem.eql(u8, child.rule_name, "field_assignment") and child.children.len >= 2) {
                 const field_name_node = child.children[0];
-                const value_node = child.children[1];
-                const field_text = field_name_node.text;
-
-                const field_name = if (field_text.len > 0 and field_text[0] == '.')
-                    field_text[1..]
+                const value_node = if (child.children.len >= 3)
+                    child.children[2] // field_name = value (with equals token)
                 else
-                    field_text;
+                    child.children[1]; // field_name value (no equals token)
+
+                // Extract field name using utils function
+                const zon_utils = @import("utils.zig");
+                const field_name = zon_utils.extractFieldName(field_name_node.text);
 
                 if (std.mem.eql(u8, field_name, "dependencies") and
                     std.mem.eql(u8, value_node.rule_name, "object"))
@@ -536,17 +537,18 @@ pub const ZonAnalyzer = struct {
     }
 
     fn extractDependenciesFromObject(self: *Self, deps_object: Node, dependencies: *std.ArrayList(Dependency)) !void {
+        const zon_utils = @import("utils.zig");
+
         for (deps_object.children) |child| {
             if (std.mem.eql(u8, child.rule_name, "field_assignment") and child.children.len >= 2) {
                 const dep_name_node = child.children[0];
-                const dep_value_node = child.children[1];
-
-                // Extract dependency name
-                const dep_name_text = dep_name_node.text;
-                const dep_name = if (dep_name_text.len > 0 and dep_name_text[0] == '.')
-                    dep_name_text[1..]
+                const dep_value_node = if (child.children.len >= 3)
+                    child.children[2] // field_name = value (with equals token)
                 else
-                    dep_name_text;
+                    child.children[1]; // field_name value (no equals token)
+
+                // Extract dependency name using utils function
+                const dep_name = zon_utils.extractFieldName(dep_name_node.text);
 
                 var dependency = Dependency{
                     .name = try self.allocator.dupe(u8, dep_name),
@@ -561,13 +563,13 @@ pub const ZonAnalyzer = struct {
                     for (dep_value_node.children) |dep_field| {
                         if (std.mem.eql(u8, dep_field.rule_name, "field_assignment") and dep_field.children.len >= 2) {
                             const prop_name_node = dep_field.children[0];
-                            const prop_value_node = dep_field.children[1];
-
-                            const prop_name_text = prop_name_node.text;
-                            const prop_name = if (prop_name_text.len > 0 and prop_name_text[0] == '.')
-                                prop_name_text[1..]
+                            const prop_value_node = if (dep_field.children.len >= 3)
+                                dep_field.children[2] // field_name = value (with equals token)
                             else
-                                prop_name_text;
+                                dep_field.children[1]; // field_name value (no equals token)
+
+                            // Extract property name using utils function
+                            const prop_name = zon_utils.extractFieldName(prop_name_node.text);
 
                             if (std.mem.eql(u8, prop_name, "url") and
                                 std.mem.eql(u8, prop_value_node.rule_name, "string_literal"))

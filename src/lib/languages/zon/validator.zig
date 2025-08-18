@@ -122,10 +122,9 @@ pub const ZonValidator = struct {
         const field_name_node = node.children[0];
         var field_name = field_name_node.text;
 
-        // Remove leading dot
-        if (field_name.len > 0 and field_name[0] == '.') {
-            field_name = field_name[1..];
-        }
+        // Extract field name using utils
+        const zon_utils = @import("utils.zig");
+        field_name = zon_utils.extractFieldName(field_name);
 
         // Handle @"..." quoted names
         if (std.mem.indexOf(u8, field_name, "@\"")) |at_pos| {

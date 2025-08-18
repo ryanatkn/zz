@@ -3,7 +3,7 @@ const std = @import("std");
 // Import foundation types from stratified parser
 const Token = @import("../parser/foundation/types/token.zig").Token;
 const Span = @import("../parser/foundation/types/span.zig").Span;
-const AST = @import("../ast/mod.zig").AST;
+const AST = @import("../parser/ast/mod.zig").AST;
 const Language = @import("../language/detection.zig").Language;
 
 /// Core language support interface that all languages must implement

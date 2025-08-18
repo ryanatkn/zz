@@ -260,11 +260,8 @@ fn formatWithStratifiedParser(allocator: std.mem.Allocator, content: []const u8,
     var structural_parser = try Structural.StructuralParser.init(allocator, structural_config);
     defer structural_parser.deinit();
     
-    const parse_result = try structural_parser.parse(tokens);
-    defer {
-        allocator.free(parse_result.boundaries);
-        allocator.free(parse_result.error_regions);
-    }
+    var parse_result = try structural_parser.parse(tokens);
+    defer parse_result.deinit(allocator);
     const structural_time = std.time.nanoTimestamp() - structural_start;
     
     // Layer 2: Detailed analysis (<10ms target)

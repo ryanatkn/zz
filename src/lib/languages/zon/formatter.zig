@@ -69,20 +69,15 @@ pub const ZonFormatter = struct {
         return self.output.toOwnedSlice();
     }
     
-    fn formatNode(self: *Self, node: Node) !void {
+    fn formatNode(self: *Self, node: Node) std.mem.Allocator.Error!void {
         switch (node.node_type) {
-            .container => {
+            .list => {
                 if (std.mem.eql(u8, node.rule_name, "object")) {
                     try self.formatObject(node);
-                } else {
-                    try self.formatGenericContainer(node);
-                }
-            },
-            .sequence => {
-                if (std.mem.eql(u8, node.rule_name, "array")) {
+                } else if (std.mem.eql(u8, node.rule_name, "array")) {
                     try self.formatArray(node);
                 } else {
-                    try self.formatGenericSequence(node);
+                    try self.formatGenericContainer(node);
                 }
             },
             .rule => {
@@ -268,14 +263,16 @@ pub const ZonFormatter = struct {
             try self.output.append('.');
         } else {
             // Generic terminal - output the text as-is
-            try self.output.appendSlice(node.text);
+            if (node.text.len > 0) {
+                try self.output.appendSlice(node.text);
+            }
         }
     }
     
     fn formatStringLiteral(self: *Self, node: Node) !void {
         // ZON strings are like Zig strings - preserve the original format
         // but clean up obvious issues
-        var text = node.text;
+        const text = node.text;
         
         // Ensure proper quoting
         if (text.len == 0 or text[0] != '"') {
@@ -290,7 +287,11 @@ pub const ZonFormatter = struct {
     fn formatNumberLiteral(self: *Self, node: Node) !void {
         // ZON numbers support all Zig number formats
         // Output as-is for now (could add normalization later)
-        try self.output.appendSlice(node.text);
+        if (node.text.len > 0) {
+            try self.output.appendSlice(node.text);
+        } else {
+            try self.output.appendSlice("0"); // Default to 0
+        }
     }
     
     fn formatBooleanLiteral(self: *Self, node: Node) !void {
@@ -304,18 +305,32 @@ pub const ZonFormatter = struct {
     
     fn formatFieldName(self: *Self, node: Node) !void {
         // Field names in ZON start with dot
-        if (node.text.len > 0 and node.text[0] == '.') {
-            try self.output.appendSlice(node.text);
+        // Due to parser changes, field_name nodes might have empty or children-based text
+        if (node.children.len > 0) {
+            // Field name is composed of child nodes (e.g., '.' operator + identifier)
+            for (node.children) |child| {
+                try self.formatNode(child);
+            }
+        } else if (node.text.len > 0) {
+            // We have text, format it
+            if (node.text[0] == '.') {
+                try self.output.appendSlice(node.text);
+            } else {
+                // Add missing dot
+                try self.output.append('.');
+                try self.output.appendSlice(node.text);
+            }
         } else {
-            // Add missing dot
-            try self.output.append('.');
-            try self.output.appendSlice(node.text);
+            // Empty text, default to unknown
+            try self.output.appendSlice(".unknown");
         }
     }
     
     fn formatIdentifier(self: *Self, node: Node) !void {
         // Handle @"keyword" syntax and regular identifiers
-        try self.output.appendSlice(node.text);
+        if (node.text.len > 0) {
+            try self.output.appendSlice(node.text);
+        }
     }
     
     fn formatGenericContainer(self: *Self, node: Node) !void {
@@ -390,13 +405,12 @@ pub const ZonFormatter = struct {
                 }
                 return false;
             },
-            .container, .sequence => return false,
+            .list => return false,
             else => return false,
         }
     }
     
     fn estimateNodeLength(self: *const Self, node: Node) u32 {
-        _ = self;
         
         // Rough estimation of formatted node length
         var length: u32 = 0;
@@ -405,17 +419,14 @@ pub const ZonFormatter = struct {
             .terminal => {
                 length += @intCast(node.text.len);
             },
-            .container => {
+            .list => {
                 if (std.mem.eql(u8, node.rule_name, "object")) {
                     length += 2; // { }
                     for (node.children, 0..) |child, i| {
                         if (i > 0) length += 2; // ", "
                         length += self.estimateNodeLength(child);
                     }
-                }
-            },
-            .sequence => {
-                if (std.mem.eql(u8, node.rule_name, "array")) {
+                } else if (std.mem.eql(u8, node.rule_name, "array")) {
                     length += 2; // [ ]
                     for (node.children, 0..) |child, i| {
                         if (i > 0) length += 2; // ", "

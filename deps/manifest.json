@@ -1,5 +1,14 @@
 {
   "generator": "zz-deps-v1.0.0",
   "dependencies": {
+    "tree-sitter-css": {
+      "category": "grammar",
+      "version": "v0.21.0",
+      "repository": "https://github.com/tree-sitter/tree-sitter-css",
+      "commit": "unknown",
+      "purpose": "CSS parsing",
+      "language": "css",
+      "parser_function": "tree_sitter_css"
+    }
   }
 }

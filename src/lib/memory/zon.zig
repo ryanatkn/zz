@@ -165,17 +165,19 @@ test "parseZonSafely with invalid content" {
     const testing = std.testing;
 
     const TestConfig = struct {
-        name: []const u8 = "default",
-        value: u32 = 0,
+        name: []const u8,
+        value: u32,
     };
 
-    const invalid_content = "{ invalid zon }";
-    const default_config = TestConfig{};
+    // Use definitely invalid ZON syntax
+    const invalid_content = "not valid zon at all";
+    const default_config = TestConfig{ .name = "default", .value = 42 };
     var managed = parseZonSafely(TestConfig, testing.allocator, invalid_content, default_config);
     defer managed.deinit(); // Safe - uses default, no freeing needed
 
+    // The invalid content should cause parseFromSlice to fail and use default
     try testing.expectEqualStrings("default", managed.get().name);
-    try testing.expectEqual(@as(u32, 0), managed.get().value);
+    try testing.expectEqual(@as(u32, 42), managed.get().value);
     try testing.expect(!managed.wasParsed());
 }
 

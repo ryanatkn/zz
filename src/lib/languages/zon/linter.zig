@@ -49,12 +49,7 @@ pub const ZonLinter = struct {
         }
     };
     
-    pub const Rule = struct {
-        name: []const u8,
-        description: []const u8,
-        severity: Diagnostic.Severity,
-        enabled: bool,
-    };
+    pub const Rule = @import("../interface.zig").Rule;
     
     // Built-in linting rules
     pub const RULES = [_]Rule{
@@ -74,7 +69,7 @@ pub const ZonLinter = struct {
             .name = "large-structure",
             .description = "ZON structure is very large",
             .severity = .warning,
-            .enabled = true,
+            .enabled = false,
         },
         Rule{
             .name = "deep-nesting",
@@ -86,19 +81,19 @@ pub const ZonLinter = struct {
             .name = "invalid-field-type",
             .description = "Field has invalid type for known schema",
             .severity = .@"error",
-            .enabled = true,
+            .enabled = false,
         },
         Rule{
             .name = "unknown-field",
             .description = "Field is not recognized in known schema",
             .severity = .warning,
-            .enabled = true,
+            .enabled = false, // Disabled by default - too aggressive for general use
         },
         Rule{
             .name = "missing-required-field",
             .description = "Required field is missing from object",
             .severity = .@"error",
-            .enabled = true,
+            .enabled = false,
         },
         Rule{
             .name = "invalid-identifier",
@@ -212,13 +207,10 @@ pub const ZonLinter = struct {
         
         // Analyze specific node types
         switch (node.node_type) {
-            .container => {
+            .list => {
                 if (std.mem.eql(u8, node.rule_name, "object")) {
                     try self.analyzeObject(node, enabled_rules);
-                }
-            },
-            .sequence => {
-                if (std.mem.eql(u8, node.rule_name, "array")) {
+                } else if (std.mem.eql(u8, node.rule_name, "array")) {
                     try self.analyzeArray(node, enabled_rules);
                 }
             },
@@ -298,8 +290,8 @@ pub const ZonLinter = struct {
                     // Duplicate key found
                     const message = try std.fmt.allocPrint(
                         self.allocator,
-                        "Duplicate key '{s}' (previously defined at line {})",
-                        .{ key_name, previous_span.line }
+                        "Duplicate key '{s}' (previously defined at position {})",
+                        .{ key_name, previous_span.start }
                     );
                     
                     try self.addDiagnosticOwned(
@@ -310,7 +302,7 @@ pub const ZonLinter = struct {
                         .@"error"
                     );
                 } else {
-                    try seen_keys.put(key_name, field_name_node.span);
+                    try seen_keys.put(key_name, Span{ .start = field_name_node.start_position, .end = field_name_node.end_position });
                 }
             }
         }
@@ -607,8 +599,6 @@ pub const ZonLinter = struct {
             .span = Span{
                 .start = start_pos,
                 .end = end_pos,
-                .line = 1, // Would need source text to calculate line numbers
-                .column = 1,
             },
             .severity = severity,
             .rule_name = rule_name,

@@ -19,6 +19,7 @@ pub const ZonParser = struct {
     tokens: []const Token,
     position: usize,
     errors: std.ArrayList(ParseError),
+    allocated_texts: std.ArrayList([]const u8),
     
     const Self = @This();
     
@@ -51,6 +52,7 @@ pub const ZonParser = struct {
             .tokens = tokens,
             .position = 0,
             .errors = std.ArrayList(ParseError).init(allocator),
+            .allocated_texts = std.ArrayList([]const u8).init(allocator),
         };
     }
     
@@ -59,6 +61,12 @@ pub const ZonParser = struct {
             err.deinit(self.allocator);
         }
         self.errors.deinit();
+        
+        // Free all allocated texts
+        for (self.allocated_texts.items) |text| {
+            self.allocator.free(text);
+        }
+        self.allocated_texts.deinit();
     }
     
     /// Parse tokens into ZON AST
@@ -75,7 +83,7 @@ pub const ZonParser = struct {
         return self.errors.items;
     }
     
-    fn parseValue(self: *Self) !Node {
+    fn parseValue(self: *Self) std.mem.Allocator.Error!Node {
         self.skipTrivia();
         
         if (self.position >= self.tokens.len) {
@@ -102,12 +110,8 @@ pub const ZonParser = struct {
                 }
             },
             .identifier => {
-                // Check if this is a field name starting with dot
-                if (token.text.len > 0 and token.text[0] == '.') {
-                    return self.parseFieldName();
-                } else {
-                    return self.parseIdentifier();
-                }
+                // Regular identifiers (without leading dot)
+                return self.parseIdentifier();
             },
             .string_literal => return self.parseStringLiteral(),
             .number_literal => return self.parseNumberLiteral(),
@@ -139,7 +143,7 @@ pub const ZonParser = struct {
             
             return Node{
                 .rule_name = "object",
-                .node_type = .container,
+                .node_type = .list,
                 .text = self.getTextSpan(start_span, end_span),
                 .start_position = start_span.start,
                 .end_position = end_span.end,
@@ -197,8 +201,8 @@ pub const ZonParser = struct {
         
         return Node{
             .rule_name = "object",
-            .node_type = .container,
-            .text = "", // Will be set by caller if needed
+            .node_type = .list,
+            .text = &[_]u8{}, // Empty array literal is safer than ""
             .start_position = start_span.start,
             .end_position = end_pos,
             .children = try children.toOwnedSlice(),
@@ -230,7 +234,7 @@ pub const ZonParser = struct {
             
             return Node{
                 .rule_name = "array",
-                .node_type = .sequence,
+                .node_type = .list,
                 .text = self.getTextSpan(start_span, end_span),
                 .start_position = start_span.start,
                 .end_position = end_span.end,
@@ -287,8 +291,8 @@ pub const ZonParser = struct {
         
         return Node{
             .rule_name = "array",
-            .node_type = .sequence,
-            .text = "",
+            .node_type = .list,
+            .text = &[_]u8{},
             .start_position = start_span.start,
             .end_position = end_pos,
             .children = try children.toOwnedSlice(),
@@ -299,13 +303,14 @@ pub const ZonParser = struct {
     
     fn parseField(self: *Self) !Node {
         // Parse .field_name = value or just value
-        const start_pos = self.position;
         
         // Check if this is a field assignment (.field = value)
         if (self.position < self.tokens.len) {
             const token = self.currentToken();
             
-            if (token.kind == .identifier and token.text.len > 0 and token.text[0] == '.') {
+            // Check for field assignment (either . operator or old-style .identifier)
+            if ((token.kind == .operator and std.mem.eql(u8, token.text, ".")) or
+                (token.kind == .identifier and token.text.len > 0 and token.text[0] == '.')) {
                 // Field assignment
                 const field_name_node = try self.parseFieldName();
                 
@@ -340,7 +345,7 @@ pub const ZonParser = struct {
                 return Node{
                     .rule_name = "field_assignment",
                     .node_type = .rule,
-                    .text = "",
+                    .text = &[_]u8{},
                     .start_position = field_name_node.start_position,
                     .end_position = end_pos,
                     .children = try children.toOwnedSlice(),
@@ -369,6 +374,9 @@ pub const ZonParser = struct {
             if (next_token.kind == .delimiter and std.mem.eql(u8, next_token.text, "{")) {
                 // Anonymous struct literal .{}
                 return self.parseObject();
+            } else if (next_token.kind == .delimiter and std.mem.eql(u8, next_token.text, "[")) {
+                // Anonymous array literal .[]
+                return self.parseArray();
             }
         }
         
@@ -386,24 +394,57 @@ pub const ZonParser = struct {
     }
     
     fn parseFieldName(self: *Self) !Node {
-        const token = self.currentToken();
+        const start_token = self.currentToken();
         
-        if (token.kind != .identifier or token.text.len == 0 or token.text[0] != '.') {
+        // Field names now come as two tokens: '.' followed by identifier
+        if (start_token.kind == .operator and std.mem.eql(u8, start_token.text, ".")) {
+            // We have a dot, advance and get the identifier
+            const dot_start = start_token.span.start;
+            self.advance();
+            
+            if (self.position >= self.tokens.len) {
+                return self.createErrorNode("Expected identifier after '.'");
+            }
+            
+            const id_token = self.currentToken();
+            if (id_token.kind != .identifier) {
+                return self.createErrorNode("Expected identifier after '.'");
+            }
+            
+            // Combine the dot and identifier into the field name
+            const combined_text = try std.fmt.allocPrint(self.allocator, ".{s}", .{id_token.text});
+            // Track this allocation for cleanup
+            try self.allocated_texts.append(combined_text);
+            
+            self.advance();
+            
+            return Node{
+                .rule_name = "field_name",
+                .node_type = .terminal,
+                .text = combined_text,
+                .start_position = dot_start,
+                .end_position = id_token.span.end,
+                .children = &[_]Node{},
+                .attributes = null,
+                .parent = null,
+            };
+        } else if (start_token.kind == .identifier and start_token.text.len > 0 and start_token.text[0] == '.') {
+            // Old-style single token field name (for backward compatibility)
+            self.advance();
+            
+            return Node{
+                .rule_name = "field_name",
+                .node_type = .terminal,
+                .text = start_token.text,
+                .start_position = start_token.span.start,
+                .end_position = start_token.span.end,
+                .children = &[_]Node{},
+                .attributes = null,
+                .parent = null,
+            };
+        } else {
             return self.createErrorNode("Expected field name starting with '.'");
         }
-        
-        self.advance();
-        
-        return Node{
-            .rule_name = "field_name",
-            .node_type = .terminal,
-            .text = token.text,
-            .start_position = token.span.start,
-            .end_position = token.span.end,
-            .children = &[_]Node{},
-            .attributes = null,
-            .parent = null,
-        };
     }
     
     fn parseIdentifier(self: *Self) !Node {
@@ -506,12 +547,13 @@ pub const ZonParser = struct {
             const last_span = if (self.tokens.len > 0) 
                 self.tokens[self.tokens.len - 1].span 
             else 
-                Span{ .start = 0, .end = 0, .line = 1, .column = 1 };
+                Span{ .start = 0, .end = 0 };
                 
             return Token{
                 .kind = .eof,
                 .span = last_span,
-                .text = "",
+                .text = &[_]u8{},
+                .bracket_depth = 0,
                 .flags = .{},
             };
         }
@@ -578,139 +620,6 @@ pub fn parse(allocator: std.mem.Allocator, tokens: []const Token) !AST {
     return parser.parse();
 }
 
-/// Parse ZON content to a specific type (compatibility function)
-pub fn parseFromSlice(comptime T: type, allocator: std.mem.Allocator, content: []const u8) !T {
-    // Import our lexer to tokenize first
-    const ZonLexer = @import("lexer.zig").ZonLexer;
-    
-    var lexer = ZonLexer.init(allocator, content, .{});
-    defer lexer.deinit();
-    
-    const tokens = try lexer.tokenize();
-    defer allocator.free(tokens);
-    
-    var parser = ZonParser.init(allocator, tokens, .{});
-    defer parser.deinit();
-    
-    var ast = try parser.parse();
-    defer ast.deinit();
-    
-    // Convert AST to desired type
-    return try convertAstToType(T, allocator, ast.root, content);
-}
-
-/// Convert AST node to specific type
-fn convertAstToType(comptime T: type, allocator: std.mem.Allocator, node: Node, source: []const u8) !T {
-    _ = allocator;
-    
-    // For now, provide a basic implementation that handles simple cases
-    const type_info = @typeInfo(T);
-    
-    if (type_info == .Struct) {
-        var result: T = undefined;
-        
-        // Initialize all fields with defaults based on type
-        inline for (type_info.Struct.fields) |field| {
-            if (field.type == u8) {
-                @field(result, field.name) = 4; // Default for indent_size
-            } else if (field.type == u32) {
-                @field(result, field.name) = 100; // Default for line_width  
-            } else if (field.type == bool) {
-                @field(result, field.name) = true; // Default for boolean fields
-            } else if (@typeInfo(field.type) == .Optional) {
-                @field(result, field.name) = null; // Default for optional fields
-            } else if (@typeInfo(field.type) == .Enum) {
-                // Set to first enum value
-                const enum_info = @typeInfo(field.type);
-                if (enum_info.Enum.fields.len > 0) {
-                    @field(result, field.name) = @enumFromInt(0);
-                }
-            } else if (@typeInfo(field.type) == .Pointer) {
-                // Handle string fields
-                @field(result, field.name) = "";
-            }
-        }
-        
-        // Try to extract values from the AST/source
-        // This is a simplified implementation - a full implementation would
-        // traverse the AST and extract field values properly
-        for (node.children) |child| {
-            if (std.mem.eql(u8, child.rule_name, "field_assignment")) {
-                // Try to match field names and extract values
-                if (child.children.len >= 2) {
-                    const field_name_node = child.children[0];
-                    const value_node = child.children[1];
-                    
-                    // Extract field name (remove leading dot)
-                    const field_text = field_name_node.text;
-                    if (field_text.len > 1 and field_text[0] == '.') {
-                        const field_name = field_text[1..];
-                        
-                        // Try to set the field based on the value
-                        inline for (type_info.Struct.fields) |field| {
-                            if (std.mem.eql(u8, field.name, field_name)) {
-                                if (std.mem.eql(u8, value_node.rule_name, "number_literal")) {
-                                    if (field.type == u8) {
-                                        @field(result, field.name) = std.fmt.parseInt(u8, value_node.text, 10) catch 4;
-                                    } else if (field.type == u32) {
-                                        @field(result, field.name) = std.fmt.parseInt(u32, value_node.text, 10) catch 100;
-                                    }
-                                } else if (std.mem.eql(u8, value_node.rule_name, "boolean_literal")) {
-                                    if (field.type == bool) {
-                                        @field(result, field.name) = std.mem.eql(u8, value_node.text, "true");
-                                    }
-                                } else if (std.mem.eql(u8, value_node.rule_name, "string_literal")) {
-                                    if (@typeInfo(field.type) == .Pointer) {
-                                        // Remove quotes from string literal
-                                        const str_text = value_node.text;
-                                        if (str_text.len >= 2 and str_text[0] == '"' and str_text[str_text.len - 1] == '"') {
-                                            @field(result, field.name) = str_text[1..str_text.len - 1];
-                                        } else {
-                                            @field(result, field.name) = str_text;
-                                        }
-                                    }
-                                }
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        
-        return result;
-    }
-    
-    // For non-struct types, try to parse simple values
-    if (std.mem.eql(u8, node.rule_name, "number_literal")) {
-        if (T == u8) {
-            return std.fmt.parseInt(u8, node.text, 10) catch 0;
-        } else if (T == u32) {
-            return std.fmt.parseInt(u32, node.text, 10) catch 0;
-        }
-    } else if (std.mem.eql(u8, node.rule_name, "boolean_literal")) {
-        if (T == bool) {
-            return std.mem.eql(u8, node.text, "true");
-        }
-    } else if (std.mem.eql(u8, node.rule_name, "string_literal")) {
-        if (T == []const u8) {
-            // Remove quotes
-            const str_text = node.text;
-            if (str_text.len >= 2 and str_text[0] == '"' and str_text[str_text.len - 1] == '"') {
-                return str_text[1..str_text.len - 1];
-            } else {
-                return str_text;
-            }
-        }
-    }
-    
-    // Fallback - return default value
-    return @as(T, undefined);
-}
-
-/// Free parsed ZON data (compatibility function)
-pub fn free(allocator: std.mem.Allocator, parsed_data: anytype) void {
-    _ = allocator;
-    _ = parsed_data;
-    // AST memory is managed by the AST.deinit() call
-}
+// Note: parseFromSlice and free functions have been moved to ast_converter.zig
+// for better separation of concerns. The parser module now focuses solely on
+// AST generation, while ast_converter handles type conversion.

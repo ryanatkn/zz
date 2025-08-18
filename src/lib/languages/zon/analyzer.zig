@@ -174,6 +174,11 @@ pub const ZonAnalyzer = struct {
         };
     }
     
+    pub fn deinit(self: *Self) void {
+        // ZonAnalyzer doesn't allocate anything itself, so no cleanup needed
+        _ = self;
+    }
+    
     /// Extract schema from ZON AST
     pub fn extractSchema(self: *Self, ast: AST) !ZonSchema {
         var schema = ZonSchema{
@@ -247,6 +252,17 @@ pub const ZonAnalyzer = struct {
         return symbols.toOwnedSlice();
     }
     
+    /// Free symbols returned by extractSymbols
+    pub fn freeSymbols(self: *Self, symbols: []Symbol) void {
+        for (symbols) |symbol| {
+            self.allocator.free(symbol.name);
+            if (symbol.value) |value| {
+                self.allocator.free(value);
+            }
+        }
+        self.allocator.free(symbols);
+    }
+    
     /// Get analysis statistics
     pub fn generateStatistics(self: *Self, root_node: Node, depth: u32) !Statistics {
         var stats = Statistics{
@@ -271,23 +287,12 @@ pub const ZonAnalyzer = struct {
         return stats;
     }
     
-    fn inferType(self: *Self, node: Node) !TypeInfo {
+    fn inferType(self: *Self, node: Node) std.mem.Allocator.Error!TypeInfo {
         switch (node.node_type) {
-            .container => {
+            .list => {
                 if (std.mem.eql(u8, node.rule_name, "object")) {
                     return try self.inferObjectType(node);
-                } else {
-                    return TypeInfo{
-                        .kind = .any,
-                        .name = null,
-                        .fields = null,
-                        .element_type = null,
-                        .nullable = false,
-                    };
-                }
-            },
-            .sequence => {
-                if (std.mem.eql(u8, node.rule_name, "array")) {
+                } else if (std.mem.eql(u8, node.rule_name, "array")) {
                     return try self.inferArrayType(node);
                 } else {
                     return TypeInfo{
@@ -350,7 +355,7 @@ pub const ZonAnalyzer = struct {
                     .type_info = field_type,
                     .required = true, // ZON fields are typically required
                     .description = null,
-                    .span = field_name_node.span,
+                    .span = Span{ .start = field_name_node.start_position, .end = field_name_node.end_position },
                 };
                 
                 try fields.append(field_info);
@@ -474,7 +479,7 @@ pub const ZonAnalyzer = struct {
                     const symbol = Symbol{
                         .name = try self.allocator.dupe(u8, field_name),
                         .kind = .field,
-                        .span = field_name_node.span,
+                        .span = Span{ .start = field_name_node.start_position, .end = field_name_node.end_position },
                         .type_info = try self.inferType(value_node),
                         .value = if (value_node.node_type == .terminal) 
                             try self.allocator.dupe(u8, value_node.text) 
@@ -490,7 +495,7 @@ pub const ZonAnalyzer = struct {
                     const symbol = Symbol{
                         .name = try self.allocator.dupe(u8, node.text),
                         .kind = .value,
-                        .span = node.span,
+                        .span = Span{ .start = node.start_position, .end = node.end_position },
                         .type_info = try self.inferType(node),
                         .value = try self.allocator.dupe(u8, node.text),
                     };
@@ -546,7 +551,7 @@ pub const ZonAnalyzer = struct {
                     .version = null,
                     .url = null,
                     .hash = null,
-                    .span = dep_name_node.span,
+                    .span = Span{ .start = dep_name_node.start_position, .end = dep_name_node.end_position },
                 };
                 
                 // Extract dependency details from object
@@ -582,19 +587,15 @@ pub const ZonAnalyzer = struct {
     }
     
     fn analyzeNodeStatistics(self: *Self, node: Node, stats: *Statistics, depth: u32) !void {
-        _ = self;
         
         stats.total_nodes += 1;
         stats.max_depth = @max(stats.max_depth, depth);
         
         switch (node.node_type) {
-            .container => {
+            .list => {
                 if (std.mem.eql(u8, node.rule_name, "object")) {
                     stats.object_count += 1;
-                }
-            },
-            .sequence => {
-                if (std.mem.eql(u8, node.rule_name, "array")) {
+                } else if (std.mem.eql(u8, node.rule_name, "array")) {
                     stats.array_count += 1;
                 }
             },
@@ -620,7 +621,6 @@ pub const ZonAnalyzer = struct {
     }
     
     fn writeZigType(self: *Self, output: *std.ArrayList(u8), type_info: TypeInfo, indent: u32) !void {
-        _ = self;
         
         switch (type_info.kind) {
             .object => {

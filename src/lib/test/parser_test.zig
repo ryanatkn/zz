@@ -65,8 +65,10 @@ fn extractWithStratifiedParser(allocator: std.mem.Allocator, content: []const u8
         };
         
         if (should_include) {
+            if (filtered.items.len > 0) {
+                try filtered.append('\n');
+            }
             try filtered.appendSlice(line);
-            try filtered.append('\n');
         }
     }
     

@@ -57,8 +57,6 @@ pub const ZonLexer = struct {
         const eof_span = Span{
             .start = self.position,
             .end = self.position,
-            .line = self.line,
-            .column = self.column,
         };
         try self.addToken(TokenKind.eof, eof_span, "", .{});
         
@@ -71,8 +69,6 @@ pub const ZonLexer = struct {
         if (self.position >= self.source.len) return;
         
         const start_pos = self.position;
-        const start_line = self.line;
-        const start_column = self.column;
         const current = self.currentChar();
         
         switch (current) {
@@ -94,8 +90,6 @@ pub const ZonLexer = struct {
                 const span = Span{
                     .start = start_pos,
                     .end = self.position + 1,
-                    .line = start_line,
-                    .column = start_column,
                 };
                 self.advance();
                 try self.addToken(TokenKind.newline, span, "\n", .{});
@@ -105,8 +99,6 @@ pub const ZonLexer = struct {
                 const span = Span{
                     .start = start_pos,
                     .end = self.position + 1,
-                    .line = start_line,
-                    .column = start_column,
                 };
                 const text = self.source[start_pos..self.position + 1];
                 self.advance();
@@ -117,43 +109,61 @@ pub const ZonLexer = struct {
     
     fn tokenizeDotOrFieldName(self: *Self) !void {
         const start_pos = self.position;
-        const start_line = self.line;
-        const start_column = self.column;
+        
+        // Always emit the dot as a separate operator token
+        const dot_span = Span{
+            .start = start_pos,
+            .end = start_pos + 1,
+        };
+        try self.addToken(TokenKind.operator, dot_span, ".", .{});
         
         self.advance(); // Skip '.'
         
-        // Check if this is just a dot or a field name
-        if (self.position >= self.source.len or !isIdentifierStart(self.currentChar())) {
-            // Just a dot
-            const span = Span{
-                .start = start_pos,
-                .end = self.position,
-                .line = start_line,
-                .column = start_column,
-            };
-            try self.addToken(TokenKind.operator, span, ".", .{});
-            return;
+        // Check if there's an identifier following the dot
+        if (self.position < self.source.len and isIdentifierStart(self.currentChar())) {
+            // Tokenize the identifier separately
+            const id_start = self.position;
+            
+            // Handle @"..." quoted identifiers
+            if (self.currentChar() == '@' and 
+                self.position + 1 < self.source.len and 
+                self.source[self.position + 1] == '"') {
+                // Quoted identifier
+                self.advance(); // Skip '@'
+                self.advance(); // Skip '"'
+                
+                while (self.position < self.source.len and self.currentChar() != '"') {
+                    self.advance();
+                }
+                
+                if (self.position < self.source.len and self.currentChar() == '"') {
+                    self.advance(); // Skip closing '"'
+                }
+                
+                const id_span = Span{
+                    .start = id_start,
+                    .end = self.position,
+                };
+                const id_text = self.source[id_start..self.position];
+                try self.addToken(TokenKind.identifier, id_span, id_text, .{});
+            } else {
+                // Regular identifier
+                while (self.position < self.source.len and isIdentifierContinue(self.currentChar())) {
+                    self.advance();
+                }
+                
+                const id_span = Span{
+                    .start = id_start,
+                    .end = self.position,
+                };
+                const id_text = self.source[id_start..self.position];
+                try self.addToken(TokenKind.identifier, id_span, id_text, .{});
+            }
         }
-        
-        // Field name (.field_name) - treat as identifier
-        while (self.position < self.source.len and isIdentifierContinue(self.currentChar())) {
-            self.advance();
-        }
-        
-        const span = Span{
-            .start = start_pos,
-            .end = self.position,
-            .line = start_line,
-            .column = start_column,
-        };
-        const text = self.source[start_pos..self.position];
-        try self.addToken(TokenKind.identifier, span, text, .{});
     }
     
     fn tokenizeString(self: *Self) !void {
         const start_pos = self.position;
-        const start_line = self.line;
-        const start_column = self.column;
         
         self.advance(); // Skip opening quote
         
@@ -175,8 +185,6 @@ pub const ZonLexer = struct {
         const span = Span{
             .start = start_pos,
             .end = self.position,
-            .line = start_line,
-            .column = start_column,
         };
         const text = self.source[start_pos..self.position];
         try self.addToken(TokenKind.string_literal, span, text, .{});
@@ -184,8 +192,6 @@ pub const ZonLexer = struct {
     
     fn tokenizeMultilineString(self: *Self) !void {
         const start_pos = self.position;
-        const start_line = self.line;
-        const start_column = self.column;
         
         self.advance(); // Skip first backslash
         
@@ -200,8 +206,6 @@ pub const ZonLexer = struct {
             const span = Span{
                 .start = start_pos,
                 .end = self.position,
-                .line = start_line,
-                .column = start_column,
             };
             const text = self.source[start_pos..self.position];
             try self.addToken(TokenKind.string_literal, span, text, .{});
@@ -210,8 +214,6 @@ pub const ZonLexer = struct {
             const span = Span{
                 .start = start_pos,
                 .end = self.position,
-                .line = start_line,
-                .column = start_column,
             };
             try self.addToken(TokenKind.unknown, span, "\\", .{});
         }
@@ -219,8 +221,6 @@ pub const ZonLexer = struct {
     
     fn tokenizeSingleChar(self: *Self, kind: TokenKind) !void {
         const start_pos = self.position;
-        const start_line = self.line;
-        const start_column = self.column;
         
         const text = self.source[start_pos..start_pos + 1];
         self.advance();
@@ -228,16 +228,12 @@ pub const ZonLexer = struct {
         const span = Span{
             .start = start_pos,
             .end = self.position,
-            .line = start_line,
-            .column = start_column,
         };
         try self.addToken(kind, span, text, .{});
     }
     
     fn tokenizeCommentOrUnknown(self: *Self) !void {
         const start_pos = self.position;
-        const start_line = self.line;
-        const start_column = self.column;
         
         self.advance(); // Skip first '/'
         
@@ -254,33 +250,6 @@ pub const ZonLexer = struct {
                 const span = Span{
                     .start = start_pos,
                     .end = self.position,
-                    .line = start_line,
-                    .column = start_column,
-                };
-                const text = self.source[start_pos..self.position];
-                
-                if (self.preserve_comments) {
-                    try self.addToken(TokenKind.comment, span, text, .{});
-                }
-                return;
-            } else if (next == '*') {
-                // Block comment
-                self.advance(); // Skip '*'
-                
-                while (self.position + 1 < self.source.len) {
-                    if (self.currentChar() == '*' and self.source[self.position + 1] == '/') {
-                        self.advance(); // Skip '*'
-                        self.advance(); // Skip '/'
-                        break;
-                    }
-                    self.advance();
-                }
-                
-                const span = Span{
-                    .start = start_pos,
-                    .end = self.position,
-                    .line = start_line,
-                    .column = start_column,
                 };
                 const text = self.source[start_pos..self.position];
                 
@@ -295,16 +264,12 @@ pub const ZonLexer = struct {
         const span = Span{
             .start = start_pos,
             .end = self.position,
-            .line = start_line,
-            .column = start_column,
         };
         try self.addToken(TokenKind.unknown, span, "/", .{});
     }
     
     fn tokenizeNumber(self: *Self) !void {
         const start_pos = self.position;
-        const start_line = self.line;
-        const start_column = self.column;
         
         if (self.currentChar() == '0' and self.position + 1 < self.source.len) {
             const next = self.source[self.position + 1];
@@ -318,8 +283,6 @@ pub const ZonLexer = struct {
                     const span = Span{
                         .start = start_pos,
                         .end = self.position,
-                        .line = start_line,
-                        .column = start_column,
                     };
                     const text = self.source[start_pos..self.position];
                     try self.addToken(TokenKind.number_literal, span, text, .{});
@@ -334,8 +297,6 @@ pub const ZonLexer = struct {
                     const span = Span{
                         .start = start_pos,
                         .end = self.position,
-                        .line = start_line,
-                        .column = start_column,
                     };
                     const text = self.source[start_pos..self.position];
                     try self.addToken(TokenKind.number_literal, span, text, .{});
@@ -350,8 +311,6 @@ pub const ZonLexer = struct {
                     const span = Span{
                         .start = start_pos,
                         .end = self.position,
-                        .line = start_line,
-                        .column = start_column,
                     };
                     const text = self.source[start_pos..self.position];
                     try self.addToken(TokenKind.number_literal, span, text, .{});
@@ -388,8 +347,6 @@ pub const ZonLexer = struct {
         const span = Span{
             .start = start_pos,
             .end = self.position,
-            .line = start_line,
-            .column = start_column,
         };
         const text = self.source[start_pos..self.position];
         try self.addToken(TokenKind.number_literal, span, text, .{});
@@ -397,8 +354,6 @@ pub const ZonLexer = struct {
     
     fn tokenizeIdentifierOrKeyword(self: *Self) !void {
         const start_pos = self.position;
-        const start_line = self.line;
-        const start_column = self.column;
         
         // Handle @"keyword" syntax
         if (self.currentChar() == '@') {
@@ -415,8 +370,6 @@ pub const ZonLexer = struct {
                 const span = Span{
                     .start = start_pos,
                     .end = self.position,
-                    .line = start_line,
-                    .column = start_column,
                 };
                 const text = self.source[start_pos..self.position];
                 try self.addToken(TokenKind.identifier, span, text, .{});
@@ -432,8 +385,6 @@ pub const ZonLexer = struct {
         const span = Span{
             .start = start_pos,
             .end = self.position,
-            .line = start_line,
-            .column = start_column,
         };
         const text = self.source[start_pos..self.position];
         
@@ -482,6 +433,7 @@ pub const ZonLexer = struct {
             .kind = kind,
             .span = span,
             .text = text,
+            .bracket_depth = 0, // TODO: Track actual bracket depth
             .flags = flags,
         };
         try self.tokens.append(token);

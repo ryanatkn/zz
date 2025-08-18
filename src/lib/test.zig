@@ -13,8 +13,8 @@ test {
     _ = @import("parser/test.zig");
     // Legacy tests
     _ = @import("test/parser_test.zig");
-    // ZON parser utility tests
-    _ = @import("parsing/zon_parser.zig");
+    // ZON language implementation tests
+    _ = @import("languages/zon/test.zig");
     // Comprehensive fixture-based tests
     _ = @import("test/fixture_loader.zig");
     // Fixture runner tests (with defensive error handling and logging)

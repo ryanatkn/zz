@@ -7,7 +7,7 @@ const GitignorePatterns = @import("../lib/parsing/gitignore.zig").GitignorePatte
 const FilesystemInterface = @import("../lib/filesystem/interface.zig").FilesystemInterface;
 const DirHandle = @import("../lib/filesystem/interface.zig").DirHandle;
 const filesystem_utils = @import("../lib/core/filesystem.zig");
-const ZonParser = @import("../lib/parsing/zon_parser.zig").ZonParser;
+const ZonParser = @import("../lib/languages/zon/mod.zig");
 const zon_memory = @import("../lib/memory/zon.zig");
 const ManagedZonConfig = zon_memory.ManagedZonConfig;
 

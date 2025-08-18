@@ -1,5 +1,5 @@
 const std = @import("std");
-const ZonParser = @import("../parsing/zon_parser.zig").ZonParser;
+const ZonParser = @import("../languages/zon/mod.zig");
 
 /// ZON-specific memory management utilities
 /// Handles parsed vs default ZON configurations with proper cleanup

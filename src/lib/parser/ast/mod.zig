@@ -1,3 +1,5 @@
+// TODO delete this? see ../../ast/
+
 // Re-export of the main AST module for parser usage
 pub usingnamespace @import("../../ast/mod.zig");
 
@@ -5,7 +7,7 @@ pub usingnamespace @import("../../ast/mod.zig");
 pub const AST = struct {
     root: ASTNode,
     allocator: std.mem.Allocator,
-    
+
     pub fn deinit(self: *AST) void {
         // Free the AST tree
         self.root.deinit(self.allocator);

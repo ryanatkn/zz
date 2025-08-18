@@ -22,7 +22,7 @@ test "ZON parsing with simple dependency structure" {
         \\}
     ;
     
-    const ZonParser = @import("../parsing/zon_parser.zig").ZonParser;
+    const ZonParser = @import("../languages/zon/mod.zig");
     
     // Try parsing with a minimal structure first
     const MinimalConfig = struct {

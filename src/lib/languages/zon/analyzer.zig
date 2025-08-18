@@ -546,21 +546,10 @@ pub const ZonAnalyzer = struct {
     }
 
     fn extractDependenciesFromObject(self: *Self, deps_object: Node, dependencies: *std.ArrayList(Dependency)) !void {
-        // Use ASTTraversal to find all field assignments
-        var traversal = common.ASTTraversal.init(self.allocator);
-        
-        // Find field assignments in the dependencies object
-        const field_predicate = struct {
-            fn matches(n: *const Node) bool {
-                return utils.isFieldAssignment(n.*);
-            }
-        }.matches;
-        
-        const field_nodes = try traversal.findNodes(&deps_object, field_predicate);
-        defer self.allocator.free(field_nodes);
-        
-        for (field_nodes) |field_node| {
-            const field_data = utils.processFieldAssignment(field_node.*) orelse continue;
+        // Directly iterate over children of the dependencies object to find field assignments
+        for (deps_object.children) |field_node| {
+            if (!utils.isFieldAssignment(field_node)) continue;
+            const field_data = utils.processFieldAssignment(field_node) orelse continue;
             const dep_name = field_data.field_name;
             const dep_value_node = field_data.value_node;
 
@@ -572,14 +561,12 @@ pub const ZonAnalyzer = struct {
                 .span = Span{ .start = field_node.children[0].start_position, .end = field_node.children[0].end_position },
             };
 
-            // Extract dependency details from object using ASTUtils
+            // Extract dependency details from object using direct iteration
             if (std.mem.eql(u8, dep_value_node.rule_name, "object")) {
-                // Find all field assignments within the dependency object
-                const dep_field_nodes = try traversal.findNodes(&dep_value_node, field_predicate);
-                defer self.allocator.free(dep_field_nodes);
-                
-                for (dep_field_nodes) |dep_field| {
-                    const prop_data = utils.processFieldAssignment(dep_field.*) orelse continue;
+                // Directly iterate over dependency object children
+                for (dep_value_node.children) |dep_field| {
+                    if (!utils.isFieldAssignment(dep_field)) continue;
+                    const prop_data = utils.processFieldAssignment(dep_field) orelse continue;
                     const prop_name = prop_data.field_name;
                     const prop_value_node = prop_data.value_node;
 

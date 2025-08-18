@@ -131,7 +131,11 @@ pub const DependencyManager = struct {
             const dep_dir = try path.joinPath(self.allocator, self.deps_dir, dep.name);
             defer self.allocator.free(dep_dir);
 
-            const exists = io.fileExists(dep_dir) or io.isDirectory(dep_dir);
+            // Check if dependency directory exists using filesystem interface
+            const exists = if (self.filesystem.statFile(self.allocator, dep_dir)) |stat| 
+                stat.kind == .directory 
+            else |_| 
+                false;
 
             if (!exists) {
                 try result.missing.append(dep.name);

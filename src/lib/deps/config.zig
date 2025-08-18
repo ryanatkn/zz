@@ -329,6 +329,17 @@ pub const DepsZonConfig = struct {
         category: ?[]const u8 = null,
         language: ?[]const u8 = null,
         purpose: ?[]const u8 = null,
+
+        pub fn deinit(self: *const DependencyZonEntry, allocator: std.mem.Allocator) void {
+            allocator.free(self.url);
+            allocator.free(self.version);
+            memory.freeStringArray(allocator, self.include);
+            memory.freeStringArray(allocator, self.exclude);
+            memory.freeStringArray(allocator, self.preserve_files);
+            memory.freeStringArray(allocator, self.patches);
+            memory.freeOptionalString(allocator, self.category);
+            memory.freeOptionalString(allocator, self.purpose);
+        }
     };
 
     pub const SettingsStruct = struct {
@@ -383,16 +394,15 @@ pub const DepsZonConfig = struct {
         if (self.owns_strings) {
             var iterator = self.dependencies.iterator();
             while (iterator.next()) |entry| {
-                // For now, only free the keys to avoid double-free segfaults
-                // The values may be literals or have complex ownership
+                // Free the key
                 const key = entry.key_ptr.*;
                 if (key.len > 0) {
                     self.allocator.free(key);
                 }
                 
-                // TODO: Safely free dependency strings once ownership is clarified
-                // const dep = entry.value_ptr.*;
-                // Currently skipping value cleanup to prevent segfaults
+                // Free the dependency value
+                const dep = entry.value_ptr.*;
+                dep.deinit(self.allocator);
             }
 
             // Free settings if allocated (currently using literals)

@@ -16,11 +16,13 @@ pub fn dupeStringArray(allocator: std.mem.Allocator, array: []const []const u8) 
 }
 
 /// Free an array of strings that was allocated with dupeStringArray
-pub fn freeStringArray(allocator: std.mem.Allocator, array: [][]const u8) void {
+pub fn freeStringArray(allocator: std.mem.Allocator, array: []const []const u8) void {
     for (array) |str| {
         allocator.free(str);
     }
-    allocator.free(array);
+    // Cast to mutable for deallocation
+    const mutable_array = @constCast(array);
+    allocator.free(mutable_array);
 }
 
 /// Duplicate a string, returning null for empty strings
@@ -35,6 +37,13 @@ pub fn dupeOptionalString(allocator: std.mem.Allocator, str: ?[]const u8) !?[]co
         return try allocator.dupe(u8, s);
     }
     return null;
+}
+
+/// Free an optional string that was allocated with dupeOptionalString
+pub fn freeOptionalString(allocator: std.mem.Allocator, str: ?[]const u8) void {
+    if (str) |s| {
+        allocator.free(s);
+    }
 }
 
 /// Arena-based string builder for efficient concatenation

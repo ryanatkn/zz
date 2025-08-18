@@ -3,6 +3,7 @@ const primitives = @import("primitives.zig");
 
 /// High-performance glob pattern matching implementation
 /// Supports wildcards: *, ?, and character classes [abc], [0-9], [!abc]
+/// Supports escape sequences: \*, \?, \[, \\
 /// Uses shared primitives for consistency across pattern matchers
 pub fn matchSimplePattern(filename: []const u8, pattern: []const u8) bool {
     if (pattern.len == 0) return filename.len == 0;
@@ -10,6 +11,11 @@ pub fn matchSimplePattern(filename: []const u8, pattern: []const u8) bool {
 
     // Handle exact match (fast path)
     if (std.mem.eql(u8, filename, pattern)) return true;
+
+    // Handle escape sequences
+    if (std.mem.indexOf(u8, pattern, "\\")) |_| {
+        return matchWithEscapes(filename, pattern);
+    }
 
     // Handle character class patterns
     if (std.mem.indexOf(u8, pattern, "[")) |_| {
@@ -29,6 +35,49 @@ pub fn matchSimplePattern(filename: []const u8, pattern: []const u8) bool {
     return false;
 }
 
+/// Match patterns containing escape sequences (\*, \?, \[, \\)
+fn matchWithEscapes(filename: []const u8, pattern: []const u8) bool {
+    var f_idx: usize = 0;
+    var p_idx: usize = 0;
+    
+    while (f_idx < filename.len and p_idx < pattern.len) {
+        if (pattern[p_idx] == '\\' and p_idx + 1 < pattern.len) {
+            // Handle escape sequence
+            const escaped_char = pattern[p_idx + 1];
+            if (filename[f_idx] != escaped_char) return false;
+            f_idx += 1;
+            p_idx += 2; // Skip backslash and escaped character
+        } else if (pattern[p_idx] == '[') {
+            // Handle character class
+            var class_end = p_idx + 1;
+            while (class_end < pattern.len and pattern[class_end] != ']') {
+                class_end += 1;
+            }
+            if (class_end >= pattern.len) return false; // Malformed pattern
+            
+            const char_class = pattern[p_idx + 1 .. class_end];
+            if (!primitives.matchCharacterClass(filename[f_idx], char_class)) {
+                return false;
+            }
+            f_idx += 1;
+            p_idx = class_end + 1; // Skip past the ]
+        } else if (pattern[p_idx] == '*') {
+            // Handle wildcard - delegate to wildcard matching
+            return primitives.matchWildcardParts(filename[f_idx..], pattern[p_idx..]);
+        } else if (pattern[p_idx] == '?') {
+            f_idx += 1;
+            p_idx += 1;
+        } else {
+            // Literal character match
+            if (filename[f_idx] != pattern[p_idx]) return false;
+            f_idx += 1;
+            p_idx += 1;
+        }
+    }
+    
+    // Check if both strings are fully consumed
+    return f_idx == filename.len and p_idx == pattern.len;
+}
 
 /// Match patterns with ? wildcard
 fn matchQuestion(filename: []const u8, pattern: []const u8) bool {

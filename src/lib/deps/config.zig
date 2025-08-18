@@ -1,5 +1,6 @@
 const std = @import("std");
 const ZonParser = @import("../languages/zon/parser.zig").ZonParser;
+const memory = @import("../core/memory.zig");
 const DependencyInfo = @import("../languages/zon/parser.zig").DependencyInfo;
 const struct_utils = @import("../core/struct_utils.zig");
 const collections = @import("../core/collections.zig");
@@ -219,12 +220,84 @@ pub const DepsZonConfig = struct {
     /// Parse dependencies from ZON content using the dedicated ZON module
     /// This eliminates the memory leak and provides proper string management
     pub fn parseFromZonContent(allocator: std.mem.Allocator, content: []const u8) !DepsZonConfig {
-        // For now, return a simple structure since the convertAstToType function
-        // in parser.zig is not fully implemented for complex structures
-        // TODO: Implement proper ZON parsing for complex dependency structures
-        _ = content; // TODO: Actually parse the content
+        // Use our ZON parser to parse the content
+        const ZonModule = @import("../languages/zon/mod.zig");
 
-        const dependencies = std.StringHashMap(DependencyZonEntry).init(allocator);
+        // Define a structure that matches deps.zon format
+        const DepsStructure = struct {
+            dependencies: struct {
+                @"zig-spec": ?struct {
+                    url: []const u8 = "",
+                    version: []const u8 = "",
+                    include: []const []const u8 = &.{},
+                    exclude: []const []const u8 = &.{},
+                    preserve_files: []const []const u8 = &.{},
+                    patches: []const []const u8 = &.{},
+                    category: ?[]const u8 = null,
+                    purpose: ?[]const u8 = null,
+                } = null,
+                webref: ?struct {
+                    url: []const u8 = "",
+                    version: []const u8 = "",
+                    include: []const []const u8 = &.{},
+                    exclude: []const []const u8 = &.{},
+                    preserve_files: []const []const u8 = &.{},
+                    patches: []const []const u8 = &.{},
+                    category: ?[]const u8 = null,
+                    purpose: ?[]const u8 = null,
+                } = null,
+            },
+        };
+
+        // Parse using our ZON parser
+        const parsed = ZonModule.parseFromSlice(DepsStructure, allocator, content) catch |err| {
+            std.log.warn("Failed to parse ZON content with our parser: {}", .{err});
+            // Fall back to empty config if parsing fails
+            return DepsZonConfig{
+                .dependencies = std.StringHashMap(DependencyZonEntry).init(allocator),
+                .settings = SettingsStruct{
+                    .deps_dir = "deps",
+                    .backup_enabled = true,
+                    .lock_timeout_seconds = 300,
+                    .clone_retries = 3,
+                    .clone_timeout_seconds = 60,
+                },
+                .allocator = allocator,
+                .owns_strings = false,
+            };
+        };
+        defer ZonModule.free(allocator, parsed);
+
+        // Convert to our expected format
+        var dependencies = std.StringHashMap(DependencyZonEntry).init(allocator);
+
+        // Helper function to convert a dependency entry
+        const convertDependency = struct {
+            fn convert(alloc: std.mem.Allocator, dep: anytype) !DependencyZonEntry {
+                return DependencyZonEntry{
+                    .url = try alloc.dupe(u8, dep.url),
+                    .version = try alloc.dupe(u8, dep.version),
+                    .include = try memory.dupeStringArray(alloc, dep.include),
+                    .exclude = try memory.dupeStringArray(alloc, dep.exclude),
+                    .preserve_files = try memory.dupeStringArray(alloc, dep.preserve_files),
+                    .patches = try memory.dupeStringArray(alloc, dep.patches),
+                    .category = try memory.dupeOptionalString(alloc, dep.category),
+                    .purpose = try memory.dupeOptionalString(alloc, dep.purpose),
+                };
+            }
+        }.convert;
+
+        // TODO these references need to be fully derived from the config
+
+        // Add zig-spec if present
+        if (parsed.dependencies.@"zig-spec") |zig_spec| {
+            try dependencies.put("zig-spec", try convertDependency(allocator, zig_spec));
+        }
+
+        // Add webref if present
+        if (parsed.dependencies.webref) |webref| {
+            try dependencies.put("webref", try convertDependency(allocator, webref));
+        }
 
         // Default settings (safe literals)
         const settings = SettingsStruct{
@@ -239,7 +312,7 @@ pub const DepsZonConfig = struct {
             .dependencies = dependencies,
             .settings = settings,
             .allocator = allocator,
-            .owns_strings = false, // Using literals for now
+            .owns_strings = true, // We allocated strings
         };
     }
 

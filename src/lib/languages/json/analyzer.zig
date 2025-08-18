@@ -2,6 +2,8 @@ const std = @import("std");
 const AST = @import("../../ast/mod.zig").AST;
 const Node = @import("../../ast/mod.zig").Node;
 const NodeType = @import("../../ast/mod.zig").NodeType;
+const ASTTraversal = @import("../../ast/traversal.zig").ASTTraversal;
+const ASTUtils = @import("../../ast/utils.zig").ASTUtils;
 const Symbol = @import("../interface.zig").Symbol;
 const Span = @import("../../parser/foundation/types/span.zig").Span;
 
@@ -306,50 +308,53 @@ pub const JsonAnalyzer = struct {
         return schema;
     }
 
-    fn calculateStatistics(self: *Self, node: *Node, depth: u32, stats: *JsonStatistics) void {
-        stats.max_depth = @max(stats.max_depth, depth);
-        stats.total_values += 1;
+    fn calculateStatistics(self: *Self, node: *Node, _: u32, stats: *JsonStatistics) void {
+        // Use visitor pattern for traversal
+        const visitor = struct {
+            fn visit(n: *const Node, context: ?*anyopaque) anyerror!bool {
+                const json_stats = @as(*JsonStatistics, @ptrCast(@alignCast(context.?)));
+                json_stats.total_values += 1;
 
-        switch (node.node_type) {
-            .json_string => {
-                stats.type_counts.strings += 1;
-                if (node.value) |value| {
-                    stats.size_bytes += @intCast(value.len);
+                switch (n.node_type) {
+                    .json_string => {
+                        json_stats.type_counts.strings += 1;
+                        if (n.value) |value| {
+                            json_stats.size_bytes += @intCast(value.len);
+                        }
+                    },
+                    .json_number => {
+                        json_stats.type_counts.numbers += 1;
+                        if (n.value) |value| {
+                            json_stats.size_bytes += @intCast(value.len);
+                        }
+                    },
+                    .json_boolean => json_stats.type_counts.booleans += 1,
+                    .json_null => json_stats.type_counts.nulls += 1,
+                    .json_object => {
+                        json_stats.type_counts.objects += 1;
+                        json_stats.total_keys += @intCast(n.children.len);
+                    },
+                    .json_array => {
+                        json_stats.type_counts.arrays += 1;
+                    },
+                    .json_member => {
+                        // Member nodes are just containers, skip counting
+                    },
+                    else => {},
                 }
-            },
-            .json_number => {
-                stats.type_counts.numbers += 1;
-                if (node.value) |value| {
-                    stats.size_bytes += @intCast(value.len);
-                }
-            },
-            .json_boolean => stats.type_counts.booleans += 1,
-            .json_null => stats.type_counts.nulls += 1,
-            .json_object => {
-                stats.type_counts.objects += 1;
-                const members = node.children orelse return;
-                stats.total_keys += @intCast(members.len);
+                return true; // Continue traversal
+            }
+        }.visit;
 
-                for (members) |member| {
-                    self.calculateStatistics(member, depth + 1, stats);
-                }
-            },
-            .json_array => {
-                stats.type_counts.arrays += 1;
-                const elements = node.children orelse return;
+        // Use ASTTraversal for efficient tree walking
+        var traversal = ASTTraversal.init(self.allocator);
+        traversal.walk(node, visitor, stats, .depth_first_pre) catch |err| {
+            std.debug.print("Error during statistics traversal: {}\n", .{err});
+        };
 
-                for (elements) |element| {
-                    self.calculateStatistics(element, depth + 1, stats);
-                }
-            },
-            .json_member => {
-                const children = node.children orelse return;
-                for (children) |child| {
-                    self.calculateStatistics(child, depth, stats);
-                }
-            },
-            else => {},
-        }
+        // Get max depth using ASTUtils
+        const ast_stats = ASTUtils.getASTStatistics(node);
+        stats.max_depth = ast_stats.max_depth;
     }
 
     fn calculateComplexity(_: *Self, stats: *JsonStatistics) f32 {
@@ -421,67 +426,103 @@ pub const JsonAnalyzer = struct {
     }
 
     fn extractSymbolsFromNode(self: *Self, node: *Node, symbols: *std.ArrayList(Symbol), path: []const u8) !void {
-        switch (node.node_type) {
-            .json_object => {
-                try symbols.append(Symbol{
-                    .name = try self.allocator.dupe(u8, if (path.len == 0) "root" else path),
-                    .kind = .struct_,
-                    .range = node.span,
-                    .signature = null,
-                    .documentation = null,
-                });
+        // Create visitor context with path tracking
+        const VisitorContext = struct {
+            allocator: std.mem.Allocator,
+            symbols: *std.ArrayList(Symbol),
+            current_path: []const u8,
+        };
 
-                const members = node.children orelse return;
-                for (members) |member| {
-                    if (member.node_type != .json_member) continue;
-                    const member_children = member.children orelse continue;
-                    if (member_children.len < 2) continue;
+        var context = VisitorContext{
+            .allocator = self.allocator,
+            .symbols = symbols,
+            .current_path = path,
+        };
 
-                    const key_node = member_children[0];
-                    const value_node = member_children[1];
+        const visitor = struct {
+            fn visit(n: *const Node, ctx: ?*anyopaque) anyerror!bool {
+                const vis_ctx = @as(*VisitorContext, @ptrCast(@alignCast(ctx.?)));
 
-                    const key_value = key_node.value orelse continue;
-                    const key_name = if (key_value.len >= 2 and key_value[0] == '"' and key_value[key_value.len - 1] == '"')
-                        key_value[1 .. key_value.len - 1]
-                    else
-                        key_value;
+                switch (n.node_type) {
+                    .json_object => {
+                        try vis_ctx.symbols.append(Symbol{
+                            .name = try vis_ctx.allocator.dupe(u8, if (vis_ctx.current_path.len == 0) "root" else vis_ctx.current_path),
+                            .kind = .struct_,
+                            .range = n.span,
+                            .signature = null,
+                            .documentation = null,
+                        });
 
-                    const new_path = if (path.len == 0)
-                        try self.allocator.dupe(u8, key_name)
-                    else
-                        try std.fmt.allocPrint(self.allocator, "{s}.{s}", .{ path, key_name });
-                    defer self.allocator.free(new_path);
+                        // Process members using ASTUtils for field extraction
+                        for (n.children) |member| {
+                            if (member.node_type != .json_member) continue;
+                            if (member.children.len < 2) continue;
 
-                    try self.extractSymbolsFromNode(value_node, symbols, new_path);
+                            const key_node = member.children[0];
+                            const value_node = member.children[1];
+
+                            const key_value = key_node.value orelse continue;
+                            const key_name = if (key_value.len >= 2 and key_value[0] == '"' and key_value[key_value.len - 1] == '"')
+                                key_value[1 .. key_value.len - 1]
+                            else
+                                key_value;
+
+                            const new_path = if (vis_ctx.current_path.len == 0)
+                                try vis_ctx.allocator.dupe(u8, key_name)
+                            else
+                                try std.fmt.allocPrint(vis_ctx.allocator, "{s}.{s}", .{ vis_ctx.current_path, key_name });
+                            
+                            // Update context for recursion
+                            var child_context = VisitorContext{
+                                .allocator = vis_ctx.allocator,
+                                .symbols = vis_ctx.symbols,
+                                .current_path = new_path,
+                            };
+                            
+                            // Recursively visit value node with new path
+                            var traversal = ASTTraversal.init(vis_ctx.allocator);
+                            try traversal.walk(&value_node, visit, &child_context, .depth_first_pre);
+                            
+                            vis_ctx.allocator.free(new_path);
+                        }
+                        return false; // Don't continue automatic traversal, we handled children
+                    },
+                    .json_array => {
+                        try vis_ctx.symbols.append(Symbol{
+                            .name = try vis_ctx.allocator.dupe(u8, if (vis_ctx.current_path.len == 0) "root" else vis_ctx.current_path),
+                            .kind = .variable,
+                            .range = n.span,
+                            .signature = try vis_ctx.allocator.dupe(u8, "array"),
+                            .documentation = null,
+                        });
+                        return true; // Continue traversal for array elements
+                    },
+                    .json_string, .json_number, .json_boolean, .json_null => {
+                        const type_name = switch (n.node_type) {
+                            .json_string => "string",
+                            .json_number => "number",
+                            .json_boolean => "boolean",
+                            .json_null => "null",
+                            else => "unknown",
+                        };
+
+                        try vis_ctx.symbols.append(Symbol{
+                            .name = try vis_ctx.allocator.dupe(u8, if (vis_ctx.current_path.len == 0) "root" else vis_ctx.current_path),
+                            .kind = .property,
+                            .range = n.span,
+                            .signature = try vis_ctx.allocator.dupe(u8, type_name),
+                            .documentation = null,
+                        });
+                        return true;
+                    },
+                    else => return true, // Continue for other node types
                 }
-            },
-            .json_array => {
-                try symbols.append(Symbol{
-                    .name = try self.allocator.dupe(u8, if (path.len == 0) "root" else path),
-                    .kind = .variable,
-                    .range = node.span,
-                    .signature = try self.allocator.dupe(u8, "array"),
-                    .documentation = null,
-                });
-            },
-            else => {
-                const type_name = switch (node.node_type) {
-                    .json_string => "string",
-                    .json_number => "number",
-                    .json_boolean => "boolean",
-                    .json_null => "null",
-                    else => "unknown",
-                };
+            }
+        }.visit;
 
-                try symbols.append(Symbol{
-                    .name = try self.allocator.dupe(u8, if (path.len == 0) "root" else path),
-                    .kind = .property,
-                    .range = node.span,
-                    .signature = try self.allocator.dupe(u8, type_name),
-                    .documentation = null,
-                });
-            },
-        }
+        // Use traversal to walk the tree
+        var traversal = ASTTraversal.init(self.allocator);
+        try traversal.walk(node, visitor, &context, .depth_first_pre);
     }
 };
 

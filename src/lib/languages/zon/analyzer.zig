@@ -460,47 +460,64 @@ pub const ZonAnalyzer = struct {
     }
 
     fn collectSymbols(self: *Self, node: Node, symbols: *std.ArrayList(Symbol)) !void {
-        switch (node.node_type) {
-            .rule => {
-                if (utils.isFieldAssignment(node)) {
-                    const field_data = utils.processFieldAssignment(node) orelse return;
-                    const field_name = field_data.field_name;
-                    const value_node = field_data.value_node;
+        // Use visitor pattern for traversal
+        const VisitorContext = struct {
+            analyzer: *ZonAnalyzer,
+            symbols: *std.ArrayList(Symbol),
+        };
 
-                    const symbol = Symbol{
-                        .name = try self.allocator.dupe(u8, field_name),
-                        .kind = .field,
-                        .span = Span{ .start = node.children[0].start_position, .end = node.children[0].end_position },
-                        .type_info = try self.inferType(value_node),
-                        .value = if (value_node.node_type == .terminal)
-                            try self.allocator.dupe(u8, value_node.text)
-                        else
-                            null,
-                    };
+        var context = VisitorContext{
+            .analyzer = self,
+            .symbols = symbols,
+        };
 
-                    try symbols.append(symbol);
+        const visitor = struct {
+            fn visit(n: *const Node, ctx: ?*anyopaque) anyerror!bool {
+                const vis_ctx = @as(*VisitorContext, @ptrCast(@alignCast(ctx.?)));
+
+                switch (n.node_type) {
+                    .rule => {
+                        if (utils.isFieldAssignment(n.*)) {
+                            const field_data = utils.processFieldAssignment(n.*) orelse return true;
+                            const field_name = field_data.field_name;
+                            const value_node = field_data.value_node;
+
+                            const symbol = Symbol{
+                                .name = try vis_ctx.analyzer.allocator.dupe(u8, field_name),
+                                .kind = .field,
+                                .span = Span{ .start = n.children[0].start_position, .end = n.children[0].end_position },
+                                .type_info = try vis_ctx.analyzer.inferType(value_node),
+                                .value = if (value_node.node_type == .terminal)
+                                    try vis_ctx.analyzer.allocator.dupe(u8, value_node.text)
+                                else
+                                    null,
+                            };
+
+                            try vis_ctx.symbols.append(symbol);
+                        }
+                    },
+                    .terminal => {
+                        if (std.mem.eql(u8, n.rule_name, "identifier")) {
+                            const symbol = Symbol{
+                                .name = try vis_ctx.analyzer.allocator.dupe(u8, n.text),
+                                .kind = .value,
+                                .span = Span{ .start = n.start_position, .end = n.end_position },
+                                .type_info = try vis_ctx.analyzer.inferType(n.*),
+                                .value = try vis_ctx.analyzer.allocator.dupe(u8, n.text),
+                            };
+
+                            try vis_ctx.symbols.append(symbol);
+                        }
+                    },
+                    else => {},
                 }
-            },
-            .terminal => {
-                if (std.mem.eql(u8, node.rule_name, "identifier")) {
-                    const symbol = Symbol{
-                        .name = try self.allocator.dupe(u8, node.text),
-                        .kind = .value,
-                        .span = Span{ .start = node.start_position, .end = node.end_position },
-                        .type_info = try self.inferType(node),
-                        .value = try self.allocator.dupe(u8, node.text),
-                    };
+                return true; // Continue traversal
+            }
+        }.visit;
 
-                    try symbols.append(symbol);
-                }
-            },
-            else => {},
-        }
-
-        // Recursively collect from children
-        for (node.children) |child| {
-            try self.collectSymbols(child, symbols);
-        }
+        // Use ASTTraversal for efficient tree walking
+        var traversal = common.ASTTraversal.init(self.allocator);
+        try traversal.walk(&node, visitor, &context, .depth_first_pre);
     }
 
     fn extractDependencies(self: *Self, root_node: Node, dependencies: *std.ArrayList(Dependency)) !void {
@@ -529,81 +546,103 @@ pub const ZonAnalyzer = struct {
     }
 
     fn extractDependenciesFromObject(self: *Self, deps_object: Node, dependencies: *std.ArrayList(Dependency)) !void {
-        for (deps_object.children) |child| {
-            if (utils.isFieldAssignment(child)) {
-                const field_data = utils.processFieldAssignment(child) orelse continue;
-                const dep_name = field_data.field_name;
-                const dep_value_node = field_data.value_node;
+        // Use ASTTraversal to find all field assignments
+        var traversal = common.ASTTraversal.init(self.allocator);
+        
+        // Find field assignments in the dependencies object
+        const field_predicate = struct {
+            fn matches(n: *const Node) bool {
+                return utils.isFieldAssignment(n.*);
+            }
+        }.matches;
+        
+        const field_nodes = try traversal.findNodes(&deps_object, field_predicate);
+        defer self.allocator.free(field_nodes);
+        
+        for (field_nodes) |field_node| {
+            const field_data = utils.processFieldAssignment(field_node.*) orelse continue;
+            const dep_name = field_data.field_name;
+            const dep_value_node = field_data.value_node;
 
-                var dependency = Dependency{
-                    .name = try self.allocator.dupe(u8, dep_name),
-                    .version = null,
-                    .url = null,
-                    .hash = null,
-                    .span = Span{ .start = child.children[0].start_position, .end = child.children[0].end_position },
-                };
+            var dependency = Dependency{
+                .name = try self.allocator.dupe(u8, dep_name),
+                .version = null,
+                .url = null,
+                .hash = null,
+                .span = Span{ .start = field_node.children[0].start_position, .end = field_node.children[0].end_position },
+            };
 
-                // Extract dependency details from object
-                if (std.mem.eql(u8, dep_value_node.rule_name, "object")) {
-                    for (dep_value_node.children) |dep_field| {
-                        if (utils.isFieldAssignment(dep_field)) {
-                            const prop_data = utils.processFieldAssignment(dep_field) orelse continue;
-                            const prop_name = prop_data.field_name;
-                            const prop_value_node = prop_data.value_node;
+            // Extract dependency details from object using ASTUtils
+            if (std.mem.eql(u8, dep_value_node.rule_name, "object")) {
+                // Find all field assignments within the dependency object
+                const dep_field_nodes = try traversal.findNodes(&dep_value_node, field_predicate);
+                defer self.allocator.free(dep_field_nodes);
+                
+                for (dep_field_nodes) |dep_field| {
+                    const prop_data = utils.processFieldAssignment(dep_field.*) orelse continue;
+                    const prop_name = prop_data.field_name;
+                    const prop_value_node = prop_data.value_node;
 
-                            if (std.mem.eql(u8, prop_name, "url") and
-                                std.mem.eql(u8, prop_value_node.rule_name, "string_literal"))
-                            {
-                                dependency.url = try self.allocator.dupe(u8, prop_value_node.text);
-                            } else if (std.mem.eql(u8, prop_name, "hash") and
-                                std.mem.eql(u8, prop_value_node.rule_name, "string_literal"))
-                            {
-                                dependency.hash = try self.allocator.dupe(u8, prop_value_node.text);
-                            } else if (std.mem.eql(u8, prop_name, "version") and
-                                std.mem.eql(u8, prop_value_node.rule_name, "string_literal"))
-                            {
-                                dependency.version = try self.allocator.dupe(u8, prop_value_node.text);
-                            }
-                        }
+                    if (std.mem.eql(u8, prop_name, "url") and
+                        std.mem.eql(u8, prop_value_node.rule_name, "string_literal"))
+                    {
+                        dependency.url = try self.allocator.dupe(u8, prop_value_node.text);
+                    } else if (std.mem.eql(u8, prop_name, "hash") and
+                        std.mem.eql(u8, prop_value_node.rule_name, "string_literal"))
+                    {
+                        dependency.hash = try self.allocator.dupe(u8, prop_value_node.text);
+                    } else if (std.mem.eql(u8, prop_name, "version") and
+                        std.mem.eql(u8, prop_value_node.rule_name, "string_literal"))
+                    {
+                        dependency.version = try self.allocator.dupe(u8, prop_value_node.text);
                     }
                 }
-
-                try dependencies.append(dependency);
             }
+
+            try dependencies.append(dependency);
         }
     }
 
-    fn analyzeNodeStatistics(self: *Self, node: Node, stats: *Statistics, depth: u32) !void {
-        stats.total_nodes += 1;
-        stats.max_depth = @max(stats.max_depth, depth);
+    fn analyzeNodeStatistics(self: *Self, node: Node, stats: *Statistics, _: u32) !void {
+        // Get basic AST statistics using ASTUtils
+        const ast_stats = common.ASTUtils.getASTStatistics(&node);
+        stats.total_nodes = @intCast(ast_stats.total_nodes);
+        stats.max_depth = ast_stats.max_depth;
 
-        switch (node.node_type) {
-            .list => {
-                if (std.mem.eql(u8, node.rule_name, "object")) {
-                    stats.object_count += 1;
-                } else if (std.mem.eql(u8, node.rule_name, "array")) {
-                    stats.array_count += 1;
+        // Use visitor pattern to count specific ZON node types
+        const visitor = struct {
+            fn visit(n: *const Node, context: ?*anyopaque) anyerror!bool {
+                const zon_stats = @as(*Statistics, @ptrCast(@alignCast(context.?)));
+                
+                switch (n.node_type) {
+                    .list => {
+                        if (std.mem.eql(u8, n.rule_name, "object")) {
+                            zon_stats.object_count += 1;
+                        } else if (std.mem.eql(u8, n.rule_name, "array")) {
+                            zon_stats.array_count += 1;
+                        }
+                    },
+                    .rule => {
+                        if (std.mem.eql(u8, n.rule_name, "field_assignment")) {
+                            zon_stats.field_count += 1;
+                        }
+                    },
+                    .terminal => {
+                        if (std.mem.eql(u8, n.rule_name, "string_literal")) {
+                            zon_stats.string_count += 1;
+                        } else if (std.mem.eql(u8, n.rule_name, "number_literal")) {
+                            zon_stats.number_count += 1;
+                        }
+                    },
+                    else => {},
                 }
-            },
-            .rule => {
-                if (std.mem.eql(u8, node.rule_name, "field_assignment")) {
-                    stats.field_count += 1;
-                }
-            },
-            .terminal => {
-                if (std.mem.eql(u8, node.rule_name, "string_literal")) {
-                    stats.string_count += 1;
-                } else if (std.mem.eql(u8, node.rule_name, "number_literal")) {
-                    stats.number_count += 1;
-                }
-            },
-            else => {},
-        }
+                return true; // Continue traversal
+            }
+        }.visit;
 
-        // Recursively analyze children
-        for (node.children) |child| {
-            try self.analyzeNodeStatistics(child, stats, depth + 1);
-        }
+        // Use ASTTraversal for efficient tree walking
+        var traversal = common.ASTTraversal.init(self.allocator);
+        try traversal.walk(&node, visitor, stats, .depth_first_pre);
     }
 
     fn writeZigType(self: *Self, output: *std.ArrayList(u8), type_info: TypeInfo, indent: u32) !void {

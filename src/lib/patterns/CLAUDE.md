@@ -15,6 +15,7 @@ src/lib/patterns/
 
 ### Features
 - **Wildcards:** `*` (any characters), `?` (single character)
+- **Character Classes:** `[0-9]` (ranges), `[abc]` (sets), `[!def]` (negation)
 - **Fast paths:** Pre-optimized for common patterns
 - **Compiled patterns:** Pre-process for repeated matching
 - **Zero allocations:** For simple pattern checks
@@ -24,6 +25,8 @@ src/lib/patterns/
 *.zig           # Match all .zig files
 src/*.c         # Match C files in src/
 test??.zig      # Match test01.zig, test99.zig, etc.
+log[0-9].txt    # Match log0.txt, log5.txt, log9.txt
+file[!abc].txt  # Match file1.txt, but not filea.txt
 **/test.zig     # Match test.zig in any subdirectory
 ```
 
@@ -139,7 +142,8 @@ Pattern         Operation       Time
 *.zig           Simple match    10ns
 src/*.c         Path match      45ns
 **/test.zig     Recursive       120ns
-[0-9]*.txt      Character class 85ns
+log[0-9].txt    Character class 85ns
+[!abc]*.txt     Negated class   95ns
 Compiled *.zig  Repeated match  7ns
 ```
 

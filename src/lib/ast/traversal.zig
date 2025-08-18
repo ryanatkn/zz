@@ -108,8 +108,7 @@ pub const ASTTraversal = struct {
     }
 
     /// Navigate to node by path (e.g., "object.field.subfield")
-    pub fn navigateByPath(self: ASTTraversal, root: *const Node, path: []const u8) ?*const Node {
-        _ = self;
+    pub fn navigateByPath(_: ASTTraversal, root: *const Node, path: []const u8) ?*const Node {
         var current = root;
         var segments = std.mem.splitScalar(u8, path, '.');
 
@@ -128,13 +127,12 @@ pub const ASTTraversal = struct {
     }
 
     /// Count nodes matching predicate
-    pub fn countNodes(self: ASTTraversal, root: *const Node, predicate: PredicateFn) usize {
-        _ = self;
+    pub fn countNodes(_: ASTTraversal, root: *const Node, predicate: PredicateFn) usize {
         var count: usize = 0;
         if (predicate(root)) count += 1;
 
         for (root.children) |child| {
-            count += self.countNodes(&child, predicate);
+            count += ASTTraversal.countNodes(.{ .allocator = undefined }, &child, predicate);
         }
         return count;
     }
@@ -158,13 +156,12 @@ pub const ASTTraversal = struct {
     // ========================================================================
 
     fn walkDepthFirstPre(
-        self: ASTTraversal,
+        _: ASTTraversal,
         node: *const Node,
         visitor: VisitorFn,
         context: ?*anyopaque,
         ctx: *TraversalContext,
     ) anyerror!void {
-        _ = self;
         // Visit current node
         const should_continue = try visitor(node, context);
         if (!should_continue) return;
@@ -177,19 +174,18 @@ pub const ASTTraversal = struct {
             try ctx.pushPath(child.rule_name);
             defer ctx.popPath();
 
-            try self.walkDepthFirstPre(&child, visitor, context, ctx);
+            try walkDepthFirstPre(undefined, &child, visitor, context, ctx);
         }
         ctx.depth -= 1;
     }
 
     fn walkDepthFirstPost(
-        self: ASTTraversal,
+        _: ASTTraversal,
         node: *const Node,
         visitor: VisitorFn,
         context: ?*anyopaque,
         ctx: *TraversalContext,
     ) anyerror!void {
-        _ = self;
         // Visit children first
         ctx.depth += 1;
         for (node.children, 0..) |child, i| {
@@ -198,7 +194,7 @@ pub const ASTTraversal = struct {
             try ctx.pushPath(child.rule_name);
             defer ctx.popPath();
 
-            try self.walkDepthFirstPost(&child, visitor, context, ctx);
+            try walkDepthFirstPost(undefined, &child, visitor, context, ctx);
         }
         ctx.depth -= 1;
 
@@ -353,7 +349,8 @@ test "depth-first traversal" {
         }
     }.visit;
 
-    try walkAST(testing.allocator, &ast.root, visitor, .depth_first_pre);
+    var traversal = ASTTraversal.init(testing.allocator);
+    try traversal.walk(&ast.root, visitor, &visit_count, .depth_first_pre);
     // Should visit at least the root node
     try testing.expect(visit_count >= 1);
 }

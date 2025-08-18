@@ -11,6 +11,8 @@ pub const std = @import("std");
 pub const Node = @import("../../ast/mod.zig").Node;
 pub const NodeType = @import("../../ast/mod.zig").NodeType;
 pub const AST = @import("../../ast/mod.zig").AST;
+pub const ASTUtils = @import("../../ast/utils.zig").ASTUtils;
+pub const ASTTraversal = @import("../../ast/traversal.zig").ASTTraversal;
 
 // Parser foundation types
 pub const Token = @import("../../parser/foundation/types/token.zig").Token;

@@ -529,8 +529,14 @@ pub const AstConverter = struct {
             .int => 0,
             .float => 0.0,
             .pointer => blk: {
-                if (field_info.pointer.size == .slice and field_info.pointer.child == u8) {
-                    break :blk @as(FieldType, "");
+                if (field_info.pointer.size == .slice) {
+                    if (field_info.pointer.child == u8) {
+                        // String slice: []const u8
+                        break :blk @as(FieldType, "");
+                    } else {
+                        // Array slice: []const T  
+                        break :blk @as(FieldType, &[_]field_info.pointer.child{});
+                    }
                 }
                 break :blk error.UnsupportedType;
             },

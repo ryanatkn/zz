@@ -118,8 +118,8 @@ pub fn show(program_name: []const u8) void {
     std.debug.print("                                  zz deps --check                    # Check status (good for CI)\n", .{});
     std.debug.print("                                  zz deps --list                     # Show detailed status table\n", .{});
     std.debug.print("                                  zz deps --dry-run                  # Preview what would change\n", .{});
-    std.debug.print("                                  zz deps --force-dep tree-sitter    # Force update tree-sitter only\n", .{});
-    std.debug.print("                                  zz deps --update-pattern \"tree*\"   # Update all tree-sitter deps\n", .{});
+    std.debug.print("                                  zz deps --force-dep webref    # Force update webref only\n", .{});
+    std.debug.print("                                  zz deps --update-pattern \"tree*\"   # Update all webref deps\n", .{});
     std.debug.print("  help                          Show this help\n", .{});
     std.debug.print("\nGlob Patterns:\n", .{});
     std.debug.print("  *.zig                         Match all .zig files\n", .{});

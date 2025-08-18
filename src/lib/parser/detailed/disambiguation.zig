@@ -4,9 +4,12 @@ const std = @import("std");
 const Span = @import("../foundation/types/span.zig").Span;
 const Token = @import("../foundation/types/token.zig").Token;
 
-// Import AST types
+// Import AST types and centralized infrastructure
 const AST = @import("../../ast/mod.zig").AST;
 const ASTNode = @import("../../ast/mod.zig").ASTNode;
+const ASTFactory = @import("../../ast/factory.zig");
+const ASTStructure = ASTFactory.ASTStructure;
+const ASTTestHelpers = @import("../../ast/test_helpers.zig").ASTTestHelpers;
 
 /// Handles disambiguation of ambiguous language constructs
 /// Some language constructs can be interpreted in multiple ways depending on context.
@@ -407,14 +410,22 @@ pub const TestHelpers = struct {
         return alternatives.toOwnedSlice();
     }
 
-    /// Create mock AST for testing
+    /// Create structured mock AST for testing using centralized infrastructure
     fn createMockAST() AST {
-        // This would create a simple mock AST structure
-        // Implementation depends on the actual AST module
-        return AST{ 
-            .root = undefined, // Placeholder
-            .allocator = undefined,
-            .owned_texts = &[_][]const u8{},
+        // Use real ZON AST for more robust testing
+        return ASTTestHelpers.createZonAST(std.testing.allocator, ".{ .test = 42, .type = \"mock_expression\" }") catch |err| switch (err) {
+            error.OutOfMemory => {
+                // Handle OOM by creating minimal AST using factory
+                const structure = ASTStructure{ .object = &.{
+                    .{ .name = "test", .value = .{ .number = 42 } },
+                } };
+                return ASTFactory.createMockAST(std.testing.allocator, structure) catch unreachable;
+            },
+            else => {
+                // For any other error, create a basic structure
+                const structure = ASTStructure{ .identifier = "mock" };
+                return ASTFactory.createMockAST(std.testing.allocator, structure) catch unreachable;
+            },
         };
     }
 

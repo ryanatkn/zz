@@ -257,32 +257,127 @@ pub const DependencyTracker = struct {
 };
 
 /// Common analysis patterns
-/// Extract function calls from AST (simplified)
+/// Extract function calls from AST using new AST infrastructure
 pub fn extractFunctionCalls(allocator: std.mem.Allocator, ast: AST) ![][]const u8 {
-    // This is a placeholder implementation
-    // Real implementation would traverse AST and extract function call nodes
-    _ = ast;
+    const traversal = @import("../../ast/traversal.zig");
+    const query = @import("../../ast/query.zig");
+
     var calls = std.ArrayList([]const u8).init(allocator);
-    // TODO: Implement actual AST traversal
+    defer calls.deinit();
+
+    // Find all function call nodes
+    const ast_query = query.ASTQuery.init(allocator);
+
+    // Look for common function call patterns
+    const call_patterns = [_][]const u8{
+        "function_call",
+        "call_expression",
+        "method_call",
+        "invocation",
+    };
+
+    for (call_patterns) |pattern| {
+        const call_nodes = ast_query.selectByRule(&ast.root, pattern) catch continue;
+        defer allocator.free(call_nodes);
+
+        for (call_nodes) |node| {
+            // Extract function name from call node
+            if (node.children.len > 0) {
+                const name_text = node.children[0].text;
+                if (name_text.len > 0) {
+                    try calls.append(try allocator.dupe(u8, name_text));
+                }
+            }
+        }
+    }
+
     return calls.toOwnedSlice();
 }
 
-/// Extract variable declarations from AST (simplified)
+/// Extract variable declarations from AST using new AST infrastructure
 pub fn extractVariableDeclarations(allocator: std.mem.Allocator, ast: AST) ![]Symbol {
-    // This is a placeholder implementation
-    // Real implementation would traverse AST and extract variable declarations
-    _ = ast;
+    const query = @import("../../ast/query.zig");
+
     var declarations = std.ArrayList(Symbol).init(allocator);
-    // TODO: Implement actual AST traversal
+    defer declarations.deinit();
+
+    // Find all variable declaration patterns
+    const ast_query = query.ASTQuery.init(allocator);
+
+    const declaration_patterns = [_][]const u8{
+        "variable_declaration",
+        "var_declaration",
+        "const_declaration",
+        "let_declaration",
+        "field_declaration",
+    };
+
+    for (declaration_patterns) |pattern| {
+        const decl_nodes = ast_query.selectByRule(&ast.root, pattern) catch continue;
+        defer allocator.free(decl_nodes);
+
+        for (decl_nodes) |node| {
+            // Extract variable name and create symbol
+            var symbol_name: []const u8 = "";
+            var symbol_type: []const u8 = "variable";
+
+            // Look for identifier in children
+            for (node.children) |child| {
+                if (std.mem.eql(u8, child.rule_name, "identifier") or
+                    std.mem.eql(u8, child.rule_name, "variable_name"))
+                {
+                    symbol_name = try allocator.dupe(u8, child.text);
+                    break;
+                }
+            }
+
+            if (symbol_name.len > 0) {
+                try declarations.append(Symbol{
+                    .name = symbol_name,
+                    .symbol_type = try allocator.dupe(u8, symbol_type),
+                    .location = SymbolLocation{
+                        .file = "current", // TODO: Track actual file
+                        .line = 0, // TODO: Calculate from positions
+                        .column = 0,
+                    },
+                    .scope = .local, // TODO: Determine actual scope
+                });
+            }
+        }
+    }
+
     return declarations.toOwnedSlice();
 }
 
-/// Calculate cyclomatic complexity (simplified)
+/// Calculate cyclomatic complexity using new AST infrastructure
 pub fn calculateComplexity(ast: AST) u32 {
-    // This is a placeholder implementation
-    // Real implementation would count decision points in AST
-    _ = ast;
-    return 1; // TODO: Implement actual complexity calculation
+    const query = @import("../../ast/query.zig");
+
+    // Base complexity starts at 1
+    var complexity: u32 = 1;
+
+    const ast_query = query.ASTQuery.init(std.heap.page_allocator);
+
+    // Decision points that increase complexity
+    const decision_patterns = [_][]const u8{
+        "if_statement",
+        "while_statement",
+        "for_statement",
+        "switch_statement",
+        "case_statement",
+        "catch_clause",
+        "conditional_expression", // ternary operator
+        "logical_and",
+        "logical_or",
+    };
+
+    for (decision_patterns) |pattern| {
+        const nodes = ast_query.selectByRule(&ast.root, pattern) catch continue;
+        defer std.heap.page_allocator.free(nodes);
+        complexity += @as(u32, @intCast(nodes.len));
+    }
+
+    return complexity;
 }
 
 /// Find unused symbols

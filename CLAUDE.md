@@ -31,42 +31,50 @@ $ zig version
 
 **Architecture:** Pure Zig Stratified Parser - tree-sitter removal complete. Three-layer system (Lexical, Structural, Detailed) with fact-based intermediate representation.
 
-## Project Structure
+## Project Structure (After Major Refactoring)
 
 ```
 src/
 ├── cli/                 # Command parsing & execution
 ├── config/              # Configuration system (ZON-based)
 ├── lib/                 # Reusable library modules (the heart of zz)
-│   ├── grammar/         # Grammar definition DSL (NEW)
-│   ├── parser/          # Pure Zig Stratified Parser (Complete)
-│   │   ├── foundation/  # Foundation types (Span, Fact, Token, Predicate)
-│   │   ├── lexical/     # Layer 0: Streaming tokenizer (<0.1ms)
-│   │   ├── structural/  # Layer 1: Boundary detection (<1ms)
-│   │   └── detailed/    # Layer 2: Detailed parsing (<10ms)
-│   ├── ast/             # Unified AST infrastructure
-│   ├── analysis/        # Semantic analysis & linting
-│   ├── formatting/      # Format model & engine (NEW)
-│   ├── languages/       # Unified language implementations (NEW)
+│   ├── core/            # Fundamental utilities (NEW LOCATION)
+│   │   ├── language.zig     # Language detection & enumeration
+│   │   ├── extraction.zig   # Code extraction configuration
+│   │   ├── path.zig         # POSIX path operations
+│   │   ├── collections.zig  # Memory-efficient data structures
+│   │   └── filesystem.zig   # Filesystem utilities
+│   ├── patterns/        # Pattern matching utilities (NEW)
+│   │   ├── glob.zig         # Glob pattern matching
+│   │   └── gitignore.zig    # Gitignore pattern handling
+│   ├── ast/             # Enhanced AST infrastructure (EXPANDED)
+│   │   ├── mod.zig          # AST type definition
+│   │   ├── node.zig         # Core Node types
+│   │   ├── factory.zig      # Programmatic construction
+│   │   ├── builder.zig      # Fluent DSL
+│   │   ├── utils.zig        # Manipulation utilities
+│   │   ├── test_helpers.zig # Test infrastructure
+│   │   ├── traversal.zig    # Tree walking strategies (NEW)
+│   │   ├── transformation.zig # Immutable transformations (NEW)
+│   │   ├── query.zig        # CSS-like queries (NEW)
+│   │   └── serialization.zig # ZON persistence (NEW)
+│   ├── parser/          # Pure Zig Stratified Parser
+│   │   ├── foundation/  # Foundation types (Span, Fact, Token)
+│   │   ├── lexical/     # Layer 0: Streaming tokenizer
+│   │   ├── structural/  # Layer 1: Boundary detection
+│   │   └── detailed/    # Layer 2: Detailed parsing
+│   ├── languages/       # Unified language implementations
 │   │   ├── mod.zig      # Language registry and dispatch
 │   │   ├── interface.zig # Language support contracts
-│   │   ├── registry.zig # Enhanced language registry with caching
-│   │   ├── common/      # Shared utilities for all languages
-│   │   │   ├── tokens.zig    # Common token types and patterns
-│   │   │   ├── patterns.zig  # Shared parsing patterns
-│   │   │   ├── formatting.zig # FormatBuilder and utilities
-│   │   │   └── analysis.zig   # SymbolTable and analysis tools
-│   │   ├── zig/         # Zig lexer, parser, formatter
-│   │   ├── typescript/  # TypeScript lexer, parser, formatter
-│   │   ├── css/         # CSS lexer, parser, formatter
-│   │   ├── html/        # HTML lexer, parser, formatter
-│   │   ├── json/        # JSON lexer, parser, formatter
-│   │   ├── zon/         # ZON lexer, parser, formatter
-│   │   └── svelte/      # Svelte multi-language support
-│   ├── core/            # Core utilities (io, path, collections)
+│   │   ├── common/      # Shared utilities with real implementations
+│   │   │   └── analysis.zig # NOW WITH REAL AST TRAVERSAL!
+│   │   ├── json/        # JSON complete implementation
+│   │   ├── zon/         # ZON complete implementation
+│   │   └── [others]/    # Other language stubs
+│   ├── grammar/         # Grammar definition DSL
+│   ├── analysis/        # Semantic analysis & linting
 │   ├── deps/            # Dependency management system
 │   ├── filesystem/      # Filesystem abstraction layer
-│   ├── parsing/         # Legacy parser infrastructure (maintained for compatibility)
 │   └── test/            # Test framework & fixtures
 ├── prompt/              # LLM prompt generation (uses lib/ast)
 ├── tree/                # Directory visualization

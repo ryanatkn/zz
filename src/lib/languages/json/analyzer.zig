@@ -352,7 +352,7 @@ pub const JsonAnalyzer = struct {
         }
     }
 
-    fn calculateComplexity(self: *Self, stats: *JsonStatistics) f32 {
+    fn calculateComplexity(_: *Self, stats: *JsonStatistics) f32 {
         // Simple complexity metric based on various factors
         var complexity: f32 = 0.0;
 

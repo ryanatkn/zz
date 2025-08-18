@@ -212,60 +212,6 @@ pub const Patterns = struct {
         "[",
         "]",
     };
-
-    // Python patterns (for future use)
-    pub const python_functions = [_][]const u8{
-        "def ",
-        "async def ",
-        "lambda ",
-    };
-
-    pub const python_classes = [_][]const u8{
-        "class ",
-    };
-
-    pub const python_imports = [_][]const u8{
-        "import ",
-        "from ",
-    };
-
-    // Rust patterns (for future use)
-    pub const rust_functions = [_][]const u8{
-        "fn ",
-        "pub fn ",
-        "async fn ",
-        "const fn ",
-    };
-
-    pub const rust_types = [_][]const u8{
-        "struct ",
-        "enum ",
-        "trait ",
-        "impl ",
-        "type ",
-    };
-
-    pub const rust_imports = [_][]const u8{
-        "use ",
-        "extern crate ",
-        "mod ",
-    };
-
-    // Go patterns (for future use)
-    pub const go_functions = [_][]const u8{
-        "func ",
-    };
-
-    pub const go_types = [_][]const u8{
-        "type ",
-        "struct {",
-        "interface {",
-    };
-
-    pub const go_imports = [_][]const u8{
-        "import ",
-        "package ",
-    };
 };
 
 /// Check if text is a comment line

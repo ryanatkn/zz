@@ -84,7 +84,7 @@ test "explicit ignore returns correct error code" {
     defer allocator.free(debug_log_path);
 
     // For this test, we test the gitignore mechanism directly
-    const GitignorePatterns = @import("../../lib/parsing/gitignore.zig").GitignorePatterns;
+    const GitignorePatterns = @import("../../lib/patterns/gitignore.zig").GitignorePatterns;
     var gitignore_patterns = try GitignorePatterns.loadFromDirHandle(allocator, tmp_dir.dir, ".gitignore");
     defer gitignore_patterns.deinit();
 

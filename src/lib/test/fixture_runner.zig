@@ -1,12 +1,23 @@
 const std = @import("std");
 const testing = std.testing;
-const SafeZonFixtureLoader = @import("safe_zon_fixture_loader.zig").SafeZonFixtureLoader;
-const LanguageFixtures = @import("safe_zon_fixture_loader.zig").LanguageFixtures;
-const ParserTest = @import("safe_zon_fixture_loader.zig").ParserTest;
-const FormatterTest = @import("safe_zon_fixture_loader.zig").FormatterTest;
-const ExtractionTest = @import("safe_zon_fixture_loader.zig").ExtractionTest;
-const Language = @import("../language/detection.zig").Language;
-const ExtractionFlags = @import("../language/flags.zig").ExtractionFlags;
+// TODO: Reimplement fixture loading after cleanup
+// const SafeZonFixtureLoader = @import("safe_zon_fixture_loader.zig").SafeZonFixtureLoader;
+// const LanguageFixtures = @import("safe_zon_fixture_loader.zig").LanguageFixtures;
+// const ParserTest = @import("safe_zon_fixture_loader.zig").ParserTest;
+// const FormatterTest = @import("safe_zon_fixture_loader.zig").FormatterTest;
+// const ExtractionTest = @import("safe_zon_fixture_loader.zig").ExtractionTest;
+
+// Temporary stub types
+pub const ParserTest = struct {
+    source: []const u8,
+    extraction_tests: []const u8,
+};
+pub const FormatterTest = struct {};
+pub const ExtractionTest = struct {};
+pub const LanguageFixtures = struct {};
+pub const SafeZonFixtureLoader = struct {};
+const Language = @import("../core/language.zig").Language;
+const ExtractionFlags = @import("../core/extraction.zig").ExtractionFlags;
 
 // Import stratified parser for extraction
 const StratifiedParser = @import("../parser/mod.zig");

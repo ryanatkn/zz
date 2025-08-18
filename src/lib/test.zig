@@ -11,12 +11,12 @@ test {
     _ = @import("grammar/grammar_test.zig");
     // Parser tests
     _ = @import("parser/test.zig");
-    // Legacy tests
-    _ = @import("test/parser_test.zig");
+    // Legacy tests - DELETED during cleanup
+    // _ = @import("test/parser_test.zig");
     // ZON language implementation tests
     _ = @import("languages/zon/test.zig");
-    // Comprehensive fixture-based tests
-    _ = @import("test/fixture_loader.zig");
+    // Comprehensive fixture-based tests - DELETED during cleanup  
+    // _ = @import("test/fixture_loader.zig");
     // Fixture runner tests (with defensive error handling and logging)
     _ = @import("test/fixture_runner.zig");
     // Core module tests

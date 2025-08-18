@@ -2,11 +2,10 @@ const std = @import("std");
 const fence = @import("fence.zig");
 const FilesystemInterface = @import("../lib/filesystem/interface.zig").FilesystemInterface;
 const path_utils = @import("../lib/core/path.zig");
-const Language = @import("../lib/language/detection.zig").Language;
-const ExtractionFlags = @import("../lib/language/flags.zig").ExtractionFlags;
-const FileTracker = @import("../lib/analysis/incremental.zig").FileTracker;
-const CacheSystem = @import("../lib/analysis/cache.zig").CacheSystem;
-const AstCacheKey = @import("../lib/analysis/cache.zig").AstCacheKey;
+const Language = @import("../lib/core/language.zig").Language;
+const ExtractionFlags = @import("../lib/core/extraction.zig").ExtractionFlags;
+// NOTE: Legacy analysis modules deleted - functionality to be reimplemented
+// TODO: Reimplement FileTracker, CacheSystem, AstCacheKey in new architecture
 const WorkerPool = @import("../lib/parallel.zig").WorkerPool;
 const Task = @import("../lib/parallel.zig").Task;
 const TaskPriority = @import("../lib/parallel.zig").TaskPriority;
@@ -26,8 +25,8 @@ pub const PromptBuilder = struct {
     extraction_flags: ExtractionFlags,
 
     // Incremental and caching support
-    file_tracker: ?*FileTracker,
-    cache_system: ?*CacheSystem,
+    // file_tracker: ?*FileTracker, // TODO: Reimplement incremental tracking
+    // cache_system: ?*CacheSystem, // TODO: Reimplement AST caching
     worker_pool: ?*WorkerPool,
     enable_parallel: bool,
 
@@ -42,8 +41,6 @@ pub const PromptBuilder = struct {
             .quiet = false,
             .filesystem = filesystem,
             .extraction_flags = extraction_flags,
-            .file_tracker = null,
-            .cache_system = null,
             .worker_pool = null,
             .enable_parallel = false,
         };
@@ -58,8 +55,6 @@ pub const PromptBuilder = struct {
             .quiet = false,
             .filesystem = filesystem,
             .extraction_flags = extraction_flags,
-            .file_tracker = null,
-            .cache_system = null,
             .worker_pool = null,
             .enable_parallel = false,
         };
@@ -73,44 +68,42 @@ pub const PromptBuilder = struct {
             .quiet = true,
             .filesystem = filesystem,
             .extraction_flags = extraction_flags,
-            .file_tracker = null,
-            .cache_system = null,
             .worker_pool = null,
             .enable_parallel = false,
         };
     }
 
-    /// Initialize with incremental support
-    pub fn initWithIncremental(allocator: std.mem.Allocator, filesystem: FilesystemInterface, extraction_flags: ExtractionFlags, file_tracker: *FileTracker, cache_system: *CacheSystem) Self {
-        return Self{
-            .allocator = allocator,
-            .lines = std.ArrayList([]const u8).init(allocator),
-            .arena = std.heap.ArenaAllocator.init(allocator),
-            .quiet = false,
-            .filesystem = filesystem,
-            .extraction_flags = extraction_flags,
-            .file_tracker = file_tracker,
-            .cache_system = cache_system,
-            .worker_pool = null,
-            .enable_parallel = false,
-        };
-    }
+    // TODO: Reimplement after analysis modules are restored
+    // pub fn initWithIncremental(allocator: std.mem.Allocator, filesystem: FilesystemInterface, extraction_flags: ExtractionFlags, file_tracker: *FileTracker, cache_system: *CacheSystem) Self {
+    //     return Self{
+    //         .allocator = allocator,
+    //         .lines = std.ArrayList([]const u8).init(allocator),
+    //         .arena = std.heap.ArenaAllocator.init(allocator),
+    //         .quiet = false,
+    //         .filesystem = filesystem,
+    //         .extraction_flags = extraction_flags,
+    //         .file_tracker = file_tracker,
+    //         .cache_system = cache_system,
+    //         .worker_pool = null,
+    //         .enable_parallel = false,
+    //     };
+    // }
 
-    /// Initialize with parallel support
-    pub fn initWithParallel(allocator: std.mem.Allocator, filesystem: FilesystemInterface, extraction_flags: ExtractionFlags, file_tracker: ?*FileTracker, cache_system: ?*CacheSystem, worker_pool: *WorkerPool) Self {
-        return Self{
-            .allocator = allocator,
-            .lines = std.ArrayList([]const u8).init(allocator),
-            .arena = std.heap.ArenaAllocator.init(allocator),
-            .quiet = false,
-            .filesystem = filesystem,
-            .extraction_flags = extraction_flags,
-            .file_tracker = file_tracker,
-            .cache_system = cache_system,
-            .worker_pool = worker_pool,
-            .enable_parallel = true,
-        };
-    }
+    // TODO: Reimplement after analysis modules are restored
+    // pub fn initWithParallel(allocator: std.mem.Allocator, filesystem: FilesystemInterface, extraction_flags: ExtractionFlags, file_tracker: ?*FileTracker, cache_system: ?*CacheSystem, worker_pool: *WorkerPool) Self {
+    //     return Self{
+    //         .allocator = allocator,
+    //         .lines = std.ArrayList([]const u8).init(allocator),
+    //         .arena = std.heap.ArenaAllocator.init(allocator),
+    //         .quiet = false,
+    //         .filesystem = filesystem,
+    //         .extraction_flags = extraction_flags,
+    //         .file_tracker = file_tracker,
+    //         .cache_system = cache_system,
+    //         .worker_pool = worker_pool,
+    //         .enable_parallel = true,
+    //     };
+    // }
 
     pub fn deinit(self: *Self) void {
         self.lines.deinit();
@@ -351,25 +344,19 @@ pub const PromptBuilder = struct {
 
     /// Enhanced file processing with caching and incremental support
     pub fn addFileWithCaching(self: *Self, file_path: []const u8) !void {
-        // Check if we have incremental support
-        if (self.file_tracker) |tracker| {
-            try tracker.trackFile(file_path);
-
-            // Check if file has changed
-            if (tracker.getFileState(file_path)) |state| {
-                // Try to get cached result if available
-                if (self.cache_system) |cache| {
-                    const cache_key = AstCacheKey.init(state.hash, 1, // Parser version
-                        hashExtractionFlags(self.extraction_flags));
-
-                    if (cache.ast_cache.get(cache_key)) |cached_content| {
-                        // Use cached content
-                        try self.addCachedContent(file_path, cached_content);
-                        return;
-                    }
-                }
-            }
-        }
+        // TODO: Check if we have incremental support (temporarily disabled)
+        // if (self.file_tracker) |tracker| {
+        //     try tracker.trackFile(file_path);
+        //     if (tracker.getFileState(file_path)) |state| {
+        //         if (self.cache_system) |cache| {
+        //             const cache_key = AstCacheKey.init(state.hash, 1, hashExtractionFlags(self.extraction_flags));
+        //             if (cache.ast_cache.get(cache_key)) |cached_content| {
+        //                 try self.addCachedContent(file_path, cached_content);
+        //                 return;
+        //             }
+        //         }
+        //     }
+        // }
 
         // Fall back to regular processing
         try self.addFile(file_path);

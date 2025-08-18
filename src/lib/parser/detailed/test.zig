@@ -16,6 +16,14 @@ const Token = @import("../foundation/types/token.zig").Token;
 const Predicate = @import("../foundation/types/predicate.zig").Predicate;
 const Value = @import("../foundation/types/predicate.zig").Value;
 
+// Import centralized AST infrastructure
+const AST = @import("../../ast/mod.zig").AST;
+const ASTNode = @import("../../ast/mod.zig").ASTNode;
+const createZonAST = @import("../../ast/mod.zig").createZonAST;
+const createStructuredAST = @import("../../ast/mod.zig").createStructuredAST;
+const ASTStructure = @import("../../ast/mod.zig").ASTStructure;
+const TestContext = @import("../../ast/mod.zig").TestContext;
+
 // Import structural types
 const ParseBoundary = @import("../structural/mod.zig").ParseBoundary;
 const BoundaryKind = @import("../foundation/types/predicate.zig").BoundaryKind;
@@ -129,11 +137,13 @@ test "AST to facts conversion" {
     var generator = FactGenerator.init(testing.allocator);
     defer generator.deinit();
 
-    // Create mock AST
-    const ast = createMockAST();
+    // Create mock AST using centralized infrastructure
+    var ast = createMockAST();
+    defer ast.deinit();
+
     const boundary = createMockBoundary(Span.init(0, 100), .function);
 
-    const facts = try generator.fromAST(ast, boundary);
+    const facts = try generator.fromAST(ast.root, boundary);
     defer testing.allocator.free(facts);
 
     try testing.expect(facts.len > 0);
@@ -173,11 +183,13 @@ test "fact generation statistics" {
     try testing.expect(initial_stats.facts_generated == 0);
     try testing.expect(initial_stats.conversions_performed == 0);
 
-    // Generate some facts
-    const ast = createMockAST();
+    // Generate some facts using centralized AST infrastructure
+    var ast = createMockAST();
+    defer ast.deinit();
+
     const boundary = createMockBoundary(Span.init(0, 100), .function);
 
-    const facts = try generator.fromAST(ast, boundary);
+    const facts = try generator.fromAST(ast.root, boundary);
     defer testing.allocator.free(facts);
 
     const updated_stats = generator.getStats();
@@ -732,32 +744,46 @@ fn createMockFacts(allocator: std.mem.Allocator, count: usize) ![]Fact {
     return facts.toOwnedSlice();
 }
 
-fn createMockAST() MockAST {
-    return MockAST{
-        .root = MockASTNode{
-            .kind = .function,
-            .span = Span.init(0, 100),
-            .name = "mock_function",
-            .children = &[_]MockASTNode{},
-            .is_public = true,
-            .return_type = "void",
-            .is_mutable = false,
-        },
+fn createMockAST() AST {
+    // Use centralized AST infrastructure for robust, consistent testing
+    const structure = ASTStructure{ .object = &.{
+        .{ .name = "kind", .value = .{ .string = "function" } },
+        .{ .name = "name", .value = .{ .string = "mock_function" } },
+        .{ .name = "is_public", .value = .{ .boolean = true } },
+        .{ .name = "return_type", .value = .{ .string = "void" } },
+    } };
+
+    return createStructuredAST(testing.allocator, structure) catch {
+        // Fallback to ZON AST if structured creation fails
+        return createZonAST(testing.allocator, ".{ .kind = \"function\", .name = \"mock_function\" }") catch {
+            @panic("Failed to create mock AST for testing");
+        };
     };
 }
 
-fn createLargeAST() MockAST {
-    // Create AST with many nodes for performance testing
-    return MockAST{
-        .root = MockASTNode{
-            .kind = .function,
-            .span = Span.init(0, 1000),
-            .name = "large_function",
-            .children = &[_]MockASTNode{}, // In reality, would have many children
-            .is_public = true,
-            .return_type = "void",
-            .is_mutable = false,
-        },
+fn createLargeAST() AST {
+    // Create AST with many nested nodes for performance testing
+    const structure = ASTStructure{ .object = &.{
+        .{ .name = "kind", .value = .{ .string = "large_function" } },
+        .{ .name = "name", .value = .{ .string = "large_function" } },
+        .{ .name = "is_public", .value = .{ .boolean = true } },
+        .{ .name = "return_type", .value = .{ .string = "void" } },
+        .{ .name = "children", .value = .{ .array = &[_]ASTStructure{
+            .{ .object = &.{.{ .name = "child1", .value = .{ .string = "value1" } }} },
+            .{ .object = &.{.{ .name = "child2", .value = .{ .string = "value2" } }} },
+            .{ .object = &.{.{ .name = "child3", .value = .{ .string = "value3" } }} },
+        } } },
+    } };
+
+    return createStructuredAST(testing.allocator, structure) catch {
+        // Fallback for performance testing
+        return createZonAST(testing.allocator,
+            \\.{ 
+            \\  .kind = "large_function", 
+            \\  .name = "large_function",
+            \\  .children = .{ "child1", "child2", "child3" }
+            \\}
+        ) catch @panic("Failed to create large AST for testing");
     };
 }
 
@@ -833,7 +859,7 @@ const MockParser = struct {
         _ = self;
     }
 
-    fn parseWithContext(self: *MockParser, source: []const u8, context: anytype) !MockAST {
+    fn parseWithContext(self: *MockParser, source: []const u8, context: anytype) !AST {
         _ = self;
         _ = source;
         _ = context;

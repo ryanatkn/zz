@@ -1,5 +1,5 @@
 const std = @import("std");
-const Language = @import("../../language/detection.zig").Language;
+const Language = @import("../../core/language.zig").Language;
 const LanguageSupport = @import("../interface.zig").LanguageSupport;
 const Lexer = @import("../interface.zig").Lexer;
 const Parser = @import("../interface.zig").Parser;
@@ -33,7 +33,7 @@ const JsonAnalyzer = @import("analyzer.zig").JsonAnalyzer;
 /// - Schema extraction and TypeScript interface generation
 /// - Performance optimized for config files and data exchange
 /// Get JSON language support instance
-pub fn getSupport(allocator: std.mem.Allocator) !LanguageSupport {
+pub fn getSupport(_: std.mem.Allocator) !LanguageSupport {
     return LanguageSupport{
         .language = .json,
         .lexer = Lexer{

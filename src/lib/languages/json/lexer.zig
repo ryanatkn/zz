@@ -54,8 +54,8 @@ pub const JsonLexer = struct {
             if (self.isAtEnd()) break;
 
             const start_pos = self.position;
-            const start_line = self.line;
-            const start_col = self.column;
+            _ = self.line;
+            _ = self.column;
 
             const token = self.nextToken() catch |err| switch (err) {
                 error.UnexpectedCharacter => {
@@ -255,7 +255,7 @@ pub const JsonLexer = struct {
         }
     }
 
-    fn makeToken(self: *Self, kind: TokenKind, start_pos: usize, text: []const u8) TokenResult {
+    fn makeToken(_: *Self, kind: TokenKind, _: usize, text: []const u8) TokenResult {
         return TokenResult{
             .kind = kind,
             .text = text,

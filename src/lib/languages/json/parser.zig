@@ -117,7 +117,7 @@ pub const JsonParser = struct {
         const token = self.advance();
 
         // Validate number format
-        const value = std.fmt.parseFloat(f64, token.text) catch |err| {
+        _ = std.fmt.parseFloat(f64, token.text) catch {
             try self.addError("Invalid number format", token.span);
             return try self.createErrorNode();
         };
@@ -127,7 +127,7 @@ pub const JsonParser = struct {
 
     fn parseBoolean(self: *Self) !*Node {
         const token = self.advance();
-        const value = std.mem.eql(u8, token.text, "true");
+        _ = std.mem.eql(u8, token.text, "true");
 
         return try createLeafNode(self.allocator, .json_boolean, token.text, token.span);
     }

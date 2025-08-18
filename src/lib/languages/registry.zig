@@ -1,5 +1,5 @@
 const std = @import("std");
-const Language = @import("../language/detection.zig").Language;
+const Language = @import("../core/language.zig").Language;
 const LanguageSupport = @import("interface.zig").LanguageSupport;
 const Lexer = @import("interface.zig").Lexer;
 const Parser = @import("interface.zig").Parser;

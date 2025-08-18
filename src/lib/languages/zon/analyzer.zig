@@ -506,12 +506,12 @@ pub const ZonAnalyzer = struct {
     fn extractDependencies(self: *Self, root_node: Node, dependencies: *std.ArrayList(Dependency)) !void {
         // Handle case where root_node is an object containing fields
         var target_node = root_node;
-        
+
         // If the root is an object, look inside it
         if (std.mem.eql(u8, root_node.rule_name, "object")) {
             target_node = root_node;
         }
-        
+
         // Look for dependencies field in build.zig.zon format
         for (target_node.children) |child| {
             if (utils.isFieldAssignment(child)) {

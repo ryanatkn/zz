@@ -1,5 +1,5 @@
 const std = @import("std");
-const glob = @import("../parsing/glob.zig");
+const glob = @import("../patterns/glob.zig");
 
 /// Path pattern matching for dependency file filtering
 /// Uses glob.zig for robust pattern matching while maintaining dependency-specific logic

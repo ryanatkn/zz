@@ -6,8 +6,8 @@ const std = @import("std");
 /// leveraging the Pure Zig Stratified Parser architecture.
 
 // Re-export core types
-pub const Language = @import("../language/detection.zig").Language;
-pub const ExtractionFlags = @import("../language/flags.zig").ExtractionFlags;
+pub const Language = @import("../core/language.zig").Language;
+pub const ExtractionFlags = @import("../core/extraction.zig").ExtractionFlags;
 
 // Core interfaces
 pub const LanguageSupport = @import("interface.zig").LanguageSupport;

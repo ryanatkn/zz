@@ -2,7 +2,7 @@ const std = @import("std");
 const testing = std.testing;
 const test_helpers = @import("../../lib/test/helpers.zig");
 const PromptBuilder = @import("../builder.zig").PromptBuilder;
-const ExtractionFlags = @import("../../lib/language/flags.zig").ExtractionFlags;
+const ExtractionFlags = @import("../../lib/core/extraction.zig").ExtractionFlags;
 const Config = @import("../config.zig").Config;
 
 test "extraction flags - signatures only" {

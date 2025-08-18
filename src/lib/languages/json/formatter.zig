@@ -120,7 +120,7 @@ pub const JsonFormatter = struct {
         self.updateLinePosition(value.len);
     }
 
-    fn formatNull(self: *Self, node: *Node) !void {
+    fn formatNull(self: *Self, _: *Node) !void {
         try self.output.appendSlice("null");
         self.updateLinePosition(4);
     }

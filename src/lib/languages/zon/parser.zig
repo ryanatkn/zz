@@ -70,10 +70,10 @@ pub const ZonParser = struct {
     /// Parse tokens into ZON AST
     pub fn parse(self: *Self) !AST {
         const root_node = try self.parseValue();
-        
+
         // Transfer ownership of allocated texts from parse context
         const owned_texts = self.context.transferOwnership();
-        
+
         return AST{
             .root = root_node,
             .allocator = self.allocator,
@@ -401,10 +401,10 @@ pub const ZonParser = struct {
                 // Dot followed by identifier: .test_package, .field_name, etc.
                 const identifier_token = self.currentToken();
                 self.advance(); // Consume the identifier
-                
+
                 // Create a combined dot + identifier node
                 const combined_text = try self.context.allocatePrintAstText(".{s}", .{identifier_token.text});
-                
+
                 return Node{
                     .rule_name = "identifier",
                     .node_type = .terminal,

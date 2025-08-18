@@ -3,7 +3,7 @@ const FilesystemInterface = @import("../lib/filesystem/interface.zig").Filesyste
 const SharedConfig = @import("../config.zig").SharedConfig;
 const ZonLoader = @import("../config.zig").ZonLoader;
 const shouldIgnorePath = @import("../config.zig").shouldIgnorePath;
-const ExtractionFlags = @import("../lib/language/flags.zig").ExtractionFlags;
+const ExtractionFlags = @import("../lib/core/extraction.zig").ExtractionFlags;
 
 pub const Config = struct {
     allocator: std.mem.Allocator,

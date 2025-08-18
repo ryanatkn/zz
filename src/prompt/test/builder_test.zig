@@ -3,8 +3,8 @@ const testing = std.testing;
 const test_helpers = @import("../../lib/test/helpers.zig");
 const PromptBuilder = @import("../builder.zig").PromptBuilder;
 const GlobExpander = @import("../glob.zig").GlobExpander;
-const ExtractionFlags = @import("../../lib/language/flags.zig").ExtractionFlags;
-const registry = @import("../../lib/language/registry.zig");
+const ExtractionFlags = @import("../../lib/core/extraction.zig").ExtractionFlags;
+const registry = @import("../../lib/languages/registry.zig");
 
 test "PromptBuilder basic" {
     var ctx = try test_helpers.TmpDirTestContext.init(testing.allocator);

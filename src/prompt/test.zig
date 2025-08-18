@@ -56,7 +56,7 @@ test "prompt builder initialization works" {
     var ctx = test_helpers.MockTestContext.init(testing.allocator);
     defer ctx.deinit();
 
-    const extraction_flags = @import("../lib/language/flags.zig").ExtractionFlags{};
+    const extraction_flags = @import("../lib/core/extraction.zig").ExtractionFlags{};
     var builder = try PromptBuilder.initForTest(testing.allocator, ctx.filesystem, extraction_flags);
     defer builder.deinit();
 

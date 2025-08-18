@@ -147,7 +147,7 @@ pub const JsonLinter = struct {
 
         // Check length
         if (raw_value.len > self.options.max_string_length) {
-            if (self.isRuleEnabled("large-structure", enabled_rules)) {
+            if (self.isRuleEnabled("large-structure", &.{})) {
                 try self.addDiagnostic(
                     "large-structure",
                     "String exceeds maximum length",
@@ -223,12 +223,12 @@ pub const JsonLinter = struct {
         };
     }
 
-    fn validateObject(self: *Self, node: *Node, depth: u32, enabled_rules: []const Rule) !void {
+    fn validateObject(self: *Self, node: *Node, _: u32, _: []const Rule) !void {
         const members = node.children orelse return;
 
         // Check object size
         if (members.len > self.options.max_object_keys) {
-            if (self.isRuleEnabled("large-structure", enabled_rules)) {
+            if (self.isRuleEnabled("large-structure", &.{})) {
                 try self.addDiagnostic(
                     "large-structure",
                     "Object has too many keys",
@@ -239,7 +239,7 @@ pub const JsonLinter = struct {
         }
 
         // Check for duplicate keys
-        if (self.isRuleEnabled("no-duplicate-keys", enabled_rules) and !self.options.allow_duplicate_keys) {
+        if (self.isRuleEnabled("no-duplicate-keys", &.{}) and !self.options.allow_duplicate_keys) {
             var seen_keys = std.HashMap([]const u8, Span, std.hash_map.StringContext, std.hash_map.default_max_load_percentage).init(self.allocator);
             defer seen_keys.deinit();
 
@@ -257,7 +257,7 @@ pub const JsonLinter = struct {
                 else
                     key_value;
 
-                if (seen_keys.get(key_content)) |first_occurrence| {
+                if (seen_keys.get(key_content)) |_| {
                     try self.addDiagnosticWithFix(
                         "no-duplicate-keys",
                         "Duplicate object key",
@@ -272,12 +272,12 @@ pub const JsonLinter = struct {
         }
     }
 
-    fn validateArray(self: *Self, node: *Node, depth: u32, enabled_rules: []const Rule) !void {
+    fn validateArray(self: *Self, node: *Node, _: u32, _: []const Rule) !void {
         const elements = node.children orelse return;
 
         // Check array size
         if (elements.len > self.options.max_array_elements) {
-            if (self.isRuleEnabled("large-structure", enabled_rules)) {
+            if (self.isRuleEnabled("large-structure", &.{})) {
                 try self.addDiagnostic(
                     "large-structure",
                     "Array has too many elements",
@@ -288,7 +288,7 @@ pub const JsonLinter = struct {
         }
     }
 
-    fn validateMember(self: *Self, node: *Node, depth: u32, enabled_rules: []const Rule) !void {
+    fn validateMember(self: *Self, node: *Node, _: u32, _: []const Rule) !void {
         const children = node.children orelse return;
         if (children.len != 2) return;
 
@@ -305,7 +305,7 @@ pub const JsonLinter = struct {
         }
     }
 
-    fn validateEscapeSequences(self: *Self, content: []const u8, span: Span, enabled_rules: []const Rule) !void {
+    fn validateEscapeSequences(self: *Self, content: []const u8, span: Span, _: []const Rule) !void {
         var i: usize = 0;
         while (i < content.len) {
             if (content[i] == '\\' and i + 1 < content.len) {
@@ -356,7 +356,7 @@ pub const JsonLinter = struct {
         }
     }
 
-    fn isRuleEnabled(self: *Self, rule_name: []const u8, enabled_rules: []const Rule) bool {
+    fn isRuleEnabled(_: *Self, rule_name: []const u8, enabled_rules: []const Rule) bool {
         for (enabled_rules) |rule| {
             if (std.mem.eql(u8, rule.name, rule_name)) {
                 return rule.enabled;

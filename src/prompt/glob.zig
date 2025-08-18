@@ -5,7 +5,7 @@ const SharedConfig = @import("../config.zig").SharedConfig;
 const shouldIgnorePath = @import("../config.zig").shouldIgnorePath;
 const shouldHideFile = @import("../config.zig").shouldHideFile;
 const path_utils = @import("../lib/core/path.zig");
-const glob_patterns = @import("../lib/parsing/glob.zig");
+const glob_patterns = @import("../lib/patterns/glob.zig");
 const traversal = @import("../lib/core/traversal.zig");
 
 // Configuration constants

@@ -186,7 +186,7 @@ fn fileCollector(allocator: std.mem.Allocator, file_path: []const u8, context_pt
         const filename = path_utils.basename(file_path);
 
         // Import glob patterns for matching - this creates a dependency but avoids duplication
-        const glob_patterns = @import("../parsing/glob.zig");
+        const glob_patterns = @import("../patterns/glob.zig");
         if (!glob_patterns.matchSimplePattern(filename, pattern)) {
             return; // File doesn't match pattern
         }

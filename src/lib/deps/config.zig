@@ -291,12 +291,14 @@ pub const DepsZonConfig = struct {
 
         // Add zig-spec if present
         if (parsed.dependencies.@"zig-spec") |zig_spec| {
-            try dependencies.put("zig-spec", try convertDependency(allocator, zig_spec));
+            const key = try allocator.dupe(u8, "zig-spec");
+            try dependencies.put(key, try convertDependency(allocator, zig_spec));
         }
 
         // Add webref if present
         if (parsed.dependencies.webref) |webref| {
-            try dependencies.put("webref", try convertDependency(allocator, webref));
+            const key = try allocator.dupe(u8, "webref");
+            try dependencies.put(key, try convertDependency(allocator, webref));
         }
 
         // Default settings (safe literals)
@@ -374,22 +376,23 @@ pub const DepsZonConfig = struct {
     }
 
     /// Free the dependencies HashMap and all allocated memory
+    /// Note: Currently some memory may leak due to complex string ownership tracking
+    /// TODO: Implement proper memory tracking for all string allocations
     pub fn deinit(self: *DepsZonConfig) void {
         // Free all allocated strings if they were from ZON parsing
         if (self.owns_strings) {
             var iterator = self.dependencies.iterator();
             while (iterator.next()) |entry| {
-                // Free the key (dependency name) - always allocated
-                self.allocator.free(entry.key_ptr.*);
-
-                // Free the value strings - all are allocated by our conversion
-                const dep = entry.value_ptr.*;
-                self.allocator.free(dep.url);
-                self.allocator.free(dep.version);
-
-                // Free string arrays (these are currently empty slices, safe to skip)
-                // The include, exclude, preserve_files, patches arrays are currently literals
-                // No need to free them in the current implementation
+                // For now, only free the keys to avoid double-free segfaults
+                // The values may be literals or have complex ownership
+                const key = entry.key_ptr.*;
+                if (key.len > 0) {
+                    self.allocator.free(key);
+                }
+                
+                // TODO: Safely free dependency strings once ownership is clarified
+                // const dep = entry.value_ptr.*;
+                // Currently skipping value cleanup to prevent segfaults
             }
 
             // Free settings if allocated (currently using literals)

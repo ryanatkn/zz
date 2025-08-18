@@ -36,10 +36,10 @@ pub const Selector = union(enum) {
     universal,
 };
 
-pub const PositionSelector = enum {
+pub const PositionSelector = union(enum) {
     first_child,
     last_child,
-    nth_child, // TODO: Add index parameter
+    nth_child: usize, // Now supports index parameter
 };
 
 pub const RelationType = enum {
@@ -167,11 +167,16 @@ pub const ASTQuery = struct {
         // Need parent to determine position
         if (node.parent) |parent| {
             return switch (position) {
-                .first_child => parent.children.len > 0 and
-                    std.mem.asBytes(parent.children)[0..@sizeOf(Node)] == std.mem.asBytes(node)[0..@sizeOf(Node)],
+                .first_child => parent.children.len > 0 and 
+                    @intFromPtr(&parent.children[0]) == @intFromPtr(node),
                 .last_child => parent.children.len > 0 and
-                    std.mem.asBytes(parent.children[parent.children.len - 1])[0..@sizeOf(Node)] == std.mem.asBytes(node)[0..@sizeOf(Node)],
-                .nth_child => false, // TODO: Implement with index
+                    @intFromPtr(&parent.children[parent.children.len - 1]) == @intFromPtr(node),
+                .nth_child => |index| {
+                    if (parent.children.len > index) {
+                        return @intFromPtr(&parent.children[index]) == @intFromPtr(node);
+                    }
+                    return false;
+                },
             };
         }
         return false;
@@ -275,6 +280,24 @@ pub const QueryBuilder = struct {
 
     pub fn whereMinChildren(self: *QueryBuilder, min: usize) !*QueryBuilder {
         try self.conditions.append(QueryCondition{ .min_children = min });
+        return self;
+    }
+
+    /// Add nth_child position selector
+    pub fn whereNthChild(self: *QueryBuilder, index: usize) !*QueryBuilder {
+        try self.conditions.append(QueryCondition{ .position = .{ .nth_child = index } });
+        return self;
+    }
+
+    /// Add first_child position selector
+    pub fn whereFirstChild(self: *QueryBuilder) !*QueryBuilder {
+        try self.conditions.append(QueryCondition{ .position = .first_child });
+        return self;
+    }
+
+    /// Add last_child position selector
+    pub fn whereLastChild(self: *QueryBuilder) !*QueryBuilder {
+        try self.conditions.append(QueryCondition{ .position = .last_child });
         return self;
     }
 

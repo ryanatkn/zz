@@ -64,20 +64,9 @@ pub const JsonFormatter = struct {
     /// Format JSON AST to string using visitor pattern
     pub fn format(self: *Self, ast: AST) ![]const u8 {
         if (ast.root) |root| {
-            // Create traversal context
-            var traversal = ASTTraversal.init(self.allocator);
-            
-            // Use visitor pattern to format the tree
-            const visitor = struct {
-                fn visit(node: *const Node, context: ?*anyopaque) anyerror!bool {
-                    const formatter = @as(*JsonFormatter, @ptrCast(@alignCast(context.?)));
-                    try formatter.formatNodeVisitor(node);
-                    return false; // We handle children manually for proper formatting
-                }
-            }.visit;
-            
-            // Start traversal
-            try traversal.walk(root, visitor, self, .depth_first_pre);
+            // Format root node using direct recursion for now
+            // TODO: Complete visitor pattern refactoring for complex formatting requirements
+            try self.formatNode(root);
         }
 
         // Add final newline if not compact
@@ -88,7 +77,7 @@ pub const JsonFormatter = struct {
         return self.output.toOwnedSlice();
     }
 
-    fn formatNodeVisitor(self: *Self, node: *const Node) !void {
+    fn formatNode(self: *Self, node: *const Node) !void {
         switch (node.node_type) {
             .json_string => try self.formatString(node),
             .json_number => try self.formatNumber(node),
@@ -102,11 +91,6 @@ pub const JsonFormatter = struct {
                 try self.output.appendSlice("null");
             },
         }
-    }
-    
-    fn formatNode(self: *Self, node: *const Node) !void {
-        // Delegate to visitor for consistency
-        try self.formatNodeVisitor(node);
     }
 
     fn formatString(self: *Self, node: *const Node) !void {

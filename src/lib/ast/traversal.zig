@@ -170,7 +170,7 @@ pub const ASTTraversal = struct {
             try ctx.pushPath(child.rule_name);
             defer ctx.popPath();
 
-            try walkDepthFirstPre(undefined, &child, visitor, context, ctx);
+            try walkDepthFirstPre(ASTTraversal{ .allocator = undefined }, &child, visitor, context, ctx);
         }
         ctx.depth -= 1;
     }
@@ -190,7 +190,7 @@ pub const ASTTraversal = struct {
             try ctx.pushPath(child.rule_name);
             defer ctx.popPath();
 
-            try walkDepthFirstPost(undefined, &child, visitor, context, ctx);
+            try walkDepthFirstPost(ASTTraversal{ .allocator = undefined }, &child, visitor, context, ctx);
         }
         ctx.depth -= 1;
 

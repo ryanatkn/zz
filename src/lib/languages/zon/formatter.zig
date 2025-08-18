@@ -70,6 +70,59 @@ pub const ZonFormatter = struct {
         return self.output.toOwnedSlice();
     }
 
+    /// Alternative visitor-based formatting for analysis or simple cases
+    /// Note: This may not handle complex indentation as well as the main format() method
+    pub fn formatWithVisitor(self: *Self, ast: AST) ![]const u8 {
+        self.output.clearRetainingCapacity();
+        self.current_indent = 0;
+
+        // Import traversal utilities
+        const ASTTraversal = @import("../../ast/traversal.zig").ASTTraversal;
+        var traversal = ASTTraversal.init(self.allocator);
+
+        const visitor = struct {
+            fn visit(node: *const Node, context: ?*anyopaque) anyerror!bool {
+                const formatter = @as(*ZonFormatter, @ptrCast(@alignCast(context.?)));
+                // Simple node-by-node formatting without complex structure handling
+                try formatter.formatNodeSimple(node.*);
+                return true; // Continue to children automatically
+            }
+        }.visit;
+
+        try traversal.walk(&ast.root, visitor, self, .depth_first_pre);
+
+        return self.output.toOwnedSlice();
+    }
+
+    /// Simple node formatting for visitor pattern - less sophisticated than formatNode
+    fn formatNodeSimple(self: *Self, node: Node) std.mem.Allocator.Error!void {
+        switch (node.node_type) {
+            .terminal => {
+                try self.formatTerminal(node);
+            },
+            .rule => {
+                // For rules, just add their text content
+                if (node.text.len > 0) {
+                    try self.output.appendSlice(node.text);
+                }
+            },
+            .list => {
+                // For containers, add basic structural elements
+                if (std.mem.eql(u8, node.rule_name, "object")) {
+                    try self.output.append('{');
+                } else if (std.mem.eql(u8, node.rule_name, "array")) {
+                    try self.output.append('[');
+                }
+            },
+            else => {
+                // Default: output text if available
+                if (node.text.len > 0) {
+                    try self.output.appendSlice(node.text);
+                }
+            },
+        }
+    }
+
     fn formatNode(self: *Self, node: Node) std.mem.Allocator.Error!void {
         switch (node.node_type) {
             .list => {

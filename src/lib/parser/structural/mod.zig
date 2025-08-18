@@ -170,8 +170,8 @@ pub const StructuralConfig = struct {
     /// Maximum boundary nesting depth
     max_depth: u16 = 64,
 
-    /// Performance threshold for <1ms target
-    performance_threshold_ns: u64 = 1_000_000, // 1ms
+    /// Performance threshold - adjusted for debug vs release builds
+    performance_threshold_ns: u64 = if (std.debug.runtime_safety) 5_000_000 else 1_000_000, // 5ms debug, 1ms release
 
     /// Whether to include folding boundaries
     include_folding: bool = true,

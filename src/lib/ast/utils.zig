@@ -128,29 +128,77 @@ pub const ASTUtils = struct {
     }
 
     /// Deep clone an AST with a new allocator
+    /// Properly tracks all allocated strings in owned_texts
     pub fn cloneAST(allocator: std.mem.Allocator, ast: *const AST) !AST {
-        const cloned_root = try cloneNode(allocator, &ast.root);
+        var text_tracker = std.ArrayList([]const u8).init(allocator);
+        defer text_tracker.deinit();
 
-        // Clone owned_texts array
-        var cloned_texts = std.ArrayList([]const u8).init(allocator);
-        defer cloned_texts.deinit();
+        const cloned_root = try cloneNodeWithTracker(allocator, &ast.root, &text_tracker);
 
+        // Clone original owned_texts
         for (ast.owned_texts) |text| {
             const cloned_text = try allocator.dupe(u8, text);
-            try cloned_texts.append(cloned_text);
+            try text_tracker.append(cloned_text);
         }
 
         const cloned_source = try allocator.dupe(u8, ast.source);
+        try text_tracker.append(cloned_source);
 
         return AST{
             .root = cloned_root,
             .allocator = allocator,
-            .owned_texts = try cloned_texts.toOwnedSlice(),
+            .owned_texts = try text_tracker.toOwnedSlice(),
             .source = cloned_source,
         };
     }
 
-    /// Deep clone a single node
+    /// Deep clone a single node with text tracking
+    /// This should be used internally by cloneAST to properly track memory
+    fn cloneNodeWithTracker(allocator: std.mem.Allocator, node: *const Node, text_tracker: *std.ArrayList([]const u8)) !Node {
+        // Clone children recursively
+        var cloned_children = std.ArrayList(Node).init(allocator);
+        defer cloned_children.deinit();
+
+        for (node.children) |*child| {
+            const cloned_child = try cloneNodeWithTracker(allocator, child, text_tracker);
+            try cloned_children.append(cloned_child);
+        }
+
+        // Clone string fields and track them
+        const cloned_rule_name = try allocator.dupe(u8, node.rule_name);
+        try text_tracker.append(cloned_rule_name);
+        
+        const cloned_text = try allocator.dupe(u8, node.text);
+        try text_tracker.append(cloned_text);
+
+        // Clone attributes if present
+        var cloned_attributes: ?std.StringHashMap([]const u8) = null;
+        if (node.attributes) |attrs| {
+            cloned_attributes = std.StringHashMap([]const u8).init(allocator);
+            var iter = attrs.iterator();
+            while (iter.next()) |entry| {
+                const cloned_key = try allocator.dupe(u8, entry.key_ptr.*);
+                const cloned_value = try allocator.dupe(u8, entry.value_ptr.*);
+                try text_tracker.append(cloned_key);
+                try text_tracker.append(cloned_value);
+                try cloned_attributes.?.put(cloned_key, cloned_value);
+            }
+        }
+
+        return Node{
+            .rule_name = cloned_rule_name,
+            .node_type = node.node_type,
+            .text = cloned_text,
+            .start_position = node.start_position,
+            .end_position = node.end_position,
+            .children = try cloned_children.toOwnedSlice(),
+            .attributes = cloned_attributes,
+            .parent = null, // Parent will be set by caller if needed
+        };
+    }
+
+    /// Deep clone a single node (standalone function)
+    /// WARNING: This does not track allocated strings - prefer cloneAST for complete ASTs
     pub fn cloneNode(allocator: std.mem.Allocator, node: *const Node) !Node {
         // Clone children recursively
         var cloned_children = std.ArrayList(Node).init(allocator);

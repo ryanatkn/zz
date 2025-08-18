@@ -7,10 +7,18 @@ pub usingnamespace @import("../../ast/mod.zig");
 pub const AST = struct {
     root: ASTNode,
     allocator: std.mem.Allocator,
+    /// Texts allocated during parsing that are owned by this AST
+    owned_texts: []const []const u8,
 
     pub fn deinit(self: *AST) void {
         // Free the AST tree
         self.root.deinit(self.allocator);
+        
+        // Free all owned texts allocated during parsing
+        for (self.owned_texts) |text| {
+            self.allocator.free(text);
+        }
+        self.allocator.free(self.owned_texts);
     }
 };
 

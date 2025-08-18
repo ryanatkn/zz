@@ -411,7 +411,11 @@ pub const TestHelpers = struct {
     fn createMockAST() AST {
         // This would create a simple mock AST structure
         // Implementation depends on the actual AST module
-        return AST{ .root = undefined }; // Placeholder
+        return AST{ 
+            .root = undefined, // Placeholder
+            .allocator = undefined,
+            .owned_texts = &[_][]const u8{},
+        };
     }
 
     /// Test disambiguation performance

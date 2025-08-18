@@ -1,6 +1,8 @@
-const std = @import("std");
-const Node = @import("../../ast/mod.zig").Node;
-const AST = @import("../../parser/ast/mod.zig").AST;
+const common = @import("common.zig");
+const std = common.std;
+const Node = common.Node;
+const AST = common.AST;
+const utils = common.utils;
 
 /// Validate ZON content against known schemas
 /// This module provides schema validation for common ZON configuration files
@@ -78,7 +80,7 @@ pub const ZonValidator = struct {
 
         // Validate each dependency
         for (deps_node.children) |child| {
-            if (std.mem.eql(u8, child.rule_name, "field_assignment")) {
+            if (utils.isFieldAssignment(child)) {
                 try self.validateDependency(child);
             }
         }
@@ -109,7 +111,7 @@ pub const ZonValidator = struct {
 
         // Validate present fields
         for (object_node.children) |child| {
-            if (std.mem.eql(u8, child.rule_name, "field_assignment")) {
+            if (utils.isFieldAssignment(child)) {
                 try self.validateField(child, schema, path);
             }
         }
@@ -117,14 +119,13 @@ pub const ZonValidator = struct {
 
     /// Validate a single field
     fn validateField(self: *Self, node: Node, schema: *const Schema, parent_path: []const u8) !void {
-        if (node.children.len < 2) return;
+        if (!utils.hasMinimumChildren(node, 2)) return;
 
         const field_name_node = node.children[0];
         var field_name = field_name_node.text;
 
         // Extract field name using utils
-        const zon_utils = @import("utils.zig");
-        field_name = zon_utils.extractFieldName(field_name);
+        field_name = utils.extractFieldName(field_name);
 
         // Handle @"..." quoted names
         if (std.mem.indexOf(u8, field_name, "@\"")) |at_pos| {
@@ -168,7 +169,7 @@ pub const ZonValidator = struct {
 
         // Validate field type if spec is found
         if (field_spec) |spec| {
-            const value_node = if (node.children.len >= 3) node.children[2] else node.children[1];
+            const value_node = utils.getFieldValue(node) orelse return;
             try self.validateFieldType(value_node, spec, field_path);
         }
     }
@@ -231,7 +232,7 @@ pub const ZonValidator = struct {
 
     /// Validate a single dependency entry
     fn validateDependency(self: *Self, node: Node) !void {
-        if (node.children.len < 2) return;
+        if (!utils.hasMinimumChildren(node, 2)) return;
 
         const name_node = node.children[0];
         var dep_name = name_node.text;
@@ -241,7 +242,7 @@ pub const ZonValidator = struct {
             dep_name = dep_name[1..];
         }
 
-        const value_node = if (node.children.len >= 3) node.children[2] else node.children[1];
+        const value_node = utils.getFieldValue(node) orelse return;
 
         // Check for required dependency fields
         const url_field = self.findField(value_node, "url");
@@ -259,9 +260,9 @@ pub const ZonValidator = struct {
 
         // Validate URL format if present
         if (url_field) |url_node| {
-            if (url_node.children.len >= 2) {
+            if (utils.hasMinimumChildren(url_node, 2)) {
                 const url_value = url_node.children[1];
-                if (std.mem.eql(u8, url_value.rule_name, "string_literal")) {
+                if (utils.isTerminalOfType(url_value, "string_literal")) {
                     try self.validateUrl(url_value.text, dep_name);
                 }
             }
@@ -301,8 +302,8 @@ pub const ZonValidator = struct {
         _ = self;
 
         for (node.children) |child| {
-            if (std.mem.eql(u8, child.rule_name, "field_assignment")) {
-                if (child.children.len >= 1) {
+            if (utils.isFieldAssignment(child)) {
+                if (utils.hasMinimumChildren(child, 1)) {
                     var name = child.children[0].text;
 
                     // Clean up field name
@@ -319,7 +320,7 @@ pub const ZonValidator = struct {
                     }
 
                     if (std.mem.eql(u8, name, field_name)) {
-                        return if (child.children.len >= 2) child.children[1] else child;
+                        return utils.getFieldValue(child) orelse child;
                     }
                 }
             }
@@ -483,6 +484,7 @@ test "ZonValidator - validate build.zig.zon" {
     const ast = AST{
         .root = root,
         .allocator = allocator,
+        .owned_texts = &[_][]const u8{}, // No owned texts for test AST
         .source = "",
     };
 

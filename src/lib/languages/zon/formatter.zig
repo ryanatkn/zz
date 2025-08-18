@@ -1,7 +1,8 @@
-const std = @import("std");
-const AST = @import("../../parser/ast/mod.zig").AST;
-const Node = @import("../../ast/mod.zig").Node;
-const Token = @import("../../parser/foundation/types/token.zig").Token;
+const common = @import("common.zig");
+const std = common.std;
+const AST = common.AST;
+const Node = common.Node;
+const utils = common.utils;
 
 /// ZON formatter with comment preservation
 ///
@@ -81,7 +82,7 @@ pub const ZonFormatter = struct {
                 }
             },
             .rule => {
-                if (std.mem.eql(u8, node.rule_name, "field_assignment")) {
+                if (utils.isFieldAssignment(node)) {
                     try self.formatFieldAssignment(node);
                 } else {
                     try self.formatGenericRule(node);
@@ -109,7 +110,7 @@ pub const ZonFormatter = struct {
 
         try self.output.append('{');
 
-        if (node.children.len == 0) {
+        if (utils.isEmptyNode(node)) {
             // Empty object
             try self.output.append('}');
             return;
@@ -166,7 +167,7 @@ pub const ZonFormatter = struct {
 
         try self.output.append('[');
 
-        if (node.children.len == 0) {
+        if (utils.isEmptyNode(node)) {
             // Empty array
             try self.output.append(']');
             return;
@@ -218,7 +219,7 @@ pub const ZonFormatter = struct {
     }
 
     fn formatFieldAssignment(self: *Self, node: Node) !void {
-        if (node.children.len < 2) {
+        if (!utils.hasMinimumChildren(node, 2)) {
             // Invalid field assignment - just format children
             for (node.children) |child| {
                 try self.formatNode(child);
@@ -227,7 +228,7 @@ pub const ZonFormatter = struct {
         }
 
         const field_name_node = node.children[0];
-        const value_node = node.children[1];
+        const value_node = utils.getFieldValue(node) orelse node.children[1];
 
         // Format field name
         try self.formatNode(field_name_node);
@@ -263,7 +264,7 @@ pub const ZonFormatter = struct {
             try self.output.append('.');
         } else {
             // Generic terminal - output the text as-is
-            if (node.text.len > 0) {
+            if (utils.hasText(node)) {
                 try self.output.appendSlice(node.text);
             }
         }
@@ -287,11 +288,8 @@ pub const ZonFormatter = struct {
     fn formatNumberLiteral(self: *Self, node: Node) !void {
         // ZON numbers support all Zig number formats
         // Output as-is for now (could add normalization later)
-        if (node.text.len > 0) {
-            try self.output.appendSlice(node.text);
-        } else {
-            try self.output.appendSlice("0"); // Default to 0
-        }
+        const text = utils.getNodeText(node, "0");
+        try self.output.appendSlice(text);
     }
 
     fn formatBooleanLiteral(self: *Self, node: Node) !void {
@@ -306,19 +304,20 @@ pub const ZonFormatter = struct {
     fn formatFieldName(self: *Self, node: Node) !void {
         // Field names in ZON start with dot
         // Due to parser changes, field_name nodes might have empty or children-based text
-        if (node.children.len > 0) {
+        if (!utils.isEmptyNode(node)) {
             // Field name is composed of child nodes (e.g., '.' operator + identifier)
             for (node.children) |child| {
                 try self.formatNode(child);
             }
-        } else if (node.text.len > 0) {
+        } else if (utils.hasText(node)) {
             // We have text, format it
-            if (node.text[0] == '.') {
-                try self.output.appendSlice(node.text);
+            const text = node.text;
+            if (text[0] == '.') {
+                try self.output.appendSlice(text);
             } else {
                 // Add missing dot
                 try self.output.append('.');
-                try self.output.appendSlice(node.text);
+                try self.output.appendSlice(text);
             }
         } else {
             // Empty text, default to unknown
@@ -328,7 +327,7 @@ pub const ZonFormatter = struct {
 
     fn formatIdentifier(self: *Self, node: Node) !void {
         // Handle @"keyword" syntax and regular identifiers
-        if (node.text.len > 0) {
+        if (utils.hasText(node)) {
             try self.output.appendSlice(node.text);
         }
     }
@@ -362,12 +361,12 @@ pub const ZonFormatter = struct {
 
     fn shouldCompactObject(self: *const Self, node: Node) bool {
         if (!self.options.compact_small_objects) return false;
-        if (node.children.len == 0) return true;
+        if (utils.isEmptyNode(node)) return true;
         if (node.children.len > self.options.max_compact_elements) return false;
 
         // Check if all fields are simple (no nested objects/arrays)
         for (node.children) |child| {
-            if (!self.isSimpleNode(child)) return false;
+            if (!utils.isSimpleFieldAssignment(child)) return false;
         }
 
         // Estimate line length
@@ -377,12 +376,12 @@ pub const ZonFormatter = struct {
 
     fn shouldCompactArray(self: *const Self, node: Node) bool {
         if (!self.options.compact_small_arrays) return false;
-        if (node.children.len == 0) return true;
+        if (utils.isEmptyNode(node)) return true;
         if (node.children.len > self.options.max_compact_elements) return false;
 
         // Check if all elements are simple (no nested objects/arrays)
         for (node.children) |child| {
-            if (!self.isSimpleNode(child)) return false;
+            if (!utils.isSimpleTerminal(child)) return false;
         }
 
         // Estimate line length
@@ -392,22 +391,7 @@ pub const ZonFormatter = struct {
 
     fn isSimpleNode(self: *const Self, node: Node) bool {
         _ = self;
-
-        switch (node.node_type) {
-            .terminal => return true,
-            .rule => {
-                if (std.mem.eql(u8, node.rule_name, "field_assignment")) {
-                    // Simple if both field name and value are simple
-                    if (node.children.len >= 2) {
-                        return node.children[0].node_type == .terminal and
-                            node.children[1].node_type == .terminal;
-                    }
-                }
-                return false;
-            },
-            .list => return false,
-            else => return false,
-        }
+        return utils.isSimpleTerminal(node) or utils.isSimpleFieldAssignment(node);
     }
 
     fn estimateNodeLength(self: *const Self, node: Node) u32 {
@@ -435,11 +419,11 @@ pub const ZonFormatter = struct {
                 }
             },
             .rule => {
-                if (std.mem.eql(u8, node.rule_name, "field_assignment")) {
-                    if (node.children.len >= 2) {
-                        length += self.estimateNodeLength(node.children[0]);
-                        length += 3; // " = "
-                        length += self.estimateNodeLength(node.children[1]);
+                if (utils.isFieldAssignment(node) and utils.hasMinimumChildren(node, 2)) {
+                    length += self.estimateNodeLength(node.children[0]);
+                    length += 3; // " = "
+                    if (utils.getFieldValue(node)) |value_node| {
+                        length += self.estimateNodeLength(value_node);
                     }
                 }
             },

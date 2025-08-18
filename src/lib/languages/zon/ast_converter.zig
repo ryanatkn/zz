@@ -1,5 +1,7 @@
-const std = @import("std");
-const Node = @import("../../ast/mod.zig").Node;
+const common = @import("common.zig");
+const std = common.std;
+const Node = common.Node;
+const utils = common.utils;
 
 /// Convert ZON AST to Zig types
 /// This module handles the transformation from our parsed AST representation
@@ -50,7 +52,7 @@ pub const AstConverter = struct {
 
         // Process each field assignment in the object
         for (object_node.children) |child| {
-            if (std.mem.eql(u8, child.rule_name, "field_assignment")) {
+            if (utils.isFieldAssignment(child)) {
                 try self.processFieldAssignment(T, &result, child);
             }
         }
@@ -60,18 +62,11 @@ pub const AstConverter = struct {
 
     /// Process a field assignment node and update the struct
     fn processFieldAssignment(self: *Self, comptime T: type, result: *T, node: Node) !void {
-        if (node.children.len < 2) return;
+        if (!utils.hasMinimumChildren(node, 2)) return;
 
-        const field_name_node = node.children[0];
-        // The value node might be at index 1 or 2 depending on whether there's an = token
-        const value_node = if (node.children.len >= 3)
-            node.children[2] // field_name = value
-        else
-            node.children[1]; // field_name value (no explicit =)
-
-        // Extract field name using utils function
-        const zon_utils = @import("utils.zig");
-        const field_name = zon_utils.extractFieldName(field_name_node.text);
+        const field_data = utils.processFieldAssignment(node) orelse return;
+        const field_name = field_data.field_name;
+        const value_node = field_data.value_node;
 
         // Find the field in the struct and set its value
         const type_info = @typeInfo(T);
@@ -118,7 +113,7 @@ pub const AstConverter = struct {
         };
 
         // Handle empty array
-        if (array_node.children.len == 0) {
+        if (utils.isEmptyNode(array_node)) {
             return try self.allocator.alloc(child_type, 0);
         }
 
@@ -452,12 +447,9 @@ pub const AstConverter = struct {
         }
 
         // For assignment patterns, check the value side
-        if (std.mem.eql(u8, node.rule_name, "field_assignment")) {
-            if (node.children.len >= 2) {
-                const value_node = if (node.children.len >= 3)
-                    node.children[2]
-                else
-                    node.children[1];
+        if (utils.isFieldAssignment(node)) {
+            if (utils.hasMinimumChildren(node, 2)) {
+                const value_node = utils.getFieldValue(node) orelse return null;
                 return self.findObjectNode(value_node);
             }
         }
@@ -509,12 +501,9 @@ pub const AstConverter = struct {
         }
 
         // For assignment patterns, check the value side
-        if (std.mem.eql(u8, node.rule_name, "field_assignment")) {
-            if (node.children.len >= 2) {
-                const value_node = if (node.children.len >= 3)
-                    node.children[2]
-                else
-                    node.children[1];
+        if (utils.isFieldAssignment(node)) {
+            if (utils.hasMinimumChildren(node, 2)) {
+                const value_node = utils.getFieldValue(node) orelse return null;
                 return self.findArrayNode(value_node);
             }
         }

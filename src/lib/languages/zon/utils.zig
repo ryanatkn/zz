@@ -299,3 +299,165 @@ pub fn needsFieldQuoting(name: []const u8) bool {
 
     return false;
 }
+
+// ============================================================================
+// Advanced Field Processing Utilities
+// ============================================================================
+
+/// Check if a node represents a field assignment
+pub fn isFieldAssignment(node: anytype) bool {
+    return std.mem.eql(u8, node.rule_name, "field_assignment");
+}
+
+/// Get field name from a field_assignment node
+/// Returns null if not a field_assignment or invalid structure
+pub fn getFieldName(node: anytype) ?[]const u8 {
+    if (!isFieldAssignment(node) or node.children.len < 2) {
+        return null;
+    }
+    
+    const field_name_node = node.children[0];
+    return extractFieldName(field_name_node.text);
+}
+
+/// Get the value node from a field assignment node (convenience wrapper)
+/// This is a more explicit version of getFieldValue for clarity
+pub fn getFieldValueNode(node: anytype) ?@TypeOf(node) {
+    return getFieldValue(node);
+}
+
+/// Process a field assignment node and return field name and value node
+/// Returns null if the node is not a valid field assignment
+pub fn processFieldAssignment(node: anytype) ?struct {
+    field_name: []const u8,
+    value_node: @TypeOf(node),
+} {
+    if (!isFieldAssignment(node) or node.children.len < 2) {
+        return null;
+    }
+    
+    const field_name_node = node.children[0];
+    const value_node = getFieldValue(node) orelse return null;
+    
+    return .{
+        .field_name = extractFieldName(field_name_node.text),
+        .value_node = value_node,
+    };
+}
+
+/// Extract the field name and value from a field assignment for a specific field
+/// Returns the value node if the field matches the target name, null otherwise
+pub fn getFieldByName(node: anytype, target_field_name: []const u8) ?@TypeOf(node) {
+    const field_info = processFieldAssignment(node) orelse return null;
+    
+    if (std.mem.eql(u8, field_info.field_name, target_field_name)) {
+        return field_info.value_node;
+    }
+    
+    return null;
+}
+
+/// Check if a node is an object (list node with "object" rule)
+pub fn isObjectNode(node: anytype) bool {
+    return node.node_type == .list and std.mem.eql(u8, node.rule_name, "object");
+}
+
+/// Check if a node is an array (list node with "array" rule)
+pub fn isArrayNode(node: anytype) bool {
+    return node.node_type == .list and std.mem.eql(u8, node.rule_name, "array");
+}
+
+/// Check if a node is a terminal node of a specific type
+pub fn isTerminalOfType(node: anytype, rule_name: []const u8) bool {
+    return node.node_type == .terminal and std.mem.eql(u8, node.rule_name, rule_name);
+}
+
+// ============================================================================
+// Enhanced Convenience Functions
+// ============================================================================
+
+/// Check if a node has no children (empty container)
+pub fn isEmptyNode(node: anytype) bool {
+    return node.children.len == 0;
+}
+
+/// Check if a node has at least the minimum number of children
+pub fn hasMinimumChildren(node: anytype, min_count: usize) bool {
+    return node.children.len >= min_count;
+}
+
+/// Safe wrapper for getting field assignment value with validation
+pub fn getFieldAssignmentValue(node: anytype) ?@TypeOf(node) {
+    if (!isFieldAssignment(node)) return null;
+    return getFieldValue(node);
+}
+
+/// Find a specific field in an object node by name
+pub fn findFieldInObject(object_node: anytype, field_name: []const u8) ?@TypeOf(object_node) {
+    for (object_node.children) |child| {
+        if (isFieldAssignment(child)) {
+            const field_data = processFieldAssignment(child) orelse continue;
+            if (std.mem.eql(u8, field_data.field_name, field_name)) {
+                return field_data.value_node;
+            }
+        }
+    }
+    return null;
+}
+
+/// Check if a node is a simple terminal (for formatting decisions)
+pub fn isSimpleTerminal(node: anytype) bool {
+    if (node.node_type != .terminal) return false;
+    
+    // Consider these simple terminals
+    return isTerminalOfType(node, "string_literal") or
+           isTerminalOfType(node, "number_literal") or
+           isTerminalOfType(node, "boolean_literal") or
+           isTerminalOfType(node, "null_literal") or
+           isTerminalOfType(node, "undefined_literal") or
+           isTerminalOfType(node, "identifier");
+}
+
+/// Check if a field assignment has simple values (no nested objects/arrays)
+pub fn isSimpleFieldAssignment(node: anytype) bool {
+    if (!isFieldAssignment(node)) return false;
+    
+    const value_node = getFieldValue(node) orelse return false;
+    return isSimpleTerminal(value_node);
+}
+
+/// Count the number of field assignments in an object
+pub fn countFieldAssignments(object_node: anytype) u32 {
+    var count: u32 = 0;
+    for (object_node.children) |child| {
+        if (isFieldAssignment(child)) {
+            count += 1;
+        }
+    }
+    return count;
+}
+
+/// Get all field names from an object node
+pub fn getFieldNames(allocator: std.mem.Allocator, object_node: anytype) ![][]const u8 {
+    var names = std.ArrayList([]const u8).init(allocator);
+    defer names.deinit();
+    
+    for (object_node.children) |child| {
+        if (isFieldAssignment(child)) {
+            const field_data = processFieldAssignment(child) orelse continue;
+            try names.append(try allocator.dupe(u8, field_data.field_name));
+        }
+    }
+    
+    return names.toOwnedSlice();
+}
+
+/// Check if node has text content
+pub fn hasText(node: anytype) bool {
+    return node.text.len > 0;
+}
+
+/// Safe text access with fallback
+pub fn getNodeText(node: anytype, fallback: []const u8) []const u8 {
+    return if (hasText(node)) node.text else fallback;
+}

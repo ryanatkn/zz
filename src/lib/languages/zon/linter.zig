@@ -1,7 +1,9 @@
-const std = @import("std");
-const AST = @import("../../parser/ast/mod.zig").AST;
-const Node = @import("../../ast/mod.zig").Node;
-const Span = @import("../../parser/foundation/types/span.zig").Span;
+const common = @import("common.zig");
+const std = common.std;
+const AST = common.AST;
+const Node = common.Node;
+const Span = common.Span;
+const utils = common.utils;
 
 /// ZON linter with comprehensive validation rules
 ///
@@ -218,7 +220,8 @@ pub const ZonLinter = struct {
     fn analyzeObject(self: *Self, node: Node, enabled_rules: []const []const u8) !void {
         // Check object size
         if (self.shouldRunRule("large-structure", enabled_rules)) {
-            if (node.children.len > self.options.max_field_count) {
+            const field_count = utils.countFieldAssignments(node);
+            if (field_count > self.options.max_field_count) {
                 try self.addDiagnostic("large-structure", "Object has too many fields", node.start_position, node.end_position, .warning);
             }
         }
@@ -254,13 +257,12 @@ pub const ZonLinter = struct {
         defer seen_keys.deinit();
 
         for (object_node.children) |child| {
-            if (std.mem.eql(u8, child.rule_name, "field_assignment") and child.children.len >= 1) {
+            if (utils.isFieldAssignment(child) and utils.hasMinimumChildren(child, 1)) {
                 const field_name_node = child.children[0];
                 const field_text = field_name_node.text;
 
                 // Extract field name using utils
-                const zon_utils = @import("utils.zig");
-                const key_name = zon_utils.extractFieldName(field_text);
+                const key_name = utils.extractFieldName(field_text);
 
                 if (seen_keys.get(key_name)) |previous_span| {
                     // Duplicate key found
@@ -354,13 +356,12 @@ pub const ZonLinter = struct {
 
         // Look for known fields to detect schema type
         for (root_node.children) |child| {
-            if (std.mem.eql(u8, child.rule_name, "field_assignment") and child.children.len >= 1) {
+            if (utils.isFieldAssignment(child) and utils.hasMinimumChildren(child, 1)) {
                 const field_name_node = child.children[0];
                 const field_text = field_name_node.text;
 
                 // Extract field name using utils
-                const zon_utils = @import("utils.zig");
-                const field_name = zon_utils.extractFieldName(field_text);
+                const field_name = utils.extractFieldName(field_text);
 
                 // Check for build.zig.zon specific fields
                 if (std.mem.eql(u8, field_name, "name") or
@@ -390,9 +391,9 @@ pub const ZonLinter = struct {
         var has_version = false;
 
         for (root_node.children) |child| {
-            if (std.mem.eql(u8, child.rule_name, "field_assignment") and child.children.len >= 2) {
+            if (utils.isFieldAssignment(child) and utils.hasMinimumChildren(child, 2)) {
                 const field_name_node = child.children[0];
-                const value_node = child.children[1];
+                const value_node = utils.getFieldValue(child) orelse continue;
                 const field_text = field_name_node.text;
 
                 const field_name = if (field_text.len > 0 and field_text[0] == '.')
@@ -441,9 +442,9 @@ pub const ZonLinter = struct {
     fn validateZzZon(self: *Self, root_node: Node) !void {
         // Validate zz.zon configuration fields
         for (root_node.children) |child| {
-            if (std.mem.eql(u8, child.rule_name, "field_assignment") and child.children.len >= 2) {
+            if (utils.isFieldAssignment(child) and utils.hasMinimumChildren(child, 2)) {
                 const field_name_node = child.children[0];
-                const value_node = child.children[1];
+                const value_node = utils.getFieldValue(child) orelse continue;
                 const field_text = field_name_node.text;
 
                 const field_name = if (field_text.len > 0 and field_text[0] == '.')

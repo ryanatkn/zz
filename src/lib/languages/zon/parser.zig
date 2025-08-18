@@ -69,9 +69,14 @@ pub const ZonParser = struct {
     /// Parse tokens into ZON AST
     pub fn parse(self: *Self) !AST {
         const root_node = try self.parseValue();
+        
+        // Transfer ownership of allocated texts from parse context
+        const owned_texts = self.context.transferOwnership();
+        
         return AST{
             .root = root_node,
             .allocator = self.allocator,
+            .owned_texts = owned_texts,
         };
     }
 
@@ -391,6 +396,24 @@ pub const ZonParser = struct {
             } else if (next_token.kind == .delimiter and std.mem.eql(u8, next_token.text, "[")) {
                 // Anonymous array literal .[]
                 return self.parseArray();
+            } else if (next_token.kind == .identifier) {
+                // Dot followed by identifier: .test_package, .field_name, etc.
+                const identifier_token = self.currentToken();
+                self.advance(); // Consume the identifier
+                
+                // Create a combined dot + identifier node
+                const combined_text = try self.context.allocatePrintAstText(".{s}", .{identifier_token.text});
+                
+                return Node{
+                    .rule_name = "identifier",
+                    .node_type = .terminal,
+                    .text = combined_text,
+                    .start_position = token.span.start,
+                    .end_position = identifier_token.span.end,
+                    .children = &[_]Node{},
+                    .attributes = null,
+                    .parent = null,
+                };
             }
         }
 
@@ -426,10 +449,8 @@ pub const ZonParser = struct {
             }
 
             // Combine the dot and identifier into the field name
-            // Use utils function for consistency
-            const combined_text = try utils.combineFieldName(self.allocator, start_token.text, id_token.text);
-            // Transfer ownership to AST
-            try self.context.transferred_texts.append(combined_text);
+            // Use ParseContext for proper memory management
+            const combined_text = try self.context.allocatePrintAstText(".{s}", .{id_token.text});
 
             self.advance();
 
@@ -641,11 +662,7 @@ pub fn parse(allocator: std.mem.Allocator, tokens: []const Token) !AST {
 
     const ast = try parser.parse();
 
-    // Transfer ownership of allocated texts to AST
-    // For now we still leak them, but they're properly tracked
-    const owned_texts = parser.context.transferOwnership();
-    _ = owned_texts; // TODO: Store in AST for proper cleanup
-
+    // Owned texts are now properly transferred in parser.parse()
     return ast;
 }
 

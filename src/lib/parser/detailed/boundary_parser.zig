@@ -230,6 +230,7 @@ pub const BoundaryParser = struct {
                     .parent = null,
                 },
                 .allocator = self.allocator,
+                .owned_texts = &[_][]const u8{}, // No owned texts for boundary parser
             },
             .failure => error.ParseFailed,
         };

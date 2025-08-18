@@ -7,14 +7,14 @@ const ExtendedRule = extended_rules.ExtendedRule;
 pub const Resolver = struct {
     allocator: std.mem.Allocator,
     rules: *const std.StringHashMap(ExtendedRule),
-    
+
     pub fn init(allocator: std.mem.Allocator, rules: *const std.StringHashMap(ExtendedRule)) Resolver {
         return .{
             .allocator = allocator,
             .rules = rules,
         };
     }
-    
+
     /// Resolve an extended rule to a basic rule
     pub fn resolveExtendedRule(self: Resolver, extended_rule: ExtendedRule) !rule.Rule {
         return switch (extended_rule) {
@@ -23,12 +23,12 @@ pub const Resolver = struct {
                 // Create new sequence with resolved rules
                 var resolved_rules = std.ArrayList(rule.Rule).init(self.allocator);
                 defer resolved_rules.deinit();
-                
+
                 for (s.rules) |r| {
                     const resolved = try self.resolveExtendedRule(r);
                     try resolved_rules.append(resolved);
                 }
-                
+
                 const seq = try rule.Sequence.init(self.allocator, resolved_rules.items);
                 return seq.toRule();
             },
@@ -36,12 +36,12 @@ pub const Resolver = struct {
                 // Create new choice with resolved rules
                 var resolved_choices = std.ArrayList(rule.Rule).init(self.allocator);
                 defer resolved_choices.deinit();
-                
+
                 for (c.choices) |choice| {
                     const resolved = try self.resolveExtendedRule(choice);
                     try resolved_choices.append(resolved);
                 }
-                
+
                 const ch = try rule.Choice.init(self.allocator, resolved_choices.items);
                 return ch.toRule();
             },

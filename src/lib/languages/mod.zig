@@ -1,7 +1,7 @@
 const std = @import("std");
 
 /// Unified language support module
-/// 
+///
 /// This module provides a unified interface for all supported languages,
 /// leveraging the Pure Zig Stratified Parser architecture.
 

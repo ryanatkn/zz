@@ -54,7 +54,6 @@ pub const Operations = struct {
         try self.copyDirectoryRecursive(backup_path, target_dir);
     }
 
-
     /// Preserve files from a directory (copy to temp location)
     pub fn preserveFiles(self: *Self, dir: []const u8, files_to_preserve: []const []const u8) ![][]u8 {
         var preserved_files = collections.List([]u8).init(self.allocator);
@@ -70,7 +69,7 @@ pub const Operations = struct {
 
             // Read file content using core/io.zig
             const content = (try io.readFileOptional(self.allocator, source_path)) orelse continue;
-            
+
             // Store content with file pattern as key
             const preserved_file = try std.fmt.allocPrint(self.allocator, "{s}:{s}", .{ file_pattern, content });
             try preserved_files.append(preserved_file);

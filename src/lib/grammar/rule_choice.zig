@@ -10,7 +10,7 @@ const Rule = @import("rule.zig").Rule;
 pub const Choice = struct {
     choices: []const Rule,
     allocator: std.mem.Allocator,
-    
+
     pub fn init(allocator: std.mem.Allocator, choices: []const Rule) !Choice {
         const choices_copy = try allocator.dupe(Rule, choices);
         return .{
@@ -18,14 +18,14 @@ pub const Choice = struct {
             .allocator = allocator,
         };
     }
-    
+
     pub fn deinit(self: *Choice) void {
         self.allocator.free(self.choices);
     }
-    
+
     pub fn match(self: Choice, ctx: *TestContext) MatchResult {
         const start_pos = ctx.position;
-        
+
         // Try each choice in order
         for (self.choices) |choice_rule| {
             const result = choice_rule.match(ctx);
@@ -35,11 +35,11 @@ pub const Choice = struct {
             // Reset position for next attempt
             ctx.position = start_pos;
         }
-        
+
         // No choices matched
         return MatchResult.failure();
     }
-    
+
     pub fn toRule(self: Choice) Rule {
         return .{ .choice = self };
     }

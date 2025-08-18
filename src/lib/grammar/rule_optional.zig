@@ -9,11 +9,11 @@ const Rule = @import("rule.zig").Rule;
 /// Optional rule - matches zero or one occurrence
 pub const Optional = struct {
     rule: *const Rule,
-    
+
     pub fn init(rule: *const Rule) Optional {
         return .{ .rule = rule };
     }
-    
+
     pub fn match(self: Optional, ctx: *TestContext) MatchResult {
         const result = self.rule.match(ctx);
         if (result.success) {
@@ -22,7 +22,7 @@ pub const Optional = struct {
         // Optional always succeeds, even if underlying rule doesn't match
         return MatchResult.init(true, 0, ctx.remaining());
     }
-    
+
     pub fn toRule(self: Optional) Rule {
         return .{ .optional = self };
     }

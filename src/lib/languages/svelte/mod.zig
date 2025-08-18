@@ -9,15 +9,14 @@ const AST = @import("../../ast/mod.zig").AST;
 const FormatOptions = @import("../interface.zig").FormatOptions;
 
 /// Svelte language support
-/// 
+///
 /// This module provides Svelte component parsing, formatting, and analysis.
 /// Svelte components have three regions: script, style, and template,
 /// each using different embedded languages.
-
 /// Get Svelte language support instance
 pub fn getSupport(allocator: std.mem.Allocator) !LanguageSupport {
     _ = allocator;
-    
+
     return LanguageSupport{
         .language = .svelte,
         .lexer = Lexer{
@@ -32,8 +31,8 @@ pub fn getSupport(allocator: std.mem.Allocator) !LanguageSupport {
             .formatFn = format,
             .formatRangeFn = null, // TODO: Implement range formatting
         },
-        .linter = null,      // TODO: Implement Svelte linter
-        .analyzer = null,    // TODO: Implement Svelte analyzer
+        .linter = null, // TODO: Implement Svelte linter
+        .analyzer = null, // TODO: Implement Svelte analyzer
         .deinitFn = null,
     };
 }

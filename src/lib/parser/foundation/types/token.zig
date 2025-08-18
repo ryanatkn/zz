@@ -8,17 +8,17 @@ const TokenKind = @import("predicate.zig").TokenKind;
 pub const Token = struct {
     /// Text span this token covers
     span: Span,
-    
+
     /// Classification of this token
     kind: TokenKind,
-    
+
     /// Actual text content (slice into source)
     text: []const u8,
-    
+
     /// Pre-computed bracket depth at this token position
     /// Enables O(1) bracket matching without scanning
     bracket_depth: u16,
-    
+
     /// Additional token flags packed into a single byte
     flags: TokenFlags,
 
@@ -174,7 +174,7 @@ pub const Token = struct {
     pub fn getDelimiterType(self: Token) ?DelimiterType {
         if (!self.isKind(.delimiter)) return null;
         if (self.text.len == 0) return null;
-        
+
         return switch (self.text[0]) {
             '(' => .open_paren,
             ')' => .close_paren,
@@ -192,7 +192,7 @@ pub const Token = struct {
     pub fn isMatchingPair(self: Token, other: Token) bool {
         const self_type = self.getDelimiterType() orelse return false;
         const other_type = other.getDelimiterType() orelse return false;
-        
+
         // Check if they form a matching pair (e.g., open_paren with close_paren)
         return switch (self_type) {
             .open_paren => other_type == .close_paren,
@@ -214,10 +214,10 @@ pub const Token = struct {
     /// Check if two tokens are equal
     pub fn eql(self: Token, other: Token) bool {
         return self.span.eql(other.span) and
-               self.kind == other.kind and
-               std.mem.eql(u8, self.text, other.text) and
-               self.bracket_depth == other.bracket_depth and
-               std.meta.eql(self.flags, other.flags);
+            self.kind == other.kind and
+            std.mem.eql(u8, self.text, other.text) and
+            self.bracket_depth == other.bracket_depth and
+            std.meta.eql(self.flags, other.flags);
     }
 
     /// Calculate hash for this token
@@ -239,19 +239,19 @@ pub const Token = struct {
     ) !void {
         _ = fmt;
         _ = options;
-        
+
         try writer.print("Token({s}, \"{s}\", {}, depth={d}", .{
             @tagName(self.kind),
             self.text,
             self.span,
             self.bracket_depth,
         });
-        
+
         if (self.isOpenDelimiter()) try writer.writeAll(", open");
         if (self.isCloseDelimiter()) try writer.writeAll(", close");
         if (self.isTrivia()) try writer.writeAll(", trivia");
         if (self.isError()) try writer.writeAll(", error");
-        
+
         try writer.writeAll(")");
     }
 };
@@ -260,35 +260,35 @@ pub const Token = struct {
 pub const TokenFlags = struct {
     /// This token is an opening delimiter
     is_open_delimiter: bool = false,
-    
+
     /// This token is a closing delimiter
     is_close_delimiter: bool = false,
-    
+
     /// This token is trivia (whitespace, comment)
     is_trivia: bool = false,
-    
+
     /// This token represents a parsing error
     is_error: bool = false,
-    
+
     /// This token was inserted during error recovery
     is_inserted: bool = false,
-    
+
     /// This token is at the end of a line
     is_end_of_line: bool = false,
-    
+
     // 2 bits unused for future expansion
 };
 
 /// Types of delimiters for bracket matching
 pub const DelimiterType = enum {
-    open_paren,   // (
-    close_paren,  // )
+    open_paren, // (
+    close_paren, // )
     open_bracket, // [
-    close_bracket,// ]
-    open_brace,   // {
-    close_brace,  // }
-    open_angle,   // <
-    close_angle,  // >
+    close_bracket, // ]
+    open_brace, // {
+    close_brace, // }
+    open_angle, // <
+    close_angle, // >
 };
 
 /// Stream of tokens with utilities for processing
@@ -349,26 +349,26 @@ pub const TokenStream = struct {
     /// Find tokens overlapping with a span
     pub fn findOverlapping(self: TokenStream, span: Span, allocator: std.mem.Allocator) ![]Token {
         var result = std.ArrayList(Token).init(allocator);
-        
+
         for (self.tokens.items) |token| {
             if (token.overlaps(span)) {
                 try result.append(token);
             }
         }
-        
+
         return result.toOwnedSlice();
     }
 
     /// Find tokens by kind
     pub fn findByKind(self: TokenStream, kind: TokenKind, allocator: std.mem.Allocator) ![]Token {
         var result = std.ArrayList(Token).init(allocator);
-        
+
         for (self.tokens.items) |token| {
             if (token.isKind(kind)) {
                 try result.append(token);
             }
         }
-        
+
         return result.toOwnedSlice();
     }
 
@@ -380,13 +380,13 @@ pub const TokenStream = struct {
     /// Filter out trivia tokens
     pub fn skipTrivia(self: TokenStream, allocator: std.mem.Allocator) ![]Token {
         var result = std.ArrayList(Token).init(allocator);
-        
+
         for (self.tokens.items) |token| {
             if (!token.isTrivia()) {
                 try result.append(token);
             }
         }
-        
+
         return result.toOwnedSlice();
     }
 };
@@ -415,7 +415,7 @@ test "Token delimiter creation" {
     try testing.expect(!open_token.isCloseDelimiter());
     try testing.expect(!close_token.isOpenDelimiter());
     try testing.expect(close_token.isCloseDelimiter());
-    
+
     try testing.expectEqual(@as(i32, 1), open_token.bracketDelta());
     try testing.expectEqual(@as(i32, -1), close_token.bracketDelta());
 }
@@ -439,7 +439,7 @@ test "Token position operations" {
 
     const overlapping_span = Span.init(15, 25);
     const non_overlapping_span = Span.init(25, 35);
-    
+
     try testing.expect(token.overlaps(overlapping_span));
     try testing.expect(!token.overlaps(non_overlapping_span));
 }

@@ -19,19 +19,19 @@ test "simple terminal parsing" {
     var arena = std.heap.ArenaAllocator.init(testing.allocator);
     defer arena.deinit();
     const allocator = arena.allocator();
-    
+
     // Create simple grammar: just "hello"
     var builder = Grammar.builder(allocator);
     _ = try builder.define("greeting", terminal("hello"));
     _ = builder.start("greeting");
     const test_grammar = try builder.build();
-    
+
     var parser = Parser.init(allocator, test_grammar);
     defer parser.deinit();
-    
+
     const result = try parser.parse("hello");
     try testing.expect(result.isSuccess());
-    
+
     switch (result) {
         .success => |node| {
             try testing.expectEqualStrings("greeting", node.rule_name);
@@ -48,7 +48,7 @@ test "sequence parsing" {
     var arena = std.heap.ArenaAllocator.init(testing.allocator);
     defer arena.deinit();
     const allocator = arena.allocator();
-    
+
     // Create grammar: "hello" + " " + "world"
     var builder = Grammar.builder(allocator);
     _ = try builder.define("greeting", try sequence(allocator, &.{
@@ -58,13 +58,13 @@ test "sequence parsing" {
     }));
     _ = builder.start("greeting");
     const test_grammar = try builder.build();
-    
+
     var parser = Parser.init(allocator, test_grammar);
     defer parser.deinit();
-    
+
     const result = try parser.parse("hello world");
     try testing.expect(result.isSuccess());
-    
+
     switch (result) {
         .success => |node| {
             try testing.expectEqualStrings("greeting", node.rule_name);
@@ -80,7 +80,7 @@ test "choice parsing" {
     var arena = std.heap.ArenaAllocator.init(testing.allocator);
     defer arena.deinit();
     const allocator = arena.allocator();
-    
+
     // Create grammar: "yes" | "no"
     var builder = Grammar.builder(allocator);
     _ = try builder.define("answer", try choice(allocator, &.{
@@ -89,10 +89,10 @@ test "choice parsing" {
     }));
     _ = builder.start("answer");
     const test_grammar = try builder.build();
-    
+
     var parser = Parser.init(allocator, test_grammar);
     defer parser.deinit();
-    
+
     // Test "yes"
     {
         const result = try parser.parse("yes");
@@ -106,7 +106,7 @@ test "choice parsing" {
             .failure => return error.UnexpectedFailure,
         }
     }
-    
+
     // Test "no"
     {
         const result = try parser.parse("no");
@@ -126,17 +126,17 @@ test "optional parsing" {
     var arena = std.heap.ArenaAllocator.init(testing.allocator);
     defer arena.deinit();
     const allocator = arena.allocator();
-    
+
     // Create grammar: "maybe"?
     var builder = Grammar.builder(allocator);
     const maybe_terminal = terminal("maybe");
     _ = try builder.define("optional_word", optional(&maybe_terminal));
     _ = builder.start("optional_word");
     const test_grammar = try builder.build();
-    
+
     var parser = Parser.init(allocator, test_grammar);
     defer parser.deinit();
-    
+
     // Test with "maybe"
     {
         const result = try parser.parse("maybe");
@@ -151,7 +151,7 @@ test "optional parsing" {
             .failure => return error.UnexpectedFailure,
         }
     }
-    
+
     // Test with empty input
     {
         const result = try parser.parse("");
@@ -172,17 +172,17 @@ test "repeat parsing" {
     var arena = std.heap.ArenaAllocator.init(testing.allocator);
     defer arena.deinit();
     const allocator = arena.allocator();
-    
+
     // Create grammar: "a"*
     var builder = Grammar.builder(allocator);
     const a_terminal = terminal("a");
     _ = try builder.define("many_a", repeat(&a_terminal));
     _ = builder.start("many_a");
     const test_grammar = try builder.build();
-    
+
     var parser = Parser.init(allocator, test_grammar);
     defer parser.deinit();
-    
+
     // Test with "aaa"
     {
         const result = try parser.parse("aaa");
@@ -197,7 +197,7 @@ test "repeat parsing" {
             .failure => return error.UnexpectedFailure,
         }
     }
-    
+
     // Test with empty (should succeed with 0 matches)
     {
         const result = try parser.parse("");
@@ -218,17 +218,17 @@ test "repeat1 parsing" {
     var arena = std.heap.ArenaAllocator.init(testing.allocator);
     defer arena.deinit();
     const allocator = arena.allocator();
-    
+
     // Create grammar: "b"+
     var builder = Grammar.builder(allocator);
     const b_terminal = terminal("b");
     _ = try builder.define("some_b", repeat1(&b_terminal));
     _ = builder.start("some_b");
     const test_grammar = try builder.build();
-    
+
     var parser = Parser.init(allocator, test_grammar);
     defer parser.deinit();
-    
+
     // Test with "bbb"
     {
         const result = try parser.parse("bbb");
@@ -243,7 +243,7 @@ test "repeat1 parsing" {
             .failure => return error.UnexpectedFailure,
         }
     }
-    
+
     // Test with empty (should fail)
     {
         const result = try parser.parse("");
@@ -255,19 +255,19 @@ test "parse failure with error reporting" {
     var arena = std.heap.ArenaAllocator.init(testing.allocator);
     defer arena.deinit();
     const allocator = arena.allocator();
-    
+
     // Create simple grammar expecting "hello"
     var builder = Grammar.builder(allocator);
     _ = try builder.define("greeting", terminal("hello"));
     _ = builder.start("greeting");
     const test_grammar = try builder.build();
-    
+
     var parser = Parser.init(allocator, test_grammar);
     defer parser.deinit();
-    
+
     const result = try parser.parse("hi");
     try testing.expect(!result.isSuccess());
-    
+
     switch (result) {
         .success => return error.UnexpectedSuccess,
         .failure => |errors| {
@@ -280,7 +280,7 @@ test "rule references with builder" {
     var arena = std.heap.ArenaAllocator.init(testing.allocator);
     defer arena.deinit();
     const allocator = arena.allocator();
-    
+
     // Create grammar with references: number = digit+, expr = number
     var builder = Grammar.builder(allocator);
     _ = try builder.define("digit", try choice(allocator, &.{
@@ -294,13 +294,13 @@ test "rule references with builder" {
     _ = try builder.define("expr", ref("number"));
     _ = builder.start("expr");
     const test_grammar = try builder.build();
-    
+
     var parser = Parser.init(allocator, test_grammar);
     defer parser.deinit();
-    
+
     const result = try parser.parse("123");
     try testing.expect(result.isSuccess());
-    
+
     switch (result) {
         .success => |node| {
             try testing.expectEqualStrings("expr", node.rule_name);

@@ -44,25 +44,19 @@ pub const ProgressIndicator = struct {
 
         // Show spinner and message
         const spinner_char = self.spinner_chars[self.current_frame % self.spinner_chars.len];
-        
+
         if (self.show_elapsed) {
             const elapsed = std.time.timestamp() - self.start_time;
             const seconds = @mod(elapsed, 60);
             const minutes = @divTrunc(elapsed, 60);
-            
+
             if (minutes > 0) {
-                try self.writer.print("{s}{s}{s} {s} ({d}m {d}s)", .{
-                    Color.cyan, spinner_char, Color.reset, self.message, minutes, seconds
-                });
+                try self.writer.print("{s}{s}{s} {s} ({d}m {d}s)", .{ Color.cyan, spinner_char, Color.reset, self.message, minutes, seconds });
             } else {
-                try self.writer.print("{s}{s}{s} {s} ({d}s)", .{
-                    Color.cyan, spinner_char, Color.reset, self.message, seconds
-                });
+                try self.writer.print("{s}{s}{s} {s} ({d}s)", .{ Color.cyan, spinner_char, Color.reset, self.message, seconds });
             }
         } else {
-            try self.writer.print("{s}{s}{s} {s}", .{
-                Color.cyan, spinner_char, Color.reset, self.message
-            });
+            try self.writer.print("{s}{s}{s} {s}", .{ Color.cyan, spinner_char, Color.reset, self.message });
         }
 
         self.current_frame += 1;
@@ -72,27 +66,21 @@ pub const ProgressIndicator = struct {
     pub fn complete(self: *Self, success_message: ?[]const u8) !void {
         // Clear current line
         try self.writer.writeAll("\r\x1b[K");
-        
+
         const final_message = success_message orelse self.message;
-        
+
         if (self.show_elapsed) {
             const elapsed = std.time.timestamp() - self.start_time;
             const seconds = @mod(elapsed, 60);
             const minutes = @divTrunc(elapsed, 60);
-            
+
             if (minutes > 0) {
-                try self.writer.print("{s}✓{s} {s} ({d}m {d}s)\n", .{
-                    Color.green, Color.reset, final_message, minutes, seconds
-                });
+                try self.writer.print("{s}✓{s} {s} ({d}m {d}s)\n", .{ Color.green, Color.reset, final_message, minutes, seconds });
             } else {
-                try self.writer.print("{s}✓{s} {s} ({d}s)\n", .{
-                    Color.green, Color.reset, final_message, seconds
-                });
+                try self.writer.print("{s}✓{s} {s} ({d}s)\n", .{ Color.green, Color.reset, final_message, seconds });
             }
         } else {
-            try self.writer.print("{s}✓{s} {s}\n", .{
-                Color.green, Color.reset, final_message
-            });
+            try self.writer.print("{s}✓{s} {s}\n", .{ Color.green, Color.reset, final_message });
         }
     }
 
@@ -100,11 +88,9 @@ pub const ProgressIndicator = struct {
     pub fn fail(self: *Self, error_message: ?[]const u8) !void {
         // Clear current line
         try self.writer.writeAll("\r\x1b[K");
-        
+
         const final_message = error_message orelse self.message;
-        try self.writer.print("{s}✗{s} {s}\n", .{
-            Color.red, Color.reset, final_message
-        });
+        try self.writer.print("{s}✗{s} {s}\n", .{ Color.red, Color.reset, final_message });
     }
 
     /// Update the message without changing timing
@@ -145,17 +131,17 @@ pub const ProgressBar = struct {
     /// Update progress and display bar
     pub fn update(self: *Self, current: usize) !void {
         self.current = current;
-        
+
         // Clear current line
         try self.writer.writeAll("\r\x1b[K");
-        
+
         // Calculate progress
         const percentage = if (self.total > 0) (self.current * 100) / self.total else 0;
         const filled = if (self.total > 0) (self.current * self.width) / self.total else 0;
-        
+
         // Show progress bar
         try self.writer.print("{s} [", .{self.message});
-        
+
         var i: usize = 0;
         while (i < self.width) : (i += 1) {
             if (i < filled) {
@@ -164,20 +150,18 @@ pub const ProgressBar = struct {
                 try self.writer.writeAll("░");
             }
         }
-        
+
         try self.writer.print("] {d}% ({d}/{d})", .{ percentage, self.current, self.total });
     }
 
     /// Complete the progress bar
     pub fn complete(self: *Self, success_message: ?[]const u8) !void {
         try self.update(self.total);
-        
+
         const final_message = success_message orelse self.message;
         const elapsed = std.time.timestamp() - self.start_time;
-        
-        try self.writer.print(" - {s}{s}{s} ({d}s)\n", .{
-            Color.green, final_message, Color.reset, elapsed
-        });
+
+        try self.writer.print(" - {s}{s}{s} ({d}s)\n", .{ Color.green, final_message, Color.reset, elapsed });
     }
 };
 

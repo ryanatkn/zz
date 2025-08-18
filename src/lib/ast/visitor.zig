@@ -6,15 +6,15 @@ pub const Visitor = struct {
     /// Visit a node and return whether to continue traversal
     /// Return true to continue visiting children, false to skip
     visitFn: *const fn (node: *const Node, context: *anyopaque) bool,
-    
+
     /// Optional function called when leaving a node (post-order)
     leaveFn: ?*const fn (node: *const Node, context: *anyopaque) void,
-    
+
     /// Context data passed to visit functions
     context: *anyopaque,
-    
+
     const Self = @This();
-    
+
     /// Create a visitor with visit and optional leave functions
     pub fn init(
         visitFn: *const fn (node: *const Node, context: *anyopaque) bool,
@@ -27,19 +27,19 @@ pub const Visitor = struct {
             .context = context,
         };
     }
-    
+
     /// Visit a node and its children recursively
     pub fn visit(self: Self, node: *const Node) void {
         // Pre-order visit
         const continue_traversal = self.visitFn(node, self.context);
-        
+
         // Visit children if requested
         if (continue_traversal) {
             for (node.children) |*child| {
                 self.visit(child);
             }
         }
-        
+
         // Post-order visit if provided
         if (self.leaveFn) |leaveFn| {
             leaveFn(node, self.context);
@@ -56,7 +56,7 @@ pub fn simpleVisit(node: *const Node, visitFn: *const fn (node: *const Node) voi
             return true;
         }
     };
-    
+
     var context = visitFn;
     const visitor = Visitor.init(Context.visit, null, @ptrCast(&context));
     visitor.visit(node);
@@ -67,7 +67,7 @@ pub fn findFirst(node: *const Node, predicate: *const fn (node: *const Node) boo
     const Context = struct {
         predicate: *const fn (node: *const Node) bool,
         result: ?*const Node,
-        
+
         fn visit(n: *const Node, ctx: *anyopaque) bool {
             const self: *@This() = @ptrCast(@alignCast(ctx));
             if (self.predicate(n)) {
@@ -77,15 +77,15 @@ pub fn findFirst(node: *const Node, predicate: *const fn (node: *const Node) boo
             return true; // Continue traversal
         }
     };
-    
+
     var context = Context{
         .predicate = predicate,
         .result = null,
     };
-    
+
     const visitor = Visitor.init(Context.visit, null, &context);
     visitor.visit(node);
-    
+
     return context.result;
 }
 
@@ -98,7 +98,7 @@ pub fn findAll(
     const Context = struct {
         predicate: *const fn (node: *const Node) bool,
         results: std.ArrayList(*const Node),
-        
+
         fn visit(n: *const Node, ctx: *anyopaque) bool {
             const self: *@This() = @ptrCast(@alignCast(ctx));
             if (self.predicate(n)) {
@@ -107,22 +107,22 @@ pub fn findAll(
             return true; // Continue traversal
         }
     };
-    
+
     var context = Context{
         .predicate = predicate,
         .results = std.ArrayList(*const Node).init(allocator),
     };
     defer context.results.deinit();
-    
+
     const visitor = Visitor.init(Context.visit, null, &context);
     visitor.visit(node);
-    
+
     // Convert pointer list to value list
     var result = std.ArrayList(Node).init(allocator);
     for (context.results.items) |node_ptr| {
         try result.append(node_ptr.*);
     }
-    
+
     return result.toOwnedSlice();
 }
 
@@ -131,7 +131,7 @@ pub fn count(node: *const Node, predicate: *const fn (node: *const Node) bool) u
     const Context = struct {
         predicate: *const fn (node: *const Node) bool,
         count: usize,
-        
+
         fn visit(n: *const Node, ctx: *anyopaque) bool {
             const self: *@This() = @ptrCast(@alignCast(ctx));
             if (self.predicate(n)) {
@@ -140,14 +140,14 @@ pub fn count(node: *const Node, predicate: *const fn (node: *const Node) bool) u
             return true; // Continue traversal
         }
     };
-    
+
     var context = Context{
         .predicate = predicate,
         .count = 0,
     };
-    
+
     const visitor = Visitor.init(Context.visit, null, &context);
     visitor.visit(node);
-    
+
     return context.count;
 }

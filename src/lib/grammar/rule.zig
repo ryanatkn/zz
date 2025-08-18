@@ -31,7 +31,7 @@ pub const Rule = union(enum) {
     optional: Optional,
     repeat: Repeat,
     repeat1: Repeat1,
-    
+
     /// Attempt to match this rule against input at current position
     pub fn match(self: Rule, ctx: *TestContext) MatchResult {
         return switch (self) {
@@ -43,7 +43,7 @@ pub const Rule = union(enum) {
             .repeat1 => |r| r.match(ctx),
         };
     }
-    
+
     /// Get a human-readable name for this rule
     pub fn name(self: Rule) []const u8 {
         return switch (self) {
@@ -72,10 +72,10 @@ pub const repeat1 = rule_helpers.repeat1;
 test "Terminal matches literal string" {
     const allocator = testing.allocator;
     var ctx = TestContext.init(allocator, "hello world");
-    
+
     const rule = terminal("hello");
     const result = rule.match(&ctx);
-    
+
     try TestHelpers.expectMatch(result, "hello");
     try TestHelpers.expectRemaining(result, " world");
 }
@@ -83,27 +83,27 @@ test "Terminal matches literal string" {
 test "Terminal fails on mismatch" {
     const allocator = testing.allocator;
     var ctx = TestContext.init(allocator, "world");
-    
+
     const rule = terminal("hello");
     const result = rule.match(&ctx);
-    
+
     try TestHelpers.expectNoMatch(result);
 }
 
 test "Terminal fails on partial match" {
     const allocator = testing.allocator;
     var ctx = TestContext.init(allocator, "hel");
-    
+
     const rule = terminal("hello");
     const result = rule.match(&ctx);
-    
+
     try TestHelpers.expectNoMatch(result);
 }
 
 test "Sequence matches rules in order" {
     const allocator = testing.allocator;
     var ctx = TestContext.init(allocator, "hello world");
-    
+
     const rule = try sequence(allocator, &.{
         terminal("hello"),
         terminal(" "),
@@ -113,9 +113,9 @@ test "Sequence matches rules in order" {
         var seq = rule.sequence;
         seq.deinit();
     }
-    
+
     const result = rule.match(&ctx);
-    
+
     try TestHelpers.expectMatch(result, "hello world");
     try TestHelpers.expectConsumed(result, 11);
 }
@@ -123,7 +123,7 @@ test "Sequence matches rules in order" {
 test "Sequence fails if any rule fails" {
     const allocator = testing.allocator;
     var ctx = TestContext.init(allocator, "hello");
-    
+
     const rule = try sequence(allocator, &.{
         terminal("hello"),
         terminal(" "),
@@ -133,9 +133,9 @@ test "Sequence fails if any rule fails" {
         var seq = rule.sequence;
         seq.deinit();
     }
-    
+
     const result = rule.match(&ctx);
-    
+
     try TestHelpers.expectNoMatch(result);
     // Position should be restored on failure
     try testing.expectEqual(@as(usize, 0), ctx.position);
@@ -144,7 +144,7 @@ test "Sequence fails if any rule fails" {
 test "Choice matches first alternative" {
     const allocator = testing.allocator;
     var ctx = TestContext.init(allocator, "foo");
-    
+
     const rule = try choice(allocator, &.{
         terminal("foo"),
         terminal("bar"),
@@ -154,16 +154,16 @@ test "Choice matches first alternative" {
         var ch = rule.choice;
         ch.deinit();
     }
-    
+
     const result = rule.match(&ctx);
-    
+
     try TestHelpers.expectMatch(result, "foo");
 }
 
 test "Choice matches second alternative" {
     const allocator = testing.allocator;
     var ctx = TestContext.init(allocator, "bar");
-    
+
     const rule = try choice(allocator, &.{
         terminal("foo"),
         terminal("bar"),
@@ -173,16 +173,16 @@ test "Choice matches second alternative" {
         var ch = rule.choice;
         ch.deinit();
     }
-    
+
     const result = rule.match(&ctx);
-    
+
     try TestHelpers.expectMatch(result, "bar");
 }
 
 test "Choice fails if no alternatives match" {
     const allocator = testing.allocator;
     var ctx = TestContext.init(allocator, "qux");
-    
+
     const rule = try choice(allocator, &.{
         terminal("foo"),
         terminal("bar"),
@@ -192,31 +192,31 @@ test "Choice fails if no alternatives match" {
         var ch = rule.choice;
         ch.deinit();
     }
-    
+
     const result = rule.match(&ctx);
-    
+
     try TestHelpers.expectNoMatch(result);
 }
 
 test "Optional matches when present" {
     const allocator = testing.allocator;
     var ctx = TestContext.init(allocator, "foo");
-    
+
     const foo_rule = terminal("foo");
     const rule = optional(&foo_rule);
     const result = rule.match(&ctx);
-    
+
     try TestHelpers.expectMatch(result, "foo");
 }
 
 test "Optional succeeds when absent" {
     const allocator = testing.allocator;
     var ctx = TestContext.init(allocator, "bar");
-    
+
     const foo_rule = terminal("foo");
     const rule = optional(&foo_rule);
     const result = rule.match(&ctx);
-    
+
     try testing.expect(result.success);
     try TestHelpers.expectConsumed(result, 0);
 }
@@ -224,11 +224,11 @@ test "Optional succeeds when absent" {
 test "Repeat matches multiple occurrences" {
     const allocator = testing.allocator;
     var ctx = TestContext.init(allocator, "aaabbb");
-    
+
     const a_rule = terminal("a");
     const rule = repeat(&a_rule);
     const result = rule.match(&ctx);
-    
+
     try testing.expect(result.success);
     try TestHelpers.expectConsumed(result, 3);
     try TestHelpers.expectRemaining(result, "bbb");
@@ -237,11 +237,11 @@ test "Repeat matches multiple occurrences" {
 test "Repeat succeeds with zero matches" {
     const allocator = testing.allocator;
     var ctx = TestContext.init(allocator, "bbb");
-    
+
     const a_rule = terminal("a");
     const rule = repeat(&a_rule);
     const result = rule.match(&ctx);
-    
+
     try testing.expect(result.success);
     try TestHelpers.expectConsumed(result, 0);
 }
@@ -249,11 +249,11 @@ test "Repeat succeeds with zero matches" {
 test "Repeat1 matches one or more" {
     const allocator = testing.allocator;
     var ctx = TestContext.init(allocator, "aaabbb");
-    
+
     const a_rule = terminal("a");
     const rule = repeat1(&a_rule);
     const result = rule.match(&ctx);
-    
+
     try testing.expect(result.success);
     try TestHelpers.expectConsumed(result, 3);
 }
@@ -261,10 +261,10 @@ test "Repeat1 matches one or more" {
 test "Repeat1 fails with zero matches" {
     const allocator = testing.allocator;
     var ctx = TestContext.init(allocator, "bbb");
-    
+
     const a_rule = terminal("a");
     const rule = repeat1(&a_rule);
     const result = rule.match(&ctx);
-    
+
     try TestHelpers.expectNoMatch(result);
 }

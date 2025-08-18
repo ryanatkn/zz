@@ -1,5 +1,5 @@
 /// Common utilities shared across all language implementations
-/// 
+///
 /// This module provides reusable components that language-specific
 /// implementations can use to avoid code duplication.
 

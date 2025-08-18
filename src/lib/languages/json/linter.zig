@@ -7,7 +7,7 @@ const Rule = @import("../interface.zig").Rule;
 const Diagnostic = @import("../interface.zig").Diagnostic;
 
 /// JSON validator/linter with comprehensive error detection
-/// 
+///
 /// Features:
 /// - Duplicate key detection in objects
 /// - Number format validation (leading zeros, valid exponents)
@@ -19,9 +19,9 @@ pub const JsonLinter = struct {
     allocator: std.mem.Allocator,
     options: LinterOptions,
     diagnostics: std.ArrayList(Diagnostic),
-    
+
     const Self = @This();
-    
+
     pub const LinterOptions = struct {
         max_depth: u32 = 100,
         max_string_length: u32 = 65536,
@@ -35,7 +35,7 @@ pub const JsonLinter = struct {
         warn_on_large_numbers: bool = true,
         warn_on_deep_nesting: u32 = 20,
     };
-    
+
     // Built-in linting rules
     pub const RULES = [_]Rule{
         Rule{
@@ -74,7 +74,7 @@ pub const JsonLinter = struct {
             .severity = .warning,
         },
     };
-    
+
     pub fn init(allocator: std.mem.Allocator, options: LinterOptions) JsonLinter {
         return JsonLinter{
             .allocator = allocator,
@@ -82,23 +82,23 @@ pub const JsonLinter = struct {
             .diagnostics = std.ArrayList(Diagnostic).init(allocator),
         };
     }
-    
+
     pub fn deinit(self: *Self) void {
         for (self.diagnostics.items) |diag| {
             self.allocator.free(diag.message);
         }
         self.diagnostics.deinit();
     }
-    
+
     /// Lint JSON AST and return diagnostics
     pub fn lint(self: *Self, ast: AST, enabled_rules: []const Rule) ![]Diagnostic {
         if (ast.root) |root| {
             try self.validateNode(root, 0, enabled_rules);
         }
-        
+
         return self.diagnostics.toOwnedSlice();
     }
-    
+
     fn validateNode(self: *Self, node: *Node, depth: u32, enabled_rules: []const Rule) !void {
         // Check depth limit
         if (depth > self.options.max_depth) {
@@ -112,7 +112,7 @@ pub const JsonLinter = struct {
             }
             return;
         }
-        
+
         // Warn about deep nesting
         if (depth > self.options.warn_on_deep_nesting) {
             if (self.isRuleEnabled("deep-nesting", enabled_rules)) {
@@ -124,7 +124,7 @@ pub const JsonLinter = struct {
                 );
             }
         }
-        
+
         switch (node.node_type) {
             .json_string => try self.validateString(node, enabled_rules),
             .json_number => try self.validateNumber(node, enabled_rules),
@@ -133,7 +133,7 @@ pub const JsonLinter = struct {
             .json_member => try self.validateMember(node, depth, enabled_rules),
             else => {},
         }
-        
+
         // Recursively validate children
         if (node.children) |children| {
             for (children) |child| {
@@ -141,10 +141,10 @@ pub const JsonLinter = struct {
             }
         }
     }
-    
+
     fn validateString(self: *Self, node: *Node, enabled_rules: []const Rule) !void {
         const raw_value = node.value orelse return;
-        
+
         // Check length
         if (raw_value.len > self.options.max_string_length) {
             if (self.isRuleEnabled("large-structure", enabled_rules)) {
@@ -156,11 +156,11 @@ pub const JsonLinter = struct {
                 );
             }
         }
-        
+
         // Validate UTF-8 encoding if rule is enabled
         if (self.isRuleEnabled("valid-string-encoding", enabled_rules)) {
             if (raw_value.len >= 2 and raw_value[0] == '"' and raw_value[raw_value.len - 1] == '"') {
-                const content = raw_value[1..raw_value.len - 1];
+                const content = raw_value[1 .. raw_value.len - 1];
                 if (!std.unicode.utf8ValidateSlice(content)) {
                     try self.addDiagnostic(
                         "valid-string-encoding",
@@ -169,16 +169,16 @@ pub const JsonLinter = struct {
                         node.span,
                     );
                 }
-                
+
                 // Validate escape sequences
                 try self.validateEscapeSequences(content, node.span, enabled_rules);
             }
         }
     }
-    
+
     fn validateNumber(self: *Self, node: *Node, enabled_rules: []const Rule) !void {
         const value = node.value orelse return;
-        
+
         // Check for leading zeros
         if (self.isRuleEnabled("no-leading-zeros", enabled_rules) and !self.options.allow_leading_zeros) {
             if (value.len > 1 and value[0] == '0' and std.ascii.isDigit(value[1])) {
@@ -190,17 +190,17 @@ pub const JsonLinter = struct {
                 );
             }
         }
-        
+
         // Check number precision
         if (self.isRuleEnabled("large-number-precision", enabled_rules) and self.options.warn_on_large_numbers) {
             if (std.mem.indexOf(u8, value, ".")) |dot_pos| {
-                const decimal_part = value[dot_pos + 1..];
+                const decimal_part = value[dot_pos + 1 ..];
                 // Remove exponent part if present
                 var decimal_digits = decimal_part;
                 if (std.mem.indexOfAny(u8, decimal_part, "eE")) |exp_pos| {
                     decimal_digits = decimal_part[0..exp_pos];
                 }
-                
+
                 if (decimal_digits.len > self.options.max_number_precision) {
                     try self.addDiagnostic(
                         "large-number-precision",
@@ -211,7 +211,7 @@ pub const JsonLinter = struct {
                 }
             }
         }
-        
+
         // Validate number format
         _ = std.fmt.parseFloat(f64, value) catch {
             try self.addDiagnostic(
@@ -222,10 +222,10 @@ pub const JsonLinter = struct {
             );
         };
     }
-    
+
     fn validateObject(self: *Self, node: *Node, depth: u32, enabled_rules: []const Rule) !void {
         const members = node.children orelse return;
-        
+
         // Check object size
         if (members.len > self.options.max_object_keys) {
             if (self.isRuleEnabled("large-structure", enabled_rules)) {
@@ -237,26 +237,26 @@ pub const JsonLinter = struct {
                 );
             }
         }
-        
+
         // Check for duplicate keys
         if (self.isRuleEnabled("no-duplicate-keys", enabled_rules) and !self.options.allow_duplicate_keys) {
             var seen_keys = std.HashMap([]const u8, Span, std.hash_map.StringContext, std.hash_map.default_max_load_percentage).init(self.allocator);
             defer seen_keys.deinit();
-            
+
             for (members) |member| {
                 if (member.node_type != .json_member) continue;
                 const member_children = member.children orelse continue;
                 if (member_children.len < 2) continue;
-                
+
                 const key_node = member_children[0];
                 const key_value = key_node.value orelse continue;
-                
+
                 // Extract key content (remove quotes)
                 const key_content = if (key_value.len >= 2 and key_value[0] == '"' and key_value[key_value.len - 1] == '"')
-                    key_value[1..key_value.len - 1]
+                    key_value[1 .. key_value.len - 1]
                 else
                     key_value;
-                
+
                 if (seen_keys.get(key_content)) |first_occurrence| {
                     try self.addDiagnosticWithFix(
                         "no-duplicate-keys",
@@ -271,10 +271,10 @@ pub const JsonLinter = struct {
             }
         }
     }
-    
+
     fn validateArray(self: *Self, node: *Node, depth: u32, enabled_rules: []const Rule) !void {
         const elements = node.children orelse return;
-        
+
         // Check array size
         if (elements.len > self.options.max_array_elements) {
             if (self.isRuleEnabled("large-structure", enabled_rules)) {
@@ -287,13 +287,13 @@ pub const JsonLinter = struct {
             }
         }
     }
-    
+
     fn validateMember(self: *Self, node: *Node, depth: u32, enabled_rules: []const Rule) !void {
         const children = node.children orelse return;
         if (children.len != 2) return;
-        
+
         const key_node = children[0];
-        
+
         // Validate that key is a string
         if (key_node.node_type != .json_string) {
             try self.addDiagnostic(
@@ -304,7 +304,7 @@ pub const JsonLinter = struct {
             );
         }
     }
-    
+
     fn validateEscapeSequences(self: *Self, content: []const u8, span: Span, enabled_rules: []const Rule) !void {
         var i: usize = 0;
         while (i < content.len) {
@@ -317,7 +317,7 @@ pub const JsonLinter = struct {
                     'u' => {
                         // Unicode escape sequence: \uXXXX
                         if (i + 5 < content.len) {
-                            const hex_digits = content[i + 2..i + 6];
+                            const hex_digits = content[i + 2 .. i + 6];
                             for (hex_digits) |digit| {
                                 if (!std.ascii.isHex(digit)) {
                                     try self.addDiagnostic(
@@ -355,7 +355,7 @@ pub const JsonLinter = struct {
             }
         }
     }
-    
+
     fn isRuleEnabled(self: *Self, rule_name: []const u8, enabled_rules: []const Rule) bool {
         for (enabled_rules) |rule| {
             if (std.mem.eql(u8, rule.name, rule_name)) {
@@ -364,7 +364,7 @@ pub const JsonLinter = struct {
         }
         return false;
     }
-    
+
     fn addDiagnostic(self: *Self, rule: []const u8, message: []const u8, severity: Rule.Severity, span: Span) !void {
         const owned_message = try self.allocator.dupe(u8, message);
         try self.diagnostics.append(Diagnostic{
@@ -375,11 +375,11 @@ pub const JsonLinter = struct {
             .fix = null,
         });
     }
-    
+
     fn addDiagnosticWithFix(self: *Self, rule: []const u8, message: []const u8, severity: Rule.Severity, span: Span, fix_description: []const u8) !void {
         const owned_message = try self.allocator.dupe(u8, message);
         const owned_fix_desc = try self.allocator.dupe(u8, fix_description);
-        
+
         try self.diagnostics.append(Diagnostic{
             .rule = rule,
             .message = owned_message,
@@ -397,7 +397,7 @@ pub const JsonLinter = struct {
 pub fn lintJson(allocator: std.mem.Allocator, ast: AST, enabled_rules: []const Rule) ![]Diagnostic {
     var linter = JsonLinter.init(allocator, .{});
     defer linter.deinit();
-    
+
     return linter.lint(ast, enabled_rules);
 }
 
@@ -410,22 +410,22 @@ test "JSON linter - duplicate keys" {
     var arena = std.heap.ArenaAllocator.init(testing.allocator);
     defer arena.deinit();
     const allocator = arena.allocator();
-    
+
     const input = "{\"key\": 1, \"key\": 2}";
-    
+
     var lexer = JsonLexer.init(allocator, input, .{});
     defer lexer.deinit();
     const tokens = try lexer.tokenize();
-    
+
     var parser = JsonParser.init(allocator, tokens, .{});
     defer parser.deinit();
     var ast = try parser.parse();
     defer ast.deinit();
-    
+
     const enabled_rules = &[_]Rule{
         Rule{ .name = "no-duplicate-keys", .description = "", .severity = .@"error", .enabled = true },
     };
-    
+
     const diagnostics = try lintJson(allocator, ast, enabled_rules);
     defer {
         for (diagnostics) |diag| {
@@ -433,7 +433,7 @@ test "JSON linter - duplicate keys" {
         }
         allocator.free(diagnostics);
     }
-    
+
     // Should find duplicate key
     try testing.expect(diagnostics.len > 0);
     try testing.expectEqualStrings("no-duplicate-keys", diagnostics[0].rule);
@@ -443,22 +443,22 @@ test "JSON linter - leading zeros" {
     var arena = std.heap.ArenaAllocator.init(testing.allocator);
     defer arena.deinit();
     const allocator = arena.allocator();
-    
+
     const input = "01";
-    
+
     var lexer = JsonLexer.init(allocator, input, .{});
     defer lexer.deinit();
     const tokens = try lexer.tokenize();
-    
+
     var parser = JsonParser.init(allocator, tokens, .{});
     defer parser.deinit();
     var ast = try parser.parse();
     defer ast.deinit();
-    
+
     const enabled_rules = &[_]Rule{
         Rule{ .name = "no-leading-zeros", .description = "", .severity = .warning, .enabled = true },
     };
-    
+
     const diagnostics = try lintJson(allocator, ast, enabled_rules);
     defer {
         for (diagnostics) |diag| {
@@ -466,7 +466,7 @@ test "JSON linter - leading zeros" {
         }
         allocator.free(diagnostics);
     }
-    
+
     // Should find leading zero
     try testing.expect(diagnostics.len > 0);
     try testing.expectEqualStrings("no-leading-zeros", diagnostics[0].rule);
@@ -476,26 +476,26 @@ test "JSON linter - deep nesting" {
     var arena = std.heap.ArenaAllocator.init(testing.allocator);
     defer arena.deinit();
     const allocator = arena.allocator();
-    
+
     // Create deeply nested structure
     const input = "{\"a\": {\"b\": {\"c\": {\"d\": {\"e\": {\"f\": 1}}}}}}";
-    
+
     var lexer = JsonLexer.init(allocator, input, .{});
     defer lexer.deinit();
     const tokens = try lexer.tokenize();
-    
+
     var parser = JsonParser.init(allocator, tokens, .{});
     defer parser.deinit();
     var ast = try parser.parse();
     defer ast.deinit();
-    
+
     var linter = JsonLinter.init(allocator, .{ .warn_on_deep_nesting = 3 });
     defer linter.deinit();
-    
+
     const enabled_rules = &[_]Rule{
         Rule{ .name = "deep-nesting", .description = "", .severity = .warning, .enabled = true },
     };
-    
+
     const diagnostics = try linter.lint(ast, enabled_rules);
     defer {
         for (diagnostics) |diag| {
@@ -503,7 +503,7 @@ test "JSON linter - deep nesting" {
         }
         allocator.free(diagnostics);
     }
-    
+
     // Should warn about deep nesting
     try testing.expect(diagnostics.len > 0);
 }

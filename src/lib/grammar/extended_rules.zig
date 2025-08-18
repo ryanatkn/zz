@@ -4,7 +4,7 @@ const rule = @import("rule.zig");
 /// Rule reference for forward/circular rule definitions
 pub const RuleRef = struct {
     name: []const u8,
-    
+
     pub fn init(name: []const u8) RuleRef {
         return .{ .name = name };
     }
@@ -14,7 +14,7 @@ pub const RuleRef = struct {
 pub const ExtendedSequence = struct {
     rules: []const ExtendedRule,
     allocator: std.mem.Allocator,
-    
+
     pub fn init(allocator: std.mem.Allocator, rules: []const ExtendedRule) !ExtendedSequence {
         const rules_copy = try allocator.dupe(ExtendedRule, rules);
         return .{
@@ -22,7 +22,7 @@ pub const ExtendedSequence = struct {
             .allocator = allocator,
         };
     }
-    
+
     pub fn deinit(self: *ExtendedSequence) void {
         self.allocator.free(self.rules);
     }
@@ -32,7 +32,7 @@ pub const ExtendedSequence = struct {
 pub const ExtendedChoice = struct {
     choices: []const ExtendedRule,
     allocator: std.mem.Allocator,
-    
+
     pub fn init(allocator: std.mem.Allocator, choices: []const ExtendedRule) !ExtendedChoice {
         const choices_copy = try allocator.dupe(ExtendedRule, choices);
         return .{
@@ -40,7 +40,7 @@ pub const ExtendedChoice = struct {
             .allocator = allocator,
         };
     }
-    
+
     pub fn deinit(self: *ExtendedChoice) void {
         self.allocator.free(self.choices);
     }
@@ -49,7 +49,7 @@ pub const ExtendedChoice = struct {
 /// Extended optional that can contain rule references
 pub const ExtendedOptional = struct {
     rule: *const ExtendedRule,
-    
+
     pub fn init(inner_rule: *const ExtendedRule) ExtendedOptional {
         return .{ .rule = inner_rule };
     }
@@ -58,7 +58,7 @@ pub const ExtendedOptional = struct {
 /// Extended repeat that can contain rule references
 pub const ExtendedRepeat = struct {
     rule: *const ExtendedRule,
-    
+
     pub fn init(inner_rule: *const ExtendedRule) ExtendedRepeat {
         return .{ .rule = inner_rule };
     }
@@ -67,7 +67,7 @@ pub const ExtendedRepeat = struct {
 /// Extended repeat1 that can contain rule references
 pub const ExtendedRepeat1 = struct {
     rule: *const ExtendedRule,
-    
+
     pub fn init(inner_rule: *const ExtendedRule) ExtendedRepeat1 {
         return .{ .rule = inner_rule };
     }
@@ -83,7 +83,7 @@ pub const ExtendedRule = union(enum) {
     repeat: ExtendedRepeat,
     repeat1: ExtendedRepeat1,
     rule_ref: RuleRef,
-    
+
     /// Get a human-readable name for this rule
     pub fn name(self: ExtendedRule) []const u8 {
         return switch (self) {

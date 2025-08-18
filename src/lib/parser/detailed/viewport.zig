@@ -12,7 +12,7 @@ const SpanContext = struct {
         hasher.update(std.mem.asBytes(&span.end));
         return hasher.final();
     }
-    
+
     pub fn eql(self: @This(), a: Span, b: Span) bool {
         _ = self;
         return a.start == b.start and a.end == b.end;
@@ -28,28 +28,28 @@ const BoundaryKind = @import("../foundation/types/predicate.zig").BoundaryKind;
 pub const ViewportManager = struct {
     /// Memory allocator
     allocator: std.mem.Allocator,
-    
+
     /// Current viewport span
     current_viewport: Span,
-    
+
     /// Boundaries currently visible in viewport
     visible_boundaries: std.ArrayList(ParseBoundary),
-    
+
     /// Priority queue for predictive parsing
     parse_queue: PriorityQueue(PrioritizedBoundary),
-    
+
     /// Recently edited boundaries (for prioritization)
     recent_edits: std.HashMap(Span, EditInfo, SpanContext, std.hash_map.default_max_load_percentage),
-    
+
     /// Frequently accessed boundaries (for predictive parsing)
     access_frequency: std.HashMap(Span, AccessInfo, SpanContext, std.hash_map.default_max_load_percentage),
-    
+
     /// Scroll direction prediction for smooth scrolling
     scroll_predictor: ScrollPredictor,
-    
+
     /// Performance statistics
     stats: ViewportStats,
-    
+
     pub fn init(allocator: std.mem.Allocator) ViewportManager {
         return ViewportManager{
             .allocator = allocator,
@@ -62,14 +62,14 @@ pub const ViewportManager = struct {
             .stats = ViewportStats{},
         };
     }
-    
+
     pub fn deinit(self: *ViewportManager) void {
         self.visible_boundaries.deinit();
         self.parse_queue.deinit();
         self.recent_edits.deinit();
         self.access_frequency.deinit();
     }
-    
+
     /// Update the current viewport and recalculate visible boundaries
     pub fn updateViewport(
         self: *ViewportManager,
@@ -82,35 +82,35 @@ pub const ViewportManager = struct {
             self.stats.total_update_time_ns += @intCast(elapsed);
             self.stats.viewport_updates += 1;
         }
-        
+
         // Update scroll prediction
         self.scroll_predictor.update(self.current_viewport, new_viewport);
         self.current_viewport = new_viewport;
-        
+
         // Clear previous visible boundaries
         self.visible_boundaries.clearRetainingCapacity();
-        
+
         // Find boundaries that intersect with the viewport
         for (all_boundaries) |boundary| {
             if (boundary.span.overlaps(new_viewport)) {
                 try self.visible_boundaries.append(boundary);
-                
+
                 // Update access frequency
                 try self.updateAccessFrequency(boundary.span);
             }
         }
-        
+
         // Update parsing queue with predictive boundaries
         try self.updateParseQueue(all_boundaries);
-        
+
         self.stats.visible_boundaries_count = self.visible_boundaries.items.len;
     }
-    
+
     /// Get boundaries currently visible in the viewport
     pub fn getVisibleBoundaries(self: ViewportManager) []const ParseBoundary {
         return self.visible_boundaries.items;
     }
-    
+
     /// Get the next boundary to parse based on priority
     pub fn getNextBoundaryToParse(self: *ViewportManager) ?ParseBoundary {
         if (self.parse_queue.removeOrNull()) |prioritized| {
@@ -118,7 +118,7 @@ pub const ViewportManager = struct {
         }
         return null;
     }
-    
+
     /// Record an edit to update boundary priorities
     pub fn recordEdit(self: *ViewportManager, edited_span: Span) !void {
         const now = std.time.timestamp();
@@ -132,24 +132,24 @@ pub const ViewportManager = struct {
                 }
             },
         });
-        
+
         // Remove old edits (older than 5 minutes)
         const cutoff_time = now - 300; // 5 minutes
         var iterator = self.recent_edits.iterator();
         var to_remove = std.ArrayList(Span).init(self.allocator);
         defer to_remove.deinit();
-        
+
         while (iterator.next()) |entry| {
             if (entry.value_ptr.timestamp < cutoff_time) {
                 try to_remove.append(entry.key_ptr.*);
             }
         }
-        
+
         for (to_remove.items) |span| {
             _ = self.recent_edits.remove(span);
         }
     }
-    
+
     /// Predict boundaries that will likely be needed next
     pub fn getPredictiveBoundaries(
         self: *ViewportManager,
@@ -158,10 +158,10 @@ pub const ViewportManager = struct {
     ) []ParseBoundary {
         var predicted = std.ArrayList(ParseBoundary).init(self.allocator);
         defer predicted.deinit();
-        
+
         // Get predicted viewport based on scroll direction
         const predicted_viewport = self.scroll_predictor.predictNextViewport(self.current_viewport);
-        
+
         // Find boundaries in predicted viewport
         for (all_boundaries) |boundary| {
             if (boundary.span.overlaps(predicted_viewport)) {
@@ -169,34 +169,34 @@ pub const ViewportManager = struct {
                 if (predicted.items.len >= count) break;
             }
         }
-        
+
         return predicted.toOwnedSlice() catch &.{};
     }
-    
+
     /// Get viewport expansion for smooth scrolling
     pub fn getExpandedViewport(self: ViewportManager, expansion_factor: f32) Span {
         const viewport_size = self.current_viewport.len();
         const expansion = @as(usize, @intFromFloat(@as(f32, @floatFromInt(viewport_size)) * expansion_factor));
-        
+
         const expanded_start = if (self.current_viewport.start >= expansion)
             self.current_viewport.start - expansion
         else
             0;
-            
+
         const expanded_end = self.current_viewport.end + expansion;
-        
+
         return Span.init(expanded_start, expanded_end);
     }
-    
+
     // ========================================================================
     // Private Implementation
     // ========================================================================
-    
+
     /// Update the parsing priority queue with predictive boundaries
     fn updateParseQueue(self: *ViewportManager, all_boundaries: []const ParseBoundary) !void {
         // Clear existing queue
         while (self.parse_queue.removeOrNull()) |_| {}
-        
+
         // Add visible boundaries with highest priority
         for (self.visible_boundaries.items) |boundary| {
             const priority = self.calculatePriority(boundary, .visible);
@@ -206,7 +206,7 @@ pub const ViewportManager = struct {
                 .reason = .visible,
             });
         }
-        
+
         // Add recently edited boundaries
         var edit_iterator = self.recent_edits.iterator();
         while (edit_iterator.next()) |entry| {
@@ -219,7 +219,7 @@ pub const ViewportManager = struct {
                 });
             }
         }
-        
+
         // Add nearby boundaries for smooth scrolling
         const expanded_viewport = self.getExpandedViewport(0.5); // 50% expansion
         for (all_boundaries) |boundary| {
@@ -232,7 +232,7 @@ pub const ViewportManager = struct {
                 });
             }
         }
-        
+
         // Add frequently accessed boundaries
         var freq_iterator = self.access_frequency.iterator();
         while (freq_iterator.next()) |entry| {
@@ -250,7 +250,7 @@ pub const ViewportManager = struct {
             }
         }
     }
-    
+
     /// Calculate priority score for a boundary
     fn calculatePriority(self: *ViewportManager, boundary: ParseBoundary, reason: PriorityReason) f32 {
         var priority: f32 = switch (reason) {
@@ -260,7 +260,7 @@ pub const ViewportManager = struct {
             .frequently_accessed => 400.0,
             .predicted => 200.0,
         };
-        
+
         // Adjust based on boundary type
         priority += switch (boundary.kind) {
             .function => 10.0,
@@ -269,7 +269,7 @@ pub const ViewportManager = struct {
             .block => 4.0,
             else => 0.0,
         };
-        
+
         // Boost priority for recently edited boundaries
         if (self.recent_edits.get(boundary.span)) |edit_info| {
             const age_seconds = std.time.timestamp() - edit_info.timestamp;
@@ -277,21 +277,21 @@ pub const ViewportManager = struct {
             priority += recency_boost;
             priority += @as(f32, @floatFromInt(edit_info.edit_count)) * 5.0;
         }
-        
+
         // Boost priority for frequently accessed boundaries
         if (self.access_frequency.get(boundary.span)) |access_info| {
             priority += @as(f32, @floatFromInt(access_info.access_count)) * 2.0;
         }
-        
+
         // Distance penalty for non-visible boundaries
         if (reason != .visible) {
             const distance = self.calculateDistanceFromViewport(boundary.span);
             priority -= distance * 0.1;
         }
-        
+
         return priority;
     }
-    
+
     /// Update access frequency for a boundary
     fn updateAccessFrequency(self: *ViewportManager, span: Span) !void {
         if (self.access_frequency.getPtr(span)) |access_info| {
@@ -304,7 +304,7 @@ pub const ViewportManager = struct {
             });
         }
     }
-    
+
     /// Find boundary that contains a given span
     fn findBoundaryContaining(
         self: *ViewportManager,
@@ -319,7 +319,7 @@ pub const ViewportManager = struct {
         }
         return null;
     }
-    
+
     /// Check if a boundary is currently visible
     fn isBoundaryVisible(self: *ViewportManager, boundary: ParseBoundary) bool {
         for (self.visible_boundaries.items) |visible| {
@@ -329,13 +329,13 @@ pub const ViewportManager = struct {
         }
         return false;
     }
-    
+
     /// Calculate distance from viewport (for prioritization)
     fn calculateDistanceFromViewport(self: *ViewportManager, span: Span) f32 {
         if (span.overlaps(self.current_viewport)) {
             return 0.0; // Inside viewport
         }
-        
+
         if (span.end < self.current_viewport.start) {
             // Above viewport
             return @as(f32, @floatFromInt(self.current_viewport.start - span.end));
@@ -344,15 +344,15 @@ pub const ViewportManager = struct {
             return @as(f32, @floatFromInt(span.start - self.current_viewport.end));
         }
     }
-    
+
     // ========================================================================
     // Statistics and Performance Monitoring
     // ========================================================================
-    
+
     pub fn getStats(self: ViewportManager) ViewportStats {
         return self.stats;
     }
-    
+
     pub fn resetStats(self: *ViewportManager) void {
         self.stats = ViewportStats{};
     }
@@ -364,9 +364,9 @@ const ScrollPredictor = struct {
     scroll_velocity: f32,
     scroll_direction: ScrollDirection,
     prediction_confidence: f32,
-    
+
     const ScrollDirection = enum { up, down, none };
-    
+
     fn init() ScrollPredictor {
         return ScrollPredictor{
             .last_viewport = Span.init(0, 0),
@@ -375,10 +375,10 @@ const ScrollPredictor = struct {
             .prediction_confidence = 0.0,
         };
     }
-    
+
     fn update(self: *ScrollPredictor, old_viewport: Span, new_viewport: Span) void {
         const delta = @as(i32, @intCast(new_viewport.start)) - @as(i32, @intCast(old_viewport.start));
-        
+
         if (delta > 0) {
             self.scroll_direction = .down;
         } else if (delta < 0) {
@@ -386,19 +386,19 @@ const ScrollPredictor = struct {
         } else {
             self.scroll_direction = .none;
         }
-        
+
         self.scroll_velocity = @abs(@as(f32, @floatFromInt(delta)));
         self.prediction_confidence = @min(1.0, self.scroll_velocity / 1000.0);
         self.last_viewport = old_viewport;
     }
-    
+
     fn predictNextViewport(self: ScrollPredictor, current_viewport: Span) Span {
         if (self.scroll_direction == .none or self.prediction_confidence < 0.1) {
             return current_viewport;
         }
-        
+
         const predicted_delta = @as(usize, @intFromFloat(self.scroll_velocity * self.prediction_confidence));
-        
+
         switch (self.scroll_direction) {
             .down => {
                 return Span.init(
@@ -462,18 +462,18 @@ pub const ViewportStats = struct {
     visible_boundaries_count: usize = 0,
     predictive_cache_hits: u64 = 0,
     predictive_cache_misses: u64 = 0,
-    
+
     pub fn averageUpdateTime(self: ViewportStats) f64 {
         if (self.viewport_updates == 0) return 0.0;
         return @as(f64, @floatFromInt(self.total_update_time_ns)) / @as(f64, @floatFromInt(self.viewport_updates));
     }
-    
+
     pub fn predictionAccuracy(self: ViewportStats) f32 {
         const total_predictions = self.predictive_cache_hits + self.predictive_cache_misses;
         if (total_predictions == 0) return 0.0;
         return @as(f32, @floatFromInt(self.predictive_cache_hits)) / @as(f32, @floatFromInt(total_predictions));
     }
-    
+
     pub fn format(
         self: ViewportStats,
         comptime fmt: []const u8,
@@ -482,7 +482,7 @@ pub const ViewportStats = struct {
     ) !void {
         _ = fmt;
         _ = options;
-        
+
         try writer.print("ViewportStats{{ updates: {}, avg_time: {d:.1}μs, visible: {}, prediction: {d:.1}% }}", .{
             self.viewport_updates,
             self.averageUpdateTime() / 1000.0,
@@ -499,21 +499,21 @@ pub const ViewportStats = struct {
 fn PriorityQueue(comptime T: type) type {
     return struct {
         const Self = @This();
-        
+
         items: std.ArrayList(T),
         compare_fn: *const fn (context: void, a: T, b: T) std.math.Order,
-        
+
         fn init(allocator: std.mem.Allocator, compare_fn: *const fn (context: void, a: T, b: T) std.math.Order) Self {
             return Self{
                 .items = std.ArrayList(T).init(allocator),
                 .compare_fn = compare_fn,
             };
         }
-        
+
         fn deinit(self: *Self) void {
             self.items.deinit();
         }
-        
+
         fn add(self: *Self, item: T) !void {
             try self.items.append(item);
             // Simple sorted insertion (could be optimized with heap)
@@ -527,7 +527,7 @@ fn PriorityQueue(comptime T: type) type {
                 i = parent;
             }
         }
-        
+
         fn removeOrNull(self: *Self) ?T {
             if (self.items.items.len == 0) return null;
             return self.items.orderedRemove(0);

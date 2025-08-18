@@ -6,7 +6,7 @@ pub const Token = struct {
     text: []const u8,
     start_position: usize,
     end_position: usize,
-    
+
     pub fn length(self: Token) usize {
         return self.end_position - self.start_position;
     }

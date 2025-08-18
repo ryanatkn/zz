@@ -9,14 +9,13 @@ const AST = @import("../../ast/mod.zig").AST;
 const FormatOptions = @import("../interface.zig").FormatOptions;
 
 /// TypeScript language support
-/// 
+///
 /// This module provides TypeScript/JavaScript parsing, formatting, and analysis
 /// using the stratified parser architecture.
-
 /// Get TypeScript language support instance
 pub fn getSupport(allocator: std.mem.Allocator) !LanguageSupport {
     _ = allocator;
-    
+
     return LanguageSupport{
         .language = .typescript,
         .lexer = Lexer{
@@ -31,8 +30,8 @@ pub fn getSupport(allocator: std.mem.Allocator) !LanguageSupport {
             .formatFn = format,
             .formatRangeFn = null, // TODO: Implement range formatting
         },
-        .linter = null,      // TODO: Implement TypeScript linter
-        .analyzer = null,    // TODO: Implement TypeScript analyzer
+        .linter = null, // TODO: Implement TypeScript linter
+        .analyzer = null, // TODO: Implement TypeScript analyzer
         .deinitFn = null,
     };
 }
@@ -69,7 +68,7 @@ fn format(allocator: std.mem.Allocator, ast: AST, options: FormatOptions) ![]con
 //    - JavaScript operators and literals
 //    - Template literals and regex
 //    - JSX syntax support
-// 
+//
 // 2. Implement parser using stratified parser structural/detailed layers
 //    - Function declarations and expressions
 //    - Class declarations with TypeScript features

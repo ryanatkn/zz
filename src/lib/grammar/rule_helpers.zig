@@ -2,7 +2,6 @@ const std = @import("std");
 const rule = @import("rule.zig");
 
 /// Helper functions for convenient rule creation
-
 pub fn terminal(literal: []const u8) rule.Rule {
     return rule.Terminal.init(literal).toRule();
 }

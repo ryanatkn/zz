@@ -4,7 +4,7 @@ const datetime = @import("datetime.zig");
 
 test "datetime constants are correct" {
     const testing = std.testing;
-    
+
     // Test that our constants match expected values
     try testing.expectEqual(@as(i64, 86400), datetime.SECONDS_PER_DAY);
     try testing.expectEqual(@as(i64, 3600), datetime.SECONDS_PER_HOUR);
@@ -15,7 +15,7 @@ test "datetime constants are correct" {
 
 test "timestampToSimpleDate - known dates" {
     const testing = std.testing;
-    
+
     // Test Unix epoch (1970-01-01 00:00:00 UTC)
     // Note: Our calculation is approximate, so we test for reasonable values
     const epoch_date = datetime.timestampToSimpleDate(0);
@@ -25,7 +25,7 @@ test "timestampToSimpleDate - known dates" {
     try testing.expectEqual(@as(u32, 0), epoch_date.hour);
     try testing.expectEqual(@as(u32, 0), epoch_date.minute);
     try testing.expectEqual(@as(u32, 0), epoch_date.second);
-    
+
     // Test specific timestamp for reasonable results
     // Since this is a simplified calculation for documentation, focus on sanity checks
     const test_date = datetime.timestampToSimpleDate(1704110245);
@@ -39,16 +39,16 @@ test "timestampToSimpleDate - known dates" {
 
 test "timestampToSimpleDate - time components" {
     const testing = std.testing;
-    
+
     // Test various times within a day
     const base_timestamp = 1704067200; // 2024-01-01 00:00:00 UTC
-    
+
     // Test noon (12:00:00)
     const noon = datetime.timestampToSimpleDate(base_timestamp + 12 * 3600);
     try testing.expectEqual(@as(u32, 12), noon.hour);
     try testing.expectEqual(@as(u32, 0), noon.minute);
     try testing.expectEqual(@as(u32, 0), noon.second);
-    
+
     // Test 23:59:59
     const almost_midnight = datetime.timestampToSimpleDate(base_timestamp + 23 * 3600 + 59 * 60 + 59);
     try testing.expectEqual(@as(u32, 23), almost_midnight.hour);
@@ -59,39 +59,39 @@ test "timestampToSimpleDate - time components" {
 test "SimpleDate.formatDate - ISO format" {
     const testing = std.testing;
     const allocator = testing.allocator;
-    
+
     const date = datetime.SimpleDate{
         .year = 2024,
         .month = 3,
         .day = 15,
     };
-    
+
     const formatted = try date.formatDate(allocator);
     defer allocator.free(formatted);
-    
+
     try testing.expectEqualStrings("2024-03-15", formatted);
 }
 
 test "SimpleDate.formatDate - single digit padding" {
     const testing = std.testing;
     const allocator = testing.allocator;
-    
+
     const date = datetime.SimpleDate{
         .year = 2024,
         .month = 1,
         .day = 5,
     };
-    
+
     const formatted = try date.formatDate(allocator);
     defer allocator.free(formatted);
-    
+
     try testing.expectEqualStrings("2024-01-05", formatted);
 }
 
 test "SimpleDate.formatDateTime - ISO 8601 format" {
     const testing = std.testing;
     const allocator = testing.allocator;
-    
+
     const date = datetime.SimpleDate{
         .year = 2024,
         .month = 12,
@@ -100,17 +100,17 @@ test "SimpleDate.formatDateTime - ISO 8601 format" {
         .minute = 30,
         .second = 45,
     };
-    
+
     const formatted = try date.formatDateTime(allocator);
     defer allocator.free(formatted);
-    
+
     try testing.expectEqualStrings("2024-12-25T14:30:45Z", formatted);
 }
 
 test "SimpleDate.formatDateTime - zero padding" {
     const testing = std.testing;
     const allocator = testing.allocator;
-    
+
     const date = datetime.SimpleDate{
         .year = 2024,
         .month = 2,
@@ -119,18 +119,18 @@ test "SimpleDate.formatDateTime - zero padding" {
         .minute = 5,
         .second = 6,
     };
-    
+
     const formatted = try date.formatDateTime(allocator);
     defer allocator.free(formatted);
-    
+
     try testing.expectEqualStrings("2024-02-03T04:05:06Z", formatted);
 }
 
 test "getCurrentDate - returns valid date" {
     const testing = std.testing;
-    
+
     const current = datetime.getCurrentDate();
-    
+
     // Sanity checks for current date
     try testing.expect(current.year >= 2024); // Should be recent
     try testing.expect(current.year <= 2030); // Reasonable upper bound
@@ -145,28 +145,28 @@ test "getCurrentDate - returns valid date" {
 
 test "date calculations - approximate but reasonable" {
     const testing = std.testing;
-    
+
     // Test that dates are approximately correct (our calculation is simplified)
     // We use 365-day years and 30-day months for documentation purposes
-    
+
     // Test several known timestamps and verify they're in the right ballpark
     const test_cases = [_]struct { timestamp: i64, expected_year: u32 }{
-        .{ .timestamp = 0, .expected_year = 1970 },           // Unix epoch
-        .{ .timestamp = 946684800, .expected_year = 2000 },   // Y2K
-        .{ .timestamp = 1609459200, .expected_year = 2021 },  // 2021-01-01
-        .{ .timestamp = 1704067200, .expected_year = 2024 },  // 2024-01-01
+        .{ .timestamp = 0, .expected_year = 1970 }, // Unix epoch
+        .{ .timestamp = 946684800, .expected_year = 2000 }, // Y2K
+        .{ .timestamp = 1609459200, .expected_year = 2021 }, // 2021-01-01
+        .{ .timestamp = 1704067200, .expected_year = 2024 }, // 2024-01-01
     };
-    
+
     for (test_cases) |case| {
         const date = datetime.timestampToSimpleDate(case.timestamp);
-        
+
         // Year should be exactly correct or very close (within 1 year due to leap year approximation)
-        const year_diff = if (date.year >= case.expected_year) 
-            date.year - case.expected_year 
-        else 
+        const year_diff = if (date.year >= case.expected_year)
+            date.year - case.expected_year
+        else
             case.expected_year - date.year;
         try testing.expect(year_diff <= 1);
-        
+
         // Month and day should be reasonable
         try testing.expect(date.month >= 1 and date.month <= 12);
         try testing.expect(date.day >= 1 and date.day <= 31);
@@ -175,11 +175,11 @@ test "date calculations - approximate but reasonable" {
 
 test "future dates work correctly" {
     const testing = std.testing;
-    
+
     // Test far future date
     const future_timestamp = 2147483647; // Year 2038 problem timestamp
     const future_date = datetime.timestampToSimpleDate(future_timestamp);
-    
+
     try testing.expect(future_date.year >= 2030);
     try testing.expect(future_date.year <= 2040);
     try testing.expect(future_date.month >= 1);
@@ -190,11 +190,11 @@ test "future dates work correctly" {
 
 test "negative timestamps work" {
     const testing = std.testing;
-    
+
     // Test pre-1970 date
     const past_timestamp: i64 = -86400; // One day before Unix epoch
     const past_date = datetime.timestampToSimpleDate(past_timestamp);
-    
+
     // Should give us a date in 1969 (but our approximation might be off)
     try testing.expect(past_date.year >= 1960);
     try testing.expect(past_date.year <= 1975); // Allow more range for approximation with negative timestamps
@@ -203,17 +203,17 @@ test "negative timestamps work" {
 test "roundtrip consistency - formatting works" {
     const testing = std.testing;
     const allocator = testing.allocator;
-    
+
     // Test that we can format dates consistently
     const timestamp = 1704110245; // 2024-01-01 12:30:45 UTC
     const date = datetime.timestampToSimpleDate(timestamp);
-    
+
     const date_str = try date.formatDate(allocator);
     defer allocator.free(date_str);
-    
+
     const datetime_str = try date.formatDateTime(allocator);
     defer allocator.free(datetime_str);
-    
+
     // Verify format patterns
     try testing.expect(date_str.len == 10); // YYYY-MM-DD
     try testing.expect(datetime_str.len == 20); // YYYY-MM-DDTHH:MM:SSZ

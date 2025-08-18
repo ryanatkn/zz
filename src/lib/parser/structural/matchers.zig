@@ -8,13 +8,13 @@ const BoundaryKind = @import("../foundation/types/predicate.zig").BoundaryKind;
 pub const LanguageMatchers = struct {
     /// Current language
     language: Language,
-    
+
     pub fn init(language: Language) LanguageMatchers {
         return .{
             .language = language,
         };
     }
-    
+
     /// Check if token indicates a potential boundary start
     pub fn isBoundaryStart(self: LanguageMatchers, token: Token) bool {
         return switch (self.language) {
@@ -24,7 +24,7 @@ pub const LanguageMatchers = struct {
             else => GenericMatcher.isBoundaryStart(token),
         };
     }
-    
+
     /// Get boundary kind for a token
     pub fn getBoundaryKind(self: LanguageMatchers, token: Token) ?BoundaryKind {
         return switch (self.language) {
@@ -34,7 +34,7 @@ pub const LanguageMatchers = struct {
             else => GenericMatcher.getBoundaryKind(token),
         };
     }
-    
+
     /// Get confidence level for boundary detection
     pub fn getBoundaryConfidence(
         self: LanguageMatchers,
@@ -56,28 +56,28 @@ pub const ZigMatcher = struct {
     /// Check if token indicates boundary start
     pub fn isBoundaryStart(token: Token) bool {
         if (token.kind != .keyword) return false;
-        
+
         return std.mem.eql(u8, token.text, "fn") or
-               std.mem.eql(u8, token.text, "struct") or
-               std.mem.eql(u8, token.text, "enum") or
-               std.mem.eql(u8, token.text, "union") or
-               std.mem.eql(u8, token.text, "test") or
-               std.mem.eql(u8, token.text, "pub");
+            std.mem.eql(u8, token.text, "struct") or
+            std.mem.eql(u8, token.text, "enum") or
+            std.mem.eql(u8, token.text, "union") or
+            std.mem.eql(u8, token.text, "test") or
+            std.mem.eql(u8, token.text, "pub");
     }
-    
+
     /// Get boundary kind for token
     pub fn getBoundaryKind(token: Token) ?BoundaryKind {
         if (token.kind != .keyword) return null;
-        
+
         if (std.mem.eql(u8, token.text, "fn")) return .function;
         if (std.mem.eql(u8, token.text, "struct")) return .struct_;
         if (std.mem.eql(u8, token.text, "enum")) return .enum_;
         if (std.mem.eql(u8, token.text, "union")) return .struct_; // Treat union as struct-like
         if (std.mem.eql(u8, token.text, "test")) return .function; // Test is function-like
-        
+
         return null;
     }
-    
+
     /// Get confidence for boundary detection
     pub fn getBoundaryConfidence(
         tokens: []const Token,
@@ -85,10 +85,10 @@ pub const ZigMatcher = struct {
         kind: BoundaryKind,
     ) f32 {
         if (start_idx >= tokens.len) return 0.0;
-        
+
         const start_token = tokens[start_idx];
         var confidence: f32 = 0.5; // Base confidence
-        
+
         // Higher confidence for exact keyword matches
         switch (kind) {
             .function => {
@@ -112,59 +112,59 @@ pub const ZigMatcher = struct {
             },
             else => {},
         }
-        
+
         // Look ahead for confirmation patterns
         confidence += analyzeZigLookahead(tokens, start_idx, kind);
-        
+
         return @min(confidence, 1.0);
     }
-    
+
     /// Check if this looks like a function signature
     pub fn isLikelyFunction(tokens: []const Token, start_idx: usize) bool {
         if (start_idx + 2 >= tokens.len) return false;
-        
+
         // Pattern: [pub] fn name(...) [return_type] {
         var idx = start_idx;
-        
+
         // Skip "pub" if present
         if (std.mem.eql(u8, tokens[idx].text, "pub")) {
             idx += 1;
             if (idx >= tokens.len) return false;
         }
-        
+
         // Expect "fn"
         if (!std.mem.eql(u8, tokens[idx].text, "fn")) return false;
         idx += 1;
         if (idx >= tokens.len) return false;
-        
+
         // Expect identifier (function name)
         if (tokens[idx].kind != .identifier) return false;
         idx += 1;
         if (idx >= tokens.len) return false;
-        
+
         // Expect opening parenthesis
         if (tokens[idx].kind != .delimiter or !std.mem.eql(u8, tokens[idx].text, "(")) return false;
-        
+
         return true;
     }
-    
+
     /// Check if this looks like a struct definition
     pub fn isLikelyStruct(tokens: []const Token, start_idx: usize) bool {
         if (start_idx + 2 >= tokens.len) return false;
-        
+
         var idx = start_idx;
-        
+
         // Skip "pub" if present
         if (std.mem.eql(u8, tokens[idx].text, "pub")) {
             idx += 1;
             if (idx >= tokens.len) return false;
         }
-        
+
         // Expect "struct"
         if (!std.mem.eql(u8, tokens[idx].text, "struct")) return false;
         idx += 1;
         if (idx >= tokens.len) return false;
-        
+
         // Can have optional name, then {
         // Look ahead for opening brace within reasonable distance
         for (tokens[idx..@min(idx + 5, tokens.len)]) |token| {
@@ -172,17 +172,17 @@ pub const ZigMatcher = struct {
                 return true;
             }
         }
-        
+
         return false;
     }
-    
+
     /// Analyze lookahead for Zig patterns
     fn analyzeZigLookahead(tokens: []const Token, start_idx: usize, kind: BoundaryKind) f32 {
         _ = kind; // For now, generic lookahead
-        
+
         var confidence_boost: f32 = 0.0;
         const lookahead_limit = @min(start_idx + 10, tokens.len);
-        
+
         for (tokens[start_idx..lookahead_limit]) |token| {
             switch (token.kind) {
                 .delimiter => {
@@ -206,7 +206,7 @@ pub const ZigMatcher = struct {
                 else => {},
             }
         }
-        
+
         return confidence_boost;
     }
 };
@@ -216,29 +216,29 @@ pub const TypeScriptMatcher = struct {
     /// Check if token indicates boundary start
     pub fn isBoundaryStart(token: Token) bool {
         if (token.kind != .keyword) return false;
-        
+
         return std.mem.eql(u8, token.text, "function") or
-               std.mem.eql(u8, token.text, "class") or
-               std.mem.eql(u8, token.text, "interface") or
-               std.mem.eql(u8, token.text, "namespace") or
-               std.mem.eql(u8, token.text, "module") or
-               std.mem.eql(u8, token.text, "export") or
-               std.mem.eql(u8, token.text, "declare");
+            std.mem.eql(u8, token.text, "class") or
+            std.mem.eql(u8, token.text, "interface") or
+            std.mem.eql(u8, token.text, "namespace") or
+            std.mem.eql(u8, token.text, "module") or
+            std.mem.eql(u8, token.text, "export") or
+            std.mem.eql(u8, token.text, "declare");
     }
-    
+
     /// Get boundary kind for token
     pub fn getBoundaryKind(token: Token) ?BoundaryKind {
         if (token.kind != .keyword) return null;
-        
+
         if (std.mem.eql(u8, token.text, "function")) return .function;
         if (std.mem.eql(u8, token.text, "class")) return .class;
         if (std.mem.eql(u8, token.text, "interface")) return .class; // Interface is class-like
         if (std.mem.eql(u8, token.text, "namespace")) return .namespace;
         if (std.mem.eql(u8, token.text, "module")) return .module;
-        
+
         return null;
     }
-    
+
     /// Get confidence for boundary detection
     pub fn getBoundaryConfidence(
         tokens: []const Token,
@@ -246,10 +246,10 @@ pub const TypeScriptMatcher = struct {
         kind: BoundaryKind,
     ) f32 {
         if (start_idx >= tokens.len) return 0.0;
-        
+
         const start_token = tokens[start_idx];
         var confidence: f32 = 0.5;
-        
+
         // Higher confidence for exact matches
         switch (kind) {
             .function => {
@@ -276,20 +276,20 @@ pub const TypeScriptMatcher = struct {
             },
             else => {},
         }
-        
+
         // Look ahead for TypeScript patterns
         confidence += analyzeTypeScriptLookahead(tokens, start_idx, kind);
-        
+
         return @min(confidence, 1.0);
     }
-    
+
     /// Analyze TypeScript-specific lookahead patterns
     fn analyzeTypeScriptLookahead(tokens: []const Token, start_idx: usize, kind: BoundaryKind) f32 {
         _ = kind;
-        
+
         var confidence_boost: f32 = 0.0;
         const lookahead_limit = @min(start_idx + 8, tokens.len);
-        
+
         for (tokens[start_idx..lookahead_limit]) |token| {
             switch (token.kind) {
                 .delimiter => {
@@ -315,7 +315,7 @@ pub const TypeScriptMatcher = struct {
                 else => {},
             }
         }
-        
+
         return confidence_boost;
     }
 };
@@ -326,7 +326,7 @@ pub const JSONMatcher = struct {
     pub fn isBoundaryStart(token: Token) bool {
         return token.kind == .delimiter and std.mem.eql(u8, token.text, "{");
     }
-    
+
     /// Get boundary kind for token
     pub fn getBoundaryKind(token: Token) ?BoundaryKind {
         if (token.kind == .delimiter and std.mem.eql(u8, token.text, "{")) {
@@ -334,7 +334,7 @@ pub const JSONMatcher = struct {
         }
         return null;
     }
-    
+
     /// Get confidence for boundary detection
     pub fn getBoundaryConfidence(
         tokens: []const Token,
@@ -343,7 +343,7 @@ pub const JSONMatcher = struct {
     ) f32 {
         _ = tokens;
         _ = start_idx;
-        
+
         return switch (kind) {
             .block => 0.95, // JSON objects are very clear
             else => 0.0,
@@ -356,10 +356,10 @@ pub const GenericMatcher = struct {
     /// Check if token indicates boundary start
     pub fn isBoundaryStart(token: Token) bool {
         // Generic: look for opening braces
-        return token.kind == .delimiter and 
-               (std.mem.eql(u8, token.text, "{") or std.mem.eql(u8, token.text, "("));
+        return token.kind == .delimiter and
+            (std.mem.eql(u8, token.text, "{") or std.mem.eql(u8, token.text, "("));
     }
-    
+
     /// Get boundary kind for token
     pub fn getBoundaryKind(token: Token) ?BoundaryKind {
         if (token.kind == .delimiter) {
@@ -369,7 +369,7 @@ pub const GenericMatcher = struct {
         }
         return null;
     }
-    
+
     /// Get confidence for boundary detection
     pub fn getBoundaryConfidence(
         tokens: []const Token,
@@ -378,7 +378,7 @@ pub const GenericMatcher = struct {
     ) f32 {
         _ = tokens;
         _ = start_idx;
-        
+
         return switch (kind) {
             .block => 0.6, // Lower confidence for generic matching
             else => 0.3,
@@ -399,13 +399,13 @@ pub fn matchTokenSequence(
 ) bool {
     if (start_idx + pattern.len > tokens.len) return false;
     if (pattern.len != literals.len) return false;
-    
+
     for (pattern, literals, 0..) |expected_kind, expected_literal, i| {
         const token = tokens[start_idx + i];
         if (token.kind != expected_kind) return false;
         if (!std.mem.eql(u8, token.text, expected_literal)) return false;
     }
-    
+
     return true;
 }
 
@@ -416,12 +416,12 @@ pub fn getBestBoundaryMatch(
     language: Language,
 ) ?struct { kind: BoundaryKind, confidence: f32 } {
     const matchers = LanguageMatchers.init(language);
-    
+
     if (!matchers.isBoundaryStart(tokens[start_idx])) return null;
-    
+
     const kind = matchers.getBoundaryKind(tokens[start_idx]) orelse return null;
     const confidence = matchers.getBoundaryConfidence(tokens, start_idx, kind);
-    
+
     return .{ .kind = kind, .confidence = confidence };
 }
 
@@ -429,7 +429,7 @@ pub fn getBestBoundaryMatch(
 pub fn analyzePatternComplexity(tokens: []const Token, start_idx: usize, max_lookahead: usize) u32 {
     var complexity: u32 = 1;
     const lookahead_limit = @min(start_idx + max_lookahead, tokens.len);
-    
+
     for (tokens[start_idx..lookahead_limit]) |token| {
         switch (token.kind) {
             .keyword => complexity += 2,
@@ -439,7 +439,7 @@ pub fn analyzePatternComplexity(tokens: []const Token, start_idx: usize, max_loo
             else => {},
         }
     }
-    
+
     return complexity;
 }
 
@@ -451,12 +451,12 @@ const testing = std.testing;
 
 test "zig matcher functions" {
     const Span = @import("../foundation/types/span.zig").Span;
-    
+
     // Test function detection
     const fn_token = Token.simple(Span.init(0, 2), .keyword, "fn", 0);
     try testing.expect(ZigMatcher.isBoundaryStart(fn_token));
     try testing.expectEqual(BoundaryKind.function, ZigMatcher.getBoundaryKind(fn_token).?);
-    
+
     // Test struct detection
     const struct_token = Token.simple(Span.init(0, 6), .keyword, "struct", 0);
     try testing.expect(ZigMatcher.isBoundaryStart(struct_token));
@@ -465,12 +465,12 @@ test "zig matcher functions" {
 
 test "typescript matcher" {
     const Span = @import("../foundation/types/span.zig").Span;
-    
+
     // Test function detection
     const fn_token = Token.simple(Span.init(0, 8), .keyword, "function", 0);
     try testing.expect(TypeScriptMatcher.isBoundaryStart(fn_token));
     try testing.expectEqual(BoundaryKind.function, TypeScriptMatcher.getBoundaryKind(fn_token).?);
-    
+
     // Test class detection
     const class_token = Token.simple(Span.init(0, 5), .keyword, "class", 0);
     try testing.expect(TypeScriptMatcher.isBoundaryStart(class_token));
@@ -479,7 +479,7 @@ test "typescript matcher" {
 
 test "json matcher" {
     const Span = @import("../foundation/types/span.zig").Span;
-    
+
     // Test object boundary
     const brace_token = Token.simple(Span.init(0, 1), .delimiter, "{", 1);
     try testing.expect(JSONMatcher.isBoundaryStart(brace_token));
@@ -488,28 +488,28 @@ test "json matcher" {
 
 test "language matchers integration" {
     const Span = @import("../foundation/types/span.zig").Span;
-    
+
     // Test Zig integration
     const zig_matchers = LanguageMatchers.init(.zig);
     const fn_token = Token.simple(Span.init(0, 2), .keyword, "fn", 0);
-    
+
     try testing.expect(zig_matchers.isBoundaryStart(fn_token));
     try testing.expectEqual(BoundaryKind.function, zig_matchers.getBoundaryKind(fn_token).?);
-    
+
     // Test confidence calculation
     const tokens = [_]Token{
         fn_token,
         Token.simple(Span.init(3, 7), .identifier, "test", 0),
         Token.simple(Span.init(7, 8), .delimiter, "(", 1),
     };
-    
+
     const confidence = zig_matchers.getBoundaryConfidence(&tokens, 0, .function);
     try testing.expect(confidence > 0.9); // Should be high confidence
 }
 
 test "pattern complexity analysis" {
     const Span = @import("../foundation/types/span.zig").Span;
-    
+
     const tokens = [_]Token{
         Token.simple(Span.init(0, 2), .keyword, "fn", 0),
         Token.simple(Span.init(3, 7), .identifier, "test", 0),
@@ -517,7 +517,7 @@ test "pattern complexity analysis" {
         Token.simple(Span.init(8, 9), .delimiter, ")", 0),
         Token.simple(Span.init(10, 11), .delimiter, "{", 1),
     };
-    
+
     const complexity = analyzePatternComplexity(&tokens, 0, 5);
     try testing.expect(complexity > 5); // Should reflect the complexity of the pattern
 }

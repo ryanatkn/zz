@@ -6,220 +6,220 @@ pub const Predicate = union(enum) {
     // =====================================================
     // Lexical Facts - From Layer 0 (Tokenizer)
     // =====================================================
-    
+
     /// Token has a specific kind (identifier, keyword, operator, etc.)
     is_token: TokenKind,
-    
+
     /// Token contains specific literal text
     has_text: []const u8,
-    
+
     /// Token is at a specific bracket depth level
     bracket_depth: u16,
-    
+
     /// Token represents an opening delimiter
     is_open_delimiter,
-    
-    /// Token represents a closing delimiter  
+
+    /// Token represents a closing delimiter
     is_close_delimiter,
-    
+
     /// Token is whitespace or comment (trivia)
     is_trivia,
-    
+
     // =====================================================
     // Structural Facts - From Layer 1 (Structural Parser)
     // =====================================================
-    
+
     /// Span represents a structural boundary (function, class, block)
     is_boundary: BoundaryKind,
-    
+
     /// Span represents an error recovery region
     is_error_region,
-    
+
     /// Span can be folded in editor
     is_foldable,
-    
+
     /// Span is indented at a specific level
     indent_level: u16,
-    
+
     // =====================================================
     // Syntactic Facts - From Layer 2 (Detailed Parser)
     // =====================================================
-    
+
     /// Span represents a specific AST node type
     is_node: NodeKind,
-    
+
     /// Fact subject has another fact as a child
     has_child: FactId,
-    
+
     /// Fact subject has another fact as a parent
     has_parent: FactId,
-    
+
     /// Fact subject comes before another fact in source order
     precedes: FactId,
-    
+
     /// Fact subject comes after another fact in source order
     follows: FactId,
-    
+
     /// Node has a specific named field
     has_field: []const u8,
-    
+
     // =====================================================
     // Semantic Facts - From Analysis Layers
     // =====================================================
-    
+
     /// Span binds a symbol (declaration)
     binds_symbol: SymbolId,
-    
+
     /// Span references a symbol (usage)
     references_symbol: SymbolId,
-    
+
     /// Span has a specific type
     has_type: TypeId,
-    
+
     /// Span contains a specific value
     has_value: Value,
-    
+
     /// Symbol is defined in a specific scope
     in_scope: ScopeId,
-    
+
     // =====================================================
     // Additional semantic predicates
     // =====================================================
-    
+
     /// Span represents a function declaration
     is_function,
-    
-    /// Span represents a struct declaration  
+
+    /// Span represents a struct declaration
     is_struct,
-    
+
     /// Span represents a variable declaration
     is_variable,
-    
+
     /// Span represents a constant declaration
     is_constant,
-    
+
     /// Span represents an import statement
     is_import,
-    
+
     /// Span represents a type definition
     is_type,
-    
+
     /// Span represents an enum declaration
     is_enum,
-    
+
     /// Span represents a field declaration
     is_field,
-    
+
     /// Span represents a parameter
     is_parameter,
-    
+
     /// Span represents a function call
     is_function_call,
-    
+
     /// Span represents an identifier
     is_identifier,
-    
+
     /// Span represents a literal value
     is_literal,
-    
+
     /// Span represents a block/scope
     is_block,
-    
+
     /// Span represents an assignment
     is_assignment,
-    
+
     /// Span represents a binary expression
     is_binary_expression,
-    
+
     /// Span represents a unary expression
     is_unary_expression,
-    
+
     /// Span represents an if statement
     is_if_statement,
-    
+
     /// Span represents a while loop
     is_while_loop,
-    
+
     /// Span represents a for loop
     is_for_loop,
-    
+
     /// Span represents a return statement
     is_return_statement,
-    
+
     /// Span represents a comment
     is_comment,
-    
+
     /// Span is public/exported
     is_public,
-    
+
     /// Span is mutable
     is_mutable,
-    
+
     /// Span is documentation
     is_documentation,
-    
+
     /// Span has return type
     has_return_type,
-    
+
     /// Span has complexity measure
     has_complexity,
-    
+
     /// Span has field count
     has_field_count,
-    
+
     /// Span has variant count
     has_variant_count,
-    
+
     /// Span has alias
     has_alias,
-    
+
     /// Span has argument count
     has_argument_count,
-    
+
     /// Span has literal type
     has_literal_type,
-    
+
     /// Span has else clause
     has_else_clause,
-    
+
     /// Span has return value
     has_return_value,
-    
+
     // =====================================================
     // Editor Facts - From Editor Integration
     // =====================================================
-    
+
     /// Span should be highlighted with specific color
     highlight_color: HighlightKind,
-    
+
     /// Span contains a diagnostic (error, warning)
     has_diagnostic: DiagnosticKind,
-    
+
     /// Span is currently selected in editor
     is_selected,
-    
+
     /// Span is visible in current viewport
     is_visible,
-    
+
     /// Span has been recently modified
     is_dirty,
-    
+
     // =====================================================
     // Meta Facts - About the fact system itself
     // =====================================================
-    
+
     /// Fact is derived from another fact (not directly parsed)
     derived_from: FactId,
-    
+
     /// Fact has a specific confidence level
     confidence: f32,
-    
+
     /// Fact was generated by a specific parser layer
     from_layer: LayerId,
-    
+
     /// Fact is part of a speculation
     is_speculative,
-    
+
     pub fn format(
         self: Predicate,
         comptime fmt: []const u8,
@@ -228,7 +228,7 @@ pub const Predicate = union(enum) {
     ) !void {
         _ = fmt;
         _ = options;
-        
+
         switch (self) {
             .is_token => |kind| try writer.print("is_token({s})", .{@tagName(kind)}),
             .has_text => |text| try writer.print("has_text(\"{s}\")", .{text}),
@@ -260,7 +260,7 @@ pub const Predicate = union(enum) {
             .confidence => |conf| try writer.print("confidence({d:.2})", .{conf}),
             .from_layer => |layer| try writer.print("from_layer({s})", .{@tagName(layer)}),
             .is_speculative => try writer.writeAll("is_speculative"),
-            
+
             // Additional semantic predicates
             .is_function => try writer.writeAll("is_function"),
             .is_struct => try writer.writeAll("is_struct"),
@@ -297,26 +297,19 @@ pub const Predicate = union(enum) {
             .has_return_value => try writer.writeAll("has_return_value"),
         }
     }
-    
+
     /// Get the category of this predicate for indexing optimization
     pub fn category(self: Predicate) PredicateCategory {
         return switch (self) {
             .is_token, .has_text, .bracket_depth, .is_open_delimiter, .is_close_delimiter, .is_trivia => .lexical,
             .is_boundary, .is_error_region, .is_foldable, .indent_level => .structural,
             .is_node, .has_child, .has_parent, .precedes, .follows, .has_field => .syntactic,
-            .binds_symbol, .references_symbol, .has_type, .has_value, .in_scope,
-            .is_function, .is_struct, .is_variable, .is_constant, .is_import, .is_type, .is_enum,
-            .is_field, .is_parameter, .is_function_call, .is_identifier, .is_literal, .is_block,
-            .is_assignment, .is_binary_expression, .is_unary_expression, .is_if_statement,
-            .is_while_loop, .is_for_loop, .is_return_statement, .is_comment, .is_public,
-            .is_mutable, .is_documentation, .has_return_type, .has_complexity, .has_field_count,
-            .has_variant_count, .has_alias, .has_argument_count, .has_literal_type,
-            .has_else_clause, .has_return_value => .semantic,
+            .binds_symbol, .references_symbol, .has_type, .has_value, .in_scope, .is_function, .is_struct, .is_variable, .is_constant, .is_import, .is_type, .is_enum, .is_field, .is_parameter, .is_function_call, .is_identifier, .is_literal, .is_block, .is_assignment, .is_binary_expression, .is_unary_expression, .is_if_statement, .is_while_loop, .is_for_loop, .is_return_statement, .is_comment, .is_public, .is_mutable, .is_documentation, .has_return_type, .has_complexity, .has_field_count, .has_variant_count, .has_alias, .has_argument_count, .has_literal_type, .has_else_clause, .has_return_value => .semantic,
             .highlight_color, .has_diagnostic, .is_selected, .is_visible, .is_dirty => .editor,
             .derived_from, .confidence, .from_layer, .is_speculative => .meta,
         };
     }
-    
+
     /// Check if this predicate represents a relationship between facts
     pub fn isRelational(self: Predicate) bool {
         return switch (self) {
@@ -324,15 +317,15 @@ pub const Predicate = union(enum) {
             else => false,
         };
     }
-    
+
     /// Get the hash for this predicate (for HashMap indexing)
     pub fn hash(self: Predicate) u64 {
         var hasher = std.hash.Wyhash.init(0);
-        
+
         // Hash the tag first
         const tag = std.meta.activeTag(self);
         hasher.update(std.mem.asBytes(&tag));
-        
+
         // Hash the payload based on type
         switch (self) {
             .is_token => |kind| hasher.update(std.mem.asBytes(&kind)),
@@ -355,17 +348,17 @@ pub const Predicate = union(enum) {
             // Simple predicates with no payload - just use tag hash
             else => {},
         }
-        
+
         return hasher.final();
     }
-    
+
     /// Check if two predicates are equal
     pub fn eql(self: Predicate, other: Predicate) bool {
         const self_tag = std.meta.activeTag(self);
         const other_tag = std.meta.activeTag(other);
-        
+
         if (self_tag != other_tag) return false;
-        
+
         return switch (self) {
             .is_token => |kind| kind == other.is_token,
             .has_text => |text| std.mem.eql(u8, text, other.has_text),
@@ -396,12 +389,12 @@ pub const Predicate = union(enum) {
 
 /// Categories of predicates for indexing optimization
 pub const PredicateCategory = enum {
-    lexical,    // Token-level facts
+    lexical, // Token-level facts
     structural, // Block/boundary facts
-    syntactic,  // AST node facts
-    semantic,   // Symbol/type facts
-    editor,     // Editor integration facts
-    meta,       // Facts about facts
+    syntactic, // AST node facts
+    semantic, // Symbol/type facts
+    editor, // Editor integration facts
+    meta, // Facts about facts
 };
 
 /// Placeholder types that will be defined elsewhere in the system
@@ -484,7 +477,7 @@ pub const Value = union(enum) {
     integer: i64,
     boolean: bool,
     null_value,
-    
+
     pub fn format(
         self: Value,
         comptime fmt: []const u8,
@@ -493,7 +486,7 @@ pub const Value = union(enum) {
     ) !void {
         _ = fmt;
         _ = options;
-        
+
         switch (self) {
             .string => |s| try writer.print("\"{s}\"", .{s}),
             .number => |n| try writer.print("{d}", .{n}),
@@ -512,7 +505,7 @@ test "Predicate creation and formatting" {
     const pred2 = Predicate{ .has_text = "hello" };
     const pred3 = Predicate{ .bracket_depth = 3 };
     const pred4 = Predicate.is_trivia;
-    
+
     // Test that they can be created without errors
     _ = pred1;
     _ = pred2;
@@ -527,7 +520,7 @@ test "Predicate categories" {
     const semantic_pred = Predicate{ .binds_symbol = 123 };
     const editor_pred = Predicate{ .highlight_color = .keyword };
     const meta_pred = Predicate{ .confidence = 0.95 };
-    
+
     try testing.expectEqual(PredicateCategory.lexical, lexical_pred.category());
     try testing.expectEqual(PredicateCategory.structural, structural_pred.category());
     try testing.expectEqual(PredicateCategory.syntactic, syntactic_pred.category());
@@ -539,7 +532,7 @@ test "Predicate categories" {
 test "Predicate relational check" {
     const relational_pred = Predicate{ .has_child = 456 };
     const non_relational_pred = Predicate{ .is_token = .keyword };
-    
+
     try testing.expect(relational_pred.isRelational());
     try testing.expect(!non_relational_pred.isRelational());
 }
@@ -551,7 +544,7 @@ test "Predicate equality" {
     const pred4 = Predicate{ .has_text = "test" };
     const pred5 = Predicate{ .has_text = "test" };
     const pred6 = Predicate{ .has_text = "different" };
-    
+
     try testing.expect(pred1.eql(pred2));
     try testing.expect(!pred1.eql(pred3));
     try testing.expect(!pred1.eql(pred4));
@@ -563,10 +556,10 @@ test "Predicate hashing" {
     const pred1 = Predicate{ .is_token = .identifier };
     const pred2 = Predicate{ .is_token = .identifier };
     const pred3 = Predicate{ .is_token = .keyword };
-    
+
     // Same predicates should have same hash
     try testing.expectEqual(pred1.hash(), pred2.hash());
-    
+
     // Different predicates should have different hashes (very likely)
     try testing.expect(pred1.hash() != pred3.hash());
 }
@@ -577,7 +570,7 @@ test "Value types" {
     const int_val = Value{ .integer = 42 };
     const bool_val = Value{ .boolean = true };
     const null_val = Value.null_value;
-    
+
     // Test that they can be created without errors
     _ = str_val;
     _ = num_val;

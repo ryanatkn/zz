@@ -10,7 +10,7 @@ pub const Walker = struct {
             walkPreOrder(child, context, visitFn);
         }
     }
-    
+
     /// Walk the tree depth-first, post-order
     pub fn walkPostOrder(node: *const Node, context: anytype, visitFn: *const fn (node: *const Node, ctx: @TypeOf(context)) void) void {
         for (node.children) |*child| {
@@ -18,24 +18,24 @@ pub const Walker = struct {
         }
         visitFn(node, context);
     }
-    
+
     /// Walk the tree breadth-first
     pub fn walkBreadthFirst(allocator: std.mem.Allocator, node: *const Node, context: anytype, visitFn: *const fn (node: *const Node, ctx: @TypeOf(context)) void) !void {
         var queue = std.ArrayList(*const Node).init(allocator);
         defer queue.deinit();
-        
+
         try queue.append(node);
-        
+
         while (queue.items.len > 0) {
             const current = queue.orderedRemove(0);
             visitFn(current, context);
-            
+
             for (current.children) |*child| {
                 try queue.append(child);
             }
         }
     }
-    
+
     /// Walk only leaf nodes
     pub fn walkLeaves(node: *const Node, context: anytype, visitFn: *const fn (node: *const Node, ctx: @TypeOf(context)) void) void {
         if (node.isLeaf()) {
@@ -46,7 +46,7 @@ pub const Walker = struct {
             }
         }
     }
-    
+
     /// Walk up the tree from a node to the root
     pub fn walkAncestors(node: *const Node, context: anytype, visitFn: *const fn (node: *const Node, ctx: @TypeOf(context)) void) void {
         var current = node.parent;
@@ -55,21 +55,21 @@ pub const Walker = struct {
             current = parent.parent;
         }
     }
-    
+
     /// Get the path from root to a specific node
     pub fn getPath(allocator: std.mem.Allocator, node: *const Node) ![]const Node {
         var path = std.ArrayList(Node).init(allocator);
         defer path.deinit();
-        
+
         var current: ?*const Node = node;
         while (current) |n| {
             try path.insert(0, n.*);
             current = n.parent;
         }
-        
+
         return path.toOwnedSlice();
     }
-    
+
     /// Get the depth of a node (distance from root)
     pub fn getDepth(node: *const Node) usize {
         var depth: usize = 0;
@@ -80,7 +80,7 @@ pub const Walker = struct {
         }
         return depth;
     }
-    
+
     /// Get the maximum depth of the tree
     pub fn getMaxDepth(node: *const Node) usize {
         var max_depth: usize = 0;
@@ -90,7 +90,7 @@ pub const Walker = struct {
         }
         return max_depth;
     }
-    
+
     /// Count total nodes in the tree
     pub fn countNodes(node: *const Node) usize {
         var count: usize = 1; // Count this node
@@ -99,22 +99,17 @@ pub const Walker = struct {
         }
         return count;
     }
-    
+
     /// Pretty print the tree structure
     pub fn printTree(node: *const Node, writer: anytype, indent: usize) !void {
         // Print indentation
         for (0..indent) |_| {
             try writer.print("  ");
         }
-        
+
         // Print node info
-        try writer.print("{s}: '{s}' ({}-{})\n", .{ 
-            node.rule_name, 
-            node.text, 
-            node.start_position, 
-            node.end_position 
-        });
-        
+        try writer.print("{s}: '{s}' ({}-{})\n", .{ node.rule_name, node.text, node.start_position, node.end_position });
+
         // Print children
         for (node.children) |*child| {
             try printTree(child, writer, indent + 1);

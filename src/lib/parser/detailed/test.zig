@@ -27,7 +27,7 @@ const BoundaryKind = @import("../foundation/types/predicate.zig").BoundaryKind;
 test "detailed parser initialization and cleanup" {
     var detailed = try DetailedParser.init(testing.allocator);
     defer detailed.deinit();
-    
+
     try testing.expect(detailed.generation == 0);
     try testing.expect(detailed.cache.max_capacity > 0);
 }
@@ -35,25 +35,25 @@ test "detailed parser initialization and cleanup" {
 test "viewport parsing performance targets" {
     var detailed = try DetailedParser.init(testing.allocator);
     defer detailed.deinit();
-    
+
     // Create mock viewport and boundaries
     const viewport = Span.init(0, 1000);
     const boundaries = try createMockBoundaries(testing.allocator, 5);
     defer testing.allocator.free(boundaries);
-    
+
     const tokens = try createMockTokens(testing.allocator, 50);
     defer testing.allocator.free(tokens);
-    
+
     // Measure viewport parsing time
     const start = std.time.nanoTimestamp();
     const fact_stream = try detailed.parseViewport(viewport, boundaries, tokens);
     defer fact_stream.deinit();
     const elapsed = std.time.nanoTimestamp() - start;
-    
+
     // Target: <10ms for viewport parsing
     const elapsed_ms = @as(f64, @floatFromInt(elapsed)) / 1_000_000.0;
     try testing.expect(elapsed_ms < 10.0);
-    
+
     const facts = fact_stream.getFacts();
     try testing.expect(facts.len > 0);
 }
@@ -61,30 +61,30 @@ test "viewport parsing performance targets" {
 test "incremental edit processing" {
     var detailed = try DetailedParser.init(testing.allocator);
     defer detailed.deinit();
-    
+
     // Create initial state
     const edit = Edit{
         .span = Span.init(100, 200),
         .operation = .replace,
         .new_text = "modified content",
     };
-    
+
     const affected_boundaries = try createMockBoundaries(testing.allocator, 2);
     defer testing.allocator.free(affected_boundaries);
-    
+
     const tokens = try createMockTokens(testing.allocator, 20);
     defer testing.allocator.free(tokens);
-    
+
     // Process incremental edit
     const start = std.time.nanoTimestamp();
     var delta = try detailed.processEdit(edit, affected_boundaries, tokens);
     defer delta.deinit(testing.allocator);
     const elapsed = std.time.nanoTimestamp() - start;
-    
+
     // Target: <5ms for incremental updates
     const elapsed_ms = @as(f64, @floatFromInt(elapsed)) / 1_000_000.0;
     try testing.expect(elapsed_ms < 5.0);
-    
+
     try testing.expect(delta.generation > 0);
     try testing.expect(delta.affected_range.start == edit.span.start);
 }
@@ -92,23 +92,23 @@ test "incremental edit processing" {
 test "cache hit rate targets" {
     var detailed = try DetailedParser.init(testing.allocator);
     defer detailed.deinit();
-    
+
     const boundaries = try createMockBoundaries(testing.allocator, 3);
     defer testing.allocator.free(boundaries);
-    
+
     const tokens = try createMockTokens(testing.allocator, 30);
     defer testing.allocator.free(tokens);
-    
+
     const viewport = Span.init(0, 500);
-    
+
     // Parse same viewport multiple times to build cache
     for (0..10) |_| {
         const fact_stream = try detailed.parseViewport(viewport, boundaries, tokens);
         fact_stream.deinit();
     }
-    
+
     const stats = detailed.getStats();
-    
+
     // Target: >95% cache hit rate
     try testing.expect(stats.cache_hit_rate > 0.95);
 }
@@ -120,7 +120,7 @@ test "cache hit rate targets" {
 test "fact generator initialization" {
     var generator = FactGenerator.init(testing.allocator);
     defer generator.deinit();
-    
+
     try testing.expect(generator.next_fact_id == 1);
     try testing.expect(generator.generation == 0);
 }
@@ -128,16 +128,16 @@ test "fact generator initialization" {
 test "AST to facts conversion" {
     var generator = FactGenerator.init(testing.allocator);
     defer generator.deinit();
-    
+
     // Create mock AST
     const ast = createMockAST();
     const boundary = createMockBoundary(Span.init(0, 100), .function);
-    
+
     const facts = try generator.fromAST(ast, boundary);
     defer testing.allocator.free(facts);
-    
+
     try testing.expect(facts.len > 0);
-    
+
     // Verify fact structure
     for (facts) |fact| {
         try testing.expect(fact.id > 0);
@@ -149,37 +149,37 @@ test "AST to facts conversion" {
 test "fact generation performance" {
     var generator = FactGenerator.init(testing.allocator);
     defer generator.deinit();
-    
+
     const ast = createLargeAST(); // Create AST with many nodes
     const boundary = createMockBoundary(Span.init(0, 1000), .function);
-    
+
     const start = std.time.nanoTimestamp();
     const facts = try generator.fromAST(ast, boundary);
     defer testing.allocator.free(facts);
     const elapsed = std.time.nanoTimestamp() - start;
-    
+
     // Target: <100ns per fact generated
     const facts_per_ns = @as(f64, @floatFromInt(facts.len)) / @as(f64, @floatFromInt(elapsed));
     const ns_per_fact = 1.0 / facts_per_ns;
-    
+
     try testing.expect(ns_per_fact < 100.0);
 }
 
 test "fact generation statistics" {
     var generator = FactGenerator.init(testing.allocator);
     defer generator.deinit();
-    
+
     const initial_stats = generator.getStats();
     try testing.expect(initial_stats.facts_generated == 0);
     try testing.expect(initial_stats.conversions_performed == 0);
-    
+
     // Generate some facts
     const ast = createMockAST();
     const boundary = createMockBoundary(Span.init(0, 100), .function);
-    
+
     const facts = try generator.fromAST(ast, boundary);
     defer testing.allocator.free(facts);
-    
+
     const updated_stats = generator.getStats();
     try testing.expect(updated_stats.facts_generated == facts.len);
     try testing.expect(updated_stats.conversions_performed == 1);
@@ -193,7 +193,7 @@ test "fact generation statistics" {
 test "boundary parser initialization" {
     var parser = try BoundaryParser.init(testing.allocator);
     defer parser.deinit();
-    
+
     const stats = parser.getStats();
     try testing.expect(stats.boundaries_parsed == 0);
     try testing.expect(stats.total_parse_time_ns == 0);
@@ -202,20 +202,20 @@ test "boundary parser initialization" {
 test "single boundary parsing" {
     var parser = try BoundaryParser.init(testing.allocator);
     defer parser.deinit();
-    
+
     var mock_parser = try createMockParser(testing.allocator);
     defer mock_parser.deinit();
-    
+
     var fact_generator = FactGenerator.init(testing.allocator);
     defer fact_generator.deinit();
-    
+
     var cache = try BoundaryCache.init(testing.allocator, 10);
     defer cache.deinit();
-    
+
     const boundary = createMockBoundary(Span.init(0, 100), .function);
     const tokens = try createMockTokens(testing.allocator, 10);
     defer testing.allocator.free(tokens);
-    
+
     const facts = try parser.parseBoundary(
         boundary,
         tokens,
@@ -224,9 +224,9 @@ test "single boundary parsing" {
         &cache,
     );
     defer testing.allocator.free(facts);
-    
+
     try testing.expect(facts.len > 0);
-    
+
     const stats = parser.getStats();
     try testing.expect(stats.boundaries_parsed == 1);
 }
@@ -234,22 +234,22 @@ test "single boundary parsing" {
 test "multiple boundary parsing" {
     var parser = try BoundaryParser.init(testing.allocator);
     defer parser.deinit();
-    
+
     var mock_parser = try createMockParser(testing.allocator);
     defer mock_parser.deinit();
-    
+
     var fact_generator = FactGenerator.init(testing.allocator);
     defer fact_generator.deinit();
-    
+
     var cache = try BoundaryCache.init(testing.allocator, 10);
     defer cache.deinit();
-    
+
     const boundaries = try createMockBoundaries(testing.allocator, 3);
     defer testing.allocator.free(boundaries);
-    
+
     const tokens = try createMockTokens(testing.allocator, 30);
     defer testing.allocator.free(tokens);
-    
+
     const results = try parser.parseBoundaries(
         boundaries,
         tokens,
@@ -263,9 +263,9 @@ test "multiple boundary parsing" {
         }
         testing.allocator.free(results);
     }
-    
+
     try testing.expect(results.len == boundaries.len);
-    
+
     const stats = parser.getStats();
     try testing.expect(stats.boundaries_parsed == boundaries.len);
 }
@@ -273,27 +273,27 @@ test "multiple boundary parsing" {
 test "visible boundary parsing" {
     var parser = try BoundaryParser.init(testing.allocator);
     defer parser.deinit();
-    
+
     var mock_parser = try createMockParser(testing.allocator);
     defer mock_parser.deinit();
-    
+
     var fact_generator = FactGenerator.init(testing.allocator);
     defer fact_generator.deinit();
-    
+
     var cache = try BoundaryCache.init(testing.allocator, 10);
     defer cache.deinit();
-    
+
     // Create boundaries, some visible, some not
     const all_boundaries = &[_]ParseBoundary{
-        createMockBoundary(Span.init(0, 50), .function),     // Visible
-        createMockBoundary(Span.init(75, 125), .function),   // Visible
-        createMockBoundary(Span.init(200, 250), .function),  // Not visible
+        createMockBoundary(Span.init(0, 50), .function), // Visible
+        createMockBoundary(Span.init(75, 125), .function), // Visible
+        createMockBoundary(Span.init(200, 250), .function), // Not visible
     };
-    
+
     const viewport = Span.init(0, 150); // Covers first two boundaries
     const tokens = try createMockTokens(testing.allocator, 25);
     defer testing.allocator.free(tokens);
-    
+
     const results = try parser.parseVisibleBoundaries(
         all_boundaries,
         viewport,
@@ -308,7 +308,7 @@ test "visible boundary parsing" {
         }
         testing.allocator.free(results);
     }
-    
+
     // Should only parse 2 visible boundaries
     try testing.expect(results.len == 2);
 }
@@ -316,20 +316,20 @@ test "visible boundary parsing" {
 test "boundary update after edit" {
     var parser = try BoundaryParser.init(testing.allocator);
     defer parser.deinit();
-    
+
     var mock_parser = try createMockParser(testing.allocator);
     defer mock_parser.deinit();
-    
+
     var fact_generator = FactGenerator.init(testing.allocator);
     defer fact_generator.deinit();
-    
+
     var cache = try BoundaryCache.init(testing.allocator, 10);
     defer cache.deinit();
-    
+
     const boundary = createMockBoundary(Span.init(0, 100), .function);
     const tokens = try createMockTokens(testing.allocator, 10);
     defer testing.allocator.free(tokens);
-    
+
     // Initial parse to populate cache
     const initial_facts = try parser.parseBoundary(
         boundary,
@@ -339,7 +339,7 @@ test "boundary update after edit" {
         &cache,
     );
     defer testing.allocator.free(initial_facts);
-    
+
     // Update after edit
     var update_result = try parser.updateBoundary(
         boundary,
@@ -349,7 +349,7 @@ test "boundary update after edit" {
         &cache,
     );
     defer update_result.deinit(testing.allocator);
-    
+
     try testing.expect(update_result.new_facts.len > 0);
     // old_facts might be null if not previously cached
 }
@@ -361,7 +361,7 @@ test "boundary update after edit" {
 test "viewport manager initialization" {
     var manager = ViewportManager.init(testing.allocator);
     defer manager.deinit();
-    
+
     try testing.expect(manager.current_viewport.start == 0);
     try testing.expect(manager.current_viewport.end == 0);
     try testing.expect(manager.visible_boundaries.items.len == 0);
@@ -370,20 +370,20 @@ test "viewport manager initialization" {
 test "viewport update and boundary detection" {
     var manager = ViewportManager.init(testing.allocator);
     defer manager.deinit();
-    
+
     const boundaries = try createMockBoundaries(testing.allocator, 5);
     defer testing.allocator.free(boundaries);
-    
+
     const viewport = Span.init(50, 200);
-    
+
     try manager.updateViewport(viewport, boundaries);
-    
+
     try testing.expect(manager.current_viewport.start == viewport.start);
     try testing.expect(manager.current_viewport.end == viewport.end);
-    
+
     const visible = manager.getVisibleBoundaries();
     try testing.expect(visible.len > 0);
-    
+
     // All visible boundaries should overlap with viewport
     for (visible) |boundary| {
         try testing.expect(boundary.span.overlaps(viewport));
@@ -393,13 +393,13 @@ test "viewport update and boundary detection" {
 test "parsing priority queue" {
     var manager = ViewportManager.init(testing.allocator);
     defer manager.deinit();
-    
+
     const boundaries = try createMockBoundaries(testing.allocator, 3);
     defer testing.allocator.free(boundaries);
-    
+
     const viewport = Span.init(0, 100);
     try manager.updateViewport(viewport, boundaries);
-    
+
     // Should have boundaries queued for parsing
     const next_boundary = manager.getNextBoundaryToParse();
     try testing.expect(next_boundary != null);
@@ -408,18 +408,18 @@ test "parsing priority queue" {
 test "edit recording and prioritization" {
     var manager = ViewportManager.init(testing.allocator);
     defer manager.deinit();
-    
+
     const edit_span = Span.init(50, 75);
-    
+
     try manager.recordEdit(edit_span);
-    
+
     // Edit should affect boundary prioritization
     const boundaries = try createMockBoundaries(testing.allocator, 2);
     defer testing.allocator.free(boundaries);
-    
+
     const viewport = Span.init(0, 100);
     try manager.updateViewport(viewport, boundaries);
-    
+
     // Recently edited boundaries should have higher priority
     const next_boundary = manager.getNextBoundaryToParse();
     try testing.expect(next_boundary != null);
@@ -428,11 +428,11 @@ test "edit recording and prioritization" {
 test "viewport expansion for smooth scrolling" {
     var manager = ViewportManager.init(testing.allocator);
     defer manager.deinit();
-    
+
     manager.current_viewport = Span.init(100, 200);
-    
+
     const expanded = manager.getExpandedViewport(0.5); // 50% expansion
-    
+
     try testing.expect(expanded.start < manager.current_viewport.start);
     try testing.expect(expanded.end > manager.current_viewport.end);
     try testing.expect(expanded.len() > manager.current_viewport.len());
@@ -441,35 +441,35 @@ test "viewport expansion for smooth scrolling" {
 test "predictive boundary detection" {
     var manager = ViewportManager.init(testing.allocator);
     defer manager.deinit();
-    
+
     const boundaries = try createMockBoundaries(testing.allocator, 10);
     defer testing.allocator.free(boundaries);
-    
+
     manager.current_viewport = Span.init(100, 200);
-    
+
     const predicted = manager.getPredictiveBoundaries(boundaries, 3);
     defer testing.allocator.free(predicted);
-    
+
     try testing.expect(predicted.len <= 3);
 }
 
 test "viewport update performance" {
     var manager = ViewportManager.init(testing.allocator);
     defer manager.deinit();
-    
+
     const boundaries = try createMockBoundaries(testing.allocator, 100);
     defer testing.allocator.free(boundaries);
-    
+
     const viewport = Span.init(500, 1500);
-    
+
     const start = std.time.nanoTimestamp();
     try manager.updateViewport(viewport, boundaries);
     const elapsed = std.time.nanoTimestamp() - start;
-    
+
     // Target: <1ms for viewport updates
     const elapsed_ms = @as(f64, @floatFromInt(elapsed)) / 1_000_000.0;
     try testing.expect(elapsed_ms < 1.0);
-    
+
     const stats = manager.getStats();
     try testing.expect(stats.viewport_updates == 1);
 }
@@ -481,10 +481,10 @@ test "viewport update performance" {
 test "cache initialization" {
     var cache = try BoundaryCache.init(testing.allocator, 100);
     defer cache.deinit();
-    
+
     try testing.expect(cache.max_capacity == 100);
     try testing.expect(cache.generation == 0);
-    
+
     const stats = cache.getStats();
     try testing.expect(stats.current_size == 0);
     try testing.expect(stats.hits == 0);
@@ -494,23 +494,23 @@ test "cache initialization" {
 test "cache put and get operations" {
     var cache = try BoundaryCache.init(testing.allocator, 10);
     defer cache.deinit();
-    
+
     const span = Span.init(0, 100);
     const facts = try createMockFacts(testing.allocator, 5);
     defer testing.allocator.free(facts);
-    
+
     // Put facts in cache
     try cache.put(span, facts);
-    
+
     // Get facts from cache
     const cached_facts = try cache.get(span);
     try testing.expect(cached_facts != null);
     defer if (cached_facts) |cf| testing.allocator.free(cf);
-    
+
     if (cached_facts) |cf| {
         try testing.expect(cf.len == facts.len);
     }
-    
+
     const stats = cache.getStats();
     try testing.expect(stats.hits == 1);
     try testing.expect(stats.current_size == 1);
@@ -519,13 +519,13 @@ test "cache put and get operations" {
 test "cache miss handling" {
     var cache = try BoundaryCache.init(testing.allocator, 10);
     defer cache.deinit();
-    
+
     const span = Span.init(0, 100);
-    
+
     // Try to get non-existent entry
     const result = try cache.get(span);
     try testing.expect(result == null);
-    
+
     const stats = cache.getStats();
     try testing.expect(stats.misses == 1);
     try testing.expect(stats.hits == 0);
@@ -534,29 +534,29 @@ test "cache miss handling" {
 test "cache LRU eviction" {
     var cache = try BoundaryCache.init(testing.allocator, 2); // Small cache
     defer cache.deinit();
-    
+
     const facts = try createMockFacts(testing.allocator, 3);
     defer testing.allocator.free(facts);
-    
+
     // Fill cache to capacity
     try cache.put(Span.init(0, 100), facts);
     try cache.put(Span.init(100, 200), facts);
-    
+
     // Access first entry to make it recently used
     _ = try cache.get(Span.init(0, 100));
-    
+
     // Add third entry, should evict second entry
     try cache.put(Span.init(200, 300), facts);
-    
+
     // Second entry should be evicted
     const result = try cache.get(Span.init(100, 200));
     try testing.expect(result == null);
-    
+
     // First and third should still be cached
     const first = try cache.get(Span.init(0, 100));
     try testing.expect(first != null);
     defer if (first) |f| testing.allocator.free(f);
-    
+
     const third = try cache.get(Span.init(200, 300));
     try testing.expect(third != null);
     defer if (third) |t| testing.allocator.free(t);
@@ -565,22 +565,22 @@ test "cache LRU eviction" {
 test "cache invalidation" {
     var cache = try BoundaryCache.init(testing.allocator, 10);
     defer cache.deinit();
-    
+
     const span = Span.init(0, 100);
     const facts = try createMockFacts(testing.allocator, 3);
     defer testing.allocator.free(facts);
-    
+
     // Put and verify cached
     try cache.put(span, facts);
     const cached = try cache.get(span);
     try testing.expect(cached != null);
     defer if (cached) |c| testing.allocator.free(c);
-    
+
     // Invalidate
     const old_facts = cache.invalidate(span);
     try testing.expect(old_facts != null);
     defer if (old_facts) |of| testing.allocator.free(of);
-    
+
     // Should no longer be cached
     const after_invalidation = try cache.get(span);
     try testing.expect(after_invalidation == null);
@@ -589,25 +589,25 @@ test "cache invalidation" {
 test "cache overlapping invalidation" {
     var cache = try BoundaryCache.init(testing.allocator, 10);
     defer cache.deinit();
-    
+
     const facts = try createMockFacts(testing.allocator, 2);
     defer testing.allocator.free(facts);
-    
+
     // Cache facts for overlapping spans
     try cache.put(Span.init(0, 100), facts);
     try cache.put(Span.init(50, 150), facts);
     try cache.put(Span.init(200, 300), facts); // Non-overlapping
-    
+
     // Invalidate overlapping spans
     try cache.invalidateOverlapping(Span.init(75, 125));
-    
+
     // First two should be invalidated
     const first = try cache.get(Span.init(0, 100));
     try testing.expect(first == null);
-    
+
     const second = try cache.get(Span.init(50, 150));
     try testing.expect(second == null);
-    
+
     // Third should remain
     const third = try cache.get(Span.init(200, 300));
     try testing.expect(third != null);
@@ -617,32 +617,32 @@ test "cache overlapping invalidation" {
 test "cache performance targets" {
     var cache = try BoundaryCache.init(testing.allocator, 1000);
     defer cache.deinit();
-    
+
     const facts = try createMockFacts(testing.allocator, 10);
     defer testing.allocator.free(facts);
-    
+
     // Perform many cache operations
     const operation_count = 1000;
-    
+
     const start = std.time.nanoTimestamp();
-    
+
     for (0..operation_count) |i| {
         const span = Span.init(i * 10, (i + 1) * 10);
-        
+
         // Put
         try cache.put(span, facts);
-        
+
         // Get
         const result = try cache.get(span);
         defer if (result) |r| testing.allocator.free(r);
     }
-    
+
     const elapsed = std.time.nanoTimestamp() - start;
     const avg_operation_time = @as(f64, @floatFromInt(elapsed)) / @as(f64, @floatFromInt(operation_count * 2)); // put + get
-    
+
     // Target: <1000ns per operation
     try testing.expect(avg_operation_time < 1000.0);
-    
+
     const metrics = cache.getEfficiencyMetrics();
     try testing.expect(metrics.hit_rate > 0.0);
 }
@@ -650,22 +650,22 @@ test "cache performance targets" {
 test "cache generation invalidation" {
     var cache = try BoundaryCache.init(testing.allocator, 10);
     defer cache.deinit();
-    
+
     const span = Span.init(0, 100);
     const facts = try createMockFacts(testing.allocator, 3);
     defer testing.allocator.free(facts);
-    
+
     // Cache with generation 0
     try cache.put(span, facts);
-    
+
     // Verify cached
     const cached = try cache.get(span);
     try testing.expect(cached != null);
     defer if (cached) |c| testing.allocator.free(c);
-    
+
     // Increment generation
     cache.incrementGeneration();
-    
+
     // Entry should now be stale
     const after_generation = try cache.get(span);
     try testing.expect(after_generation == null);
@@ -678,14 +678,14 @@ test "cache generation invalidation" {
 fn createMockBoundaries(allocator: std.mem.Allocator, count: usize) ![]ParseBoundary {
     var boundaries = std.ArrayList(ParseBoundary).init(allocator);
     errdefer boundaries.deinit();
-    
+
     for (0..count) |i| {
         try boundaries.append(createMockBoundary(
             Span.init(i * 100, (i + 1) * 100),
             .function,
         ));
     }
-    
+
     return boundaries.toOwnedSlice();
 }
 
@@ -701,7 +701,7 @@ fn createMockBoundary(span: Span, kind: BoundaryKind) ParseBoundary {
 fn createMockTokens(allocator: std.mem.Allocator, count: usize) ![]Token {
     var tokens = std.ArrayList(Token).init(allocator);
     errdefer tokens.deinit();
-    
+
     for (0..count) |i| {
         try tokens.append(Token{
             .span = Span.init(i * 10, (i + 1) * 10),
@@ -710,14 +710,14 @@ fn createMockTokens(allocator: std.mem.Allocator, count: usize) ![]Token {
             .bracket_depth = 0,
         });
     }
-    
+
     return tokens.toOwnedSlice();
 }
 
 fn createMockFacts(allocator: std.mem.Allocator, count: usize) ![]Fact {
     var facts = std.ArrayList(Fact).init(allocator);
     errdefer facts.deinit();
-    
+
     for (0..count) |i| {
         try facts.append(Fact{
             .id = @as(u32, @intCast(i + 1)),
@@ -728,7 +728,7 @@ fn createMockFacts(allocator: std.mem.Allocator, count: usize) ![]Fact {
             .generation = 0,
         });
     }
-    
+
     return facts.toOwnedSlice();
 }
 
@@ -770,7 +770,7 @@ fn createMockParser(allocator: std.mem.Allocator) !MockParser {
 // Mock types for testing (these would be defined in separate files)
 const MockAST = struct {
     root: MockASTNode,
-    
+
     fn deinit(self: MockAST) void {
         _ = self;
     }
@@ -784,7 +784,7 @@ const MockASTNode = struct {
     is_public: bool,
     return_type: ?[]const u8,
     is_mutable: bool,
-    
+
     // Additional fields for different node types
     var_type: ?[]const u8 = null,
     const_type: ?[]const u8 = null,
@@ -828,11 +828,11 @@ const MockNodeKind = enum {
 
 const MockParser = struct {
     allocator: std.mem.Allocator,
-    
+
     fn deinit(self: *MockParser) void {
         _ = self;
     }
-    
+
     fn parseWithContext(self: *MockParser, source: []const u8, context: anytype) !MockAST {
         _ = self;
         _ = source;

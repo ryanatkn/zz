@@ -14,17 +14,17 @@ const ASTNode = @import("../ast/mod.zig").ASTNode;
 pub const Disambiguator = struct {
     /// Strategy for resolving ambiguities
     strategy: DisambiguationStrategy,
-    
+
     /// Statistics for monitoring disambiguation effectiveness
     stats: DisambiguationStats,
-    
+
     pub fn init() Disambiguator {
         return Disambiguator{
             .strategy = .confidence_based,
             .stats = DisambiguationStats{},
         };
     }
-    
+
     /// Disambiguate an ambiguous construct
     pub fn disambiguate(
         self: *Disambiguator,
@@ -32,73 +32,73 @@ pub const Disambiguator = struct {
         context: DisambiguationContext,
     ) ?ParseAlternative {
         self.stats.disambiguation_attempts += 1;
-        
+
         const start_time = std.time.nanoTimestamp();
         defer {
             const elapsed = std.time.nanoTimestamp() - start_time;
             self.stats.total_disambiguation_time_ns += @intCast(elapsed);
         }
-        
+
         if (alternatives.len == 0) return null;
         if (alternatives.len == 1) {
             self.stats.trivial_cases += 1;
             return alternatives[0];
         }
-        
+
         const result = switch (self.strategy) {
             .confidence_based => self.disambiguateByConfidence(alternatives),
             .context_based => self.disambiguateByContext(alternatives, context),
             .hybrid => self.disambiguateHybrid(alternatives, context),
         };
-        
+
         if (result != null) {
             self.stats.successful_disambiguations += 1;
         } else {
             self.stats.failed_disambiguations += 1;
         }
-        
+
         return result;
     }
-    
+
     /// Set disambiguation strategy
     pub fn setStrategy(self: *Disambiguator, strategy: DisambiguationStrategy) void {
         self.strategy = strategy;
     }
-    
+
     /// Get disambiguation statistics
     pub fn getStats(self: Disambiguator) DisambiguationStats {
         return self.stats;
     }
-    
+
     /// Reset statistics
     pub fn resetStats(self: *Disambiguator) void {
         self.stats = DisambiguationStats{};
     }
-    
+
     // ========================================================================
     // Disambiguation Strategies
     // ========================================================================
-    
+
     /// Disambiguate based purely on confidence scores
     fn disambiguateByConfidence(
         self: *Disambiguator,
         alternatives: []const ParseAlternative,
     ) ?ParseAlternative {
         _ = self;
-        
+
         var best_alternative: ?ParseAlternative = null;
         var best_confidence: f32 = 0.0;
-        
+
         for (alternatives) |alternative| {
             if (alternative.confidence > best_confidence) {
                 best_confidence = alternative.confidence;
                 best_alternative = alternative;
             }
         }
-        
+
         return best_alternative;
     }
-    
+
     /// Disambiguate based on surrounding context
     fn disambiguateByContext(
         self: *Disambiguator,
@@ -111,11 +111,11 @@ pub const Disambiguator = struct {
                 return alternative;
             }
         }
-        
+
         // Fall back to confidence-based if no context match
         return self.disambiguateByConfidence(alternatives);
     }
-    
+
     /// Hybrid approach combining confidence and context
     fn disambiguateHybrid(
         self: *Disambiguator,
@@ -124,24 +124,24 @@ pub const Disambiguator = struct {
     ) ?ParseAlternative {
         var best_alternative: ?ParseAlternative = null;
         var best_score: f32 = 0.0;
-        
+
         for (alternatives) |alternative| {
             // Combine confidence with context compatibility
             var score = alternative.confidence;
-            
+
             if (self.isContextCompatible(alternative, context)) {
                 score *= 1.5; // Boost score for context compatibility
             }
-            
+
             if (score > best_score) {
                 best_score = score;
                 best_alternative = alternative;
             }
         }
-        
+
         return best_alternative;
     }
-    
+
     /// Check if an alternative is compatible with the given context
     fn isContextCompatible(
         self: *Disambiguator,
@@ -149,7 +149,7 @@ pub const Disambiguator = struct {
         context: DisambiguationContext,
     ) bool {
         _ = self;
-        
+
         // Simple context compatibility checks
         switch (context.expected_kind) {
             .expression => return alternative.kind == .expression or alternative.kind == .identifier,
@@ -167,7 +167,7 @@ pub const ParseAlternative = struct {
     confidence: f32,
     kind: AlternativeKind,
     span: Span,
-    
+
     pub fn deinit(self: ParseAlternative) void {
         self.ast.deinit();
     }
@@ -191,7 +191,7 @@ pub const DisambiguationContext = struct {
     following_tokens: []const Token,
     expected_kind: AlternativeKind,
     parent_context: ?*const DisambiguationContext,
-    
+
     pub fn init(expected_kind: AlternativeKind) DisambiguationContext {
         return DisambiguationContext{
             .preceding_tokens = &.{},
@@ -200,7 +200,7 @@ pub const DisambiguationContext = struct {
             .parent_context = null,
         };
     }
-    
+
     pub fn withTokens(
         self: DisambiguationContext,
         preceding: []const Token,
@@ -211,7 +211,7 @@ pub const DisambiguationContext = struct {
         context.following_tokens = following;
         return context;
     }
-    
+
     pub fn withParent(
         self: DisambiguationContext,
         parent: *const DisambiguationContext,
@@ -224,9 +224,9 @@ pub const DisambiguationContext = struct {
 
 /// Strategy for resolving ambiguities
 pub const DisambiguationStrategy = enum {
-    confidence_based,  // Choose highest confidence alternative
-    context_based,     // Choose based on surrounding context
-    hybrid,           // Combine confidence and context
+    confidence_based, // Choose highest confidence alternative
+    context_based, // Choose based on surrounding context
+    hybrid, // Combine confidence and context
 };
 
 /// Statistics for monitoring disambiguation performance
@@ -236,18 +236,18 @@ pub const DisambiguationStats = struct {
     failed_disambiguations: u64 = 0,
     trivial_cases: u64 = 0,
     total_disambiguation_time_ns: u64 = 0,
-    
+
     pub fn successRate(self: DisambiguationStats) f32 {
         const total_attempts = self.disambiguation_attempts;
         if (total_attempts == 0) return 0.0;
         return @as(f32, @floatFromInt(self.successful_disambiguations)) / @as(f32, @floatFromInt(total_attempts));
     }
-    
+
     pub fn averageDisambiguationTime(self: DisambiguationStats) f64 {
         if (self.disambiguation_attempts == 0) return 0.0;
         return @as(f64, @floatFromInt(self.total_disambiguation_time_ns)) / @as(f64, @floatFromInt(self.disambiguation_attempts));
     }
-    
+
     pub fn format(
         self: DisambiguationStats,
         comptime fmt: []const u8,
@@ -256,7 +256,7 @@ pub const DisambiguationStats = struct {
     ) !void {
         _ = fmt;
         _ = options;
-        
+
         try writer.print("DisambiguationStats{{ attempts: {}, success_rate: {d:.1}%, avg_time: {d:.1}ns }}", .{
             self.disambiguation_attempts,
             self.successRate() * 100.0,
@@ -273,22 +273,22 @@ pub const DisambiguationStats = struct {
 pub const AmbiguityPattern = enum {
     /// Type vs expression: `foo(bar)` could be function call or type cast
     type_vs_expression,
-    
+
     /// Declaration vs assignment: `var x = y` vs `x = y`
     declaration_vs_assignment,
-    
+
     /// Generic vs comparison: `x<y>z` could be generic type or comparison
     generic_vs_comparison,
-    
+
     /// Lambda vs block: `{ ... }` could be lambda expression or block statement
     lambda_vs_block,
-    
+
     /// Array access vs generic: `x[y]` could be array access or generic type
     array_vs_generic,
-    
+
     /// Pointer dereference vs multiplication: `*x` could be dereference or multiplication
     pointer_vs_multiplication,
-    
+
     /// Function pointer vs call: `func` could be function pointer or function call
     function_pointer_vs_call,
 };
@@ -311,17 +311,17 @@ pub const PatternResolver = struct {
                 }
             }
         }
-        
+
         // Default to expression if no clear type context
         for (alternatives) |alternative| {
             if (alternative.kind == .expression) {
                 return alternative;
             }
         }
-        
+
         return null;
     }
-    
+
     /// Resolve declaration vs assignment ambiguity
     pub fn resolveDeclarationVsAssignment(
         alternatives: []const ParseAlternative,
@@ -329,9 +329,10 @@ pub const PatternResolver = struct {
     ) ?ParseAlternative {
         // Look for declaration keywords
         for (context.preceding_tokens) |token| {
-            if (std.mem.eql(u8, token.text, "var") or 
+            if (std.mem.eql(u8, token.text, "var") or
                 std.mem.eql(u8, token.text, "const") or
-                std.mem.eql(u8, token.text, "let")) {
+                std.mem.eql(u8, token.text, "let"))
+            {
                 // Definitely a declaration
                 for (alternatives) |alternative| {
                     if (alternative.kind == .declaration) {
@@ -340,17 +341,17 @@ pub const PatternResolver = struct {
                 }
             }
         }
-        
+
         // Default to assignment
         for (alternatives) |alternative| {
             if (alternative.kind == .statement) {
                 return alternative;
             }
         }
-        
+
         return null;
     }
-    
+
     /// Resolve generic vs comparison ambiguity
     pub fn resolveGenericVsComparison(
         alternatives: []const ParseAlternative,
@@ -364,14 +365,14 @@ pub const PatternResolver = struct {
                 }
             }
         }
-        
+
         // Default to comparison in expression context
         for (alternatives) |alternative| {
             if (alternative.kind == .expression) {
                 return alternative;
             }
         }
-        
+
         return null;
     }
 };
@@ -385,7 +386,7 @@ pub const TestHelpers = struct {
     pub fn createMockAlternatives(allocator: std.mem.Allocator, count: usize) ![]ParseAlternative {
         var alternatives = std.ArrayList(ParseAlternative).init(allocator);
         errdefer alternatives.deinit();
-        
+
         for (0..count) |i| {
             const confidence = 0.5 + (@as(f32, @floatFromInt(i)) * 0.1);
             const kind = switch (i % 3) {
@@ -394,7 +395,7 @@ pub const TestHelpers = struct {
                 2 => AlternativeKind.declaration,
                 else => AlternativeKind.unknown,
             };
-            
+
             try alternatives.append(ParseAlternative{
                 .ast = createMockAST(),
                 .confidence = confidence,
@@ -402,21 +403,21 @@ pub const TestHelpers = struct {
                 .span = Span.init(i * 10, (i + 1) * 10),
             });
         }
-        
+
         return alternatives.toOwnedSlice();
     }
-    
+
     /// Create mock AST for testing
     fn createMockAST() AST {
         // This would create a simple mock AST structure
         // Implementation depends on the actual AST module
         return AST{ .root = undefined }; // Placeholder
     }
-    
+
     /// Test disambiguation performance
     pub fn testDisambiguationPerformance(allocator: std.mem.Allocator) !void {
         var disambiguator = Disambiguator.init();
-        
+
         const alternatives = try createMockAlternatives(allocator, 5);
         defer {
             for (alternatives) |alternative| {
@@ -424,13 +425,13 @@ pub const TestHelpers = struct {
             }
             allocator.free(alternatives);
         }
-        
+
         const context = DisambiguationContext.init(.expression);
-        
+
         const start = std.time.nanoTimestamp();
         _ = disambiguator.disambiguate(alternatives, context);
         const elapsed = std.time.nanoTimestamp() - start;
-        
+
         // Target: <1000ns per disambiguation
         std.debug.assert(elapsed < 1000);
     }

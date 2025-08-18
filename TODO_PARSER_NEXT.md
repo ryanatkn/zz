@@ -559,8 +559,8 @@ pub fn benchmarkLanguages() !void {
 - [x] **ZON validation complete** ✅ (Schema validation)
 - [x] **ZON array support** ✅ (Arrays and slices fully implemented!)
 - [x] **ZON backward compatibility maintained** ✅
-- [ ] CSS, HTML languages (remaining core languages)
-- [ ] TypeScript, Zig, Svelte languages (remaining complex languages)
+- [ ] CSS language (remaining core languages)
+- [ ] TypeScript, Zig, HTML, Svelte languages (remaining complex languages)
 
 ### Performance
 - [x] **JSON meets all performance targets** ✅ (<0.1ms lexing, <1ms parsing, <0.5ms formatting, <2ms pipeline)

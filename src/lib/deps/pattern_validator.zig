@@ -30,7 +30,7 @@ pub const ValidationResult = struct {
             self.allocator.free(pattern);
         }
         self.failed_patterns.deinit();
-        
+
         for (self.available_files.items) |file| {
             self.allocator.free(file);
         }
@@ -47,46 +47,39 @@ pub const ValidationResult = struct {
         defer builder.deinit();
 
         // Header with summary
-        try builder.appendLineFmt("✗ Pattern Validation Failed: {d} pattern{s} did not match any files", .{
-            self.failed_patterns.items.len,
-            if (self.failed_patterns.items.len == 1) "" else "s"
-        });
+        try builder.appendLineFmt("✗ Pattern Validation Failed: {d} pattern{s} did not match any files", .{ self.failed_patterns.items.len, if (self.failed_patterns.items.len == 1) "" else "s" });
         try builder.appendLine("");
-        
+
         // Failed patterns with enhanced formatting
         try builder.appendLine("Failed patterns:");
         for (self.failed_patterns.items) |pattern| {
             try builder.appendLineFmt("  ✗ '{s}'", .{pattern});
         }
-        
+
         try builder.appendLine("");
-        
+
         // Repository info
         if (self.total_files == 0) {
             try builder.appendLine("Repository appears to be empty (no files found)");
         } else {
-            try builder.appendLineFmt("Repository contains {d} file{s}/director{s}:", .{
-                self.total_files,
-                if (self.total_files == 1) "" else "s",
-                if (self.total_files == 1) "y" else "ies"
-            });
-            
+            try builder.appendLineFmt("Repository contains {d} file{s}/director{s}:", .{ self.total_files, if (self.total_files == 1) "" else "s", if (self.total_files == 1) "y" else "ies" });
+
             // Show categorized file examples
             try self.showCategorizedFiles(&builder);
         }
-        
+
         try builder.appendLine("");
-        
+
         // Smart suggestions based on failed patterns and available files
         try self.generateSmartSuggestions(&builder, allocator);
 
         return builder.toOwnedSlice();
     }
-    
+
     /// Show available files categorized by type for better understanding
     fn showCategorizedFiles(self: *const ValidationResult, builder: *builders.ResultBuilder) !void {
         const max_show = @min(12, self.available_files.items.len);
-        
+
         // Categorize files by type
         var src_files = collections.List([]const u8).init(self.allocator);
         defer src_files.deinit();
@@ -96,31 +89,34 @@ pub const ValidationResult = struct {
         defer doc_files.deinit();
         var other_files = collections.List([]const u8).init(self.allocator);
         defer other_files.deinit();
-        
+
         for (self.available_files.items[0..max_show]) |file| {
-            if (std.mem.endsWith(u8, file, ".zig") or 
-                std.mem.endsWith(u8, file, ".c") or 
+            if (std.mem.endsWith(u8, file, ".zig") or
+                std.mem.endsWith(u8, file, ".c") or
                 std.mem.endsWith(u8, file, ".h") or
                 std.mem.startsWith(u8, file, "src/") or
-                std.mem.startsWith(u8, file, "lib/")) {
+                std.mem.startsWith(u8, file, "lib/"))
+            {
                 try src_files.append(file);
             } else if (std.mem.endsWith(u8, file, ".json") or
-                      std.mem.endsWith(u8, file, ".zon") or
-                      std.mem.endsWith(u8, file, ".toml") or
-                      std.mem.endsWith(u8, file, ".yaml") or
-                      std.mem.eql(u8, file, "build.zig") or
-                      std.mem.eql(u8, file, "Makefile")) {
+                std.mem.endsWith(u8, file, ".zon") or
+                std.mem.endsWith(u8, file, ".toml") or
+                std.mem.endsWith(u8, file, ".yaml") or
+                std.mem.eql(u8, file, "build.zig") or
+                std.mem.eql(u8, file, "Makefile"))
+            {
                 try config_files.append(file);
             } else if (std.mem.endsWith(u8, file, ".md") or
-                      std.mem.endsWith(u8, file, ".txt") or
-                      std.mem.endsWith(u8, file, ".rst") or
-                      std.mem.startsWith(u8, file, "docs/")) {
+                std.mem.endsWith(u8, file, ".txt") or
+                std.mem.endsWith(u8, file, ".rst") or
+                std.mem.startsWith(u8, file, "docs/"))
+            {
                 try doc_files.append(file);
             } else {
                 try other_files.append(file);
             }
         }
-        
+
         // Show categorized files
         if (src_files.items.len > 0) {
             try builder.appendLine("  Source files:");
@@ -131,47 +127,47 @@ pub const ValidationResult = struct {
                 try builder.appendLineFmt("    ... and {d} more", .{src_files.items.len - 4});
             }
         }
-        
+
         if (config_files.items.len > 0) {
             try builder.appendLine("  Configuration files:");
             for (config_files.items[0..@min(3, config_files.items.len)]) |file| {
                 try builder.appendLineFmt("    - {s}", .{file});
             }
         }
-        
+
         if (doc_files.items.len > 0) {
             try builder.appendLine("  Documentation:");
             for (doc_files.items[0..@min(3, doc_files.items.len)]) |file| {
                 try builder.appendLineFmt("    - {s}", .{file});
             }
         }
-        
+
         if (other_files.items.len > 0) {
             try builder.appendLine("  Other files:");
             for (other_files.items[0..@min(3, other_files.items.len)]) |file| {
                 try builder.appendLineFmt("    - {s}", .{file});
             }
         }
-        
+
         if (self.available_files.items.len > max_show) {
             try builder.appendLineFmt("  ... and {d} more files", .{self.available_files.items.len - max_show});
         }
     }
-    
+
     /// Generate smart suggestions based on failed patterns and available files
     fn generateSmartSuggestions(self: *const ValidationResult, builder: *builders.ResultBuilder, allocator: std.mem.Allocator) !void {
         try builder.appendLine("💡 Suggestions:");
-        
+
         // Analyze failed patterns and suggest alternatives
         for (self.failed_patterns.items) |failed_pattern| {
             const suggestion = try self.suggestAlternative(failed_pattern, allocator);
             defer if (suggestion) |s| allocator.free(s);
-            
+
             if (suggestion) |s| {
-                try builder.appendLineFmt("  • Instead of '{s}', try: {s}", .{failed_pattern, s});
+                try builder.appendLineFmt("  • Instead of '{s}', try: {s}", .{ failed_pattern, s });
             }
         }
-        
+
         try builder.appendLine("");
         try builder.appendLine("📖 Pattern syntax guide:");
         try builder.appendLine("  • '*' matches any characters in a filename");
@@ -179,7 +175,7 @@ pub const ValidationResult = struct {
         try builder.appendLine("  • 'dir/' matches directory and its contents");
         try builder.appendLine("  • '*.ext' matches all files with extension");
         try builder.appendLine("  • Use exact paths for specific files");
-        
+
         try builder.appendLine("");
         try builder.appendLine("🔧 Common patterns:");
         try builder.appendLine("  • Source files: '*.zig', 'src/', '**/*.c'");
@@ -187,7 +183,7 @@ pub const ValidationResult = struct {
         try builder.appendLine("  • Documentation: '*.md', 'docs/', 'README*'");
         try builder.appendLine("  • Include all: omit include patterns entirely");
     }
-    
+
     /// Suggest alternative patterns based on available files
     fn suggestAlternative(self: *const ValidationResult, failed_pattern: []const u8, allocator: std.mem.Allocator) !?[]u8 {
         // Extract pattern type and suggest similar patterns that would match
@@ -216,7 +212,7 @@ pub const ValidationResult = struct {
                     return try allocator.dupe(u8, "'lib/' (found lib directory)");
                 } else if (std.mem.indexOf(u8, file, "/")) |_| {
                     const dir = file[0..std.mem.indexOf(u8, file, "/").?];
-                    return try std.fmt.allocPrint(allocator, "'{s}/' (found {s} directory)", .{dir, dir});
+                    return try std.fmt.allocPrint(allocator, "'{s}/' (found {s} directory)", .{ dir, dir });
                 }
             }
             return try allocator.dupe(u8, "remove src/ pattern or use exact filenames");
@@ -239,20 +235,20 @@ pub const ValidationResult = struct {
                 }
             }
         }
-        
+
         // Default suggestion based on most common files in repository
         if (self.available_files.items.len > 0) {
             // Count file types
             var zig_count: u32 = 0;
             var c_count: u32 = 0;
             var md_count: u32 = 0;
-            
+
             for (self.available_files.items) |file| {
                 if (std.mem.endsWith(u8, file, ".zig")) zig_count += 1;
                 if (std.mem.endsWith(u8, file, ".c") or std.mem.endsWith(u8, file, ".h")) c_count += 1;
                 if (std.mem.endsWith(u8, file, ".md")) md_count += 1;
             }
-            
+
             if (zig_count > 0) {
                 return try allocator.dupe(u8, "'*.zig' or remove include patterns");
             } else if (c_count > 0) {
@@ -261,7 +257,7 @@ pub const ValidationResult = struct {
                 return try allocator.dupe(u8, "'*.md' or specific filenames");
             }
         }
-        
+
         return null;
     }
 };
@@ -296,7 +292,7 @@ pub const PatternValidator = struct {
     ) !ValidationResult {
         // Reset arena for temporary allocations
         self.arena.reset();
-        
+
         var result = ValidationResult.init(self.allocator);
         errdefer result.deinit();
 
@@ -327,7 +323,7 @@ pub const PatternValidator = struct {
         // Check each include pattern for matches
         for (include_patterns) |pattern| {
             var pattern_matched = false;
-            
+
             for (all_files.items) |file| {
                 if (PathMatcher.shouldCopyPath(file, &.{pattern}, exclude_patterns)) {
                     pattern_matched = true;
@@ -335,7 +331,7 @@ pub const PatternValidator = struct {
                     break; // Found at least one match for this pattern
                 }
             }
-            
+
             if (!pattern_matched) {
                 const failed_pattern = try self.allocator.dupe(u8, pattern);
                 try result.failed_patterns.append(failed_pattern);
@@ -354,7 +350,7 @@ pub const PatternValidator = struct {
     ) !ValidationResult {
         // Reset arena for temporary allocations
         self.arena.reset();
-        
+
         var result = ValidationResult.init(self.allocator);
         errdefer result.deinit();
 
@@ -377,14 +373,14 @@ pub const PatternValidator = struct {
         // Check each exclude pattern for matches
         for (exclude_patterns) |pattern| {
             var pattern_matched = false;
-            
+
             for (all_files.items) |file| {
                 if (PathMatcher.shouldExclude(file, &.{pattern})) {
                     pattern_matched = true;
                     break;
                 }
             }
-            
+
             if (!pattern_matched) {
                 const failed_pattern = try self.allocator.dupe(u8, pattern);
                 try result.failed_patterns.append(failed_pattern);
@@ -398,10 +394,10 @@ pub const PatternValidator = struct {
     fn collectFiles(self: *Self, base_dir: []const u8, rel_path: []const u8, files: *collections.List([]const u8)) !void {
         // Use arena for temporary path allocations
         const arena_alloc = self.arena.allocator();
-        
-        const full_path = if (rel_path.len == 0) 
+
+        const full_path = if (rel_path.len == 0)
             try arena_alloc.dupe(u8, base_dir)
-        else 
+        else
             try path.joinPath(arena_alloc, base_dir, rel_path);
 
         var dir = self.filesystem.openDir(self.allocator, full_path, .{}) catch |err| switch (err) {
@@ -411,7 +407,7 @@ pub const PatternValidator = struct {
         defer dir.close();
 
         var iterator = dir.iterate(self.allocator) catch return;
-        
+
         while (try iterator.next(self.allocator)) |entry| {
             // Skip .git directories
             if (std.mem.eql(u8, entry.name, ".git")) continue;
@@ -420,10 +416,10 @@ pub const PatternValidator = struct {
                 try self.allocator.dupe(u8, entry.name)
             else
                 try path.joinPath(self.allocator, rel_path, entry.name);
-            
+
             // Add this file/directory to the list (using permanent allocator)
             try files.append(entry_rel_path);
-            
+
             // Recursively collect from subdirectories
             if (entry.kind == .directory) {
                 try self.collectFiles(base_dir, entry_rel_path, files);
@@ -437,13 +433,13 @@ pub const PatternValidator = struct {
         defer dir.close();
 
         var iterator = dir.iterate(self.allocator) catch return false;
-        
+
         while (try iterator.next(self.allocator)) |entry| {
             // Skip .git directories
             if (std.mem.eql(u8, entry.name, ".git")) continue;
             return true; // Found at least one non-.git file
         }
-        
+
         return false;
     }
 };
@@ -452,19 +448,19 @@ pub const PatternValidator = struct {
 test "PatternValidator - no include patterns (allow all)" {
     const testing = std.testing;
     const MockFilesystem = @import("../filesystem/mock.zig").MockFilesystem;
-    
+
     var mock_fs = MockFilesystem.init(testing.allocator);
     defer mock_fs.deinit();
-    
+
     try mock_fs.addDirectory("/repo");
     try mock_fs.addFile("/repo/main.zig", "content");
-    
+
     var validator = PatternValidator.init(testing.allocator, mock_fs.interface());
     defer validator.deinit();
-    
+
     var result = try validator.validateIncludePatterns("/repo", &.{}, &.{});
     defer result.deinit();
-    
+
     // No include patterns means validation passes
     try testing.expectEqual(@as(u32, 0), result.failed_patterns.items.len);
 }
@@ -472,22 +468,22 @@ test "PatternValidator - no include patterns (allow all)" {
 test "PatternValidator - include pattern matches files" {
     const testing = std.testing;
     const MockFilesystem = @import("../filesystem/mock.zig").MockFilesystem;
-    
+
     var mock_fs = MockFilesystem.init(testing.allocator);
     defer mock_fs.deinit();
-    
+
     try mock_fs.addDirectory("/repo");
     try mock_fs.addFile("/repo/main.zig", "content");
     try mock_fs.addFile("/repo/test.zig", "content");
     try mock_fs.addFile("/repo/readme.md", "content");
-    
+
     var validator = PatternValidator.init(testing.allocator, mock_fs.interface());
     defer validator.deinit();
-    
+
     // Test pattern that matches zig files
     var result = try validator.validateIncludePatterns("/repo", &.{"*.zig"}, &.{});
     defer result.deinit();
-    
+
     try testing.expectEqual(@as(u32, 0), result.failed_patterns.items.len);
     try testing.expect(result.matched_files > 0);
 }
@@ -495,21 +491,21 @@ test "PatternValidator - include pattern matches files" {
 test "PatternValidator - include pattern with no matches" {
     const testing = std.testing;
     const MockFilesystem = @import("../filesystem/mock.zig").MockFilesystem;
-    
+
     var mock_fs = MockFilesystem.init(testing.allocator);
     defer mock_fs.deinit();
-    
+
     try mock_fs.addDirectory("/repo");
     try mock_fs.addFile("/repo/main.zig", "content");
     try mock_fs.addFile("/repo/readme.md", "content");
-    
+
     var validator = PatternValidator.init(testing.allocator, mock_fs.interface());
     defer validator.deinit();
-    
+
     // Test pattern that matches no files
     var result = try validator.validateIncludePatterns("/repo", &.{"*.js"}, &.{});
     defer result.deinit();
-    
+
     try testing.expectEqual(@as(u32, 1), result.failed_patterns.items.len);
     try testing.expectEqualStrings("*.js", result.failed_patterns.items[0]);
     try testing.expect(result.available_files.items.len > 0);
@@ -517,20 +513,20 @@ test "PatternValidator - include pattern with no matches" {
 
 test "PatternValidator - error message formatting" {
     const testing = std.testing;
-    
+
     var result = ValidationResult.init(testing.allocator);
     defer result.deinit();
-    
+
     const failed_pattern = try testing.allocator.dupe(u8, "*.nonexistent");
     try result.failed_patterns.append(failed_pattern);
-    
+
     const available_file = try testing.allocator.dupe(u8, "main.zig");
     try result.available_files.append(available_file);
     result.total_files = 1; // Set total_files to trigger the enhanced formatting
-    
+
     const error_msg = try result.formatError(testing.allocator);
     defer testing.allocator.free(error_msg);
-    
+
     try testing.expect(std.mem.indexOf(u8, error_msg, "*.nonexistent") != null);
     try testing.expect(std.mem.indexOf(u8, error_msg, "main.zig") != null);
     try testing.expect(std.mem.indexOf(u8, error_msg, "💡 Suggestions:") != null);
@@ -539,21 +535,21 @@ test "PatternValidator - error message formatting" {
 test "PatternValidator - empty repository" {
     const testing = std.testing;
     const MockFilesystem = @import("../filesystem/mock.zig").MockFilesystem;
-    
+
     var mock_fs = MockFilesystem.init(testing.allocator);
     defer mock_fs.deinit();
-    
+
     try mock_fs.addDirectory("/repo");
     // No files in repository
-    
+
     var validator = PatternValidator.init(testing.allocator, mock_fs.interface());
     defer validator.deinit();
-    
+
     try testing.expect(!try validator.hasFiles("/repo"));
-    
+
     var result = try validator.validateIncludePatterns("/repo", &.{"*.zig"}, &.{});
     defer result.deinit();
-    
+
     try testing.expectEqual(@as(u32, 1), result.failed_patterns.items.len);
     try testing.expectEqual(@as(u32, 0), result.total_files);
 }

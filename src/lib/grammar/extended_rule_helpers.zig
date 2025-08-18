@@ -10,7 +10,6 @@ const ExtendedRepeat1 = extended_rules.ExtendedRepeat1;
 const RuleRef = extended_rules.RuleRef;
 
 /// Helper functions for convenient extended rule creation
-
 pub fn terminal(literal: []const u8) ExtendedRule {
     return .{ .terminal = rule.Terminal.init(literal) };
 }

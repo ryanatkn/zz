@@ -21,18 +21,17 @@ const JsonLinter = @import("linter.zig").JsonLinter;
 const JsonAnalyzer = @import("analyzer.zig").JsonAnalyzer;
 
 /// Complete JSON language support implementation
-/// 
+///
 /// This module provides full JSON parsing, formatting, linting, and analysis
 /// capabilities using the unified language architecture. It serves as the
 /// reference implementation for how languages should be integrated.
-/// 
+///
 /// Features:
 /// - High-performance lexing and parsing with error recovery
 /// - Configurable formatting with JSON5 support
 /// - Comprehensive linting with duplicate key detection
 /// - Schema extraction and TypeScript interface generation
 /// - Performance optimized for config files and data exchange
-
 /// Get JSON language support instance
 pub fn getSupport(allocator: std.mem.Allocator) !LanguageSupport {
     return LanguageSupport{
@@ -65,11 +64,11 @@ pub fn getSupport(allocator: std.mem.Allocator) !LanguageSupport {
 /// Tokenize JSON source code
 fn tokenize(allocator: std.mem.Allocator, input: []const u8) ![]Token {
     var lexer = JsonLexer.init(allocator, input, .{
-        .allow_comments = false,      // Standard JSON
+        .allow_comments = false, // Standard JSON
         .allow_trailing_commas = false,
     });
     defer lexer.deinit();
-    
+
     return lexer.tokenize();
 }
 
@@ -80,7 +79,7 @@ fn parse(allocator: std.mem.Allocator, tokens: []Token) !AST {
         .recover_from_errors = true,
     });
     defer parser.deinit();
-    
+
     return parser.parse();
 }
 
@@ -92,7 +91,7 @@ fn format(allocator: std.mem.Allocator, ast: AST, options: FormatOptions) ![]con
         .indent_style = if (options.indent_style == .tab) .tab else .space,
         .line_width = options.line_width,
         .preserve_newlines = options.preserve_newlines,
-        .compact_objects = false,  // Default to pretty printing
+        .compact_objects = false, // Default to pretty printing
         .compact_arrays = false,
         .sort_keys = options.sort_keys,
         .trailing_comma = options.trailing_comma,
@@ -106,10 +105,10 @@ fn format(allocator: std.mem.Allocator, ast: AST, options: FormatOptions) ![]con
         .force_compact = false,
         .force_multiline = false,
     };
-    
+
     var formatter = JsonFormatter.init(allocator, json_options);
     defer formatter.deinit();
-    
+
     return formatter.format(ast);
 }
 
@@ -129,7 +128,7 @@ fn lint(allocator: std.mem.Allocator, ast: AST, rules: []const Rule) ![]Diagnost
         .warn_on_deep_nesting = 20,
     });
     defer linter.deinit();
-    
+
     return linter.lint(ast, rules);
 }
 
@@ -142,7 +141,7 @@ fn extractSymbols(allocator: std.mem.Allocator, ast: AST) ![]Symbol {
         .max_schema_depth = 20,
         .min_samples_for_inference = 2,
     });
-    
+
     return analyzer.extractSymbols(ast);
 }
 
@@ -152,7 +151,7 @@ fn extractSymbols(allocator: std.mem.Allocator, ast: AST) ![]Symbol {
 pub fn parseJson(allocator: std.mem.Allocator, input: []const u8) !AST {
     const tokens = try tokenize(allocator, input);
     defer allocator.free(tokens);
-    
+
     return parse(allocator, tokens);
 }
 
@@ -160,7 +159,7 @@ pub fn parseJson(allocator: std.mem.Allocator, input: []const u8) !AST {
 pub fn formatJsonString(allocator: std.mem.Allocator, input: []const u8) ![]const u8 {
     var ast = try parseJson(allocator, input);
     defer ast.deinit();
-    
+
     const default_options = FormatOptions{
         .indent_size = 2,
         .indent_style = .space,
@@ -170,7 +169,7 @@ pub fn formatJsonString(allocator: std.mem.Allocator, input: []const u8) ![]cons
         .sort_keys = false,
         .quote_style = .double,
     };
-    
+
     return format(allocator, ast, default_options);
 }
 
@@ -178,18 +177,18 @@ pub fn formatJsonString(allocator: std.mem.Allocator, input: []const u8) ![]cons
 pub fn validateJson(allocator: std.mem.Allocator, input: []const u8) ![]Diagnostic {
     var ast = try parseJson(allocator, input);
     defer ast.deinit();
-    
+
     const all_rules = JsonLinter.RULES;
     var enabled_rules = std.ArrayList(Rule).init(allocator);
     defer enabled_rules.deinit();
-    
+
     // Enable all rules by default
     for (all_rules) |rule| {
         var enabled_rule = rule;
         enabled_rule.enabled = true;
         try enabled_rules.append(enabled_rule);
     }
-    
+
     return lint(allocator, ast, enabled_rules.items);
 }
 
@@ -197,7 +196,7 @@ pub fn validateJson(allocator: std.mem.Allocator, input: []const u8) ![]Diagnost
 pub fn extractJsonSchema(allocator: std.mem.Allocator, input: []const u8) !JsonAnalyzer.JsonSchema {
     var ast = try parseJson(allocator, input);
     defer ast.deinit();
-    
+
     var analyzer = JsonAnalyzer.init(allocator, .{});
     return analyzer.extractSchema(ast);
 }
@@ -206,7 +205,7 @@ pub fn extractJsonSchema(allocator: std.mem.Allocator, input: []const u8) !JsonA
 pub fn generateTypeScriptInterface(allocator: std.mem.Allocator, input: []const u8, interface_name: []const u8) !JsonAnalyzer.TypeScriptInterface {
     var ast = try parseJson(allocator, input);
     defer ast.deinit();
-    
+
     var analyzer = JsonAnalyzer.init(allocator, .{});
     return analyzer.generateTypeScriptInterface(ast, interface_name);
 }
@@ -215,7 +214,7 @@ pub fn generateTypeScriptInterface(allocator: std.mem.Allocator, input: []const 
 pub fn getJsonStatistics(allocator: std.mem.Allocator, input: []const u8) !JsonAnalyzer.JsonStatistics {
     var ast = try parseJson(allocator, input);
     defer ast.deinit();
-    
+
     var analyzer = JsonAnalyzer.init(allocator, .{});
     return analyzer.generateStatistics(ast);
 }
@@ -237,21 +236,21 @@ test "JSON module - complete pipeline" {
     var arena = std.heap.ArenaAllocator.init(testing.allocator);
     defer arena.deinit();
     const allocator = arena.allocator();
-    
+
     const input = "{\"name\": \"Alice\", \"age\": 30, \"active\": true}";
-    
+
     // Test parsing
     var ast = try parseJson(allocator, input);
     defer ast.deinit();
-    
+
     try testing.expect(ast.root != null);
-    
+
     // Test formatting
     const formatted = try formatJsonString(allocator, input);
     defer allocator.free(formatted);
-    
+
     try testing.expect(formatted.len > 0);
-    
+
     // Test validation
     const diagnostics = try validateJson(allocator, input);
     defer {
@@ -260,26 +259,26 @@ test "JSON module - complete pipeline" {
         }
         allocator.free(diagnostics);
     }
-    
+
     // Should have no errors for valid JSON
     try testing.expectEqual(@as(usize, 0), diagnostics.len);
-    
+
     // Test schema extraction
     var schema = try extractJsonSchema(allocator, input);
     defer schema.deinit(allocator);
-    
+
     try testing.expectEqual(JsonAnalyzer.JsonSchema.SchemaType.object, schema.schema_type);
-    
+
     // Test TypeScript interface generation
     var interface = try generateTypeScriptInterface(allocator, input, "User");
     defer interface.deinit(allocator);
-    
+
     try testing.expectEqualStrings("User", interface.name);
     try testing.expectEqual(@as(usize, 3), interface.fields.items.len);
-    
+
     // Test statistics
     const stats = try getJsonStatistics(allocator, input);
-    
+
     try testing.expectEqual(@as(u32, 1), stats.type_counts.strings);
     try testing.expectEqual(@as(u32, 1), stats.type_counts.numbers);
     try testing.expectEqual(@as(u32, 1), stats.type_counts.booleans);
@@ -290,9 +289,9 @@ test "JSON module - language support interface" {
     var arena = std.heap.ArenaAllocator.init(testing.allocator);
     defer arena.deinit();
     const allocator = arena.allocator();
-    
+
     const support = try getSupport(allocator);
-    
+
     // Test that all required components are present
     try testing.expectEqual(Language.json, support.language);
     try testing.expect(support.lexer.tokenizeFn != null);
@@ -300,27 +299,27 @@ test "JSON module - language support interface" {
     try testing.expect(support.formatter.formatFn != null);
     try testing.expect(support.linter != null);
     try testing.expect(support.analyzer != null);
-    
+
     // Test lexer interface
     const input = "\"hello\"";
     const tokens = try support.lexer.tokenize(allocator, input);
     defer allocator.free(tokens);
-    
+
     try testing.expect(tokens.len > 0);
-    
+
     // Test parser interface
     var ast = try support.parser.parse(allocator, tokens);
     defer ast.deinit();
-    
+
     try testing.expect(ast.root != null);
-    
+
     // Test formatter interface
     const default_options = FormatOptions{};
     const formatted = try support.formatter.format(allocator, ast, default_options);
     defer allocator.free(formatted);
-    
+
     try testing.expect(formatted.len > 0);
-    
+
     // Test linter interface
     const rules = &[_]Rule{
         Rule{ .name = "test-rule", .description = "", .severity = .warning, .enabled = true },
@@ -332,7 +331,7 @@ test "JSON module - language support interface" {
         }
         allocator.free(diagnostics);
     }
-    
+
     // Test analyzer interface
     const symbols = try support.analyzer.?.extractSymbols(allocator, ast);
     defer {
@@ -344,7 +343,7 @@ test "JSON module - language support interface" {
         }
         allocator.free(symbols);
     }
-    
+
     try testing.expect(symbols.len > 0);
 }
 
@@ -352,10 +351,10 @@ test "JSON module - error handling" {
     var arena = std.heap.ArenaAllocator.init(testing.allocator);
     defer arena.deinit();
     const allocator = arena.allocator();
-    
+
     // Test invalid JSON
     const invalid_input = "{\"key\": }";
-    
+
     // Should parse with errors but not crash
     var ast = parseJson(allocator, invalid_input) catch |err| switch (err) {
         error.ParseError => {
@@ -365,7 +364,7 @@ test "JSON module - error handling" {
         else => return err,
     };
     defer ast.deinit();
-    
+
     // Should still produce some AST structure for error recovery
     try testing.expect(ast.root != null);
 }
@@ -374,7 +373,7 @@ test "JSON module - round-trip formatting" {
     var arena = std.heap.ArenaAllocator.init(testing.allocator);
     defer arena.deinit();
     const allocator = arena.allocator();
-    
+
     const inputs = [_][]const u8{
         "\"string\"",
         "42",
@@ -386,18 +385,18 @@ test "JSON module - round-trip formatting" {
         "{\"key\": \"value\"}",
         "[1, 2, 3]",
     };
-    
+
     for (inputs) |input| {
         var ast = try parseJson(allocator, input);
         defer ast.deinit();
-        
+
         const formatted = try formatJsonString(allocator, input);
         defer allocator.free(formatted);
-        
+
         // Parse the formatted output
         var ast2 = try parseJson(allocator, formatted);
         defer ast2.deinit();
-        
+
         // Both ASTs should be valid (basic round-trip test)
         try testing.expect(ast.root != null);
         try testing.expect(ast2.root != null);

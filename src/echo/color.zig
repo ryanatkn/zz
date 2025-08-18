@@ -27,7 +27,7 @@ pub fn shouldUseColor() bool {
     if (std.posix.getenv("NO_COLOR")) |_| {
         return false;
     }
-    
+
     // Check if stdout is a TTY
     const stdout_file = std.io.getStdOut();
     return std.posix.isatty(stdout_file.handle);

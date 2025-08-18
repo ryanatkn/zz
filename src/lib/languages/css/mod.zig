@@ -9,14 +9,13 @@ const AST = @import("../../ast/mod.zig").AST;
 const FormatOptions = @import("../interface.zig").FormatOptions;
 
 /// CSS language support
-/// 
+///
 /// This module provides CSS parsing, formatting, and analysis
 /// including support for modern CSS features and preprocessor syntax.
-
 /// Get CSS language support instance
 pub fn getSupport(allocator: std.mem.Allocator) !LanguageSupport {
     _ = allocator;
-    
+
     return LanguageSupport{
         .language = .css,
         .lexer = Lexer{
@@ -31,8 +30,8 @@ pub fn getSupport(allocator: std.mem.Allocator) !LanguageSupport {
             .formatFn = format,
             .formatRangeFn = null, // TODO: Implement range formatting
         },
-        .linter = null,      // TODO: Implement CSS linter
-        .analyzer = null,    // TODO: Implement CSS analyzer
+        .linter = null, // TODO: Implement CSS linter
+        .analyzer = null, // TODO: Implement CSS analyzer
         .deinitFn = null,
     };
 }

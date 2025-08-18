@@ -27,13 +27,13 @@ pub const DocumentationGenerator = struct {
     filesystem: FilesystemInterface,
     deps_dir: []const u8,
     build_parser: build_parser.BuildParser,
-    
+
     const Self = @This();
-    
+
     pub fn init(allocator: std.mem.Allocator, deps_dir: []const u8) Self {
         return Self.initWithFilesystem(allocator, RealFilesystem.init(), deps_dir);
     }
-    
+
     pub fn initWithFilesystem(allocator: std.mem.Allocator, filesystem: FilesystemInterface, deps_dir: []const u8) Self {
         return Self{
             .allocator = allocator,
@@ -42,17 +42,17 @@ pub const DocumentationGenerator = struct {
             .build_parser = build_parser.BuildParser.init(allocator),
         };
     }
-    
+
     /// Check if manifest needs regeneration
     pub fn needsRegeneration(self: *Self) !bool {
         var detector = hashing.ChangeDetector.init(self.allocator);
         const deps_zon_path = "deps.zon";
         const state_path = try path.joinPath(self.allocator, self.deps_dir, ".deps_state");
         defer self.allocator.free(state_path);
-        
+
         return detector.hasChanged(deps_zon_path, state_path);
     }
-    
+
     /// Generate manifest.json from current dependency state
     pub fn generateDocumentation(self: *Self, dependencies: []const config.Dependency) !void {
         // Collect dependency documentation
@@ -63,26 +63,26 @@ pub const DocumentationGenerator = struct {
             }
             dep_docs.deinit();
         }
-        
+
         for (dependencies) |dep| {
             const doc = try self.createDependencyDoc(dep);
             try dep_docs.append(doc);
         }
-        
+
         // Generate manifest.json only
         var manifest_gen = manifest.ManifestGenerator.init(self.allocator, self.deps_dir);
         try manifest_gen.generateManifest(dep_docs.items);
     }
-    
+
     /// Create a DependencyDoc from a config.Dependency
     fn createDependencyDoc(self: *Self, dep: config.Dependency) !types.DependencyDoc {
         // Load version info from .version file
         const dep_dir = try path.joinPath(self.allocator, self.deps_dir, dep.name);
         defer self.allocator.free(dep_dir);
-        
+
         const version_file = try path.joinPath(self.allocator, dep_dir, ".version");
         defer self.allocator.free(version_file);
-        
+
         // Read .version file content
         const content = io.readFileOptional(self.allocator, version_file) catch |err| switch (err) {
             error.FileNotFound => {
@@ -104,11 +104,11 @@ pub const DocumentationGenerator = struct {
             },
             else => return err,
         };
-        
+
         if (content) |c| {
             defer self.allocator.free(c);
             const version_info = try config.VersionInfo.parseFromContent(self.allocator, c);
-            
+
             return types.DependencyDoc{
                 .name = try self.allocator.dupe(u8, dep.name),
                 .category = if (dep.category) |cat| self.parseCategory(cat) else self.categorizeDepencency(dep.name),
@@ -135,11 +135,11 @@ pub const DocumentationGenerator = struct {
             };
         }
     }
-    
+
     /// Parse category string to enum
     fn parseCategory(self: *Self, category_str: []const u8) types.DependencyCategory {
         _ = self;
-        
+
         if (std.mem.eql(u8, category_str, "core")) {
             return .core;
         } else if (std.mem.eql(u8, category_str, "grammar")) {
@@ -150,27 +150,28 @@ pub const DocumentationGenerator = struct {
             return .reference; // Default fallback
         }
     }
-    
+
     /// Categorize a dependency by name
     fn categorizeDepencency(self: *Self, name: []const u8) types.DependencyCategory {
         _ = self;
-        
-        if (std.mem.eql(u8, name, "tree-sitter") or 
-            std.mem.eql(u8, name, "zig-tree-sitter")) {
+
+        if (std.mem.eql(u8, name, "tree-sitter") or
+            std.mem.eql(u8, name, "zig-tree-sitter"))
+        {
             return .core;
         }
-        
+
         if (std.mem.startsWith(u8, name, "tree-sitter-")) {
             return .grammar;
         }
-        
+
         if (std.mem.eql(u8, name, "zig-spec")) {
             return .reference;
         }
-        
+
         return .reference; // Default to reference for unknown dependencies
     }
-    
+
     /// Extract language from grammar dependency name
     fn extractLanguage(self: *Self, name: []const u8) !?[]const u8 {
         if (std.mem.startsWith(u8, name, "tree-sitter-")) {
@@ -179,7 +180,7 @@ pub const DocumentationGenerator = struct {
         }
         return null;
     }
-    
+
     /// Generate human-readable purpose for a dependency
     fn generatePurpose(self: *Self, name: []const u8) ![]const u8 {
         if (std.mem.eql(u8, name, "tree-sitter")) {

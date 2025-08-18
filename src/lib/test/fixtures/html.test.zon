@@ -195,8 +195,7 @@
             .source =
             \\<article><header><h1>Title</h1></header><section><p>Content</p></section></article>
             ,
-            .expected = "<article>\n\t<header>\n\t\t<h1>Title</h1>\n\t</header>\n\t<section>\n\t\t<p>Content</p>\n\t</section>\n</article>"
-            ,
+            .expected = "<article>\n\t<header>\n\t\t<h1>Title</h1>\n\t</header>\n\t<section>\n\t\t<p>Content</p>\n\t</section>\n</article>",
             .options = .{
                 .indent_size = 1,
                 .indent_style = .tab,

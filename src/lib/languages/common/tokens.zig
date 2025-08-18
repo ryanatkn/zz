@@ -1,7 +1,7 @@
 const std = @import("std");
 
 /// Common token types shared across languages
-/// 
+///
 /// These tokens represent constructs that appear in multiple languages
 /// (operators, delimiters, keywords) to avoid duplication.
 pub const CommonToken = enum {
@@ -27,7 +27,7 @@ pub const CommonToken = enum {
     bitwise_not,
     left_shift,
     right_shift,
-    
+
     // Delimiters
     left_paren,
     right_paren,
@@ -41,13 +41,13 @@ pub const CommonToken = enum {
     colon,
     question,
     arrow,
-    
+
     // Literals
     string_literal,
     number_literal,
     boolean_literal,
     null_literal,
-    
+
     // Common keywords (present in many C-like languages)
     keyword_if,
     keyword_else,
@@ -70,18 +70,18 @@ pub const CommonToken = enum {
     keyword_true,
     keyword_false,
     keyword_null,
-    
+
     // Identifiers and whitespace
     identifier,
     whitespace,
     newline,
     comment_line,
     comment_block,
-    
+
     // Special
     end_of_file,
     unknown,
-    
+
     /// Convert common token to string for debugging
     pub fn toString(self: CommonToken) []const u8 {
         return switch (self) {
@@ -106,7 +106,7 @@ pub const CommonToken = enum {
             .bitwise_not => "~",
             .left_shift => "<<",
             .right_shift => ">>",
-            
+
             .left_paren => "(",
             .right_paren => ")",
             .left_brace => "{",
@@ -119,12 +119,12 @@ pub const CommonToken = enum {
             .colon => ":",
             .question => "?",
             .arrow => "=>",
-            
+
             .string_literal => "STRING",
             .number_literal => "NUMBER",
             .boolean_literal => "BOOLEAN",
             .null_literal => "NULL",
-            
+
             .keyword_if => "if",
             .keyword_else => "else",
             .keyword_for => "for",
@@ -146,54 +146,42 @@ pub const CommonToken = enum {
             .keyword_true => "true",
             .keyword_false => "false",
             .keyword_null => "null",
-            
+
             .identifier => "IDENTIFIER",
             .whitespace => "WHITESPACE",
             .newline => "NEWLINE",
             .comment_line => "COMMENT_LINE",
             .comment_block => "COMMENT_BLOCK",
-            
+
             .end_of_file => "EOF",
             .unknown => "UNKNOWN",
         };
     }
-    
+
     /// Check if token is an operator
     pub fn isOperator(self: CommonToken) bool {
         return switch (self) {
-            .plus, .minus, .multiply, .divide, .modulo,
-            .assign, .equal, .not_equal,
-            .less_than, .greater_than, .less_equal, .greater_equal,
-            .logical_and, .logical_or, .logical_not,
-            .bitwise_and, .bitwise_or, .bitwise_xor, .bitwise_not,
-            .left_shift, .right_shift => true,
+            .plus, .minus, .multiply, .divide, .modulo, .assign, .equal, .not_equal, .less_than, .greater_than, .less_equal, .greater_equal, .logical_and, .logical_or, .logical_not, .bitwise_and, .bitwise_or, .bitwise_xor, .bitwise_not, .left_shift, .right_shift => true,
             else => false,
         };
     }
-    
+
     /// Check if token is a delimiter
     pub fn isDelimiter(self: CommonToken) bool {
         return switch (self) {
-            .left_paren, .right_paren, .left_brace, .right_brace,
-            .left_bracket, .right_bracket, .semicolon, .comma,
-            .dot, .colon, .question, .arrow => true,
+            .left_paren, .right_paren, .left_brace, .right_brace, .left_bracket, .right_bracket, .semicolon, .comma, .dot, .colon, .question, .arrow => true,
             else => false,
         };
     }
-    
+
     /// Check if token is a keyword
     pub fn isKeyword(self: CommonToken) bool {
         return switch (self) {
-            .keyword_if, .keyword_else, .keyword_for, .keyword_while,
-            .keyword_do, .keyword_break, .keyword_continue, .keyword_return,
-            .keyword_function, .keyword_class, .keyword_struct, .keyword_enum,
-            .keyword_interface, .keyword_import, .keyword_export,
-            .keyword_const, .keyword_let, .keyword_var,
-            .keyword_true, .keyword_false, .keyword_null => true,
+            .keyword_if, .keyword_else, .keyword_for, .keyword_while, .keyword_do, .keyword_break, .keyword_continue, .keyword_return, .keyword_function, .keyword_class, .keyword_struct, .keyword_enum, .keyword_interface, .keyword_import, .keyword_export, .keyword_const, .keyword_let, .keyword_var, .keyword_true, .keyword_false, .keyword_null => true,
             else => false,
         };
     }
-    
+
     /// Check if token is a literal
     pub fn isLiteral(self: CommonToken) bool {
         return switch (self) {
@@ -201,7 +189,7 @@ pub const CommonToken = enum {
             else => false,
         };
     }
-    
+
     /// Check if token is trivia (whitespace, comments)
     pub fn isTrivia(self: CommonToken) bool {
         return switch (self) {
@@ -243,7 +231,7 @@ pub const KeywordMap = std.HashMap([]const u8, CommonToken);
 /// Create keyword map for C-like languages
 pub fn createCLikeKeywords(allocator: std.mem.Allocator) !KeywordMap {
     var map = KeywordMap.init(allocator);
-    
+
     try map.put("if", .keyword_if);
     try map.put("else", .keyword_else);
     try map.put("for", .keyword_for);
@@ -265,6 +253,6 @@ pub fn createCLikeKeywords(allocator: std.mem.Allocator) !KeywordMap {
     try map.put("true", .keyword_true);
     try map.put("false", .keyword_false);
     try map.put("null", .keyword_null);
-    
+
     return map;
 }

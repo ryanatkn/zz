@@ -3,9 +3,9 @@ const std = @import("std");
 /// Language-agnostic delimiter matching and depth tracking
 /// Used across all formatters for balanced parsing of braces, brackets, parentheses
 pub const DelimiterTracker = struct {
-    brace_depth: i32 = 0,      // {}
-    bracket_depth: i32 = 0,    // []
-    paren_depth: i32 = 0,      // ()
+    brace_depth: i32 = 0, // {}
+    bracket_depth: i32 = 0, // []
+    paren_depth: i32 = 0, // ()
     in_string: bool = false,
     string_char: u8 = 0,
 
@@ -17,7 +17,7 @@ pub const DelimiterTracker = struct {
             self.string_char = char;
             return;
         }
-        
+
         if (self.in_string) {
             if (char == self.string_char) {
                 self.in_string = false;
@@ -49,10 +49,10 @@ pub const DelimiterTracker = struct {
 
     /// Check if all delimiters are balanced
     pub fn isBalanced(self: DelimiterTracker) bool {
-        return self.brace_depth == 0 and 
-               self.bracket_depth == 0 and 
-               self.paren_depth == 0 and
-               !self.in_string;
+        return self.brace_depth == 0 and
+            self.bracket_depth == 0 and
+            self.paren_depth == 0 and
+            !self.in_string;
     }
 
     /// Reset all counters
@@ -80,7 +80,7 @@ pub fn splitRespectingNesting(
 
     for (text, 0..) |char, i| {
         tracker.trackChar(char);
-        
+
         if (char == delimiter and tracker.isTopLevel()) {
             const part = std.mem.trim(u8, text[start..i], " \t\n\r");
             if (part.len > 0) {
@@ -114,9 +114,9 @@ pub fn findMatchingDelimiter(
     var tracker = DelimiterTracker{};
     tracker.trackChar(open_char); // Track the opening character
 
-    for (text[start_pos + 1..], start_pos + 1..) |char, i| {
+    for (text[start_pos + 1 ..], start_pos + 1..) |char, i| {
         tracker.trackChar(char);
-        
+
         if (char == close_char) {
             // Check if this closes our original opening
             switch (open_char) {
@@ -140,10 +140,10 @@ pub fn extractBetweenDelimiters(
 ) ?[]const u8 {
     const open_pos = std.mem.indexOfScalar(u8, text, open_char) orelse return null;
     const close_pos = findMatchingDelimiter(text, open_pos, open_char, close_char) orelse return null;
-    
+
     if (close_pos <= open_pos + 1) return null;
-    
-    return text[open_pos + 1..close_pos];
+
+    return text[open_pos + 1 .. close_pos];
 }
 
 /// Language-agnostic indentation helper

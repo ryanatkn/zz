@@ -284,7 +284,7 @@ pub const Benchmark = struct {
         // Code extraction benchmark temporarily disabled during parser transition
         _ = extraction_modes;
         _ = sample_code;
-        
+
         while (@as(u64, @intCast(std.time.nanoTimestamp() - start)) < target_duration_ns) {
             // Dummy operation for now
             total_extractions += 1;

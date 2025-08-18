@@ -4,7 +4,7 @@ const Node = @import("../../ast/mod.zig").Node;
 const Span = @import("../../parser/foundation/types/span.zig").Span;
 
 /// ZON analyzer for schema extraction and structural analysis
-/// 
+///
 /// Features:
 /// - Schema extraction from ZON data
 /// - Type inference and analysis
@@ -15,24 +15,24 @@ const Span = @import("../../parser/foundation/types/span.zig").Span;
 pub const ZonAnalyzer = struct {
     allocator: std.mem.Allocator,
     options: ZonAnalysisOptions,
-    
+
     const Self = @This();
-    
+
     pub const ZonAnalysisOptions = struct {
-        infer_types: bool = true,               // Infer types from values
-        extract_dependencies: bool = true,       // Extract dependency information
-        analyze_structure: bool = true,          // Perform structural analysis
-        suggest_optimizations: bool = false,     // Suggest improvements
-        collect_symbols: bool = true,            // Collect symbols for IDE
+        infer_types: bool = true, // Infer types from values
+        extract_dependencies: bool = true, // Extract dependency information
+        analyze_structure: bool = true, // Perform structural analysis
+        suggest_optimizations: bool = false, // Suggest improvements
+        collect_symbols: bool = true, // Collect symbols for IDE
     };
-    
+
     pub const ZonSchema = struct {
         allocator: std.mem.Allocator,
         root_type: TypeInfo,
         symbols: std.ArrayList(Symbol),
         dependencies: std.ArrayList(Dependency),
         statistics: Statistics,
-        
+
         pub fn deinit(self: *ZonSchema) void {
             self.root_type.deinit(self.allocator);
             for (self.symbols.items) |symbol| {
@@ -45,14 +45,14 @@ pub const ZonAnalyzer = struct {
             self.dependencies.deinit();
         }
     };
-    
+
     pub const TypeInfo = struct {
         kind: TypeKind,
         name: ?[]const u8,
         fields: ?std.ArrayList(FieldInfo),
         element_type: ?*TypeInfo,
         nullable: bool,
-        
+
         pub const TypeKind = enum {
             object,
             array,
@@ -65,7 +65,7 @@ pub const ZonAnalyzer = struct {
             union_type,
             any,
         };
-        
+
         pub fn deinit(self: TypeInfo, allocator: std.mem.Allocator) void {
             if (self.name) |name| {
                 allocator.free(name);
@@ -82,14 +82,14 @@ pub const ZonAnalyzer = struct {
             }
         }
     };
-    
+
     pub const FieldInfo = struct {
         name: []const u8,
         type_info: TypeInfo,
         required: bool,
         description: ?[]const u8,
         span: Span,
-        
+
         pub fn deinit(self: FieldInfo, allocator: std.mem.Allocator) void {
             allocator.free(self.name);
             self.type_info.deinit(allocator);
@@ -98,21 +98,21 @@ pub const ZonAnalyzer = struct {
             }
         }
     };
-    
+
     pub const Symbol = struct {
         name: []const u8,
         kind: SymbolKind,
         span: Span,
         type_info: ?TypeInfo,
         value: ?[]const u8,
-        
+
         pub const SymbolKind = enum {
             field,
             value,
             type_name,
             dependency,
         };
-        
+
         pub fn deinit(self: Symbol, allocator: std.mem.Allocator) void {
             allocator.free(self.name);
             if (self.type_info) |type_info| {
@@ -123,14 +123,14 @@ pub const ZonAnalyzer = struct {
             }
         }
     };
-    
+
     pub const Dependency = struct {
         name: []const u8,
         version: ?[]const u8,
         url: ?[]const u8,
         hash: ?[]const u8,
         span: Span,
-        
+
         pub fn deinit(self: Dependency, allocator: std.mem.Allocator) void {
             allocator.free(self.name);
             if (self.version) |version| {
@@ -144,7 +144,7 @@ pub const ZonAnalyzer = struct {
             }
         }
     };
-    
+
     pub const Statistics = struct {
         total_nodes: u32,
         max_depth: u32,
@@ -155,30 +155,30 @@ pub const ZonAnalyzer = struct {
         number_count: u32,
         complexity_score: u32,
     };
-    
+
     pub const ZigTypeDefinition = struct {
         allocator: std.mem.Allocator,
         name: []const u8,
         definition: []const u8,
-        
+
         pub fn deinit(self: *ZigTypeDefinition) void {
             self.allocator.free(self.name);
             self.allocator.free(self.definition);
         }
     };
-    
+
     pub fn init(allocator: std.mem.Allocator, options: ZonAnalysisOptions) ZonAnalyzer {
         return ZonAnalyzer{
             .allocator = allocator,
             .options = options,
         };
     }
-    
+
     pub fn deinit(self: *Self) void {
         // ZonAnalyzer doesn't allocate anything itself, so no cleanup needed
         _ = self;
     }
-    
+
     /// Extract schema from ZON AST
     pub fn extractSchema(self: *Self, ast: AST) !ZonSchema {
         var schema = ZonSchema{
@@ -203,55 +203,55 @@ pub const ZonAnalyzer = struct {
                 .complexity_score = 0,
             },
         };
-        
+
         // Analyze the root node
         schema.root_type = try self.inferType(ast.root);
-        
+
         // Collect symbols
         if (self.options.collect_symbols) {
             try self.collectSymbols(ast.root, &schema.symbols);
         }
-        
+
         // Extract dependencies
         if (self.options.extract_dependencies) {
             try self.extractDependencies(ast.root, &schema.dependencies);
         }
-        
+
         // Generate statistics
         if (self.options.analyze_structure) {
             schema.statistics = try self.generateStatistics(ast.root, 0);
         }
-        
+
         return schema;
     }
-    
+
     /// Generate Zig type definition from schema
     pub fn generateZigTypeDefinition(self: *Self, schema: ZonSchema, type_name: []const u8) !ZigTypeDefinition {
         var definition = std.ArrayList(u8).init(self.allocator);
         defer definition.deinit();
-        
+
         try definition.appendSlice("pub const ");
         try definition.appendSlice(type_name);
         try definition.appendSlice(" = ");
-        
+
         try self.writeZigType(&definition, schema.root_type, 0);
-        
+
         try definition.appendSlice(";\n");
-        
+
         return ZigTypeDefinition{
             .allocator = self.allocator,
             .name = try self.allocator.dupe(u8, type_name),
             .definition = try definition.toOwnedSlice(),
         };
     }
-    
+
     /// Extract symbols for IDE integration
     pub fn extractSymbols(self: *Self, ast: AST) ![]Symbol {
         var symbols = std.ArrayList(Symbol).init(self.allocator);
         try self.collectSymbols(ast.root, &symbols);
         return symbols.toOwnedSlice();
     }
-    
+
     /// Free symbols returned by extractSymbols
     pub fn freeSymbols(self: *Self, symbols: []Symbol) void {
         for (symbols) |symbol| {
@@ -262,7 +262,7 @@ pub const ZonAnalyzer = struct {
         }
         self.allocator.free(symbols);
     }
-    
+
     /// Get analysis statistics
     pub fn generateStatistics(self: *Self, root_node: Node, depth: u32) !Statistics {
         var stats = Statistics{
@@ -275,18 +275,18 @@ pub const ZonAnalyzer = struct {
             .number_count = 0,
             .complexity_score = 0,
         };
-        
+
         try self.analyzeNodeStatistics(root_node, &stats, depth);
-        
+
         // Calculate complexity score
-        stats.complexity_score = stats.total_nodes + 
-                                 (stats.max_depth * 2) + 
-                                 (stats.object_count * 3) + 
-                                 (stats.array_count * 2);
-        
+        stats.complexity_score = stats.total_nodes +
+            (stats.max_depth * 2) +
+            (stats.object_count * 3) +
+            (stats.array_count * 2);
+
         return stats;
     }
-    
+
     fn inferType(self: *Self, node: Node) std.mem.Allocator.Error!TypeInfo {
         switch (node.node_type) {
             .list => {
@@ -332,24 +332,24 @@ pub const ZonAnalyzer = struct {
             },
         }
     }
-    
+
     fn inferObjectType(self: *Self, object_node: Node) !TypeInfo {
         var fields = std.ArrayList(FieldInfo).init(self.allocator);
-        
+
         for (object_node.children) |child| {
             if (std.mem.eql(u8, child.rule_name, "field_assignment") and child.children.len >= 2) {
                 const field_name_node = child.children[0];
                 const value_node = child.children[1];
-                
+
                 // Extract field name (remove leading dot)
                 const field_text = field_name_node.text;
-                const field_name = if (field_text.len > 0 and field_text[0] == '.') 
-                    field_text[1..] 
-                else 
+                const field_name = if (field_text.len > 0 and field_text[0] == '.')
+                    field_text[1..]
+                else
                     field_text;
-                
+
                 const field_type = try self.inferType(value_node);
-                
+
                 const field_info = FieldInfo{
                     .name = try self.allocator.dupe(u8, field_name),
                     .type_info = field_type,
@@ -357,11 +357,11 @@ pub const ZonAnalyzer = struct {
                     .description = null,
                     .span = Span{ .start = field_name_node.start_position, .end = field_name_node.end_position },
                 };
-                
+
                 try fields.append(field_info);
             }
         }
-        
+
         return TypeInfo{
             .kind = .object,
             .name = null,
@@ -370,7 +370,7 @@ pub const ZonAnalyzer = struct {
             .nullable = false,
         };
     }
-    
+
     fn inferArrayType(self: *Self, array_node: Node) !TypeInfo {
         if (array_node.children.len == 0) {
             // Empty array - unknown element type
@@ -382,14 +382,14 @@ pub const ZonAnalyzer = struct {
                 .nullable = false,
             };
         }
-        
+
         // Infer element type from first element
         const first_element_type = try self.inferType(array_node.children[0]);
-        
+
         // TODO: Could check if all elements have the same type
         const element_type = try self.allocator.create(TypeInfo);
         element_type.* = first_element_type;
-        
+
         return TypeInfo{
             .kind = .array,
             .name = null,
@@ -398,10 +398,10 @@ pub const ZonAnalyzer = struct {
             .nullable = false,
         };
     }
-    
+
     fn inferTerminalType(self: *Self, terminal_node: Node) !TypeInfo {
         _ = self;
-        
+
         if (std.mem.eql(u8, terminal_node.rule_name, "string_literal")) {
             return TypeInfo{
                 .kind = .string,
@@ -443,7 +443,8 @@ pub const ZonAnalyzer = struct {
                 .nullable = false,
             };
         } else if (std.mem.eql(u8, terminal_node.rule_name, "identifier") or
-                   std.mem.eql(u8, terminal_node.rule_name, "field_name")) {
+            std.mem.eql(u8, terminal_node.rule_name, "field_name"))
+        {
             return TypeInfo{
                 .kind = .identifier,
                 .name = null,
@@ -461,32 +462,32 @@ pub const ZonAnalyzer = struct {
             };
         }
     }
-    
+
     fn collectSymbols(self: *Self, node: Node, symbols: *std.ArrayList(Symbol)) !void {
         switch (node.node_type) {
             .rule => {
                 if (std.mem.eql(u8, node.rule_name, "field_assignment") and node.children.len >= 2) {
                     const field_name_node = node.children[0];
                     const value_node = node.children[1];
-                    
+
                     // Extract field name
                     const field_text = field_name_node.text;
-                    const field_name = if (field_text.len > 0 and field_text[0] == '.') 
-                        field_text[1..] 
-                    else 
+                    const field_name = if (field_text.len > 0 and field_text[0] == '.')
+                        field_text[1..]
+                    else
                         field_text;
-                    
+
                     const symbol = Symbol{
                         .name = try self.allocator.dupe(u8, field_name),
                         .kind = .field,
                         .span = Span{ .start = field_name_node.start_position, .end = field_name_node.end_position },
                         .type_info = try self.inferType(value_node),
-                        .value = if (value_node.node_type == .terminal) 
-                            try self.allocator.dupe(u8, value_node.text) 
-                        else 
+                        .value = if (value_node.node_type == .terminal)
+                            try self.allocator.dupe(u8, value_node.text)
+                        else
                             null,
                     };
-                    
+
                     try symbols.append(symbol);
                 }
             },
@@ -499,19 +500,19 @@ pub const ZonAnalyzer = struct {
                         .type_info = try self.inferType(node),
                         .value = try self.allocator.dupe(u8, node.text),
                     };
-                    
+
                     try symbols.append(symbol);
                 }
             },
             else => {},
         }
-        
+
         // Recursively collect from children
         for (node.children) |child| {
             try self.collectSymbols(child, symbols);
         }
     }
-    
+
     fn extractDependencies(self: *Self, root_node: Node, dependencies: *std.ArrayList(Dependency)) !void {
         // Look for dependencies field in build.zig.zon format
         for (root_node.children) |child| {
@@ -519,33 +520,34 @@ pub const ZonAnalyzer = struct {
                 const field_name_node = child.children[0];
                 const value_node = child.children[1];
                 const field_text = field_name_node.text;
-                
-                const field_name = if (field_text.len > 0 and field_text[0] == '.') 
-                    field_text[1..] 
-                else 
+
+                const field_name = if (field_text.len > 0 and field_text[0] == '.')
+                    field_text[1..]
+                else
                     field_text;
-                
-                if (std.mem.eql(u8, field_name, "dependencies") and 
-                    std.mem.eql(u8, value_node.rule_name, "object")) {
+
+                if (std.mem.eql(u8, field_name, "dependencies") and
+                    std.mem.eql(u8, value_node.rule_name, "object"))
+                {
                     try self.extractDependenciesFromObject(value_node, dependencies);
                 }
             }
         }
     }
-    
+
     fn extractDependenciesFromObject(self: *Self, deps_object: Node, dependencies: *std.ArrayList(Dependency)) !void {
         for (deps_object.children) |child| {
             if (std.mem.eql(u8, child.rule_name, "field_assignment") and child.children.len >= 2) {
                 const dep_name_node = child.children[0];
                 const dep_value_node = child.children[1];
-                
+
                 // Extract dependency name
                 const dep_name_text = dep_name_node.text;
-                const dep_name = if (dep_name_text.len > 0 and dep_name_text[0] == '.') 
-                    dep_name_text[1..] 
-                else 
+                const dep_name = if (dep_name_text.len > 0 and dep_name_text[0] == '.')
+                    dep_name_text[1..]
+                else
                     dep_name_text;
-                
+
                 var dependency = Dependency{
                     .name = try self.allocator.dupe(u8, dep_name),
                     .version = null,
@@ -553,44 +555,46 @@ pub const ZonAnalyzer = struct {
                     .hash = null,
                     .span = Span{ .start = dep_name_node.start_position, .end = dep_name_node.end_position },
                 };
-                
+
                 // Extract dependency details from object
                 if (std.mem.eql(u8, dep_value_node.rule_name, "object")) {
                     for (dep_value_node.children) |dep_field| {
                         if (std.mem.eql(u8, dep_field.rule_name, "field_assignment") and dep_field.children.len >= 2) {
                             const prop_name_node = dep_field.children[0];
                             const prop_value_node = dep_field.children[1];
-                            
+
                             const prop_name_text = prop_name_node.text;
-                            const prop_name = if (prop_name_text.len > 0 and prop_name_text[0] == '.') 
-                                prop_name_text[1..] 
-                            else 
+                            const prop_name = if (prop_name_text.len > 0 and prop_name_text[0] == '.')
+                                prop_name_text[1..]
+                            else
                                 prop_name_text;
-                            
-                            if (std.mem.eql(u8, prop_name, "url") and 
-                                std.mem.eql(u8, prop_value_node.rule_name, "string_literal")) {
+
+                            if (std.mem.eql(u8, prop_name, "url") and
+                                std.mem.eql(u8, prop_value_node.rule_name, "string_literal"))
+                            {
                                 dependency.url = try self.allocator.dupe(u8, prop_value_node.text);
-                            } else if (std.mem.eql(u8, prop_name, "hash") and 
-                                      std.mem.eql(u8, prop_value_node.rule_name, "string_literal")) {
+                            } else if (std.mem.eql(u8, prop_name, "hash") and
+                                std.mem.eql(u8, prop_value_node.rule_name, "string_literal"))
+                            {
                                 dependency.hash = try self.allocator.dupe(u8, prop_value_node.text);
-                            } else if (std.mem.eql(u8, prop_name, "version") and 
-                                      std.mem.eql(u8, prop_value_node.rule_name, "string_literal")) {
+                            } else if (std.mem.eql(u8, prop_name, "version") and
+                                std.mem.eql(u8, prop_value_node.rule_name, "string_literal"))
+                            {
                                 dependency.version = try self.allocator.dupe(u8, prop_value_node.text);
                             }
                         }
                     }
                 }
-                
+
                 try dependencies.append(dependency);
             }
         }
     }
-    
+
     fn analyzeNodeStatistics(self: *Self, node: Node, stats: *Statistics, depth: u32) !void {
-        
         stats.total_nodes += 1;
         stats.max_depth = @max(stats.max_depth, depth);
-        
+
         switch (node.node_type) {
             .list => {
                 if (std.mem.eql(u8, node.rule_name, "object")) {
@@ -613,19 +617,18 @@ pub const ZonAnalyzer = struct {
             },
             else => {},
         }
-        
+
         // Recursively analyze children
         for (node.children) |child| {
             try self.analyzeNodeStatistics(child, stats, depth + 1);
         }
     }
-    
+
     fn writeZigType(self: *Self, output: *std.ArrayList(u8), type_info: TypeInfo, indent: u32) !void {
-        
         switch (type_info.kind) {
             .object => {
                 try output.appendSlice("struct {\n");
-                
+
                 if (type_info.fields) |fields| {
                     for (fields.items) |field| {
                         // Add indentation
@@ -633,21 +636,21 @@ pub const ZonAnalyzer = struct {
                         while (i < (indent + 1) * 4) : (i += 1) {
                             try output.append(' ');
                         }
-                        
+
                         try output.appendSlice(field.name);
                         try output.appendSlice(": ");
-                        
+
                         if (field.required) {
                             try self.writeZigType(output, field.type_info, indent + 1);
                         } else {
                             try output.append('?');
                             try self.writeZigType(output, field.type_info, indent + 1);
                         }
-                        
+
                         try output.appendSlice(",\n");
                     }
                 }
-                
+
                 // Add closing brace with proper indentation
                 var i: u32 = 0;
                 while (i < indent * 4) : (i += 1) {
@@ -687,21 +690,21 @@ pub fn extractSchemaFromString(allocator: std.mem.Allocator, zon_content: []cons
     // Import our lexer and parser
     const ZonLexer = @import("lexer.zig").ZonLexer;
     const ZonParser = @import("parser.zig").ZonParser;
-    
+
     // Tokenize
     var lexer = ZonLexer.init(allocator, zon_content, .{});
     defer lexer.deinit();
-    
+
     const tokens = try lexer.tokenize();
     defer allocator.free(tokens);
-    
+
     // Parse
     var parser = ZonParser.init(allocator, tokens, .{});
     defer parser.deinit();
-    
+
     var ast = try parser.parse();
     defer ast.deinit();
-    
+
     // Analyze
     var analyzer = ZonAnalyzer.init(allocator, .{});
     return analyzer.extractSchema(ast);

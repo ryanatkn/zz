@@ -77,7 +77,7 @@ pub const Lock = struct {
     /// Check if a process is still running
     fn isProcessRunning(self: *Self, pid: std.process.Child.Id) bool {
         _ = self;
-        
+
         // Use kill(pid, 0) to check if process exists
         // This is POSIX-specific
         const result = std.c.kill(@intCast(pid), 0);
@@ -115,40 +115,40 @@ pub const LockGuard = struct {
 test "Lock acquisition and release" {
     const testing = std.testing;
     const allocator = testing.allocator;
-    
+
     // Create temporary directory for testing
     const temp_dir = "test_lock_dir";
     try io.ensureDir(temp_dir);
     // Safe to ignore: Test cleanup - if deletion fails, it's not critical
     defer io.deleteTree(temp_dir) catch {};
-    
+
     // Test basic lock acquisition
     {
         var lock1 = try Lock.init(allocator, temp_dir);
         defer lock1.deinit();
-        
+
         try lock1.acquire();
         defer lock1.release();
-        
+
         // Try to acquire second lock - should fail
         var lock2 = try Lock.init(allocator, temp_dir);
         defer lock2.deinit();
-        
+
         try testing.expectError(error.LockHeld, lock2.acquire());
     }
-    
+
     // Test lock release
     {
         var lock3 = try Lock.init(allocator, temp_dir);
         defer lock3.deinit();
-        
+
         try lock3.acquire();
         lock3.release();
-        
+
         // Should be able to acquire again after release
         var lock4 = try Lock.init(allocator, temp_dir);
         defer lock4.deinit();
-        
+
         try lock4.acquire();
         lock4.release();
     }
@@ -157,22 +157,22 @@ test "Lock acquisition and release" {
 test "LockGuard RAII" {
     const testing = std.testing;
     const allocator = testing.allocator;
-    
+
     // Create temporary directory for testing
     const temp_dir = "test_lockguard_dir";
     try io.ensureDir(temp_dir);
     // Safe to ignore: Test cleanup - if deletion fails, it's not critical
     defer io.deleteTree(temp_dir) catch {};
-    
+
     // Test RAII lock guard
     {
         var guard = try LockGuard.acquire(allocator, temp_dir);
         defer guard.deinit();
-        
+
         // Try to acquire second lock - should fail
         try testing.expectError(error.LockHeld, LockGuard.acquire(allocator, temp_dir));
     }
-    
+
     // Lock should be released after guard goes out of scope
     {
         var guard2 = try LockGuard.acquire(allocator, temp_dir);

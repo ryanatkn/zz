@@ -22,7 +22,7 @@ pub const CommandResult = struct {
 pub const ExecuteOptions = struct {
     /// Capture stdout (default: true)
     capture_stdout: bool = true,
-    /// Capture stderr (default: true) 
+    /// Capture stderr (default: true)
     capture_stderr: bool = true,
     /// Inherit stderr to terminal (default: false)
     inherit_stderr: bool = false,
@@ -54,7 +54,7 @@ pub fn executeCommandSilent(
         .capture_stderr = false,
     });
     defer result.deinit();
-    
+
     if (result.exit_code != 0) {
         return error.CommandFailed;
     }
@@ -79,11 +79,11 @@ pub fn executeCommandForOutput(
         .capture_stderr = false,
     });
     defer result.deinit();
-    
+
     if (result.exit_code != 0) {
         return error.CommandFailed;
     }
-    
+
     // Duplicate stdout before result.deinit() frees it
     return try allocator.dupe(u8, result.stdout);
 }
@@ -100,19 +100,19 @@ pub fn executeCommandWithOptions(
 
     // Create child process
     var child = std.process.Child.init(argv, allocator);
-    
+
     // Set working directory
     if (options.cwd) |cwd| {
         child.cwd = cwd;
     }
-    
+
     // Set environment
     if (options.env) |env| {
         child.env_map = &std.process.EnvMap.init(allocator);
         // TODO: Implement env map parsing if needed
         _ = env;
     }
-    
+
     // Configure stdout behavior
     if (options.capture_stdout) {
         child.stdout_behavior = .Pipe;
@@ -121,7 +121,7 @@ pub fn executeCommandWithOptions(
     } else {
         child.stdout_behavior = .Ignore;
     }
-    
+
     // Configure stderr behavior
     if (options.capture_stderr) {
         child.stderr_behavior = .Pipe;
@@ -137,14 +137,14 @@ pub fn executeCommandWithOptions(
     // Read outputs
     var stdout: []u8 = &.{};
     var stderr: []u8 = &.{};
-    
+
     if (options.capture_stdout and child.stdout != null) {
         stdout = child.stdout.?.reader().readAllAlloc(allocator, 1024 * 1024) catch |err| switch (err) {
             error.OutOfMemory => return err,
             else => &.{}, // Return empty on read errors
         };
     }
-    
+
     if (options.capture_stderr and child.stderr != null) {
         stderr = child.stderr.?.reader().readAllAlloc(allocator, 1024 * 1024) catch |err| switch (err) {
             error.OutOfMemory => {
@@ -157,7 +157,7 @@ pub fn executeCommandWithOptions(
 
     // Wait for process completion
     const term = try child.wait();
-    
+
     const exit_code: u8 = switch (term) {
         .Exited => |code| @intCast(code),
         .Signal => 1, // Non-zero for signals

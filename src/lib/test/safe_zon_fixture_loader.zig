@@ -222,7 +222,7 @@ fn parseFormatterOptions(options_data: FormatterOptionsData) FormatterOptions {
 
 test "SafeZonFixtureLoader basic parsing" {
     const testing = std.testing;
-    
+
     const test_zon =
         \\.{
         \\    .language = "json",

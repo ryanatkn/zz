@@ -6,14 +6,14 @@ const ExtendedRule = extended_rules.ExtendedRule;
 pub const Validator = struct {
     allocator: std.mem.Allocator,
     rules: *const std.StringHashMap(ExtendedRule),
-    
+
     pub fn init(allocator: std.mem.Allocator, rules: *const std.StringHashMap(ExtendedRule)) Validator {
         return .{
             .allocator = allocator,
             .rules = rules,
         };
     }
-    
+
     /// Validate that all rule references point to defined rules
     pub fn validateReferences(self: Validator) !void {
         var iterator = self.rules.iterator();
@@ -21,7 +21,7 @@ pub const Validator = struct {
             try self.validateRuleReferences(entry.value_ptr.*);
         }
     }
-    
+
     fn validateRuleReferences(self: Validator, extended_rule: ExtendedRule) !void {
         switch (extended_rule) {
             .rule_ref => |ref| {
@@ -51,15 +51,15 @@ pub const Validator = struct {
             .terminal => {}, // No references to validate
         }
     }
-    
+
     /// Check for circular dependencies in rule definitions
     pub fn checkCircularDependencies(self: Validator) !void {
         var visited = std.StringHashMap(void).init(self.allocator);
         defer visited.deinit();
-        
+
         var in_progress = std.StringHashMap(void).init(self.allocator);
         defer in_progress.deinit();
-        
+
         var iterator = self.rules.iterator();
         while (iterator.next()) |entry| {
             if (!visited.contains(entry.key_ptr.*)) {
@@ -67,26 +67,26 @@ pub const Validator = struct {
             }
         }
     }
-    
+
     fn visitRule(self: Validator, rule_name: []const u8, visited: *std.StringHashMap(void), in_progress: *std.StringHashMap(void)) (error{ CircularDependency, RuleNotFound, OutOfMemory })!void {
         if (in_progress.contains(rule_name)) {
             return error.CircularDependency;
         }
-        
+
         if (visited.contains(rule_name)) {
             return; // Already processed
         }
-        
+
         try in_progress.put(rule_name, {});
-        
+
         // Visit dependencies
         const extended_rule = self.rules.get(rule_name) orelse return error.RuleNotFound;
         try self.visitRuleDependencies(extended_rule, visited, in_progress);
-        
+
         _ = in_progress.remove(rule_name);
         try visited.put(rule_name, {});
     }
-    
+
     fn visitRuleDependencies(self: Validator, extended_rule: ExtendedRule, visited: *std.StringHashMap(void), in_progress: *std.StringHashMap(void)) !void {
         switch (extended_rule) {
             .rule_ref => |ref| {

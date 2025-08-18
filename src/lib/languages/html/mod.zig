@@ -9,14 +9,13 @@ const AST = @import("../../ast/mod.zig").AST;
 const FormatOptions = @import("../interface.zig").FormatOptions;
 
 /// HTML language support
-/// 
+///
 /// This module provides HTML parsing, formatting, and analysis
 /// including support for modern HTML5 features and accessibility checking.
-
 /// Get HTML language support instance
 pub fn getSupport(allocator: std.mem.Allocator) !LanguageSupport {
     _ = allocator;
-    
+
     return LanguageSupport{
         .language = .html,
         .lexer = Lexer{
@@ -31,8 +30,8 @@ pub fn getSupport(allocator: std.mem.Allocator) !LanguageSupport {
             .formatFn = format,
             .formatRangeFn = null, // TODO: Implement range formatting
         },
-        .linter = null,      // TODO: Implement HTML linter
-        .analyzer = null,    // TODO: Implement HTML analyzer
+        .linter = null, // TODO: Implement HTML linter
+        .analyzer = null, // TODO: Implement HTML analyzer
         .deinitFn = null,
     };
 }

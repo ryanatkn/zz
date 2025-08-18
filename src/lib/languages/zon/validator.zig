@@ -7,45 +7,45 @@ const AST = @import("../../parser/ast/mod.zig").AST;
 pub const ZonValidator = struct {
     allocator: std.mem.Allocator,
     errors: std.ArrayList(ValidationError),
-    
+
     const Self = @This();
-    
+
     pub const ValidationError = struct {
         field_path: []const u8,
         message: []const u8,
         severity: Severity,
-        
+
         pub const Severity = enum {
             @"error",
             warning,
             info,
         };
-        
+
         pub fn deinit(self: ValidationError, allocator: std.mem.Allocator) void {
             allocator.free(self.field_path);
             allocator.free(self.message);
         }
     };
-    
+
     pub fn init(allocator: std.mem.Allocator) ZonValidator {
         return .{
             .allocator = allocator,
             .errors = std.ArrayList(ValidationError).init(allocator),
         };
     }
-    
+
     pub fn deinit(self: *Self) void {
         for (self.errors.items) |error_item| {
             error_item.deinit(self.allocator);
         }
         self.errors.deinit();
     }
-    
+
     /// Get the list of validation errors
     pub fn getErrors(self: *const Self) []const ValidationError {
         return self.errors.items;
     }
-    
+
     /// Clear all validation errors
     pub fn clearErrors(self: *Self) void {
         for (self.errors.items) |error_item| {
@@ -53,29 +53,29 @@ pub const ZonValidator = struct {
         }
         self.errors.clearRetainingCapacity();
     }
-    
+
     /// Validate build.zig.zon file
     pub fn validateBuildZon(self: *Self, ast: AST) !void {
         self.clearErrors();
         try self.validateAgainstSchema(ast.root, &BUILD_ZON_SCHEMA, "");
     }
-    
+
     /// Validate zz.zon configuration file
     pub fn validateZzConfig(self: *Self, ast: AST) !void {
         self.clearErrors();
         try self.validateAgainstSchema(ast.root, &ZZ_CONFIG_SCHEMA, "");
     }
-    
+
     /// Validate package manager dependencies
     pub fn validateDependencies(self: *Self, ast: AST) !void {
         self.clearErrors();
-        
+
         // Find dependencies field
         const deps_node = self.findField(ast.root, "dependencies") orelse {
             try self.addError("", "Missing 'dependencies' field", .warning);
             return;
         };
-        
+
         // Validate each dependency
         for (deps_node.children) |child| {
             if (std.mem.eql(u8, child.rule_name, "field_assignment")) {
@@ -83,7 +83,7 @@ pub const ZonValidator = struct {
             }
         }
     }
-    
+
     /// Validate against a specific schema
     fn validateAgainstSchema(self: *Self, node: Node, schema: *const Schema, path: []const u8) !void {
         // Find the object node
@@ -91,7 +91,7 @@ pub const ZonValidator = struct {
             try self.addError(path, "Expected object", .@"error");
             return;
         };
-        
+
         // Check required fields
         for (schema.required_fields) |required_field| {
             if (self.findField(object_node, required_field.name) == null) {
@@ -101,12 +101,12 @@ pub const ZonValidator = struct {
                     required_field.name,
                 });
                 defer self.allocator.free(field_path);
-                
+
                 const message = try std.fmt.allocPrint(self.allocator, "Missing required field '{s}'", .{required_field.name});
                 try self.addError(field_path, message, .@"error");
             }
         }
-        
+
         // Validate present fields
         for (object_node.children) |child| {
             if (std.mem.eql(u8, child.rule_name, "field_assignment")) {
@@ -114,19 +114,19 @@ pub const ZonValidator = struct {
             }
         }
     }
-    
+
     /// Validate a single field
     fn validateField(self: *Self, node: Node, schema: *const Schema, parent_path: []const u8) !void {
         if (node.children.len < 2) return;
-        
+
         const field_name_node = node.children[0];
         var field_name = field_name_node.text;
-        
+
         // Remove leading dot
         if (field_name.len > 0 and field_name[0] == '.') {
             field_name = field_name[1..];
         }
-        
+
         // Handle @"..." quoted names
         if (std.mem.indexOf(u8, field_name, "@\"")) |at_pos| {
             const start = at_pos + 2;
@@ -134,24 +134,24 @@ pub const ZonValidator = struct {
                 field_name = field_name[start..][0..end_quote];
             }
         }
-        
+
         const field_path = try std.fmt.allocPrint(self.allocator, "{s}{s}{s}", .{
             parent_path,
             if (parent_path.len > 0) "." else "",
             field_name,
         });
         defer self.allocator.free(field_path);
-        
+
         // Check if field is known
         var field_spec: ?FieldSpec = null;
-        
+
         for (schema.required_fields) |spec| {
             if (std.mem.eql(u8, spec.name, field_name)) {
                 field_spec = spec;
                 break;
             }
         }
-        
+
         if (field_spec == null) {
             for (schema.optional_fields) |spec| {
                 if (std.mem.eql(u8, spec.name, field_name)) {
@@ -160,20 +160,20 @@ pub const ZonValidator = struct {
                 }
             }
         }
-        
+
         if (field_spec == null and !schema.allow_unknown_fields) {
             const message = try std.fmt.allocPrint(self.allocator, "Unknown field '{s}'", .{field_name});
             try self.addError(field_path, message, .warning);
             return;
         }
-        
+
         // Validate field type if spec is found
         if (field_spec) |spec| {
             const value_node = if (node.children.len >= 3) node.children[2] else node.children[1];
             try self.validateFieldType(value_node, spec, field_path);
         }
     }
-    
+
     /// Validate field type matches specification
     fn validateFieldType(self: *Self, node: Node, spec: FieldSpec, path: []const u8) !void {
         switch (spec.field_type) {
@@ -213,14 +213,14 @@ pub const ZonValidator = struct {
                 if (spec.enum_values) |values| {
                     var valid = false;
                     const text = node.text;
-                    
+
                     for (values) |allowed_value| {
                         if (std.mem.eql(u8, text, allowed_value)) {
                             valid = true;
                             break;
                         }
                     }
-                    
+
                     if (!valid) {
                         const message = try std.fmt.allocPrint(self.allocator, "Invalid enum value '{s}'", .{text});
                         try self.addError(path, message, .@"error");
@@ -229,37 +229,35 @@ pub const ZonValidator = struct {
             },
         }
     }
-    
+
     /// Validate a single dependency entry
     fn validateDependency(self: *Self, node: Node) !void {
         if (node.children.len < 2) return;
-        
+
         const name_node = node.children[0];
         var dep_name = name_node.text;
-        
+
         // Clean up dependency name
         if (dep_name.len > 0 and dep_name[0] == '.') {
             dep_name = dep_name[1..];
         }
-        
+
         const value_node = if (node.children.len >= 3) node.children[2] else node.children[1];
-        
+
         // Check for required dependency fields
         const url_field = self.findField(value_node, "url");
         const path_field = self.findField(value_node, "path");
-        
+
         if (url_field == null and path_field == null) {
-            const message = try std.fmt.allocPrint(self.allocator, 
-                "Dependency '{s}' must have either 'url' or 'path' field", .{dep_name});
+            const message = try std.fmt.allocPrint(self.allocator, "Dependency '{s}' must have either 'url' or 'path' field", .{dep_name});
             try self.addError(dep_name, message, .@"error");
         }
-        
+
         if (url_field != null and path_field != null) {
-            const message = try std.fmt.allocPrint(self.allocator, 
-                "Dependency '{s}' cannot have both 'url' and 'path' fields", .{dep_name});
+            const message = try std.fmt.allocPrint(self.allocator, "Dependency '{s}' cannot have both 'url' and 'path' fields", .{dep_name});
             try self.addError(dep_name, message, .@"error");
         }
-        
+
         // Validate URL format if present
         if (url_field) |url_node| {
             if (url_node.children.len >= 2) {
@@ -270,7 +268,7 @@ pub const ZonValidator = struct {
             }
         }
     }
-    
+
     /// Validate URL format
     fn validateUrl(self: *Self, url: []const u8, context: []const u8) !void {
         // Remove quotes if present
@@ -278,18 +276,18 @@ pub const ZonValidator = struct {
         if (clean_url.len >= 2 and clean_url[0] == '"' and clean_url[clean_url.len - 1] == '"') {
             clean_url = clean_url[1 .. clean_url.len - 1];
         }
-        
+
         // Basic URL validation
         if (!std.mem.startsWith(u8, clean_url, "https://") and
             !std.mem.startsWith(u8, clean_url, "http://") and
             !std.mem.startsWith(u8, clean_url, "git://") and
-            !std.mem.startsWith(u8, clean_url, "file://")) {
-            const message = try std.fmt.allocPrint(self.allocator, 
-                "Invalid URL format in '{s}': {s}", .{ context, clean_url });
+            !std.mem.startsWith(u8, clean_url, "file://"))
+        {
+            const message = try std.fmt.allocPrint(self.allocator, "Invalid URL format in '{s}': {s}", .{ context, clean_url });
             try self.addError(context, message, .warning);
         }
     }
-    
+
     /// Add a validation error
     fn addError(self: *Self, path: []const u8, message: []const u8, severity: ValidationError.Severity) !void {
         try self.errors.append(.{
@@ -298,21 +296,21 @@ pub const ZonValidator = struct {
             .severity = severity,
         });
     }
-    
+
     /// Find a field in an object node
     fn findField(self: *Self, node: Node, field_name: []const u8) ?Node {
         _ = self;
-        
+
         for (node.children) |child| {
             if (std.mem.eql(u8, child.rule_name, "field_assignment")) {
                 if (child.children.len >= 1) {
                     var name = child.children[0].text;
-                    
+
                     // Clean up field name
                     if (name.len > 0 and name[0] == '.') {
                         name = name[1..];
                     }
-                    
+
                     // Handle @"..." format
                     if (std.mem.indexOf(u8, name, "@\"")) |at_pos| {
                         const start = at_pos + 2;
@@ -320,30 +318,30 @@ pub const ZonValidator = struct {
                             name = name[start..][0..end_quote];
                         }
                     }
-                    
+
                     if (std.mem.eql(u8, name, field_name)) {
                         return if (child.children.len >= 2) child.children[1] else child;
                     }
                 }
             }
         }
-        
+
         return null;
     }
-    
+
     /// Find an object node in the AST
     fn findObjectNode(self: *Self, node: Node) ?Node {
         if (std.mem.eql(u8, node.rule_name, "object")) {
             return node;
         }
-        
+
         // Search in children
         for (node.children) |child| {
             if (self.findObjectNode(child)) |obj| {
                 return obj;
             }
         }
-        
+
         return null;
     }
 };
@@ -399,28 +397,10 @@ const BUILD_ZON_SCHEMA = Schema{
 const ZZ_CONFIG_SCHEMA = Schema{
     .required_fields = &[_]FieldSpec{},
     .optional_fields = &[_]FieldSpec{
-        .{ 
-            .name = "format", 
-            .field_type = .object, 
-            .nested_schema = &FORMAT_CONFIG_SCHEMA,
-            .description = "Formatting configuration" 
-        },
-        .{ 
-            .name = "lint", 
-            .field_type = .object, 
-            .nested_schema = &LINT_CONFIG_SCHEMA,
-            .description = "Linting configuration" 
-        },
-        .{ 
-            .name = "ignore", 
-            .field_type = .array, 
-            .description = "Patterns to ignore" 
-        },
-        .{ 
-            .name = "include", 
-            .field_type = .array, 
-            .description = "Patterns to include" 
-        },
+        .{ .name = "format", .field_type = .object, .nested_schema = &FORMAT_CONFIG_SCHEMA, .description = "Formatting configuration" },
+        .{ .name = "lint", .field_type = .object, .nested_schema = &LINT_CONFIG_SCHEMA, .description = "Linting configuration" },
+        .{ .name = "ignore", .field_type = .array, .description = "Patterns to ignore" },
+        .{ .name = "include", .field_type = .array, .description = "Patterns to include" },
     },
     .allow_unknown_fields = false,
 };
@@ -430,21 +410,11 @@ const FORMAT_CONFIG_SCHEMA = Schema{
     .required_fields = &[_]FieldSpec{},
     .optional_fields = &[_]FieldSpec{
         .{ .name = "indent_size", .field_type = .number, .description = "Number of spaces per indent" },
-        .{ 
-            .name = "indent_style", 
-            .field_type = .@"enum", 
-            .enum_values = &[_][]const u8{ "space", "tab" },
-            .description = "Indentation style" 
-        },
+        .{ .name = "indent_style", .field_type = .@"enum", .enum_values = &[_][]const u8{ "space", "tab" }, .description = "Indentation style" },
         .{ .name = "line_width", .field_type = .number, .description = "Maximum line width" },
         .{ .name = "trailing_comma", .field_type = .boolean, .description = "Add trailing commas" },
         .{ .name = "sort_keys", .field_type = .boolean, .description = "Sort object keys" },
-        .{ 
-            .name = "quote_style", 
-            .field_type = .@"enum",
-            .enum_values = &[_][]const u8{ "single", "double", "preserve" },
-            .description = "Quote style for strings" 
-        },
+        .{ .name = "quote_style", .field_type = .@"enum", .enum_values = &[_][]const u8{ "single", "double", "preserve" }, .description = "Quote style for strings" },
     },
     .allow_unknown_fields = false,
 };
@@ -454,12 +424,7 @@ const LINT_CONFIG_SCHEMA = Schema{
     .required_fields = &[_]FieldSpec{},
     .optional_fields = &[_]FieldSpec{
         .{ .name = "rules", .field_type = .object, .description = "Linting rules configuration" },
-        .{ 
-            .name = "severity", 
-            .field_type = .@"enum",
-            .enum_values = &[_][]const u8{ "error", "warning", "info", "off" },
-            .description = "Default severity level" 
-        },
+        .{ .name = "severity", .field_type = .@"enum", .enum_values = &[_][]const u8{ "error", "warning", "info", "off" }, .description = "Default severity level" },
     },
     .allow_unknown_fields = true, // Allow custom lint rules
 };
@@ -471,7 +436,7 @@ const LINT_CONFIG_SCHEMA = Schema{
 test "ZonValidator - validate build.zig.zon" {
     const testing = std.testing;
     const allocator = testing.allocator;
-    
+
     // Create a mock AST
     const root = Node{
         .rule_name = "object",
@@ -515,23 +480,23 @@ test "ZonValidator - validate build.zig.zon" {
         .attributes = null,
         .parent = null,
     };
-    
+
     const ast = AST{
         .root = root,
         .allocator = allocator,
         .source = "",
     };
-    
+
     var validator = ZonValidator.init(allocator);
     defer validator.deinit();
-    
+
     try validator.validateBuildZon(ast);
-    
+
     const errors = validator.getErrors();
-    
+
     // Should have an error for missing 'version' field
     try testing.expect(errors.len > 0);
-    
+
     var found_version_error = false;
     for (errors) |err| {
         if (std.mem.indexOf(u8, err.message, "version") != null) {
@@ -545,14 +510,14 @@ test "ZonValidator - validate build.zig.zon" {
 test "ZonValidator - validate dependencies" {
     const testing = std.testing;
     const allocator = testing.allocator;
-    
+
     var validator = ZonValidator.init(allocator);
     defer validator.deinit();
-    
+
     // Test URL validation
     try validator.validateUrl("https://github.com/user/repo.git", "test-dep");
     try testing.expect(validator.getErrors().len == 0);
-    
+
     validator.clearErrors();
     try validator.validateUrl("not-a-url", "test-dep");
     try testing.expect(validator.getErrors().len > 0);
@@ -561,15 +526,15 @@ test "ZonValidator - validate dependencies" {
 test "ZonValidator - field type validation" {
     const testing = std.testing;
     const allocator = testing.allocator;
-    
+
     var validator = ZonValidator.init(allocator);
     defer validator.deinit();
-    
+
     const spec = FieldSpec{
         .name = "test_field",
         .field_type = .string,
     };
-    
+
     const string_node = Node{
         .rule_name = "string_literal",
         .node_type = .terminal,
@@ -580,10 +545,10 @@ test "ZonValidator - field type validation" {
         .attributes = null,
         .parent = null,
     };
-    
+
     try validator.validateFieldType(string_node, spec, "test_field");
     try testing.expect(validator.getErrors().len == 0);
-    
+
     const number_node = Node{
         .rule_name = "number_literal",
         .node_type = .terminal,
@@ -594,7 +559,7 @@ test "ZonValidator - field type validation" {
         .attributes = null,
         .parent = null,
     };
-    
+
     validator.clearErrors();
     try validator.validateFieldType(number_node, spec, "test_field");
     try testing.expect(validator.getErrors().len > 0); // Type mismatch

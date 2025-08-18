@@ -10,8 +10,8 @@ pub const Dependency = struct {
     name: []const u8,
     url: []const u8,
     version: []const u8,
-    include: []const []const u8 = &.{},        // If set, ONLY copy these patterns
-    exclude: []const []const u8 = &.{},        // Never copy these patterns
+    include: []const []const u8 = &.{}, // If set, ONLY copy these patterns
+    exclude: []const []const u8 = &.{}, // Never copy these patterns
     preserve_files: []const []const u8 = &.{},
     patches: []const []const u8 = &.{},
     // Optional metadata for documentation generation
@@ -23,17 +23,17 @@ pub const Dependency = struct {
 
     pub fn deinit(self: *const Dependency, allocator: std.mem.Allocator) void {
         if (!self.owns_memory) return; // Don't free string literals
-        
+
         allocator.free(self.name);
         allocator.free(self.url);
         allocator.free(self.version);
-        
+
         // Free duplicated arrays
         allocator.free(self.include);
         allocator.free(self.exclude);
         allocator.free(self.preserve_files);
         allocator.free(self.patches);
-        
+
         // Free optional metadata
         if (self.category) |category| allocator.free(category);
         if (self.language) |language| allocator.free(language);
@@ -96,7 +96,7 @@ pub const VersionInfo = struct {
     fn parseTimestamp(timestamp_str: []const u8) !i64 {
         // Expected format: "2024-08-16 14:23:45 UTC"
         if (timestamp_str.len < 19) return error.InvalidTimestamp;
-        
+
         // Parse components
         const year_str = timestamp_str[0..4];
         const month_str = timestamp_str[5..7];
@@ -104,49 +104,49 @@ pub const VersionInfo = struct {
         const hour_str = timestamp_str[11..13];
         const minute_str = timestamp_str[14..16];
         const second_str = timestamp_str[17..19];
-        
+
         const year = try std.fmt.parseInt(u32, year_str, 10);
         const month = try std.fmt.parseInt(u8, month_str, 10);
         const day = try std.fmt.parseInt(u8, day_str, 10);
         const hour = try std.fmt.parseInt(u8, hour_str, 10);
         const minute = try std.fmt.parseInt(u8, minute_str, 10);
         const second = try std.fmt.parseInt(u8, second_str, 10);
-        
+
         // Basic validation
         if (month < 1 or month > 12) return error.InvalidMonth;
         if (day < 1 or day > 31) return error.InvalidDay;
         if (hour > 23) return error.InvalidHour;
         if (minute > 59) return error.InvalidMinute;
         if (second > 59) return error.InvalidSecond;
-        
+
         // Convert to Unix timestamp using simplified calculation
         // For parsing timestamps from .version files, this precision is sufficient
         const days_since_epoch = daysSinceEpoch(year, month, day);
         const seconds_in_day = @as(i64, hour) * datetime.SECONDS_PER_HOUR + @as(i64, minute) * 60 + @as(i64, second);
-        
+
         return days_since_epoch * datetime.SECONDS_PER_DAY + seconds_in_day;
     }
-    
+
     /// Calculate days since Unix epoch (1970-01-01)
     /// Simplified calculation using datetime constants
     fn daysSinceEpoch(year: u32, month: u8, day: u8) i64 {
         // Simplified calculation - good enough for .version file parsing
         var total_days: i64 = 0;
-        
+
         // Add days for complete years (approximate)
         if (year >= 1970) {
             total_days += @as(i64, year - 1970) * datetime.DAYS_PER_YEAR_APPROX;
         }
-        
+
         // Add days for complete months in current year (approximate)
         total_days += @as(i64, month - 1) * datetime.DAYS_PER_MONTH_APPROX;
-        
+
         // Add days in current month
         total_days += day - 1; // -1 because we want days since, not including
-        
+
         return total_days;
     }
-    
+
     // isLeapYear function removed - not used in approximate date calculations
 
     /// Generate .version file content
@@ -218,15 +218,14 @@ pub const DepsZonConfig = struct {
 
     /// Parse dependencies from ZON content using the dedicated ZON module
     /// This eliminates the memory leak and provides proper string management
-
     pub fn parseFromZonContent(allocator: std.mem.Allocator, content: []const u8) !DepsZonConfig {
         // For now, return a simple structure since the convertAstToType function
         // in parser.zig is not fully implemented for complex structures
         // TODO: Implement proper ZON parsing for complex dependency structures
         _ = content; // TODO: Actually parse the content
-        
+
         const dependencies = std.StringHashMap(DependencyZonEntry).init(allocator);
-        
+
         // Default settings (safe literals)
         const settings = SettingsStruct{
             .deps_dir = "deps",
@@ -235,7 +234,7 @@ pub const DepsZonConfig = struct {
             .clone_retries = 3,
             .clone_timeout_seconds = 60,
         };
-        
+
         return DepsZonConfig{
             .dependencies = dependencies,
             .settings = settings,
@@ -243,10 +242,6 @@ pub const DepsZonConfig = struct {
             .owns_strings = false, // Using literals for now
         };
     }
-    
-    
-    
-    
 
     pub const DependencyZonEntry = struct {
         url: []const u8,
@@ -282,8 +277,7 @@ pub const DepsZonConfig = struct {
         while (iterator.next()) |entry| {
             const dep_name = entry.key_ptr.*;
             const dep_value = entry.value_ptr.*;
-            
-            
+
             // Use generic struct cloning to handle string duplication
             var hash_entry = try struct_utils.cloneStruct(DepsConfig.DependencyEntry, allocator, DepsConfig.DependencyEntry{
                 .url = dep_value.url,
@@ -298,16 +292,14 @@ pub const DepsZonConfig = struct {
                 .owns_memory = false, // Will be overridden
             });
             hash_entry.owns_memory = true; // We cloned these strings, so we own them
-            
+
             const key_copy = try allocator.dupe(u8, dep_name);
             try deps_config.dependencies.put(key_copy, hash_entry);
         }
 
         return deps_config;
     }
-    
-    
-    
+
     /// Free the dependencies HashMap and all allocated memory
     pub fn deinit(self: *DepsZonConfig) void {
         // Free all allocated strings if they were from ZON parsing
@@ -316,17 +308,17 @@ pub const DepsZonConfig = struct {
             while (iterator.next()) |entry| {
                 // Free the key (dependency name) - always allocated
                 self.allocator.free(entry.key_ptr.*);
-                
+
                 // Free the value strings - all are allocated by our conversion
                 const dep = entry.value_ptr.*;
                 self.allocator.free(dep.url);
                 self.allocator.free(dep.version);
-                
+
                 // Free string arrays (these are currently empty slices, safe to skip)
                 // The include, exclude, preserve_files, patches arrays are currently literals
                 // No need to free them in the current implementation
             }
-            
+
             // Free settings if allocated (currently using literals)
             if (self.settings) |settings| {
                 if (settings.deps_dir) |dir| {
@@ -337,7 +329,7 @@ pub const DepsZonConfig = struct {
                 }
             }
         }
-        
+
         self.dependencies.deinit();
     }
 };
@@ -366,7 +358,7 @@ pub const DepsConfig = struct {
         var iterator = self.dependencies.iterator();
         while (iterator.next()) |entry| {
             allocator.free(entry.key_ptr.*);
-            
+
             // Use generic struct freeing
             const dep = entry.value_ptr.*;
             struct_utils.freeStruct(DependencyEntry, allocator, dep, dep.owns_memory);
@@ -407,34 +399,34 @@ pub const DepsConfig = struct {
 test "Dependency memory management" {
     const testing = std.testing;
     const allocator = testing.allocator;
-    
+
     // Test string literal (no ownership)
     const dep1 = Dependency{
         .name = "test-dep",
         .url = "https://example.com/repo.git",
         .version = "v1.0.0",
         .include = &.{},
-        .exclude = &.{"build.zig", "*.md"},
+        .exclude = &.{ "build.zig", "*.md" },
         .preserve_files = &.{},
         .patches = &.{},
         .owns_memory = false,
     };
-    
+
     // Should not crash when deinitializing string literals
     dep1.deinit(allocator);
-    
+
     // Test allocated strings (with ownership)
     const dep2 = Dependency{
         .name = try allocator.dupe(u8, "test-dep"),
         .url = try allocator.dupe(u8, "https://example.com/repo.git"),
         .version = try allocator.dupe(u8, "v1.0.0"),
         .include = try allocator.dupe([]const u8, &.{}),
-        .exclude = try allocator.dupe([]const u8, &.{"build.zig", "*.md"}),
+        .exclude = try allocator.dupe([]const u8, &.{ "build.zig", "*.md" }),
         .preserve_files = try allocator.dupe([]const u8, &.{}),
         .patches = try allocator.dupe([]const u8, &.{}),
         .owns_memory = true,
     };
-    
+
     // Should properly free allocated memory
     dep2.deinit(allocator);
 }
@@ -442,7 +434,7 @@ test "Dependency memory management" {
 test "VersionInfo parsing and serialization" {
     const testing = std.testing;
     const allocator = testing.allocator;
-    
+
     const original = VersionInfo{
         .repository = "https://github.com/test/repo.git",
         .version = "v1.2.3",
@@ -450,15 +442,15 @@ test "VersionInfo parsing and serialization" {
         .updated = 1704067200, // 2024-01-01 00:00:00 UTC
         .updated_by = "",
     };
-    
+
     // Convert to content string
     const content = try original.toContent(allocator);
     defer allocator.free(content);
-    
+
     // Parse back from content
     const parsed = try VersionInfo.parseFromContent(allocator, content);
     defer parsed.deinit(allocator);
-    
+
     // Verify fields match
     try testing.expectEqualStrings(original.repository, parsed.repository);
     try testing.expectEqualStrings(original.version, parsed.version);
@@ -467,20 +459,20 @@ test "VersionInfo parsing and serialization" {
 
 test "parseTimestamp" {
     const testing = std.testing;
-    
+
     // Test valid ISO-like timestamps
     const ts1 = VersionInfo.parseTimestamp("2024-01-01 00:00:00 UTC") catch 0;
     const ts2 = VersionInfo.parseTimestamp("2024-01-01 12:00:00 UTC") catch 0;
-    
+
     // Basic validation - timestamps should be positive and reasonable
     try testing.expect(ts1 > 0);
     try testing.expect(ts2 > ts1); // 12:00 is after 00:00
-    
+
     // Test invalid timestamps
     const invalid1 = VersionInfo.parseTimestamp("invalid") catch 0;
     const invalid2 = VersionInfo.parseTimestamp("") catch 0;
     const invalid3 = VersionInfo.parseTimestamp("2024-01-01") catch 0; // Too short
-    
+
     try testing.expectEqual(@as(i64, 0), invalid1);
     try testing.expectEqual(@as(i64, 0), invalid2);
     try testing.expectEqual(@as(i64, 0), invalid3);
@@ -491,12 +483,12 @@ test "parseTimestamp" {
 test "DepsConfig operations" {
     const testing = std.testing;
     const allocator = testing.allocator;
-    
+
     var config = DepsConfig{
         .dependencies = std.StringHashMap(DepsConfig.DependencyEntry).init(allocator),
     };
     defer config.deinit(allocator);
-    
+
     // Add a dependency
     const key = try allocator.dupe(u8, "test-dep");
     try config.dependencies.put(key, DepsConfig.DependencyEntry{
@@ -508,7 +500,7 @@ test "DepsConfig operations" {
         .patches = &.{},
         .owns_memory = false, // Test uses string literals
     });
-    
+
     // Convert to Dependencies array
     const deps = try config.toDependencies(allocator);
     defer {
@@ -517,7 +509,7 @@ test "DepsConfig operations" {
         }
         allocator.free(deps);
     }
-    
+
     try testing.expectEqual(@as(usize, 1), deps.len);
     try testing.expectEqualStrings("test-dep", deps[0].name);
     try testing.expectEqualStrings("https://example.com/repo.git", deps[0].url);

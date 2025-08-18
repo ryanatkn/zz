@@ -9,15 +9,14 @@ const AST = @import("../../ast/mod.zig").AST;
 const FormatOptions = @import("../interface.zig").FormatOptions;
 
 /// Zig language support
-/// 
+///
 /// This module provides Zig parsing, formatting, and analysis.
 /// For formatting, we delegate to the external `zig fmt` command
 /// when available for best compatibility.
-
 /// Get Zig language support instance
 pub fn getSupport(allocator: std.mem.Allocator) !LanguageSupport {
     _ = allocator;
-    
+
     return LanguageSupport{
         .language = .zig,
         .lexer = Lexer{
@@ -32,8 +31,8 @@ pub fn getSupport(allocator: std.mem.Allocator) !LanguageSupport {
             .formatFn = format,
             .formatRangeFn = null, // TODO: Implement range formatting
         },
-        .linter = null,      // TODO: Implement Zig linter
-        .analyzer = null,    // TODO: Implement Zig analyzer
+        .linter = null, // TODO: Implement Zig linter
+        .analyzer = null, // TODO: Implement Zig analyzer
         .deinitFn = null,
     };
 }

@@ -95,7 +95,7 @@ pub const DependencyManager = struct {
             // Update dependency
             self.updateSingleDependency(&dep, options, &result) catch |err| {
                 try result.failed.append(dep.name);
-                
+
                 // Provide specific error messages for dependency validation errors
                 if (errors.isDependencyError(err)) {
                     try self.logError("Failed to update {s}: {s}", .{ dep.name, errors.getMessage(err) });
@@ -127,7 +127,7 @@ pub const DependencyManager = struct {
 
         for (dependencies) |dep| {
             const needs_update = try self.versioning.needsUpdate(dep.name, dep.version, self.deps_dir);
-            
+
             const dep_dir = try path.joinPath(self.allocator, self.deps_dir, dep.name);
             defer self.allocator.free(dep_dir);
 
@@ -144,7 +144,7 @@ pub const DependencyManager = struct {
 
         return result;
     }
-    
+
     // TODO: Implement parallel checking - currently disabled due to compilation issues
     // /// Check status of all dependencies using parallel execution for better performance
     // pub fn checkDependenciesParallel(self: *Self, dependencies: []const config.Dependency) !CheckResult {
@@ -194,7 +194,7 @@ pub const DependencyManager = struct {
                     true
                 else
                     try self.versioning.needsUpdate(dep.name, dep.version, self.deps_dir);
-                    
+
                 if (needs_update) {
                     const version_info = try self.versioning.loadVersionInfo(dep_dir);
                     if (version_info) |vi| {
@@ -259,13 +259,13 @@ pub const DependencyManager = struct {
         // Clone to temp directory with progress indicator
         const clone_message = try std.fmt.allocPrint(self.allocator, "Fetching {s} ({s})", .{ dep.name, dep.version });
         defer self.allocator.free(clone_message);
-        
+
         var progress = ProgressIndicator.init(self.allocator, clone_message);
         var frame_count: u32 = 0;
-        
+
         // Show initial progress
         try progress.tick();
-        
+
         // Start clone operation and get commit hash with pattern filtering
         const commit_hash = try self.git.cloneWithProgress(dep.url, dep.version, temp_dir, dep.include, dep.exclude, &progress, &frame_count);
         defer self.allocator.free(commit_hash);
@@ -299,7 +299,7 @@ pub const DependencyManager = struct {
     const VERSION_COL_WIDTH = 15;
     const STATUS_COL_WIDTH = 13;
     const DATE_COL_WIDTH = 24;
-    
+
     /// Print colored status table
     fn printColoredTable(self: *Self, dependencies: []const config.Dependency) !void {
         const stdout = std.io.getStdOut().writer();
@@ -336,14 +336,14 @@ pub const DependencyManager = struct {
                     const epoch_day = time_info.getEpochDay();
                     const year_day = epoch_day.calculateYearDay();
                     const month_day = year_day.calculateMonthDay();
-                    
+
                     const formatted = try std.fmt.allocPrint(self.allocator, "{d:0>4}-{d:0>2}-{d:0>2}", .{
                         year_day.year,
                         month_day.month.numeric(),
                         month_day.day_index + 1,
                     });
                     defer self.allocator.free(formatted);
-                    
+
                     // Copy to a buffer that won't be freed immediately
                     var date_buf: [24]u8 = undefined;
                     const copied = std.fmt.bufPrint(&date_buf, "{s}", .{formatted}) catch "Invalid date";
@@ -391,21 +391,21 @@ pub const DependencyManager = struct {
                 } else {
                     status = "Outdated";
                 }
-                
+
                 // Format timestamp to human-readable date
                 if (vi.updated > 0) {
                     const time_info = std.time.epoch.EpochSeconds{ .secs = @intCast(vi.updated) };
                     const epoch_day = time_info.getEpochDay();
                     const year_day = epoch_day.calculateYearDay();
                     const month_day = year_day.calculateMonthDay();
-                    
+
                     const formatted = try std.fmt.allocPrint(self.allocator, "{d:0>4}-{d:0>2}-{d:0>2}", .{
                         year_day.year,
                         month_day.month.numeric(),
                         month_day.day_index + 1,
                     });
                     defer self.allocator.free(formatted);
-                    
+
                     // Copy to a buffer that won't be freed immediately
                     var date_buf: [24]u8 = undefined;
                     const copied = std.fmt.bufPrint(&date_buf, "{s}", .{formatted}) catch "Invalid date";
@@ -481,11 +481,7 @@ pub const DependencyManager = struct {
     fn generateDocumentation(self: *Self, dependencies: []const config.Dependency) !void {
         try self.logInfo("Generating dependency documentation...", .{});
 
-        var doc_generator = docs.DocumentationGenerator.initWithFilesystem(
-            self.allocator,
-            self.filesystem,
-            self.deps_dir
-        );
+        var doc_generator = docs.DocumentationGenerator.initWithFilesystem(self.allocator, self.filesystem, self.deps_dir);
 
         try doc_generator.generateDocumentation(dependencies);
         try self.logSuccess("Generated manifest.json", .{});

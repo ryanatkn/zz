@@ -7,7 +7,7 @@ pub const ExtendedRule = @import("extended_rules.zig").ExtendedRule;
 pub const ExtendedSequence = struct {
     rules: []const ExtendedRule,
     allocator: std.mem.Allocator,
-    
+
     pub fn init(allocator: std.mem.Allocator, rules: []const ExtendedRule) !ExtendedSequence {
         const rules_copy = try allocator.dupe(ExtendedRule, rules);
         return .{
@@ -15,7 +15,7 @@ pub const ExtendedSequence = struct {
             .allocator = allocator,
         };
     }
-    
+
     pub fn deinit(self: *ExtendedSequence) void {
         self.allocator.free(self.rules);
     }

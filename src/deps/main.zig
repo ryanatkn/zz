@@ -25,7 +25,7 @@ pub fn run(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: 
     var i: usize = 2;
     while (i < args.len) : (i += 1) {
         const arg = args[i];
-        
+
         // Use existing Args utility for help parsing
         if (Args.isHelpFlag(arg)) {
             show_help = true;
@@ -85,7 +85,6 @@ pub fn run(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: 
         }
         allocator.free(dependencies);
     }
-    
 
     // Initialize dependency manager
     var dep_manager = manager.DependencyManager.init(allocator, deps_dir);
@@ -123,7 +122,7 @@ pub fn run(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: 
 /// Load dependency configuration from deps.zon
 fn loadDepsConfig(allocator: std.mem.Allocator) !config.DepsConfig {
     // ZON parsing now stable with dedicated parser
-    
+
     // Read deps.zon file
     const deps_file_content = std.fs.cwd().readFileAlloc(allocator, "deps.zon", 1024 * 1024) catch |err| switch (err) {
         error.FileNotFound => {
@@ -133,18 +132,17 @@ fn loadDepsConfig(allocator: std.mem.Allocator) !config.DepsConfig {
         else => return err,
     };
     defer allocator.free(deps_file_content);
-    
+
     // Parse ZON content
     var zon_config = config.DepsZonConfig.parseFromZonContent(allocator, deps_file_content) catch |err| {
         std.log.err("Failed to parse deps.zon: {}", .{err});
         return err;
     };
     defer zon_config.deinit();
-    
+
     const deps_config = try zon_config.toDepsConfig(allocator);
     return deps_config;
 }
-
 
 /// Print results of check operation
 fn printCheckResults(result: *const manager.CheckResult, options: config.UpdateOptions) !void {
@@ -238,7 +236,7 @@ fn printUpdateResults(result: *const manager.UpdateResult, options: config.Updat
                 try stdout.writeAll("\x1b[0m"); // Reset
             }
         }
-        
+
         if (result.skipped.items.len > 0) {
             try stdout.print("  (Skipped {d} already up-to-date)\n", .{result.skipped.items.len});
         }
@@ -256,11 +254,11 @@ fn printUpdateResults(result: *const manager.UpdateResult, options: config.Updat
 /// Generate dependency documentation only (without updating)
 fn generateDocumentationOnly(allocator: std.mem.Allocator, dep_manager: *manager.DependencyManager, dependencies: []const config.Dependency) !void {
     const docs = @import("../lib/deps/docs/mod.zig");
-    
+
     const stdout = std.io.getStdOut().writer();
-    
+
     var doc_generator = docs.DocumentationGenerator.init(allocator, dep_manager.deps_dir);
-    
+
     // Check if regeneration is needed
     const needs_regen = doc_generator.needsRegeneration() catch {
         // If we can't check, assume we need to regenerate
@@ -273,16 +271,16 @@ fn generateDocumentationOnly(allocator: std.mem.Allocator, dep_manager: *manager
         try stdout.print("  ✓ Generated manifest.json\n", .{});
         return;
     };
-    
+
     if (needs_regen) {
         try stdout.print("📦 Generating dependency documentation...\n", .{});
-        
+
         doc_generator.generateDocumentation(dependencies) catch |err| {
             const stderr = std.io.getStdErr().writer();
             try stderr.print("  ✗ Failed to generate dependency documentation: {}\n", .{err});
             return err;
         };
-        
+
         try stdout.print("  ✓ Generated manifest.json\n", .{});
     } else {
         try stdout.print("📦 Dependency documentation up to date (no changes in deps.zon)\n", .{});

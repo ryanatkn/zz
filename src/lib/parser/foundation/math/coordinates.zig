@@ -3,7 +3,7 @@ const std = @import("std");
 /// Line and column coordinates for text positions
 /// Uses 1-based indexing for user-facing operations (editor convention)
 pub const Coordinates = struct {
-    line: usize,   // 1-based line number
+    line: usize, // 1-based line number
     column: usize, // 1-based column number
 
     /// Create new coordinates
@@ -200,10 +200,10 @@ pub const CoordinateConverter = struct {
     pub fn getVisualColumn(self: CoordinateConverter, position: usize, tab_size: usize) usize {
         const coords = self.positionToCoordinates(position);
         const line_start = self.getLineStart(coords.line) orelse return coords.column;
-        
+
         var visual_column: usize = 1; // 1-based
         var pos = line_start;
-        
+
         while (pos < position and pos < self.input.len) {
             if (self.input[pos] == '\t') {
                 // Advance to next tab stop
@@ -214,7 +214,7 @@ pub const CoordinateConverter = struct {
             }
             pos += 1;
         }
-        
+
         return visual_column;
     }
 };
@@ -321,7 +321,7 @@ test "CoordinateConverter round trip" {
     // Test round trip: position -> coordinates -> position
     // Skip newline positions (5, 11, 17) as they're edge cases
     const test_positions = [_]usize{ 0, 1, 4, 6, 10, 12, 15, 16 };
-    
+
     for (test_positions) |pos| {
         if (pos <= input.len) {
             const coords = converter.positionToCoordinates(pos);
@@ -336,12 +336,12 @@ test "CoordinateConverter line start/end detection" {
     var converter = try CoordinateConverter.init(testing.allocator, input);
     defer converter.deinit();
 
-    try testing.expect(converter.isLineStart(0));  // Start of "hello"
+    try testing.expect(converter.isLineStart(0)); // Start of "hello"
     try testing.expect(!converter.isLineStart(1)); // 'e' in "hello"
-    try testing.expect(converter.isLineStart(6));  // Start of "world"
+    try testing.expect(converter.isLineStart(6)); // Start of "world"
     try testing.expect(converter.isLineStart(12)); // Start of "test"
 
-    try testing.expect(converter.isLineEnd(4));  // End of "hello"
+    try testing.expect(converter.isLineEnd(4)); // End of "hello"
     try testing.expect(converter.isLineEnd(10)); // End of "world"
     try testing.expect(converter.isLineEnd(16)); // End of input
     try testing.expect(!converter.isLineEnd(1)); // Middle of "hello"
@@ -353,14 +353,14 @@ test "CoordinateConverter visual columns with tabs" {
     defer converter.deinit();
 
     // Default tab size of 4
-    try testing.expectEqual(@as(usize, 1), converter.getVisualColumn(0, 4));  // 'h'
-    try testing.expectEqual(@as(usize, 5), converter.getVisualColumn(4, 4));  // 'o'
-    try testing.expectEqual(@as(usize, 6), converter.getVisualColumn(5, 4));  // Start of first tab (column 6)
+    try testing.expectEqual(@as(usize, 1), converter.getVisualColumn(0, 4)); // 'h'
+    try testing.expectEqual(@as(usize, 5), converter.getVisualColumn(4, 4)); // 'o'
+    try testing.expectEqual(@as(usize, 6), converter.getVisualColumn(5, 4)); // Start of first tab (column 6)
     try testing.expectEqual(@as(usize, 9), converter.getVisualColumn(6, 4)); // After first tab (column 9)
     try testing.expectEqual(@as(usize, 13), converter.getVisualColumn(7, 4)); // After second tab (column 13)
 
     // Tab size of 8
-    try testing.expectEqual(@as(usize, 9), converter.getVisualColumn(6, 8));  // After first tab (column 9)
+    try testing.expectEqual(@as(usize, 9), converter.getVisualColumn(6, 8)); // After first tab (column 9)
     try testing.expectEqual(@as(usize, 17), converter.getVisualColumn(7, 8)); // After second tab (column 17)
 }
 
@@ -370,7 +370,7 @@ test "CoordinateConverter empty input" {
     defer converter.deinit();
 
     try testing.expectEqual(@as(usize, 1), converter.lineCount());
-    
+
     const coords = converter.positionToCoordinates(0);
     try testing.expectEqual(@as(usize, 1), coords.line);
     try testing.expectEqual(@as(usize, 1), coords.column);
@@ -383,7 +383,7 @@ test "CoordinateConverter single line" {
 
     try testing.expectEqual(@as(usize, 1), converter.lineCount());
     try testing.expectEqualStrings("hello world", converter.getLineText(1).?);
-    
+
     const coords = converter.positionToCoordinates(6); // 'w'
     try testing.expectEqual(@as(usize, 1), coords.line);
     try testing.expectEqual(@as(usize, 7), coords.column);

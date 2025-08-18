@@ -12,8 +12,8 @@ pub const PatternResolver = struct {
 
     // Move these constants to dedicated section for better organization
     const default_ignored = [_][]const u8{
-        ".git",        ".svn", ".hg", "node_modules", "dist", "build",      "target",
-        "__pycache__", "venv", "env", "tmp",          "temp", ".zig-cache", "zig-out",
+        ".git",        ".svn",    ".hg", "node_modules", "dist", "build",      "target",
+        "__pycache__", "venv",    "env", "tmp",          "temp", ".zig-cache", "zig-out",
         "deps",        "archive",
     };
 

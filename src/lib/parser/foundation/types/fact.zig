@@ -20,19 +20,19 @@ pub const Confidence = f32;
 pub const Fact = struct {
     /// Unique identifier for this fact
     id: FactId,
-    
+
     /// Text span this fact describes
     subject: Span,
-    
+
     /// What kind of information this fact conveys
     predicate: Predicate,
-    
+
     /// Additional value associated with this predicate (if any)
     object: ?Value,
-    
+
     /// Confidence level for this fact (0.0 to 1.0)
     confidence: Confidence,
-    
+
     /// Generation when this fact was created
     generation: Generation,
 
@@ -180,21 +180,21 @@ pub const Fact = struct {
     ) !void {
         _ = fmt;
         _ = options;
-        
+
         try writer.print("Fact(id={d}, subject={}, predicate={}", .{
             self.id,
             self.subject,
             self.predicate,
         });
-        
+
         if (self.object) |obj| {
             try writer.print(", object={}", .{obj});
         }
-        
+
         if (self.confidence < 1.0) {
             try writer.print(", confidence={d:.2}", .{self.confidence});
         }
-        
+
         try writer.print(", gen={d})", .{self.generation});
     }
 };
@@ -236,7 +236,7 @@ pub const FactBuilder = struct {
 
     pub fn build(self: FactBuilder) !Fact {
         const predicate = self.predicate orelse return error.MissingPredicate;
-        
+
         return Fact.init(
             self.id,
             self.subject,
@@ -278,13 +278,13 @@ pub const FactSet = struct {
     /// Find facts that overlap with a span
     pub fn findOverlapping(self: FactSet, span: Span, allocator: std.mem.Allocator) ![]Fact {
         var result = std.ArrayList(Fact).init(allocator);
-        
+
         for (self.facts.items) |fact| {
             if (fact.overlapsSpan(span)) {
                 try result.append(fact);
             }
         }
-        
+
         return result.toOwnedSlice();
     }
 
@@ -295,26 +295,26 @@ pub const FactSet = struct {
         allocator: std.mem.Allocator,
     ) ![]Fact {
         var result = std.ArrayList(Fact).init(allocator);
-        
+
         for (self.facts.items) |fact| {
             if (fact.category() == category) {
                 try result.append(fact);
             }
         }
-        
+
         return result.toOwnedSlice();
     }
 
     /// Find facts from a specific generation
     pub fn findByGeneration(self: FactSet, generation: Generation, allocator: std.mem.Allocator) ![]Fact {
         var result = std.ArrayList(Fact).init(allocator);
-        
+
         for (self.facts.items) |fact| {
             if (fact.isFromGeneration(generation)) {
                 try result.append(fact);
             }
         }
-        
+
         return result.toOwnedSlice();
     }
 
@@ -387,7 +387,7 @@ test "Fact span operations" {
 
     const overlapping_span = Span.init(15, 25);
     const non_overlapping_span = Span.init(25, 35);
-    
+
     try testing.expect(fact.overlapsSpan(overlapping_span));
     try testing.expect(!fact.overlapsSpan(non_overlapping_span));
 }
@@ -396,7 +396,7 @@ test "Fact ordering" {
     const span1 = Span.init(10, 20);
     const span2 = Span.init(15, 25);
     const predicate = @import("predicate.zig").Predicate{ .is_node = .rule };
-    
+
     const fact1 = Fact.simple(1, span1, predicate, 0);
     const fact2 = Fact.simple(2, span2, predicate, 0);
 
@@ -408,7 +408,7 @@ test "Fact ordering" {
 test "Fact equality" {
     const span = Span.init(10, 20);
     const predicate = @import("predicate.zig").Predicate{ .is_token = .keyword };
-    
+
     const fact1 = Fact.simple(1, span, predicate, 0);
     const fact2 = Fact.simple(1, span, predicate, 0);
     const fact3 = Fact.simple(2, span, predicate, 0);

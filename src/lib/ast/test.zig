@@ -11,10 +11,10 @@ test "create leaf node" {
     var arena = std.heap.ArenaAllocator.init(testing.allocator);
     defer arena.deinit();
     const allocator = arena.allocator();
-    
+
     const leaf = try createLeafNode(allocator, "number", "42", 0, 2);
     defer leaf.deinit(allocator);
-    
+
     try testing.expectEqualStrings("number", leaf.rule_name);
     try testing.expectEqualStrings("42", leaf.text);
     try testing.expectEqual(@as(usize, 0), leaf.start_position);
@@ -28,11 +28,11 @@ test "create node with children" {
     var arena = std.heap.ArenaAllocator.init(testing.allocator);
     defer arena.deinit();
     const allocator = arena.allocator();
-    
+
     const child1 = try createLeafNode(allocator, "number", "1", 0, 1);
     const child2 = try createLeafNode(allocator, "plus", "+", 1, 2);
     const child3 = try createLeafNode(allocator, "number", "2", 2, 3);
-    
+
     const children = [_]Node{ child1, child2, child3 };
     const parent = try createNode(
         allocator,
@@ -44,17 +44,17 @@ test "create node with children" {
         @constCast(&children),
     );
     defer parent.deinit(allocator);
-    
+
     try testing.expectEqualStrings("expression", parent.rule_name);
     try testing.expectEqualStrings("1+2", parent.text);
     try testing.expectEqual(@as(usize, 3), parent.children.len);
     try testing.expect(!parent.isLeaf());
-    
+
     // Test child access
     const first = parent.firstChild().?;
     try testing.expectEqualStrings("number", first.rule_name);
     try testing.expectEqualStrings("1", first.text);
-    
+
     const last = parent.lastChild().?;
     try testing.expectEqualStrings("number", last.rule_name);
     try testing.expectEqualStrings("2", last.text);
@@ -64,11 +64,11 @@ test "find child by rule name" {
     var arena = std.heap.ArenaAllocator.init(testing.allocator);
     defer arena.deinit();
     const allocator = arena.allocator();
-    
+
     const child1 = try createLeafNode(allocator, "number", "42", 0, 2);
     const child2 = try createLeafNode(allocator, "operator", "+", 2, 3);
     const child3 = try createLeafNode(allocator, "number", "7", 3, 4);
-    
+
     const children = [_]Node{ child1, child2, child3 };
     const parent = try createNode(
         allocator,
@@ -80,11 +80,11 @@ test "find child by rule name" {
         @constCast(&children),
     );
     defer parent.deinit(allocator);
-    
+
     const found_operator = parent.findChild("operator");
     try testing.expect(found_operator != null);
     try testing.expectEqualStrings("+", found_operator.?.text);
-    
+
     const not_found = parent.findChild("unknown");
     try testing.expect(not_found == null);
 }
@@ -93,7 +93,7 @@ test "visitor pattern" {
     var arena = std.heap.ArenaAllocator.init(testing.allocator);
     defer arena.deinit();
     const allocator = arena.allocator();
-    
+
     const leaf1 = try createLeafNode(allocator, "number", "1", 0, 1);
     const leaf2 = try createLeafNode(allocator, "number", "2", 2, 3);
     const children = [_]Node{ leaf1, leaf2 };
@@ -107,12 +107,12 @@ test "visitor pattern" {
         @constCast(&children),
     );
     defer root.deinit(allocator);
-    
+
     var visit_count: usize = 0;
-    
+
     const Context = struct {
         count: *usize,
-        
+
         fn visit(n: *const Node, ctx: *anyopaque) bool {
             _ = n;
             const self: *@This() = @ptrCast(@alignCast(ctx));
@@ -120,11 +120,11 @@ test "visitor pattern" {
             return true;
         }
     };
-    
+
     var context = Context{ .count = &visit_count };
     const visitor = Visitor.init(Context.visit, null, &context);
     visitor.visit(&root);
-    
+
     try testing.expectEqual(@as(usize, 3), visit_count); // root + 2 children
 }
 
@@ -132,7 +132,7 @@ test "walker utilities" {
     var arena = std.heap.ArenaAllocator.init(testing.allocator);
     defer arena.deinit();
     const allocator = arena.allocator();
-    
+
     const leaf1 = try createLeafNode(allocator, "number", "1", 0, 1);
     const leaf2 = try createLeafNode(allocator, "number", "2", 2, 3);
     const children = [_]Node{ leaf1, leaf2 };
@@ -146,13 +146,13 @@ test "walker utilities" {
         @constCast(&children),
     );
     defer root.deinit(allocator);
-    
+
     // Test node counting
     try testing.expectEqual(@as(usize, 3), Walker.countNodes(&root));
-    
+
     // Test max depth
     try testing.expectEqual(@as(usize, 1), Walker.getMaxDepth(&root));
-    
+
     // Test leaf walking
     var leaf_count: usize = 0;
     Walker.walkLeaves(&root, &leaf_count, struct {
@@ -168,10 +168,10 @@ test "parent references" {
     var arena = std.heap.ArenaAllocator.init(testing.allocator);
     defer arena.deinit();
     const allocator = arena.allocator();
-    
+
     const leaf1 = try createLeafNode(allocator, "number", "1", 0, 1);
     const leaf2 = try createLeafNode(allocator, "number", "2", 2, 3);
-    
+
     const children = [_]Node{ leaf1, leaf2 };
     var root = try createNode(
         allocator,
@@ -183,14 +183,14 @@ test "parent references" {
         @constCast(&children),
     );
     defer root.deinit(allocator);
-    
+
     // Set parent references
     root.setParentReferences();
-    
+
     // Check that children have parent reference
     try testing.expect(root.children[0].parent != null);
     try testing.expect(root.children[1].parent != null);
-    
+
     // Test depth calculation
     try testing.expectEqual(@as(usize, 0), Walker.getDepth(&root));
     try testing.expectEqual(@as(usize, 1), Walker.getDepth(&root.children[0]));

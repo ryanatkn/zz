@@ -1,7 +1,7 @@
 const std = @import("std");
 
 /// Collections module for efficient fact storage and querying
-/// 
+///
 /// This module provides high-performance data structures optimized for the
 /// stratified parser's fact-based intermediate representation, including
 /// spatial indexing, caching, and memory pool management.
@@ -28,15 +28,15 @@ pub const FactPool = @import("pools.zig").FactPool;
 /// Streaming interface for processing facts
 pub const FactStream = struct {
     allocator: std.mem.Allocator,
-    
+
     pub fn init(allocator: std.mem.Allocator) FactStream {
         return .{ .allocator = allocator };
     }
-    
+
     pub fn deinit(self: *FactStream) void {
         _ = self;
     }
-    
+
     /// Process a batch of facts
     pub fn processBatch(self: *FactStream, facts: []const @import("../types/fact.zig").Fact) !void {
         _ = self;
@@ -50,7 +50,7 @@ pub const FactDelta = struct {
     added: []const @import("../types/fact.zig").Fact,
     removed: []const @import("../types/fact.zig").Fact,
     modified: []const @import("../types/fact.zig").Fact,
-    
+
     pub fn init(
         added: []const @import("../types/fact.zig").Fact,
         removed: []const @import("../types/fact.zig").Fact,
@@ -62,7 +62,7 @@ pub const FactDelta = struct {
             .modified = modified,
         };
     }
-    
+
     pub fn isEmpty(self: FactDelta) bool {
         return self.added.len == 0 and self.removed.len == 0 and self.modified.len == 0;
     }
@@ -129,16 +129,16 @@ pub fn queryComplex(complex: ComplexQuery) Query {
 pub const FactStorageSystem = struct {
     /// Primary fact index
     index: FactIndex,
-    
+
     /// Query result cache
     cache: QueryCache,
-    
+
     /// Memory pool manager
     pools: FactPoolManager,
-    
+
     /// System allocator
     allocator: std.mem.Allocator,
-    
+
     /// Combined statistics
     stats: SystemStats,
 
@@ -161,10 +161,10 @@ pub const FactStorageSystem = struct {
     /// Insert a fact into the system
     pub fn insertFact(self: *FactStorageSystem, fact: @import("../types/fact.zig").Fact) !void {
         try self.index.insert(fact);
-        
+
         // Invalidate cache entries that might be affected
         self.cache.invalidateSpan(fact.subject);
-        
+
         self.stats.facts_inserted += 1;
     }
 
@@ -193,10 +193,10 @@ pub const FactStorageSystem = struct {
         // Cache miss - query the index
         self.stats.cache_misses += 1;
         const result = try self.executeQuery(query, allocator);
-        
+
         // Cache the result
         try self.cache.put(query, result);
-        
+
         return result;
     }
 
@@ -222,10 +222,10 @@ pub const FactStorageSystem = struct {
                 // Filter by exact predicate
                 var result = std.ArrayList(@import("../types/fact.zig").FactId).init(allocator);
                 defer result.deinit();
-                
+
                 const category = predicate.category();
                 const category_facts = self.index.findByCategory(category) orelse return allocator.alloc(@import("../types/fact.zig").FactId, 0);
-                
+
                 for (category_facts) |fact_id| {
                     if (self.index.get(fact_id)) |fact| {
                         if (fact.predicate.eql(predicate)) {
@@ -233,7 +233,7 @@ pub const FactStorageSystem = struct {
                         }
                     }
                 }
-                
+
                 return result.toOwnedSlice();
             },
             .complex => |complex| {
@@ -246,7 +246,7 @@ pub const FactStorageSystem = struct {
     fn executeComplexQuery(self: *FactStorageSystem, complex: ComplexQuery, allocator: std.mem.Allocator) ![]@import("../types/fact.zig").FactId {
         var candidates = std.ArrayList(@import("../types/fact.zig").FactId).init(allocator);
         defer candidates.deinit();
-        
+
         // Start with most restrictive constraint
         if (complex.span) |span| {
             const span_facts = try self.index.findOverlapping(span, allocator);
@@ -262,40 +262,40 @@ pub const FactStorageSystem = struct {
             // No constraints - this would be expensive, return empty
             return allocator.alloc(@import("../types/fact.zig").FactId, 0);
         }
-        
+
         // Apply additional filters
         var result = std.ArrayList(@import("../types/fact.zig").FactId).init(allocator);
         defer result.deinit();
-        
+
         for (candidates.items) |fact_id| {
             const fact = self.index.get(fact_id) orelse continue;
-            
+
             // Check confidence filter
             if (fact.confidence < complex.min_confidence) continue;
-            
+
             // Check speculative filter
             if (!complex.include_speculative and fact.isSpeculative()) continue;
-            
+
             // Check additional constraints
             var matches = true;
-            
+
             if (complex.category) |category| {
                 if (fact.category() != category) matches = false;
             }
-            
+
             if (complex.generation) |generation| {
                 if (fact.generation != generation) matches = false;
             }
-            
+
             if (complex.span) |span| {
                 if (!fact.overlapsSpan(span)) matches = false;
             }
-            
+
             if (matches) {
                 try result.append(fact_id);
             }
         }
-        
+
         return result.toOwnedSlice();
     }
 
@@ -316,15 +316,15 @@ pub const FactStorageSystem = struct {
     /// Get comprehensive system statistics
     pub fn getStats(self: *FactStorageSystem) SystemStats {
         var stats = self.stats;
-        
+
         const index_stats = self.index.getStats();
         const cache_stats = self.cache.getStats();
         const pool_stats = self.pools.getStats();
-        
+
         stats.index_stats = index_stats;
         stats.cache_stats = cache_stats;
         stats.pool_stats = pool_stats;
-        
+
         return stats;
     }
 
@@ -344,18 +344,18 @@ pub const SystemStats = struct {
     cache_hits: usize = 0,
     cache_misses: usize = 0,
     generation_advances: usize = 0,
-    
+
     // Detailed component statistics
     index_stats: IndexStats = IndexStats{},
     cache_stats: CacheStats = CacheStats{},
     pool_stats: ManagerStats = ManagerStats{},
-    
+
     pub fn cacheHitRate(self: SystemStats) f64 {
         const total = self.cache_hits + self.cache_misses;
         if (total == 0) return 0.0;
         return @as(f64, @floatFromInt(self.cache_hits)) / @as(f64, @floatFromInt(total));
     }
-    
+
     pub fn format(
         self: SystemStats,
         comptime fmt: []const u8,
@@ -397,12 +397,12 @@ pub fn batchInsertFacts(
     facts: []const @import("../types/fact.zig").Fact,
 ) !void {
     try system.index.insertBatch(facts);
-    
+
     // Invalidate cache for all affected spans
     for (facts) |fact| {
         system.cache.invalidateSpan(fact.subject);
     }
-    
+
     system.stats.facts_inserted += facts.len;
 }
 
@@ -437,56 +437,56 @@ pub fn findFactsInSpanByCategory(
 
 test "collections module integration" {
     const testing = std.testing;
-    
+
     var system = FactStorageSystem.init(testing.allocator);
     defer system.deinit();
-    
+
     const span = @import("../types/span.zig").Span.init(10, 20);
     const predicate = @import("../types/predicate.zig").Predicate{ .is_token = .identifier };
     const fact = @import("../types/fact.zig").Fact.simple(1, span, predicate, 0);
-    
+
     // Test insertion
     try system.insertFact(fact);
-    
+
     // Test retrieval
     const retrieved = system.getFact(1);
     try testing.expect(retrieved != null);
     try testing.expect(retrieved.?.eql(fact));
-    
+
     // Test querying
     const query = queryOverlappingSpan(span);
     const results = try system.queryFacts(query, testing.allocator);
     defer testing.allocator.free(results);
-    
+
     try testing.expectEqual(@as(usize, 1), results.len);
     try testing.expectEqual(@as(@import("../types/fact.zig").FactId, 1), results[0]);
-    
+
     // Test cache hit on second query
     const results2 = try system.queryFacts(query, testing.allocator);
     defer testing.allocator.free(results2);
-    
+
     const stats = system.getStats();
     try testing.expectEqual(@as(usize, 1), stats.cache_hits);
 }
 
 test "complex query execution" {
     const testing = std.testing;
-    
+
     var system = FactStorageSystem.init(testing.allocator);
     defer system.deinit();
-    
+
     const span1 = @import("../types/span.zig").Span.init(10, 20);
     const span2 = @import("../types/span.zig").Span.init(30, 40);
     const predicate = @import("../types/predicate.zig").Predicate{ .is_token = .identifier };
-    
+
     const fact1 = @import("../types/fact.zig").Fact.simple(1, span1, predicate, 0);
     const fact2 = @import("../types/fact.zig").Fact.simple(2, span2, predicate, 1);
     const fact3 = @import("../types/fact.zig").Fact.speculative(3, span1, predicate, 0.5, 0);
-    
+
     try system.insertFact(fact1);
     try system.insertFact(fact2);
     try system.insertFact(fact3);
-    
+
     // Test complex query: facts in span1 with confidence >= 0.8
     const complex = ComplexQuery{
         .span = span1,
@@ -496,7 +496,7 @@ test "complex query execution" {
     const query = queryComplex(complex);
     const results = try system.queryFacts(query, testing.allocator);
     defer testing.allocator.free(results);
-    
+
     // Should only find fact1 (high confidence in span1)
     try testing.expectEqual(@as(usize, 1), results.len);
     try testing.expectEqual(@as(@import("../types/fact.zig").FactId, 1), results[0]);
@@ -504,34 +504,34 @@ test "complex query execution" {
 
 test "generation management" {
     const testing = std.testing;
-    
+
     var system = FactStorageSystem.init(testing.allocator);
     defer system.deinit();
-    
+
     const span = @import("../types/span.zig").Span.init(10, 20);
     const predicate = @import("../types/predicate.zig").Predicate{ .is_token = .identifier };
-    
+
     // Insert fact in generation 0
     const fact1 = @import("../types/fact.zig").Fact.simple(1, span, predicate, 0);
     try system.insertFact(fact1);
-    
+
     // Advance to generation 1
     const gen1 = system.nextGeneration();
     try testing.expectEqual(@as(@import("../types/fact.zig").Generation, 1), gen1);
-    
+
     // Insert fact in generation 1
     const fact2 = @import("../types/fact.zig").Fact.simple(2, span, predicate, 1);
     try system.insertFact(fact2);
-    
+
     // Query by generation
     const gen0_query = queryByGeneration(0);
     const gen0_results = try system.queryFacts(gen0_query, testing.allocator);
     defer testing.allocator.free(gen0_results);
-    
+
     const gen1_query = queryByGeneration(1);
     const gen1_results = try system.queryFacts(gen1_query, testing.allocator);
     defer testing.allocator.free(gen1_results);
-    
+
     try testing.expectEqual(@as(usize, 1), gen0_results.len);
     try testing.expectEqual(@as(usize, 1), gen1_results.len);
     try testing.expectEqual(@as(@import("../types/fact.zig").FactId, 1), gen0_results[0]);
@@ -540,27 +540,27 @@ test "generation management" {
 
 test "batch operations" {
     const testing = std.testing;
-    
+
     var system = FactStorageSystem.init(testing.allocator);
     defer system.deinit();
-    
+
     const span = @import("../types/span.zig").Span.init(10, 20);
     const predicate = @import("../types/predicate.zig").Predicate{ .is_token = .identifier };
-    
+
     // Create batch of facts
     var facts: [5]@import("../types/fact.zig").Fact = undefined;
     for (&facts, 0..) |*fact, i| {
         fact.* = @import("../types/fact.zig").Fact.simple(@intCast(i + 1), span, predicate, 0);
     }
-    
+
     // Batch insert
     try batchInsertFacts(&system, &facts);
-    
+
     // Verify all facts inserted
     for (1..6) |i| {
         try testing.expect(system.getFact(@intCast(i)) != null);
     }
-    
+
     const stats = system.getStats();
     try testing.expectEqual(@as(usize, 5), stats.facts_inserted);
 }

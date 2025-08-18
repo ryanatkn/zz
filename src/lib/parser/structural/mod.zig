@@ -1,10 +1,10 @@
 const std = @import("std");
 
 /// Structural Parser - Layer 1 of Stratified Parser Architecture
-/// 
+///
 /// This module provides block boundary detection with <1ms latency,
 /// error recovery regions, and structural fact generation for Layer 2.
-/// 
+///
 /// Performance targets:
 /// - Block boundary detection: <1ms for 1000 lines
 /// - Single boundary update: <100μs
@@ -57,16 +57,16 @@ pub const Language = @import("../lexical/mod.zig").Language;
 pub const StructuralDelta = struct {
     /// Fact IDs that were removed
     removed_facts: []FactId,
-    
+
     /// New structural facts that were added
     added_facts: []Fact,
-    
+
     /// Total range affected by the change
     affected_range: Span,
-    
+
     /// Generation this delta applies to
     generation: Generation,
-    
+
     pub fn init(allocator: std.mem.Allocator) StructuralDelta {
         _ = allocator;
         return .{
@@ -76,7 +76,7 @@ pub const StructuralDelta = struct {
             .generation = 0,
         };
     }
-    
+
     pub fn deinit(self: *StructuralDelta, allocator: std.mem.Allocator) void {
         allocator.free(self.removed_facts);
         allocator.free(self.added_facts);
@@ -87,22 +87,22 @@ pub const StructuralDelta = struct {
 pub const ParseBoundary = struct {
     /// Span of the boundary
     span: Span,
-    
+
     /// Type of boundary (function, class, block, etc.)
     kind: BoundaryKind,
-    
+
     /// Confidence level for this boundary (0.0 to 1.0)
     confidence: f32,
-    
+
     /// Bracket depth at boundary start
     depth: u16,
-    
+
     /// Whether this boundary has errors
     has_errors: bool,
-    
+
     /// Error recovery points within this boundary
     recovery_points: []RecoveryPoint,
-    
+
     pub fn init(span: Span, kind: BoundaryKind, depth: u16) ParseBoundary {
         return .{
             .span = span,
@@ -113,14 +113,14 @@ pub const ParseBoundary = struct {
             .recovery_points = &.{},
         };
     }
-    
+
     pub fn withErrors(self: ParseBoundary, recovery_points: []RecoveryPoint) ParseBoundary {
         var boundary = self;
         boundary.has_errors = true;
         boundary.recovery_points = recovery_points;
         return boundary;
     }
-    
+
     pub fn withConfidence(self: ParseBoundary, confidence: f32) ParseBoundary {
         var boundary = self;
         boundary.confidence = confidence;
@@ -132,19 +132,19 @@ pub const ParseBoundary = struct {
 pub const StructuralResult = struct {
     /// Detected boundaries for Layer 2
     boundaries: []ParseBoundary,
-    
+
     /// Generated facts for indexing
     facts: []Fact,
-    
+
     /// Error regions detected
     error_regions: []ErrorRegion,
-    
+
     /// Total processing time in nanoseconds
     processing_time_ns: u64,
-    
+
     /// Success flag
     success: bool,
-    
+
     pub fn deinit(self: *StructuralResult, allocator: std.mem.Allocator) void {
         allocator.free(self.boundaries);
         allocator.free(self.facts);
@@ -160,38 +160,38 @@ pub const StructuralResult = struct {
 pub const StructuralConfig = struct {
     /// Target language for parsing
     language: Language,
-    
+
     /// Whether to detect error regions
     detect_errors: bool = true,
-    
+
     /// Whether to generate recovery points
     generate_recovery: bool = true,
-    
+
     /// Maximum boundary nesting depth
     max_depth: u16 = 64,
-    
+
     /// Performance threshold for <1ms target
     performance_threshold_ns: u64 = 1_000_000, // 1ms
-    
+
     /// Whether to include folding boundaries
     include_folding: bool = true,
-    
+
     /// Whether to track indentation levels
     track_indentation: bool = true,
-    
+
     pub fn forLanguage(language: Language) StructuralConfig {
         return .{
             .language = language,
         };
     }
-    
+
     pub fn withErrorRecovery(self: StructuralConfig) StructuralConfig {
         var config = self;
         config.detect_errors = true;
         config.generate_recovery = true;
         return config;
     }
-    
+
     pub fn withoutErrorRecovery(self: StructuralConfig) StructuralConfig {
         var config = self;
         config.detect_errors = false;
@@ -207,27 +207,27 @@ pub const StructuralConfig = struct {
 /// Timer for measuring structural parsing performance
 pub const StructuralTimer = struct {
     start_time: i128,
-    
+
     pub fn start() StructuralTimer {
         return .{
             .start_time = std.time.nanoTimestamp(),
         };
     }
-    
+
     pub fn elapsedNs(self: StructuralTimer) u64 {
         const end_time = std.time.nanoTimestamp();
         return @intCast(end_time - self.start_time);
     }
-    
+
     pub fn elapsedMs(self: StructuralTimer) f64 {
         const ns = self.elapsedNs();
         return @as(f64, @floatFromInt(ns)) / 1_000_000.0;
     }
-    
+
     pub fn checkTarget(self: StructuralTimer, threshold_ns: u64) bool {
         return self.elapsedNs() < threshold_ns;
     }
-    
+
     pub fn checkMsTarget(self: StructuralTimer) bool {
         return self.elapsedMs() < 1.0; // <1ms target
     }
@@ -237,50 +237,50 @@ pub const StructuralTimer = struct {
 pub const StructuralStats = struct {
     /// Total boundaries detected
     boundaries_detected: usize = 0,
-    
+
     /// Total facts generated
     facts_generated: usize = 0,
-    
+
     /// Total error regions found
     error_regions_found: usize = 0,
-    
+
     /// Total tokens processed
     tokens_processed: usize = 0,
-    
+
     /// Total processing time (nanoseconds)
     total_time_ns: u64 = 0,
-    
+
     /// Number of incremental updates
     incremental_updates: usize = 0,
-    
+
     /// Peak memory usage
     peak_memory: usize = 0,
-    
+
     /// Parse success rate
     successful_parses: usize = 0,
     total_parses: usize = 0,
-    
+
     pub fn reset(self: *StructuralStats) void {
         self.* = StructuralStats{};
     }
-    
+
     pub fn boundariesPerSecond(self: StructuralStats) f64 {
         if (self.total_time_ns == 0) return 0.0;
         const seconds = @as(f64, @floatFromInt(self.total_time_ns)) / 1_000_000_000.0;
         return @as(f64, @floatFromInt(self.boundaries_detected)) / seconds;
     }
-    
+
     pub fn tokensPerSecond(self: StructuralStats) f64 {
         if (self.total_time_ns == 0) return 0.0;
         const seconds = @as(f64, @floatFromInt(self.total_time_ns)) / 1_000_000_000.0;
         return @as(f64, @floatFromInt(self.tokens_processed)) / seconds;
     }
-    
+
     pub fn successRate(self: StructuralStats) f64 {
         if (self.total_parses == 0) return 0.0;
         return @as(f64, @floatFromInt(self.successful_parses)) / @as(f64, @floatFromInt(self.total_parses));
     }
-    
+
     pub fn averageProcessingTime(self: StructuralStats) f64 {
         if (self.total_parses == 0) return 0.0;
         return @as(f64, @floatFromInt(self.total_time_ns)) / @as(f64, @floatFromInt(self.total_parses));
@@ -298,14 +298,10 @@ pub fn createParser(allocator: std.mem.Allocator, language: Language) !Structura
 }
 
 /// Parse token stream to detect boundaries
-pub fn parseTokens(
-    allocator: std.mem.Allocator,
-    tokens: []const Token,
-    language: Language
-) !StructuralResult {
+pub fn parseTokens(allocator: std.mem.Allocator, tokens: []const Token, language: Language) !StructuralResult {
     var parser = try createParser(allocator, language);
     defer parser.deinit();
-    
+
     return parser.parse(tokens);
 }
 
@@ -318,12 +314,7 @@ pub fn isBoundaryToken(token: Token, language: Language) bool {
 }
 
 /// Get confidence level for a boundary detection
-pub fn getBoundaryConfidence(
-    tokens: []const Token,
-    start_idx: usize,
-    kind: BoundaryKind,
-    language: Language
-) f32 {
+pub fn getBoundaryConfidence(tokens: []const Token, start_idx: usize, kind: BoundaryKind, language: Language) f32 {
     return switch (language) {
         .zig => ZigMatcher.getBoundaryConfidence(tokens, start_idx, kind),
         else => 0.5, // Default confidence
@@ -336,24 +327,24 @@ pub fn getBoundaryConfidence(
 
 test "structural module exports" {
     const testing = std.testing;
-    
+
     // Test that all main types are accessible
     const config = StructuralConfig.forLanguage(.zig);
     try testing.expectEqual(Language.zig, config.language);
-    
+
     const stats = StructuralStats{};
     try testing.expectEqual(@as(usize, 0), stats.boundaries_detected);
-    
+
     const timer = StructuralTimer.start();
     try testing.expect(timer.start_time > 0);
 }
 
 test "boundary detection helpers" {
     const testing = std.testing;
-    
+
     const span = Span.init(0, 10);
     const boundary = ParseBoundary.init(span, .function, 0);
-    
+
     try testing.expectEqual(BoundaryKind.function, boundary.kind);
     try testing.expectEqual(@as(f32, 1.0), boundary.confidence);
     try testing.expect(!boundary.has_errors);
@@ -361,10 +352,10 @@ test "boundary detection helpers" {
 
 test "structural delta operations" {
     const testing = std.testing;
-    
+
     var delta = StructuralDelta.init(testing.allocator);
     defer delta.deinit(testing.allocator);
-    
+
     try testing.expectEqual(@as(usize, 0), delta.removed_facts.len);
     try testing.expectEqual(@as(usize, 0), delta.added_facts.len);
 }

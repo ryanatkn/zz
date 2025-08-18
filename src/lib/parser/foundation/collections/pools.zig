@@ -5,18 +5,17 @@ const Generation = @import("../types/fact.zig").Generation;
 
 /// High-performance memory pools for fact allocation and reuse
 /// Optimized for stratified parser's allocation patterns
-
 /// Pool for reusing fact structures
 pub const FactPool = struct {
     /// Available facts ready for reuse
     available: std.ArrayList(Fact),
-    
+
     /// Statistics for monitoring pool efficiency
     stats: PoolStats,
-    
+
     /// Allocator for pool management
     allocator: std.mem.Allocator,
-    
+
     /// Maximum number of facts to keep in pool
     max_pool_size: usize,
 
@@ -53,7 +52,7 @@ pub const FactPool = struct {
     /// Return a fact to the pool for reuse
     pub fn release(self: *FactPool, fact_ptr: *Fact) void {
         defer self.allocator.destroy(fact_ptr);
-        
+
         if (self.available.items.len < self.max_pool_size) {
             // Reset fact to clean state
             const clean_fact = Fact{
@@ -64,7 +63,7 @@ pub const FactPool = struct {
                 .confidence = 1.0,
                 .generation = 0,
             };
-            
+
             self.available.append(clean_fact) catch {
                 // If append fails, just destroy the fact
                 return;
@@ -96,16 +95,16 @@ pub const FactPool = struct {
 pub const FactIdArrayPool = struct {
     /// Available arrays by size bucket
     buckets: [MAX_BUCKET]std.ArrayList([]FactId),
-    
+
     /// Allocator for array management
     allocator: std.mem.Allocator,
-    
+
     /// Statistics
     stats: ArrayPoolStats,
-    
+
     /// Maximum arrays per bucket
     max_per_bucket: usize,
-    
+
     const MAX_BUCKET = 16; // Supports arrays up to 2^16 elements
     const BUCKET_MULTIPLIER = 2;
 
@@ -116,12 +115,12 @@ pub const FactIdArrayPool = struct {
             .stats = ArrayPoolStats{},
             .max_per_bucket = max_per_bucket,
         };
-        
+
         // Initialize all buckets
         for (&pool.buckets) |*bucket| {
             bucket.* = std.ArrayList([]FactId).init(allocator);
         }
-        
+
         return pool;
     }
 
@@ -139,7 +138,7 @@ pub const FactIdArrayPool = struct {
     pub fn acquire(self: *FactIdArrayPool, min_size: usize) ![]FactId {
         const bucket_index = self.getBucketIndex(min_size);
         const bucket_size = self.getBucketSize(bucket_index);
-        
+
         if (bucket_index < MAX_BUCKET and self.buckets[bucket_index].items.len > 0) {
             // Reuse from pool
             const array = self.buckets[bucket_index].pop() orelse {
@@ -163,11 +162,11 @@ pub const FactIdArrayPool = struct {
     /// Return an array to the pool
     pub fn release(self: *FactIdArrayPool, array: []FactId) void {
         const bucket_index = self.getBucketIndex(array.len);
-        
+
         if (bucket_index < MAX_BUCKET and self.buckets[bucket_index].items.len < self.max_per_bucket) {
             // Clear the array contents
             @memset(array, 0);
-            
+
             self.buckets[bucket_index].append(array) catch {
                 // If append fails, just free the array
                 self.allocator.free(array);
@@ -184,16 +183,16 @@ pub const FactIdArrayPool = struct {
     fn getBucketIndex(self: FactIdArrayPool, size: usize) usize {
         _ = self;
         if (size <= 1) return 0;
-        
+
         // Find the bucket that can hold this size
         var bucket: usize = 0;
         var bucket_size: usize = 1;
-        
+
         while (bucket < MAX_BUCKET and bucket_size < size) {
             bucket += 1;
             bucket_size *= BUCKET_MULTIPLIER;
         }
-        
+
         return @min(bucket, MAX_BUCKET - 1);
     }
 
@@ -201,12 +200,12 @@ pub const FactIdArrayPool = struct {
     fn getBucketSize(self: FactIdArrayPool, bucket_index: usize) usize {
         _ = self;
         if (bucket_index == 0) return 1;
-        
+
         var size: usize = 1;
         for (0..bucket_index) |_| {
             size *= BUCKET_MULTIPLIER;
         }
-        
+
         return size;
     }
 
@@ -231,10 +230,10 @@ pub const FactIdArrayPool = struct {
 pub const FactArena = struct {
     /// Underlying arena allocator
     arena: std.heap.ArenaAllocator,
-    
+
     /// Statistics for monitoring usage
     stats: ArenaStats,
-    
+
     /// Initial buffer size
     initial_size: usize,
 
@@ -291,22 +290,22 @@ pub const FactArena = struct {
 pub const FactPoolManager = struct {
     /// Pool for fact structures
     fact_pool: FactPool,
-    
+
     /// Pool for FactId arrays
     array_pool: FactIdArrayPool,
-    
+
     /// Arena for temporary allocations
     temp_arena: FactArena,
-    
+
     /// Generation-specific arenas
     generation_arenas: std.HashMap(Generation, FactArena, GenerationContext, std.hash_map.default_max_load_percentage),
-    
+
     /// Allocator for pool manager
     allocator: std.mem.Allocator,
-    
+
     /// Current generation
     current_generation: Generation,
-    
+
     /// Combined statistics
     manager_stats: ManagerStats,
 
@@ -326,7 +325,7 @@ pub const FactPoolManager = struct {
         self.fact_pool.deinit();
         self.array_pool.deinit();
         self.temp_arena.deinit();
-        
+
         // Deinit all generation arenas
         var arena_iter = self.generation_arenas.iterator();
         while (arena_iter.next()) |entry| {
@@ -383,19 +382,19 @@ pub const FactPoolManager = struct {
     /// Clean up old generations
     pub fn cleanupOldGenerations(self: *FactPoolManager, keep_generations: usize) void {
         if (self.current_generation < keep_generations) return;
-        
+
         const cutoff_generation = self.current_generation - keep_generations;
-        
+
         var to_remove = std.ArrayList(Generation).init(self.allocator);
         defer to_remove.deinit();
-        
+
         var arena_iter = self.generation_arenas.iterator();
         while (arena_iter.next()) |entry| {
             if (entry.key_ptr.* < cutoff_generation) {
                 to_remove.append(entry.key_ptr.*) catch continue;
             }
         }
-        
+
         for (to_remove.items) |generation| {
             if (self.generation_arenas.getPtr(generation)) |arena| {
                 arena.deinit();
@@ -414,17 +413,17 @@ pub const FactPoolManager = struct {
     /// Get comprehensive statistics
     pub fn getStats(self: *FactPoolManager) ManagerStats {
         var stats = self.manager_stats;
-        
+
         // Add detailed pool statistics
         const fact_stats = self.fact_pool.getStats();
         const array_stats = self.array_pool.getStats();
         _ = self.temp_arena.getStats(); // Temp stats not used yet
-        
+
         stats.fact_pool_hit_rate = fact_stats.hitRate();
         stats.array_pool_hit_rate = array_stats.hitRate();
         stats.temp_memory_usage = self.temp_arena.getMemoryUsage();
         stats.active_generations = self.generation_arenas.count();
-        
+
         return stats;
     }
 
@@ -433,13 +432,13 @@ pub const FactPoolManager = struct {
         self.fact_pool.clear();
         self.array_pool.clear();
         self.temp_arena.reset();
-        
+
         var arena_iter = self.generation_arenas.iterator();
         while (arena_iter.next()) |entry| {
             entry.value_ptr.deinit();
         }
         self.generation_arenas.clearAndFree();
-        
+
         self.manager_stats.total_clears += 1;
     }
 };
@@ -451,7 +450,7 @@ pub const PoolStats = struct {
     pool_releases: usize = 0,
     pool_clears: usize = 0,
     total_allocated: usize = 0,
-    
+
     pub fn hitRate(self: PoolStats) f64 {
         const total = self.pool_hits + self.pool_misses;
         if (total == 0) return 0.0;
@@ -465,7 +464,7 @@ pub const ArrayPoolStats = struct {
     releases: usize = 0,
     clears: usize = 0,
     total_allocated: usize = 0,
-    
+
     pub fn hitRate(self: ArrayPoolStats) f64 {
         const total = self.hits + self.misses;
         if (total == 0) return 0.0;
@@ -489,13 +488,13 @@ pub const ManagerStats = struct {
     generations_cleaned: usize = 0,
     temp_resets: usize = 0,
     total_clears: usize = 0,
-    
+
     // Computed fields
     fact_pool_hit_rate: f64 = 0.0,
     array_pool_hit_rate: f64 = 0.0,
     temp_memory_usage: usize = 0,
     active_generations: usize = 0,
-    
+
     pub fn format(
         self: ManagerStats,
         comptime fmt: []const u8,
@@ -521,19 +520,19 @@ const testing = std.testing;
 test "FactPool basic operations" {
     var pool = FactPool.init(testing.allocator, 10);
     defer pool.deinit();
-    
+
     // Acquire fact (should allocate new)
     const fact1 = try pool.acquire();
-    
+
     var stats = pool.getStats();
     try testing.expectEqual(@as(usize, 1), stats.pool_misses);
     try testing.expectEqual(@as(usize, 1), stats.total_allocated);
-    
+
     // Release and acquire again (should reuse)
     pool.release(fact1);
     const fact2 = try pool.acquire();
     defer testing.allocator.destroy(fact2); // Manual cleanup since we're not releasing
-    
+
     stats = pool.getStats();
     try testing.expectEqual(@as(usize, 1), stats.pool_hits);
     try testing.expectEqual(@as(usize, 1), stats.pool_releases);
@@ -542,44 +541,44 @@ test "FactPool basic operations" {
 test "FactIdArrayPool bucket sizing" {
     var pool = FactIdArrayPool.init(testing.allocator, 5);
     defer pool.deinit();
-    
+
     // Test different sizes
-    const array1 = try pool.acquire(1);   // Bucket 0: size 1
-    const array2 = try pool.acquire(3);   // Bucket 1: size 2 -> but grows to 4
-    const array4 = try pool.acquire(8);   // Bucket 2: size 8
-    
+    const array1 = try pool.acquire(1); // Bucket 0: size 1
+    const array2 = try pool.acquire(3); // Bucket 1: size 2 -> but grows to 4
+    const array4 = try pool.acquire(8); // Bucket 2: size 8
+
     try testing.expectEqual(@as(usize, 1), array1.len);
     try testing.expect(array2.len >= 3);
     try testing.expect(array4.len >= 8);
-    
+
     pool.release(array1);
     pool.release(array2);
     pool.release(array4);
-    
+
     // Should reuse from pools
     const reused1 = try pool.acquire(1);
     try testing.expectEqual(@as(usize, 1), reused1.len);
-    
+
     pool.release(reused1);
 }
 
 test "FactArena operations" {
     var arena = FactArena.init(testing.allocator, 1024);
     defer arena.deinit();
-    
+
     // Allocate some facts
     const fact1 = try arena.createFact();
     const fact2 = try arena.createFact();
     const array = try arena.allocFactIds(10);
-    
+
     try testing.expect(fact1 != fact2);
     try testing.expectEqual(@as(usize, 10), array.len);
-    
+
     var stats = arena.getStats();
     try testing.expectEqual(@as(usize, 2), stats.facts_allocated);
     try testing.expectEqual(@as(usize, 1), stats.arrays_allocated);
     try testing.expectEqual(@as(usize, 10), stats.total_fact_ids);
-    
+
     // Reset should clear everything
     arena.reset();
     stats = arena.getStats();
@@ -589,27 +588,27 @@ test "FactArena operations" {
 test "FactPoolManager integration" {
     var manager = FactPoolManager.init(testing.allocator);
     defer manager.deinit();
-    
+
     // Test fact operations
     const fact = try manager.acquireFact();
     manager.releaseFact(fact);
-    
+
     // Test array operations
     const array = try manager.acquireFactIdArray(5);
     manager.releaseFactIdArray(array);
-    
+
     // Test generation operations
     const gen0_alloc = try manager.getGenerationAllocator(0);
     const gen1_alloc = try manager.getGenerationAllocator(1);
-    
+
     try testing.expect(gen0_alloc.ptr != gen1_alloc.ptr);
-    
+
     _ = manager.nextGeneration();
     try testing.expectEqual(@as(Generation, 1), manager.current_generation);
-    
+
     // Test cleanup
     manager.cleanupOldGenerations(1);
-    
+
     const stats = manager.getStats();
     try testing.expectEqual(@as(usize, 1), stats.fact_acquisitions);
     try testing.expectEqual(@as(usize, 1), stats.array_acquisitions);

@@ -61,7 +61,7 @@ pub fn parseArgsAndText(args: [][:0]const u8) EchoError!ParseResult {
 
     while (i < args.len) {
         const arg = args[i];
-        
+
         // Handle flags that start with '-'
         if (arg.len > 1 and arg[0] == '-') {
             if (std.mem.eql(u8, arg, "-n")) {
@@ -140,18 +140,17 @@ pub fn parseArgsAndText(args: [][:0]const u8) EchoError!ParseResult {
     };
 }
 
-
 fn processStdin(allocator: std.mem.Allocator, options: Options) !void {
     const stdin = std.io.getStdIn().reader();
     const content = try stdin.readAllAlloc(allocator, 1024 * 1024); // 1MB limit
     defer allocator.free(content);
-    
-    const text_to_output = if (options.json_output) 
+
+    const text_to_output = if (options.json_output)
         try json.escape(allocator, content)
-    else 
+    else
         content;
     defer if (options.json_output) allocator.free(text_to_output);
-    
+
     try outputText(options, text_to_output);
 }
 
@@ -160,7 +159,7 @@ fn processArgs(allocator: std.mem.Allocator, options: Options, text_args: [][:0]
         try outputText(options, "");
         return;
     }
-    
+
     // Calculate total size needed for joined text
     var total_size: usize = 0;
     for (text_args, 0..) |arg, idx| {
@@ -169,45 +168,45 @@ fn processArgs(allocator: std.mem.Allocator, options: Options, text_args: [][:0]
             total_size += options.separator.len;
         }
     }
-    
+
     // For simple single argument case, avoid allocation
     if (text_args.len == 1 and !options.json_output and !options.escape_sequences) {
         try outputText(options, text_args[0]);
         return;
     }
-    
+
     // Join arguments with separator
     const joined = try allocator.alloc(u8, total_size);
     defer allocator.free(joined);
-    
+
     var pos: usize = 0;
     for (text_args, 0..) |arg, idx| {
-        @memcpy(joined[pos..pos + arg.len], arg);
+        @memcpy(joined[pos .. pos + arg.len], arg);
         pos += arg.len;
         if (idx < text_args.len - 1) {
-            @memcpy(joined[pos..pos + options.separator.len], options.separator);
+            @memcpy(joined[pos .. pos + options.separator.len], options.separator);
             pos += options.separator.len;
         }
     }
-    
-    const text_to_output = if (options.json_output) 
+
+    const text_to_output = if (options.json_output)
         try json.escape(allocator, joined)
     else if (options.escape_sequences)
         try escape.process(allocator, joined)
-    else 
+    else
         joined;
     defer {
         if (options.json_output or options.escape_sequences) {
             allocator.free(text_to_output);
         }
     }
-    
+
     try outputText(options, text_to_output);
 }
 
 fn outputText(options: Options, text: []const u8) !void {
     const writer = std.io.getStdOut().writer();
-    
+
     // Handle color output
     if (options.color_name) |color_name| {
         if (options.should_use_color) {
@@ -216,7 +215,7 @@ fn outputText(options: Options, text: []const u8) !void {
     } else if (options.bold and options.should_use_color) {
         try color.writeBold(writer);
     }
-    
+
     // Output text with repetition
     var count: u16 = 0;
     while (count < options.repeat) : (count += 1) {
@@ -229,7 +228,7 @@ fn outputText(options: Options, text: []const u8) !void {
             try writer.writeAll("\n");
         }
     }
-    
+
     // Reset color
     if ((options.color_name != null or options.bold) and options.should_use_color) {
         try color.writeReset(writer);

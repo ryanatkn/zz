@@ -76,7 +76,7 @@ pub const Span = struct {
     pub fn merge(self: Span, other: Span) Span {
         if (self.isEmpty()) return other;
         if (other.isEmpty()) return self;
-        
+
         return .{
             .start = @min(self.start, other.start),
             .end = @max(self.end, other.end),
@@ -88,11 +88,11 @@ pub const Span = struct {
     pub fn intersect(self: Span, other: Span) Span {
         const start = @max(self.start, other.start);
         const end = @min(self.end, other.end);
-        
+
         if (start >= end) {
             return empty();
         }
-        
+
         return .{
             .start = start,
             .end = end,
@@ -104,7 +104,7 @@ pub const Span = struct {
         if (self.isEmpty()) {
             return point(pos);
         }
-        
+
         return .{
             .start = @min(self.start, pos),
             .end = @max(self.end, pos + 1),
@@ -140,12 +140,12 @@ pub const Span = struct {
         if (self.isEmpty() or self.start >= input.len) {
             return "";
         }
-        
+
         const actual_end = @min(self.end, input.len);
         if (self.start >= actual_end) {
             return "";
         }
-        
+
         return input[self.start..actual_end];
     }
 
@@ -154,11 +154,11 @@ pub const Span = struct {
         // First compare by start position
         if (self.start < other.start) return .lt;
         if (self.start > other.start) return .gt;
-        
+
         // If start positions are equal, compare by end position
         if (self.end < other.end) return .lt;
         if (self.end > other.end) return .gt;
-        
+
         return .eq;
     }
 
@@ -214,7 +214,7 @@ test "Span point and empty" {
 
 test "Span contains" {
     const span = Span.init(10, 20);
-    
+
     try testing.expect(span.contains(10));
     try testing.expect(span.contains(15));
     try testing.expect(span.contains(19));
@@ -228,7 +228,7 @@ test "Span containsSpan" {
     const inner = Span.init(15, 25);
     const overlapping = Span.init(5, 15);
     const outside = Span.init(35, 40);
-    
+
     try testing.expect(outer.containsSpan(inner));
     try testing.expect(outer.containsSpan(outer)); // Self-containment
     try testing.expect(!outer.containsSpan(overlapping));
@@ -239,9 +239,9 @@ test "Span overlaps" {
     const span1 = Span.init(10, 20);
     const span2 = Span.init(15, 25); // Overlaps
     const span3 = Span.init(20, 30); // Adjacent, no overlap
-    const span4 = Span.init(5, 15);  // Overlaps
+    const span4 = Span.init(5, 15); // Overlaps
     const span5 = Span.init(25, 35); // No overlap
-    
+
     try testing.expect(span1.overlaps(span2));
     try testing.expect(span2.overlaps(span1)); // Symmetric
     try testing.expect(!span1.overlaps(span3));
@@ -252,14 +252,14 @@ test "Span overlaps" {
 test "Span adjacency and ordering" {
     const span1 = Span.init(10, 20);
     const span2 = Span.init(20, 30); // Adjacent after
-    const span3 = Span.init(5, 10);  // Adjacent before
+    const span3 = Span.init(5, 10); // Adjacent before
     const span4 = Span.init(15, 25); // Overlapping
-    
+
     try testing.expect(span1.isAdjacent(span2));
     try testing.expect(span2.isAdjacent(span1)); // Symmetric
     try testing.expect(span1.isAdjacent(span3));
     try testing.expect(!span1.isAdjacent(span4));
-    
+
     try testing.expect(span3.isBefore(span1));
     try testing.expect(!span1.isBefore(span3));
     try testing.expect(span1.isAfter(span3));
@@ -270,10 +270,10 @@ test "Span merge" {
     const span1 = Span.init(10, 20);
     const span2 = Span.init(15, 25);
     const merged = span1.merge(span2);
-    
+
     try testing.expectEqual(@as(usize, 10), merged.start);
     try testing.expectEqual(@as(usize, 25), merged.end);
-    
+
     // Merge with empty
     const empty_span = Span.empty();
     const merged_empty = span1.merge(empty_span);
@@ -284,10 +284,10 @@ test "Span intersect" {
     const span1 = Span.init(10, 20);
     const span2 = Span.init(15, 25);
     const intersection = span1.intersect(span2);
-    
+
     try testing.expectEqual(@as(usize, 15), intersection.start);
     try testing.expectEqual(@as(usize, 20), intersection.end);
-    
+
     // No intersection
     const span3 = Span.init(25, 35);
     const no_intersection = span1.intersect(span3);
@@ -296,17 +296,17 @@ test "Span intersect" {
 
 test "Span extend" {
     const span = Span.init(10, 20);
-    
+
     // Extend beyond end
     const extended1 = span.extend(25);
     try testing.expectEqual(@as(usize, 10), extended1.start);
     try testing.expectEqual(@as(usize, 26), extended1.end);
-    
+
     // Extend before start
     const extended2 = span.extend(5);
     try testing.expectEqual(@as(usize, 5), extended2.start);
     try testing.expectEqual(@as(usize, 20), extended2.end);
-    
+
     // Extend within span (no change)
     const extended3 = span.extend(15);
     try testing.expectEqual(@as(usize, 10), extended3.start);
@@ -315,17 +315,17 @@ test "Span extend" {
 
 test "Span shift" {
     const span = Span.init(10, 20);
-    
+
     // Positive shift
     const shifted_pos = span.shift(5);
     try testing.expectEqual(@as(usize, 15), shifted_pos.start);
     try testing.expectEqual(@as(usize, 25), shifted_pos.end);
-    
+
     // Negative shift
     const shifted_neg = span.shift(-3);
     try testing.expectEqual(@as(usize, 7), shifted_neg.start);
     try testing.expectEqual(@as(usize, 17), shifted_neg.end);
-    
+
     // Negative shift beyond start (clamp to 0)
     const shifted_clamp = span.shift(-15);
     try testing.expectEqual(@as(usize, 0), shifted_clamp.start);
@@ -335,15 +335,15 @@ test "Span shift" {
 test "Span getText" {
     const input = "Hello, world! This is a test.";
     const span = Span.init(7, 12); // "world"
-    
+
     const text = span.getText(input);
     try testing.expectEqualStrings("world", text);
-    
+
     // Empty span
     const empty_span = Span.empty();
     const empty_text = empty_span.getText(input);
     try testing.expectEqualStrings("", empty_text);
-    
+
     // Span beyond input
     const beyond_span = Span.init(100, 110);
     const beyond_text = beyond_span.getText(input);
@@ -355,10 +355,10 @@ test "Span ordering and equality" {
     const span2 = Span.init(10, 20);
     const span3 = Span.init(5, 15);
     const span4 = Span.init(10, 25);
-    
+
     try testing.expect(span1.eql(span2));
     try testing.expect(!span1.eql(span3));
-    
+
     try testing.expectEqual(std.math.Order.eq, span1.order(span2));
     try testing.expectEqual(std.math.Order.gt, span1.order(span3));
     try testing.expectEqual(std.math.Order.lt, span1.order(span4));
@@ -368,10 +368,10 @@ test "Span hash" {
     const span1 = Span.init(10, 20);
     const span2 = Span.init(10, 20);
     const span3 = Span.init(15, 25);
-    
+
     // Same spans should have same hash
     try testing.expectEqual(span1.hash(), span2.hash());
-    
+
     // Different spans should have different hashes (very likely)
     try testing.expect(span1.hash() != span3.hash());
 }

@@ -6,7 +6,7 @@ const ExtendedRule = extended_rules.ExtendedRule;
 pub const ExtendedChoice = struct {
     choices: []const ExtendedRule,
     allocator: std.mem.Allocator,
-    
+
     pub fn init(allocator: std.mem.Allocator, choices: []const ExtendedRule) !ExtendedChoice {
         const choices_copy = try allocator.dupe(ExtendedRule, choices);
         return .{
@@ -14,7 +14,7 @@ pub const ExtendedChoice = struct {
             .allocator = allocator,
         };
     }
-    
+
     pub fn deinit(self: *ExtendedChoice) void {
         self.allocator.free(self.choices);
     }

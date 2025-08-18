@@ -7,7 +7,7 @@ const TestContext = test_framework.TestContext;
 // Integration test showing complete grammar usage
 test "Complete arithmetic grammar example" {
     const allocator = testing.allocator;
-    
+
     // Build a simple arithmetic grammar
     // digit = "0" | "1" | ... | "9"
     const digit = try rule.choice(allocator, &.{
@@ -26,11 +26,11 @@ test "Complete arithmetic grammar example" {
         var d = digit.choice;
         d.deinit();
     }
-    
+
     // number = digit+
     const digit_rule = digit;
     const number = rule.repeat1(&digit_rule);
-    
+
     // operator = "+" | "-" | "*" | "/"
     const operator = try rule.choice(allocator, &.{
         rule.terminal("+"),
@@ -42,11 +42,11 @@ test "Complete arithmetic grammar example" {
         var op = operator.choice;
         op.deinit();
     }
-    
+
     // ws = " "*
     const space = rule.terminal(" ");
     const ws = rule.repeat(&space);
-    
+
     // expression = number ws operator ws number
     const expr = try rule.sequence(allocator, &.{
         number,
@@ -59,7 +59,7 @@ test "Complete arithmetic grammar example" {
         var e = expr.sequence;
         e.deinit();
     }
-    
+
     // Test valid expressions
     {
         var ctx = TestContext.init(allocator, "123 + 456");
@@ -67,14 +67,14 @@ test "Complete arithmetic grammar example" {
         try testing.expect(result.success);
         try testing.expectEqual(@as(usize, 9), result.consumed);
     }
-    
+
     {
         var ctx = TestContext.init(allocator, "5*3");
         const result = expr.match(&ctx);
         try testing.expect(result.success);
         try testing.expectEqual(@as(usize, 3), result.consumed);
     }
-    
+
     // Test invalid expressions
     {
         var ctx = TestContext.init(allocator, "abc + 123");
@@ -86,9 +86,9 @@ test "Complete arithmetic grammar example" {
 // Test building a simple JSON-like grammar
 test "JSON object grammar example" {
     const allocator = testing.allocator;
-    
+
     // Build grammar for simple JSON objects like: {"key": "value"}
-    
+
     // string = '"' [^"]* '"'
     // For simplicity, we'll just match specific strings for now
     const string_hello = try rule.sequence(allocator, &.{
@@ -100,7 +100,7 @@ test "JSON object grammar example" {
         var s = string_hello.sequence;
         s.deinit();
     }
-    
+
     const string_world = try rule.sequence(allocator, &.{
         rule.terminal("\""),
         rule.terminal("world"),
@@ -110,7 +110,7 @@ test "JSON object grammar example" {
         var s = string_world.sequence;
         s.deinit();
     }
-    
+
     // key_value = string ":" string
     const key_value = try rule.sequence(allocator, &.{
         string_hello,
@@ -122,7 +122,7 @@ test "JSON object grammar example" {
         var kv = key_value.sequence;
         kv.deinit();
     }
-    
+
     // object = "{" key_value "}"
     const object = try rule.sequence(allocator, &.{
         rule.terminal("{"),
@@ -133,7 +133,7 @@ test "JSON object grammar example" {
         var o = object.sequence;
         o.deinit();
     }
-    
+
     // Test valid JSON object
     {
         var ctx = TestContext.init(allocator, "{\"hello\": \"world\"}");
@@ -141,7 +141,7 @@ test "JSON object grammar example" {
         try testing.expect(result.success);
         try testing.expectEqual(@as(usize, 18), result.consumed);
     }
-    
+
     // Test invalid JSON
     {
         var ctx = TestContext.init(allocator, "{hello: world}");
@@ -153,13 +153,13 @@ test "JSON object grammar example" {
 // Test nested rules and complex patterns
 test "Nested parentheses grammar" {
     const allocator = testing.allocator;
-    
+
     // Grammar for balanced parentheses
     // We'll build it iteratively since we can't do true recursion yet
-    
+
     // Level 0: empty or simple content
     const content = rule.terminal("x");
-    
+
     // Level 1: (x)
     const level1 = try rule.sequence(allocator, &.{
         rule.terminal("("),
@@ -170,7 +170,7 @@ test "Nested parentheses grammar" {
         var l1 = level1.sequence;
         l1.deinit();
     }
-    
+
     // Level 2: ((x))
     const level2 = try rule.sequence(allocator, &.{
         rule.terminal("("),
@@ -181,7 +181,7 @@ test "Nested parentheses grammar" {
         var l2 = level2.sequence;
         l2.deinit();
     }
-    
+
     // Test different nesting levels
     {
         var ctx = TestContext.init(allocator, "(x)");
@@ -189,14 +189,14 @@ test "Nested parentheses grammar" {
         try testing.expect(result.success);
         try testing.expectEqual(@as(usize, 3), result.consumed);
     }
-    
+
     {
         var ctx = TestContext.init(allocator, "((x))");
         const result = level2.match(&ctx);
         try testing.expect(result.success);
         try testing.expectEqual(@as(usize, 5), result.consumed);
     }
-    
+
     // Test unbalanced
     {
         var ctx = TestContext.init(allocator, "(x");

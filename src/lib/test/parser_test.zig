@@ -14,16 +14,16 @@ fn extractWithStratifiedParser(allocator: std.mem.Allocator, content: []const u8
     if (flags.full or flags.isDefault()) {
         return try allocator.dupe(u8, content);
     }
-    
+
     // For signature/structure extraction, return filtered content
     // This is a simplified version - in practice stratified parser would do sophisticated extraction
     var filtered = std.ArrayList(u8).init(allocator);
     defer filtered.deinit();
-    
+
     var lines = std.mem.splitScalar(u8, content, '\n');
     while (lines.next()) |line| {
         const trimmed = std.mem.trim(u8, line, " \t");
-        
+
         // Language-specific filtering based on flags
         const should_include = switch (language) {
             .zig => blk: {
@@ -63,7 +63,7 @@ fn extractWithStratifiedParser(allocator: std.mem.Allocator, content: []const u8
             },
             .unknown => true, // Return full content for unknown languages
         };
-        
+
         if (should_include) {
             if (filtered.items.len > 0) {
                 try filtered.append('\n');
@@ -71,7 +71,7 @@ fn extractWithStratifiedParser(allocator: std.mem.Allocator, content: []const u8
             try filtered.appendSlice(line);
         }
     }
-    
+
     return try filtered.toOwnedSlice();
 }
 

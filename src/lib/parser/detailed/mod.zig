@@ -41,28 +41,28 @@ pub const Disambiguator = @import("disambiguation.zig").Disambiguator;
 pub const DetailedParser = struct {
     /// Memory allocator
     allocator: std.mem.Allocator,
-    
+
     /// Traditional recursive descent parser (existing implementation)
     parser: Parser,
-    
+
     /// Boundary-aware parsing coordinator
     boundary_parser: BoundaryParser,
-    
+
     /// Viewport management for parsing prioritization
     viewport_manager: ViewportManager,
-    
+
     /// AST-to-facts conversion
     fact_generator: FactGenerator,
-    
+
     /// Cache for parsed boundaries
     cache: BoundaryCache,
-    
+
     /// Disambiguator for language constructs
     disambiguator: Disambiguator,
-    
+
     /// Current generation counter for facts
     generation: u32,
-    
+
     pub fn init(allocator: std.mem.Allocator) !DetailedParser {
         return DetailedParser{
             .allocator = allocator,
@@ -75,7 +75,7 @@ pub const DetailedParser = struct {
             .generation = 0,
         };
     }
-    
+
     pub fn deinit(self: *DetailedParser) void {
         self.parser.deinit();
         self.boundary_parser.deinit();
@@ -83,20 +83,15 @@ pub const DetailedParser = struct {
         self.fact_generator.deinit();
         self.cache.deinit();
     }
-    
+
     /// Parse all visible boundaries in the current viewport
     /// Target: <10ms for typical viewport (50 lines)
-    pub fn parseViewport(
-        self: *DetailedParser, 
-        viewport: Span, 
-        boundaries: []const ParseBoundary,
-        tokens: []const Token
-    ) !FactStream {
+    pub fn parseViewport(self: *DetailedParser, viewport: Span, boundaries: []const ParseBoundary, tokens: []const Token) !FactStream {
         // Update viewport and get prioritized boundaries
         try self.viewport_manager.updateViewport(viewport, boundaries);
-        
+
         var fact_stream = FactStream.init(self.allocator);
-        
+
         // Parse visible boundaries first (highest priority)
         const visible_boundaries = self.viewport_manager.getVisibleBoundaries();
         for (visible_boundaries) |boundary| {
@@ -107,43 +102,38 @@ pub const DetailedParser = struct {
                 &self.fact_generator,
                 &self.cache,
             );
-            
+
             try fact_stream.processBatch(boundary_facts);
         }
-        
+
         // Start predictive parsing for nearby boundaries in background
         // (This would be done asynchronously in a real implementation)
         self.startPredictiveParsing();
-        
+
         return fact_stream;
     }
-    
+
     /// Process an incremental edit to update only affected boundaries
     /// Target: <5ms for typical single-function edit
-    pub fn processEdit(
-        self: *DetailedParser,
-        edit: Edit,
-        affected_boundaries: []const ParseBoundary,
-        tokens: []const Token
-    ) !FactDelta {
+    pub fn processEdit(self: *DetailedParser, edit: Edit, affected_boundaries: []const ParseBoundary, tokens: []const Token) !FactDelta {
         _ = edit;
         self.generation += 1;
         self.fact_generator.setGeneration(self.generation);
-        
+
         var all_new_facts = std.ArrayList(@import("../foundation/types/fact.zig").Fact).init(self.allocator);
         defer all_new_facts.deinit();
-        
+
         // Process each affected boundary
         for (affected_boundaries) |boundary| {
             // Invalidate cache for this boundary
             _ = self.cache.invalidate(boundary.span);
-            
-            // Get old facts for this boundary (if any)  
+
+            // Get old facts for this boundary (if any)
             if (self.cache.getOldFacts(boundary.span)) |old_facts| {
                 // For now, just note that we would add removed facts
                 _ = old_facts;
             }
-            
+
             // Re-parse the boundary with new content
             const new_facts = try self.boundary_parser.parseBoundary(
                 boundary,
@@ -152,19 +142,19 @@ pub const DetailedParser = struct {
                 &self.fact_generator,
                 &self.cache,
             );
-            
+
             try all_new_facts.appendSlice(new_facts);
         }
-        
+
         const delta = FactDelta.init(
             try all_new_facts.toOwnedSlice(),
             &[_]@import("../foundation/types/fact.zig").Fact{}, // removed facts
             &[_]@import("../foundation/types/fact.zig").Fact{}, // modified facts
         );
-        
+
         return delta;
     }
-    
+
     /// Get parsing statistics for performance monitoring
     pub fn getStats(self: DetailedParser) DetailedStats {
         return DetailedStats{
@@ -174,18 +164,18 @@ pub const DetailedParser = struct {
             .total_parse_time_ns = self.boundary_parser.getTotalParseTime(),
         };
     }
-    
+
     /// Reset statistics counters
     pub fn resetStats(self: *DetailedParser) void {
         self.cache.resetStats();
         self.boundary_parser.resetStats();
         self.fact_generator.resetStats();
     }
-    
+
     // ========================================================================
     // Private Implementation
     // ========================================================================
-    
+
     /// Start predictive parsing for boundaries near the viewport
     fn startPredictiveParsing(self: *DetailedParser) void {
         // TODO: Implement background parsing for smooth scrolling
@@ -203,12 +193,12 @@ pub const DetailedStats = struct {
     boundaries_parsed: u64,
     facts_generated: u64,
     total_parse_time_ns: u64,
-    
+
     pub fn averageParseTimePerBoundary(self: DetailedStats) f64 {
         if (self.boundaries_parsed == 0) return 0.0;
         return @as(f64, @floatFromInt(self.total_parse_time_ns)) / @as(f64, @floatFromInt(self.boundaries_parsed));
     }
-    
+
     pub fn format(
         self: DetailedStats,
         comptime fmt: []const u8,
@@ -217,7 +207,7 @@ pub const DetailedStats = struct {
     ) !void {
         _ = fmt;
         _ = options;
-        
+
         try writer.print("DetailedStats{{ cache_hit_rate: {d:.1}%, boundaries_parsed: {}, facts_generated: {}, avg_parse_time: {d:.1}μs }}", .{
             self.cache_hit_rate * 100.0,
             self.boundaries_parsed,

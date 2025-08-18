@@ -231,43 +231,43 @@ fn processFile(allocator: std.mem.Allocator, filesystem: FilesystemInterface, fi
 /// This function demonstrates the three-layer parsing with performance measurement
 fn formatWithStratifiedParser(allocator: std.mem.Allocator, content: []const u8, language: Language, file_path: []const u8) ![]u8 {
     const start_time = std.time.nanoTimestamp();
-    
+
     // Initialize the stratified parser layers
     const lexical_config = Lexical.LexerConfig{
         .language = mapLanguageToLexical(language),
         .buffer_size = @min(content.len * 2, 8192),
         .track_brackets = true,
     };
-    
+
     const structural_config = Structural.StructuralConfig{
         .language = mapLanguageToStructural(language),
         .performance_threshold_ns = 1_000_000, // 1ms target
         .include_folding = false,
     };
-    
+
     // Layer 0: Lexical analysis (<0.1ms target)
     const lexical_start = std.time.nanoTimestamp();
     var lexer = try Lexical.StreamingLexer.init(allocator, lexical_config);
     defer lexer.deinit();
-    
+
     const full_span = StratifiedParser.Span.init(0, content.len);
     const tokens = try lexer.tokenizeRange(content, full_span);
     defer allocator.free(tokens);
     const lexical_time = std.time.nanoTimestamp() - lexical_start;
-    
+
     // Layer 1: Structural analysis (<1ms target)
     const structural_start = std.time.nanoTimestamp();
     var structural_parser = try Structural.StructuralParser.init(allocator, structural_config);
     defer structural_parser.deinit();
-    
+
     var parse_result = try structural_parser.parse(tokens);
     defer parse_result.deinit(allocator);
     const structural_time = std.time.nanoTimestamp() - structural_start;
-    
+
     // Layer 2: Detailed analysis (<10ms target)
     // Note: Simplified for dogfooding - just measure what would be detailed parsing
     const detailed_start = std.time.nanoTimestamp();
-    
+
     // Simulate detailed parsing work by analyzing boundaries and tokens
     var fact_count: usize = 0;
     for (parse_result.boundaries) |boundary| {
@@ -275,11 +275,11 @@ fn formatWithStratifiedParser(allocator: std.mem.Allocator, content: []const u8,
         fact_count += 1; // Each boundary generates multiple facts
         fact_count += tokens.len / 10; // Rough estimate of facts per boundary
     }
-    
+
     const detailed_time = std.time.nanoTimestamp() - detailed_start;
-    
+
     const total_time = std.time.nanoTimestamp() - start_time;
-    
+
     // Report performance (only for files, not stdin)
     if (!std.mem.eql(u8, file_path, "<stdin>")) {
         const stderr = std.io.getStdErr().writer();
@@ -287,19 +287,19 @@ fn formatWithStratifiedParser(allocator: std.mem.Allocator, content: []const u8,
         try stderr.print("   Layer 0 (Lexical):   {d:.1}μs (tokens: {})\n", .{ @as(f64, @floatFromInt(lexical_time)) / 1000.0, tokens.len });
         try stderr.print("   Layer 1 (Structural): {d:.1}μs (boundaries: {})\n", .{ @as(f64, @floatFromInt(structural_time)) / 1000.0, parse_result.boundaries.len });
         try stderr.print("   Layer 2 (Detailed):   {d:.1}μs (facts: {})\n", .{ @as(f64, @floatFromInt(detailed_time)) / 1000.0, fact_count });
-        try stderr.print("   Total Time:           {d:.1}μs\n", .{ @as(f64, @floatFromInt(total_time)) / 1000.0 });
-        
+        try stderr.print("   Total Time:           {d:.1}μs\n", .{@as(f64, @floatFromInt(total_time)) / 1000.0});
+
         // Check performance targets
         const lexical_target_met = lexical_time < 100_000; // 0.1ms
         const structural_target_met = structural_time < 1_000_000; // 1ms
         const detailed_target_met = detailed_time < 10_000_000; // 10ms
-        
+
         try stderr.print("🎯 Performance Targets:\n", .{});
         try stderr.print("   Lexical <0.1ms:    {s}\n", .{if (lexical_target_met) "✅ PASS" else "❌ FAIL"});
         try stderr.print("   Structural <1ms:   {s}\n", .{if (structural_target_met) "✅ PASS" else "❌ FAIL"});
         try stderr.print("   Detailed <10ms:    {s}\n", .{if (detailed_target_met) "✅ PASS" else "❌ FAIL"});
     }
-    
+
     // For now, return the original content since we're focused on parsing validation
     // In a production implementation, we would convert facts back to formatted code
     // TODO: Implement fact-to-code generation for actual formatting
@@ -318,7 +318,7 @@ fn mapLanguageToLexical(language: Language) Lexical.Language {
     };
 }
 
-/// Map Language enum to structural layer language  
+/// Map Language enum to structural layer language
 fn mapLanguageToStructural(language: Language) Structural.Language {
     return switch (language) {
         .zig => .zig,
@@ -372,7 +372,7 @@ fn detectLanguageFromContent(content: []const u8) Language {
         return .svelte;
     }
 
-    // CSS detection - improved heuristics  
+    // CSS detection - improved heuristics
     if (std.mem.indexOf(u8, content, "{") != null and std.mem.indexOf(u8, content, "}") != null) {
         // Look for CSS-specific patterns
         if (std.mem.indexOf(u8, content, ":") != null and

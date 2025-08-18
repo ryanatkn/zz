@@ -13,12 +13,12 @@ pub fn escape(allocator: std.mem.Allocator, input: []const u8) ![]u8 {
             else => {},
         }
     }
-    
+
     var result = try std.ArrayList(u8).initCapacity(allocator, input.len + extra_chars);
     defer result.deinit();
-    
+
     try result.append('"');
-    
+
     for (input) |c| {
         switch (c) {
             '"' => try result.appendSlice("\\\""),
@@ -39,7 +39,7 @@ pub fn escape(allocator: std.mem.Allocator, input: []const u8) ![]u8 {
             else => try result.append(c),
         }
     }
-    
+
     try result.append('"');
     return result.toOwnedSlice();
 }

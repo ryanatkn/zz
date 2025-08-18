@@ -1,4 +1,5 @@
 const common = @import("common.zig");
+const char_utils = @import("../../char/mod.zig");
 const std = common.std;
 const AST = common.AST;
 const Node = common.Node;
@@ -318,14 +319,14 @@ pub const ZonLinter = struct {
 
         // First character must be letter or underscore
         const first_char = text[0];
-        if (!std.ascii.isAlphabetic(first_char) and first_char != '_') {
+        if (!char_utils.isAlpha(first_char) and first_char != '_') {
             try self.addDiagnostic("invalid-identifier", "Identifier must start with letter or underscore", node.start_position, node.end_position, .@"error");
             return;
         }
 
         // Remaining characters must be alphanumeric or underscore
         for (text[1..]) |char| {
-            if (!std.ascii.isAlphanumeric(char) and char != '_') {
+            if (!char_utils.isAlphaNumeric(char) and char != '_') {
                 try self.addDiagnostic("invalid-identifier", "Identifier contains invalid character", node.start_position, node.end_position, .@"error");
                 return;
             }

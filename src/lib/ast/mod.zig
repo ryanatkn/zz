@@ -52,6 +52,11 @@ pub const AST = struct {
             self.allocator.free(text);
         }
         self.allocator.free(self.owned_texts);
+
+        // Free the source text if it was allocated
+        if (self.source.len > 0) {
+            self.allocator.free(self.source);
+        }
     }
 };
 

@@ -1,4 +1,5 @@
 const std = @import("std");
+const char_utils = @import("../../char/mod.zig");
 const AST = @import("../../ast/mod.zig").AST;
 const Node = @import("../../ast/mod.zig").Node;
 const NodeType = @import("../../ast/mod.zig").NodeType;
@@ -181,7 +182,7 @@ pub const JsonLinter = struct {
 
         // Check for leading zeros
         if (self.isRuleEnabled("no-leading-zeros", enabled_rules) and !self.options.allow_leading_zeros) {
-            if (value.len > 1 and value[0] == '0' and std.ascii.isDigit(value[1])) {
+            if (value.len > 1 and value[0] == '0' and char_utils.isDigit(value[1])) {
                 try self.addDiagnostic(
                     "no-leading-zeros",
                     "Number has leading zero",
@@ -319,7 +320,7 @@ pub const JsonLinter = struct {
                         if (i + 5 < content.len) {
                             const hex_digits = content[i + 2 .. i + 6];
                             for (hex_digits) |digit| {
-                                if (!std.ascii.isHex(digit)) {
+                                if (!char_utils.isHexDigit(digit)) {
                                     try self.addDiagnostic(
                                         "invalid-escape",
                                         "Invalid Unicode escape sequence",

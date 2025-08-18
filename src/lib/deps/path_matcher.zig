@@ -1,8 +1,10 @@
 const std = @import("std");
 const glob = @import("../patterns/glob.zig");
+const path_patterns = @import("../patterns/path.zig");
+const primitives = @import("../patterns/primitives.zig");
 
 /// Path pattern matching for dependency file filtering
-/// Uses glob.zig for robust pattern matching while maintaining dependency-specific logic
+/// Uses centralized pattern matching system (patterns/*) for consistency
 ///
 /// This module handles include/exclude pattern logic specific to dependency management:
 /// - Include patterns: If specified, ONLY copy matching files (whitelist)
@@ -10,41 +12,47 @@ const glob = @import("../patterns/glob.zig");
 /// - Include takes precedence, then exclude is applied
 /// - Always excludes .git directories automatically
 ///
-/// Delegates actual pattern matching to glob.zig for consistency with the rest of the codebase.
+/// Delegates to layered pattern matching system for all pattern logic.
 pub const PathMatcher = struct {
-    /// Check if a path matches a glob pattern
-    /// Supports all glob.zig patterns:
-    /// - *.ext (file extension matching)
-    /// - dir/ (directory matching with trailing slash)
-    /// - path/*.ext (path with wildcards)
-    /// - **/dir/ (recursive directory patterns)
-    /// - ?, [abc], [a-z], [!0-9] (character classes via glob.zig)
+    /// Check if a path matches a pattern using centralized pattern matching
+    /// Delegates to the layered pattern system for consistent behavior across zz
+    /// - Wildcard patterns → glob.zig
+    /// - Path patterns → path.zig
+    /// - Directory patterns (trailing slash) → dependency-specific logic
     pub fn matchesPattern(path: []const u8, pattern: []const u8) bool {
-        // Handle exact matches first
+        // Handle exact matches first (fast path)
         if (std.mem.eql(u8, path, pattern)) return true;
 
-        // Handle directory patterns (trailing slash)
+        // Handle directory patterns (trailing slash) - deps specific logic
         if (std.mem.endsWith(u8, pattern, "/")) {
             const dir_pattern = pattern[0 .. pattern.len - 1];
 
             // Check if path starts with the directory pattern
             if (std.mem.startsWith(u8, path, dir_pattern)) {
-                // Ensure it's actually a directory boundary
-                if (path.len == dir_pattern.len) return true; // Exact directory match
+                // Exact directory match or followed by path separator
+                if (path.len == dir_pattern.len) return true;
                 if (path.len > dir_pattern.len and path[dir_pattern.len] == '/') return true;
             }
 
             // Handle recursive directory patterns (**/dir/)
             if (std.mem.startsWith(u8, pattern, "**/")) {
-                const recursive_pattern = pattern[3..]; // Skip "*/"
-                if (std.mem.indexOf(u8, path, recursive_pattern)) |_| return true;
+                const recursive_pattern = pattern[3..]; // Skip "**/"
+                // Remove trailing slash from recursive pattern too 
+                const clean_pattern = recursive_pattern[0 .. recursive_pattern.len - 1];
+                return primitives.containsSubpath(path, clean_pattern);
             }
 
             return false;
         }
 
-        // Handle wildcard patterns using glob module
-        return glob.matchSimplePattern(path, pattern);
+        // Use centralized pattern matching for other cases
+        if (primitives.hasWildcard(pattern)) {
+            // Delegate wildcard patterns to glob matcher
+            return glob.matchSimplePattern(path, pattern);
+        }
+        
+        // Delegate path patterns to path matcher
+        return path_patterns.matchPath(path, pattern);
     }
 
     /// Check if path should be included based on include patterns

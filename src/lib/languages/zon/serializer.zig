@@ -1,4 +1,5 @@
 const std = @import("std");
+const char_utils = @import("../../char/mod.zig");
 
 /// Convert Zig structs back to ZON format
 /// This module handles serialization of Zig values into properly formatted ZON strings
@@ -441,13 +442,13 @@ fn needsQuoting(name: []const u8) bool {
 
     // Check for special characters
     for (name) |c| {
-        if (!std.ascii.isAlphanumeric(c) and c != '_') {
+        if (!char_utils.isAlphaNumeric(c) and c != '_') {
             return true;
         }
     }
 
     // Check if starts with number
-    if (name.len > 0 and std.ascii.isDigit(name[0])) {
+    if (name.len > 0 and char_utils.isDigit(name[0])) {
         return true;
     }
 

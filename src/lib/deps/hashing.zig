@@ -1,5 +1,6 @@
 const std = @import("std");
 const io = @import("../core/io.zig");
+const path_utils = @import("../core/path.zig");
 
 /// Simple change detection using content hashing
 pub const ChangeDetector = struct {
@@ -58,7 +59,8 @@ pub const ChangeDetector = struct {
         defer self.allocator.free(content);
 
         // Ensure parent directory exists
-        if (std.fs.path.dirname(state_path)) |parent_dir| {
+        const parent_dir = path_utils.dirname(state_path);
+        if (parent_dir.len > 0) {
             std.fs.cwd().makePath(parent_dir) catch |err| switch (err) {
                 error.PathAlreadyExists => {}, // Already exists, continue
                 else => return err,

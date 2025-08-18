@@ -1,4 +1,5 @@
 const std = @import("std");
+const char_utils = @import("../../char/mod.zig");
 
 // Import centralized AST utilities for generic operations
 const ASTUtils = @import("../../ast/utils.zig").ASTUtils;
@@ -64,13 +65,13 @@ pub fn isValidIdentifier(text: []const u8) bool {
     if (text.len == 0) return false;
 
     // Check first character
-    if (!std.ascii.isAlphabetic(text[0]) and text[0] != '_') {
+    if (!char_utils.isAlpha(text[0]) and text[0] != '_') {
         return false;
     }
 
     // Check remaining characters
     for (text[1..]) |char| {
-        if (!std.ascii.isAlphanumeric(char) and char != '_') {
+        if (!char_utils.isAlphaNumeric(char) and char != '_') {
             return false;
         }
     }

@@ -305,7 +305,7 @@ test "test context automatic cleanup" {
     defer ctx.deinit();
 
     _ = try ctx.createAST(".{ .test = \"value\" }");
-    _ = try ctx.createObjectAST(&.{.{ "name", "test" }});
+    _ = try ctx.createObjectAST(&.{ .{ "name", "test" } });
 
     // ASTs will be automatically cleaned up by ctx.deinit()
     try testing.expectEqual(@as(usize, 2), ctx.asts.items.len);

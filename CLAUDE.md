@@ -38,42 +38,53 @@ src/
 ├── cli/                 # Command parsing & execution
 ├── config/              # Configuration system (ZON-based)
 ├── lib/                 # Reusable library modules (the heart of zz)
-│   ├── core/            # Fundamental utilities (NEW LOCATION)
+│   ├── char/            # Character utilities (single source of truth)
+│   │   ├── predicates.zig   # Character classification (isDigit, isAlpha, etc.)
+│   │   ├── consumers.zig    # Text consumption (skipWhitespace, consumeString, etc.)
+│   │   └── mod.zig          # Module exports
+│   ├── core/            # Fundamental utilities
 │   │   ├── language.zig     # Language detection & enumeration
 │   │   ├── extraction.zig   # Code extraction configuration
 │   │   ├── path.zig         # POSIX path operations
 │   │   ├── collections.zig  # Memory-efficient data structures
 │   │   └── filesystem.zig   # Filesystem utilities
-│   ├── patterns/        # Pattern matching utilities (NEW)
+│   ├── patterns/        # Pattern matching utilities
 │   │   ├── glob.zig         # Glob pattern matching
-│   │   └── gitignore.zig    # Gitignore pattern handling
-│   ├── ast/             # Enhanced AST infrastructure (EXPANDED)
+│   │   ├── gitignore.zig    # Gitignore pattern handling
+│   │   └── text.zig         # Text pattern utilities
+│   ├── ast/             # Enhanced AST infrastructure
 │   │   ├── mod.zig          # AST type definition
 │   │   ├── node.zig         # Core Node types
 │   │   ├── factory.zig      # Programmatic construction
 │   │   ├── builder.zig      # Fluent DSL
 │   │   ├── utils.zig        # Manipulation utilities
 │   │   ├── test_helpers.zig # Test infrastructure
-│   │   ├── traversal.zig    # Tree walking strategies (NEW)
-│   │   ├── transformation.zig # Immutable transformations (NEW)
-│   │   ├── query.zig        # CSS-like queries (NEW)
-│   │   └── serialization.zig # ZON persistence (NEW)
+│   │   ├── traversal.zig    # Tree walking strategies
+│   │   ├── transformation.zig # Immutable transformations
+│   │   ├── query.zig        # CSS-like queries
+│   │   └── serialization.zig # ZON persistence
 │   ├── parser/          # Pure Zig Stratified Parser
 │   │   ├── foundation/  # Foundation types (Span, Fact, Token)
 │   │   ├── lexical/     # Layer 0: Streaming tokenizer
 │   │   ├── structural/  # Layer 1: Boundary detection
 │   │   └── detailed/    # Layer 2: Detailed parsing
-│   ├── languages/       # Unified language implementations
+│   ├── languages/       # Language implementations
 │   │   ├── mod.zig      # Language registry and dispatch
 │   │   ├── interface.zig # Language support contracts
-│   │   ├── common/      # Shared utilities with real implementations
-│   │   │   └── analysis.zig # NOW WITH REAL AST TRAVERSAL!
+│   │   ├── common/      # Shared utilities
+│   │   │   ├── analysis.zig # AST analysis utilities
+│   │   │   ├── tokens.zig   # Common token types
+│   │   │   └── formatting.zig # Format builders
 │   │   ├── json/        # JSON complete implementation
 │   │   ├── zon/         # ZON complete implementation
-│   │   └── [others]/    # Other language stubs
+│   │   ├── typescript/  # TypeScript with patterns.zig
+│   │   ├── zig/         # Zig with patterns.zig
+│   │   ├── css/         # CSS with patterns.zig
+│   │   ├── html/        # HTML with patterns.zig
+│   │   └── svelte/      # Svelte stub
 │   ├── grammar/         # Grammar definition DSL
-│   ├── analysis/        # Semantic analysis & linting
-│   ├── deps/            # Dependency management system
+│   ├── text/            # Text processing utilities
+│   ├── memory/          # Memory management utilities
 │   ├── filesystem/      # Filesystem abstraction layer
 │   └── test/            # Test framework & fixtures
 ├── prompt/              # LLM prompt generation (uses lib/ast)

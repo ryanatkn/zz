@@ -6,28 +6,34 @@ Core utilities and language infrastructure for zz. Performance-optimized for POS
 
 ```
 src/lib/
+├── char/            # Character utilities (single source of truth for all char operations)
 ├── core/            # Fundamental utilities (language detection, extraction, path ops)
-├── patterns/        # Pattern matching (glob, gitignore) 
+├── patterns/        # Pattern matching (glob, gitignore, text patterns) 
 ├── ast/             # Enhanced AST infrastructure with traversal, transformation, query
-├── languages/       # Language implementations (JSON ✅, ZON ✅, others stubbed)
+├── languages/       # Language implementations (JSON ✅, ZON ✅, TS/Zig/CSS/HTML patterns)
 ├── parser/          # Stratified parser (lexical → structural → detailed)
 ├── grammar/         # Grammar definition system
+├── text/            # Text processing and manipulation
+├── memory/          # Memory pools and management
+├── filesystem/      # Filesystem abstraction layer
 └── test/            # Test utilities and fixtures
 ```
 
 ## What's Working
 
+- **Character Module**: Centralized character classification and text consumption
 - **JSON & ZON Languages**: Production-ready with full lexer/parser/formatter/linter
 - **Centralized AST System**: Shared infrastructure for all languages
 - **Pattern Matching**: High-performance glob and gitignore handling
+- **Language Patterns**: Each language has its own patterns.zig for language-specific patterns
 - **Core Utilities**: Language detection, path operations, memory management
 
-## What's Deleted (Aggressive Cleanup)
+## Architecture Highlights
 
-- `analysis/` - Complex tree-sitter infrastructure 
-- `benchmark.zig` - Legacy benchmark system (stubbed)
-- `language/` & `parsing/` - Moved to `core/` and `patterns/`
-- Legacy test files - Outdated fixture loaders
+- **No Duplication**: Character operations centralized in `char/` module
+- **Language Patterns**: Each language owns its patterns (typescript/patterns.zig, etc.)
+- **Unified Lexing**: All lexers use char module for consistent behavior
+- **Clean Separation**: Common utilities in `common/`, language-specific in each module
 
 ## Key Features
 
@@ -39,6 +45,7 @@ src/lib/
 ## Documentation
 
 For detailed information see:
+- [Character utilities](char/CLAUDE.md)
 - [Core utilities](core/CLAUDE.md)
 - [AST system](ast/CLAUDE.md) 
 - [Pattern matching](patterns/CLAUDE.md)

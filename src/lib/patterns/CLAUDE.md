@@ -8,7 +8,7 @@ Optimized pattern matching utilities for glob patterns and gitignore rules. POSI
 src/lib/patterns/
 ├── glob.zig        # Glob pattern matching with wildcards
 ├── gitignore.zig   # Gitignore pattern handling
-└── matcher.zig     # General pattern matching utilities (future)
+└── text.zig        # Text pattern utilities (extractBetween, countBalance, etc.)
 ```
 
 ## Glob Pattern Matching (`glob.zig`)
@@ -169,6 +169,35 @@ for (files) |file| {
     if (matchSimplePattern(file, pattern)) { ... }
 }
 ```
+
+## Text Pattern Utilities (`text.zig`)
+
+### Features
+- **Pattern Checking:** `startsWithAny()`, `containsAny()`
+- **Character Counting:** `countChar()`, `countBalance()`
+- **Delimiter Matching:** `findClosingDelimiter()`, `extractBetween()`
+
+### API
+```zig
+// Check if text starts with any pattern
+const prefixes = [_][]const u8{ "pub fn", "fn", "test" };
+if (startsWithAny(line, &prefixes)) { ... }
+
+// Count balance of braces
+const balance = countBalance(text, '{', '}');  // Returns i32
+
+// Extract content between delimiters
+const content = extractBetween(text, "<", ">");  // Returns ?[]const u8
+
+// Find closing delimiter
+const close_pos = findClosingDelimiter(text, 0, '{', '}');  // Returns ?usize
+```
+
+### Use Cases
+- Language-agnostic pattern detection
+- Balanced delimiter tracking
+- Template/tag extraction
+- Generic text analysis
 
 ## ZON Serialization
 

@@ -1,8 +1,28 @@
 const std = @import("std");
 
 /// Shared pattern matching primitives used by glob, gitignore, and path matchers
-/// These are low-level functions that implement common pattern matching logic
-/// without any domain-specific semantics
+/// 
+/// ## Layered Pattern Matching Architecture
+/// 
+/// This module provides the foundation for all pattern matching in zz. The architecture
+/// is designed to eliminate code duplication while preserving semantic clarity:
+///
+/// **Layer 1: Primitives (this module)**
+/// - Core pattern matching operations (wildcards, character classes, path boundaries)
+/// - No domain-specific semantics - just the mechanics of matching
+/// - Single source of truth for common operations
+///
+/// **Layer 2: Domain-Specific Matchers**
+/// - `glob.zig` - Pure glob matching with *, ?, [abc] semantics
+/// - `gitignore.zig` - Gitignore rules with /, !, ** semantics  
+/// - `path.zig` - Path component and subpath matching semantics
+///
+/// **Layer 3: Smart Dispatchers**
+/// - `config.zig` - Detects pattern type and delegates to appropriate matcher
+/// - Other modules use specific matchers directly based on context
+///
+/// This design avoids semantic confusion (e.g., what does "/" mean in different contexts)
+/// while still sharing the low-level matching logic for consistency and performance.
 
 /// Check if a pattern contains wildcard characters
 pub fn hasWildcard(pattern: []const u8) bool {

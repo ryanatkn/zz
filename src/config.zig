@@ -61,6 +61,12 @@ pub fn shouldHideFile(config: SharedConfig, name: []const u8) bool {
     return false;
 }
 
-pub fn handleSymlink(_: anytype, _: []const u8) bool {
-    return true; // TODO: Implement actual symlink handling
+pub fn handleSymlink(config: SharedConfig, path: []const u8) bool {
+    _ = path; // Path could be used for logging in the future
+    
+    return switch (config.symlink_behavior) {
+        .follow => true,  // Follow the symlink
+        .skip => false,   // Skip the symlink
+        .show => true,    // Show the symlink itself (don't follow but include in output)
+    };
 }

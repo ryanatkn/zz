@@ -29,7 +29,6 @@ pub fn matchSimplePattern(filename: []const u8, pattern: []const u8) bool {
     return false;
 }
 
-// Removed - now using primitives.matchWildcardParts
 
 /// Match patterns with ? wildcard
 fn matchQuestion(filename: []const u8, pattern: []const u8) bool {
@@ -80,7 +79,6 @@ fn matchWithCharacterClasses(filename: []const u8, pattern: []const u8) bool {
     return f_idx == filename.len and p_idx == pattern.len;
 }
 
-// Removed - now using primitives.matchCharacterClass
 
 /// Match multiple patterns (any match succeeds)
 pub fn matchAnyPattern(filename: []const u8, patterns: []const []const u8) bool {

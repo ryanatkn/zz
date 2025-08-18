@@ -175,8 +175,8 @@ pub const CacheEntry = struct {
     /// Generation when this result was cached
     cached_generation: Generation,
 
-    /// Last access time for LRU eviction
-    last_access: i64,
+    /// Last access time for LRU eviction (nanoseconds)
+    last_access: i128,
 
     /// Spans that would invalidate this cache entry
     invalidation_spans: []Span,
@@ -200,7 +200,7 @@ pub const CacheEntry = struct {
             .query = query,
             .result = result_copy,
             .cached_generation = generation,
-            .last_access = std.time.timestamp(),
+            .last_access = std.time.nanoTimestamp(),
             .invalidation_spans = invalidation_spans,
             .access_count = 0,
             .allocator = allocator,
@@ -219,7 +219,7 @@ pub const CacheEntry = struct {
 
     /// Update access time and count for LRU
     pub fn markAccessed(self: *CacheEntry) void {
-        self.last_access = std.time.timestamp();
+        self.last_access = std.time.nanoTimestamp();
         self.access_count += 1;
     }
 
@@ -233,9 +233,12 @@ pub const CacheEntry = struct {
         return false;
     }
 
-    /// Get age in seconds
+    /// Get age in seconds  
     pub fn getAge(self: CacheEntry) i64 {
-        return std.time.timestamp() - self.last_access;
+        const current_ns = std.time.nanoTimestamp();
+        const age_ns = current_ns - self.last_access;
+        const age_seconds = @divFloor(age_ns, std.time.ns_per_s);
+        return @intCast(age_seconds); // Safe cast since age won't exceed i64 range
     }
 };
 
@@ -430,7 +433,7 @@ pub const QueryCache = struct {
 
         // Find entry with oldest access time
         var oldest_query_id: QueryId = 0;
-        var oldest_time: i64 = std.math.maxInt(i64);
+        var oldest_time: i128 = std.math.maxInt(i128);
 
         var entries_iter = self.entries.iterator();
         while (entries_iter.next()) |entry| {

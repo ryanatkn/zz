@@ -57,6 +57,14 @@ pub const ChangeDetector = struct {
         const content = try std.fmt.allocPrint(self.allocator, "deps_zon_hash={d}\n", .{hash});
         defer self.allocator.free(content);
 
+        // Ensure parent directory exists
+        if (std.fs.path.dirname(state_path)) |parent_dir| {
+            std.fs.cwd().makePath(parent_dir) catch |err| switch (err) {
+                error.PathAlreadyExists => {}, // Already exists, continue
+                else => return err,
+            };
+        }
+
         try io.writeFile(state_path, content);
     }
 
@@ -91,12 +99,15 @@ test "ChangeDetector - hash consistent content" {
     var detector = ChangeDetector.init(testing.allocator);
 
     // Create temporary file
-    const tmp_dir = testing.tmpDir(.{});
+    var tmp_dir = testing.tmpDir(.{});
+    defer tmp_dir.cleanup();
+    
+    // Write test content first
+    try tmp_dir.dir.writeFile(.{ .sub_path = "test.zon", .data = ".{ .dependencies = .{} }" });
+    
+    // Get real path after file exists
     const test_file = try tmp_dir.dir.realpathAlloc(testing.allocator, "test.zon");
     defer testing.allocator.free(test_file);
-
-    // Write test content
-    try tmp_dir.dir.writeFile(.{ .sub_path = "test.zon", .data = ".{ .dependencies = .{} }" });
 
     // Hash should be consistent
     const hash1 = try detector.hashDepsZon(test_file);
@@ -109,15 +120,22 @@ test "ChangeDetector - detect changes" {
     const testing = std.testing;
     var detector = ChangeDetector.init(testing.allocator);
 
-    // Create temporary files
-    const tmp_dir = testing.tmpDir(.{});
-    const deps_file = try tmp_dir.dir.realpathAlloc(testing.allocator, "deps.zon");
-    defer testing.allocator.free(deps_file);
-    const state_file = try tmp_dir.dir.realpathAlloc(testing.allocator, ".deps_state");
-    defer testing.allocator.free(state_file);
-
+    // Create temporary files  
+    var tmp_dir = testing.tmpDir(.{});
+    defer tmp_dir.cleanup();
+    
     // Initial content
     try tmp_dir.dir.writeFile(.{ .sub_path = "deps.zon", .data = ".{ .dependencies = .{} }" });
+    
+    // Get real paths after files exist
+    const deps_file = try tmp_dir.dir.realpathAlloc(testing.allocator, "deps.zon");
+    defer testing.allocator.free(deps_file);
+    
+    // State file path (doesn't need to exist yet for realpath since it's in same directory)
+    const tmp_path = try tmp_dir.dir.realpathAlloc(testing.allocator, ".");
+    defer testing.allocator.free(tmp_path);
+    const state_file = try std.fs.path.join(testing.allocator, &.{ tmp_path, ".deps_state" });
+    defer testing.allocator.free(state_file);
 
     // First check should detect change (no previous state)
     const changed1 = try detector.hasChanged(deps_file, state_file);

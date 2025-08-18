@@ -1,7 +1,8 @@
 const std = @import("std");
+const primitives = @import("primitives.zig");
 
 /// High-performance gitignore pattern matching
-/// Moved from legacy lib/parsing/gitignore.zig with optimizations
+/// Uses shared primitives for consistency across pattern matchers
 pub fn shouldIgnoreWithPatterns(path: []const u8, patterns: []const []const u8) bool {
     for (patterns) |pattern| {
         if (matchPattern(path, pattern)) return true;
@@ -23,31 +24,15 @@ fn matchPattern(path: []const u8, pattern: []const u8) bool {
     }
 
     // Handle wildcards
-    if (std.mem.indexOf(u8, pattern, "*")) |_| {
-        return matchWildcard(path, pattern);
+    if (primitives.hasWildcard(pattern)) {
+        return primitives.matchWildcardParts(path, pattern);
     }
 
     // Simple substring match
     return std.mem.indexOf(u8, path, pattern) != null;
 }
 
-/// High-performance wildcard matching
-fn matchWildcard(path: []const u8, pattern: []const u8) bool {
-    var parts = std.mem.splitSequence(u8, pattern, "*");
-    var remaining = path;
-
-    while (parts.next()) |part| {
-        if (part.len == 0) continue;
-
-        if (std.mem.indexOf(u8, remaining, part)) |pos| {
-            remaining = remaining[pos + part.len ..];
-        } else {
-            return false;
-        }
-    }
-
-    return true;
-}
+// Removed - now using primitives.matchWildcardParts
 
 /// Git ignore patterns structure with efficient memory management
 pub const GitignorePatterns = struct {

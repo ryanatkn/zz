@@ -1,10 +1,13 @@
 // Configuration system facade - re-exports from config/ modules
-// Legacy lib/config.zig deleted - functionality moved to config/ directory
+// Uses layered pattern matching via lib/patterns for consistency
 
 const std = @import("std");
 const shared = @import("config/shared.zig");
 const zon = @import("config/zon.zig");
 const resolver = @import("config/resolver.zig");
+const path_matcher = @import("lib/patterns/path.zig");
+const glob = @import("lib/patterns/glob.zig");
+const primitives = @import("lib/patterns/primitives.zig");
 
 // Re-export all public API for backward compatibility
 pub const SharedConfig = shared.SharedConfig;
@@ -14,27 +17,35 @@ pub const ZonLoader = zon.ZonLoader;
 pub const ZonConfig = zon.ZonConfig;
 pub const PatternResolver = resolver.PatternResolver;
 
-// DRY helper functions for consistent pattern matching
+// DRY helper function using layered pattern matching
 pub fn shouldIgnorePath(config: SharedConfig, path: []const u8) bool {
     if (path.len == 0) return false;
     
-    // Check against ignored patterns
+    // Check against ignored patterns using appropriate matcher
     for (config.ignored_patterns) |pattern| {
-        if (std.mem.eql(u8, path, pattern)) {
-            return true;
-        }
-        // Also check if the path ends with the pattern (for path-based matching)
-        if (std.mem.endsWith(u8, path, pattern)) {
+        if (matchesPattern(path, pattern)) {
             return true;
         }
     }
     
     // Check dot directories (always ignored)
-    if (std.mem.startsWith(u8, path, ".")) {
+    if (path_matcher.startsWithDotDirectory(path)) {
         return true;
     }
     
     return false;
+}
+
+/// Smart pattern dispatcher - detects pattern type and delegates to appropriate matcher
+fn matchesPattern(path: []const u8, pattern: []const u8) bool {
+    // Detect pattern type and delegate to appropriate matcher
+    if (primitives.hasWildcard(pattern)) {
+        // Use glob matcher for wildcard patterns
+        return glob.matchSimplePattern(path, pattern);
+    }
+    
+    // Use path matcher for path-based patterns
+    return path_matcher.matchPath(path, pattern);
 }
 
 pub fn shouldHideFile(config: SharedConfig, name: []const u8) bool {

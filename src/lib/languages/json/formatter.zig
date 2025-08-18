@@ -64,9 +64,11 @@ pub const JsonFormatter = struct {
     /// Format JSON AST to string using visitor pattern
     pub fn format(self: *Self, ast: AST) ![]const u8 {
         if (ast.root) |root| {
-            // Format root node using direct recursion for now
-            // TODO: Complete visitor pattern refactoring for complex formatting requirements
-            try self.formatNode(root);
+            // Use visitor pattern for consistent traversal
+            var visitor = JsonFormatVisitor{ .formatter = self };
+            var traversal = ASTTraversal.init(self.allocator);
+            
+            try traversal.walkDepthFirstPre(root, &visitor, {}, formatVisitorCallback);
         }
 
         // Add final newline if not compact
@@ -397,6 +399,17 @@ pub const JsonFormatter = struct {
         return std.mem.lessThan(u8, a_key, b_key);
     }
 };
+
+/// JSON formatting visitor for AST traversal
+const JsonFormatVisitor = struct {
+    formatter: *JsonFormatter,
+};
+
+/// Visitor callback function for JSON formatting
+fn formatVisitorCallback(node: *const Node, visitor: *JsonFormatVisitor, context: @TypeOf({})) !void {
+    _ = context;
+    try visitor.formatter.formatNode(node);
+}
 
 /// Convenience function for basic JSON formatting
 pub fn formatJson(allocator: std.mem.Allocator, ast: AST, options: FormatOptions) ![]const u8 {

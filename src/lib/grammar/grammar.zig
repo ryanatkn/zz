@@ -23,25 +23,52 @@ pub const Grammar = struct {
         // Clean up all rules that need cleanup
         var iterator = self.rules.iterator();
         while (iterator.next()) |entry| {
-            switch (entry.value_ptr.*) {
-                .sequence => |*s| s.deinit(),
-                .choice => |*c| c.deinit(),
-                .optional => |*o| {
-                    // Free the allocated Rule pointer
-                    self.allocator.destroy(o.rule);
-                },
-                .repeat => |*r| {
-                    // Free the allocated Rule pointer
-                    self.allocator.destroy(r.rule);
-                },
-                .repeat1 => |*r| {
-                    // Free the allocated Rule pointer
-                    self.allocator.destroy(r.rule);
-                },
-                else => {}, // Terminal rules don't need cleanup
-            }
+            self.deinitRule(entry.value_ptr.*);
         }
         self.rules.deinit();
+    }
+
+    /// Recursively deinit a rule and all its nested rules
+    fn deinitRule(self: *Grammar, rule_val: rule.Rule) void {
+        switch (rule_val) {
+            .sequence => |s| {
+                // First recursively deinit nested rules
+                for (s.rules) |nested_rule| {
+                    self.deinitRule(nested_rule);
+                }
+                // Then free the sequence array - need mutable access
+                var mutable_s = s;
+                mutable_s.deinit();
+            },
+            .choice => |c| {
+                // First recursively deinit nested rules
+                for (c.choices) |nested_rule| {
+                    self.deinitRule(nested_rule);
+                }
+                // Then free the choices array - need mutable access
+                var mutable_c = c;
+                mutable_c.deinit();
+            },
+            .optional => |*o| {
+                // First recursively deinit the nested rule
+                self.deinitRule(o.rule.*);
+                // Then free the allocated Rule pointer
+                self.allocator.destroy(o.rule);
+            },
+            .repeat => |*r| {
+                // First recursively deinit the nested rule
+                self.deinitRule(r.rule.*);
+                // Then free the allocated Rule pointer
+                self.allocator.destroy(r.rule);
+            },
+            .repeat1 => |*r| {
+                // First recursively deinit the nested rule
+                self.deinitRule(r.rule.*);
+                // Then free the allocated Rule pointer
+                self.allocator.destroy(r.rule);
+            },
+            else => {}, // Terminal rules don't need cleanup
+        }
     }
 
     /// Create a simple default grammar for testing

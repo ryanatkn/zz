@@ -21,6 +21,11 @@ pub const PatternResolver = resolver.PatternResolver;
 pub fn shouldIgnorePath(config: SharedConfig, path: []const u8) bool {
     if (path.len == 0) return false;
     
+    // Special case: always ignore current directory (.) and parent directory (..)
+    if (std.mem.eql(u8, path, ".") or std.mem.eql(u8, path, "..")) {
+        return true;
+    }
+    
     // Check against ignored patterns using appropriate matcher
     for (config.ignored_patterns) |pattern| {
         if (matchesPattern(path, pattern)) {

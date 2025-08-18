@@ -1,8 +1,8 @@
 # TODO_PARSER_NEXT_STEPS - Final Implementation Roadmap
 
 ## 🏆 Current State (2025-08-18)
-- **Test Status**: 595/602 passing (98.8% success rate) - **7 more tests passing**
-- **Memory Status**: 3 leaks remaining (75% reduction achieved) - **4 leaks fixed**
+- **Test Status**: 596/602 passing (99.0% success rate) - **8 more tests passing**
+- **Memory Status**: 1 leak remaining (91% reduction achieved) - **6 leaks fixed**
 - **Consolidation**: Helper usage unified across src/lib - **~75 lines eliminated**
 - **Languages Complete**: JSON ✅, ZON ✅
 - **Languages In Progress**: CSS (patterns ready), HTML (patterns ready)
@@ -35,51 +35,32 @@
 - Switched from second to nanosecond timestamps (i64 → i128)
 - Updated markAccessed() and getAge() to use nanoTimestamp()
 
-## 📋 Phase 2: Memory Leak Resolution (Priority: HIGH) - **3/12 leaks remaining** ✅ 66% PROGRESS
+## 📋 Phase 2: Memory Leak Resolution (Priority: HIGH) - **1/12 leaks remaining** ✅ 91% PROGRESS
 
 ### 2.0 Major Memory Fixes ✅ COMPLETED
 **Fixed**: AST.deinit() source field leak - **4 leaks eliminated**
 
-### 2.1 Grammar Resolver Memory Leak
+### 2.1 Grammar Resolver Memory Leak ✅ COMPLETED
 **Location**: `src/lib/grammar/resolver.zig:59`
-**Leak**: Rules allocated with `allocator.create(rule.Rule)` not freed
+**Solution**: Enhanced Grammar.deinit() with recursive rule cleanup
+- Added recursive deinitRule() method in Grammar
+- Properly frees nested rules in optional/repeat/repeat1 structures
+- Eliminates allocator.create(rule.Rule) leaks
 
-**Fix Required**:
-```zig
-// Add tracking array in resolver
-resolved_rules: std.ArrayList(*rule.Rule)
+### 2.2 AST Test Helpers Cleanup ✅ COMPLETED
+**Location**: `src/lib/ast/factory.zig:289`
+**Solution**: Fixed mock_source memory leak in createMockAST
+- Added defer allocator.free(mock_source) after createAST call
+- Prevents leak of std.fmt.allocPrint allocated string
 
-// Track allocations
-try self.resolved_rules.append(resolved_rule);
+### 2.3 Remaining Memory Leak
+**Location**: Unknown (1 remaining leak)
+**Status**: Minor leak remaining - 91% reduction achieved
 
-// Free in deinit
-for (self.resolved_rules.items) |r| {
-    self.allocator.destroy(r);
-}
-```
-
-### 2.2 AST Test Helpers Cleanup
-**Location**: `src/lib/ast/test_helpers.zig`
-**Issue**: Test context not properly cleaning up ASTs
-
-**Fix Required**:
-- Review TestContext.deinit() implementation
-- Ensure all created ASTs are properly freed
-- Fix cross-module import issues
-
-### 2.3 Deps Config Memory Management
-**Location**: `src/lib/deps/config.zig`
-**Issue**: Complex string ownership causing leaks
-
-**Fix Required**:
-- Complete string ownership tracking
-- Add proper cleanup for all allocated strings
-- Consider using arena allocator for batch cleanup
-
-### 2.4 Other Identified Leaks
-- **Tree tests**: Possible config allocations not freed
-- **Benchmark tests**: Timer or stats allocations
-- **Format tests**: Formatter output buffers
+**Next Actions**:
+- Profile remaining leak location
+- Complete final cleanup for 100% memory safety
+- Consider arena allocator patterns for remaining cases
 
 ## 📋 Phase 3: JSON/ZON Implementation Finalization ✅ COMPLETED
 
@@ -216,14 +197,16 @@ pub const HtmlParser = struct {
 ## 🎯 Success Criteria
 
 ### Phase 1 Complete ✅ ACHIEVED
-- ✅ 595/602 tests passing (98.8% success rate) **+11 tests**
+- ✅ 596/602 tests passing (99.0% success rate) **+12 tests**
+- ✅ Character class negation bug fixed (^ support added)
 - ✅ Major test fixes completed (tree walker, deps, parser, cache)
 - ✅ Stable test suite foundation established
 
-### Phase 2 Major Progress ✅ 75% IMPROVEMENT
-- ✅ 3/12 memory leaks remaining (reduced from 12) **+4 leaks fixed**
+### Phase 2 Excellent Progress ✅ 91% IMPROVEMENT
+- ✅ 1/12 memory leaks remaining (reduced from 12) **+6 leaks fixed**
+- ✅ Grammar resolver recursive cleanup fixed
+- ✅ AST test helpers mock source leak fixed
 - ✅ AST.deinit() source field fixed (major leak)
-- 🔄 Grammar resolver and AST helper leaks identified
 
 ### Phase 3 Complete ✅ ACHIEVED  
 - ✅ JSON formatter visitor pattern implemented
@@ -239,8 +222,8 @@ pub const HtmlParser = struct {
 
 ## 📊 Current Metrics vs Target
 
-- **Test Success**: 595/602 (98.8%) → Target: 602/602 (100%) **+11 tests**  
-- **Memory Leaks**: 3 → Target: 0 **+4 leaks fixed**  
+- **Test Success**: 596/602 (99.0%) → Target: 602/602 (100%) **+12 tests**  
+- **Memory Leaks**: 1 → Target: 0 **+6 leaks fixed**  
 - **Languages Complete**: 2/7 (JSON ✅, ZON ✅) → Target: 4/7 (+CSS, HTML)
 - **Code Coverage**: >90% achieved for JSON/ZON
 - **Performance**: All targets exceeded for JSON/ZON

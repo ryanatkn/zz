@@ -287,6 +287,7 @@ pub fn createMockAST(
 
     const root = try createMockNode(&factory, structure, 0);
     const mock_source = try std.fmt.allocPrint(allocator, "/* Mock AST: {} */", .{structure});
+    defer allocator.free(mock_source);
 
     return try factory.createAST(root, mock_source);
 }

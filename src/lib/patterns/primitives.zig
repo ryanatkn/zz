@@ -115,11 +115,11 @@ pub fn matchWildcardParts(text: []const u8, pattern: []const u8) bool {
 }
 
 /// Check if a character matches a character class specification
-/// Supports ranges like "0-9", "a-z", sets like "abc", and negation with "!"
+/// Supports ranges like "0-9", "a-z", sets like "abc", and negation with "!" or "^"
 pub fn matchCharacterClass(char: u8, class_spec: []const u8) bool {
     if (class_spec.len == 0) return false;
 
-    const negated = class_spec[0] == '!';
+    const negated = class_spec[0] == '!' or class_spec[0] == '^';
     const actual_spec = if (negated) class_spec[1..] else class_spec;
 
     // Check for ranges (e.g., "0-9", "a-z")
@@ -250,6 +250,9 @@ test "matchCharacterClass" {
     try std.testing.expect(!matchCharacterClass('d', "abc"));
     try std.testing.expect(matchCharacterClass('d', "!abc"));
     try std.testing.expect(!matchCharacterClass('a', "!abc"));
+    // Test ^ negation as well
+    try std.testing.expect(matchCharacterClass('d', "^abc"));
+    try std.testing.expect(!matchCharacterClass('a', "^abc"));
 }
 
 test "hasPathComponent" {

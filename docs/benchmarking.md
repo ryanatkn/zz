@@ -1,80 +1,122 @@
 # Benchmarking Guide
 
-> ⚠️ AI slop code and docs, is unstable and full of lies
+Performance benchmarking system for tracking and comparing zz's performance over time.
 
-Performance benchmarking is critical for maintaining and improving the efficiency of zz. The benchmark system follows Unix philosophy: the CLI outputs to stdout, and users control file management.
+## Quick Start
 
-## Design Philosophy
-- **CLI is pure**: `zz benchmark` always outputs to stdout
-- **Multiple formats**: markdown (default), json, csv, pretty
-- **Build commands add convenience**: Handle file management for common workflows
-- **Composable**: Works with Unix pipes and redirects
-
-## CLI Usage (outputs to stdout)
 ```bash
-# Default: markdown format to stdout (2 seconds per benchmark)
-$ zz benchmark
+# Run benchmarks and compare with baseline
+zig build benchmark
 
-# Different output formats
-$ zz benchmark --format=pretty             # Clean color terminal output with status indicators
-$ zz benchmark --format=json               # Machine-readable JSON
-$ zz benchmark --format=csv                # Spreadsheet-compatible CSV
+# Save new baseline after optimizations
+zig build benchmark-baseline
 
-# Control timing and what runs
-$ zz benchmark --duration=1s               # Run each benchmark for 1 second
-$ zz benchmark --duration=500ms            # Run each benchmark for 500 milliseconds
-$ zz benchmark --only=path,string          # Run specific benchmarks
-$ zz benchmark --skip=glob                 # Skip specific benchmarks
-
-# Duration control for more stable results
-$ zz benchmark --duration-multiplier=2.0   # 2x longer for all benchmarks
-
-# Save results via shell redirect
-$ zz benchmark > results.md                # Save to any file
-$ zz benchmark | grep "Path"               # Pipe to other tools
-$ zz benchmark --format=json | jq '.results[]'  # Process JSON output
-
-# Baseline comparison (auto-loads if exists)
-$ zz benchmark --baseline=old.md           # Compare with specific baseline
-$ zz benchmark --no-compare                # Disable auto-comparison
+# Just view results without saving
+zig build benchmark-stdout
 ```
 
-## Build Commands (project workflow)
-```bash
-# Common workflow with file management
-$ zig build benchmark                      # Save to latest.md, compare, show pretty output
-$ zig build benchmark-baseline             # Create/update baseline.md
-$ zig build benchmark-stdout               # Pretty output without saving
+## Architecture
 
-# Release mode benchmarking (longer duration for more stable results)
-$ zig build -Doptimize=ReleaseFast
-$ ./zig-out/bin/zz benchmark --duration=5s
+- **Core Module**: `src/lib/benchmark/mod.zig` - Runner, measurement, output formatting
+- **Benchmark Suites**: `src/benchmark/suites/` - Organized by module type
+  - `core.zig` - Path, memory, text, patterns, character operations
+  - `languages.zig` - JSON, ZON, parser layer benchmarks
+- **Time-based execution**: Runs for fixed duration (default 2s), not fixed iterations
+
+## CLI Usage
+
+```bash
+# Basic usage
+zz benchmark                          # Markdown output to stdout
+zz benchmark --format pretty          # Colored terminal output
+zz benchmark --format json            # Machine-readable JSON
+
+# Control what runs
+zz benchmark --only path,memory       # Run specific suites
+zz benchmark --skip parser            # Skip specific suites
+
+# Timing control
+zz benchmark --duration 5s            # Run each benchmark for 5 seconds
+zz benchmark --duration-multiplier 2.0  # Double all durations for stability
+
+# Baseline comparison
+zz benchmark --baseline old.md        # Compare with specific baseline
+zz benchmark --no-compare             # Skip baseline comparison
 ```
 
-## Features
-- Multiple output formats for different use cases
-- Automatic baseline comparison (when benchmarks/baseline.md exists)
-- Regression detection with exit code 1 (20% threshold)
-- Clean separation: CLI for data, build commands for workflow
-- Clean color-enhanced terminal output with status indicators
-- Human-readable time units (ns, μs, ms, s)
-- **Duration multiplier system** - Allows extending benchmark duration for more stable results
+## Output Formats
 
-## Performance Baselines (Release build, 2025-08-13)
-- Path operations: ~11μs per operation
-- String pooling: ~11ns per operation
-- Memory pools: ~11μs per allocation/release cycle
-- Glob patterns: ~4ns per operation
-- Code extraction: ~21μs per extraction
-- Benchmark execution: ~10 seconds total
-- Regression threshold: 20%
-- Time-based execution: 2 seconds default per benchmark
+- **markdown** (default): Tables with baseline comparison, suitable for documentation
+- **pretty**: Terminal output with colors (✓ improved, ⚠ regressed, ? new)
+- **json**: Structured data for tooling integration
+- **csv**: Simple spreadsheet format
 
-## When to Run Benchmarks
-- Before and after implementing optimizations
-- When modifying core infrastructure (`src/lib/`)
-- To verify performance improvements are maintained
-- During development of new features that impact performance
-- In CI/CD to catch performance regressions
+## Variance Multipliers
 
-> TODO benchmarking needs better DX and features
+Built-in multipliers account for operation variability:
+- Path operations: 2x (I/O dependent)
+- Memory operations: 3x (allocation variability)
+- Pattern matching: 2x (complexity dependent)
+- Text/char operations: 1x (CPU bound)
+- Language processing: 1.5x (parser complexity)
+
+## Baseline Management
+
+```bash
+# Workflow for performance optimization
+zig build benchmark-baseline         # Save current state
+# ... make optimizations ...
+zig build benchmark                  # Compare improvements
+# If satisfied with improvements:
+zig build benchmark-baseline         # Update baseline
+```
+
+Files in `benchmarks/`:
+- `baseline.md` - Reference performance baseline
+- `latest.md` - Most recent benchmark run (created by `zig build benchmark`)
+
+## Performance Targets
+
+Current baselines (Debug build, 2s duration):
+- Path operations: ~50μs/op
+- Character predicates: ~30ns/op
+- ArrayList operations: ~50μs/op
+- Pattern matching: ~400ns/op
+- JSON text analysis: ~1.6μs/op
+
+**Regression threshold**: 20% slower than baseline triggers exit code 1
+
+## CI Integration
+
+```yaml
+# GitHub Actions example
+- name: Check Performance
+  run: |
+    zig build -Doptimize=ReleaseFast
+    if ! ./zig-out/bin/zz benchmark; then
+      echo "Performance regression detected!"
+      exit 1
+    fi
+```
+
+## Tips
+
+1. **Release mode for accurate results**: 
+   ```bash
+   zig build -Doptimize=ReleaseFast
+   ./zig-out/bin/zz benchmark --duration 5s
+   ```
+
+2. **Stable measurements**: Use `--duration-multiplier 2.0` or higher for less variance
+
+3. **Track history**: Commit `benchmarks/baseline.md` to git for historical tracking
+
+4. **Filter noise**: Use `--only` to focus on specific areas during development
+
+## Implementation Notes
+
+- Operations run until duration expires (time-based, not count-based)
+- Warmup phase runs 100 iterations before timing
+- Each suite can define its own variance multiplier
+- Benchmark functions return `BenchmarkError` for proper error handling
+- Uses `std.mem.doNotOptimizeAway()` to prevent compiler optimizations

@@ -3,20 +3,28 @@ const benchmark_lib = @import("../lib/benchmark/mod.zig");
 const BenchmarkRunner = benchmark_lib.BenchmarkRunner;
 const BenchmarkOptions = benchmark_lib.BenchmarkOptions;
 const BenchmarkSuite = benchmark_lib.BenchmarkSuite;
-const OutputFormat = benchmark_lib.OutputFormat;
+pub const OutputFormat = benchmark_lib.OutputFormat;
 
 // Import benchmark suites
 const core_benchmarks = @import("suites/core.zig");
 const language_benchmarks = @import("suites/languages.zig");
+const streaming_benchmarks = @import("suites/streaming.zig");
+
+// Import comprehensive language suites
+const json_lexer = @import("suites/json/lexer.zig");
+const json_parser = @import("suites/json/parser.zig");
+const json_pipeline = @import("suites/json/pipeline.zig");
+const zon_lexer = @import("suites/zon/lexer.zig");
+const zon_pipeline = @import("suites/zon/pipeline.zig");
 
 pub fn run(allocator: std.mem.Allocator, args: [][:0]const u8) !void {
     var options = BenchmarkOptions{};
-    
+
     // Parse command line arguments
     var i: usize = 1; // Skip program name
     while (i < args.len) : (i += 1) {
         const arg = args[i];
-        
+
         if (std.mem.eql(u8, arg, "--format")) {
             i += 1;
             if (i >= args.len) {
@@ -81,15 +89,15 @@ pub fn run(allocator: std.mem.Allocator, args: [][:0]const u8) !void {
             return;
         }
     }
-    
+
     // Set default baseline if not specified and comparison is enabled
     if (!options.no_compare and options.baseline == null) {
         options.baseline = "benchmarks/baseline.md";
     }
-    
+
     var runner = BenchmarkRunner.init(allocator, options);
     defer runner.deinit();
-    
+
     // Load baseline for comparison if specified
     if (options.baseline) |baseline_path| {
         if (!options.no_compare) {
@@ -103,17 +111,17 @@ pub fn run(allocator: std.mem.Allocator, args: [][:0]const u8) !void {
             };
         }
     }
-    
+
     // Register all benchmark suites
     try registerBenchmarkSuites(&runner);
-    
+
     // Run benchmarks
     try runner.runAll();
-    
+
     // Output results
     const stdout = std.io.getStdOut().writer();
     try runner.outputResults(stdout);
-    
+
     // Check for regressions and exit with appropriate code
     if (runner.checkRegressions()) {
         std.process.exit(1);
@@ -124,51 +132,90 @@ fn registerBenchmarkSuites(runner: *BenchmarkRunner) !void {
     // Core module benchmarks
     try runner.registerSuite(BenchmarkSuite{
         .name = "path",
-        .variance_multiplier = 2.0, // I/O dependent
+        .variance_multiplier = 1.5, // I/O dependent
         .runFn = core_benchmarks.runPathBenchmarks,
     });
-    
+
     try runner.registerSuite(BenchmarkSuite{
         .name = "memory",
-        .variance_multiplier = 3.0, // Allocation dependent
+        .variance_multiplier = 2.0, // Allocation dependent
         .runFn = core_benchmarks.runMemoryBenchmarks,
     });
-    
+
     try runner.registerSuite(BenchmarkSuite{
         .name = "patterns",
-        .variance_multiplier = 2.0, // Pattern matching variability
+        .variance_multiplier = 1.5, // Pattern matching variability
         .runFn = core_benchmarks.runPatternBenchmarks,
     });
-    
+
     try runner.registerSuite(BenchmarkSuite{
         .name = "text",
         .variance_multiplier = 1.0, // CPU bound
         .runFn = core_benchmarks.runTextBenchmarks,
     });
-    
+
     try runner.registerSuite(BenchmarkSuite{
         .name = "char",
         .variance_multiplier = 1.0, // CPU bound
         .runFn = core_benchmarks.runCharBenchmarks,
     });
-    
+
     // Language benchmarks
     try runner.registerSuite(BenchmarkSuite{
         .name = "json",
         .variance_multiplier = 1.5, // Language processing
         .runFn = language_benchmarks.runJsonBenchmarks,
     });
-    
+
     try runner.registerSuite(BenchmarkSuite{
         .name = "zon",
         .variance_multiplier = 1.5, // Language processing
         .runFn = language_benchmarks.runZonBenchmarks,
     });
-    
+
     try runner.registerSuite(BenchmarkSuite{
         .name = "parser",
         .variance_multiplier = 1.5, // Parsing complexity
         .runFn = language_benchmarks.runParserBenchmarks,
+    });
+
+    // Streaming benchmarks
+    try runner.registerSuite(BenchmarkSuite{
+        .name = "streaming",
+        .variance_multiplier = 3.0, // Memory allocation variability
+        .runFn = streaming_benchmarks.runStreamingBenchmarks,
+    });
+
+    // Comprehensive JSON benchmarks (temporarily disabled due to TokenKind enum issues)
+    // try runner.registerSuite(BenchmarkSuite{
+    //     .name = "json-lexer",
+    //     .variance_multiplier = 1.2, // Language lexing
+    //     .runFn = json_lexer.runJsonLexerBenchmarks,
+    // });
+
+    // try runner.registerSuite(BenchmarkSuite{
+    //     .name = "json-parser",
+    //     .variance_multiplier = 1.5, // Language parsing
+    //     .runFn = json_parser.runJsonParserBenchmarks,
+    // });
+
+    // try runner.registerSuite(BenchmarkSuite{
+    //     .name = "json-pipeline",
+    //     .variance_multiplier = 2.0, // Complete pipeline
+    //     .runFn = json_pipeline.runJsonPipelineBenchmarks,
+    // });
+
+    // Comprehensive ZON benchmarks
+    try runner.registerSuite(BenchmarkSuite{
+        .name = "zon-lexer",
+        .variance_multiplier = 1.2, // Language lexing
+        .runFn = zon_lexer.runZonLexerBenchmarks,
+    });
+
+    try runner.registerSuite(BenchmarkSuite{
+        .name = "zon-pipeline",
+        .variance_multiplier = 2.0, // Complete pipeline
+        .runFn = zon_pipeline.runZonPipelineBenchmarks,
     });
 }
 
@@ -197,7 +244,7 @@ fn printHelp() !void {
         \\Benchmark suites: path, memory, patterns, text, char, json, zon, parser
         \\
     ;
-    
+
     const stderr = std.io.getStdErr().writer();
     try stderr.writeAll(help_text);
 }

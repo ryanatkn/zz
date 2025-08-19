@@ -32,7 +32,7 @@ pub const JsonAnalyzer = struct {
 
     pub const JsonSchema = struct {
         schema_type: SchemaType,
-        properties: ?std.HashMap([]const u8, JsonSchema),
+        properties: ?std.HashMap([]const u8, JsonSchema, std.hash_map.StringContext, std.hash_map.default_max_load_percentage),
         items: ?*JsonSchema,
         nullable: bool = false,
         examples: std.ArrayList([]const u8),

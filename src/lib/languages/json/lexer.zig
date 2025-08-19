@@ -61,7 +61,7 @@ pub const JsonLexer = struct {
             const token = self.nextToken() catch |err| switch (err) {
                 error.UnexpectedCharacter => {
                     // Skip invalid character and continue
-                    self.advance();
+                    _ = self.advance();
                     continue;
                 },
                 else => return err,
@@ -99,11 +99,11 @@ pub const JsonLexer = struct {
                 return self.makeToken(.delimiter, start_pos, "]");
             },
             ',' => {
-                self.advance();
+                _ = self.advance();
                 return self.makeToken(.delimiter, start_pos, ",");
             },
             ':' => {
-                self.advance();
+                _ = self.advance();
                 return self.makeToken(.delimiter, start_pos, ":");
             },
             '"' => self.string(),
@@ -118,16 +118,16 @@ pub const JsonLexer = struct {
 
     fn string(self: *Self) !TokenResult {
         const start_pos = self.position;
-        self.advance(); // Skip opening quote
+        _ = self.advance(); // Skip opening quote
 
         while (!self.isAtEnd() and self.peek() != '"') {
             if (self.peek() == '\\') {
-                self.advance(); // Skip backslash
+                _ = self.advance(); // Skip backslash
                 if (!self.isAtEnd()) {
-                    self.advance(); // Skip escaped character
+                    _ = self.advance(); // Skip escaped character
                 }
             } else {
-                self.advance();
+                _ = self.advance();
             }
         }
 
@@ -135,7 +135,7 @@ pub const JsonLexer = struct {
             return error.UnterminatedString;
         }
 
-        self.advance(); // Skip closing quote
+        _ = self.advance(); // Skip closing quote
         return self.makeToken(.string, start_pos, self.source[start_pos..self.position]);
     }
 
@@ -144,15 +144,15 @@ pub const JsonLexer = struct {
 
         // Handle negative sign
         if (self.peek() == '-') {
-            self.advance();
+            _ = self.advance();
         }
 
         // Handle integer part
         if (self.peek() == '0') {
-            self.advance();
+            _ = self.advance();
         } else if (char.isDigit(self.peek())) {
             while (char.isDigit(self.peek())) {
-                self.advance();
+                _ = self.advance();
             }
         } else {
             return error.InvalidNumber;
@@ -160,26 +160,26 @@ pub const JsonLexer = struct {
 
         // Handle decimal part
         if (self.peek() == '.') {
-            self.advance();
+            _ = self.advance();
             if (!char.isDigit(self.peek())) {
                 return error.InvalidNumber;
             }
             while (char.isDigit(self.peek())) {
-                self.advance();
+                _ = self.advance();
             }
         }
 
         // Handle exponent part
         if (self.peek() == 'e' or self.peek() == 'E') {
-            self.advance();
+            _ = self.advance();
             if (self.peek() == '+' or self.peek() == '-') {
-                self.advance();
+                _ = self.advance();
             }
             if (!char.isDigit(self.peek())) {
                 return error.InvalidNumber;
             }
             while (char.isDigit(self.peek())) {
-                self.advance();
+                _ = self.advance();
             }
         }
 
@@ -193,7 +193,7 @@ pub const JsonLexer = struct {
             if (self.isAtEnd() or self.peek() != expected_char) {
                 return error.InvalidLiteral;
             }
-            self.advance();
+            _ = self.advance();
         }
 
         const kind: TokenKind = if (std.mem.eql(u8, expected, "true") or std.mem.eql(u8, expected, "false"))
@@ -210,28 +210,28 @@ pub const JsonLexer = struct {
         if (self.peek() != '/') {
             return error.UnexpectedCharacter;
         }
-        self.advance(); // Skip first '/'
+        _ = self.advance(); // Skip first '/'
 
         if (self.peek() == '/') {
             // Line comment
-            self.advance(); // Skip second '/'
+            _ = self.advance(); // Skip second '/'
             while (!self.isAtEnd() and self.peek() != '\n') {
-                self.advance();
+                _ = self.advance();
             }
         } else if (self.peek() == '*') {
             // Block comment
-            self.advance(); // Skip '*'
+            _ = self.advance(); // Skip '*'
             while (!self.isAtEnd()) {
                 if (self.peek() == '*' and self.peekNext() == '/') {
-                    self.advance(); // Skip '*'
-                    self.advance(); // Skip '/'
+                    _ = self.advance(); // Skip '*'
+                    _ = self.advance(); // Skip '/'
                     break;
                 }
                 if (self.peek() == '\n') {
                     self.line += 1;
                     self.column = 1;
                 }
-                self.advance();
+                _ = self.advance();
             }
         } else {
             return error.UnexpectedCharacter;

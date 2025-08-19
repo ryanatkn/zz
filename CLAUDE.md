@@ -275,15 +275,14 @@ See [docs/llm-guidelines.md](docs/llm-guidelines.md) for detailed development ph
 
 ## Notes
 
+_Remember: Performance is the top priority -- every cycle and byte count
+but context is everything and the big picture UX matters most._
+
 ### For LLMs
 See [docs/llm-guidelines.md](docs/llm-guidelines.md) for complete guidelines. Key points:
 - Performance is a feature
 - Delete old code aggressively, no deprecation, refactor without hesitation
 - Test frequently with `zig build run`
 - Always update documentation
+- We prioritize maintainable code and want to give users max power
 - Leave `// TODO` comments for unknowns
-
----
-
-_Remember: Performance is the top priority -- every cycle and byte count
-but context is everything and the big picture UX matters most._

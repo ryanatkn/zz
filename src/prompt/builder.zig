@@ -152,11 +152,8 @@ pub const PromptBuilder = struct {
         var structural_parser = try Structural.StructuralParser.init(self.allocator, structural_config);
         defer structural_parser.deinit();
 
-        const parse_result = try structural_parser.parse(tokens);
-        defer {
-            self.allocator.free(parse_result.boundaries);
-            self.allocator.free(parse_result.error_regions);
-        }
+        var parse_result = try structural_parser.parse(tokens);
+        defer parse_result.deinit(self.allocator);
         const structural_time = std.time.nanoTimestamp() - structural_start;
 
         // Performance reporting for stratified parser

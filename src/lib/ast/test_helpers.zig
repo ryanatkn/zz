@@ -177,16 +177,31 @@ pub const ASTTestHelpers = struct {
     }
 
     /// Find all nodes with a specific rule ID
+    /// Returns ArrayList for maximum caller control - caller owns the returned ArrayList
+    /// and must call deinit() when done. Callers can append/remove nodes, reuse for
+    /// multiple searches, or convert to owned slice if desired.
+    ///
+    /// Example usage:
+    /// ```zig
+    /// var nodes = try ASTTestHelpers.findAllNodes(allocator, root, rule_id);
+    /// defer nodes.deinit();
+    /// 
+    /// // Option 1: Use as mutable list
+    /// try nodes.append(additional_node);
+    /// 
+    /// // Option 2: Convert to owned slice if needed
+    /// const slice = try nodes.toOwnedSlice();
+    /// defer allocator.free(slice);
+    /// ```
     pub fn findAllNodes(
         allocator: std.mem.Allocator,
         node: *const Node,
         rule_id: u16,
-    ) ![]const *const Node {
+    ) !std.ArrayList(*const Node) {
         var result = std.ArrayList(*const Node).init(allocator);
-        defer result.deinit();
 
         try findAllNodesRecursive(&result, node, rule_id);
-        return result.toOwnedSlice();
+        return result;
     }
 
     fn findAllNodesRecursive(

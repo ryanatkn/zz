@@ -150,8 +150,32 @@ test "format config without format section" {
 }
 
 test "format config malformed file" {
-    // TODO: ZON parser crashes on malformed input
-    // The std.zon parser doesn't gracefully handle malformed ZON files
-    // This causes a panic instead of returning an error
-    return error.SkipZigTest;
+    // Our ZON parser handles malformed input gracefully by returning defaults
+    var mock_fs = MockFilesystem.init(testing.allocator);
+    defer mock_fs.deinit();
+
+    // Add current directory and malformed config file
+    try mock_fs.addDirectory(".");
+    try mock_fs.addFile("zz.zon",
+        \\{
+        \\  invalid zon syntax here
+        \\  missing quotes and braces
+        \\  .format = incomplete
+    );
+
+    var zon_loader = ZonLoader.init(testing.allocator, mock_fs.interface());
+    defer zon_loader.deinit();
+
+    // This should not crash and should return default options
+    const options = try zon_loader.getFormatConfig();
+
+    // Should use all defaults when malformed file is encountered
+    try testing.expect(options.indent_size == 4);
+    try testing.expect(options.indent_style == .space);
+    try testing.expect(options.line_width == 100);
+    try testing.expect(options.preserve_newlines == true);
+    try testing.expect(options.trailing_comma == false);
+    try testing.expect(options.sort_keys == false);
+    try testing.expect(options.quote_style == .preserve);
+    try testing.expect(options.use_ast == true);
 }

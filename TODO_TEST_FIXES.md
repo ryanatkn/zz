@@ -2,7 +2,7 @@
 
 This document tracks the test failures that have been investigated and their current status.
 
-## ✅ RESOLVED ISSUES (10 tests fixed)
+## ✅ RESOLVED ISSUES (11 tests fixed)
 
 ### 1. Lexer EOF Token Issues - FIXED
 **Resolution:** Updated all test expectations to account for EOF tokens (+1 token count)
@@ -11,7 +11,6 @@ This document tracks the test failures that have been investigated and their cur
 - `lib.languages.json.lexer.test.JSON lexer - simple values` ✅ 
 - `lib.languages.json.lexer.test.JSON lexer - complex number formats` ✅
 - `lib.languages.json.lexer.test.JSON lexer - object and array` ✅ 
-- `lib.languages.json.lexer.test.JSON lexer - string escapes` ✅
 - `lib.languages.json.lexer.test.JSON lexer - JSON5 features` ✅
 
 **Solution Chosen:** Keep EOF tokens, update tests (architecturally correct)

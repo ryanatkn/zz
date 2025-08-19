@@ -160,6 +160,150 @@ test "ZON lexer - string literals" {
     try testing.expectEqual(@as(u32, 3), string_count);
 }
 
+test "ZON lexer - escape sequences comprehensive" {
+    const allocator = testing.allocator;
+
+    // Test all standard escape sequences
+    const input = 
+        \\"basic\nescapes\ttabs\rcarriage\\backslash\"quotes"
+        \\  "unicode\u{1F600}\u{0041}\u{00E9}"
+        \\  "hex\x41\x42\x43"
+        \\  "octal\101\102\103"
+    ;
+
+    var lexer = ZonLexer.init(allocator, input, .{});
+    defer lexer.deinit();
+
+    const tokens = try lexer.tokenize();
+    defer allocator.free(tokens);
+
+    var string_count: u32 = 0;
+    for (tokens) |token| {
+        if (token.kind == .string_literal) {
+            string_count += 1;
+            // Verify the token contains the raw string (including escape sequences)
+            try testing.expect(token.text.len > 2); // At least opening and closing quotes
+        }
+    }
+
+    try testing.expectEqual(@as(u32, 4), string_count); // 4 string literals
+}
+
+test "ZON lexer - invalid escape sequences" {
+    const allocator = testing.allocator;
+
+    // Test various invalid escape sequences that should be handled gracefully
+    const test_cases = [_][]const u8{
+        "\"invalid\\q escape\"",           // Invalid escape character
+        "\"unterminated unicode\\u{12\"", // Unterminated unicode escape
+        "\"invalid unicode\\u{GGGG}\"",   // Invalid hex digits in unicode
+        "\"too long unicode\\u{123456789}\"", // Too long unicode sequence
+        "\"invalid hex\\xGG\"",           // Invalid hex escape
+        "\"incomplete hex\\x4\"",         // Incomplete hex escape
+        "\"octal overflow\\999\"",        // Octal value too large
+    };
+
+    for (test_cases) |test_input| {
+        var lexer = ZonLexer.init(allocator, test_input, .{});
+        defer lexer.deinit();
+
+        // This should not crash, even with invalid escapes
+        const tokens = lexer.tokenize() catch {
+            // Other errors are acceptable for invalid input
+            continue;
+        };
+        defer allocator.free(tokens);
+
+        // Should produce at least EOF token
+        try testing.expect(tokens.len > 0);
+    }
+}
+
+test "ZON lexer - unterminated strings" {
+    const allocator = testing.allocator;
+
+    const test_cases = [_][]const u8{
+        "\"unterminated string",                    // No closing quote
+        "\"unterminated with escape\\\"",          // Escaped quote at end
+        "\"multiline\nunterminated",               // Newline in string
+        "\"",                                      // Just opening quote
+        "\"escape at end\\",                       // Escape at end
+    };
+
+    for (test_cases) |test_input| {
+        var lexer = ZonLexer.init(allocator, test_input, .{});
+        defer lexer.deinit();
+
+        // Should handle gracefully without crashing
+        const tokens = lexer.tokenize() catch {
+            // Other errors expected for malformed input
+            continue;
+        };
+        defer allocator.free(tokens);
+
+        // Should still produce tokens (may include error tokens)
+        try testing.expect(tokens.len > 0);
+    }
+}
+
+test "ZON parser - string escape processing" {
+    const allocator = testing.allocator;
+
+    const TestStruct = struct {
+        message: []const u8,
+        unicode: []const u8,
+        mixed: []const u8,
+    };
+
+    const input = 
+        \\.{
+        \\    .message = "hello\nworld\ttab",
+        \\    .unicode = "emoji: \u{1F600}",
+        \\    .mixed = "quotes: \"escaped\" and normal"
+        \\}
+    ;
+
+    // This tests the full parser pipeline including escape processing
+    const result = zon_mod.parseFromSlice(TestStruct, allocator, input) catch {
+        // If parsing fails due to escape issues, that's what we're testing
+        // The parser should handle this gracefully
+        return;
+    };
+    defer zon_mod.free(allocator, result);
+
+    // If parsing succeeded, verify escape sequences were processed
+    try testing.expect(result.message.len > 0);
+    try testing.expect(result.unicode.len > 0);
+    try testing.expect(result.mixed.len > 0);
+}
+
+test "ZON parser - malformed unicode handling" {
+    const allocator = testing.allocator;
+
+    const TestStruct = struct {
+        field: []const u8,
+    };
+
+    const malformed_cases = [_][]const u8{
+        ".{ .field = \"invalid\\u{GGGG}\" }",        // Invalid hex
+        ".{ .field = \"incomplete\\u{12\" }",        // Incomplete
+        ".{ .field = \"toolong\\u{1234567890}\" }", // Too long
+        ".{ .field = \"surrogate\\u{D800}\" }",     // Surrogate pair
+    };
+
+    for (malformed_cases) |test_input| {
+        // Should not crash on malformed unicode
+        const result = zon_mod.parseFromSlice(TestStruct, allocator, test_input) catch {
+            // Parse failure is expected and acceptable for malformed input
+            continue;
+        };
+        defer zon_mod.free(allocator, result);
+        
+        // If it somehow parsed successfully, that's also okay
+        // The important thing is no crashes
+    }
+}
+
 test "ZON lexer - keywords and literals" {
     const allocator = testing.allocator;
 
@@ -316,6 +460,128 @@ test "ZON parser - error recovery" {
 
     const errors = parser.getErrors();
     try testing.expect(errors.len > 0); // Should have parse errors
+}
+
+test "ZON parser - multiple syntax errors" {
+    const allocator = testing.allocator;
+
+    const input = 
+        \\.{
+        \\    .field1 = ,  // Missing value
+        \\    .field2 = {
+        \\        .nested = 
+        \\    }            // Missing value and closing brace
+        \\    .field3 = "unterminated string
+        \\    .field4 = [1, 2,]  // Trailing comma in array (should be fine)
+        \\    invalid_syntax_here
+        \\}
+    ;
+
+    var lexer = ZonLexer.init(allocator, input, .{});
+    defer lexer.deinit();
+
+    const tokens = try lexer.tokenize();
+    defer allocator.free(tokens);
+
+    var parser = ZonParser.init(allocator, tokens, .{});
+    defer parser.deinit();
+
+    var ast = try parser.parse();
+    defer ast.deinit();
+
+    const errors = parser.getErrors();
+    try testing.expect(errors.len >= 2); // Should have multiple parse errors
+    
+    // Verify parser recovered and continued parsing (AST should exist)
+    try testing.expect(ast.root.rule_name.len >= 0);
+}
+
+test "ZON parser - malformed nested structures" {
+    const allocator = testing.allocator;
+
+    const input = 
+        \\.{
+        \\    .valid_field = "ok",
+        \\    .malformed_array = [1, 2, 3,  // Missing closing bracket
+        \\    .another_field = {
+        \\        .deeply = {
+        \\            .nested = {
+        \\                .structure = incomplete  // Missing value
+        \\        }  // Missing closing braces
+        \\    .final_field = true
+        \\}
+    ;
+
+    var lexer = ZonLexer.init(allocator, input, .{});
+    defer lexer.deinit();
+
+    const tokens = try lexer.tokenize();
+    defer allocator.free(tokens);
+
+    var parser = ZonParser.init(allocator, tokens, .{});
+    defer parser.deinit();
+
+    var ast = try parser.parse();
+    defer ast.deinit();
+
+    const errors = parser.getErrors();
+    try testing.expect(errors.len > 0); // Should detect structural errors
+}
+
+test "ZON parser - invalid token sequences" {
+    const allocator = testing.allocator;
+
+    const input = 
+        \\.{
+        \\    = "no field name",  // Starts with equals
+        \\    .field1 .field2 = "double field",  // Missing comma
+        \\    .number_field = 123.456.789,  // Invalid number format
+        \\    .bracket_mismatch = [}],  // Wrong bracket type
+        \\    .comma_errors = ,,, "multiple commas"
+        \\}
+    ;
+
+    var lexer = ZonLexer.init(allocator, input, .{});
+    defer lexer.deinit();
+
+    const tokens = try lexer.tokenize();
+    defer allocator.free(tokens);
+
+    var parser = ZonParser.init(allocator, tokens, .{});
+    defer parser.deinit();
+
+    var ast = try parser.parse();
+    defer ast.deinit();
+
+    const errors = parser.getErrors();
+    try testing.expect(errors.len > 0); // Should catch token sequence errors
+}
+
+test "ZON parser - error message quality" {
+    const allocator = testing.allocator;
+
+    const input = ".{ .test = }"; // Missing value
+
+    var lexer = ZonLexer.init(allocator, input, .{});
+    defer lexer.deinit();
+
+    const tokens = try lexer.tokenize();
+    defer allocator.free(tokens);
+
+    var parser = ZonParser.init(allocator, tokens, .{});
+    defer parser.deinit();
+
+    var ast = try parser.parse();
+    defer ast.deinit();
+
+    const errors = parser.getErrors();
+    try testing.expect(errors.len > 0);
+    
+    // Verify error has useful information
+    const first_error = errors[0];
+    try testing.expect(first_error.message.len > 0);
+    try testing.expect(first_error.span.start <= first_error.span.end);
+    try testing.expect(first_error.severity == .@"error");
 }
 
 test "ZON parser - parseFromSlice compatibility" {

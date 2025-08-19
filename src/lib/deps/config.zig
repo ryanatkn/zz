@@ -5,6 +5,7 @@ const DependencyInfo = @import("../languages/zon/parser.zig").DependencyInfo;
 const struct_utils = @import("../core/struct_utils.zig");
 const collections = @import("../core/collections.zig");
 const datetime = @import("../core/datetime.zig");
+const reporting = @import("../core/reporting.zig");
 
 /// Configuration for a single dependency
 pub const Dependency = struct {
@@ -251,7 +252,7 @@ pub const DepsZonConfig = struct {
 
         // Parse using our ZON parser
         const parsed = ZonModule.parseFromSlice(DepsStructure, allocator, content) catch |err| {
-            std.log.warn("Failed to parse ZON content with our parser: {}", .{err});
+            reporting.reportWarning("Failed to parse ZON content with our parser: {}", .{err}) catch {};
             // Fall back to empty config if parsing fails
             return DepsZonConfig{
                 .dependencies = std.StringHashMap(DependencyZonEntry).init(allocator),

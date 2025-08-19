@@ -11,6 +11,7 @@ const echo = @import("../echo/main.zig");
 const demo = @import("../demo.zig");
 const deps = @import("../deps/main.zig");
 const errors = @import("../lib/core/errors.zig");
+const reporting = @import("../lib/core/reporting.zig");
 
 pub const Runner = struct {
     allocator: std.mem.Allocator,
@@ -35,9 +36,8 @@ pub const Runner = struct {
             .tree => {
                 // Pass full args and filesystem to tree
                 tree.run(self.allocator, self.filesystem, args) catch |err| {
-                    const stderr = std.io.getStdErr().writer();
                     const error_msg = errors.getMessage(err);
-                    stderr.print("Tree command failed: {s}\n", .{error_msg}) catch {};
+                    reporting.reportError("Tree command failed: {s}", .{error_msg}) catch {};
                     return err;
                 };
             },
@@ -59,45 +59,40 @@ pub const Runner = struct {
             .benchmark => {
                 // Pass full args to benchmark module
                 benchmark.run(self.allocator, args) catch |err| {
-                    const stderr = std.io.getStdErr().writer();
                     const error_msg = errors.getMessage(err);
-                    stderr.print("Benchmark command failed: {s}\n", .{error_msg}) catch {};
+                    reporting.reportError("Benchmark command failed: {s}", .{error_msg}) catch {};
                     return err;
                 };
             },
             .format => {
                 // Pass full args and filesystem to format module
                 format.run(self.allocator, self.filesystem, args) catch |err| {
-                    const stderr = std.io.getStdErr().writer();
                     const error_msg = errors.getMessage(err);
-                    stderr.print("Format command failed: {s}\n", .{error_msg}) catch {};
+                    reporting.reportError("Format command failed: {s}", .{error_msg}) catch {};
                     return err;
                 };
             },
             .echo => {
                 // Pass full args to echo module (echo doesn't need filesystem)
                 echo.run(self.allocator, args) catch |err| {
-                    const stderr = std.io.getStdErr().writer();
                     const error_msg = errors.getMessage(err);
-                    stderr.print("Echo command failed: {s}\n", .{error_msg}) catch {};
+                    reporting.reportError("Echo command failed: {s}", .{error_msg}) catch {};
                     return err;
                 };
             },
             .demo => {
                 // Pass full args to demo module (demo doesn't need filesystem)
                 demo.run(self.allocator, args) catch |err| {
-                    const stderr = std.io.getStdErr().writer();
                     const error_msg = errors.getMessage(err);
-                    stderr.print("Demo command failed: {s}\n", .{error_msg}) catch {};
+                    reporting.reportError("Demo command failed: {s}", .{error_msg}) catch {};
                     return err;
                 };
             },
             .deps => {
                 // Pass full args and filesystem to deps module
                 deps.run(self.allocator, self.filesystem, args) catch |err| {
-                    const stderr = std.io.getStdErr().writer();
                     const error_msg = errors.getMessage(err);
-                    stderr.print("Deps command failed: {s}\n", .{error_msg}) catch {};
+                    reporting.reportError("Deps command failed: {s}", .{error_msg}) catch {};
                     return err;
                 };
             },

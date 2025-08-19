@@ -12,6 +12,7 @@ const errors = @import("../core/errors.zig");
 const collections = @import("../core/collections.zig");
 const FilesystemInterface = @import("../filesystem/interface.zig").FilesystemInterface;
 const RealFilesystem = @import("../filesystem/real.zig").RealFilesystem;
+const reporting = @import("../core/reporting.zig");
 
 // Import terminal utilities for colored output and progress indicators
 const terminal = @import("../terminal/terminal.zig");
@@ -471,14 +472,12 @@ pub const DependencyManager = struct {
 
     fn logError(self: *Self, comptime fmt: []const u8, args: anytype) !void {
         _ = self;
-        const stderr = std.io.getStdErr().writer();
-        try stderr.print("  ✗ " ++ fmt ++ "\n", args);
+        try reporting.reportError("  ✗ " ++ fmt, args);
     }
 
     fn logWarning(self: *Self, comptime fmt: []const u8, args: anytype) !void {
         _ = self;
-        const stderr = std.io.getStdErr().writer();
-        try stderr.print("  ⚠ " ++ fmt ++ "\n", args);
+        try reporting.reportWarning("  ⚠ " ++ fmt, args);
     }
 
     /// Generate dependency manifest.json

@@ -9,6 +9,7 @@ const ZonLoader = @import("../config/zon.zig").ZonLoader;
 const FormatConfigOptions = @import("../config/zon.zig").FormatConfigOptions;
 const Args = @import("../lib/args.zig").Args;
 const CommonFlags = @import("../lib/args.zig").CommonFlags;
+const reporting = @import("../lib/core/reporting.zig");
 
 // Import stratified parser
 const StratifiedParser = @import("../lib/parser/mod.zig");
@@ -84,10 +85,9 @@ pub fn run(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: 
 
     // If no files specified, show help
     if (format_args.files.items.len == 0) {
-        const stderr = std.io.getStdErr().writer();
-        try stderr.print("Error: No files specified\n", .{});
-        try stderr.print("Usage: zz format [files...] [options]\n", .{});
-        try stderr.print("Use 'zz format --stdin' to format from stdin\n", .{});
+        try reporting.reportError("No files specified", .{});
+        try reporting.printUsage("Usage: zz format [files...] [options]", .{});
+        try reporting.printUsage("Use 'zz format --stdin' to format from stdin", .{});
         std.process.exit(1);
     }
 
@@ -152,8 +152,7 @@ pub fn run(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: 
 
     for (all_files.items) |file_path| {
         const result = processFile(allocator, filesystem, file_path, format_args.write, format_args.check, format_args.options) catch |err| {
-            const stderr = std.io.getStdErr().writer();
-            try stderr.print("Error processing {s}: {s}\n", .{ file_path, @errorName(err) });
+            try reporting.reportError("Failed to process file '{s}': {s}", .{ file_path, @errorName(err) });
             any_errors = true;
             continue;
         };
@@ -179,8 +178,7 @@ fn processFile(allocator: std.mem.Allocator, filesystem: FilesystemInterface, fi
     const language = Language.fromExtension(ext);
 
     if (language == .unknown) {
-        const stderr = std.io.getStdErr().writer();
-        try stderr.print("Warning: Unknown file type for {s}, skipping\n", .{file_path});
+        try reporting.reportWarning("Unknown file type for '{s}', skipping", .{file_path});
         return true; // Consider it "formatted" for check mode
     }
 
@@ -200,8 +198,7 @@ fn processFile(allocator: std.mem.Allocator, filesystem: FilesystemInterface, fi
     if (check) {
         const is_formatted = std.mem.eql(u8, content, formatted);
         if (!is_formatted) {
-            const stderr = std.io.getStdErr().writer();
-            try stderr.print("{s} is not formatted\n", .{file_path});
+            try reporting.reportInfo("Not formatted: {s}", .{file_path});
         }
         return is_formatted;
     }
@@ -215,8 +212,7 @@ fn processFile(allocator: std.mem.Allocator, filesystem: FilesystemInterface, fi
             defer real_file.close();
             try real_file.writeAll(formatted);
 
-            const stdout = std.io.getStdOut().writer();
-            try stdout.print("Formatted {s}\n", .{file_path});
+            try reporting.reportSuccess("Formatted {s}", .{file_path});
         }
     } else {
         // Output to stdout
@@ -457,8 +453,7 @@ fn parseArgs(allocator: std.mem.Allocator, args: [][:0]const u8, base_options: F
             } else if (std.mem.eql(u8, value, "space")) {
                 result.options.indent_style = .space;
             } else {
-                const stderr = std.io.getStdErr().writer();
-                try stderr.print("Error: Invalid indent style '{s}'. Use 'tab' or 'space'.\n", .{value});
+                try reporting.reportError("Invalid indent style '{s}'. Use 'tab' or 'space'", .{value});
                 std.process.exit(1);
             }
         } else if (CommonFlags.parseLineWidthFlag(arg)) |value| {
@@ -467,8 +462,7 @@ fn parseArgs(allocator: std.mem.Allocator, args: [][:0]const u8, base_options: F
             try printFormatHelp();
             std.process.exit(0);
         } else if (arg[0] == '-') {
-            const stderr = std.io.getStdErr().writer();
-            try stderr.print("Unknown option: {s}\n", .{arg});
+            try reporting.reportError("Unknown option '{s}'", .{arg});
             std.process.exit(1);
         } else {
             // It's a file or pattern
@@ -478,8 +472,7 @@ fn parseArgs(allocator: std.mem.Allocator, args: [][:0]const u8, base_options: F
 
     // Validate args
     if (result.write and result.check) {
-        const stderr = std.io.getStdErr().writer();
-        try stderr.print("Error: --write and --check are mutually exclusive\n", .{});
+        try reporting.reportError("--write and --check are mutually exclusive", .{});
         std.process.exit(1);
     }
 

@@ -2,6 +2,7 @@ const std = @import("std");
 const Terminal = @import("lib/terminal/terminal.zig").Terminal;
 const execution = @import("lib/execution/runner.zig");
 const steps = @import("demo/steps.zig");
+const reporting = @import("lib/core/reporting.zig");
 
 const DemoMode = enum {
     interactive,
@@ -48,8 +49,7 @@ fn parseArgs(allocator: std.mem.Allocator, args: [][:0]const u8) !DemoArgs {
             i += 1;
             demo_args.output_file = args[i];
         } else {
-            const stderr = std.io.getStdErr().writer();
-            try stderr.print("Unknown argument: {s}\n", .{arg});
+            try reporting.reportError("Unknown argument: {s}", .{arg});
             try showHelp();
             std.process.exit(1);
         }

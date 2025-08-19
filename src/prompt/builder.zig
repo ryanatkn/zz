@@ -2,6 +2,7 @@ const std = @import("std");
 const fence = @import("fence.zig");
 const FilesystemInterface = @import("../lib/filesystem/interface.zig").FilesystemInterface;
 const path_utils = @import("../lib/core/path.zig");
+const reporting = @import("../lib/core/reporting.zig");
 const Language = @import("../lib/core/language.zig").Language;
 const ExtractionFlags = @import("../lib/core/extraction.zig").ExtractionFlags;
 // NOTE: Legacy analysis modules deleted - functionality to be reimplemented
@@ -210,11 +211,10 @@ pub const PromptBuilder = struct {
 
         const file = cwd.openFile(self.allocator, file_path, .{}) catch |err| {
             if (!self.quiet) {
-                const stderr = std.io.getStdErr().writer();
                 const prefixed_path = try path_utils.addRelativePrefix(self.allocator, file_path);
                 defer self.allocator.free(prefixed_path);
                 const error_msg = errors.getMessage(err);
-                try stderr.print("Error reading file {s}: {s}\n", .{ prefixed_path, error_msg });
+                try reporting.reportError("Error reading file {s}: {s}", .{ prefixed_path, error_msg });
             }
             return err;
         };
@@ -223,10 +223,9 @@ pub const PromptBuilder = struct {
         const stat = try cwd.statFile(self.allocator, file_path);
         if (stat.size > max_file_size) {
             if (!self.quiet) {
-                const stderr = std.io.getStdErr().writer();
                 const prefixed_path = try path_utils.addRelativePrefix(self.allocator, file_path);
                 defer self.allocator.free(prefixed_path);
-                try stderr.print("Warning: Skipping large file (>{d}MB): {s}\n", .{ max_file_size / (1024 * 1024), prefixed_path });
+                try reporting.reportWarning("Skipping large file (>{d}MB): {s}", .{ max_file_size / (1024 * 1024), prefixed_path });
             }
             return;
         }
@@ -468,10 +467,9 @@ fn processFileSafe(builder: *PromptBuilder, file_path: []const u8, result: *File
     const file = cwd.openFile(builder.allocator, file_path, .{}) catch |err| {
         const error_msg = errors.getMessage(err);
         if (!builder.quiet) {
-            const stderr = std.io.getStdErr().writer();
             const prefixed_path = path_utils.addRelativePrefix(builder.allocator, file_path) catch return;
             defer builder.allocator.free(prefixed_path);
-            stderr.print("Error reading file {s}: {s}\n", .{ prefixed_path, error_msg }) catch {};
+            reporting.reportError("Error reading file {s}: {s}", .{ prefixed_path, error_msg }) catch {};
         }
         result.error_message = try builder.allocator.dupe(u8, error_msg);
         return;

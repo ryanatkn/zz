@@ -150,7 +150,7 @@ test "format config without format section" {
 }
 
 test "format config malformed file" {
-    // Our ZON parser handles malformed input gracefully by returning defaults
+    // Verify that malformed ZON config files fall back to default format options gracefully
     var mock_fs = MockFilesystem.init(testing.allocator);
     defer mock_fs.deinit();
 

@@ -122,10 +122,11 @@ defer allocator.free(tokens);
 
 **Features:**
 - All Zig number formats (decimal, hex 0x1234, binary 0b1010, octal 0o755)
-- String literals with escape sequences and multiline strings
+- String literals with comprehensive escape sequences (Unicode, hex, octal)
 - Field names (`.field_name`) and identifiers including `@"keyword"` syntax
 - Comments with optional preservation
-- Error recovery with position tracking
+- Robust error recovery with position tracking
+- Graceful handling of malformed input without crashes
 
 ### ZonParser - AST-Based Parsing
 
@@ -374,13 +375,21 @@ test "ZON formatter round-trip" {
 
 ## Error Handling
 
+### Comprehensive Error Recovery
+- **Multiple error detection** - Parser continues after errors to find additional issues
+- **Malformed input resilience** - Graceful degradation without crashes
+- **Quality error messages** - Detailed position and context information
+
 ### Lexical Errors
 - Unterminated strings and invalid escape sequences
+- Invalid Unicode sequences (malformed \u{}, surrogates, overlength)
 - Invalid number formats and character literals
 - Unexpected characters and encoding issues
 
 ### Parse Errors  
 - Missing values and unmatched delimiters
+- Invalid token sequences and structural errors
+- Nested structure recovery with continued parsing
 - Invalid field assignments and structure violations
 - Syntax errors with detailed positions
 

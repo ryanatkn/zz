@@ -164,10 +164,17 @@ pub const LineBuilder = struct {
 - `ExternalToolNotFound`: Missing external formatter
 - `OutOfMemory`: Allocation failure
 
+**Consistent Error Reporting:**
+- Shared reporting module (`/src/lib/core/reporting.zig`) for standardized messages
+- Error types: `reportError`, `reportWarning`, `reportInfo`, `reportSuccess`, `reportDebug`
+- Contextual information (file paths quoted, operation details)
+- Consistent formatting across all CLI commands
+
 **Graceful Degradation:**
 - Return original source on parse errors
 - Fall back to basic formatting on complex structures
-- Clear error messages for user feedback
+- Continue processing other files when one fails
+- Malformed config files use default options gracefully
 
 ## Usage Examples
 

@@ -12,6 +12,7 @@ src/lib/core/
 ├── collections.zig    # Memory-efficient data structures
 ├── filesystem.zig     # Filesystem utilities and error handling
 ├── io.zig             # I/O utilities and buffering
+├── reporting.zig      # Consistent CLI error and status reporting
 ├── string_pool.zig    # String interning for memory efficiency
 └── traversal.zig      # Directory traversal with pattern support
 ```
@@ -88,6 +89,32 @@ isHiddenFile()  // Dot-file detection
 - Arena allocators for temporary collections
 - Capacity retention for reused lists
 - Size-based pooling strategies
+
+### Reporting (`reporting.zig`)
+
+**Purpose:** Consistent CLI error and status reporting across all commands
+
+**Functions:**
+- `reportError` - Errors that prevent operation (stderr, "Error:" prefix)
+- `reportWarning` - Issues that don't prevent continuation (stderr, "Warning:" prefix)  
+- `reportInfo` - Status information (stderr, no prefix)
+- `reportSuccess` - Successful operations (stdout, no prefix)
+- `reportDebug` - Diagnostic information (stderr, no prefix)
+- `printUsage` - Help/usage text (stderr, no prefix)
+
+**Benefits:**
+- Unified message formatting across format, prompt, tree, deps commands
+- Consistent prefix usage and output stream routing
+- Easier to maintain and modify error reporting behavior
+
+**API:**
+```zig
+const reporting = @import("lib/core/reporting.zig");
+
+try reporting.reportError("Failed to process file '{s}': {s}", .{ path, @errorName(err) });
+try reporting.reportWarning("Unknown file type for '{s}', skipping", .{path});
+try reporting.reportSuccess("Formatted {s}", .{path});
+```
 
 ### Filesystem (`filesystem.zig`)
 

@@ -5,6 +5,7 @@ const zon_parser = @import("../lib/languages/zon/mod.zig");
 const FilesystemInterface = @import("../lib/filesystem/interface.zig").FilesystemInterface;
 const Args = @import("../lib/args.zig").Args;
 const io = @import("../lib/core/io.zig");
+const reporting = @import("../lib/core/reporting.zig");
 
 /// CLI entry point for dependency management
 pub fn run(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: [][:0]const u8) !void {
@@ -54,13 +55,11 @@ pub fn run(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: 
         } else if (Args.parseFlag(arg, "deps-dir", null)) |dir| {
             deps_dir = dir;
         } else if (std.mem.startsWith(u8, arg, "--")) {
-            const stderr = std.io.getStdErr().writer();
-            try stderr.print("Unknown option: {s}\n", .{arg});
+            try reporting.reportError("Unknown option: {s}", .{arg});
             try showUsage(args[0]);
             return;
         } else {
-            const stderr = std.io.getStdErr().writer();
-            try stderr.print("Unexpected argument: {s}\n", .{arg});
+            try reporting.reportError("Unexpected argument: {s}", .{arg});
             try showUsage(args[0]);
             return;
         }
@@ -73,7 +72,7 @@ pub fn run(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: 
 
     // Load dependencies configuration from deps.zon
     var deps_config = loadDepsConfig(allocator) catch |err| {
-        try showError("Failed to load dependency configuration.");
+        try reporting.reportError("Failed to load dependency configuration", .{});
         return err;
     };
     defer deps_config.deinit(allocator);
@@ -126,7 +125,7 @@ fn loadDepsConfig(allocator: std.mem.Allocator) !config.DepsConfig {
     // Read deps.zon file
     const deps_file_content = std.fs.cwd().readFileAlloc(allocator, "deps.zon", 1024 * 1024) catch |err| switch (err) {
         error.FileNotFound => {
-            std.log.err("deps.zon file not found in current directory", .{});
+            try reporting.reportError("deps.zon file not found in current directory", .{});
             return err;
         },
         else => return err,
@@ -135,7 +134,7 @@ fn loadDepsConfig(allocator: std.mem.Allocator) !config.DepsConfig {
 
     // Parse ZON content
     var zon_config = config.DepsZonConfig.parseFromZonContent(allocator, deps_file_content) catch |err| {
-        std.log.err("Failed to parse deps.zon: {}", .{err});
+        try reporting.reportError("Failed to parse deps.zon: {}", .{err});
         return err;
     };
     defer zon_config.deinit();
@@ -225,13 +224,13 @@ fn printUpdateResults(result: *const manager.UpdateResult, options: config.Updat
     }
 
     if (result.updated.items.len == 0 and result.failed.items.len == 0) {
-        try stdout.writeAll("All dependencies already up to date! ✨\n");
+        try reporting.reportSuccess("All dependencies already up to date! ✨", .{});
     } else {
         if (result.updated.items.len > 0) {
             if (options.color) {
                 try stdout.writeAll("\x1b[32m"); // Green
             }
-            try stdout.print("✅ Updated {d} dependencies\n", .{result.updated.items.len});
+            try reporting.reportSuccess("✅ Updated {d} dependencies", .{result.updated.items.len});
             if (options.color) {
                 try stdout.writeAll("\x1b[0m"); // Reset
             }
@@ -264,11 +263,10 @@ fn generateDocumentationOnly(allocator: std.mem.Allocator, dep_manager: *manager
         // If we can't check, assume we need to regenerate
         try stdout.print("📦 Generating dependency documentation (change detection failed)...\n", .{});
         doc_generator.generateDocumentation(dependencies) catch |gen_err| {
-            const stderr = std.io.getStdErr().writer();
-            try stderr.print("  ✗ Failed to generate dependency documentation: {}\n", .{gen_err});
+            try reporting.reportError("  ✗ Failed to generate dependency documentation: {}", .{gen_err});
             return gen_err;
         };
-        try stdout.print("  ✓ Generated manifest.json\n", .{});
+        try reporting.reportSuccess("  ✓ Generated manifest.json", .{});
         return;
     };
 
@@ -276,15 +274,14 @@ fn generateDocumentationOnly(allocator: std.mem.Allocator, dep_manager: *manager
         try stdout.print("📦 Generating dependency documentation...\n", .{});
 
         doc_generator.generateDocumentation(dependencies) catch |err| {
-            const stderr = std.io.getStdErr().writer();
-            try stderr.print("  ✗ Failed to generate dependency documentation: {}\n", .{err});
+            try reporting.reportError("  ✗ Failed to generate dependency documentation: {}", .{err});
             return err;
         };
 
-        try stdout.print("  ✓ Generated manifest.json\n", .{});
+        try reporting.reportSuccess("  ✓ Generated manifest.json", .{});
     } else {
-        try stdout.print("📦 Dependency documentation up to date (no changes in deps.zon)\n", .{});
-        try stdout.print("  ✓ Skipped manifest generation\n", .{});
+        try reporting.reportInfo("📦 Dependency documentation up to date (no changes in deps.zon)", .{});
+        try reporting.reportInfo("  ✓ Skipped manifest generation", .{});
     }
 }
 
@@ -334,10 +331,4 @@ fn showDetailedHelp() !void {
     try stdout.writeAll("\nConfiguration:\n");
     try stdout.writeAll("  Dependencies are declared in deps.zon at the project root.\n");
     try stdout.writeAll("  See existing deps.zon for configuration format.\n");
-}
-
-/// Show error message
-fn showError(message: []const u8) !void {
-    const stderr = std.io.getStdErr().writer();
-    try stderr.print("Error: {s}\n", .{message});
 }

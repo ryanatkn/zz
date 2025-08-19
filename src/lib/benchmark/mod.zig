@@ -570,13 +570,13 @@ pub fn measureOperationNamedWithSuite(
                 break;
             }
             
-            // Report progress every 100k operations
+            // Report progress every 100k operations (commented out for cleaner output)
             if (operations >= last_progress_report + progress_interval) {
-                const elapsed_ms = @divTrunc(current_time - start_time, 1_000_000);
-                const ops_per_sec = if (elapsed_ms > 0) @divTrunc(operations * 1000, @as(usize, @intCast(elapsed_ms))) else 0;
-                std.debug.print("[{s}] Progress: {}k ops @ {}M ops/sec ({}ms elapsed)\n", .{ 
-                    suite_name, operations / 1000, ops_per_sec / 1_000_000, @as(u32, @intCast(elapsed_ms))
-                });
+                // const elapsed_ms = @divTrunc(current_time - start_time, 1_000_000);
+                // const ops_per_sec = if (elapsed_ms > 0) @divTrunc(operations * 1000, @as(usize, @intCast(elapsed_ms))) else 0;
+                // std.debug.print("[{s}] Progress: {}k ops @ {}M ops/sec ({}ms elapsed)\n", .{ 
+                //     suite_name, operations / 1000, ops_per_sec / 1_000_000, @as(u32, @intCast(elapsed_ms))
+                // });
                 last_progress_report = operations;
             }
         }
@@ -587,16 +587,23 @@ pub fn measureOperationNamedWithSuite(
     const elapsed_ns: u64 = @intCast(final_time - start_time);
     const ns_per_op = elapsed_ns / operations;
     
+    // Calculate ops/sec for summary reporting
+    const elapsed_ms = @divTrunc(elapsed_ns, 1_000_000);
+    const ops_per_sec = if (elapsed_ms > 0) @divTrunc(operations * 1000, @as(usize, @intCast(elapsed_ms))) else operations * 1000;
+    
     if (operations >= max_operations) {
-        std.debug.print("[{s}] LIMIT: {s} - {} operations in {}ms ({}ns/op)\n", .{ suite_name, name, operations, @divTrunc(elapsed_ns, 1_000_000), ns_per_op });
+        const ops_per_sec_m = ops_per_sec / 1_000_000;
+        std.debug.print("[{s}] LIMIT: {s} - {} operations in {}ms ({}ns/op, {}M ops/sec)\n", .{ suite_name, name, operations, elapsed_ms, ns_per_op, ops_per_sec_m });
     } else {
         if (operations >= 1_000_000) {
             const ops_f = @as(f64, @floatFromInt(operations)) / 1_000_000.0;
-            std.debug.print("[{s}] Complete: {s} - {d:.1}M ops in {}ms ({}ns/op)\n", .{ suite_name, name, ops_f, @divTrunc(elapsed_ns, 1_000_000), ns_per_op });
+            const ops_per_sec_m = ops_per_sec / 1_000_000;
+            std.debug.print("[{s}] Complete: {s} - {d:.1}M ops in {}ms ({}ns/op, {}M ops/sec)\n", .{ suite_name, name, ops_f, elapsed_ms, ns_per_op, ops_per_sec_m });
         } else if (operations >= 1_000) {
-            std.debug.print("[{s}] Complete: {s} - {}k ops in {}ms ({}ns/op)\n", .{ suite_name, name, operations / 1000, @divTrunc(elapsed_ns, 1_000_000), ns_per_op });
+            const ops_per_sec_k = ops_per_sec / 1_000;
+            std.debug.print("[{s}] Complete: {s} - {}k ops in {}ms ({}ns/op, {}k ops/sec)\n", .{ suite_name, name, operations / 1000, elapsed_ms, ns_per_op, ops_per_sec_k });
         } else {
-            std.debug.print("[{s}] Complete: {s} - {} ops in {}ms ({}ns/op)\n", .{ suite_name, name, operations, @divTrunc(elapsed_ns, 1_000_000), ns_per_op });
+            std.debug.print("[{s}] Complete: {s} - {} ops in {}ms ({}ns/op, {} ops/sec)\n", .{ suite_name, name, operations, elapsed_ms, ns_per_op, ops_per_sec });
         }
     }
     

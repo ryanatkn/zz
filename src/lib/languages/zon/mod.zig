@@ -34,6 +34,7 @@ pub fn getSupport(allocator: std.mem.Allocator) !LanguageSupport {
         .language = .zon,
         .lexer = Lexer{
             .tokenizeFn = tokenize,
+            .tokenizeChunkFn = tokenizeChunk,
             .updateTokensFn = null, // TODO: Implement incremental tokenization
         },
         .parser = Parser{
@@ -62,6 +63,22 @@ pub fn tokenize(allocator: std.mem.Allocator, input: []const u8) ![]Token {
     var lexer = @import("lexer.zig").ZonLexer.init(allocator, input, .{});
     defer lexer.deinit();
     return lexer.tokenize();
+}
+
+/// Tokenize ZON source code chunk for streaming
+pub fn tokenizeChunk(allocator: std.mem.Allocator, input: []const u8, start_pos: usize) ![]Token {
+    var lexer = @import("lexer.zig").ZonLexer.init(allocator, input, .{});
+    defer lexer.deinit();
+    
+    const tokens = try lexer.tokenize();
+    
+    // Adjust token positions for the start_pos offset
+    for (tokens) |*token| {
+        token.span.start += start_pos;
+        token.span.end += start_pos;
+    }
+    
+    return tokens;
 }
 
 /// Parse ZON tokens into AST

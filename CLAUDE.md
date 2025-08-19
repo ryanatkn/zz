@@ -164,6 +164,7 @@ See [docs/commands.md](docs/commands.md) for all commands and options.
 ```bash
 $ zig build test                    # Run all tests
 $ zig build test -Dtest-filter="pattern"  # Filter tests
+$ zig build test --summary all      # Show detailed test summary (useful for debugging)
 $ zig build benchmark               # Run benchmarks and compare with baseline
 $ zig build benchmark-baseline      # Save current performance as baseline
 $ zig build benchmark-stdout        # Show pretty benchmark output

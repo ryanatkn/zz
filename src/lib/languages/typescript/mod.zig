@@ -20,6 +20,7 @@ pub fn getSupport(allocator: std.mem.Allocator) !LanguageSupport {
         .language = .typescript,
         .lexer = Lexer{
             .tokenizeFn = tokenize,
+            .tokenizeChunkFn = tokenizeChunk,
             .updateTokensFn = null, // TODO: Implement incremental tokenization
         },
         .parser = Parser{
@@ -43,6 +44,17 @@ fn tokenize(allocator: std.mem.Allocator, input: []const u8) ![]Token {
     _ = input;
     var tokens = std.ArrayList(Token).init(allocator);
     return tokens.toOwnedSlice();
+}
+
+/// Tokenize TypeScript source code chunk for streaming
+fn tokenizeChunk(allocator: std.mem.Allocator, input: []const u8, start_pos: usize) ![]Token {
+    // Stub implementation - delegate to main tokenize and adjust positions
+    const tokens = try tokenize(allocator, input);
+    for (tokens) |*token| {
+        token.span.start += start_pos;
+        token.span.end += start_pos;
+    }
+    return tokens;
 }
 
 /// Parse TypeScript tokens into AST

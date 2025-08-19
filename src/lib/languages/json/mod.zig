@@ -44,6 +44,7 @@ pub fn getSupport(_: std.mem.Allocator) !LanguageSupport {
         .language = .json,
         .lexer = Lexer{
             .tokenizeFn = tokenize,
+            .tokenizeChunkFn = tokenizeChunk,
             .updateTokensFn = null, // TODO: Implement incremental tokenization
         },
         .parser = Parser{
@@ -76,6 +77,25 @@ fn tokenize(allocator: std.mem.Allocator, input: []const u8) ![]Token {
     defer lexer.deinit();
 
     return lexer.tokenize();
+}
+
+/// Tokenize JSON source code chunk for streaming
+fn tokenizeChunk(allocator: std.mem.Allocator, input: []const u8, start_pos: usize) ![]Token {
+    var lexer = JsonLexer.init(allocator, input, .{
+        .allow_comments = false, // Standard JSON
+        .allow_trailing_commas = false,
+    });
+    defer lexer.deinit();
+    
+    const tokens = try lexer.tokenize();
+    
+    // Adjust token positions for the start_pos offset
+    for (tokens) |*token| {
+        token.span.start += start_pos;
+        token.span.end += start_pos;
+    }
+    
+    return tokens;
 }
 
 /// Parse JSON tokens into AST

@@ -41,11 +41,18 @@ pub const Lexer = struct {
     /// Tokenize input into stream of tokens
     tokenizeFn: *const fn (allocator: std.mem.Allocator, input: []const u8) anyerror![]Token,
 
+    /// Streaming tokenization for chunk-based processing (required for TokenIterator)
+    tokenizeChunkFn: *const fn (allocator: std.mem.Allocator, input: []const u8, start_pos: usize) anyerror![]Token,
+
     /// Optional incremental tokenization for editor use
     updateTokensFn: ?*const fn (allocator: std.mem.Allocator, tokens: []Token, edit: Edit) anyerror!TokenDelta,
 
     pub fn tokenize(self: Lexer, allocator: std.mem.Allocator, input: []const u8) ![]Token {
         return self.tokenizeFn(allocator, input);
+    }
+
+    pub fn tokenizeChunk(self: Lexer, allocator: std.mem.Allocator, input: []const u8, start_pos: usize) ![]Token {
+        return self.tokenizeChunkFn(allocator, input, start_pos);
     }
 
     pub fn updateTokens(self: Lexer, allocator: std.mem.Allocator, tokens: []Token, edit: Edit) !?TokenDelta {

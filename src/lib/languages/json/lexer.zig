@@ -74,6 +74,11 @@ pub const JsonLexer = struct {
             try self.tokens.append(full_token);
         }
 
+        // Add EOF token
+        const eof_span = Span.init(self.source.len, self.source.len);
+        const eof_token = Token.simple(eof_span, .eof, "", 0);
+        try self.tokens.append(eof_token);
+
         return self.tokens.toOwnedSlice();
     }
 
@@ -287,6 +292,7 @@ pub const JsonLexer = struct {
     fn isDigit(ch: u8) bool {
         return char.isDigit(ch);
     }
+
 };
 
 const TokenResult = struct {
@@ -395,7 +401,7 @@ test "JSON lexer - object and array" {
     defer lexer.deinit();
 
     const tokens = try lexer.tokenize();
-    try testing.expectEqual(@as(usize, 9), tokens.len);
+    try testing.expectEqual(@as(usize, 11), tokens.len);
 
     // Check token sequence
     try testing.expectEqual(TokenKind.delimiter, tokens[0].kind);
@@ -421,7 +427,7 @@ test "JSON lexer - string escapes" {
 
     const tokens = try lexer.tokenize();
     try testing.expectEqual(@as(usize, 1), tokens.len);
-    try testing.expectEqual(TokenKind.string, tokens[0].kind);
+    try testing.expectEqual(TokenKind.string_literal, tokens[0].kind);
     try testing.expectEqualStrings("\"hello\\nworld\\\"\"", tokens[0].text);
 }
 
@@ -438,7 +444,7 @@ test "JSON lexer - JSON5 features" {
         const tokens = try lexer.tokenize();
         try testing.expectEqual(@as(usize, 2), tokens.len);
         try testing.expectEqual(TokenKind.comment, tokens[0].kind);
-        try testing.expectEqual(TokenKind.number, tokens[1].kind);
+        try testing.expectEqual(TokenKind.number_literal, tokens[1].kind);
     }
 
     // Test block comments
@@ -449,6 +455,6 @@ test "JSON lexer - JSON5 features" {
         const tokens = try lexer.tokenize();
         try testing.expectEqual(@as(usize, 2), tokens.len);
         try testing.expectEqual(TokenKind.comment, tokens[0].kind);
-        try testing.expectEqual(TokenKind.number, tokens[1].kind);
+        try testing.expectEqual(TokenKind.number_literal, tokens[1].kind);
     }
 }

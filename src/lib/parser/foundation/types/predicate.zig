@@ -411,6 +411,8 @@ pub const TokenKind = enum {
     literal,
     string_literal,
     number_literal,
+    boolean_literal,   // true/false literals
+    null_literal,      // null literal
     delimiter,
     whitespace,
     comment,

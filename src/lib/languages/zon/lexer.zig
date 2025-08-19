@@ -440,12 +440,13 @@ pub const ZonLexer = struct {
         };
         const text = self.source[start_pos..self.position];
 
-        // Check for keywords
-        const token_kind = if (std.mem.eql(u8, text, "true") or
-            std.mem.eql(u8, text, "false") or
-            std.mem.eql(u8, text, "null") or
-            std.mem.eql(u8, text, "undefined"))
-            TokenKind.keyword
+        // Check for literal types and keywords
+        const token_kind = if (std.mem.eql(u8, text, "true") or std.mem.eql(u8, text, "false"))
+            TokenKind.boolean_literal
+        else if (std.mem.eql(u8, text, "null"))
+            TokenKind.null_literal
+        else if (std.mem.eql(u8, text, "undefined"))
+            TokenKind.keyword  // undefined is a Zig keyword, not a literal
         else
             TokenKind.identifier;
 
@@ -504,6 +505,7 @@ pub const ZonLexer = struct {
     fn isOctalDigit(ch: u8) bool {
         return char.isOctalDigit(ch);
     }
+
 };
 
 /// Convenience function for tokenizing ZON source

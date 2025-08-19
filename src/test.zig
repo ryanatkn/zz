@@ -54,7 +54,3 @@ test {
 test {
     std.testing.refAllDeclsRecursive(@import("echo/test.zig"));
 }
-
-// NOTE: This would be ideal but Zig test runner doesn't guarantee test execution order
-// For now, tests must accept the memory leak until we can use std.testing.allocator.deinit()
-// in a post-test hook or move all tests to use local registries

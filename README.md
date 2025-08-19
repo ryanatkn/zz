@@ -256,6 +256,7 @@ zz format style.css --indent-size=2 --write
 # Run tests
 zig build test
 zig build test -Dtest-filter="tree"
+zig build test --summary all
 
 # Run benchmarks
 zig build benchmark                      # Run and save results

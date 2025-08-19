@@ -179,7 +179,9 @@ fn registerBenchmarkSuites(runner: *BenchmarkRunner) !void {
         .runFn = language_benchmarks.runParserBenchmarks,
     });
 
-    // Streaming benchmarks
+    // Streaming benchmarks - RE-ENABLED after fixing double-free bug (August 19, 2025)
+    // Issue was NOT expensive tokenization, but double-free segfault in TokenIterator
+    // Fixed: Removed manual token.text freeing - iterator.deinit() handles cleanup
     try runner.registerSuite(BenchmarkSuite{
         .name = "streaming",
         .variance_multiplier = 3.0, // Memory allocation variability

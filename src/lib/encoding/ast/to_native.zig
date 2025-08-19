@@ -11,16 +11,16 @@ pub fn astToNative(comptime T: type, allocator: std.mem.Allocator, node: Node) !
     const type_info = @typeInfo(T);
     
     switch (type_info) {
-        .Bool => return try parseBool(node),
-        .Int => |int| return try parseInt(T, node, int.signedness == .signed),
-        .Float => return try parseFloat(T, node),
-        .Optional => |opt| {
+        .bool => return try parseBool(node),
+        .int => |int| return try parseInt(T, node, int.signedness == .signed),
+        .float => return try parseFloat(T, node),
+        .optional => |opt| {
             if (node.node_type == .null_literal) {
                 return null;
             }
             return try astToNative(opt.child, allocator, node);
         },
-        .Array => |arr| {
+        .array => |arr| {
             if (node.node_type != .array) {
                 return error.TypeMismatch;
             }
@@ -33,9 +33,9 @@ pub fn astToNative(comptime T: type, allocator: std.mem.Allocator, node: Node) !
             }
             return result;
         },
-        .Pointer => |ptr| {
+        .pointer => |ptr| {
             switch (ptr.size) {
-                .Slice => {
+                .slice => {
                     if (ptr.child == u8) {
                         // String slice
                         return try parseString(allocator, node);
@@ -53,7 +53,7 @@ pub fn astToNative(comptime T: type, allocator: std.mem.Allocator, node: Node) !
                 else => return error.UnsupportedPointerType,
             }
         },
-        .Struct => |struct_info| {
+        .@"struct" => |struct_info| {
             if (node.node_type != .object and node.node_type != .struct_literal) {
                 return error.TypeMismatch;
             }
@@ -73,7 +73,7 @@ pub fn astToNative(comptime T: type, allocator: std.mem.Allocator, node: Node) !
             }
             return result;
         },
-        .Union => |union_info| {
+        .@"union" => |union_info| {
             if (union_info.tag_type) |_| {
                 // Tagged union
                 return try parseTaggedUnion(T, allocator, node);
@@ -81,55 +81,12 @@ pub fn astToNative(comptime T: type, allocator: std.mem.Allocator, node: Node) !
                 return error.UntaggedUnionNotSupported;
             }
         },
-        .Enum => return try parseEnum(T, node),
+        .@"enum" => return try parseEnum(T, node),
         else => return error.UnsupportedType,
     }
 }
 
-/// Convert AST node to std.json.Value
-pub fn astNodeToValue(allocator: std.mem.Allocator, node: Node) !std.json.Value {
-    switch (node.node_type) {
-        .null_literal => return .null,
-        .bool_literal, .boolean => {
-            const val = try parseBool(node);
-            return .{ .bool = val };
-        },
-        .number_literal, .number => {
-            // Try integer first, then float
-            if (std.mem.indexOfScalar(u8, node.text, '.')) |_| {
-                const val = try parseFloat(f64, node);
-                return .{ .float = val };
-            } else {
-                const val = try parseInt(i64, node, true);
-                return .{ .integer = val };
-            }
-        },
-        .string_literal, .string => {
-            const str = try parseString(allocator, node);
-            return .{ .string = str };
-        },
-        .array => {
-            var arr = std.json.Array.init(allocator);
-            for (node.children) |child| {
-                const val = try astNodeToValue(allocator, child);
-                try arr.append(val);
-            }
-            return .{ .array = arr };
-        },
-        .object, .struct_literal => {
-            var obj = std.json.ObjectMap.init(allocator);
-            for (node.children) |child| {
-                if (child.node_type == .field_assignment or child.node_type == .property) {
-                    const key = child.children[0].text;
-                    const value = try astNodeToValue(allocator, child.children[1]);
-                    try obj.put(key, value);
-                }
-            }
-            return .{ .object = obj };
-        },
-        else => return error.UnsupportedNodeType,
-    }
-}
+// Note: std.json.Value conversion removed - use astToNative() for specific Zig types instead
 
 /// Convert facts to native type (more efficient than AST)
 pub fn factsToNative(comptime T: type, allocator: std.mem.Allocator, facts: []const Fact) !T {

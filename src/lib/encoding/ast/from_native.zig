@@ -139,64 +139,7 @@ pub fn nativeToAST(value: anytype, factory: *ASTFactory) !Node {
     }
 }
 
-/// Convert std.json.Value to AST node
-pub fn valueToAstNode(value: std.json.Value, factory: *ASTFactory) !Node {
-    switch (value) {
-        .null => return try factory.createLiteral(.null_literal, "null", 0, 4),
-        .bool => |b| {
-            const text = if (b) "true" else "false";
-            return try factory.createLiteral(.bool_literal, text, 0, text.len);
-        },
-        .integer => |i| {
-            var buf: [64]u8 = undefined;
-            const text = try std.fmt.bufPrint(&buf, "{}", .{i});
-            const owned_text = try factory.allocator.dupe(u8, text);
-            try factory.addOwnedText(owned_text);
-            return try factory.createLiteral(.number_literal, owned_text, 0, owned_text.len);
-        },
-        .float => |f| {
-            var buf: [64]u8 = undefined;
-            const text = try std.fmt.bufPrint(&buf, "{d}", .{f});
-            const owned_text = try factory.allocator.dupe(u8, text);
-            try factory.addOwnedText(owned_text);
-            return try factory.createLiteral(.number_literal, owned_text, 0, owned_text.len);
-        },
-        .number_string => |s| {
-            const owned_text = try factory.allocator.dupe(u8, s);
-            try factory.addOwnedText(owned_text);
-            return try factory.createLiteral(.number_literal, owned_text, 0, owned_text.len);
-        },
-        .string => |s| {
-            return try createStringNode(factory, s);
-        },
-        .array => |arr| {
-            var children = try factory.allocator.alloc(Node, arr.items.len);
-            for (arr.items, 0..) |item, i| {
-                children[i] = try valueToAstNode(item, factory);
-            }
-            return try factory.createContainer(.array, children, 0, 100);
-        },
-        .object => |obj| {
-            var children = std.ArrayList(Node).init(factory.allocator);
-            defer children.deinit();
-            
-            var it = obj.iterator();
-            while (it.next()) |entry| {
-                const key_node = try factory.createLiteral(.identifier, entry.key_ptr.*, 0, entry.key_ptr.*.len);
-                const value_node = try valueToAstNode(entry.value_ptr.*, factory);
-                
-                const field_children = try factory.allocator.alloc(Node, 2);
-                field_children[0] = key_node;
-                field_children[1] = value_node;
-                
-                const field_node = try factory.createContainer(.property, field_children, 0, 100);
-                try children.append(field_node);
-            }
-            
-            return try factory.createContainer(.object, try children.toOwnedSlice(), 0, 100);
-        },
-    }
-}
+// Note: std.json.Value conversion removed - use nativeToAST() for Zig types instead
 
 /// Generate facts directly from native type (more efficient than AST)
 pub fn nativeToFacts(value: anytype, allocator: std.mem.Allocator) ![]Fact {
@@ -463,24 +406,4 @@ test "nativeToAST - array conversion" {
         const expected = try std.fmt.bufPrint(&buf, "{}", .{array[i]});
         try testing.expectEqualStrings(expected, child.text);
     }
-}
-
-test "valueToAstNode - JSON value conversion" {
-    const allocator = testing.allocator;
-    var factory = ASTFactory.init(allocator);
-    defer factory.deinit();
-    
-    // Create a JSON object
-    var obj = std.json.ObjectMap.init(allocator);
-    defer obj.deinit();
-    
-    try obj.put("name", .{ .string = "test" });
-    try obj.put("value", .{ .integer = 42 });
-    try obj.put("enabled", .{ .bool = true });
-    
-    const json_value = std.json.Value{ .object = obj };
-    const node = try valueToAstNode(json_value, &factory);
-    
-    try testing.expectEqual(NodeType.object, node.node_type);
-    try testing.expectEqual(@as(usize, 3), node.children.len);
 }

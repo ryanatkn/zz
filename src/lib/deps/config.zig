@@ -1,5 +1,5 @@
 const std = @import("std");
-const ZonParser = @import("../languages/zon/parser.zig").ZonParser;
+const ZonParser = @import("../languages/zon/mod.zig").ZonParser;
 const memory = @import("../core/memory.zig");
 const DependencyInfo = @import("../languages/zon/parser.zig").DependencyInfo;
 const struct_utils = @import("../core/struct_utils.zig");

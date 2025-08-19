@@ -98,7 +98,7 @@ pub const JsonSyntacticTransform = struct {
                 .description = "JSON parser with error recovery",
                 .reversible = true,
                 .streaming_capable = false,
-                .performance_class = .medium,
+                .performance_class = .moderate,
                 .estimated_memory = 1024 * 64, // 64KB estimate
             },
         };

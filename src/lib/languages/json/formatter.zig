@@ -63,13 +63,12 @@ pub const JsonFormatter = struct {
 
     /// Format JSON AST to string using visitor pattern
     pub fn format(self: *Self, ast: AST) ![]const u8 {
-        if (ast.root) |root| {
-            // Use visitor pattern for consistent traversal
-            var visitor = JsonFormatVisitor{ .formatter = self };
-            var traversal = ASTTraversal.init(self.allocator);
-            
-            try traversal.walkDepthFirstPre(root, &visitor, {}, formatVisitorCallback);
-        }
+        var root = ast.root;
+        // Use visitor pattern for consistent traversal
+        var visitor = JsonFormatVisitor{ .formatter = self };
+        var traversal = ASTTraversal.init(self.allocator);
+        
+        try traversal.walk(&root, formatVisitorCallback, &visitor, .depth_first_pre);
 
         // Add final newline if not compact
         if (!self.options.force_compact) {

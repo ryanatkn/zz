@@ -49,7 +49,8 @@ pub const ASTBuilder = struct {
 
     /// Create a boolean literal
     pub fn boolean(self: *Self, value: bool) !Node {
-        const node = try self.factory.createBoolean(value, self.current_pos, self.current_pos + if (value) 4 else 5);
+        const length: usize = if (value) 4 else 5;
+        const node = try self.factory.createBoolean(value, self.current_pos, self.current_pos + length);
         self.current_pos = node.end_position;
         return node;
     }
@@ -70,7 +71,7 @@ pub const ASTBuilder = struct {
 
     /// Build the final AST
     pub fn buildAST(self: *Self, root: Node) !AST {
-        const source = try std.fmt.allocPrint(self.factory.allocator, "/* Generated AST */");
+        const source = try std.fmt.allocPrint(self.factory.allocator, "/* Generated AST */", .{});
         return try self.factory.createAST(root, source);
     }
 
@@ -338,13 +339,12 @@ test "fluent object building" {
     var builder = ASTBuilder.init(testing.allocator);
     defer builder.deinit();
 
-    const root = try builder
-        .object()
-        .stringField("name", "test_package")
-        .numberField("version_major", 1)
-        .booleanField("is_public", true)
-        .nullField("description")
-        .build();
+    var obj = builder.object();
+    _ = try obj.stringField("name", "test_package");
+    _ = try obj.numberField("version_major", 1);
+    _ = try obj.booleanField("is_public", true);
+    _ = try obj.nullField("description");
+    const root = try obj.build();
 
     try testing.expectEqualStrings("object", root.rule_name);
     try testing.expectEqual(@as(usize, 4), root.children.len);
@@ -354,13 +354,12 @@ test "fluent array building" {
     var builder = ASTBuilder.init(testing.allocator);
     defer builder.deinit();
 
-    const root = try builder
-        .array()
-        .stringItem("first")
-        .numberItem(42)
-        .booleanItem(true)
-        .nullItem()
-        .build();
+    var arr = builder.array();
+    _ = try arr.stringItem("first");
+    _ = try arr.numberItem(42);
+    _ = try arr.booleanItem(true);
+    _ = try arr.nullItem();
+    const root = try arr.build();
 
     try testing.expectEqualStrings("array", root.rule_name);
     try testing.expectEqual(@as(usize, 4), root.children.len);
@@ -370,24 +369,23 @@ test "nested object and array" {
     var builder = ASTBuilder.init(testing.allocator);
     defer builder.deinit();
 
-    const root = try builder
-        .object()
-        .stringField("name", "complex_example")
-        .objectField("metadata", struct {
-            fn build_metadata(obj: *ObjectBuilder) !*ObjectBuilder {
-                return try obj
-                    .stringField("author", "test")
-                    .stringField("license", "MIT");
-            }
-        }.build_metadata)
-        .arrayField("dependencies", struct {
-            fn build_deps(arr: *ArrayBuilder) !*ArrayBuilder {
-                return try arr
-                    .stringItem("dep1")
-                    .stringItem("dep2");
-            }
-        }.build_deps)
-        .build();
+    var obj = builder.object();
+    _ = try obj.stringField("name", "complex_example");
+    _ = try obj.objectField("metadata", struct {
+        fn build_metadata(obj_inner: *ObjectBuilder) !*ObjectBuilder {
+            _ = try obj_inner.stringField("author", "test");
+            _ = try obj_inner.stringField("license", "MIT");
+            return obj_inner;
+        }
+    }.build_metadata);
+    _ = try obj.arrayField("dependencies", struct {
+        fn build_deps(arr_inner: *ArrayBuilder) !*ArrayBuilder {
+            _ = try arr_inner.stringItem("dep1");
+            _ = try arr_inner.stringItem("dep2");
+            return arr_inner;
+        }
+    }.build_deps);
+    const root = try obj.build();
 
     try testing.expectEqualStrings("object", root.rule_name);
     try testing.expectEqual(@as(usize, 3), root.children.len);

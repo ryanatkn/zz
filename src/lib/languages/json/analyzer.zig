@@ -137,11 +137,8 @@ pub const JsonAnalyzer = struct {
 
     /// Extract schema from JSON AST
     pub fn extractSchema(self: *Self, ast: AST) !JsonSchema {
-        if (ast.root) |root| {
-            return self.analyzeNode(root, 0);
-        }
-
-        return JsonSchema.init(self.allocator, .null);
+        const root = ast.root;
+        return self.analyzeNode(root, 0);
     }
 
     /// Generate statistics about JSON structure
@@ -155,9 +152,8 @@ pub const JsonAnalyzer = struct {
             .complexity_score = 0.0,
         };
 
-        if (ast.root) |root| {
-            self.calculateStatistics(root, 0, &stats);
-        }
+        const root = ast.root;
+        self.calculateStatistics(root, 0, &stats);
 
         // Calculate complexity score
         stats.complexity_score = self.calculateComplexity(&stats);
@@ -181,9 +177,8 @@ pub const JsonAnalyzer = struct {
         var symbols = std.ArrayList(Symbol).init(self.allocator);
         defer symbols.deinit();
 
-        if (ast.root) |root| {
-            try self.extractSymbolsFromNode(root, &symbols, "");
-        }
+        var root = ast.root;
+        try self.extractSymbolsFromNode(&root, &symbols, "");
 
         return symbols.toOwnedSlice();
     }

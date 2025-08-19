@@ -93,9 +93,8 @@ pub const JsonLinter = struct {
 
     /// Lint JSON AST and return diagnostics
     pub fn lint(self: *Self, ast: AST, enabled_rules: []const Rule) ![]Diagnostic {
-        if (ast.root) |root| {
-            try self.validateNode(root, 0, enabled_rules);
-        }
+        var root = ast.root;
+        try self.validateNode(&root, 0, enabled_rules);
 
         return self.diagnostics.toOwnedSlice();
     }

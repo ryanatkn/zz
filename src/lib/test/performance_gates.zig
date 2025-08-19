@@ -23,7 +23,7 @@ pub const PerformanceThresholds = struct {
     pub const streaming_memory_1mb_kb: u64 = 100;
 };
 
-/// Test TokenIterator performance with fallback tokenization
+// Test TokenIterator performance with fallback tokenization
 test "TokenIterator tokenizeSimple performance gate" {
     const input = generateTestInput(10 * 1024); // 10KB
     defer testing.allocator.free(input);

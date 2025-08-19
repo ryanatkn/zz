@@ -305,7 +305,7 @@ test "JSON module - complete pipeline" {
     // Test statistics
     const stats = try getJsonStatistics(allocator, input);
 
-    try testing.expectEqual(@as(u32, 1), stats.type_counts.strings);
+    try testing.expectEqual(@as(u32, 4), stats.type_counts.strings); // 3 keys + 1 value
     try testing.expectEqual(@as(u32, 1), stats.type_counts.numbers);
     try testing.expectEqual(@as(u32, 1), stats.type_counts.booleans);
     try testing.expectEqual(@as(u32, 1), stats.type_counts.objects);

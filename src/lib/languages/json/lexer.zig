@@ -143,9 +143,14 @@ pub const JsonLexer = struct {
             _ = self.advance();
         }
 
-        // Handle integer part
+        // Handle integer part per RFC 8259
+        // int = zero / ( digit1-9 *DIGIT )
         if (self.peek() == '0') {
             _ = self.advance();
+            // After consuming '0', check if there are more digits (leading zero violation)
+            if (char.isDigit(self.peek())) {
+                return error.InvalidNumber; // Leading zeros not allowed in JSON
+            }
         } else if (char.isDigit(self.peek())) {
             while (char.isDigit(self.peek())) {
                 _ = self.advance();

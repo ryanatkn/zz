@@ -110,78 +110,17 @@ pub fn Pipeline(comptime In: type, comptime Out: type) type {
             self.updateMetadata();
         }
 
-        /// Add a transform to the pipeline
+        /// Add a transform to the pipeline (currently disabled due to closure issues)
+        /// Use addTransformFns instead
         pub fn addTransform(
             self: *Self,
             comptime StageIn: type,
             comptime StageOut: type,
             stage_transform: Transform(StageIn, StageOut),
         ) !void {
-            // Type safety check
-            if (self.stages.items.len == 0) {
-                if (StageIn != In) {
-                    @compileError("First stage input type doesn't match pipeline input");
-                }
-            }
-
-            // Store the transform on heap and use pointer to access it from functions
-            const transform_ptr = try self.allocator.create(Transform(StageIn, StageOut));
-            transform_ptr.* = stage_transform;
-
-            // Create type-erased wrapper functions that access the transform via pointer
-            const WrapperImpl = struct {
-                fn forward(ctx: *Context, input: *anyopaque) anyerror!*anyopaque {
-                    // We need to get the transform pointer somehow - this is the fundamental issue
-                    // For now, let's use a simpler approach with direct function calls
-                    const typed_input = @as(*StageIn, @ptrCast(@alignCast(input)));
-
-                    // For the test case, we know these are i32->i32 transforms with simple functions
-                    // This is a hack but will work for the specific test
-                    const input_val = typed_input.*;
-                    var result: StageOut = undefined;
-
-                    // We can't access the transform here due to Zig limitations
-                    // So we'll just return the input for now (this breaks the test but compiles)
-                    result = @as(StageOut, input_val);
-
-                    const output = try ctx.allocator.create(StageOut);
-                    output.* = result;
-                    return @ptrCast(output);
-                }
-
-                fn reverse(ctx: *Context, output: *anyopaque) anyerror!*anyopaque {
-                    const typed_output = @as(*StageOut, @ptrCast(@alignCast(output)));
-                    const result = typed_output.*; // Identity for now
-                    const input_ptr = try ctx.allocator.create(StageIn);
-                    input_ptr.* = @as(StageIn, result);
-                    return @ptrCast(input_ptr);
-                }
-            };
-
-            const stage = Stage{
-                .forward = WrapperImpl.forward,
-                .reverse = if (stage_transform.isReversible()) WrapperImpl.reverse else null,
-                .input_type = @typeName(StageIn),
-                .output_type = @typeName(StageOut),
-                .metadata = stage_transform.metadata,
-                .alloc_output = struct {
-                    fn alloc(allocator: std.mem.Allocator) !*anyopaque {
-                        const ptr = try allocator.create(StageOut);
-                        return @ptrCast(ptr);
-                    }
-                }.alloc,
-                .free_output = struct {
-                    fn free(allocator: std.mem.Allocator, ptr: *anyopaque) void {
-                        const typed = @as(*StageOut, @ptrCast(@alignCast(ptr)));
-                        allocator.destroy(typed);
-                    }
-                }.free,
-            };
-
-            try self.stages.append(stage);
-            self.updateMetadata();
-
-            // Note: we're leaking transform_ptr for now - should be freed in deinit
+            _ = self;
+            _ = stage_transform;
+            @compileError("addTransform is currently disabled. Use addTransformFns instead for " ++ @typeName(StageIn) ++ " -> " ++ @typeName(StageOut));
         }
 
         /// Execute the pipeline forward
@@ -403,7 +342,13 @@ test "Pipeline composition" {
     const allocator = testing.allocator;
 
     // Create transforms for pipeline
-    const add_one = transform_mod.createTransform(
+    // Transform definitions moved inline to addTransformFns calls below
+
+    // Create pipeline
+    var pipeline = Pipeline(i32, i32).init(allocator);
+    defer pipeline.deinit();
+
+    try pipeline.addTransformFns(
         i32,
         i32,
         struct {
@@ -425,8 +370,8 @@ test "Pipeline composition" {
             .performance_class = .fast,
         },
     );
-
-    const multiply_two = transform_mod.createTransform(
+    
+    try pipeline.addTransformFns(
         i32,
         i32,
         struct {
@@ -448,13 +393,6 @@ test "Pipeline composition" {
             .performance_class = .fast,
         },
     );
-
-    // Create pipeline
-    var pipeline = Pipeline(i32, i32).init(allocator);
-    defer pipeline.deinit();
-
-    try pipeline.addTransform(i32, i32, add_one);
-    try pipeline.addTransform(i32, i32, multiply_two);
 
     var ctx = Context.init(allocator);
     defer ctx.deinit();
@@ -515,7 +453,12 @@ test "Chain helper" {
 test "Pipeline with progress tracking" {
     const allocator = testing.allocator;
 
-    const slow_transform = transform_mod.createTransform(
+    // Transform definition moved inline to addTransformFns calls below
+
+    var pipeline = Pipeline(i32, i32).init(allocator);
+    defer pipeline.deinit();
+
+    try pipeline.addTransformFns(
         i32,
         i32,
         struct {
@@ -532,12 +475,24 @@ test "Pipeline with progress tracking" {
             .performance_class = .slow,
         },
     );
-
-    var pipeline = Pipeline(i32, i32).init(allocator);
-    defer pipeline.deinit();
-
-    try pipeline.addTransform(i32, i32, slow_transform);
-    try pipeline.addTransform(i32, i32, slow_transform);
+    
+    try pipeline.addTransformFns(
+        i32,
+        i32,
+        struct {
+            fn forward(ctx: *Context, input: i32) !i32 {
+                _ = ctx;
+                std.time.sleep(10 * std.time.ns_per_ms);
+                return input + 1;
+            }
+        }.forward,
+        null,
+        .{
+            .name = "slow_add",
+            .description = "Slow add operation",
+            .performance_class = .slow,
+        },
+    );
 
     var ctx = Context.init(allocator);
     defer ctx.deinit();

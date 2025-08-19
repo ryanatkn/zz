@@ -155,6 +155,9 @@ pub const JsonAnalyzer = struct {
 
         const root = &ast.root;
         self.calculateStatistics(root, 0, &stats);
+        
+        // Calculate size bytes by summing up text lengths
+        self.calculateSizeBytes(root, &stats);
 
         // Calculate complexity score
         stats.complexity_score = self.calculateComplexity(&stats);
@@ -298,15 +301,61 @@ pub const JsonAnalyzer = struct {
         return schema;
     }
 
-    fn calculateStatistics(self: *Self, node: *const Node, _: u32, stats: *JsonStatistics) void {
-        // TODO: Implement proper statistics collection
-        stats.total_values = 1; // Placeholder
+    fn calculateStatistics(self: *Self, node: *const Node, depth: u32, stats: *JsonStatistics) void {
+        
+        // Update max depth
+        stats.max_depth = @max(stats.max_depth, depth);
 
-        // Calculate statistics manually for now
-        _ = self;
+        // Count node types based on rule_id
+        switch (node.rule_id) {
+            JsonRules.string_literal => {
+                stats.type_counts.strings += 1;
+                stats.total_values += 1;
+            },
+            JsonRules.number_literal => {
+                stats.type_counts.numbers += 1;
+                stats.total_values += 1;
+            },
+            JsonRules.boolean_literal => {
+                stats.type_counts.booleans += 1;
+                stats.total_values += 1;
+            },
+            JsonRules.null_literal => {
+                stats.type_counts.nulls += 1;
+                stats.total_values += 1;
+            },
+            JsonRules.object => {
+                stats.type_counts.objects += 1;
+                stats.total_values += 1;
+            },
+            JsonRules.array => {
+                stats.type_counts.arrays += 1;
+                stats.total_values += 1;
+            },
+            JsonRules.member => {
+                // Member nodes contain key-value pairs, count the key
+                stats.total_keys += 1;
+            },
+            else => {
+                // Other node types (error recovery, etc.)
+            },
+        }
 
-        // Calculate max depth
-        stats.max_depth = calculateDepth(node, 0);
+        // Recursively process all children
+        for (node.children) |child| {
+            self.calculateStatistics(&child, depth + 1, stats);
+        }
+    }
+
+    fn calculateSizeBytes(self: *Self, node: *const Node, stats: *JsonStatistics) void {
+        
+        // Add the text length of this node
+        stats.size_bytes += @intCast(node.text.len);
+        
+        // Recursively process children
+        for (node.children) |child| {
+            self.calculateSizeBytes(&child, stats);
+        }
     }
 
     fn calculateDepth(node: *const Node, current_depth: u32) u32 {

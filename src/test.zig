@@ -1,5 +1,13 @@
 // Main test runner for the entire zz project
 // Usage: zig test src/test.zig
+//
+// IMPORTANT: Zig requires manual test inclusion - there is no automatic test discovery.
+// When adding new test files, you must explicitly import them in the appropriate test runner:
+//   - Add module-level tests to src/lib/test.zig (for lib/ directory)
+//   - Add top-level tests here (for other directories like cli/, tree/, prompt/, etc.)
+//   - Use `_ = @import("path/to/test.zig");` syntax to include test blocks
+// 
+// To find missing tests: grep -r "^test " src/ and verify each file is imported somewhere
 
 const std = @import("std");
 

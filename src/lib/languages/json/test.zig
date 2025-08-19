@@ -16,10 +16,10 @@ const AST = @import("../../ast/mod.zig").AST;
 const FormatOptions = @import("../interface.zig").FormatOptions;
 const Rule = @import("../interface.zig").Rule;
 
-/// Comprehensive test suite for JSON language implementation
-/// 
-/// This file contains all integration tests and edge cases for the complete
-/// JSON language support, ensuring robustness and correctness.
+// Comprehensive test suite for JSON language implementation
+// 
+// This file contains all integration tests and edge cases for the complete
+// JSON language support, ensuring robustness and correctness.
 
 // =============================================================================
 // Lexer Tests

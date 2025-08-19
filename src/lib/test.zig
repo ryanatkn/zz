@@ -15,10 +15,21 @@ test {
     // _ = @import("test/parser_test.zig");
     // ZON language implementation tests
     _ = @import("languages/zon/test.zig");
+    // Core module tests - only include files that compile
+    _ = @import("core/datetime_test.zig");
+    // Working utility tests (verified to compile)
+    _ = @import("text/escape.zig");
+    _ = @import("text/quote.zig");
+    _ = @import("text/indent.zig");
+    _ = @import("parallel.zig");
+    _ = @import("args.zig");
+    // Language pattern tests (safe to import)
+    _ = @import("languages/typescript/patterns.zig");
+    _ = @import("languages/zig/patterns.zig");
+    _ = @import("languages/css/patterns.zig");
+    _ = @import("languages/html/patterns.zig");
     // Comprehensive fixture-based tests - DELETED during cleanup  
     // _ = @import("test/fixture_loader.zig");
     // Fixture runner tests (with defensive error handling and logging)
     _ = @import("test/fixture_runner.zig");
-    // Core module tests
-    _ = @import("core/datetime_test.zig");
 }

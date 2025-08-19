@@ -6,7 +6,7 @@ const ExtractionFlags = @import("../../lib/core/extraction.zig").ExtractionFlags
 const Config = @import("../config.zig").Config;
 
 test "extraction flags - signatures only" {
-    var ctx = try test_helpers.TmpDirTestContext.init(testing.allocator);
+    var ctx = test_helpers.MockTestContext.init(testing.allocator);
     defer ctx.deinit();
 
     // Create a test Zig file
@@ -26,7 +26,7 @@ test "extraction flags - signatures only" {
         \\}
     ;
 
-    try ctx.writeFile("test.zig", test_content);
+    try ctx.addFile("test.zig", test_content);
 
     const extraction_flags = ExtractionFlags{ .signatures = true };
     var builder = try PromptBuilder.initForTest(testing.allocator, ctx.filesystem, extraction_flags);
@@ -51,7 +51,7 @@ test "extraction flags - signatures only" {
 }
 
 test "extraction flags - types only" {
-    var ctx = try test_helpers.TmpDirTestContext.init(testing.allocator);
+    var ctx = test_helpers.MockTestContext.init(testing.allocator);
     defer ctx.deinit();
 
     const test_content =
@@ -69,7 +69,7 @@ test "extraction flags - types only" {
         \\pub var global_setting: bool = false;
     ;
 
-    try ctx.writeFile("test.zig", test_content);
+    try ctx.addFile("test.zig", test_content);
 
     const extraction_flags = ExtractionFlags{ .types = true };
     var builder = try PromptBuilder.initForTest(testing.allocator, ctx.filesystem, extraction_flags);
@@ -93,7 +93,7 @@ test "extraction flags - types only" {
 }
 
 test "extraction flags - combined extraction" {
-    var ctx = try test_helpers.TmpDirTestContext.init(testing.allocator);
+    var ctx = test_helpers.MockTestContext.init(testing.allocator);
     defer ctx.deinit();
 
     const test_content =
@@ -115,7 +115,7 @@ test "extraction flags - combined extraction" {
         \\}
     ;
 
-    try ctx.writeFile("test.zig", test_content);
+    try ctx.addFile("test.zig", test_content);
 
     // Combine multiple extraction flags
     const extraction_flags = ExtractionFlags{
@@ -148,7 +148,7 @@ test "extraction flags - combined extraction" {
 }
 
 test "extraction flags - error handling extraction" {
-    var ctx = try test_helpers.TmpDirTestContext.init(testing.allocator);
+    var ctx = test_helpers.MockTestContext.init(testing.allocator);
     defer ctx.deinit();
 
     const test_content =
@@ -178,7 +178,7 @@ test "extraction flags - error handling extraction" {
         \\}
     ;
 
-    try ctx.writeFile("test.zig", test_content);
+    try ctx.addFile("test.zig", test_content);
 
     const extraction_flags = ExtractionFlags{ .errors = true };
     var builder = try PromptBuilder.initForTest(testing.allocator, ctx.filesystem, extraction_flags);
@@ -199,11 +199,11 @@ test "extraction flags - error handling extraction" {
 }
 
 test "extraction flags - default is full source" {
-    var ctx = try test_helpers.TmpDirTestContext.init(testing.allocator);
+    var ctx = test_helpers.MockTestContext.init(testing.allocator);
     defer ctx.deinit();
 
     const test_content = "const x = 42;\n";
-    try ctx.writeFile("test.zig", test_content);
+    try ctx.addFile("test.zig", test_content);
 
     // No extraction flags set - should default to full
     const extraction_flags = ExtractionFlags{};
@@ -233,7 +233,7 @@ test "config parsing extraction flags" {
     var ctx = test_helpers.MockTestContext.init(testing.allocator);
     defer ctx.deinit();
 
-    var config = try Config.fromArgs(testing.allocator, ctx.filesystem, &args);
+    var config = try Config.fromArgs(testing.allocator, ctx.filesystem, @constCast(args[0..]));
     defer config.deinit();
 
     try testing.expect(config.extraction_flags.signatures == true);
@@ -244,11 +244,11 @@ test "config parsing extraction flags" {
 }
 
 test "extraction flags - non-Zig files fall back to full" {
-    var ctx = try test_helpers.TmpDirTestContext.init(testing.allocator);
+    var ctx = test_helpers.MockTestContext.init(testing.allocator);
     defer ctx.deinit();
 
     const test_content = "# Markdown File\n\nSome content here.";
-    try ctx.writeFile("test.md", test_content);
+    try ctx.addFile("test.md", test_content);
 
     // Request signatures for a markdown file - should fall back to full content
     const extraction_flags = ExtractionFlags{ .signatures = true };

@@ -6,13 +6,14 @@ const createNode = @import("node.zig").createNode;
 const createLeafNode = @import("node.zig").createLeafNode;
 const Visitor = @import("visitor.zig").Visitor;
 const Walker = @import("walker.zig").Walker;
+const CommonRules = @import("rules.zig").CommonRules;
 
 test "create leaf node" {
     var arena = std.heap.ArenaAllocator.init(testing.allocator);
     defer arena.deinit();
     const allocator = arena.allocator();
 
-    const leaf = try createLeafNode(allocator, "number", "42", 0, 2);
+    const leaf = try createLeafNode(allocator, @intFromEnum(CommonRules.number_literal), "42", 0, 2);
     defer leaf.deinit(allocator);
 
     // TODO: Replace with rule_id check when TestRules are available
@@ -30,14 +31,14 @@ test "create node with children" {
     defer arena.deinit();
     const allocator = arena.allocator();
 
-    const child1 = try createLeafNode(allocator, "number", "1", 0, 1);
-    const child2 = try createLeafNode(allocator, "plus", "+", 1, 2);
-    const child3 = try createLeafNode(allocator, "number", "2", 2, 3);
+    const child1 = try createLeafNode(allocator, @intFromEnum(CommonRules.number_literal), "1", 0, 1);
+    const child2 = try createLeafNode(allocator, 100, "+", 1, 2); // Use an arbitrary ID for plus
+    const child3 = try createLeafNode(allocator, @intFromEnum(CommonRules.number_literal), "2", 2, 3);
 
     const children = [_]Node{ child1, child2, child3 };
     const parent = try createNode(
         allocator,
-        "expression",
+        102, // Use arbitrary ID for expression
         .rule,
         "1+2",
         0,
@@ -69,14 +70,14 @@ test "find child by rule name" {
     defer arena.deinit();
     const allocator = arena.allocator();
 
-    const child1 = try createLeafNode(allocator, "number", "42", 0, 2);
-    const child2 = try createLeafNode(allocator, "operator", "+", 2, 3);
-    const child3 = try createLeafNode(allocator, "number", "7", 3, 4);
+    const child1 = try createLeafNode(allocator, @intFromEnum(CommonRules.number_literal), "42", 0, 2);
+    const child2 = try createLeafNode(allocator, 101, "+", 2, 3); // Use arbitrary ID for operator
+    const child3 = try createLeafNode(allocator, @intFromEnum(CommonRules.number_literal), "7", 3, 4);
 
     const children = [_]Node{ child1, child2, child3 };
     const parent = try createNode(
         allocator,
-        "expression",
+        103, // Use arbitrary ID for expression
         .rule,
         "42+7",
         0,
@@ -85,11 +86,11 @@ test "find child by rule name" {
     );
     defer parent.deinit(allocator);
 
-    const found_operator = parent.findChild("operator");
+    const found_operator = parent.findChild(101); // Use the same ID we used for operator
     try testing.expect(found_operator != null);
     try testing.expectEqualStrings("+", found_operator.?.text);
 
-    const not_found = parent.findChild("unknown");
+    const not_found = parent.findChild(999); // Use non-existent ID
     try testing.expect(not_found == null);
 }
 
@@ -98,12 +99,12 @@ test "visitor pattern" {
     defer arena.deinit();
     const allocator = arena.allocator();
 
-    const leaf1 = try createLeafNode(allocator, "number", "1", 0, 1);
-    const leaf2 = try createLeafNode(allocator, "number", "2", 2, 3);
+    const leaf1 = try createLeafNode(allocator, @intFromEnum(CommonRules.number_literal), "1", 0, 1);
+    const leaf2 = try createLeafNode(allocator, @intFromEnum(CommonRules.number_literal), "2", 2, 3);
     const children = [_]Node{ leaf1, leaf2 };
     const root = try createNode(
         allocator,
-        "expression",
+        104, // Use arbitrary ID for expression
         .rule,
         "1+2",
         0,
@@ -137,12 +138,12 @@ test "walker utilities" {
     defer arena.deinit();
     const allocator = arena.allocator();
 
-    const leaf1 = try createLeafNode(allocator, "number", "1", 0, 1);
-    const leaf2 = try createLeafNode(allocator, "number", "2", 2, 3);
+    const leaf1 = try createLeafNode(allocator, @intFromEnum(CommonRules.number_literal), "1", 0, 1);
+    const leaf2 = try createLeafNode(allocator, @intFromEnum(CommonRules.number_literal), "2", 2, 3);
     const children = [_]Node{ leaf1, leaf2 };
     const root = try createNode(
         allocator,
-        "expression",
+        104, // Use arbitrary ID for expression
         .rule,
         "1+2",
         0,
@@ -173,13 +174,13 @@ test "parent references" {
     defer arena.deinit();
     const allocator = arena.allocator();
 
-    const leaf1 = try createLeafNode(allocator, "number", "1", 0, 1);
-    const leaf2 = try createLeafNode(allocator, "number", "2", 2, 3);
+    const leaf1 = try createLeafNode(allocator, @intFromEnum(CommonRules.number_literal), "1", 0, 1);
+    const leaf2 = try createLeafNode(allocator, @intFromEnum(CommonRules.number_literal), "2", 2, 3);
 
     const children = [_]Node{ leaf1, leaf2 };
     var root = try createNode(
         allocator,
-        "expression",
+        105, // Use arbitrary ID for expression
         .rule,
         "1+2",
         0,

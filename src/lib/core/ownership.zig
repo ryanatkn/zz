@@ -56,6 +56,7 @@ pub fn SimpleBuilder(comptime T: type) type {
 
         /// Transfer ownership of built object to caller
         pub fn build(self: *Self) !T {
+            _ = self; // Mark parameter as unused - this is a placeholder implementation
             // Build the object using self.allocator
             // Ownership transfers to caller
             return undefined; // Placeholder

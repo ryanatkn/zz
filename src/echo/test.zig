@@ -1,3 +1,10 @@
+test {
+    _ = @import("main.zig");
+    _ = @import("escape.zig");
+    _ = @import("json.zig");
+    _ = @import("color.zig");
+}
+
 const std = @import("std");
 const escape = @import("escape.zig");
 const json = @import("json.zig");

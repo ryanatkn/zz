@@ -63,15 +63,26 @@ pub const ArithmeticGrammar = struct {
 
     pub fn deinit(self: *ArithmeticGrammar) void {
         // Clean up allocated rules
-        if (self.operator_rule == .choice) {
-            var op = self.operator_rule.choice;
-            op.deinit();
+        switch (self.operator_rule) {
+            .choice => |*c| c.deinit(),
+            else => {},
         }
-        if (self.expression_rule == .sequence) {
-            var expr = self.expression_rule.sequence;
-            expr.deinit();
+        switch (self.expression_rule) {
+            .sequence => |*s| s.deinit(),
+            else => {},
         }
-        // Note: digit_ptr cleanup would need tracking
+        // Clean up the digit rule allocation
+        switch (self.number_rule) {
+            .repeat1 => |r| {
+                // The repeat1 rule contains a pointer to a digit rule that needs cleanup
+                switch (r.rule.*) {
+                    .choice => |*c| @constCast(c).deinit(),
+                    else => {},
+                }
+                self.allocator.destroy(r.rule);
+            },
+            else => {},
+        }
     }
 
     pub fn parseExpression(self: ArithmeticGrammar, input: []const u8) !bool {

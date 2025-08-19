@@ -39,7 +39,7 @@ pub fn matchSimplePattern(filename: []const u8, pattern: []const u8) bool {
 fn matchWithEscapes(filename: []const u8, pattern: []const u8) bool {
     var f_idx: usize = 0;
     var p_idx: usize = 0;
-    
+
     while (f_idx < filename.len and p_idx < pattern.len) {
         if (pattern[p_idx] == '\\' and p_idx + 1 < pattern.len) {
             // Handle escape sequence
@@ -54,7 +54,7 @@ fn matchWithEscapes(filename: []const u8, pattern: []const u8) bool {
                 class_end += 1;
             }
             if (class_end >= pattern.len) return false; // Malformed pattern
-            
+
             const char_class = pattern[p_idx + 1 .. class_end];
             if (!primitives.matchCharacterClass(filename[f_idx], char_class)) {
                 return false;
@@ -74,7 +74,7 @@ fn matchWithEscapes(filename: []const u8, pattern: []const u8) bool {
             p_idx += 1;
         }
     }
-    
+
     // Check if both strings are fully consumed
     return f_idx == filename.len and p_idx == pattern.len;
 }
@@ -94,7 +94,7 @@ fn matchQuestion(filename: []const u8, pattern: []const u8) bool {
 fn matchWithCharacterClasses(filename: []const u8, pattern: []const u8) bool {
     var f_idx: usize = 0;
     var p_idx: usize = 0;
-    
+
     while (f_idx < filename.len and p_idx < pattern.len) {
         if (pattern[p_idx] == '[') {
             // Find the end of the character class
@@ -103,7 +103,7 @@ fn matchWithCharacterClasses(filename: []const u8, pattern: []const u8) bool {
                 class_end += 1;
             }
             if (class_end >= pattern.len) return false; // Malformed pattern
-            
+
             // Check if this character matches the class
             const char_class = pattern[p_idx + 1 .. class_end];
             if (!primitives.matchCharacterClass(filename[f_idx], char_class)) {
@@ -123,11 +123,10 @@ fn matchWithCharacterClasses(filename: []const u8, pattern: []const u8) bool {
             p_idx += 1;
         }
     }
-    
+
     // Check if both strings are fully consumed
     return f_idx == filename.len and p_idx == pattern.len;
 }
-
 
 /// Match multiple patterns (any match succeeds)
 pub fn matchAnyPattern(filename: []const u8, patterns: []const []const u8) bool {

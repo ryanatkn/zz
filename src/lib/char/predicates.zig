@@ -3,7 +3,6 @@ const std = @import("std");
 /// Character classification predicates
 /// Single source of truth for all character testing across zz
 /// All functions are inline for maximum performance
-
 /// Check if character is whitespace (space, tab, carriage return)
 /// Does NOT include newline - use isWhitespaceOrNewline for that
 pub inline fn isWhitespace(ch: u8) bool {
@@ -146,12 +145,12 @@ test "predicates - digits" {
     try std.testing.expect(isDigit('0'));
     try std.testing.expect(isDigit('9'));
     try std.testing.expect(!isDigit('a'));
-    
+
     try std.testing.expect(isHexDigit('0'));
     try std.testing.expect(isHexDigit('a'));
     try std.testing.expect(isHexDigit('F'));
     try std.testing.expect(!isHexDigit('g'));
-    
+
     try std.testing.expect(isBinaryDigit('0'));
     try std.testing.expect(isBinaryDigit('1'));
     try std.testing.expect(!isBinaryDigit('2'));
@@ -163,7 +162,7 @@ test "predicates - identifiers" {
     try std.testing.expect(isIdentifierStart('_'));
     try std.testing.expect(isIdentifierStart('$'));
     try std.testing.expect(!isIdentifierStart('0'));
-    
+
     try std.testing.expect(isIdentifierChar('a'));
     try std.testing.expect(isIdentifierChar('0'));
     try std.testing.expect(isIdentifierChar('_'));
@@ -174,7 +173,7 @@ test "predicates - operators and delimiters" {
     try std.testing.expect(isOperatorChar('+'));
     try std.testing.expect(isOperatorChar('='));
     try std.testing.expect(!isOperatorChar('('));
-    
+
     try std.testing.expect(isDelimiterChar('('));
     try std.testing.expect(isDelimiterChar(';'));
     try std.testing.expect(!isDelimiterChar('+'));

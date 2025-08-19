@@ -25,28 +25,28 @@ pub const Escaper = struct {
     pub const EscapeRules = struct {
         /// Characters that must be escaped
         must_escape: []const u8,
-        
+
         /// Escape sequences map (char -> escape sequence)
         sequences: std.AutoHashMap(u8, []const u8),
-        
+
         /// Unicode escape format
         unicode_format: UnicodeFormat,
-        
+
         /// Options
         escape_non_ascii: bool = false,
         escape_control: bool = true,
         preserve_newlines: bool = false,
         use_hex_for_control: bool = false,
-        
+
         pub const UnicodeFormat = enum {
-            none,           // No unicode escaping
-            hex_2,          // \xXX (ZON, Python)
-            hex_4,          // \uXXXX (JSON, JavaScript)
-            hex_6,          // \UXXXXXX (extended Unicode)
-            hex_8,          // \UXXXXXXXX (full Unicode)
-            html_dec,       // &#123; (HTML decimal)
-            html_hex,       // &#x7B; (HTML hex)
-            percent,        // %XX (URL encoding)
+            none, // No unicode escaping
+            hex_2, // \xXX (ZON, Python)
+            hex_4, // \uXXXX (JSON, JavaScript)
+            hex_6, // \UXXXXXX (extended Unicode)
+            hex_8, // \UXXXXXXXX (full Unicode)
+            html_dec, // &#123; (HTML decimal)
+            html_hex, // &#x7B; (HTML hex)
+            percent, // %XX (URL encoding)
         };
 
         pub fn deinit(self: *@This()) void {
@@ -141,7 +141,7 @@ pub const Escaper = struct {
         while (i < text.len) {
             if (text[i] == '\\' and i + 1 < text.len) {
                 // Try to parse escape sequence
-                const unescaped = try self.parseEscapeSequence(text[i + 1..], rules);
+                const unescaped = try self.parseEscapeSequence(text[i + 1 ..], rules);
                 try result.append(unescaped.char);
                 i += unescaped.consumed + 1; // +1 for backslash
             } else {
@@ -320,7 +320,7 @@ pub const Escaper = struct {
     fn parseEscapeSequence(self: Self, text: []const u8, rules: *const EscapeRules) !struct { char: u8, consumed: usize } {
         _ = rules;
         _ = self;
-        
+
         if (text.len == 0) return .{ .char = '\\', .consumed = 0 };
 
         // Simple escape sequences

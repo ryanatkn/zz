@@ -86,15 +86,15 @@ pub fn tokenizeChunk(allocator: std.mem.Allocator, input: []const u8, start_pos:
         .allow_trailing_commas = false,
     });
     defer lexer.deinit();
-    
+
     const tokens = try lexer.tokenize();
-    
+
     // Adjust token positions for the start_pos offset
     for (tokens) |*token| {
         token.span.start += start_pos;
         token.span.end += start_pos;
     }
-    
+
     return tokens;
 }
 

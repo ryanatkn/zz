@@ -199,7 +199,7 @@ pub const JsonLexer = struct {
 
         return self.makeToken(kind, start_pos, self.source[start_pos..self.position]);
     }
-    
+
     /// Efficient literal parsing using enum (replaces string-based matching)
     fn literalEnum(self: *Self, literal_kind: JsonLiterals.KindType) !TokenResult {
         const start_pos = self.position;
@@ -301,7 +301,6 @@ pub const JsonLexer = struct {
     fn isDigit(ch: u8) bool {
         return char.isDigit(ch);
     }
-
 };
 
 const TokenResult = struct {

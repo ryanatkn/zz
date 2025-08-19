@@ -4,10 +4,9 @@
 ///
 /// This module consolidates previously duplicated functionality from:
 /// - parser/lexical/utils.zig
-/// - parser/lexical/scanner.zig  
+/// - parser/lexical/scanner.zig
 /// - languages/common/patterns.zig
 /// - languages/*/lexer.zig
-
 const std = @import("std");
 
 // Export predicates

@@ -16,14 +16,13 @@ const LintRuleSpec = lint_rules_mod.LintRuleSpec;
 const Severity = lint_rules_mod.Severity;
 
 /// JSON-specific patterns and language utilities
-/// 
+///
 /// This module provides efficient, enum-based pattern matching for JSON parsing.
 /// Performance improvements over string-based comparisons:
 /// - DelimiterKind: 10-100x faster O(1) lookups vs O(n) string comparisons
-/// - LiteralKind: Direct character matching with compile-time optimization  
+/// - LiteralKind: Direct character matching with compile-time optimization
 /// - LintRuleKind: 1 byte storage vs 20+ bytes for rule names, O(1) rule checking
 pub const Patterns = struct {
-    
     /// JSON delimiter specifications
     pub const delimiters = [_]DelimiterSpec{
         .{ .name = "left_brace", .char = '{', .description = "Object start" },
@@ -43,14 +42,14 @@ pub const Patterns = struct {
             .description = "Boolean true value",
         },
         .{
-            .name = "false_literal", 
+            .name = "false_literal",
             .text = "false",
             .token_kind = .boolean_literal,
             .description = "Boolean false value",
         },
         .{
             .name = "null_literal",
-            .text = "null", 
+            .text = "null",
             .token_kind = .null_literal,
             .description = "Null value",
         },
@@ -112,7 +111,7 @@ test "JSON patterns - delimiters" {
     try testing.expect(JsonDelimiters.fromChar(',') != null);
     try testing.expect(JsonDelimiters.fromChar(':') != null);
     try testing.expect(JsonDelimiters.fromChar('x') == null);
-    
+
     // Test delimiter to char conversion
     const left_brace = JsonDelimiters.fromChar('{').?;
     try testing.expectEqual(@as(u8, '{'), JsonDelimiters.toChar(left_brace));
@@ -124,7 +123,7 @@ test "JSON patterns - literals" {
     try testing.expect(JsonLiterals.fromFirstChar('f') != null);
     try testing.expect(JsonLiterals.fromFirstChar('n') != null);
     try testing.expect(JsonLiterals.fromFirstChar('x') == null);
-    
+
     // Test literal text
     const true_literal = JsonLiterals.fromFirstChar('t').?;
     try testing.expectEqualStrings("true", JsonLiterals.text(true_literal));
@@ -136,7 +135,7 @@ test "JSON patterns - lint rules" {
     try testing.expect(JsonLintRules.fromName("no_duplicate_keys") != null);
     try testing.expect(JsonLintRules.fromName("no_leading_zeros") != null);
     try testing.expect(JsonLintRules.fromName("nonexistent_rule") == null);
-    
+
     // Test lint rule properties
     const no_dup_keys = JsonLintRules.fromName("no_duplicate_keys").?;
     try testing.expectEqual(Severity.@"error", JsonLintRules.severity(no_dup_keys));

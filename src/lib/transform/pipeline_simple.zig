@@ -9,25 +9,25 @@ const Context = transform_mod.Context;
 pub fn SimplePipeline(comptime T: type) type {
     return struct {
         const Self = @This();
-        
+
         transforms: std.ArrayList(Transform(T, T)),
         allocator: std.mem.Allocator,
-        
+
         pub fn init(allocator: std.mem.Allocator) Self {
             return .{
                 .transforms = std.ArrayList(Transform(T, T)).init(allocator),
                 .allocator = allocator,
             };
         }
-        
+
         pub fn deinit(self: *Self) void {
             self.transforms.deinit();
         }
-        
+
         pub fn addTransform(self: *Self, t: Transform(T, T)) !void {
             try self.transforms.append(t);
         }
-        
+
         pub fn forward(self: Self, ctx: *Context, input: T) !T {
             var result = input;
             for (self.transforms.items) |t| {
@@ -35,7 +35,7 @@ pub fn SimplePipeline(comptime T: type) type {
             }
             return result;
         }
-        
+
         pub fn reverse(self: Self, ctx: *Context, output: T) !T {
             var result = output;
             var i = self.transforms.items.len;
@@ -56,7 +56,7 @@ const testing = std.testing;
 
 test "Simple pipeline" {
     const allocator = testing.allocator;
-    
+
     const add_one = transform_mod.createTransform(
         i32,
         i32,
@@ -78,7 +78,7 @@ test "Simple pipeline" {
             .reversible = true,
         },
     );
-    
+
     const multiply_two = transform_mod.createTransform(
         i32,
         i32,
@@ -100,20 +100,20 @@ test "Simple pipeline" {
             .reversible = true,
         },
     );
-    
+
     var pipeline = SimplePipeline(i32).init(allocator);
     defer pipeline.deinit();
-    
+
     try pipeline.addTransform(add_one);
     try pipeline.addTransform(multiply_two);
-    
+
     var ctx = Context.init(allocator);
     defer ctx.deinit();
-    
+
     // Test forward: (5 + 1) * 2 = 12
     const result = try pipeline.forward(&ctx, 5);
     try testing.expectEqual(@as(i32, 12), result);
-    
+
     // Test reverse: 12 / 2 - 1 = 5
     const original = try pipeline.reverse(&ctx, 12);
     try testing.expectEqual(@as(i32, 5), original);

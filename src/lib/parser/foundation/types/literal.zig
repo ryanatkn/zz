@@ -18,7 +18,7 @@ const TokenKind = @import("predicate.zig").TokenKind;
 pub fn LiteralKind(comptime literals: []const LiteralSpec) type {
     // Create enum with optimal integer size
     const TagType = std.math.IntFittingRange(0, literals.len - 1);
-    
+
     // Generate enum fields at comptime
     comptime var fields: [literals.len]std.builtin.Type.EnumField = undefined;
     comptime for (literals, 0..) |literal, i| {
@@ -27,7 +27,7 @@ pub fn LiteralKind(comptime literals: []const LiteralSpec) type {
             .value = i,
         };
     };
-    
+
     const Kind = @Type(std.builtin.Type{
         .@"enum" = .{
             .tag_type = TagType,
@@ -36,36 +36,36 @@ pub fn LiteralKind(comptime literals: []const LiteralSpec) type {
             .is_exhaustive = true,
         },
     });
-    
+
     return struct {
         const Self = @This();
         pub const KindType = Kind;
         pub const LiteralSpecType = LiteralSpec;
-        
+
         /// Get literal text
         pub fn text(kind: Kind) []const u8 {
             const index = @intFromEnum(kind);
             return literals[index].text;
         }
-        
+
         /// Get literal name
         pub fn name(kind: Kind) [:0]const u8 {
             const index = @intFromEnum(kind);
             return literals[index].name;
         }
-        
+
         /// Get token kind for this literal
         pub fn tokenKind(kind: Kind) TokenKind {
             const index = @intFromEnum(kind);
             return literals[index].token_kind;
         }
-        
+
         /// Get literal description
         pub fn description(kind: Kind) []const u8 {
             const index = @intFromEnum(kind);
             return literals[index].description;
         }
-        
+
         /// Find literal by first character (O(1) lookup)
         pub fn fromFirstChar(first_char: u8) ?Kind {
             inline for (literals, 0..) |literal, i| {
@@ -75,13 +75,13 @@ pub fn LiteralKind(comptime literals: []const LiteralSpec) type {
             }
             return null;
         }
-        
+
         /// Check if text matches literal exactly
         pub fn matches(kind: Kind, text_to_check: []const u8) bool {
             const index = @intFromEnum(kind);
             return std.mem.eql(u8, literals[index].text, text_to_check);
         }
-        
+
         /// Get all literals as array (for iteration)
         pub fn allLiterals() []const LiteralSpec {
             return literals;
@@ -108,23 +108,23 @@ test "LiteralKind - basic functionality" {
             .token_kind = .boolean_literal,
         },
     };
-    
+
     const TestLiterals = LiteralKind(&test_literals);
-    
+
     // Test first character lookup
     const yes_kind = TestLiterals.fromFirstChar('y').?;
     const no_kind = TestLiterals.fromFirstChar('n').?;
     try testing.expectEqual(@as(?TestLiterals.KindType, null), TestLiterals.fromFirstChar('x'));
-    
+
     // Test text retrieval
     try testing.expectEqualStrings("yes", TestLiterals.text(yes_kind));
     try testing.expectEqualStrings("no", TestLiterals.text(no_kind));
-    
+
     // Test matching
     try testing.expect(TestLiterals.matches(yes_kind, "yes"));
     try testing.expect(!TestLiterals.matches(yes_kind, "no"));
     try testing.expect(!TestLiterals.matches(yes_kind, "maybe"));
-    
+
     // Test token kind
     try testing.expectEqual(TokenKind.boolean_literal, TestLiterals.tokenKind(yes_kind));
     try testing.expectEqual(TokenKind.boolean_literal, TestLiterals.tokenKind(no_kind));

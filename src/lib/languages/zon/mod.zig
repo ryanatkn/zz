@@ -69,15 +69,15 @@ pub fn tokenize(allocator: std.mem.Allocator, input: []const u8) ![]Token {
 pub fn tokenizeChunk(allocator: std.mem.Allocator, input: []const u8, start_pos: usize) ![]Token {
     var lexer = @import("lexer.zig").ZonLexer.init(allocator, input, .{});
     defer lexer.deinit();
-    
+
     const tokens = try lexer.tokenize();
-    
+
     // Adjust token positions for the start_pos offset
     for (tokens) |*token| {
         token.span.start += start_pos;
         token.span.end += start_pos;
     }
-    
+
     return tokens;
 }
 

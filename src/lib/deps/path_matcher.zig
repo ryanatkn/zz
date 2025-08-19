@@ -37,7 +37,7 @@ pub const PathMatcher = struct {
             // Handle recursive directory patterns (**/dir/)
             if (std.mem.startsWith(u8, pattern, "**/")) {
                 const recursive_pattern = pattern[3..]; // Skip "**/"
-                // Remove trailing slash from recursive pattern too 
+                // Remove trailing slash from recursive pattern too
                 const clean_pattern = recursive_pattern[0 .. recursive_pattern.len - 1];
                 return primitives.containsSubpath(path, clean_pattern);
             }
@@ -50,7 +50,7 @@ pub const PathMatcher = struct {
             // Delegate wildcard patterns to glob matcher
             return glob.matchSimplePattern(path, pattern);
         }
-        
+
         // Delegate path patterns to path matcher
         return path_patterns.matchPath(path, pattern);
     }

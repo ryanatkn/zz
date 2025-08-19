@@ -38,7 +38,7 @@ pub const TraversalContext = struct {
     }
 
     pub fn pushPath(self: *TraversalContext, segment: []const u8) !void {
-        try self.path.append(segment);  // Don't duplicate, just store reference
+        try self.path.append(segment); // Don't duplicate, just store reference
     }
 
     pub fn popPath(self: *TraversalContext) void {
@@ -270,7 +270,6 @@ pub fn hasRuleId(rule_id: u16) PredicateFn {
         }
     }.predicate;
 }
-
 
 pub fn hasMinChildren(min_count: usize) PredicateFn {
     return struct {

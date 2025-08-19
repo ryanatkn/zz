@@ -23,7 +23,7 @@ pub const Severity = enum(u8) {
 pub fn LintRuleKind(comptime rules: []const LintRuleSpec) type {
     // Create enum with optimal integer size
     const TagType = std.math.IntFittingRange(0, rules.len - 1);
-    
+
     // Generate enum fields at comptime
     comptime var fields: [rules.len]std.builtin.Type.EnumField = undefined;
     comptime for (rules, 0..) |rule, i| {
@@ -32,7 +32,7 @@ pub fn LintRuleKind(comptime rules: []const LintRuleSpec) type {
             .value = i,
         };
     };
-    
+
     const Kind = @Type(std.builtin.Type{
         .@"enum" = .{
             .tag_type = TagType,
@@ -41,12 +41,12 @@ pub fn LintRuleKind(comptime rules: []const LintRuleSpec) type {
             .is_exhaustive = true,
         },
     });
-    
+
     return struct {
         const Self = @This();
         pub const KindType = Kind;
         pub const RuleSpec = LintRuleSpec;
-        
+
         /// Convert string rule name to enum (for migration/compatibility)
         pub fn fromName(rule_name: []const u8) ?Kind {
             inline for (rules, 0..) |rule, i| {
@@ -56,36 +56,36 @@ pub fn LintRuleKind(comptime rules: []const LintRuleSpec) type {
             }
             return null;
         }
-        
+
         /// Get rule name as string
         pub fn name(kind: Kind) [:0]const u8 {
             const index = @intFromEnum(kind);
             return rules[index].name;
         }
-        
+
         /// Get rule description
         pub fn description(kind: Kind) []const u8 {
             const index = @intFromEnum(kind);
             return rules[index].description;
         }
-        
+
         /// Get rule severity
         pub fn severity(kind: Kind) Severity {
             const index = @intFromEnum(kind);
             return rules[index].severity;
         }
-        
+
         /// Check if rule is enabled by default
         pub fn enabledByDefault(kind: Kind) bool {
             const index = @intFromEnum(kind);
             return rules[index].enabled_by_default;
         }
-        
+
         /// Get all rules as array (for iteration)
         pub fn allRules() []const LintRuleSpec {
             return rules;
         }
-        
+
         /// Create a rule set with default enabled rules
         pub fn defaultEnabledRules(allocator: std.mem.Allocator) !std.ArrayList(Kind) {
             var enabled = std.ArrayList(Kind).init(allocator);
@@ -118,14 +118,14 @@ test "LintRuleKind - basic functionality" {
             .severity = .@"error",
         },
     };
-    
+
     const TestLintRules = LintRuleKind(&test_rules);
-    
+
     // Test name to enum conversion
     const test_rule = TestLintRules.fromName("test_rule").?;
     const another_rule = TestLintRules.fromName("another_rule").?;
     try testing.expectEqual(@as(?TestLintRules.KindType, null), TestLintRules.fromName("nonexistent"));
-    
+
     // Test enum to properties conversion
     try testing.expectEqualStrings("test_rule", TestLintRules.name(test_rule));
     try testing.expectEqualStrings("A test rule", TestLintRules.description(test_rule));

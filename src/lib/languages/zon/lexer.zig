@@ -450,7 +450,7 @@ pub const ZonLexer = struct {
         else if (std.mem.eql(u8, text, "null"))
             TokenKind.null_literal
         else if (std.mem.eql(u8, text, "undefined"))
-            TokenKind.keyword  // undefined is a Zig keyword, not a literal
+            TokenKind.keyword // undefined is a Zig keyword, not a literal
         else
             TokenKind.identifier;
 
@@ -509,7 +509,6 @@ pub const ZonLexer = struct {
     fn isOctalDigit(ch: u8) bool {
         return char.isOctalDigit(ch);
     }
-
 };
 
 /// Convenience function for tokenizing ZON source

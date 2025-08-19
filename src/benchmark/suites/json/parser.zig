@@ -16,114 +16,114 @@ pub fn runJsonParserBenchmarks(allocator: std.mem.Allocator, options: BenchmarkO
         }
         results.deinit();
     }
-    
+
     const effective_duration = @as(u64, @intFromFloat(@as(f64, @floatFromInt(options.duration_ns)) * 1.5 * options.duration_multiplier));
-    
+
     // Generate test data (similar to lexer benchmarks but focus on parsing)
-    const small_json = try generateJsonData(allocator, 50);   // ~1KB
+    const small_json = try generateJsonData(allocator, 50); // ~1KB
     defer allocator.free(small_json);
-    
-    const medium_json = try generateJsonData(allocator, 500); // ~10KB  
+
+    const medium_json = try generateJsonData(allocator, 500); // ~10KB
     defer allocator.free(medium_json);
-    
+
     const large_json = try generateJsonData(allocator, 2000); // ~40KB (reasonable for parsing)
     defer allocator.free(large_json);
-    
+
     // Parser benchmark for small JSON (1KB)
     {
         const context = struct {
             allocator: std.mem.Allocator,
             content: []const u8,
-            
+
             pub fn run(ctx: @This()) anyerror!void {
-                // Pre-tokenize 
+                // Pre-tokenize
                 var lexer = JsonLexer.init(ctx.allocator, ctx.content, .{});
                 defer lexer.deinit();
                 const tokens = try lexer.tokenize();
                 defer ctx.allocator.free(tokens);
-                
+
                 // Parse tokens
                 var parser = JsonParser.init(ctx.allocator, tokens, .{});
                 defer parser.deinit();
-                
+
                 var ast = try parser.parse();
                 defer ast.deinit();
-                
+
                 std.mem.doNotOptimizeAway(ast.root.children.len);
             }
         }{ .allocator = allocator, .content = small_json };
-        
+
         var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
         allocator.free(result.name);
         result.name = try allocator.dupe(u8, "JSON Parser Small (1KB)");
         try results.append(result);
     }
-    
+
     // Parser benchmark for medium JSON (10KB) - Performance target
     {
         const context = struct {
             allocator: std.mem.Allocator,
             content: []const u8,
-            
+
             pub fn run(ctx: @This()) anyerror!void {
-                // Pre-tokenize 
+                // Pre-tokenize
                 var lexer = JsonLexer.init(ctx.allocator, ctx.content, .{});
                 defer lexer.deinit();
                 const tokens = try lexer.tokenize();
                 defer ctx.allocator.free(tokens);
-                
+
                 // Parse tokens
                 var parser = JsonParser.init(ctx.allocator, tokens, .{});
                 defer parser.deinit();
-                
+
                 var ast = try parser.parse();
                 defer ast.deinit();
-                
+
                 std.mem.doNotOptimizeAway(ast.root.children.len);
             }
         }{ .allocator = allocator, .content = medium_json };
-        
+
         var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
         allocator.free(result.name);
         result.name = try allocator.dupe(u8, "JSON Parser Medium (10KB)");
         try results.append(result);
-        
+
         // Performance target check: <1ms (1,000,000ns) for 10KB
         if (result.ns_per_op > 1_000_000) {
             std.log.warn("JSON Parser performance target missed: {}ns > 1,000,000ns for 10KB", .{result.ns_per_op});
         }
     }
-    
+
     // Parser benchmark for large JSON (40KB)
     {
         const context = struct {
             allocator: std.mem.Allocator,
             content: []const u8,
-            
+
             pub fn run(ctx: @This()) anyerror!void {
-                // Pre-tokenize 
+                // Pre-tokenize
                 var lexer = JsonLexer.init(ctx.allocator, ctx.content, .{});
                 defer lexer.deinit();
                 const tokens = try lexer.tokenize();
                 defer ctx.allocator.free(tokens);
-                
+
                 // Parse tokens
                 var parser = JsonParser.init(ctx.allocator, tokens, .{});
                 defer parser.deinit();
-                
+
                 var ast = try parser.parse();
                 defer ast.deinit();
-                
+
                 std.mem.doNotOptimizeAway(ast.root.children.len);
             }
         }{ .allocator = allocator, .content = large_json };
-        
+
         var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
         allocator.free(result.name);
         result.name = try allocator.dupe(u8, "JSON Parser Large (40KB)");
         try results.append(result);
     }
-    
+
     // Parse-only benchmark (tokens pre-provided)
     {
         // Pre-tokenize the medium JSON once
@@ -131,31 +131,31 @@ pub fn runJsonParserBenchmarks(allocator: std.mem.Allocator, options: BenchmarkO
         defer lexer.deinit();
         const tokens = try lexer.tokenize();
         defer allocator.free(tokens);
-        
+
         const context = struct {
             allocator: std.mem.Allocator,
             tokens: []const @import("../../../lib/parser/foundation/types/token.zig").Token,
-            
+
             pub fn run(ctx: @This()) anyerror!void {
                 var parser = JsonParser.init(ctx.allocator, ctx.tokens, .{});
                 defer parser.deinit();
-                
+
                 var ast = try parser.parse();
                 defer ast.deinit();
-                
+
                 std.mem.doNotOptimizeAway(ast.root.children.len);
             }
         }{ .allocator = allocator, .tokens = tokens };
-        
+
         var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
         allocator.free(result.name);
         result.name = try allocator.dupe(u8, "JSON Parser Only (10KB)");
         try results.append(result);
     }
-    
+
     // Nested structure parsing
     {
-        const nested_json = 
+        const nested_json =
             \\{
             \\  "level1": {
             \\    "level2": {
@@ -176,33 +176,33 @@ pub fn runJsonParserBenchmarks(allocator: std.mem.Allocator, options: BenchmarkO
             \\  }
             \\}
         ;
-        
+
         const context = struct {
             allocator: std.mem.Allocator,
             content: []const u8,
-            
+
             pub fn run(ctx: @This()) anyerror!void {
                 var lexer = JsonLexer.init(ctx.allocator, ctx.content, .{});
                 defer lexer.deinit();
                 const tokens = try lexer.tokenize();
                 defer ctx.allocator.free(tokens);
-                
+
                 var parser = JsonParser.init(ctx.allocator, tokens, .{});
                 defer parser.deinit();
-                
+
                 var ast = try parser.parse();
                 defer ast.deinit();
-                
+
                 std.mem.doNotOptimizeAway(ast.root.children.len);
             }
         }{ .allocator = allocator, .content = nested_json };
-        
+
         var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
         allocator.free(result.name);
         result.name = try allocator.dupe(u8, "JSON Parser Nested");
         try results.append(result);
     }
-    
+
     return results.toOwnedSlice();
 }
 

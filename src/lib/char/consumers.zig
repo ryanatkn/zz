@@ -5,7 +5,6 @@ const Token = @import("../parser/foundation/types/token.zig").Token;
 /// Text consumption utilities
 /// Functions for consuming/skipping sequences of characters
 /// All functions work with slices and return positions
-
 /// Skip whitespace characters and return the new position
 pub fn skipWhitespace(source: []const u8, pos: usize) usize {
     var current = pos;
@@ -34,12 +33,12 @@ pub fn consumeIdentifier(source: []const u8, pos: usize) usize {
     if (pos >= source.len or !predicates.isIdentifierStart(source[pos])) {
         return pos;
     }
-    
+
     var current = pos + 1;
     while (current < source.len and predicates.isIdentifierChar(source[current])) {
         current += 1;
     }
-    
+
     return current;
 }
 
@@ -56,17 +55,17 @@ pub fn consumeString(source: []const u8, start_pos: usize, quote: u8, allow_esca
     if (start_pos >= source.len or source[start_pos] != quote) {
         return .{ .end = start_pos, .terminated = false };
     }
-    
+
     var pos = start_pos + 1;
     var has_escapes = false;
-    
+
     while (pos < source.len) {
         const ch = source[pos];
-        
+
         if (ch == quote) {
             return .{ .end = pos + 1, .terminated = true, .has_escapes = has_escapes };
         }
-        
+
         if (allow_escapes and ch == '\\' and pos + 1 < source.len) {
             has_escapes = true;
             pos += 2; // Skip escape sequence
@@ -74,7 +73,7 @@ pub fn consumeString(source: []const u8, start_pos: usize, quote: u8, allow_esca
             pos += 1;
         }
     }
-    
+
     // Unterminated string
     return .{ .end = pos, .terminated = false, .has_escapes = has_escapes };
 }
@@ -94,19 +93,19 @@ pub fn consumeNumber(source: []const u8, start_pos: usize) NumberResult {
     if (start_pos >= source.len) {
         return .{ .end = start_pos };
     }
-    
+
     var pos = start_pos;
     var result = NumberResult{ .end = start_pos };
-    
+
     // Handle negative sign
     if (pos < source.len and source[pos] == '-') {
         pos += 1;
     }
-    
+
     if (pos >= source.len or !predicates.isDigit(source[pos])) {
         return result;
     }
-    
+
     // Check for hex/binary/octal prefix
     if (source[pos] == '0' and pos + 1 < source.len) {
         const next = source[pos + 1];
@@ -151,44 +150,45 @@ pub fn consumeNumber(source: []const u8, start_pos: usize) NumberResult {
             return .{ .end = start_pos }; // Invalid octal number
         }
     }
-    
+
     // Consume integer part
     while (pos < source.len and predicates.isDigit(source[pos])) {
         pos += 1;
     }
-    
+
     // Check for decimal point
-    if (pos < source.len and source[pos] == '.' and 
-        pos + 1 < source.len and predicates.isDigit(source[pos + 1])) {
+    if (pos < source.len and source[pos] == '.' and
+        pos + 1 < source.len and predicates.isDigit(source[pos + 1]))
+    {
         result.is_float = true;
         pos += 1; // Skip '.'
-        
+
         // Consume fractional part
         while (pos < source.len and predicates.isDigit(source[pos])) {
             pos += 1;
         }
     }
-    
+
     // Check for exponent
     if (pos < source.len and (source[pos] == 'e' or source[pos] == 'E')) {
         result.is_float = true;
         pos += 1;
-        
+
         // Handle optional sign
         if (pos < source.len and (source[pos] == '+' or source[pos] == '-')) {
             pos += 1;
         }
-        
+
         // Must have at least one digit
         if (pos >= source.len or !predicates.isDigit(source[pos])) {
             return .{ .end = start_pos }; // Invalid exponent
         }
-        
+
         while (pos < source.len and predicates.isDigit(source[pos])) {
             pos += 1;
         }
     }
-    
+
     result.end = pos;
     return result;
 }
@@ -199,24 +199,24 @@ pub fn consumeSingleLineComment(source: []const u8, start_pos: usize, prefix: []
     if (start_pos + prefix.len > source.len) {
         return start_pos;
     }
-    
+
     // Check for comment prefix
     if (!std.mem.eql(u8, source[start_pos .. start_pos + prefix.len], prefix)) {
         return start_pos;
     }
-    
+
     var pos = start_pos + prefix.len;
-    
+
     // Consume until end of line
     while (pos < source.len and source[pos] != '\n') {
         pos += 1;
     }
-    
+
     // Include the newline if present
     if (pos < source.len and source[pos] == '\n') {
         pos += 1;
     }
-    
+
     return pos;
 }
 
@@ -233,35 +233,35 @@ pub fn consumeMultiLineComment(source: []const u8, start_pos: usize, start_delim
     if (start_pos + start_delim.len > source.len) {
         return .{ .end = start_pos, .terminated = false };
     }
-    
+
     // Check for comment start
     if (!std.mem.eql(u8, source[start_pos .. start_pos + start_delim.len], start_delim)) {
         return .{ .end = start_pos, .terminated = false };
     }
-    
+
     var pos = start_pos + start_delim.len;
     var line_count: usize = 0;
-    
+
     // Scan for end delimiter
     while (pos + end_delim.len <= source.len) {
         if (std.mem.eql(u8, source[pos .. pos + end_delim.len], end_delim)) {
-            return .{ 
-                .end = pos + end_delim.len, 
+            return .{
+                .end = pos + end_delim.len,
                 .terminated = true,
                 .line_count = line_count,
             };
         }
-        
+
         if (source[pos] == '\n') {
             line_count += 1;
         }
-        
+
         pos += 1;
     }
-    
+
     // Unterminated comment
-    return .{ 
-        .end = source.len, 
+    return .{
+        .end = source.len,
         .terminated = false,
         .line_count = line_count,
     };
@@ -275,7 +275,7 @@ test "consumers - skipWhitespace" {
     const source = "   hello";
     const pos = skipWhitespace(source, 0);
     try std.testing.expectEqual(@as(usize, 3), pos);
-    
+
     const no_ws = "hello";
     const pos2 = skipWhitespace(no_ws, 0);
     try std.testing.expectEqual(@as(usize, 0), pos2);
@@ -291,7 +291,7 @@ test "consumers - consumeIdentifier" {
     const source = "myVariable123 + other";
     const pos = consumeIdentifier(source, 0);
     try std.testing.expectEqual(@as(usize, 13), pos);
-    
+
     const with_dollar = "$scope_var";
     const pos2 = consumeIdentifier(with_dollar, 0);
     try std.testing.expectEqual(@as(usize, 10), pos2);
@@ -302,11 +302,11 @@ test "consumers - consumeString" {
     const result = consumeString(source, 0, '"', true);
     try std.testing.expectEqual(@as(usize, 13), result.end);
     try std.testing.expect(result.terminated);
-    
+
     const with_escape = "\"hello\\nworld\"";
     const result2 = consumeString(with_escape, 0, '"', true);
     try std.testing.expect(result2.has_escapes);
-    
+
     const unterminated = "\"hello";
     const result3 = consumeString(unterminated, 0, '"', true);
     try std.testing.expect(!result3.terminated);
@@ -317,22 +317,22 @@ test "consumers - consumeNumber" {
     const result1 = consumeNumber(integer, 0);
     try std.testing.expectEqual(@as(usize, 5), result1.end);
     try std.testing.expect(!result1.is_float);
-    
+
     const float = "123.456";
     const result2 = consumeNumber(float, 0);
     try std.testing.expectEqual(@as(usize, 7), result2.end);
     try std.testing.expect(result2.is_float);
-    
+
     const hex = "0xFF";
     const result3 = consumeNumber(hex, 0);
     try std.testing.expectEqual(@as(usize, 4), result3.end);
     try std.testing.expect(result3.is_hex);
-    
+
     const binary = "0b1010";
     const result4 = consumeNumber(binary, 0);
     try std.testing.expectEqual(@as(usize, 6), result4.end);
     try std.testing.expect(result4.is_binary);
-    
+
     const scientific = "1.5e10";
     const result5 = consumeNumber(scientific, 0);
     try std.testing.expectEqual(@as(usize, 6), result5.end);
@@ -343,7 +343,7 @@ test "consumers - comments" {
     const single_line = "// This is a comment\nNext line";
     const pos = consumeSingleLineComment(single_line, 0, "//");
     try std.testing.expectEqual(@as(usize, 21), pos);
-    
+
     const block = "/* multi\nline\ncomment */rest";
     const result = consumeMultiLineComment(block, 0, "/*", "*/");
     try std.testing.expectEqual(@as(usize, 24), result.end);

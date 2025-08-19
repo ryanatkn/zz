@@ -72,7 +72,6 @@ pub const AstConverter = struct {
         const field_data = utils.processFieldAssignment(node) orelse return;
         const field_name = field_data.field_name;
         const value_node = field_data.value_node;
-        
 
         // Find the field in the struct and set its value
         const type_info = @typeInfo(T);
@@ -214,13 +213,13 @@ pub const AstConverter = struct {
     /// Convert boolean values
     fn convertBool(self: *Self, node: Node) !bool {
         _ = self;
-        
+
         // Handle proper boolean literal nodes
         if (node.rule_id == ZonRules.boolean_literal) {
             if (std.mem.eql(u8, node.text, "true")) return true;
             if (std.mem.eql(u8, node.text, "false")) return false;
         }
-        
+
         return error.InvalidZonSyntax;
     }
 
@@ -545,7 +544,7 @@ pub const AstConverter = struct {
                         // String slice: []const u8
                         break :blk @as(FieldType, "");
                     } else {
-                        // Array slice: []const T  
+                        // Array slice: []const T
                         break :blk @as(FieldType, &[_]field_info.pointer.child{});
                     }
                 }

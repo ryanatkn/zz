@@ -15,28 +15,28 @@ pub fn runJsonPipelineBenchmarks(allocator: std.mem.Allocator, options: Benchmar
         }
         results.deinit();
     }
-    
+
     const effective_duration = @as(u64, @intFromFloat(@as(f64, @floatFromInt(options.duration_ns)) * 2.0 * options.duration_multiplier));
-    
+
     // Generate test data
     const test_json = try generateJsonData(allocator, 500); // ~10KB
     defer allocator.free(test_json);
-    
+
     // Complete pipeline: parse → format → validate
     {
         const context = struct {
             allocator: std.mem.Allocator,
             content: []const u8,
-            
+
             pub fn run(ctx: @This()) anyerror!void {
                 // Parse JSON
                 var ast = try json_mod.parseJson(ctx.allocator, ctx.content);
                 defer ast.deinit();
-                
+
                 // Format JSON
                 const formatted = try json_mod.formatJsonString(ctx.allocator, ctx.content);
                 defer ctx.allocator.free(formatted);
-                
+
                 // Validate JSON
                 const diagnostics = try json_mod.validateJson(ctx.allocator, ctx.content);
                 defer {
@@ -45,80 +45,80 @@ pub fn runJsonPipelineBenchmarks(allocator: std.mem.Allocator, options: Benchmar
                     }
                     ctx.allocator.free(diagnostics);
                 }
-                
+
                 std.mem.doNotOptimizeAway(formatted.len);
                 std.mem.doNotOptimizeAway(diagnostics.len);
             }
         }{ .allocator = allocator, .content = test_json };
-        
+
         var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
         allocator.free(result.name);
         result.name = try allocator.dupe(u8, "JSON Complete Pipeline (10KB)");
         try results.append(result);
-        
+
         // Performance target check: <2ms (2,000,000ns) for 10KB complete pipeline
         if (result.ns_per_op > 2_000_000) {
             std.log.warn("JSON Complete pipeline performance target missed: {}ns > 2,000,000ns for 10KB", .{result.ns_per_op});
         }
     }
-    
+
     // Parse → Format cycle (round-trip)
     {
         const context = struct {
             allocator: std.mem.Allocator,
             content: []const u8,
-            
+
             pub fn run(ctx: @This()) anyerror!void {
                 // Parse
                 var ast = try json_mod.parseJson(ctx.allocator, ctx.content);
                 defer ast.deinit();
-                
+
                 // Format back to string
                 const formatted = try json_mod.formatJsonString(ctx.allocator, ctx.content);
                 defer ctx.allocator.free(formatted);
-                
+
                 // Parse the formatted result (round-trip test)
                 var ast2 = try json_mod.parseJson(ctx.allocator, formatted);
                 defer ast2.deinit();
-                
+
                 std.mem.doNotOptimizeAway(ast2.root.children.len);
             }
         }{ .allocator = allocator, .content = test_json };
-        
+
         var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
         allocator.free(result.name);
         result.name = try allocator.dupe(u8, "JSON Round-Trip (10KB)");
         try results.append(result);
     }
-    
+
     // Schema extraction pipeline
     {
         const context = struct {
             allocator: std.mem.Allocator,
             content: []const u8,
-            
+
             pub fn run(ctx: @This()) anyerror!void {
                 // Extract schema
                 var schema = try json_mod.extractJsonSchema(ctx.allocator, ctx.content);
                 defer schema.deinit(ctx.allocator);
-                
+
                 // Get statistics
                 const stats = try json_mod.getJsonStatistics(ctx.allocator, ctx.content);
                 _ = stats;
-                
+
                 std.mem.doNotOptimizeAway(schema.statistics.total_nodes);
             }
         }{ .allocator = allocator, .content = test_json };
-        
+
         var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
         allocator.free(result.name);
         result.name = try allocator.dupe(u8, "JSON Schema Extraction (10KB)");
         try results.append(result);
     }
-    
+
     // Minification benchmark
     {
-        const pretty_json = 
+        const pretty_json =
             \\{
             \\  "users": [
             \\    {
@@ -153,32 +153,32 @@ pub fn runJsonPipelineBenchmarks(allocator: std.mem.Allocator, options: Benchmar
             \\  "timestamp": "2023-08-18T12:00:00Z"
             \\}
         ;
-        
+
         const context = struct {
             allocator: std.mem.Allocator,
             content: []const u8,
-            
+
             pub fn run(ctx: @This()) anyerror!void {
                 // Parse and reformat as minified
                 var ast = try json_mod.parseJson(ctx.allocator, ctx.content);
                 defer ast.deinit();
-                
+
                 const minified = try json_mod.formatJsonString(ctx.allocator, ctx.content);
                 defer ctx.allocator.free(minified);
-                
+
                 std.mem.doNotOptimizeAway(minified.len);
             }
         }{ .allocator = allocator, .content = pretty_json };
-        
+
         var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
         allocator.free(result.name);
         result.name = try allocator.dupe(u8, "JSON Minification");
         try results.append(result);
     }
-    
+
     // Error recovery benchmark
     {
-        const invalid_json = 
+        const invalid_json =
             \\{
             \\  "users": [
             \\    {
@@ -199,11 +199,11 @@ pub fn runJsonPipelineBenchmarks(allocator: std.mem.Allocator, options: Benchmar
             \\  "total": 2
             \\  // Missing closing brace
         ;
-        
+
         const context = struct {
             allocator: std.mem.Allocator,
             content: []const u8,
-            
+
             pub fn run(ctx: @This()) anyerror!void {
                 // Try to parse invalid JSON and collect diagnostics
                 const diagnostics = try json_mod.validateJson(ctx.allocator, ctx.content);
@@ -213,17 +213,17 @@ pub fn runJsonPipelineBenchmarks(allocator: std.mem.Allocator, options: Benchmar
                     }
                     ctx.allocator.free(diagnostics);
                 }
-                
+
                 std.mem.doNotOptimizeAway(diagnostics.len);
             }
         }{ .allocator = allocator, .content = invalid_json };
-        
+
         var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
         allocator.free(result.name);
         result.name = try allocator.dupe(u8, "JSON Error Recovery");
         try results.append(result);
     }
-    
+
     return results.toOwnedSlice();
 }
 

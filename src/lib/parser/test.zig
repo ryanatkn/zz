@@ -21,7 +21,7 @@ fn expectRuleId(node: anytype, expected_name: []const u8) !void {
     // creates dynamic rule IDs. Instead, we'll just verify it's a valid test rule ID.
     const TestRules = @import("../ast/rules.zig").TestRules;
     const CommonRules = @import("../ast/rules.zig").CommonRules;
-    
+
     // Check if it's a common rule first
     if (std.mem.eql(u8, expected_name, "root")) {
         try testing.expectEqual(@intFromEnum(CommonRules.root), node.rule_id);

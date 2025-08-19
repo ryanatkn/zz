@@ -400,7 +400,7 @@ pub const DepsZonConfig = struct {
                 if (key.len > 0) {
                     self.allocator.free(key);
                 }
-                
+
                 // Free the dependency value
                 const dep = entry.value_ptr.*;
                 dep.deinit(self.allocator);

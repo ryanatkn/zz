@@ -26,9 +26,9 @@ pub const FormatPipeline = struct {
     detokenizer: lexical.ILexicalTransform,
     options: FormatOptions,
     indent_manager: ?indent_mod.IndentManager = null,
-    
+
     const Self = @This();
-    
+
     /// Initialize pipeline with emitter and detokenizer
     pub fn init(
         allocator: std.mem.Allocator,
@@ -43,28 +43,28 @@ pub const FormatPipeline = struct {
             .options = options,
         };
     }
-    
+
     /// Set indent manager for custom indentation
     pub fn setIndentManager(self: *Self, manager: indent_mod.IndentManager) void {
         self.indent_manager = manager;
     }
-    
+
     pub fn deinit(self: *Self) void {
         _ = self;
     }
-    
+
     /// Format AST to text
     pub fn format(self: *Self, ctx: *Context, ast: AST) ![]const u8 {
         // Check if emitter can emit tokens
         if (self.emitter.emitFn == null) {
             return error.EmitterNotReversible;
         }
-        
+
         // Check if detokenizer can detokenize
         if (self.detokenizer.detokenizeFn == null) {
             return error.DetokenizerNotReversible;
         }
-        
+
         // Set format options in context
         try ctx.setOption("indent_size", @as(i64, self.options.indent_size));
         try ctx.setOption("indent_style", @tagName(self.options.indent_style));
@@ -73,30 +73,30 @@ pub const FormatPipeline = struct {
         try ctx.setOption("trailing_comma", self.options.trailing_comma);
         try ctx.setOption("sort_keys", self.options.sort_keys);
         try ctx.setOption("quote_style", @tagName(self.options.quote_style));
-        
+
         // Emit tokens from AST
         ctx.startTiming();
         const tokens = try self.emitter.emitFn.?(ctx, ast);
         defer ctx.allocator.free(tokens);
-        
+
         if (ctx.getOption("debug", bool) orelse false) {
             const emit_time = ctx.getElapsedMs() orelse 0;
             std.debug.print("Token emission took {}ms\n", .{emit_time});
         }
-        
+
         // Apply formatting to tokens
         const formatted_tokens = try self.applyFormatting(ctx, tokens);
         defer ctx.allocator.free(formatted_tokens);
-        
+
         // Detokenize to text
         ctx.startTiming();
         const text = try self.detokenizer.detokenizeFn.?(ctx, formatted_tokens);
-        
+
         if (ctx.getOption("debug", bool) orelse false) {
             const detokenize_time = ctx.getElapsedMs() orelse 0;
             std.debug.print("Detokenization took {}ms\n", .{detokenize_time});
         }
-        
+
         // Apply final indentation if needed
         if (self.indent_manager) |manager| {
             // Convert FormatOptions.IndentStyle to IndentManager.IndentStyle
@@ -108,50 +108,50 @@ pub const FormatPipeline = struct {
             ctx.allocator.free(text);
             return indented;
         }
-        
+
         return text;
     }
-    
+
     /// Apply formatting rules to tokens
     fn applyFormatting(self: *Self, ctx: *Context, tokens: []const Token) ![]const Token {
         const formatted = try ctx.allocator.alloc(Token, tokens.len);
         @memcpy(formatted, tokens);
-        
+
         // Sort object keys if requested
         if (self.options.sort_keys) {
             try self.sortObjectKeys(ctx, formatted);
         }
-        
+
         // Handle trailing commas
         if (self.options.trailing_comma) {
             try self.addTrailingCommas(ctx, formatted);
         } else {
             try self.removeTrailingCommas(ctx, formatted);
         }
-        
+
         return formatted;
     }
-    
+
     fn sortObjectKeys(_: *Self, _: *Context, tokens: []Token) !void {
         // TODO: Implement key sorting
         // This would require understanding object boundaries and key-value pairs
         _ = tokens;
     }
-    
+
     fn addTrailingCommas(self: *Self, ctx: *Context, tokens: []Token) !void {
         _ = self;
         _ = ctx;
         // TODO: Add trailing commas where appropriate
         _ = tokens;
     }
-    
+
     fn removeTrailingCommas(self: *Self, ctx: *Context, tokens: []Token) !void {
         _ = self;
         _ = ctx;
         // TODO: Remove trailing commas
         _ = tokens;
     }
-    
+
     /// Reverse operation: Text → Tokens → AST (parsing)
     pub fn parse(_: *Self, ctx: *Context, text: []const u8) !AST {
         // This would require both lexer and parser, not just emitter/detokenizer
@@ -160,7 +160,7 @@ pub const FormatPipeline = struct {
         _ = text;
         return error.NotImplemented;
     }
-    
+
     /// Create a transform representing this pipeline
     pub fn toTransform(_: *Self) Transform(AST, []const u8) {
         const forward_fn = struct {
@@ -171,7 +171,7 @@ pub const FormatPipeline = struct {
                 return error.NotImplemented;
             }
         }.forward;
-        
+
         const reverse_fn = struct {
             fn reverse(ctx: *Context, output: []const u8) !AST {
                 // This would need proper implementation
@@ -180,7 +180,7 @@ pub const FormatPipeline = struct {
                 return error.NotImplemented;
             }
         }.reverse;
-        
+
         return transform_mod.createTransform(
             AST,
             []const u8,
@@ -203,9 +203,9 @@ pub const PreservingFormatPipeline = struct {
     base_pipeline: FormatPipeline,
     original_tokens: ?[]const Token = null,
     original_text: ?[]const u8 = null,
-    
+
     const Self = @This();
-    
+
     pub fn init(
         allocator: std.mem.Allocator,
         emitter: syntactic.ISyntacticTransform,
@@ -217,7 +217,7 @@ pub const PreservingFormatPipeline = struct {
             .base_pipeline = FormatPipeline.init(allocator, emitter, detokenizer, options),
         };
     }
-    
+
     pub fn deinit(self: *Self) void {
         if (self.original_tokens) |tokens| {
             self.allocator.free(tokens);
@@ -227,7 +227,7 @@ pub const PreservingFormatPipeline = struct {
         }
         self.base_pipeline.deinit();
     }
-    
+
     /// Set original text and tokens for preservation
     pub fn setOriginal(self: *Self, text: []const u8, tokens: []const Token) !void {
         if (self.original_text) |old_text| {
@@ -236,45 +236,45 @@ pub const PreservingFormatPipeline = struct {
         if (self.original_tokens) |old_tokens| {
             self.allocator.free(old_tokens);
         }
-        
+
         self.original_text = try self.allocator.dupe(u8, text);
         self.original_tokens = try self.allocator.dupe(Token, tokens);
     }
-    
+
     /// Format while preserving original trivia
     pub fn formatPreserving(self: *Self, ctx: *Context, ast: AST) ![]const u8 {
         if (self.original_tokens == null or self.original_text == null) {
             // No original to preserve, use regular formatting
             return try self.base_pipeline.format(ctx, ast);
         }
-        
+
         // Emit new tokens from AST
         const new_tokens = try self.base_pipeline.emitter.emitFn.?(ctx, ast);
         defer ctx.allocator.free(new_tokens);
-        
+
         // Merge trivia from original tokens
         const merged_tokens = try self.mergeTrivia(ctx, self.original_tokens.?, new_tokens);
         defer ctx.allocator.free(merged_tokens);
-        
+
         // Detokenize with preserved trivia
         return try self.base_pipeline.detokenizer.detokenizeFn.?(ctx, merged_tokens);
     }
-    
+
     fn mergeTrivia(self: *Self, ctx: *Context, original: []const Token, new: []const Token) ![]const Token {
         _ = self;
         var merged = try ctx.allocator.alloc(Token, new.len);
-        
+
         // Simple merge strategy - copy tokens but try to preserve spacing
         for (new, 0..) |token, i| {
             merged[i] = token;
-            
+
             // Try to find corresponding original token
             if (i < original.len) {
                 // Could match by token kind and relative position
                 // For now, just copy the new token
             }
         }
-        
+
         return merged;
     }
 };
@@ -284,9 +284,9 @@ pub const StreamingFormatter = struct {
     allocator: std.mem.Allocator,
     format_pipeline: FormatPipeline,
     buffer_size: usize = 64 * 1024, // 64KB default
-    
+
     const Self = @This();
-    
+
     pub fn init(
         allocator: std.mem.Allocator,
         emitter: syntactic.ISyntacticTransform,
@@ -298,26 +298,26 @@ pub const StreamingFormatter = struct {
             .format_pipeline = FormatPipeline.init(allocator, emitter, detokenizer, options),
         };
     }
-    
+
     pub fn deinit(self: *Self) void {
         self.format_pipeline.deinit();
     }
-    
+
     /// Format AST to writer stream
     pub fn formatToWriter(self: *Self, ctx: *Context, ast: AST, writer: anytype) !void {
         // Format to text
         const formatted = try self.format_pipeline.format(ctx, ast);
         defer ctx.allocator.free(formatted);
-        
+
         // Write in chunks
         var offset: usize = 0;
         while (offset < formatted.len) {
             const chunk_size = @min(self.buffer_size, formatted.len - offset);
             const chunk = formatted[offset .. offset + chunk_size];
-            
+
             try writer.writeAll(chunk);
             offset += chunk_size;
-            
+
             // Update progress if available
             if (ctx.progress) |progress| {
                 progress.bytes_processed = offset;
@@ -330,48 +330,48 @@ pub const StreamingFormatter = struct {
 /// Format options builder for fluent configuration
 pub const FormatOptionsBuilder = struct {
     options: FormatOptions,
-    
+
     const Self = @This();
-    
+
     pub fn init() Self {
         return .{ .options = FormatOptions{} };
     }
-    
+
     pub fn indentSize(self: *Self, size: u32) *Self {
         self.options.indent_size = size;
         return self;
     }
-    
+
     pub fn indentStyle(self: *Self, style: FormatOptions.IndentStyle) *Self {
         self.options.indent_style = style;
         return self;
     }
-    
+
     pub fn lineWidth(self: *Self, width: u32) *Self {
         self.options.line_width = width;
         return self;
     }
-    
+
     pub fn preserveNewlines(self: *Self, preserve: bool) *Self {
         self.options.preserve_newlines = preserve;
         return self;
     }
-    
+
     pub fn trailingComma(self: *Self, trailing: bool) *Self {
         self.options.trailing_comma = trailing;
         return self;
     }
-    
+
     pub fn sortKeys(self: *Self, sort: bool) *Self {
         self.options.sort_keys = sort;
         return self;
     }
-    
+
     pub fn quoteStyle(self: *Self, style: FormatOptions.QuoteStyle) *Self {
         self.options.quote_style = style;
         return self;
     }
-    
+
     pub fn build(self: Self) FormatOptions {
         return self.options;
     }
@@ -384,10 +384,10 @@ const Span = @import("../../parser/foundation/types/span.zig").Span;
 
 test "FormatPipeline basic usage" {
     const allocator = testing.allocator;
-    
+
     var ctx = Context.init(allocator);
     defer ctx.deinit();
-    
+
     // Create mock emitter
     const mock_emitter = syntactic.ISyntacticTransform{
         .parseFn = struct {
@@ -407,7 +407,7 @@ test "FormatPipeline basic usage" {
         .parseWithRecoveryFn = null,
         .metadata = .{ .name = "mock_emitter", .description = "Test emitter" },
     };
-    
+
     // Create mock detokenizer
     const mock_detokenizer = lexical.ILexicalTransform{
         .tokenizeFn = struct {
@@ -424,22 +424,22 @@ test "FormatPipeline basic usage" {
         }.detokenize,
         .metadata = .{ .name = "mock_detokenizer", .description = "Test detokenizer" },
     };
-    
+
     const options = FormatOptions{
         .indent_size = 2,
         .indent_style = .space,
     };
-    
+
     var pipeline = FormatPipeline.init(allocator, mock_emitter, mock_detokenizer, options);
     defer pipeline.deinit();
-    
+
     var ast = AST.init(allocator);
     defer ast.deinit();
     ast.root = try @import("../../ast/node.zig").createLeafNode(allocator, @intFromEnum(@import("../../ast/rules.zig").CommonRules.null_literal), "null", 0, 4);
-    
+
     const formatted = try pipeline.format(&ctx, ast);
     defer allocator.free(formatted);
-    
+
     try testing.expectEqualStrings("null", formatted);
 }
 
@@ -452,7 +452,7 @@ test "FormatOptionsBuilder usage" {
         .trailingComma(true)
         .sortKeys(true)
         .build();
-    
+
     try testing.expectEqual(@as(u32, 4), options.indent_size);
     try testing.expectEqual(FormatOptions.IndentStyle.tab, options.indent_style);
     try testing.expectEqual(@as(u32, 120), options.line_width);

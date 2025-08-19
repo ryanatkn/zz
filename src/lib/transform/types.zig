@@ -3,7 +3,6 @@ pub const Span = @import("../parser/foundation/types/span.zig").Span;
 
 /// Core type definitions for the transform system
 /// Based on existing patterns from the codebase
-
 /// Result type for transforms that can partially succeed
 /// Similar to our existing error handling patterns in filesystem.zig
 pub const TransformResult = union(enum) {
@@ -118,7 +117,6 @@ pub const Diagnostic = struct {
     }
 };
 
-
 /// IO mode for parameterized execution
 /// Following the TODO in core/io.zig
 pub const IOMode = enum {
@@ -205,21 +203,21 @@ pub const TransformError = error{
     IncompatibleTypes,
     PipelineBroken,
     Cancelled,
-    
+
     // Parse errors (from existing parsers)
     UnexpectedToken,
     UnexpectedEof,
     InvalidSyntax,
     InvalidEscape,
-    
+
     // Memory errors
     OutOfMemory,
-    
+
     // IO errors
     FileNotFound,
     AccessDenied,
     BrokenPipe,
-    
+
     // Generic
     Unknown,
 };
@@ -235,7 +233,7 @@ pub const OptionsMap = struct {
         unsigned: u64,
         float: f64,
         string: []const u8,
-        
+
         pub fn deinit(self: *Value, allocator: std.mem.Allocator) void {
             switch (self.*) {
                 .string => |s| allocator.free(s),
@@ -269,7 +267,7 @@ pub const OptionsMap = struct {
             }
             self.allocator.free(kv.key);
         }
-        
+
         const owned_key = try self.allocator.dupe(u8, key);
         try self.map.put(owned_key, .{ .boolean = value });
     }
@@ -283,7 +281,7 @@ pub const OptionsMap = struct {
             }
             self.allocator.free(kv.key);
         }
-        
+
         const owned_key = try self.allocator.dupe(u8, key);
         try self.map.put(owned_key, .{ .integer = value });
     }
@@ -297,7 +295,7 @@ pub const OptionsMap = struct {
             }
             self.allocator.free(kv.key);
         }
-        
+
         const owned_key = try self.allocator.dupe(u8, key);
         const owned_value = try self.allocator.dupe(u8, value);
         try self.map.put(owned_key, .{ .string = owned_value });
@@ -362,7 +360,7 @@ test "Diagnostic creation" {
 
 test "OptionsMap" {
     const allocator = testing.allocator;
-    
+
     var options = OptionsMap.init(allocator);
     defer options.deinit();
 
@@ -378,16 +376,16 @@ test "OptionsMap" {
 
 test "Progress tracking" {
     const allocator = testing.allocator;
-    
+
     var progress = Progress.init(allocator);
     defer progress.deinit();
 
     try progress.setTotal(5);
     try progress.setStep(0, "step1");
     try progress.completeStep(0);
-    
+
     try testing.expectEqual(@as(f32, 0), progress.getPercentage());
-    
+
     try progress.setStep(2, "step3");
     try testing.expectEqual(@as(f32, 40), progress.getPercentage());
 }

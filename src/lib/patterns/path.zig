@@ -3,19 +3,18 @@ const primitives = @import("primitives.zig");
 
 /// Path-specific pattern matching for configuration ignore patterns
 /// Handles both directory names (e.g., "node_modules") and full paths (e.g., "src/ignored/dir")
-
 /// Match a path against a pattern using path-aware semantics
 pub fn matchPath(path: []const u8, pattern: []const u8) bool {
     // Exact match
     if (std.mem.eql(u8, path, pattern)) {
         return true;
     }
-    
+
     // If pattern contains path separator, treat as full path pattern
     if (primitives.hasPathSeparator(pattern)) {
         return matchFullPath(path, pattern);
     }
-    
+
     // Otherwise treat as component pattern (matches any directory with that name)
     return matchComponent(path, pattern);
 }
@@ -30,7 +29,7 @@ pub fn matchFullPath(path: []const u8, pattern: []const u8) bool {
             return true;
         }
     }
-    
+
     // Check if path contains pattern as a proper subpath
     return primitives.containsSubpath(path, pattern);
 }

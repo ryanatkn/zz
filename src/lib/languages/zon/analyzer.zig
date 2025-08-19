@@ -399,7 +399,7 @@ pub const ZonAnalyzer = struct {
         _ = self;
 
         const ZonRules = @import("../../ast/rules.zig").ZonRules;
-        
+
         switch (terminal_node.rule_id) {
             ZonRules.string_literal => return TypeInfo{
                 .kind = .string,
@@ -590,7 +590,7 @@ pub const ZonAnalyzer = struct {
         const visitor = struct {
             fn visit(n: *const Node, context: ?*anyopaque) anyerror!bool {
                 const zon_stats = @as(*Statistics, @ptrCast(@alignCast(context.?)));
-                
+
                 const ZonRules = @import("../../ast/rules.zig").ZonRules;
                 switch (n.rule_id) {
                     ZonRules.object => zon_stats.object_count += 1,
@@ -600,7 +600,7 @@ pub const ZonAnalyzer = struct {
                     ZonRules.number_literal => zon_stats.number_count += 1,
                     else => {},
                 }
-                
+
                 // All statistics collected via rule_id switch above
                 return true; // Continue traversal
             }

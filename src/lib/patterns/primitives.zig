@@ -1,9 +1,9 @@
 const std = @import("std");
 
 /// Shared pattern matching primitives used by glob, gitignore, and path matchers
-/// 
+///
 /// ## Layered Pattern Matching Architecture
-/// 
+///
 /// This module provides the foundation for all pattern matching in zz. The architecture
 /// is designed to eliminate code duplication while preserving semantic clarity:
 ///
@@ -14,7 +14,7 @@ const std = @import("std");
 ///
 /// **Layer 2: Domain-Specific Matchers**
 /// - `glob.zig` - Pure glob matching with *, ?, [abc] semantics
-/// - `gitignore.zig` - Gitignore rules with /, !, ** semantics  
+/// - `gitignore.zig` - Gitignore rules with /, !, ** semantics
 /// - `path.zig` - Path component and subpath matching semantics
 ///
 /// **Layer 3: Smart Dispatchers**
@@ -23,12 +23,11 @@ const std = @import("std");
 ///
 /// This design avoids semantic confusion (e.g., what does "/" mean in different contexts)
 /// while still sharing the low-level matching logic for consistency and performance.
-
 /// Check if a pattern contains wildcard characters
 pub fn hasWildcard(pattern: []const u8) bool {
     return std.mem.indexOf(u8, pattern, "*") != null or
-           std.mem.indexOf(u8, pattern, "?") != null or
-           std.mem.indexOf(u8, pattern, "[") != null;
+        std.mem.indexOf(u8, pattern, "?") != null or
+        std.mem.indexOf(u8, pattern, "[") != null;
 }
 
 /// Check if a pattern contains path separators
@@ -151,17 +150,17 @@ pub fn matchCharacterClass(char: u8, class_spec: []const u8) bool {
 pub fn isDotDirectoryAt(path: []const u8, pos: usize) bool {
     if (pos >= path.len) return false;
     if (path[pos] != '.') return false;
-    
+
     // Must be at start or after /
     if (pos > 0 and path[pos - 1] != '/') return false;
-    
+
     // Must have at least one more character
     if (pos + 1 >= path.len) return false;
-    
+
     // Find end of component
     const end = std.mem.indexOfScalarPos(u8, path, pos, '/') orelse path.len;
     const component = path[pos..end];
-    
+
     // Must be more than just "." or ".."
     return component.len > 1 and !std.mem.eql(u8, component, "..");
 }
@@ -214,7 +213,7 @@ pub fn containsSubpath(path: []const u8, subpath: []const u8) bool {
         const after_sep = pos > 0 and path[pos - 1] == '/';
         const at_end = pos + subpath.len == path.len;
         const before_sep = pos + subpath.len < path.len and path[pos + subpath.len] == '/';
-        
+
         return (at_start or after_sep) and (at_end or before_sep);
     }
     return false;

@@ -15,19 +15,19 @@ pub fn runZonPipelineBenchmarks(allocator: std.mem.Allocator, options: Benchmark
         }
         results.deinit();
     }
-    
+
     const effective_duration = @as(u64, @intFromFloat(@as(f64, @floatFromInt(options.duration_ns)) * 2.0 * options.duration_multiplier));
-    
+
     // Generate test data
     const test_zon = try generateZonData(allocator, 100); // ~10KB
     defer allocator.free(test_zon);
-    
+
     // Complete pipeline: parse → format → validate
     {
         const context = struct {
             allocator: std.mem.Allocator,
             content: []const u8,
-            
+
             pub fn run(ctx: @This()) anyerror!void {
                 // Format ZON
                 std.debug.print("[zon-pipeline-debug] Starting formatZonString...\n", .{});
@@ -37,7 +37,7 @@ pub fn runZonPipelineBenchmarks(allocator: std.mem.Allocator, options: Benchmark
                 };
                 defer ctx.allocator.free(formatted);
                 std.debug.print("[zon-pipeline-debug] formatZonString complete ({} bytes)\n", .{formatted.len});
-                
+
                 // Validate ZON
                 std.debug.print("[zon-pipeline-debug] Starting validateZonString...\n", .{});
                 const diagnostics = zon_mod.validateZonString(ctx.allocator, ctx.content) catch |err| {
@@ -51,7 +51,7 @@ pub fn runZonPipelineBenchmarks(allocator: std.mem.Allocator, options: Benchmark
                     ctx.allocator.free(diagnostics);
                 }
                 std.debug.print("[zon-pipeline-debug] validateZonString complete ({} diagnostics)\n", .{diagnostics.len});
-                
+
                 // Extract schema
                 std.debug.print("[zon-pipeline-debug] Starting extractZonSchema...\n", .{});
                 var schema = zon_mod.extractZonSchema(ctx.allocator, ctx.content) catch |err| {
@@ -60,26 +60,26 @@ pub fn runZonPipelineBenchmarks(allocator: std.mem.Allocator, options: Benchmark
                 };
                 defer schema.deinit();
                 std.debug.print("[zon-pipeline-debug] extractZonSchema complete ({} nodes)\n", .{schema.statistics.total_nodes});
-                
+
                 std.mem.doNotOptimizeAway(formatted.len);
                 std.mem.doNotOptimizeAway(diagnostics.len);
                 std.mem.doNotOptimizeAway(schema.statistics.total_nodes);
             }
         }{ .allocator = allocator, .content = test_zon };
-        
+
         const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "zon-pipeline", "ZON Complete Pipeline (10KB)", effective_duration, options.warmup, context, @TypeOf(context).run);
         try results.append(result);
-        
+
         // Performance target check: <2ms (2,000,000ns) for 10KB complete pipeline
         if (result.ns_per_op > 2_000_000) {
             std.log.warn("ZON Complete pipeline performance target missed: {}ns > 2,000,000ns for 10KB", .{result.ns_per_op});
         }
     }
-    
+
     // build.zig.zon processing
     {
         std.debug.print("[zon-pipeline-debug] Starting build.zig.zon benchmark...\n", .{});
-        const build_zon = 
+        const build_zon =
             \\.{
             \\    .name = "example_project",
             \\    .version = "0.1.0",
@@ -103,16 +103,16 @@ pub fn runZonPipelineBenchmarks(allocator: std.mem.Allocator, options: Benchmark
             \\    },
             \\}
         ;
-        
+
         const context = struct {
             allocator: std.mem.Allocator,
             content: []const u8,
-            
+
             pub fn run(ctx: @This()) anyerror!void {
                 // Format
                 const formatted = try zon_mod.formatZonString(ctx.allocator, ctx.content);
                 defer ctx.allocator.free(formatted);
-                
+
                 // Validate
                 const diagnostics = try zon_mod.validateZonString(ctx.allocator, ctx.content);
                 defer {
@@ -121,20 +121,20 @@ pub fn runZonPipelineBenchmarks(allocator: std.mem.Allocator, options: Benchmark
                     }
                     ctx.allocator.free(diagnostics);
                 }
-                
+
                 std.mem.doNotOptimizeAway(formatted.len);
                 std.mem.doNotOptimizeAway(diagnostics.len);
             }
         }{ .allocator = allocator, .content = build_zon };
-        
+
         std.debug.print("[zon-pipeline-debug] About to start build.zon measurement...\n", .{});
         const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "zon-pipeline", "ZON build.zig.zon Processing", effective_duration, options.warmup, context, @TypeOf(context).run);
         try results.append(result);
     }
-    
+
     // Configuration file processing
     {
-        const config_zon = 
+        const config_zon =
             \\.{
             \\    .base_patterns = "extend",
             \\    .ignored_patterns = .{
@@ -160,16 +160,16 @@ pub fn runZonPipelineBenchmarks(allocator: std.mem.Allocator, options: Benchmark
             \\    },
             \\}
         ;
-        
+
         const context = struct {
             allocator: std.mem.Allocator,
             content: []const u8,
-            
+
             pub fn run(ctx: @This()) anyerror!void {
                 // Format
                 const formatted = try zon_mod.formatZonString(ctx.allocator, ctx.content);
                 defer ctx.allocator.free(formatted);
-                
+
                 // Validate
                 const diagnostics = try zon_mod.validateZonString(ctx.allocator, ctx.content);
                 defer {
@@ -178,42 +178,42 @@ pub fn runZonPipelineBenchmarks(allocator: std.mem.Allocator, options: Benchmark
                     }
                     ctx.allocator.free(diagnostics);
                 }
-                
+
                 std.mem.doNotOptimizeAway(formatted.len);
                 std.mem.doNotOptimizeAway(diagnostics.len);
             }
         }{ .allocator = allocator, .content = config_zon };
-        
+
         const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "zon-pipeline", "ZON Config File Processing", effective_duration, options.warmup, context, @TypeOf(context).run);
         try results.append(result);
     }
-    
+
     // Format → Parse round-trip
     {
         const context = struct {
             allocator: std.mem.Allocator,
             content: []const u8,
-            
+
             pub fn run(ctx: @This()) anyerror!void {
                 // Format
                 const formatted = try zon_mod.formatZonString(ctx.allocator, ctx.content);
                 defer ctx.allocator.free(formatted);
-                
+
                 // Extract schema from formatted result (round-trip test)
                 var schema = try zon_mod.extractZonSchema(ctx.allocator, formatted);
                 defer schema.deinit();
-                
+
                 std.mem.doNotOptimizeAway(schema.statistics.total_nodes);
             }
         }{ .allocator = allocator, .content = test_zon };
-        
+
         const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "zon-pipeline", "ZON Round-Trip (10KB)", effective_duration, options.warmup, context, @TypeOf(context).run);
         try results.append(result);
     }
-    
+
     // Error recovery benchmark
     {
-        const invalid_zon = 
+        const invalid_zon =
             \\.{
             \\    .name = "invalid_project",
             \\    .version = "0.1.0"
@@ -235,11 +235,11 @@ pub fn runZonPipelineBenchmarks(allocator: std.mem.Allocator, options: Benchmark
             \\    },
             \\    // Missing closing brace
         ;
-        
+
         const context = struct {
             allocator: std.mem.Allocator,
             content: []const u8,
-            
+
             pub fn run(ctx: @This()) anyerror!void {
                 // Try to validate invalid ZON and collect diagnostics
                 const diagnostics = try zon_mod.validateZonString(ctx.allocator, ctx.content);
@@ -249,15 +249,15 @@ pub fn runZonPipelineBenchmarks(allocator: std.mem.Allocator, options: Benchmark
                     }
                     ctx.allocator.free(diagnostics);
                 }
-                
+
                 std.mem.doNotOptimizeAway(diagnostics.len);
             }
         }{ .allocator = allocator, .content = invalid_zon };
-        
+
         const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "zon-pipeline", "ZON Error Recovery", effective_duration, options.warmup, context, @TypeOf(context).run);
         try results.append(result);
     }
-    
+
     return results.toOwnedSlice();
 }
 

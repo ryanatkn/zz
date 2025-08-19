@@ -6,7 +6,6 @@ const Node = @import("../../ast/mod.zig").Node;
 /// This module provides proper memory management for the JSON parser,
 /// ensuring all allocations are tracked and properly freed.
 /// Uses arena allocator pattern for temporary parse-time allocations.
-
 /// Context for managing parse-time allocations
 pub const ParseContext = struct {
     /// Main allocator for final results
@@ -40,7 +39,7 @@ pub const ParseContext = struct {
 
         // Free the list of transferred texts (but not the texts themselves)
         self.transferred_texts.deinit();
-        
+
         // Free the list of transferred nodes (but not the nodes themselves)
         self.transferred_nodes.deinit();
     }

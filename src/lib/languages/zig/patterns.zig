@@ -43,59 +43,60 @@ pub const Patterns = struct {
 
     // Built-in functions
     pub const builtins = [_][]const u8{
-        "@import",       "@export",       "@fieldParentPtr",
-        "@typeInfo",     "@typeName",     "@TypeOf",
-        "@compileError", "@compileLog",   "@sizeof",
-        "@alignOf",      "@memberName",   "@memberType",
-        "@memberCount",  "@field",        "@setEvalBranchQuota",
-        "@setRuntimeSafety", "@setFloatMode", "@setAlignStack",
-        "@setCold",      "@panic",        "@ptrCast",
-        "@intCast",      "@floatCast",    "@ptrFromInt",
-        "@intFromPtr",   "@intFromFloat", "@floatFromInt",
-        "@intFromBool",  "@boolFromInt",  "@intFromEnum",
-        "@enumFromInt",  "@errorFromInt", "@intFromError",
-        "@embedFile",    "@cImport",      "@cInclude",
-        "@hasDecl",      "@hasField",     "@bitCast",
-        "@bitOffsetOf",  "@bitSizeOf",    "@divExact",
-        "@divFloor",     "@divTrunc",     "@mod",
-        "@rem",          "@mulWithOverflow", "@addWithOverflow",
-        "@subWithOverflow", "@shlWithOverflow", "@shlExact",
-        "@shrExact",     "@min",          "@max",
-        "@clz",          "@ctz",          "@popCount",
-        "@byteSwap",     "@bitReverse",   "@sqrt",
-        "@sin",          "@cos",          "@tan",
-        "@exp",          "@exp2",         "@log",
-        "@log2",         "@log10",        "@floor",
-        "@ceil",         "@trunc",        "@round",
+        "@import",           "@export",          "@fieldParentPtr",
+        "@typeInfo",         "@typeName",        "@TypeOf",
+        "@compileError",     "@compileLog",      "@sizeof",
+        "@alignOf",          "@memberName",      "@memberType",
+        "@memberCount",      "@field",           "@setEvalBranchQuota",
+        "@setRuntimeSafety", "@setFloatMode",    "@setAlignStack",
+        "@setCold",          "@panic",           "@ptrCast",
+        "@intCast",          "@floatCast",       "@ptrFromInt",
+        "@intFromPtr",       "@intFromFloat",    "@floatFromInt",
+        "@intFromBool",      "@boolFromInt",     "@intFromEnum",
+        "@enumFromInt",      "@errorFromInt",    "@intFromError",
+        "@embedFile",        "@cImport",         "@cInclude",
+        "@hasDecl",          "@hasField",        "@bitCast",
+        "@bitOffsetOf",      "@bitSizeOf",       "@divExact",
+        "@divFloor",         "@divTrunc",        "@mod",
+        "@rem",              "@mulWithOverflow", "@addWithOverflow",
+        "@subWithOverflow",  "@shlWithOverflow", "@shlExact",
+        "@shrExact",         "@min",             "@max",
+        "@clz",              "@ctz",             "@popCount",
+        "@byteSwap",         "@bitReverse",      "@sqrt",
+        "@sin",              "@cos",             "@tan",
+        "@exp",              "@exp2",            "@log",
+        "@log2",             "@log10",           "@floor",
+        "@ceil",             "@trunc",           "@round",
     };
 
     // Zig keywords
     pub const keywords = [_][]const u8{
-        "align",        "allowzero",    "and",          "anyframe",
-        "anytype",      "asm",          "async",        "await",
-        "break",        "callconv",     "catch",        "comptime",
-        "const",        "continue",     "defer",        "else",
-        "enum",         "errdefer",     "error",        "export",
-        "extern",       "false",        "fn",           "for",
-        "if",           "inline",       "linksection",  "noalias",
-        "noinline",     "nosuspend",    "null",         "opaque",
-        "or",           "orelse",       "packed",       "pub",
-        "resume",       "return",       "struct",       "suspend",
-        "switch",       "test",         "threadlocal",  "true",
-        "try",          "undefined",    "union",        "unreachable",
-        "usingnamespace", "var",        "volatile",     "while",
+        "align",          "allowzero", "and",         "anyframe",
+        "anytype",        "asm",       "async",       "await",
+        "break",          "callconv",  "catch",       "comptime",
+        "const",          "continue",  "defer",       "else",
+        "enum",           "errdefer",  "error",       "export",
+        "extern",         "false",     "fn",          "for",
+        "if",             "inline",    "linksection", "noalias",
+        "noinline",       "nosuspend", "null",        "opaque",
+        "or",             "orelse",    "packed",      "pub",
+        "resume",         "return",    "struct",      "suspend",
+        "switch",         "test",      "threadlocal", "true",
+        "try",            "undefined", "union",       "unreachable",
+        "usingnamespace", "var",       "volatile",    "while",
     };
 
     // Primitive types
     pub const primitive_types = [_][]const u8{
-        "void",         "bool",         "noreturn",     "type",
-        "anyerror",     "comptime_int", "comptime_float",
-        "u8",   "u16",  "u32",  "u64",  "u128", "usize",
-        "i8",   "i16",  "i32",  "i64",  "i128", "isize",
-        "c_char",       "c_short",      "c_ushort",     "c_int",
-        "c_uint",       "c_long",       "c_ulong",      "c_longlong",
-        "c_ulonglong",  "c_longdouble", "f16",          "f32",
-        "f64",          "f80",          "f128",
+        "void",         "bool",         "noreturn",       "type",
+        "anyerror",     "comptime_int", "comptime_float", "u8",
+        "u16",          "u32",          "u64",            "u128",
+        "usize",        "i8",           "i16",            "i32",
+        "i64",          "i128",         "isize",          "c_char",
+        "c_short",      "c_ushort",     "c_int",          "c_uint",
+        "c_long",       "c_ulong",      "c_longlong",     "c_ulonglong",
+        "c_longdouble", "f16",          "f32",            "f64",
+        "f80",          "f128",
     };
 
     // Check if a line contains a function declaration
@@ -118,10 +119,11 @@ pub const Patterns = struct {
                     // Check that the character after the pattern is not alphanumeric
                     // to avoid matching "struct" in "structValue"
                     const end_idx = idx + pattern.len;
-                    if (end_idx >= line.len or 
-                        (!std.ascii.isAlphabetic(line[end_idx]) and 
-                         !std.ascii.isDigit(line[end_idx]) and 
-                         line[end_idx] != '_')) {
+                    if (end_idx >= line.len or
+                        (!std.ascii.isAlphabetic(line[end_idx]) and
+                            !std.ascii.isDigit(line[end_idx]) and
+                            line[end_idx] != '_'))
+                    {
                         return true;
                     }
                 }
@@ -174,13 +176,13 @@ pub const Patterns = struct {
     // Check if a line contains a test block
     pub fn isTestBlock(line: []const u8) bool {
         return std.mem.indexOf(u8, line, "test \"") != null or
-               std.mem.indexOf(u8, line, "test {") != null;
+            std.mem.indexOf(u8, line, "test {") != null;
     }
 
     // Check if a line contains a comptime block
     pub fn isComptimeBlock(line: []const u8) bool {
         return std.mem.indexOf(u8, line, "comptime {") != null or
-               std.mem.indexOf(u8, line, "comptime ") != null;
+            std.mem.indexOf(u8, line, "comptime ") != null;
     }
 };
 

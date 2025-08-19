@@ -233,7 +233,7 @@ pub const CacheEntry = struct {
         return false;
     }
 
-    /// Get age in seconds  
+    /// Get age in seconds
     pub fn getAge(self: CacheEntry) i64 {
         const current_ns = std.time.nanoTimestamp();
         const age_ns = current_ns - self.last_access;

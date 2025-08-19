@@ -15,90 +15,90 @@ pub fn runZonLexerBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOpt
         }
         results.deinit();
     }
-    
+
     const effective_duration = @as(u64, @intFromFloat(@as(f64, @floatFromInt(options.duration_ns)) * 1.5 * options.duration_multiplier));
-    
+
     // Generate test data
-    const small_zon = try generateZonData(allocator, 10);   // ~1KB
+    const small_zon = try generateZonData(allocator, 10); // ~1KB
     defer allocator.free(small_zon);
-    
-    const medium_zon = try generateZonData(allocator, 100); // ~10KB  
+
+    const medium_zon = try generateZonData(allocator, 100); // ~10KB
     defer allocator.free(medium_zon);
-    
+
     const large_zon = try generateZonData(allocator, 1000); // ~100KB
     defer allocator.free(large_zon);
-    
+
     // Lexer benchmark for small ZON (1KB)
     {
         const context = struct {
             allocator: std.mem.Allocator,
             content: []const u8,
-            
+
             pub fn run(ctx: @This()) anyerror!void {
                 var lexer = ZonLexer.init(ctx.allocator, ctx.content, .{});
                 defer lexer.deinit();
-                
+
                 const tokens = try lexer.tokenize();
                 defer ctx.allocator.free(tokens);
-                
+
                 std.mem.doNotOptimizeAway(tokens.len);
             }
         }{ .allocator = allocator, .content = small_zon };
-        
+
         const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "zon-lexer", "ZON Lexer Small (1KB)", effective_duration, options.warmup, context, @TypeOf(context).run);
         try results.append(result);
     }
-    
+
     // Lexer benchmark for medium ZON (10KB) - Performance target
     {
         const context = struct {
             allocator: std.mem.Allocator,
             content: []const u8,
-            
+
             pub fn run(ctx: @This()) anyerror!void {
                 var lexer = ZonLexer.init(ctx.allocator, ctx.content, .{});
                 defer lexer.deinit();
-                
+
                 const tokens = try lexer.tokenize();
                 defer ctx.allocator.free(tokens);
-                
+
                 std.mem.doNotOptimizeAway(tokens.len);
             }
         }{ .allocator = allocator, .content = medium_zon };
-        
+
         const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "zon-lexer", "ZON Lexer Medium (10KB)", effective_duration, options.warmup, context, @TypeOf(context).run);
         try results.append(result);
-        
+
         // Performance target check: <0.1ms (100,000ns) for 10KB
         if (result.ns_per_op > 100_000) {
             std.log.warn("ZON Lexer performance target missed: {}ns > 100,000ns for 10KB", .{result.ns_per_op});
         }
     }
-    
+
     // Lexer benchmark for large ZON (100KB)
     {
         const context = struct {
             allocator: std.mem.Allocator,
             content: []const u8,
-            
+
             pub fn run(ctx: @This()) anyerror!void {
                 var lexer = ZonLexer.init(ctx.allocator, ctx.content, .{});
                 defer lexer.deinit();
-                
+
                 const tokens = try lexer.tokenize();
                 defer ctx.allocator.free(tokens);
-                
+
                 std.mem.doNotOptimizeAway(tokens.len);
             }
         }{ .allocator = allocator, .content = large_zon };
-        
+
         const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "zon-lexer", "ZON Lexer Large (100KB)", effective_duration, options.warmup, context, @TypeOf(context).run);
         try results.append(result);
     }
-    
+
     // Real-world build.zig.zon file
     {
-        const build_zon = 
+        const build_zon =
             \\.{
             \\    .name = "example_project",
             \\    .version = "0.1.0",
@@ -126,29 +126,29 @@ pub fn runZonLexerBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOpt
             \\    },
             \\}
         ;
-        
+
         const context = struct {
             allocator: std.mem.Allocator,
             content: []const u8,
-            
+
             pub fn run(ctx: @This()) anyerror!void {
                 var lexer = ZonLexer.init(ctx.allocator, ctx.content, .{});
                 defer lexer.deinit();
-                
+
                 const tokens = try lexer.tokenize();
                 defer ctx.allocator.free(tokens);
-                
+
                 std.mem.doNotOptimizeAway(tokens.len);
             }
         }{ .allocator = allocator, .content = build_zon };
-        
+
         const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "zon-lexer", "ZON Lexer build.zig.zon", effective_duration, options.warmup, context, @TypeOf(context).run);
         try results.append(result);
     }
-    
+
     // Configuration ZON file
     {
-        const config_zon = 
+        const config_zon =
             \\.{
             \\    .base_patterns = "extend",
             \\    .ignored_patterns = .{
@@ -174,26 +174,26 @@ pub fn runZonLexerBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOpt
             \\    },
             \\}
         ;
-        
+
         const context = struct {
             allocator: std.mem.Allocator,
             content: []const u8,
-            
+
             pub fn run(ctx: @This()) anyerror!void {
                 var lexer = ZonLexer.init(ctx.allocator, ctx.content, .{});
                 defer lexer.deinit();
-                
+
                 const tokens = try lexer.tokenize();
                 defer ctx.allocator.free(tokens);
-                
+
                 std.mem.doNotOptimizeAway(tokens.len);
             }
         }{ .allocator = allocator, .content = config_zon };
-        
+
         const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "zon-lexer", "ZON Lexer Config File", effective_duration, options.warmup, context, @TypeOf(context).run);
         try results.append(result);
     }
-    
+
     return results.toOwnedSlice();
 }
 

@@ -6,7 +6,6 @@ const Walker = @import("walker.zig").Walker;
 const CommonRules = @import("rules.zig").CommonRules;
 const ZonRules = @import("rules.zig").ZonRules;
 
-
 /// Common AST manipulation and query utilities
 /// These functions work with any AST regardless of the source language
 pub const ASTUtils = struct {

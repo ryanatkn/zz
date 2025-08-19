@@ -32,7 +32,7 @@ test {
     _ = @import("languages/zig/patterns.zig");
     _ = @import("languages/css/patterns.zig");
     _ = @import("languages/html/patterns.zig");
-    // Comprehensive fixture-based tests - DELETED during cleanup  
+    // Comprehensive fixture-based tests - DELETED during cleanup
     // _ = @import("test/fixture_loader.zig");
     // Fixture runner tests (with defensive error handling and logging)
     _ = @import("test/fixture_runner.zig");

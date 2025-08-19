@@ -26,9 +26,9 @@ pub const OutputFormat = enum {
 };
 
 pub const StatisticalConfidence = enum {
-    high,        // >1000 operations
-    medium,      // 100-1000 operations
-    low,         // 10-100 operations
+    high, // >1000 operations
+    medium, // 100-1000 operations
+    low, // 10-100 operations
     insufficient, // <10 operations
 
     pub fn fromOperationCount(operations: usize) StatisticalConfidence {
@@ -85,7 +85,7 @@ pub const BenchmarkResult = struct {
     ns_per_op: u64,
     confidence: StatisticalConfidence,
     extra_info: ?[]const u8 = null,
-    
+
     /// Free memory owned by this result
     pub fn deinit(self: BenchmarkResult, allocator: std.mem.Allocator) void {
         allocator.free(self.name);
@@ -93,7 +93,7 @@ pub const BenchmarkResult = struct {
             allocator.free(info);
         }
     }
-    
+
     /// Get human-readable time units
     pub fn getTimeUnit(self: BenchmarkResult) struct { value: f64, unit: []const u8 } {
         const ns = @as(f64, @floatFromInt(self.ns_per_op));
@@ -122,15 +122,15 @@ pub const ComparisonResult = struct {
     percent_change: f64,
     is_improvement: bool,
     is_regression: bool,
-    
+
     const REGRESSION_THRESHOLD = 20.0; // 20% regression threshold
     const IMPROVEMENT_THRESHOLD = -1.0; // 1% improvement threshold
-    
+
     pub fn init(baseline_ns: u64, current_ns: u64) ComparisonResult {
         const baseline_f = @as(f64, @floatFromInt(baseline_ns));
         const current_f = @as(f64, @floatFromInt(current_ns));
         const percent_change = ((current_f - baseline_f) / baseline_f) * 100.0;
-        
+
         return ComparisonResult{
             .baseline_ns_per_op = baseline_ns,
             .current_ns_per_op = current_ns,
@@ -148,11 +148,11 @@ pub const BenchmarkSuite = struct {
     variance_multiplier: f64 = 1.0,
     /// Function to run the benchmark suite
     runFn: *const fn (allocator: std.mem.Allocator, options: BenchmarkOptions) BenchmarkError![]BenchmarkResult,
-    
+
     pub fn run(self: BenchmarkSuite, allocator: std.mem.Allocator, options: BenchmarkOptions) BenchmarkError![]BenchmarkResult {
         return self.runFn(allocator, options);
     }
-    
+
     /// Get effective duration with variance multiplier applied
     pub fn getEffectiveDuration(self: BenchmarkSuite, base_duration_ns: u64, user_multiplier: f64) u64 {
         const effective_ns = @as(f64, @floatFromInt(base_duration_ns)) * self.variance_multiplier * user_multiplier;

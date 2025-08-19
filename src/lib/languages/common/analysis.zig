@@ -324,8 +324,7 @@ pub fn extractVariableDeclarations(allocator: std.mem.Allocator, ast: AST) ![]Sy
 
             // Look for identifier in children
             for (node.children) |child| {
-                if (child.rule_id == @intFromEnum(CommonRules.identifier))
-                {
+                if (child.rule_id == @intFromEnum(CommonRules.identifier)) {
                     symbol_name = try allocator.dupe(u8, child.text);
                     break;
                 }

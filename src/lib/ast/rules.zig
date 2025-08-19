@@ -1,13 +1,12 @@
 const std = @import("std");
 
 /// Rule ID system for efficient AST node type identification
-/// 
+///
 /// Instead of runtime string comparisons, we use 16-bit integers for:
 /// - 10-100x faster comparisons
 /// - 90% memory savings (2 bytes vs 16+ for strings)
 /// - Compile-time type safety
 /// - Better cache locality
-
 /// Common rule IDs shared across all languages (0-255)
 pub const CommonRules = enum(u16) {
     // Structural rules
@@ -15,35 +14,35 @@ pub const CommonRules = enum(u16) {
     object = 1,
     array = 2,
     list = 3,
-    
+
     // Literal rules
     string_literal = 10,
     number_literal = 11,
     boolean_literal = 12,
     null_literal = 13,
-    
+
     // Common language constructs
     identifier = 20,
     operator = 21,
     delimiter = 22,
     keyword = 23,
     comment = 24,
-    
+
     // Special rules
     error_node = 254,
     unknown = 255,
-    
+
     pub fn name(self: CommonRules) []const u8 {
         return @tagName(self);
     }
-    
+
     pub fn isLiteral(self: CommonRules) bool {
         return switch (self) {
             .string_literal, .number_literal, .boolean_literal, .null_literal => true,
             else => false,
         };
     }
-    
+
     pub fn isContainer(self: CommonRules) bool {
         return switch (self) {
             .object, .array, .list => true,
@@ -63,11 +62,11 @@ pub const JsonRules = struct {
     pub const boolean_literal = @intFromEnum(CommonRules.boolean_literal);
     pub const null_literal = @intFromEnum(CommonRules.null_literal);
     pub const error_recovery = @intFromEnum(CommonRules.error_node);
-    
+
     // JSON-specific rules
     pub const member: u16 = 256;
     pub const key_value_pair: u16 = 257;
-    
+
     pub fn name(id: u16) []const u8 {
         return switch (id) {
             root => "root",
@@ -83,14 +82,14 @@ pub const JsonRules = struct {
             else => "unknown",
         };
     }
-    
+
     pub fn isValue(id: u16) bool {
         return switch (id) {
             object, array, string_literal, number_literal, boolean_literal, null_literal => true,
             else => false,
         };
     }
-    
+
     pub fn isContainer(id: u16) bool {
         return id == object or id == array;
     }
@@ -108,14 +107,14 @@ pub const ZonRules = struct {
     pub const null_literal = @intFromEnum(CommonRules.null_literal);
     pub const identifier = @intFromEnum(CommonRules.identifier);
     pub const error_recovery = @intFromEnum(CommonRules.error_node);
-    
+
     // ZON-specific rules
     pub const field_assignment: u16 = 512;
     pub const field_name: u16 = 513;
     pub const dot_identifier: u16 = 514;
     pub const equals: u16 = 515;
     pub const dot: u16 = 516;
-    
+
     pub fn name(id: u16) []const u8 {
         return switch (id) {
             root => "root",
@@ -135,14 +134,14 @@ pub const ZonRules = struct {
             else => "unknown",
         };
     }
-    
+
     pub fn isValue(id: u16) bool {
         return switch (id) {
             object, array, string_literal, number_literal, boolean_literal, null_literal, identifier => true,
             else => false,
         };
     }
-    
+
     pub fn isContainer(id: u16) bool {
         return id == object or id == array;
     }
@@ -158,7 +157,7 @@ pub const TypeScriptRules = struct {
     pub const boolean_literal = @intFromEnum(CommonRules.boolean_literal);
     pub const null_literal = @intFromEnum(CommonRules.null_literal);
     pub const identifier = @intFromEnum(CommonRules.identifier);
-    
+
     // TypeScript-specific rules
     pub const interface_declaration: u16 = 768;
     pub const type_alias: u16 = 769;
@@ -172,7 +171,7 @@ pub const TypeScriptRules = struct {
     pub const union_type: u16 = 777;
     pub const intersection_type: u16 = 778;
     pub const literal_type: u16 = 779;
-    
+
     // Add more as needed...
 };
 
@@ -185,7 +184,7 @@ pub const CssRules = struct {
     pub const value: u16 = 1284;
     pub const media_query: u16 = 1285;
     pub const keyframes: u16 = 1286;
-    
+
     // Add more as needed...
 };
 
@@ -198,7 +197,7 @@ pub const HtmlRules = struct {
     pub const text: u16 = 1540;
     pub const comment: u16 = 1541;
     pub const doctype: u16 = 1542;
-    
+
     // Add more as needed...
 };
 
@@ -206,11 +205,11 @@ pub const HtmlRules = struct {
 pub const TestRules = struct {
     pub const range_start: u16 = 2048;
     pub const range_end: u16 = 4095;
-    
+
     pub fn isTestRule(rule_id: u16) bool {
         return rule_id >= range_start and rule_id <= range_end;
     }
-    
+
     pub fn name(rule_id: u16, name_mapping: *const std.HashMap(u16, []const u8, std.hash_map.AutoContext(u16), std.hash_map.default_max_load_percentage)) []const u8 {
         if (name_mapping.get(rule_id)) |rule_name| {
             return rule_name;
@@ -270,7 +269,7 @@ test "Rule predicates" {
     const common = CommonRules.string_literal;
     try testing.expect(common.isLiteral());
     try testing.expect(!common.isContainer());
-    
+
     try testing.expect(JsonRules.isValue(JsonRules.object));
     try testing.expect(JsonRules.isContainer(JsonRules.object));
     try testing.expect(!JsonRules.isContainer(JsonRules.string_literal));

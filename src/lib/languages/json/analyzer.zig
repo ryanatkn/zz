@@ -304,7 +304,7 @@ pub const JsonAnalyzer = struct {
 
         // Calculate statistics manually for now
         _ = self;
-        
+
         // Calculate max depth
         stats.max_depth = calculateDepth(node, 0);
     }
@@ -433,36 +433,33 @@ pub const JsonAnalyzer = struct {
                                 try vis_ctx.allocator.dupe(u8, key_name)
                             else
                                 try std.fmt.allocPrint(vis_ctx.allocator, "{s}.{s}", .{ vis_ctx.current_path, key_name });
-                            
+
                             // Update context for recursion
                             var child_context = VisitorContext{
                                 .allocator = vis_ctx.allocator,
                                 .symbols = vis_ctx.symbols,
                                 .current_path = new_path,
                             };
-                            
+
                             // Recursively visit value node with new path
                             var traversal = ASTTraversal.init(vis_ctx.allocator);
                             try traversal.walk(&value_node, visit, &child_context, .depth_first_pre);
-                            
+
                             vis_ctx.allocator.free(new_path);
                         }
                         return false; // Don't continue automatic traversal, we handled children
                     },
                     JsonRules.array => {
-                    try vis_ctx.symbols.append(Symbol{
-                        .name = try vis_ctx.allocator.dupe(u8, if (vis_ctx.current_path.len == 0) "root" else vis_ctx.current_path),
-                        .kind = .variable,
-                        .range = Span.init(n.start_position, n.end_position),
-                        .signature = try vis_ctx.allocator.dupe(u8, "array"),
-                        .documentation = null,
-                    });
+                        try vis_ctx.symbols.append(Symbol{
+                            .name = try vis_ctx.allocator.dupe(u8, if (vis_ctx.current_path.len == 0) "root" else vis_ctx.current_path),
+                            .kind = .variable,
+                            .range = Span.init(n.start_position, n.end_position),
+                            .signature = try vis_ctx.allocator.dupe(u8, "array"),
+                            .documentation = null,
+                        });
                         return true; // Continue traversal for array elements
                     },
-                    JsonRules.string_literal,
-                    JsonRules.number_literal,
-                    JsonRules.boolean_literal,
-                    JsonRules.null_literal => {
+                    JsonRules.string_literal, JsonRules.number_literal, JsonRules.boolean_literal, JsonRules.null_literal => {
                         const type_name = switch (n.rule_id) {
                             JsonRules.string_literal => "string",
                             JsonRules.number_literal => "number",

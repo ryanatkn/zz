@@ -159,7 +159,7 @@ pub const IndentManager = struct {
         for (text, 0..) |ch, i| {
             if (ch == '\n') {
                 const line = text[line_start..i];
-                
+
                 // Remove one level of indentation if present
                 if (std.mem.startsWith(u8, line, indent_str)) {
                     try result.appendSlice(line[indent_str.len..]);
@@ -193,7 +193,7 @@ pub const IndentManager = struct {
     ) ![]u8 {
         const from_info = try self.detectStyle(text);
         defer self.allocator.free(from_info.mixed_lines);
-        
+
         var result = std.ArrayList(u8).init(self.allocator);
         errdefer result.deinit();
 
@@ -231,7 +231,7 @@ pub const IndentManager = struct {
         };
 
         var result = try self.allocator.alloc(u8, total_chars);
-        
+
         switch (use_style) {
             .tabs, .mixed => {
                 for (0..total_chars) |i| {
@@ -283,7 +283,7 @@ pub const IndentManager = struct {
     fn convertLine(self: Self, line: []const u8, from: IndentInfo, to_style: IndentStyle, to_size: u32) ![]u8 {
         // Count current indentation level
         const level = self.getLevel(line, from.style, from.size);
-        
+
         // Skip past existing indentation
         var content_start: usize = 0;
         while (content_start < line.len and (line[content_start] == ' ' or line[content_start] == '\t')) {

@@ -103,10 +103,10 @@ test "ChangeDetector - hash consistent content" {
     // Create temporary file
     var tmp_dir = testing.tmpDir(.{});
     defer tmp_dir.cleanup();
-    
+
     // Write test content first
     try tmp_dir.dir.writeFile(.{ .sub_path = "test.zon", .data = ".{ .dependencies = .{} }" });
-    
+
     // Get real path after file exists
     const test_file = try tmp_dir.dir.realpathAlloc(testing.allocator, "test.zon");
     defer testing.allocator.free(test_file);
@@ -122,17 +122,17 @@ test "ChangeDetector - detect changes" {
     const testing = std.testing;
     var detector = ChangeDetector.init(testing.allocator);
 
-    // Create temporary files  
+    // Create temporary files
     var tmp_dir = testing.tmpDir(.{});
     defer tmp_dir.cleanup();
-    
+
     // Initial content
     try tmp_dir.dir.writeFile(.{ .sub_path = "deps.zon", .data = ".{ .dependencies = .{} }" });
-    
+
     // Get real paths after files exist
     const deps_file = try tmp_dir.dir.realpathAlloc(testing.allocator, "deps.zon");
     defer testing.allocator.free(deps_file);
-    
+
     // State file path (doesn't need to exist yet for realpath since it's in same directory)
     const tmp_path = try tmp_dir.dir.realpathAlloc(testing.allocator, ".");
     defer testing.allocator.free(tmp_path);

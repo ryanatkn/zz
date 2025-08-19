@@ -20,24 +20,24 @@ pub const PatternResolver = resolver.PatternResolver;
 // DRY helper function using layered pattern matching
 pub fn shouldIgnorePath(config: SharedConfig, path: []const u8) bool {
     if (path.len == 0) return false;
-    
+
     // Special case: always ignore current directory (.) and parent directory (..)
     if (std.mem.eql(u8, path, ".") or std.mem.eql(u8, path, "..")) {
         return true;
     }
-    
+
     // Check against ignored patterns using appropriate matcher
     for (config.ignored_patterns) |pattern| {
         if (matchesPattern(path, pattern)) {
             return true;
         }
     }
-    
+
     // Check dot directories (always ignored)
     if (path_matcher.startsWithDotDirectory(path)) {
         return true;
     }
-    
+
     return false;
 }
 
@@ -48,30 +48,30 @@ fn matchesPattern(path: []const u8, pattern: []const u8) bool {
         // Use glob matcher for wildcard patterns
         return glob.matchSimplePattern(path, pattern);
     }
-    
+
     // Use path matcher for path-based patterns
     return path_matcher.matchPath(path, pattern);
 }
 
 pub fn shouldHideFile(config: SharedConfig, name: []const u8) bool {
     if (name.len == 0) return false;
-    
+
     // Check against hidden file patterns
     for (config.hidden_files) |pattern| {
         if (std.mem.eql(u8, name, pattern)) {
             return true;
         }
     }
-    
+
     return false;
 }
 
 pub fn handleSymlink(config: SharedConfig, path: []const u8) bool {
     _ = path; // Path could be used for logging in the future
-    
+
     return switch (config.symlink_behavior) {
-        .follow => true,  // Follow the symlink
-        .skip => false,   // Skip the symlink
-        .show => true,    // Show the symlink itself (don't follow but include in output)
+        .follow => true, // Follow the symlink
+        .skip => false, // Skip the symlink
+        .show => true, // Show the symlink itself (don't follow but include in output)
     };
 }

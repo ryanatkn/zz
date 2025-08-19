@@ -3,7 +3,6 @@ const collections = @import("../core/collections.zig");
 
 /// String processing utilities to consolidate 10+ repeated splitScalar patterns
 /// Provides common text processing operations with consistent error handling
-
 /// Check if a line starts with any of the given prefixes
 pub fn startsWithAny(text: []const u8, prefixes: []const []const u8) bool {
     for (prefixes) |prefix| {

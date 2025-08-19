@@ -11,14 +11,14 @@ pub const QuoteManager = struct {
 
     /// Quote style enumeration
     pub const QuoteStyle = enum {
-        single,         // 'text'
-        double,         // "text"
-        backtick,       // `text`
-        triple_single,  // '''text'''
-        triple_double,  // """text"""
-        heredoc,        // <<EOF...EOF
-        none,          // No quotes
-        auto,          // Automatically choose best style
+        single, // 'text'
+        double, // "text"
+        backtick, // `text`
+        triple_single, // '''text'''
+        triple_double, // """text"""
+        heredoc, // <<EOF...EOF
+        none, // No quotes
+        auto, // Automatically choose best style
     };
 
     /// Quote options
@@ -53,9 +53,9 @@ pub const QuoteManager = struct {
         var result = std.ArrayList(u8).init(self.allocator);
         errdefer result.deinit();
 
-        const style = if (options.style == .auto) 
-            self.chooseBestStyle(text, options) 
-        else 
+        const style = if (options.style == .auto)
+            self.chooseBestStyle(text, options)
+        else
             options.style;
 
         // Add opening quote
@@ -88,20 +88,20 @@ pub const QuoteManager = struct {
             return self.allocator.dupe(u8, text);
         }
 
-        const content = text[quote_len..text.len - quote_len];
-        
+        const content = text[quote_len .. text.len - quote_len];
+
         // Unescape if needed
         if (info.has_escapes) {
             return self.unescapeQuotedString(content, info.style);
         }
-        
+
         return self.allocator.dupe(u8, content);
     }
 
     /// Detect quote style used in a string
     pub fn detectQuoteStyle(self: Self, text: []const u8) QuoteInfo {
         _ = self;
-        
+
         // Check for triple quotes first (they're longer)
         if (text.len >= 6) {
             if (std.mem.startsWith(u8, text, "'''") and std.mem.endsWith(u8, text, "'''")) {
@@ -109,8 +109,8 @@ pub const QuoteManager = struct {
                     .style = .triple_single,
                     .start_pos = 0,
                     .end_pos = text.len,
-                    .has_escapes = std.mem.indexOf(u8, text[3..text.len-3], "\\'") != null,
-                    .multiline = std.mem.indexOf(u8, text[3..text.len-3], "\n") != null,
+                    .has_escapes = std.mem.indexOf(u8, text[3 .. text.len - 3], "\\'") != null,
+                    .multiline = std.mem.indexOf(u8, text[3 .. text.len - 3], "\n") != null,
                 };
             }
             if (std.mem.startsWith(u8, text, "\"\"\"") and std.mem.endsWith(u8, text, "\"\"\"")) {
@@ -118,8 +118,8 @@ pub const QuoteManager = struct {
                     .style = .triple_double,
                     .start_pos = 0,
                     .end_pos = text.len,
-                    .has_escapes = std.mem.indexOf(u8, text[3..text.len-3], "\\\"") != null,
-                    .multiline = std.mem.indexOf(u8, text[3..text.len-3], "\n") != null,
+                    .has_escapes = std.mem.indexOf(u8, text[3 .. text.len - 3], "\\\"") != null,
+                    .multiline = std.mem.indexOf(u8, text[3 .. text.len - 3], "\n") != null,
                 };
             }
         }
@@ -131,7 +131,7 @@ pub const QuoteManager = struct {
                     .style = .single,
                     .start_pos = 0,
                     .end_pos = text.len,
-                    .has_escapes = std.mem.indexOf(u8, text[1..text.len-1], "\\'") != null,
+                    .has_escapes = std.mem.indexOf(u8, text[1 .. text.len - 1], "\\'") != null,
                     .multiline = false,
                 };
             }
@@ -140,7 +140,7 @@ pub const QuoteManager = struct {
                     .style = .double,
                     .start_pos = 0,
                     .end_pos = text.len,
-                    .has_escapes = std.mem.indexOf(u8, text[1..text.len-1], "\\\"") != null,
+                    .has_escapes = std.mem.indexOf(u8, text[1 .. text.len - 1], "\\\"") != null,
                     .multiline = false,
                 };
             }
@@ -149,8 +149,8 @@ pub const QuoteManager = struct {
                     .style = .backtick,
                     .start_pos = 0,
                     .end_pos = text.len,
-                    .has_escapes = std.mem.indexOf(u8, text[1..text.len-1], "\\`") != null,
-                    .multiline = std.mem.indexOf(u8, text[1..text.len-1], "\n") != null,
+                    .has_escapes = std.mem.indexOf(u8, text[1 .. text.len - 1], "\\`") != null,
+                    .multiline = std.mem.indexOf(u8, text[1 .. text.len - 1], "\n") != null,
                 };
             }
         }
@@ -168,7 +168,7 @@ pub const QuoteManager = struct {
     pub fn convertQuotes(self: Self, text: []const u8, to_style: QuoteStyle) ![]u8 {
         const stripped = try self.stripQuotes(text);
         defer self.allocator.free(stripped);
-        
+
         return self.addQuotes(stripped, .{
             .style = to_style,
             .escape_inner = true,
@@ -178,14 +178,14 @@ pub const QuoteManager = struct {
     /// Choose the best quote style for a string
     fn chooseBestStyle(self: Self, text: []const u8, options: QuoteOptions) QuoteStyle {
         _ = self;
-        
+
         // Check if multiline
         const has_newlines = std.mem.indexOf(u8, text, "\n") != null;
         if (has_newlines and options.multiline) {
             // Prefer triple quotes for multiline
             const has_triple_single = std.mem.indexOf(u8, text, "'''") != null;
             const has_triple_double = std.mem.indexOf(u8, text, "\"\"\"") != null;
-            
+
             if (!has_triple_double) return .triple_double;
             if (!has_triple_single) return .triple_single;
             return .backtick; // Fallback for multiline
@@ -195,7 +195,7 @@ pub const QuoteManager = struct {
         var single_count: usize = 0;
         var double_count: usize = 0;
         var backtick_count: usize = 0;
-        
+
         for (text) |char| {
             switch (char) {
                 '\'' => single_count += 1,
@@ -316,7 +316,7 @@ pub const QuoteManager = struct {
             .backtick => '`',
             else => return false,
         };
-        
+
         return std.mem.indexOfScalar(u8, text, quote_char) != null;
     }
 
@@ -331,7 +331,7 @@ pub const QuoteManager = struct {
             }
             return self.allocator.dupe(u8, text);
         }
-        
+
         // Add quotes
         return self.addQuotes(text, options);
     }
@@ -419,7 +419,7 @@ test "QuoteManager - escape inner quotes" {
     const manager = QuoteManager.init(allocator);
 
     const text = "Say \"Hello\"";
-    const quoted = try manager.addQuotes(text, .{ 
+    const quoted = try manager.addQuotes(text, .{
         .style = .double,
         .escape_inner = true,
     });

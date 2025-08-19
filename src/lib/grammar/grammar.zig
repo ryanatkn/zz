@@ -28,7 +28,7 @@ pub const Grammar = struct {
             self.deinitRule(entry.value_ptr.*);
         }
         self.rules.deinit();
-        
+
         // Clean up optional rule names
         if (self.rule_names) |*names| {
             names.deinit();
@@ -86,11 +86,11 @@ pub const Grammar = struct {
     /// Add a rule by ID with optional debug name
     pub fn addRuleWithName(self: *Grammar, rule_id: u16, rule_def: rule.Rule, name: []const u8) !void {
         try self.rules.put(rule_id, rule_def);
-        
+
         if (self.rule_names == null) {
             self.rule_names = std.HashMap(u16, []const u8, std.hash_map.AutoContext(u16), std.hash_map.default_max_load_percentage).init(self.allocator);
         }
-        
+
         if (self.rule_names) |*names| {
             try names.put(rule_id, name);
         }

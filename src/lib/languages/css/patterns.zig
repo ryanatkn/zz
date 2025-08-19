@@ -31,15 +31,15 @@ pub const Patterns = struct {
 
     // Pseudo-classes
     pub const pseudo_classes = [_][]const u8{
-        ":hover",        ":active",       ":focus",        ":visited",
-        ":link",         ":disabled",     ":enabled",      ":checked",
-        ":empty",        ":first-child",  ":last-child",   ":nth-child",
-        ":nth-of-type",  ":only-child",   ":target",       ":root",
-        ":first-of-type", ":last-of-type", ":only-of-type", ":nth-last-child",
-        ":nth-last-of-type", ":focus-within", ":focus-visible", ":required",
-        ":optional",     ":valid",        ":invalid",      ":in-range",
-        ":out-of-range", ":placeholder-shown", ":autofill", ":read-only",
-        ":read-write",   ":is",           ":where",        ":has",
+        ":hover",            ":active",            ":focus",         ":visited",
+        ":link",             ":disabled",          ":enabled",       ":checked",
+        ":empty",            ":first-child",       ":last-child",    ":nth-child",
+        ":nth-of-type",      ":only-child",        ":target",        ":root",
+        ":first-of-type",    ":last-of-type",      ":only-of-type",  ":nth-last-child",
+        ":nth-last-of-type", ":focus-within",      ":focus-visible", ":required",
+        ":optional",         ":valid",             ":invalid",       ":in-range",
+        ":out-of-range",     ":placeholder-shown", ":autofill",      ":read-only",
+        ":read-write",       ":is",                ":where",         ":has",
         ":not",
     };
 
@@ -60,23 +60,23 @@ pub const Patterns = struct {
 
     // Common CSS properties (for validation/completion)
     pub const common_properties = [_][]const u8{
-        "display",       "position",      "top",           "right",
-        "bottom",        "left",          "width",         "height",
-        "margin",        "padding",       "border",        "background",
-        "color",         "font",          "font-size",     "font-weight",
-        "font-family",   "text-align",    "text-decoration", "line-height",
-        "float",         "clear",         "overflow",      "visibility",
-        "opacity",       "z-index",       "transform",     "transition",
-        "animation",     "flex",          "grid",          "box-shadow",
-        "text-shadow",   "border-radius", "cursor",        "pointer-events",
-        "user-select",   "white-space",   "word-wrap",     "vertical-align",
+        "display",     "position",      "top",             "right",
+        "bottom",      "left",          "width",           "height",
+        "margin",      "padding",       "border",          "background",
+        "color",       "font",          "font-size",       "font-weight",
+        "font-family", "text-align",    "text-decoration", "line-height",
+        "float",       "clear",         "overflow",        "visibility",
+        "opacity",     "z-index",       "transform",       "transition",
+        "animation",   "flex",          "grid",            "box-shadow",
+        "text-shadow", "border-radius", "cursor",          "pointer-events",
+        "user-select", "white-space",   "word-wrap",       "vertical-align",
     };
 
     // CSS units
     pub const units = [_][]const u8{
-        "vmin", "vmax", "rem", "deg", "rad", "grad", "turn", "kHz", 
-        "px", "em", "%", "vh", "vw", "ch", "ex", "cm", "mm", "in", "pt", "pc",
-        "Hz", "ms", "fr", "s",
+        "vmin", "vmax", "rem", "deg", "rad", "grad", "turn", "kHz",
+        "px",   "em",   "%",   "vh",  "vw",  "ch",   "ex",   "cm",
+        "mm",   "in",   "pt",  "pc",  "Hz",  "ms",   "fr",   "s",
     };
 
     // Color keywords
@@ -98,20 +98,21 @@ pub const Patterns = struct {
     // Check if a line contains a CSS selector
     pub fn isSelector(line: []const u8) bool {
         const trimmed = std.mem.trim(u8, line, " \t");
-        
+
         // Check for opening brace (selector rule)
         if (std.mem.indexOf(u8, trimmed, "{") != null and
-            !std.mem.startsWith(u8, trimmed, "@")) {
+            !std.mem.startsWith(u8, trimmed, "@"))
+        {
             return true;
         }
-        
+
         // Check for selector patterns
         for (selectors) |pattern| {
             if (std.mem.indexOf(u8, trimmed, pattern) != null) {
                 return true;
             }
         }
-        
+
         return false;
     }
 
@@ -129,14 +130,15 @@ pub const Patterns = struct {
     // Check if a line contains a property declaration
     pub fn isPropertyDeclaration(line: []const u8) bool {
         const trimmed = std.mem.trim(u8, line, " \t");
-        
+
         // Look for colon (property: value pattern)
         if (std.mem.indexOf(u8, trimmed, ":") != null and
-            !std.mem.startsWith(u8, trimmed, ":") and  // Not a pseudo-class
-            !std.mem.startsWith(u8, trimmed, "::")) {   // Not a pseudo-element
+            !std.mem.startsWith(u8, trimmed, ":") and // Not a pseudo-class
+            !std.mem.startsWith(u8, trimmed, "::"))
+        { // Not a pseudo-element
             return true;
         }
-        
+
         return false;
     }
 
@@ -173,9 +175,9 @@ pub const Patterns = struct {
     // Extract selector type (class, id, element, etc.)
     pub fn getSelectorType(selector: []const u8) SelectorType {
         const trimmed = std.mem.trim(u8, selector, " \t");
-        
+
         if (trimmed.len == 0) return .unknown;
-        
+
         return switch (trimmed[0]) {
             '.' => .class,
             '#' => .id,

@@ -109,7 +109,7 @@ pub const Node = struct {
 pub const NodeType = enum {
     /// Root node - top-level AST node
     root,
-    
+
     /// Terminal node - represents literal text
     terminal,
 

@@ -28,7 +28,7 @@ pub fn measureOperationNamedWithSuite(
     comptime operation: fn (@TypeOf(context)) anyerror!void,
 ) BenchmarkError!BenchmarkResult {
     std.debug.print("[{s}] Starting \"{s}\" (duration: {}ms)\n", .{ suite_name, name, @divTrunc(duration_ns, 1_000_000) });
-    
+
     // Warmup phase
     if (warmup) {
         try runWarmup(suite_name, context, operation);
@@ -170,7 +170,7 @@ fn logCompletion(
     max_operations: usize,
 ) void {
     const confidence_symbol = confidence.getSymbol();
-    
+
     if (operations >= max_operations) {
         const ops_per_sec_m = ops_per_sec / 1_000_000;
         std.debug.print("[{s}] LIMIT: {s} - {} operations in {}ms ({}ns/op, {}M ops/sec) {s}\n", .{ suite_name, name, operations, elapsed_ms, ns_per_op, ops_per_sec_m, confidence_symbol });

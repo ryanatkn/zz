@@ -12,11 +12,11 @@ pub fn main() !void {
     // Small files for fast benchmarks (10KB)
     try generateLargeJson(allocator, "small_10kb.json", 10 * 1024);
     try generateLargeZon(allocator, "small_10kb.zon", 10 * 1024);
-    
-    // Medium files for normal benchmarks (100KB) 
+
+    // Medium files for normal benchmarks (100KB)
     try generateLargeJson(allocator, "medium_100kb.json", 100 * 1024);
     try generateLargeZon(allocator, "medium_100kb.zon", 100 * 1024);
-    
+
     // Large files for stress testing (1MB)
     try generateLargeJson(allocator, "large_1mb.json", 1024 * 1024);
     try generateLargeZon(allocator, "large_1mb.zon", 1024 * 1024);
@@ -47,7 +47,7 @@ fn generateLargeJson(allocator: std.mem.Allocator, path: []const u8, target_size
             try writer.writeAll(",\n");
         }
 
-        const user_json = try std.fmt.allocPrint(allocator, 
+        const user_json = try std.fmt.allocPrint(allocator,
             \\    {{
             \\      "id": {},
             \\      "name": "User {} with a longer name for size",
@@ -200,7 +200,7 @@ fn generateLargeZon(allocator: std.mem.Allocator, path: []const u8, target_size:
     try writer.writeAll("\n    },\n");
     try writer.writeAll("\n");
     try writer.writeAll("    .build_configs = .{\n");
-    
+
     // Add some build configurations
     for (0..10) |i| {
         if (i > 0) try writer.writeAll(",\n");
@@ -216,7 +216,7 @@ fn generateLargeZon(allocator: std.mem.Allocator, path: []const u8, target_size:
             \\        }}
         , .{ i, i % 2 == 0, i % 3 == 0 });
     }
-    
+
     try writer.writeAll("\n    },\n");
     try writer.writeAll("\n");
     try writer.writeAll("    .paths = .{\n");

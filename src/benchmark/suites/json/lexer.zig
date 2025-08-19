@@ -15,97 +15,97 @@ pub fn runJsonLexerBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOp
         }
         results.deinit();
     }
-    
+
     const effective_duration = @as(u64, @intFromFloat(@as(f64, @floatFromInt(options.duration_ns)) * 1.5 * options.duration_multiplier));
-    
+
     // Generate test data
-    const small_json = try generateJsonData(allocator, 50);   // ~1KB
+    const small_json = try generateJsonData(allocator, 50); // ~1KB
     defer allocator.free(small_json);
-    
-    const medium_json = try generateJsonData(allocator, 500); // ~10KB  
+
+    const medium_json = try generateJsonData(allocator, 500); // ~10KB
     defer allocator.free(medium_json);
-    
+
     const large_json = try generateJsonData(allocator, 5000); // ~100KB
     defer allocator.free(large_json);
-    
+
     // Lexer benchmark for small JSON (1KB)
     {
         const context = struct {
             allocator: std.mem.Allocator,
             content: []const u8,
-            
+
             pub fn run(ctx: @This()) anyerror!void {
                 var lexer = JsonLexer.init(ctx.allocator, ctx.content, .{});
                 defer lexer.deinit();
-                
+
                 const tokens = try lexer.tokenize();
                 defer ctx.allocator.free(tokens);
-                
+
                 // Prevent optimization
                 std.mem.doNotOptimizeAway(tokens.len);
             }
         }{ .allocator = allocator, .content = small_json };
-        
+
         var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
         allocator.free(result.name);
         result.name = try allocator.dupe(u8, "JSON Lexer Small (1KB)");
         try results.append(result);
     }
-    
+
     // Lexer benchmark for medium JSON (10KB) - Performance target
     {
         const context = struct {
             allocator: std.mem.Allocator,
             content: []const u8,
-            
+
             pub fn run(ctx: @This()) anyerror!void {
                 var lexer = JsonLexer.init(ctx.allocator, ctx.content, .{});
                 defer lexer.deinit();
-                
+
                 const tokens = try lexer.tokenize();
                 defer ctx.allocator.free(tokens);
-                
+
                 std.mem.doNotOptimizeAway(tokens.len);
             }
         }{ .allocator = allocator, .content = medium_json };
-        
+
         var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
         allocator.free(result.name);
         result.name = try allocator.dupe(u8, "JSON Lexer Medium (10KB)");
         try results.append(result);
-        
+
         // Performance target check: <0.1ms (100,000ns) for 10KB
         if (result.ns_per_op > 100_000) {
             std.log.warn("JSON Lexer performance target missed: {}ns > 100,000ns for 10KB", .{result.ns_per_op});
         }
     }
-    
+
     // Lexer benchmark for large JSON (100KB)
     {
         const context = struct {
             allocator: std.mem.Allocator,
             content: []const u8,
-            
+
             pub fn run(ctx: @This()) anyerror!void {
                 var lexer = JsonLexer.init(ctx.allocator, ctx.content, .{});
                 defer lexer.deinit();
-                
+
                 const tokens = try lexer.tokenize();
                 defer ctx.allocator.free(tokens);
-                
+
                 std.mem.doNotOptimizeAway(tokens.len);
             }
         }{ .allocator = allocator, .content = large_json };
-        
+
         var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
         allocator.free(result.name);
         result.name = try allocator.dupe(u8, "JSON Lexer Large (100KB)");
         try results.append(result);
     }
-    
+
     // Real-world JSON patterns
     {
-        const real_world_json = 
+        const real_world_json =
             \\{
             \\  "users": [
             \\    {
@@ -135,28 +135,28 @@ pub fn runJsonLexerBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOp
             \\  "timestamp": "2023-08-18T12:00:00Z"
             \\}
         ;
-        
+
         const context = struct {
             allocator: std.mem.Allocator,
             content: []const u8,
-            
+
             pub fn run(ctx: @This()) anyerror!void {
                 var lexer = JsonLexer.init(ctx.allocator, ctx.content, .{});
                 defer lexer.deinit();
-                
+
                 const tokens = try lexer.tokenize();
                 defer ctx.allocator.free(tokens);
-                
+
                 std.mem.doNotOptimizeAway(tokens.len);
             }
         }{ .allocator = allocator, .content = real_world_json };
-        
+
         var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
         allocator.free(result.name);
         result.name = try allocator.dupe(u8, "JSON Lexer Real-World");
         try results.append(result);
     }
-    
+
     return results.toOwnedSlice();
 }
 

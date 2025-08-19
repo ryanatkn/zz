@@ -136,7 +136,7 @@ pub const IncrementalParser = struct {
 
     pub fn deinit(self: *Self) void {
         self.node_stack.deinit();
-        
+
         if (self.partial_ast) |*ast| {
             ast.deinit();
         }
@@ -154,7 +154,7 @@ pub const IncrementalParser = struct {
     /// Parse incrementally until completion or memory limit
     pub fn parseIncremental(self: *Self) !ParseResult {
         self.state = .parsing;
-        
+
         var results = std.ArrayList(PartialResult).init(self.allocator);
         defer {
             for (results.items) |result| {
@@ -190,7 +190,7 @@ pub const IncrementalParser = struct {
             // Collect batch of tokens
             token_batch.clearRetainingCapacity();
             var batch_count: usize = 0;
-            
+
             while (batch_count < BATCH_SIZE and !self.token_iterator.isEof()) {
                 if (try self.token_iterator.next()) |token| {
                     try token_batch.append(token);
@@ -324,14 +324,14 @@ pub const IncrementalParser = struct {
 
     fn calculateMemoryUsage(self: *Self) !usize {
         var memory: usize = 0;
-        
+
         // Token iterator memory
         const token_stats = self.token_iterator.getMemoryStats();
         memory += token_stats.token_memory_bytes + token_stats.buffer_capacity_bytes;
-        
+
         // Node stack memory
         memory += self.node_stack.items.len * @sizeOf(*Node);
-        
+
         // Estimate AST memory (rough calculation)
         if (self.partial_ast) |_| {
             memory += @sizeOf(AST);

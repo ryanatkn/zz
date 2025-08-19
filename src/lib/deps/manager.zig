@@ -133,9 +133,9 @@ pub const DependencyManager = struct {
             defer self.allocator.free(dep_dir);
 
             // Check if dependency directory exists using filesystem interface
-            const exists = if (self.filesystem.statFile(self.allocator, dep_dir)) |stat| 
-                stat.kind == .directory 
-            else |_| 
+            const exists = if (self.filesystem.statFile(self.allocator, dep_dir)) |stat|
+                stat.kind == .directory
+            else |_|
                 false;
 
             if (!exists) {

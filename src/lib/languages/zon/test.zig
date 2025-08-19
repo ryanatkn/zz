@@ -165,7 +165,7 @@ test "ZON lexer - escape sequences comprehensive" {
     const allocator = testing.allocator;
 
     // Test all standard escape sequences
-    const input = 
+    const input =
         \\"basic\nescapes\ttabs\rcarriage\\backslash\"quotes"
         \\  "unicode\u{1F600}\u{0041}\u{00E9}"
         \\  "hex\x41\x42\x43"
@@ -195,13 +195,13 @@ test "ZON lexer - invalid escape sequences" {
 
     // Test various invalid escape sequences that should be handled gracefully
     const test_cases = [_][]const u8{
-        "\"invalid\\q escape\"",           // Invalid escape character
+        "\"invalid\\q escape\"", // Invalid escape character
         "\"unterminated unicode\\u{12\"", // Unterminated unicode escape
-        "\"invalid unicode\\u{GGGG}\"",   // Invalid hex digits in unicode
+        "\"invalid unicode\\u{GGGG}\"", // Invalid hex digits in unicode
         "\"too long unicode\\u{123456789}\"", // Too long unicode sequence
-        "\"invalid hex\\xGG\"",           // Invalid hex escape
-        "\"incomplete hex\\x4\"",         // Incomplete hex escape
-        "\"octal overflow\\999\"",        // Octal value too large
+        "\"invalid hex\\xGG\"", // Invalid hex escape
+        "\"incomplete hex\\x4\"", // Incomplete hex escape
+        "\"octal overflow\\999\"", // Octal value too large
     };
 
     for (test_cases) |test_input| {
@@ -224,11 +224,11 @@ test "ZON lexer - unterminated strings" {
     const allocator = testing.allocator;
 
     const test_cases = [_][]const u8{
-        "\"unterminated string",                    // No closing quote
-        "\"unterminated with escape\\\"",          // Escaped quote at end
-        "\"multiline\nunterminated",               // Newline in string
-        "\"",                                      // Just opening quote
-        "\"escape at end\\",                       // Escape at end
+        "\"unterminated string", // No closing quote
+        "\"unterminated with escape\\\"", // Escaped quote at end
+        "\"multiline\nunterminated", // Newline in string
+        "\"", // Just opening quote
+        "\"escape at end\\", // Escape at end
     };
 
     for (test_cases) |test_input| {
@@ -256,7 +256,7 @@ test "ZON parser - string escape processing" {
         mixed: []const u8,
     };
 
-    const input = 
+    const input =
         \\.{
         \\    .message = "hello\nworld\ttab",
         \\    .unicode = "emoji: \u{1F600}",
@@ -286,10 +286,10 @@ test "ZON parser - malformed unicode handling" {
     };
 
     const malformed_cases = [_][]const u8{
-        ".{ .field = \"invalid\\u{GGGG}\" }",        // Invalid hex
-        ".{ .field = \"incomplete\\u{12\" }",        // Incomplete
+        ".{ .field = \"invalid\\u{GGGG}\" }", // Invalid hex
+        ".{ .field = \"incomplete\\u{12\" }", // Incomplete
         ".{ .field = \"toolong\\u{1234567890}\" }", // Too long
-        ".{ .field = \"surrogate\\u{D800}\" }",     // Surrogate pair
+        ".{ .field = \"surrogate\\u{D800}\" }", // Surrogate pair
     };
 
     for (malformed_cases) |test_input| {
@@ -299,7 +299,7 @@ test "ZON parser - malformed unicode handling" {
             continue;
         };
         defer zon_mod.free(allocator, result);
-        
+
         // If it somehow parsed successfully, that's also okay
         // The important thing is no crashes
     }
@@ -319,7 +319,7 @@ test "ZON lexer - keywords and literals" {
     var keyword_count: u32 = 0;
     var boolean_literal_count: u32 = 0;
     var null_literal_count: u32 = 0;
-    
+
     for (tokens) |token| {
         switch (token.kind) {
             .keyword => keyword_count += 1,
@@ -331,7 +331,7 @@ test "ZON lexer - keywords and literals" {
 
     // Only 'undefined' should be classified as a keyword
     try testing.expectEqual(@as(u32, 1), keyword_count);
-    // 'true' and 'false' should be boolean literals 
+    // 'true' and 'false' should be boolean literals
     try testing.expectEqual(@as(u32, 2), boolean_literal_count);
     // 'null' should be a null literal
     try testing.expectEqual(@as(u32, 1), null_literal_count);
@@ -466,7 +466,7 @@ test "ZON parser - error recovery" {
 test "ZON parser - multiple syntax errors" {
     const allocator = testing.allocator;
 
-    const input = 
+    const input =
         \\.{
         \\    .field1 = ,  // Missing value
         \\    .field2 = {
@@ -492,7 +492,7 @@ test "ZON parser - multiple syntax errors" {
 
     const errors = parser.getErrors();
     try testing.expect(errors.len >= 2); // Should have multiple parse errors
-    
+
     // Verify parser recovered and continued parsing (AST should exist)
     // AST root rule_id is always valid as u16
 }
@@ -500,7 +500,7 @@ test "ZON parser - multiple syntax errors" {
 test "ZON parser - malformed nested structures" {
     const allocator = testing.allocator;
 
-    const input = 
+    const input =
         \\.{
         \\    .valid_field = "ok",
         \\    .malformed_array = [1, 2, 3,  // Missing closing bracket
@@ -532,7 +532,7 @@ test "ZON parser - malformed nested structures" {
 test "ZON parser - invalid token sequences" {
     const allocator = testing.allocator;
 
-    const input = 
+    const input =
         \\.{
         \\    = "no field name",  // Starts with equals
         \\    .field1 .field2 = "double field",  // Missing comma
@@ -577,7 +577,7 @@ test "ZON parser - error message quality" {
 
     const errors = parser.getErrors();
     try testing.expect(errors.len > 0);
-    
+
     // Verify error has useful information
     const first_error = errors[0];
     try testing.expect(first_error.message.len > 0);
@@ -626,7 +626,7 @@ test "ZON parser - single boolean literal true" {
     // Check that parsing succeeded
     const errors = parser.getErrors();
     try testing.expect(errors.len == 0);
-    
+
     // Test with parseFromSlice to verify end-to-end functionality
     const TestStruct = struct {
         field: bool,
@@ -658,7 +658,7 @@ test "ZON parser - single boolean literal false" {
     // Check that parsing succeeded
     const errors = parser.getErrors();
     try testing.expect(errors.len == 0);
-    
+
     // Test with parseFromSlice to verify end-to-end functionality
     const TestStruct = struct {
         field: bool,
@@ -690,7 +690,7 @@ test "ZON parser - multiple boolean literals" {
     // Check that parsing succeeded
     const errors = parser.getErrors();
     try testing.expect(errors.len == 0);
-    
+
     // Test with parseFromSlice to verify end-to-end functionality
     const TestStruct = struct {
         field1: bool,
@@ -727,7 +727,7 @@ test "ZON parser - sequential boolean fields (regression test)" {
     // Check that parsing succeeded
     const errors = parser.getErrors();
     try testing.expect(errors.len == 0);
-    
+
     // Test with parseFromSlice to verify end-to-end functionality
     const TestStruct = struct {
         preserve_newlines: bool,
@@ -761,7 +761,7 @@ test "ZON parser - null literal" {
     // Check that parsing succeeded
     const errors = parser.getErrors();
     try testing.expect(errors.len == 0);
-    
+
     // Test with parseFromSlice to verify end-to-end functionality
     const TestStruct = struct {
         field: ?u32,
@@ -793,7 +793,7 @@ test "ZON parser - mixed literals" {
     // Check that parsing succeeded
     const errors = parser.getErrors();
     try testing.expect(errors.len == 0);
-    
+
     // Test with parseFromSlice to verify end-to-end functionality
     const TestStruct = struct {
         bool_val: bool,

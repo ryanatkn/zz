@@ -32,7 +32,6 @@ fn matchPattern(path: []const u8, pattern: []const u8) bool {
     return std.mem.indexOf(u8, path, pattern) != null;
 }
 
-
 /// Git ignore patterns structure with efficient memory management
 pub const GitignorePatterns = struct {
     patterns: [][]const u8,

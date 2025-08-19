@@ -22,27 +22,27 @@ pub const Patterns = struct {
 
     // Block-level elements
     pub const block_elements = [_][]const u8{
-        "address",  "article",  "aside",     "blockquote",
-        "canvas",   "dd",       "div",       "dl",
-        "dt",       "fieldset", "figcaption", "figure",
-        "footer",   "form",     "h1",        "h2",
-        "h3",       "h4",       "h5",        "h6",
-        "header",   "hr",       "li",        "main",
-        "nav",      "noscript", "ol",        "p",
-        "pre",      "section",  "table",     "tfoot",
-        "ul",       "video",
+        "address", "article",  "aside",      "blockquote",
+        "canvas",  "dd",       "div",        "dl",
+        "dt",      "fieldset", "figcaption", "figure",
+        "footer",  "form",     "h1",         "h2",
+        "h3",      "h4",       "h5",         "h6",
+        "header",  "hr",       "li",         "main",
+        "nav",     "noscript", "ol",         "p",
+        "pre",     "section",  "table",      "tfoot",
+        "ul",      "video",
     };
 
     // Inline elements
     pub const inline_elements = [_][]const u8{
-        "a",        "abbr",     "acronym",   "b",
-        "bdo",      "big",      "br",        "button",
-        "cite",     "code",     "dfn",       "em",
-        "i",        "img",      "input",     "kbd",
-        "label",    "map",      "object",    "output",
-        "q",        "samp",     "script",    "select",
-        "small",    "span",     "strong",    "sub",
-        "sup",      "textarea", "time",      "tt",
+        "a",     "abbr",     "acronym", "b",
+        "bdo",   "big",      "br",      "button",
+        "cite",  "code",     "dfn",     "em",
+        "i",     "img",      "input",   "kbd",
+        "label", "map",      "object",  "output",
+        "q",     "samp",     "script",  "select",
+        "small", "span",     "strong",  "sub",
+        "sup",   "textarea", "time",    "tt",
         "var",
     };
 
@@ -65,17 +65,17 @@ pub const Patterns = struct {
 
     // Event attributes
     pub const event_attributes = [_][]const u8{
-        "onclick",      "ondblclick",   "onmousedown",  "onmouseup",
-        "onmouseover",  "onmousemove",  "onmouseout",   "onmouseenter",
-        "onmouseleave", "onkeydown",    "onkeypress",   "onkeyup",
-        "onfocus",      "onblur",       "onchange",     "onsubmit",
-        "onreset",      "onload",       "onunload",     "onresize",
-        "onscroll",     "onerror",      "onabort",      "oncanplay",
-        "oncanplaythrough", "ondurationchange", "onemptied", "onended",
-        "onloadeddata", "onloadedmetadata", "onloadstart", "onpause",
-        "onplay",       "onplaying",    "onprogress",   "onratechange",
-        "onseeked",     "onseeking",    "onstalled",    "onsuspend",
-        "ontimeupdate", "onvolumechange", "onwaiting",
+        "onclick",          "ondblclick",       "onmousedown", "onmouseup",
+        "onmouseover",      "onmousemove",      "onmouseout",  "onmouseenter",
+        "onmouseleave",     "onkeydown",        "onkeypress",  "onkeyup",
+        "onfocus",          "onblur",           "onchange",    "onsubmit",
+        "onreset",          "onload",           "onunload",    "onresize",
+        "onscroll",         "onerror",          "onabort",     "oncanplay",
+        "oncanplaythrough", "ondurationchange", "onemptied",   "onended",
+        "onloadeddata",     "onloadedmetadata", "onloadstart", "onpause",
+        "onplay",           "onplaying",        "onprogress",  "onratechange",
+        "onseeked",         "onseeking",        "onstalled",   "onsuspend",
+        "ontimeupdate",     "onvolumechange",   "onwaiting",
     };
 
     // Meta tag names
@@ -110,12 +110,12 @@ pub const Patterns = struct {
 
     // Input types
     pub const input_types = [_][]const u8{
-        "text",     "password", "email",    "url",
-        "tel",      "number",   "range",    "date",
-        "time",     "datetime-local", "month", "week",
-        "color",    "file",     "hidden",   "image",
-        "button",   "reset",    "submit",   "checkbox",
-        "radio",    "search",
+        "text",   "password",       "email",  "url",
+        "tel",    "number",         "range",  "date",
+        "time",   "datetime-local", "month",  "week",
+        "color",  "file",           "hidden", "image",
+        "button", "reset",          "submit", "checkbox",
+        "radio",  "search",
     };
 
     // Check if an element is void (self-closing)
@@ -177,23 +177,23 @@ pub const Patterns = struct {
     // Check if a line contains an HTML tag
     pub fn containsTag(line: []const u8) bool {
         return std.mem.indexOf(u8, line, "<") != null and
-               std.mem.indexOf(u8, line, ">") != null;
+            std.mem.indexOf(u8, line, ">") != null;
     }
 
     // Check if a line contains an opening tag
     pub fn isOpeningTag(line: []const u8) bool {
         const trimmed = std.mem.trim(u8, line, " \t");
         return std.mem.startsWith(u8, trimmed, "<") and
-               !std.mem.startsWith(u8, trimmed, "</") and
-               !std.mem.startsWith(u8, trimmed, "<!") and
-               std.mem.endsWith(u8, trimmed, ">");
+            !std.mem.startsWith(u8, trimmed, "</") and
+            !std.mem.startsWith(u8, trimmed, "<!") and
+            std.mem.endsWith(u8, trimmed, ">");
     }
 
     // Check if a line contains a closing tag
     pub fn isClosingTag(line: []const u8) bool {
         const trimmed = std.mem.trim(u8, line, " \t");
         return std.mem.startsWith(u8, trimmed, "</") and
-               std.mem.endsWith(u8, trimmed, ">");
+            std.mem.endsWith(u8, trimmed, ">");
     }
 
     // Check if a line contains a DOCTYPE declaration
@@ -207,7 +207,7 @@ pub const Patterns = struct {
     pub fn isComment(line: []const u8) bool {
         const trimmed = std.mem.trim(u8, line, " \t");
         return std.mem.startsWith(u8, trimmed, "<!--") or
-               (std.mem.indexOf(u8, trimmed, "<!--") != null and
+            (std.mem.indexOf(u8, trimmed, "<!--") != null and
                 std.mem.indexOf(u8, trimmed, "-->") != null);
     }
 
@@ -256,7 +256,7 @@ test "HTML patterns - block vs inline detection" {
     try std.testing.expect(Patterns.isBlockElement("div"));
     try std.testing.expect(Patterns.isBlockElement("p"));
     try std.testing.expect(!Patterns.isBlockElement("span"));
-    
+
     try std.testing.expect(Patterns.isInlineElement("span"));
     try std.testing.expect(Patterns.isInlineElement("a"));
     try std.testing.expect(!Patterns.isInlineElement("div"));
@@ -276,7 +276,7 @@ test "HTML patterns - attribute detection" {
     try std.testing.expect(Patterns.isGlobalAttribute("data-id"));
     try std.testing.expect(Patterns.isGlobalAttribute("aria-label"));
     try std.testing.expect(!Patterns.isGlobalAttribute("href"));
-    
+
     try std.testing.expect(Patterns.isEventAttribute("onclick"));
     try std.testing.expect(Patterns.isEventAttribute("onload"));
     try std.testing.expect(!Patterns.isEventAttribute("class"));

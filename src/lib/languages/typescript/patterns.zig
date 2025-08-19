@@ -38,21 +38,21 @@ pub const Patterns = struct {
 
     // Keywords for syntax highlighting
     pub const keywords = [_][]const u8{
-        "async",     "await",     "break",      "case",
-        "catch",     "class",     "const",      "continue",
-        "debugger",  "default",   "delete",     "do",
-        "else",      "enum",      "export",     "extends",
-        "false",     "finally",   "for",        "function",
-        "if",        "implements", "import",     "in",
-        "instanceof", "interface", "let",        "new",
-        "null",      "of",        "package",    "private",
-        "protected", "public",    "return",     "static",
-        "super",     "switch",    "this",       "throw",
-        "true",      "try",       "typeof",     "undefined",
-        "var",       "void",      "while",      "with",
-        "yield",     "as",        "from",       "get",
-        "module",    "namespace", "readonly",   "require",
-        "set",       "type",
+        "async",      "await",      "break",    "case",
+        "catch",      "class",      "const",    "continue",
+        "debugger",   "default",    "delete",   "do",
+        "else",       "enum",       "export",   "extends",
+        "false",      "finally",    "for",      "function",
+        "if",         "implements", "import",   "in",
+        "instanceof", "interface",  "let",      "new",
+        "null",       "of",         "package",  "private",
+        "protected",  "public",     "return",   "static",
+        "super",      "switch",     "this",     "throw",
+        "true",       "try",        "typeof",   "undefined",
+        "var",        "void",       "while",    "with",
+        "yield",      "as",         "from",     "get",
+        "module",     "namespace",  "readonly", "require",
+        "set",        "type",
     };
 
     // Common method names for detection

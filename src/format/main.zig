@@ -318,20 +318,20 @@ fn formatWithLanguageModules(allocator: std.mem.Allocator, content: []const u8, 
             // Use zz's JsonTransformPipeline with full FormatOptions support
             const JsonTransformPipeline = @import("../lib/languages/json/transform.zig").JsonTransformPipeline;
             const Context = @import("../lib/transform/transform.zig").Context;
-            
+
             // Create transform context for pipeline execution
             var ctx = Context.init(allocator);
             defer ctx.deinit();
-            
+
             // Initialize JSON pipeline with format options
             var pipeline = try JsonTransformPipeline.initWithOptions(
                 allocator,
                 .{}, // Default lexer options
-                .{}, // Default parser options  
+                .{}, // Default parser options
                 format_options, // User-provided format options
             );
             defer pipeline.deinit();
-            
+
             // Round-trip: JSON text → AST → formatted JSON text
             const formatted_const = try pipeline.roundTrip(&ctx, content);
             return allocator.dupe(u8, formatted_const);
@@ -340,10 +340,10 @@ fn formatWithLanguageModules(allocator: std.mem.Allocator, content: []const u8, 
             // Use zz's ZonTransformPipeline similarly
             const ZonTransformPipeline = @import("../lib/languages/zon/transform.zig").ZonTransformPipeline;
             const Context = @import("../lib/transform/transform.zig").Context;
-            
+
             var ctx = Context.init(allocator);
             defer ctx.deinit();
-            
+
             var pipeline = try ZonTransformPipeline.initWithOptions(
                 allocator,
                 .{}, // Default lexer options
@@ -351,7 +351,7 @@ fn formatWithLanguageModules(allocator: std.mem.Allocator, content: []const u8, 
                 format_options, // User-provided format options
             );
             defer pipeline.deinit();
-            
+
             const formatted_const = try pipeline.roundTrip(&ctx, content);
             return allocator.dupe(u8, formatted_const);
         },

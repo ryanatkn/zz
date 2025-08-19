@@ -371,7 +371,7 @@ pub const JsonLinter = struct {
         }
         return false;
     }
-    
+
     /// Efficient rule checking using enum (O(1) vs O(n) string comparison)
     fn isRuleEnabledEnum(self: *Self, rule_kind: JsonLintRules.KindType, enabled_rules: []const JsonLintRules.KindType) bool {
         _ = self;
@@ -393,7 +393,7 @@ pub const JsonLinter = struct {
             .fix = null,
         });
     }
-    
+
     /// Efficient diagnostic creation using enum (no string allocation for rule name)
     fn addDiagnosticEnum(self: *Self, rule_kind: JsonLintRules.KindType, message: []const u8, span: Span) !void {
         const owned_message = try self.allocator.dupe(u8, message);

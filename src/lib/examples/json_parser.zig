@@ -230,7 +230,7 @@ test "JSON parser - boolean values" {
         switch (result) {
             .success => |node| {
                 // TODO: Replace with specific JSON rule ID when available
-            try testing.expect(node.rule_id != 0); // Basic sanity check
+                try testing.expect(node.rule_id != 0); // Basic sanity check
                 try testing.expectEqualStrings("true", node.text);
                 defer node.deinit(allocator);
             },
@@ -245,7 +245,7 @@ test "JSON parser - boolean values" {
         switch (result) {
             .success => |node| {
                 // TODO: Replace with specific JSON rule ID when available
-            try testing.expect(node.rule_id != 0); // Basic sanity check
+                try testing.expect(node.rule_id != 0); // Basic sanity check
                 try testing.expectEqualStrings("false", node.text);
                 defer node.deinit(allocator);
             },

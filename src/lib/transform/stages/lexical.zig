@@ -22,18 +22,18 @@ pub const LexicalTransform = Transform([]const u8, []const Token);
 pub const ILexicalTransform = struct {
     /// Forward: tokenize text into tokens
     tokenizeFn: *const fn (ctx: *Context, text: []const u8) anyerror![]const Token,
-    
+
     /// Reverse: reconstruct text from tokens (with trivia preservation)
     detokenizeFn: ?*const fn (ctx: *Context, tokens: []const Token) anyerror![]const u8,
-    
+
     /// Language identifier for language-specific behavior
     language: ?escape_mod.Escaper.Language = null,
-    
+
     /// Metadata about the transform
     metadata: types.TransformMetadata,
-    
+
     const Self = @This();
-    
+
     /// Convert to Transform interface
     pub fn toTransform(self: *const Self) LexicalTransform {
         return .{
@@ -50,9 +50,9 @@ pub const ILexicalTransform = struct {
 /// Token with trivia preservation for format-preserving transforms
 pub const TokenWithTrivia = struct {
     token: Token,
-    leading_trivia: []const u8,  // Whitespace/comments before token
+    leading_trivia: []const u8, // Whitespace/comments before token
     trailing_trivia: []const u8, // Whitespace/comments after token
-    
+
     /// Create from regular token
     pub fn fromToken(token: Token) TokenWithTrivia {
         return .{
@@ -61,7 +61,7 @@ pub const TokenWithTrivia = struct {
             .trailing_trivia = "",
         };
     }
-    
+
     /// Extract trivia from source text
     pub fn extractTrivia(
         allocator: std.mem.Allocator,
@@ -74,12 +74,12 @@ pub const TokenWithTrivia = struct {
             try allocator.dupe(u8, source[prev_end..token.span.start])
         else
             "";
-            
+
         const trailing = if (token.span.end < next_start)
             try allocator.dupe(u8, source[token.span.end..next_start])
         else
             "";
-            
+
         return .{
             .token = token,
             .leading_trivia = leading,
@@ -108,11 +108,11 @@ pub fn createLexicalTransform(
 pub fn defaultDetokenize(ctx: *Context, tokens: []const Token) ![]const u8 {
     var result = std.ArrayList(u8).init(ctx.allocator);
     errdefer result.deinit();
-    
+
     // Get language from context for proper escaping
     const language = ctx.getOption("language", []const u8) orelse "json";
     const escape_lang = std.meta.stringToEnum(escape_mod.Escaper.Language, language) orelse .json;
-    
+
     var prev_end: usize = 0;
     for (tokens) |token| {
         // Add any gap between tokens (preserves whitespace)
@@ -123,7 +123,7 @@ pub fn defaultDetokenize(ctx: *Context, tokens: []const Token) ![]const u8 {
                 try result.append(' ');
             }
         }
-        
+
         // Add token text
         if (token.kind == .string_literal) {
             // Ensure strings are properly quoted/escaped
@@ -137,10 +137,10 @@ pub fn defaultDetokenize(ctx: *Context, tokens: []const Token) ![]const u8 {
         } else {
             try result.appendSlice(token.text);
         }
-        
+
         prev_end = token.span.end;
     }
-    
+
     return result.toOwnedSlice();
 }
 
@@ -152,10 +152,10 @@ pub const TokenIterator = struct {
     lexer: ILexicalTransform,
     buffer: std.ArrayList(Token),
     finished: bool,
-    
+
     const Self = @This();
     const CHUNK_SIZE = 4096;
-    
+
     pub fn init(ctx: *Context, source: []const u8, lexer: ILexicalTransform) TokenIterator {
         return .{
             .ctx = ctx,
@@ -166,27 +166,27 @@ pub const TokenIterator = struct {
             .finished = false,
         };
     }
-    
+
     pub fn deinit(self: *Self) void {
         self.buffer.deinit();
     }
-    
+
     pub fn next(self: *Self) !?Token {
         if (self.buffer.items.len > 0) {
             return self.buffer.orderedRemove(0);
         }
-        
+
         if (self.finished) {
             return null;
         }
-        
+
         // Tokenize next chunk
         const chunk_end = @min(self.position + CHUNK_SIZE, self.source.len);
         const chunk = self.source[self.position..chunk_end];
-        
+
         const tokens = try self.lexer.tokenizeFn(self.ctx, chunk);
         defer self.ctx.allocator.free(tokens);
-        
+
         // Adjust token spans to absolute positions
         for (tokens) |token| {
             var adjusted = token;
@@ -196,12 +196,12 @@ pub const TokenIterator = struct {
             );
             try self.buffer.append(adjusted);
         }
-        
+
         self.position = chunk_end;
         if (self.position >= self.source.len) {
             self.finished = true;
         }
-        
+
         return if (self.buffer.items.len > 0)
             self.buffer.orderedRemove(0)
         else
@@ -214,32 +214,32 @@ const testing = std.testing;
 
 test "TokenWithTrivia extraction" {
     const allocator = testing.allocator;
-    
+
     const source = "  hello  world  ";
     const token = Token.simple(Span.init(2, 7), .identifier, "hello", 0);
-    
+
     const with_trivia = try TokenWithTrivia.extractTrivia(
         allocator,
         source,
         token,
-        0,  // prev_end
-        9,  // next_start
+        0, // prev_end
+        9, // next_start
     );
     defer {
         allocator.free(with_trivia.leading_trivia);
         allocator.free(with_trivia.trailing_trivia);
     }
-    
+
     try testing.expectEqualStrings("  ", with_trivia.leading_trivia);
     try testing.expectEqualStrings("  ", with_trivia.trailing_trivia);
 }
 
 test "Default detokenizer" {
     const allocator = testing.allocator;
-    
+
     var ctx = Context.init(allocator);
     defer ctx.deinit();
-    
+
     const tokens = [_]Token{
         Token.simple(Span.init(0, 1), .delimiter, "{", 0),
         Token.simple(Span.init(2, 7), .string_literal, "key", 0),
@@ -247,10 +247,10 @@ test "Default detokenizer" {
         Token.simple(Span.init(10, 15), .string_literal, "value", 0),
         Token.simple(Span.init(16, 17), .delimiter, "}", 0),
     };
-    
+
     const result = try defaultDetokenize(&ctx, &tokens);
     defer allocator.free(result);
-    
+
     // Result should have tokens with spaces between
     try testing.expect(std.mem.indexOf(u8, result, "{") != null);
     try testing.expect(std.mem.indexOf(u8, result, "}") != null);

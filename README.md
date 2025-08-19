@@ -37,6 +37,10 @@ zz echo --json 'Path: C:\file'          # JSON-escaped output
 zz echo --color=red --bold "Error!"     # Colored terminal output
 zz echo --repeat=1000 "test" | wc -l    # Generate test data
 
+# Performance benchmarks
+zz benchmark --format pretty             # Run with confidence symbols  
+zz benchmark --only path,memory          # Run specific suites
+
 # Manage dependencies
 zz deps --list                           # Check dependency status
 zz deps --check                          # CI-friendly update check

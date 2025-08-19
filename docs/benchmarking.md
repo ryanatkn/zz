@@ -17,11 +17,14 @@ zig build benchmark-stdout
 
 ## Architecture
 
-- **Core Module**: `src/lib/benchmark/mod.zig` - Runner, measurement, output formatting
+- **Modular Core**: `src/lib/benchmark/` - Separated into focused modules:
+  - `types.zig` - Core data structures, statistical confidence enums
+  - `runner.zig` - BenchmarkRunner orchestration
+  - `timer.zig` - Measurement with confidence tracking
+  - `output.zig` - All formatting (markdown, json, csv, pretty)
+  - `baseline.zig` - Baseline comparison management
 - **Benchmark Suites**: `src/benchmark/suites/` - Organized by module type
-  - `core.zig` - Path, memory, text, patterns, character operations
-  - `languages.zig` - JSON, ZON, parser layer benchmarks
-- **Time-based execution**: Runs for fixed duration (default 2s), not fixed iterations
+- **Exact duration**: Runs for precise target duration (default 200ms), no minimum iterations
 
 ## CLI Usage
 
@@ -36,7 +39,7 @@ zz benchmark --only path,memory       # Run specific suites
 zz benchmark --skip parser            # Skip specific suites
 
 # Timing control
-zz benchmark --duration 5s            # Run each benchmark for 5 seconds
+zz benchmark --duration 500ms         # Run each benchmark for 500ms (default: 200ms)
 zz benchmark --duration-multiplier 2.0  # Double all durations for stability
 
 # Baseline comparison
@@ -46,10 +49,18 @@ zz benchmark --no-compare             # Skip baseline comparison
 
 ## Output Formats
 
-- **markdown** (default): Tables with baseline comparison, suitable for documentation
-- **pretty**: Terminal output with colors (✓ improved, ⚠ regressed, ? new)
-- **json**: Structured data for tooling integration
-- **csv**: Simple spreadsheet format
+- **markdown** (default): Tables with baseline comparison and confidence warnings (⚠)
+- **pretty**: Terminal output with confidence symbols (✓○△⚠) and performance colors
+- **json**: Structured data with confidence statistics for tooling integration  
+- **csv**: Simple spreadsheet format with confidence levels
+
+## Statistical Confidence
+
+Each benchmark result includes a confidence level based on operation count:
+- **✓ High** (1000+ operations): Statistically reliable
+- **○ Medium** (100-1000 operations): Generally reliable  
+- **△ Low** (10-100 operations): May have variance
+- **⚠ Insufficient** (<10 operations): Unreliable, increase duration
 
 ## Variance Multipliers
 
@@ -77,12 +88,12 @@ Files in `benchmarks/`:
 
 ## Performance Targets
 
-Current baselines (Debug build, 2s duration):
-- Path operations: ~50μs/op
-- Character predicates: ~30ns/op
-- ArrayList operations: ~50μs/op
-- Pattern matching: ~400ns/op
-- JSON text analysis: ~1.6μs/op
+Current baselines (Debug build, 200ms duration):
+- Path operations: ~50μs/op (Medium-High confidence)
+- Character predicates: ~5ns/op (High confidence) 
+- ArrayList operations: ~50μs/op (Medium confidence)
+- Pattern matching: ~400ns/op (High confidence)
+- JSON text analysis: ~1.6μs/op (High confidence)
 
 **Regression threshold**: 20% slower than baseline triggers exit code 1
 
@@ -107,16 +118,20 @@ Current baselines (Debug build, 2s duration):
    ./zig-out/bin/zz benchmark --duration 5s
    ```
 
-2. **Stable measurements**: Use `--duration-multiplier 2.0` or higher for less variance
+2. **Stable measurements**: Use `--duration-multiplier 2.0` or increase `--duration` for confidence
 
 3. **Track history**: Commit `benchmarks/baseline.md` to git for historical tracking
 
 4. **Filter noise**: Use `--only` to focus on specific areas during development
 
+5. **Confidence requirements**: Use `--min-confidence=medium` to fail on unreliable results
+
 ## Implementation Notes
 
-- Operations run until duration expires (time-based, not count-based)
-- Warmup phase runs 100 iterations before timing
-- Each suite can define its own variance multiplier
-- Benchmark functions return `BenchmarkError` for proper error handling
-- Uses `std.mem.doNotOptimizeAway()` to prevent compiler optimizations
+- **Exact duration enforcement**: No minimum iterations, runs for precise target time
+- **Statistical confidence tracking**: All results include reliability metadata
+- **Adaptive check intervals**: 10/100/1000 operations based on benchmark speed  
+- **Warmup phase**: 100 iterations with timeout protection before timing
+- **Modular architecture**: Clean separation of timing, output, baseline management
+- **Variance multipliers**: Each suite defines expected variability (1x-3x)
+- **Memory safety**: Proper cleanup with defer blocks and owned text tracking

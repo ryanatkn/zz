@@ -118,7 +118,7 @@ $ zz tree                           # Show directory tree
 $ zz prompt "src/**/*.zig"          # Generate LLM prompt
 $ zz format config.json --write     # Format file in-place
 $ zz deps --list                    # Check dependency status
-$ zz deps --generate-manifest       # Generate dependency manifest.json
+$ zz benchmark --format pretty      # Run performance benchmarks
 ```
 
 ## Commands Overview
@@ -147,11 +147,18 @@ $ echo '{"a":1}' | zz format --stdin # Format from stdin
 ```
 See [docs/format-features.md](docs/format-features.md) for language support.
 
+### Benchmark - Performance Testing
+```bash
+$ zz benchmark --format pretty      # Terminal output with confidence symbols
+$ zz benchmark --only path,memory   # Run specific suites
+$ zz benchmark --duration 500ms     # Custom duration (default: 200ms)
+```
+See [docs/benchmarking.md](docs/benchmarking.md) for details.
+
 ### Deps - Dependency Management
 ```bash
 $ zz deps --check                   # Check if updates needed
 $ zz deps --update                  # Update dependencies
-$ zz deps --force-dep tree-sitter   # Force update specific dep
 $ zz deps --generate-manifest       # Generate manifest.json (smart detection)
 ```
 See [docs/deps.md](docs/deps.md) for architecture details.
@@ -165,7 +172,7 @@ See [docs/commands.md](docs/commands.md) for all commands and options.
 $ zig build test                    # Run all tests
 $ zig build test -Dtest-filter="pattern"  # Filter tests
 $ zig build test --summary all      # Show detailed test summary (useful for debugging)
-$ zig build benchmark               # Run benchmarks and compare with baseline
+$ zig build benchmark               # Run benchmarks with statistical confidence
 $ zig build benchmark-baseline      # Save current performance as baseline
 $ zig build benchmark-stdout        # Show pretty benchmark output
 ```

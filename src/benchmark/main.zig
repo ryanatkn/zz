@@ -230,7 +230,7 @@ fn printHelp() !void {
         \\
         \\Options:
         \\  --format FORMAT           Output format (markdown, json, csv, pretty) [default: markdown]
-        \\  --duration TIME           Duration to run each benchmark (e.g. 2s, 500ms) [default: 2s]
+        \\  --duration TIME           Duration to run each benchmark (e.g. 2s, 500ms) [default: 200ms]
         \\  --duration-multiplier N   Extra duration multiplier [default: 1.0]
         \\  --baseline FILE           Custom baseline file [default: benchmarks/baseline.md]
         \\  --no-compare              Disable baseline comparison

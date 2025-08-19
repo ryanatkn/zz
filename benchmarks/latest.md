@@ -6,29 +6,29 @@ Iterations: Time-based (0s duration)
 
 | Benchmark | Operations | Time (ms) | ns/op | vs Baseline |
 |-----------|------------|-----------|-------|-------------|
-| Path Joining | 3000 | 144.6 | 48208 | -10.2% |
-| Path Utilities | 8255000 | 100.0 | 12 | +0.0% |
-| ArrayList Operations | 4000 | 199.2 | 49808 | +2.7% |
-| HashMap Operations | 2000 | 194.5 | 97243 | +2.7% |
-| Pattern Matching | 245000 | 100.4 | 409 | +1.0% |
-| Text Line Processing | 1000 | 51.9 | 51884 | +1.6% |
-| String Operations | 101000 | 50.1 | 496 | +1.8% |
-| Character Predicates | 10336000 | 50.0 | 4 | +0.0% |
-| Character Classification | 509000 | 50.0 | 98 | +5.4% |
-| JSON Text Analysis | 46000 | 76.3 | 1658 | +2.6% |
-| ZON Text Analysis | 63000 | 75.7 | 1201 | +2.6% |
-| Code Text Analysis | 22000 | 76.9 | 3496 | +0.6% |
-| Traditional Full-Memory JSON (10KB) | 2000 | 153.8 | 76923 | +0.2% |
-| Streaming TokenIterator JSON (10KB) | 1000 | 301.1 | 301056 | +2.5% |
-| Memory Usage Comparison (10KB) | 1000 | 147.1 | 147062 | +1.8% |
-| Incremental Parser ZON (10KB) | 1000 | 367.0 | 367003 | +3.0% |
-| Direct Function Calls (Baseline) | 2000 | 102.0 | 51001 | +1.7% |
-| Transform Pipeline (Small Chunks) | 2000 | 102.7 | 51356 | +1.6% |
-| Transform Pipeline (Optimal Chunks) | 1000 | 573.2 | 573173 | +4.7% |
-| ZON Lexer Small (1KB) | 1000 | 486.5 | 486455 | +2.3% |
-| ZON Lexer Medium (10KB) | 1000 | 627.0 | 626985 | +2.9% |
-| ZON Lexer Large (100KB) | 1000 | 1458.7 | 1458691 | +3.8% |
-| ZON Lexer build.zig.zon | 1000 | 372.7 | 372670 | +2.0% |
-| ZON Lexer Config File | 1000 | 368.5 | 368468 | +0.9% |
+| Path Joining | 8000 | 404.4 | 50545 | -4.9% |
+| Path Utilities | 29182500 | 400.0 | 13 | +0.0% |
+| ArrayList Operations | 13000 | 649.1 | 49933 | -3.9% |
+| HashMap Operations | 6000 | 605.0 | 100825 | -0.6% |
+| Pattern Matching | 955600 | 400.0 | 418 | +1.7% |
+| Text Line Processing | 3900 | 201.5 | 51678 | -1.6% |
+| String Operations | 403700 | 200.0 | 495 | +0.4% |
+| Character Predicates | 36502800 | 200.0 | 5 | +0.0% |
+| Character Classification | 1951900 | 200.0 | 102 | -1.0% |
+| JSON Text Analysis | 180100 | 300.0 | 1665 | +0.4% |
+| ZON Text Analysis | 257700 | 300.0 | 1164 | +0.8% |
+| Code Text Analysis | 86000 | 300.0 | 3488 | +1.1% |
+| Traditional Full-Memory JSON (10KB) | 5000 | 400.2 | 80034 | +2.4% |
+| Streaming TokenIterator JSON (10KB) | 700 | 422.4 | 603498 | +1.0% |
+| Memory Usage Comparison (10KB) | 2400 | 410.1 | 170892 | +1.3% |
+| Incremental Parser ZON (10KB) | 600 | 437.6 | 729265 | +3.1% |
+| Direct Function Calls (Baseline) | 7700 | 405.0 | 52597 | +5.0% |
+| Transform Pipeline (Small Chunks) | 7200 | 400.3 | 55600 | +5.8% |
+| Transform Pipeline (Optimal Chunks) | 200 | 401.1 | 2005401 | +3.5% |
+| ZON Lexer Small (1KB) | 600 | 311.4 | 519060 | +8.0% |
+| ZON Lexer Medium (10KB) | 500 | 318.4 | 636707 | +4.5% |
+| ZON Lexer Large (100KB) | 300 | 437.5 | 1458476 | -1.3% |
+| ZON Lexer build.zig.zon | 900 | 337.9 | 375389 | +2.1% |
+| ZON Lexer Config File | 800 | 302.9 | 378586 | +3.3% |
 
 **Legend:** Positive percentages indicate slower performance (regression), negative percentages indicate faster performance (improvement).

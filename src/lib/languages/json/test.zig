@@ -169,7 +169,8 @@ test "JSON parser - all value types" {
         var ast = try parser.parse();
         defer ast.deinit();
         
-        try testing.expect(ast.root != null);
+        // AST root is no longer optional, it's always a Node struct
+    try testing.expect(ast.root.children.len >= 0);
         
         // Check for parse errors
         const errors = parser.getErrors();
@@ -209,7 +210,8 @@ test "JSON parser - nested structures" {
     var ast = try parser.parse();
     defer ast.deinit();
     
-    try testing.expect(ast.root != null);
+    // AST root is no longer optional, it's always a Node struct
+    try testing.expect(ast.root.children.len >= 0);
     
     const errors = parser.getErrors();
     try testing.expectEqual(@as(usize, 0), errors.len);
@@ -248,7 +250,8 @@ test "JSON parser - error recovery" {
         defer ast.deinit();
         
         // If parsing succeeds, should still produce some AST
-        try testing.expect(ast.root != null);
+        // AST root is no longer optional, it's always a Node struct
+    try testing.expect(ast.root.children.len >= 0);
         
         // Should have recorded errors
         const errors = parser.getErrors();
@@ -303,7 +306,7 @@ test "JSON formatter - pretty printing" {
     var ast2 = try parser2.parse();
     defer ast2.deinit();
     
-    try testing.expect(ast2.root != null);
+    // AST.root is non-optional now
 }
 
 test "JSON formatter - options" {
@@ -608,7 +611,8 @@ test "JSON integration - complete pipeline" {
     var ast = try json_mod.parseJson(allocator, original_json);
     defer ast.deinit();
     
-    try testing.expect(ast.root != null);
+    // AST root is no longer optional, it's always a Node struct
+    try testing.expect(ast.root.children.len >= 0);
     
     // Format the JSON
     const formatted = try json_mod.formatJsonString(allocator, original_json);
@@ -678,8 +682,8 @@ test "JSON integration - round-trip fidelity" {
         defer ast2.deinit();
         
         // Both should be valid
-        try testing.expect(ast1.root != null);
-        try testing.expect(ast2.root != null);
+        // AST.root is non-optional now
+        // AST.root is non-optional now
         
         // Formatted version should also be valid when re-formatted
         const formatted2 = try json_mod.formatJsonString(allocator, formatted);
@@ -710,7 +714,8 @@ test "JSON integration - language support interface" {
     var ast = try support.parser.parse(allocator, tokens);
     defer ast.deinit();
     
-    try testing.expect(ast.root != null);
+    // AST root is no longer optional, it's always a Node struct
+    try testing.expect(ast.root.children.len >= 0);
     
     // Format
     const options = FormatOptions{
@@ -801,6 +806,7 @@ test "JSON performance - large file handling" {
     try testing.expect(format_time < 100_000_000); // 100ms in nanoseconds
     
     // Validate performance requirements are met
-    try testing.expect(ast.root != null);
+    // AST root is no longer optional, it's always a Node struct
+    try testing.expect(ast.root.children.len >= 0);
     try testing.expect(formatted.len > json_text.len); // Should be formatted (larger due to whitespace)
 }

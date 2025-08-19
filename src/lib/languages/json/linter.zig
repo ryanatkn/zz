@@ -4,6 +4,7 @@ const AST = @import("../../ast/mod.zig").AST;
 const Node = @import("../../ast/mod.zig").Node;
 const NodeType = @import("../../ast/mod.zig").NodeType;
 const Span = @import("../../parser/foundation/types/span.zig").Span;
+const JsonRules = @import("../../ast/rules.zig").JsonRules;
 const Rule = @import("../interface.zig").Rule;
 const Diagnostic = @import("../interface.zig").Diagnostic;
 
@@ -99,7 +100,7 @@ pub const JsonLinter = struct {
         return self.diagnostics.toOwnedSlice();
     }
 
-    fn validateNode(self: *Self, node: *Node, depth: u32, enabled_rules: []const Rule) !void {
+    fn validateNode(self: *Self, node: *const Node, depth: u32, enabled_rules: []const Rule) !void {
         // Check depth limit
         if (depth > self.options.max_depth) {
             if (self.isRuleEnabled("max-depth-exceeded", enabled_rules)) {
@@ -107,7 +108,7 @@ pub const JsonLinter = struct {
                     "max-depth-exceeded",
                     "JSON nesting depth exceeds maximum limit",
                     .@"error",
-                    node.span,
+                    Span.init(node.start_position, node.end_position),
                 );
             }
             return;
@@ -120,30 +121,28 @@ pub const JsonLinter = struct {
                     "deep-nesting",
                     "JSON structure has deep nesting",
                     .warning,
-                    node.span,
+                    Span.init(node.start_position, node.end_position),
                 );
             }
         }
 
-        switch (node.node_type) {
-            .json_string => try self.validateString(node, enabled_rules),
-            .json_number => try self.validateNumber(node, enabled_rules),
-            .json_object => try self.validateObject(node, depth, enabled_rules),
-            .json_array => try self.validateArray(node, depth, enabled_rules),
-            .json_member => try self.validateMember(node, depth, enabled_rules),
-            else => {},
+        switch (node.rule_id) {
+            JsonRules.string_literal => try self.validateString(node, enabled_rules),
+            JsonRules.number_literal => try self.validateNumber(node, enabled_rules),
+            JsonRules.object => try self.validateObject(node, depth, enabled_rules),
+            JsonRules.array => try self.validateArray(node, depth, enabled_rules),
+            JsonRules.member => try self.validateMember(node, depth, enabled_rules),
+            else => {}, // Ignore other node types
         }
 
         // Recursively validate children
-        if (node.children) |children| {
-            for (children) |child| {
-                try self.validateNode(child, depth + 1, enabled_rules);
-            }
+        for (node.children) |*child| {
+            try self.validateNode(child, depth + 1, enabled_rules);
         }
     }
 
-    fn validateString(self: *Self, node: *Node, enabled_rules: []const Rule) !void {
-        const raw_value = node.value orelse return;
+    fn validateString(self: *Self, node: *const Node, enabled_rules: []const Rule) !void {
+        const raw_value = node.text;
 
         // Check length
         if (raw_value.len > self.options.max_string_length) {
@@ -152,7 +151,7 @@ pub const JsonLinter = struct {
                     "large-structure",
                     "String exceeds maximum length",
                     .warning,
-                    node.span,
+                    Span.init(node.start_position, node.end_position),
                 );
             }
         }
@@ -166,18 +165,20 @@ pub const JsonLinter = struct {
                         "valid-string-encoding",
                         "String contains invalid UTF-8 sequences",
                         .@"error",
-                        node.span,
+                        Span.init(node.start_position, node.end_position),
                     );
                 }
 
                 // Validate escape sequences
-                try self.validateEscapeSequences(content, node.span, enabled_rules);
+                const span = Span.init(node.start_position, node.end_position);
+                try self.validateEscapeSequences(content, span, enabled_rules);
             }
         }
     }
 
-    fn validateNumber(self: *Self, node: *Node, enabled_rules: []const Rule) !void {
-        const value = node.value orelse return;
+    fn validateNumber(self: *Self, node: *const Node, enabled_rules: []const Rule) !void {
+        const value = node.text;
+        if (value.len == 0) return;
 
         // Check for leading zeros
         if (self.isRuleEnabled("no-leading-zeros", enabled_rules) and !self.options.allow_leading_zeros) {
@@ -186,7 +187,7 @@ pub const JsonLinter = struct {
                     "no-leading-zeros",
                     "Number has leading zero",
                     .warning,
-                    node.span,
+                    Span.init(node.start_position, node.end_position),
                 );
             }
         }
@@ -206,7 +207,7 @@ pub const JsonLinter = struct {
                         "large-number-precision",
                         "Number has high precision that may cause floating-point issues",
                         .warning,
-                        node.span,
+                        Span.init(node.start_position, node.end_position),
                     );
                 }
             }
@@ -218,13 +219,13 @@ pub const JsonLinter = struct {
                 "invalid-number",
                 "Number format is invalid",
                 .@"error",
-                node.span,
+                Span.init(node.start_position, node.end_position),
             );
         };
     }
 
-    fn validateObject(self: *Self, node: *Node, _: u32, _: []const Rule) !void {
-        const members = node.children orelse return;
+    fn validateObject(self: *Self, node: *const Node, _: u32, _: []const Rule) !void {
+        const members = node.children;
 
         // Check object size
         if (members.len > self.options.max_object_keys) {
@@ -233,7 +234,7 @@ pub const JsonLinter = struct {
                     "large-structure",
                     "Object has too many keys",
                     .warning,
-                    node.span,
+                    Span.init(node.start_position, node.end_position),
                 );
             }
         }
@@ -244,12 +245,12 @@ pub const JsonLinter = struct {
             defer seen_keys.deinit();
 
             for (members) |member| {
-                if (member.node_type != .json_member) continue;
-                const member_children = member.children orelse continue;
+                if (member.rule_id != JsonRules.member) continue;
+                const member_children = member.children;
                 if (member_children.len < 2) continue;
 
                 const key_node = member_children[0];
-                const key_value = key_node.value orelse continue;
+                const key_value = key_node.text;
 
                 // Extract key content (remove quotes)
                 const key_content = if (key_value.len >= 2 and key_value[0] == '"' and key_value[key_value.len - 1] == '"')
@@ -262,18 +263,18 @@ pub const JsonLinter = struct {
                         "no-duplicate-keys",
                         "Duplicate object key",
                         .@"error",
-                        key_node.span,
+                        Span.init(key_node.start_position, key_node.end_position),
                         "Remove duplicate key or rename to make unique",
                     );
                 } else {
-                    try seen_keys.put(key_content, key_node.span);
+                    try seen_keys.put(key_content, Span.init(key_node.start_position, key_node.end_position));
                 }
             }
         }
     }
 
-    fn validateArray(self: *Self, node: *Node, _: u32, _: []const Rule) !void {
-        const elements = node.children orelse return;
+    fn validateArray(self: *Self, node: *const Node, _: u32, _: []const Rule) !void {
+        const elements = node.children;
 
         // Check array size
         if (elements.len > self.options.max_array_elements) {
@@ -282,25 +283,25 @@ pub const JsonLinter = struct {
                     "large-structure",
                     "Array has too many elements",
                     .warning,
-                    node.span,
+                    Span.init(node.start_position, node.end_position),
                 );
             }
         }
     }
 
-    fn validateMember(self: *Self, node: *Node, _: u32, _: []const Rule) !void {
-        const children = node.children orelse return;
+    fn validateMember(self: *Self, node: *const Node, _: u32, _: []const Rule) !void {
+        const children = node.children;
         if (children.len != 2) return;
 
         const key_node = children[0];
 
         // Validate that key is a string
-        if (key_node.node_type != .json_string) {
+        if (key_node.rule_id != JsonRules.string_literal) {
             try self.addDiagnostic(
                 "invalid-key-type",
                 "Object key must be a string",
                 .@"error",
-                key_node.span,
+                Span.init(key_node.start_position, key_node.end_position),
             );
         }
     }

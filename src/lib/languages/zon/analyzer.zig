@@ -292,25 +292,25 @@ pub const ZonAnalyzer = struct {
     fn inferType(self: *Self, node: Node) std.mem.Allocator.Error!TypeInfo {
         switch (node.node_type) {
             .list => {
-                if (std.mem.eql(u8, node.rule_name, "object")) {
-                    return try self.inferObjectType(node);
-                } else if (std.mem.eql(u8, node.rule_name, "array")) {
-                    return try self.inferArrayType(node);
-                } else {
-                    return TypeInfo{
+                const ZonRules = @import("../../ast/rules.zig").ZonRules;
+                switch (node.rule_id) {
+                    ZonRules.object => return try self.inferObjectType(node),
+                    ZonRules.array => return try self.inferArrayType(node),
+                    else => return TypeInfo{
                         .kind = .any,
                         .name = null,
                         .fields = null,
                         .element_type = null,
                         .nullable = false,
-                    };
+                    },
                 }
             },
             .terminal => {
                 return try self.inferTerminalType(node);
             },
             .rule => {
-                if (std.mem.eql(u8, node.rule_name, "field_assignment") and node.children.len >= 2) {
+                const ZonRules = @import("../../ast/rules.zig").ZonRules;
+                if (node.rule_id == ZonRules.field_assignment and node.children.len >= 2) {
                     // Return the type of the value
                     return try self.inferType(node.children[1]);
                 } else {
@@ -398,64 +398,51 @@ pub const ZonAnalyzer = struct {
     fn inferTerminalType(self: *Self, terminal_node: Node) !TypeInfo {
         _ = self;
 
-        if (std.mem.eql(u8, terminal_node.rule_name, "string_literal")) {
-            return TypeInfo{
+        const ZonRules = @import("../../ast/rules.zig").ZonRules;
+        
+        switch (terminal_node.rule_id) {
+            ZonRules.string_literal => return TypeInfo{
                 .kind = .string,
                 .name = null,
                 .fields = null,
                 .element_type = null,
                 .nullable = false,
-            };
-        } else if (std.mem.eql(u8, terminal_node.rule_name, "number_literal")) {
-            return TypeInfo{
+            },
+            ZonRules.number_literal => return TypeInfo{
                 .kind = .number,
                 .name = null,
                 .fields = null,
                 .element_type = null,
                 .nullable = false,
-            };
-        } else if (std.mem.eql(u8, terminal_node.rule_name, "boolean_literal")) {
-            return TypeInfo{
+            },
+            ZonRules.boolean_literal => return TypeInfo{
                 .kind = .boolean,
                 .name = null,
                 .fields = null,
                 .element_type = null,
                 .nullable = false,
-            };
-        } else if (std.mem.eql(u8, terminal_node.rule_name, "null_literal")) {
-            return TypeInfo{
+            },
+            ZonRules.null_literal => return TypeInfo{
                 .kind = .null_type,
                 .name = null,
                 .fields = null,
                 .element_type = null,
                 .nullable = true,
-            };
-        } else if (std.mem.eql(u8, terminal_node.rule_name, "undefined_literal")) {
-            return TypeInfo{
-                .kind = .undefined_type,
-                .name = null,
-                .fields = null,
-                .element_type = null,
-                .nullable = false,
-            };
-        } else if (std.mem.eql(u8, terminal_node.rule_name, "identifier") or
-            std.mem.eql(u8, terminal_node.rule_name, "field_name"))
-        {
-            return TypeInfo{
+            },
+            ZonRules.identifier, ZonRules.field_name => return TypeInfo{
                 .kind = .identifier,
                 .name = null,
                 .fields = null,
                 .element_type = null,
                 .nullable = false,
-            };
-        } else {
-            return TypeInfo{
+            },
+            else => return TypeInfo{
                 .kind = .any,
                 .name = null,
                 .fields = null,
                 .element_type = null,
                 .nullable = false,
-            };
+            },
         }
     }
 
@@ -497,7 +484,8 @@ pub const ZonAnalyzer = struct {
                         }
                     },
                     .terminal => {
-                        if (std.mem.eql(u8, n.rule_name, "identifier")) {
+                        const ZonRules = @import("../../ast/rules.zig").ZonRules;
+                        if (n.rule_id == ZonRules.identifier) {
                             const symbol = Symbol{
                                 .name = try vis_ctx.analyzer.allocator.dupe(u8, n.text),
                                 .kind = .value,
@@ -525,7 +513,8 @@ pub const ZonAnalyzer = struct {
         var target_node = root_node;
 
         // If the root is an object, look inside it
-        if (std.mem.eql(u8, root_node.rule_name, "object")) {
+        const ZonRules = @import("../../ast/rules.zig").ZonRules;
+        if (root_node.rule_id == ZonRules.object) {
             target_node = root_node;
         }
 
@@ -537,7 +526,7 @@ pub const ZonAnalyzer = struct {
                 const value_node = field_data.value_node;
 
                 if (std.mem.eql(u8, field_name, "dependencies") and
-                    std.mem.eql(u8, value_node.rule_name, "object"))
+                    value_node.rule_id == ZonRules.object)
                 {
                     try self.extractDependenciesFromObject(value_node, dependencies);
                 }
@@ -562,7 +551,8 @@ pub const ZonAnalyzer = struct {
             };
 
             // Extract dependency details from object using direct iteration
-            if (std.mem.eql(u8, dep_value_node.rule_name, "object")) {
+            const ZonRules = @import("../../ast/rules.zig").ZonRules;
+            if (dep_value_node.rule_id == ZonRules.object) {
                 // Directly iterate over dependency object children
                 for (dep_value_node.children) |dep_field| {
                     if (!utils.isFieldAssignment(dep_field)) continue;
@@ -571,15 +561,15 @@ pub const ZonAnalyzer = struct {
                     const prop_value_node = prop_data.value_node;
 
                     if (std.mem.eql(u8, prop_name, "url") and
-                        std.mem.eql(u8, prop_value_node.rule_name, "string_literal"))
+                        prop_value_node.rule_id == ZonRules.string_literal)
                     {
                         dependency.url = try self.allocator.dupe(u8, prop_value_node.text);
                     } else if (std.mem.eql(u8, prop_name, "hash") and
-                        std.mem.eql(u8, prop_value_node.rule_name, "string_literal"))
+                        prop_value_node.rule_id == ZonRules.string_literal)
                     {
                         dependency.hash = try self.allocator.dupe(u8, prop_value_node.text);
                     } else if (std.mem.eql(u8, prop_name, "version") and
-                        std.mem.eql(u8, prop_value_node.rule_name, "string_literal"))
+                        prop_value_node.rule_id == ZonRules.string_literal)
                     {
                         dependency.version = try self.allocator.dupe(u8, prop_value_node.text);
                     }
@@ -601,28 +591,17 @@ pub const ZonAnalyzer = struct {
             fn visit(n: *const Node, context: ?*anyopaque) anyerror!bool {
                 const zon_stats = @as(*Statistics, @ptrCast(@alignCast(context.?)));
                 
-                switch (n.node_type) {
-                    .list => {
-                        if (std.mem.eql(u8, n.rule_name, "object")) {
-                            zon_stats.object_count += 1;
-                        } else if (std.mem.eql(u8, n.rule_name, "array")) {
-                            zon_stats.array_count += 1;
-                        }
-                    },
-                    .rule => {
-                        if (std.mem.eql(u8, n.rule_name, "field_assignment")) {
-                            zon_stats.field_count += 1;
-                        }
-                    },
-                    .terminal => {
-                        if (std.mem.eql(u8, n.rule_name, "string_literal")) {
-                            zon_stats.string_count += 1;
-                        } else if (std.mem.eql(u8, n.rule_name, "number_literal")) {
-                            zon_stats.number_count += 1;
-                        }
-                    },
+                const ZonRules = @import("../../ast/rules.zig").ZonRules;
+                switch (n.rule_id) {
+                    ZonRules.object => zon_stats.object_count += 1,
+                    ZonRules.array => zon_stats.array_count += 1,
+                    ZonRules.field_assignment => zon_stats.field_count += 1,
+                    ZonRules.string_literal => zon_stats.string_count += 1,
+                    ZonRules.number_literal => zon_stats.number_count += 1,
                     else => {},
                 }
+                
+                // All statistics collected via rule_id switch above
                 return true; // Continue traversal
             }
         }.visit;

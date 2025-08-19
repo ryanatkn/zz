@@ -2,6 +2,8 @@ const common = @import("common.zig");
 const std = common.std;
 const Node = common.Node;
 const utils = common.utils;
+const ZonRules = @import("../../ast/rules.zig").ZonRules;
+const CommonRules = @import("../../ast/rules.zig").CommonRules;
 
 // Import FormatSection for debugging - need to be careful with circular imports
 // const FormatSection = @import("../../config/zon.zig").ZonConfig.FormatSection;
@@ -144,7 +146,7 @@ pub const AstConverter = struct {
         const type_info = @typeInfo(T);
 
         // Check for null literal
-        if (std.mem.eql(u8, node.rule_name, "null_literal") or
+        if (node.rule_id == ZonRules.null_literal or
             std.mem.eql(u8, node.text, "null"))
         {
             return null;
@@ -214,7 +216,7 @@ pub const AstConverter = struct {
         _ = self;
         
         // Handle proper boolean literal nodes
-        if (std.mem.eql(u8, node.rule_name, "boolean_literal")) {
+        if (node.rule_id == ZonRules.boolean_literal) {
             if (std.mem.eql(u8, node.text, "true")) return true;
             if (std.mem.eql(u8, node.text, "false")) return false;
         }
@@ -248,7 +250,7 @@ pub const AstConverter = struct {
 
     /// Extract string from string literal node
     fn extractString(self: *Self, node: Node) ![]const u8 {
-        if (!std.mem.eql(u8, node.rule_name, "string_literal")) {
+        if (node.rule_id != ZonRules.string_literal) {
             return error.InvalidZonSyntax;
         }
 
@@ -432,27 +434,27 @@ pub const AstConverter = struct {
     /// Find an object node within the AST
     fn findObjectNode(self: *Self, node: Node) ?Node {
         // Direct object node
-        if (std.mem.eql(u8, node.rule_name, "object")) {
+        if (node.rule_id == ZonRules.object) {
             return node;
         }
 
-        // Handle various wrapper patterns
-        if (std.mem.eql(u8, node.rule_name, "dot_expression") or
-            std.mem.eql(u8, node.rule_name, "expression") or
-            std.mem.eql(u8, node.rule_name, "value") or
-            std.mem.eql(u8, node.rule_name, "program") or
-            std.mem.eql(u8, node.rule_name, "root"))
-        {
-            // Look for object in children
-            for (node.children) |child| {
-                if (std.mem.eql(u8, child.rule_name, "object")) {
-                    return child;
+        // Handle various wrapper patterns using switch
+        switch (node.rule_id) {
+            ZonRules.root,
+            ZonRules.dot_identifier,
+            => {
+                // Look for object in children
+                for (node.children) |child| {
+                    if (child.rule_id == ZonRules.object) {
+                        return child;
+                    }
+                    // Recursively search in children
+                    if (self.findObjectNode(child)) |obj| {
+                        return obj;
+                    }
                 }
-                // Recursively search in children
-                if (self.findObjectNode(child)) |obj| {
-                    return obj;
-                }
-            }
+            },
+            else => {},
         }
 
         // For assignment patterns, check the value side
@@ -476,37 +478,37 @@ pub const AstConverter = struct {
     /// Find an array node within the AST
     fn findArrayNode(self: *Self, node: Node) ?Node {
         // Direct array node
-        if (std.mem.eql(u8, node.rule_name, "array")) {
+        if (node.rule_id == ZonRules.array) {
             return node;
         }
 
         // Anonymous array literal .{} can be represented as object
         // When used for arrays, objects are treated as arrays
-        if (std.mem.eql(u8, node.rule_name, "object")) {
+        if (node.rule_id == ZonRules.object) {
             // Check if this is being used as an array
             // In ZON, .{} can represent both objects and arrays
             return node;
         }
 
-        // Handle various wrapper patterns
-        if (std.mem.eql(u8, node.rule_name, "dot_expression") or
-            std.mem.eql(u8, node.rule_name, "expression") or
-            std.mem.eql(u8, node.rule_name, "value") or
-            std.mem.eql(u8, node.rule_name, "program") or
-            std.mem.eql(u8, node.rule_name, "root"))
-        {
-            // Look for array in children
-            for (node.children) |child| {
-                if (std.mem.eql(u8, child.rule_name, "array") or
-                    std.mem.eql(u8, child.rule_name, "object"))
-                {
-                    return child;
+        // Handle various wrapper patterns using switch
+        switch (node.rule_id) {
+            ZonRules.root,
+            ZonRules.dot_identifier,
+            => {
+                // Look for array in children
+                for (node.children) |child| {
+                    if (child.rule_id == ZonRules.array or
+                        child.rule_id == ZonRules.object)
+                    {
+                        return child;
+                    }
+                    // Recursively search in children
+                    if (self.findArrayNode(child)) |arr| {
+                        return arr;
+                    }
                 }
-                // Recursively search in children
-                if (self.findArrayNode(child)) |arr| {
-                    return arr;
-                }
-            }
+            },
+            else => {},
         }
 
         // For assignment patterns, check the value side

@@ -7,6 +7,8 @@ const ASTFactory = @import("factory.zig").ASTFactory;
 const createMockAST = @import("factory.zig").createMockAST;
 const ASTStructure = @import("factory.zig").ASTStructure;
 const FieldSpec = @import("factory.zig").FieldSpec;
+const CommonRules = @import("rules.zig").CommonRules;
+const ZonRules = @import("rules.zig").ZonRules;
 
 // Import ZON parser for creating real ASTs
 const zon_mod = @import("../languages/zon/mod.zig");
@@ -55,11 +57,11 @@ pub const ASTTestHelpers = struct {
     }
 
     /// Create a minimal AST with just a root node for basic testing
-    pub fn createMinimalAST(allocator: std.mem.Allocator, rule_name: []const u8, text: []const u8) !AST {
+    pub fn createMinimalAST(allocator: std.mem.Allocator, rule_id: u16, text: []const u8) !AST {
         var factory = ASTFactory.init(allocator);
         defer factory.deinit();
 
-        const root = try factory.createLiteral(rule_name, text, 0, text.len);
+        const root = try factory.createLiteral(rule_id, text, 0, text.len);
         return try factory.createAST(root, text);
     }
 
@@ -77,7 +79,7 @@ pub const ASTTestHelpers = struct {
 
     /// Deep comparison of two AST nodes
     pub fn assertASTEqual(expected: *const Node, actual: *const Node) !void {
-        try testing.expectEqualStrings(expected.rule_name, actual.rule_name);
+        try testing.expectEqual(expected.rule_id, actual.rule_id);
         try testing.expectEqual(expected.node_type, actual.node_type);
         try testing.expectEqualStrings(expected.text, actual.text);
         try testing.expectEqual(expected.start_position, actual.start_position);
@@ -91,15 +93,15 @@ pub const ASTTestHelpers = struct {
     }
 
     /// Assert that an AST has the expected structure
-    pub fn assertASTStructure(node: *const Node, expected_rule: []const u8, expected_children: usize) !void {
-        try testing.expectEqualStrings(expected_rule, node.rule_name);
+    pub fn assertASTStructure(node: *const Node, expected_rule_id: u16, expected_children: usize) !void {
+        try testing.expectEqual(expected_rule_id, node.rule_id);
         try testing.expectEqual(expected_children, node.children.len);
     }
 
     /// Check if an AST node has a specific child
-    pub fn assertHasChild(node: *const Node, child_rule_name: []const u8) !void {
+    pub fn assertHasChild(node: *const Node, child_rule_id: u16) !void {
         for (node.children) |child| {
-            if (std.mem.eql(u8, child.rule_name, child_rule_name)) {
+            if (child.rule_id == child_rule_id) {
                 return; // Found the child
             }
         }
@@ -108,12 +110,12 @@ pub const ASTTestHelpers = struct {
 
     /// Check if an AST represents a field assignment
     pub fn assertIsFieldAssignment(node: *const Node, expected_field_name: []const u8) !void {
-        try testing.expectEqualStrings("field_assignment", node.rule_name);
+        try testing.expectEqual(ZonRules.field_assignment, node.rule_id);
         try testing.expect(node.children.len >= 2);
 
         // First child should be the field name
         const field_name_node = &node.children[0];
-        try testing.expectEqualStrings("field_name", field_name_node.rule_name);
+        try testing.expectEqual(ZonRules.field_name, field_name_node.rule_id);
 
         // Extract and check field name (handle dot prefix)
         var field_name = field_name_node.text;
@@ -130,9 +132,9 @@ pub const ASTTestHelpers = struct {
             try writer.print("  ");
         }
 
-        // Print node info
-        try writer.print("{s} ({s}) [{}-{}]: \"{s}\"\n", .{
-            node.rule_name,
+        // Print node info with rule ID
+        try writer.print("Rule#{} ({s}) [{}-{}]: \"{s}\"\n", .{
+            node.rule_id,
             @tagName(node.node_type),
             node.start_position,
             node.end_position,
@@ -158,8 +160,8 @@ pub const ASTTestHelpers = struct {
         // Check that owned_texts is properly allocated
         try testing.expect(ast.owned_texts.len >= 0);
 
-        // Check that the root node exists
-        try testing.expect(ast.root.rule_name.len > 0);
+        // Check that the root node exists with valid rule ID
+        try testing.expect(ast.root.rule_id < 65535);
 
         // Check that source is properly set
         try testing.expect(ast.source.len >= 0);
@@ -174,30 +176,30 @@ pub const ASTTestHelpers = struct {
         return count;
     }
 
-    /// Find all nodes with a specific rule name
+    /// Find all nodes with a specific rule ID
     pub fn findAllNodes(
         allocator: std.mem.Allocator,
         node: *const Node,
-        rule_name: []const u8,
+        rule_id: u16,
     ) ![]const *const Node {
         var result = std.ArrayList(*const Node).init(allocator);
         defer result.deinit();
 
-        try findAllNodesRecursive(&result, node, rule_name);
+        try findAllNodesRecursive(&result, node, rule_id);
         return result.toOwnedSlice();
     }
 
     fn findAllNodesRecursive(
         result: *std.ArrayList(*const Node),
         node: *const Node,
-        rule_name: []const u8,
+        rule_id: u16,
     ) !void {
-        if (std.mem.eql(u8, node.rule_name, rule_name)) {
+        if (node.rule_id == rule_id) {
             try result.append(node);
         }
 
         for (node.children) |child| {
-            try findAllNodesRecursive(result, &child, rule_name);
+            try findAllNodesRecursive(result, &child, rule_id);
         }
     }
 
@@ -251,7 +253,7 @@ test "create simple ZON AST" {
     var ast = try ASTTestHelpers.createZonAST(testing.allocator, ".{ .name = \"test\", .version = \"1.0\" }");
     defer ast.deinit();
 
-    try testing.expectEqualStrings("object", ast.root.rule_name);
+    try testing.expectEqual(ZonRules.object, ast.root.rule_id);
     try testing.expect(ast.root.children.len > 0);
 }
 
@@ -264,7 +266,7 @@ test "create simple object AST" {
     var ast = try ASTTestHelpers.createSimpleObject(testing.allocator, &fields);
     defer ast.deinit();
 
-    try ASTTestHelpers.assertASTStructure(&ast.root, "object", 2);
+    try ASTTestHelpers.assertASTStructure(&ast.root, @intFromEnum(CommonRules.object), 2);
 }
 
 test "create simple array AST" {
@@ -273,7 +275,7 @@ test "create simple array AST" {
     var ast = try ASTTestHelpers.createSimpleArray(testing.allocator, &items);
     defer ast.deinit();
 
-    try ASTTestHelpers.assertASTStructure(&ast.root, "array", 3);
+    try ASTTestHelpers.assertASTStructure(&ast.root, @intFromEnum(CommonRules.array), 3);
 }
 
 test "create structured AST" {
@@ -285,7 +287,7 @@ test "create structured AST" {
     var ast = try ASTTestHelpers.createStructuredAST(testing.allocator, structure);
     defer ast.deinit();
 
-    try ASTTestHelpers.assertASTStructure(&ast.root, "object", 2);
+    try ASTTestHelpers.assertASTStructure(&ast.root, @intFromEnum(CommonRules.object), 2);
 }
 
 test "AST comparison" {
@@ -297,7 +299,7 @@ test "AST comparison" {
 
     // Note: This test might fail if parser generates different internal structures
     // In practice, you'd compare specific parts of the AST rather than the whole thing
-    try testing.expectEqualStrings(ast1.root.rule_name, ast2.root.rule_name);
+    try testing.expectEqual(ast1.root.rule_id, ast2.root.rule_id);
 }
 
 test "test context automatic cleanup" {

@@ -12,6 +12,7 @@ const Value = @import("../foundation/types/predicate.zig").Value;
 const AST = @import("../../ast/mod.zig").AST;
 const ASTNode = @import("../../ast/mod.zig").ASTNode;
 const NodeKind = @import("../../ast/mod.zig").NodeKind;
+const CommonRules = @import("../../ast/rules.zig").CommonRules;
 
 // Import structural types
 const ParseBoundary = @import("../structural/mod.zig").ParseBoundary;
@@ -84,6 +85,7 @@ pub const FactGenerator = struct {
     ) !void {
         // Generate facts based on node type and rule name
         switch (node.node_type) {
+            .root => try self.generateRuleBasedFacts(node, facts, confidence), // Treat root like a rule
             .terminal => try self.generateTerminalFacts(node, facts, confidence),
             .rule => try self.generateRuleBasedFacts(node, facts, confidence),
             .list => try self.generateListFacts(node, facts, confidence),
@@ -117,14 +119,9 @@ pub const FactGenerator = struct {
         facts: *std.ArrayList(Fact),
         confidence: f32,
     ) !void {
-        // Use rule_name to determine the semantic type
-        if (std.mem.eql(u8, node.rule_name, "function")) {
-            try self.generateFunctionFacts(node, facts, confidence);
-        } else if (std.mem.eql(u8, node.rule_name, "struct")) {
-            try self.generateStructFacts(node, facts, confidence);
-        } else {
-            try self.generateGenericFacts(node, facts, confidence);
-        }
+        // For now, use generic facts since function/struct rules need language-specific definition
+        // TODO: Define language-specific rule IDs for function/struct
+        try self.generateGenericFacts(node, facts, confidence);
     }
 
     fn generateListFacts(
@@ -299,6 +296,7 @@ pub const FactGenerator = struct {
     ) !void {
         // Convert NodeType to NodeKind for predicate
         const node_kind: @import("../foundation/types/predicate.zig").NodeKind = switch (node.node_type) {
+            .root => .rule, // Treat root as a rule node
             .terminal => .terminal,
             .rule => .rule,
             .list => .list,

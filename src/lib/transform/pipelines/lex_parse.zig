@@ -341,7 +341,7 @@ test "LexParsePipeline basic usage" {
             fn tokenize(context: *Context, text: []const u8) ![]const Token {
                 _ = text;
                 var tokens = try context.allocator.alloc(Token, 1);
-                tokens[0] = Token.simple(Span.init(0, 4), .null, "null", 0);
+                tokens[0] = Token.simple(Span.init(0, 4), .null_literal, "null", 0);
                 return tokens;
             }
         }.tokenize,
@@ -355,7 +355,7 @@ test "LexParsePipeline basic usage" {
             fn parse(context: *Context, tokens: []const Token) !AST {
                 _ = tokens;
                 var ast = AST.init(context.allocator);
-                ast.root = try builder.createLeafNode(context.allocator, .json_null, "null", Span.init(0, 4));
+                ast.root = try @import("../../ast/node.zig").createLeafNode(context.allocator, @intFromEnum(@import("../../ast/rules.zig").CommonRules.null_literal), "null", 0, 4);
                 return ast;
             }
         }.parse,
@@ -370,7 +370,8 @@ test "LexParsePipeline basic usage" {
     var ast = try pipeline.parse(&ctx, "null");
     defer ast.deinit();
     
-    try testing.expect(ast.root != null);
+    // AST.root is no longer optional - just verify it exists
+    try testing.expect(ast.root.rule_id == @intFromEnum(@import("../../ast/rules.zig").CommonRules.null_literal));
 }
 
 test "PipelineBuilder usage" {
@@ -399,7 +400,7 @@ test "PipelineBuilder usage" {
         .metadata = .{ .name = "mock", .description = "Mock" },
     };
     
-    const builder_inst = PipelineBuilder.init(allocator);
+    var builder_inst = PipelineBuilder.init(allocator);
     const pipeline = try builder_inst
         .withLexer(mock_lexer)
         .withParser(mock_parser)

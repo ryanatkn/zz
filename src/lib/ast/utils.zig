@@ -409,6 +409,7 @@ pub const ASTUtils = struct {
         stats.total_nodes += 1;
 
         switch (node.node_type) {
+            .root => stats.rule_nodes += 1, // Count root as a rule node
             .terminal => stats.terminal_nodes += 1,
             .rule => stats.rule_nodes += 1,
             .list => stats.list_nodes += 1,

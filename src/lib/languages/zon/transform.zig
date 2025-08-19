@@ -59,11 +59,9 @@ pub const ZonLexicalTransform = struct {
     fn tokenize(ctx: *Context, text: []const u8) ![]const Token {
         // Get options from context if available
         const preserve_comments = ctx.getOption("preserve_comments", bool) orelse true;
-        const allow_multiline_strings = ctx.getOption("allow_multiline_strings", bool) orelse true;
         
         const options = ZonLexer.LexerOptions{
             .preserve_comments = preserve_comments,
-            .allow_multiline_strings = allow_multiline_strings,
         };
         
         var lexer = ZonLexer.init(ctx.allocator, text, options);
@@ -78,12 +76,7 @@ pub const ZonLexicalTransform = struct {
         defer result.deinit();
         
         for (tokens) |token| {
-            // Add leading trivia if present
-            if (token.trivia) |trivia| {
-                try result.appendSlice(trivia);
-            }
-            
-            // Add token text
+            // Add token text (trivia handling is done at parsing level)
             try result.appendSlice(token.text);
         }
         
@@ -123,11 +116,11 @@ pub const ZonLexicalTransform = struct {
 /// ZON syntactic transform wrapper
 pub const ZonSyntacticTransform = struct {
     allocator: std.mem.Allocator,
-    options: ZonParser.ParserOptions,
+    options: ZonParser.ParseOptions,
     
     const Self = @This();
     
-    pub fn init(allocator: std.mem.Allocator, options: ZonParser.ParserOptions) Self {
+    pub fn init(allocator: std.mem.Allocator, options: ZonParser.ParseOptions) Self {
         return .{
             .allocator = allocator,
             .options = options,
@@ -146,7 +139,7 @@ pub const ZonSyntacticTransform = struct {
                 .description = "ZON parser with build.zig.zon support",
                 .reversible = true,
                 .streaming_capable = false, // TODO: Add streaming support
-                .performance_class = .medium,
+                .performance_class = .moderate,
                 .estimated_memory = 1024 * 128, // 128KB estimate
             },
         };
@@ -156,7 +149,7 @@ pub const ZonSyntacticTransform = struct {
         const preserve_comments = ctx.getOption("preserve_comments", bool) orelse true;
         const recover_from_errors = ctx.getOption("recover_from_errors", bool) orelse true;
         
-        const options = ZonParser.ParserOptions{
+        const options = ZonParser.ParseOptions{
             .preserve_comments = preserve_comments,
             .recover_from_errors = recover_from_errors,
         };
@@ -184,7 +177,7 @@ pub const ZonSyntacticTransform = struct {
     fn parseWithRecovery(ctx: *Context, tokens: []const Token) !syntactic.ParseResult {
         const preserve_comments = ctx.getOption("preserve_comments", bool) orelse true;
         
-        const options = ZonParser.ParserOptions{
+        const options = ZonParser.ParseOptions{
             .preserve_comments = preserve_comments,
             .recover_from_errors = true,
         };
@@ -204,7 +197,7 @@ pub const ZonSyntacticTransform = struct {
                     .severity = switch (error_item.severity) {
                         .@"error" => .err,
                         .warning => .warning,
-                        _ => .info,
+                        else => .info,
                     },
                 };
             }
@@ -281,7 +274,7 @@ pub const ZonTransformPipeline = struct {
     /// Initialize with default options
     pub fn init(allocator: std.mem.Allocator) !Self {
         const lexer_options = ZonLexer.LexerOptions{};
-        const parser_options = ZonParser.ParserOptions{};
+        const parser_options = ZonParser.ParseOptions{};
         
         var zon_lexer = ZonLexicalTransform.init(allocator, lexer_options);
         var zon_parser = ZonSyntacticTransform.init(allocator, parser_options);
@@ -303,7 +296,7 @@ pub const ZonTransformPipeline = struct {
     pub fn initWithOptions(
         allocator: std.mem.Allocator,
         lexer_options: ZonLexer.LexerOptions,
-        parser_options: ZonParser.ParserOptions,
+        parser_options: ZonParser.ParseOptions,
         format_options: FormatOptions,
     ) !Self {
         var zon_lexer = ZonLexicalTransform.init(allocator, lexer_options);
@@ -475,7 +468,7 @@ test "ZON transform pipeline - basic parsing" {
     var ast = try pipeline.parse(&ctx, zon_text);
     defer ast.deinit();
     
-    try testing.expect(ast.root != null);
+    // AST.root is non-optional now
 }
 
 test "ZON transform pipeline - with comments" {
@@ -488,7 +481,7 @@ test "ZON transform pipeline - with comments" {
         .preserve_comments = true,
     };
     
-    const parser_options = ZonParser.ParserOptions{
+    const parser_options = ZonParser.ParseOptions{
         .preserve_comments = true,
     };
     
@@ -511,7 +504,7 @@ test "ZON transform pipeline - with comments" {
     var ast = try pipeline.parse(&ctx, zon_text);
     defer ast.deinit();
     
-    try testing.expect(ast.root != null);
+    // AST.root is non-optional now
 }
 
 test "ZON convenience functions" {
@@ -523,7 +516,7 @@ test "ZON convenience functions" {
         var ast = try zon.parse(allocator, text);
         defer ast.deinit();
         
-        try testing.expect(ast.root != null);
+        // AST.root is non-optional now
     }
     
     // Test pretty print
@@ -576,6 +569,5 @@ test "ZON round-trip preservation" {
     defer ast2.deinit();
     
     // Both ASTs should have the same structure
-    try testing.expect(ast1.root != null);
-    try testing.expect(ast2.root != null);
+    // AST.root is non-optional now for both ASTs
 }

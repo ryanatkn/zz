@@ -197,12 +197,12 @@ pub const Context = struct {
         const T = @TypeOf(value);
         if (T == bool) {
             try self.options.setBool(key, value);
-        } else if (T == i64 or T == i32 or T == i16 or T == i8) {
-            try self.options.setInt(key, @as(i64, value));
-        } else if (T == []const u8) {
+        } else if (T == i64 or T == i32 or T == i16 or T == i8 or T == u32 or T == u16 or T == u8 or T == usize) {
+            try self.options.setInt(key, @as(i64, @intCast(value)));
+        } else if (T == []const u8 or T == [:0]const u8) {
             try self.options.setString(key, value);
         } else {
-            @compileError("Unsupported option type");
+            @compileError("Unsupported option type: " ++ @typeName(T));
         }
     }
     

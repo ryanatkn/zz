@@ -3,6 +3,7 @@ const std = common.std;
 const Node = common.Node;
 const AST = common.AST;
 const utils = common.utils;
+const ZonRules = @import("../../ast/rules.zig").ZonRules;
 
 /// Validate ZON content against known schemas
 /// This module provides schema validation for common ZON configuration files
@@ -262,7 +263,7 @@ pub const ZonValidator = struct {
         if (url_field) |url_node| {
             if (utils.hasMinimumChildren(url_node, 2)) {
                 const url_value = url_node.children[1];
-                if (utils.isTerminalOfType(url_value, "string_literal")) {
+                if (utils.isTerminalOfType(url_value, ZonRules.string_literal)) {
                     try self.validateUrl(url_value.text, dep_name);
                 }
             }

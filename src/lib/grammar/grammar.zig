@@ -4,18 +4,20 @@ const test_framework = @import("test_framework.zig");
 
 const TestContext = test_framework.TestContext;
 
-/// Complete grammar definition with named rules
+/// Complete grammar definition with rule IDs
 /// This is the "compiled" grammar that can parse input
 pub const Grammar = struct {
     allocator: std.mem.Allocator,
-    rules: std.StringHashMap(rule.Rule),
-    start_rule: []const u8,
+    rules: std.HashMap(u16, rule.Rule, std.hash_map.AutoContext(u16), std.hash_map.default_max_load_percentage),
+    start_rule_id: u16,
+    // Optional string names for debugging (can be removed in production)
+    rule_names: ?std.HashMap(u16, []const u8, std.hash_map.AutoContext(u16), std.hash_map.default_max_load_percentage) = null,
 
-    pub fn init(allocator: std.mem.Allocator, start_rule: []const u8) Grammar {
+    pub fn init(allocator: std.mem.Allocator, start_rule_id: u16) Grammar {
         return .{
             .allocator = allocator,
-            .rules = std.StringHashMap(rule.Rule).init(allocator),
-            .start_rule = start_rule,
+            .rules = std.HashMap(u16, rule.Rule, std.hash_map.AutoContext(u16), std.hash_map.default_max_load_percentage).init(allocator),
+            .start_rule_id = start_rule_id,
         };
     }
 
@@ -26,6 +28,11 @@ pub const Grammar = struct {
             self.deinitRule(entry.value_ptr.*);
         }
         self.rules.deinit();
+        
+        // Clean up optional rule names
+        if (self.rule_names) |*names| {
+            names.deinit();
+        }
     }
 
     /// Recursively deinit a rule and all its nested rules
@@ -71,29 +78,56 @@ pub const Grammar = struct {
         }
     }
 
+    /// Add a rule by ID
+    pub fn addRule(self: *Grammar, rule_id: u16, rule_def: rule.Rule) !void {
+        try self.rules.put(rule_id, rule_def);
+    }
+
+    /// Add a rule by ID with optional debug name
+    pub fn addRuleWithName(self: *Grammar, rule_id: u16, rule_def: rule.Rule, name: []const u8) !void {
+        try self.rules.put(rule_id, rule_def);
+        
+        if (self.rule_names == null) {
+            self.rule_names = std.HashMap(u16, []const u8, std.hash_map.AutoContext(u16), std.hash_map.default_max_load_percentage).init(self.allocator);
+        }
+        
+        if (self.rule_names) |*names| {
+            try names.put(rule_id, name);
+        }
+    }
+
+    /// Get rule name for debugging (returns null if no debug names)
+    pub fn getRuleName(self: Grammar, rule_id: u16) ?[]const u8 {
+        if (self.rule_names) |names| {
+            return names.get(rule_id);
+        }
+        return null;
+    }
+
     /// Create a simple default grammar for testing
     pub fn default() Grammar {
+        const CommonRules = @import("../ast/rules.zig").CommonRules;
         var grammar = Grammar{
             .allocator = std.heap.page_allocator, // Use page allocator for default
-            .rules = std.StringHashMap(rule.Rule).init(std.heap.page_allocator),
-            .start_rule = "document",
+            .rules = std.HashMap(u16, rule.Rule, std.hash_map.AutoContext(u16), std.hash_map.default_max_load_percentage).init(std.heap.page_allocator),
+            .start_rule_id = @intFromEnum(CommonRules.root),
         };
 
         // Add a simple terminal rule for basic parsing
         const terminal_rule = rule.Rule{ .terminal = .{ .literal = "" } };
-        grammar.rules.put("document", terminal_rule) catch {};
+        grammar.rules.put(@intFromEnum(CommonRules.root), terminal_rule) catch {};
 
         return grammar;
     }
 
-    /// Get a rule by name
-    pub fn getRule(self: Grammar, name: []const u8) ?rule.Rule {
-        return self.rules.get(name);
+    /// Get a rule by ID
+    pub fn getRule(self: Grammar, rule_id: u16) ?rule.Rule {
+        return self.rules.get(rule_id);
     }
 
     /// Get the start rule
     pub fn getStartRule(self: Grammar) ?rule.Rule {
-        return self.getRule(self.start_rule);
+        return self.getRule(self.start_rule_id);
     }
 
     /// Parse input using the start rule

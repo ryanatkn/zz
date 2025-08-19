@@ -8,6 +8,7 @@ const NodeType = common.NodeType;
 const Span = common.Span;
 const ParseContext = common.ParseContext;
 const utils = common.utils;
+const ZonRules = @import("../../ast/rules.zig").ZonRules;
 
 /// ZON parser using our AST infrastructure
 ///
@@ -148,7 +149,7 @@ pub const ZonParser = struct {
             self.advance(); // Skip '}'
 
             return Node{
-                .rule_name = "object",
+                .rule_id = ZonRules.object,
                 .node_type = .list,
                 .text = self.getTextSpan(start_span, end_span),
                 .start_position = start_span.start,
@@ -206,7 +207,7 @@ pub const ZonParser = struct {
         const end_pos = if (self.position > 0) self.tokens[self.position - 1].span.end else start_span.end;
 
         return Node{
-            .rule_name = "object",
+            .rule_id = ZonRules.object,
             .node_type = .list,
             .text = &[_]u8{}, // Empty array literal is safer than ""
             .start_position = start_span.start,
@@ -240,7 +241,7 @@ pub const ZonParser = struct {
             self.advance(); // Skip ']'
 
             return Node{
-                .rule_name = "array",
+                .rule_id = ZonRules.array,
                 .node_type = .list,
                 .text = self.getTextSpan(start_span, end_span),
                 .start_position = start_span.start,
@@ -297,7 +298,7 @@ pub const ZonParser = struct {
         const end_pos = if (self.position > 0) self.tokens[self.position - 1].span.end else start_span.end;
 
         return Node{
-            .rule_name = "array",
+            .rule_id = ZonRules.array,
             .node_type = .list,
             .text = &[_]u8{},
             .start_position = start_span.start,
@@ -338,7 +339,7 @@ pub const ZonParser = struct {
 
                 // Create equals node
                 const equals_node = Node{
-                    .rule_name = "equals",
+                    .rule_id = ZonRules.equals,
                     .node_type = .terminal,
                     .text = equals_token.text,
                     .start_position = equals_token.span.start,
@@ -365,7 +366,7 @@ pub const ZonParser = struct {
                 const end_pos = value_node.end_position;
 
                 return Node{
-                    .rule_name = "field_assignment",
+                    .rule_id = ZonRules.field_assignment,
                     .node_type = .rule,
                     .text = &[_]u8{},
                     .start_position = field_name_node.start_position,
@@ -408,7 +409,7 @@ pub const ZonParser = struct {
                 const combined_text = try self.context.allocatePrintAstText(".{s}", .{identifier_token.text});
 
                 return Node{
-                    .rule_name = "identifier",
+                    .rule_id = ZonRules.identifier,
                     .node_type = .terminal,
                     .text = combined_text,
                     .start_position = token.span.start,
@@ -422,7 +423,7 @@ pub const ZonParser = struct {
 
         // Just a dot - treat as operator
         return Node{
-            .rule_name = "dot",
+            .rule_id = ZonRules.dot,
             .node_type = .terminal,
             .text = token.text,
             .start_position = token.span.start,
@@ -458,7 +459,7 @@ pub const ZonParser = struct {
             self.advance();
 
             return Node{
-                .rule_name = "field_name",
+                .rule_id = ZonRules.field_name,
                 .node_type = .terminal,
                 .text = combined_text,
                 .start_position = dot_start,
@@ -472,7 +473,7 @@ pub const ZonParser = struct {
             self.advance();
 
             return Node{
-                .rule_name = "field_name",
+                .rule_id = ZonRules.field_name,
                 .node_type = .terminal,
                 .text = start_token.text,
                 .start_position = start_token.span.start,
@@ -496,7 +497,7 @@ pub const ZonParser = struct {
         self.advance();
 
         return Node{
-            .rule_name = "identifier",
+            .rule_id = ZonRules.identifier,
             .node_type = .terminal,
             .text = token.text,
             .start_position = token.span.start,
@@ -517,7 +518,7 @@ pub const ZonParser = struct {
         self.advance();
 
         return Node{
-            .rule_name = "string_literal",
+            .rule_id = ZonRules.string_literal,
             .node_type = .terminal,
             .text = token.text,
             .start_position = token.span.start,
@@ -538,7 +539,7 @@ pub const ZonParser = struct {
         self.advance();
 
         return Node{
-            .rule_name = "number_literal",
+            .rule_id = ZonRules.number_literal,
             .node_type = .terminal,
             .text = token.text,
             .start_position = token.span.start,
@@ -559,17 +560,17 @@ pub const ZonParser = struct {
         self.advance();
 
         // Determine specific keyword type
-        const rule_name = if (std.mem.eql(u8, token.text, "true") or std.mem.eql(u8, token.text, "false"))
-            "boolean_literal"
+        const rule_id = if (std.mem.eql(u8, token.text, "true") or std.mem.eql(u8, token.text, "false"))
+            ZonRules.boolean_literal
         else if (std.mem.eql(u8, token.text, "null"))
-            "null_literal"
+            ZonRules.null_literal
         else if (std.mem.eql(u8, token.text, "undefined"))
-            "undefined_literal"
+            ZonRules.identifier // ZON doesn't have undefined, treat as identifier
         else
-            "keyword";
+            ZonRules.identifier; // Generic keyword as identifier
 
         return Node{
-            .rule_name = rule_name,
+            .rule_id = rule_id,
             .node_type = .terminal,
             .text = token.text,
             .start_position = token.span.start,
@@ -590,7 +591,7 @@ pub const ZonParser = struct {
         self.advance();
 
         return Node{
-            .rule_name = "boolean_literal",
+            .rule_id = ZonRules.boolean_literal,
             .node_type = .terminal,
             .text = token.text,
             .start_position = token.span.start,
@@ -611,7 +612,7 @@ pub const ZonParser = struct {
         self.advance();
 
         return Node{
-            .rule_name = "null_literal",
+            .rule_id = ZonRules.null_literal,
             .node_type = .terminal,
             .text = token.text,
             .start_position = token.span.start,
@@ -663,7 +664,7 @@ pub const ZonParser = struct {
         try self.addError(message, current.span);
 
         return Node{
-            .rule_name = "error",
+            .rule_id = ZonRules.error_recovery,
             .node_type = .error_recovery,
             .text = current.text,
             .start_position = current.span.start,

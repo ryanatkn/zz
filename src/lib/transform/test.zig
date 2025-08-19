@@ -1,6 +1,7 @@
 // Test barrel for transform and serialization infrastructure
 const std = @import("std");
 const testing = std.testing;
+const Context = @import("transform.zig").Context;
 
 test {
     // Core transform infrastructure
@@ -24,37 +25,38 @@ test {
     _ = @import("stages/syntactic.zig");
     
     // Language-specific transform pipelines
-    // JSON disabled due to parser API drift - TODO: fix after parser update
-    // _ = @import("../languages/json/transform.zig");
+    _ = @import("../languages/json/transform.zig");
     _ = @import("../languages/zon/transform.zig");
 }
 
 // Integration tests for transform pipeline architecture
 
-// JSON tests disabled due to parser API drift - will be re-enabled after fixing parser
-// test "transform pipeline - JSON roundtrip" {
-//     const json_transform = @import("../languages/json/transform.zig");
-//     const allocator = testing.allocator;
-//     
-//     const input = 
-//         \\{
-//         \\  "name": "test",
-//         \\  "version": 1,
-//         \\  "enabled": true
-//         \\}
-//     ;
-//     
-//     // Test roundtrip with default options
-//     var pipeline = try json_transform.JsonTransformPipeline.init(allocator);
-//     defer pipeline.deinit();
-//     
-//     const output = try pipeline.roundTrip(allocator, input);
-//     defer allocator.free(output);
-//     
-//     // Should parse and regenerate valid JSON
-//     try testing.expect(output.len > 0);
-//     try testing.expect(std.mem.indexOf(u8, output, "\"name\"") != null);
-// }
+test "transform pipeline - JSON roundtrip" {
+    const json_transform = @import("../languages/json/transform.zig");
+    const allocator = testing.allocator;
+    
+    const input = 
+        \\{
+        \\  "name": "test",
+        \\  "version": 1,
+        \\  "enabled": true
+        \\}
+    ;
+    
+    // Test roundtrip with default options
+    var pipeline = try json_transform.JsonTransformPipeline.init(allocator);
+    defer pipeline.deinit();
+    
+    var ctx = @import("transform.zig").Context.init(allocator);
+    defer ctx.deinit();
+    
+    const output = try pipeline.roundTrip(&ctx, input);
+    defer allocator.free(output);
+    
+    // Should parse and regenerate valid JSON
+    try testing.expect(output.len > 0);
+    try testing.expect(std.mem.indexOf(u8, output, "\"name\"") != null);
+}
 
 test "transform pipeline - ZON roundtrip" {
     const zon_transform = @import("../languages/zon/transform.zig");
@@ -72,7 +74,9 @@ test "transform pipeline - ZON roundtrip" {
     var pipeline = try zon_transform.ZonTransformPipeline.init(allocator);
     defer pipeline.deinit();
     
-    const output = try pipeline.roundTrip(allocator, input);
+    var ctx = Context.init(allocator);
+    defer ctx.deinit();
+    const output = try pipeline.roundTrip(&ctx, input);
     defer allocator.free(output);
     
     // Should parse and regenerate valid ZON
@@ -114,7 +118,6 @@ test "transform pipeline - ZON roundtrip" {
 
 test "streaming - large file handling" {
     const TokenIterator = @import("streaming/token_iterator.zig").TokenIterator;
-    const Context = @import("transform.zig").Context;
     const allocator = testing.allocator;
     
     // Create a moderately sized JSON string

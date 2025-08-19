@@ -2,6 +2,7 @@ const std = @import("std");
 const AST = @import("../../ast/mod.zig").AST;
 const Node = @import("../../ast/mod.zig").Node;
 const NodeType = @import("../../ast/mod.zig").NodeType;
+const JsonRules = @import("../../ast/rules.zig").JsonRules;
 const FormatOptions = @import("../interface.zig").FormatOptions;
 const ASTTraversal = @import("../../ast/traversal.zig").ASTTraversal;
 const ASTUtils = @import("../../ast/utils.zig").ASTUtils;
@@ -78,24 +79,21 @@ pub const JsonFormatter = struct {
         return self.output.toOwnedSlice();
     }
 
-    fn formatNode(self: *Self, node: *const Node) !void {
-        switch (node.node_type) {
-            .json_string => try self.formatString(node),
-            .json_number => try self.formatNumber(node),
-            .json_boolean => try self.formatBoolean(node),
-            .json_null => try self.formatNull(node),
-            .json_object => try self.formatObject(node),
-            .json_array => try self.formatArray(node),
-            .json_member => try self.formatMember(node),
-            else => {
-                // Handle other node types or errors
-                try self.output.appendSlice("null");
-            },
+    fn formatNode(self: *Self, node: *const Node) anyerror!void {
+        switch (node.rule_id) {
+            JsonRules.string_literal => try self.formatString(node),
+            JsonRules.number_literal => try self.formatNumber(node),
+            JsonRules.boolean_literal => try self.formatBoolean(node),
+            JsonRules.null_literal => try self.formatNull(node),
+            JsonRules.object => try self.formatObject(node),
+            JsonRules.array => try self.formatArray(node),
+            JsonRules.member => try self.formatMember(node),
+            else => try self.output.appendSlice("null"), // Handle other node types or errors
         }
     }
 
     fn formatString(self: *Self, node: *const Node) !void {
-        const raw_value = node.value orelse "\"\"";
+        const raw_value = if (node.text.len > 0) node.text else "\"\"";
 
         if (self.options.quote_style == .preserve or self.options.quote_style == .double) {
             try self.output.appendSlice(raw_value);
@@ -114,13 +112,13 @@ pub const JsonFormatter = struct {
     }
 
     fn formatNumber(self: *Self, node: *const Node) !void {
-        const value = node.value orelse "0";
+        const value = if (node.text.len > 0) node.text else "0";
         try self.output.appendSlice(value);
         self.updateLinePosition(value.len);
     }
 
     fn formatBoolean(self: *Self, node: *const Node) !void {
-        const value = node.value orelse "false";
+        const value = if (node.text.len > 0) node.text else "false";
         try self.output.appendSlice(value);
         self.updateLinePosition(value.len);
     }
@@ -130,8 +128,8 @@ pub const JsonFormatter = struct {
         self.updateLinePosition(4);
     }
 
-    fn formatObject(self: *Self, node: *const Node) !void {
-        const members = node.children orelse &.{};
+    fn formatObject(self: *Self, node: *const Node) anyerror!void {
+        const members = node.children;
 
         if (members.len == 0) {
             try self.output.appendSlice("{}");
@@ -210,7 +208,7 @@ pub const JsonFormatter = struct {
     }
 
     fn formatArray(self: *Self, node: *const Node) !void {
-        const elements = node.children orelse &.{};
+        const elements = node.children;
 
         if (elements.len == 0) {
             try self.output.appendSlice("[]");
@@ -263,7 +261,7 @@ pub const JsonFormatter = struct {
     }
 
     fn formatMember(self: *Self, node: *const Node) !void {
-        const children = node.children orelse &.{};
+        const children = node.children;
         if (children.len != 2) return;
 
         const key = children[0];
@@ -287,14 +285,14 @@ pub const JsonFormatter = struct {
         if (self.options.force_multiline) return false;
         if (!self.options.compact_objects) return false;
 
-        const members = node.children orelse &.{};
+        const members = node.children;
         if (members.len == 0) return true;
         if (members.len > 3) return false; // Too many members
 
         // Estimate size on single line
         var estimated_size: u32 = 2; // {}
         for (members, 0..) |member, i| {
-            estimated_size += self.estimateNodeSize(member);
+            estimated_size += self.estimateNodeSize(&member);
             if (i < members.len - 1) {
                 estimated_size += 2; // ", "
             }
@@ -308,14 +306,14 @@ pub const JsonFormatter = struct {
         if (self.options.force_multiline) return false;
         if (!self.options.compact_arrays) return false;
 
-        const elements = node.children orelse &.{};
+        const elements = node.children;
         if (elements.len == 0) return true;
         if (elements.len > 5) return false; // Too many elements
 
         // Check if all elements are primitives
         for (elements) |element| {
-            switch (element.node_type) {
-                .json_object, .json_array => return false,
+            switch (element.rule_id) {
+                JsonRules.object, JsonRules.array => return false,
                 else => {},
             }
         }
@@ -323,7 +321,7 @@ pub const JsonFormatter = struct {
         // Estimate size on single line
         var estimated_size: u32 = 2; // []
         for (elements, 0..) |element, i| {
-            estimated_size += self.estimateNodeSize(element);
+            estimated_size += self.estimateNodeSize(&element);
             if (i < elements.len - 1) {
                 estimated_size += 2; // ", "
             }
@@ -333,23 +331,23 @@ pub const JsonFormatter = struct {
     }
 
     fn estimateNodeSize(self: *Self, node: *const Node) u32 {
-        return switch (node.node_type) {
-            .json_string => if (node.value) |v| @intCast(v.len) else 2,
-            .json_number => if (node.value) |v| @intCast(v.len) else 1,
-            .json_boolean => if (node.value) |v| @intCast(v.len) else 4,
-            .json_null => 4,
-            .json_object => {
-                const children = node.children orelse &.{};
+        return switch (node.rule_id) {
+            JsonRules.string_literal => @intCast(node.text.len),
+            JsonRules.number_literal => @intCast(node.text.len),
+            JsonRules.boolean_literal => @intCast(node.text.len),
+            JsonRules.null_literal => 4,
+            JsonRules.object => {
+                const children = node.children;
                 return @intCast(children.len * 20); // Rough estimate
             },
-            .json_array => {
-                const children = node.children orelse &.{};
+            JsonRules.array => {
+                const children = node.children;
                 return @intCast(children.len * 10); // Rough estimate
             },
-            .json_member => {
-                const children = node.children orelse &.{};
+            JsonRules.member => {
+                const children = node.children;
                 if (children.len == 2) {
-                    return self.estimateNodeSize(children[0]) + self.estimateNodeSize(children[1]) + 2;
+                    return self.estimateNodeSize(&children[0]) + self.estimateNodeSize(&children[1]) + 2;
                 }
                 return 10;
             },
@@ -387,13 +385,13 @@ pub const JsonFormatter = struct {
         const b = &members[b_idx];
 
         // Both should be member nodes with key as first child
-        const a_children = a.children orelse return false;
-        const b_children = b.children orelse return false;
+        const a_children = a.children;
+        const b_children = b.children;
 
         if (a_children.len == 0 or b_children.len == 0) return false;
 
-        const a_key = a_children[0].value orelse "";
-        const b_key = b_children[0].value orelse "";
+        const a_key = a_children[0].text;
+        const b_key = b_children[0].text;
 
         return std.mem.lessThan(u8, a_key, b_key);
     }
@@ -405,9 +403,10 @@ const JsonFormatVisitor = struct {
 };
 
 /// Visitor callback function for JSON formatting
-fn formatVisitorCallback(node: *const Node, visitor: *JsonFormatVisitor, context: @TypeOf({})) !void {
-    _ = context;
+fn formatVisitorCallback(node: *const Node, context: ?*anyopaque) !bool {
+    const visitor = @as(*JsonFormatVisitor, @ptrCast(@alignCast(context.?)));
     try visitor.formatter.formatNode(node);
+    return true;  // Continue traversal
 }
 
 /// Convenience function for basic JSON formatting

@@ -125,7 +125,7 @@ pub fn defaultDetokenize(ctx: *Context, tokens: []const Token) ![]const u8 {
         }
         
         // Add token text
-        if (token.kind == .string) {
+        if (token.kind == .string_literal) {
             // Ensure strings are properly quoted/escaped
             var quote_manager = quote_mod.QuoteManager.init(ctx.allocator);
             const quoted = try quote_manager.ensureQuoted(token.text, .{
@@ -242,9 +242,9 @@ test "Default detokenizer" {
     
     const tokens = [_]Token{
         Token.simple(Span.init(0, 1), .delimiter, "{", 0),
-        Token.simple(Span.init(2, 7), .string, "key", 0),
+        Token.simple(Span.init(2, 7), .string_literal, "key", 0),
         Token.simple(Span.init(8, 9), .delimiter, ":", 0),
-        Token.simple(Span.init(10, 15), .string, "value", 0),
+        Token.simple(Span.init(10, 15), .string_literal, "value", 0),
         Token.simple(Span.init(16, 17), .delimiter, "}", 0),
     };
     

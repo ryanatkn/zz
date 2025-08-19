@@ -65,14 +65,44 @@ pub const Builder = struct {
         // Check for circular dependencies
         try validator.checkCircularDependencies();
 
-        // Resolve all rule references
-        var grammar = Grammar.init(self.allocator, start_rule_name);
+        // Resolve all rule references and convert start rule name to ID
+        const CommonRules = @import("../ast/rules.zig").CommonRules;
+        const start_rule_id = if (std.mem.eql(u8, start_rule_name, "root"))
+            @intFromEnum(CommonRules.root)
+        else if (std.mem.eql(u8, start_rule_name, "object"))
+            @intFromEnum(CommonRules.object)
+        else if (std.mem.eql(u8, start_rule_name, "array"))
+            @intFromEnum(CommonRules.array)
+        else 
+            @intFromEnum(CommonRules.root); // Default to root
+        
+        var grammar = Grammar.init(self.allocator, start_rule_id);
         const res = resolver.Resolver.init(self.allocator, &self.rules);
 
         var iterator = self.rules.iterator();
         while (iterator.next()) |entry| {
             const resolved = try res.resolveExtendedRule(entry.value_ptr.*);
-            try grammar.rules.put(entry.key_ptr.*, resolved);
+            
+            // Convert string rule name to rule ID
+            const rule_name = entry.key_ptr.*;
+            const rule_id = if (std.mem.eql(u8, rule_name, "root"))
+                @intFromEnum(CommonRules.root)
+            else if (std.mem.eql(u8, rule_name, "object"))
+                @intFromEnum(CommonRules.object)
+            else if (std.mem.eql(u8, rule_name, "array"))
+                @intFromEnum(CommonRules.array)
+            else if (std.mem.eql(u8, rule_name, "string_literal"))
+                @intFromEnum(CommonRules.string_literal)
+            else if (std.mem.eql(u8, rule_name, "number_literal"))
+                @intFromEnum(CommonRules.number_literal)
+            else if (std.mem.eql(u8, rule_name, "boolean_literal"))
+                @intFromEnum(CommonRules.boolean_literal)
+            else if (std.mem.eql(u8, rule_name, "null_literal"))
+                @intFromEnum(CommonRules.null_literal)
+            else
+                @intFromEnum(CommonRules.unknown); // Default fallback
+            
+            try grammar.rules.put(rule_id, resolved);
         }
 
         return grammar;

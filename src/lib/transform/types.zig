@@ -1,4 +1,5 @@
 const std = @import("std");
+pub const Span = @import("../parser/foundation/types/span.zig").Span;
 
 /// Core type definitions for the transform system
 /// Based on existing patterns from the codebase
@@ -54,6 +55,8 @@ pub const Diagnostic = struct {
     level: Level,
     message: []const u8,
     span: ?Span,
+    line: ?u32,
+    column: ?u32,
     suggestion: ?[]const u8,
     code: ?[]const u8, // Error code for categorization
 
@@ -76,6 +79,8 @@ pub const Diagnostic = struct {
             .level = .err,
             .message = try allocator.dupe(u8, message),
             .span = span,
+            .line = null,
+            .column = null,
             .suggestion = null,
             .code = null,
         };
@@ -87,44 +92,27 @@ pub const Diagnostic = struct {
             .level = .warning,
             .message = try allocator.dupe(u8, message),
             .span = span,
+            .line = null,
+            .column = null,
+            .suggestion = null,
+            .code = null,
+        };
+    }
+
+    /// Create an error diagnostic with line/column info
+    pub fn errWithLineCol(allocator: std.mem.Allocator, message: []const u8, span: ?Span, line: ?u32, column: ?u32) !Diagnostic {
+        return Diagnostic{
+            .level = .err,
+            .message = try allocator.dupe(u8, message),
+            .span = span,
+            .line = line,
+            .column = column,
             .suggestion = null,
             .code = null,
         };
     }
 };
 
-/// Span in source text (from parser/foundation)
-pub const Span = struct {
-    start: usize,
-    end: usize,
-    line: u32 = 0,
-    column: u32 = 0,
-
-    pub fn init(start: usize, end: usize) Span {
-        return .{ .start = start, .end = end };
-    }
-
-    pub fn withLineCol(start: usize, end: usize, line: u32, column: u32) Span {
-        return .{
-            .start = start,
-            .end = end,
-            .line = line,
-            .column = column,
-        };
-    }
-
-    pub fn len(self: Span) usize {
-        return self.end - self.start;
-    }
-
-    pub fn contains(self: Span, pos: usize) bool {
-        return pos >= self.start and pos < self.end;
-    }
-
-    pub fn overlaps(self: Span, other: Span) bool {
-        return self.start < other.end and other.start < self.end;
-    }
-};
 
 /// IO mode for parameterized execution
 /// Following the TODO in core/io.zig
@@ -319,7 +307,7 @@ const testing = std.testing;
 
 test "Span operations" {
     const span1 = Span.init(10, 20);
-    const span2 = Span.withLineCol(15, 25, 5, 10);
+    const span2 = Span.init(15, 25);
 
     try testing.expectEqual(@as(usize, 10), span1.len());
     try testing.expect(span1.contains(15));

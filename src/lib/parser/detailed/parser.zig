@@ -31,7 +31,7 @@ pub const ParseResult = union(enum) {
 
 /// Temporary parse node until we have full AST module
 pub const ParseNode = struct {
-    rule_name: []const u8,
+    rule_id: u16,
     text: []const u8,
     start_position: usize,
     end_position: usize,
@@ -73,12 +73,12 @@ pub const Parser = struct {
         var context = ParseContext.init(self.allocator, input);
         defer context.deinit();
 
-        const start_rule_name = self.grammar.start_rule;
-        const start_rule = self.grammar.rules.get(start_rule_name) orelse {
+        const start_rule_id = self.grammar.start_rule_id;
+        const start_rule = self.grammar.rules.get(start_rule_id) orelse {
             try context.addError("Start rule not found in grammar");
             return ParseResult{ .failure = context.errors.items };
         };
-        if (self.parseRule(start_rule, start_rule_name, &context)) |node| {
+        if (self.parseRule(start_rule, start_rule_id, &context)) |node| {
             // Check if we consumed all input
             if (!context.isAtEnd()) {
                 try context.addError("Unexpected input after parsing completed");
@@ -99,30 +99,30 @@ pub const Parser = struct {
     }
 
     /// Parse a specific rule
-    fn parseRule(self: Parser, rule: Rule, rule_name: []const u8, context: *ParseContext) ParserError!ParseNode {
+    fn parseRule(self: Parser, rule: Rule, rule_id: u16, context: *ParseContext) ParserError!ParseNode {
         switch (rule) {
             .terminal => |terminal_rule| {
-                return self.parseTerminal(terminal_rule, rule_name, context);
+                return self.parseTerminal(terminal_rule, rule_id, context);
             },
             .sequence => |sequence_rule| {
-                return self.parseSequence(sequence_rule, rule_name, context);
+                return self.parseSequence(sequence_rule, rule_id, context);
             },
             .choice => |choice_rule| {
-                return self.parseChoice(choice_rule, rule_name, context);
+                return self.parseChoice(choice_rule, rule_id, context);
             },
             .optional => |optional_rule| {
-                return self.parseOptional(optional_rule, rule_name, context);
+                return self.parseOptional(optional_rule, rule_id, context);
             },
             .repeat => |repeat_rule| {
-                return self.parseRepeat(repeat_rule, rule_name, context);
+                return self.parseRepeat(repeat_rule, rule_id, context);
             },
             .repeat1 => |repeat1_rule| {
-                return self.parseRepeat1(repeat1_rule, rule_name, context);
+                return self.parseRepeat1(repeat1_rule, rule_id, context);
             },
         }
     }
 
-    fn parseTerminal(self: Parser, terminal: @import("../grammar/mod.zig").Terminal, rule_name: []const u8, context: *ParseContext) ParserError!ParseNode {
+    fn parseTerminal(self: Parser, terminal: @import("../grammar/mod.zig").Terminal, rule_id: u16, context: *ParseContext) ParserError!ParseNode {
         _ = self;
         const start_pos = context.position;
         const remaining = context.remaining();
@@ -132,7 +132,7 @@ pub const Parser = struct {
             const end_pos = context.position;
 
             return ParseNode{
-                .rule_name = rule_name,
+                .rule_id = rule_id,
                 .text = context.getTextBetween(start_pos, end_pos),
                 .start_position = start_pos,
                 .end_position = end_pos,
@@ -143,13 +143,13 @@ pub const Parser = struct {
         }
     }
 
-    fn parseSequence(self: Parser, sequence: @import("../grammar/mod.zig").Sequence, rule_name: []const u8, context: *ParseContext) ParserError!ParseNode {
+    fn parseSequence(self: Parser, sequence: @import("../grammar/mod.zig").Sequence, rule_id: u16, context: *ParseContext) ParserError!ParseNode {
         const start_pos = context.position;
         var children = std.ArrayList(ParseNode).init(self.allocator);
         defer children.deinit();
 
         for (sequence.rules) |child_rule| {
-            const child_node = self.parseRule(child_rule, "sequence_element", context) catch |err| {
+            const child_node = self.parseRule(child_rule, rule_id, context) catch |err| {
                 // Clean up any successfully parsed children
                 for (children.items) |child| {
                     child.deinit(self.allocator);
@@ -163,7 +163,7 @@ pub const Parser = struct {
         const children_slice = try self.allocator.dupe(ParseNode, children.items);
 
         return ParseNode{
-            .rule_name = rule_name,
+            .rule_id = rule_id,
             .text = context.getTextBetween(start_pos, end_pos),
             .start_position = start_pos,
             .end_position = end_pos,
@@ -171,10 +171,10 @@ pub const Parser = struct {
         };
     }
 
-    fn parseChoice(self: Parser, choice: @import("../grammar/mod.zig").Choice, rule_name: []const u8, context: *ParseContext) ParserError!ParseNode {
+    fn parseChoice(self: Parser, choice: @import("../grammar/mod.zig").Choice, rule_id: u16, context: *ParseContext) ParserError!ParseNode {
         for (choice.choices) |alternative| {
             const mark = context.mark();
-            if (self.parseRule(alternative, rule_name, context)) |node| {
+            if (self.parseRule(alternative, rule_id, context)) |node| {
                 return node;
             } else |_| {
                 context.reset(mark);
@@ -185,16 +185,16 @@ pub const Parser = struct {
         return ParserError.ParseFailed;
     }
 
-    fn parseOptional(self: Parser, optional: @import("../grammar/mod.zig").Optional, rule_name: []const u8, context: *ParseContext) ParserError!ParseNode {
+    fn parseOptional(self: Parser, optional: @import("../grammar/mod.zig").Optional, rule_id: u16, context: *ParseContext) ParserError!ParseNode {
         const start_pos = context.position;
         const mark = context.mark();
 
-        if (self.parseRule(optional.rule.*, "optional_element", context)) |child_node| {
+        if (self.parseRule(optional.rule.*, rule_id, context)) |child_node| {
             const end_pos = context.position;
             const children_slice = try self.allocator.dupe(ParseNode, &[_]ParseNode{child_node});
 
             return ParseNode{
-                .rule_name = rule_name,
+                .rule_id = rule_id,
                 .text = context.getTextBetween(start_pos, end_pos),
                 .start_position = start_pos,
                 .end_position = end_pos,
@@ -204,7 +204,7 @@ pub const Parser = struct {
             // Optional failed, reset and return empty match
             context.reset(mark);
             return ParseNode{
-                .rule_name = rule_name,
+                .rule_id = rule_id,
                 .text = "",
                 .start_position = start_pos,
                 .end_position = start_pos,
@@ -213,14 +213,14 @@ pub const Parser = struct {
         }
     }
 
-    fn parseRepeat(self: Parser, repeat: @import("../grammar/mod.zig").Repeat, rule_name: []const u8, context: *ParseContext) ParserError!ParseNode {
+    fn parseRepeat(self: Parser, repeat: @import("../grammar/mod.zig").Repeat, rule_id: u16, context: *ParseContext) ParserError!ParseNode {
         const start_pos = context.position;
         var children = std.ArrayList(ParseNode).init(self.allocator);
         defer children.deinit();
 
         while (true) {
             const mark = context.mark();
-            if (self.parseRule(repeat.rule.*, "repeat_element", context)) |child_node| {
+            if (self.parseRule(repeat.rule.*, rule_id, context)) |child_node| {
                 try children.append(child_node);
             } else |_| {
                 context.reset(mark);
@@ -232,7 +232,7 @@ pub const Parser = struct {
         const children_slice = try self.allocator.dupe(ParseNode, children.items);
 
         return ParseNode{
-            .rule_name = rule_name,
+            .rule_id = rule_id,
             .text = context.getTextBetween(start_pos, end_pos),
             .start_position = start_pos,
             .end_position = end_pos,
@@ -240,13 +240,13 @@ pub const Parser = struct {
         };
     }
 
-    fn parseRepeat1(self: Parser, repeat1: @import("../grammar/mod.zig").Repeat1, rule_name: []const u8, context: *ParseContext) ParserError!ParseNode {
+    fn parseRepeat1(self: Parser, repeat1: @import("../grammar/mod.zig").Repeat1, rule_id: u16, context: *ParseContext) ParserError!ParseNode {
         const start_pos = context.position;
         var children = std.ArrayList(ParseNode).init(self.allocator);
         defer children.deinit();
 
         // Must match at least once
-        if (self.parseRule(repeat1.rule.*, "repeat1_element", context)) |first_child| {
+        if (self.parseRule(repeat1.rule.*, rule_id, context)) |first_child| {
             try children.append(first_child);
         } else |_| {
             return ParserError.ParseFailed;
@@ -255,7 +255,7 @@ pub const Parser = struct {
         // Then match as many times as possible
         while (true) {
             const mark = context.mark();
-            if (self.parseRule(repeat1.rule.*, "repeat1_element", context)) |child_node| {
+            if (self.parseRule(repeat1.rule.*, rule_id, context)) |child_node| {
                 try children.append(child_node);
             } else |_| {
                 context.reset(mark);
@@ -267,7 +267,7 @@ pub const Parser = struct {
         const children_slice = try self.allocator.dupe(ParseNode, children.items);
 
         return ParseNode{
-            .rule_name = rule_name,
+            .rule_id = rule_id,
             .text = context.getTextBetween(start_pos, end_pos),
             .start_position = start_pos,
             .end_position = end_pos,

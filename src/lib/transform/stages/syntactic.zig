@@ -111,8 +111,9 @@ pub fn defaultEmitTokens(ctx: *Context, ast: AST) ![]const Token {
     var emitter = TokenEmitter.init(ctx.allocator);
     defer emitter.deinit();
     
-    // Visit all nodes in the AST
-    try traversal.walkDepthFirst(ast.root, &emitter, emitNode);
+    // Visit all nodes in the AST using the updated API
+    var walker = traversal.ASTTraversal.init(ctx.allocator);
+    try walker.walk(&ast.root, emitNode, &emitter, .depth_first_pre);
     
     return emitter.getTokens();
 }
@@ -148,56 +149,55 @@ const TokenEmitter = struct {
     }
 };
 
-fn emitNode(emitter: *TokenEmitter, node: *const Node) !void {
-    // This is a simplified example - real implementation would be language-specific
-    switch (node.type) {
-        .json_object => {
+fn emitNode(node: *const Node, context: ?*anyopaque) !bool {
+    const emitter = @as(*TokenEmitter, @ptrCast(@alignCast(context.?)));
+    const JsonRules = @import("../../ast/rules.zig").JsonRules;
+    const CommonRules = @import("../../ast/rules.zig").CommonRules;
+    
+    // Use rule IDs for language-specific behavior
+    switch (node.rule_id) {
+        JsonRules.object => {
             try emitter.addToken(.delimiter, "{");
             // Process children
             for (node.children, 0..) |child, i| {
                 if (i > 0) try emitter.addToken(.delimiter, ",");
-                try emitNode(emitter, child);
+                _ = try emitNode(&child, context);
             }
             try emitter.addToken(.delimiter, "}");
         },
-        .json_array => {
+        JsonRules.array => {
             try emitter.addToken(.delimiter, "[");
             for (node.children, 0..) |child, i| {
                 if (i > 0) try emitter.addToken(.delimiter, ",");
-                try emitNode(emitter, child);
+                _ = try emitNode(&child, context);
             }
             try emitter.addToken(.delimiter, "]");
         },
-        .json_string => {
-            try emitter.addToken(.string, node.value orelse "");
+        JsonRules.string_literal => {
+            try emitter.addToken(.string_literal, node.text);
         },
-        .json_number => {
-            try emitter.addToken(.number, node.value orelse "0");
+        JsonRules.number_literal => {
+            try emitter.addToken(.number_literal, node.text);
         },
-        .json_boolean => {
-            try emitter.addToken(.boolean, node.value orelse "false");
+        JsonRules.boolean_literal => {
+            try emitter.addToken(.boolean_literal, node.text);
         },
-        .json_null => {
-            try emitter.addToken(.null, "null");
+        @intFromEnum(CommonRules.null_literal) => {
+            try emitter.addToken(.null_literal, node.text);
         },
-        .json_member => {
-            // Key-value pair
-            if (node.children.len >= 2) {
-                try emitNode(emitter, node.children[0]); // key
-                try emitter.addToken(.delimiter, ":");
-                try emitNode(emitter, node.children[1]); // value
-            }
+        JsonRules.member => {
+            // Key-value pair handled by walker traversal
+            try emitter.addToken(.delimiter, ":");
         },
         else => {
             // Generic handling for other node types
-            if (node.value) |val| {
-                try emitter.addToken(.identifier, val);
-            }
-            for (node.children) |child| {
-                try emitNode(emitter, child);
+            if (node.text.len > 0) {
+                try emitter.addToken(.identifier, node.text);
             }
         },
     }
+    
+    return true; // Continue traversal
 }
 
 /// Incremental parser interface for editor integration
@@ -340,9 +340,9 @@ test "TokenEmitter basic functionality" {
     defer emitter.deinit();
     
     try emitter.addToken(.delimiter, "{");
-    try emitter.addToken(.string, "key");
+    try emitter.addToken(.string_literal, "key");
     try emitter.addToken(.delimiter, ":");
-    try emitter.addToken(.string, "value");
+    try emitter.addToken(.string_literal, "value");
     try emitter.addToken(.delimiter, "}");
     
     const tokens = try emitter.getTokens();
@@ -364,7 +364,7 @@ test "IncrementalParser basic usage" {
             fn parse(context: *Context, tokens: []const Token) !AST {
                 _ = tokens;
                 var ast = AST.init(context.allocator);
-                ast.root = try builder.createLeafNode(context.allocator, .json_null, "null", Span.init(0, 4));
+                ast.root = try @import("../../ast/node.zig").createLeafNode(context.allocator, @intFromEnum(@import("../../ast/rules.zig").CommonRules.null_literal), "null", 0, 4);
                 return ast;
             }
         }.parse,
@@ -380,7 +380,7 @@ test "IncrementalParser basic usage" {
     defer incremental.deinit();
     
     const tokens = [_]Token{
-        Token.simple(Span.init(0, 4), .null, "null", 0),
+        Token.simple(Span.init(0, 4), .null_literal, "null", 0),
     };
     
     try incremental.update(&tokens);

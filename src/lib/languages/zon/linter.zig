@@ -5,6 +5,7 @@ const AST = common.AST;
 const Node = common.Node;
 const Span = common.Span;
 const utils = common.utils;
+const ZonRules = @import("../../ast/rules.zig").ZonRules;
 
 /// ZON linter with comprehensive validation rules
 ///
@@ -200,10 +201,10 @@ pub const ZonLinter = struct {
         // Analyze specific node types
         switch (node.node_type) {
             .list => {
-                if (std.mem.eql(u8, node.rule_name, "object")) {
-                    try self.analyzeObject(node, enabled_rules);
-                } else if (std.mem.eql(u8, node.rule_name, "array")) {
-                    try self.analyzeArray(node, enabled_rules);
+                switch (node.rule_id) {
+                    ZonRules.object => try self.analyzeObject(node, enabled_rules),
+                    ZonRules.array => try self.analyzeArray(node, enabled_rules),
+                    else => {},
                 }
             },
             .terminal => {
@@ -245,8 +246,8 @@ pub const ZonLinter = struct {
     fn analyzeTerminal(self: *Self, node: Node, enabled_rules: []const []const u8) !void {
         // Check identifier validity
         if (self.shouldRunRule("invalid-identifier", enabled_rules)) {
-            if (std.mem.eql(u8, node.rule_name, "identifier") or
-                std.mem.eql(u8, node.rule_name, "field_name"))
+            if (node.rule_id == ZonRules.identifier or
+                node.rule_id == ZonRules.field_name)
             {
                 try self.checkIdentifierValidity(node);
             }
@@ -287,7 +288,7 @@ pub const ZonLinter = struct {
         }
 
         // Check field name format (.field_name)
-        if (std.mem.eql(u8, node.rule_name, "field_name")) {
+        if (node.rule_id == ZonRules.field_name) {
             if (text[0] != '.') {
                 try self.addDiagnostic("invalid-identifier", "Field name must start with '.'", node.start_position, node.end_position, .@"error");
                 return;
@@ -405,25 +406,25 @@ pub const ZonLinter = struct {
                 if (std.mem.eql(u8, field_name, "name")) {
                     has_name = true;
                     // Validate name is a string or identifier
-                    if (!std.mem.eql(u8, value_node.rule_name, "string_literal") and
-                        !std.mem.eql(u8, value_node.rule_name, "identifier"))
+                    if (value_node.rule_id != ZonRules.string_literal and
+                        value_node.rule_id != ZonRules.identifier)
                     {
                         try self.addDiagnostic("invalid-field-type", "Package name must be a string or identifier", value_node.start_position, value_node.end_position, .@"error");
                     }
                 } else if (std.mem.eql(u8, field_name, "version")) {
                     has_version = true;
                     // Validate version is a string
-                    if (!std.mem.eql(u8, value_node.rule_name, "string_literal")) {
+                    if (value_node.rule_id != ZonRules.string_literal) {
                         try self.addDiagnostic("invalid-field-type", "Version must be a string", value_node.start_position, value_node.end_position, .@"error");
                     }
                 } else if (std.mem.eql(u8, field_name, "dependencies")) {
                     // Validate dependencies is an object
-                    if (!std.mem.eql(u8, value_node.rule_name, "object")) {
+                    if (value_node.rule_id != ZonRules.object) {
                         try self.addDiagnostic("invalid-field-type", "Dependencies must be an object", value_node.start_position, value_node.end_position, .@"error");
                     }
                 } else if (std.mem.eql(u8, field_name, "paths")) {
                     // Validate paths is an array
-                    if (!std.mem.eql(u8, value_node.rule_name, "array")) {
+                    if (value_node.rule_id != ZonRules.array) {
                         try self.addDiagnostic("invalid-field-type", "Paths must be an array", value_node.start_position, value_node.end_position, .@"error");
                     }
                 }
@@ -455,17 +456,17 @@ pub const ZonLinter = struct {
 
                 if (std.mem.eql(u8, field_name, "base_patterns")) {
                     // Should be a string
-                    if (!std.mem.eql(u8, value_node.rule_name, "string_literal")) {
+                    if (value_node.rule_id != ZonRules.string_literal) {
                         try self.addDiagnostic("invalid-field-type", "base_patterns should be a string", value_node.start_position, value_node.end_position, .warning);
                     }
                 } else if (std.mem.eql(u8, field_name, "ignored_patterns")) {
                     // Should be an array
-                    if (!std.mem.eql(u8, value_node.rule_name, "array")) {
+                    if (value_node.rule_id != ZonRules.array) {
                         try self.addDiagnostic("invalid-field-type", "ignored_patterns should be an array", value_node.start_position, value_node.end_position, .warning);
                     }
                 } else if (std.mem.eql(u8, field_name, "respect_gitignore")) {
                     // Should be a boolean
-                    if (!std.mem.eql(u8, value_node.rule_name, "boolean_literal")) {
+                    if (value_node.rule_id != ZonRules.boolean_literal) {
                         try self.addDiagnostic("invalid-field-type", "respect_gitignore should be a boolean", value_node.start_position, value_node.end_position, .warning);
                     }
                 }

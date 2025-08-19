@@ -336,6 +336,7 @@ pub const QuickValue = union(enum) {
 const testing = std.testing;
 
 test "fluent object building" {
+    const CommonRules = @import("rules.zig").CommonRules;
     var builder = ASTBuilder.init(testing.allocator);
     defer builder.deinit();
 
@@ -346,11 +347,12 @@ test "fluent object building" {
     _ = try obj.nullField("description");
     const root = try obj.build();
 
-    try testing.expectEqualStrings("object", root.rule_name);
+    try testing.expectEqual(@intFromEnum(CommonRules.object), root.rule_id);
     try testing.expectEqual(@as(usize, 4), root.children.len);
 }
 
 test "fluent array building" {
+    const CommonRules = @import("rules.zig").CommonRules;
     var builder = ASTBuilder.init(testing.allocator);
     defer builder.deinit();
 
@@ -361,7 +363,7 @@ test "fluent array building" {
     _ = try arr.nullItem();
     const root = try arr.build();
 
-    try testing.expectEqualStrings("array", root.rule_name);
+    try testing.expectEqual(@intFromEnum(CommonRules.array), root.rule_id);
     try testing.expectEqual(@as(usize, 4), root.children.len);
 }
 
@@ -387,7 +389,8 @@ test "nested object and array" {
     }.build_deps);
     const root = try obj.build();
 
-    try testing.expectEqualStrings("object", root.rule_name);
+    const CommonRules = @import("rules.zig").CommonRules;
+    try testing.expectEqual(@intFromEnum(CommonRules.object), root.rule_id);
     try testing.expectEqual(@as(usize, 3), root.children.len);
 }
 
@@ -402,7 +405,8 @@ test "quick object builder" {
     var ast = try quickObject(testing.allocator, &fields);
     defer ast.deinit();
 
-    try testing.expectEqualStrings("object", ast.root.rule_name);
+    const CommonRules = @import("rules.zig").CommonRules;
+    try testing.expectEqual(@intFromEnum(CommonRules.object), ast.root.rule_id);
     try testing.expectEqual(@as(usize, 4), ast.root.children.len);
 }
 
@@ -417,6 +421,7 @@ test "quick array builder" {
     var ast = try quickArray(testing.allocator, &items);
     defer ast.deinit();
 
-    try testing.expectEqualStrings("array", ast.root.rule_name);
+    const CommonRules = @import("rules.zig").CommonRules;
+    try testing.expectEqual(@intFromEnum(CommonRules.array), ast.root.rule_id);
     try testing.expectEqual(@as(usize, 4), ast.root.children.len);
 }

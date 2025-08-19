@@ -9,6 +9,7 @@ const ZonLinter = @import("linter.zig").ZonLinter;
 const ZonAnalyzer = @import("analyzer.zig").ZonAnalyzer;
 const zon_mod = @import("mod.zig");
 const FormatOptions = @import("../interface.zig").FormatOptions;
+const ZonRules = @import("../../ast/rules.zig").ZonRules;
 
 // Test data
 const test_build_zon =
@@ -378,7 +379,7 @@ test "ZON parser - simple object" {
     var ast = try parser.parse();
     defer ast.deinit();
 
-    try testing.expectEqualStrings("object", ast.root.rule_name);
+    try testing.expectEqual(ZonRules.object, ast.root.rule_id);
     try testing.expect(ast.root.children.len > 0);
 }
 
@@ -399,7 +400,7 @@ test "ZON parser - nested objects" {
     var ast = try parser.parse();
     defer ast.deinit();
 
-    try testing.expectEqualStrings("object", ast.root.rule_name);
+    try testing.expectEqual(ZonRules.object, ast.root.rule_id);
 }
 
 test "ZON parser - arrays" {
@@ -419,7 +420,7 @@ test "ZON parser - arrays" {
     var ast = try parser.parse();
     defer ast.deinit();
 
-    try testing.expectEqualStrings("object", ast.root.rule_name);
+    try testing.expectEqual(ZonRules.object, ast.root.rule_id);
 }
 
 test "ZON parser - build.zig.zon format" {
@@ -437,7 +438,7 @@ test "ZON parser - build.zig.zon format" {
     var ast = try parser.parse();
     defer ast.deinit();
 
-    try testing.expectEqualStrings("object", ast.root.rule_name);
+    try testing.expectEqual(ZonRules.object, ast.root.rule_id);
     try testing.expect(ast.root.children.len >= 4); // name, version, dependencies, paths
 }
 
@@ -493,7 +494,7 @@ test "ZON parser - multiple syntax errors" {
     try testing.expect(errors.len >= 2); // Should have multiple parse errors
     
     // Verify parser recovered and continued parsing (AST should exist)
-    try testing.expect(ast.root.rule_name.len >= 0);
+    // AST root rule_id is always valid as u16
 }
 
 test "ZON parser - malformed nested structures" {
@@ -1167,7 +1168,7 @@ test "ZON integration - complete pipeline" {
     defer formatted_ast.deinit();
 
     // Both ASTs should have the same structure
-    try testing.expectEqualStrings(ast.root.rule_name, formatted_ast.root.rule_name);
+    try testing.expectEqual(ast.root.rule_id, formatted_ast.root.rule_id);
 }
 
 test "ZON integration - mod.zig convenience functions" {
@@ -1177,7 +1178,7 @@ test "ZON integration - mod.zig convenience functions" {
     var ast = try zon_mod.parseZonString(allocator, test_build_zon);
     defer ast.deinit();
 
-    try testing.expectEqualStrings("object", ast.root.rule_name);
+    try testing.expectEqual(ZonRules.object, ast.root.rule_id);
 
     // Test formatZonString
     const formatted = try zon_mod.formatZonString(allocator, test_build_zon);
@@ -1219,7 +1220,7 @@ test "ZON integration - LanguageSupport interface" {
     var ast = try support.parser.parseFn(allocator, tokens);
     defer ast.deinit();
 
-    try testing.expectEqualStrings("object", ast.root.rule_name);
+    try testing.expectEqual(ZonRules.object, ast.root.rule_id);
 
     // Test formatting
     const options = FormatOptions{}; // Use default options
@@ -1276,7 +1277,7 @@ test "ZON performance - parsing speed" {
 
     // Should parse complex ZON quickly (relaxed for debug builds)
     try testing.expect(duration_ms < 50.0); // Less than 50ms (debug builds are slower)
-    try testing.expectEqualStrings("object", ast.root.rule_name);
+    try testing.expectEqual(ZonRules.object, ast.root.rule_id);
 }
 
 test "ZON performance - formatting speed" {
@@ -1308,12 +1309,12 @@ test "ZON edge cases - empty structures" {
     // Test empty object
     var ast1 = try zon_mod.parseZonString(allocator, empty_object);
     defer ast1.deinit();
-    try testing.expectEqualStrings("object", ast1.root.rule_name);
+    try testing.expectEqual(ZonRules.object, ast1.root.rule_id);
 
     // Test empty array
     var ast2 = try zon_mod.parseZonString(allocator, empty_array);
     defer ast2.deinit();
-    try testing.expectEqualStrings("array", ast2.root.rule_name);
+    try testing.expectEqual(ZonRules.array, ast2.root.rule_id);
 }
 
 test "ZON edge cases - special identifiers" {
@@ -1324,7 +1325,7 @@ test "ZON edge cases - special identifiers" {
     var ast = try zon_mod.parseZonString(allocator, input);
     defer ast.deinit();
 
-    try testing.expectEqualStrings("object", ast.root.rule_name);
+    try testing.expectEqual(ZonRules.object, ast.root.rule_id);
 }
 
 test "ZON edge cases - trailing commas" {
@@ -1335,7 +1336,7 @@ test "ZON edge cases - trailing commas" {
     var ast = try zon_mod.parseZonString(allocator, input);
     defer ast.deinit();
 
-    try testing.expectEqualStrings("object", ast.root.rule_name);
+    try testing.expectEqual(ZonRules.object, ast.root.rule_id);
     try testing.expect(ast.root.children.len >= 2);
 }
 
@@ -1347,7 +1348,7 @@ test "ZON edge cases - nested anonymous structs" {
     var ast = try zon_mod.parseZonString(allocator, input);
     defer ast.deinit();
 
-    try testing.expectEqualStrings("object", ast.root.rule_name);
+    try testing.expectEqual(ZonRules.object, ast.root.rule_id);
 }
 
 test "ZON edge cases - all number formats" {
@@ -1358,6 +1359,6 @@ test "ZON edge cases - all number formats" {
     var ast = try zon_mod.parseZonString(allocator, input);
     defer ast.deinit();
 
-    try testing.expectEqualStrings("object", ast.root.rule_name);
+    try testing.expectEqual(ZonRules.object, ast.root.rule_id);
     try testing.expect(ast.root.children.len >= 5);
 }

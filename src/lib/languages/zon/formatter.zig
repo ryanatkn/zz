@@ -3,6 +3,7 @@ const std = common.std;
 const AST = common.AST;
 const Node = common.Node;
 const utils = common.utils;
+const ZonRules = @import("../../ast/rules.zig").ZonRules;
 
 /// ZON formatter with comment preservation
 ///
@@ -108,10 +109,10 @@ pub const ZonFormatter = struct {
             },
             .list => {
                 // For containers, add basic structural elements
-                if (std.mem.eql(u8, node.rule_name, "object")) {
-                    try self.output.append('{');
-                } else if (std.mem.eql(u8, node.rule_name, "array")) {
-                    try self.output.append('[');
+                switch (node.rule_id) {
+                    ZonRules.object => try self.output.append('{'),
+                    ZonRules.array => try self.output.append('['),
+                    else => {},
                 }
             },
             else => {
@@ -126,12 +127,10 @@ pub const ZonFormatter = struct {
     fn formatNode(self: *Self, node: Node) std.mem.Allocator.Error!void {
         switch (node.node_type) {
             .list => {
-                if (std.mem.eql(u8, node.rule_name, "object")) {
-                    try self.formatObject(node);
-                } else if (std.mem.eql(u8, node.rule_name, "array")) {
-                    try self.formatArray(node);
-                } else {
-                    try self.formatGenericContainer(node);
+                switch (node.rule_id) {
+                    ZonRules.object => try self.formatObject(node),
+                    ZonRules.array => try self.formatArray(node),
+                    else => try self.formatGenericContainer(node),
                 }
             },
             .rule => {
@@ -298,28 +297,21 @@ pub const ZonFormatter = struct {
     }
 
     fn formatTerminal(self: *Self, node: Node) !void {
-        // Handle different terminal types
-        if (std.mem.eql(u8, node.rule_name, "string_literal")) {
-            try self.formatStringLiteral(node);
-        } else if (std.mem.eql(u8, node.rule_name, "number_literal")) {
-            try self.formatNumberLiteral(node);
-        } else if (std.mem.eql(u8, node.rule_name, "boolean_literal")) {
-            try self.formatBooleanLiteral(node);
-        } else if (std.mem.eql(u8, node.rule_name, "null_literal")) {
-            try self.output.appendSlice("null");
-        } else if (std.mem.eql(u8, node.rule_name, "undefined_literal")) {
-            try self.output.appendSlice("undefined");
-        } else if (std.mem.eql(u8, node.rule_name, "field_name")) {
-            try self.formatFieldName(node);
-        } else if (std.mem.eql(u8, node.rule_name, "identifier")) {
-            try self.formatIdentifier(node);
-        } else if (std.mem.eql(u8, node.rule_name, "dot")) {
-            try self.output.append('.');
-        } else {
-            // Generic terminal - output the text as-is
-            if (utils.hasText(node)) {
-                try self.output.appendSlice(node.text);
-            }
+        // Handle different terminal types using switch
+        switch (node.rule_id) {
+            ZonRules.string_literal => try self.formatStringLiteral(node),
+            ZonRules.number_literal => try self.formatNumberLiteral(node),
+            ZonRules.boolean_literal => try self.formatBooleanLiteral(node),
+            ZonRules.null_literal => try self.output.appendSlice("null"),
+            ZonRules.field_name => try self.formatFieldName(node),
+            ZonRules.identifier => try self.formatIdentifier(node),
+            ZonRules.dot => try self.output.append('.'),
+            else => {
+                // Generic terminal - output the text as-is
+                if (utils.hasText(node)) {
+                    try self.output.appendSlice(node.text);
+                }
+            },
         }
     }
 
@@ -457,13 +449,13 @@ pub const ZonFormatter = struct {
                 length += @intCast(node.text.len);
             },
             .list => {
-                if (std.mem.eql(u8, node.rule_name, "object")) {
+                if (node.rule_id == ZonRules.object) {
                     length += 2; // { }
                     for (node.children, 0..) |child, i| {
                         if (i > 0) length += 2; // ", "
                         length += self.estimateNodeLength(child);
                     }
-                } else if (std.mem.eql(u8, node.rule_name, "array")) {
+                } else if (node.rule_id == ZonRules.array) {
                     length += 2; // [ ]
                     for (node.children, 0..) |child, i| {
                         if (i > 0) length += 2; // ", "

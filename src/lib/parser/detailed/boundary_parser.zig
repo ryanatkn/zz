@@ -220,7 +220,7 @@ pub const BoundaryParser = struct {
         return switch (parse_result) {
             .success => |node| AST{
                 .root = ASTNode{
-                    .rule_name = node.rule_name,
+                    .rule_id = node.rule_id,
                     .node_type = .rule,
                     .text = node.text,
                     .start_position = node.start_position,

@@ -2,8 +2,8 @@ const std = @import("std");
 
 /// Generic AST node that can represent any parsed structure
 pub const Node = struct {
-    /// The rule name that generated this node
-    rule_name: []const u8,
+    /// Efficient rule ID for fast comparisons
+    rule_id: u16,
 
     /// The type of this node
     node_type: NodeType,
@@ -64,23 +64,23 @@ pub const Node = struct {
         return null;
     }
 
-    /// Find a child with specific rule name
-    pub fn findChild(self: Self, rule_name: []const u8) ?Node {
+    /// Find a child with specific rule ID
+    pub fn findChild(self: Self, rule_id: u16) ?Node {
         for (self.children) |child| {
-            if (std.mem.eql(u8, child.rule_name, rule_name)) {
+            if (child.rule_id == rule_id) {
                 return child;
             }
         }
         return null;
     }
 
-    /// Find all children with specific rule name
-    pub fn findChildren(self: Self, allocator: std.mem.Allocator, rule_name: []const u8) ![]Node {
+    /// Find all children with specific rule ID
+    pub fn findChildren(self: Self, allocator: std.mem.Allocator, rule_id: u16) ![]Node {
         var result = std.ArrayList(Node).init(allocator);
         defer result.deinit();
 
         for (self.children) |child| {
-            if (std.mem.eql(u8, child.rule_name, rule_name)) {
+            if (child.rule_id == rule_id) {
                 try result.append(child);
             }
         }
@@ -137,7 +137,7 @@ pub const NodeBuilder = struct {
     /// Create a new AST node
     pub fn createNode(
         self: NodeBuilder,
-        rule_name: []const u8,
+        rule_id: u16,
         node_type: NodeType,
         text: []const u8,
         start_pos: usize,
@@ -147,7 +147,7 @@ pub const NodeBuilder = struct {
         const owned_children = try self.allocator.dupe(Node, children);
 
         return Node{
-            .rule_name = rule_name,
+            .rule_id = rule_id,
             .node_type = node_type,
             .text = text,
             .start_position = start_pos,
@@ -161,13 +161,13 @@ pub const NodeBuilder = struct {
     /// Create a leaf node (terminal)
     pub fn createLeafNode(
         self: NodeBuilder,
-        rule_name: []const u8,
+        rule_id: u16,
         text: []const u8,
         start_pos: usize,
         end_pos: usize,
     ) !Node {
         return self.createNode(
-            rule_name,
+            rule_id,
             .terminal,
             text,
             start_pos,
@@ -179,7 +179,7 @@ pub const NodeBuilder = struct {
     /// Create a node with attributes
     pub fn createNodeWithAttributes(
         self: NodeBuilder,
-        rule_name: []const u8,
+        rule_id: u16,
         node_type: NodeType,
         text: []const u8,
         start_pos: usize,
@@ -187,7 +187,7 @@ pub const NodeBuilder = struct {
         children: []Node,
         attributes: std.StringHashMap([]const u8),
     ) !Node {
-        var node = try self.createNode(rule_name, node_type, text, start_pos, end_pos, children);
+        var node = try self.createNode(rule_id, node_type, text, start_pos, end_pos, children);
         node.attributes = attributes;
         return node;
     }
@@ -196,7 +196,7 @@ pub const NodeBuilder = struct {
 /// Convenience functions for creating nodes
 pub fn createNode(
     allocator: std.mem.Allocator,
-    rule_name: []const u8,
+    rule_id: u16,
     node_type: NodeType,
     text: []const u8,
     start_pos: usize,
@@ -204,16 +204,16 @@ pub fn createNode(
     children: []Node,
 ) !Node {
     const builder = NodeBuilder.init(allocator);
-    return builder.createNode(rule_name, node_type, text, start_pos, end_pos, children);
+    return builder.createNode(rule_id, node_type, text, start_pos, end_pos, children);
 }
 
 pub fn createLeafNode(
     allocator: std.mem.Allocator,
-    rule_name: []const u8,
+    rule_id: u16,
     text: []const u8,
     start_pos: usize,
     end_pos: usize,
 ) !Node {
     const builder = NodeBuilder.init(allocator);
-    return builder.createLeafNode(rule_name, text, start_pos, end_pos);
+    return builder.createLeafNode(rule_id, text, start_pos, end_pos);
 }

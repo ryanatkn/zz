@@ -45,9 +45,10 @@ pub const AST = struct {
 
     /// Initialize an empty AST
     pub fn init(allocator: std.mem.Allocator) AST {
+        const CommonRules = @import("rules.zig").CommonRules;
         return AST{
             .root = ASTNode{
-                .rule_name = "",
+                .rule_id = @intFromEnum(CommonRules.root),
                 .node_type = .root,
                 .text = "",
                 .start_position = 0,

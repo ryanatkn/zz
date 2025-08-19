@@ -244,10 +244,10 @@ pub const JsonTransformPipeline = struct {
     /// Format AST to JSON text
     pub fn format(self: *Self, _: *Context, ast: AST) ![]const u8 {
         // Use existing JSON formatter
-        var formatter = JsonFormatter.init(self.allocator);
+        var formatter = JsonFormatter.init(self.allocator, .{});
         defer formatter.deinit();
         
-        return try formatter.format(ast, self.format_options);
+        return try formatter.format(ast);
     }
     
     /// Round-trip: JSON → AST → JSON
@@ -290,7 +290,8 @@ pub const json = struct {
         var ctx = Context.init(allocator);
         defer ctx.deinit();
         
-        const options = format_pipeline.FormatOptionsBuilder.init()
+        var builder = format_pipeline.FormatOptionsBuilder.init();
+        const options = builder
             .indentSize(2)
             .indentStyle(.space)
             .sortKeys(true)
@@ -312,7 +313,8 @@ pub const json = struct {
         var ctx = Context.init(allocator);
         defer ctx.deinit();
         
-        const options = format_pipeline.FormatOptionsBuilder.init()
+        var builder = format_pipeline.FormatOptionsBuilder.init();
+        const options = builder
             .indentSize(0)
             .preserveNewlines(false)
             .build();
@@ -345,7 +347,8 @@ test "JSON transform pipeline - basic parsing" {
     var ast = try pipeline.parse(&ctx, json_text);
     defer ast.deinit();
     
-    try testing.expect(ast.root != null);
+    // AST root is not optional anymore, it's always present
+    try testing.expect(ast.root.children.len >= 0);
 }
 
 test "JSON transform pipeline - with JSON5 features" {
@@ -381,7 +384,8 @@ test "JSON transform pipeline - with JSON5 features" {
     var ast = try pipeline.parse(&ctx, json5_text);
     defer ast.deinit();
     
-    try testing.expect(ast.root != null);
+    // AST root is not optional anymore, it's always present
+    try testing.expect(ast.root.children.len >= 0);
 }
 
 test "JSON convenience functions" {
@@ -393,7 +397,8 @@ test "JSON convenience functions" {
         var ast = try json.parse(allocator, text);
         defer ast.deinit();
         
-        try testing.expect(ast.root != null);
+        // AST root is not optional anymore, it's always present
+    try testing.expect(ast.root.children.len >= 0);
     }
     
     // Test pretty print

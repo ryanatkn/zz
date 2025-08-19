@@ -5,8 +5,8 @@ const Span = @import("../../parser/foundation/types/span.zig").Span;
 const AST = @import("../../ast/mod.zig").AST;
 const Node = @import("../../ast/mod.zig").Node;
 const NodeType = @import("../../ast/mod.zig").NodeType;
-const createNode = @import("../../ast/mod.zig").createNode;
-const createLeafNode = @import("../../ast/mod.zig").createLeafNode;
+const ParseContext = @import("memory.zig").ParseContext;
+const JsonRules = @import("../../ast/rules.zig").JsonRules;
 
 /// High-performance JSON parser producing proper AST
 ///
@@ -22,6 +22,7 @@ pub const JsonParser = struct {
     current: usize,
     errors: std.ArrayList(ParseError),
     allow_trailing_commas: bool,
+    context: ParseContext,
 
     const Self = @This();
 
@@ -45,6 +46,7 @@ pub const JsonParser = struct {
             .current = 0,
             .errors = std.ArrayList(ParseError).init(allocator),
             .allow_trailing_commas = options.allow_trailing_commas,
+            .context = ParseContext.init(allocator),
         };
     }
 
@@ -53,6 +55,7 @@ pub const JsonParser = struct {
             self.allocator.free(err.message);
         }
         self.errors.deinit();
+        self.context.deinit();
     }
 
     /// Parse tokens into JSON AST
@@ -64,10 +67,14 @@ pub const JsonParser = struct {
             try self.addError("Unexpected token after JSON value", self.peek().span);
         }
 
-        var ast = AST.init(self.allocator);
-        ast.root = root_node;
+        // Transfer ownership of allocated texts from parse context
+        const owned_texts = self.context.transferOwnership();
 
-        return ast;
+        return AST{
+            .root = root_node,
+            .allocator = self.allocator,
+            .owned_texts = owned_texts,
+        };
     }
 
     /// Get all parse errors
@@ -75,10 +82,10 @@ pub const JsonParser = struct {
         return self.errors.items;
     }
 
-    fn parseValue(self: *Self) !*Node {
+    fn parseValue(self: *Self) anyerror!Node {
         if (self.isAtEnd()) {
             try self.addError("Unexpected end of input", Span.init(0, 0));
-            return try self.createErrorNode();
+            return self.createErrorNode();
         }
 
         const token = self.peek();
@@ -96,57 +103,103 @@ pub const JsonParser = struct {
                 self.parseUnexpected(),
             .comment => {
                 // Skip comments and try next token
-                self.advance();
+                _ = self.advance();
                 return self.parseValue();
             },
             else => self.parseUnexpected(),
         };
     }
 
-    fn parseString(self: *Self) !*Node {
+    fn parseString(self: *Self) !Node {
         const token = self.advance();
 
         // Validate and unescape string content
         const content = try self.unescapeString(token.text);
-        defer self.allocator.free(content);
+        const owned_content = try self.context.trackText(content);
+        self.allocator.free(content);
 
-        return try createLeafNode(self.allocator, "json_string", content, token.span.start, token.span.end);
+        return Node{
+            .rule_id = JsonRules.string_literal,
+            .node_type = .terminal,
+            .text = owned_content,
+            .start_position = token.span.start,
+            .end_position = token.span.end,
+            .children = &[_]Node{},
+            .attributes = null,
+            .parent = null,
+        };
     }
 
-    fn parseNumber(self: *Self) !*Node {
+    fn parseNumber(self: *Self) !Node {
         const token = self.advance();
 
         // Validate number format
         _ = std.fmt.parseFloat(f64, token.text) catch {
             try self.addError("Invalid number format", token.span);
-            return try self.createErrorNode();
+            return self.createErrorNode();
         };
 
-        return try createLeafNode(self.allocator, "json_number", token.text, token.span.start, token.span.end);
+        return Node{
+            .rule_id = JsonRules.number_literal,
+            .node_type = .terminal,
+            .text = token.text,
+            .start_position = token.span.start,
+            .end_position = token.span.end,
+            .children = &[_]Node{},
+            .attributes = null,
+            .parent = null,
+        };
     }
 
-    fn parseBoolean(self: *Self) !*Node {
+    fn parseBoolean(self: *Self) !Node {
         const token = self.advance();
         _ = std.mem.eql(u8, token.text, "true");
 
-        return try createLeafNode(self.allocator, "json_boolean", token.text, token.span.start, token.span.end);
+        return Node{
+            .rule_id = JsonRules.boolean_literal,
+            .node_type = .terminal,
+            .text = token.text,
+            .start_position = token.span.start,
+            .end_position = token.span.end,
+            .children = &[_]Node{},
+            .attributes = null,
+            .parent = null,
+        };
     }
 
-    fn parseNull(self: *Self) !*Node {
+    fn parseNull(self: *Self) !Node {
         const token = self.advance();
-        return try createLeafNode(self.allocator, "json_null", "null", token.span.start, token.span.end);
+        
+        return Node{
+            .rule_id = JsonRules.null_literal,
+            .node_type = .terminal,
+            .text = token.text,
+            .start_position = token.span.start,
+            .end_position = token.span.end,
+            .children = &[_]Node{},
+            .attributes = null,
+            .parent = null,
+        };
     }
 
-    fn parseObject(self: *Self) !*Node {
+    fn parseObject(self: *Self) !Node {
         const start_token = self.advance(); // consume '{'
-        var members = std.ArrayList(*Node).init(self.allocator);
+        var members = std.ArrayList(Node).init(self.allocator);
         defer members.deinit();
 
         // Handle empty object
         if (self.check(.delimiter, "}")) {
             const end_token = self.advance();
-            const span = Span.init(start_token.span.start, end_token.span.end);
-            return try createNode(self.allocator, .json_object, &.{}, span);
+            return Node{
+                .rule_id = JsonRules.object,
+                .node_type = .list,
+                .text = &[_]u8{},
+                .start_position = start_token.span.start,
+                .end_position = end_token.span.end,
+                .children = &[_]Node{},
+                .attributes = null,
+                .parent = null,
+            };
         }
 
         // Parse object members
@@ -156,7 +209,7 @@ pub const JsonParser = struct {
                     // Skip to next comma or closing brace for error recovery
                     self.skipToDelimiter(&.{ ",", "}" });
                     if (self.check(.delimiter, ",")) {
-                        self.advance();
+                        _ = self.advance();
                     }
                     continue;
                 },
@@ -166,7 +219,7 @@ pub const JsonParser = struct {
             try members.append(member);
 
             if (self.check(.delimiter, ",")) {
-                self.advance(); // consume comma
+                _ = self.advance(); // consume comma
 
                 // Handle trailing comma
                 if (self.check(.delimiter, "}")) {
@@ -183,16 +236,27 @@ pub const JsonParser = struct {
 
         if (!self.check(.delimiter, "}")) {
             try self.addError("Expected '}' to close object", self.peek().span);
-            return try self.createErrorNode();
+            return self.createErrorNode();
         }
 
         const end_token = self.advance(); // consume '}'
-        const span = Span.init(start_token.span.start, end_token.span.end);
 
-        return try createNode(self.allocator, .json_object, try members.toOwnedSlice(), span);
+        // Convert ArrayList to slice for children
+        const children = try self.context.trackNodes(members.items);
+
+        return Node{
+            .rule_id = JsonRules.object,
+            .node_type = .list,
+            .text = &[_]u8{},
+            .start_position = start_token.span.start,
+            .end_position = end_token.span.end,
+            .children = children,
+            .attributes = null,
+            .parent = null,
+        };
     }
 
-    fn parseObjectMember(self: *Self) !*Node {
+    fn parseObjectMember(self: *Self) !Node {
         // Parse key (must be string)
         if (!self.check(.string_literal, null)) {
             try self.addError("Expected string key in object member", self.peek().span);
@@ -206,26 +270,44 @@ pub const JsonParser = struct {
             try self.addError("Expected ':' after object key", self.peek().span);
             return error.ParseError;
         }
-        self.advance(); // consume ':'
+        _ = self.advance(); // consume ':'
 
         // Parse value
         const value = try self.parseValue();
 
         // Create member node
-        const span = Span.init(key.span.start, value.span.end);
-        return try createNode(self.allocator, .json_member, &.{ key, value }, span);
+        const children = try self.context.trackNodes(&[_]Node{ key, value });
+        
+        return Node{
+            .rule_id = JsonRules.member,
+            .node_type = .rule,
+            .text = &[_]u8{},
+            .start_position = key.start_position,
+            .end_position = value.end_position,
+            .children = children,
+            .attributes = null,
+            .parent = null,
+        };
     }
 
-    fn parseArray(self: *Self) !*Node {
+    fn parseArray(self: *Self) !Node {
         const start_token = self.advance(); // consume '['
-        var elements = std.ArrayList(*Node).init(self.allocator);
+        var elements = std.ArrayList(Node).init(self.allocator);
         defer elements.deinit();
 
         // Handle empty array
         if (self.check(.delimiter, "]")) {
             const end_token = self.advance();
-            const span = Span.init(start_token.span.start, end_token.span.end);
-            return try createNode(self.allocator, .json_array, &.{}, span);
+            return Node{
+                .rule_id = JsonRules.array,
+                .node_type = .list,
+                .text = &[_]u8{},
+                .start_position = start_token.span.start,
+                .end_position = end_token.span.end,
+                .children = &[_]Node{},
+                .attributes = null,
+                .parent = null,
+            };
         }
 
         // Parse array elements
@@ -235,7 +317,7 @@ pub const JsonParser = struct {
                     // Skip to next comma or closing bracket for error recovery
                     self.skipToDelimiter(&.{ ",", "]" });
                     if (self.check(.delimiter, ",")) {
-                        self.advance();
+                        _ = self.advance();
                     }
                     continue;
                 },
@@ -245,7 +327,7 @@ pub const JsonParser = struct {
             try elements.append(element);
 
             if (self.check(.delimiter, ",")) {
-                self.advance(); // consume comma
+                _ = self.advance(); // consume comma
 
                 // Handle trailing comma
                 if (self.check(.delimiter, "]")) {
@@ -262,20 +344,31 @@ pub const JsonParser = struct {
 
         if (!self.check(.delimiter, "]")) {
             try self.addError("Expected ']' to close array", self.peek().span);
-            return try self.createErrorNode();
+            return self.createErrorNode();
         }
 
         const end_token = self.advance(); // consume ']'
-        const span = Span.init(start_token.span.start, end_token.span.end);
 
-        return try createNode(self.allocator, .json_array, try elements.toOwnedSlice(), span);
+        // Convert ArrayList to slice for children
+        const children = try self.context.trackNodes(elements.items);
+
+        return Node{
+            .rule_id = JsonRules.array,
+            .node_type = .list,
+            .text = &[_]u8{},
+            .start_position = start_token.span.start,
+            .end_position = end_token.span.end,
+            .children = children,
+            .attributes = null,
+            .parent = null,
+        };
     }
 
-    fn parseUnexpected(self: *Self) !*Node {
+    fn parseUnexpected(self: *Self) !Node {
         const token = self.peek();
         try self.addError("Unexpected token", token.span);
-        self.advance();
-        return try self.createErrorNode();
+        _ = self.advance();
+        return self.createErrorNode();
     }
 
     fn unescapeString(self: *Self, raw: []const u8) ![]u8 {
@@ -307,9 +400,9 @@ pub const JsonParser = struct {
                         i += 2;
                         continue;
                     },
-                    else => {
+                    else => blk: {
                         try self.addError("Invalid escape sequence", Span.init(i, i + 2));
-                        escaped;
+                        break :blk escaped; // Use the escaped character as-is
                     },
                 };
                 try result.append(unescaped);
@@ -323,12 +416,18 @@ pub const JsonParser = struct {
         return result.toOwnedSlice();
     }
 
-    fn createErrorNode(self: *Self) !*Node {
+    fn createErrorNode(self: *Self) Node {
         const span = if (self.isAtEnd()) Span.init(0, 0) else self.peek().span;
-        const node = try createLeafNode(self.allocator, "json_error", "error", span.start, span.end);
-        const node_ptr = try self.allocator.create(Node);
-        node_ptr.* = node;
-        return node_ptr;
+        return Node{
+            .rule_id = JsonRules.error_recovery,
+            .node_type = .error_recovery,
+            .text = "error",
+            .start_position = span.start,
+            .end_position = span.end,
+            .children = &[_]Node{},
+            .attributes = null,
+            .parent = null,
+        };
     }
 
     fn addError(self: *Self, message: []const u8, span: Span) !void {
@@ -382,22 +481,20 @@ pub const JsonParser = struct {
                     }
                 }
             }
-            self.advance();
+            _ = self.advance();
         }
     }
 };
 
-// Extend NodeType enum for JSON-specific nodes
-pub const JsonNodeType = enum {
-    json_string,
-    json_number,
-    json_boolean,
-    json_null,
-    json_object,
-    json_member,
-    json_array,
-    json_error,
-};
+// JSON-specific node types are handled via rule_name strings:
+// - "string_literal" for string literals
+// - "number_literal" for numeric values
+// - "boolean_literal" for true/false
+// - "null_literal" for null
+// - "object" for objects
+// - "member" for key-value pairs
+// - "array" for arrays
+// - "error" for parse errors
 
 // Tests
 const testing = std.testing;
@@ -420,7 +517,7 @@ test "JSON parser - simple values" {
         var ast = try parser.parse();
         defer ast.deinit();
 
-        try testing.expect(ast.root != null);
+        // AST.root is non-optional now
         // Additional AST validation would go here
     }
 
@@ -436,7 +533,7 @@ test "JSON parser - simple values" {
         var ast = try parser.parse();
         defer ast.deinit();
 
-        try testing.expect(ast.root != null);
+        // AST.root is non-optional now
     }
 
     // Test boolean
@@ -451,7 +548,7 @@ test "JSON parser - simple values" {
         var ast = try parser.parse();
         defer ast.deinit();
 
-        try testing.expect(ast.root != null);
+        // AST.root is non-optional now
     }
 }
 
@@ -470,7 +567,7 @@ test "JSON parser - object" {
     var ast = try parser.parse();
     defer ast.deinit();
 
-    try testing.expect(ast.root != null);
+    // AST.root is non-optional now
     // Verify it's an object with one member
     // Additional structure validation would go here
 }
@@ -490,7 +587,7 @@ test "JSON parser - array" {
     var ast = try parser.parse();
     defer ast.deinit();
 
-    try testing.expect(ast.root != null);
+    // AST.root is non-optional now
     // Verify it's an array with three elements
 }
 
@@ -519,7 +616,7 @@ test "JSON parser - nested structure" {
     var ast = try parser.parse();
     defer ast.deinit();
 
-    try testing.expect(ast.root != null);
+    // AST.root is non-optional now
 
     // Check no parse errors
     const errors = parser.getErrors();

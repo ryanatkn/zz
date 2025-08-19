@@ -2,6 +2,7 @@ const std = @import("std");
 const Node = @import("node.zig").Node;
 const NodeType = @import("node.zig").NodeType;
 const AST = @import("mod.zig").AST;
+const CommonRules = @import("rules.zig").CommonRules;
 
 /// AST Factory for programmatic construction of AST nodes
 /// Provides memory-safe node creation with proper owned_texts tracking
@@ -38,19 +39,16 @@ pub const ASTFactory = struct {
     /// Create a terminal node (leaf) with text content
     pub fn createLiteral(
         self: *Self,
-        rule_name: []const u8,
+        rule_id: u16,
         text: []const u8,
         start_pos: usize,
         end_pos: usize,
     ) !Node {
-        const owned_rule_name = try self.allocator.dupe(u8, rule_name);
         const owned_text = try self.allocator.dupe(u8, text);
-
-        try self.owned_texts.append(owned_rule_name);
         try self.owned_texts.append(owned_text);
 
         return Node{
-            .rule_name = owned_rule_name,
+            .rule_id = rule_id,
             .node_type = .terminal,
             .text = owned_text,
             .start_position = start_pos,
@@ -64,21 +62,18 @@ pub const ASTFactory = struct {
     /// Create a rule node with children
     pub fn createRule(
         self: *Self,
-        rule_name: []const u8,
+        rule_id: u16,
         text: []const u8,
         start_pos: usize,
         end_pos: usize,
         children: []const Node,
     ) !Node {
-        const owned_rule_name = try self.allocator.dupe(u8, rule_name);
         const owned_text = try self.allocator.dupe(u8, text);
         const owned_children = try self.allocator.dupe(Node, children);
-
-        try self.owned_texts.append(owned_rule_name);
         try self.owned_texts.append(owned_text);
 
         return Node{
-            .rule_name = owned_rule_name,
+            .rule_id = rule_id,
             .node_type = .rule,
             .text = owned_text,
             .start_position = start_pos,
@@ -97,7 +92,7 @@ pub const ASTFactory = struct {
         end_pos: usize,
         fields: []const Node,
     ) !Node {
-        return try self.createRule("object", text, start_pos, end_pos, fields);
+        return try self.createRule(@intFromEnum(CommonRules.object), text, start_pos, end_pos, fields);
     }
 
     /// Create an array node
@@ -108,7 +103,7 @@ pub const ASTFactory = struct {
         end_pos: usize,
         items: []const Node,
     ) !Node {
-        return try self.createRule("array", text, start_pos, end_pos, items);
+        return try self.createRule(@intFromEnum(CommonRules.array), text, start_pos, end_pos, items);
     }
 
     /// Create a field assignment node (field = value)
@@ -119,16 +114,18 @@ pub const ASTFactory = struct {
         start_pos: usize,
         end_pos: usize,
     ) !Node {
-        const field_node = try self.createLiteral("field_name", field_name, start_pos, start_pos + field_name.len);
+        // Use ZON rule IDs for field assignment
+        const ZonRules = @import("rules.zig").ZonRules;
+        const field_node = try self.createLiteral(ZonRules.field_name, field_name, start_pos, start_pos + field_name.len);
 
         // Create equals token node
-        const equals_node = try self.createLiteral("equals", "=", start_pos + field_name.len + 1, start_pos + field_name.len + 2);
+        const equals_node = try self.createLiteral(ZonRules.equals, "=", start_pos + field_name.len + 1, start_pos + field_name.len + 2);
 
         const children = [_]Node{ field_node, equals_node, value_node };
         const full_text = try std.fmt.allocPrint(self.allocator, "{s} = {s}", .{ field_name, value_node.text });
         try self.owned_texts.append(full_text);
 
-        return try self.createRule("field_assignment", full_text, start_pos, end_pos, &children);
+        return try self.createRule(ZonRules.field_assignment, full_text, start_pos, end_pos, &children);
     }
 
     /// Create a string literal node
@@ -141,7 +138,7 @@ pub const ASTFactory = struct {
         const quoted_text = try std.fmt.allocPrint(self.allocator, "\"{s}\"", .{value});
         try self.owned_texts.append(quoted_text);
 
-        return try self.createLiteral("string_literal", quoted_text, start_pos, end_pos);
+        return try self.createLiteral(@intFromEnum(CommonRules.string_literal), quoted_text, start_pos, end_pos);
     }
 
     /// Create a number literal node
@@ -154,7 +151,7 @@ pub const ASTFactory = struct {
         const number_text = try std.fmt.allocPrint(self.allocator, "{}", .{value});
         try self.owned_texts.append(number_text);
 
-        return try self.createLiteral("number_literal", number_text, start_pos, end_pos);
+        return try self.createLiteral(@intFromEnum(CommonRules.number_literal), number_text, start_pos, end_pos);
     }
 
     /// Create a boolean literal node
@@ -165,7 +162,7 @@ pub const ASTFactory = struct {
         end_pos: usize,
     ) !Node {
         const bool_text = if (value) "true" else "false";
-        return try self.createLiteral("boolean_literal", bool_text, start_pos, end_pos);
+        return try self.createLiteral(@intFromEnum(CommonRules.boolean_literal), bool_text, start_pos, end_pos);
     }
 
     /// Create a null literal node
@@ -174,7 +171,7 @@ pub const ASTFactory = struct {
         start_pos: usize,
         end_pos: usize,
     ) !Node {
-        return try self.createLiteral("null_literal", "null", start_pos, end_pos);
+        return try self.createLiteral(@intFromEnum(CommonRules.null_literal), "null", start_pos, end_pos);
     }
 
     /// Create an identifier node
@@ -184,7 +181,7 @@ pub const ASTFactory = struct {
         start_pos: usize,
         end_pos: usize,
     ) !Node {
-        return try self.createLiteral("identifier", name, start_pos, end_pos);
+        return try self.createLiteral(@intFromEnum(CommonRules.identifier), name, start_pos, end_pos);
     }
 
     /// Create an expression node (binary operation)
@@ -196,13 +193,14 @@ pub const ASTFactory = struct {
         start_pos: usize,
         end_pos: usize,
     ) !Node {
-        const op_node = try self.createLiteral("operator", operator, left.end_position, left.end_position + operator.len);
+        const op_node = try self.createLiteral(@intFromEnum(CommonRules.operator), operator, left.end_position, left.end_position + operator.len);
         const children = [_]Node{ left, op_node, right };
 
         const expr_text = try std.fmt.allocPrint(self.allocator, "{s} {s} {s}", .{ left.text, operator, right.text });
         try self.owned_texts.append(expr_text);
 
-        return try self.createRule("expression", expr_text, start_pos, end_pos, &children);
+        // Generic expression rule - could be language-specific
+        return try self.createRule(1000, expr_text, start_pos, end_pos, &children);
     }
 
     /// Create a comment node
@@ -212,7 +210,7 @@ pub const ASTFactory = struct {
         start_pos: usize,
         end_pos: usize,
     ) !Node {
-        return try self.createLiteral("comment", comment_text, start_pos, end_pos);
+        return try self.createLiteral(@intFromEnum(CommonRules.comment), comment_text, start_pos, end_pos);
     }
 };
 

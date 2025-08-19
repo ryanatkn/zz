@@ -99,7 +99,12 @@ pub const FormatPipeline = struct {
         
         // Apply final indentation if needed
         if (self.indent_manager) |manager| {
-            const indented = try manager.convertStyle(text, self.options.indent_style, self.options.indent_size);
+            // Convert FormatOptions.IndentStyle to IndentManager.IndentStyle
+            const indent_style = switch (self.options.indent_style) {
+                .space => @import("../../text/indent.zig").IndentManager.IndentStyle.spaces,
+                .tab => @import("../../text/indent.zig").IndentManager.IndentStyle.tabs,
+            };
+            const indented = try manager.convertStyle(text, indent_style, self.options.indent_size);
             ctx.allocator.free(text);
             return indented;
         }
@@ -395,7 +400,7 @@ test "FormatPipeline basic usage" {
             fn emit(context: *Context, ast: AST) ![]const Token {
                 _ = ast;
                 var tokens = try context.allocator.alloc(Token, 1);
-                tokens[0] = Token.simple(Span.init(0, 4), .null, "null", 0);
+                tokens[0] = Token.simple(Span.init(0, 4), .null_literal, "null", 0);
                 return tokens;
             }
         }.emit,
@@ -430,7 +435,7 @@ test "FormatPipeline basic usage" {
     
     var ast = AST.init(allocator);
     defer ast.deinit();
-    ast.root = try builder.createLeafNode(allocator, .json_null, "null", Span.init(0, 4));
+    ast.root = try @import("../../ast/node.zig").createLeafNode(allocator, @intFromEnum(@import("../../ast/rules.zig").CommonRules.null_literal), "null", 0, 4);
     
     const formatted = try pipeline.format(&ctx, ast);
     defer allocator.free(formatted);

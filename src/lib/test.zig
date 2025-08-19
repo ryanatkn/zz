@@ -15,9 +15,8 @@ test {
     // _ = @import("test/parser_test.zig");
     // ZON language implementation tests
     _ = @import("languages/zon/test.zig");
-    // JSON language implementation tests - DISABLED due to parser API drift
-    // TODO: Fix JSON parser to match new AST factory API
-    // _ = @import("languages/json/test.zig");
+    // JSON language implementation tests
+    _ = @import("languages/json/test.zig");
     // Transform and serialization tests
     _ = @import("transform/test.zig");
     // Core module tests - only include files that compile

@@ -3,6 +3,8 @@ const char_utils = @import("../../char/mod.zig");
 
 // Import centralized AST utilities for generic operations
 const ASTUtils = @import("../../ast/utils.zig").ASTUtils;
+const Node = @import("../../ast/mod.zig").Node;
+const ZonRules = @import("../../ast/rules.zig").ZonRules;
 
 /// ZON-specific utility functions
 ///
@@ -51,9 +53,8 @@ pub fn isArrayNodeGeneric(node: anytype) bool {
 }
 
 /// Check if a node is a terminal node of a specific type
-pub const isTerminalOfType = isTerminalOfTypeGeneric;
-pub fn isTerminalOfTypeGeneric(node: anytype, rule_name: []const u8) bool {
-    return node.node_type == .terminal and std.mem.eql(u8, node.rule_name, rule_name);
+pub fn isTerminalOfType(node: anytype, rule_id: u16) bool {
+    return node.node_type == .terminal and node.rule_id == rule_id;
 }
 
 // ============================================================================
@@ -372,7 +373,7 @@ pub fn getFieldName(node: anytype) ?[]const u8 {
 
 /// Check if a node represents a ZON field assignment
 pub fn isFieldAssignment(node: anytype) bool {
-    return std.mem.eql(u8, node.rule_name, "field_assignment");
+    return node.rule_id == ZonRules.field_assignment;
 }
 
 /// Process a ZON field assignment node and return field name and value node
@@ -467,10 +468,9 @@ pub fn isSimpleTerminal(node: anytype) bool {
     if (node.node_type != .terminal) return false;
 
     // Consider these simple terminals
-    return isTerminalOfType(node, "string_literal") or
-        isTerminalOfType(node, "number_literal") or
-        isTerminalOfType(node, "boolean_literal") or
-        isTerminalOfType(node, "null_literal") or
-        isTerminalOfType(node, "undefined_literal") or
-        isTerminalOfType(node, "identifier");
+    return isTerminalOfType(node, ZonRules.string_literal) or
+        isTerminalOfType(node, ZonRules.number_literal) or
+        isTerminalOfType(node, ZonRules.boolean_literal) or
+        isTerminalOfType(node, ZonRules.null_literal) or
+        isTerminalOfType(node, ZonRules.identifier);
 }

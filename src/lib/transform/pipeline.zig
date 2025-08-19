@@ -53,8 +53,8 @@ pub fn Pipeline(comptime In: type, comptime Out: type) type {
             self: *Self,
             comptime StageIn: type,
             comptime StageOut: type,
-            forward_fn: *const fn (*Context, StageIn) anyerror!StageOut,
-            reverse_fn: ?*const fn (*Context, StageOut) anyerror!StageIn,
+            comptime forward_fn: *const fn (*Context, StageIn) anyerror!StageOut,
+            comptime reverse_fn: ?*const fn (*Context, StageOut) anyerror!StageIn,
             metadata: types.TransformMetadata,
         ) !void {
             // For the first stage, verify input type matches pipeline input
@@ -64,21 +64,18 @@ pub fn Pipeline(comptime In: type, comptime Out: type) type {
                 }
             }
             
-            // Create type-erased wrapper with captured function pointers
-            const Wrapper = struct {
-                const fwd = forward_fn;
-                const rev = reverse_fn;
-                
+            // Create type-erased wrapper with comptime-captured function pointers
+            const WrapperImpl = struct {
                 fn forward(ctx: *Context, input: *anyopaque) anyerror!*anyopaque {
                     const typed_input = @as(*StageIn, @ptrCast(@alignCast(input)));
-                    const result = try fwd(ctx, typed_input.*);
+                    const result = try forward_fn(ctx, typed_input.*);
                     const output = try ctx.allocator.create(StageOut);
                     output.* = result;
                     return @ptrCast(output);
                 }
                 
                 fn reverse(ctx: *Context, output: *anyopaque) anyerror!*anyopaque {
-                    if (rev) |r| {
+                    if (reverse_fn) |r| {
                         const typed_output = @as(*StageOut, @ptrCast(@alignCast(output)));
                         const result = try r(ctx, typed_output.*);
                         const input_ptr = try ctx.allocator.create(StageIn);
@@ -90,8 +87,8 @@ pub fn Pipeline(comptime In: type, comptime Out: type) type {
             };
             
             const stage = Stage{
-                .forward = Wrapper.forward,
-                .reverse = if (reverse_fn != null) Wrapper.reverse else null,
+                .forward = WrapperImpl.forward,
+                .reverse = if (reverse_fn != null) WrapperImpl.reverse else null,
                 .input_type = @typeName(StageIn),
                 .output_type = @typeName(StageOut),
                 .metadata = metadata,
@@ -311,27 +308,22 @@ pub fn chainTransforms(
     comptime A: type,
     comptime B: type,
     comptime C: type,
-    first_forward: *const fn (*Context, A) anyerror!B,
-    first_reverse: ?*const fn (*Context, B) anyerror!A,
-    second_forward: *const fn (*Context, B) anyerror!C,
-    second_reverse: ?*const fn (*Context, C) anyerror!B,
+    comptime first_forward: *const fn (*Context, A) anyerror!B,
+    comptime first_reverse: ?*const fn (*Context, B) anyerror!A,
+    comptime second_forward: *const fn (*Context, B) anyerror!C,
+    comptime second_reverse: ?*const fn (*Context, C) anyerror!B,
     metadata: types.TransformMetadata,
 ) Transform(A, C) {
     const ChainWrapper = struct {
-        const ff = first_forward;
-        const fr = first_reverse;
-        const sf = second_forward;
-        const sr = second_reverse;
-        
         fn forward(ctx: *Context, input: A) !C {
-            const intermediate = try ff(ctx, input);
-            return sf(ctx, intermediate);
+            const intermediate = try first_forward(ctx, input);
+            return second_forward(ctx, intermediate);
         }
         
         fn reverse(ctx: *Context, output: C) !A {
-            if (fr != null and sr != null) {
-                const intermediate = try sr.?(ctx, output);
-                return fr.?(ctx, intermediate);
+            if (first_reverse != null and second_reverse != null) {
+                const intermediate = try second_reverse.?(ctx, output);
+                return first_reverse.?(ctx, intermediate);
             }
             return error.NotReversible;
         }

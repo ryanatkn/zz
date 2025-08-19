@@ -269,7 +269,7 @@ test "JSON module - complete pipeline" {
     var ast = try parseJson(allocator, input);
     defer ast.deinit();
 
-    try testing.expect(ast.root != null);
+    // AST.root is non-optional now
 
     // Test formatting
     const formatted = try formatJsonString(allocator, input);
@@ -320,9 +320,10 @@ test "JSON module - language support interface" {
 
     // Test that all required components are present
     try testing.expectEqual(Language.json, support.language);
-    try testing.expect(support.lexer.tokenizeFn != null);
-    try testing.expect(support.parser.parseFn != null);
-    try testing.expect(support.formatter.formatFn != null);
+    // Check that function pointers are set (they're not optional)
+    _ = support.lexer.tokenizeFn;
+    _ = support.parser.parseFn;
+    _ = support.formatter.formatFn;
     try testing.expect(support.linter != null);
     try testing.expect(support.analyzer != null);
 
@@ -337,7 +338,7 @@ test "JSON module - language support interface" {
     var ast = try support.parser.parse(allocator, tokens);
     defer ast.deinit();
 
-    try testing.expect(ast.root != null);
+    // AST.root is non-optional now
 
     // Test formatter interface
     const default_options = FormatOptions{};
@@ -392,7 +393,7 @@ test "JSON module - error handling" {
     defer ast.deinit();
 
     // Should still produce some AST structure for error recovery
-    try testing.expect(ast.root != null);
+    // AST.root is non-optional now
 }
 
 test "JSON module - round-trip formatting" {
@@ -424,7 +425,7 @@ test "JSON module - round-trip formatting" {
         defer ast2.deinit();
 
         // Both ASTs should be valid (basic round-trip test)
-        try testing.expect(ast.root != null);
-        try testing.expect(ast2.root != null);
+        // AST.root is non-optional now
+        // AST.root is non-optional now
     }
 }

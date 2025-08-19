@@ -430,7 +430,7 @@ test "JSON lexer - string escapes" {
     defer lexer.deinit();
 
     const tokens = try lexer.tokenize();
-    try testing.expectEqual(@as(usize, 1), tokens.len);
+    try testing.expectEqual(@as(usize, 2), tokens.len); // +1 for EOF
     try testing.expectEqual(TokenKind.string_literal, tokens[0].kind);
     try testing.expectEqualStrings("\"hello\\nworld\\\"\"", tokens[0].text);
 }

@@ -181,7 +181,6 @@ pub const JsonFormatter = struct {
         }
 
         for (sorted_members, 0..) |member, i| {
-            
             if (!should_compact) {
                 try self.writeIndent();
             } else if (i > 0 and self.options.space_after_comma) {
@@ -407,22 +406,10 @@ pub const JsonFormatter = struct {
 
         const a_key = a_children[0].text;
         const b_key = b_children[0].text;
-        
+
         return std.mem.lessThan(u8, a_key, b_key);
     }
 };
-
-/// JSON formatting visitor for AST traversal
-const JsonFormatVisitor = struct {
-    formatter: *JsonFormatter,
-};
-
-/// Visitor callback function for JSON formatting
-fn formatVisitorCallback(node: *const Node, context: ?*anyopaque) !bool {
-    const visitor = @as(*JsonFormatVisitor, @ptrCast(@alignCast(context.?)));
-    try visitor.formatter.formatNode(node);
-    return true;  // Continue traversal
-}
 
 /// Convenience function for basic JSON formatting
 pub fn formatJson(allocator: std.mem.Allocator, ast: AST, options: FormatOptions) ![]const u8 {

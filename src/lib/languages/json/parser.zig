@@ -181,7 +181,7 @@ pub const JsonParser = struct {
 
     fn parseNull(self: *Self) !Node {
         const token = self.advance();
-        
+
         return Node{
             .rule_id = JsonRules.null_literal,
             .node_type = .terminal,
@@ -289,7 +289,7 @@ pub const JsonParser = struct {
 
         // Create member node
         const children = try self.context.trackNodes(&[_]Node{ key, value });
-        
+
         return Node{
             .rule_id = JsonRules.member,
             .node_type = .rule,
@@ -482,13 +482,13 @@ pub const JsonParser = struct {
         const token = self.peek();
         return token.kind == kind and (text == null or std.mem.eql(u8, token.text, text.?));
     }
-    
+
     /// Efficient delimiter checking using enum (O(1) vs O(n) string comparison)
     fn checkDelimiter(self: *Self, delimiter_kind: JsonDelimiters.KindType) bool {
         if (self.isAtEnd()) return false;
         const token = self.peek();
         if (token.kind != .delimiter) return false;
-        
+
         // Convert token text to character and check against delimiter
         if (token.text.len == 1) {
             if (JsonDelimiters.fromChar(token.text[0])) |found_kind| {
@@ -647,12 +647,6 @@ test "JSON parser - nested structure" {
 
     // Check no parse errors
     const errors = parser.getErrors();
-    if (errors.len > 0) {
-        std.debug.print("Parse errors: {}\n", .{errors.len});
-        for (errors) |err| {
-            std.debug.print("Error: {s}\n", .{err.message});
-        }
-    }
     try testing.expectEqual(@as(usize, 0), errors.len);
 }
 

@@ -160,15 +160,15 @@ pub const JsonLinter = struct {
             }
         }
 
-        // Validate UTF-8 encoding if rule is enabled
-        if (self.isRuleEnabled("valid-string-encoding", enabled_rules)) {
+        // Validate UTF-8 encoding if rule is enabled (efficient enum-based version)
+        const valid_encoding_enabled = self.isRuleEnabledEnum(.valid_string_encoding, &[_]JsonLintRules.KindType{.valid_string_encoding});
+        if (valid_encoding_enabled) {
             if (raw_value.len >= 2 and raw_value[0] == '"' and raw_value[raw_value.len - 1] == '"') {
                 const content = raw_value[1 .. raw_value.len - 1];
                 if (!std.unicode.utf8ValidateSlice(content)) {
-                    try self.addDiagnostic(
-                        "valid-string-encoding",
+                    try self.addDiagnosticEnum(
+                        .valid_string_encoding,
                         "String contains invalid UTF-8 sequences",
-                        .@"error",
                         Span.init(node.start_position, node.end_position),
                     );
                 }

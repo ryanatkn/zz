@@ -115,7 +115,15 @@ pub const Patterns = struct {
                 // Make sure it's actually a type declaration, not just the keyword
                 const idx = std.mem.indexOf(u8, line, pattern).?;
                 if (idx == 0 or line[idx - 1] == ' ') {
-                    return true;
+                    // Check that the character after the pattern is not alphanumeric
+                    // to avoid matching "struct" in "structValue"
+                    const end_idx = idx + pattern.len;
+                    if (end_idx >= line.len or 
+                        (!std.ascii.isAlphabetic(line[end_idx]) and 
+                         !std.ascii.isDigit(line[end_idx]) and 
+                         line[end_idx] != '_')) {
+                        return true;
+                    }
                 }
             }
         }

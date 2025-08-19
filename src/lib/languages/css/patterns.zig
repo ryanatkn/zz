@@ -74,12 +74,9 @@ pub const Patterns = struct {
 
     // CSS units
     pub const units = [_][]const u8{
-        "px", "em", "rem", "%", "vh", "vw", "vmin", "vmax",
-        "ch", "ex", "cm", "mm", "in", "pt", "pc",
-        "deg", "rad", "grad", "turn",
-        "s", "ms",
-        "Hz", "kHz",
-        "fr",
+        "vmin", "vmax", "rem", "deg", "rad", "grad", "turn", "kHz", 
+        "px", "em", "%", "vh", "vw", "ch", "ex", "cm", "mm", "in", "pt", "pc",
+        "Hz", "ms", "fr", "s",
     };
 
     // Color keywords

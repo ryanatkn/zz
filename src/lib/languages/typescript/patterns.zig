@@ -5,9 +5,13 @@ pub const Patterns = struct {
     // Function patterns
     pub const functions = [_][]const u8{
         "function ",
+        "function* ",
         "export function ",
+        "export function* ",
         "export async function ",
+        "export async function* ",
         "async function ",
+        "async function* ",
         "const ",
         "let ",
         "var ",

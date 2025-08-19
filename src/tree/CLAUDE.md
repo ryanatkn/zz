@@ -131,7 +131,7 @@ try walker.walk(directory_path);
 **Test Structure:**
 ```bash
 # Complete test suite with all modules active
-zig test src/tree/test.zig  # Runs all 57 tests across 8 modules
+zig build test -Dtest-filter="src/tree/test.zig"  # Runs all tree tests
 ```
 
 **Active Test Modules:**

@@ -5,6 +5,7 @@ const char_utils = @import("../../char/mod.zig");
 const ASTUtils = @import("../../ast/utils.zig").ASTUtils;
 const Node = @import("../../ast/mod.zig").Node;
 const ZonRules = @import("../../ast/rules.zig").ZonRules;
+const CommonRules = @import("../../ast/rules.zig").CommonRules;
 
 /// ZON-specific utility functions
 ///
@@ -43,13 +44,13 @@ pub fn countFieldAssignmentsGeneric(object_node: anytype) u32 {
 /// Check if a node is an object (list node with "object" rule)
 pub const isObjectNode = isObjectNodeGeneric;
 pub fn isObjectNodeGeneric(node: anytype) bool {
-    return node.node_type == .list and std.mem.eql(u8, node.rule_name, "object");
+    return node.node_type == .list and node.rule_id == @intFromEnum(CommonRules.object);
 }
 
 /// Check if a node is an array (list node with "array" rule)
 pub const isArrayNode = isArrayNodeGeneric;
 pub fn isArrayNodeGeneric(node: anytype) bool {
-    return node.node_type == .list and std.mem.eql(u8, node.rule_name, "array");
+    return node.node_type == .list and node.rule_id == @intFromEnum(CommonRules.array);
 }
 
 /// Check if a node is a terminal node of a specific type

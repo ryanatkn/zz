@@ -55,12 +55,20 @@ pub const LexParsePipeline = struct {
     
     /// Execute the full pipeline: Text → Tokens → AST
     pub fn parse(self: *Self, ctx: *Context, source: []const u8) !AST {
+        // Store source in context for parser access
+        try ctx.setOption("_source", source);
+        
         // Check cache
         if (self.cache_tokens and self.cached_source != null) {
             if (std.mem.eql(u8, self.cached_source.?, source)) {
                 // Use cached tokens
                 if (self.cached_tokens) |tokens| {
-                    return try self.parser.parseFn(ctx, tokens);
+                    var ast = try self.parser.parseFn(ctx, tokens);
+                    // Set source in AST after parsing
+                    if (ast.source.len == 0) {
+                        ast.source = try ctx.allocator.dupe(u8, source);
+                    }
+                    return ast;
                 }
             }
         }
@@ -89,7 +97,12 @@ pub const LexParsePipeline = struct {
         
         // Parse
         ctx.startTiming();
-        const ast = try self.parser.parseFn(ctx, tokens);
+        var ast = try self.parser.parseFn(ctx, tokens);
+        
+        // Set source in AST after parsing
+        if (ast.source.len == 0) {
+            ast.source = try ctx.allocator.dupe(u8, source);
+        }
         
         if (ctx.getOption("debug", bool) orelse false) {
             const parse_time = ctx.getElapsedMs() orelse 0;
@@ -101,17 +114,31 @@ pub const LexParsePipeline = struct {
     
     /// Execute with error recovery
     pub fn parseWithRecovery(self: *Self, ctx: *Context, source: []const u8) !syntactic.ParseResult {
+        // Store source in context for parser access
+        try ctx.setOption("_source", source);
+        
         // Tokenize
         const tokens = try self.lexer.tokenizeFn(ctx, source);
         defer ctx.allocator.free(tokens);
         
         // Parse with recovery if available
         if (self.parser.parseWithRecoveryFn) |parse_recovery| {
-            return try parse_recovery(ctx, tokens);
+            var result = try parse_recovery(ctx, tokens);
+            // Set source in AST if present
+            if (result.ast) |*ast| {
+                if (ast.source.len == 0) {
+                    ast.source = try ctx.allocator.dupe(u8, source);
+                }
+            }
+            return result;
         }
         
         // Fallback to regular parsing
-        const ast = try self.parser.parseFn(ctx, tokens);
+        var ast = try self.parser.parseFn(ctx, tokens);
+        // Set source in AST after parsing
+        if (ast.source.len == 0) {
+            ast.source = try ctx.allocator.dupe(u8, source);
+        }
         return syntactic.ParseResult{
             .ast = ast,
             .errors = &.{},

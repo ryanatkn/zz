@@ -4,7 +4,7 @@ const test_helpers = @import("../lib/test/helpers.zig");
 const MockFilesystem = @import("../lib/filesystem/mock.zig").MockFilesystem;
 
 // Tree module test runner
-// Usage: zig test src/tree/test.zig
+// Usage: zig build test -Dtest-filter="src/tree/test.zig"
 
 // Import modules to test
 const Config = @import("config.zig").Config;

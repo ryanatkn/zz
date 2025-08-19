@@ -196,8 +196,8 @@ self.position = char.skipWhitespace(self.source, self.position);
 
 All functions have comprehensive tests in their respective files:
 ```bash
-zig test src/lib/char/predicates.zig
-zig test src/lib/char/consumers.zig
+zig build test -Dtest-filter="src/lib/char/predicates.zig"
+zig build test -Dtest-filter="src/lib/char/consumers.zig"
 ```
 
 ## Future Enhancements

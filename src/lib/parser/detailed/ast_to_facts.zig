@@ -165,7 +165,7 @@ pub const FactGenerator = struct {
             .id = self.nextId(),
             .subject = Span.init(node.start_position, node.end_position),
             .predicate = .is_function,
-            .object = Value{ .string = node.rule_name },
+            .object = Value{ .number = @floatFromInt(node.rule_id) },
             .confidence = confidence,
             .generation = self.generation,
         });
@@ -193,7 +193,7 @@ pub const FactGenerator = struct {
             .id = self.nextId(),
             .subject = Span.init(node.start_position, node.end_position),
             .predicate = .is_struct,
-            .object = Value{ .string = node.rule_name },
+            .object = Value{ .number = @floatFromInt(node.rule_id) },
             .confidence = confidence,
             .generation = self.generation,
         });
@@ -220,7 +220,7 @@ pub const FactGenerator = struct {
             .id = self.nextId(),
             .subject = Span.init(node.start_position, node.end_position),
             .predicate = .is_variable,
-            .object = Value{ .string = node.rule_name },
+            .object = Value{ .number = @floatFromInt(node.rule_id) },
             .confidence = confidence,
             .generation = self.generation,
         });
@@ -335,13 +335,9 @@ pub const FactGenerator = struct {
         // Add complexity based on number of children and rule names
         complexity += @as(u32, @intCast(node.children.len));
 
+        // TODO: Re-implement complexity based on rule IDs when we have control flow rule definitions
         for (node.children) |child| {
-            if (std.mem.indexOf(u8, child.rule_name, "if") != null or
-                std.mem.indexOf(u8, child.rule_name, "while") != null or
-                std.mem.indexOf(u8, child.rule_name, "for") != null)
-            {
-                complexity += 2;
-            }
+            _ = child; // Simple child count based complexity for now
         }
 
         return complexity;

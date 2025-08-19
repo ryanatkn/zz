@@ -9,7 +9,6 @@ $ zig build test -Dtest-filter="pattern"              # Run only tests matching 
 $ zig build test --verbose                            # Show build commands and execution
 $ zig build test 2>&1 | rg "pattern"                  # Alternative: pipe output to filter
 
-# Note: Direct `zig test src/test.zig` will NOT work due to tree-sitter module dependencies
 # Always use `zig build test` which properly configures modules and links libraries
 ```
 

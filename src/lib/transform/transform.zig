@@ -142,6 +142,10 @@ pub const Context = struct {
     }
     
     pub fn deinit(self: *Context) void {
+        // Free diagnostic messages
+        for (self.diagnostics.items) |diagnostic| {
+            diagnostic.deinit(self.allocator);
+        }
         self.diagnostics.deinit();
         self.options.deinit();
         

@@ -202,12 +202,32 @@ pub const HtmlRules = struct {
     // Add more as needed...
 };
 
+/// Test rule IDs (2048-4095) - Reserved for dynamic test rules
+pub const TestRules = struct {
+    pub const range_start: u16 = 2048;
+    pub const range_end: u16 = 4095;
+    
+    pub fn isTestRule(rule_id: u16) bool {
+        return rule_id >= range_start and rule_id <= range_end;
+    }
+    
+    pub fn name(rule_id: u16, name_mapping: *const std.HashMap(u16, []const u8, std.hash_map.AutoContext(u16), std.hash_map.default_max_load_percentage)) []const u8 {
+        if (name_mapping.get(rule_id)) |rule_name| {
+            return rule_name;
+        }
+        return "test_rule";
+    }
+};
+
 /// Helper to get rule name for any language
 pub fn getRuleName(language: []const u8, rule_id: u16) []const u8 {
     if (std.mem.eql(u8, language, "json")) {
         return JsonRules.name(rule_id);
     } else if (std.mem.eql(u8, language, "zon")) {
         return ZonRules.name(rule_id);
+    } else if (TestRules.isTestRule(rule_id)) {
+        // Test rules need context to map ID to name
+        return "test_rule";
     } else if (rule_id <= 255) {
         // Try common rules
         if (std.meta.intToEnum(CommonRules, rule_id)) |common| {

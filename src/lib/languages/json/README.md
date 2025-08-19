@@ -337,10 +337,10 @@ The JSON implementation includes comprehensive tests covering:
 Run tests:
 ```bash
 # Run all JSON tests
-zig test src/lib/languages/json/test.zig
+zig build test -Dtest-filter="src/lib/languages/json/test.zig"
 
 # Run specific test
-zig test src/lib/languages/json/lexer.zig
+zig build test -Dtest-filter="src/lib/languages/json/lexer.zig"
 
 # Run benchmarks
 zig run src/lib/languages/json/benchmark.zig

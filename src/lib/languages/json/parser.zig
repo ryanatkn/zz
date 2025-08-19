@@ -62,7 +62,10 @@ pub const JsonParser = struct {
     pub fn parse(self: *Self) !AST {
         const root_node = try self.parseValue();
 
-        // Check for trailing tokens
+        // Check for trailing tokens (skip EOF)
+        while (!self.isAtEnd() and self.peek().kind == .eof) {
+            _ = self.advance();
+        }
         if (!self.isAtEnd()) {
             try self.addError("Unexpected token after JSON value", self.peek().span);
         }
@@ -116,7 +119,7 @@ pub const JsonParser = struct {
         // Validate and unescape string content
         const content = try self.unescapeString(token.text);
         const owned_content = try self.context.trackText(content);
-        self.allocator.free(content);
+        // Don't free content here - ownership transferred to AST via trackText
 
         return Node{
             .rule_id = JsonRules.string_literal,

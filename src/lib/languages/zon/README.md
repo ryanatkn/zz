@@ -330,11 +330,11 @@ The ZON implementation includes comprehensive testing covering all components:
 
 ```bash
 # Run all ZON tests
-zig test src/lib/languages/zon/test.zig
+zig build test -Dtest-filter="src/lib/languages/zon/test.zig"
 
 # Run specific component tests
-zig test src/lib/languages/zon/lexer.zig
-zig test src/lib/languages/zon/parser.zig
+zig build test -Dtest-filter="src/lib/languages/zon/lexer.zig"
+zig build test -Dtest-filter="src/lib/languages/zon/parser.zig"
 
 # Run performance benchmarks
 zig run src/lib/languages/zon/benchmark.zig

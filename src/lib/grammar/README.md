@@ -72,8 +72,8 @@ if (result.success) {
 
 Run tests with:
 ```bash
-zig test src/lib/grammar/rule.zig
-zig test src/lib/grammar/grammar_test.zig
+zig build test -Dtest-filter="src/lib/grammar/rule.zig"
+zig build test -Dtest-filter="src/lib/grammar/grammar_test.zig"
 ```
 
 All 20 tests currently passing! 

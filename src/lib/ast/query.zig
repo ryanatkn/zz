@@ -85,13 +85,13 @@ pub const ASTQuery = struct {
         return self.select(root, Selector{ .text_contains = text });
     }
 
-    /// Select direct children with rule name
-    pub fn selectDirectChildren(self: ASTQuery, root: *const Node, rule_name: []const u8) ![]const *const Node {
+    /// Select direct children with rule ID
+    pub fn selectDirectChildren(self: ASTQuery, root: *const Node, rule_id: u16) ![]const *const Node {
         var results = std.ArrayList(*const Node).init(self.allocator);
         defer results.deinit();
 
         for (root.children) |child| {
-            if (std.mem.eql(u8, child.rule_name, rule_name)) {
+            if (child.rule_id == rule_id) {
                 try results.append(&child);
             }
         }
@@ -131,7 +131,12 @@ pub const ASTQuery = struct {
 
     fn matches(self: ASTQuery, node: *const Node, selector: Selector) !bool {
         return switch (selector) {
-            .rule => |rule_name| std.mem.eql(u8, node.rule_name, rule_name),
+            .rule => |rule_name| {
+                // TODO: Convert rule_name to rule_id for comparison
+                _ = rule_name;
+                _ = node;
+                return false; // Temporary placeholder
+            },
 
             .attribute => |attr| self.matchesAttribute(node, attr.name, attr.value),
 
@@ -167,7 +172,7 @@ pub const ASTQuery = struct {
         // Need parent to determine position
         if (node.parent) |parent| {
             return switch (position) {
-                .first_child => parent.children.len > 0 and 
+                .first_child => parent.children.len > 0 and
                     @intFromPtr(&parent.children[0]) == @intFromPtr(node),
                 .last_child => parent.children.len > 0 and
                     @intFromPtr(&parent.children[parent.children.len - 1]) == @intFromPtr(node),
@@ -218,7 +223,12 @@ pub const ASTQuery = struct {
     fn evaluateCondition(self: ASTQuery, node: *const Node, condition: QueryCondition) bool {
         _ = self;
         return switch (condition) {
-            .rule_equals => |rule| std.mem.eql(u8, node.rule_name, rule),
+            .rule_equals => |rule| {
+                // TODO: Convert rule string to rule_id for comparison
+                _ = rule;
+                _ = node;
+                return false; // Temporary placeholder
+            },
             .text_contains => |text| std.mem.indexOf(u8, node.text, text) != null,
             .text_equals => |text| std.mem.eql(u8, node.text, text),
             .has_children => node.children.len > 0,

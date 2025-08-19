@@ -71,10 +71,13 @@ pub const AST = struct {
         for (self.owned_texts) |text| {
             self.allocator.free(text);
         }
-        self.allocator.free(self.owned_texts);
+        // Only free owned_texts array if it's not the empty slice literal
+        if (self.owned_texts.ptr != &[_][]const u8{}) {
+            self.allocator.free(self.owned_texts);
+        }
 
-        // Free the source text if it was allocated
-        if (self.source.len > 0) {
+        // Free the source text if it was allocated (not empty string literal)
+        if (self.source.len > 0 and self.source.ptr != "".ptr) {
             self.allocator.free(self.source);
         }
     }

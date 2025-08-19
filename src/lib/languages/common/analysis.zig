@@ -2,6 +2,7 @@ const std = @import("std");
 const Symbol = @import("../interface.zig").Symbol;
 const Reference = @import("../interface.zig").Reference;
 const AST = @import("../../ast/mod.zig").AST;
+const CommonRules = @import("../../ast/rules.zig").CommonRules;
 
 /// Common analysis utilities shared across languages
 ///
@@ -323,8 +324,7 @@ pub fn extractVariableDeclarations(allocator: std.mem.Allocator, ast: AST) ![]Sy
 
             // Look for identifier in children
             for (node.children) |child| {
-                if (std.mem.eql(u8, child.rule_name, "identifier") or
-                    std.mem.eql(u8, child.rule_name, "variable_name"))
+                if (child.rule_id == @intFromEnum(CommonRules.identifier))
                 {
                     symbol_name = try allocator.dupe(u8, child.text);
                     break;

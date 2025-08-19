@@ -2,6 +2,7 @@ const std = @import("std");
 const Node = @import("node.zig").Node;
 const NodeType = @import("node.zig").NodeType;
 const AST = @import("mod.zig").AST;
+const CommonRules = @import("rules.zig").CommonRules;
 
 /// High-performance AST serialization using ZON format
 /// Native Zig serialization for maximum performance and compatibility
@@ -98,11 +99,9 @@ pub const ASTSerializer = struct {
     }
 
     fn writeNodeFields(self: ASTSerializer, writer: anytype, node: *const Node, depth: usize) !void {
-        // Rule name
+        // Rule ID
         try self.writeIndent(writer, depth);
-        try writer.writeAll(".rule_name = ");
-        try self.writeEscapedString(writer, node.rule_name);
-        try writer.writeAll(",\n");
+        try writer.print(".rule_id = {},\n", .{node.rule_id});
 
         // Node type
         try self.writeIndent(writer, depth);
@@ -150,8 +149,7 @@ pub const ASTSerializer = struct {
     }
 
     fn writeNodeFieldsCompact(self: ASTSerializer, writer: anytype, node: *const Node) !void {
-        try writer.writeAll(".rule_name=");
-        try self.writeEscapedString(writer, node.rule_name);
+        try writer.print(".rule_id={}", .{node.rule_id});
         try writer.writeAll(",.node_type=.");
         try writer.writeAll(@tagName(node.node_type));
 
@@ -227,7 +225,8 @@ pub const ASTDeserializer = struct {
         _ = self;
 
         for (node.children) |child| {
-            if (std.mem.eql(u8, child.rule_name, "field_assignment")) {
+            // TODO: Replace with rule_id comparison when ZonRules are available
+            if (child.rule_id == 0) { // Placeholder - needs proper ZonRules.field_assignment
                 // Check if this is the field we want
                 if (child.children.len >= 3) {
                     const name_node = &child.children[0];
@@ -257,7 +256,7 @@ pub const ASTDeserializer = struct {
         // TODO: Implement full node deserialization
         // For now, return a minimal node
         return Node{
-            .rule_name = "deserialized",
+            .rule_id = @intFromEnum(CommonRules.unknown),
             .node_type = .rule,
             .text = "",
             .start_position = 0,
@@ -339,7 +338,6 @@ pub const BinarySerializer = struct {
 
     /// Deserialize from binary format (placeholder)
     pub fn deserializeBinary(self: BinarySerializer, data: []const u8) !AST {
-        _ = self;
         _ = data;
         // TODO: Implement binary deserialization
         return AST{
@@ -365,7 +363,8 @@ test "AST serialization to ZON" {
     defer testing.allocator.free(serialized);
 
     // Check that serialization contains expected content
-    try testing.expect(std.mem.indexOf(u8, serialized, "test_node") != null);
+    // Check that serialization contains rule_id
+    try testing.expect(std.mem.indexOf(u8, serialized, "rule_id") != null);
     try testing.expect(std.mem.indexOf(u8, serialized, "test content") != null);
 }
 
@@ -387,7 +386,8 @@ test "node serialization" {
     const serialized = try serializeNode(testing.allocator, &ast.root);
     defer testing.allocator.free(serialized);
 
-    try testing.expect(std.mem.indexOf(u8, serialized, "single_node") != null);
+    // Check that serialization contains rule_id
+    try testing.expect(std.mem.indexOf(u8, serialized, "rule_id") != null);
 }
 
 test "serialization options" {

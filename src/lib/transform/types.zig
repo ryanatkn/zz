@@ -67,10 +67,15 @@ pub const Diagnostic = struct {
         hint,
     };
 
-    pub fn deinit(self: *Diagnostic, allocator: std.mem.Allocator) void {
+    /// Free diagnostic resources
+    pub fn deinit(self: Diagnostic, allocator: std.mem.Allocator) void {
         allocator.free(self.message);
-        if (self.suggestion) |s| allocator.free(s);
-        if (self.code) |c| allocator.free(c);
+        if (self.suggestion) |suggestion| {
+            allocator.free(suggestion);
+        }
+        if (self.code) |code| {
+            allocator.free(code);
+        }
     }
 
     /// Create an error diagnostic
@@ -256,16 +261,43 @@ pub const OptionsMap = struct {
     }
 
     pub fn setBool(self: *OptionsMap, key: []const u8, value: bool) !void {
+        // Check if key already exists and free old values
+        if (self.map.fetchRemove(key)) |kv| {
+            switch (kv.value) {
+                .string => |s| self.allocator.free(s),
+                else => {},
+            }
+            self.allocator.free(kv.key);
+        }
+        
         const owned_key = try self.allocator.dupe(u8, key);
         try self.map.put(owned_key, .{ .boolean = value });
     }
 
     pub fn setInt(self: *OptionsMap, key: []const u8, value: i64) !void {
+        // Check if key already exists and free old values
+        if (self.map.fetchRemove(key)) |kv| {
+            switch (kv.value) {
+                .string => |s| self.allocator.free(s),
+                else => {},
+            }
+            self.allocator.free(kv.key);
+        }
+        
         const owned_key = try self.allocator.dupe(u8, key);
         try self.map.put(owned_key, .{ .integer = value });
     }
 
     pub fn setString(self: *OptionsMap, key: []const u8, value: []const u8) !void {
+        // Check if key already exists and free old values
+        if (self.map.fetchRemove(key)) |kv| {
+            switch (kv.value) {
+                .string => |s| self.allocator.free(s),
+                else => {},
+            }
+            self.allocator.free(kv.key);
+        }
+        
         const owned_key = try self.allocator.dupe(u8, key);
         const owned_value = try self.allocator.dupe(u8, value);
         try self.map.put(owned_key, .{ .string = owned_value });

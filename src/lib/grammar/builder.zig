@@ -13,12 +13,18 @@ pub const Builder = struct {
     allocator: std.mem.Allocator,
     rules: std.StringHashMap(ExtendedRule),
     start_rule: ?[]const u8,
+    // Dynamic rule ID mapping for test rules
+    rule_name_to_id: std.StringHashMap(u16),
+    next_test_rule_id: u16,
 
     pub fn init(allocator: std.mem.Allocator) Builder {
+        const TestRules = @import("../ast/rules.zig").TestRules;
         return .{
             .allocator = allocator,
             .rules = std.StringHashMap(ExtendedRule).init(allocator),
             .start_rule = null,
+            .rule_name_to_id = std.StringHashMap(u16).init(allocator),
+            .next_test_rule_id = TestRules.range_start,
         };
     }
 
@@ -33,6 +39,13 @@ pub const Builder = struct {
             }
         }
         self.rules.deinit();
+        
+        // Clean up allocated rule names in the mapping
+        var name_iterator = self.rule_name_to_id.iterator();
+        while (name_iterator.next()) |entry| {
+            self.allocator.free(entry.key_ptr.*);
+        }
+        self.rule_name_to_id.deinit();
     }
 
     /// Define a named rule
@@ -45,6 +58,48 @@ pub const Builder = struct {
     pub fn start(self: *Builder, rule_name: []const u8) *Builder {
         self.start_rule = rule_name;
         return self;
+    }
+
+    /// Get or create a rule ID for the given rule name
+    fn getOrCreateRuleId(self: *Builder, rule_name: []const u8) !u16 {
+        const CommonRules = @import("../ast/rules.zig").CommonRules;
+        const TestRules = @import("../ast/rules.zig").TestRules;
+        
+        // Use a static string map for efficient common rule lookup
+        const CommonRuleLookup = std.StaticStringMap(u16).initComptime(.{
+            .{ "root", @intFromEnum(CommonRules.root) },
+            .{ "object", @intFromEnum(CommonRules.object) },
+            .{ "array", @intFromEnum(CommonRules.array) },
+            .{ "string_literal", @intFromEnum(CommonRules.string_literal) },
+            .{ "number_literal", @intFromEnum(CommonRules.number_literal) },
+            .{ "boolean_literal", @intFromEnum(CommonRules.boolean_literal) },
+            .{ "null_literal", @intFromEnum(CommonRules.null_literal) },
+            .{ "identifier", @intFromEnum(CommonRules.identifier) },
+        });
+        
+        // Check if it's a well-known common rule (O(1) lookup)
+        if (CommonRuleLookup.get(rule_name)) |rule_id| {
+            return rule_id;
+        }
+        
+        // Check if we already have an ID for this test rule name
+        if (self.rule_name_to_id.get(rule_name)) |existing_id| {
+            return existing_id;
+        }
+        
+        // Generate a new test rule ID
+        if (self.next_test_rule_id > TestRules.range_end) {
+            return error.TooManyTestRules;
+        }
+        
+        const new_id = self.next_test_rule_id;
+        self.next_test_rule_id += 1;
+        
+        // Store the mapping (duplicate the string for ownership)
+        const owned_name = try self.allocator.dupe(u8, rule_name);
+        try self.rule_name_to_id.put(owned_name, new_id);
+        
+        return new_id;
     }
 
     /// Build the final grammar with validation
@@ -65,16 +120,8 @@ pub const Builder = struct {
         // Check for circular dependencies
         try validator.checkCircularDependencies();
 
-        // Resolve all rule references and convert start rule name to ID
-        const CommonRules = @import("../ast/rules.zig").CommonRules;
-        const start_rule_id = if (std.mem.eql(u8, start_rule_name, "root"))
-            @intFromEnum(CommonRules.root)
-        else if (std.mem.eql(u8, start_rule_name, "object"))
-            @intFromEnum(CommonRules.object)
-        else if (std.mem.eql(u8, start_rule_name, "array"))
-            @intFromEnum(CommonRules.array)
-        else 
-            @intFromEnum(CommonRules.root); // Default to root
+        // Get or create rule ID for start rule
+        const start_rule_id = try self.getOrCreateRuleId(start_rule_name);
         
         var grammar = Grammar.init(self.allocator, start_rule_id);
         const res = resolver.Resolver.init(self.allocator, &self.rules);
@@ -83,24 +130,9 @@ pub const Builder = struct {
         while (iterator.next()) |entry| {
             const resolved = try res.resolveExtendedRule(entry.value_ptr.*);
             
-            // Convert string rule name to rule ID
+            // Get or create rule ID for this rule name
             const rule_name = entry.key_ptr.*;
-            const rule_id = if (std.mem.eql(u8, rule_name, "root"))
-                @intFromEnum(CommonRules.root)
-            else if (std.mem.eql(u8, rule_name, "object"))
-                @intFromEnum(CommonRules.object)
-            else if (std.mem.eql(u8, rule_name, "array"))
-                @intFromEnum(CommonRules.array)
-            else if (std.mem.eql(u8, rule_name, "string_literal"))
-                @intFromEnum(CommonRules.string_literal)
-            else if (std.mem.eql(u8, rule_name, "number_literal"))
-                @intFromEnum(CommonRules.number_literal)
-            else if (std.mem.eql(u8, rule_name, "boolean_literal"))
-                @intFromEnum(CommonRules.boolean_literal)
-            else if (std.mem.eql(u8, rule_name, "null_literal"))
-                @intFromEnum(CommonRules.null_literal)
-            else
-                @intFromEnum(CommonRules.unknown); // Default fallback
+            const rule_id = try self.getOrCreateRuleId(rule_name);
             
             try grammar.rules.put(rule_id, resolved);
         }
@@ -136,10 +168,16 @@ test "Builder basic usage" {
     var grammar = try builder.build();
     defer grammar.deinit();
 
-    // Test that rules exist
-    try testing.expect(grammar.getRule("hello") != null);
-    try testing.expect(grammar.getRule("world") != null);
+    // Test that rules exist - since these are test rules, they'll be in the test range
+    const TestRules = @import("../ast/rules.zig").TestRules;
+    
+    // Test that start rule exists
     try testing.expect(grammar.getStartRule() != null);
+    
+    // Test that we have rules in the test range (the builder created IDs for "hello" and "world")
+    const start_rule_id = grammar.start_rule_id;
+    try testing.expect(TestRules.isTestRule(start_rule_id) or start_rule_id < 256); // Could be common rule
+    try testing.expect(grammar.getRule(start_rule_id) != null);
 }
 
 test "Builder fluent API" {

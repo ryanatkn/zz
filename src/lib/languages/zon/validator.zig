@@ -4,6 +4,7 @@ const Node = common.Node;
 const AST = common.AST;
 const utils = common.utils;
 const ZonRules = @import("../../ast/rules.zig").ZonRules;
+const CommonRules = @import("../../ast/rules.zig").CommonRules;
 
 /// Validate ZON content against known schemas
 /// This module provides schema validation for common ZON configuration files
@@ -179,34 +180,34 @@ pub const ZonValidator = struct {
     fn validateFieldType(self: *Self, node: Node, spec: FieldSpec, path: []const u8) !void {
         switch (spec.field_type) {
             .string => {
-                if (!std.mem.eql(u8, node.rule_name, "string_literal")) {
-                    const message = try std.fmt.allocPrint(self.allocator, "Expected string, got {s}", .{node.rule_name});
+                if (node.rule_id != @intFromEnum(CommonRules.string_literal)) {
+                    const message = try std.fmt.allocPrint(self.allocator, "Expected string, got rule_id={}", .{node.rule_id});
                     try self.addError(path, message, .@"error");
                 }
             },
             .number => {
-                if (!std.mem.eql(u8, node.rule_name, "number_literal")) {
-                    const message = try std.fmt.allocPrint(self.allocator, "Expected number, got {s}", .{node.rule_name});
+                if (node.rule_id != @intFromEnum(CommonRules.number_literal)) {
+                    const message = try std.fmt.allocPrint(self.allocator, "Expected number, got rule_id={}", .{node.rule_id});
                     try self.addError(path, message, .@"error");
                 }
             },
             .boolean => {
-                if (!std.mem.eql(u8, node.rule_name, "boolean_literal")) {
-                    const message = try std.fmt.allocPrint(self.allocator, "Expected boolean, got {s}", .{node.rule_name});
+                if (node.rule_id != @intFromEnum(CommonRules.boolean_literal)) {
+                    const message = try std.fmt.allocPrint(self.allocator, "Expected boolean, got rule_id={}", .{node.rule_id});
                     try self.addError(path, message, .@"error");
                 }
             },
             .object => {
-                if (!std.mem.eql(u8, node.rule_name, "object")) {
-                    const message = try std.fmt.allocPrint(self.allocator, "Expected object, got {s}", .{node.rule_name});
+                if (node.rule_id != @intFromEnum(CommonRules.object)) {
+                    const message = try std.fmt.allocPrint(self.allocator, "Expected object, got rule_id={}", .{node.rule_id});
                     try self.addError(path, message, .@"error");
                 } else if (spec.nested_schema) |nested_schema| {
                     try self.validateAgainstSchema(node, nested_schema, path);
                 }
             },
             .array => {
-                if (!std.mem.eql(u8, node.rule_name, "array") and !std.mem.eql(u8, node.rule_name, "object")) {
-                    const message = try std.fmt.allocPrint(self.allocator, "Expected array, got {s}", .{node.rule_name});
+                if (node.rule_id != @intFromEnum(CommonRules.array) and node.rule_id != @intFromEnum(CommonRules.object)) {
+                    const message = try std.fmt.allocPrint(self.allocator, "Expected array, got rule_id={}", .{node.rule_id});
                     try self.addError(path, message, .@"error");
                 }
             },
@@ -332,7 +333,7 @@ pub const ZonValidator = struct {
 
     /// Find an object node in the AST
     fn findObjectNode(self: *Self, node: Node) ?Node {
-        if (std.mem.eql(u8, node.rule_name, "object")) {
+        if (node.rule_id == @intFromEnum(CommonRules.object)) {
             return node;
         }
 
@@ -440,21 +441,21 @@ test "ZonValidator - validate build.zig.zon" {
 
     // Create a mock AST
     const root = Node{
-        .rule_name = "object",
+        .rule_id = @intFromEnum(CommonRules.object),
         .node_type = .list,
         .text = "",
         .start_position = 0,
         .end_position = 100,
         .children = &[_]Node{
             Node{
-                .rule_name = "field_assignment",
+                .rule_id = ZonRules.field_assignment,
                 .node_type = .rule,
                 .text = "",
                 .start_position = 0,
                 .end_position = 20,
                 .children = &[_]Node{
                     Node{
-                        .rule_name = "field_name",
+                        .rule_id = ZonRules.field_name,
                         .node_type = .terminal,
                         .text = ".name",
                         .start_position = 0,
@@ -464,7 +465,7 @@ test "ZonValidator - validate build.zig.zon" {
                         .parent = null,
                     },
                     Node{
-                        .rule_name = "string_literal",
+                        .rule_id = @intFromEnum(CommonRules.string_literal),
                         .node_type = .terminal,
                         .text = "\"my-package\"",
                         .start_position = 8,
@@ -538,7 +539,7 @@ test "ZonValidator - field type validation" {
     };
 
     const string_node = Node{
-        .rule_name = "string_literal",
+        .rule_id = @intFromEnum(CommonRules.string_literal),
         .node_type = .terminal,
         .text = "\"value\"",
         .start_position = 0,
@@ -552,7 +553,7 @@ test "ZonValidator - field type validation" {
     try testing.expect(validator.getErrors().len == 0);
 
     const number_node = Node{
-        .rule_name = "number_literal",
+        .rule_id = @intFromEnum(CommonRules.number_literal),
         .node_type = .terminal,
         .text = "42",
         .start_position = 0,

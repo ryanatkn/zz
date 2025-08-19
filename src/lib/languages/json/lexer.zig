@@ -210,7 +210,7 @@ pub const JsonLexer = struct {
         else
             .null_literal;
 
-        return self.makeToken(kind, start_pos, expected);
+        return self.makeToken(kind, start_pos, self.source[start_pos..self.position]);
     }
 
     fn comment(self: *Self) !TokenResult {
@@ -460,5 +460,26 @@ test "JSON lexer - JSON5 features" {
         try testing.expectEqual(@as(usize, 3), tokens.len); // +1 for EOF
         try testing.expectEqual(TokenKind.comment, tokens[0].kind);
         try testing.expectEqual(TokenKind.number_literal, tokens[1].kind);
+    }
+
+    // Test JSON5 with trailing comma (reproduce the failing case)
+    {
+        const json5_text = "{\n  // Comment\n  \"key\": \"value\",\n}";
+        var lexer = JsonLexer.init(allocator, json5_text, .{ .allow_comments = true, .allow_trailing_commas = true });
+        defer lexer.deinit();
+
+        const tokens = try lexer.tokenize();
+        // Should successfully tokenize: { comment "key" : "value" , } EOF
+        try testing.expect(tokens.len >= 7); // At least 7 tokens + EOF
+        
+        // Find the closing brace token
+        var found_closing_brace = false;
+        for (tokens) |token| {
+            if (token.kind == .delimiter and std.mem.eql(u8, token.text, "}")) {
+                found_closing_brace = true;
+                break;
+            }
+        }
+        try testing.expect(found_closing_brace);
     }
 }

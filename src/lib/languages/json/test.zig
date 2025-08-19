@@ -57,7 +57,7 @@ test "JSON lexer - basic tokens" {
         const tokens = try lexer.tokenize();
         defer allocator.free(tokens);
         
-        try testing.expectEqual(@as(usize, 1), tokens.len);
+        try testing.expectEqual(@as(usize, 2), tokens.len); // Includes EOF token
         try testing.expectEqual(case.expected_kind, tokens[0].kind);
         try testing.expectEqualStrings(case.expected_text, tokens[0].text);
     }
@@ -99,8 +99,8 @@ test "JSON lexer - complex structures" {
     // First and last tokens should be braces
     try testing.expectEqual(TokenKind.delimiter, tokens[0].kind);
     try testing.expectEqualStrings("{", tokens[0].text);
-    try testing.expectEqual(TokenKind.delimiter, tokens[tokens.len - 1].kind);
-    try testing.expectEqualStrings("}", tokens[tokens.len - 1].text);
+    try testing.expectEqual(TokenKind.delimiter, tokens[tokens.len - 2].kind); // Second-to-last because of EOF
+    try testing.expectEqualStrings("}", tokens[tokens.len - 2].text);
 }
 
 test "JSON lexer - error handling" {

@@ -108,7 +108,7 @@ pub const Walker = struct {
         }
 
         // Print node info
-        try writer.print("{s}: '{s}' ({}-{})\n", .{ node.rule_name, node.text, node.start_position, node.end_position });
+        try writer.print("rule_id={}: '{s}' ({}-{})\n", .{ node.rule_id, node.text, node.start_position, node.end_position });
 
         // Print children
         for (node.children) |*child| {

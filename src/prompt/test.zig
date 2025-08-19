@@ -3,7 +3,7 @@ const testing = std.testing;
 const test_helpers = @import("../lib/test/helpers.zig");
 
 // Prompt module test runner
-// Usage: zig test src/prompt/test.zig
+// Usage: zig build test -Dtest-filter="src/prompt/test.zig"
 
 // Import modules to test
 const Config = @import("config.zig").Config;

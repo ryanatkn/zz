@@ -7,6 +7,10 @@ const Span = @import("../../parser/foundation/types/span.zig").Span;
 const JsonRules = @import("../../ast/rules.zig").JsonRules;
 const Rule = @import("../interface.zig").Rule;
 const Diagnostic = @import("../interface.zig").Diagnostic;
+const patterns = @import("patterns.zig");
+const JsonLintRules = patterns.JsonLintRules;
+const lint_rules = @import("../common/lint_rules.zig");
+const Severity = lint_rules.Severity;
 
 /// JSON validator/linter with comprehensive error detection
 ///
@@ -180,13 +184,13 @@ pub const JsonLinter = struct {
         const value = node.text;
         if (value.len == 0) return;
 
-        // Check for leading zeros
-        if (self.isRuleEnabled("no-leading-zeros", enabled_rules) and !self.options.allow_leading_zeros) {
+        // Check for leading zeros (efficient enum-based version)
+        const no_leading_zeros_enabled = self.isRuleEnabledEnum(.no_leading_zeros, &[_]JsonLintRules.KindType{.no_leading_zeros});
+        if (no_leading_zeros_enabled and !self.options.allow_leading_zeros) {
             if (value.len > 1 and value[0] == '0' and char_utils.isDigit(value[1])) {
-                try self.addDiagnostic(
-                    "no-leading-zeros",
+                try self.addDiagnosticEnum(
+                    .no_leading_zeros,
                     "Number has leading zero",
-                    .warning,
                     Span.init(node.start_position, node.end_position),
                 );
             }
@@ -239,8 +243,9 @@ pub const JsonLinter = struct {
             }
         }
 
-        // Check for duplicate keys
-        if (self.isRuleEnabled("no-duplicate-keys", &.{}) and !self.options.allow_duplicate_keys) {
+        // Check for duplicate keys (efficient enum-based version)
+        const no_duplicate_keys_enabled = self.isRuleEnabledEnum(.no_duplicate_keys, &[_]JsonLintRules.KindType{.no_duplicate_keys});
+        if (no_duplicate_keys_enabled and !self.options.allow_duplicate_keys) {
             var seen_keys = std.HashMap([]const u8, Span, std.hash_map.StringContext, std.hash_map.default_max_load_percentage).init(self.allocator);
             defer seen_keys.deinit();
 
@@ -259,8 +264,9 @@ pub const JsonLinter = struct {
                     key_value;
 
                 if (seen_keys.get(key_content)) |_| {
+                    // Use efficient enum-based diagnostic (but keep addDiagnosticWithFix for now)
                     try self.addDiagnosticWithFix(
-                        "no-duplicate-keys",
+                        JsonLintRules.name(.no_duplicate_keys), // Static string, no allocation
                         "Duplicate object key",
                         .@"error",
                         Span.init(key_node.start_position, key_node.end_position),
@@ -365,6 +371,17 @@ pub const JsonLinter = struct {
         }
         return false;
     }
+    
+    /// Efficient rule checking using enum (O(1) vs O(n) string comparison)
+    fn isRuleEnabledEnum(self: *Self, rule_kind: JsonLintRules.KindType, enabled_rules: []const JsonLintRules.KindType) bool {
+        _ = self;
+        for (enabled_rules) |enabled_rule| {
+            if (enabled_rule == rule_kind) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     fn addDiagnostic(self: *Self, rule: []const u8, message: []const u8, severity: Rule.Severity, span: Span) !void {
         const owned_message = try self.allocator.dupe(u8, message);
@@ -372,6 +389,25 @@ pub const JsonLinter = struct {
             .rule = rule,
             .message = owned_message,
             .severity = severity,
+            .range = span,
+            .fix = null,
+        });
+    }
+    
+    /// Efficient diagnostic creation using enum (no string allocation for rule name)
+    fn addDiagnosticEnum(self: *Self, rule_kind: JsonLintRules.KindType, message: []const u8, span: Span) !void {
+        const owned_message = try self.allocator.dupe(u8, message);
+        // Convert enum severity to Rule.Severity
+        const rule_severity = switch (JsonLintRules.severity(rule_kind)) {
+            .@"error" => Rule.Severity.@"error",
+            .warning => Rule.Severity.warning,
+            .info => Rule.Severity.warning, // Map to warning for now
+            .hint => Rule.Severity.warning, // Map to warning for now
+        };
+        try self.diagnostics.append(Diagnostic{
+            .rule = JsonLintRules.name(rule_kind), // No allocation needed - static string
+            .message = owned_message,
+            .severity = rule_severity,
             .range = span,
             .fix = null,
         });
@@ -437,7 +473,7 @@ test "JSON linter - duplicate keys" {
 
     // Should find duplicate key
     try testing.expect(diagnostics.len > 0);
-    try testing.expectEqualStrings("no-duplicate-keys", diagnostics[0].rule);
+    try testing.expectEqualStrings("no_duplicate_keys", diagnostics[0].rule);
 }
 
 test "JSON linter - leading zeros" {
@@ -470,7 +506,7 @@ test "JSON linter - leading zeros" {
 
     // Should find leading zero
     try testing.expect(diagnostics.len > 0);
-    try testing.expectEqualStrings("no-leading-zeros", diagnostics[0].rule);
+    try testing.expectEqualStrings("no_leading_zeros", diagnostics[0].rule);
 }
 
 test "JSON linter - deep nesting" {

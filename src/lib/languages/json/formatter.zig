@@ -62,14 +62,10 @@ pub const JsonFormatter = struct {
         self.output.deinit();
     }
 
-    /// Format JSON AST to string using visitor pattern
+    /// Format JSON AST to string using direct formatting
     pub fn format(self: *Self, ast: AST) ![]const u8 {
-        var root = ast.root;
-        // Use visitor pattern for consistent traversal
-        var visitor = JsonFormatVisitor{ .formatter = self };
-        var traversal = ASTTraversal.init(self.allocator);
-        
-        try traversal.walk(&root, formatVisitorCallback, &visitor, .depth_first_pre);
+        // Format the root node directly (no visitor pattern to avoid double formatting)
+        try self.formatNode(&ast.root);
 
         // Add final newline if not compact
         if (!self.options.force_compact) {
@@ -93,22 +89,33 @@ pub const JsonFormatter = struct {
     }
 
     fn formatString(self: *Self, node: *const Node) !void {
-        const raw_value = if (node.text.len > 0) node.text else "\"\"";
+        const raw_value = if (node.text.len > 0) node.text else "";
 
-        if (self.options.quote_style == .preserve or self.options.quote_style == .double) {
-            try self.output.appendSlice(raw_value);
-        } else {
-            // Convert to single quotes (if valid JSON5)
+        if (self.options.quote_style == .preserve) {
+            // If preserve and already has quotes, use as-is
             if (raw_value.len >= 2 and raw_value[0] == '"' and raw_value[raw_value.len - 1] == '"') {
-                try self.output.append('\'');
-                try self.output.appendSlice(raw_value[1 .. raw_value.len - 1]);
-                try self.output.append('\'');
-            } else {
                 try self.output.appendSlice(raw_value);
+                self.updateLinePosition(raw_value.len);
+            } else {
+                // Add double quotes if missing
+                try self.output.append('"');
+                try self.output.appendSlice(raw_value);
+                try self.output.append('"');
+                self.updateLinePosition(raw_value.len + 2);
             }
+        } else if (self.options.quote_style == .double) {
+            // Always use double quotes
+            try self.output.append('"');
+            try self.output.appendSlice(raw_value);
+            try self.output.append('"');
+            self.updateLinePosition(raw_value.len + 2);
+        } else {
+            // Use single quotes (JSON5)
+            try self.output.append('\'');
+            try self.output.appendSlice(raw_value);
+            try self.output.append('\'');
+            self.updateLinePosition(raw_value.len + 2);
         }
-
-        self.updateLinePosition(raw_value.len);
     }
 
     fn formatNumber(self: *Self, node: *const Node) !void {
@@ -150,6 +157,7 @@ pub const JsonFormatter = struct {
         // Sort members if requested
         var sorted_members: []const Node = undefined;
         var member_indices: std.ArrayList(usize) = undefined;
+        var sorted_list: ?std.ArrayList(Node) = null;
 
         if (self.options.sort_keys) {
             member_indices = std.ArrayList(usize).init(self.allocator);
@@ -161,19 +169,19 @@ pub const JsonFormatter = struct {
 
             std.sort.insertion(usize, member_indices.items, members, memberCompareFn);
 
-            var sorted_list = std.ArrayList(Node).init(self.allocator);
-            defer sorted_list.deinit();
+            sorted_list = std.ArrayList(Node).init(self.allocator);
 
             for (member_indices.items) |idx| {
-                try sorted_list.append(members[idx]);
+                try sorted_list.?.append(members[idx]);
             }
 
-            sorted_members = sorted_list.items;
+            sorted_members = sorted_list.?.items;
         } else {
             sorted_members = members;
         }
 
         for (sorted_members, 0..) |member, i| {
+            
             if (!should_compact) {
                 try self.writeIndent();
             } else if (i > 0 and self.options.space_after_comma) {
@@ -205,6 +213,11 @@ pub const JsonFormatter = struct {
 
         try self.output.append('}');
         self.updateLinePosition(1);
+
+        // Clean up sorted list if we created one
+        if (sorted_list) |*list| {
+            list.deinit();
+        }
     }
 
     fn formatArray(self: *Self, node: *const Node) !void {
@@ -388,11 +401,13 @@ pub const JsonFormatter = struct {
         const a_children = a.children;
         const b_children = b.children;
 
-        if (a_children.len == 0 or b_children.len == 0) return false;
+        if (a_children.len == 0 or b_children.len == 0) {
+            return false;
+        }
 
         const a_key = a_children[0].text;
         const b_key = b_children[0].text;
-
+        
         return std.mem.lessThan(u8, a_key, b_key);
     }
 };

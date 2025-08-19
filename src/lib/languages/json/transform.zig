@@ -51,7 +51,7 @@ pub const JsonLexicalTransform = struct {
     }
     
     fn tokenize(ctx: *Context, text: []const u8) ![]const Token {
-        // Get options from context if available
+        // Get options from context (set by JsonTransformPipeline.parse())
         const allow_comments = ctx.getOption("allow_comments", bool) orelse false;
         const allow_trailing_commas = ctx.getOption("allow_trailing_commas", bool) orelse false;
         
@@ -180,6 +180,8 @@ pub const JsonTransformPipeline = struct {
     allocator: std.mem.Allocator,
     pipeline: lex_parse.LexParsePipeline,
     format_options: FormatOptions,
+    lexer_options: JsonLexer.LexerOptions,
+    parser_options: JsonParser.ParserOptions,
     
     const Self = @This();
     
@@ -201,6 +203,8 @@ pub const JsonTransformPipeline = struct {
             .allocator = allocator,
             .pipeline = pipeline,
             .format_options = FormatOptions{},
+            .lexer_options = lexer_options,
+            .parser_options = parser_options,
         };
     }
     
@@ -224,6 +228,8 @@ pub const JsonTransformPipeline = struct {
             .allocator = allocator,
             .pipeline = pipeline,
             .format_options = format_options,
+            .lexer_options = lexer_options,
+            .parser_options = parser_options,
         };
     }
     
@@ -233,11 +239,26 @@ pub const JsonTransformPipeline = struct {
     
     /// Parse JSON text to AST
     pub fn parse(self: *Self, ctx: *Context, json_text: []const u8) !AST {
+        // TODO maybe refactor with `parseWithRecovery`
+        // Set lexer options in context so tokenize() can access them
+        try ctx.setOption("allow_comments", self.lexer_options.allow_comments);
+        try ctx.setOption("allow_trailing_commas", self.lexer_options.allow_trailing_commas);
+        
+        // Set parser options in context
+        try ctx.setOption("recover_from_errors", self.parser_options.recover_from_errors);
+        
         return try self.pipeline.parse(ctx, json_text);
     }
     
     /// Parse with error recovery
     pub fn parseWithRecovery(self: *Self, ctx: *Context, json_text: []const u8) !syntactic.ParseResult {
+        // Set lexer options in context so tokenize() can access them
+        try ctx.setOption("allow_comments", self.lexer_options.allow_comments);
+        try ctx.setOption("allow_trailing_commas", self.lexer_options.allow_trailing_commas);
+        
+        // Set parser options in context
+        try ctx.setOption("recover_from_errors", self.parser_options.recover_from_errors);
+        
         return try self.pipeline.parseWithRecovery(ctx, json_text);
     }
     

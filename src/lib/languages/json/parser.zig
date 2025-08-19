@@ -7,6 +7,8 @@ const Node = @import("../../ast/mod.zig").Node;
 const NodeType = @import("../../ast/mod.zig").NodeType;
 const ParseContext = @import("memory.zig").ParseContext;
 const JsonRules = @import("../../ast/rules.zig").JsonRules;
+const patterns = @import("patterns.zig");
+const JsonDelimiters = patterns.JsonDelimiters;
 
 /// High-performance JSON parser producing proper AST
 ///
@@ -98,12 +100,19 @@ pub const JsonParser = struct {
             .number_literal => self.parseNumber(),
             .boolean_literal => self.parseBoolean(),
             .null_literal => self.parseNull(),
-            .delimiter => if (std.mem.eql(u8, token.text, "{"))
-                self.parseObject()
-            else if (std.mem.eql(u8, token.text, "["))
-                self.parseArray()
-            else
-                self.parseUnexpected(),
+            .delimiter => {
+                // Use efficient delimiter checking (O(1) vs O(n))
+                if (token.text.len == 1) {
+                    if (JsonDelimiters.fromChar(token.text[0])) |delimiter_kind| {
+                        return switch (delimiter_kind) {
+                            .left_brace => self.parseObject(),
+                            .left_bracket => self.parseArray(),
+                            else => self.parseUnexpected(),
+                        };
+                    }
+                }
+                return self.parseUnexpected();
+            },
             .comment => {
                 // Skip comments and try next token
                 _ = self.advance();
@@ -191,7 +200,7 @@ pub const JsonParser = struct {
         defer members.deinit();
 
         // Handle empty object
-        if (self.check(.delimiter, "}")) {
+        if (self.checkDelimiter(.right_brace)) {
             const end_token = self.advance();
             return Node{
                 .rule_id = JsonRules.object,
@@ -206,12 +215,12 @@ pub const JsonParser = struct {
         }
 
         // Parse object members
-        while (!self.isAtEnd() and !self.check(.delimiter, "}")) {
+        while (!self.isAtEnd() and !self.checkDelimiter(.right_brace)) {
             const member = self.parseObjectMember() catch |err| switch (err) {
                 error.ParseError => {
                     // Skip to next comma or closing brace for error recovery
                     self.skipToDelimiter(&.{ ",", "}" });
-                    if (self.check(.delimiter, ",")) {
+                    if (self.checkDelimiter(.comma)) {
                         _ = self.advance();
                     }
                     continue;
@@ -221,11 +230,11 @@ pub const JsonParser = struct {
 
             try members.append(member);
 
-            if (self.check(.delimiter, ",")) {
+            if (self.checkDelimiter(.comma)) {
                 _ = self.advance(); // consume comma
 
                 // Handle trailing comma
-                if (self.check(.delimiter, "}")) {
+                if (self.checkDelimiter(.right_brace)) {
                     if (!self.allow_trailing_commas) {
                         try self.addError("Trailing comma not allowed", self.peek().span);
                     }
@@ -472,6 +481,21 @@ pub const JsonParser = struct {
         if (self.isAtEnd()) return false;
         const token = self.peek();
         return token.kind == kind and (text == null or std.mem.eql(u8, token.text, text.?));
+    }
+    
+    /// Efficient delimiter checking using enum (O(1) vs O(n) string comparison)
+    fn checkDelimiter(self: *Self, delimiter_kind: JsonDelimiters.KindType) bool {
+        if (self.isAtEnd()) return false;
+        const token = self.peek();
+        if (token.kind != .delimiter) return false;
+        
+        // Convert token text to character and check against delimiter
+        if (token.text.len == 1) {
+            if (JsonDelimiters.fromChar(token.text[0])) |found_kind| {
+                return found_kind == delimiter_kind;
+            }
+        }
+        return false;
     }
 
     fn skipToDelimiter(self: *Self, delimiters: []const []const u8) void {

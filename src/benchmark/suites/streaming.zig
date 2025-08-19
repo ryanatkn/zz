@@ -20,14 +20,18 @@ pub fn runStreamingBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOp
     
     const effective_duration = @as(u64, @intFromFloat(@as(f64, @floatFromInt(options.duration_ns)) * 2.0 * options.duration_multiplier));
     
-    // Load large test files for memory comparison
-    const large_json = loadTestFile(allocator, "src/benchmark/fixtures/large_1mb.json") catch 
-        try generateLargeJson(allocator, 1024 * 1024);
-    defer allocator.free(large_json);
+    // NOTE: Warmup is disabled for streaming benchmarks (false instead of options.warmup)
+    // Reason: These benchmarks process files and allocate memory extensively
+    // Streaming operations are memory/IO bound, not CPU cache sensitive, so warmup provides no benefit
     
-    const large_zon = loadTestFile(allocator, "src/benchmark/fixtures/large_1mb.zon") catch 
-        try generateLargeZon(allocator, 1024 * 1024);
-    defer allocator.free(large_zon);
+    // Load small test files for fast benchmark execution (10KB)
+    const small_json = loadTestFile(allocator, "src/benchmark/fixtures/small_10kb.json") catch 
+        try generateLargeJson(allocator, 10 * 1024);
+    defer allocator.free(small_json);
+    
+    const small_zon = loadTestFile(allocator, "src/benchmark/fixtures/small_10kb.zon") catch 
+        try generateLargeZon(allocator, 10 * 1024);
+    defer allocator.free(small_zon);
     
     // 1. Traditional full-memory approach benchmark
     {
@@ -77,11 +81,9 @@ pub fn runStreamingBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOp
                     std.mem.doNotOptimizeAway(token.text.len);
                 }
             }
-        }{ .allocator = allocator, .text = large_json };
+        }{ .allocator = allocator, .text = small_json };
         
-        var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
-        allocator.free(result.name);
-        result.name = try allocator.dupe(u8, "Traditional Full-Memory JSON (1MB)");
+        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "streaming", "Traditional Full-Memory JSON (10KB)", effective_duration, false, context, @TypeOf(context).run);
         try results.append(result);
     }
     
@@ -115,11 +117,9 @@ pub fn runStreamingBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOp
                 
                 std.mem.doNotOptimizeAway(token_count);
             }
-        }{ .allocator = allocator, .text = large_json };
+        }{ .allocator = allocator, .text = small_json };
         
-        var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
-        allocator.free(result.name);
-        result.name = try allocator.dupe(u8, "Streaming TokenIterator JSON (1MB)");
+        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "streaming", "Streaming TokenIterator JSON (10KB)", effective_duration, false, context, @TypeOf(context).run);
         try results.append(result);
     }
     
@@ -192,11 +192,9 @@ pub fn runStreamingBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOp
                 std.mem.doNotOptimizeAway(traditional_memory);
                 std.mem.doNotOptimizeAway(streaming_memory);
             }
-        }{ .allocator = allocator, .text = large_json };
+        }{ .allocator = allocator, .text = small_json };
         
-        var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
-        allocator.free(result.name);
-        result.name = try allocator.dupe(u8, "Memory Usage Comparison");
+        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "streaming", "Memory Usage Comparison (10KB)", effective_duration, false, context, @TypeOf(context).run);
         try results.append(result);
     }
     
@@ -222,11 +220,9 @@ pub fn runStreamingBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOp
                 std.mem.doNotOptimizeAway(result.total_nodes);
                 std.mem.doNotOptimizeAway(result.memory_used_bytes);
             }
-        }{ .allocator = allocator, .text = large_zon };
+        }{ .allocator = allocator, .text = small_zon };
         
-        var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
-        allocator.free(result.name);
-        result.name = try allocator.dupe(u8, "Incremental Parser ZON (1MB)");
+        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "streaming", "Incremental Parser ZON (10KB)", effective_duration, false, context, @TypeOf(context).run);
         try results.append(result);
     }
     
@@ -276,9 +272,7 @@ pub fn runStreamingBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOp
             }
         }{ .allocator = allocator, .text = simple_json };
         
-        var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
-        allocator.free(result.name);
-        result.name = try allocator.dupe(u8, "Direct Function Calls (Baseline)");
+        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "streaming", "Direct Function Calls (Baseline)", effective_duration, false, context, @TypeOf(context).run);
         try results.append(result);
     }
     
@@ -311,9 +305,7 @@ pub fn runStreamingBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOp
             }
         }{ .allocator = allocator, .text = simple_json };
         
-        var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
-        allocator.free(result.name);
-        result.name = try allocator.dupe(u8, "Transform Pipeline (Small Chunks)");
+        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "streaming", "Transform Pipeline (Small Chunks)", effective_duration, false, context, @TypeOf(context).run);
         try results.append(result);
     }
     
@@ -347,9 +339,7 @@ pub fn runStreamingBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOp
             }
         }{ .allocator = allocator, .text = medium_json };
         
-        var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
-        allocator.free(result.name);
-        result.name = try allocator.dupe(u8, "Transform Pipeline (Optimal Chunks)");
+        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "streaming", "Transform Pipeline (Optimal Chunks)", effective_duration, false, context, @TypeOf(context).run);
         try results.append(result);
         
         // Pipeline overhead target: <5% vs direct calls

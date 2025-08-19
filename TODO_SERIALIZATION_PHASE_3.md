@@ -33,7 +33,50 @@
 - ✅ **Code Cleanup**: Fixed compilation issues, consolidated obsolete benchmark files
 - ✅ **Documentation**: Updated Phase 3 roadmap with completion status
 
-### 🔧 Technical Debt & Cleanup Notes
+### 🔧 Critical Issues & Technical Debt
+
+#### 🚨 **STREAMING BENCHMARK HANGING - August 19, 2025**
+**Status**: ACTIVE BUG - Blocking benchmark system  
+**Impact**: Cannot run full benchmark suite, streaming validation impossible
+
+**Investigation Summary**:
+1. **Initial symptom**: ZON pipeline hanging in warmup (processing 100MB total)
+2. **First fix**: Disabled warmup for streaming benchmarks ✅
+3. **Second issue**: Reduced data from 1MB → 10KB ✅  
+4. **Current issue**: Even 10KB tokenization hangs at operation start
+
+**Technical Analysis**:
+```zig
+// This operation is extremely expensive:
+while (i <= ctx.text.len) {
+    // 10KB = ~10,000 characters
+    // Each delimiter creates a token allocation
+    // JSON has ~1000+ tokens (braces, strings, numbers, etc.)
+    // = 1000+ allocator.dupe() calls per iteration
+    // Benchmark tries to run this 100+ times in 100ms
+}
+```
+
+**Evidence**:
+- Hangs at: `[streaming] Starting "Traditional Full-Memory JSON (10KB)" (duration: 100ms)`
+- Never reaches: Progress reports or completion messages
+- Process must be killed with Ctrl+C
+
+**Root Cause**: The tokenization algorithm is inherently expensive:
+1. **Character iteration**: 10,000 character examinations
+2. **Memory allocation**: 1000+ `allocator.dupe()` calls 
+3. **ArrayList operations**: Dynamic resizing and memory copies
+4. **Deallocation overhead**: Cleanup of 1000+ allocations
+
+**Potential Solutions**:
+1. **Option A**: Disable streaming benchmarks entirely
+2. **Option B**: Replace with lightweight mock tokenization
+3. **Option C**: Investigate if TokenIterator imports are causing compilation issues
+4. **Option D**: Use pre-tokenized data instead of live tokenization
+
+**Recommendation**: Disable streaming suite until streaming implementation is debugged separately from benchmark system.
+
+### 🔧 Other Technical Debt & Cleanup Notes
 - ✅ **JSON Lexer Issues RESOLVED**: TokenKind enum mismatches fixed (August 19, 2025)
   - ✅ Fixed: `.string` → `.string_literal`, `.number` → `.number_literal`, `.boolean` → `.boolean_literal`, `.null` → `.null_literal`
   - ✅ Updated: `src/lib/languages/json/lexer.zig`, `parser.zig`, `test.zig`
@@ -62,13 +105,27 @@ Transform the remaining languages to use the pipeline architecture while adding 
 - ✅ **Fix TokenKind enum** - Fixed missing `.string_literal`, `.number_literal`, `.boolean_literal` mappings
 - ✅ **Fix benchmark performance** - Resolved measureOperation() time-checking overhead  
 - ✅ **Test JSON comprehensive benchmarks** - Re-enabled and working properly
-- ⚠️ **Fix remaining benchmark hanging** - Benchmarks still taking too long/hanging
-  - **Issue**: Even with 50ms duration, full benchmark suite takes >2 minutes
-  - **Root cause**: Too many benchmark suites (17 total) or remaining slow operations
-  - **Need**: Further investigation into which specific benchmarks are slow
+- ⚠️ **Fix remaining benchmark hanging** - CRITICAL ISSUE: Streaming benchmarks still hanging
+  - **Issue**: Streaming benchmark hangs at "Traditional Full-Memory JSON" operation start
+  - **Root cause**: Even 10KB JSON tokenization with full memory allocation is too expensive
+    - Operation: Character-by-character iteration with memory allocation per token
+    - Cost: ~1000+ tokens × allocation overhead per iteration
+    - Problem: Benchmark tries to run this operation repeatedly for 100ms duration
+  - **Debugging completed**: 
+    - ✅ Warmup disabled (was processing 100 × 1MB = 100MB in warmup)
+    - ✅ Data size reduced from 1MB → 10KB 
+    - ✅ Enhanced logging shows hanging at operation start, not warmup
+    - ✅ Issue persists: Even single 10KB tokenization takes several seconds
   - **Temporary fix**: ZON pipeline benchmark disabled (was hanging in warmup)
-- [ ] **Validate streaming benchmarks** - Run full streaming test suite once hanging resolved
-- [ ] **Generate new baseline** - Update benchmarks/baseline.md with streaming results
+  - **Next steps needed**:
+    - [ ] Disable streaming benchmark suite entirely or
+    - [ ] Replace expensive tokenization with lightweight mock operations or
+    - [ ] Investigate TokenIterator/IncrementalParser imports for errors
+- [ ] **URGENT: Disable streaming benchmarks** - Comment out streaming suite registration in main.zig
+  - **Reason**: 10KB tokenization still hangs indefinitely, blocking entire benchmark system
+  - **Impact**: Prevents running any benchmark validation during development
+  - **Alternative**: Test streaming implementation separately from benchmark system
+- [ ] **Generate new baseline** - Update benchmarks/baseline.md once hanging issues resolved
 
 #### Priority 2: Language Foundation Audit  
 - [ ] **Review ZON lexer** - Ensure no similar TokenKind issues

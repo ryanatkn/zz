@@ -1,18 +1,27 @@
 const std = @import("std");
 
-/// Generate large test files for streaming validation
-/// Target: 1MB JSON and ZON files for memory reduction testing
+/// Generate test files of various sizes for streaming validation
+/// Target: Small (10KB), Medium (100KB), Large (1MB) for different benchmark needs
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     defer _ = gpa.deinit();
     const allocator = gpa.allocator();
 
-    std.log.info("Generating large test fixtures...", .{});
+    std.log.info("Generating test fixtures...", .{});
 
+    // Small files for fast benchmarks (10KB)
+    try generateLargeJson(allocator, "small_10kb.json", 10 * 1024);
+    try generateLargeZon(allocator, "small_10kb.zon", 10 * 1024);
+    
+    // Medium files for normal benchmarks (100KB) 
+    try generateLargeJson(allocator, "medium_100kb.json", 100 * 1024);
+    try generateLargeZon(allocator, "medium_100kb.zon", 100 * 1024);
+    
+    // Large files for stress testing (1MB)
     try generateLargeJson(allocator, "large_1mb.json", 1024 * 1024);
     try generateLargeZon(allocator, "large_1mb.zon", 1024 * 1024);
 
-    std.log.info("Test fixtures generated successfully", .{});
+    std.log.info("Test fixtures generated successfully (10KB, 100KB, 1MB)", .{});
 }
 
 fn generateLargeJson(allocator: std.mem.Allocator, path: []const u8, target_size: usize) !void {
@@ -26,7 +35,7 @@ fn generateLargeJson(allocator: std.mem.Allocator, path: []const u8, target_size
     try writer.writeAll("  \"metadata\": {\n");
     try writer.writeAll("    \"generated\": true,\n");
     try writer.writeAll("    \"purpose\": \"streaming memory test\",\n");
-    try writer.writeAll("    \"target_size_mb\": 1\n");
+    try writer.print("    \"target_size_bytes\": {}\n", .{target_size});
     try writer.writeAll("  },\n");
     try writer.writeAll("  \"users\": [\n");
 
@@ -120,7 +129,7 @@ fn generateLargeZon(allocator: std.mem.Allocator, path: []const u8, target_size:
     try writer.writeAll("    .metadata = .{\n");
     try writer.writeAll("        .generated = true,\n");
     try writer.writeAll("        .purpose = \"streaming memory test\",\n");
-    try writer.writeAll("        .target_size_mb = 1,\n");
+    try writer.print("        .target_size_bytes = {},\n", .{target_size});
     try writer.writeAll("    },\n");
     try writer.writeAll("\n");
     try writer.writeAll("    .dependencies = .{\n");

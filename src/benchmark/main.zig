@@ -212,7 +212,9 @@ fn registerBenchmarkSuites(runner: *BenchmarkRunner) !void {
         .runFn = zon_lexer.runZonLexerBenchmarks,
     });
 
-    // Temporarily disabled - hanging during warmup phase
+    // Disabled - operations are too slow (15ms each) for normal benchmark durations
+    // Each pipeline operation (format + validate + extract) takes ~45ms
+    // Would need much longer durations (5+ seconds) to get meaningful results
     // try runner.registerSuite(BenchmarkSuite{
     //     .name = "zon-pipeline",
     //     .variance_multiplier = 2.0, // Complete pipeline

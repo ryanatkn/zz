@@ -1,0 +1,295 @@
+{
+  "metadata": {
+    "generated": true,
+    "purpose": "streaming memory test",
+    "target_size_bytes": 10240
+  },
+  "users": [
+    {
+      "id": 1,
+      "name": "User 1 with a longer name for size",
+      "email": "user1@example-domain-for-testing.com",
+      "age": 21,
+      "active": false,
+      "profile": {
+        "bio": "This is a longer biography text for user 1 to increase the JSON size for streaming memory testing purposes. Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        "preferences": {
+          "theme": "dark",
+          "notifications": true,
+          "language": "en-US",
+          "timezone": "UTC"
+        },
+        "tags": ["tag1", "category2", "group3", "type4"],
+        "scores": [
+          { "name": "skill1", "value": 7 },
+          { "name": "skill2", "value": 11 },
+          { "name": "skill3", "value": 13 }
+        ],
+        "metadata": {
+          "created_at": "2024-01-2T10:30:00Z",
+          "updated_at": "2024-01-12T15:45:30Z",
+          "version": 1,
+          "flags": ["verified", "premium", "active"]
+        }
+      }
+    },
+    {
+      "id": 2,
+      "name": "User 2 with a longer name for size",
+      "email": "user2@example-domain-for-testing.com",
+      "age": 22,
+      "active": true,
+      "profile": {
+        "bio": "This is a longer biography text for user 2 to increase the JSON size for streaming memory testing purposes. Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        "preferences": {
+          "theme": "dark",
+          "notifications": true,
+          "language": "en-US",
+          "timezone": "UTC"
+        },
+        "tags": ["tag2", "category3", "group4", "type5"],
+        "scores": [
+          { "name": "skill1", "value": 14 },
+          { "name": "skill2", "value": 22 },
+          { "name": "skill3", "value": 26 }
+        ],
+        "metadata": {
+          "created_at": "2024-01-3T10:30:00Z",
+          "updated_at": "2024-01-13T15:45:30Z",
+          "version": 2,
+          "flags": ["verified", "premium", "active"]
+        }
+      }
+    },
+    {
+      "id": 3,
+      "name": "User 3 with a longer name for size",
+      "email": "user3@example-domain-for-testing.com",
+      "age": 23,
+      "active": false,
+      "profile": {
+        "bio": "This is a longer biography text for user 3 to increase the JSON size for streaming memory testing purposes. Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        "preferences": {
+          "theme": "dark",
+          "notifications": true,
+          "language": "en-US",
+          "timezone": "UTC"
+        },
+        "tags": ["tag3", "category4", "group5", "type6"],
+        "scores": [
+          { "name": "skill1", "value": 21 },
+          { "name": "skill2", "value": 33 },
+          { "name": "skill3", "value": 39 }
+        ],
+        "metadata": {
+          "created_at": "2024-01-4T10:30:00Z",
+          "updated_at": "2024-01-14T15:45:30Z",
+          "version": 3,
+          "flags": ["verified", "premium", "active"]
+        }
+      }
+    },
+    {
+      "id": 4,
+      "name": "User 4 with a longer name for size",
+      "email": "user4@example-domain-for-testing.com",
+      "age": 24,
+      "active": true,
+      "profile": {
+        "bio": "This is a longer biography text for user 4 to increase the JSON size for streaming memory testing purposes. Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        "preferences": {
+          "theme": "dark",
+          "notifications": true,
+          "language": "en-US",
+          "timezone": "UTC"
+        },
+        "tags": ["tag4", "category5", "group6", "type7"],
+        "scores": [
+          { "name": "skill1", "value": 28 },
+          { "name": "skill2", "value": 44 },
+          { "name": "skill3", "value": 52 }
+        ],
+        "metadata": {
+          "created_at": "2024-01-5T10:30:00Z",
+          "updated_at": "2024-01-15T15:45:30Z",
+          "version": 4,
+          "flags": ["verified", "premium", "active"]
+        }
+      }
+    },
+    {
+      "id": 5,
+      "name": "User 5 with a longer name for size",
+      "email": "user5@example-domain-for-testing.com",
+      "age": 25,
+      "active": false,
+      "profile": {
+        "bio": "This is a longer biography text for user 5 to increase the JSON size for streaming memory testing purposes. Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        "preferences": {
+          "theme": "dark",
+          "notifications": true,
+          "language": "en-US",
+          "timezone": "UTC"
+        },
+        "tags": ["tag5", "category6", "group7", "type8"],
+        "scores": [
+          { "name": "skill1", "value": 35 },
+          { "name": "skill2", "value": 55 },
+          { "name": "skill3", "value": 65 }
+        ],
+        "metadata": {
+          "created_at": "2024-01-6T10:30:00Z",
+          "updated_at": "2024-01-16T15:45:30Z",
+          "version": 5,
+          "flags": ["verified", "premium", "active"]
+        }
+      }
+    },
+    {
+      "id": 6,
+      "name": "User 6 with a longer name for size",
+      "email": "user6@example-domain-for-testing.com",
+      "age": 26,
+      "active": true,
+      "profile": {
+        "bio": "This is a longer biography text for user 6 to increase the JSON size for streaming memory testing purposes. Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        "preferences": {
+          "theme": "dark",
+          "notifications": true,
+          "language": "en-US",
+          "timezone": "UTC"
+        },
+        "tags": ["tag6", "category7", "group8", "type9"],
+        "scores": [
+          { "name": "skill1", "value": 42 },
+          { "name": "skill2", "value": 66 },
+          { "name": "skill3", "value": 78 }
+        ],
+        "metadata": {
+          "created_at": "2024-01-7T10:30:00Z",
+          "updated_at": "2024-01-17T15:45:30Z",
+          "version": 6,
+          "flags": ["verified", "premium", "active"]
+        }
+      }
+    },
+    {
+      "id": 7,
+      "name": "User 7 with a longer name for size",
+      "email": "user7@example-domain-for-testing.com",
+      "age": 27,
+      "active": false,
+      "profile": {
+        "bio": "This is a longer biography text for user 7 to increase the JSON size for streaming memory testing purposes. Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        "preferences": {
+          "theme": "dark",
+          "notifications": true,
+          "language": "en-US",
+          "timezone": "UTC"
+        },
+        "tags": ["tag7", "category8", "group9", "type10"],
+        "scores": [
+          { "name": "skill1", "value": 49 },
+          { "name": "skill2", "value": 77 },
+          { "name": "skill3", "value": 91 }
+        ],
+        "metadata": {
+          "created_at": "2024-01-8T10:30:00Z",
+          "updated_at": "2024-01-18T15:45:30Z",
+          "version": 7,
+          "flags": ["verified", "premium", "active"]
+        }
+      }
+    },
+    {
+      "id": 8,
+      "name": "User 8 with a longer name for size",
+      "email": "user8@example-domain-for-testing.com",
+      "age": 28,
+      "active": true,
+      "profile": {
+        "bio": "This is a longer biography text for user 8 to increase the JSON size for streaming memory testing purposes. Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        "preferences": {
+          "theme": "dark",
+          "notifications": true,
+          "language": "en-US",
+          "timezone": "UTC"
+        },
+        "tags": ["tag8", "category9", "group10", "type11"],
+        "scores": [
+          { "name": "skill1", "value": 56 },
+          { "name": "skill2", "value": 88 },
+          { "name": "skill3", "value": 4 }
+        ],
+        "metadata": {
+          "created_at": "2024-01-9T10:30:00Z",
+          "updated_at": "2024-01-19T15:45:30Z",
+          "version": 8,
+          "flags": ["verified", "premium", "active"]
+        }
+      }
+    },
+    {
+      "id": 9,
+      "name": "User 9 with a longer name for size",
+      "email": "user9@example-domain-for-testing.com",
+      "age": 29,
+      "active": false,
+      "profile": {
+        "bio": "This is a longer biography text for user 9 to increase the JSON size for streaming memory testing purposes. Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        "preferences": {
+          "theme": "dark",
+          "notifications": true,
+          "language": "en-US",
+          "timezone": "UTC"
+        },
+        "tags": ["tag9", "category10", "group11", "type12"],
+        "scores": [
+          { "name": "skill1", "value": 63 },
+          { "name": "skill2", "value": 99 },
+          { "name": "skill3", "value": 17 }
+        ],
+        "metadata": {
+          "created_at": "2024-01-10T10:30:00Z",
+          "updated_at": "2024-01-20T15:45:30Z",
+          "version": 9,
+          "flags": ["verified", "premium", "active"]
+        }
+      }
+    },
+    {
+      "id": 10,
+      "name": "User 10 with a longer name for size",
+      "email": "user10@example-domain-for-testing.com",
+      "age": 30,
+      "active": true,
+      "profile": {
+        "bio": "This is a longer biography text for user 10 to increase the JSON size for streaming memory testing purposes. Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        "preferences": {
+          "theme": "dark",
+          "notifications": true,
+          "language": "en-US",
+          "timezone": "UTC"
+        },
+        "tags": ["tag10", "category11", "group12", "type13"],
+        "scores": [
+          { "name": "skill1", "value": 70 },
+          { "name": "skill2", "value": 10 },
+          { "name": "skill3", "value": 30 }
+        ],
+        "metadata": {
+          "created_at": "2024-01-11T10:30:00Z",
+          "updated_at": "2024-01-21T15:45:30Z",
+          "version": 10,
+          "flags": ["verified", "premium", "active"]
+        }
+      }
+    }
+  ],
+  "statistics": {
+    "total_users": 10,
+    "generated_size_bytes": 9780,
+    "compression_ratio": 0.0,
+    "schema_version": "1.0"
+  }
+}

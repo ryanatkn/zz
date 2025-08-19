@@ -45,9 +45,7 @@ pub fn runZonLexerBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOpt
             }
         }{ .allocator = allocator, .content = small_zon };
         
-        var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
-        allocator.free(result.name);
-        result.name = try allocator.dupe(u8, "ZON Lexer Small (1KB)");
+        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "zon-lexer", "ZON Lexer Small (1KB)", effective_duration, options.warmup, context, @TypeOf(context).run);
         try results.append(result);
     }
     
@@ -68,9 +66,7 @@ pub fn runZonLexerBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOpt
             }
         }{ .allocator = allocator, .content = medium_zon };
         
-        var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
-        allocator.free(result.name);
-        result.name = try allocator.dupe(u8, "ZON Lexer Medium (10KB)");
+        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "zon-lexer", "ZON Lexer Medium (10KB)", effective_duration, options.warmup, context, @TypeOf(context).run);
         try results.append(result);
         
         // Performance target check: <0.1ms (100,000ns) for 10KB
@@ -96,9 +92,7 @@ pub fn runZonLexerBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOpt
             }
         }{ .allocator = allocator, .content = large_zon };
         
-        var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
-        allocator.free(result.name);
-        result.name = try allocator.dupe(u8, "ZON Lexer Large (100KB)");
+        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "zon-lexer", "ZON Lexer Large (100KB)", effective_duration, options.warmup, context, @TypeOf(context).run);
         try results.append(result);
     }
     
@@ -148,9 +142,7 @@ pub fn runZonLexerBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOpt
             }
         }{ .allocator = allocator, .content = build_zon };
         
-        var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
-        allocator.free(result.name);
-        result.name = try allocator.dupe(u8, "ZON Lexer build.zig.zon");
+        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "zon-lexer", "ZON Lexer build.zig.zon", effective_duration, options.warmup, context, @TypeOf(context).run);
         try results.append(result);
     }
     
@@ -198,9 +190,7 @@ pub fn runZonLexerBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOpt
             }
         }{ .allocator = allocator, .content = config_zon };
         
-        var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
-        allocator.free(result.name);
-        result.name = try allocator.dupe(u8, "ZON Lexer Config File");
+        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "zon-lexer", "ZON Lexer Config File", effective_duration, options.warmup, context, @TypeOf(context).run);
         try results.append(result);
     }
     

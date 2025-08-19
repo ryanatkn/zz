@@ -30,21 +30,36 @@ pub fn runZonPipelineBenchmarks(allocator: std.mem.Allocator, options: Benchmark
             
             pub fn run(ctx: @This()) anyerror!void {
                 // Format ZON
-                const formatted = try zon_mod.formatZonString(ctx.allocator, ctx.content);
+                std.debug.print("[zon-pipeline-debug] Starting formatZonString...\n", .{});
+                const formatted = zon_mod.formatZonString(ctx.allocator, ctx.content) catch |err| {
+                    std.debug.print("[zon-pipeline-debug] formatZonString failed: {}\n", .{err});
+                    return err;
+                };
                 defer ctx.allocator.free(formatted);
+                std.debug.print("[zon-pipeline-debug] formatZonString complete ({} bytes)\n", .{formatted.len});
                 
                 // Validate ZON
-                const diagnostics = try zon_mod.validateZonString(ctx.allocator, ctx.content);
+                std.debug.print("[zon-pipeline-debug] Starting validateZonString...\n", .{});
+                const diagnostics = zon_mod.validateZonString(ctx.allocator, ctx.content) catch |err| {
+                    std.debug.print("[zon-pipeline-debug] validateZonString failed: {}\n", .{err});
+                    return err;
+                };
                 defer {
                     for (diagnostics) |diag| {
                         ctx.allocator.free(diag.message);
                     }
                     ctx.allocator.free(diagnostics);
                 }
+                std.debug.print("[zon-pipeline-debug] validateZonString complete ({} diagnostics)\n", .{diagnostics.len});
                 
                 // Extract schema
-                var schema = try zon_mod.extractZonSchema(ctx.allocator, ctx.content);
+                std.debug.print("[zon-pipeline-debug] Starting extractZonSchema...\n", .{});
+                var schema = zon_mod.extractZonSchema(ctx.allocator, ctx.content) catch |err| {
+                    std.debug.print("[zon-pipeline-debug] extractZonSchema failed: {}\n", .{err});
+                    return err;
+                };
                 defer schema.deinit();
+                std.debug.print("[zon-pipeline-debug] extractZonSchema complete ({} nodes)\n", .{schema.statistics.total_nodes});
                 
                 std.mem.doNotOptimizeAway(formatted.len);
                 std.mem.doNotOptimizeAway(diagnostics.len);
@@ -52,9 +67,7 @@ pub fn runZonPipelineBenchmarks(allocator: std.mem.Allocator, options: Benchmark
             }
         }{ .allocator = allocator, .content = test_zon };
         
-        var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
-        allocator.free(result.name);
-        result.name = try allocator.dupe(u8, "ZON Complete Pipeline (10KB)");
+        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "zon-pipeline", "ZON Complete Pipeline (10KB)", effective_duration, options.warmup, context, @TypeOf(context).run);
         try results.append(result);
         
         // Performance target check: <2ms (2,000,000ns) for 10KB complete pipeline
@@ -65,6 +78,7 @@ pub fn runZonPipelineBenchmarks(allocator: std.mem.Allocator, options: Benchmark
     
     // build.zig.zon processing
     {
+        std.debug.print("[zon-pipeline-debug] Starting build.zig.zon benchmark...\n", .{});
         const build_zon = 
             \\.{
             \\    .name = "example_project",
@@ -113,9 +127,8 @@ pub fn runZonPipelineBenchmarks(allocator: std.mem.Allocator, options: Benchmark
             }
         }{ .allocator = allocator, .content = build_zon };
         
-        var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
-        allocator.free(result.name);
-        result.name = try allocator.dupe(u8, "ZON build.zig.zon Processing");
+        std.debug.print("[zon-pipeline-debug] About to start build.zon measurement...\n", .{});
+        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "zon-pipeline", "ZON build.zig.zon Processing", effective_duration, options.warmup, context, @TypeOf(context).run);
         try results.append(result);
     }
     
@@ -171,9 +184,7 @@ pub fn runZonPipelineBenchmarks(allocator: std.mem.Allocator, options: Benchmark
             }
         }{ .allocator = allocator, .content = config_zon };
         
-        var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
-        allocator.free(result.name);
-        result.name = try allocator.dupe(u8, "ZON Config File Processing");
+        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "zon-pipeline", "ZON Config File Processing", effective_duration, options.warmup, context, @TypeOf(context).run);
         try results.append(result);
     }
     
@@ -196,9 +207,7 @@ pub fn runZonPipelineBenchmarks(allocator: std.mem.Allocator, options: Benchmark
             }
         }{ .allocator = allocator, .content = test_zon };
         
-        var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
-        allocator.free(result.name);
-        result.name = try allocator.dupe(u8, "ZON Round-Trip (10KB)");
+        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "zon-pipeline", "ZON Round-Trip (10KB)", effective_duration, options.warmup, context, @TypeOf(context).run);
         try results.append(result);
     }
     
@@ -245,9 +254,7 @@ pub fn runZonPipelineBenchmarks(allocator: std.mem.Allocator, options: Benchmark
             }
         }{ .allocator = allocator, .content = invalid_zon };
         
-        var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
-        allocator.free(result.name);
-        result.name = try allocator.dupe(u8, "ZON Error Recovery");
+        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "zon-pipeline", "ZON Error Recovery", effective_duration, options.warmup, context, @TypeOf(context).run);
         try results.append(result);
     }
     

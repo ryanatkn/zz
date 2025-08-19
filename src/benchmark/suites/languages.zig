@@ -52,9 +52,7 @@ pub fn runJsonBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOptions
             }
         }{ .allocator = allocator, .text = json_text };
         
-        var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
-        allocator.free(result.name);
-        result.name = try allocator.dupe(u8, "JSON Text Analysis");
+        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "json", "JSON Text Analysis", effective_duration, options.warmup, context, @TypeOf(context).run);
         try results.append(result);
     }
     
@@ -101,9 +99,7 @@ pub fn runZonBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOptions)
             }
         }{ .text = zon_text };
         
-        var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
-        allocator.free(result.name);
-        result.name = try allocator.dupe(u8, "ZON Text Analysis");
+        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "zon", "ZON Text Analysis", effective_duration, options.warmup, context, @TypeOf(context).run);
         try results.append(result);
     }
     
@@ -153,9 +149,7 @@ pub fn runParserBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOptio
             }
         }{ .text = code_text };
         
-        var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
-        allocator.free(result.name);
-        result.name = try allocator.dupe(u8, "Code Text Analysis");
+        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "parser", "Code Text Analysis", effective_duration, options.warmup, context, @TypeOf(context).run);
         try results.append(result);
     }
     

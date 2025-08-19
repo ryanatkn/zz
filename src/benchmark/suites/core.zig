@@ -33,9 +33,7 @@ pub fn runPathBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOptions
             }
         }{ .allocator = allocator };
         
-        var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
-        allocator.free(result.name);
-        result.name = try allocator.dupe(u8, "Path Joining");
+        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "path", "Path Joining", effective_duration, options.warmup, context, @TypeOf(context).run);
         try results.append(result);
     }
     
@@ -50,9 +48,7 @@ pub fn runPathBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOptions
             }
         }{};
         
-        var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
-        allocator.free(result.name);
-        result.name = try allocator.dupe(u8, "Path Utilities");
+        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "path", "Path Utilities", effective_duration, options.warmup, context, @TypeOf(context).run);
         try results.append(result);
     }
     
@@ -85,9 +81,7 @@ pub fn runMemoryBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOptio
             }
         }{ .allocator = allocator };
         
-        var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
-        allocator.free(result.name);
-        result.name = try allocator.dupe(u8, "ArrayList Operations");
+        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "memory", "ArrayList Operations", effective_duration, options.warmup, context, @TypeOf(context).run);
         try results.append(result);
     }
     
@@ -108,9 +102,7 @@ pub fn runMemoryBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOptio
             }
         }{ .allocator = allocator };
         
-        var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
-        allocator.free(result.name);
-        result.name = try allocator.dupe(u8, "HashMap Operations");
+        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "memory", "HashMap Operations", effective_duration, options.warmup, context, @TypeOf(context).run);
         try results.append(result);
     }
     
@@ -143,9 +135,7 @@ pub fn runPatternBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOpti
             }
         }{};
         
-        var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
-        allocator.free(result.name);
-        result.name = try allocator.dupe(u8, "Pattern Matching");
+        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "patterns", "Pattern Matching", effective_duration, options.warmup, context, @TypeOf(context).run);
         try results.append(result);
     }
     
@@ -181,9 +171,7 @@ pub fn runTextBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOptions
             }
         }{ .allocator = allocator };
         
-        var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
-        allocator.free(result.name);
-        result.name = try allocator.dupe(u8, "Text Line Processing");
+        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "text", "Text Line Processing", effective_duration, options.warmup, context, @TypeOf(context).run);
         try results.append(result);
     }
     
@@ -199,9 +187,7 @@ pub fn runTextBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOptions
             }
         }{};
         
-        var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
-        allocator.free(result.name);
-        result.name = try allocator.dupe(u8, "String Operations");
+        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "text", "String Operations", effective_duration, options.warmup, context, @TypeOf(context).run);
         try results.append(result);
     }
     
@@ -232,9 +218,7 @@ pub fn runCharBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOptions
             }
         }{};
         
-        var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
-        allocator.free(result.name);
-        result.name = try allocator.dupe(u8, "Character Predicates");
+        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "char", "Character Predicates", effective_duration, options.warmup, context, @TypeOf(context).run);
         try results.append(result);
     }
     
@@ -251,9 +235,7 @@ pub fn runCharBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOptions
             }
         }{};
         
-        var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
-        allocator.free(result.name);
-        result.name = try allocator.dupe(u8, "Character Classification");
+        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "char", "Character Classification", effective_duration, options.warmup, context, @TypeOf(context).run);
         try results.append(result);
     }
     

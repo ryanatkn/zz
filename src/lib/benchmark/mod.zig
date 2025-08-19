@@ -206,11 +206,20 @@ pub const BenchmarkRunner = struct {
             // Check if this suite should be run based on filters
             if (!self.shouldRunSuite(suite.name)) continue;
             
+            std.debug.print("\n═══ Running suite: {s} ═══\n", .{suite.name});
+            const suite_start_time = std.time.nanoTimestamp();
+            
             const suite_results = try suite.run(self.allocator, self.options);
+            
+            const suite_end_time = std.time.nanoTimestamp();
+            const suite_elapsed_ms = @divTrunc(suite_end_time - suite_start_time, 1_000_000);
+            
             for (suite_results) |result| {
                 try self.results.append(result);
             }
             self.allocator.free(suite_results);
+            
+            std.debug.print("═══ Suite complete: {s} ({} benchmarks, {}ms total) ═══\n", .{ suite.name, suite_results.len, @as(u32, @intCast(suite_elapsed_ms)) });
         }
     }
     
@@ -480,20 +489,50 @@ pub fn measureOperationNamed(
     context: anytype,
     comptime operation: fn (@TypeOf(context)) anyerror!void,
 ) BenchmarkError!BenchmarkResult {
-    std.debug.print("Starting benchmark '{s}' with duration: {}ns ({}ms)\n", .{ name, duration_ns, duration_ns / 1_000_000 });
+    return measureOperationNamedWithSuite(allocator, "unknown", name, duration_ns, warmup, context, operation);
+}
+
+/// Utility function for timing operations with suite context
+pub fn measureOperationNamedWithSuite(
+    allocator: std.mem.Allocator,
+    suite_name: []const u8,
+    name: []const u8,
+    duration_ns: u64,
+    warmup: bool,
+    context: anytype,
+    comptime operation: fn (@TypeOf(context)) anyerror!void,
+) BenchmarkError!BenchmarkResult {
+    std.debug.print("[{s}] Starting \"{s}\" (duration: {}ms)\n", .{ suite_name, name, @divTrunc(duration_ns, 1_000_000) });
     // Warmup phase
     if (warmup) {
-        std.debug.print("Running warmup phase...\n", .{});
+        std.debug.print("[{s}] Warmup: ", .{suite_name});
         const warmup_iterations = 100;
-        for (0..warmup_iterations) |_| {
+        const warmup_start_time = std.time.nanoTimestamp();
+        const warmup_timeout_ns = 10_000_000_000; // 10 second timeout
+        
+        for (0..warmup_iterations) |i| {
+            // Check for timeout every 10 iterations
+            if (i % 10 == 0) {
+                const current_time = std.time.nanoTimestamp();
+                if ((current_time - warmup_start_time) > warmup_timeout_ns) {
+                    std.debug.print("TIMEOUT after {}/100 iterations\n", .{i});
+                    return BenchmarkError.BenchmarkFailed;
+                }
+                if (i > 0) {
+                    std.debug.print("{d}", .{i});
+                    if (i < warmup_iterations - 10) std.debug.print(", ", .{});
+                }
+            }
+            
             operation(context) catch |err| {
+                std.debug.print("ERROR at iteration {}\n", .{i});
                 return switch (err) {
                     error.OutOfMemory => BenchmarkError.OutOfMemory,
                     else => BenchmarkError.BenchmarkFailed,
                 };
             };
         }
-        std.debug.print("Warmup complete\n", .{});
+        std.debug.print("/100 iterations complete\n", .{});
     }
     
     var operations: usize = 0;
@@ -502,13 +541,18 @@ pub fn measureOperationNamed(
     
     // Check time every 1000 operations to reduce overhead
     const check_interval = 1000;
+    const progress_interval = 100_000; // Report progress every 100k operations
     
     // Prevent infinite loops with maximum iteration count
     const max_operations = 1_000_000_000; // 1 billion operations max
+    const benchmark_timeout_ns = 30_000_000_000; // 30 second timeout
+    
+    var last_progress_report: u64 = 0;
     
     // Run operations until duration is reached
     while ((current_time - start_time) < duration_ns and operations < max_operations) {
         operation(context) catch |err| {
+            std.debug.print("[{s}] ERROR at operation {}\n", .{ suite_name, operations });
             return switch (err) {
                 error.OutOfMemory => BenchmarkError.OutOfMemory,
                 else => BenchmarkError.BenchmarkFailed,
@@ -519,6 +563,22 @@ pub fn measureOperationNamed(
         // Only check time every check_interval operations
         if (operations % check_interval == 0) {
             current_time = std.time.nanoTimestamp();
+            
+            // Check for benchmark timeout
+            if ((current_time - start_time) > benchmark_timeout_ns) {
+                std.debug.print("[{s}] TIMEOUT after {} operations\n", .{ suite_name, operations });
+                break;
+            }
+            
+            // Report progress every 100k operations
+            if (operations >= last_progress_report + progress_interval) {
+                const elapsed_ms = @divTrunc(current_time - start_time, 1_000_000);
+                const ops_per_sec = if (elapsed_ms > 0) @divTrunc(operations * 1000, @as(usize, @intCast(elapsed_ms))) else 0;
+                std.debug.print("[{s}] Progress: {}k ops @ {}M ops/sec ({}ms elapsed)\n", .{ 
+                    suite_name, operations / 1000, ops_per_sec / 1_000_000, @as(u32, @intCast(elapsed_ms))
+                });
+                last_progress_report = operations;
+            }
         }
     }
     
@@ -528,9 +588,16 @@ pub fn measureOperationNamed(
     const ns_per_op = elapsed_ns / operations;
     
     if (operations >= max_operations) {
-        std.debug.print("Benchmark '{s}' hit max operations limit: {} operations in {}ms ({}ns/op)\n", .{ name, operations, elapsed_ns / 1_000_000, ns_per_op });
+        std.debug.print("[{s}] LIMIT: {s} - {} operations in {}ms ({}ns/op)\n", .{ suite_name, name, operations, @divTrunc(elapsed_ns, 1_000_000), ns_per_op });
     } else {
-        std.debug.print("Benchmark '{s}' complete: {} operations in {}ms ({}ns/op)\n", .{ name, operations, elapsed_ns / 1_000_000, ns_per_op });
+        if (operations >= 1_000_000) {
+            const ops_f = @as(f64, @floatFromInt(operations)) / 1_000_000.0;
+            std.debug.print("[{s}] Complete: {s} - {d:.1}M ops in {}ms ({}ns/op)\n", .{ suite_name, name, ops_f, @divTrunc(elapsed_ns, 1_000_000), ns_per_op });
+        } else if (operations >= 1_000) {
+            std.debug.print("[{s}] Complete: {s} - {}k ops in {}ms ({}ns/op)\n", .{ suite_name, name, operations / 1000, @divTrunc(elapsed_ns, 1_000_000), ns_per_op });
+        } else {
+            std.debug.print("[{s}] Complete: {s} - {} ops in {}ms ({}ns/op)\n", .{ suite_name, name, operations, @divTrunc(elapsed_ns, 1_000_000), ns_per_op });
+        }
     }
     
     return BenchmarkResult{

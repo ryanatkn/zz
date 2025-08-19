@@ -160,7 +160,7 @@ test "ZON lexer - string literals" {
     try testing.expectEqual(@as(u32, 3), string_count);
 }
 
-test "ZON lexer - keywords" {
+test "ZON lexer - keywords and literals" {
     const allocator = testing.allocator;
 
     const input = "true false null undefined";
@@ -172,13 +172,24 @@ test "ZON lexer - keywords" {
     defer allocator.free(tokens);
 
     var keyword_count: u32 = 0;
+    var boolean_literal_count: u32 = 0;
+    var null_literal_count: u32 = 0;
+    
     for (tokens) |token| {
-        if (token.kind == .keyword) {
-            keyword_count += 1;
+        switch (token.kind) {
+            .keyword => keyword_count += 1,
+            .boolean_literal => boolean_literal_count += 1,
+            .null_literal => null_literal_count += 1,
+            else => {}, // Skip other tokens (like EOF)
         }
     }
 
-    try testing.expectEqual(@as(u32, 4), keyword_count);
+    // Only 'undefined' should be classified as a keyword
+    try testing.expectEqual(@as(u32, 1), keyword_count);
+    // 'true' and 'false' should be boolean literals 
+    try testing.expectEqual(@as(u32, 2), boolean_literal_count);
+    // 'null' should be a null literal
+    try testing.expectEqual(@as(u32, 1), null_literal_count);
 }
 
 test "ZON lexer - comments" {
@@ -322,6 +333,217 @@ test "ZON parser - parseFromSlice compatibility" {
 
     try testing.expectEqualStrings("test", result.name);
     try testing.expectEqual(@as(u32, 42), result.value);
+}
+
+// ============================================================================
+// Boolean and Null Literal Parser Tests
+// ============================================================================
+
+test "ZON parser - single boolean literal true" {
+    const allocator = testing.allocator;
+
+    const input = ".{ .field = true }";
+
+    var lexer = ZonLexer.init(allocator, input, .{});
+    defer lexer.deinit();
+
+    const tokens = try lexer.tokenize();
+    defer allocator.free(tokens);
+
+    var parser = ZonParser.init(allocator, tokens, .{});
+    defer parser.deinit();
+
+    var ast = try parser.parse();
+    defer ast.deinit();
+
+    // Check that parsing succeeded
+    const errors = parser.getErrors();
+    try testing.expect(errors.len == 0);
+    
+    // Test with parseFromSlice to verify end-to-end functionality
+    const TestStruct = struct {
+        field: bool,
+    };
+
+    const result = try zon_mod.parseFromSlice(TestStruct, allocator, input);
+    defer zon_mod.free(allocator, result);
+
+    try testing.expect(result.field == true);
+}
+
+test "ZON parser - single boolean literal false" {
+    const allocator = testing.allocator;
+
+    const input = ".{ .field = false }";
+
+    var lexer = ZonLexer.init(allocator, input, .{});
+    defer lexer.deinit();
+
+    const tokens = try lexer.tokenize();
+    defer allocator.free(tokens);
+
+    var parser = ZonParser.init(allocator, tokens, .{});
+    defer parser.deinit();
+
+    var ast = try parser.parse();
+    defer ast.deinit();
+
+    // Check that parsing succeeded
+    const errors = parser.getErrors();
+    try testing.expect(errors.len == 0);
+    
+    // Test with parseFromSlice to verify end-to-end functionality
+    const TestStruct = struct {
+        field: bool,
+    };
+
+    const result = try zon_mod.parseFromSlice(TestStruct, allocator, input);
+    defer zon_mod.free(allocator, result);
+
+    try testing.expect(result.field == false);
+}
+
+test "ZON parser - multiple boolean literals" {
+    const allocator = testing.allocator;
+
+    const input = ".{ .field1 = true, .field2 = false, .field3 = true }";
+
+    var lexer = ZonLexer.init(allocator, input, .{});
+    defer lexer.deinit();
+
+    const tokens = try lexer.tokenize();
+    defer allocator.free(tokens);
+
+    var parser = ZonParser.init(allocator, tokens, .{});
+    defer parser.deinit();
+
+    var ast = try parser.parse();
+    defer ast.deinit();
+
+    // Check that parsing succeeded
+    const errors = parser.getErrors();
+    try testing.expect(errors.len == 0);
+    
+    // Test with parseFromSlice to verify end-to-end functionality
+    const TestStruct = struct {
+        field1: bool,
+        field2: bool,
+        field3: bool,
+    };
+
+    const result = try zon_mod.parseFromSlice(TestStruct, allocator, input);
+    defer zon_mod.free(allocator, result);
+
+    try testing.expect(result.field1 == true);
+    try testing.expect(result.field2 == false);
+    try testing.expect(result.field3 == true);
+}
+
+test "ZON parser - sequential boolean fields (regression test)" {
+    const allocator = testing.allocator;
+
+    // This is the specific case that was failing - false followed by true
+    const input = ".{ .preserve_newlines = false, .trailing_comma = true }";
+
+    var lexer = ZonLexer.init(allocator, input, .{});
+    defer lexer.deinit();
+
+    const tokens = try lexer.tokenize();
+    defer allocator.free(tokens);
+
+    var parser = ZonParser.init(allocator, tokens, .{});
+    defer parser.deinit();
+
+    var ast = try parser.parse();
+    defer ast.deinit();
+
+    // Check that parsing succeeded
+    const errors = parser.getErrors();
+    try testing.expect(errors.len == 0);
+    
+    // Test with parseFromSlice to verify end-to-end functionality
+    const TestStruct = struct {
+        preserve_newlines: bool,
+        trailing_comma: bool,
+    };
+
+    const result = try zon_mod.parseFromSlice(TestStruct, allocator, input);
+    defer zon_mod.free(allocator, result);
+
+    try testing.expect(result.preserve_newlines == false);
+    try testing.expect(result.trailing_comma == true);
+}
+
+test "ZON parser - null literal" {
+    const allocator = testing.allocator;
+
+    const input = ".{ .field = null }";
+
+    var lexer = ZonLexer.init(allocator, input, .{});
+    defer lexer.deinit();
+
+    const tokens = try lexer.tokenize();
+    defer allocator.free(tokens);
+
+    var parser = ZonParser.init(allocator, tokens, .{});
+    defer parser.deinit();
+
+    var ast = try parser.parse();
+    defer ast.deinit();
+
+    // Check that parsing succeeded
+    const errors = parser.getErrors();
+    try testing.expect(errors.len == 0);
+    
+    // Test with parseFromSlice to verify end-to-end functionality
+    const TestStruct = struct {
+        field: ?u32,
+    };
+
+    const result = try zon_mod.parseFromSlice(TestStruct, allocator, input);
+    defer zon_mod.free(allocator, result);
+
+    try testing.expect(result.field == null);
+}
+
+test "ZON parser - mixed literals" {
+    const allocator = testing.allocator;
+
+    const input = ".{ .bool_val = true, .num_val = 42, .str_val = \"test\", .null_val = null, .false_val = false }";
+
+    var lexer = ZonLexer.init(allocator, input, .{});
+    defer lexer.deinit();
+
+    const tokens = try lexer.tokenize();
+    defer allocator.free(tokens);
+
+    var parser = ZonParser.init(allocator, tokens, .{});
+    defer parser.deinit();
+
+    var ast = try parser.parse();
+    defer ast.deinit();
+
+    // Check that parsing succeeded
+    const errors = parser.getErrors();
+    try testing.expect(errors.len == 0);
+    
+    // Test with parseFromSlice to verify end-to-end functionality
+    const TestStruct = struct {
+        bool_val: bool,
+        num_val: u32,
+        str_val: []const u8,
+        null_val: ?u32,
+        false_val: bool,
+    };
+
+    const result = try zon_mod.parseFromSlice(TestStruct, allocator, input);
+    defer zon_mod.free(allocator, result);
+
+    try testing.expect(result.bool_val == true);
+    try testing.expect(result.num_val == 42);
+    try testing.expectEqualStrings("test", result.str_val);
+    try testing.expect(result.null_val == null);
+    try testing.expect(result.false_val == false);
 }
 
 // ============================================================================

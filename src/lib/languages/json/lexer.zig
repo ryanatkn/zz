@@ -13,6 +13,10 @@ const char = @import("../../char/mod.zig");
 /// - JSON5 compatibility mode (comments, trailing commas)
 /// - Error recovery with detailed diagnostics
 /// - Performance target: <0.1ms for 10KB JSON
+///
+/// EOF Token Convention:
+/// All lexers automatically append an EOF token with empty text to signal end-of-input.
+/// Parsers rely on this for clean termination detection. Tests should expect +1 token count.
 pub const JsonLexer = struct {
     allocator: std.mem.Allocator,
     source: []const u8,
@@ -323,7 +327,7 @@ test "JSON lexer - simple values" {
         defer lexer.deinit();
 
         const tokens = try lexer.tokenize();
-        try testing.expectEqual(@as(usize, 1), tokens.len);
+        try testing.expectEqual(@as(usize, 2), tokens.len); // +1 for EOF
         try testing.expectEqual(TokenKind.string_literal, tokens[0].kind);
         try testing.expectEqualStrings("\"hello\"", tokens[0].text);
     }
@@ -334,7 +338,7 @@ test "JSON lexer - simple values" {
         defer lexer.deinit();
 
         const tokens = try lexer.tokenize();
-        try testing.expectEqual(@as(usize, 1), tokens.len);
+        try testing.expectEqual(@as(usize, 2), tokens.len); // +1 for EOF
         try testing.expectEqual(TokenKind.number_literal, tokens[0].kind);
         try testing.expectEqualStrings("42", tokens[0].text);
     }
@@ -345,7 +349,7 @@ test "JSON lexer - simple values" {
         defer lexer.deinit();
 
         const tokens = try lexer.tokenize();
-        try testing.expectEqual(@as(usize, 1), tokens.len);
+        try testing.expectEqual(@as(usize, 2), tokens.len); // +1 for EOF
         try testing.expectEqual(TokenKind.boolean_literal, tokens[0].kind);
         try testing.expectEqualStrings("true", tokens[0].text);
     }
@@ -356,7 +360,7 @@ test "JSON lexer - simple values" {
         defer lexer.deinit();
 
         const tokens = try lexer.tokenize();
-        try testing.expectEqual(@as(usize, 1), tokens.len);
+        try testing.expectEqual(@as(usize, 2), tokens.len); // +1 for EOF
         try testing.expectEqual(TokenKind.null_literal, tokens[0].kind);
         try testing.expectEqualStrings("null", tokens[0].text);
     }
@@ -386,7 +390,7 @@ test "JSON lexer - complex number formats" {
         defer lexer.deinit();
 
         const tokens = try lexer.tokenize();
-        try testing.expectEqual(@as(usize, 1), tokens.len);
+        try testing.expectEqual(@as(usize, 2), tokens.len); // +1 for EOF
         try testing.expectEqual(TokenKind.number_literal, tokens[0].kind);
         try testing.expectEqualStrings(case, tokens[0].text);
     }
@@ -401,7 +405,7 @@ test "JSON lexer - object and array" {
     defer lexer.deinit();
 
     const tokens = try lexer.tokenize();
-    try testing.expectEqual(@as(usize, 11), tokens.len);
+    try testing.expectEqual(@as(usize, 12), tokens.len); // +1 for EOF
 
     // Check token sequence
     try testing.expectEqual(TokenKind.delimiter, tokens[0].kind);
@@ -442,7 +446,7 @@ test "JSON lexer - JSON5 features" {
         defer lexer.deinit();
 
         const tokens = try lexer.tokenize();
-        try testing.expectEqual(@as(usize, 2), tokens.len);
+        try testing.expectEqual(@as(usize, 3), tokens.len); // +1 for EOF
         try testing.expectEqual(TokenKind.comment, tokens[0].kind);
         try testing.expectEqual(TokenKind.number_literal, tokens[1].kind);
     }
@@ -453,7 +457,7 @@ test "JSON lexer - JSON5 features" {
         defer lexer.deinit();
 
         const tokens = try lexer.tokenize();
-        try testing.expectEqual(@as(usize, 2), tokens.len);
+        try testing.expectEqual(@as(usize, 3), tokens.len); // +1 for EOF
         try testing.expectEqual(TokenKind.comment, tokens[0].kind);
         try testing.expectEqual(TokenKind.number_literal, tokens[1].kind);
     }

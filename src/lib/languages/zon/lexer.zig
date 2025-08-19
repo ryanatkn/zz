@@ -14,6 +14,10 @@ const char = @import("../../char/mod.zig");
 /// - Field names (.field_name) and anonymous struct syntax (.{})
 /// - Error recovery with detailed diagnostics
 /// - Performance target: <0.1ms for typical config files
+///
+/// EOF Token Convention:
+/// All lexers automatically append an EOF token with empty text to signal end-of-input.
+/// Parsers rely on this for clean termination detection. Tests should expect +1 token count.
 pub const ZonLexer = struct {
     allocator: std.mem.Allocator,
     source: []const u8,

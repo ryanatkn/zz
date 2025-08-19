@@ -118,6 +118,8 @@ pub const ZonParser = struct {
             },
             .string_literal => return self.parseStringLiteral(),
             .number_literal => return self.parseNumberLiteral(),
+            .boolean_literal => return self.parseBooleanLiteral(),
+            .null_literal => return self.parseNullLiteral(),
             .keyword => return self.parseKeyword(),
             else => return self.createErrorNode("Unexpected token"),
         }
@@ -568,6 +570,48 @@ pub const ZonParser = struct {
 
         return Node{
             .rule_name = rule_name,
+            .node_type = .terminal,
+            .text = token.text,
+            .start_position = token.span.start,
+            .end_position = token.span.end,
+            .children = &[_]Node{},
+            .attributes = null,
+            .parent = null,
+        };
+    }
+
+    fn parseBooleanLiteral(self: *Self) !Node {
+        const token = self.currentToken();
+
+        if (token.kind != .boolean_literal) {
+            return self.createErrorNode("Expected boolean literal");
+        }
+
+        self.advance();
+
+        return Node{
+            .rule_name = "boolean_literal",
+            .node_type = .terminal,
+            .text = token.text,
+            .start_position = token.span.start,
+            .end_position = token.span.end,
+            .children = &[_]Node{},
+            .attributes = null,
+            .parent = null,
+        };
+    }
+
+    fn parseNullLiteral(self: *Self) !Node {
+        const token = self.currentToken();
+
+        if (token.kind != .null_literal) {
+            return self.createErrorNode("Expected null literal");
+        }
+
+        self.advance();
+
+        return Node{
+            .rule_name = "null_literal",
             .node_type = .terminal,
             .text = token.text,
             .start_position = token.span.start,

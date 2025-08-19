@@ -3,6 +3,9 @@ const std = common.std;
 const Node = common.Node;
 const utils = common.utils;
 
+// Import FormatSection for debugging - need to be careful with circular imports
+// const FormatSection = @import("../../config/zon.zig").ZonConfig.FormatSection;
+
 /// Convert ZON AST to Zig types
 /// This module handles the transformation from our parsed AST representation
 /// to native Zig structs, with proper memory management and type conversion.
@@ -67,6 +70,7 @@ pub const AstConverter = struct {
         const field_data = utils.processFieldAssignment(node) orelse return;
         const field_name = field_data.field_name;
         const value_node = field_data.value_node;
+        
 
         // Find the field in the struct and set its value
         const type_info = @typeInfo(T);
@@ -208,8 +212,13 @@ pub const AstConverter = struct {
     /// Convert boolean values
     fn convertBool(self: *Self, node: Node) !bool {
         _ = self;
-        if (std.mem.eql(u8, node.text, "true")) return true;
-        if (std.mem.eql(u8, node.text, "false")) return false;
+        
+        // Handle proper boolean literal nodes
+        if (std.mem.eql(u8, node.rule_name, "boolean_literal")) {
+            if (std.mem.eql(u8, node.text, "true")) return true;
+            if (std.mem.eql(u8, node.text, "false")) return false;
+        }
+        
         return error.InvalidZonSyntax;
     }
 

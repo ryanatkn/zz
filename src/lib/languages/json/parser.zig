@@ -110,7 +110,7 @@ pub const JsonParser = struct {
         const content = try self.unescapeString(token.text);
         defer self.allocator.free(content);
 
-        return try createLeafNode(self.allocator, .json_string, content, token.span);
+        return try createLeafNode(self.allocator, "json_string", content, token.span.start, token.span.end);
     }
 
     fn parseNumber(self: *Self) !*Node {
@@ -122,19 +122,19 @@ pub const JsonParser = struct {
             return try self.createErrorNode();
         };
 
-        return try createLeafNode(self.allocator, .json_number, token.text, token.span);
+        return try createLeafNode(self.allocator, "json_number", token.text, token.span.start, token.span.end);
     }
 
     fn parseBoolean(self: *Self) !*Node {
         const token = self.advance();
         _ = std.mem.eql(u8, token.text, "true");
 
-        return try createLeafNode(self.allocator, .json_boolean, token.text, token.span);
+        return try createLeafNode(self.allocator, "json_boolean", token.text, token.span.start, token.span.end);
     }
 
     fn parseNull(self: *Self) !*Node {
         const token = self.advance();
-        return try createLeafNode(self.allocator, .json_null, "null", token.span);
+        return try createLeafNode(self.allocator, "json_null", "null", token.span.start, token.span.end);
     }
 
     fn parseObject(self: *Self) !*Node {
@@ -325,7 +325,10 @@ pub const JsonParser = struct {
 
     fn createErrorNode(self: *Self) !*Node {
         const span = if (self.isAtEnd()) Span.init(0, 0) else self.peek().span;
-        return try createLeafNode(self.allocator, .json_error, "error", span);
+        const node = try createLeafNode(self.allocator, "json_error", "error", span.start, span.end);
+        const node_ptr = try self.allocator.create(Node);
+        node_ptr.* = node;
+        return node_ptr;
     }
 
     fn addError(self: *Self, message: []const u8, span: Span) !void {

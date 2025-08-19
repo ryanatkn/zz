@@ -16,6 +16,9 @@ const StratifiedParser = @import("../lib/parser/mod.zig");
 const Lexical = StratifiedParser.Lexical;
 const Structural = StratifiedParser.Structural;
 
+// Import language interface for formatting
+const FormatOptions = @import("../lib/languages/interface.zig").FormatOptions;
+
 // Minimal formatter options for configuration compatibility
 const FormatterOptions = struct {
     indent_size: u32 = 4,
@@ -172,7 +175,6 @@ pub fn run(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: 
 }
 
 fn processFile(allocator: std.mem.Allocator, filesystem: FilesystemInterface, file_path: []const u8, write: bool, check: bool, options: FormatterOptions) !bool {
-    _ = options; // TODO: Use options in stratified parser formatting
     // Detect language from extension
     const ext = path_utils.extension(file_path);
     const language = Language.fromExtension(ext);
@@ -191,7 +193,7 @@ fn processFile(allocator: std.mem.Allocator, filesystem: FilesystemInterface, fi
     defer allocator.free(content);
 
     // Format content using stratified parser
-    const formatted = try formatWithStratifiedParser(allocator, content, language, file_path);
+    const formatted = try formatWithStratifiedParser(allocator, content, language, file_path, options);
     defer allocator.free(formatted);
 
     // Check mode: compare and report
@@ -225,7 +227,7 @@ fn processFile(allocator: std.mem.Allocator, filesystem: FilesystemInterface, fi
 
 /// Format content using the stratified parser architecture
 /// This function demonstrates the three-layer parsing with performance measurement
-fn formatWithStratifiedParser(allocator: std.mem.Allocator, content: []const u8, language: Language, file_path: []const u8) ![]u8 {
+fn formatWithStratifiedParser(allocator: std.mem.Allocator, content: []const u8, language: Language, file_path: []const u8, options: FormatterOptions) ![]u8 {
     const start_time = std.time.nanoTimestamp();
 
     // Initialize the stratified parser layers
@@ -296,10 +298,69 @@ fn formatWithStratifiedParser(allocator: std.mem.Allocator, content: []const u8,
         try stderr.print("   Detailed <10ms:    {s}\n", .{if (detailed_target_met) "✅ PASS" else "❌ FAIL"});
     }
 
-    // For now, return the original content since we're focused on parsing validation
-    // In a production implementation, we would convert facts back to formatted code
-    // TODO: Implement fact-to-code generation for actual formatting
-    return allocator.dupe(u8, content);
+    // Convert format options for language interface
+    const format_options = formatterOptionsToFormatOptions(options);
+
+    // Use language-specific formatting instead of returning original content
+    return formatWithLanguageModules(allocator, content, language, format_options) catch |err| {
+        // Fallback to original content on formatting errors
+        if (!std.mem.eql(u8, file_path, "<stdin>")) {
+            try reporting.reportWarning("Formatting failed for '{s}', returning original content: {}", .{ file_path, err });
+        }
+        return allocator.dupe(u8, content);
+    };
+}
+
+/// Format content using zz's sophisticated Transform Pipeline Architecture
+fn formatWithLanguageModules(allocator: std.mem.Allocator, content: []const u8, language: Language, format_options: FormatOptions) ![]u8 {
+    switch (language) {
+        .json => {
+            // Use zz's JsonTransformPipeline with full FormatOptions support
+            const JsonTransformPipeline = @import("../lib/languages/json/transform.zig").JsonTransformPipeline;
+            const Context = @import("../lib/transform/transform.zig").Context;
+            
+            // Create transform context for pipeline execution
+            var ctx = Context.init(allocator);
+            defer ctx.deinit();
+            
+            // Initialize JSON pipeline with format options
+            var pipeline = try JsonTransformPipeline.initWithOptions(
+                allocator,
+                .{}, // Default lexer options
+                .{}, // Default parser options  
+                format_options, // User-provided format options
+            );
+            defer pipeline.deinit();
+            
+            // Round-trip: JSON text → AST → formatted JSON text
+            const formatted_const = try pipeline.roundTrip(&ctx, content);
+            return allocator.dupe(u8, formatted_const);
+        },
+        .zon => {
+            // Use zz's ZonTransformPipeline similarly
+            const ZonTransformPipeline = @import("../lib/languages/zon/transform.zig").ZonTransformPipeline;
+            const Context = @import("../lib/transform/transform.zig").Context;
+            
+            var ctx = Context.init(allocator);
+            defer ctx.deinit();
+            
+            var pipeline = try ZonTransformPipeline.initWithOptions(
+                allocator,
+                .{}, // Default lexer options
+                .{}, // Default parser options
+                format_options, // User-provided format options
+            );
+            defer pipeline.deinit();
+            
+            const formatted_const = try pipeline.roundTrip(&ctx, content);
+            return allocator.dupe(u8, formatted_const);
+        },
+        .css, .html, .typescript, .zig, .svelte => {
+            // These languages don't have transform pipelines yet
+            return error.UnsupportedLanguage;
+        },
+        .unknown => return error.UnsupportedLanguage,
+    }
 }
 
 /// Map Language enum to lexical layer language
@@ -326,8 +387,27 @@ fn mapLanguageToStructural(language: Language) Structural.Language {
     };
 }
 
+/// Convert FormatterOptions to FormatOptions for language interface compatibility
+fn formatterOptionsToFormatOptions(formatter_options: FormatterOptions) FormatOptions {
+    return FormatOptions{
+        .indent_size = formatter_options.indent_size,
+        .indent_style = switch (formatter_options.indent_style) {
+            .space => .space,
+            .tab => .tab,
+        },
+        .line_width = formatter_options.line_width,
+        .preserve_newlines = formatter_options.preserve_newlines,
+        .trailing_comma = formatter_options.trailing_comma,
+        .sort_keys = formatter_options.sort_keys,
+        .quote_style = switch (formatter_options.quote_style) {
+            .single => .single,
+            .double => .double,
+            .preserve => .preserve,
+        },
+    };
+}
+
 fn formatStdin(allocator: std.mem.Allocator, options: FormatterOptions) !void {
-    _ = options; // TODO: Use options in stratified parser formatting
     const stdin = std.io.getStdIn().reader();
     const content = try stdin.readAllAlloc(allocator, std.math.maxInt(usize));
     defer allocator.free(content);
@@ -336,7 +416,7 @@ fn formatStdin(allocator: std.mem.Allocator, options: FormatterOptions) !void {
     const language = detectLanguageFromContent(content);
 
     // Format using stratified parser
-    const formatted = try formatWithStratifiedParser(allocator, content, language, "<stdin>");
+    const formatted = try formatWithStratifiedParser(allocator, content, language, "<stdin>", options);
     defer allocator.free(formatted);
 
     const stdout = std.io.getStdOut().writer();

@@ -43,6 +43,25 @@ pub const AST = struct {
     /// Original source text (optional)
     source: []const u8 = "",
 
+    /// Initialize an empty AST
+    pub fn init(allocator: std.mem.Allocator) AST {
+        return AST{
+            .root = ASTNode{
+                .rule_name = "",
+                .node_type = .root,
+                .text = "",
+                .start_position = 0,
+                .end_position = 0,
+                .children = &[_]ASTNode{},
+                .attributes = null,
+                .parent = null,
+            },
+            .allocator = allocator,
+            .owned_texts = &[_][]const u8{},
+            .source = "",
+        };
+    }
+
     pub fn deinit(self: *AST) void {
         // Free the AST tree
         self.root.deinit(self.allocator);

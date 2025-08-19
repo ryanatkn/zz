@@ -80,7 +80,7 @@ fn tokenize(allocator: std.mem.Allocator, input: []const u8) ![]Token {
 }
 
 /// Tokenize JSON source code chunk for streaming
-fn tokenizeChunk(allocator: std.mem.Allocator, input: []const u8, start_pos: usize) ![]Token {
+pub fn tokenizeChunk(allocator: std.mem.Allocator, input: []const u8, start_pos: usize) ![]Token {
     var lexer = JsonLexer.init(allocator, input, .{
         .allow_comments = false, // Standard JSON
         .allow_trailing_commas = false,
@@ -99,7 +99,7 @@ fn tokenizeChunk(allocator: std.mem.Allocator, input: []const u8, start_pos: usi
 }
 
 /// Parse JSON tokens into AST
-fn parse(allocator: std.mem.Allocator, tokens: []Token) !AST {
+pub fn parse(allocator: std.mem.Allocator, tokens: []Token) !AST {
     var parser = JsonParser.init(allocator, tokens, .{
         .allow_trailing_commas = false,
         .recover_from_errors = true,

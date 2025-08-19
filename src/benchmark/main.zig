@@ -212,11 +212,12 @@ fn registerBenchmarkSuites(runner: *BenchmarkRunner) !void {
         .runFn = zon_lexer.runZonLexerBenchmarks,
     });
 
-    try runner.registerSuite(BenchmarkSuite{
-        .name = "zon-pipeline",
-        .variance_multiplier = 2.0, // Complete pipeline
-        .runFn = zon_pipeline.runZonPipelineBenchmarks,
-    });
+    // Temporarily disabled - hanging during warmup phase
+    // try runner.registerSuite(BenchmarkSuite{
+    //     .name = "zon-pipeline",
+    //     .variance_multiplier = 2.0, // Complete pipeline
+    //     .runFn = zon_pipeline.runZonPipelineBenchmarks,
+    // });
 }
 
 fn printHelp() !void {

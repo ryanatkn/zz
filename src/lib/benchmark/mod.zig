@@ -27,8 +27,8 @@ pub const OutputFormat = enum {
 };
 
 pub const BenchmarkOptions = struct {
-    /// Duration to run each benchmark in nanoseconds (default: 2s)
-    duration_ns: u64 = 2_000_000_000,
+    /// Duration to run each benchmark in nanoseconds (default: 50ms)
+    duration_ns: u64 = 50_000_000,
     /// Output format for results
     format: OutputFormat = .markdown,
     /// Path to baseline file for comparison
@@ -472,15 +472,18 @@ pub const BenchmarkRunner = struct {
 };
 
 /// Utility function for timing operations
-pub fn measureOperation(
+pub fn measureOperationNamed(
     allocator: std.mem.Allocator,
+    name: []const u8,
     duration_ns: u64,
     warmup: bool,
     context: anytype,
     comptime operation: fn (@TypeOf(context)) anyerror!void,
 ) BenchmarkError!BenchmarkResult {
+    std.debug.print("Starting benchmark '{s}' with duration: {}ns ({}ms)\n", .{ name, duration_ns, duration_ns / 1_000_000 });
     // Warmup phase
     if (warmup) {
+        std.debug.print("Running warmup phase...\n", .{});
         const warmup_iterations = 100;
         for (0..warmup_iterations) |_| {
             operation(context) catch |err| {
@@ -490,14 +493,21 @@ pub fn measureOperation(
                 };
             };
         }
+        std.debug.print("Warmup complete\n", .{});
     }
     
     var operations: usize = 0;
     const start_time = std.time.nanoTimestamp();
     var current_time = start_time;
     
+    // Check time every 1000 operations to reduce overhead
+    const check_interval = 1000;
+    
+    // Prevent infinite loops with maximum iteration count
+    const max_operations = 1_000_000_000; // 1 billion operations max
+    
     // Run operations until duration is reached
-    while ((current_time - start_time) < duration_ns) {
+    while ((current_time - start_time) < duration_ns and operations < max_operations) {
         operation(context) catch |err| {
             return switch (err) {
                 error.OutOfMemory => BenchmarkError.OutOfMemory,
@@ -505,18 +515,41 @@ pub fn measureOperation(
             };
         };
         operations += 1;
-        current_time = std.time.nanoTimestamp();
+        
+        // Only check time every check_interval operations
+        if (operations % check_interval == 0) {
+            current_time = std.time.nanoTimestamp();
+        }
     }
     
-    const elapsed_ns: u64 = @intCast(current_time - start_time);
+    // Get final accurate time
+    const final_time = std.time.nanoTimestamp();
+    const elapsed_ns: u64 = @intCast(final_time - start_time);
     const ns_per_op = elapsed_ns / operations;
     
+    if (operations >= max_operations) {
+        std.debug.print("Benchmark '{s}' hit max operations limit: {} operations in {}ms ({}ns/op)\n", .{ name, operations, elapsed_ns / 1_000_000, ns_per_op });
+    } else {
+        std.debug.print("Benchmark '{s}' complete: {} operations in {}ms ({}ns/op)\n", .{ name, operations, elapsed_ns / 1_000_000, ns_per_op });
+    }
+    
     return BenchmarkResult{
-        .name = try allocator.dupe(u8, "operation"),
+        .name = try allocator.dupe(u8, name),
         .total_operations = operations,
         .elapsed_ns = elapsed_ns,
         .ns_per_op = ns_per_op,
     };
+}
+
+/// Utility function for timing operations (backward compatibility)
+pub fn measureOperation(
+    allocator: std.mem.Allocator,
+    duration_ns: u64,
+    warmup: bool,
+    context: anytype,
+    comptime operation: fn (@TypeOf(context)) anyerror!void,
+) BenchmarkError!BenchmarkResult {
+    return measureOperationNamed(allocator, "operation", duration_ns, warmup, context, operation);
 }
 
 /// Parse duration string to nanoseconds

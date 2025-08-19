@@ -13,7 +13,7 @@ Sophisticated benchmarking orchestration with variance-aware duration control an
 
 ```zig
 Options = struct {
-    duration_ns: u64 = 2_000_000_000,     // 2s default
+    duration_ns: u64 = 50_000_000,        // 50ms default
     format: OutputFormat = .markdown,
     baseline: ?[]const u8 = null,         // Auto-loads benchmarks/baseline.md
     no_compare: bool = false,

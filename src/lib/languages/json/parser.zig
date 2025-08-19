@@ -84,10 +84,10 @@ pub const JsonParser = struct {
         const token = self.peek();
 
         return switch (token.kind) {
-            .string => self.parseString(),
-            .number => self.parseNumber(),
-            .boolean => self.parseBoolean(),
-            .null => self.parseNull(),
+            .string_literal => self.parseString(),
+            .number_literal => self.parseNumber(),
+            .boolean_literal => self.parseBoolean(),
+            .null_literal => self.parseNull(),
             .delimiter => if (std.mem.eql(u8, token.text, "{"))
                 self.parseObject()
             else if (std.mem.eql(u8, token.text, "["))
@@ -194,7 +194,7 @@ pub const JsonParser = struct {
 
     fn parseObjectMember(self: *Self) !*Node {
         // Parse key (must be string)
-        if (!self.check(.string, null)) {
+        if (!self.check(.string_literal, null)) {
             try self.addError("Expected string key in object member", self.peek().span);
             return error.ParseError;
         }

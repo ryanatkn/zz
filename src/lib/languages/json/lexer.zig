@@ -136,7 +136,7 @@ pub const JsonLexer = struct {
         }
 
         _ = self.advance(); // Skip closing quote
-        return self.makeToken(.string, start_pos, self.source[start_pos..self.position]);
+        return self.makeToken(.string_literal, start_pos, self.source[start_pos..self.position]);
     }
 
     fn number(self: *Self) !TokenResult {
@@ -183,7 +183,7 @@ pub const JsonLexer = struct {
             }
         }
 
-        return self.makeToken(.number, start_pos, self.source[start_pos..self.position]);
+        return self.makeToken(.number_literal, start_pos, self.source[start_pos..self.position]);
     }
 
     fn literal(self: *Self, expected: []const u8) !TokenResult {
@@ -197,9 +197,9 @@ pub const JsonLexer = struct {
         }
 
         const kind: TokenKind = if (std.mem.eql(u8, expected, "true") or std.mem.eql(u8, expected, "false"))
-            .boolean
+            .boolean_literal
         else
-            .null;
+            .null_literal;
 
         return self.makeToken(kind, start_pos, expected);
     }
@@ -318,7 +318,7 @@ test "JSON lexer - simple values" {
 
         const tokens = try lexer.tokenize();
         try testing.expectEqual(@as(usize, 1), tokens.len);
-        try testing.expectEqual(TokenKind.string, tokens[0].kind);
+        try testing.expectEqual(TokenKind.string_literal, tokens[0].kind);
         try testing.expectEqualStrings("\"hello\"", tokens[0].text);
     }
 
@@ -329,7 +329,7 @@ test "JSON lexer - simple values" {
 
         const tokens = try lexer.tokenize();
         try testing.expectEqual(@as(usize, 1), tokens.len);
-        try testing.expectEqual(TokenKind.number, tokens[0].kind);
+        try testing.expectEqual(TokenKind.number_literal, tokens[0].kind);
         try testing.expectEqualStrings("42", tokens[0].text);
     }
 
@@ -340,7 +340,7 @@ test "JSON lexer - simple values" {
 
         const tokens = try lexer.tokenize();
         try testing.expectEqual(@as(usize, 1), tokens.len);
-        try testing.expectEqual(TokenKind.boolean, tokens[0].kind);
+        try testing.expectEqual(TokenKind.boolean_literal, tokens[0].kind);
         try testing.expectEqualStrings("true", tokens[0].text);
     }
 
@@ -351,7 +351,7 @@ test "JSON lexer - simple values" {
 
         const tokens = try lexer.tokenize();
         try testing.expectEqual(@as(usize, 1), tokens.len);
-        try testing.expectEqual(TokenKind.null, tokens[0].kind);
+        try testing.expectEqual(TokenKind.null_literal, tokens[0].kind);
         try testing.expectEqualStrings("null", tokens[0].text);
     }
 }
@@ -381,7 +381,7 @@ test "JSON lexer - complex number formats" {
 
         const tokens = try lexer.tokenize();
         try testing.expectEqual(@as(usize, 1), tokens.len);
-        try testing.expectEqual(TokenKind.number, tokens[0].kind);
+        try testing.expectEqual(TokenKind.number_literal, tokens[0].kind);
         try testing.expectEqualStrings(case, tokens[0].text);
     }
 }
@@ -401,7 +401,7 @@ test "JSON lexer - object and array" {
     try testing.expectEqual(TokenKind.delimiter, tokens[0].kind);
     try testing.expectEqualStrings("{", tokens[0].text);
 
-    try testing.expectEqual(TokenKind.string, tokens[1].kind);
+    try testing.expectEqual(TokenKind.string_literal, tokens[1].kind);
     try testing.expectEqualStrings("\"key\"", tokens[1].text);
 
     try testing.expectEqual(TokenKind.delimiter, tokens[2].kind);

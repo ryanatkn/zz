@@ -4,6 +4,9 @@ const AST = common.AST;
 const Node = common.Node;
 const utils = common.utils;
 const ZonRules = @import("../../ast/rules.zig").ZonRules;
+const ASTTraversal = @import("../../ast/traversal.zig").ASTTraversal;
+const ZonLexer = @import("lexer.zig").ZonLexer;
+const ZonParser = @import("parser.zig").ZonParser;
 
 /// ZON formatter with comment preservation
 ///
@@ -77,8 +80,6 @@ pub const ZonFormatter = struct {
         self.output.clearRetainingCapacity();
         self.current_indent = 0;
 
-        // Import traversal utilities
-        const ASTTraversal = @import("../../ast/traversal.zig").ASTTraversal;
         var traversal = ASTTraversal.init(self.allocator);
 
         const visitor = struct {
@@ -510,10 +511,6 @@ pub fn format(allocator: std.mem.Allocator, ast: AST, options: ZonFormatter.ZonF
 
 /// Format ZON string directly (convenience function)
 pub fn formatZonString(allocator: std.mem.Allocator, zon_content: []const u8, options: ZonFormatter.ZonFormatOptions) ![]const u8 {
-    // Import our lexer and parser
-    const ZonLexer = @import("lexer.zig").ZonLexer;
-    const ZonParser = @import("parser.zig").ZonParser;
-
     // Tokenize
     var lexer = ZonLexer.init(allocator, zon_content, .{});
     defer lexer.deinit();

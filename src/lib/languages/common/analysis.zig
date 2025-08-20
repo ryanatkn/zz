@@ -1,8 +1,13 @@
 const std = @import("std");
-const Symbol = @import("../interface.zig").Symbol;
-const Reference = @import("../interface.zig").Reference;
+// Consolidate language interface imports
+const interface_types = @import("../interface.zig");
+const Symbol = interface_types.Symbol;
+const Reference = interface_types.Reference;
 const AST = @import("../../ast/mod.zig").AST;
 const CommonRules = @import("../../ast/rules.zig").CommonRules;
+const traversal = @import("../../ast/traversal.zig");
+const query = @import("../../ast/query.zig");
+const Span = @import("../../parser/foundation/types/span.zig").Span;
 
 /// Common analysis utilities shared across languages
 ///
@@ -260,9 +265,6 @@ pub const DependencyTracker = struct {
 /// Common analysis patterns
 /// Extract function calls from AST using new AST infrastructure
 pub fn extractFunctionCalls(allocator: std.mem.Allocator, ast: AST) ![][]const u8 {
-    const traversal = @import("../../ast/traversal.zig");
-    const query = @import("../../ast/query.zig");
-
     var calls = std.ArrayList([]const u8).init(allocator);
     defer calls.deinit();
 
@@ -297,8 +299,6 @@ pub fn extractFunctionCalls(allocator: std.mem.Allocator, ast: AST) ![][]const u
 
 /// Extract variable declarations from AST using new AST infrastructure
 pub fn extractVariableDeclarations(allocator: std.mem.Allocator, ast: AST) ![]Symbol {
-    const query = @import("../../ast/query.zig");
-
     var declarations = std.ArrayList(Symbol).init(allocator);
     defer declarations.deinit();
 
@@ -320,7 +320,8 @@ pub fn extractVariableDeclarations(allocator: std.mem.Allocator, ast: AST) ![]Sy
         for (decl_nodes) |node| {
             // Extract variable name and create symbol
             var symbol_name: []const u8 = "";
-            var symbol_type: []const u8 = "variable";
+            // TODO use this? see the todos below
+            // var symbol_type: []const u8 = "variable";
 
             // Look for identifier in children
             for (node.children) |child| {
@@ -333,13 +334,10 @@ pub fn extractVariableDeclarations(allocator: std.mem.Allocator, ast: AST) ![]Sy
             if (symbol_name.len > 0) {
                 try declarations.append(Symbol{
                     .name = symbol_name,
-                    .symbol_type = try allocator.dupe(u8, symbol_type),
-                    .location = SymbolLocation{
-                        .file = "current", // TODO: Track actual file
-                        .line = 0, // TODO: Calculate from positions
-                        .column = 0,
-                    },
-                    .scope = .local, // TODO: Determine actual scope
+                    .kind = .variable, // TODO: Determine actual symbol kind
+                    .range = Span.init(0, symbol_name.len), // TODO: Calculate actual span
+                    .signature = null, // TODO: Extract signature if applicable
+                    .documentation = null, // TODO: Extract docs if present
                 });
             }
         }
@@ -350,7 +348,6 @@ pub fn extractVariableDeclarations(allocator: std.mem.Allocator, ast: AST) ![]Sy
 
 /// Calculate cyclomatic complexity using new AST infrastructure
 pub fn calculateComplexity(ast: AST) u32 {
-    const query = @import("../../ast/query.zig");
 
     // Base complexity starts at 1
     var complexity: u32 = 1;

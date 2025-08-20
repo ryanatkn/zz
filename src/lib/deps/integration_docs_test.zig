@@ -3,6 +3,7 @@ const std = @import("std");
 const docs = @import("docs/mod.zig");
 const config = @import("config.zig");
 const MockFilesystem = @import("../filesystem/mock.zig").MockFilesystem;
+const datetime = @import("../core/datetime.zig");
 
 test "DocumentationGenerator - full integration with mock filesystem" {
     const testing = std.testing;
@@ -99,7 +100,6 @@ test "BuildParser - integration with missing build.zig" {
 test "DateTimeModule - integration with docs generation" {
     const testing = std.testing;
     const allocator = testing.allocator;
-    const datetime = @import("../core/datetime.zig");
 
     // Test that datetime module produces valid dates for docs
     const current_date = datetime.getCurrentDate();

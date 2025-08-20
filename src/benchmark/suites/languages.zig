@@ -4,7 +4,6 @@ const BenchmarkResult = benchmark_lib.BenchmarkResult;
 const BenchmarkOptions = benchmark_lib.BenchmarkOptions;
 const BenchmarkError = benchmark_lib.BenchmarkError;
 
-// Import language modules
 const json_mod = @import("../../lib/languages/json/mod.zig");
 const zon_mod = @import("../../lib/languages/zon/mod.zig");
 const parser_mod = @import("../../lib/parser/mod.zig");

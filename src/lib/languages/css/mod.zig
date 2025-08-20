@@ -1,12 +1,15 @@
 const std = @import("std");
 const Language = @import("../../core/language.zig").Language;
-const LanguageSupport = @import("../interface.zig").LanguageSupport;
-const Lexer = @import("../interface.zig").Lexer;
-const Parser = @import("../interface.zig").Parser;
-const Formatter = @import("../interface.zig").Formatter;
 const Token = @import("../../parser/foundation/types/token.zig").Token;
 const AST = @import("../../ast/mod.zig").AST;
-const FormatOptions = @import("../interface.zig").FormatOptions;
+
+// Import all interface types from single module
+const lang_interface = @import("../interface.zig");
+const LanguageSupport = lang_interface.LanguageSupport;
+const Lexer = lang_interface.Lexer;
+const Parser = lang_interface.Parser;
+const Formatter = lang_interface.Formatter;
+const FormatOptions = lang_interface.FormatOptions;
 
 /// CSS language support
 ///

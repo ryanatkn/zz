@@ -1,14 +1,22 @@
 const std = @import("std");
 const collections = @import("../lib/core/collections.zig");
-
-const Config = @import("config.zig").Config;
-const Entry = @import("entry.zig").Entry;
-const Filter = @import("filter.zig").Filter;
-const Formatter = @import("formatter.zig").Formatter;
-const PathBuilder = @import("path_builder.zig").PathBuilder;
-const FilesystemInterface = @import("../lib/filesystem/interface.zig").FilesystemInterface;
-const PathCache = @import("../lib/memory/pools.zig").PathCache;
 const errors = @import("../lib/core/errors.zig");
+const filesystem = @import("../lib/filesystem/interface.zig");
+const memory = @import("../lib/memory/pools.zig");
+
+const config_mod = @import("config.zig");
+const entry_mod = @import("entry.zig");
+const filter_mod = @import("filter.zig");
+const formatter_mod = @import("formatter.zig");
+const path_builder_mod = @import("path_builder.zig");
+
+const Config = config_mod.Config;
+const Entry = entry_mod.Entry;
+const Filter = filter_mod.Filter;
+const Formatter = formatter_mod.Formatter;
+const PathBuilder = path_builder_mod.PathBuilder;
+const FilesystemInterface = filesystem.FilesystemInterface;
+const PathCache = memory.PathCache;
 
 pub const WalkerOptions = struct {
     filesystem: FilesystemInterface,

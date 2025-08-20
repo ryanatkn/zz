@@ -1,19 +1,32 @@
 const std = @import("std");
 const Language = @import("../../core/language.zig").Language;
-const LanguageSupport = @import("../interface.zig").LanguageSupport;
-const Lexer = @import("../interface.zig").Lexer;
-const Parser = @import("../interface.zig").Parser;
-const Formatter = @import("../interface.zig").Formatter;
-const Linter = @import("../interface.zig").Linter;
-const Analyzer = @import("../interface.zig").Analyzer;
 const Token = @import("../../parser/foundation/types/token.zig").Token;
 const AST = @import("../../ast/mod.zig").AST;
-const FormatOptions = @import("../interface.zig").FormatOptions;
-const Rule = @import("../interface.zig").Rule;
-const Symbol = @import("../interface.zig").Symbol;
-const Diagnostic = @import("../interface.zig").Diagnostic;
 
-// Import ZON-specific implementations (moved to public exports section)
+// Import all interface types from single module
+const lang_interface = @import("../interface.zig");
+const LanguageSupport = lang_interface.LanguageSupport;
+const Lexer = lang_interface.Lexer;
+const Parser = lang_interface.Parser;
+const Formatter = lang_interface.Formatter;
+const Linter = lang_interface.Linter;
+const Analyzer = lang_interface.Analyzer;
+const FormatOptions = lang_interface.FormatOptions;
+const Rule = lang_interface.Rule;
+const Symbol = lang_interface.Symbol;
+const Diagnostic = lang_interface.Diagnostic;
+const ZonFormatterType = @import("formatter.zig").ZonFormatter;
+const ZonLinterImpl = @import("linter.zig").ZonLinter;
+
+// Module-specific components
+const ZonLexer = @import("lexer.zig").ZonLexer;
+const ZonParserImpl = @import("parser.zig");
+const ZonAnalyzer = @import("analyzer.zig").ZonAnalyzer;
+const AstConverter = @import("ast_converter.zig");
+const ZonSerializer = @import("serializer.zig");
+const ZonDiagnostic = @import("linter.zig").ZonLinter.Diagnostic;
+const ZonSchema = @import("analyzer.zig").ZonAnalyzer.ZonSchema;
+const ZigTypeDefinition = @import("analyzer.zig").ZonAnalyzer.ZigTypeDefinition;
 
 /// Complete ZON (Zig Object Notation) language support implementation
 ///
@@ -46,7 +59,7 @@ pub fn getSupport(allocator: std.mem.Allocator) !LanguageSupport {
             .formatRangeFn = null, // Range formatting not implemented for ZON
         },
         .linter = Linter{
-            .rules = &@import("linter.zig").ZonLinter.RULES,
+            .rules = &ZonLinterImpl.RULES,
             .lintFn = lint,
         },
         .analyzer = Analyzer{
@@ -60,14 +73,14 @@ pub fn getSupport(allocator: std.mem.Allocator) !LanguageSupport {
 
 /// Tokenize ZON source code
 pub fn tokenize(allocator: std.mem.Allocator, input: []const u8) ![]Token {
-    var lexer = @import("lexer.zig").ZonLexer.init(allocator, input, .{});
+    var lexer = ZonLexer.init(allocator, input, .{});
     defer lexer.deinit();
     return lexer.tokenize();
 }
 
 /// Tokenize ZON source code chunk for streaming
 pub fn tokenizeChunk(allocator: std.mem.Allocator, input: []const u8, start_pos: usize) ![]Token {
-    var lexer = @import("lexer.zig").ZonLexer.init(allocator, input, .{});
+    var lexer = ZonLexer.init(allocator, input, .{});
     defer lexer.deinit();
 
     const tokens = try lexer.tokenize();
@@ -84,13 +97,12 @@ pub fn tokenizeChunk(allocator: std.mem.Allocator, input: []const u8, start_pos:
 /// Parse ZON tokens into AST
 pub fn parse(allocator: std.mem.Allocator, tokens: []Token) !AST {
     // Use the convenience function from parser module which handles cleanup
-    return @import("parser.zig").parse(allocator, tokens);
+    return ZonParserImpl.parse(allocator, tokens);
 }
 
 /// Format ZON AST
 fn format(allocator: std.mem.Allocator, ast: AST, options: FormatOptions) ![]const u8 {
     // Convert generic FormatOptions to ZON-specific options
-    const ZonFormatterType = @import("formatter.zig").ZonFormatter;
     const zon_options = ZonFormatterType.ZonFormatOptions{
         .indent_size = @intCast(options.indent_size), // Convert u32 to u8
         .indent_style = if (options.indent_style == .space)
@@ -111,7 +123,7 @@ fn format(allocator: std.mem.Allocator, ast: AST, options: FormatOptions) ![]con
 
 /// Lint ZON AST
 fn lint(allocator: std.mem.Allocator, ast: AST, rules: []const Rule) ![]Diagnostic {
-    var linter = @import("linter.zig").ZonLinter.init(allocator, .{});
+    var linter = ZonLinterImpl.init(allocator, .{});
     defer linter.deinit();
 
     // Convert generic rules to ZON rule names
@@ -158,7 +170,7 @@ fn lint(allocator: std.mem.Allocator, ast: AST, rules: []const Rule) ![]Diagnost
 
 /// Extract symbols from ZON AST
 pub fn extractSymbols(allocator: std.mem.Allocator, ast: AST) ![]Symbol {
-    var analyzer = @import("analyzer.zig").ZonAnalyzer.init(allocator, .{});
+    var analyzer = ZonAnalyzer.init(allocator, .{});
     defer analyzer.deinit();
 
     const zon_symbols = try analyzer.extractSymbols(ast);
@@ -224,11 +236,11 @@ pub fn formatZonString(allocator: std.mem.Allocator, zon_content: []const u8) ![
 }
 
 /// Validate ZON string and return diagnostics
-pub fn validateZonString(allocator: std.mem.Allocator, zon_content: []const u8) ![]@import("linter.zig").ZonLinter.Diagnostic {
+pub fn validateZonString(allocator: std.mem.Allocator, zon_content: []const u8) ![]ZonDiagnostic {
     var ast = try parseZonString(allocator, zon_content);
     defer ast.deinit();
 
-    var linter = @import("linter.zig").ZonLinter.init(allocator, .{});
+    var linter = ZonLinterImpl.init(allocator, .{});
     defer linter.deinit();
 
     // Use all available rules
@@ -237,20 +249,20 @@ pub fn validateZonString(allocator: std.mem.Allocator, zon_content: []const u8) 
 }
 
 /// Extract schema from ZON string
-pub fn extractZonSchema(allocator: std.mem.Allocator, zon_content: []const u8) !@import("analyzer.zig").ZonAnalyzer.ZonSchema {
+pub fn extractZonSchema(allocator: std.mem.Allocator, zon_content: []const u8) !ZonSchema {
     var ast = try parseZonString(allocator, zon_content);
     defer ast.deinit();
 
-    var analyzer = @import("analyzer.zig").ZonAnalyzer.init(allocator, .{});
+    var analyzer = ZonAnalyzer.init(allocator, .{});
     return analyzer.extractSchema(ast);
 }
 
 /// Generate Zig type definition from ZON
-pub fn generateZigTypes(allocator: std.mem.Allocator, zon_content: []const u8, type_name: []const u8) !@import("analyzer.zig").ZonAnalyzer.ZigTypeDefinition {
+pub fn generateZigTypes(allocator: std.mem.Allocator, zon_content: []const u8, type_name: []const u8) !ZigTypeDefinition {
     var schema = try extractZonSchema(allocator, zon_content);
     defer schema.deinit();
 
-    var analyzer = @import("analyzer.zig").ZonAnalyzer.init(allocator, .{});
+    var analyzer = ZonAnalyzer.init(allocator, .{});
     return analyzer.generateZigTypeDefinition(schema, type_name);
 }
 
@@ -258,23 +270,16 @@ pub fn generateZigTypes(allocator: std.mem.Allocator, zon_content: []const u8, t
 // Public Exports
 // ============================================================================
 
-// Core modules
-pub const ZonLexer = @import("lexer.zig").ZonLexer;
+// Re-export core components for external use (using original imports to avoid circular references)
 pub const ZonParser = @import("parser.zig").ZonParser;
-pub const ZonFormatter = @import("formatter.zig").ZonFormatter;
-pub const ZonLinter = @import("linter.zig").ZonLinter;
-pub const ZonAnalyzer = @import("analyzer.zig").ZonAnalyzer;
-
-// New modular components
-pub const AstConverter = @import("ast_converter.zig").AstConverter;
-pub const ZonSerializer = @import("serializer.zig").ZonSerializer;
 pub const ZonValidator = @import("validator.zig").ZonValidator;
 
-// Transform pipeline components
-pub const transform = @import("transform.zig");
-pub const ZonTransformPipeline = transform.ZonTransformPipeline;
-pub const ZonLexicalTransform = transform.ZonLexicalTransform;
-pub const ZonSyntacticTransform = transform.ZonSyntacticTransform;
+// Transform pipeline components (using module-scope reference)
+const transform_mod = @import("transform.zig");
+pub const transform = transform_mod;
+pub const ZonTransformPipeline = transform_mod.ZonTransformPipeline;
+pub const ZonLexicalTransform = transform_mod.ZonLexicalTransform;
+pub const ZonSyntacticTransform = transform_mod.ZonSyntacticTransform;
 
 // ============================================================================
 // Compatibility Functions (for replacing old ZON parser)
@@ -282,22 +287,22 @@ pub const ZonSyntacticTransform = transform.ZonSyntacticTransform;
 
 /// Parse ZON content to a specific type (compatibility with old parser)
 pub fn parseFromSlice(comptime T: type, allocator: std.mem.Allocator, content: []const u8) !T {
-    return @import("ast_converter.zig").parseFromSlice(T, allocator, content);
+    return AstConverter.parseFromSlice(T, allocator, content);
 }
 
 /// Free parsed ZON data (compatibility with old parser)
 pub fn free(allocator: std.mem.Allocator, parsed_data: anytype) void {
-    return @import("ast_converter.zig").free(allocator, parsed_data);
+    return AstConverter.free(allocator, parsed_data);
 }
 
 /// Serialize a value to ZON format
 pub fn stringify(allocator: std.mem.Allocator, value: anytype) ![]const u8 {
-    return @import("serializer.zig").stringify(allocator, value);
+    return ZonSerializer.stringify(allocator, value);
 }
 
 /// Serialize with custom options
 pub fn stringifyWithOptions(allocator: std.mem.Allocator, value: anytype, options: ZonSerializer.SerializeOptions) ![]const u8 {
-    return @import("serializer.zig").stringifyWithOptions(allocator, value, options);
+    return ZonSerializer.stringifyWithOptions(allocator, value, options);
 }
 
 /// Map generic rule names to ZON-specific ones
@@ -309,7 +314,7 @@ fn mapRuleToZon(rule_name: []const u8) ?[]const u8 {
     if (std.mem.eql(u8, rule_name, "required-fields")) return "required-fields";
 
     // If it's already a ZON rule name, use it directly
-    const zon_rules = @import("linter.zig").ZonLinter.RULES;
+    const zon_rules = ZonLinterImpl.RULES;
     for (zon_rules) |zon_rule| {
         if (std.mem.eql(u8, rule_name, zon_rule.name)) {
             return zon_rule.name;

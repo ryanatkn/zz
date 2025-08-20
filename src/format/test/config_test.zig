@@ -1,10 +1,14 @@
 const std = @import("std");
 const testing = std.testing;
-const ZonLoader = @import("../../config/zon.zig").ZonLoader;
-const FormatConfigOptions = @import("../../config/zon.zig").FormatConfigOptions;
-const IndentStyle = @import("../../config/zon.zig").IndentStyle;
-const QuoteStyle = @import("../../config/zon.zig").QuoteStyle;
-const MockFilesystem = @import("../../lib/filesystem/mock.zig").MockFilesystem;
+
+const config_zon = @import("../../config/zon.zig");
+const mock_filesystem = @import("../../lib/filesystem/mock.zig");
+
+const ZonLoader = config_zon.ZonLoader;
+const FormatConfigOptions = config_zon.FormatConfigOptions;
+const IndentStyle = config_zon.IndentStyle;
+const QuoteStyle = config_zon.QuoteStyle;
+const MockFilesystem = mock_filesystem.MockFilesystem;
 
 test "format config loading from zz.zon" {
     var mock_fs = MockFilesystem.init(testing.allocator);

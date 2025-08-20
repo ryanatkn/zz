@@ -9,6 +9,8 @@ const Repeat = @import("../../grammar/mod.zig").Repeat;
 const Repeat1 = @import("../../grammar/mod.zig").Repeat1;
 const ParseContext = @import("context.zig").ParseContext;
 pub const ParseError = @import("context.zig").ParseError;
+const ParseBoundary = @import("../structural/mod.zig").ParseBoundary;
+const Token = @import("../foundation/types/token.zig").Token;
 
 pub const ParserError = error{
     ParseFailed,
@@ -19,8 +21,8 @@ pub const ParseOptions = struct {
     max_depth: u32 = 1000,
     enable_recovery: bool = true,
     track_positions: bool = true,
-    boundary: ?@import("../structural/mod.zig").ParseBoundary = null,
-    tokens: ?[]const @import("../foundation/types/token.zig").Token = null,
+    boundary: ?ParseBoundary = null,
+    tokens: ?[]const Token = null,
 };
 
 pub const ParseResult = union(enum) {

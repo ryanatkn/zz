@@ -1,9 +1,12 @@
 const std = @import("std");
 const FilesystemInterface = @import("../lib/filesystem/interface.zig").FilesystemInterface;
-const SharedConfig = @import("../config.zig").SharedConfig;
-const ZonLoader = @import("../config.zig").ZonLoader;
-const shouldIgnorePath = @import("../config.zig").shouldIgnorePath;
 const ExtractionFlags = @import("../lib/core/extraction.zig").ExtractionFlags;
+
+// Consolidate config imports
+const config_mod = @import("../config.zig");
+const SharedConfig = config_mod.SharedConfig;
+const ZonLoader = config_mod.ZonLoader;
+const shouldIgnorePath = config_mod.shouldIgnorePath;
 
 pub const Config = struct {
     allocator: std.mem.Allocator,

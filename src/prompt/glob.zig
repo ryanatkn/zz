@@ -1,9 +1,15 @@
 const std = @import("std");
-const FilesystemInterface = @import("../lib/filesystem/interface.zig").FilesystemInterface;
-const DirHandle = @import("../lib/filesystem/interface.zig").DirHandle;
-const SharedConfig = @import("../config.zig").SharedConfig;
-const shouldIgnorePath = @import("../config.zig").shouldIgnorePath;
-const shouldHideFile = @import("../config.zig").shouldHideFile;
+
+// Consolidate filesystem interface imports
+const fs_interface = @import("../lib/filesystem/interface.zig");
+const FilesystemInterface = fs_interface.FilesystemInterface;
+const DirHandle = fs_interface.DirHandle;
+
+// Consolidate config imports
+const config_mod = @import("../config.zig");
+const SharedConfig = config_mod.SharedConfig;
+const shouldIgnorePath = config_mod.shouldIgnorePath;
+const shouldHideFile = config_mod.shouldHideFile;
 const path_utils = @import("../lib/core/path.zig");
 const glob_patterns = @import("../lib/patterns/glob.zig");
 const traversal = @import("../lib/core/traversal.zig");

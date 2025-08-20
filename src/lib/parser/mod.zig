@@ -72,36 +72,32 @@ pub const BoundaryCache = @import("detailed/cache.zig").BoundaryCache;
 // ============================================================================
 
 // AST types are now available
-pub const AST = @import("../ast/mod.zig").AST;
-pub const Node = @import("../ast/mod.zig").Node;
-pub const Visitor = @import("../ast/mod.zig").Visitor;
+const ast_mod = @import("../ast/mod.zig");
+pub const AST = ast_mod.AST;
+pub const Node = ast_mod.Node;
+pub const Visitor = ast_mod.Visitor;
 
 // ============================================================================
 // Complete Stratified Parser API Summary
 // ============================================================================
 
 // The complete three-layer stratified parser architecture:
-//
 // Layer 0 (Lexical): StreamingLexer provides <0.1ms viewport tokenization
 // Layer 1 (Structural): StructuralParser provides <1ms boundary detection
 // Layer 2 (Detailed): DetailedParser provides <10ms viewport parsing
-//
 // Key features:
 // - Fact-based intermediate representation
 // - Viewport-aware parsing prioritization
 // - LRU caching for boundary results
 // - Incremental updates with confidence scoring
 // - Predictive parsing for smooth user experience
-//
 // Usage:
 // ```zig
 // const parser = @import("lib/parser/mod.zig");
-//
 // // Initialize stratified parser
 // var lexer = try parser.StreamingLexer.init(allocator, config);
 // var structural = try parser.StructuralParser.init(allocator, config);
 // var detailed = try parser.DetailedParser.init(allocator);
-//
 // // Three-layer parsing
 // const tokens = try lexer.tokenize(source);
 // const boundaries = try structural.parse(tokens);

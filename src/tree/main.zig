@@ -1,39 +1,48 @@
 const std = @import("std");
-const FilesystemInterface = @import("../lib/filesystem/interface.zig").FilesystemInterface;
-const PathCache = @import("../lib/memory/pools.zig").PathCache;
+const filesystem = @import("../lib/filesystem/interface.zig");
+const memory = @import("../lib/memory/pools.zig");
 
-pub const Config = @import("config.zig").Config;
-pub const Entry = @import("entry.zig").Entry;
-pub const Formatter = @import("formatter.zig").Formatter;
-pub const Filter = @import("filter.zig").Filter;
-pub const Walker = @import("walker.zig").Walker;
-pub const WalkerOptions = @import("walker.zig").WalkerOptions;
+const config_mod = @import("config.zig");
+const entry_mod = @import("entry.zig");
+const formatter_mod = @import("formatter.zig");
+const filter_mod = @import("filter.zig");
+const walker_mod = @import("walker.zig");
 
-pub fn run(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: [][:0]const u8) !void {
-    return runInternal(allocator, filesystem, args, false);
+const FilesystemInterface = filesystem.FilesystemInterface;
+const PathCache = memory.PathCache;
+
+pub const Config = config_mod.Config;
+pub const Entry = entry_mod.Entry;
+pub const Formatter = formatter_mod.Formatter;
+pub const Filter = filter_mod.Filter;
+pub const Walker = walker_mod.Walker;
+pub const WalkerOptions = walker_mod.WalkerOptions;
+
+pub fn run(allocator: std.mem.Allocator, fs: FilesystemInterface, args: [][:0]const u8) !void {
+    return runInternal(allocator, fs, args, false);
 }
 
-pub fn runQuiet(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: [][:0]const u8) !void {
-    return runInternal(allocator, filesystem, args, true);
+pub fn runQuiet(allocator: std.mem.Allocator, fs: FilesystemInterface, args: [][:0]const u8) !void {
+    return runInternal(allocator, fs, args, true);
 }
 
-pub fn runWithConfig(config: *Config, allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: [][:0]const u8) !void {
-    return runWithConfigInternal(config, allocator, filesystem, args, false);
+pub fn runWithConfig(config: *Config, allocator: std.mem.Allocator, fs: FilesystemInterface, args: [][:0]const u8) !void {
+    return runWithConfigInternal(config, allocator, fs, args, false);
 }
 
-pub fn runWithConfigQuiet(config: *Config, allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: [][:0]const u8) !void {
-    return runWithConfigInternal(config, allocator, filesystem, args, true);
+pub fn runWithConfigQuiet(config: *Config, allocator: std.mem.Allocator, fs: FilesystemInterface, args: [][:0]const u8) !void {
+    return runWithConfigInternal(config, allocator, fs, args, true);
 }
 
-fn runInternal(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: [][:0]const u8, quiet: bool) !void {
+fn runInternal(allocator: std.mem.Allocator, fs: FilesystemInterface, args: [][:0]const u8, quiet: bool) !void {
     // Create config from args (skip the "tree" command itself)
-    var config = try Config.fromArgs(allocator, filesystem, args);
-    defer config.deinit(allocator);
+    var tree_config = try Config.fromArgs(allocator, fs, args);
+    defer tree_config.deinit(allocator);
 
-    return runWithConfigInternal(&config, allocator, filesystem, args, quiet);
+    return runWithConfigInternal(&tree_config, allocator, fs, args, quiet);
 }
 
-fn runWithConfigInternal(config: *Config, allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: [][:0]const u8, quiet: bool) !void {
+fn runWithConfigInternal(config: *Config, allocator: std.mem.Allocator, fs: FilesystemInterface, args: [][:0]const u8, quiet: bool) !void {
     _ = args; // May be needed for future functionality
 
     // Directory path is now stored in config
@@ -44,7 +53,7 @@ fn runWithConfigInternal(config: *Config, allocator: std.mem.Allocator, filesyst
     defer path_cache.deinit();
 
     const walker_options = WalkerOptions{
-        .filesystem = filesystem,
+        .filesystem = fs,
         .quiet = quiet,
         .path_cache = &path_cache,
     };

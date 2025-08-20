@@ -1,4 +1,5 @@
 const std = @import("std");
+const path_utils = @import("path.zig");
 
 /// Clean collection utilities - no wrapper types, just stdlib aliases and helpers
 /// Eliminates ManagedArrayList anti-pattern and provides simple, idiomatic Zig
@@ -184,7 +185,7 @@ pub const PathList = struct {
         allocator: std.mem.Allocator,
         path: []const u8,
     ) !void {
-        const normalized = try @import("path.zig").normalizePath(allocator, path);
+        const normalized = try path_utils.normalizePath(allocator, path);
         try list.append(normalized);
     }
 };

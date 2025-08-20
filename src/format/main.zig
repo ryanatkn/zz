@@ -1,28 +1,48 @@
 const std = @import("std");
 const collections = @import("../lib/core/collections.zig");
-const FilesystemInterface = @import("../lib/filesystem/interface.zig").FilesystemInterface;
-const Language = @import("../lib/core/language.zig").Language;
 const path_utils = @import("../lib/core/path.zig");
-const GlobExpander = @import("../prompt/glob.zig").GlobExpander;
-const SharedConfig = @import("../config/shared.zig").SharedConfig;
-const ZonLoader = @import("../config/zon.zig").ZonLoader;
-const FormatConfigOptions = @import("../config/zon.zig").FormatConfigOptions;
-const IndentStyle = @import("../config/zon.zig").IndentStyle;
-const QuoteStyle = @import("../config/zon.zig").QuoteStyle;
-const Args = @import("../lib/args.zig").Args;
-const CommonFlags = @import("../lib/args.zig").CommonFlags;
 const reporting = @import("../lib/core/reporting.zig");
-const JsonTransformPipeline = @import("../lib/languages/json/transform.zig").JsonTransformPipeline;
-const ZonTransformPipeline = @import("../lib/languages/zon/transform.zig").ZonTransformPipeline;
-const Context = @import("../lib/transform/transform.zig").Context;
 
-// Import stratified parser
+// Filesystem
+const filesystem = @import("../lib/filesystem/interface.zig");
+
+// Core modules
+const language_mod = @import("../lib/core/language.zig");
+const args_mod = @import("../lib/args.zig");
+
+// Configuration
+const shared_config = @import("../config/shared.zig");
+const zon_config = @import("../config/zon.zig");
+
+// Language and transformation
+const json_transform = @import("../lib/languages/json/transform.zig");
+const zon_transform = @import("../lib/languages/zon/transform.zig");
+const transform_mod = @import("../lib/transform/transform.zig");
+const language_interface = @import("../lib/languages/interface.zig");
+
+// Parser modules
 const StratifiedParser = @import("../lib/parser/mod.zig");
+
+// Glob expansion
+const glob_mod = @import("../prompt/glob.zig");
+
+// Type aliases
+const FilesystemInterface = filesystem.FilesystemInterface;
+const Language = language_mod.Language;
+const GlobExpander = glob_mod.GlobExpander;
+const SharedConfig = shared_config.SharedConfig;
+const ZonLoader = zon_config.ZonLoader;
+const FormatConfigOptions = zon_config.FormatConfigOptions;
+const IndentStyle = zon_config.IndentStyle;
+const QuoteStyle = zon_config.QuoteStyle;
+const Args = args_mod.Args;
+const CommonFlags = args_mod.CommonFlags;
+const JsonTransformPipeline = json_transform.JsonTransformPipeline;
+const ZonTransformPipeline = zon_transform.ZonTransformPipeline;
+const Context = transform_mod.Context;
 const Lexical = StratifiedParser.Lexical;
 const Structural = StratifiedParser.Structural;
-
-// Import language interface for formatting
-const FormatOptions = @import("../lib/languages/interface.zig").FormatOptions;
+const FormatOptions = language_interface.FormatOptions;
 
 // Minimal formatter options for configuration compatibility
 const FormatterOptions = struct {
@@ -68,9 +88,9 @@ fn configToFormatterOptions(config: FormatConfigOptions) FormatterOptions {
     };
 }
 
-pub fn run(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: [][:0]const u8) !void {
+pub fn run(allocator: std.mem.Allocator, fs: FilesystemInterface, args: [][:0]const u8) !void {
     // Load configuration from zz.zon
-    var zon_loader = ZonLoader.init(allocator, filesystem);
+    var zon_loader = ZonLoader.init(allocator, fs);
     defer zon_loader.deinit();
 
     const config_options = zon_loader.getFormatConfig() catch FormatConfigOptions{}; // Use defaults on error
@@ -114,7 +134,7 @@ pub fn run(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: 
 
     const expander = GlobExpander{
         .allocator = allocator,
-        .filesystem = filesystem,
+        .filesystem = fs,
         .config = config,
     };
 
@@ -153,7 +173,7 @@ pub fn run(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: 
     var any_errors = false;
 
     for (all_files.items) |file_path| {
-        const result = processFile(allocator, filesystem, file_path, format_args.write, format_args.check, format_args.options) catch |err| {
+        const result = processFile(allocator, fs, file_path, format_args.write, format_args.check, format_args.options) catch |err| {
             try reporting.reportError("Failed to process file '{s}': {s}", .{ file_path, @errorName(err) });
             any_errors = true;
             continue;
@@ -173,7 +193,7 @@ pub fn run(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: 
     }
 }
 
-fn processFile(allocator: std.mem.Allocator, filesystem: FilesystemInterface, file_path: []const u8, write: bool, check: bool, options: FormatterOptions) !bool {
+fn processFile(allocator: std.mem.Allocator, fs: FilesystemInterface, file_path: []const u8, write: bool, check: bool, options: FormatterOptions) !bool {
     // Detect language from extension
     const ext = path_utils.extension(file_path);
     const language = Language.fromExtension(ext);
@@ -184,7 +204,7 @@ fn processFile(allocator: std.mem.Allocator, filesystem: FilesystemInterface, fi
     }
 
     // Read file using filesystem abstraction
-    const cwd = filesystem.cwd();
+    const cwd = fs.cwd();
     const file = try cwd.openFile(allocator, file_path, .{});
     defer file.close();
 
@@ -207,7 +227,7 @@ fn processFile(allocator: std.mem.Allocator, filesystem: FilesystemInterface, fi
     // Write mode: update file
     if (write) {
         if (!std.mem.eql(u8, content, formatted)) {
-            // For write mode, we need to use std.fs directly as filesystem abstraction
+            // For write mode, we need to use std.fs directly as fs abstraction
             // doesn't support writing yet
             const real_file = try std.fs.cwd().createFile(file_path, .{});
             defer real_file.close();

@@ -3,6 +3,11 @@ const testing = std.testing;
 const Parser = @import("detailed/parser.zig").Parser;
 const ParseResult = @import("detailed/parser.zig").ParseResult;
 
+// Import AST rules at module scope
+const ast_rules = @import("../ast/rules.zig");
+const TestRules = ast_rules.TestRules;
+const CommonRules = ast_rules.CommonRules;
+
 // Import submodule tests
 test {
     _ = @import("foundation/test.zig");
@@ -28,8 +33,6 @@ const ref = extended.ref;
 fn expectRuleId(node: anytype, expected_name: []const u8) !void {
     // For test rules, we can't easily map back to names since the builder
     // creates dynamic rule IDs. Instead, we'll just verify it's a valid test rule ID.
-    const TestRules = @import("../ast/rules.zig").TestRules;
-    const CommonRules = @import("../ast/rules.zig").CommonRules;
 
     // Check if it's a common rule first
     if (std.mem.eql(u8, expected_name, "root")) {

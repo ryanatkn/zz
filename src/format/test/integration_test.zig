@@ -1,7 +1,10 @@
 const std = @import("std");
 const testing = std.testing;
-const MockFilesystem = @import("../../lib/filesystem/mock.zig").MockFilesystem;
+
+const mock_filesystem = @import("../../lib/filesystem/mock.zig");
 const main = @import("../main.zig");
+
+const MockFilesystem = mock_filesystem.MockFilesystem;
 
 test "format command basic functionality" {
     var mock_fs = MockFilesystem.init(testing.allocator);

@@ -7,9 +7,11 @@ const Language = @import("../lib/core/language.zig").Language;
 const ExtractionFlags = @import("../lib/core/extraction.zig").ExtractionFlags;
 // NOTE: Legacy analysis modules deleted - functionality to be reimplemented
 // TODO: Reimplement FileTracker, CacheSystem, AstCacheKey in new architecture
-const WorkerPool = @import("../lib/parallel.zig").WorkerPool;
-const Task = @import("../lib/parallel.zig").Task;
-const TaskPriority = @import("../lib/parallel.zig").TaskPriority;
+// Consolidate parallel imports
+const parallel_mod = @import("../lib/parallel.zig");
+const WorkerPool = parallel_mod.WorkerPool;
+const Task = parallel_mod.Task;
+const TaskPriority = parallel_mod.TaskPriority;
 const errors = @import("../lib/core/errors.zig");
 
 // Import stratified parser

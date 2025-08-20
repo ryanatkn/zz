@@ -1,7 +1,9 @@
 const std = @import("std");
-const SharedConfig = @import("../config.zig").SharedConfig;
-const shouldIgnorePath = @import("../config.zig").shouldIgnorePath;
-const shouldHideFile = @import("../config.zig").shouldHideFile;
+const config = @import("../config.zig");
+
+const SharedConfig = config.SharedConfig;
+const shouldIgnorePath = config.shouldIgnorePath;
+const shouldHideFile = config.shouldHideFile;
 
 pub const Filter = struct {
     shared_config: SharedConfig,

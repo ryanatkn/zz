@@ -6,14 +6,24 @@ const types = @import("../types.zig");
 
 // Import foundation types
 const Token = @import("../../parser/foundation/types/token.zig").Token;
-const AST = @import("../../ast/mod.zig").AST;
-const Node = @import("../../ast/mod.zig").Node;
+const predicate_types = @import("../../parser/foundation/types/predicate.zig");
+const TokenKind = predicate_types.TokenKind;
 const Span = @import("../../parser/foundation/types/span.zig").Span;
+// Consolidate AST imports
+const ast_mod = @import("../../ast/mod.zig");
+const AST = ast_mod.AST;
+const Node = ast_mod.Node;
 
 // Import AST utilities
 const visitor = @import("../../ast/visitor.zig");
 const traversal = @import("../../ast/traversal.zig");
 const builder = @import("../../ast/builder.zig");
+
+// Import rules
+const ast_rules = @import("../../ast/rules.zig");
+const JsonRules = ast_rules.JsonRules;
+const CommonRules = ast_rules.CommonRules;
+const node_utils = @import("../../ast/node.zig");
 
 /// Syntactic stage transform: Tokens ↔ AST
 /// Provides bidirectional transformation between token streams and abstract syntax trees
@@ -79,8 +89,6 @@ pub const ParseError = struct {
         warning, // Warning
         info, // Information
     };
-
-    pub const TokenKind = @import("../../parser/foundation/types/predicate.zig").TokenKind;
 };
 
 /// Recovered node during error recovery
@@ -138,7 +146,7 @@ const TokenEmitter = struct {
         self.tokens.deinit();
     }
 
-    pub fn addToken(self: *Self, kind: @import("../../parser/foundation/types/predicate.zig").TokenKind, text: []const u8) !void {
+    pub fn addToken(self: *Self, kind: TokenKind, text: []const u8) !void {
         const span = Span.init(self.current_position, self.current_position + text.len);
         try self.tokens.append(Token.simple(span, kind, text, 0));
         self.current_position += text.len + 1; // +1 for space
@@ -151,8 +159,6 @@ const TokenEmitter = struct {
 
 fn emitNode(node: *const Node, context: ?*anyopaque) !bool {
     const emitter = @as(*TokenEmitter, @ptrCast(@alignCast(context.?)));
-    const JsonRules = @import("../../ast/rules.zig").JsonRules;
-    const CommonRules = @import("../../ast/rules.zig").CommonRules;
 
     // Use rule IDs for language-specific behavior
     switch (node.rule_id) {
@@ -349,7 +355,7 @@ test "TokenEmitter basic functionality" {
     defer allocator.free(tokens);
 
     try testing.expectEqual(@as(usize, 5), tokens.len);
-    try testing.expectEqual(@import("../../parser/foundation/types/predicate.zig").TokenKind.delimiter, tokens[0].kind);
+    try testing.expectEqual(TokenKind.delimiter, tokens[0].kind);
     try testing.expectEqualStrings("{", tokens[0].text);
 }
 
@@ -364,7 +370,7 @@ test "IncrementalParser basic usage" {
             fn parse(context: *Context, tokens: []const Token) !AST {
                 _ = tokens;
                 var ast = AST.init(context.allocator);
-                ast.root = try @import("../../ast/node.zig").createLeafNode(context.allocator, @intFromEnum(@import("../../ast/rules.zig").CommonRules.null_literal), "null", 0, 4);
+                ast.root = try node_utils.createLeafNode(context.allocator, @intFromEnum(CommonRules.null_literal), "null", 0, 4);
                 return ast;
             }
         }.parse,

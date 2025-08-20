@@ -1,8 +1,10 @@
 const std = @import("std");
 const testing = std.testing;
 const Span = @import("../types/span.zig").Span;
-const Fact = @import("../types/fact.zig").Fact;
-const FactId = @import("../types/fact.zig").FactId;
+const fact_types = @import("../types/fact.zig");
+const Fact = fact_types.Fact;
+const FactId = fact_types.FactId;
+const Generation = fact_types.Generation;
 const Predicate = @import("../types/predicate.zig").Predicate;
 const collections = @import("mod.zig");
 const PerfTimer = @import("../mod.zig").PerfTimer;
@@ -301,7 +303,7 @@ test "generation-based cache invalidation" {
 
     // Advance generation
     const gen1 = system.nextGeneration();
-    try testing.expectEqual(@as(@import("../types/fact.zig").Generation, 1), gen1);
+    try testing.expectEqual(@as(Generation, 1), gen1);
 
     // Insert new fact in generation 1
     const fact3 = Fact.simple(3, span, predicate, 1);
@@ -319,7 +321,7 @@ test "generation-based cache invalidation" {
     defer testing.allocator.free(gen1_results);
 
     try testing.expectEqual(@as(usize, 1), gen1_results.len);
-    try testing.expectEqual(@as(@import("../types/fact.zig").FactId, 3), gen1_results[0]);
+    try testing.expectEqual(@as(FactId, 3), gen1_results[0]);
 
     // Verify cache behavior
     const cache_stats = system.getStats().cache_stats;
@@ -352,7 +354,7 @@ test "complex query edge cases" {
     defer testing.allocator.free(high_conf_results);
 
     try testing.expectEqual(@as(usize, 1), high_conf_results.len);
-    try testing.expectEqual(@as(@import("../types/fact.zig").FactId, 1), high_conf_results[0]);
+    try testing.expectEqual(@as(FactId, 1), high_conf_results[0]);
 
     // Test speculative filtering
     const no_speculative_complex = collections.ComplexQuery{

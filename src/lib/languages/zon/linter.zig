@@ -1,11 +1,16 @@
+const std = @import("std");
+
 const common = @import("common.zig");
 const char_utils = @import("../../char/mod.zig");
-const std = common.std;
+const ZonRules = @import("../../ast/rules.zig").ZonRules;
+const Rule = @import("../interface.zig").Rule;
+const ZonLexer = @import("lexer.zig").ZonLexer;
+const ZonParser = @import("parser.zig").ZonParser;
+
 const AST = common.AST;
 const Node = common.Node;
 const Span = common.Span;
 const utils = common.utils;
-const ZonRules = @import("../../ast/rules.zig").ZonRules;
 
 /// ZON linter with comprehensive validation rules
 ///
@@ -52,8 +57,6 @@ pub const ZonLinter = struct {
             allocator.free(self.message);
         }
     };
-
-    pub const Rule = @import("../interface.zig").Rule;
 
     // Built-in linting rules
     pub const RULES = [_]Rule{
@@ -503,10 +506,6 @@ pub fn lint(allocator: std.mem.Allocator, ast: AST, enabled_rules: []const []con
 
 /// Lint ZON string directly (convenience function)
 pub fn lintZonString(allocator: std.mem.Allocator, zon_content: []const u8, enabled_rules: []const []const u8) ![]ZonLinter.Diagnostic {
-    // Import our lexer and parser
-    const ZonLexer = @import("lexer.zig").ZonLexer;
-    const ZonParser = @import("parser.zig").ZonParser;
-
     // Tokenize
     var lexer = ZonLexer.init(allocator, zon_content, .{});
     defer lexer.deinit();

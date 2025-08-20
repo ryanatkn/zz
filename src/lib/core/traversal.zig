@@ -5,6 +5,7 @@ const shouldIgnorePath = @import("../../config.zig").shouldIgnorePath;
 const shouldHideFile = @import("../../config.zig").shouldHideFile;
 const path_utils = @import("path.zig");
 const filesystem_utils = @import("filesystem.zig");
+const glob_patterns = @import("../patterns/glob.zig");
 
 // Configuration constants
 const MAX_TRAVERSAL_DEPTH = 20; // Maximum directory depth for traversal
@@ -185,8 +186,7 @@ fn fileCollector(allocator: std.mem.Allocator, file_path: []const u8, context_pt
     if (context.pattern) |pattern| {
         const filename = path_utils.basename(file_path);
 
-        // Import glob patterns for matching - this creates a dependency but avoids duplication
-        const glob_patterns = @import("../patterns/glob.zig");
+        // Use glob patterns for matching - this creates a dependency but avoids duplication
         if (!glob_patterns.matchSimplePattern(filename, pattern)) {
             return; // File doesn't match pattern
         }

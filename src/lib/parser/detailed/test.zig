@@ -16,20 +16,22 @@ const Rule = @import("../../grammar/mod.zig").Rule;
 const Span = @import("../foundation/types/span.zig").Span;
 const Fact = @import("../foundation/types/fact.zig").Fact;
 const Token = @import("../foundation/types/token.zig").Token;
-const Predicate = @import("../foundation/types/predicate.zig").Predicate;
-const Value = @import("../foundation/types/predicate.zig").Value;
+const predicate_types = @import("../foundation/types/predicate.zig");
+const Predicate = predicate_types.Predicate;
+const Value = predicate_types.Value;
 
 // Import centralized AST infrastructure
-const AST = @import("../../ast/mod.zig").AST;
-const ASTNode = @import("../../ast/mod.zig").ASTNode;
-const createZonAST = @import("../../ast/mod.zig").createZonAST;
-const createStructuredAST = @import("../../ast/mod.zig").createStructuredAST;
-const ASTStructure = @import("../../ast/mod.zig").ASTStructure;
-const TestContext = @import("../../ast/mod.zig").TestContext;
+const ast_mod = @import("../../ast/mod.zig");
+const AST = ast_mod.AST;
+const ASTNode = ast_mod.ASTNode;
+const createZonAST = ast_mod.createZonAST;
+const createStructuredAST = ast_mod.createStructuredAST;
+const ASTStructure = ast_mod.ASTStructure;
+const TestContext = ast_mod.TestContext;
 
 // Import structural types
 const ParseBoundary = @import("../structural/mod.zig").ParseBoundary;
-const BoundaryKind = @import("../foundation/types/predicate.zig").BoundaryKind;
+const BoundaryKind = predicate_types.BoundaryKind;
 
 // ============================================================================
 // DetailedParser Integration Tests

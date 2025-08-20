@@ -12,6 +12,7 @@ const Buffer = @import("buffer.zig").Buffer;
 const Span = @import("../foundation/types/span.zig").Span;
 const Token = @import("../foundation/types/token.zig").Token;
 const TokenKind = @import("../foundation/types/predicate.zig").TokenKind;
+const DelimiterType = @import("../foundation/types/token.zig").DelimiterType;
 
 // Integration tests for the complete lexical layer
 test "lexical layer integration" {
@@ -168,7 +169,7 @@ test "lexical utility functions" {
 
     const bracket_type = lexical.getBracketType('(');
     try testing.expect(bracket_type != null);
-    try testing.expectEqual(@import("../foundation/types/token.zig").DelimiterType.open_paren, bracket_type.?);
+    try testing.expectEqual(DelimiterType.open_paren, bracket_type.?);
 }
 
 test "lexical timer and stats" {

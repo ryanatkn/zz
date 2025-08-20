@@ -1,10 +1,19 @@
 const std = @import("std");
-const Grammar = @import("../grammar/mod.zig").Grammar;
-const grammar = @import("../grammar/mod.zig");
-const Parser = @import("../parser/mod.zig").Parser;
-const ParseResult = @import("../parser/mod.zig").ParseResult;
-const CommonRules = @import("../ast/rules.zig").CommonRules;
-const JsonRules = @import("../ast/rules.zig").JsonRules;
+
+// Consolidate grammar imports
+const grammar_mod = @import("../grammar/mod.zig");
+const Grammar = grammar_mod.Grammar;
+const grammar = grammar_mod; // For re-export compatibility
+
+// Consolidate parser imports
+const parser_mod = @import("../parser/mod.zig");
+const Parser = parser_mod.Parser;
+const ParseResult = parser_mod.ParseResult;
+
+// Consolidate AST rules imports
+const ast_rules = @import("../ast/rules.zig");
+const CommonRules = ast_rules.CommonRules;
+const JsonRules = ast_rules.JsonRules;
 
 /// Complete JSON parser using our grammar system
 pub const JsonParser = struct {

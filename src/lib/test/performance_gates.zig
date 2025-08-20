@@ -6,6 +6,12 @@ const std = @import("std");
 const testing = std.testing;
 const TokenIterator = @import("../transform/streaming/token_iterator.zig").TokenIterator;
 const Context = @import("../transform/transform.zig").Context;
+const JsonLexer = @import("../languages/json/lexer.zig").JsonLexer;
+const ZonLexer = @import("../languages/zon/lexer.zig").ZonLexer;
+const JsonParser = @import("../languages/json/parser.zig").JsonParser;
+const ZonParser = @import("../languages/zon/parser.zig").ZonParser;
+const JsonLexerAdapter = @import("../transform/streaming/token_iterator.zig").JsonLexerAdapter;
+const ZonLexerAdapter = @import("../transform/streaming/token_iterator.zig").ZonLexerAdapter;
 
 /// Performance thresholds - these should not regress
 pub const PerformanceThresholds = struct {
@@ -52,8 +58,6 @@ test "TokenIterator tokenizeSimple performance gate" {
 
 // Test JSON lexer performance
 test "JSON lexer performance gate" {
-    const JsonLexer = @import("../languages/json/lexer.zig").JsonLexer;
-
     const input = try generateJsonInput(10 * 1024); // 10KB JSON
     defer testing.allocator.free(input);
 
@@ -77,8 +81,6 @@ test "JSON lexer performance gate" {
 
 // Test ZON lexer performance
 test "ZON lexer performance gate" {
-    const ZonLexer = @import("../languages/zon/lexer.zig").ZonLexer;
-
     const input = try generateZonInput(10 * 1024); // 10KB ZON
     defer testing.allocator.free(input);
 
@@ -102,9 +104,6 @@ test "ZON lexer performance gate" {
 
 // Test JSON parser performance
 test "JSON parser performance gate" {
-    const JsonLexer = @import("../languages/json/lexer.zig").JsonLexer;
-    const JsonParser = @import("../languages/json/parser.zig").JsonParser;
-
     const input = try generateJsonInput(10 * 1024); // 10KB JSON
     defer testing.allocator.free(input);
 
@@ -135,9 +134,6 @@ test "JSON parser performance gate" {
 
 // Test ZON parser performance
 test "ZON parser performance gate" {
-    const ZonLexer = @import("../languages/zon/lexer.zig").ZonLexer;
-    const ZonParser = @import("../languages/zon/parser.zig").ZonParser;
-
     const input = try generateZonInput(10 * 1024); // 10KB ZON
     defer testing.allocator.free(input);
 
@@ -206,8 +202,6 @@ test "TokenIterator streaming memory gate" {
 
 // Test JSON streaming lexer performance with TokenIterator adapters
 test "JSON streaming adapter performance gate" {
-    const JsonLexerAdapter = @import("../transform/streaming/token_iterator.zig").JsonLexerAdapter;
-
     const input = try generateJsonInput(10 * 1024); // 10KB
     defer testing.allocator.free(input);
 
@@ -239,8 +233,6 @@ test "JSON streaming adapter performance gate" {
 
 // Test ZON streaming lexer performance with TokenIterator adapters
 test "ZON streaming adapter performance gate" {
-    const ZonLexerAdapter = @import("../transform/streaming/token_iterator.zig").ZonLexerAdapter;
-
     const input = try generateZonInput(10 * 1024); // 10KB
     defer testing.allocator.free(input);
 

@@ -13,6 +13,8 @@ pub const ASTNode = Node;
 /// Visitor pattern for AST traversal
 pub const Visitor = @import("visitor.zig").Visitor;
 
+const CommonRules = @import("rules.zig").CommonRules;
+
 /// Walker utilities for tree traversal
 pub const Walker = @import("walker.zig").Walker;
 
@@ -45,7 +47,6 @@ pub const AST = struct {
 
     /// Initialize an empty AST
     pub fn init(allocator: std.mem.Allocator) AST {
-        const CommonRules = @import("rules.zig").CommonRules;
         return AST{
             .root = ASTNode{
                 .rule_id = @intFromEnum(CommonRules.root),

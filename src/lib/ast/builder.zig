@@ -3,6 +3,7 @@ const Node = @import("node.zig").Node;
 const NodeType = @import("node.zig").NodeType;
 const AST = @import("mod.zig").AST;
 const ASTFactory = @import("factory.zig").ASTFactory;
+const CommonRules = @import("rules.zig").CommonRules;
 
 /// Fluent DSL for building ASTs programmatically
 /// Provides a clean, readable API for constructing complex AST structures
@@ -336,7 +337,6 @@ pub const QuickValue = union(enum) {
 const testing = std.testing;
 
 test "fluent object building" {
-    const CommonRules = @import("rules.zig").CommonRules;
     var builder = ASTBuilder.init(testing.allocator);
     defer builder.deinit();
 
@@ -352,7 +352,6 @@ test "fluent object building" {
 }
 
 test "fluent array building" {
-    const CommonRules = @import("rules.zig").CommonRules;
     var builder = ASTBuilder.init(testing.allocator);
     defer builder.deinit();
 
@@ -389,7 +388,6 @@ test "nested object and array" {
     }.build_deps);
     const root = try obj.build();
 
-    const CommonRules = @import("rules.zig").CommonRules;
     try testing.expectEqual(@intFromEnum(CommonRules.object), root.rule_id);
     try testing.expectEqual(@as(usize, 3), root.children.len);
 }
@@ -405,7 +403,6 @@ test "quick object builder" {
     var ast = try quickObject(testing.allocator, &fields);
     defer ast.deinit();
 
-    const CommonRules = @import("rules.zig").CommonRules;
     try testing.expectEqual(@intFromEnum(CommonRules.object), ast.root.rule_id);
     try testing.expectEqual(@as(usize, 4), ast.root.children.len);
 }
@@ -421,7 +418,6 @@ test "quick array builder" {
     var ast = try quickArray(testing.allocator, &items);
     defer ast.deinit();
 
-    const CommonRules = @import("rules.zig").CommonRules;
     try testing.expectEqual(@intFromEnum(CommonRules.array), ast.root.rule_id);
     try testing.expectEqual(@as(usize, 4), ast.root.children.len);
 }

@@ -91,9 +91,7 @@ test "transform pipeline - ZON roundtrip" {
 //     const json_transform = @import("../languages/json/transform.zig");
 //     const FormatOptions = @import("../languages/interface.zig").FormatOptions;
 //     const allocator = testing.allocator;
-//
 //     const input = "{\"a\":1,\"b\":2}";
-//
 //     // Test with custom format options
 //     const options = FormatOptions{
 //         .indent_size = 4,
@@ -102,17 +100,13 @@ test "transform pipeline - ZON roundtrip" {
 //         .trailing_comma = false,
 //         .sort_keys = true,
 //     };
-//
 //     var pipeline = try json_transform.JsonTransformPipeline.initWithOptions(allocator, options);
 //     defer pipeline.deinit();
-//
 //     const output = try pipeline.roundTrip(allocator, input);
 //     defer allocator.free(output);
-//
 //     // Should be formatted with sorting
 //     try testing.expect(std.mem.indexOf(u8, output, "\"a\"") != null);
 //     try testing.expect(std.mem.indexOf(u8, output, "\"b\"") != null);
-//
 //     // Keys should be sorted (a before b)
 //     const a_pos = std.mem.indexOf(u8, output, "\"a\"") orelse return error.NotFound;
 //     const b_pos = std.mem.indexOf(u8, output, "\"b\"") orelse return error.NotFound;

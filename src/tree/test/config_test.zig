@@ -2,7 +2,10 @@ const std = @import("std");
 const testing = std.testing;
 
 const Config = @import("../config.zig").Config;
-const SharedConfig = @import("../../config.zig").SharedConfig;
+// Consolidate config imports
+const config_mod = @import("../../config.zig");
+const SharedConfig = config_mod.SharedConfig;
+const ZonLoader = config_mod.ZonLoader;
 const test_helpers = @import("../../lib/test/helpers.zig");
 
 // Helper functions to reduce duplication
@@ -127,7 +130,6 @@ test "ZON file custom patterns are loaded correctly" {
     try ctx.writeFile("test.zon", test_zon_content);
 
     // Load config from the temp directory
-    const ZonLoader = @import("../../config.zig").ZonLoader;
     var zon_loader = ZonLoader.init(allocator, ctx.filesystem);
     try zon_loader.loadFromDir(ctx.tmp_dir.dir, "test.zon");
     var shared_config = try zon_loader.getSharedConfigFromDir(ctx.tmp_dir.dir);

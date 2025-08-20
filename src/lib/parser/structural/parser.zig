@@ -9,6 +9,7 @@ const Fact = @import("../foundation/types/fact.zig").Fact;
 const FactId = @import("../foundation/types/fact.zig").FactId;
 const Generation = @import("../foundation/types/fact.zig").Generation;
 const Predicate = @import("../foundation/types/predicate.zig").Predicate;
+const PredicateValue = @import("../foundation/types/predicate.zig").Value;
 const BoundaryKind = @import("../foundation/types/predicate.zig").BoundaryKind;
 const FactPoolManager = @import("../foundation/collections/pools.zig").FactPoolManager;
 
@@ -340,7 +341,7 @@ pub const StructuralParser = struct {
                 self.next_fact_id,
                 boundary.span,
                 Predicate{ .is_boundary = boundary.kind },
-                @import("../foundation/types/predicate.zig").Value{ .string = @tagName(boundary.kind) },
+                PredicateValue{ .string = @tagName(boundary.kind) },
                 self.generation,
             );
             try facts.append(boundary_fact);

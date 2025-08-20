@@ -14,6 +14,9 @@ pub const ParseContext = @import("context.zig").ParseContext;
 pub const ParseResult = @import("parser.zig").ParseResult;
 pub const ParseError = @import("context.zig").ParseError;
 
+// Import types for use in inline contexts
+const Grammar = @import("../../grammar/mod.zig").Grammar;
+
 // ============================================================================
 // Stratified Layer 2 Components (New)
 // ============================================================================
@@ -66,7 +69,7 @@ pub const DetailedParser = struct {
     pub fn init(allocator: std.mem.Allocator) !DetailedParser {
         return DetailedParser{
             .allocator = allocator,
-            .parser = Parser.init(allocator, @import("../../grammar/mod.zig").Grammar.default()),
+            .parser = Parser.init(allocator, Grammar.default()),
             .boundary_parser = try BoundaryParser.init(allocator),
             .viewport_manager = ViewportManager.init(allocator),
             .fact_generator = FactGenerator.init(allocator),
@@ -120,7 +123,7 @@ pub const DetailedParser = struct {
         self.generation += 1;
         self.fact_generator.setGeneration(self.generation);
 
-        var all_new_facts = std.ArrayList(@import("../foundation/types/fact.zig").Fact).init(self.allocator);
+        var all_new_facts = std.ArrayList(Fact).init(self.allocator);
         defer all_new_facts.deinit();
 
         // Process each affected boundary
@@ -148,8 +151,8 @@ pub const DetailedParser = struct {
 
         const delta = FactDelta.init(
             try all_new_facts.toOwnedSlice(),
-            &[_]@import("../foundation/types/fact.zig").Fact{}, // removed facts
-            &[_]@import("../foundation/types/fact.zig").Fact{}, // modified facts
+            &[_]Fact{}, // removed facts
+            &[_]Fact{}, // modified facts
         );
 
         return delta;

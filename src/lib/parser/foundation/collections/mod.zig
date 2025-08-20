@@ -1,7 +1,9 @@
 const std = @import("std");
 const Span = @import("../types/span.zig").Span;
-const FactId = FactId;
-const Fact = Fact;
+const Fact = @import("../types/fact.zig").Fact;
+const FactId = @import("../types/fact.zig").FactId;
+const Generation = @import("../types/fact.zig").Generation;
+const Predicate = @import("../types/predicate.zig").Predicate;
 
 /// Collections module for efficient fact storage and querying
 ///
@@ -308,7 +310,7 @@ pub const FactStorageSystem = struct {
     }
 
     /// Advance to next generation
-    pub fn nextGeneration(self: *FactStorageSystem) @import("../types/fact.zig").Generation {
+    pub fn nextGeneration(self: *FactStorageSystem) Generation {
         const generation = self.index.nextGeneration();
         _ = self.cache.nextGeneration();
         _ = self.pools.nextGeneration();
@@ -422,8 +424,8 @@ pub fn findFactsContaining(
 /// Find facts in a span with specific category
 pub fn findFactsInSpanByCategory(
     system: *FactStorageSystem,
-    span: @import("../types/span.zig").Span,
-    category: @import("../types/predicate.zig").PredicateCategory,
+    span: Span,
+    category: Predicate.PredicateCategory,
     allocator: std.mem.Allocator,
 ) ![]FactId {
     const complex = ComplexQuery{
@@ -444,8 +446,8 @@ test "collections module integration" {
     var system = FactStorageSystem.init(testing.allocator);
     defer system.deinit();
 
-    const span = @import("../types/span.zig").Span.init(10, 20);
-    const predicate = @import("../types/predicate.zig").Predicate{ .is_token = .identifier };
+    const span = Span.init(10, 20);
+    const predicate = Predicate{ .is_token = .identifier };
     const fact = Fact.simple(1, span, predicate, 0);
 
     // Test insertion
@@ -478,8 +480,8 @@ test "complex query execution" {
     var system = FactStorageSystem.init(testing.allocator);
     defer system.deinit();
 
-    const span1 = @import("../types/span.zig").Span.init(10, 20);
-    const span2 = @import("../types/span.zig").Span.init(30, 40);
+    const span1 = Span.init(10, 20);
+    const span2 = Span.init(30, 40);
     const predicate = @import("../types/predicate.zig").Predicate{ .is_token = .identifier };
 
     const fact1 = Fact.simple(1, span1, predicate, 0);
@@ -511,8 +513,8 @@ test "generation management" {
     var system = FactStorageSystem.init(testing.allocator);
     defer system.deinit();
 
-    const span = @import("../types/span.zig").Span.init(10, 20);
-    const predicate = @import("../types/predicate.zig").Predicate{ .is_token = .identifier };
+    const span = Span.init(10, 20);
+    const predicate = Predicate{ .is_token = .identifier };
 
     // Insert fact in generation 0
     const fact1 = Fact.simple(1, span, predicate, 0);
@@ -520,7 +522,7 @@ test "generation management" {
 
     // Advance to generation 1
     const gen1 = system.nextGeneration();
-    try testing.expectEqual(@as(@import("../types/fact.zig").Generation, 1), gen1);
+    try testing.expectEqual(@as(Generation, 1), gen1);
 
     // Insert fact in generation 1
     const fact2 = Fact.simple(2, span, predicate, 1);
@@ -547,8 +549,8 @@ test "batch operations" {
     var system = FactStorageSystem.init(testing.allocator);
     defer system.deinit();
 
-    const span = @import("../types/span.zig").Span.init(10, 20);
-    const predicate = @import("../types/predicate.zig").Predicate{ .is_token = .identifier };
+    const span = Span.init(10, 20);
+    const predicate = Predicate{ .is_token = .identifier };
 
     // Create batch of facts
     var facts: [5]Fact = undefined;

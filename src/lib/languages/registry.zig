@@ -1,11 +1,23 @@
 const std = @import("std");
 const Language = @import("../core/language.zig").Language;
-const LanguageSupport = @import("interface.zig").LanguageSupport;
-const Lexer = @import("interface.zig").Lexer;
-const Parser = @import("interface.zig").Parser;
-const Formatter = @import("interface.zig").Formatter;
-const Linter = @import("interface.zig").Linter;
-const Analyzer = @import("interface.zig").Analyzer;
+
+// Import all interface types from single module
+const lang_interface = @import("interface.zig");
+const LanguageSupport = lang_interface.LanguageSupport;
+const Lexer = lang_interface.Lexer;
+const Parser = lang_interface.Parser;
+const Formatter = lang_interface.Formatter;
+const Linter = lang_interface.Linter;
+const Analyzer = lang_interface.Analyzer;
+
+// Language module imports
+const typescript_mod = @import("typescript/mod.zig");
+const svelte_mod = @import("svelte/mod.zig");
+const json_mod = @import("json/mod.zig");
+const zig_mod = @import("zig/mod.zig");
+const zon_mod = @import("zon/mod.zig");
+const css_mod = @import("css/mod.zig");
+const html_mod = @import("html/mod.zig");
 
 /// Enhanced language registry for unified language support
 ///
@@ -42,13 +54,13 @@ pub const LanguageRegistry = struct {
 
         // Initialize new language support
         const support = switch (language) {
-            .typescript => @import("typescript/mod.zig").getSupport(self.allocator),
-            .svelte => @import("svelte/mod.zig").getSupport(self.allocator),
-            .json => @import("json/mod.zig").getSupport(self.allocator),
-            .zig => @import("zig/mod.zig").getSupport(self.allocator),
-            .zon => @import("zon/mod.zig").getSupport(self.allocator),
-            .css => @import("css/mod.zig").getSupport(self.allocator),
-            .html => @import("html/mod.zig").getSupport(self.allocator),
+            .typescript => typescript_mod.getSupport(self.allocator),
+            .svelte => svelte_mod.getSupport(self.allocator),
+            .json => json_mod.getSupport(self.allocator),
+            .zig => zig_mod.getSupport(self.allocator),
+            .zon => zon_mod.getSupport(self.allocator),
+            .css => css_mod.getSupport(self.allocator),
+            .html => html_mod.getSupport(self.allocator),
             .unknown => return error.UnsupportedLanguage,
         };
 

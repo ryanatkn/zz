@@ -3,9 +3,12 @@ const testing = std.testing;
 const extended_rules = @import("extended_rules.zig");
 const validation = @import("validation.zig");
 const resolver = @import("resolver.zig");
-const Grammar = @import("grammar.zig").Grammar;
-const TestRules = @import("../ast/rules.zig").TestRules;
-const CommonRules = @import("../ast/rules.zig").CommonRules;
+const grammar_mod = @import("grammar.zig");
+const ast_rules = @import("../ast/rules.zig");
+
+const Grammar = grammar_mod.Grammar;
+const TestRules = ast_rules.TestRules;
+const CommonRules = ast_rules.CommonRules;
 
 const ExtendedRule = extended_rules.ExtendedRule;
 

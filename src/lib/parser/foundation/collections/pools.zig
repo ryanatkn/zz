@@ -2,6 +2,8 @@ const std = @import("std");
 const Fact = @import("../types/fact.zig").Fact;
 const FactId = @import("../types/fact.zig").FactId;
 const Generation = @import("../types/fact.zig").Generation;
+const Span = @import("../types/span.zig").Span;
+const Predicate = @import("../types/predicate.zig").Predicate;
 
 /// High-performance memory pools for fact allocation and reuse
 /// Optimized for stratified parser's allocation patterns
@@ -57,8 +59,8 @@ pub const FactPool = struct {
             // Reset fact to clean state
             const clean_fact = Fact{
                 .id = 0,
-                .subject = @import("../types/span.zig").Span.empty(),
-                .predicate = @import("../types/predicate.zig").Predicate.is_trivia,
+                .subject = Span.empty(),
+                .predicate = Predicate.is_trivia,
                 .object = null,
                 .confidence = 1.0,
                 .generation = 0,

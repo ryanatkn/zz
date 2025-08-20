@@ -1,9 +1,12 @@
 const std = @import("std");
-const FilesystemInterface = @import("interface.zig").FilesystemInterface;
-const DirHandle = @import("interface.zig").DirHandle;
-const FileHandle = @import("interface.zig").FileHandle;
-const DirIterator = @import("interface.zig").DirIterator;
 const path_utils = @import("../core/path.zig");
+
+// Consolidate filesystem interface imports
+const interface_types = @import("interface.zig");
+const FilesystemInterface = interface_types.FilesystemInterface;
+const DirHandle = interface_types.DirHandle;
+const FileHandle = interface_types.FileHandle;
+const DirIterator = interface_types.DirIterator;
 
 /// Real filesystem implementation for production use
 pub const RealFilesystem = struct {

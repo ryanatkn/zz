@@ -3,6 +3,7 @@ const Token = @import("../lexical/mod.zig").Token;
 const TokenKind = @import("../lexical/mod.zig").TokenKind;
 const Language = @import("../lexical/mod.zig").Language;
 const BoundaryKind = @import("../foundation/types/predicate.zig").BoundaryKind;
+const Span = @import("../foundation/types/span.zig").Span;
 
 /// Language-specific pattern matchers for boundary detection
 pub const LanguageMatchers = struct {
@@ -450,7 +451,6 @@ pub fn analyzePatternComplexity(tokens: []const Token, start_idx: usize, max_loo
 const testing = std.testing;
 
 test "zig matcher functions" {
-    const Span = @import("../foundation/types/span.zig").Span;
 
     // Test function detection
     const fn_token = Token.simple(Span.init(0, 2), .keyword, "fn", 0);
@@ -464,7 +464,6 @@ test "zig matcher functions" {
 }
 
 test "typescript matcher" {
-    const Span = @import("../foundation/types/span.zig").Span;
 
     // Test function detection
     const fn_token = Token.simple(Span.init(0, 8), .keyword, "function", 0);
@@ -478,7 +477,6 @@ test "typescript matcher" {
 }
 
 test "json matcher" {
-    const Span = @import("../foundation/types/span.zig").Span;
 
     // Test object boundary
     const brace_token = Token.simple(Span.init(0, 1), .delimiter, "{", 1);
@@ -487,7 +485,6 @@ test "json matcher" {
 }
 
 test "language matchers integration" {
-    const Span = @import("../foundation/types/span.zig").Span;
 
     // Test Zig integration
     const zig_matchers = LanguageMatchers.init(.zig);
@@ -508,8 +505,6 @@ test "language matchers integration" {
 }
 
 test "pattern complexity analysis" {
-    const Span = @import("../foundation/types/span.zig").Span;
-
     const tokens = [_]Token{
         Token.simple(Span.init(0, 2), .keyword, "fn", 0),
         Token.simple(Span.init(3, 7), .identifier, "test", 0),

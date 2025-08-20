@@ -9,6 +9,7 @@ const std = @import("std");
 const escape = @import("escape.zig");
 const json = @import("json.zig");
 const color = @import("color.zig");
+const main = @import("main.zig");
 
 test "escape sequence processing" {
     const allocator = std.testing.allocator;
@@ -139,7 +140,7 @@ test "argument parsing edge cases" {
     // We can't easily test output in unit tests without more complex setup
 
     // Basic smoke test - the main module should compile
-    _ = @import("main.zig");
+    _ = main;
 }
 
 test "escape sequence edge cases" {
@@ -210,7 +211,7 @@ test "performance benchmark - startup time" {
     const start_time = std.time.nanoTimestamp();
 
     // Test parsing without actual output (to isolate parsing performance)
-    const parse_result = try @import("main.zig").parseArgsAndText(args[0..]);
+    const parse_result = try main.parseArgsAndText(args[0..]);
     _ = parse_result;
 
     const end_time = std.time.nanoTimestamp();

@@ -17,8 +17,10 @@ const ZonFormatter = @import("formatter.zig").ZonFormatter;
 // Import foundation types
 const Token = @import("../../parser/foundation/types/token.zig").Token;
 const Fact = @import("../../parser/foundation/types/fact.zig").Fact;
-const AST = @import("../../ast/mod.zig").AST;
-const Node = @import("../../ast/mod.zig").Node;
+// Consolidate AST imports
+const ast_mod = @import("../../ast/mod.zig");
+const AST = ast_mod.AST;
+const Node = ast_mod.Node;
 const FormatOptions = @import("../interface.zig").FormatOptions;
 
 // Import text utilities for escaping

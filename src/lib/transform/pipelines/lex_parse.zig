@@ -11,6 +11,8 @@ const syntactic = @import("../stages/syntactic.zig");
 // Import foundation types
 const Token = @import("../../parser/foundation/types/token.zig").Token;
 const AST = @import("../../ast/mod.zig").AST;
+const ast_node = @import("../../ast/node.zig");
+const ast_rules = @import("../../ast/rules.zig");
 
 /// LexParsePipeline: Specialized pipeline for Text → Tokens → AST
 /// Avoids type erasure by using concrete types throughout
@@ -382,7 +384,7 @@ test "LexParsePipeline basic usage" {
             fn parse(context: *Context, tokens: []const Token) !AST {
                 _ = tokens;
                 var ast = AST.init(context.allocator);
-                ast.root = try @import("../../ast/node.zig").createLeafNode(context.allocator, @intFromEnum(@import("../../ast/rules.zig").CommonRules.null_literal), "null", 0, 4);
+                ast.root = try ast_node.createLeafNode(context.allocator, @intFromEnum(ast_rules.CommonRules.null_literal), "null", 0, 4);
                 return ast;
             }
         }.parse,
@@ -398,7 +400,7 @@ test "LexParsePipeline basic usage" {
     defer ast.deinit();
 
     // AST.root is no longer optional - just verify it exists
-    try testing.expect(ast.root.rule_id == @intFromEnum(@import("../../ast/rules.zig").CommonRules.null_literal));
+    try testing.expect(ast.root.rule_id == @intFromEnum(ast_rules.CommonRules.null_literal));
 }
 
 test "PipelineBuilder usage" {

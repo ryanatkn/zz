@@ -1,8 +1,13 @@
 const std = @import("std");
-const FilesystemInterface = @import("../lib/filesystem/interface.zig").FilesystemInterface;
 
-const Command = @import("command.zig").Command;
+// Core CLI components
+const filesystem = @import("../lib/filesystem/interface.zig");
+const command_mod = @import("command.zig");
 const Help = @import("help.zig");
+const errors = @import("../lib/core/errors.zig");
+const reporting = @import("../lib/core/reporting.zig");
+
+// Command modules
 const tree = @import("../tree/main.zig");
 const prompt = @import("../prompt/main.zig");
 const benchmark = @import("../benchmark/main.zig");
@@ -10,8 +15,10 @@ const format = @import("../format/main.zig");
 const echo = @import("../echo/main.zig");
 const demo = @import("../demo.zig");
 const deps = @import("../deps/main.zig");
-const errors = @import("../lib/core/errors.zig");
-const reporting = @import("../lib/core/reporting.zig");
+
+// Type aliases
+const FilesystemInterface = filesystem.FilesystemInterface;
+const Command = command_mod.Command;
 
 pub const Runner = struct {
     allocator: std.mem.Allocator,
@@ -19,10 +26,10 @@ pub const Runner = struct {
 
     const Self = @This();
 
-    pub fn init(allocator: std.mem.Allocator, filesystem: FilesystemInterface) Self {
+    pub fn init(allocator: std.mem.Allocator, fs: FilesystemInterface) Self {
         return Self{
             .allocator = allocator,
-            .filesystem = filesystem,
+            .filesystem = fs,
         };
     }
 

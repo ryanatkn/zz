@@ -1,17 +1,21 @@
 const std = @import("std");
 
 // Import foundation types
-const Fact = @import("../foundation/types/fact.zig").Fact;
-const FactId = @import("../foundation/types/fact.zig").FactId;
-const Generation = @import("../foundation/types/fact.zig").Generation;
+const fact_types = @import("../foundation/types/fact.zig");
+const Fact = fact_types.Fact;
+const FactId = fact_types.FactId;
+const Generation = fact_types.Generation;
 const Span = @import("../foundation/types/span.zig").Span;
-const Predicate = @import("../foundation/types/predicate.zig").Predicate;
-const Value = @import("../foundation/types/predicate.zig").Value;
+const predicate_types = @import("../foundation/types/predicate.zig");
+const Predicate = predicate_types.Predicate;
+const Value = predicate_types.Value;
+const NodeKindType = predicate_types.NodeKind;
 
 // Import AST types
-const AST = @import("../../ast/mod.zig").AST;
-const ASTNode = @import("../../ast/mod.zig").ASTNode;
-const NodeKind = @import("../../ast/mod.zig").NodeKind;
+const ast_mod = @import("../../ast/mod.zig");
+const AST = ast_mod.AST;
+const ASTNode = ast_mod.ASTNode;
+const NodeKind = ast_mod.NodeKind;
 const CommonRules = @import("../../ast/rules.zig").CommonRules;
 
 // Import structural types
@@ -295,7 +299,7 @@ pub const FactGenerator = struct {
         confidence: f32,
     ) !void {
         // Convert NodeType to NodeKind for predicate
-        const node_kind: @import("../foundation/types/predicate.zig").NodeKind = switch (node.node_type) {
+        const node_kind: NodeKindType = switch (node.node_type) {
             .root => .rule, // Treat root as a rule node
             .terminal => .terminal,
             .rule => .rule,

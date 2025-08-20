@@ -6,7 +6,8 @@ const types = @import("../types.zig");
 
 // Import foundation types from stratified parser
 const Token = @import("../../parser/foundation/types/token.zig").Token;
-const TokenKind = @import("../../parser/foundation/types/predicate.zig").TokenKind;
+const predicate_types = @import("../../parser/foundation/types/predicate.zig");
+const TokenKind = predicate_types.TokenKind;
 const Span = @import("../../parser/foundation/types/span.zig").Span;
 
 // Import text utilities for reverse transform

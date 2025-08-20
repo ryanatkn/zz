@@ -1,9 +1,13 @@
 const std = @import("std");
-const Node = @import("node.zig").Node;
-const NodeType = @import("node.zig").NodeType;
-const AST = @import("mod.zig").AST;
-const CommonRules = @import("rules.zig").CommonRules;
+const node_mod = @import("node.zig");
+const ast_mod = @import("mod.zig");
+const rules_mod = @import("rules.zig");
 const zon_mod = @import("../languages/zon/mod.zig");
+
+const Node = node_mod.Node;
+const NodeType = node_mod.NodeType;
+const AST = ast_mod.AST;
+const CommonRules = rules_mod.CommonRules;
 
 /// High-performance AST serialization using ZON format
 /// Native Zig serialization for maximum performance and compatibility

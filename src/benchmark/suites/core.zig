@@ -4,7 +4,6 @@ const BenchmarkResult = benchmark_lib.BenchmarkResult;
 const BenchmarkOptions = benchmark_lib.BenchmarkOptions;
 const BenchmarkError = benchmark_lib.BenchmarkError;
 
-// Import core modules to benchmark
 const path_mod = @import("../../lib/core/path.zig");
 const memory_mod = @import("../../lib/memory/pools.zig");
 const patterns_mod = @import("../../lib/patterns/glob.zig");

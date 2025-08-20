@@ -4,7 +4,6 @@ const BenchmarkResult = benchmark_lib.BenchmarkResult;
 const BenchmarkOptions = benchmark_lib.BenchmarkOptions;
 const BenchmarkError = benchmark_lib.BenchmarkError;
 
-// Import JSON components
 const json_mod = @import("../../../lib/languages/json/mod.zig");
 
 pub fn runJsonPipelineBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOptions) BenchmarkError![]BenchmarkResult {

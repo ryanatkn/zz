@@ -3,6 +3,7 @@ const Node = @import("node.zig").Node;
 const NodeType = @import("node.zig").NodeType;
 const AST = @import("mod.zig").AST;
 const CommonRules = @import("rules.zig").CommonRules;
+const ZonRules = @import("rules.zig").ZonRules;
 
 /// AST Factory for programmatic construction of AST nodes
 /// Provides memory-safe node creation with proper owned_texts tracking
@@ -115,7 +116,6 @@ pub const ASTFactory = struct {
         end_pos: usize,
     ) !Node {
         // Use ZON rule IDs for field assignment
-        const ZonRules = @import("rules.zig").ZonRules;
         const field_node = try self.createLiteral(ZonRules.field_name, field_name, start_pos, start_pos + field_name.len);
 
         // Create equals token node

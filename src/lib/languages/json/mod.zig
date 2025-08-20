@@ -1,17 +1,20 @@
 const std = @import("std");
 const Language = @import("../../core/language.zig").Language;
-const LanguageSupport = @import("../interface.zig").LanguageSupport;
-const Lexer = @import("../interface.zig").Lexer;
-const Parser = @import("../interface.zig").Parser;
-const Formatter = @import("../interface.zig").Formatter;
-const Linter = @import("../interface.zig").Linter;
-const Analyzer = @import("../interface.zig").Analyzer;
 const Token = @import("../../parser/foundation/types/token.zig").Token;
 const AST = @import("../../ast/mod.zig").AST;
-const FormatOptions = @import("../interface.zig").FormatOptions;
-const Rule = @import("../interface.zig").Rule;
-const Symbol = @import("../interface.zig").Symbol;
-const Diagnostic = @import("../interface.zig").Diagnostic;
+
+// Import all interface types from single module
+const lang_interface = @import("../interface.zig");
+const LanguageSupport = lang_interface.LanguageSupport;
+const Lexer = lang_interface.Lexer;
+const Parser = lang_interface.Parser;
+const Formatter = lang_interface.Formatter;
+const Linter = lang_interface.Linter;
+const Analyzer = lang_interface.Analyzer;
+const FormatOptions = lang_interface.FormatOptions;
+const Rule = lang_interface.Rule;
+const Symbol = lang_interface.Symbol;
+const Diagnostic = lang_interface.Diagnostic;
 
 // Import JSON-specific implementations
 const JsonLexer = @import("lexer.zig").JsonLexer;

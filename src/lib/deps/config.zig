@@ -1,5 +1,6 @@
 const std = @import("std");
-const ZonParser = @import("../languages/zon/mod.zig").ZonParser;
+const zon_mod = @import("../languages/zon/mod.zig");
+const ZonParser = zon_mod.ZonParser;
 const memory = @import("../core/memory.zig");
 const DependencyInfo = @import("../languages/zon/parser.zig").DependencyInfo;
 const struct_utils = @import("../core/struct_utils.zig");
@@ -222,7 +223,6 @@ pub const DepsZonConfig = struct {
     /// This eliminates the memory leak and provides proper string management
     pub fn parseFromZonContent(allocator: std.mem.Allocator, content: []const u8) !DepsZonConfig {
         // Use our ZON parser to parse the content
-        const ZonModule = @import("../languages/zon/mod.zig");
 
         // Define a structure that matches deps.zon format
         const DepsStructure = struct {
@@ -251,7 +251,7 @@ pub const DepsZonConfig = struct {
         };
 
         // Parse using our ZON parser
-        const parsed = ZonModule.parseFromSlice(DepsStructure, allocator, content) catch |err| {
+        const parsed = zon_mod.parseFromSlice(DepsStructure, allocator, content) catch |err| {
             reporting.reportWarning("Failed to parse ZON content with our parser: {}", .{err}) catch {};
             // Fall back to empty config if parsing fails
             return DepsZonConfig{
@@ -267,7 +267,7 @@ pub const DepsZonConfig = struct {
                 .owns_strings = false,
             };
         };
-        defer ZonModule.free(allocator, parsed);
+        defer zon_mod.free(allocator, parsed);
 
         // Convert to our expected format
         var dependencies = std.StringHashMap(DependencyZonEntry).init(allocator);

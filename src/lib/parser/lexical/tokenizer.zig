@@ -1,13 +1,26 @@
 const std = @import("std");
-const Span = @import("../foundation/types/span.zig").Span;
-const Token = @import("../foundation/types/token.zig").Token;
-const TokenKind = @import("../foundation/types/predicate.zig").TokenKind;
-const Generation = @import("../foundation/types/fact.zig").Generation;
-const FactPoolManager = @import("../foundation/collections/pools.zig").FactPoolManager;
-
-const Scanner = @import("scanner.zig").Scanner;
 const char = @import("../../char/mod.zig");
-const BracketTracker = @import("brackets.zig").BracketTracker;
+
+// Foundation types
+const span_mod = @import("../foundation/types/span.zig");
+const token_mod = @import("../foundation/types/token.zig");
+const predicate_mod = @import("../foundation/types/predicate.zig");
+const fact_mod = @import("../foundation/types/fact.zig");
+const pools_mod = @import("../foundation/collections/pools.zig");
+
+// Local modules
+const scanner_mod = @import("scanner.zig");
+const brackets_mod = @import("brackets.zig");
+
+// Type aliases
+const Span = span_mod.Span;
+const Token = token_mod.Token;
+const TokenKind = predicate_mod.TokenKind;
+const DelimiterType = token_mod.DelimiterType;
+const Generation = fact_mod.Generation;
+const FactPoolManager = pools_mod.FactPoolManager;
+const Scanner = scanner_mod.Scanner;
+const BracketTracker = brackets_mod.BracketTracker;
 const Buffer = @import("buffer.zig").Buffer;
 
 const Edit = @import("mod.zig").Edit;
@@ -432,7 +445,7 @@ pub const StreamingLexer = struct {
     }
 
     /// Get delimiter type for bracket character
-    fn getBracketDelimiterType(self: *StreamingLexer, ch: u8) @import("../foundation/types/token.zig").DelimiterType {
+    fn getBracketDelimiterType(self: *StreamingLexer, ch: u8) DelimiterType {
         _ = self;
         return switch (ch) {
             '(' => .open_paren,

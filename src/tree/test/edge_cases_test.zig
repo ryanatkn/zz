@@ -1,10 +1,13 @@
 const std = @import("std");
 const testing = std.testing;
 
-const Walker = @import("../walker.zig").Walker;
-const WalkerOptions = @import("../walker.zig").WalkerOptions;
+// Consolidate walker imports
+const walker_mod = @import("../walker.zig");
+const Walker = walker_mod.Walker;
+const WalkerOptions = walker_mod.WalkerOptions;
 const Config = @import("../config.zig").Config;
 const SharedConfig = @import("../../config.zig").SharedConfig;
+const Filter = @import("../filter.zig").Filter;
 const test_helpers = @import("../../lib/test/helpers.zig");
 
 // Test handling of various filesystem edge cases
@@ -66,7 +69,7 @@ test "null byte injection protection" {
         .patterns_allocated = false,
     };
 
-    const filter = @import("../filter.zig").Filter.init(shared_config);
+    const filter = Filter.init(shared_config);
 
     // Should handle null bytes safely
     try testing.expect(filter.shouldIgnore("test\x00injection"));
@@ -162,7 +165,7 @@ test "filesystem encoding edge cases" {
         .patterns_allocated = false,
     };
 
-    const filter = @import("../filter.zig").Filter.init(shared_config);
+    const filter = Filter.init(shared_config);
 
     // Test that various encodings are handled correctly
     for (problematic_names) |name| {

@@ -10,15 +10,21 @@ const JsonAnalyzer = @import("analyzer.zig").JsonAnalyzer;
 const json_mod = @import("mod.zig");
 
 // Import types
+// Consolidate foundation type imports
 const Token = @import("../../parser/foundation/types/token.zig").Token;
-const TokenKind = @import("../../parser/foundation/types/predicate.zig").TokenKind;
+const predicate_types = @import("../../parser/foundation/types/predicate.zig");
+const TokenKind = predicate_types.TokenKind;
 const AST = @import("../../ast/mod.zig").AST;
-const FormatOptions = @import("../interface.zig").FormatOptions;
-const Rule = @import("../interface.zig").Rule;
+// Consolidate language interface imports
+const interface_types = @import("../interface.zig");
+const FormatOptions = interface_types.FormatOptions;
+const Rule = interface_types.Rule;
 
 // Import additional test modules
+const rfc8259_compliance_tests = @import("test_rfc8259_compliance.zig");
+
 test {
-    _ = @import("test_rfc8259_compliance.zig");
+    _ = rfc8259_compliance_tests;
 }
 
 // Comprehensive test suite for JSON language implementation

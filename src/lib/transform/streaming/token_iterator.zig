@@ -1,6 +1,8 @@
 const std = @import("std");
 const Context = @import("../transform.zig").Context;
 const Token = @import("../../parser/foundation/types/token.zig").Token;
+const JsonLexer = @import("../../languages/json/lexer.zig").JsonLexer;
+const ZonLexer = @import("../../languages/zon/lexer.zig").ZonLexer;
 
 /// Iterator for streaming token processing with minimal memory footprint
 ///
@@ -298,10 +300,9 @@ pub const TokenIterator = struct {
 
 /// Stateless streaming lexer adapter for JsonLexer
 pub const JsonLexerAdapter = struct {
-    options: @import("../../languages/json/lexer.zig").JsonLexer.LexerOptions,
+    options: JsonLexer.LexerOptions,
 
     const Self = @This();
-    const JsonLexer = @import("../../languages/json/lexer.zig").JsonLexer;
 
     pub fn init(options: JsonLexer.LexerOptions) Self {
         return Self{ .options = options };
@@ -329,10 +330,9 @@ pub const JsonLexerAdapter = struct {
 
 /// Stateless streaming lexer adapter for ZonLexer
 pub const ZonLexerAdapter = struct {
-    options: @import("../../languages/zon/lexer.zig").ZonLexer.LexerOptions,
+    options: ZonLexer.LexerOptions,
 
     const Self = @This();
-    const ZonLexer = @import("../../languages/zon/lexer.zig").ZonLexer;
 
     pub fn init(options: ZonLexer.LexerOptions) Self {
         return Self{ .options = options };

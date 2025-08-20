@@ -13,6 +13,7 @@ const Span = @import("../foundation/types/span.zig").Span;
 const Token = @import("../foundation/types/token.zig").Token;
 const TokenKind = @import("../foundation/types/predicate.zig").TokenKind;
 const BoundaryKind = @import("../foundation/types/predicate.zig").BoundaryKind;
+const TokenDelta = @import("../lexical/mod.zig").TokenDelta;
 
 // Import configuration
 const StructuralConfig = @import("mod.zig").StructuralConfig;
@@ -359,7 +360,6 @@ test "incremental update performance" {
     defer parser.deinit();
 
     // Create small incremental change
-    const TokenDelta = @import("../lexical/mod.zig").TokenDelta;
 
     const added_tokens = [_]Token{
         Token.simple(Span.init(100, 102), .keyword, "fn", 0),

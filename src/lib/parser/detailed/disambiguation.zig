@@ -5,8 +5,9 @@ const Span = @import("../foundation/types/span.zig").Span;
 const Token = @import("../foundation/types/token.zig").Token;
 
 // Import AST types and centralized infrastructure
-const AST = @import("../../ast/mod.zig").AST;
-const ASTNode = @import("../../ast/mod.zig").ASTNode;
+const ast_mod = @import("../../ast/mod.zig");
+const AST = ast_mod.AST;
+const ASTNode = ast_mod.ASTNode;
 const ASTFactory = @import("../../ast/factory.zig");
 const ASTStructure = ASTFactory.ASTStructure;
 const ASTTestHelpers = @import("../../ast/test_helpers.zig").ASTTestHelpers;

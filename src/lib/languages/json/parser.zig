@@ -2,9 +2,11 @@ const std = @import("std");
 const Token = @import("../../parser/foundation/types/token.zig").Token;
 const TokenKind = @import("../../parser/foundation/types/predicate.zig").TokenKind;
 const Span = @import("../../parser/foundation/types/span.zig").Span;
-const AST = @import("../../ast/mod.zig").AST;
-const Node = @import("../../ast/mod.zig").Node;
-const NodeType = @import("../../ast/mod.zig").NodeType;
+// Consolidate AST imports
+const ast_mod = @import("../../ast/mod.zig");
+const AST = ast_mod.AST;
+const Node = ast_mod.Node;
+const NodeType = ast_mod.NodeType;
 const ParseContext = @import("memory.zig").ParseContext;
 const JsonRules = @import("../../ast/rules.zig").JsonRules;
 const patterns = @import("patterns.zig");

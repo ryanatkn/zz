@@ -4,6 +4,8 @@ const Node = common.Node;
 const utils = common.utils;
 const ZonRules = @import("../../ast/rules.zig").ZonRules;
 const CommonRules = @import("../../ast/rules.zig").CommonRules;
+const ZonLexer = @import("lexer.zig").ZonLexer;
+const ZonParser = @import("parser.zig").ZonParser;
 
 // Import FormatSection for debugging - need to be careful with circular imports
 // const FormatSection = @import("../../config/zon.zig").ZonConfig.FormatSection;
@@ -560,9 +562,6 @@ pub const AstConverter = struct {
 /// Parse ZON content to a specific type (compatibility function)
 /// This is the main entry point for config loading and other use cases
 pub fn parseFromSlice(comptime T: type, allocator: std.mem.Allocator, content: []const u8) !T {
-    const ZonLexer = @import("lexer.zig").ZonLexer;
-    const ZonParser = @import("parser.zig").ZonParser;
-
     // Tokenize the input
     var lexer = ZonLexer.init(allocator, content, .{});
     defer lexer.deinit();

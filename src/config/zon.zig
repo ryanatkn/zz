@@ -1,14 +1,25 @@
 const std = @import("std");
-const SharedConfig = @import("shared.zig").SharedConfig;
-const BasePatterns = @import("shared.zig").BasePatterns;
-const SymlinkBehavior = @import("shared.zig").SymlinkBehavior;
-const PatternResolver = @import("resolver.zig").PatternResolver;
-const GitignorePatterns = @import("../lib/patterns/gitignore.zig").GitignorePatterns;
-const FilesystemInterface = @import("../lib/filesystem/interface.zig").FilesystemInterface;
-const DirHandle = @import("../lib/filesystem/interface.zig").DirHandle;
+
+// Local config modules
+const shared = @import("shared.zig");
+const resolver_mod = @import("resolver.zig");
+
+// Library modules
+const patterns = @import("../lib/patterns/gitignore.zig");
+const filesystem_mod = @import("../lib/filesystem/interface.zig");
 const filesystem_utils = @import("../lib/core/filesystem.zig");
-const ZonParser = @import("../lib/languages/zon/mod.zig").ZonParser;
+const zon_language = @import("../lib/languages/zon/mod.zig");
 const zon_memory = @import("../lib/memory/zon.zig");
+
+// Type aliases
+const SharedConfig = shared.SharedConfig;
+const BasePatterns = shared.BasePatterns;
+const SymlinkBehavior = shared.SymlinkBehavior;
+const PatternResolver = resolver_mod.PatternResolver;
+const GitignorePatterns = patterns.GitignorePatterns;
+const FilesystemInterface = filesystem_mod.FilesystemInterface;
+const DirHandle = filesystem_mod.DirHandle;
+const ZonParser = zon_language.ZonParser;
 const ManagedZonConfig = zon_memory.ManagedZonConfig;
 
 pub const IndentStyle = enum {

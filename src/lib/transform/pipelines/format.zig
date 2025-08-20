@@ -12,6 +12,9 @@ const syntactic = @import("../stages/syntactic.zig");
 const Token = @import("../../parser/foundation/types/token.zig").Token;
 const AST = @import("../../ast/mod.zig").AST;
 const Node = @import("../../ast/mod.zig").Node;
+const ast_node = @import("../../ast/node.zig");
+const ast_rules = @import("../../ast/rules.zig");
+const ast_builder = @import("../../ast/builder.zig");
 
 // Import formatting utilities
 const common_formatting = @import("../../languages/common/formatting.zig");
@@ -101,8 +104,8 @@ pub const FormatPipeline = struct {
         if (self.indent_manager) |manager| {
             // Convert FormatOptions.IndentStyle to IndentManager.IndentStyle
             const indent_style = switch (self.options.indent_style) {
-                .space => @import("../../text/indent.zig").IndentManager.IndentStyle.spaces,
-                .tab => @import("../../text/indent.zig").IndentManager.IndentStyle.tabs,
+                .space => indent_mod.IndentManager.IndentStyle.spaces,
+                .tab => indent_mod.IndentManager.IndentStyle.tabs,
             };
             const indented = try manager.convertStyle(text, indent_style, self.options.indent_size);
             ctx.allocator.free(text);
@@ -379,7 +382,6 @@ pub const FormatOptionsBuilder = struct {
 
 // Tests
 const testing = std.testing;
-const builder = @import("../../ast/builder.zig");
 const Span = @import("../../parser/foundation/types/span.zig").Span;
 
 test "FormatPipeline basic usage" {
@@ -435,7 +437,7 @@ test "FormatPipeline basic usage" {
 
     var ast = AST.init(allocator);
     defer ast.deinit();
-    ast.root = try @import("../../ast/node.zig").createLeafNode(allocator, @intFromEnum(@import("../../ast/rules.zig").CommonRules.null_literal), "null", 0, 4);
+    ast.root = try ast_node.createLeafNode(allocator, @intFromEnum(ast_rules.CommonRules.null_literal), "null", 0, 4);
 
     const formatted = try pipeline.format(&ctx, ast);
     defer allocator.free(formatted);

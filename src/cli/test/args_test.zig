@@ -1,8 +1,12 @@
 const std = @import("std");
 const testing = std.testing;
 const test_helpers = @import("../../lib/test/helpers.zig");
-const Command = @import("../command.zig").Command;
-const Runner = @import("../runner.zig").Runner;
+
+const command_mod = @import("../command.zig");
+const runner_mod = @import("../runner.zig");
+
+const Command = command_mod.Command;
+const Runner = runner_mod.Runner;
 
 // Initialize CLI module testing
 test "CLI module initialization" {

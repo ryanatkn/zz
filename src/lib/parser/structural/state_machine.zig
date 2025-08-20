@@ -3,6 +3,7 @@ const Token = @import("../lexical/mod.zig").Token;
 const TokenKind = @import("../lexical/mod.zig").TokenKind;
 const Language = @import("../lexical/mod.zig").Language;
 const BoundaryKind = @import("../foundation/types/predicate.zig").BoundaryKind;
+const Span = @import("../foundation/types/span.zig").Span;
 
 /// Parsing states for structural boundary detection
 /// Optimized for O(1) state transitions and branch prediction
@@ -472,7 +473,6 @@ test "state transitions" {
     defer machine.deinit();
 
     // Create a mock function token
-    const Span = @import("../foundation/types/span.zig").Span;
     const span = Span.init(0, 2);
     const fn_token = Token.simple(span, .keyword, "fn", 0);
 
@@ -490,7 +490,6 @@ test "error recovery" {
     try testing.expect(machine.isInErrorRecovery());
 
     // Recovery should eventually exit
-    const Span = @import("../foundation/types/span.zig").Span;
     const span = Span.init(0, 1);
     const brace_token = Token.simple(span, .delimiter, "}", 0);
 

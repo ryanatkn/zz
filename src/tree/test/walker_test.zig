@@ -1,8 +1,10 @@
 const std = @import("std");
 const testing = std.testing;
 
-const Walker = @import("../walker.zig").Walker;
-const WalkerOptions = @import("../walker.zig").WalkerOptions;
+// Consolidate walker imports
+const walker_mod = @import("../walker.zig");
+const Walker = walker_mod.Walker;
+const WalkerOptions = walker_mod.WalkerOptions;
 const Config = @import("../config.zig").Config;
 const SharedConfig = @import("../../config.zig").SharedConfig;
 const RealFilesystem = @import("../../lib/filesystem/real.zig").RealFilesystem;

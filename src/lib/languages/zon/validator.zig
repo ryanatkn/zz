@@ -3,8 +3,10 @@ const std = common.std;
 const Node = common.Node;
 const AST = common.AST;
 const utils = common.utils;
-const ZonRules = @import("../../ast/rules.zig").ZonRules;
-const CommonRules = @import("../../ast/rules.zig").CommonRules;
+// Consolidate AST rules imports
+const ast_rules = @import("../../ast/rules.zig");
+const ZonRules = ast_rules.ZonRules;
+const CommonRules = ast_rules.CommonRules;
 
 /// Validate ZON content against known schemas
 /// This module provides schema validation for common ZON configuration files

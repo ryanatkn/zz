@@ -5,6 +5,7 @@ const Language = @import("../lexical/mod.zig").Language;
 const Token = @import("../foundation/types/token.zig").Token;
 const TokenKind = @import("../foundation/types/predicate.zig").TokenKind;
 const Span = @import("../foundation/types/span.zig").Span;
+const TokenDelta = @import("../lexical/mod.zig").TokenDelta;
 
 /// Benchmark structural parser performance to validate <1ms target
 pub fn main() !void {
@@ -191,8 +192,6 @@ fn benchmarkIncrementalUpdates(allocator: std.mem.Allocator) !void {
     const config = StructuralConfig.forLanguage(.zig);
     var parser = try StructuralParser.init(allocator, config);
     defer parser.deinit();
-
-    const TokenDelta = @import("../lexical/mod.zig").TokenDelta;
 
     // Create incremental change tokens
     const added_tokens = [_]Token{

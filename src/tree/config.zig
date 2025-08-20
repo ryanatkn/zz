@@ -1,10 +1,16 @@
 const std = @import("std");
-const FilesystemInterface = @import("../lib/filesystem/interface.zig").FilesystemInterface;
-const Format = @import("format.zig").Format;
-const SharedConfig = @import("../config.zig").SharedConfig;
-const ZonLoader = @import("../config.zig").ZonLoader;
-const Args = @import("../lib/args.zig").Args;
-const CommonFlags = @import("../lib/args.zig").CommonFlags;
+const filesystem = @import("../lib/filesystem/interface.zig");
+const config = @import("../config.zig");
+const args = @import("../lib/args.zig");
+
+const format_mod = @import("format.zig");
+
+const FilesystemInterface = filesystem.FilesystemInterface;
+const Format = format_mod.Format;
+const SharedConfig = config.SharedConfig;
+const ZonLoader = config.ZonLoader;
+const Args = args.Args;
+const CommonFlags = args.CommonFlags;
 
 pub const ArgError = error{
     InvalidFlag,
@@ -42,16 +48,16 @@ pub const Config = struct {
         };
     }
 
-    pub fn fromArgs(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: [][:0]const u8) !Self {
-        return fromArgsWithQuiet(allocator, filesystem, args, false);
+    pub fn fromArgs(allocator: std.mem.Allocator, fs: FilesystemInterface, args_slice: [][:0]const u8) !Self {
+        return fromArgsWithQuiet(allocator, fs, args_slice, false);
     }
 
-    pub fn fromArgsQuiet(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: [][:0]const u8) !Self {
-        return fromArgsWithQuiet(allocator, filesystem, args, true);
+    pub fn fromArgsQuiet(allocator: std.mem.Allocator, fs: FilesystemInterface, args_slice: [][:0]const u8) !Self {
+        return fromArgsWithQuiet(allocator, fs, args_slice, true);
     }
 
-    fn fromArgsWithQuiet(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: [][:0]const u8, quiet: bool) !Self {
-        const parsed_args = parseArgs(allocator, args) catch |err| {
+    fn fromArgsWithQuiet(allocator: std.mem.Allocator, fs: FilesystemInterface, args_slice: [][:0]const u8, quiet: bool) !Self {
+        const parsed_args = parseArgs(allocator, args_slice) catch |err| {
             if (!quiet) {
                 std.debug.print("Error: {s}\n", .{formatArgError(err)});
                 printUsage("zz", "tree");
@@ -59,15 +65,15 @@ pub const Config = struct {
             return err;
         };
 
-        const config = Self{
-            .shared_config = try loadSharedConfig(allocator, filesystem, parsed_args.no_gitignore),
+        const tree_config = Self{
+            .shared_config = try loadSharedConfig(allocator, fs, parsed_args.no_gitignore),
             .max_depth = parsed_args.max_depth,
             .show_hidden = parsed_args.show_hidden,
             .format = parsed_args.format,
             .directory_path = parsed_args.directory orelse ".",
         };
 
-        return config;
+        return tree_config;
     }
 
     const ParsedArgs = struct {
@@ -78,25 +84,25 @@ pub const Config = struct {
         no_gitignore: bool = false,
     };
 
-    fn parseArgs(allocator: std.mem.Allocator, args: [][:0]const u8) ArgError!ParsedArgs {
+    fn parseArgs(allocator: std.mem.Allocator, args_slice: [][:0]const u8) ArgError!ParsedArgs {
         _ = allocator; // May need later for string duplication
         var result = ParsedArgs{};
 
-        const start_index = Args.skipToCommand(args, "tree");
+        const start_index = Args.skipToCommand(args_slice, "tree");
         var positional_count: usize = 0;
 
         var i = start_index;
-        while (i < args.len) {
-            const arg = args[i];
+        while (i < args_slice.len) {
+            const arg = args_slice[i];
 
             // Parse using centralized flag functions
             if (CommonFlags.parseFormatFlag(arg)) |format_str| {
                 result.format = Format.fromString(format_str) orelse return ArgError.InvalidFormat;
             } else if (std.mem.eql(u8, arg, "-f")) {
                 // Handle -f flag that expects next argument as format
-                if (i + 1 >= args.len) return ArgError.MissingValue;
+                if (i + 1 >= args_slice.len) return ArgError.MissingValue;
                 i += 1;
-                const format_str = args[i];
+                const format_str = args_slice[i];
                 result.format = Format.fromString(format_str) orelse return ArgError.InvalidFormat;
             } else if (CommonFlags.isShowHiddenFlag(arg)) {
                 result.show_hidden = true;
@@ -147,26 +153,26 @@ pub const Config = struct {
         };
     }
 
-    fn loadSharedConfig(allocator: std.mem.Allocator, filesystem: FilesystemInterface, no_gitignore: bool) !SharedConfig {
-        var zon_loader = ZonLoader.init(allocator, filesystem);
+    fn loadSharedConfig(allocator: std.mem.Allocator, fs: FilesystemInterface, no_gitignore: bool) !SharedConfig {
+        var zon_loader = ZonLoader.init(allocator, fs);
         defer zon_loader.deinit();
 
-        var config = try zon_loader.getSharedConfig();
+        var shared_config = try zon_loader.getSharedConfig();
 
         // Override gitignore behavior if --no-gitignore flag is used
         if (no_gitignore) {
-            config.respect_gitignore = false;
+            shared_config.respect_gitignore = false;
             // Clear any existing gitignore patterns to save memory
-            if (config.patterns_allocated) {
-                for (config.gitignore_patterns) |pattern| {
+            if (shared_config.patterns_allocated) {
+                for (shared_config.gitignore_patterns) |pattern| {
                     allocator.free(pattern);
                 }
-                allocator.free(config.gitignore_patterns);
+                allocator.free(shared_config.gitignore_patterns);
             }
-            config.gitignore_patterns = &[_][]const u8{};
+            shared_config.gitignore_patterns = &[_][]const u8{};
         }
 
-        return config;
+        return shared_config;
     }
 
     pub fn deinit(self: *Self, allocator: std.mem.Allocator) void {

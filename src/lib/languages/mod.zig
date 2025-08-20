@@ -10,12 +10,13 @@ pub const Language = @import("../core/language.zig").Language;
 pub const ExtractionFlags = @import("../core/extraction.zig").ExtractionFlags;
 
 // Core interfaces
-pub const LanguageSupport = @import("interface.zig").LanguageSupport;
-pub const Lexer = @import("interface.zig").Lexer;
-pub const Parser = @import("interface.zig").Parser;
-pub const Formatter = @import("interface.zig").Formatter;
-pub const Linter = @import("interface.zig").Linter;
-pub const Analyzer = @import("interface.zig").Analyzer;
+const interface_types = @import("interface.zig");
+pub const LanguageSupport = interface_types.LanguageSupport;
+pub const Lexer = interface_types.Lexer;
+pub const Parser = interface_types.Parser;
+pub const Formatter = interface_types.Formatter;
+pub const Linter = interface_types.Linter;
+pub const Analyzer = interface_types.Analyzer;
 
 // Enhanced registry
 pub const LanguageRegistry = @import("registry.zig").LanguageRegistry;

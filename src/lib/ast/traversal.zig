@@ -2,6 +2,8 @@ const std = @import("std");
 const Node = @import("node.zig").Node;
 const AST = @import("mod.zig").AST;
 const getRuleName = @import("rules.zig").getRuleName;
+const ZonRules = @import("rules.zig").ZonRules;
+const CommonRules = @import("rules.zig").CommonRules;
 
 /// High-performance AST traversal with multiple strategies
 /// Unified tree walking to replace manual patterns across the codebase
@@ -368,7 +370,6 @@ test "find nodes by rule ID" {
     var ast = try ASTTestHelpers.createZonAST(testing.allocator, ".{ .field1 = 1, .field2 = 2 }");
     defer ast.deinit();
 
-    const ZonRules = @import("rules.zig").ZonRules;
     const field_nodes = try findNodesByRuleId(testing.allocator, &ast.root, ZonRules.field_assignment);
     defer testing.allocator.free(field_nodes);
 
@@ -377,7 +378,6 @@ test "find nodes by rule ID" {
 }
 
 test "leaf node detection" {
-    const CommonRules = @import("rules.zig").CommonRules;
     var ast = try ASTTestHelpers.createMinimalAST(testing.allocator, @intFromEnum(CommonRules.number_literal), "42");
     defer ast.deinit();
 

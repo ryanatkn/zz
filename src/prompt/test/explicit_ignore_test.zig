@@ -3,6 +3,7 @@ const test_helpers = @import("../../lib/test/helpers.zig");
 const Config = @import("../config.zig").Config;
 const GlobExpander = @import("../glob.zig").GlobExpander;
 const prompt_main = @import("../main.zig");
+const GitignorePatterns = @import("../../lib/patterns/gitignore.zig").GitignorePatterns;
 
 test "explicit file ignored by gitignore should error" {
     const allocator = std.testing.allocator;
@@ -84,7 +85,6 @@ test "explicit ignore returns correct error code" {
     defer allocator.free(debug_log_path);
 
     // For this test, we test the gitignore mechanism directly
-    const GitignorePatterns = @import("../../lib/patterns/gitignore.zig").GitignorePatterns;
     var gitignore_patterns = try GitignorePatterns.loadFromDirHandle(allocator, tmp_dir.dir, ".gitignore");
     defer gitignore_patterns.deinit();
 

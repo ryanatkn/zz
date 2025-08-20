@@ -1,6 +1,9 @@
 const std = @import("std");
-const FilesystemInterface = @import("../lib/filesystem/interface.zig").FilesystemInterface;
-const PathCache = @import("../lib/memory/pools.zig").PathCache;
+const filesystem = @import("../lib/filesystem/interface.zig");
+const memory = @import("../lib/memory/pools.zig");
+
+const FilesystemInterface = filesystem.FilesystemInterface;
+const PathCache = memory.PathCache;
 
 pub const PathBuilder = struct {
     allocator: std.mem.Allocator,
@@ -10,17 +13,17 @@ pub const PathBuilder = struct {
     const Self = @This();
 
     /// Initialize with optional path cache for performance
-    pub fn initWithCache(allocator: std.mem.Allocator, filesystem: FilesystemInterface, path_cache: ?*PathCache) Self {
+    pub fn initWithCache(allocator: std.mem.Allocator, fs: FilesystemInterface, path_cache: ?*PathCache) Self {
         return Self{
             .allocator = allocator,
-            .filesystem = filesystem,
+            .filesystem = fs,
             .path_cache = path_cache,
         };
     }
 
     /// Initialize without cache (backward compatibility)
-    pub fn init(allocator: std.mem.Allocator, filesystem: FilesystemInterface) Self {
-        return Self.initWithCache(allocator, filesystem, null);
+    pub fn init(allocator: std.mem.Allocator, fs: FilesystemInterface) Self {
+        return Self.initWithCache(allocator, fs, null);
     }
 
     /// Build a relative path by joining base and name

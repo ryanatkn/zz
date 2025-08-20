@@ -4,6 +4,7 @@ const testing = std.testing;
 const tree_main = @import("../main.zig");
 const test_helpers = @import("../../lib/test/helpers.zig");
 const RealFilesystem = @import("../../lib/filesystem/real.zig").RealFilesystem;
+const Config = @import("../config.zig").Config;
 
 // Integration tests for the complete tree module workflow
 test "complete tree workflow with real directory" {
@@ -401,7 +402,6 @@ test "format error handling integration" {
     defer testing.allocator.free(path_z);
 
     // Test invalid format should error (using quiet config parsing)
-    const Config = @import("../config.zig").Config;
     const filesystem = RealFilesystem.init();
     const path_z_invalid_sentinel = try testing.allocator.dupeZ(u8, path_z);
     defer testing.allocator.free(path_z_invalid_sentinel);

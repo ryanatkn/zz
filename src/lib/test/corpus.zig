@@ -4,8 +4,11 @@
 /// to ensure consistent behavior and quality across all language modules.
 const std = @import("std");
 const testing = std.testing;
+// Consolidate foundation type imports
 const Token = @import("../parser/foundation/types/token.zig").Token;
-const TokenKind = @import("../parser/foundation/types/predicate.zig").TokenKind;
+const predicate_types = @import("../parser/foundation/types/predicate.zig");
+const TokenKind = predicate_types.TokenKind;
+const Span = @import("../parser/foundation/types/span.zig").Span;
 const AST = @import("../ast/mod.zig").AST;
 
 /// Standard test cases that all languages should pass
@@ -256,7 +259,7 @@ pub fn runStandardParserTests(
     tokens: []const Token,
 ) !void {
     // Test 1: Empty token list (only EOF)
-    const eof_tokens = &[_]Token{Token.simple(@import("../parser/foundation/types/span.zig").Span.init(0, 0), .eof, "", 0)};
+    const eof_tokens = &[_]Token{Token.simple(Span.init(0, 0), .eof, "", 0)};
     try testEmptyParse(ParserType, createParser, eof_tokens);
 
     // Test 2: Basic parsing

@@ -3,10 +3,11 @@ const testing = std.testing;
 const Node = @import("node.zig").Node;
 const NodeType = @import("node.zig").NodeType;
 const AST = @import("mod.zig").AST;
-const ASTFactory = @import("factory.zig").ASTFactory;
-const createMockAST = @import("factory.zig").createMockAST;
-const ASTStructure = @import("factory.zig").ASTStructure;
-const FieldSpec = @import("factory.zig").FieldSpec;
+const factory_mod = @import("factory.zig");
+const ASTFactory = factory_mod.ASTFactory;
+const createMockAST = factory_mod.createMockAST;
+const ASTStructure = factory_mod.ASTStructure;
+const FieldSpec = factory_mod.FieldSpec;
 const CommonRules = @import("rules.zig").CommonRules;
 const ZonRules = @import("rules.zig").ZonRules;
 
@@ -28,7 +29,7 @@ pub const ASTTestHelpers = struct {
         allocator: std.mem.Allocator,
         fields: []const struct { []const u8, []const u8 },
     ) !AST {
-        return try @import("factory.zig").createSimpleObjectAST(allocator, fields);
+        return try factory_mod.createSimpleObjectAST(allocator, fields);
     }
 
     /// Create a simple array AST for testing
@@ -37,7 +38,7 @@ pub const ASTTestHelpers = struct {
         allocator: std.mem.Allocator,
         items: []const []const u8,
     ) !AST {
-        return try @import("factory.zig").createSimpleArrayAST(allocator, items);
+        return try factory_mod.createSimpleArrayAST(allocator, items);
     }
 
     /// Create a structured mock AST using the factory

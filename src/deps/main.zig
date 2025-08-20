@@ -6,6 +6,7 @@ const FilesystemInterface = @import("../lib/filesystem/interface.zig").Filesyste
 const Args = @import("../lib/args.zig").Args;
 const io = @import("../lib/core/io.zig");
 const reporting = @import("../lib/core/reporting.zig");
+const docs = @import("../lib/deps/docs/mod.zig");
 
 /// CLI entry point for dependency management
 pub fn run(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: [][:0]const u8) !void {
@@ -252,8 +253,6 @@ fn printUpdateResults(result: *const manager.UpdateResult, options: config.Updat
 
 /// Generate dependency documentation only (without updating)
 fn generateDocumentationOnly(allocator: std.mem.Allocator, dep_manager: *manager.DependencyManager, dependencies: []const config.Dependency) !void {
-    const docs = @import("../lib/deps/docs/mod.zig");
-
     const stdout = std.io.getStdOut().writer();
 
     var doc_generator = docs.DocumentationGenerator.init(allocator, dep_manager.deps_dir);

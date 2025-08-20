@@ -1,6 +1,7 @@
 const std = @import("std");
 const Span = @import("span.zig").Span;
 const Predicate = @import("predicate.zig").Predicate;
+const PredicateCategory = @import("predicate.zig").PredicateCategory;
 const Value = @import("predicate.zig").Value;
 
 /// Unique identifier for facts in the system
@@ -123,7 +124,7 @@ pub const Fact = struct {
     }
 
     /// Get the category of this fact for indexing
-    pub fn category(self: Fact) @import("predicate.zig").PredicateCategory {
+    pub fn category(self: Fact) PredicateCategory {
         return self.predicate.category();
     }
 
@@ -291,7 +292,7 @@ pub const FactSet = struct {
     /// Find facts by predicate category
     pub fn findByCategory(
         self: FactSet,
-        category: @import("predicate.zig").PredicateCategory,
+        category: PredicateCategory,
         allocator: std.mem.Allocator,
     ) ![]Fact {
         var result = std.ArrayList(Fact).init(allocator);
@@ -344,7 +345,7 @@ const testing = std.testing;
 
 test "Fact creation and basic properties" {
     const span = Span.init(10, 20);
-    const predicate = @import("predicate.zig").Predicate{ .is_token = .identifier };
+    const predicate = Predicate{ .is_token = .identifier };
     const fact = Fact.simple(1, span, predicate, 0);
 
     try testing.expectEqual(@as(FactId, 1), fact.id);
@@ -358,7 +359,7 @@ test "Fact creation and basic properties" {
 
 test "Fact with value" {
     const span = Span.init(5, 15);
-    const predicate = @import("predicate.zig").Predicate{ .has_text = "test" };
+    const predicate = Predicate{ .has_text = "test" };
     const value = Value{ .string = "hello" };
     const fact = Fact.withValue(2, span, predicate, value, 1);
 
@@ -368,7 +369,7 @@ test "Fact with value" {
 
 test "Speculative fact" {
     const span = Span.init(0, 5);
-    const predicate = @import("predicate.zig").Predicate.is_trivia;
+    const predicate = Predicate.is_trivia;
     const fact = Fact.speculative(3, span, predicate, 0.7, 2);
 
     try testing.expect(!fact.isCertain());
@@ -378,7 +379,7 @@ test "Speculative fact" {
 
 test "Fact span operations" {
     const span = Span.init(10, 20);
-    const predicate = @import("predicate.zig").Predicate{ .is_boundary = .function };
+    const predicate = Predicate{ .is_boundary = .function };
     const fact = Fact.simple(4, span, predicate, 0);
 
     try testing.expect(fact.containsPosition(15));
@@ -395,7 +396,7 @@ test "Fact span operations" {
 test "Fact ordering" {
     const span1 = Span.init(10, 20);
     const span2 = Span.init(15, 25);
-    const predicate = @import("predicate.zig").Predicate{ .is_node = .rule };
+    const predicate = Predicate{ .is_node = .rule };
 
     const fact1 = Fact.simple(1, span1, predicate, 0);
     const fact2 = Fact.simple(2, span2, predicate, 0);
@@ -407,7 +408,7 @@ test "Fact ordering" {
 
 test "Fact equality" {
     const span = Span.init(10, 20);
-    const predicate = @import("predicate.zig").Predicate{ .is_token = .keyword };
+    const predicate = Predicate{ .is_token = .keyword };
 
     const fact1 = Fact.simple(1, span, predicate, 0);
     const fact2 = Fact.simple(1, span, predicate, 0);
@@ -419,7 +420,7 @@ test "Fact equality" {
 
 test "FactBuilder" {
     const span = Span.init(5, 10);
-    const predicate = @import("predicate.zig").Predicate{ .highlight_color = .keyword };
+    const predicate = Predicate{ .highlight_color = .keyword };
     const value = Value{ .string = "test" };
 
     const fact = try FactBuilder.init(1, span, 0)
@@ -440,8 +441,8 @@ test "FactSet operations" {
 
     const span1 = Span.init(0, 10);
     const span2 = Span.init(15, 25);
-    const predicate1 = @import("predicate.zig").Predicate{ .is_token = .identifier };
-    const predicate2 = @import("predicate.zig").Predicate{ .is_boundary = .function };
+    const predicate1 = Predicate{ .is_token = .identifier };
+    const predicate2 = Predicate{ .is_boundary = .function };
 
     const fact1 = Fact.simple(1, span1, predicate1, 0);
     const fact2 = Fact.simple(2, span2, predicate2, 1);

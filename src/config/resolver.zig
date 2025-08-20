@@ -1,5 +1,7 @@
 const std = @import("std");
-const BasePatterns = @import("shared.zig").BasePatterns;
+const shared = @import("shared.zig");
+
+const BasePatterns = shared.BasePatterns;
 
 pub const PatternResolver = struct {
     allocator: std.mem.Allocator,

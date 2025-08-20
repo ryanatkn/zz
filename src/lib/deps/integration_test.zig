@@ -1,6 +1,8 @@
 // Integration tests for cross-module functionality
 const std = @import("std");
 const LockGuard = @import("lock.zig").LockGuard;
+const path = @import("../core/path.zig");
+const process = @import("../core/process.zig");
 
 test "Lock module - PID management" {
     const testing = std.testing;
@@ -22,7 +24,6 @@ test "Lock module - PID management" {
 test "Path utilities integration" {
     const testing = std.testing;
     const allocator = testing.allocator;
-    const path = @import("../core/path.zig");
 
     // Test path joining with dependency-style paths
     const joined = try path.joinPath(allocator, "deps", "tree-sitter");
@@ -46,7 +47,6 @@ test "Path utilities integration" {
 test "Process module integration" {
     const testing = std.testing;
     const allocator = testing.allocator;
-    const process = @import("../core/process.zig");
 
     // Test git args building
     var git_args = try process.buildGitArgs(allocator, &.{ "status", "--porcelain" });

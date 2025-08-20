@@ -1,7 +1,10 @@
 const std = @import("std");
 const rule = @import("rule.zig");
 const test_framework = @import("test_framework.zig");
-const CommonRules = @import("../ast/rules.zig").CommonRules;
+const ast_rules = @import("../ast/rules.zig");
+const Builder = @import("builder.zig").Builder;
+
+const CommonRules = ast_rules.CommonRules;
 
 const TestContext = test_framework.TestContext;
 
@@ -139,7 +142,7 @@ pub const Grammar = struct {
     }
 
     /// Create a new builder for this grammar
-    pub fn builder(allocator: std.mem.Allocator) @import("builder.zig").Builder {
-        return @import("builder.zig").Builder.init(allocator);
+    pub fn builder(allocator: std.mem.Allocator) Builder {
+        return Builder.init(allocator);
     }
 };

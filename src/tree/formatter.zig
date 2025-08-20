@@ -1,6 +1,10 @@
 const std = @import("std");
-const Entry = @import("entry.zig").Entry;
-const Format = @import("format.zig").Format;
+
+const entry_mod = @import("entry.zig");
+const format_mod = @import("format.zig");
+
+const Entry = entry_mod.Entry;
+const Format = format_mod.Format;
 
 pub const Formatter = struct {
     quiet: bool = false,

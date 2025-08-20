@@ -300,7 +300,6 @@ pub const TokenIterator = struct {
     }
 };
 
-
 /// Convenience functions for creating TokenIterator with real lexers
 pub fn createJsonTokenIterator(allocator: std.mem.Allocator, input: []const u8, context: *Context, options: JsonLexer.LexerOptions) !TokenIterator {
     var adapter = JsonStreamingAdapter.init(options);
@@ -492,7 +491,7 @@ test "TokenIterator - JSON lexer adapter" {
     // Simple JSON that should be tokenized properly by JSON lexer
     const input = "{\"name\": \"Alice\", \"age\": 30, \"active\": true}";
 
-    var adapter = JsonStreamingAdapter.init(.{
+    var adapter = JsonStreamingAdapter.init(testing.allocator, .{
         .allow_comments = false,
         .allow_trailing_commas = false,
     });
@@ -587,7 +586,7 @@ test "TokenIterator - real lexers vs fallback comparison" {
     const json_input = "{\"name\": \"Alice\", \"active\": true, \"score\": null}";
 
     // Test JSON with real lexer
-    var json_adapter = JsonStreamingAdapter.init(.{});
+    var json_adapter = JsonStreamingAdapter.init(testing.allocator, .{});
     defer json_adapter.deinit();
 
     const json_lexer_interface = TokenIterator.LexerInterface.init(&json_adapter);

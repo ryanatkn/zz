@@ -413,22 +413,22 @@ pub const TokenKind = enum {
     number_literal,
     boolean_literal, // true/false literals
     null_literal, // null literal
-    
+
     // Specific delimiter types for precise tokenization
-    left_brace,      // {
-    right_brace,     // }
-    left_bracket,    // [
-    right_bracket,   // ]
-    left_paren,      // (
-    right_paren,     // )
-    comma,           // ,
-    colon,           // :
-    semicolon,       // ;
-    dot,             // .
-    
+    left_brace, // {
+    right_brace, // }
+    left_bracket, // [
+    right_bracket, // ]
+    left_paren, // (
+    right_paren, // )
+    comma, // ,
+    colon, // :
+    semicolon, // ;
+    dot, // .
+
     // Generic delimiter for fallback
     delimiter,
-    
+
     whitespace,
     comment,
     newline,

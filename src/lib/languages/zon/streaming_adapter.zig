@@ -80,7 +80,7 @@ test "ZonStreamingAdapter - comment preservation" {
     defer testing.allocator.free(tokens);
 
     try testing.expect(tokens.len > 0);
-    
+
     // Should contain comment token when preserve_comments is true
     var found_comment = false;
     for (tokens) |token| {

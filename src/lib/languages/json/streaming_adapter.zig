@@ -7,13 +7,20 @@ const JsonToken = @import("tokens.zig").JsonToken;
 const TokenConverter = @import("../../transform/streaming/token_converter.zig").TokenConverter;
 
 /// Streaming adapter for JSON lexer - integrates stateful JSON lexer with token iterator
+/// Converts rich JsonToken types to generic Token interface for parser consumption
+///
+/// Design Note: Token conversion is necessary to maintain clean separation between
+/// language-specific rich tokens (JsonToken) and the generic Token interface used
+/// by the stratified parser layers. This allows maximum semantic information in
+/// language tokens while providing a uniform interface for parsing infrastructure.
 pub const JsonStreamingAdapter = struct {
     lexer: StatefulJsonLexer,
-    source: []const u8,  // Keep reference to source for conversion
+    source: []const u8, // Keep reference to source for conversion
+    allocator: std.mem.Allocator,
 
     const Self = @This();
 
-    pub fn init(options: JsonLexer.LexerOptions) Self {
+    pub fn init(allocator: std.mem.Allocator, options: JsonLexer.LexerOptions) Self {
         const stateful_options = StatefulLexer.Options{
             .allow_comments = options.allow_comments,
             .allow_trailing_commas = options.allow_trailing_commas,
@@ -25,21 +32,48 @@ pub const JsonStreamingAdapter = struct {
             .allow_multiline_strings = false,
         };
         return Self{
-            .lexer = StatefulJsonLexer.init(std.heap.page_allocator, stateful_options),
+            .lexer = StatefulJsonLexer.init(allocator, stateful_options),
             .source = &.{},
+            .allocator = allocator,
         };
     }
 
     pub fn tokenizeChunk(self: *Self, input: []const u8, start_pos: usize, allocator: std.mem.Allocator) ![]Token {
         // Store source reference for conversion
         self.source = input;
-        
+
         // Get JSON tokens from stateful lexer
         const json_tokens = try self.lexer.processChunk(input, start_pos, allocator);
         defer allocator.free(json_tokens);
-        
-        // Convert to generic tokens
-        return try TokenConverter.convertMany(JsonToken, json_tokens, self.source, allocator);
+
+        // Optimize: Convert directly without intermediate array
+        return try self.convertTokensStreaming(json_tokens, allocator);
+    }
+
+    /// Optimized streaming conversion that avoids double allocation
+    fn convertTokensStreaming(self: *Self, json_tokens: []const JsonToken, allocator: std.mem.Allocator) ![]Token {
+        var result = try std.ArrayList(Token).initCapacity(allocator, json_tokens.len);
+        errdefer result.deinit();
+
+        for (json_tokens) |json_token| {
+            const converted = TokenConverter.convertJsonToken(json_token, self.source);
+            try result.append(converted);
+        }
+
+        return result.toOwnedSlice();
+    }
+
+    /// Alternative streaming interface that yields tokens one by one
+    /// Avoids allocation of token arrays for memory-conscious applications
+    pub fn tokenIterator(self: *Self, input: []const u8, start_pos: usize, allocator: std.mem.Allocator) !TokenIterator {
+        self.source = input;
+        const json_tokens = try self.lexer.processChunk(input, start_pos, allocator);
+        return TokenIterator{
+            .json_tokens = json_tokens,
+            .source = self.source,
+            .index = 0,
+            .allocator = allocator,
+        };
     }
 
     pub fn deinit(self: *Self) void {
@@ -47,11 +81,33 @@ pub const JsonStreamingAdapter = struct {
     }
 };
 
+/// Iterator that converts JsonTokens to Tokens on-demand
+/// More memory efficient for large token streams
+pub const TokenIterator = struct {
+    json_tokens: []const JsonToken,
+    source: []const u8,
+    index: usize,
+    allocator: std.mem.Allocator,
+
+    pub fn next(self: *TokenIterator) ?Token {
+        if (self.index >= self.json_tokens.len) return null;
+
+        const json_token = self.json_tokens[self.index];
+        self.index += 1;
+
+        return TokenConverter.convertJsonToken(json_token, self.source);
+    }
+
+    pub fn deinit(self: *TokenIterator) void {
+        self.allocator.free(self.json_tokens);
+    }
+};
+
 // Tests
 const testing = std.testing;
 
 test "JsonStreamingAdapter - basic functionality" {
-    var adapter = JsonStreamingAdapter.init(.{
+    var adapter = JsonStreamingAdapter.init(testing.allocator, .{
         .allow_comments = false,
         .allow_trailing_commas = false,
     });
@@ -66,7 +122,7 @@ test "JsonStreamingAdapter - basic functionality" {
 }
 
 test "JsonStreamingAdapter - chunk boundary handling" {
-    var adapter = JsonStreamingAdapter.init(.{
+    var adapter = JsonStreamingAdapter.init(testing.allocator, .{
         .allow_comments = false,
         .allow_trailing_commas = false,
     });
@@ -88,7 +144,7 @@ test "JsonStreamingAdapter - chunk boundary handling" {
 }
 
 test "JsonStreamingAdapter - JSON5 support" {
-    var adapter = JsonStreamingAdapter.init(.{
+    var adapter = JsonStreamingAdapter.init(testing.allocator, .{
         .allow_comments = true,
         .allow_trailing_commas = true,
     });

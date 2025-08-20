@@ -16,10 +16,10 @@ pub const UnifiedTokenIterator = struct {
     chunk_size: usize,
     buffer: std.ArrayList(Token),
     buffer_index: usize,
-    
+
     const Self = @This();
     const DEFAULT_CHUNK_SIZE = 4096;
-    
+
     /// Supported lexer types
     pub const LexerKind = union(enum) {
         json: *StatefulJsonLexer,
@@ -27,7 +27,7 @@ pub const UnifiedTokenIterator = struct {
         // typescript: *StatefulTypeScriptLexer,  // Future
         // zig: *StatefulZigLexer,  // Future
     };
-    
+
     /// Language type enum for initialization
     pub const Language = enum {
         json,
@@ -35,7 +35,7 @@ pub const UnifiedTokenIterator = struct {
         typescript,
         zig,
     };
-    
+
     /// Options for creating the iterator
     pub const Options = struct {
         chunk_size: usize = DEFAULT_CHUNK_SIZE,
@@ -44,7 +44,7 @@ pub const UnifiedTokenIterator = struct {
         json5_mode: bool = false,
         error_recovery: bool = true,
     };
-    
+
     /// Initialize with language and options
     pub fn init(
         allocator: std.mem.Allocator,
@@ -66,7 +66,7 @@ pub const UnifiedTokenIterator = struct {
             },
             else => return error.UnsupportedLanguage,
         };
-        
+
         return Self{
             .allocator = allocator,
             .lexer = lexer,
@@ -77,7 +77,7 @@ pub const UnifiedTokenIterator = struct {
             .buffer_index = 0,
         };
     }
-    
+
     pub fn deinit(self: *Self) void {
         switch (self.lexer) {
             .json => |lexer| {
@@ -87,7 +87,7 @@ pub const UnifiedTokenIterator = struct {
         }
         self.buffer.deinit();
     }
-    
+
     /// Get the next token
     pub fn next(self: *Self) !?Token {
         // If we have buffered tokens, return from buffer
@@ -96,40 +96,40 @@ pub const UnifiedTokenIterator = struct {
             self.buffer_index += 1;
             return token;
         }
-        
+
         // Check if we've processed all input
         if (self.position >= self.source.len) {
             return null;
         }
-        
+
         // Clear buffer and refill
         self.buffer.clearRetainingCapacity();
         self.buffer_index = 0;
-        
+
         // Process next chunk
         const chunk_end = @min(self.position + self.chunk_size, self.source.len);
         const chunk = self.source[self.position..chunk_end];
-        
+
         // Get tokens based on lexer type
         const tokens = try self.processChunk(chunk, self.position);
         defer self.allocator.free(tokens);
-        
+
         // Add to buffer
         try self.buffer.appendSlice(tokens);
-        
+
         // Update position
         self.position = chunk_end;
-        
+
         // Return first token from new buffer
         if (self.buffer.items.len > 0) {
             const token = self.buffer.items[0];
             self.buffer_index = 1;
             return token;
         }
-        
+
         return null;
     }
-    
+
     /// Process a chunk with the appropriate lexer
     fn processChunk(self: *Self, chunk: []const u8, chunk_pos: usize) ![]Token {
         switch (self.lexer) {
@@ -137,30 +137,33 @@ pub const UnifiedTokenIterator = struct {
                 // Get JSON tokens
                 const json_tokens = try lexer.processChunk(chunk, chunk_pos, self.allocator);
                 defer self.allocator.free(json_tokens);
-                
-                // Convert to generic tokens
-                return try TokenConverter.convertMany(
-                    JsonToken,
-                    json_tokens,
-                    self.source,
-                    self.allocator,
-                );
+
+                // Convert to generic tokens using optimized streaming conversion
+                var result = try std.ArrayList(Token).initCapacity(self.allocator, json_tokens.len);
+                errdefer result.deinit();
+
+                for (json_tokens) |json_token| {
+                    const converted = TokenConverter.convertJsonToken(json_token, self.source);
+                    try result.append(converted);
+                }
+
+                return result.toOwnedSlice();
             },
         }
     }
-    
+
     /// Peek at the next token without consuming
     pub fn peek(self: *Self) !?Token {
         // If we have buffered tokens, peek from buffer
         if (self.buffer_index < self.buffer.items.len) {
             return self.buffer.items[self.buffer_index];
         }
-        
+
         // Check if we've processed all input
         if (self.position >= self.source.len) {
             return null;
         }
-        
+
         // We need to fill the buffer
         const token = try self.next();
         if (token) |t| {
@@ -168,21 +171,21 @@ pub const UnifiedTokenIterator = struct {
             self.buffer_index -= 1;
             return t;
         }
-        
+
         return null;
     }
-    
+
     /// Reset to the beginning
     pub fn reset(self: *Self) void {
         self.position = 0;
         self.buffer.clearRetainingCapacity();
         self.buffer_index = 0;
-        
+
         switch (self.lexer) {
             .json => |lexer| lexer.reset(),
         }
     }
-    
+
     /// Skip trivia tokens (whitespace and comments)
     pub fn skipTrivia(self: *Self) !void {
         while (try self.peek()) |token| {
@@ -190,19 +193,19 @@ pub const UnifiedTokenIterator = struct {
             _ = try self.next();
         }
     }
-    
+
     /// Collect all remaining tokens
     pub fn collectAll(self: *Self, allocator: std.mem.Allocator) ![]Token {
         var result = std.ArrayList(Token).init(allocator);
         errdefer result.deinit();
-        
+
         while (try self.next()) |token| {
             try result.append(token);
         }
-        
+
         return result.toOwnedSlice();
     }
-    
+
     /// Collect tokens up to a specific kind
     pub fn collectUntil(
         self: *Self,
@@ -211,14 +214,14 @@ pub const UnifiedTokenIterator = struct {
     ) ![]Token {
         var result = std.ArrayList(Token).init(allocator);
         errdefer result.deinit();
-        
+
         while (try self.peek()) |token| {
             if (token.kind == kind) break;
             if (try self.next()) |t| {
                 try result.append(t);
             }
         }
-        
+
         return result.toOwnedSlice();
     }
 };
@@ -235,16 +238,16 @@ test "UnifiedTokenIterator - JSON basic" {
         .{},
     );
     defer iter.deinit();
-    
+
     // First token should be {
     const first = try iter.next();
     try testing.expect(first != null);
     try testing.expectEqual(@import("../../parser/foundation/types/predicate.zig").TokenKind.left_brace, first.?.kind);
-    
+
     // Collect remaining tokens
     const remaining = try iter.collectAll(testing.allocator);
     defer testing.allocator.free(remaining);
-    
+
     // Should have at least: string, colon, number, }
     try testing.expect(remaining.len >= 4);
 }
@@ -258,14 +261,14 @@ test "UnifiedTokenIterator - peek" {
         .{},
     );
     defer iter.deinit();
-    
+
     // Peek should not consume
     const peeked = try iter.peek();
     try testing.expect(peeked != null);
-    
+
     const next = try iter.next();
     try testing.expect(next != null);
-    
+
     // Should be the same token
     try testing.expect(peeked.?.span.eql(next.?.span));
 }
@@ -279,10 +282,10 @@ test "UnifiedTokenIterator - chunk boundary" {
         .{ .chunk_size = 10 }, // Small chunks to test boundaries
     );
     defer iter.deinit();
-    
+
     const all_tokens = try iter.collectAll(testing.allocator);
     defer testing.allocator.free(all_tokens);
-    
+
     // Should handle chunk boundaries correctly
     try testing.expect(all_tokens.len > 0);
     try testing.expectEqual(
@@ -300,14 +303,14 @@ test "UnifiedTokenIterator - reset" {
         .{},
     );
     defer iter.deinit();
-    
+
     // Consume some tokens
     _ = try iter.next();
     _ = try iter.next();
-    
+
     // Reset
     iter.reset();
-    
+
     // Should start from beginning
     const first = try iter.next();
     try testing.expect(first != null);

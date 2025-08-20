@@ -19,25 +19,25 @@ pub const StatefulLexer = struct {
         partial_token_buf: [4096]u8 = undefined,
         /// Current length of partial token
         partial_token_len: u16 = 0,
-        
+
         /// Current parsing context
         context: Context = .normal,
-        
+
         /// Character that started current string (0 if not in string)
         quote_char: u8 = 0,
-        
+
         /// Count for unicode escape sequences (\uXXXX)
         unicode_count: u8 = 0,
-        
+
         /// State for number parsing
         number_state: NumberState = .{},
-        
+
         /// General purpose flags
         flags: Flags = .{},
-        
+
         /// Global position in the input stream
         global_position: usize = 0,
-        
+
         /// Parsing context enum - kept small for performance
         pub const Context = enum(u8) {
             normal = 0,
@@ -47,12 +47,12 @@ pub const StatefulLexer = struct {
             in_number = 4,
             in_comment_line = 5,
             in_comment_block = 6,
-            in_template = 7,        // Template literals for TS/JS
-            in_regex = 8,           // Regex literals for TS/JS
-            in_raw_string = 9,      // Raw strings (Zig r"...")
+            in_template = 7, // Template literals for TS/JS
+            in_regex = 8, // Regex literals for TS/JS
+            in_raw_string = 9, // Raw strings (Zig r"...")
             in_multiline_string = 10, // Multiline strings (Zig \\)
         };
-        
+
         /// Number parsing state bitfield - supports all number formats
         pub const NumberState = packed struct {
             has_minus: bool = false,
@@ -62,33 +62,33 @@ pub const StatefulLexer = struct {
             has_e: bool = false,
             has_exponent_sign: bool = false,
             has_exponent_digit: bool = false,
-            
+
             // Extended for all languages
-            has_underscore: bool = false,    // Zig/Rust digit separators
-            has_hex_prefix: bool = false,    // 0x prefix
-            has_bin_prefix: bool = false,    // 0b prefix  
-            has_oct_prefix: bool = false,    // 0o prefix
-            has_hex_digit: bool = false,     // a-f digits
-            is_float: bool = false,          // Explicit float
-            is_bigint: bool = false,         // BigInt suffix (JS)
+            has_underscore: bool = false, // Zig/Rust digit separators
+            has_hex_prefix: bool = false, // 0x prefix
+            has_bin_prefix: bool = false, // 0b prefix
+            has_oct_prefix: bool = false, // 0o prefix
+            has_hex_digit: bool = false, // a-f digits
+            is_float: bool = false, // Explicit float
+            is_bigint: bool = false, // BigInt suffix (JS)
             _padding: u1 = 0,
         };
-        
+
         /// General flags - configurable per language
         pub const Flags = packed struct {
             allow_comments: bool = false,
             allow_trailing_commas: bool = false,
             json5_mode: bool = false,
             error_recovery: bool = true,
-            
+
             // Extended language features
-            allow_template_literals: bool = false,  // TypeScript/JavaScript
-            allow_regex_literals: bool = false,     // TypeScript/JavaScript
-            allow_raw_strings: bool = false,        // Zig r"..."
-            allow_multiline_strings: bool = false,  // Zig \\
+            allow_template_literals: bool = false, // TypeScript/JavaScript
+            allow_regex_literals: bool = false, // TypeScript/JavaScript
+            allow_raw_strings: bool = false, // Zig r"..."
+            allow_multiline_strings: bool = false, // Zig \\
             _padding: u0 = 0,
         };
-        
+
         /// Reset state to initial values
         pub fn reset(self: *State) void {
             self.partial_token_len = 0;
@@ -98,17 +98,17 @@ pub const StatefulLexer = struct {
             self.number_state = .{};
             // Don't reset flags or global_position
         }
-        
+
         /// Check if we have a partial token
         pub fn hasPartialToken(self: State) bool {
             return self.partial_token_len > 0;
         }
-        
+
         /// Get the partial token as a slice
         pub fn getPartialToken(self: State) []const u8 {
             return self.partial_token_buf[0..self.partial_token_len];
         }
-        
+
         /// Append to partial token buffer
         pub fn appendToPartial(self: *State, data: []const u8) !void {
             const new_len = self.partial_token_len + data.len;
@@ -118,18 +118,18 @@ pub const StatefulLexer = struct {
             @memcpy(self.partial_token_buf[self.partial_token_len..new_len], data);
             self.partial_token_len = @intCast(new_len);
         }
-        
+
         /// Clear partial token buffer
         pub fn clearPartial(self: *State) void {
             self.partial_token_len = 0;
         }
     };
-    
+
     /// Interface for language-specific lexer implementations
     pub const Interface = struct {
         ptr: *anyopaque,
         vtable: *const VTable,
-        
+
         pub const VTable = struct {
             /// Process a chunk of input, returning tokens
             processChunk: *const fn (
@@ -138,23 +138,23 @@ pub const StatefulLexer = struct {
                 chunk_pos: usize,
                 allocator: std.mem.Allocator,
             ) anyerror![]Token,
-            
+
             /// Get current state
             getState: *const fn (ptr: *anyopaque) *State,
-            
+
             /// Reset to initial state
             reset: *const fn (ptr: *anyopaque) void,
-            
+
             /// Clean up resources
             deinit: *const fn (ptr: *anyopaque) void,
         };
-        
+
         pub fn init(implementation: anytype) Interface {
             const Impl = @TypeOf(implementation);
             const impl_info = @typeInfo(Impl);
-            
+
             if (impl_info != .pointer) @compileError("implementation must be a pointer");
-            
+
             const gen = struct {
                 fn processChunkImpl(
                     ptr: *anyopaque,
@@ -165,22 +165,22 @@ pub const StatefulLexer = struct {
                     const self: Impl = @ptrCast(@alignCast(ptr));
                     return self.processChunk(chunk, chunk_pos, allocator);
                 }
-                
+
                 fn getStateImpl(ptr: *anyopaque) *State {
                     const self: Impl = @ptrCast(@alignCast(ptr));
                     return &self.state;
                 }
-                
+
                 fn resetImpl(ptr: *anyopaque) void {
                     const self: Impl = @ptrCast(@alignCast(ptr));
                     self.reset();
                 }
-                
+
                 fn deinitImpl(ptr: *anyopaque) void {
                     const self: Impl = @ptrCast(@alignCast(ptr));
                     self.deinit();
                 }
-                
+
                 const vtable = VTable{
                     .processChunk = processChunkImpl,
                     .getState = getStateImpl,
@@ -188,13 +188,13 @@ pub const StatefulLexer = struct {
                     .deinit = deinitImpl,
                 };
             };
-            
+
             return .{
                 .ptr = implementation,
                 .vtable = &gen.vtable,
             };
         }
-        
+
         pub fn processChunk(
             self: Interface,
             chunk: []const u8,
@@ -203,34 +203,34 @@ pub const StatefulLexer = struct {
         ) ![]Token {
             return self.vtable.processChunk(self.ptr, chunk, chunk_pos, allocator);
         }
-        
+
         pub fn getState(self: Interface) *State {
             return self.vtable.getState(self.ptr);
         }
-        
+
         pub fn reset(self: Interface) void {
             self.vtable.reset(self.ptr);
         }
-        
+
         pub fn deinit(self: Interface) void {
             self.vtable.deinit(self.ptr);
         }
     };
-    
+
     /// Options for creating a stateful lexer
     pub const Options = struct {
         allow_comments: bool = false,
         allow_trailing_commas: bool = false,
         json5_mode: bool = false,
         error_recovery: bool = true,
-        
+
         // Extended language features
-        allow_template_literals: bool = false,  // TypeScript/JavaScript
-        allow_regex_literals: bool = false,     // TypeScript/JavaScript
-        allow_raw_strings: bool = false,        // Zig r"..."
-        allow_multiline_strings: bool = false,  // Zig \\
+        allow_template_literals: bool = false, // TypeScript/JavaScript
+        allow_regex_literals: bool = false, // TypeScript/JavaScript
+        allow_raw_strings: bool = false, // Zig r"..."
+        allow_multiline_strings: bool = false, // Zig \\
     };
-    
+
     /// Helper functions for lexer implementations
     pub const Helpers = struct {
         /// Check if we can complete a token with the available input
@@ -249,18 +249,18 @@ pub const StatefulLexer = struct {
                 .in_multiline_string => std.mem.indexOf(u8, input, "\\\\") != null,
             };
         }
-        
+
         /// Check if character can be part of a number (includes separators and suffixes)
         pub fn isNumberChar(ch: u8) bool {
             return char.isDigit(ch) or char.isHexDigit(ch) or switch (ch) {
-                '.', '+', '-' => true,  // Sign and decimal
-                'x', 'X', 'o', 'O' => true,  // Prefixes
-                '_' => true,  // Separators (Zig, Rust)
-                'n' => true,  // BigInt suffix (JS)
+                '.', '+', '-' => true, // Sign and decimal
+                'x', 'X', 'o', 'O' => true, // Prefixes
+                '_' => true, // Separators (Zig, Rust)
+                'n' => true, // BigInt suffix (JS)
                 else => false,
             };
         }
-        
+
         /// Try to parse a fast delimiter token
         pub fn tryFastDelimiter(ch: u8) ?TokenKind {
             return switch (ch) {
@@ -277,7 +277,7 @@ pub const StatefulLexer = struct {
                 else => null,
             };
         }
-        
+
         /// Create a token with proper span
         pub fn createToken(
             span: Span,
@@ -303,16 +303,16 @@ test "StatefulLexer.State - initialization" {
 
 test "StatefulLexer.State - partial token management" {
     var state = StatefulLexer.State{};
-    
+
     // Add partial token
     try state.appendToPartial("test");
     try testing.expect(state.hasPartialToken());
     try testing.expectEqualStrings("test", state.getPartialToken());
-    
+
     // Append more
     try state.appendToPartial("123");
     try testing.expectEqualStrings("test123", state.getPartialToken());
-    
+
     // Clear
     state.clearPartial();
     try testing.expect(!state.hasPartialToken());
@@ -321,13 +321,13 @@ test "StatefulLexer.State - partial token management" {
 
 test "StatefulLexer.State - context transitions" {
     var state = StatefulLexer.State{};
-    
+
     // Transition to string context
     state.context = .in_string;
     state.quote_char = '"';
     try testing.expect(state.context == .in_string);
     try testing.expect(state.quote_char == '"');
-    
+
     // Reset should clear context but not flags
     state.flags.json5_mode = true;
     state.reset();
@@ -338,11 +338,11 @@ test "StatefulLexer.State - context transitions" {
 
 test "StatefulLexer.State - number state tracking" {
     var state = StatefulLexer.State{};
-    
+
     state.number_state.has_minus = true;
     state.number_state.has_digit = true;
     state.number_state.has_dot = true;
-    
+
     try testing.expect(state.number_state.has_minus);
     try testing.expect(state.number_state.has_digit);
     try testing.expect(state.number_state.has_dot);
@@ -370,10 +370,10 @@ test "StatefulLexer.Helpers - number character detection" {
 
 test "StatefulLexer.State - buffer overflow protection" {
     var state = StatefulLexer.State{};
-    
+
     // Create a string that's too large
     const large_data = [_]u8{'x'} ** 5000;
-    
+
     // Should return error when exceeding buffer size
     const result = state.appendToPartial(&large_data);
     try testing.expectError(error.PartialTokenTooLarge, result);

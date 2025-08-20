@@ -314,7 +314,7 @@ pub const StateMachine = struct {
     /// Uses nested switch for O(1) state transitions with branch prediction optimization
     fn processDelimiterToken(self: *StateMachine, token: Token) ?StateTransition {
         const delim_type = token.getDelimiterType() orelse return null;
-        
+
         return switch (delim_type) {
             .open_brace => switch (self.context.current_state) {
                 .function_signature => StateTransition.boundary(.function_body, 0.9),
@@ -526,7 +526,7 @@ test "complete function sequence" {
     result = machine.processToken(open_paren);
     try testing.expectEqual(ParseState.function_signature, machine.getCurrentState());
 
-    // ) -> stay in function_signature  
+    // ) -> stay in function_signature
     result = machine.processToken(close_paren);
     try testing.expectEqual(ParseState.function_signature, machine.getCurrentState());
 

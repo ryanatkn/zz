@@ -208,7 +208,7 @@ test "JSON streaming adapter performance gate" {
     var context = Context.init(testing.allocator);
     defer context.deinit();
 
-    var adapter = JsonStreamingAdapter.init(.{});
+    var adapter = JsonStreamingAdapter.init(testing.allocator, .{});
     defer adapter.deinit();
 
     const lexer_interface = TokenIterator.LexerInterface.init(&adapter);

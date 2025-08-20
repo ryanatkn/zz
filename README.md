@@ -276,6 +276,7 @@ zig build run -- prompt src/             # Run prompt command
 ## Platform Support
 
 - ✅ Linux, macOS, BSD (all POSIX systems)
+- ✅ UTF-8 text encoding (assumed throughout)
 - ❌ Windows (no plans for support)
 
 ## Performance

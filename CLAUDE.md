@@ -20,6 +20,7 @@ See [TODO_PURE_ZIG_ROADMAP.md](TODO_PURE_ZIG_ROADMAP.md) for implementation deta
 ## Platform Support
 
 - **Supported:** Linux, macOS, BSD, and other POSIX-compliant systems
+- **Text Encoding:** UTF-8 assumed throughout (POSIX standard)
 - **Not Supported:** Windows (no plans)
 
 ## Environment

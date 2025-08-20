@@ -339,9 +339,12 @@ pub const ViewportManager = struct {
         if (span.end < self.current_viewport.start) {
             // Above viewport
             return @as(f32, @floatFromInt(self.current_viewport.start - span.end));
-        } else {
+        } else if (span.start > self.current_viewport.end) {
             // Below viewport
             return @as(f32, @floatFromInt(span.start - self.current_viewport.end));
+        } else {
+            // Should not happen if overlaps() is correct, but safety fallback
+            return 0.0;
         }
     }
 

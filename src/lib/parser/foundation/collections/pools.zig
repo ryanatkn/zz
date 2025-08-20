@@ -10,7 +10,7 @@ const Predicate = @import("../types/predicate.zig").Predicate;
 /// Pool for reusing fact structures
 pub const FactPool = struct {
     /// Available facts ready for reuse
-    available: std.ArrayList(Fact),
+    available: std.ArrayList(*Fact),
 
     /// Statistics for monitoring pool efficiency
     stats: PoolStats,
@@ -23,7 +23,7 @@ pub const FactPool = struct {
 
     pub fn init(allocator: std.mem.Allocator, max_pool_size: usize) FactPool {
         return .{
-            .available = std.ArrayList(Fact).init(allocator),
+            .available = std.ArrayList(*Fact).init(allocator),
             .stats = PoolStats{},
             .allocator = allocator,
             .max_pool_size = max_pool_size,
@@ -31,15 +31,18 @@ pub const FactPool = struct {
     }
 
     pub fn deinit(self: *FactPool) void {
+        // Clean up any remaining pooled facts
+        for (self.available.items) |fact_ptr| {
+            self.allocator.destroy(fact_ptr);
+        }
         self.available.deinit();
     }
 
     /// Get a fact from the pool or create a new one
     pub fn acquire(self: *FactPool) !*Fact {
         if (self.available.items.len > 0) {
-            // Reuse from pool
-            _ = self.available.pop(); // Remove from pool but don't use the value
-            const fact_ptr = try self.allocator.create(Fact);
+            // Reuse from pool - we know items.len > 0 so pop() won't return null
+            const fact_ptr = self.available.pop().?;
             self.stats.pool_hits += 1;
             return fact_ptr;
         } else {
@@ -53,11 +56,9 @@ pub const FactPool = struct {
 
     /// Return a fact to the pool for reuse
     pub fn release(self: *FactPool, fact_ptr: *Fact) void {
-        defer self.allocator.destroy(fact_ptr);
-
         if (self.available.items.len < self.max_pool_size) {
             // Reset fact to clean state
-            const clean_fact = Fact{
+            fact_ptr.* = Fact{
                 .id = 0,
                 .subject = Span.empty(),
                 .predicate = Predicate.is_trivia,
@@ -66,13 +67,16 @@ pub const FactPool = struct {
                 .generation = 0,
             };
 
-            self.available.append(clean_fact) catch {
-                // If append fails, just destroy the fact
+            self.available.append(fact_ptr) catch {
+                // If append fails, destroy the fact
+                self.allocator.destroy(fact_ptr);
                 return;
             };
             self.stats.pool_releases += 1;
+        } else {
+            // Pool is full, destroy the fact
+            self.allocator.destroy(fact_ptr);
         }
-        // If pool is full, just destroy the fact
     }
 
     /// Get pool statistics

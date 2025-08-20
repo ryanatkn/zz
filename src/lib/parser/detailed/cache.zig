@@ -73,6 +73,12 @@ pub const BoundaryCache = struct {
         }
         self.entries.deinit();
 
+        // Clean up LRU list nodes (they should be in node_pool, but ensure cleanup)
+        while (self.lru_list.pop()) |node| {
+            // Nodes are managed by node_pool, so just remove from list
+            _ = node;
+        }
+
         // Clean up node pool
         for (self.node_pool.items) |node| {
             self.allocator.destroy(node);

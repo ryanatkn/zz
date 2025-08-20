@@ -126,6 +126,12 @@ pub const PromptBuilder = struct {
 
     /// Extract content using the stratified parser
     fn extractWithStratifiedParser(self: *Self, language: Language, content: []const u8, file_path: []const u8) ![]const u8 {
+        // Check if content is valid UTF-8 before parsing
+        if (!std.unicode.utf8ValidateSlice(content)) {
+            // Return a placeholder for binary content
+            return try std.fmt.allocPrint(self.allocator, "// Binary file detected: {s} ({d} bytes)\n// Content cannot be displayed as text\n", .{ file_path, content.len });
+        }
+
         // Initialize the stratified parser layers
         const lexical_config = Lexical.LexerConfig{
             .language = mapLanguageToLexical(language),

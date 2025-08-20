@@ -15,8 +15,7 @@ src/
 │   │   ├── language.zig     # Language detection & enumeration
 │   │   ├── extraction.zig   # Code extraction configuration
 │   │   ├── path.zig         # POSIX path operations
-│   │   ├── collections.zig  # Memory-efficient data structures
-│   │   └── filesystem.zig   # Filesystem utilities
+│   │   └── collections.zig  # Memory-efficient data structures
 │   ├── patterns/        # Pattern matching utilities
 │   │   ├── glob.zig         # Glob pattern matching
 │   │   └── gitignore.zig    # Gitignore pattern handling

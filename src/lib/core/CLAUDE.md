@@ -13,7 +13,6 @@ src/lib/core/
 ├── filesystem.zig     # Filesystem utilities and error handling
 ├── io.zig             # I/O utilities and buffering
 ├── reporting.zig      # Consistent CLI error and status reporting
-├── string_pool.zig    # String interning for memory efficiency
 └── traversal.zig      # Directory traversal with pattern support
 ```
 

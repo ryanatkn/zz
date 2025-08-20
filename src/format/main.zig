@@ -303,7 +303,17 @@ fn formatWithStratifiedParser(allocator: std.mem.Allocator, content: []const u8,
 
     // Use language-specific formatting instead of returning original content
     return formatWithLanguageModules(allocator, content, language, format_options) catch |err| {
-        // Fallback to original content on formatting errors
+        // For JSON validation errors, report the error and propagate it
+        if (language == .json and err == error.InvalidNumber) {
+            if (!std.mem.eql(u8, file_path, "<stdin>")) {
+                try reporting.reportError("Invalid JSON in '{s}': {s}", .{ file_path, @errorName(err) });
+            } else {
+                try reporting.reportError("Invalid JSON: {s}", .{@errorName(err)});
+            }
+            return err;
+        }
+        
+        // For other errors, fallback to original content
         if (!std.mem.eql(u8, file_path, "<stdin>")) {
             try reporting.reportWarning("Formatting failed for '{s}', returning original content: {}", .{ file_path, err });
         }

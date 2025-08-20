@@ -44,7 +44,7 @@ Language-aware code formatting with configurable styles and multiple output mode
 - Proper string escaping
 
 **Implementation:**
-- Uses `std.json` for parsing
+- Uses our own JSON lexer/parser for RFC 8259 compliance
 - Custom pretty-printing with LineBuilder
 - Heuristics for line-breaking based on content size
 

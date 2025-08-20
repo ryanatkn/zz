@@ -179,8 +179,18 @@ pub const JsonLexer = struct {
             if (!char.isDigit(self.peek())) {
                 return error.InvalidNumber;
             }
-            while (char.isDigit(self.peek())) {
+            // Check for leading zero in exponent (same rule as integers)
+            if (self.peek() == '0') {
                 _ = self.advance();
+                // If there are more digits after '0', it's a leading zero violation
+                if (char.isDigit(self.peek())) {
+                    return error.InvalidNumber; // Leading zeros not allowed in exponent
+                }
+            } else {
+                // Non-zero digit, consume remaining digits
+                while (char.isDigit(self.peek())) {
+                    _ = self.advance();
+                }
             }
         }
 

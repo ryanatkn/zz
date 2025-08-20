@@ -4,6 +4,9 @@ const AST = common.AST;
 const Node = common.Node;
 const Span = common.Span;
 const utils = common.utils;
+const ZonRules = @import("../../ast/rules.zig").ZonRules;
+const ZonLexer = @import("lexer.zig").ZonLexer;
+const ZonParser = @import("parser.zig").ZonParser;
 
 /// ZON analyzer for schema extraction and structural analysis
 ///
@@ -292,7 +295,6 @@ pub const ZonAnalyzer = struct {
     fn inferType(self: *Self, node: Node) std.mem.Allocator.Error!TypeInfo {
         switch (node.node_type) {
             .list => {
-                const ZonRules = @import("../../ast/rules.zig").ZonRules;
                 switch (node.rule_id) {
                     ZonRules.object => return try self.inferObjectType(node),
                     ZonRules.array => return try self.inferArrayType(node),
@@ -309,7 +311,6 @@ pub const ZonAnalyzer = struct {
                 return try self.inferTerminalType(node);
             },
             .rule => {
-                const ZonRules = @import("../../ast/rules.zig").ZonRules;
                 if (node.rule_id == ZonRules.field_assignment and node.children.len >= 2) {
                     // Return the type of the value
                     return try self.inferType(node.children[1]);
@@ -398,8 +399,6 @@ pub const ZonAnalyzer = struct {
     fn inferTerminalType(self: *Self, terminal_node: Node) !TypeInfo {
         _ = self;
 
-        const ZonRules = @import("../../ast/rules.zig").ZonRules;
-
         switch (terminal_node.rule_id) {
             ZonRules.string_literal => return TypeInfo{
                 .kind = .string,
@@ -484,7 +483,6 @@ pub const ZonAnalyzer = struct {
                         }
                     },
                     .terminal => {
-                        const ZonRules = @import("../../ast/rules.zig").ZonRules;
                         if (n.rule_id == ZonRules.identifier) {
                             const symbol = Symbol{
                                 .name = try vis_ctx.analyzer.allocator.dupe(u8, n.text),
@@ -513,7 +511,6 @@ pub const ZonAnalyzer = struct {
         var target_node = root_node;
 
         // If the root is an object, look inside it
-        const ZonRules = @import("../../ast/rules.zig").ZonRules;
         if (root_node.rule_id == ZonRules.object) {
             target_node = root_node;
         }
@@ -551,7 +548,6 @@ pub const ZonAnalyzer = struct {
             };
 
             // Extract dependency details from object using direct iteration
-            const ZonRules = @import("../../ast/rules.zig").ZonRules;
             if (dep_value_node.rule_id == ZonRules.object) {
                 // Directly iterate over dependency object children
                 for (dep_value_node.children) |dep_field| {
@@ -591,7 +587,6 @@ pub const ZonAnalyzer = struct {
             fn visit(n: *const Node, context: ?*anyopaque) anyerror!bool {
                 const zon_stats = @as(*Statistics, @ptrCast(@alignCast(context.?)));
 
-                const ZonRules = @import("../../ast/rules.zig").ZonRules;
                 switch (n.rule_id) {
                     ZonRules.object => zon_stats.object_count += 1,
                     ZonRules.array => zon_stats.array_count += 1,
@@ -674,10 +669,6 @@ pub fn extractSchema(allocator: std.mem.Allocator, ast: AST) !ZonAnalyzer.ZonSch
 
 /// Extract schema from ZON string directly
 pub fn extractSchemaFromString(allocator: std.mem.Allocator, zon_content: []const u8) !ZonAnalyzer.ZonSchema {
-    // Import our lexer and parser
-    const ZonLexer = @import("lexer.zig").ZonLexer;
-    const ZonParser = @import("parser.zig").ZonParser;
-
     // Tokenize
     var lexer = ZonLexer.init(allocator, zon_content, .{});
     defer lexer.deinit();

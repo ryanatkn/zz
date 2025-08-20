@@ -1,4 +1,12 @@
 const std = @import("std");
+const testing = std.testing;
+const Span = @import("../types/span.zig").Span;
+const Fact = @import("../types/fact.zig").Fact;
+const FactId = @import("../types/fact.zig").FactId;
+const Predicate = @import("../types/predicate.zig").Predicate;
+const collections = @import("mod.zig");
+const PerfTimer = @import("../mod.zig").PerfTimer;
+const pools = @import("pools.zig");
 
 // Comprehensive integration tests for the collections module
 // Tests the interaction between FactIndex, QueryCache, and memory pools
@@ -12,15 +20,9 @@ test "collections integration" {
 }
 
 test "fact storage system complete workflow" {
-    const testing = std.testing;
 
     // Import types
-    const Span = @import("../types/span.zig").Span;
-    const Fact = @import("../types/fact.zig").Fact;
-    const FactId = @import("../types/fact.zig").FactId;
-    const Predicate = @import("../types/predicate.zig").Predicate;
     // const PredicateCategory = @import("../types/predicate.zig").PredicateCategory;
-    const collections = @import("mod.zig");
 
     var system = collections.FactStorageSystem.init(testing.allocator);
     defer system.deinit();
@@ -123,14 +125,8 @@ test "fact storage system complete workflow" {
 }
 
 test "performance characteristics" {
-    const testing = std.testing;
 
     // Import types
-    const Span = @import("../types/span.zig").Span;
-    const Fact = @import("../types/fact.zig").Fact;
-    const Predicate = @import("../types/predicate.zig").Predicate;
-    const collections = @import("mod.zig");
-    const PerfTimer = @import("../mod.zig").PerfTimer;
 
     var system = collections.FactStorageSystem.init(testing.allocator);
     defer system.deinit();
@@ -207,10 +203,6 @@ test "performance characteristics" {
 }
 
 test "memory pool efficiency" {
-    const testing = std.testing;
-
-    const Fact = @import("../types/fact.zig").Fact;
-    const pools = @import("pools.zig");
 
     // Test fact pool efficiency
     var fact_pool = pools.FactPool.init(testing.allocator, 100);
@@ -252,11 +244,6 @@ test "memory pool efficiency" {
 }
 
 test "array pool sizing" {
-    const testing = std.testing;
-
-    const pools = @import("pools.zig");
-    const FactId = @import("../types/fact.zig").FactId;
-
     var array_pool = pools.FactIdArrayPool.init(testing.allocator, 20);
     defer array_pool.deinit();
 
@@ -293,13 +280,6 @@ test "array pool sizing" {
 }
 
 test "generation-based cache invalidation" {
-    const testing = std.testing;
-
-    const Span = @import("../types/span.zig").Span;
-    const Fact = @import("../types/fact.zig").Fact;
-    const Predicate = @import("../types/predicate.zig").Predicate;
-    const collections = @import("mod.zig");
-
     var system = collections.FactStorageSystem.init(testing.allocator);
     defer system.deinit();
 
@@ -347,13 +327,6 @@ test "generation-based cache invalidation" {
 }
 
 test "complex query edge cases" {
-    const testing = std.testing;
-
-    const Span = @import("../types/span.zig").Span;
-    const Fact = @import("../types/fact.zig").Fact;
-    const Predicate = @import("../types/predicate.zig").Predicate;
-    const collections = @import("mod.zig");
-
     var system = collections.FactStorageSystem.init(testing.allocator);
     defer system.deinit();
 

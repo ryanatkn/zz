@@ -7,9 +7,14 @@ const GlobExpander = @import("../prompt/glob.zig").GlobExpander;
 const SharedConfig = @import("../config/shared.zig").SharedConfig;
 const ZonLoader = @import("../config/zon.zig").ZonLoader;
 const FormatConfigOptions = @import("../config/zon.zig").FormatConfigOptions;
+const IndentStyle = @import("../config/zon.zig").IndentStyle;
+const QuoteStyle = @import("../config/zon.zig").QuoteStyle;
 const Args = @import("../lib/args.zig").Args;
 const CommonFlags = @import("../lib/args.zig").CommonFlags;
 const reporting = @import("../lib/core/reporting.zig");
+const JsonTransformPipeline = @import("../lib/languages/json/transform.zig").JsonTransformPipeline;
+const ZonTransformPipeline = @import("../lib/languages/zon/transform.zig").ZonTransformPipeline;
+const Context = @import("../lib/transform/transform.zig").Context;
 
 // Import stratified parser
 const StratifiedParser = @import("../lib/parser/mod.zig");
@@ -31,9 +36,6 @@ const FormatterOptions = struct {
     use_ast: bool = false,
 };
 
-const IndentStyle = enum { space, tab };
-const QuoteStyle = enum { single, double, preserve };
-
 const FormatArgs = struct {
     files: collections.List([]const u8),
     write: bool = false,
@@ -47,23 +49,20 @@ const FormatArgs = struct {
 };
 
 fn configToFormatterOptions(config: FormatConfigOptions) FormatterOptions {
-    const config_indent_style = @import("../config/zon.zig").IndentStyle;
-    const config_quote_style = @import("../config/zon.zig").QuoteStyle;
-
     return FormatterOptions{
         .indent_size = config.indent_size,
         .indent_style = switch (config.indent_style) {
-            config_indent_style.space => .space,
-            config_indent_style.tab => .tab,
+            IndentStyle.space => .space,
+            IndentStyle.tab => .tab,
         },
         .line_width = config.line_width,
         .preserve_newlines = config.preserve_newlines,
         .trailing_comma = config.trailing_comma,
         .sort_keys = config.sort_keys,
         .quote_style = switch (config.quote_style) {
-            config_quote_style.single => .single,
-            config_quote_style.double => .double,
-            config_quote_style.preserve => .preserve,
+            QuoteStyle.single => .single,
+            QuoteStyle.double => .double,
+            QuoteStyle.preserve => .preserve,
         },
         .use_ast = config.use_ast,
     };
@@ -326,9 +325,6 @@ fn formatWithLanguageModules(allocator: std.mem.Allocator, content: []const u8, 
     switch (language) {
         .json => {
             // Use zz's JsonTransformPipeline with full FormatOptions support
-            const JsonTransformPipeline = @import("../lib/languages/json/transform.zig").JsonTransformPipeline;
-            const Context = @import("../lib/transform/transform.zig").Context;
-
             // Create transform context for pipeline execution
             var ctx = Context.init(allocator);
             defer ctx.deinit();
@@ -348,9 +344,6 @@ fn formatWithLanguageModules(allocator: std.mem.Allocator, content: []const u8, 
         },
         .zon => {
             // Use zz's ZonTransformPipeline similarly
-            const ZonTransformPipeline = @import("../lib/languages/zon/transform.zig").ZonTransformPipeline;
-            const Context = @import("../lib/transform/transform.zig").Context;
-
             var ctx = Context.init(allocator);
             defer ctx.deinit();
 

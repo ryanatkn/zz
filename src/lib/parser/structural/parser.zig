@@ -198,7 +198,7 @@ pub const StructuralParser = struct {
         // This prevents multiple boundaries for the same logical construct
         return switch (new_state) {
             .function_signature => prev_state == .top_level,
-            .struct_signature => prev_state == .top_level, 
+            .struct_signature => prev_state == .top_level,
             .enum_signature => prev_state == .top_level,
             .class_signature => prev_state == .top_level,
             .method_signature => prev_state == .class_body,
@@ -276,16 +276,17 @@ pub const StructuralParser = struct {
         // Use boundary detector to find full boundary
         // For keywords like "fn", look back to find "pub fn" patterns
         var search_pos: usize = 0;
-        
+
         // First try positions before current token (including current)
         const start_pos = if (token_idx >= 2) token_idx - 2 else 0;
         search_pos = start_pos;
-        
+
         while (search_pos <= token_idx) {
             if (try self.boundary_detector.detectBoundaryAtPosition(tokens, search_pos)) |hint| {
                 // Make sure this boundary is relevant to our current token
                 if ((hint.end_token_idx != null and hint.end_token_idx.? >= token_idx) or
-                    hint.span.contains(token.span.start)) {
+                    hint.span.contains(token.span.start))
+                {
                     var boundary = ParseBoundary.init(hint.span, hint.kind, hint.depth);
                     boundary = boundary.withConfidence(hint.confidence * transition.confidence);
 

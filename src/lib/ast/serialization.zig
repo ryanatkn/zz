@@ -3,6 +3,7 @@ const Node = @import("node.zig").Node;
 const NodeType = @import("node.zig").NodeType;
 const AST = @import("mod.zig").AST;
 const CommonRules = @import("rules.zig").CommonRules;
+const zon_mod = @import("../languages/zon/mod.zig");
 
 /// High-performance AST serialization using ZON format
 /// Native Zig serialization for maximum performance and compatibility
@@ -205,7 +206,6 @@ pub const ASTDeserializer = struct {
     /// Deserialize ZON string to AST
     pub fn deserialize(self: ASTDeserializer, zon_content: []const u8) !AST {
         // Use our ZON parser to parse the serialized AST
-        const zon_mod = @import("../languages/zon/mod.zig");
         const parsed_zon = try zon_mod.parseZonString(self.allocator, zon_content);
         defer parsed_zon.deinit();
 

@@ -167,7 +167,7 @@ pub const StreamingLexer = struct {
 
             // Mark token start for scanner
             self.scanner.markTokenStart();
-            
+
             // Scan next token
             const token_kind = try self.scanNextToken();
             const token_end = self.scanner.position;
@@ -178,7 +178,7 @@ pub const StreamingLexer = struct {
             const token_text = text[token_start..token_end];
             if (self.config.track_brackets) {
                 bracket_depth = self.updateBracketDepth(token_text, bracket_depth);
-                
+
                 // Update bracket tracker for bracket pairs
                 if (token_kind == .delimiter and token_text.len == 1) {
                     const ch = token_text[0];
@@ -419,7 +419,6 @@ pub const StreamingLexer = struct {
             else => false,
         };
     }
-
 
     /// Get token kind for bracket character
     fn getBracketTokenKind(self: *StreamingLexer, ch: u8) TokenKind {

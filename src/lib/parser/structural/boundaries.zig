@@ -174,11 +174,11 @@ pub const BoundaryDetector = struct {
                 // Skip past the detected boundary to avoid overlaps
                 // Use the pattern length to skip at minimum, or end token if available
                 const min_skip = self.getPatternLength(hint.kind);
-                const skip_distance = if (hint.end_token_idx) |end_idx| 
+                const skip_distance = if (hint.end_token_idx) |end_idx|
                     @max(end_idx + 1 - i, min_skip)
-                else 
+                else
                     min_skip;
-                
+
                 i += skip_distance;
             } else {
                 i += 1;
@@ -201,7 +201,7 @@ pub const BoundaryDetector = struct {
         // This prevents "fn" from matching when "pub fn" should match
         var best_hint: ?BoundaryHint = null;
         var best_pattern_length: usize = 0;
-        
+
         for (self.patterns) |pattern| {
             if (try self.matchPattern(tokens, position, pattern)) |hint| {
                 // Prefer longer patterns (more specific matches)

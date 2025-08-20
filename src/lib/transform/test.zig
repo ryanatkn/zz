@@ -2,6 +2,11 @@
 const std = @import("std");
 const testing = std.testing;
 const Context = @import("transform.zig").Context;
+const json_transform = @import("../languages/json/transform.zig");
+const zon_transform = @import("../languages/zon/transform.zig");
+const TokenIterator = @import("streaming/token_iterator.zig").TokenIterator;
+const pipeline_simple = @import("pipeline_simple.zig");
+const transform = @import("transform.zig");
 
 test {
     // Core transform infrastructure
@@ -32,7 +37,6 @@ test {
 // Integration tests for transform pipeline architecture
 
 test "transform pipeline - JSON roundtrip" {
-    const json_transform = @import("../languages/json/transform.zig");
     const allocator = testing.allocator;
 
     const input =
@@ -47,7 +51,7 @@ test "transform pipeline - JSON roundtrip" {
     var pipeline = try json_transform.JsonTransformPipeline.init(allocator);
     defer pipeline.deinit();
 
-    var ctx = @import("transform.zig").Context.init(allocator);
+    var ctx = Context.init(allocator);
     defer ctx.deinit();
 
     const output = try pipeline.roundTrip(&ctx, input);
@@ -59,7 +63,6 @@ test "transform pipeline - JSON roundtrip" {
 }
 
 test "transform pipeline - ZON roundtrip" {
-    const zon_transform = @import("../languages/zon/transform.zig");
     const allocator = testing.allocator;
 
     const input =
@@ -117,7 +120,6 @@ test "transform pipeline - ZON roundtrip" {
 // }
 
 test "streaming - large file handling" {
-    const TokenIterator = @import("streaming/token_iterator.zig").TokenIterator;
     const allocator = testing.allocator;
 
     // Create a moderately sized JSON string
@@ -149,8 +151,6 @@ test "streaming - large file handling" {
 }
 
 test "pipeline composition" {
-    const pipeline_simple = @import("pipeline_simple.zig");
-    const transform = @import("transform.zig");
     const allocator = testing.allocator;
 
     // Create a simple uppercase transform

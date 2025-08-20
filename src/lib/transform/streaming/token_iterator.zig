@@ -3,6 +3,8 @@ const Context = @import("../transform.zig").Context;
 const Token = @import("../../parser/foundation/types/token.zig").Token;
 const JsonLexer = @import("../../languages/json/lexer.zig").JsonLexer;
 const ZonLexer = @import("../../languages/zon/lexer.zig").ZonLexer;
+const JsonStreamingAdapter = @import("../../languages/json/streaming_adapter.zig").JsonStreamingAdapter;
+const ZonStreamingAdapter = @import("../../languages/zon/streaming_adapter.zig").ZonStreamingAdapter;
 
 /// Iterator for streaming token processing with minimal memory footprint
 ///
@@ -298,83 +300,16 @@ pub const TokenIterator = struct {
     }
 };
 
-/// Stateless streaming lexer adapter for JsonLexer
-pub const JsonLexerAdapter = struct {
-    options: JsonLexer.LexerOptions,
-
-    const Self = @This();
-
-    pub fn init(options: JsonLexer.LexerOptions) Self {
-        return Self{ .options = options };
-    }
-
-    pub fn tokenizeChunk(self: *Self, input: []const u8, start_pos: usize, allocator: std.mem.Allocator) ![]Token {
-        var lexer = JsonLexer.init(allocator, input, self.options);
-        defer lexer.deinit();
-
-        // Handle expected chunk boundary errors gracefully
-        const tokens = lexer.tokenize() catch |err| switch (err) {
-            error.UnterminatedString => {
-                // Expected when chunk boundary splits a string literal
-                // Return empty token list to indicate chunk boundary issue
-                return try allocator.alloc(Token, 0);
-            },
-            else => return err,
-        };
-
-        // Adjust token positions for the start_pos offset
-        for (tokens) |*token| {
-            token.span.start += start_pos;
-            token.span.end += start_pos;
-        }
-
-        return tokens;
-    }
-
-    pub fn deinit(self: *Self) void {
-        _ = self; // No cleanup needed for stateless adapter
-    }
-};
-
-/// Stateless streaming lexer adapter for ZonLexer
-pub const ZonLexerAdapter = struct {
-    options: ZonLexer.LexerOptions,
-
-    const Self = @This();
-
-    pub fn init(options: ZonLexer.LexerOptions) Self {
-        return Self{ .options = options };
-    }
-
-    pub fn tokenizeChunk(self: *Self, input: []const u8, start_pos: usize, allocator: std.mem.Allocator) ![]Token {
-        var lexer = ZonLexer.init(allocator, input, self.options);
-        defer lexer.deinit();
-
-        const tokens = try lexer.tokenize();
-
-        // Adjust token positions for the start_pos offset
-        for (tokens) |*token| {
-            token.span.start += start_pos;
-            token.span.end += start_pos;
-        }
-
-        return tokens;
-    }
-
-    pub fn deinit(self: *Self) void {
-        _ = self; // No cleanup needed for stateless adapter
-    }
-};
 
 /// Convenience functions for creating TokenIterator with real lexers
-pub fn createJsonTokenIterator(allocator: std.mem.Allocator, input: []const u8, context: *Context, options: @import("../../languages/json/lexer.zig").JsonLexer.LexerOptions) !TokenIterator {
-    var adapter = JsonLexerAdapter.init(options);
+pub fn createJsonTokenIterator(allocator: std.mem.Allocator, input: []const u8, context: *Context, options: JsonLexer.LexerOptions) !TokenIterator {
+    var adapter = JsonStreamingAdapter.init(options);
     const lexer_interface = TokenIterator.LexerInterface.init(&adapter);
     return TokenIterator.init(allocator, input, context, lexer_interface);
 }
 
-pub fn createZonTokenIterator(allocator: std.mem.Allocator, input: []const u8, context: *Context, options: @import("../../languages/zon/lexer.zig").ZonLexer.LexerOptions) !TokenIterator {
-    var adapter = ZonLexerAdapter.init(options);
+pub fn createZonTokenIterator(allocator: std.mem.Allocator, input: []const u8, context: *Context, options: ZonLexer.LexerOptions) !TokenIterator {
+    var adapter = ZonStreamingAdapter.init(options);
     const lexer_interface = TokenIterator.LexerInterface.init(&adapter);
     return TokenIterator.init(allocator, input, context, lexer_interface);
 }
@@ -557,7 +492,7 @@ test "TokenIterator - JSON lexer adapter" {
     // Simple JSON that should be tokenized properly by JSON lexer
     const input = "{\"name\": \"Alice\", \"age\": 30, \"active\": true}";
 
-    var adapter = JsonLexerAdapter.init(.{
+    var adapter = JsonStreamingAdapter.init(.{
         .allow_comments = false,
         .allow_trailing_commas = false,
     });
@@ -604,7 +539,7 @@ test "TokenIterator - ZON lexer adapter" {
     // Simple ZON content
     const input = ".{ .name = \"Alice\", .age = 30, .active = true }";
 
-    var adapter = ZonLexerAdapter.init(.{
+    var adapter = ZonStreamingAdapter.init(.{
         .preserve_comments = true,
     });
     defer adapter.deinit();
@@ -652,7 +587,7 @@ test "TokenIterator - real lexers vs fallback comparison" {
     const json_input = "{\"name\": \"Alice\", \"active\": true, \"score\": null}";
 
     // Test JSON with real lexer
-    var json_adapter = JsonLexerAdapter.init(.{});
+    var json_adapter = JsonStreamingAdapter.init(.{});
     defer json_adapter.deinit();
 
     const json_lexer_interface = TokenIterator.LexerInterface.init(&json_adapter);
@@ -689,7 +624,7 @@ test "TokenIterator - real lexers vs fallback comparison" {
     const zon_input = ".{ .count = 42, .enabled = true }";
 
     // ZON with real lexer
-    var zon_adapter = ZonLexerAdapter.init(.{});
+    var zon_adapter = ZonStreamingAdapter.init(.{});
     defer zon_adapter.deinit();
 
     const zon_lexer_interface = TokenIterator.LexerInterface.init(&zon_adapter);

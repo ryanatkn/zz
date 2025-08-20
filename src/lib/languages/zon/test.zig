@@ -7,6 +7,7 @@ const ZonParser = @import("parser.zig").ZonParser;
 const ZonFormatter = @import("formatter.zig").ZonFormatter;
 const ZonLinter = @import("linter.zig").ZonLinter;
 const ZonAnalyzer = @import("analyzer.zig").ZonAnalyzer;
+const ZonStreamingAdapter = @import("streaming_adapter.zig").ZonStreamingAdapter;
 const zon_mod = @import("mod.zig");
 const FormatOptions = @import("../interface.zig").FormatOptions;
 const ZonRules = @import("../../ast/rules.zig").ZonRules;

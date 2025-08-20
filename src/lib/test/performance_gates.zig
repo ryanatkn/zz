@@ -10,8 +10,8 @@ const JsonLexer = @import("../languages/json/lexer.zig").JsonLexer;
 const ZonLexer = @import("../languages/zon/lexer.zig").ZonLexer;
 const JsonParser = @import("../languages/json/parser.zig").JsonParser;
 const ZonParser = @import("../languages/zon/parser.zig").ZonParser;
-const JsonLexerAdapter = @import("../transform/streaming/token_iterator.zig").JsonLexerAdapter;
-const ZonLexerAdapter = @import("../transform/streaming/token_iterator.zig").ZonLexerAdapter;
+const JsonStreamingAdapter = @import("../languages/json/streaming_adapter.zig").JsonStreamingAdapter;
+const ZonStreamingAdapter = @import("../languages/zon/streaming_adapter.zig").ZonStreamingAdapter;
 
 /// Performance thresholds - these should not regress
 pub const PerformanceThresholds = struct {
@@ -208,7 +208,7 @@ test "JSON streaming adapter performance gate" {
     var context = Context.init(testing.allocator);
     defer context.deinit();
 
-    var adapter = JsonLexerAdapter.init(.{});
+    var adapter = JsonStreamingAdapter.init(.{});
     defer adapter.deinit();
 
     const lexer_interface = TokenIterator.LexerInterface.init(&adapter);
@@ -239,7 +239,7 @@ test "ZON streaming adapter performance gate" {
     var context = Context.init(testing.allocator);
     defer context.deinit();
 
-    var adapter = ZonLexerAdapter.init(.{});
+    var adapter = ZonStreamingAdapter.init(.{});
     defer adapter.deinit();
 
     const lexer_interface = TokenIterator.LexerInterface.init(&adapter);

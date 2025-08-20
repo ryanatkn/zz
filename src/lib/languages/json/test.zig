@@ -9,6 +9,7 @@ const JsonLinter = @import("linter.zig").JsonLinter;
 const JsonAnalyzer = @import("analyzer.zig").JsonAnalyzer;
 const JsonStreamingAdapter = @import("streaming_adapter.zig").JsonStreamingAdapter;
 const StatefulJsonLexer = @import("stateful_lexer.zig").StatefulJsonLexer;
+const JsonToken = @import("tokens.zig").JsonToken;
 const json_mod = @import("mod.zig");
 
 // Import types
@@ -22,11 +23,10 @@ const interface_types = @import("../interface.zig");
 const FormatOptions = interface_types.FormatOptions;
 const Rule = interface_types.Rule;
 
-// Import additional test modules
-const rfc8259_compliance_tests = @import("test_rfc8259_compliance.zig");
-
 test {
-    _ = rfc8259_compliance_tests;
+    _ = @import("test_rfc8259_compliance.zig");
+    _ = @import("tokens.zig");
+    _ = @import("stateful_lexer.zig");
 }
 
 // Comprehensive test suite for JSON language implementation

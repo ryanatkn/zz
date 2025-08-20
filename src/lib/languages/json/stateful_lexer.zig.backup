@@ -4,8 +4,6 @@ const TokenKind = @import("../../parser/foundation/types/predicate.zig").TokenKi
 const Span = @import("../../parser/foundation/types/span.zig").Span;
 const StatefulLexer = @import("../../transform/streaming/stateful_lexer.zig").StatefulLexer;
 const char = @import("../../char/mod.zig");
-const JsonToken = @import("tokens.zig").JsonToken;
-const TokenData = @import("../common/token_base.zig").TokenData;
 
 /// High-performance stateful JSON lexer for streaming tokenization
 ///
@@ -18,14 +16,12 @@ const TokenData = @import("../common/token_base.zig").TokenData;
 pub const StatefulJsonLexer = struct {
     state: StatefulLexer.State,
     allocator: std.mem.Allocator,
-    /// Track current depth for nesting
-    depth: u16 = 0,
     
     const Self = @This();
     
     /// Common return type for token processing functions
     const TokenResult = struct {
-        token: ?JsonToken,
+        token: ?Token,
         consumed: usize,
     };
     
@@ -50,14 +46,14 @@ pub const StatefulJsonLexer = struct {
         self.state.reset();
     }
     
-    /// Process a chunk of input, returning JSON tokens
+    /// Process a chunk of input, returning tokens
     pub fn processChunk(
         self: *Self,
         chunk: []const u8,
         chunk_pos: usize,
         allocator: std.mem.Allocator,
-    ) ![]JsonToken {
-        var tokens = try std.ArrayList(JsonToken).initCapacity(
+    ) ![]Token {
+        var tokens = try std.ArrayList(Token).initCapacity(
             allocator,
             chunk.len / 4, // Heuristic: average 4 bytes per token
         );
@@ -82,34 +78,9 @@ pub const StatefulJsonLexer = struct {
             
             // Try fast path for single-character tokens
             if (self.state.context == .normal) {
-                const ch = chunk[pos];
-                const span = Span.init(chunk_pos + pos, chunk_pos + pos + 1);
-                const data = TokenData.init(span, 0, 0, self.depth);
-                
-                const fast_token: ?JsonToken = switch (ch) {
-                    '{' => blk: {
-                        self.depth += 1;
-                        break :blk JsonToken{ .object_start = data };
-                    },
-                    '}' => blk: {
-                        if (self.depth > 0) self.depth -= 1;
-                        break :blk JsonToken{ .object_end = data };
-                    },
-                    '[' => blk: {
-                        self.depth += 1;
-                        break :blk JsonToken{ .array_start = data };
-                    },
-                    ']' => blk: {
-                        if (self.depth > 0) self.depth -= 1;
-                        break :blk JsonToken{ .array_end = data };
-                    },
-                    ',' => JsonToken{ .comma = data },
-                    ':' => JsonToken{ .colon = data },
-                    else => null,
-                };
-                
-                if (fast_token) |token| {
-                    try tokens.append(token);
+                if (StatefulLexer.Helpers.tryFastDelimiter(chunk[pos])) |kind| {
+                    const span = Span.init(chunk_pos + pos, chunk_pos + pos + 1);
+                    try tokens.append(Token.simple(span, kind, chunk[pos..pos + 1], 0));
                     pos += 1;
                     continue;
                 }
@@ -142,7 +113,7 @@ pub const StatefulJsonLexer = struct {
     fn completePartialToken(
         self: *Self,
         chunk: []const u8,
-        tokens: *std.ArrayList(JsonToken),
+        tokens: *std.ArrayList(Token),
         chunk_pos: usize,
     ) !usize {
         const partial = self.state.getPartialToken();
@@ -179,19 +150,7 @@ pub const StatefulJsonLexer = struct {
                             self.state.global_position - partial.len,
                             chunk_pos + pos,
                         );
-                        const data = TokenData.init(span, 0, 0, self.depth);
-                        
-                        // Determine if property name or string value based on context
-                        // For now, treat all as string_value (can be improved with context tracking)
-                        const token = JsonToken{
-                            .string_value = .{
-                                .data = data,
-                                .value = complete[1..complete.len-1], // Remove quotes
-                                .raw = complete,
-                                .has_escapes = std.mem.indexOf(u8, complete, "\\") != null,
-                            },
-                        };
-                        try tokens.append(token);
+                        try tokens.append(Token.simple(span, .string_literal, complete, 0));
                         
                         // Reset state
                         self.state.clearPartial();
@@ -229,23 +188,7 @@ pub const StatefulJsonLexer = struct {
                         self.state.global_position - partial.len,
                         chunk_pos + pos,
                     );
-                    const data = TokenData.init(span, 0, 0, self.depth);
-                    
-                    // Parse number value
-                    const int_value = std.fmt.parseInt(i64, complete, 10) catch null;
-                    const float_value = std.fmt.parseFloat(f64, complete) catch null;
-                    
-                    const token = JsonToken{
-                        .number_value = .{
-                            .data = data,
-                            .raw = complete,
-                            .int_value = int_value,
-                            .float_value = float_value,
-                            .is_scientific = self.state.number_state.has_e,
-                            .is_float = self.state.number_state.has_dot or self.state.number_state.has_e,
-                        },
-                    };
-                    try tokens.append(token);
+                    try tokens.append(Token.simple(span, .number_literal, complete, 0));
                 }
                 
                 // Reset state
@@ -317,27 +260,24 @@ pub const StatefulJsonLexer = struct {
         // Boolean and null literals
         if (ch == 't' and std.mem.startsWith(u8, input, "true")) {
             const span = Span.init(pos, pos + 4);
-            const data = TokenData.init(span, 0, 0, self.depth);
             return .{
-                .token = JsonToken{ .boolean_value = .{ .data = data, .value = true } },
+                .token = Token.simple(span, .boolean_literal, input[0..4], 0),
                 .consumed = 4,
             };
         }
         
         if (ch == 'f' and std.mem.startsWith(u8, input, "false")) {
             const span = Span.init(pos, pos + 5);
-            const data = TokenData.init(span, 0, 0, self.depth);
             return .{
-                .token = JsonToken{ .boolean_value = .{ .data = data, .value = false } },
+                .token = Token.simple(span, .boolean_literal, input[0..5], 0),
                 .consumed = 5,
             };
         }
         
         if (ch == 'n' and std.mem.startsWith(u8, input, "null")) {
             const span = Span.init(pos, pos + 4);
-            const data = TokenData.init(span, 0, 0, self.depth);
             return .{
-                .token = JsonToken{ .null_value = data },
+                .token = Token.simple(span, .null_literal, input[0..4], 0),
                 .consumed = 4,
             };
         }
@@ -394,21 +334,8 @@ pub const StatefulJsonLexer = struct {
                 // Complete string
                 i += 1;
                 const span = Span.init(pos, pos + i);
-                const data = TokenData.init(span, 0, 0, self.depth);
-                
-                // Extract unescaped value (simplified - real unescaping would be more complex)
-                const has_escapes = std.mem.indexOf(u8, input[1..i-1], "\\") != null;
-                
-                const token = JsonToken{
-                    .string_value = .{
-                        .data = data,
-                        .value = input[1..i-1], // Remove quotes
-                        .raw = input[0..i],
-                        .has_escapes = has_escapes,
-                    },
-                };
                 return .{
-                    .token = token,
+                    .token = Token.simple(span, .string_literal, input[0..i], 0),
                     .consumed = i,
                 };
             }
@@ -480,25 +407,8 @@ pub const StatefulJsonLexer = struct {
         // Validate number
         if (self.isValidNumber()) {
             const span = Span.init(pos, pos + i);
-            const data = TokenData.init(span, 0, 0, self.depth);
-            
-            // Parse number value
-            const number_str = input[0..i];
-            const int_value = std.fmt.parseInt(i64, number_str, 10) catch null;
-            const float_value = std.fmt.parseFloat(f64, number_str) catch null;
-            
-            const token = JsonToken{
-                .number_value = .{
-                    .data = data,
-                    .raw = number_str,
-                    .int_value = int_value,
-                    .float_value = float_value,
-                    .is_scientific = self.state.number_state.has_e,
-                    .is_float = self.state.number_state.has_dot or self.state.number_state.has_e,
-                },
-            };
             return .{
-                .token = token,
+                .token = Token.simple(span, .number_literal, input[0..i], 0),
                 .consumed = i,
             };
         }
@@ -508,45 +418,29 @@ pub const StatefulJsonLexer = struct {
     
     /// Process a line comment (JSON5)
     fn processLineComment(self: *Self, input: []const u8, pos: usize) !TokenResult {
+        _ = self;
+        _ = pos;
+        
         // Find end of line
         if (std.mem.indexOfScalar(u8, input, '\n')) |end| {
-            const span = Span.init(pos, pos + end);
-            const data = TokenData.init(span, 0, 0, self.depth);
-            const token = JsonToken{
-                .comment = .{
-                    .data = data,
-                    .text = input[0..end],
-                    .kind = .line,
-                },
-            };
-            return .{ .token = token, .consumed = end + 1 };
+            return .{ .token = null, .consumed = end + 1 };
         }
         
         // Comment continues to end of chunk
-        self.state.context = .in_comment_line;
-        try self.state.appendToPartial(input);
         return .{ .token = null, .consumed = input.len };
     }
     
     /// Process a block comment (JSON5)
     fn processBlockComment(self: *Self, input: []const u8, pos: usize) !TokenResult {
+        _ = pos;
+        
         // Find end of comment
         if (std.mem.indexOf(u8, input[2..], "*/")) |end| {
-            const span = Span.init(pos, pos + end + 4);
-            const data = TokenData.init(span, 0, 0, self.depth);
-            const token = JsonToken{
-                .comment = .{
-                    .data = data,
-                    .text = input[0..end + 4],
-                    .kind = .block,
-                },
-            };
-            return .{ .token = token, .consumed = end + 4 };
+            return .{ .token = null, .consumed = end + 4 };
         }
         
         // Comment continues to next chunk
         self.state.context = .in_comment_block;
-        try self.state.appendToPartial(input);
         return .{ .token = null, .consumed = input.len };
     }
     
@@ -621,9 +515,9 @@ test "StatefulJsonLexer - simple tokens" {
     defer testing.allocator.free(tokens);
     
     try testing.expect(tokens.len >= 5); // {, "name", :, "test", }
-    try testing.expect(tokens[0] == .object_start);
-    try testing.expect(tokens[1] == .string_value);
-    try testing.expect(tokens[2] == .colon);
+    try testing.expect(tokens[0].kind == .left_brace);
+    try testing.expect(tokens[1].kind == .string_literal);
+    try testing.expect(tokens[2].kind == .colon);
 }
 
 test "StatefulJsonLexer - chunk boundary in string" {
@@ -642,7 +536,7 @@ test "StatefulJsonLexer - chunk boundary in string" {
     
     // First chunk should have opening brace
     try testing.expect(tokens1.len >= 1);
-    try testing.expect(tokens1[0] == .object_start);
+    try testing.expect(tokens1[0].kind == .left_brace);
     
     // Second chunk should complete the string
     try testing.expect(tokens2.len >= 3); // "name", :, 42, }
@@ -663,8 +557,8 @@ test "StatefulJsonLexer - chunk boundary in number" {
     defer testing.allocator.free(tokens2);
     
     // Should correctly tokenize the split number
-    try testing.expect(tokens1[0] == .array_start);
-    try testing.expect(tokens2[0] == .number_value);
+    try testing.expect(tokens1[0].kind == .left_bracket);
+    try testing.expect(tokens2[0].kind == .number_literal);
 }
 
 test "StatefulJsonLexer - escape sequences" {
@@ -676,7 +570,7 @@ test "StatefulJsonLexer - escape sequences" {
     defer testing.allocator.free(tokens);
     
     try testing.expect(tokens.len == 1);
-    try testing.expect(tokens[0] == .string_value);
+    try testing.expect(tokens[0].kind == .string_literal);
 }
 
 test "StatefulJsonLexer - boolean and null literals" {
@@ -687,10 +581,10 @@ test "StatefulJsonLexer - boolean and null literals" {
     const tokens = try lexer.processChunk(input, 0, testing.allocator);
     defer testing.allocator.free(tokens);
     
-    try testing.expect(tokens[1] == .boolean_value);
-    try testing.expectEqualStrings("true", tokens[1].text());
-    try testing.expect(tokens[3] == .boolean_value);
-    try testing.expectEqualStrings("false", tokens[3].text());
-    try testing.expect(tokens[5] == .null_value);
-    try testing.expectEqualStrings("null", tokens[5].text());
+    try testing.expect(tokens[1].kind == .boolean_literal);
+    try testing.expectEqualStrings("true", tokens[1].text);
+    try testing.expect(tokens[3].kind == .boolean_literal);
+    try testing.expectEqualStrings("false", tokens[3].text);
+    try testing.expect(tokens[5].kind == .null_literal);
+    try testing.expectEqualStrings("null", tokens[5].text);
 }

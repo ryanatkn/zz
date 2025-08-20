@@ -3,10 +3,13 @@ const Token = @import("../../parser/foundation/types/token.zig").Token;
 const StatefulLexer = @import("../../transform/streaming/stateful_lexer.zig").StatefulLexer;
 const JsonLexer = @import("lexer.zig").JsonLexer;
 const StatefulJsonLexer = @import("stateful_lexer.zig").StatefulJsonLexer;
+const JsonToken = @import("tokens.zig").JsonToken;
+const TokenConverter = @import("../../transform/streaming/token_converter.zig").TokenConverter;
 
 /// Streaming adapter for JSON lexer - integrates stateful JSON lexer with token iterator
 pub const JsonStreamingAdapter = struct {
     lexer: StatefulJsonLexer,
+    source: []const u8,  // Keep reference to source for conversion
 
     const Self = @This();
 
@@ -23,12 +26,20 @@ pub const JsonStreamingAdapter = struct {
         };
         return Self{
             .lexer = StatefulJsonLexer.init(std.heap.page_allocator, stateful_options),
+            .source = &.{},
         };
     }
 
     pub fn tokenizeChunk(self: *Self, input: []const u8, start_pos: usize, allocator: std.mem.Allocator) ![]Token {
-        // Use the stateful lexer for correct chunk handling
-        return try self.lexer.processChunk(input, start_pos, allocator);
+        // Store source reference for conversion
+        self.source = input;
+        
+        // Get JSON tokens from stateful lexer
+        const json_tokens = try self.lexer.processChunk(input, start_pos, allocator);
+        defer allocator.free(json_tokens);
+        
+        // Convert to generic tokens
+        return try TokenConverter.convertMany(JsonToken, json_tokens, self.source, allocator);
     }
 
     pub fn deinit(self: *Self) void {

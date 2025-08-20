@@ -10,6 +10,7 @@ test {
     _ = @import("execution/test.zig");
     _ = @import("filesystem/test.zig");
     _ = @import("grammar/test.zig");
+    _ = @import("languages/test.zig");
     _ = @import("languages/json/test.zig");
     _ = @import("languages/zon/test.zig");
     _ = @import("memory/test.zig");

@@ -7,6 +7,13 @@
 - **Performance validated**: 61KB for 100KB input, <1ms for 10KB
 - See [TODO_STREAMING_LEXER_PHASE_1.md](TODO_STREAMING_LEXER_PHASE_1.md) for details
 
+## Phase 2 Status: ✅ COMPLETED (August 2025)
+- **Language-specific token types**: JsonToken and ZonToken with rich semantic info
+- **Token conversion pipeline**: Type-safe conversion to generic tokens
+- **JSON stateful lexer**: Emits JsonToken with full metadata
+- **Unified token iterator**: Supports multiple language lexers
+- See [TODO_STREAMING_LEXER_PHASE_2.md](TODO_STREAMING_LEXER_PHASE_2.md) for details
+
 ## Executive Summary
 
 Complete architectural overhaul to support **language-specific tokens**, **generic AST**, and **pluggable analysis** while maintaining **100% streaming correctness** and **maximum performance**.
@@ -946,17 +953,17 @@ pub const LookupTables = struct {
 
 ## Implementation Phases
 
-### Phase 1: Core Infrastructure (Days 1-2)
+### Phase 1: Core Infrastructure ✅ COMPLETE
 - [x] Create stateful lexer base types
-- [ ] Implement state machine for all contexts
-- [ ] Add chunk boundary handling
-- [ ] Create generic token interface
+- [x] Implement state machine for all contexts
+- [x] Add chunk boundary handling
+- [x] Create generic token interface
 
-### Phase 2: JSON Implementation (Days 2-3)
-- [ ] Implement JsonToken union type
-- [ ] Create StatefulJsonLexer with full state
-- [ ] Implement JsonParser with type-safe dispatch
-- [ ] Add comprehensive chunk boundary tests
+### Phase 2: Language-Specific Tokens ✅ COMPLETE
+- [x] Implement JsonToken union type with rich metadata
+- [x] Create StatefulJsonLexer emitting JsonToken
+- [x] Implement token conversion pipeline
+- [x] Add unified token iterator for streaming
 
 ### Phase 3: Parser Architecture (Days 3-4)
 - [ ] Update AST.Node to remove language specifics

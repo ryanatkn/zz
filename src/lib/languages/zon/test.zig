@@ -8,6 +8,7 @@ const ZonFormatter = @import("formatter.zig").ZonFormatter;
 const ZonLinter = @import("linter.zig").ZonLinter;
 const ZonAnalyzer = @import("analyzer.zig").ZonAnalyzer;
 const ZonStreamingAdapter = @import("streaming_adapter.zig").ZonStreamingAdapter;
+const ZonToken = @import("tokens.zig").ZonToken;
 const zon_mod = @import("mod.zig");
 const FormatOptions = @import("../interface.zig").FormatOptions;
 const ZonRules = @import("../../ast/rules.zig").ZonRules;
@@ -1362,4 +1363,8 @@ test "ZON edge cases - all number formats" {
 
     try testing.expectEqual(ZonRules.object, ast.root.rule_id);
     try testing.expect(ast.root.children.len >= 5);
+}
+
+test {
+    _ = @import("tokens.zig");
 }

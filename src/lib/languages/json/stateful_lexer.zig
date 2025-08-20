@@ -6,7 +6,38 @@ const StatefulLexer = @import("../../transform/streaming/stateful_lexer.zig").St
 const char = @import("../../char/mod.zig");
 const JsonToken = @import("tokens.zig").JsonToken;
 const TokenData = @import("../common/token_base.zig").TokenData;
-const StreamToken = @import("../../transform/streaming/stream_token.zig").StreamToken;
+
+
+/// Convert JsonToken to generic Token (for backward compatibility)
+fn jsonToGenericToken(json_token: JsonToken, source: []const u8) Token {
+    _ = source; // May be needed for text extraction
+    
+    const span_val = json_token.span();
+    const depth = json_token.tokenData().depth;
+    const kind = switch (json_token) {
+        .object_start => TokenKind.left_brace,
+        .object_end => TokenKind.right_brace,
+        .array_start => TokenKind.left_bracket,
+        .array_end => TokenKind.right_bracket,
+        .comma => TokenKind.comma,
+        .colon => TokenKind.colon,
+        .string_value, .property_name => TokenKind.string_literal,
+        .decimal_int, .hex_int, .float, .scientific => TokenKind.number_literal,
+        .boolean_value => TokenKind.boolean_literal,
+        .null_value => TokenKind.null_literal,
+        .whitespace => TokenKind.whitespace,
+        .comment => TokenKind.comment,
+        .invalid => TokenKind.unknown,
+    };
+    
+    return Token{
+        .kind = kind,
+        .span = span_val,
+        .text = json_token.text(),
+        .bracket_depth = depth,
+        .flags = .{}, // TODO: Map flags from JsonToken if needed
+    };
+}
 
 /// High-performance stateful JSON lexer for streaming tokenization
 ///
@@ -51,14 +82,34 @@ pub const StatefulJsonLexer = struct {
         self.state.reset();
     }
 
-    /// Process a chunk of input, returning JSON tokens
+    /// Process a chunk of input, returning generic tokens (backward compatibility wrapper)
     pub fn processChunk(
         self: *Self,
         chunk: []const u8,
         chunk_pos: usize,
         allocator: std.mem.Allocator,
-    ) ![]StreamToken {
-        var tokens = try std.ArrayList(StreamToken).initCapacity(
+    ) ![]Token {
+        // Use the new JsonToken-based method
+        const json_tokens = try self.processChunkToJson(chunk, chunk_pos, allocator);
+        defer allocator.free(json_tokens);
+        
+        // Convert to generic tokens
+        var generic_tokens = try allocator.alloc(Token, json_tokens.len);
+        for (json_tokens, 0..) |json_token, i| {
+            generic_tokens[i] = jsonToGenericToken(json_token, chunk);
+        }
+        
+        return generic_tokens;
+    }
+
+    /// Process a chunk of input, returning JsonTokens directly for vtable adaptation
+    pub fn processChunkToJson(
+        self: *Self,
+        chunk: []const u8,
+        chunk_pos: usize,
+        allocator: std.mem.Allocator,
+    ) ![]JsonToken {
+        var tokens = try std.ArrayList(JsonToken).initCapacity(
             allocator,
             chunk.len / 4, // Heuristic: average 4 bytes per token
         );
@@ -68,7 +119,7 @@ pub const StatefulJsonLexer = struct {
 
         // Step 1: Complete partial token from previous chunk
         if (self.state.hasPartialToken()) {
-            pos = try self.completePartialToken(chunk, &tokens, chunk_pos);
+            pos = try self.completePartialTokenToJson(chunk, &tokens, chunk_pos);
         }
 
         // Step 2: Process tokens in this chunk
@@ -110,7 +161,7 @@ pub const StatefulJsonLexer = struct {
                 };
 
                 if (fast_token) |token| {
-                    try tokens.append(StreamToken{ .json = token });
+                    try tokens.append(token);
                     pos += 1;
                     continue;
                 }
@@ -128,7 +179,7 @@ pub const StatefulJsonLexer = struct {
             // Process complete token
             const token_result = try self.processToken(chunk[pos..], chunk_pos + pos);
             if (token_result.token) |token| {
-                try tokens.append(StreamToken{ .json = token });
+                try tokens.append(token);
             }
             pos += token_result.consumed;
         }
@@ -139,11 +190,128 @@ pub const StatefulJsonLexer = struct {
         return tokens.toOwnedSlice();
     }
 
+    /// Complete a partial token from the previous chunk (JsonToken version)
+    fn completePartialTokenToJson(
+        self: *Self,
+        chunk: []const u8,
+        tokens: *std.ArrayList(JsonToken),
+        chunk_pos: usize,
+    ) !usize {
+        const partial = self.state.getPartialToken();
+
+        switch (self.state.context) {
+            .in_string => {
+                // Find the closing quote
+                var pos: usize = 0;
+                var escaped = false;
+
+                while (pos < chunk.len) {
+                    const ch = chunk[pos];
+
+                    if (escaped) {
+                        escaped = false;
+                        pos += 1;
+                        continue;
+                    }
+
+                    if (ch == '\\') {
+                        escaped = true;
+                    } else if (ch == self.state.quote_char) {
+                        // Found closing quote
+                        pos += 1;
+
+                        // Combine partial with completion
+                        var complete = try self.allocator.alloc(u8, partial.len + pos);
+                        defer self.allocator.free(complete);
+                        @memcpy(complete[0..partial.len], partial);
+                        @memcpy(complete[partial.len..], chunk[0..pos]);
+
+                        // Create string token
+                        const span = Span.init(
+                            self.state.global_position - partial.len,
+                            chunk_pos + pos,
+                        );
+                        const data = TokenData.init(span, 0, 0, self.depth);
+
+                        const token = JsonToken{
+                            .string_value = .{
+                                .data = data,
+                                .value = complete[1 .. complete.len - 1], // Remove quotes
+                                .raw = complete,
+                                .has_escapes = std.mem.indexOf(u8, complete, "\\") != null,
+                            },
+                        };
+                        try tokens.append(token);
+
+                        // Reset partial state
+                        self.state.clearPartial();
+                        self.state.context = .normal;
+                        self.state.quote_char = 0;
+
+                        return pos;
+                    }
+
+                    pos += 1;
+                }
+
+                // Still in string, save progress
+                try self.state.appendToPartial(chunk);
+                return chunk.len;
+            },
+
+            .in_number => {
+                // Find end of number
+                var pos: usize = 0;
+                while (pos < chunk.len and StatefulLexer.Helpers.isNumberChar(chunk[pos])) {
+                    self.updateNumberState(chunk[pos]);
+                    pos += 1;
+                }
+
+                // Complete the number
+                var complete = try self.allocator.alloc(u8, partial.len + pos);
+                defer self.allocator.free(complete);
+                @memcpy(complete[0..partial.len], partial);
+                @memcpy(complete[partial.len..], chunk[0..pos]);
+
+                // Validate and create number token
+                if (self.isValidNumber()) {
+                    const span = Span.init(
+                        self.state.global_position - partial.len,
+                        chunk_pos + pos,
+                    );
+                    const data = TokenData.init(span, 0, 0, self.depth);
+
+                    // Create enum-based token based on number format
+                    const token = if (self.state.number_state.has_e) blk: {
+                        const value = std.fmt.parseFloat(f64, complete) catch return error.InvalidNumber;
+                        break :blk JsonToken{ .scientific = .{ .data = data, .raw = complete, .value = value } };
+                    } else if (self.state.number_state.has_dot) blk: {
+                        const value = std.fmt.parseFloat(f64, complete) catch return error.InvalidNumber;
+                        break :blk JsonToken{ .float = .{ .data = data, .raw = complete, .value = value } };
+                    } else blk: {
+                        const value = std.fmt.parseInt(i64, complete, 10) catch return error.InvalidNumber;
+                        break :blk JsonToken{ .decimal_int = .{ .data = data, .raw = complete, .value = value } };
+                    };
+                    try tokens.append(token);
+
+                    // Reset state
+                    self.state.clearPartial();
+                    self.state.context = .normal;
+                    self.state.number_state = .{};
+                }
+
+                return pos;
+            },
+
+            else => return 0, // No partial token to complete
+        }
+    }
+
     /// Complete a partial token from the previous chunk
     fn completePartialToken(
         self: *Self,
         chunk: []const u8,
-        tokens: *std.ArrayList(StreamToken),
+        tokens: *std.ArrayList(Token),
         chunk_pos: usize,
     ) !usize {
         const partial = self.state.getPartialToken();
@@ -192,7 +360,7 @@ pub const StatefulJsonLexer = struct {
                                 .has_escapes = std.mem.indexOf(u8, complete, "\\") != null,
                             },
                         };
-                        try tokens.append(StreamToken{ .json = token });
+                        try tokens.append(jsonToGenericToken(token, ""));
 
                         // Reset state
                         self.state.clearPartial();
@@ -232,21 +400,18 @@ pub const StatefulJsonLexer = struct {
                     );
                     const data = TokenData.init(span, 0, 0, self.depth);
 
-                    // Parse number value
-                    const int_value = std.fmt.parseInt(i64, complete, 10) catch null;
-                    const float_value = std.fmt.parseFloat(f64, complete) catch null;
-
-                    const token = JsonToken{
-                        .number_value = .{
-                            .data = data,
-                            .raw = complete,
-                            .int_value = int_value,
-                            .float_value = float_value,
-                            .is_scientific = self.state.number_state.has_e,
-                            .is_float = self.state.number_state.has_dot or self.state.number_state.has_e,
-                        },
+                    // Create enum-based token based on number format
+                    const token = if (self.state.number_state.has_e) blk: {
+                        const value = std.fmt.parseFloat(f64, complete) catch return error.InvalidNumber;
+                        break :blk JsonToken{ .scientific = .{ .data = data, .raw = complete, .value = value } };
+                    } else if (self.state.number_state.has_dot) blk: {
+                        const value = std.fmt.parseFloat(f64, complete) catch return error.InvalidNumber;
+                        break :blk JsonToken{ .float = .{ .data = data, .raw = complete, .value = value } };
+                    } else blk: {
+                        const value = std.fmt.parseInt(i64, complete, 10) catch return error.InvalidNumber;
+                        break :blk JsonToken{ .decimal_int = .{ .data = data, .raw = complete, .value = value } };
                     };
-                    try tokens.append(StreamToken{ .json = token });
+                    try tokens.append(jsonToGenericToken(token, ""));
                 }
 
                 // Reset state
@@ -483,20 +648,17 @@ pub const StatefulJsonLexer = struct {
             const span = Span.init(pos, pos + i);
             const data = TokenData.init(span, 0, 0, self.depth);
 
-            // Parse number value
+            // Create enum-based token based on number format
             const number_str = input[0..i];
-            const int_value = std.fmt.parseInt(i64, number_str, 10) catch null;
-            const float_value = std.fmt.parseFloat(f64, number_str) catch null;
-
-            const token = JsonToken{
-                .number_value = .{
-                    .data = data,
-                    .raw = number_str,
-                    .int_value = int_value,
-                    .float_value = float_value,
-                    .is_scientific = self.state.number_state.has_e,
-                    .is_float = self.state.number_state.has_dot or self.state.number_state.has_e,
-                },
+            const token = if (self.state.number_state.has_e) blk: {
+                const value = std.fmt.parseFloat(f64, number_str) catch return error.InvalidNumber;
+                break :blk JsonToken{ .scientific = .{ .data = data, .raw = number_str, .value = value } };
+            } else if (self.state.number_state.has_dot) blk: {
+                const value = std.fmt.parseFloat(f64, number_str) catch return error.InvalidNumber;
+                break :blk JsonToken{ .float = .{ .data = data, .raw = number_str, .value = value } };
+            } else blk: {
+                const value = std.fmt.parseInt(i64, number_str, 10) catch return error.InvalidNumber;
+                break :blk JsonToken{ .decimal_int = .{ .data = data, .raw = number_str, .value = value } };
             };
             return .{
                 .token = token,
@@ -622,9 +784,9 @@ test "StatefulJsonLexer - simple tokens" {
     defer testing.allocator.free(tokens);
 
     try testing.expect(tokens.len >= 5); // {, "name", :, "test", }
-    try testing.expect(tokens[0] == .json);
-    try testing.expect(tokens[1] == .json);
-    try testing.expect(tokens[2] == .json);
+    try testing.expect(tokens[0].kind == .left_brace);
+    try testing.expect(tokens[1].kind == .string_literal);
+    try testing.expect(tokens[2].kind == .colon);
 }
 
 test "StatefulJsonLexer - chunk boundary in string" {
@@ -643,7 +805,7 @@ test "StatefulJsonLexer - chunk boundary in string" {
 
     // First chunk should have opening brace
     try testing.expect(tokens1.len >= 1);
-    try testing.expect(tokens1[0] == .json);
+    try testing.expect(tokens1[0].kind == .left_brace);
 
     // Second chunk should complete the string
     try testing.expect(tokens2.len >= 3); // "name", :, 42, }
@@ -664,9 +826,9 @@ test "StatefulJsonLexer - chunk boundary in number" {
     defer testing.allocator.free(tokens2);
 
     // Should correctly tokenize the split number
-    try testing.expect(tokens1[0] == .json);
-    try testing.expect(tokens2[0] == .json);
-    try testing.expect(tokens2[0].json == .number_value);
+    try testing.expect(tokens1[0].kind == .left_brace);
+    // Skip specific token type check - varies by implementation
+    try testing.expect(tokens2[0].kind == .number_literal);
 }
 
 test "StatefulJsonLexer - escape sequences" {
@@ -678,8 +840,8 @@ test "StatefulJsonLexer - escape sequences" {
     defer testing.allocator.free(tokens);
 
     try testing.expect(tokens.len == 1);
-    try testing.expect(tokens[0] == .json);
-    try testing.expect(tokens[0].json == .string_value);
+    // Skip token type check - just verify parsing succeeded
+    try testing.expect(tokens[0].kind == .string_literal);
 }
 
 test "StatefulJsonLexer - boolean and null literals" {
@@ -690,13 +852,13 @@ test "StatefulJsonLexer - boolean and null literals" {
     const tokens = try lexer.processChunk(input, 0, testing.allocator);
     defer testing.allocator.free(tokens);
 
-    try testing.expect(tokens[1] == .json);
-    try testing.expect(tokens[1].json == .boolean_value);
-    try testing.expectEqualStrings("true", tokens[1].text());
-    try testing.expect(tokens[3] == .json);
-    try testing.expect(tokens[3].json == .boolean_value);
-    try testing.expectEqualStrings("false", tokens[3].text());
-    try testing.expect(tokens[5] == .json);
-    try testing.expect(tokens[5].json == .null_value);
-    try testing.expectEqualStrings("null", tokens[5].text());
+    // Skip token type check - just verify parsing succeeded
+    try testing.expect(tokens[1].kind == .boolean_literal);
+    try testing.expectEqualStrings("true", tokens[1].text);
+    // Skip token type check - just verify parsing succeeded
+    try testing.expect(tokens[3].kind == .boolean_literal);
+    try testing.expectEqualStrings("false", tokens[3].text);
+    // Skip token type check - just verify parsing succeeded
+    try testing.expect(tokens[5].kind == .null_literal);
+    try testing.expectEqualStrings("null", tokens[5].text);
 }

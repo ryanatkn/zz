@@ -35,19 +35,40 @@ pub const JsonToken = union(enum) {
         has_escapes: bool,
     },
 
-    // Number value with parsed information
-    number_value: struct {
+    // Decimal integer (base 10)
+    decimal_int: struct {
         data: TokenData,
         /// Original text representation
         raw: []const u8,
-        /// Parsed as integer if possible
-        int_value: ?i64,
-        /// Parsed as float
-        float_value: ?f64,
-        /// Whether number uses scientific notation
-        is_scientific: bool,
-        /// Whether number is explicitly a float (has decimal point)
-        is_float: bool,
+        /// Parsed integer value
+        value: i64,
+    },
+
+    // Hexadecimal integer (0x prefix)
+    hex_int: struct {
+        data: TokenData,
+        /// Original text representation
+        raw: []const u8,
+        /// Parsed unsigned value
+        value: u64,
+    },
+
+    // Floating point number (has decimal point)
+    float: struct {
+        data: TokenData,
+        /// Original text representation
+        raw: []const u8,
+        /// Parsed float value
+        value: f64,
+    },
+
+    // Scientific notation number (has e/E)
+    scientific: struct {
+        data: TokenData,
+        /// Original text representation
+        raw: []const u8,
+        /// Parsed float value
+        value: f64,
     },
 
     // Boolean value
@@ -127,7 +148,7 @@ pub const JsonToken = union(enum) {
     /// Check if this is a value token
     pub fn isValue(self: JsonToken) bool {
         return switch (self) {
-            .string_value, .number_value, .boolean_value, .null_value, .object_start, .array_start => true,
+            .string_value, .decimal_int, .hex_int, .float, .scientific, .boolean_value, .null_value, .object_start, .array_start => true,
             else => false,
         };
     }
@@ -151,7 +172,10 @@ pub const JsonToken = union(enum) {
             .colon => ":",
             .property_name => |p| p.raw,
             .string_value => |s| s.raw,
-            .number_value => |n| n.raw,
+            .decimal_int => |n| n.raw,
+            .hex_int => |n| n.raw,
+            .float => |n| n.raw,
+            .scientific => |n| n.raw,
             .boolean_value => |b| if (b.value) "true" else "false",
             .null_value => "null",
             .comment => |c| c.text,
@@ -226,20 +250,16 @@ test "JsonToken - number token" {
     const data = TokenData.init(span, 2, 5, 1);
 
     const token = JsonToken{
-        .number_value = .{
+        .float = .{
             .data = data,
             .raw = "42.5",
-            .int_value = null,
-            .float_value = 42.5,
-            .is_scientific = false,
-            .is_float = true,
+            .value = 42.5,
         },
     };
 
     try testing.expect(token.isValue());
     try testing.expectEqualStrings("42.5", token.text());
-    try testing.expect(token.number_value.is_float);
-    try testing.expectEqual(@as(?f64, 42.5), token.number_value.float_value);
+    try testing.expectEqual(@as(f64, 42.5), token.float.value);
 }
 
 test "JsonToken - boolean and null" {

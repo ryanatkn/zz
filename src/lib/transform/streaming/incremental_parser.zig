@@ -1,7 +1,7 @@
 const std = @import("std");
 const Context = @import("../transform.zig").Context;
 const Token = @import("../../parser/foundation/types/token.zig").Token;
-const TokenIterator = @import("token_iterator.zig").TokenIterator;
+const GenericTokenIterator = @import("generic_token_iterator.zig").GenericTokenIterator;
 const AST = @import("../../ast/mod.zig").AST;
 const Node = @import("../../ast/node.zig").Node;
 
@@ -13,7 +13,7 @@ const Node = @import("../../ast/node.zig").Node;
 pub const IncrementalParser = struct {
     allocator: std.mem.Allocator,
     context: *Context,
-    token_iterator: *TokenIterator,
+    token_iterator: *GenericTokenIterator,
     parser_interface: ?ParserInterface,
     state: ParseState,
     partial_ast: ?AST,
@@ -120,7 +120,7 @@ pub const IncrementalParser = struct {
     };
 
     /// Initialize incremental parser
-    pub fn init(allocator: std.mem.Allocator, context: *Context, token_iterator: *TokenIterator, parser: ?ParserInterface) Self {
+    pub fn init(allocator: std.mem.Allocator, context: *Context, token_iterator: *GenericTokenIterator, parser: ?ParserInterface) Self {
         return Self{
             .allocator = allocator,
             .context = context,
@@ -393,7 +393,7 @@ test "IncrementalParser - basic functionality" {
     defer context.deinit();
 
     const input = "test input for incremental parsing with multiple tokens";
-    var token_iterator = try TokenIterator.init(testing.allocator, input, &context, null);
+    var token_iterator = try GenericTokenIterator.initWithGlobalRegistry(testing.allocator, input, &context, .json);
     defer token_iterator.deinit();
 
     var parser = IncrementalParser.init(testing.allocator, &context, &token_iterator, null);
@@ -411,7 +411,7 @@ test "IncrementalParser - memory limit" {
     defer context.deinit();
 
     const input = "a very small input";
-    var token_iterator = try TokenIterator.init(testing.allocator, input, &context, null);
+    var token_iterator = try GenericTokenIterator.initWithGlobalRegistry(testing.allocator, input, &context, .json);
     defer token_iterator.deinit();
 
     var parser = IncrementalParser.init(testing.allocator, &context, &token_iterator, null);
@@ -429,7 +429,7 @@ test "IncrementalParser - statistics" {
     defer context.deinit();
 
     const input = "test statistics functionality";
-    var token_iterator = try TokenIterator.init(testing.allocator, input, &context, null);
+    var token_iterator = try GenericTokenIterator.initWithGlobalRegistry(testing.allocator, input, &context, .json);
     defer token_iterator.deinit();
 
     var parser = IncrementalParser.init(testing.allocator, &context, &token_iterator, null);

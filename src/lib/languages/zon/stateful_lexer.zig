@@ -7,7 +7,45 @@ const char = @import("../../char/mod.zig");
 const ZonToken = @import("tokens.zig").ZonToken;
 const CommentKind = @import("tokens.zig").CommentKind;
 const TokenData = @import("../common/token_base.zig").TokenData;
-const StreamToken = @import("../../transform/streaming/stream_token.zig").StreamToken;
+
+
+/// Convert ZonToken to generic Token (for backward compatibility)
+fn zonToGenericToken(zon_token: ZonToken, source: []const u8) Token {
+    _ = source; // May be needed for text extraction
+    
+    const span_val = zon_token.span();
+    const depth = zon_token.tokenData().depth;
+    const kind = switch (zon_token) {
+        .object_start => TokenKind.left_brace,
+        .object_end => TokenKind.right_brace,
+        .array_start => TokenKind.left_bracket,
+        .array_end => TokenKind.right_bracket,
+        .comma => TokenKind.comma,
+        .colon => TokenKind.colon,
+        .equals => TokenKind.operator,
+        .identifier => TokenKind.identifier,
+        .field_name => TokenKind.identifier,
+        .string_value => TokenKind.string_literal,
+        .decimal_int, .hex_int, .binary_int, .octal_int, .float => TokenKind.number_literal,
+        .char_literal => TokenKind.string_literal,
+        .boolean_value => TokenKind.boolean_literal,
+        .null_value => TokenKind.null_literal,
+        .undefined_value => TokenKind.keyword,
+        .enum_literal => TokenKind.identifier,
+        .struct_literal => TokenKind.delimiter,
+        .comment => TokenKind.comment,
+        .whitespace => TokenKind.whitespace,
+        .invalid => TokenKind.unknown,
+    };
+    
+    return Token{
+        .kind = kind,
+        .span = span_val,
+        .text = zon_token.text(),
+        .bracket_depth = depth,
+        .flags = .{},
+    };
+}
 
 /// High-performance stateful ZON lexer for streaming tokenization
 ///
@@ -53,13 +91,34 @@ pub const StatefulZonLexer = struct {
         self.depth = 0;
     }
 
+    /// Process a chunk of input, returning generic tokens (backward compatibility wrapper)
     pub fn processChunk(
         self: *Self,
         chunk: []const u8,
         chunk_pos: usize,
         allocator: std.mem.Allocator,
-    ) ![]StreamToken {
-        var tokens = try std.ArrayList(StreamToken).initCapacity(
+    ) ![]Token {
+        // Use the new ZonToken-based method
+        const zon_tokens = try self.processChunkToZon(chunk, chunk_pos, allocator);
+        defer allocator.free(zon_tokens);
+        
+        // Convert to generic tokens
+        var generic_tokens = try allocator.alloc(Token, zon_tokens.len);
+        for (zon_tokens, 0..) |zon_token, i| {
+            generic_tokens[i] = zonToGenericToken(zon_token, chunk);
+        }
+        
+        return generic_tokens;
+    }
+
+    /// Process a chunk of input, returning ZonTokens directly for vtable adaptation
+    pub fn processChunkToZon(
+        self: *Self,
+        chunk: []const u8,
+        chunk_pos: usize,
+        allocator: std.mem.Allocator,
+    ) ![]ZonToken {
+        var tokens = try std.ArrayList(ZonToken).initCapacity(
             allocator,
             chunk.len / 4, // Heuristic: average 4 bytes per token
         );
@@ -67,125 +126,83 @@ pub const StatefulZonLexer = struct {
 
         var pos: usize = 0;
 
-        // Resume partial token from previous chunk if needed
-        if (self.state.hasPartialToken()) {
-            pos = try self.completePartialToken(chunk, &tokens, chunk_pos);
-        }
-
-        // Main tokenization loop
+        // Process tokens in this chunk
         while (pos < chunk.len) {
             // Skip whitespace
-            const ws_start = pos;
             while (pos < chunk.len and char.isWhitespace(chunk[pos])) {
                 pos += 1;
             }
-
-            if (pos > ws_start) {
-                const data = TokenData.init(
-                    Span.init(chunk_pos + ws_start, chunk_pos + pos),
-                    0, // line
-                    0, // column
-                    self.depth,
-                );
-                try tokens.append(StreamToken{ .zon = ZonToken{ .whitespace = .{
-                    .data = data,
-                    .text = chunk[ws_start..pos],
-                } } });
-            }
-
             if (pos >= chunk.len) break;
 
-            // Fast path for common single-character tokens
-            const ch = chunk[pos];
-            const fast_token: ?ZonToken = switch (ch) {
-                '{' => blk: {
-                    const data = TokenData.init(
-                        Span.init(chunk_pos + pos, chunk_pos + pos + 1),
-                        0, 0, self.depth,
-                    );
-                    self.depth += 1;
-                    break :blk ZonToken{ .object_start = data };
-                },
-                '}' => blk: {
-                    if (self.depth > 0) self.depth -= 1;
-                    const data = TokenData.init(
-                        Span.init(chunk_pos + pos, chunk_pos + pos + 1),
-                        0, 0, self.depth,
-                    );
-                    break :blk ZonToken{ .object_end = data };
-                },
-                '[' => blk: {
-                    const data = TokenData.init(
-                        Span.init(chunk_pos + pos, chunk_pos + pos + 1),
-                        0, 0, self.depth,
-                    );
-                    self.depth += 1;
-                    break :blk ZonToken{ .array_start = data };
-                },
-                ']' => blk: {
-                    if (self.depth > 0) self.depth -= 1;
-                    const data = TokenData.init(
-                        Span.init(chunk_pos + pos, chunk_pos + pos + 1),
-                        0, 0, self.depth,
-                    );
-                    break :blk ZonToken{ .array_end = data };
-                },
-                ',' => ZonToken{
-                    .comma = TokenData.init(
-                        Span.init(chunk_pos + pos, chunk_pos + pos + 1),
-                        0, 0, self.depth,
-                    ),
-                },
-                ':' => ZonToken{
-                    .colon = TokenData.init(
-                        Span.init(chunk_pos + pos, chunk_pos + pos + 1),
-                        0, 0, self.depth,
-                    ),
-                },
-                '=' => ZonToken{
-                    .equals = TokenData.init(
-                        Span.init(chunk_pos + pos, chunk_pos + pos + 1),
-                        0, 0, self.depth,
-                    ),
-                },
-                else => null,
-            };
-
-            if (fast_token) |token| {
-                try tokens.append(StreamToken{ .zon = token });
+            // Get next token
+            const result = try self.processTokenToZon(chunk[pos..], chunk_pos + pos);
+            if (result.token) |token| {
+                try tokens.append(token);
+            }
+            if (result.consumed == 0) {
+                // Prevent infinite loop
                 pos += 1;
-                continue;
-            }
-
-            // Complex token parsing
-            const token_result = try self.parseComplexToken(chunk[pos..], chunk_pos + pos);
-
-            if (token_result.token) |token| {
-                try tokens.append(StreamToken{ .zon = token });
-            }
-
-            if (token_result.consumed > 0) {
-                pos += token_result.consumed;
             } else {
-                // Skip unrecognized character
-                pos += 1;
+                pos += result.consumed;
             }
         }
 
         // Handle partial token at chunk boundary
         if (pos < chunk.len or self.state.hasPartialToken()) {
-            // TODO: Implement proper partial token storage
+            // TODO: Implement proper partial token storage for ZON
             // self.state.storePartialToken(chunk[pos..]);
         }
 
         return tokens.toOwnedSlice();
     }
 
+    /// Process a single token from input for ZonToken-only output
+    fn processTokenToZon(self: *Self, input: []const u8, base_pos: usize) !TokenResult {
+        if (input.len == 0) {
+            return TokenResult{ .token = null, .consumed = 0 };
+        }
+
+        const ch = input[0];
+        const span = Span.init(base_pos, base_pos + 1);
+        const data = TokenData.init(span, 0, 0, self.depth);
+
+        // Try fast single-character tokens first
+        const fast_token: ?ZonToken = switch (ch) {
+            '{' => blk: {
+                self.depth += 1;
+                break :blk ZonToken{ .object_start = data };
+            },
+            '}' => blk: {
+                if (self.depth > 0) self.depth -= 1;
+                break :blk ZonToken{ .object_end = data };
+            },
+            '[' => blk: {
+                self.depth += 1;
+                break :blk ZonToken{ .array_start = data };
+            },
+            ']' => blk: {
+                if (self.depth > 0) self.depth -= 1;
+                break :blk ZonToken{ .array_end = data };
+            },
+            ',' => ZonToken{ .comma = data },
+            ':' => ZonToken{ .colon = data },
+            '=' => ZonToken{ .equals = data }, // ZON-specific
+            else => null,
+        };
+
+        if (fast_token) |token| {
+            return TokenResult{ .token = token, .consumed = 1 };
+        }
+
+        // Fall back to complex token parsing
+        return try self.parseComplexToken(input, base_pos);
+    }
+
     /// Complete a partial token from the previous chunk
     fn completePartialToken(
         self: *Self,
         chunk: []const u8,
-        tokens: *std.ArrayList(StreamToken),
+        tokens: *std.ArrayList(Token),
         chunk_pos: usize,
     ) !usize {
         const partial = self.state.getPartialToken();
@@ -229,7 +246,7 @@ pub const StatefulZonLexer = struct {
                             },
                         };
 
-                        try tokens.append(StreamToken{ .zon = token });
+                        try tokens.append(zonToGenericToken(token, ""));
                         self.state.reset();
                         return pos + 1;
                     }

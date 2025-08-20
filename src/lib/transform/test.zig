@@ -4,7 +4,7 @@ const testing = std.testing;
 const Context = @import("transform.zig").Context;
 const json_transform = @import("../languages/json/transform.zig");
 const zon_transform = @import("../languages/zon/transform.zig");
-const TokenIterator = @import("streaming/token_iterator.zig").TokenIterator;
+const GenericTokenIterator = @import("streaming/generic_token_iterator.zig").GenericTokenIterator;
 const pipeline_simple = @import("pipeline_simple.zig");
 const transform = @import("transform.zig");
 
@@ -22,10 +22,9 @@ test {
     _ = @import("pipelines/format.zig");
 
     // Streaming infrastructure
-    _ = @import("streaming/token_iterator.zig");
+    _ = @import("streaming/generic_token_iterator.zig");
     _ = @import("streaming/stateful_lexer.zig");
     _ = @import("streaming/incremental_parser.zig");
-    _ = @import("streaming/stream_token.zig");
 
     // Stage implementations
     _ = @import("stages/lexical.zig");
@@ -132,7 +131,7 @@ test "streaming - large file handling" {
     // Test streaming tokenization
     var ctx = Context.init(allocator);
     defer ctx.deinit();
-    var iterator = try TokenIterator.init(allocator, json_parts.items, &ctx, null);
+    var iterator = try GenericTokenIterator.initWithGlobalRegistry(allocator, json_parts.items, &ctx, .json);
     defer iterator.deinit();
 
     var token_count: usize = 0;

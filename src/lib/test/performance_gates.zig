@@ -4,13 +4,13 @@
 /// regressions are caught early in the development process.
 const std = @import("std");
 const testing = std.testing;
-const TokenIterator = @import("../transform/streaming/token_iterator.zig").TokenIterator;
+const GenericTokenIterator = @import("../transform/streaming/generic_token_iterator.zig").GenericTokenIterator;
 const Context = @import("../transform/transform.zig").Context;
 const JsonLexer = @import("../languages/json/lexer.zig").JsonLexer;
 const ZonLexer = @import("../languages/zon/lexer.zig").ZonLexer;
 const JsonParser = @import("../languages/json/parser.zig").JsonParser;
 const ZonParser = @import("../languages/zon/parser.zig").ZonParser;
-// Streaming adapters removed - using StreamToken architecture
+// Using GenericTokenIterator architecture for streaming
 
 /// Performance thresholds - these should not regress
 pub const PerformanceThresholds = struct {
@@ -37,7 +37,7 @@ test "TokenIterator tokenizeSimple performance gate" {
 
     var timer = try std.time.Timer.start();
 
-    var iterator = try TokenIterator.init(testing.allocator, input, &context, null);
+    var iterator = try GenericTokenIterator.initWithGlobalRegistry(testing.allocator, input, &context, .json);
     defer iterator.deinit();
 
     // Force tokenizeSimple by using null lexer
@@ -169,7 +169,7 @@ test "TokenIterator streaming memory gate" {
     var context = Context.init(testing.allocator);
     defer context.deinit();
 
-    var iterator = try TokenIterator.init(testing.allocator, large_input, &context, null);
+    var iterator = try GenericTokenIterator.initWithGlobalRegistry(testing.allocator, large_input, &context, .json);
     defer iterator.deinit();
 
     // Set small chunk size to maximize streaming benefit
@@ -199,7 +199,7 @@ test "TokenIterator streaming memory gate" {
     try testing.expect(token_count > 100); // Should have processed significant tokens (reduced for 100KB)
 }
 
-// Test JSON streaming performance with StreamToken
+// Test JSON streaming performance with GenericTokenIterator
 test "JSON streaming performance gate" {
     const input = try generateJsonInput(10 * 1024); // 10KB
     defer testing.allocator.free(input);
@@ -207,7 +207,7 @@ test "JSON streaming performance gate" {
     var context = Context.init(testing.allocator);
     defer context.deinit();
 
-    var iterator = try TokenIterator.init(testing.allocator, input, &context, .json);
+    var iterator = try GenericTokenIterator.initWithGlobalRegistry(testing.allocator, input, &context, .json);
     defer iterator.deinit();
 
     var timer = try std.time.Timer.start();

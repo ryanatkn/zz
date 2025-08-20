@@ -27,12 +27,12 @@ pub const LanguageRegistry = struct {
     allocator: std.mem.Allocator,
 
     /// Cache of initialized language support instances
-    cache: std.HashMap(Language, LanguageSupport),
+    cache: std.HashMap(Language, LanguageSupport, std.hash_map.AutoContext(Language), 80),
 
     pub fn init(allocator: std.mem.Allocator) LanguageRegistry {
         return LanguageRegistry{
             .allocator = allocator,
-            .cache = std.HashMap(Language, LanguageSupport).init(allocator),
+            .cache = std.HashMap(Language, LanguageSupport, std.hash_map.AutoContext(Language), 80).init(allocator),
         };
     }
 
@@ -54,13 +54,13 @@ pub const LanguageRegistry = struct {
 
         // Initialize new language support
         const support = switch (language) {
-            .typescript => typescript_mod.getSupport(self.allocator),
-            .svelte => svelte_mod.getSupport(self.allocator),
-            .json => json_mod.getSupport(self.allocator),
-            .zig => zig_mod.getSupport(self.allocator),
-            .zon => zon_mod.getSupport(self.allocator),
-            .css => css_mod.getSupport(self.allocator),
-            .html => html_mod.getSupport(self.allocator),
+            .typescript => try typescript_mod.getSupport(self.allocator),
+            .svelte => try svelte_mod.getSupport(self.allocator),
+            .json => try json_mod.getSupport(self.allocator),
+            .zig => try zig_mod.getSupport(self.allocator),
+            .zon => try zon_mod.getSupport(self.allocator),
+            .css => try css_mod.getSupport(self.allocator),
+            .html => try html_mod.getSupport(self.allocator),
             .unknown => return error.UnsupportedLanguage,
         };
 

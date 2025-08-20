@@ -29,6 +29,12 @@ pub const JsonTransformPipeline = transform.JsonTransformPipeline;
 pub const JsonLexicalTransform = transform.JsonLexicalTransform;
 pub const JsonSyntacticTransform = transform.JsonSyntacticTransform;
 
+// VTable adapter for generic streaming
+const JsonTokenVTableAdapter = @import("vtable_adapter.zig").JsonTokenVTableAdapter;
+const GenericStreamToken = @import("../../transform/streaming/generic_stream_token.zig").GenericStreamToken;
+const StatefulJsonLexer = @import("stateful_lexer.zig").StatefulJsonLexer;
+const StatefulLexer = @import("../../transform/streaming/stateful_lexer.zig").StatefulLexer;
+
 /// Complete JSON language support implementation
 ///
 /// This module provides full JSON parsing, formatting, linting, and analysis
@@ -99,6 +105,25 @@ pub fn tokenizeChunk(allocator: std.mem.Allocator, input: []const u8, start_pos:
     }
 
     return tokens;
+}
+
+/// Tokenize JSON chunk to GenericStreamTokens using VTable adapter
+/// This is the new generic interface for streaming tokenization
+pub fn tokenizeChunkGeneric(allocator: std.mem.Allocator, input: []const u8, start_pos: usize) ![]GenericStreamToken {
+    var lexer = StatefulJsonLexer.init(allocator, .{
+        .allow_comments = false,
+        .allow_trailing_commas = false,
+        .json5_mode = false,
+        .error_recovery = true,
+    });
+    defer lexer.deinit();
+    
+    // Process chunk and get JsonTokens
+    const json_tokens = try lexer.processChunkToJson(input, start_pos, allocator);
+    defer allocator.free(json_tokens);
+    
+    // Convert to GenericStreamTokens using VTable adapter
+    return JsonTokenVTableAdapter.convertJsonTokensToGeneric(allocator, json_tokens);
 }
 
 /// Parse JSON tokens into AST

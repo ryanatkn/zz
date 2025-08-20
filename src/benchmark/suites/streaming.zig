@@ -5,7 +5,7 @@ const BenchmarkOptions = benchmark_lib.BenchmarkOptions;
 const BenchmarkError = benchmark_lib.BenchmarkError;
 
 // Import streaming infrastructure
-const TokenIterator = @import("../../lib/transform/streaming/token_iterator.zig").TokenIterator;
+const GenericTokenIterator = @import("../../lib/transform/streaming/generic_token_iterator.zig").GenericTokenIterator;
 const IncrementalParser = @import("../../lib/transform/streaming/incremental_parser.zig").IncrementalParser;
 const Context = @import("../../lib/transform/transform.zig").Context;
 
@@ -103,7 +103,7 @@ pub fn runStreamingBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOp
                 defer transform_context.deinit();
 
                 // Use streaming iterator with small chunks
-                var iterator = TokenIterator.init(ctx.allocator, ctx.text, &transform_context, null);
+                var iterator = try GenericTokenIterator.initWithGlobalRegistry(ctx.allocator, ctx.text, &transform_context, .json);
                 defer iterator.deinit();
 
                 iterator.setChunkSize(4096); // 4KB chunks for streaming
@@ -111,7 +111,7 @@ pub fn runStreamingBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOp
                 // Process tokens one by one (memory-efficient)
                 var token_count: usize = 0;
                 while (try iterator.next()) |token| {
-                    std.mem.doNotOptimizeAway(token.text.len);
+                    std.mem.doNotOptimizeAway(token.text().len);
                     token_count += 1;
 
                     // NOTE: Do NOT free token.text here!
@@ -175,7 +175,7 @@ pub fn runStreamingBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOp
                     var transform_context = Context.init(arena_allocator);
                     defer transform_context.deinit();
 
-                    var iterator = TokenIterator.init(arena_allocator, ctx.text[0..@min(ctx.text.len, 10000)], &transform_context, null);
+                    var iterator = try GenericTokenIterator.initWithGlobalRegistry(arena_allocator, ctx.text[0..@min(ctx.text.len, 10000)], &transform_context, .json);
                     defer iterator.deinit();
 
                     iterator.setChunkSize(1024); // Small chunks
@@ -216,7 +216,7 @@ pub fn runStreamingBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOp
                 var transform_context = Context.init(ctx.allocator);
                 defer transform_context.deinit();
 
-                var iterator = TokenIterator.init(ctx.allocator, ctx.text, &transform_context, null);
+                var iterator = try GenericTokenIterator.initWithGlobalRegistry(ctx.allocator, ctx.text, &transform_context, .json);
                 defer iterator.deinit();
 
                 var parser = IncrementalParser.init(ctx.allocator, &transform_context, &iterator, null);
@@ -284,7 +284,7 @@ pub fn runStreamingBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOp
                 var transform_context = Context.init(ctx.allocator);
                 defer transform_context.deinit();
 
-                var iterator = TokenIterator.init(ctx.allocator, ctx.text, &transform_context, null);
+                var iterator = try GenericTokenIterator.initWithGlobalRegistry(ctx.allocator, ctx.text, &transform_context, .json);
                 defer iterator.deinit();
 
                 iterator.setChunkSize(64); // Small chunks to maximize overhead
@@ -293,7 +293,7 @@ pub fn runStreamingBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOp
                 while (try iterator.next()) |token| {
                     token_count += 1;
                     // NOTE: No manual freeing needed - TokenIterator uses string slices now (Aug 19, 2025)
-                    std.mem.doNotOptimizeAway(token.text.len);
+                    std.mem.doNotOptimizeAway(token.text().len);
                 }
 
                 std.mem.doNotOptimizeAway(token_count);
@@ -317,7 +317,7 @@ pub fn runStreamingBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOp
                 var transform_context = Context.init(ctx.allocator);
                 defer transform_context.deinit();
 
-                var iterator = TokenIterator.init(ctx.allocator, ctx.text, &transform_context, null);
+                var iterator = try GenericTokenIterator.initWithGlobalRegistry(ctx.allocator, ctx.text, &transform_context, .json);
                 defer iterator.deinit();
 
                 iterator.setChunkSize(4096); // Optimal chunk size
@@ -326,7 +326,7 @@ pub fn runStreamingBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOp
                 while (try iterator.next()) |token| {
                     token_count += 1;
                     // NOTE: No manual freeing needed - TokenIterator uses string slices now (Aug 19, 2025)
-                    std.mem.doNotOptimizeAway(token.text.len);
+                    std.mem.doNotOptimizeAway(token.text().len);
                 }
 
                 std.mem.doNotOptimizeAway(token_count);

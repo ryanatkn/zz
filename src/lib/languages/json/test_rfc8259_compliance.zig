@@ -4,6 +4,7 @@ const JsonLexer = @import("lexer.zig").JsonLexer;
 const JsonParser = @import("parser.zig").JsonParser;
 
 // Comprehensive RFC 8259 compliance tests for JSON number handling
+// https://datatracker.ietf.org/doc/html/rfc8259
 //
 // RFC 8259, Section 6: "Leading zeros are not allowed."
 // Grammar: int = zero / ( digit1-9 *DIGIT )

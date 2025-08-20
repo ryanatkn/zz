@@ -31,6 +31,16 @@ $ zig version
 
 **Architecture:** Pure Zig Stratified Parser with **Rule ID System** - tree-sitter removal complete. Three-layer system (Lexical, Structural, Detailed) with efficient 16-bit rule identification.
 
+### 🔬 Stratified Parser Architecture
+**Fact-based intermediate representation** with three-layer parsing for <10ms editor operations:
+- **Layer 0 (Lexical)**: StreamingLexer with <0.1ms viewport tokenization
+- **Layer 1 (Structural)**: Boundary detection with <1ms full file analysis  
+- **Layer 2 (Detailed)**: Viewport-aware parsing with LRU caching
+- **Fact System**: Immutable facts with multi-index storage (by_id, by_span, by_predicate)
+- **Performance**: 16-bit rule IDs, zero-allocation core ops, 2MB memory per 1000-line file
+
+See [docs/stratified-parser-architecture.md](docs/stratified-parser-architecture.md) for complete details.
+
 ### 🚀 Recent Major Achievement: Rule ID Migration **COMPLETE** (August 2025)
 **Successfully completed comprehensive architectural overhaul** replacing all string-based rule names with 16-bit rule IDs:
 - **10-100x performance improvement** for rule lookups via switch statements  
@@ -253,6 +263,12 @@ See [docs/llm-guidelines.md](docs/llm-guidelines.md) for detailed development ph
 - [README.md](README.md) - User-facing documentation
 - [docs/commands.md](docs/commands.md) - Complete command reference
 - [docs/module-architecture.md](docs/module-architecture.md) - System design
+
+### Stratified Parser Documentation
+- [docs/stratified-parser-architecture.md](docs/stratified-parser-architecture.md) - Current implementation overview
+- [docs/stratified-parser-primitives.md](docs/stratified-parser-primitives.md) - Core types (Fact, Span, Predicate)
+- [docs/stratified-parser-roadmap.md](docs/stratified-parser-roadmap.md) - Implementation status and roadmap
+- [docs/stratified-parser-performance.md](docs/stratified-parser-performance.md) - Performance analysis and optimizations
 
 ### Feature Documentation
 - [docs/prompt-features.md](docs/prompt-features.md) - Prompt module details

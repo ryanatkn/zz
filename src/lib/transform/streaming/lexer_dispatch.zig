@@ -7,7 +7,7 @@ const Lexer = @import("../../languages/interface.zig").Lexer;
 
 /// Generic lexer dispatch that uses LanguageRegistry to tokenize chunks
 /// without knowing specific language implementations.
-/// 
+///
 /// This eliminates hardcoded language dependencies in the transform layer
 /// while maintaining performance through efficient dispatch.
 pub const LexerDispatch = struct {
@@ -94,37 +94,39 @@ pub const LexerDispatch = struct {
 /// This replaces the hardcoded detection logic from TokenIterator
 fn detectLanguageFromContent(content: []const u8) Language {
     const trimmed = std.mem.trim(u8, content, " \t\n\r");
-    
+
     // JSON detection
     if (std.mem.startsWith(u8, trimmed, "{") or std.mem.startsWith(u8, trimmed, "[")) {
         return .json;
     }
-    
-    // ZON detection  
+
+    // ZON detection
     if (std.mem.startsWith(u8, trimmed, ".{")) {
         return .zon;
     }
-    
+
     // TypeScript/JS detection
     if (std.mem.indexOf(u8, trimmed, "function") != null or
         std.mem.indexOf(u8, trimmed, "const") != null or
         std.mem.indexOf(u8, trimmed, "let") != null or
-        std.mem.indexOf(u8, trimmed, "var") != null) {
+        std.mem.indexOf(u8, trimmed, "var") != null)
+    {
         return .typescript;
     }
-    
+
     // CSS detection
-    if (std.mem.indexOf(u8, trimmed, "{") != null and 
+    if (std.mem.indexOf(u8, trimmed, "{") != null and
         std.mem.indexOf(u8, trimmed, ":") != null and
-        std.mem.indexOf(u8, trimmed, ";") != null) {
+        std.mem.indexOf(u8, trimmed, ";") != null)
+    {
         return .css;
     }
-    
+
     // HTML detection
     if (std.mem.startsWith(u8, trimmed, "<") and std.mem.indexOf(u8, trimmed, ">") != null) {
         return .html;
     }
-    
+
     return .unknown;
 }
 

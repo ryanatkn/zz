@@ -257,7 +257,7 @@ pub const IncrementalParser = struct {
             if (try self.token_iterator.next()) |stream_token| {
                 // Convert StreamToken to generic Token for parser
                 const token = stream_token.toGenericToken(self.token_iterator.input);
-                
+
                 // Simple token processing - create leaf nodes
                 if (self.shouldCreateNode(token)) {
                     try self.createSimpleNode(token);

@@ -7,11 +7,10 @@ const char = @import("../../char/mod.zig");
 const JsonToken = @import("tokens.zig").JsonToken;
 const TokenData = @import("../common/token_base.zig").TokenData;
 
-
 /// Convert JsonToken to generic Token (for backward compatibility)
 fn jsonToGenericToken(json_token: JsonToken, source: []const u8) Token {
     _ = source; // May be needed for text extraction
-    
+
     const span_val = json_token.span();
     const depth = json_token.tokenData().depth;
     const kind = switch (json_token) {
@@ -29,7 +28,7 @@ fn jsonToGenericToken(json_token: JsonToken, source: []const u8) Token {
         .comment => TokenKind.comment,
         .invalid => TokenKind.unknown,
     };
-    
+
     return Token{
         .kind = kind,
         .span = span_val,
@@ -92,13 +91,13 @@ pub const StatefulJsonLexer = struct {
         // Use the new JsonToken-based method
         const json_tokens = try self.processChunkToJson(chunk, chunk_pos, allocator);
         defer allocator.free(json_tokens);
-        
+
         // Convert to generic tokens
         var generic_tokens = try allocator.alloc(Token, json_tokens.len);
         for (json_tokens, 0..) |json_token, i| {
             generic_tokens[i] = jsonToGenericToken(json_token, chunk);
         }
-        
+
         return generic_tokens;
     }
 

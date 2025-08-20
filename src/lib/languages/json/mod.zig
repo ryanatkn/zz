@@ -117,11 +117,11 @@ pub fn tokenizeChunkGeneric(allocator: std.mem.Allocator, input: []const u8, sta
         .error_recovery = true,
     });
     defer lexer.deinit();
-    
+
     // Process chunk and get JsonTokens
     const json_tokens = try lexer.processChunkToJson(input, start_pos, allocator);
     defer allocator.free(json_tokens);
-    
+
     // Convert to GenericStreamTokens using VTable adapter
     return JsonTokenVTableAdapter.convertJsonTokensToGeneric(allocator, json_tokens);
 }

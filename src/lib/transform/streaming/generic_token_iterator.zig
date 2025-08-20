@@ -28,17 +28,17 @@ pub const GenericTokenIterator = struct {
 
     /// Initialize with language detection and generic dispatch
     pub fn init(
-        allocator: std.mem.Allocator, 
-        input: []const u8, 
-        context: *Context, 
+        allocator: std.mem.Allocator,
+        input: []const u8,
+        context: *Context,
         language: ?Language,
         registry: *LanguageRegistry,
     ) !Self {
         // Determine language - default to json if not specified
         const lang = language orelse Language.json;
-        
+
         // Create generic dispatch
-        const dispatch = if (lang != .unknown) 
+        const dispatch = if (lang != .unknown)
             try LexerDispatch.fromLanguage(allocator, lang, registry)
         else
             try LexerDispatch.fromContent(allocator, input, registry);
@@ -150,7 +150,7 @@ pub const GenericTokenIterator = struct {
 
     /// Get memory statistics
     pub fn getMemoryStats(self: *Self) struct { buffer_bytes: usize, buffer_tokens: usize } {
-        return .{ 
+        return .{
             .buffer_bytes = self.buffer.len() * @sizeOf(GenericStreamToken),
             .buffer_tokens = self.buffer.len(),
         };
@@ -194,7 +194,7 @@ pub const GenericTokenIterator = struct {
     /// This eliminates language-specific conversion logic
     fn convertToStreamTokens(self: *Self, tokens: []Token) !void {
         const vtable = VTableHelpers.createGenericTokenVTable();
-        
+
         for (tokens) |*token| {
             const stream_token = GenericStreamToken.init(token, &vtable);
             try self.buffer.append(stream_token);
@@ -216,7 +216,6 @@ pub const GenericTokenIterator = struct {
 };
 
 /// Factory functions for common use cases
-
 /// Create token iterator from file path
 pub fn fromPath(
     allocator: std.mem.Allocator,
@@ -225,7 +224,7 @@ pub fn fromPath(
     registry: *LanguageRegistry,
 ) !GenericTokenIterator {
     var context = Context.init(allocator);
-    
+
     const language = Language.fromPath(file_path);
     return GenericTokenIterator.init(allocator, input, &context, language, registry);
 }
@@ -237,7 +236,7 @@ pub fn fromContent(
     registry: *LanguageRegistry,
 ) !GenericTokenIterator {
     var context = Context.init(allocator);
-    
+
     return GenericTokenIterator.init(allocator, input, &context, null, registry);
 }
 
@@ -249,7 +248,7 @@ pub fn fromLanguage(
     registry: *LanguageRegistry,
 ) !GenericTokenIterator {
     var context = Context.init(allocator);
-    
+
     return GenericTokenIterator.init(allocator, input, &context, language, registry);
 }
 
@@ -262,9 +261,9 @@ const testing = std.testing;
 test "GenericTokenIterator - initialization" {
     var registry = LanguageRegistry.init(testing.allocator);
     defer registry.deinit();
-    
+
     var context = Context.init(testing.allocator);
-    
+
     var iterator = try GenericTokenIterator.init(
         testing.allocator,
         "{ \"key\": \"value\" }",
@@ -273,7 +272,7 @@ test "GenericTokenIterator - initialization" {
         &registry,
     );
     defer iterator.deinit();
-    
+
     try testing.expectEqual(Language.json, iterator.getLanguage());
     try testing.expect(!iterator.isEof());
     try testing.expectEqual(@as(usize, 19), iterator.getInputSize());
@@ -282,17 +281,17 @@ test "GenericTokenIterator - initialization" {
 test "GenericTokenIterator - factory methods" {
     var registry = LanguageRegistry.init(testing.allocator);
     defer registry.deinit();
-    
+
     // Test fromPath
     var iterator = try fromPath(testing.allocator, "config.json", "{}", &registry);
     defer iterator.deinit();
     try testing.expectEqual(Language.json, iterator.getLanguage());
-    
+
     // Test fromContent (auto-detection)
     iterator = try fromContent(testing.allocator, "{ \"test\": true }", &registry);
     defer iterator.deinit();
     try testing.expectEqual(Language.json, iterator.getLanguage());
-    
+
     // Test fromLanguage
     iterator = try fromLanguage(testing.allocator, "{}", .json, &registry);
     defer iterator.deinit();
@@ -302,10 +301,10 @@ test "GenericTokenIterator - factory methods" {
 test "GenericTokenIterator - memory stats" {
     var registry = LanguageRegistry.init(testing.allocator);
     defer registry.deinit();
-    
+
     var iterator = try fromContent(testing.allocator, "{}", &registry);
     defer iterator.deinit();
-    
+
     const stats = iterator.getMemoryStats();
     try testing.expect(stats.buffer_bytes >= 0);
     try testing.expect(stats.buffer_tokens >= 0);

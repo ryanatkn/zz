@@ -9,7 +9,6 @@ const GenericStreamToken = @import("../../transform/streaming/generic_stream_tok
 /// This enables ZonToken to be used in the generic streaming system
 /// without hardcoded dependencies in the transform layer.
 pub const ZonTokenVTableAdapter = struct {
-    
     /// Create VTable for ZonToken
     pub fn createVTable() GenericStreamToken.VTable {
         return GenericStreamToken.VTable{
@@ -25,13 +24,13 @@ pub const ZonTokenVTableAdapter = struct {
             .getDebugInfoFn = getDebugInfo,
         };
     }
-    
+
     /// Get span from ZonToken
     fn getSpan(token_ptr: *anyopaque) Span {
         const token: *ZonToken = @ptrCast(@alignCast(token_ptr));
         return token.span();
     }
-    
+
     /// Map ZonToken to generic TokenKind
     fn getKind(token_ptr: *anyopaque) TokenKind {
         const token: *ZonToken = @ptrCast(@alignCast(token_ptr));
@@ -58,37 +57,37 @@ pub const ZonTokenVTableAdapter = struct {
             .invalid => .unknown,
         };
     }
-    
+
     /// Get text from ZonToken
     fn getText(token_ptr: *anyopaque) []const u8 {
         const token: *ZonToken = @ptrCast(@alignCast(token_ptr));
         return token.text();
     }
-    
+
     /// Get depth from ZonToken
     fn getDepth(token_ptr: *anyopaque) u16 {
         const token: *ZonToken = @ptrCast(@alignCast(token_ptr));
         return token.tokenData().depth;
     }
-    
+
     /// Check if ZonToken is trivia
     fn isTrivia(token_ptr: *anyopaque) bool {
         const token: *ZonToken = @ptrCast(@alignCast(token_ptr));
         return token.isTrivia();
     }
-    
+
     /// Check if ZonToken is opening delimiter
     fn isOpenDelimiter(token_ptr: *anyopaque) bool {
         const token: *ZonToken = @ptrCast(@alignCast(token_ptr));
         return token.isOpenDelimiter();
     }
-    
+
     /// Check if ZonToken is closing delimiter
     fn isCloseDelimiter(token_ptr: *anyopaque) bool {
         const token: *ZonToken = @ptrCast(@alignCast(token_ptr));
         return token.isCloseDelimiter();
     }
-    
+
     /// Check if ZonToken is error
     fn isError(token_ptr: *anyopaque) bool {
         const token: *ZonToken = @ptrCast(@alignCast(token_ptr));
@@ -97,30 +96,30 @@ pub const ZonTokenVTableAdapter = struct {
             else => false,
         };
     }
-    
+
     /// Convert ZonToken to generic Token
     fn toGenericToken(token_ptr: *anyopaque, source: []const u8) Token {
         const token: *ZonToken = @ptrCast(@alignCast(token_ptr));
         return convertZonToGenericToken(token.*, source);
     }
-    
+
     /// Get debug info from ZonToken
     fn getDebugInfo(token_ptr: *anyopaque) []const u8 {
         const token: *ZonToken = @ptrCast(@alignCast(token_ptr));
         return switch (token.*) {
             .identifier => |id| if (id.is_builtin) "builtin_identifier" else "identifier",
             .field_name => |field| if (field.is_quoted) "quoted_field" else "unquoted_field",
-            .string_value => |str| if (str.has_escapes) 
+            .string_value => |str| if (str.has_escapes)
                 (if (str.is_multiline) "multiline_escaped_string" else "escaped_string")
-            else 
+            else
                 (if (str.is_multiline) "multiline_string" else "string"),
             .decimal_int => |num| if (num.has_underscores) "decimal_int_underscores" else "decimal_int",
             .hex_int => |num| if (num.has_underscores) "hex_int_underscores" else "hex_int",
             .binary_int => |num| if (num.has_underscores) "binary_int_underscores" else "binary_int",
             .octal_int => |num| if (num.has_underscores) "octal_int_underscores" else "octal_int",
-            .float => |f| if (f.has_exponent) 
+            .float => |f| if (f.has_exponent)
                 (if (f.has_underscores) "float_exp_underscores" else "float_exp")
-            else 
+            else
                 (if (f.has_underscores) "float_underscores" else "float"),
             .char_literal => "char",
             .boolean_value => |boolean| if (boolean.value) "true" else "false",
@@ -134,7 +133,7 @@ pub const ZonTokenVTableAdapter = struct {
 /// Convert ZonToken to generic Token (implementation of slow path)
 fn convertZonToGenericToken(zon_token: ZonToken, source: []const u8) Token {
     _ = source; // May be needed for text extraction in some cases
-    
+
     const span_val = zon_token.span();
     const depth = zon_token.tokenData().depth;
     const kind = switch (zon_token) {
@@ -159,10 +158,10 @@ fn convertZonToGenericToken(zon_token: ZonToken, source: []const u8) Token {
         .whitespace => TokenKind.whitespace,
         .invalid => TokenKind.unknown,
     };
-    
+
     // Extract text from ZonToken
     const text = zon_token.text();
-    
+
     return Token{
         .kind = kind,
         .span = span_val,
@@ -185,11 +184,11 @@ pub fn convertZonTokensToGeneric(
 ) ![]GenericStreamToken {
     var stream_tokens = try allocator.alloc(GenericStreamToken, zon_tokens.len);
     const vtable = ZonTokenVTableAdapter.createVTable();
-    
+
     for (zon_tokens, 0..) |*zon_token, i| {
         stream_tokens[i] = GenericStreamToken.init(zon_token, &vtable);
     }
-    
+
     return stream_tokens;
 }
 
@@ -214,11 +213,11 @@ test "ZonTokenVTableAdapter - basic functionality" {
             .has_underscores = false,
         },
     };
-    
+
     // Create generic stream token
     const vtable = ZonTokenVTableAdapter.createVTable();
     const stream_token = GenericStreamToken.init(&zon_token, &vtable);
-    
+
     // Test vtable dispatch
     try testing.expectEqual(TokenKind.number_literal, stream_token.kind());
     try testing.expectEqual(@as(usize, 0), stream_token.span().start);
@@ -243,11 +242,11 @@ test "ZonTokenVTableAdapter - hex number with underscores" {
             .has_underscores = true,
         },
     };
-    
+
     const stream_token = createGenericStreamToken(&hex_token);
     try testing.expectEqual(TokenKind.number_literal, stream_token.kind());
     try testing.expectEqualStrings("0xFF_FF", stream_token.text());
-    
+
     const debug_info = stream_token.getDebugInfo();
     try testing.expect(debug_info != null);
     if (debug_info) |info| {
@@ -267,7 +266,7 @@ test "ZonTokenVTableAdapter - enum literal" {
             .name = ".Success",
         },
     };
-    
+
     const stream_token = createGenericStreamToken(&enum_token);
     try testing.expectEqual(TokenKind.identifier, stream_token.kind());
     try testing.expectEqualStrings(".Success", stream_token.text());
@@ -289,10 +288,10 @@ test "ZonTokenVTableAdapter - field name quoted vs unquoted" {
             .is_quoted = false,
         },
     };
-    
+
     const unquoted_stream = createGenericStreamToken(&unquoted_field);
     try testing.expectEqual(TokenKind.identifier, unquoted_stream.kind());
-    
+
     // Quoted field
     var quoted_field = ZonToken{
         .field_name = .{
@@ -307,7 +306,7 @@ test "ZonTokenVTableAdapter - field name quoted vs unquoted" {
             .is_quoted = true,
         },
     };
-    
+
     const quoted_stream = createGenericStreamToken(&quoted_field);
     try testing.expectEqual(TokenKind.string_literal, quoted_stream.kind());
 }

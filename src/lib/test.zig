@@ -16,6 +16,7 @@ test {
     _ = @import("memory/test.zig");
     _ = @import("parser/test.zig");
     _ = @import("patterns/test.zig");
+    _ = @import("stream/test.zig");
     _ = @import("terminal/test.zig");
     _ = @import("test/fixture_runner.zig");
     _ = @import("test/performance_gates.zig");

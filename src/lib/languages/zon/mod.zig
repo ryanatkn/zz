@@ -110,11 +110,11 @@ pub fn tokenizeChunkGeneric(allocator: std.mem.Allocator, input: []const u8, sta
         .error_recovery = true,
     });
     defer lexer.deinit();
-    
+
     // Process chunk and get ZonTokens
     const zon_tokens = try lexer.processChunkToZon(input, start_pos, allocator);
     defer allocator.free(zon_tokens);
-    
+
     // Convert to GenericStreamTokens using VTable adapter
     return ZonTokenVTableAdapter.convertZonTokensToGeneric(allocator, zon_tokens);
 }

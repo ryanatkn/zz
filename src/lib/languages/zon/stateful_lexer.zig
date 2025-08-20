@@ -8,11 +8,10 @@ const ZonToken = @import("tokens.zig").ZonToken;
 const CommentKind = @import("tokens.zig").CommentKind;
 const TokenData = @import("../common/token_base.zig").TokenData;
 
-
 /// Convert ZonToken to generic Token (for backward compatibility)
 fn zonToGenericToken(zon_token: ZonToken, source: []const u8) Token {
     _ = source; // May be needed for text extraction
-    
+
     const span_val = zon_token.span();
     const depth = zon_token.tokenData().depth;
     const kind = switch (zon_token) {
@@ -37,7 +36,7 @@ fn zonToGenericToken(zon_token: ZonToken, source: []const u8) Token {
         .whitespace => TokenKind.whitespace,
         .invalid => TokenKind.unknown,
     };
-    
+
     return Token{
         .kind = kind,
         .span = span_val,
@@ -101,13 +100,13 @@ pub const StatefulZonLexer = struct {
         // Use the new ZonToken-based method
         const zon_tokens = try self.processChunkToZon(chunk, chunk_pos, allocator);
         defer allocator.free(zon_tokens);
-        
+
         // Convert to generic tokens
         var generic_tokens = try allocator.alloc(Token, zon_tokens.len);
         for (zon_tokens, 0..) |zon_token, i| {
             generic_tokens[i] = zonToGenericToken(zon_token, chunk);
         }
-        
+
         return generic_tokens;
     }
 
@@ -233,7 +232,9 @@ pub const StatefulZonLexer = struct {
 
                         const data = TokenData.init(
                             Span.init(chunk_pos - partial.len, chunk_pos + pos + 1),
-                            0, 0, self.depth,
+                            0,
+                            0,
+                            self.depth,
                         );
 
                         const token = ZonToken{
@@ -332,7 +333,9 @@ pub const StatefulZonLexer = struct {
                 pos += 1;
                 const data = TokenData.init(
                     Span.init(base_pos, base_pos + pos),
-                    0, 0, self.depth,
+                    0,
+                    0,
+                    self.depth,
                 );
 
                 return .{
@@ -377,7 +380,9 @@ pub const StatefulZonLexer = struct {
             pos += 1;
             const data = TokenData.init(
                 Span.init(base_pos, base_pos + pos),
-                0, 0, self.depth,
+                0,
+                0,
+                self.depth,
             );
 
             return .{
@@ -404,7 +409,9 @@ pub const StatefulZonLexer = struct {
         if (input[1] == '{') {
             const data = TokenData.init(
                 Span.init(base_pos, base_pos + 2),
-                0, 0, self.depth,
+                0,
+                0,
+                self.depth,
             );
             return .{
                 .token = ZonToken{ .struct_literal = data },
@@ -421,7 +428,9 @@ pub const StatefulZonLexer = struct {
 
             const data = TokenData.init(
                 Span.init(base_pos, base_pos + pos),
-                0, 0, self.depth,
+                0,
+                0,
+                self.depth,
             );
 
             // Check if it's a field name (followed by = or :) or enum literal
@@ -474,7 +483,9 @@ pub const StatefulZonLexer = struct {
 
         const data = TokenData.init(
             Span.init(base_pos, base_pos + pos),
-            0, 0, self.depth,
+            0,
+            0,
+            self.depth,
         );
 
         return .{
@@ -501,7 +512,7 @@ pub const StatefulZonLexer = struct {
         // Check for hex/binary/octal prefix
         if (pos < input.len - 1 and input[pos] == '0') {
             const next = input[pos + 1];
-            
+
             if (next == 'x' or next == 'X') {
                 // Hex number - single pass parsing
                 pos += 2;
@@ -513,14 +524,14 @@ pub const StatefulZonLexer = struct {
                         pos += 1;
                     } else break;
                 }
-                
+
                 return .{
                     .token = ZonToken{ .hex_int = .{
                         .data = TokenData.init(Span.init(base_pos, base_pos + pos), 0, 0, self.depth),
                         .value = std.fmt.parseInt(u128, input[0..pos], 0) catch 0,
                         .raw = input[0..pos],
                         .has_underscores = has_underscores,
-                    }},
+                    } },
                     .consumed = pos,
                 };
             } else if (next == 'b' or next == 'B') {
@@ -534,14 +545,14 @@ pub const StatefulZonLexer = struct {
                         pos += 1;
                     } else break;
                 }
-                
+
                 return .{
                     .token = ZonToken{ .binary_int = .{
                         .data = TokenData.init(Span.init(base_pos, base_pos + pos), 0, 0, self.depth),
                         .value = std.fmt.parseInt(u128, input[0..pos], 0) catch 0,
                         .raw = input[0..pos],
                         .has_underscores = has_underscores,
-                    }},
+                    } },
                     .consumed = pos,
                 };
             } else if (next == 'o' or next == 'O') {
@@ -555,14 +566,14 @@ pub const StatefulZonLexer = struct {
                         pos += 1;
                     } else break;
                 }
-                
+
                 return .{
                     .token = ZonToken{ .octal_int = .{
                         .data = TokenData.init(Span.init(base_pos, base_pos + pos), 0, 0, self.depth),
                         .value = std.fmt.parseInt(u128, input[0..pos], 0) catch 0,
                         .raw = input[0..pos],
                         .has_underscores = has_underscores,
-                    }},
+                    } },
                     .consumed = pos,
                 };
             }
@@ -571,7 +582,7 @@ pub const StatefulZonLexer = struct {
         // Parse decimal number (int or float)
         var has_dot = false;
         var has_exponent = false;
-        
+
         // Parse integer part
         while (pos < input.len) {
             if (char.isDigit(input[pos])) {
@@ -619,7 +630,7 @@ pub const StatefulZonLexer = struct {
                     .raw = input[0..pos],
                     .has_underscores = has_underscores,
                     .has_exponent = has_exponent,
-                }},
+                } },
                 .consumed = pos,
             };
         } else {
@@ -630,7 +641,7 @@ pub const StatefulZonLexer = struct {
                     .value = std.fmt.parseInt(i128, input[0..pos], 10) catch 0,
                     .raw = input[0..pos],
                     .has_underscores = has_underscores,
-                }},
+                } },
                 .consumed = pos,
             };
         }
@@ -645,7 +656,9 @@ pub const StatefulZonLexer = struct {
         const text = input[0..pos];
         const data = TokenData.init(
             Span.init(base_pos, base_pos + pos),
-            0, 0, self.depth,
+            0,
+            0,
+            self.depth,
         );
 
         // Check for keywords
@@ -696,7 +709,9 @@ pub const StatefulZonLexer = struct {
 
         const data = TokenData.init(
             Span.init(base_pos, base_pos + pos),
-            0, 0, self.depth,
+            0,
+            0,
+            self.depth,
         );
 
         return .{
@@ -704,9 +719,7 @@ pub const StatefulZonLexer = struct {
                 .comment = .{
                     .data = data,
                     .text = input[0..pos],
-                    .kind = if (input.len > 2 and input[2] == '/') CommentKind.doc
-                           else if (input.len > 2 and input[2] == '!') CommentKind.container
-                           else CommentKind.line,
+                    .kind = if (input.len > 2 and input[2] == '/') CommentKind.doc else if (input.len > 2 and input[2] == '!') CommentKind.container else CommentKind.line,
                 },
             },
             .consumed = pos,
@@ -727,13 +740,15 @@ pub const StatefulZonLexer = struct {
             // Incomplete block comment
             self.state.context = .in_comment_block;
             // TODO: Implement proper partial token storage
-        // self.state.storePartialToken(input);
+            // self.state.storePartialToken(input);
             return .{ .token = null, .consumed = input.len };
         }
 
         const data = TokenData.init(
             Span.init(base_pos, base_pos + pos),
-            0, 0, self.depth,
+            0,
+            0,
+            self.depth,
         );
 
         return .{

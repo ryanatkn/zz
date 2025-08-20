@@ -53,15 +53,15 @@ pub const ZonToken = union(enum) {
         raw: []const u8,
         has_underscores: bool,
     },
-    
+
     // Hexadecimal integer (base 16)
     hex_int: struct {
         data: TokenData,
-        value: u128,  // Unsigned for hex
+        value: u128, // Unsigned for hex
         raw: []const u8,
         has_underscores: bool,
     },
-    
+
     // Binary integer (base 2)
     binary_int: struct {
         data: TokenData,
@@ -69,7 +69,7 @@ pub const ZonToken = union(enum) {
         raw: []const u8,
         has_underscores: bool,
     },
-    
+
     // Octal integer (base 8)
     octal_int: struct {
         data: TokenData,
@@ -77,7 +77,7 @@ pub const ZonToken = union(enum) {
         raw: []const u8,
         has_underscores: bool,
     },
-    
+
     // Floating point number
     float: struct {
         data: TokenData,

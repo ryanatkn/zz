@@ -172,15 +172,15 @@ pub const BoundaryCache = struct {
         if (self.entries.fetchRemove(span)) |kv| {
             // Extract the facts before cleaning up
             const old_facts = kv.value.facts;
-            
+
             // Update stats
             self.stats.current_size -= 1;
             self.stats.memory_used -= kv.value.size;
             self.stats.invalidations += 1;
-            
+
             // Remove from LRU list
             self.removeFromLRU(span);
-            
+
             // Return ownership of facts to caller
             return old_facts;
         }

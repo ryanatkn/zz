@@ -12,6 +12,9 @@ Complete architectural redesign placing **Stream** as the fundamental primitive,
 4. **Incremental by default** - All operations work on deltas
 5. **Language agnostic core** - Languages just produce fact streams
 
+See [TODO_STREAM_FIRST_PRINCIPLES.md](./TODO_STREAM_FIRST_PRINCIPLES.md)
+for technical details about implementation.
+
 ## Module Structure
 
 ```

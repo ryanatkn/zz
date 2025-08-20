@@ -9,7 +9,6 @@ const GenericStreamToken = @import("../../transform/streaming/generic_stream_tok
 /// This enables JsonToken to be used in the generic streaming system
 /// without hardcoded dependencies in the transform layer.
 pub const JsonTokenVTableAdapter = struct {
-    
     /// Create VTable for JsonToken
     pub fn createVTable() GenericStreamToken.VTable {
         return GenericStreamToken.VTable{
@@ -25,13 +24,13 @@ pub const JsonTokenVTableAdapter = struct {
             .getDebugInfoFn = getDebugInfo,
         };
     }
-    
+
     /// Get span from JsonToken
     fn getSpan(token_ptr: *anyopaque) Span {
         const token: *JsonToken = @ptrCast(@alignCast(token_ptr));
         return token.span();
     }
-    
+
     /// Map JsonToken to generic TokenKind
     fn getKind(token_ptr: *anyopaque) TokenKind {
         const token: *JsonToken = @ptrCast(@alignCast(token_ptr));
@@ -52,19 +51,19 @@ pub const JsonTokenVTableAdapter = struct {
             .invalid => .unknown,
         };
     }
-    
+
     /// Get text from JsonToken
     fn getText(token_ptr: *anyopaque) []const u8 {
         const token: *JsonToken = @ptrCast(@alignCast(token_ptr));
         return token.text();
     }
-    
+
     /// Get depth from JsonToken
     fn getDepth(token_ptr: *anyopaque) u16 {
         const token: *JsonToken = @ptrCast(@alignCast(token_ptr));
         return token.tokenData().depth;
     }
-    
+
     /// Check if JsonToken is trivia
     fn isTrivia(token_ptr: *anyopaque) bool {
         const token: *JsonToken = @ptrCast(@alignCast(token_ptr));
@@ -73,7 +72,7 @@ pub const JsonTokenVTableAdapter = struct {
             else => false,
         };
     }
-    
+
     /// Check if JsonToken is opening delimiter
     fn isOpenDelimiter(token_ptr: *anyopaque) bool {
         const token: *JsonToken = @ptrCast(@alignCast(token_ptr));
@@ -82,7 +81,7 @@ pub const JsonTokenVTableAdapter = struct {
             else => false,
         };
     }
-    
+
     /// Check if JsonToken is closing delimiter
     fn isCloseDelimiter(token_ptr: *anyopaque) bool {
         const token: *JsonToken = @ptrCast(@alignCast(token_ptr));
@@ -91,7 +90,7 @@ pub const JsonTokenVTableAdapter = struct {
             else => false,
         };
     }
-    
+
     /// Check if JsonToken is error
     fn isError(token_ptr: *anyopaque) bool {
         const token: *JsonToken = @ptrCast(@alignCast(token_ptr));
@@ -100,13 +99,13 @@ pub const JsonTokenVTableAdapter = struct {
             else => false,
         };
     }
-    
+
     /// Convert JsonToken to generic Token
     fn toGenericToken(token_ptr: *anyopaque, source: []const u8) Token {
         const token: *JsonToken = @ptrCast(@alignCast(token_ptr));
         return convertJsonToGenericToken(token.*, source);
     }
-    
+
     /// Get debug info from JsonToken
     fn getDebugInfo(token_ptr: *anyopaque) []const u8 {
         const token: *JsonToken = @ptrCast(@alignCast(token_ptr));
@@ -114,7 +113,7 @@ pub const JsonTokenVTableAdapter = struct {
             .property_name => |prop| if (prop.has_escapes) "escaped_property" else "property",
             .string_value => |str| if (str.has_escapes) "escaped_string" else "string",
             .decimal_int => "decimal_int",
-            .hex_int => "hex_int", 
+            .hex_int => "hex_int",
             .float => "float",
             .scientific => "scientific",
             .boolean_value => |boolean| if (boolean.value) "true" else "false",
@@ -127,7 +126,7 @@ pub const JsonTokenVTableAdapter = struct {
 /// Convert JsonToken to generic Token (implementation of slow path)
 fn convertJsonToGenericToken(json_token: JsonToken, source: []const u8) Token {
     _ = source; // May be needed for text extraction in some cases
-    
+
     const span_val = json_token.span();
     const depth = json_token.tokenData().depth;
     const kind = switch (json_token) {
@@ -146,10 +145,10 @@ fn convertJsonToGenericToken(json_token: JsonToken, source: []const u8) Token {
         .whitespace => TokenKind.whitespace,
         .invalid => TokenKind.unknown,
     };
-    
+
     // Extract text from JsonToken
     const text = json_token.text();
-    
+
     return Token{
         .kind = kind,
         .span = span_val,
@@ -172,11 +171,11 @@ pub fn convertJsonTokensToGeneric(
 ) ![]GenericStreamToken {
     var stream_tokens = try allocator.alloc(GenericStreamToken, json_tokens.len);
     const vtable = JsonTokenVTableAdapter.createVTable();
-    
+
     for (json_tokens, 0..) |*json_token, i| {
         stream_tokens[i] = GenericStreamToken.init(json_token, &vtable);
     }
-    
+
     return stream_tokens;
 }
 
@@ -201,11 +200,11 @@ test "JsonTokenVTableAdapter - basic functionality" {
             .has_escapes = false,
         },
     };
-    
+
     // Create generic stream token
     const vtable = JsonTokenVTableAdapter.createVTable();
     const stream_token = GenericStreamToken.init(&json_token, &vtable);
-    
+
     // Test vtable dispatch
     try testing.expectEqual(TokenKind.string_literal, stream_token.kind());
     try testing.expectEqual(@as(usize, 0), stream_token.span().start);
@@ -227,7 +226,7 @@ test "JsonTokenVTableAdapter - delimiter detection" {
             .depth = 0,
         },
     };
-    
+
     const stream_token = createGenericStreamToken(&obj_start);
     try testing.expect(stream_token.isOpenDelimiter());
     try testing.expect(!stream_token.isCloseDelimiter());
@@ -246,7 +245,7 @@ test "JsonTokenVTableAdapter - debug info" {
             .value = true,
         },
     };
-    
+
     const stream_token = createGenericStreamToken(&bool_token);
     const debug_info = stream_token.getDebugInfo();
     try testing.expect(debug_info != null);

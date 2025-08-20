@@ -8,6 +8,7 @@ test {
     _ = @import("core/test.zig");
     _ = @import("deps/test.zig");
     _ = @import("execution/test.zig");
+    _ = @import("fact/test.zig");
     _ = @import("filesystem/test.zig");
     _ = @import("grammar/test.zig");
     _ = @import("languages/test.zig");
@@ -16,6 +17,7 @@ test {
     _ = @import("memory/test.zig");
     _ = @import("parser/test.zig");
     _ = @import("patterns/test.zig");
+    _ = @import("span/test.zig");
     _ = @import("stream/test.zig");
     _ = @import("terminal/test.zig");
     _ = @import("test/fixture_runner.zig");

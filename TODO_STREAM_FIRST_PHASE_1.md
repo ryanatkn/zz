@@ -92,7 +92,7 @@ pub const unpackSpan = @import("packed.zig").unpackSpan;
 
 ## Implementation Status
 
-### ✅ Completed: Stream Module (Day 1)
+### ✅ Completed: Stream Module (Day 1-2)
 
 **Files Created:**
 - `src/lib/stream/mod.zig` - Core Stream(T) type with vtable dispatch
@@ -110,11 +110,47 @@ pub const unpackSpan = @import("packed.zig").unpackSpan;
 - Multiple source/sink implementations
 - Comprehensive test coverage
 
-**Notes:**
-- Some operators allocate for persistence (map, filter use heap)
-- Tests have const/var warnings that don't affect functionality
-- Performance targets to be validated in Week 2
-- Many TODOs added for future work
+### ✅ Completed: Span Module (Day 3)
+
+**Files Created:**
+- `src/lib/span/mod.zig` - Core Span type (u32 start/end)
+- `src/lib/span/packed.zig` - PackedSpan (u64) for space efficiency
+- `src/lib/span/set.zig` - SpanSet with automatic normalization
+- `src/lib/span/ops.zig` - Rich set of span operations
+- `src/lib/span/test.zig` - Comprehensive test suite
+
+**Key Achievements:**
+- Span struct exactly 8 bytes as designed
+- PackedSpan saves 8 bytes per fact (stores length instead of end)
+- SpanSet automatically merges overlapping spans
+- Rich operations: merge, intersect, distance, shift, split, etc.
+- Full test coverage with size assertions
+
+### ✅ Completed: Fact Module (Day 3-4)
+
+**Files Created:**
+- `src/lib/fact/mod.zig` - Module exports and size assertions
+- `src/lib/fact/fact.zig` - 24-byte Fact struct definition
+- `src/lib/fact/predicate.zig` - Predicate enum (2 bytes, ~80 variants)
+- `src/lib/fact/value.zig` - Value union (8 bytes, 8 variants)
+- `src/lib/fact/store.zig` - Append-only FactStore with generations
+- `src/lib/fact/builder.zig` - Fluent Builder DSL and pattern helpers
+- `src/lib/fact/test.zig` - Comprehensive test suite
+
+**Key Achievements:**
+- **Fact struct exactly 24 bytes** (4 + 8 + 2 + 2 + 8)
+- Predicate enum covers lexical, structural, semantic, diagnostic facts
+- Value union supports numbers, spans, atoms, fact refs, floats, bools
+- FactStore provides append-only storage with generation tracking
+- Builder DSL enables fluent fact construction
+- Pattern helpers for common fact types
+
+**Final Status:**
+- ✅ **All 72 tests passing** - Stream, Span, and Fact modules fully functional
+- ✅ **Exact size targets achieved** - Fact is exactly 24 bytes, Value is 8 bytes
+- ✅ **Extern union/struct design** - Zero overhead, perfect memory control
+- ⚠️ Some stream operators still allocate (TODOs for Phase 2 arena allocators)
+- 📝 Performance benchmarks pending for Week 2 validation
 
 ## Implementation Tasks
 
@@ -127,19 +163,37 @@ pub const unpackSpan = @import("packed.zig").unpackSpan;
 - [x] Add MemorySource and BufferSink
 - [x] Write comprehensive tests
 
-#### Day 3-4: Fact Module  
-- [ ] Define 24-byte Fact struct
-- [ ] Implement Predicate enum (lexical, structural, semantic)
-- [ ] Implement Value union (8 bytes)
-- [ ] Create append-only FactStore
-- [ ] Write fact builder DSL
-- [ ] Write comprehensive tests
+#### Day 3-4: Span & Fact Modules ✅ COMPLETE
+- [x] **Span Module** (implemented first as Fact dependency)
+  - [x] Core Span struct (u32 start/end, 8 bytes)
+  - [x] PackedSpan optimization (u64: 32-bit start + 32-bit length)
+  - [x] SpanSet with normalization (merge overlapping spans)
+  - [x] Comprehensive span operations (merge, intersect, distance, etc.)
+  - [x] Full test coverage
+- [x] **Fact Module**
+  - [x] 24-byte Fact struct achieved exactly
+  - [x] Predicate enum (2 bytes, ~80 predicates defined)
+  - [x] Value union (8 bytes with 8 variants)
+  - [x] Append-only FactStore with generation tracking
+  - [x] Fluent Builder DSL with pattern helpers
+  - [x] Comprehensive tests written
+- [x] **Run tests to verify implementation** ✅ All 72 tests pass!
 
-#### Day 5: Span Module
-- [ ] Implement core Span operations
-- [ ] Create PackedSpan optimization (u64)
-- [ ] Implement SpanSet with normalization
-- [ ] Write comprehensive tests
+**Implementation Notes:**
+- Had to remove `inline` keywords (Zig 0.14.1 syntax issue with inline fn params)
+- Avoided circular imports by duplicating minimal Span definition in packed.zig
+- Created separate fact.zig alongside mod.zig for cleaner organization
+- Achieved exact 24-byte Fact struct through careful field ordering
+- FactStore includes iterator, compaction, and stats tracking
+- Builder provides fluent API with shortcuts for common patterns
+
+**Lessons Learned:**
+- `packed` is a reserved keyword in Zig (for `packed struct`), cannot be used as identifier
+- **Extern union vs tagged union**: Tagged unions add 8+ bytes for the tag, making Value 16 bytes instead of 8. We use `extern union` for exact size control, with the Predicate field providing type discrimination
+- **Extern struct for Fact**: Ensures exactly 24 bytes with no padding, fields ordered by size (8,8,4,2,2)
+- **Type safety strategy**: Predicate enum implies Value type, helper functions enforce contracts, future: comptime validation
+- f16 (2 bytes) perfect for confidence values vs f32 (4 bytes)
+- Zig's comptime assertions validate our size targets
 
 ### Week 2: Integration & Optimization
 

@@ -298,6 +298,6 @@ See [docs/llm-guidelines.md](docs/llm-guidelines.md) for complete guidelines. Ke
 - Performance is a feature
 - Delete old code aggressively, no deprecation, refactor without hesitation
 - Test frequently with `zig build run`
-- Always update documentation
+- Always update documentation, be concise but thorough 
 - We prioritize maintainable code and want to give users max power
 - Leave `// TODO` comments for unknowns

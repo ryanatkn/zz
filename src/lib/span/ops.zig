@@ -147,7 +147,7 @@ test "span comparisons" {
 
     var sorted = spans;
     std.sort.insertion(Span, &sorted, {}, compareByStart);
-    
+
     try std.testing.expectEqual(Span.init(10, 15), sorted[0]);
     try std.testing.expectEqual(Span.init(10, 20), sorted[1]);
     try std.testing.expectEqual(Span.init(20, 30), sorted[2]);

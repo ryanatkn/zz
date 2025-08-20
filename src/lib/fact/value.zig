@@ -6,7 +6,7 @@ const PackedSpan = @import("../span/mod.zig").PackedSpan;
 pub const AtomId = u32;
 
 /// Value that fits exactly in 8 bytes
-/// 
+///
 /// DESIGN CHOICE: We use `extern union` instead of `union(enum)` for performance:
 /// - Tagged unions in Zig store both tag AND data, making them 16+ bytes
 /// - Extern unions are exactly 8 bytes with no tag overhead
@@ -40,73 +40,73 @@ pub const AtomId = u32;
 pub const Value = extern union {
     /// No value (interpreted as 0)
     none: u64,
-    
+
     /// Numeric value (8 bytes)
     number: i64,
-    
+
     /// Unsigned integer (8 bytes)
     uint: u64,
-    
+
     /// Span reference (8 bytes via PackedSpan)
     span: PackedSpan,
-    
+
     /// Two 32-bit values (atom ID, fact ID, or other)
     pair: extern struct {
         a: u32,
         b: u32,
     },
-    
+
     /// Float value (8 bytes)
     float: f64,
-    
+
     /// Bytes for any 8-byte data
     bytes: [8]u8,
-    
+
     /// Create a none value
     pub fn fromNone() Value {
         return .{ .none = 0 };
     }
-    
+
     /// Create a number value
     pub fn fromNumber(n: i64) Value {
         return .{ .number = n };
     }
-    
+
     /// Create a span value
     pub fn fromSpan(s: PackedSpan) Value {
         return .{ .span = s };
     }
-    
+
     /// Create an atom value (stored in pair.a)
     pub fn fromAtom(a: AtomId) Value {
         return .{ .pair = .{ .a = a, .b = 0 } };
     }
-    
+
     /// Create a fact reference value (stored in pair.b)
     pub fn fromFact(f: FactId) Value {
         return .{ .pair = .{ .a = 0, .b = f } };
     }
-    
+
     /// Create an unsigned value
     pub fn fromUint(u: u64) Value {
         return .{ .uint = u };
     }
-    
+
     /// Create a float value
     pub fn fromFloat(f: f64) Value {
         return .{ .float = f };
     }
-    
+
     /// Create a boolean value (stored as 0 or 1 in uint)
     pub fn fromBool(b: bool) Value {
         return .{ .uint = if (b) 1 else 0 };
     }
-    
+
     /// Check if value is none (all zeros)
     pub inline fn isNone(self: Value) bool {
         return self.none == 0;
     }
-    
+
     /// Get atom ID if this is an atom value
     pub inline fn getAtom(self: Value) ?AtomId {
         if (self.pair.b == 0 and self.pair.a != 0) {
@@ -114,7 +114,7 @@ pub const Value = extern union {
         }
         return null;
     }
-    
+
     /// Get fact ID if this is a fact reference
     pub inline fn getFactRef(self: Value) ?FactId {
         if (self.pair.a == 0 and self.pair.b != 0) {
@@ -122,12 +122,12 @@ pub const Value = extern union {
         }
         return null;
     }
-    
+
     /// Get boolean value
     pub inline fn getBool(self: Value) bool {
         return self.uint != 0;
     }
-    
+
     /// Format for debugging (simplified without tag info)
     pub fn format(
         self: Value,

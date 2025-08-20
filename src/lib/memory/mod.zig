@@ -1,6 +1,5 @@
 /// Memory management utilities for the stream-first architecture
 /// Provides arena pools, atom tables, and other zero-allocation patterns
-
 const std = @import("std");
 
 // Core arena and pooling utilities

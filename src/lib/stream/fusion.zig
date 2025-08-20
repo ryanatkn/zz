@@ -9,10 +9,7 @@ const operators = @import("operators.zig");
 /// Operator fusion - combine adjacent map operations into a single operation
 /// This reduces intermediate allocations and function call overhead
 /// TODO: Phase 2 - Extend to more operator combinations (filter+filter, map+filter, etc.)
-pub fn fusedMap(comptime T: type, comptime U: type, comptime V: type, 
-                 source: Stream(T), 
-                 fn1: *const fn (T) U, 
-                 fn2: *const fn (U) V) Stream(V) {
+pub fn fusedMap(comptime T: type, comptime U: type, comptime V: type, source: Stream(T), fn1: *const fn (T) U, fn2: *const fn (U) V) Stream(V) {
     const FusedMapImpl = struct {
         source: Stream(T),
         fn1: *const fn (T) U,
@@ -53,12 +50,12 @@ pub fn fusedMap(comptime T: type, comptime U: type, comptime V: type,
     };
 
     const impl_ptr = operators.getOperatorAllocator().create(FusedMapImpl) catch unreachable;
-    impl_ptr.* = FusedMapImpl{ 
-        .source = source, 
+    impl_ptr.* = FusedMapImpl{
+        .source = source,
         .fn1 = fn1,
         .fn2 = fn2,
     };
-    
+
     return Stream(V){
         .ptr = @ptrCast(impl_ptr),
         .vtable = &.{
@@ -74,10 +71,7 @@ pub fn fusedMap(comptime T: type, comptime U: type, comptime V: type,
 
 /// Fused filter - combine adjacent filter operations
 /// Applies both predicates without intermediate stream creation
-pub fn fusedFilter(comptime T: type, 
-                   source: Stream(T), 
-                   pred1: *const fn (T) bool, 
-                   pred2: *const fn (T) bool) Stream(T) {
+pub fn fusedFilter(comptime T: type, source: Stream(T), pred1: *const fn (T) bool, pred2: *const fn (T) bool) Stream(T) {
     const FusedFilterImpl = struct {
         source: Stream(T),
         pred1: *const fn (T) bool,
@@ -134,12 +128,12 @@ pub fn fusedFilter(comptime T: type,
     };
 
     const impl_ptr = operators.getOperatorAllocator().create(FusedFilterImpl) catch unreachable;
-    impl_ptr.* = FusedFilterImpl{ 
-        .source = source, 
+    impl_ptr.* = FusedFilterImpl{
+        .source = source,
         .pred1 = pred1,
         .pred2 = pred2,
     };
-    
+
     return Stream(T){
         .ptr = @ptrCast(impl_ptr),
         .vtable = &.{
@@ -164,7 +158,7 @@ test "fusedMap operator" {
             return x * 2;
         }
     }.f;
-    
+
     const addOne = struct {
         fn f(x: u32) u32 {
             return x + 1;
@@ -174,9 +168,9 @@ test "fusedMap operator" {
     // Fused: (x * 2) + 1
     var fused = fusedMap(u32, u32, u32, stream, double, addOne);
 
-    try std.testing.expectEqual(@as(?u32, 3), try fused.next());  // (1*2)+1 = 3
-    try std.testing.expectEqual(@as(?u32, 5), try fused.next());  // (2*2)+1 = 5
-    try std.testing.expectEqual(@as(?u32, 7), try fused.next());  // (3*2)+1 = 7
+    try std.testing.expectEqual(@as(?u32, 3), try fused.next()); // (1*2)+1 = 3
+    try std.testing.expectEqual(@as(?u32, 5), try fused.next()); // (2*2)+1 = 5
+    try std.testing.expectEqual(@as(?u32, 7), try fused.next()); // (3*2)+1 = 7
     try std.testing.expectEqual(@as(?u32, null), try fused.next());
 }
 
@@ -191,7 +185,7 @@ test "fusedFilter operator" {
             return x % 2 == 0;
         }
     }.f;
-    
+
     const greaterThan4 = struct {
         fn f(x: u32) bool {
             return x > 4;

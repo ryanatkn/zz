@@ -9,7 +9,7 @@ const RingBuffer = @import("buffer.zig").RingBuffer;
 /// 1. Generic object pools for each operator type
 /// 2. Global pool registry with thread-local storage
 /// 3. Automatic pool management and cleanup
-/// 
+///
 /// For now, we use a simple allocator wrapper that at least tracks allocations
 /// and can be swapped out for arena allocators in performance-critical paths.
 var operator_allocator: std.mem.Allocator = std.heap.page_allocator;

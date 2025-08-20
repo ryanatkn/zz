@@ -6,7 +6,7 @@ pub const Predicate = enum(u16) {
     // =====================================================
     // Lexical Facts - From tokenization
     // =====================================================
-    
+
     /// Token of a specific kind
     is_token,
     /// Token has specific text
@@ -29,11 +29,11 @@ pub const Predicate = enum(u16) {
     is_operator,
     /// Token is a delimiter
     is_delimiter,
-    
+
     // =====================================================
     // Structural Facts - From structural parsing
     // =====================================================
-    
+
     /// Span is a structural boundary
     is_boundary,
     /// Span starts a block
@@ -54,11 +54,11 @@ pub const Predicate = enum(u16) {
     precedes,
     /// Span follows another fact
     follows,
-    
+
     // =====================================================
     // Semantic Facts - From analysis
     // =====================================================
-    
+
     /// Span defines a symbol
     defines_symbol,
     /// Span references a symbol
@@ -83,11 +83,11 @@ pub const Predicate = enum(u16) {
     is_parameter,
     /// Span is a field
     is_field,
-    
+
     // =====================================================
     // Diagnostic Facts - From validation
     // =====================================================
-    
+
     /// Span has an error
     has_error,
     /// Span has a warning
@@ -102,11 +102,11 @@ pub const Predicate = enum(u16) {
     is_deprecated,
     /// Span is unused
     is_unused,
-    
+
     // =====================================================
     // Language-Specific Facts
     // =====================================================
-    
+
     /// JSON: is object
     json_is_object,
     /// JSON: is array
@@ -119,7 +119,7 @@ pub const Predicate = enum(u16) {
     json_is_null,
     /// JSON: is boolean
     json_is_boolean,
-    
+
     /// HTML: is tag
     html_is_tag,
     /// HTML: is attribute
@@ -128,7 +128,7 @@ pub const Predicate = enum(u16) {
     html_is_text,
     /// HTML: is self-closing
     html_is_self_closing,
-    
+
     /// CSS: is selector
     css_is_selector,
     /// CSS: is property
@@ -137,10 +137,10 @@ pub const Predicate = enum(u16) {
     css_is_value,
     /// CSS: is rule
     css_is_rule,
-    
+
     // Add more as needed...
-    
-    _,  // Non-exhaustive for extensibility
+
+    _, // Non-exhaustive for extensibility
 };
 
 /// Get the category of a predicate
@@ -158,7 +158,7 @@ pub fn getCategory(predicate: Predicate) PredicateCategory {
         .is_operator,
         .is_delimiter,
         => .lexical,
-        
+
         .is_boundary,
         .starts_block,
         .ends_block,
@@ -170,7 +170,7 @@ pub fn getCategory(predicate: Predicate) PredicateCategory {
         .precedes,
         .follows,
         => .structural,
-        
+
         .defines_symbol,
         .references_symbol,
         .has_type,
@@ -184,7 +184,7 @@ pub fn getCategory(predicate: Predicate) PredicateCategory {
         .is_parameter,
         .is_field,
         => .semantic,
-        
+
         .has_error,
         .has_warning,
         .has_info,
@@ -193,7 +193,7 @@ pub fn getCategory(predicate: Predicate) PredicateCategory {
         .is_deprecated,
         .is_unused,
         => .diagnostic,
-        
+
         .json_is_object,
         .json_is_array,
         .json_is_key,
@@ -209,7 +209,7 @@ pub fn getCategory(predicate: Predicate) PredicateCategory {
         .css_is_value,
         .css_is_rule,
         => .language_specific,
-        
+
         _ => .unknown,
     };
 }

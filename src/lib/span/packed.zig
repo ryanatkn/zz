@@ -4,11 +4,11 @@ const std = @import("std");
 pub const Span = struct {
     start: u32,
     end: u32,
-    
+
     pub fn init(start: u32, end: u32) Span {
         return .{ .start = start, .end = end };
     }
-    
+
     pub fn len(self: Span) u32 {
         if (self.end < self.start) return 0;
         return self.end - self.start;

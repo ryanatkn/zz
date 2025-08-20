@@ -123,7 +123,7 @@ pub const SpanSet = struct {
     /// Get the union of all spans as a single span
     pub fn getUnion(self: *SpanSet) ?Span {
         if (self.spans.items.len == 0) return null;
-        
+
         self.normalize();
         const first = self.spans.items[0];
         const last = self.spans.items[self.spans.items.len - 1];

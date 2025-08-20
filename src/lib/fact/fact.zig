@@ -11,7 +11,7 @@ pub const Generation = u32;
 
 /// Immutable fact about a span of text (exactly 24 bytes)
 /// Facts form the universal data unit in the stream-first architecture
-/// 
+///
 /// DESIGN CHOICE: We use `extern struct` for precise memory control:
 /// - Regular structs may add padding for alignment
 /// - Extern structs give us exact field placement
@@ -28,21 +28,21 @@ pub const Generation = u32;
 pub const Fact = extern struct {
     /// Text span this fact describes (8 bytes - packed)
     subject: PackedSpan,
-    
+
     /// Additional value associated with this predicate (8 bytes)
     object: Value,
-    
+
     /// Unique identifier for this fact (4 bytes)
     id: FactId,
-    
+
     /// What kind of information this fact conveys (2 bytes)
     predicate: Predicate,
-    
+
     /// Confidence level for this fact (2 bytes)
     confidence: f16,
-    
+
     // Total: 8 + 8 + 4 + 2 + 2 = 24 bytes
-    
+
     /// Create a new fact
     pub fn init(
         id: FactId,
@@ -59,7 +59,7 @@ pub const Fact = extern struct {
             .confidence = confidence,
         };
     }
-    
+
     /// Create a fact with full confidence (1.0)
     pub fn certain(
         id: FactId,
@@ -69,7 +69,7 @@ pub const Fact = extern struct {
     ) Fact {
         return init(id, subject, predicate, object, 1.0);
     }
-    
+
     /// Create a fact with no object value
     pub fn simple(
         id: FactId,
@@ -78,7 +78,7 @@ pub const Fact = extern struct {
     ) Fact {
         return init(id, subject, predicate, Value.fromNone(), 1.0);
     }
-    
+
     /// Create a fact with a numeric object
     pub fn withNumber(
         id: FactId,
@@ -88,7 +88,7 @@ pub const Fact = extern struct {
     ) Fact {
         return certain(id, subject, predicate, Value.fromNumber(number));
     }
-    
+
     /// Create a fact with a span object
     pub fn withSpan(
         id: FactId,
@@ -98,7 +98,7 @@ pub const Fact = extern struct {
     ) Fact {
         return certain(id, subject, predicate, Value.fromSpan(span));
     }
-    
+
     /// Create a fact referencing another fact
     pub fn withFactRef(
         id: FactId,
@@ -108,22 +108,22 @@ pub const Fact = extern struct {
     ) Fact {
         return certain(id, subject, predicate, Value.fromFact(fact_ref));
     }
-    
+
     /// Check if fact has high confidence (>= 0.8)
     pub inline fn isConfident(self: Fact) bool {
         return self.confidence >= 0.8;
     }
-    
+
     /// Check if fact is certain (confidence == 1.0)
     pub inline fn isCertain(self: Fact) bool {
         return self.confidence == 1.0;
     }
-    
+
     /// Check if fact is uncertain (confidence < 0.5)
     pub inline fn isUncertain(self: Fact) bool {
         return self.confidence < 0.5;
     }
-    
+
     /// Format for debugging
     pub fn format(
         self: Fact,

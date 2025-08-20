@@ -7,7 +7,7 @@ const JsonParser = @import("parser.zig").JsonParser;
 const JsonFormatter = @import("formatter.zig").JsonFormatter;
 const JsonLinter = @import("linter.zig").JsonLinter;
 const JsonAnalyzer = @import("analyzer.zig").JsonAnalyzer;
-const JsonStreamingAdapter = @import("streaming_adapter.zig").JsonStreamingAdapter;
+// JsonStreamingAdapter removed - using StreamToken architecture
 const StatefulJsonLexer = @import("stateful_lexer.zig").StatefulJsonLexer;
 const JsonToken = @import("tokens.zig").JsonToken;
 const json_mod = @import("mod.zig");

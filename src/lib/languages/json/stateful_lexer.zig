@@ -6,6 +6,7 @@ const StatefulLexer = @import("../../transform/streaming/stateful_lexer.zig").St
 const char = @import("../../char/mod.zig");
 const JsonToken = @import("tokens.zig").JsonToken;
 const TokenData = @import("../common/token_base.zig").TokenData;
+const StreamToken = @import("../../transform/streaming/stream_token.zig").StreamToken;
 
 /// High-performance stateful JSON lexer for streaming tokenization
 ///
@@ -56,8 +57,8 @@ pub const StatefulJsonLexer = struct {
         chunk: []const u8,
         chunk_pos: usize,
         allocator: std.mem.Allocator,
-    ) ![]JsonToken {
-        var tokens = try std.ArrayList(JsonToken).initCapacity(
+    ) ![]StreamToken {
+        var tokens = try std.ArrayList(StreamToken).initCapacity(
             allocator,
             chunk.len / 4, // Heuristic: average 4 bytes per token
         );
@@ -109,7 +110,7 @@ pub const StatefulJsonLexer = struct {
                 };
 
                 if (fast_token) |token| {
-                    try tokens.append(token);
+                    try tokens.append(StreamToken{ .json = token });
                     pos += 1;
                     continue;
                 }
@@ -127,7 +128,7 @@ pub const StatefulJsonLexer = struct {
             // Process complete token
             const token_result = try self.processToken(chunk[pos..], chunk_pos + pos);
             if (token_result.token) |token| {
-                try tokens.append(token);
+                try tokens.append(StreamToken{ .json = token });
             }
             pos += token_result.consumed;
         }
@@ -142,7 +143,7 @@ pub const StatefulJsonLexer = struct {
     fn completePartialToken(
         self: *Self,
         chunk: []const u8,
-        tokens: *std.ArrayList(JsonToken),
+        tokens: *std.ArrayList(StreamToken),
         chunk_pos: usize,
     ) !usize {
         const partial = self.state.getPartialToken();
@@ -191,7 +192,7 @@ pub const StatefulJsonLexer = struct {
                                 .has_escapes = std.mem.indexOf(u8, complete, "\\") != null,
                             },
                         };
-                        try tokens.append(token);
+                        try tokens.append(StreamToken{ .json = token });
 
                         // Reset state
                         self.state.clearPartial();
@@ -245,7 +246,7 @@ pub const StatefulJsonLexer = struct {
                             .is_float = self.state.number_state.has_dot or self.state.number_state.has_e,
                         },
                     };
-                    try tokens.append(token);
+                    try tokens.append(StreamToken{ .json = token });
                 }
 
                 // Reset state
@@ -621,9 +622,9 @@ test "StatefulJsonLexer - simple tokens" {
     defer testing.allocator.free(tokens);
 
     try testing.expect(tokens.len >= 5); // {, "name", :, "test", }
-    try testing.expect(tokens[0] == .object_start);
-    try testing.expect(tokens[1] == .string_value);
-    try testing.expect(tokens[2] == .colon);
+    try testing.expect(tokens[0] == .json);
+    try testing.expect(tokens[1] == .json);
+    try testing.expect(tokens[2] == .json);
 }
 
 test "StatefulJsonLexer - chunk boundary in string" {
@@ -642,7 +643,7 @@ test "StatefulJsonLexer - chunk boundary in string" {
 
     // First chunk should have opening brace
     try testing.expect(tokens1.len >= 1);
-    try testing.expect(tokens1[0] == .object_start);
+    try testing.expect(tokens1[0] == .json);
 
     // Second chunk should complete the string
     try testing.expect(tokens2.len >= 3); // "name", :, 42, }
@@ -663,8 +664,9 @@ test "StatefulJsonLexer - chunk boundary in number" {
     defer testing.allocator.free(tokens2);
 
     // Should correctly tokenize the split number
-    try testing.expect(tokens1[0] == .array_start);
-    try testing.expect(tokens2[0] == .number_value);
+    try testing.expect(tokens1[0] == .json);
+    try testing.expect(tokens2[0] == .json);
+    try testing.expect(tokens2[0].json == .number_value);
 }
 
 test "StatefulJsonLexer - escape sequences" {
@@ -676,7 +678,8 @@ test "StatefulJsonLexer - escape sequences" {
     defer testing.allocator.free(tokens);
 
     try testing.expect(tokens.len == 1);
-    try testing.expect(tokens[0] == .string_value);
+    try testing.expect(tokens[0] == .json);
+    try testing.expect(tokens[0].json == .string_value);
 }
 
 test "StatefulJsonLexer - boolean and null literals" {
@@ -687,10 +690,13 @@ test "StatefulJsonLexer - boolean and null literals" {
     const tokens = try lexer.processChunk(input, 0, testing.allocator);
     defer testing.allocator.free(tokens);
 
-    try testing.expect(tokens[1] == .boolean_value);
+    try testing.expect(tokens[1] == .json);
+    try testing.expect(tokens[1].json == .boolean_value);
     try testing.expectEqualStrings("true", tokens[1].text());
-    try testing.expect(tokens[3] == .boolean_value);
+    try testing.expect(tokens[3] == .json);
+    try testing.expect(tokens[3].json == .boolean_value);
     try testing.expectEqualStrings("false", tokens[3].text());
-    try testing.expect(tokens[5] == .null_value);
+    try testing.expect(tokens[5] == .json);
+    try testing.expect(tokens[5].json == .null_value);
     try testing.expectEqualStrings("null", tokens[5].text());
 }

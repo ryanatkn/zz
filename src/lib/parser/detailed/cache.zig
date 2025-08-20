@@ -169,10 +169,19 @@ pub const BoundaryCache = struct {
 
     /// Invalidate cache entry for a specific span and return old facts
     pub fn invalidate(self: *BoundaryCache, span: Span) ?[]Fact {
-        if (self.entries.get(span)) |entry| {
-            const old_facts = entry.facts;
-            self.removeEntry(span);
+        if (self.entries.fetchRemove(span)) |kv| {
+            // Extract the facts before cleaning up
+            const old_facts = kv.value.facts;
+            
+            // Update stats
+            self.stats.current_size -= 1;
+            self.stats.memory_used -= kv.value.size;
             self.stats.invalidations += 1;
+            
+            // Remove from LRU list
+            self.removeFromLRU(span);
+            
+            // Return ownership of facts to caller
             return old_facts;
         }
         return null;
@@ -191,7 +200,10 @@ pub const BoundaryCache = struct {
         }
 
         for (to_remove.items) |key| {
-            _ = self.invalidate(key);
+            // invalidate returns ownership - we need to free
+            if (self.invalidate(key)) |facts| {
+                self.allocator.free(facts);
+            }
         }
     }
 

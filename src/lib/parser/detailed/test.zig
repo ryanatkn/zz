@@ -594,10 +594,10 @@ test "cache invalidation" {
     try testing.expect(cached != null);
     defer if (cached) |c| testing.allocator.free(c);
 
-    // Invalidate
+    // Invalidate - returns ownership of the facts to us
     const old_facts = cache.invalidate(span);
     try testing.expect(old_facts != null);
-    defer if (old_facts) |of| testing.allocator.free(of);
+    if (old_facts) |of| testing.allocator.free(of);
 
     // Should no longer be cached
     const after_invalidation = try cache.get(span);

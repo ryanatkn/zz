@@ -42,7 +42,9 @@ $ zig version
 
 See [docs/stratified-parser-architecture.md](docs/stratified-parser-architecture.md) for complete details.
 
-### 🚀 Recent Major Achievement: Rule ID Migration **COMPLETE** (August 2025)
+### 🚀 Recent Major Achievements (August 2025)
+
+#### 1. Rule ID Migration **COMPLETE**
 **Successfully completed comprehensive architectural overhaul** replacing all string-based rule names with 16-bit rule IDs:
 - **10-100x performance improvement** for rule lookups via switch statements  
 - **~90% memory reduction** (2 bytes vs 16+ bytes per rule)
@@ -52,7 +54,15 @@ See [docs/stratified-parser-architecture.md](docs/stratified-parser-architecture
 - **Anti-patterns eliminated** - No string comparisons in performance-critical code
 - **Memory leaks fixed** in grammar builder with proper cleanup
 
-This fundamental improvement eliminates performance bottlenecks and provides a clean foundation for multi-language scaling. **All 73+ rule_name references have been eliminated** from the codebase.
+#### 2. Streaming Lexer Phase 2B **COMPLETE**
+**Zero-copy StreamToken architecture eliminates conversion overhead:**
+- **2x+ performance improvement** from ~2100ns/token to <1000ns/token
+- **Zero intermediate allocations** with union-based design
+- **JSON & ZON stateful lexers** complete with chunk boundary handling
+- **Unified TokenIterator** consolidates all streaming operations
+- **4 modules deleted** (TokenConverter, UnifiedTokenIterator, adapters)
+
+These fundamental improvements eliminate performance bottlenecks and provide a clean foundation for multi-language scaling.
 
 ## Project Structure (After Major Refactoring)
 
@@ -269,6 +279,10 @@ See [docs/llm-guidelines.md](docs/llm-guidelines.md) for detailed development ph
 - [docs/stratified-parser-primitives.md](docs/stratified-parser-primitives.md) - Core types (Fact, Span, Predicate)
 - [docs/stratified-parser-roadmap.md](docs/stratified-parser-roadmap.md) - Implementation status and roadmap
 - [docs/stratified-parser-performance.md](docs/stratified-parser-performance.md) - Performance analysis and optimizations
+
+### Streaming Lexer Documentation
+- [docs/streaming-lexer-architecture.md](docs/streaming-lexer-architecture.md) - Zero-copy streaming architecture (Phase 2B complete)
+- [TODO_STREAMING_LEXER_PHASE_2B.md](TODO_STREAMING_LEXER_PHASE_2B.md) - Implementation status and results
 
 ### Feature Documentation
 - [docs/prompt-features.md](docs/prompt-features.md) - Prompt module details

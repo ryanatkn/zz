@@ -25,8 +25,7 @@ test {
     _ = @import("streaming/token_iterator.zig");
     _ = @import("streaming/stateful_lexer.zig");
     _ = @import("streaming/incremental_parser.zig");
-    _ = @import("streaming/token_converter.zig");
-    _ = @import("streaming/unified_token_iterator.zig");
+    _ = @import("streaming/stream_token.zig");
 
     // Stage implementations
     _ = @import("stages/lexical.zig");
@@ -133,7 +132,7 @@ test "streaming - large file handling" {
     // Test streaming tokenization
     var ctx = Context.init(allocator);
     defer ctx.deinit();
-    var iterator = TokenIterator.init(allocator, json_parts.items, &ctx, null);
+    var iterator = try TokenIterator.init(allocator, json_parts.items, &ctx, null);
     defer iterator.deinit();
 
     var token_count: usize = 0;

@@ -254,7 +254,10 @@ pub const IncrementalParser = struct {
         self.state = .parsing;
 
         while (tokens_processed < max_tokens and !self.token_iterator.isEof()) {
-            if (try self.token_iterator.next()) |token| {
+            if (try self.token_iterator.next()) |stream_token| {
+                // Convert StreamToken to generic Token for parser
+                const token = stream_token.toGenericToken(self.token_iterator.input);
+                
                 // Simple token processing - create leaf nodes
                 if (self.shouldCreateNode(token)) {
                     try self.createSimpleNode(token);
@@ -327,7 +330,7 @@ pub const IncrementalParser = struct {
 
         // Token iterator memory
         const token_stats = self.token_iterator.getMemoryStats();
-        memory += token_stats.token_memory_bytes + token_stats.buffer_capacity_bytes;
+        memory += token_stats.buffer_bytes;
 
         // Node stack memory
         memory += self.node_stack.items.len * @sizeOf(*Node);
@@ -390,7 +393,7 @@ test "IncrementalParser - basic functionality" {
     defer context.deinit();
 
     const input = "test input for incremental parsing with multiple tokens";
-    var token_iterator = TokenIterator.init(testing.allocator, input, &context, null);
+    var token_iterator = try TokenIterator.init(testing.allocator, input, &context, null);
     defer token_iterator.deinit();
 
     var parser = IncrementalParser.init(testing.allocator, &context, &token_iterator, null);
@@ -408,7 +411,7 @@ test "IncrementalParser - memory limit" {
     defer context.deinit();
 
     const input = "a very small input";
-    var token_iterator = TokenIterator.init(testing.allocator, input, &context, null);
+    var token_iterator = try TokenIterator.init(testing.allocator, input, &context, null);
     defer token_iterator.deinit();
 
     var parser = IncrementalParser.init(testing.allocator, &context, &token_iterator, null);
@@ -426,7 +429,7 @@ test "IncrementalParser - statistics" {
     defer context.deinit();
 
     const input = "test statistics functionality";
-    var token_iterator = TokenIterator.init(testing.allocator, input, &context, null);
+    var token_iterator = try TokenIterator.init(testing.allocator, input, &context, null);
     defer token_iterator.deinit();
 
     var parser = IncrementalParser.init(testing.allocator, &context, &token_iterator, null);

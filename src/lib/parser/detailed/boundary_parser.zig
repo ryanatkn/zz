@@ -212,28 +212,30 @@ pub const BoundaryParser = struct {
 
         // Parse using the traditional parser
         // We need to adapt the parser interface to accept our reconstructed source
-        const parse_result = try parser.parseWithContext(source_text, .{
+        const parse_result = parser.parseWithContext(source_text, .{
             .boundary = boundary,
             .tokens = tokens,
-        });
+        }) catch return error.ParseFailed;
 
-        return switch (parse_result) {
-            .success => |node| AST{
-                .root = ASTNode{
-                    .rule_id = node.rule_id,
-                    .node_type = .rule,
-                    .text = node.text,
-                    .start_position = node.start_position,
-                    .end_position = node.end_position,
-                    .children = &[_]ASTNode{},
-                    .attributes = null,
-                    .parent = null,
-                },
-                .allocator = self.allocator,
-                .owned_texts = &[_][]const u8{}, // No owned texts for boundary parser
+        switch (parse_result) {
+            .success => |node| {
+                return AST{
+                    .root = ASTNode{
+                        .rule_id = node.rule_id,
+                        .node_type = .rule,
+                        .text = node.text,
+                        .start_position = node.start_position,
+                        .end_position = node.end_position,
+                        .children = &[_]ASTNode{},
+                        .attributes = null,
+                        .parent = null,
+                    },
+                    .allocator = self.allocator,
+                    .owned_texts = &[_][]const u8{}, // No owned texts for boundary parser
+                };
             },
-            .failure => error.ParseFailed,
-        };
+            .failure => return error.ParseFailed,
+        }
     }
 
     /// Reconstruct source text from tokens (simplified approach)

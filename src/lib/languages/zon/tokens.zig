@@ -46,21 +46,45 @@ pub const ZonToken = union(enum) {
         is_multiline: bool,
     },
 
-    // Number value with Zig number formats
-    number_value: struct {
+    // Decimal integer (base 10)
+    decimal_int: struct {
         data: TokenData,
-        /// Original text representation
+        value: i128,
         raw: []const u8,
-        /// Parsed as integer if possible
-        int_value: ?i128, // Zig supports larger integers
-        /// Parsed as float
-        float_value: ?f64,
-        /// Number base (2, 8, 10, 16)
-        base: u8,
-        /// Whether number has underscores
         has_underscores: bool,
-        /// Whether number is explicitly a float
-        is_float: bool,
+    },
+    
+    // Hexadecimal integer (base 16)
+    hex_int: struct {
+        data: TokenData,
+        value: u128,  // Unsigned for hex
+        raw: []const u8,
+        has_underscores: bool,
+    },
+    
+    // Binary integer (base 2)
+    binary_int: struct {
+        data: TokenData,
+        value: u128,
+        raw: []const u8,
+        has_underscores: bool,
+    },
+    
+    // Octal integer (base 8)
+    octal_int: struct {
+        data: TokenData,
+        value: u128,
+        raw: []const u8,
+        has_underscores: bool,
+    },
+    
+    // Floating point number
+    float: struct {
+        data: TokenData,
+        value: f64,
+        raw: []const u8,
+        has_underscores: bool,
+        has_exponent: bool,
     },
 
     // Character literal (Zig-specific)
@@ -159,7 +183,7 @@ pub const ZonToken = union(enum) {
     /// Check if this is a value token
     pub fn isValue(self: ZonToken) bool {
         return switch (self) {
-            .string_value, .number_value, .char_literal, .boolean_value, .null_value, .undefined_value, .enum_literal, .struct_literal, .object_start, .array_start => true,
+            .string_value, .decimal_int, .hex_int, .binary_int, .octal_int, .float, .char_literal, .boolean_value, .null_value, .undefined_value, .enum_literal, .struct_literal, .object_start, .array_start => true,
             else => false,
         };
     }
@@ -185,7 +209,11 @@ pub const ZonToken = union(enum) {
             .identifier => |i| i.text,
             .field_name => |f| f.raw,
             .string_value => |s| s.raw,
-            .number_value => |n| n.raw,
+            .decimal_int => |n| n.raw,
+            .hex_int => |n| n.raw,
+            .binary_int => |n| n.raw,
+            .octal_int => |n| n.raw,
+            .float => |n| n.raw,
             .char_literal => |c| c.raw,
             .boolean_value => |b| if (b.value) "true" else "false",
             .null_value => "null",
@@ -294,21 +322,18 @@ test "ZonToken - number with underscores" {
     const data = TokenData.init(span, 2, 5, 1);
 
     const token = ZonToken{
-        .number_value = .{
+        .decimal_int = .{
             .data = data,
             .raw = "1_000_000",
-            .int_value = 1000000,
-            .float_value = null,
-            .base = 10,
+            .value = 1000000,
             .has_underscores = true,
-            .is_float = false,
         },
     };
 
     try testing.expect(token.isValue());
     try testing.expectEqualStrings("1_000_000", token.text());
-    try testing.expect(token.number_value.has_underscores);
-    try testing.expectEqual(@as(?i128, 1000000), token.number_value.int_value);
+    try testing.expect(token.decimal_int.has_underscores);
+    try testing.expectEqual(@as(i128, 1000000), token.decimal_int.value);
 }
 
 test "ZonToken - hex number" {
@@ -316,19 +341,16 @@ test "ZonToken - hex number" {
     const data = TokenData.init(span, 3, 1, 2);
 
     const token = ZonToken{
-        .number_value = .{
+        .hex_int = .{
             .data = data,
             .raw = "0xFF",
-            .int_value = 255,
-            .float_value = null,
-            .base = 16,
+            .value = 255,
             .has_underscores = false,
-            .is_float = false,
         },
     };
 
-    try testing.expectEqual(@as(u8, 16), token.number_value.base);
-    try testing.expectEqual(@as(?i128, 255), token.number_value.int_value);
+    try testing.expect(token.isValue());
+    try testing.expectEqual(@as(u128, 255), token.hex_int.value);
 }
 
 test "ZonToken - char literal" {

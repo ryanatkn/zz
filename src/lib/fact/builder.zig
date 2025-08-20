@@ -183,7 +183,7 @@ pub const Builder = struct {
 /// Helper functions for common fact patterns
 pub const Patterns = struct {
     /// Create a token fact
-    pub fn token(span: Span, kind: Predicate) Fact {
+    pub inline fn token(span: Span, kind: Predicate) Fact {
         return Builder.new()
             .withSpan(span)
             .withPredicate(kind)
@@ -192,7 +192,7 @@ pub const Patterns = struct {
     }
     
     /// Create a boundary fact
-    pub fn boundary(span: Span) Fact {
+    pub inline fn boundary(span: Span) Fact {
         return Builder.new()
             .withSpan(span)
             .isBoundary()
@@ -201,7 +201,7 @@ pub const Patterns = struct {
     }
     
     /// Create a symbol definition fact
-    pub fn symbolDef(span: Span, symbol_id: u32) Fact {
+    pub inline fn symbolDef(span: Span, symbol_id: u32) Fact {
         return Builder.new()
             .withSpan(span)
             .definesSymbol()
@@ -211,7 +211,7 @@ pub const Patterns = struct {
     }
     
     /// Create a symbol reference fact
-    pub fn symbolRef(span: Span, symbol_id: u32) Fact {
+    pub inline fn symbolRef(span: Span, symbol_id: u32) Fact {
         return Builder.new()
             .withSpan(span)
             .referencesSymbol()
@@ -221,7 +221,7 @@ pub const Patterns = struct {
     }
     
     /// Create an error fact
-    pub fn err(span: Span, error_code: i64) Fact {
+    pub inline fn err(span: Span, error_code: i64) Fact {
         return Builder.new()
             .withSpan(span)
             .hasError()
@@ -231,7 +231,7 @@ pub const Patterns = struct {
     }
     
     /// Create a parent-child relationship
-    pub fn parent(child_span: Span, parent_fact: FactId) Fact {
+    pub inline fn parent(child_span: Span, parent_fact: FactId) Fact {
         return Builder.new()
             .withSpan(child_span)
             .withPredicate(.has_parent)
@@ -241,7 +241,7 @@ pub const Patterns = struct {
     }
     
     /// Create an indentation level fact
-    pub fn indent(span: Span, level: u64) Fact {
+    pub inline fn indent(span: Span, level: u64) Fact {
         return Builder.new()
             .withSpan(span)
             .withPredicate(.indent_level)

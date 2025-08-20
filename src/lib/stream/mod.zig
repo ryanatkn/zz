@@ -18,6 +18,7 @@ pub const StreamSink = @import("sink.zig").StreamSink;
 pub const BufferSink = @import("sink.zig").BufferSink;
 pub const NullSink = @import("sink.zig").NullSink;
 pub const operators = @import("operators.zig");
+pub const fusion = @import("fusion.zig");
 
 test "Stream basic operations" {
     const data = [_]u32{ 1, 2, 3, 4, 5 };

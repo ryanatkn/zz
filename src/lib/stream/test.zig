@@ -9,6 +9,7 @@ const RingBuffer = @import("buffer.zig").RingBuffer;
 const source = @import("source.zig");
 const sink = @import("sink.zig");
 const operators = @import("operators.zig");
+const fusion = @import("fusion.zig");
 
 test "Stream module exports" {
     // Verify all expected exports are available
@@ -104,47 +105,18 @@ test "RingBuffer as stream buffer" {
     try testing.expectEqual(@as(?u32, null), buffer.pop());
 }
 
-test "Stream take and drop operators" {
+test "Stream composition: drop then take" {
+    // Complex composition test - simple take/drop tests are in operators.zig
     const data = [_]u8{ 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h' };
+    var src = source.MemorySource(u8).init(&data);
+    const str = src.stream();
+    const dropped = operators.drop(u8, str, 2);
+    var taken = operators.take(u8, dropped, 3);
 
-    // Test take
-    {
-        var src = source.MemorySource(u8).init(&data);
-        const str = src.stream();
-        var taken = operators.take(u8, str, 3);
-
-        try testing.expectEqual(@as(?u8, 'a'), try taken.next());
-        try testing.expectEqual(@as(?u8, 'b'), try taken.next());
-        try testing.expectEqual(@as(?u8, 'c'), try taken.next());
-        try testing.expectEqual(@as(?u8, null), try taken.next());
-    }
-
-    // Test drop
-    {
-        var src = source.MemorySource(u8).init(&data);
-        const str = src.stream();
-        var dropped = operators.drop(u8, str, 3);
-
-        try testing.expectEqual(@as(?u8, 'd'), try dropped.next());
-        try testing.expectEqual(@as(?u8, 'e'), try dropped.next());
-        try testing.expectEqual(@as(?u8, 'f'), try dropped.next());
-        try testing.expectEqual(@as(?u8, 'g'), try dropped.next());
-        try testing.expectEqual(@as(?u8, 'h'), try dropped.next());
-        try testing.expectEqual(@as(?u8, null), try dropped.next());
-    }
-
-    // Test drop then take
-    {
-        var src = source.MemorySource(u8).init(&data);
-        const str = src.stream();
-        const dropped = operators.drop(u8, str, 2);
-        var taken = operators.take(u8, dropped, 3);
-
-        try testing.expectEqual(@as(?u8, 'c'), try taken.next());
-        try testing.expectEqual(@as(?u8, 'd'), try taken.next());
-        try testing.expectEqual(@as(?u8, 'e'), try taken.next());
-        try testing.expectEqual(@as(?u8, null), try taken.next());
-    }
+    try testing.expectEqual(@as(?u8, 'c'), try taken.next());
+    try testing.expectEqual(@as(?u8, 'd'), try taken.next());
+    try testing.expectEqual(@as(?u8, 'e'), try taken.next());
+    try testing.expectEqual(@as(?u8, null), try taken.next());
 }
 
 test "Generator source" {
@@ -214,7 +186,7 @@ test "Stream peek operations" {
     try testing.expectEqual(@as(?i32, 50), try str.peek());
 }
 
-test "Stream merge operator" {
+test "Stream composition: merge operator" {
     const data1 = [_]u32{ 1, 3, 5 };
     const data2 = [_]u32{ 2, 4, 6 };
 
@@ -338,11 +310,250 @@ test "Zero-allocation verification" {
     ring.clear();
 }
 
+test "Stream composition: map then filter" {
+    const data = [_]u32{ 1, 2, 3, 4, 5 };
+    var src = source.MemorySource(u32).init(&data);
+    const str = src.stream();
+    
+    const double = struct {
+        fn f(x: u32) u32 { return x * 2; }
+    }.f;
+    
+    const greaterThan4 = struct {
+        fn f(x: u32) bool { return x > 4; }
+    }.f;
+    
+    const mapped = operators.map(u32, u32, str, double);
+    var filtered = operators.filter(u32, mapped, greaterThan4);
+    
+    try testing.expectEqual(@as(?u32, 6), try filtered.next());
+    try testing.expectEqual(@as(?u32, 8), try filtered.next());
+    try testing.expectEqual(@as(?u32, 10), try filtered.next());
+    try testing.expectEqual(@as(?u32, null), try filtered.next());
+}
+
+test "Stream composition: complex chain" {
+    const data = [_]u32{ 1, 2, 3, 4, 5, 6, 7, 8 };
+    var src = source.MemorySource(u32).init(&data);
+    const str = src.stream();
+    
+    const isEven = struct {
+        fn f(x: u32) bool { return x % 2 == 0; }
+    }.f;
+    
+    const square = struct {
+        fn f(x: u32) u32 { return x * x; }
+    }.f;
+    
+    // filter -> map -> take -> drop
+    const filtered = operators.filter(u32, str, isEven);
+    const mapped = operators.map(u32, u32, filtered, square);
+    const taken = operators.take(u32, mapped, 3);
+    var dropped = operators.drop(u32, taken, 1);
+    
+    // Should get: 16, 36 (skipping 4)
+    try testing.expectEqual(@as(?u32, 16), try dropped.next());
+    try testing.expectEqual(@as(?u32, 36), try dropped.next());
+    try testing.expectEqual(@as(?u32, null), try dropped.next());
+}
+
+test "fusedMap with identity function" {
+    const data = [_]u32{ 1, 2, 3 };
+    var src = source.MemorySource(u32).init(&data);
+    const str = src.stream();
+    
+    const identity = struct {
+        fn f(x: u32) u32 { return x; }
+    }.f;
+    
+    const addOne = struct {
+        fn f(x: u32) u32 { return x + 1; }
+    }.f;
+    
+    // identity composed with addOne should just be addOne
+    var fused = fusion.fusedMap(u32, u32, u32, str, identity, addOne);
+    
+    try testing.expectEqual(@as(?u32, 2), try fused.next());
+    try testing.expectEqual(@as(?u32, 3), try fused.next());
+    try testing.expectEqual(@as(?u32, 4), try fused.next());
+    try testing.expectEqual(@as(?u32, null), try fused.next());
+}
+
+test "fusedFilter with contradictory predicates" {
+    const data = [_]u32{ 1, 2, 3, 4, 5, 6 };
+    var src = source.MemorySource(u32).init(&data);
+    const str = src.stream();
+    
+    const isEven = struct {
+        fn f(x: u32) bool { return x % 2 == 0; }
+    }.f;
+    
+    const isOdd = struct {
+        fn f(x: u32) bool { return x % 2 == 1; }
+    }.f;
+    
+    // Contradictory predicates - should return empty stream
+    var fused = fusion.fusedFilter(u32, str, isEven, isOdd);
+    
+    try testing.expectEqual(@as(?u32, null), try fused.next());
+}
+
+test "fusedFilter with overlapping predicates" {
+    const data = [_]u32{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+    var src = source.MemorySource(u32).init(&data);
+    const str = src.stream();
+    
+    const divisibleBy3 = struct {
+        fn f(x: u32) bool { return x % 3 == 0; }
+    }.f;
+    
+    const divisibleBy2 = struct {
+        fn f(x: u32) bool { return x % 2 == 0; }
+    }.f;
+    
+    // Should only get numbers divisible by both 2 and 3 (i.e., by 6)
+    var fused = fusion.fusedFilter(u32, str, divisibleBy3, divisibleBy2);
+    
+    try testing.expectEqual(@as(?u32, 6), try fused.next());
+    try testing.expectEqual(@as(?u32, 12), try fused.next());
+    try testing.expectEqual(@as(?u32, null), try fused.next());
+}
+
+test "fusedMap with type transformation chain" {
+    const data = [_]u8{ 1, 2, 3 };
+    var src = source.MemorySource(u8).init(&data);
+    const str = src.stream();
+    
+    const toU32 = struct {
+        fn f(x: u8) u32 { return @as(u32, x) * 100; }
+    }.f;
+    
+    const toI64 = struct {
+        fn f(x: u32) i64 { return @as(i64, x) + 1000; }
+    }.f;
+    
+    // u8 -> u32 -> i64
+    var fused = fusion.fusedMap(u8, u32, i64, str, toU32, toI64);
+    
+    try testing.expectEqual(@as(?i64, 1100), try fused.next());
+    try testing.expectEqual(@as(?i64, 1200), try fused.next());
+    try testing.expectEqual(@as(?i64, 1300), try fused.next());
+    try testing.expectEqual(@as(?i64, null), try fused.next());
+}
+
+test "fusedMap with empty stream" {
+    const data = [_]u32{};
+    var src = source.MemorySource(u32).init(&data);
+    const str = src.stream();
+    
+    const f1 = struct {
+        fn f(x: u32) u32 { return x * 2; }
+    }.f;
+    
+    const f2 = struct {
+        fn f(x: u32) u32 { return x + 1; }
+    }.f;
+    
+    var fused = fusion.fusedMap(u32, u32, u32, str, f1, f2);
+    
+    try testing.expectEqual(@as(?u32, null), try fused.next());
+    try testing.expect(fused.isExhausted());
+}
+
+test "fusedFilter peek operation" {
+    const data = [_]u32{ 1, 2, 3, 4, 5, 6, 7, 8 };
+    var src = source.MemorySource(u32).init(&data);
+    const str = src.stream();
+    
+    const greaterThan2 = struct {
+        fn f(x: u32) bool { return x > 2; }
+    }.f;
+    
+    const lessThan7 = struct {
+        fn f(x: u32) bool { return x < 7; }
+    }.f;
+    
+    var fused = fusion.fusedFilter(u32, str, greaterThan2, lessThan7);
+    
+    // Peek should not advance
+    try testing.expectEqual(@as(?u32, 3), try fused.peek());
+    try testing.expectEqual(@as(?u32, 3), try fused.peek());
+    
+    // Next should return the peeked value
+    try testing.expectEqual(@as(?u32, 3), try fused.next());
+    
+    // Continue with rest
+    try testing.expectEqual(@as(?u32, 4), try fused.next());
+    try testing.expectEqual(@as(?u32, 5), try fused.next());
+    try testing.expectEqual(@as(?u32, 6), try fused.next());
+    try testing.expectEqual(@as(?u32, null), try fused.next());
+}
+
+test "Stream composition: with arena allocator" {
+    const memory = @import("../memory/mod.zig");
+    
+    var arena = memory.Arena.init(testing.allocator);
+    defer arena.deinit();
+    
+    const old_allocator = operators.getOperatorAllocator();
+    operators.setOperatorAllocator(arena.allocator());
+    defer operators.setOperatorAllocator(old_allocator);
+    
+    const data = [_]u32{ 1, 2, 3, 4, 5 };
+    var src = source.MemorySource(u32).init(&data);
+    const str = src.stream();
+    
+    const addTen = struct {
+        fn f(x: u32) u32 { return x + 10; }
+    }.f;
+    
+    const mapped = operators.map(u32, u32, str, addTen);
+    var limited = operators.take(u32, mapped, 3);
+    
+    try testing.expectEqual(@as(?u32, 11), try limited.next());
+    try testing.expectEqual(@as(?u32, 12), try limited.next());
+    try testing.expectEqual(@as(?u32, 13), try limited.next());
+    try testing.expectEqual(@as(?u32, null), try limited.next());
+    
+    arena.reset(); // All operators cleaned up at once
+}
+
+test "fusedMap position tracking" {
+    const data = [_]u32{ 10, 20, 30, 40, 50 };
+    var src = source.MemorySource(u32).init(&data);
+    const str = src.stream();
+    
+    const f1 = struct {
+        fn f(x: u32) u32 { return x / 10; }
+    }.f;
+    
+    const f2 = struct {
+        fn f(x: u32) u32 { return x * 3; }
+    }.f;
+    
+    var fused = fusion.fusedMap(u32, u32, u32, str, f1, f2);
+    
+    try testing.expectEqual(@as(usize, 0), fused.getPosition());
+    
+    _ = try fused.next();
+    try testing.expectEqual(@as(usize, 1), fused.getPosition());
+    
+    try fused.skip(2);
+    try testing.expectEqual(@as(usize, 3), fused.getPosition());
+    
+    _ = try fused.next();
+    _ = try fused.next();
+    try testing.expect(fused.isExhausted());
+}
+
 // Run all module tests
 test {
     _ = @import("buffer.zig");
     _ = @import("source.zig");
     _ = @import("sink.zig");
+    _ = @import("stream.zig");
     _ = @import("operators.zig");
+    _ = @import("fusion.zig");        // Operator fusion tests
+    _ = @import("operator_pool.zig"); // Object pool tests
     _ = @import("error.zig");
 }

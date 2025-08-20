@@ -236,3 +236,10 @@ test "Span formatting" {
     defer testing.allocator.free(output);
     try testing.expectEqualStrings("[10..20]", output);
 }
+
+test {
+    _ = @import("span.zig");
+    _ = @import("ops.zig");
+    _ = @import("packed.zig");
+    _ = @import("set.zig");
+}

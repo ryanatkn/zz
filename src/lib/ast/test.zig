@@ -200,3 +200,13 @@ test "parent references" {
     try testing.expectEqual(@as(usize, 0), Walker.getDepth(&root));
     try testing.expectEqual(@as(usize, 1), Walker.getDepth(&root.children[0]));
 }
+
+test {
+    _ = @import("test_helpers.zig");
+    _ = @import("traversal.zig");
+    _ = @import("builder.zig");
+    _ = @import("serialization.zig");
+    _ = @import("rules.zig");
+    _ = @import("query.zig");
+    _ = @import("transformation.zig");
+}

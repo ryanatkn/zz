@@ -358,3 +358,11 @@ test "Value formatting" {
         try testing.expect(output.len > 0);
     }
 }
+
+test {
+    _ = @import("fact.zig");
+    _ = @import("predicate.zig");
+    _ = @import("value.zig");
+    _ = @import("store.zig");
+    _ = @import("builder.zig");
+}

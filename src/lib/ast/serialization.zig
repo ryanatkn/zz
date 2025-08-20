@@ -85,7 +85,7 @@ pub const ASTSerializer = struct {
     }
 
     /// Write single node to writer
-    fn writeNode(self: ASTSerializer, writer: anytype, node: *const Node, depth: usize) !void {
+    fn writeNode(self: ASTSerializer, writer: anytype, node: *const Node, depth: usize) anyerror!void {
         if (self.options.max_depth > 0 and depth >= self.options.max_depth) {
             try writer.writeAll("null");
             return;
@@ -360,7 +360,7 @@ const testing = std.testing;
 const ASTTestHelpers = @import("test_helpers.zig").ASTTestHelpers;
 
 test "AST serialization to ZON" {
-    var ast = try ASTTestHelpers.createMinimalAST(testing.allocator, "test_node", "test content");
+    var ast = try ASTTestHelpers.createMinimalAST(testing.allocator, @intFromEnum(CommonRules.identifier), "test content");
     defer ast.deinit();
 
     const serialized = try serializeAST(testing.allocator, &ast);
@@ -373,7 +373,7 @@ test "AST serialization to ZON" {
 }
 
 test "compact serialization" {
-    var ast = try ASTTestHelpers.createMinimalAST(testing.allocator, "compact", "test");
+    var ast = try ASTTestHelpers.createMinimalAST(testing.allocator, @intFromEnum(CommonRules.identifier), "test");
     defer ast.deinit();
 
     const compact = try serializeASTCompact(testing.allocator, &ast);
@@ -384,7 +384,7 @@ test "compact serialization" {
 }
 
 test "node serialization" {
-    var ast = try ASTTestHelpers.createMinimalAST(testing.allocator, "single_node", "content");
+    var ast = try ASTTestHelpers.createMinimalAST(testing.allocator, @intFromEnum(CommonRules.identifier), "content");
     defer ast.deinit();
 
     const serialized = try serializeNode(testing.allocator, &ast.root);
@@ -395,7 +395,7 @@ test "node serialization" {
 }
 
 test "serialization options" {
-    var ast = try ASTTestHelpers.createMinimalAST(testing.allocator, "options_test", "content");
+    var ast = try ASTTestHelpers.createMinimalAST(testing.allocator, @intFromEnum(CommonRules.identifier), "content");
     defer ast.deinit();
 
     const serializer = ASTSerializer.init(testing.allocator, .{

@@ -197,18 +197,32 @@ pub const unpackSpan = @import("packed.zig").unpackSpan;
 
 ### Week 2: Integration & Optimization
 
-#### Day 1-2: Memory Management
-- [ ] Implement ArenaPool with rotation
-- [ ] Create AtomTable for string interning
-- [ ] Add memory benchmarks
-- [ ] Verify zero-allocation goals
+#### Day 1-2: Memory Management ✅ MOSTLY COMPLETE
+- [x] Implement ArenaPool with rotation
+  - Created 4-arena rotation strategy with generation tracking
+  - Supports acquire/rotate/clearAll operations
+  - TODO: Better memory stats from arena state
+- [x] Create AtomTable for string interning
+  - Hash-consing deduplication implemented
+  - Returns stable AtomId (u32) not pointers
+  - Global atom table support included
+- [ ] Add memory benchmarks (TODO: Phase 2)
+- [x] Verify zero-allocation goals (partially)
+  - Ring buffers and core streams are zero-alloc
+  - Operators still use allocator but configurable
 
-#### Day 3-4: Stream Operators
-- [ ] Implement map operator
-- [ ] Implement filter operator
-- [ ] Implement batch operator
-- [ ] Add operator fusion optimization
-- [ ] Write operator composition tests
+#### Day 3-4: Stream Operators ✅ COMPLETE
+- [x] Map operator (already implemented, improved allocator usage)
+- [x] Filter operator (already implemented, improved allocator usage)
+- [x] Batch operator (already implemented, improved allocator usage)
+- [x] Add operator fusion optimization
+  - Implemented fusedMap for adjacent map operations
+  - Implemented fusedFilter for adjacent filter operations
+  - Reduces intermediate allocations and function call overhead
+- [x] Write operator composition tests
+  - Complex chain tests (filter->map->take->drop)
+  - Fusion edge cases (contradictory predicates, empty streams)
+  - Arena allocator integration tests
 
 #### Day 5: Performance Validation
 - [ ] Create benchmark suite

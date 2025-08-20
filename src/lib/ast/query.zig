@@ -2,6 +2,8 @@ const std = @import("std");
 const Node = @import("node.zig").Node;
 const AST = @import("mod.zig").AST;
 const traversal = @import("traversal.zig");
+const CommonRules = @import("rules.zig").CommonRules;
+const ZonRules = @import("rules.zig").ZonRules;
 
 /// High-performance AST query language
 /// CSS selector-like syntax for finding nodes in AST
@@ -134,7 +136,6 @@ pub const ASTQuery = struct {
             .rule => |rule_name| {
                 // TODO: Convert rule_name to rule_id for comparison
                 _ = rule_name;
-                _ = node;
                 return false; // Temporary placeholder
             },
 
@@ -226,7 +227,6 @@ pub const ASTQuery = struct {
             .rule_equals => |rule| {
                 // TODO: Convert rule string to rule_id for comparison
                 _ = rule;
-                _ = node;
                 return false; // Temporary placeholder
             },
             .text_contains => |text| std.mem.indexOf(u8, node.text, text) != null,
@@ -388,7 +388,7 @@ test "query by rule name" {
 }
 
 test "query by text content" {
-    var ast = try ASTTestHelpers.createMinimalAST(testing.allocator, "literal", "test_content");
+    var ast = try ASTTestHelpers.createMinimalAST(testing.allocator, @intFromEnum(CommonRules.string_literal), "test_content");
     defer ast.deinit();
 
     const query = ASTQuery.init(testing.allocator);
@@ -406,7 +406,7 @@ test "query builder fluent interface" {
     var builder = QueryBuilder.init(testing.allocator);
     defer builder.deinit();
 
-    const nodes = try builder.whereRule("object").whereHasChildren().execute(query, &ast.root);
+    const nodes = try (try (try builder.whereRule(@tagName(CommonRules.object))).whereHasChildren()).execute(query, &ast.root);
     defer testing.allocator.free(nodes);
 
     try testing.expect(nodes.len >= 0);
@@ -425,7 +425,7 @@ test "direct children selection" {
     defer ast.deinit();
 
     const query = ASTQuery.init(testing.allocator);
-    const children = try query.selectDirectChildren(&ast.root, "field_assignment");
+    const children = try query.selectDirectChildren(&ast.root, ZonRules.field_assignment);
     defer testing.allocator.free(children);
 
     // Should find direct field assignments under object

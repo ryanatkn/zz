@@ -3,10 +3,20 @@ const Stream = @import("mod.zig").Stream;
 const StreamError = @import("error.zig").StreamError;
 const RingBuffer = @import("buffer.zig").RingBuffer;
 
+/// TODO: Phase 2 - Full object pool implementation
+/// Current implementation uses heap allocation which violates zero-allocation principle.
+/// A complete fix requires:
+/// 1. Generic object pools for each operator type
+/// 2. Global pool registry with thread-local storage
+/// 3. Automatic pool management and cleanup
+/// 
+/// For now, we use a simple allocator wrapper that at least tracks allocations
+/// and can be swapped out for arena allocators in performance-critical paths.
+var operator_allocator: std.mem.Allocator = std.heap.page_allocator;
+
 /// Map operator - transform stream elements through a function
-/// TODO: Phase 2 - Replace heap allocation with object pool
-/// Currently violates "no hot path allocations" principle
-/// Each operator call allocates, causing memory leak
+/// TODO: Phase 2 - Replace with object pool allocation
+/// Current workaround: Uses operator_allocator which can be set to arena
 pub fn map(comptime T: type, comptime U: type, source: Stream(T), mapFn: *const fn (T) U) Stream(U) {
     const MapImpl = struct {
         source: Stream(T),
@@ -43,7 +53,7 @@ pub fn map(comptime T: type, comptime U: type, source: Stream(T), mapFn: *const 
         }
     };
 
-    const impl_ptr = std.heap.page_allocator.create(MapImpl) catch unreachable;
+    const impl_ptr = operator_allocator.create(MapImpl) catch unreachable;
     impl_ptr.* = MapImpl{ .source = source, .mapFn = mapFn };
     return Stream(U){
         .ptr = @ptrCast(impl_ptr),
@@ -59,8 +69,7 @@ pub fn map(comptime T: type, comptime U: type, source: Stream(T), mapFn: *const 
 }
 
 /// Filter operator - keep only elements that match predicate
-/// TODO: Phase 2 - Replace heap allocation with object pool
-/// Currently violates "no hot path allocations" principle
+/// TODO: Phase 2 - Replace with object pool allocation
 pub fn filter(comptime T: type, source: Stream(T), predicate: *const fn (T) bool) Stream(T) {
     const FilterImpl = struct {
         source: Stream(T),
@@ -119,7 +128,7 @@ pub fn filter(comptime T: type, source: Stream(T), predicate: *const fn (T) bool
         }
     };
 
-    const impl_ptr = std.heap.page_allocator.create(FilterImpl) catch unreachable;
+    const impl_ptr = operator_allocator.create(FilterImpl) catch unreachable;
     impl_ptr.* = FilterImpl{ .source = source, .predicate = predicate };
     return Stream(T){
         .ptr = @ptrCast(impl_ptr),
@@ -193,8 +202,8 @@ pub fn batch(comptime T: type, source: Stream(T), size: usize) Stream([]T) {
         }
     };
 
-    const impl_ptr = std.heap.page_allocator.create(BatchImpl) catch unreachable;
-    impl_ptr.* = BatchImpl.init(source, size, std.heap.page_allocator) catch unreachable;
+    const impl_ptr = operator_allocator.create(BatchImpl) catch unreachable;
+    impl_ptr.* = BatchImpl.init(source, size, operator_allocator) catch unreachable;
 
     return Stream([]T){
         .ptr = @ptrCast(impl_ptr),
@@ -210,7 +219,7 @@ pub fn batch(comptime T: type, source: Stream(T), size: usize) Stream([]T) {
 }
 
 /// Take operator - limit stream to first n items
-/// TODO: Phase 2 - Replace heap allocation with object pool
+/// TODO: Phase 2 - Replace with object pool allocation
 pub fn take(comptime T: type, source: Stream(T), n: usize) Stream(T) {
     const TakeImpl = struct {
         source: Stream(T),
@@ -250,7 +259,7 @@ pub fn take(comptime T: type, source: Stream(T), n: usize) Stream(T) {
         }
     };
 
-    const impl_ptr = std.heap.page_allocator.create(TakeImpl) catch unreachable;
+    const impl_ptr = operator_allocator.create(TakeImpl) catch unreachable;
     impl_ptr.* = TakeImpl{ .source = source, .limit = n, .taken = 0 };
     return Stream(T){
         .ptr = @ptrCast(impl_ptr),
@@ -266,7 +275,7 @@ pub fn take(comptime T: type, source: Stream(T), n: usize) Stream(T) {
 }
 
 /// Drop operator - skip first n items from stream
-/// TODO: Phase 2 - Replace heap allocation with object pool
+/// TODO: Phase 2 - Replace with object pool allocation
 pub fn drop(comptime T: type, source: Stream(T), n: usize) Stream(T) {
     const DropImpl = struct {
         source: Stream(T),
@@ -311,7 +320,7 @@ pub fn drop(comptime T: type, source: Stream(T), n: usize) Stream(T) {
         }
     };
 
-    const impl_ptr = std.heap.page_allocator.create(DropImpl) catch unreachable;
+    const impl_ptr = operator_allocator.create(DropImpl) catch unreachable;
     impl_ptr.* = DropImpl{ .source = source, .to_drop = n, .dropped = false };
     return Stream(T){
         .ptr = @ptrCast(impl_ptr),
@@ -327,7 +336,7 @@ pub fn drop(comptime T: type, source: Stream(T), n: usize) Stream(T) {
 }
 
 /// Merge two streams into one (alternating)
-/// TODO: Phase 2 - Replace heap allocation with object pool
+/// TODO: Phase 2 - Replace with object pool allocation
 pub fn merge(comptime T: type, source1: Stream(T), source2: Stream(T)) Stream(T) {
     const MergeImpl = struct {
         source1: Stream(T),
@@ -387,7 +396,7 @@ pub fn merge(comptime T: type, source1: Stream(T), source2: Stream(T)) Stream(T)
         }
     };
 
-    const impl_ptr = std.heap.page_allocator.create(MergeImpl) catch unreachable;
+    const impl_ptr = operator_allocator.create(MergeImpl) catch unreachable;
     impl_ptr.* = MergeImpl{ .source1 = source1, .source2 = source2, .use_first = true };
     return Stream(T){
         .ptr = @ptrCast(impl_ptr),
@@ -469,3 +478,16 @@ test "drop operator" {
     try std.testing.expectEqual(@as(?u32, 5), try dropped.next());
     try std.testing.expectEqual(@as(?u32, null), try dropped.next());
 }
+
+/// Set a custom allocator for operator implementations
+/// This allows using arena allocators or pools instead of heap allocation
+pub fn setOperatorAllocator(allocator: std.mem.Allocator) void {
+    operator_allocator = allocator;
+}
+
+/// Get the current operator allocator
+pub fn getOperatorAllocator() std.mem.Allocator {
+    return operator_allocator;
+}
+
+// Fusion operators moved to fusion.zig

@@ -15,6 +15,8 @@ Complete architectural redesign placing **Stream** as the fundamental primitive,
 See [TODO_STREAM_FIRST_PRINCIPLES.md](./TODO_STREAM_FIRST_PRINCIPLES.md)
 for technical details about implementation.
 
+For tests run `zig test src/lib/test_stream_first.zig`.
+
 ## Module Structure
 
 ```

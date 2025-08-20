@@ -185,10 +185,10 @@ pub const ASTTestHelpers = struct {
     /// ```zig
     /// var nodes = try ASTTestHelpers.findAllNodes(allocator, root, rule_id);
     /// defer nodes.deinit();
-    /// 
+    ///
     /// // Option 1: Use as mutable list
     /// try nodes.append(additional_node);
-    /// 
+    ///
     /// // Option 2: Convert to owned slice if needed
     /// const slice = try nodes.toOwnedSlice();
     /// defer allocator.free(slice);

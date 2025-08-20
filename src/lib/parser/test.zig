@@ -3,6 +3,15 @@ const testing = std.testing;
 const Parser = @import("detailed/parser.zig").Parser;
 const ParseResult = @import("detailed/parser.zig").ParseResult;
 
+// Import submodule tests
+test {
+    _ = @import("foundation/test.zig");
+    _ = @import("foundation/collections/test.zig");
+    _ = @import("lexical/test.zig");
+    _ = @import("structural/test.zig");
+    _ = @import("detailed/test.zig");
+}
+
 // Import grammar module directly
 const grammar_mod = @import("../grammar/mod.zig");
 const Grammar = grammar_mod.Grammar;

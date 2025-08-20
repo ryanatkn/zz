@@ -92,6 +92,8 @@ zz prompt . --full                       # Everything (default)
 
 ### `zz benchmark` - Performance testing
 
+See [benchmarks/latest.md](./benchmarks/latest.md) for the recent status.
+
 Run performance benchmarks with baseline comparison:
 
 ```bash

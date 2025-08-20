@@ -370,7 +370,7 @@ test "Pipeline composition" {
             .performance_class = .fast,
         },
     );
-    
+
     try pipeline.addTransformFns(
         i32,
         i32,
@@ -475,7 +475,7 @@ test "Pipeline with progress tracking" {
             .performance_class = .slow,
         },
     );
-    
+
     try pipeline.addTransformFns(
         i32,
         i32,

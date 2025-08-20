@@ -17,6 +17,7 @@ test {
     _ = @import("patterns/test.zig");
     _ = @import("terminal/test.zig");
     _ = @import("test/fixture_runner.zig");
+    _ = @import("test/performance_gates.zig");
     _ = @import("text/test.zig");
     _ = @import("transform/test.zig");
 }

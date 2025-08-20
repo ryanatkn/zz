@@ -16,6 +16,11 @@ const AST = @import("../../ast/mod.zig").AST;
 const FormatOptions = @import("../interface.zig").FormatOptions;
 const Rule = @import("../interface.zig").Rule;
 
+// Import additional test modules
+test {
+    _ = @import("test_rfc8259_compliance.zig");
+}
+
 // Comprehensive test suite for JSON language implementation
 //
 // This file contains all integration tests and edge cases for the complete
@@ -353,7 +358,7 @@ test "JSON linter - all rules" {
     defer lexer.deinit();
     const tokens = try lexer.tokenize();
     defer allocator.free(tokens);
-    
+
     var parser = JsonParser.init(allocator, tokens, .{});
     defer parser.deinit();
     var ast = try parser.parse();
@@ -380,7 +385,6 @@ test "JSON linter - all rules" {
         allocator.free(diagnostics);
     }
 
-    
     // Should find issues
     try testing.expect(diagnostics.len > 0);
 

@@ -145,7 +145,7 @@ pub const JsonParser = struct {
 
     fn parseNumber(self: *Self) !Node {
         const token = self.advance();
-        
+
         // Validate number format according to RFC 8259
         if (self.hasLeadingZero(token.text)) {
             try self.addError("Numbers with leading zeros are not allowed in JSON", token.span);
@@ -169,23 +169,23 @@ pub const JsonParser = struct {
             .parent = null,
         };
     }
-    
+
     /// Check if a number has leading zeros (violates RFC 8259)
     fn hasLeadingZero(self: *Self, text: []const u8) bool {
         _ = self; // unused
         if (text.len < 2) return false;
-        
+
         var start_idx: usize = 0;
         // Skip optional minus sign
         if (text[0] == '-') {
             start_idx = 1;
             if (text.len < 3) return false; // Need at least "-0X"
         }
-        
+
         // Check for leading zero: starts with '0' followed by digit
-        return text[start_idx] == '0' and 
-               start_idx + 1 < text.len and 
-               char_utils.isDigit(text[start_idx + 1]);
+        return text[start_idx] == '0' and
+            start_idx + 1 < text.len and
+            char_utils.isDigit(text[start_idx + 1]);
     }
 
     fn parseBoolean(self: *Self) !Node {

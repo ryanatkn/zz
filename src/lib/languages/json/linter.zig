@@ -184,7 +184,7 @@ pub const JsonLinter = struct {
         const value = node.text;
         if (value.len == 0) return;
 
-        // Check for leading zeros 
+        // Check for leading zeros
         if (self.isRuleEnabled("no_leading_zeros", enabled_rules) and !self.options.allow_leading_zeros) {
             if (value.len > 1 and value[0] == '0' and char_utils.isDigit(value[1])) {
                 try self.addDiagnostic(
@@ -474,7 +474,6 @@ test "JSON linter - duplicate keys" {
     try testing.expect(diagnostics.len > 0);
     try testing.expectEqualStrings("no_duplicate_keys", diagnostics[0].rule);
 }
-
 
 test "JSON linter - deep nesting" {
     var arena = std.heap.ArenaAllocator.init(testing.allocator);

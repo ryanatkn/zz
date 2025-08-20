@@ -155,7 +155,7 @@ pub const JsonAnalyzer = struct {
 
         const root = &ast.root;
         self.calculateStatistics(root, 0, &stats);
-        
+
         // Calculate size bytes by summing up text lengths
         self.calculateSizeBytes(root, &stats);
 
@@ -302,7 +302,7 @@ pub const JsonAnalyzer = struct {
     }
 
     fn calculateStatistics(self: *Self, node: *const Node, depth: u32, stats: *JsonStatistics) void {
-        
+
         // Update max depth
         stats.max_depth = @max(stats.max_depth, depth);
 
@@ -348,10 +348,10 @@ pub const JsonAnalyzer = struct {
     }
 
     fn calculateSizeBytes(self: *Self, node: *const Node, stats: *JsonStatistics) void {
-        
+
         // Add the text length of this node
         stats.size_bytes += @intCast(node.text.len);
-        
+
         // Recursively process children
         for (node.children) |child| {
             self.calculateSizeBytes(&child, stats);

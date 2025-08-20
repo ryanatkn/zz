@@ -2,7 +2,7 @@
 
 Fast command-line utilities and **reusable language tooling library** written in pure Zig for POSIX systems. Features native AST parsing, code formatting, and semantic analysis without external dependencies.
 
-**Performance is the top priority** - we don't care about backwards compat, always aim for the final best code.
+Performance is a top priority, and this is a greenfield project so we dont care about backwards compat -- always search for the final best code.
 
 ## Major Architecture Decision: Pure Zig Grammar System
 

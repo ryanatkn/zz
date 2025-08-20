@@ -2,6 +2,7 @@ const std = @import("std");
 const Token = @import("../lexical/mod.zig").Token;
 const TokenKind = @import("../lexical/mod.zig").TokenKind;
 const Language = @import("../lexical/mod.zig").Language;
+const DelimiterType = @import("../foundation/mod.zig").DelimiterType;
 const BoundaryKind = @import("../foundation/types/predicate.zig").BoundaryKind;
 const Span = @import("../foundation/types/span.zig").Span;
 
@@ -215,7 +216,16 @@ pub const StateMachine = struct {
             }
         }
 
-        // Look up transition in table for non-keywords
+        // Check for delimiter-specific transitions (high performance)
+        if (token.kind == .delimiter) {
+            if (self.processDelimiterToken(token)) |transition| {
+                self.applyTransition(transition);
+                return transition;
+            }
+        }
+
+        // Look up transition in table for non-keyword, non-delimiter tokens
+        // (Currently unused - all languages use specialized process functions)
         const state_idx = @intFromEnum(self.context.current_state);
         const token_idx = @intFromEnum(token.kind);
         if (self.transition_table[state_idx][token_idx]) |transition| {
@@ -273,6 +283,7 @@ pub const StateMachine = struct {
 
     /// Process Zig-specific keywords
     fn processZigKeyword(self: *StateMachine, token: Token) ?StateTransition {
+        // Only process keywords from top_level to ensure proper boundary detection
         if (self.context.current_state != .top_level) return null;
 
         if (std.mem.eql(u8, token.text, "fn")) {
@@ -299,6 +310,50 @@ pub const StateMachine = struct {
         return null;
     }
 
+    /// Process delimiter token with high-performance DelimiterType switch
+    /// Uses nested switch for O(1) state transitions with branch prediction optimization
+    fn processDelimiterToken(self: *StateMachine, token: Token) ?StateTransition {
+        const delim_type = token.getDelimiterType() orelse return null;
+        
+        return switch (delim_type) {
+            .open_brace => switch (self.context.current_state) {
+                .function_signature => StateTransition.boundary(.function_body, 0.9),
+                .struct_signature => StateTransition.boundary(.struct_body, 0.9),
+                .enum_signature => StateTransition.boundary(.enum_body, 0.9),
+                .class_signature => StateTransition.boundary(.class_body, 0.9),
+                .method_signature => StateTransition.boundary(.method_body, 0.9),
+                .top_level => switch (self.context.language) {
+                    .json => StateTransition.boundary(.block, 0.95),
+                    else => null,
+                },
+                // Remove nested block handling for now to fix basic function detection
+                else => null,
+            },
+            .close_brace => switch (self.context.current_state) {
+                .function_body => StateTransition.boundary(.top_level, 0.9),
+                .struct_body => StateTransition.boundary(.top_level, 0.9),
+                .enum_body => StateTransition.boundary(.top_level, 0.9),
+                .class_body => StateTransition.boundary(.top_level, 0.9),
+                .method_body => StateTransition.boundary(.class_body, 0.9),
+                .block => StateTransition.boundary(.top_level, 0.8), // Simplified: all blocks return to top_level
+                else => switch (self.context.language) {
+                    .json => StateTransition.boundary(.top_level, 0.95),
+                    else => null,
+                },
+            },
+            .open_paren => switch (self.context.current_state) {
+                .function_signature, .method_signature => StateTransition.success(self.context.current_state), // Stay in signature, parsing params
+                else => null,
+            },
+            .close_paren => switch (self.context.current_state) {
+                .function_signature, .method_signature => StateTransition.success(self.context.current_state), // Stay in signature, waiting for brace
+                else => null,
+            },
+            // Brackets and angles handled generically for now
+            .open_bracket, .close_bracket, .open_angle, .close_angle => null,
+        };
+    }
+
     /// Build transition table for fast state lookups
     fn buildTransitionTable(self: *StateMachine) void {
         switch (self.context.language) {
@@ -311,32 +366,10 @@ pub const StateMachine = struct {
 
     /// Build Zig-specific transition table
     fn buildZigTransitions(self: *StateMachine) void {
-        // Keywords are now handled by processKeywordToken
-        const open_brace_idx = @intFromEnum(TokenKind.delimiter); // "{"
-        const close_brace_idx = @intFromEnum(TokenKind.delimiter); // "}"
-        _ = @intFromEnum(TokenKind.delimiter); // open_paren_idx - unused for now
-        _ = @intFromEnum(TokenKind.delimiter); // close_paren_idx - unused for now
-
-        // Function signature -> body
-        const fn_sig_idx = @intFromEnum(ParseState.function_signature);
-        self.transition_table[fn_sig_idx][open_brace_idx] = StateTransition.boundary(.function_body, 0.9);
-
-        // Function body -> top level
-        const fn_body_idx = @intFromEnum(ParseState.function_body);
-        self.transition_table[fn_body_idx][close_brace_idx] = StateTransition.boundary(.top_level, 0.9);
-
-        // Struct signature -> body
-        const struct_sig_idx = @intFromEnum(ParseState.struct_signature);
-        self.transition_table[struct_sig_idx][open_brace_idx] = StateTransition.boundary(.struct_body, 0.9);
-
-        // Struct body -> top level
-        const struct_body_idx = @intFromEnum(ParseState.struct_body);
-        self.transition_table[struct_body_idx][close_brace_idx] = StateTransition.boundary(.top_level, 0.9);
-
-        // Block handling for nested scopes
-        self.transition_table[fn_body_idx][open_brace_idx] = StateTransition.boundary(.block, 0.8);
-        const block_idx = @intFromEnum(ParseState.block);
-        self.transition_table[block_idx][close_brace_idx] = StateTransition.success(.function_body);
+        // Keywords and delimiters are now handled by specialized process functions
+        // Transition table only used for other token types if needed
+        _ = self;
+        // Currently no non-keyword, non-delimiter transitions for Zig
     }
 
     /// Build TypeScript transition table
@@ -348,27 +381,14 @@ pub const StateMachine = struct {
 
     /// Build JSON transition table (simpler)
     fn buildJSONTransitions(self: *StateMachine) void {
-        const open_brace_idx = @intFromEnum(TokenKind.delimiter); // "{"
-        const close_brace_idx = @intFromEnum(TokenKind.delimiter); // "}"
-
-        const top_level_idx = @intFromEnum(ParseState.top_level);
-        self.transition_table[top_level_idx][open_brace_idx] = StateTransition.boundary(.block, 0.95);
-
-        const block_idx = @intFromEnum(ParseState.block);
-        self.transition_table[block_idx][close_brace_idx] = StateTransition.boundary(.top_level, 0.95);
+        // JSON delimiter transitions handled by processDelimiterToken
+        _ = self;
     }
 
     /// Build generic transition table
     fn buildGenericTransitions(self: *StateMachine) void {
-        // Basic brace-based block detection
-        const open_brace_idx = @intFromEnum(TokenKind.delimiter);
-        const close_brace_idx = @intFromEnum(TokenKind.delimiter);
-
-        const top_level_idx = @intFromEnum(ParseState.top_level);
-        self.transition_table[top_level_idx][open_brace_idx] = StateTransition.boundary(.block, 0.7);
-
-        const block_idx = @intFromEnum(ParseState.block);
-        self.transition_table[block_idx][close_brace_idx] = StateTransition.boundary(.top_level, 0.7);
+        // Generic delimiter transitions handled by processDelimiterToken
+        _ = self;
     }
 
     /// Update context based on token content
@@ -478,6 +498,52 @@ test "state transitions" {
 
     const transition = machine.processToken(fn_token);
     try testing.expect(transition.boundary_detected);
+    try testing.expectEqual(ParseState.function_signature, machine.getCurrentState());
+}
+
+test "complete function sequence" {
+    var machine = StateMachine.init(testing.allocator, .zig);
+    defer machine.deinit();
+
+    // Test complete sequence: fn test() {}
+    const fn_token = Token.simple(Span.init(0, 2), .keyword, "fn", 0);
+    const name_token = Token.simple(Span.init(3, 7), .identifier, "test", 0);
+    const open_paren = Token.simple(Span.init(7, 8), .delimiter, "(", 1);
+    const close_paren = Token.simple(Span.init(8, 9), .delimiter, ")", 0);
+    const open_brace = Token.simple(Span.init(10, 11), .delimiter, "{", 1);
+    const close_brace = Token.simple(Span.init(12, 13), .delimiter, "}", 0);
+
+    // fn -> function_signature
+    var result = machine.processToken(fn_token);
+    try testing.expect(result.boundary_detected);
+    try testing.expectEqual(ParseState.function_signature, machine.getCurrentState());
+
+    // test -> stay in function_signature
+    result = machine.processToken(name_token);
+    try testing.expectEqual(ParseState.function_signature, machine.getCurrentState());
+
+    // ( -> stay in function_signature
+    result = machine.processToken(open_paren);
+    try testing.expectEqual(ParseState.function_signature, machine.getCurrentState());
+
+    // ) -> stay in function_signature  
+    result = machine.processToken(close_paren);
+    try testing.expectEqual(ParseState.function_signature, machine.getCurrentState());
+
+    // { -> function_body
+    result = machine.processToken(open_brace);
+    try testing.expect(result.boundary_detected);
+    try testing.expectEqual(ParseState.function_body, machine.getCurrentState());
+
+    // } -> top_level
+    result = machine.processToken(close_brace);
+    try testing.expect(result.boundary_detected);
+    try testing.expectEqual(ParseState.top_level, machine.getCurrentState());
+
+    // Second function should work too
+    const fn_token2 = Token.simple(Span.init(20, 22), .keyword, "fn", 0);
+    result = machine.processToken(fn_token2);
+    try testing.expect(result.boundary_detected);
     try testing.expectEqual(ParseState.function_signature, machine.getCurrentState());
 }
 

@@ -18,7 +18,7 @@ test {
 }
 
 // Import grammar module directly
-const grammar_mod = @import("../../grammar/mod.zig");
+const grammar_mod = @import("../grammar/mod.zig");
 const Grammar = grammar_mod.Grammar;
 const extended = grammar_mod.extended;
 const terminal = extended.terminal;

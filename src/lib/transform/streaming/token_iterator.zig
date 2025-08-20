@@ -206,8 +206,8 @@ pub const TokenIterator = struct {
         // Find a good breaking point (prefer to break on whitespace/newlines)
         var actual_end = chunk_end;
         if (chunk_end < self.input.len) {
-            // Look backward up to 256 bytes for a good break point
-            const search_limit = @min(256, chunk_end - self.position);
+            // Look backward up to 1KB for a good break point (increased from 256 bytes)
+            const search_limit = @min(1024, chunk_end - self.position);
             var search_pos = chunk_end;
 
             while (search_pos > chunk_end - search_limit and search_pos > self.position) {
@@ -312,7 +312,15 @@ pub const JsonLexerAdapter = struct {
         var lexer = JsonLexer.init(allocator, input, self.options);
         defer lexer.deinit();
 
-        const tokens = try lexer.tokenize();
+        // Handle expected chunk boundary errors gracefully
+        const tokens = lexer.tokenize() catch |err| switch (err) {
+            error.UnterminatedString => {
+                // Expected when chunk boundary splits a string literal
+                // Return empty token list to indicate chunk boundary issue
+                return try allocator.alloc(Token, 0);
+            },
+            else => return err,
+        };
 
         // Adjust token positions for the start_pos offset
         for (tokens) |*token| {

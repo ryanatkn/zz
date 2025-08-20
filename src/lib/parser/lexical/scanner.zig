@@ -120,7 +120,7 @@ pub const Scanner = struct {
 
     /// Skip whitespace characters
     pub fn skipWhitespace(self: *Scanner) void {
-        const new_pos = char.skipWhitespace(self.text, self.position);
+        const new_pos = char.skipWhitespaceAndNewlines(self.text, self.position);
         while (self.position < new_pos) {
             _ = self.advance();
         }

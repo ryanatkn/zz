@@ -312,7 +312,7 @@ fn formatWithStratifiedParser(allocator: std.mem.Allocator, content: []const u8,
             }
             return err;
         }
-        
+
         // For other errors, fallback to original content
         if (!std.mem.eql(u8, file_path, "<stdin>")) {
             try reporting.reportWarning("Formatting failed for '{s}', returning original content: {}", .{ file_path, err });

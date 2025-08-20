@@ -150,7 +150,7 @@ test "performance characteristics" {
             0 => Predicate{ .is_token = .identifier },
             1 => Predicate{ .is_token = .keyword },
             2 => Predicate{ .is_boundary = .function },
-            3 => Predicate{ .is_node = .declaration },
+            3 => Predicate{ .is_node = .rule },
             else => unreachable,
         };
 

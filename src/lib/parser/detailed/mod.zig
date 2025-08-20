@@ -66,7 +66,7 @@ pub const DetailedParser = struct {
     pub fn init(allocator: std.mem.Allocator) !DetailedParser {
         return DetailedParser{
             .allocator = allocator,
-            .parser = Parser.init(allocator, @import("../grammar/mod.zig").Grammar.default()),
+            .parser = Parser.init(allocator, @import("../../grammar/mod.zig").Grammar.default()),
             .boundary_parser = try BoundaryParser.init(allocator),
             .viewport_manager = ViewportManager.init(allocator),
             .fact_generator = FactGenerator.init(allocator),

@@ -188,6 +188,25 @@ pub const StructuralParser = struct {
         self.stats.reset();
     }
 
+    /// Check if a boundary transition represents a significant structural boundary
+    /// Only create boundaries for the start of constructs, not internal transitions
+    fn isSignificantBoundary(self: *StructuralParser, transition: StateTransition) bool {
+        const prev_state = self.state_machine.getPreviousState();
+        const new_state = transition.new_state;
+
+        // Only create boundaries when transitioning INTO a construct from top-level
+        // This prevents multiple boundaries for the same logical construct
+        return switch (new_state) {
+            .function_signature => prev_state == .top_level,
+            .struct_signature => prev_state == .top_level, 
+            .enum_signature => prev_state == .top_level,
+            .class_signature => prev_state == .top_level,
+            .method_signature => prev_state == .class_body,
+            .block => prev_state == .top_level, // Allow top-level blocks (JSON objects, etc.)
+            else => false,
+        };
+    }
+
     // ========================================================================
     // Private Implementation
     // ========================================================================
@@ -206,8 +225,8 @@ pub const StructuralParser = struct {
             // Process token through state machine
             const transition = self.state_machine.processToken(token);
 
-            // Handle boundary detection
-            if (transition.boundary_detected) {
+            // Handle boundary detection - only for significant state changes
+            if (transition.boundary_detected and self.isSignificantBoundary(transition)) {
                 if (try self.processBoundaryTransition(tokens, i, transition)) |boundary| {
                     try self.current_boundaries.append(boundary);
                     self.stats.boundaries_detected += 1;
@@ -255,16 +274,30 @@ pub const StructuralParser = struct {
         const boundary_kind = transition.new_state.toBoundaryKind() orelse return null;
 
         // Use boundary detector to find full boundary
-        if (try self.boundary_detector.detectBoundaryAtPosition(tokens, token_idx)) |hint| {
-            var boundary = ParseBoundary.init(hint.span, hint.kind, hint.depth);
-            boundary = boundary.withConfidence(hint.confidence * transition.confidence);
+        // For keywords like "fn", look back to find "pub fn" patterns
+        var search_pos: usize = 0;
+        
+        // First try positions before current token (including current)
+        const start_pos = if (token_idx >= 2) token_idx - 2 else 0;
+        search_pos = start_pos;
+        
+        while (search_pos <= token_idx) {
+            if (try self.boundary_detector.detectBoundaryAtPosition(tokens, search_pos)) |hint| {
+                // Make sure this boundary is relevant to our current token
+                if ((hint.end_token_idx != null and hint.end_token_idx.? >= token_idx) or
+                    hint.span.contains(token.span.start)) {
+                    var boundary = ParseBoundary.init(hint.span, hint.kind, hint.depth);
+                    boundary = boundary.withConfidence(hint.confidence * transition.confidence);
 
-            // Add metadata
-            if (hint.metadata.is_foldable) {
-                // Could add folding fact here
+                    // Add metadata
+                    if (hint.metadata.is_foldable) {
+                        // Could add folding fact here
+                    }
+
+                    return boundary;
+                }
             }
-
-            return boundary;
+            search_pos += 1;
         }
 
         // Fallback: create minimal boundary from token

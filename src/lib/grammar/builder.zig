@@ -4,6 +4,8 @@ const extended_rules = @import("extended_rules.zig");
 const validation = @import("validation.zig");
 const resolver = @import("resolver.zig");
 const Grammar = @import("grammar.zig").Grammar;
+const TestRules = @import("../ast/rules.zig").TestRules;
+const CommonRules = @import("../ast/rules.zig").CommonRules;
 
 const ExtendedRule = extended_rules.ExtendedRule;
 
@@ -18,7 +20,6 @@ pub const Builder = struct {
     next_test_rule_id: u16,
 
     pub fn init(allocator: std.mem.Allocator) Builder {
-        const TestRules = @import("../ast/rules.zig").TestRules;
         return .{
             .allocator = allocator,
             .rules = std.StringHashMap(ExtendedRule).init(allocator),
@@ -62,8 +63,6 @@ pub const Builder = struct {
 
     /// Get or create a rule ID for the given rule name
     fn getOrCreateRuleId(self: *Builder, rule_name: []const u8) !u16 {
-        const CommonRules = @import("../ast/rules.zig").CommonRules;
-        const TestRules = @import("../ast/rules.zig").TestRules;
 
         // Use a static string map for efficient common rule lookup
         const CommonRuleLookup = std.StaticStringMap(u16).initComptime(.{
@@ -169,7 +168,6 @@ test "Builder basic usage" {
     defer grammar.deinit();
 
     // Test that rules exist - since these are test rules, they'll be in the test range
-    const TestRules = @import("../ast/rules.zig").TestRules;
 
     // Test that start rule exists
     try testing.expect(grammar.getStartRule() != null);

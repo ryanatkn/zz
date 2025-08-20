@@ -1,6 +1,12 @@
 const std = @import("std");
-const Grammar = @import("../grammar/mod.zig").Grammar;
-const Rule = @import("../grammar/mod.zig").Rule;
+const Grammar = @import("../../grammar/mod.zig").Grammar;
+const Rule = @import("../../grammar/mod.zig").Rule;
+const Terminal = @import("../../grammar/mod.zig").Terminal;
+const Sequence = @import("../../grammar/mod.zig").Sequence;
+const Choice = @import("../../grammar/mod.zig").Choice;
+const Optional = @import("../../grammar/mod.zig").Optional;
+const Repeat = @import("../../grammar/mod.zig").Repeat;
+const Repeat1 = @import("../../grammar/mod.zig").Repeat1;
 const ParseContext = @import("context.zig").ParseContext;
 pub const ParseError = @import("context.zig").ParseError;
 
@@ -122,7 +128,7 @@ pub const Parser = struct {
         }
     }
 
-    fn parseTerminal(self: Parser, terminal: @import("../grammar/mod.zig").Terminal, rule_id: u16, context: *ParseContext) ParserError!ParseNode {
+    fn parseTerminal(self: Parser, terminal: Terminal, rule_id: u16, context: *ParseContext) ParserError!ParseNode {
         _ = self;
         const start_pos = context.position;
         const remaining = context.remaining();
@@ -143,7 +149,7 @@ pub const Parser = struct {
         }
     }
 
-    fn parseSequence(self: Parser, sequence: @import("../grammar/mod.zig").Sequence, rule_id: u16, context: *ParseContext) ParserError!ParseNode {
+    fn parseSequence(self: Parser, sequence: Sequence, rule_id: u16, context: *ParseContext) ParserError!ParseNode {
         const start_pos = context.position;
         var children = std.ArrayList(ParseNode).init(self.allocator);
         defer children.deinit();
@@ -171,7 +177,7 @@ pub const Parser = struct {
         };
     }
 
-    fn parseChoice(self: Parser, choice: @import("../grammar/mod.zig").Choice, rule_id: u16, context: *ParseContext) ParserError!ParseNode {
+    fn parseChoice(self: Parser, choice: Choice, rule_id: u16, context: *ParseContext) ParserError!ParseNode {
         for (choice.choices) |alternative| {
             const mark = context.mark();
             if (self.parseRule(alternative, rule_id, context)) |node| {
@@ -185,7 +191,7 @@ pub const Parser = struct {
         return ParserError.ParseFailed;
     }
 
-    fn parseOptional(self: Parser, optional: @import("../grammar/mod.zig").Optional, rule_id: u16, context: *ParseContext) ParserError!ParseNode {
+    fn parseOptional(self: Parser, optional: Optional, rule_id: u16, context: *ParseContext) ParserError!ParseNode {
         const start_pos = context.position;
         const mark = context.mark();
 
@@ -213,7 +219,7 @@ pub const Parser = struct {
         }
     }
 
-    fn parseRepeat(self: Parser, repeat: @import("../grammar/mod.zig").Repeat, rule_id: u16, context: *ParseContext) ParserError!ParseNode {
+    fn parseRepeat(self: Parser, repeat: Repeat, rule_id: u16, context: *ParseContext) ParserError!ParseNode {
         const start_pos = context.position;
         var children = std.ArrayList(ParseNode).init(self.allocator);
         defer children.deinit();
@@ -240,7 +246,7 @@ pub const Parser = struct {
         };
     }
 
-    fn parseRepeat1(self: Parser, repeat1: @import("../grammar/mod.zig").Repeat1, rule_id: u16, context: *ParseContext) ParserError!ParseNode {
+    fn parseRepeat1(self: Parser, repeat1: Repeat1, rule_id: u16, context: *ParseContext) ParserError!ParseNode {
         const start_pos = context.position;
         var children = std.ArrayList(ParseNode).init(self.allocator);
         defer children.deinit();

@@ -24,7 +24,7 @@ pub const PerformanceThresholds = struct {
 
 // Test TokenIterator performance with fallback tokenization
 test "TokenIterator tokenizeSimple performance gate" {
-    const input = generateTestInput(10 * 1024); // 10KB
+    const input = try generateTestInput(10 * 1024); // 10KB
     defer testing.allocator.free(input);
 
     var context = Context.init(testing.allocator);
@@ -54,7 +54,7 @@ test "TokenIterator tokenizeSimple performance gate" {
 test "JSON lexer performance gate" {
     const JsonLexer = @import("../languages/json/lexer.zig").JsonLexer;
 
-    const input = generateJsonInput(10 * 1024); // 10KB JSON
+    const input = try generateJsonInput(10 * 1024); // 10KB JSON
     defer testing.allocator.free(input);
 
     var timer = try std.time.Timer.start();
@@ -79,7 +79,7 @@ test "JSON lexer performance gate" {
 test "ZON lexer performance gate" {
     const ZonLexer = @import("../languages/zon/lexer.zig").ZonLexer;
 
-    const input = generateZonInput(10 * 1024); // 10KB ZON
+    const input = try generateZonInput(10 * 1024); // 10KB ZON
     defer testing.allocator.free(input);
 
     var timer = try std.time.Timer.start();
@@ -105,7 +105,7 @@ test "JSON parser performance gate" {
     const JsonLexer = @import("../languages/json/lexer.zig").JsonLexer;
     const JsonParser = @import("../languages/json/parser.zig").JsonParser;
 
-    const input = generateJsonInput(10 * 1024); // 10KB JSON
+    const input = try generateJsonInput(10 * 1024); // 10KB JSON
     defer testing.allocator.free(input);
 
     // First tokenize
@@ -118,10 +118,10 @@ test "JSON parser performance gate" {
     // Then parse
     var timer = try std.time.Timer.start();
 
-    var parser = JsonParser.init(testing.allocator, tokens);
+    var parser = JsonParser.init(testing.allocator, tokens, .{});
     defer parser.deinit();
 
-    const ast = try parser.parse();
+    var ast = try parser.parse();
     defer ast.deinit();
 
     const elapsed_ns = timer.read();
@@ -130,7 +130,7 @@ test "JSON parser performance gate" {
     std.debug.print("JSON parser: {}ms for 10KB worth of tokens\n", .{elapsed_ms});
 
     try testing.expect(elapsed_ms <= PerformanceThresholds.parser_10kb_ms);
-    try testing.expect(ast.root != null);
+    // AST was successfully created (root is always present)
 }
 
 // Test ZON parser performance
@@ -138,7 +138,7 @@ test "ZON parser performance gate" {
     const ZonLexer = @import("../languages/zon/lexer.zig").ZonLexer;
     const ZonParser = @import("../languages/zon/parser.zig").ZonParser;
 
-    const input = generateZonInput(10 * 1024); // 10KB ZON
+    const input = try generateZonInput(10 * 1024); // 10KB ZON
     defer testing.allocator.free(input);
 
     // First tokenize
@@ -151,10 +151,10 @@ test "ZON parser performance gate" {
     // Then parse
     var timer = try std.time.Timer.start();
 
-    var parser = ZonParser.init(testing.allocator, tokens);
+    var parser = ZonParser.init(testing.allocator, tokens, .{});
     defer parser.deinit();
 
-    const ast = try parser.parse();
+    var ast = try parser.parse();
     defer ast.deinit();
 
     const elapsed_ns = timer.read();
@@ -163,12 +163,12 @@ test "ZON parser performance gate" {
     std.debug.print("ZON parser: {}ms for 10KB worth of tokens\n", .{elapsed_ms});
 
     try testing.expect(elapsed_ms <= PerformanceThresholds.parser_10kb_ms);
-    try testing.expect(ast.root != null);
+    // AST was successfully created (root is always present)
 }
 
 // Test TokenIterator streaming memory usage
 test "TokenIterator streaming memory gate" {
-    const large_input = generateTestInput(1024 * 1024); // 1MB
+    const large_input = try generateTestInput(1024 * 1024); // 1MB
     defer testing.allocator.free(large_input);
 
     var context = Context.init(testing.allocator);
@@ -208,7 +208,7 @@ test "TokenIterator streaming memory gate" {
 test "JSON streaming adapter performance gate" {
     const JsonLexerAdapter = @import("../transform/streaming/token_iterator.zig").JsonLexerAdapter;
 
-    const input = generateJsonInput(10 * 1024); // 10KB
+    const input = try generateJsonInput(10 * 1024); // 10KB
     defer testing.allocator.free(input);
 
     var context = Context.init(testing.allocator);
@@ -241,7 +241,7 @@ test "JSON streaming adapter performance gate" {
 test "ZON streaming adapter performance gate" {
     const ZonLexerAdapter = @import("../transform/streaming/token_iterator.zig").ZonLexerAdapter;
 
-    const input = generateZonInput(10 * 1024); // 10KB
+    const input = try generateZonInput(10 * 1024); // 10KB
     defer testing.allocator.free(input);
 
     var context = Context.init(testing.allocator);

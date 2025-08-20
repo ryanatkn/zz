@@ -1,6 +1,7 @@
 const std = @import("std");
 const rule = @import("rule.zig");
 const test_framework = @import("test_framework.zig");
+const CommonRules = @import("../ast/rules.zig").CommonRules;
 
 const TestContext = test_framework.TestContext;
 
@@ -106,7 +107,6 @@ pub const Grammar = struct {
 
     /// Create a simple default grammar for testing
     pub fn default() Grammar {
-        const CommonRules = @import("../ast/rules.zig").CommonRules;
         var grammar = Grammar{
             .allocator = std.heap.page_allocator, // Use page allocator for default
             .rules = std.HashMap(u16, rule.Rule, std.hash_map.AutoContext(u16), std.hash_map.default_max_load_percentage).init(std.heap.page_allocator),

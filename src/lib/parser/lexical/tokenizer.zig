@@ -165,16 +165,30 @@ pub const StreamingLexer = struct {
         while (self.scanner.position < range.end) {
             const token_start = self.scanner.position;
 
+            // Mark token start for scanner
+            self.scanner.markTokenStart();
+            
             // Scan next token
             const token_kind = try self.scanNextToken();
             const token_end = self.scanner.position;
 
             if (token_start >= token_end) break; // No progress made
 
-            // Handle bracket depth
+            // Handle bracket depth and tracking
             const token_text = text[token_start..token_end];
             if (self.config.track_brackets) {
                 bracket_depth = self.updateBracketDepth(token_text, bracket_depth);
+                
+                // Update bracket tracker for bracket pairs
+                if (token_kind == .delimiter and token_text.len == 1) {
+                    const ch = token_text[0];
+                    if (self.isOpenBracket(ch)) {
+                        const bracket_type = self.getBracketDelimiterType(ch);
+                        try self.bracket_tracker.enterBracket(token_start, bracket_type, bracket_depth);
+                    } else if (self.isCloseBracket(ch)) {
+                        _ = try self.bracket_tracker.exitBracket(token_start, bracket_depth);
+                    }
+                }
             }
 
             // Create token
@@ -405,6 +419,7 @@ pub const StreamingLexer = struct {
             else => false,
         };
     }
+
 
     /// Get token kind for bracket character
     fn getBracketTokenKind(self: *StreamingLexer, ch: u8) TokenKind {

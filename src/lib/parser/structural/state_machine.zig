@@ -237,6 +237,11 @@ pub const StateMachine = struct {
         return self.context.current_state;
     }
 
+    /// Get previous parsing state
+    pub fn getPreviousState(self: StateMachine) ParseState {
+        return self.context.previous_state;
+    }
+
     /// Get current bracket depth
     pub fn getBracketDepth(self: StateMachine) u16 {
         return self.context.bracket_depth;

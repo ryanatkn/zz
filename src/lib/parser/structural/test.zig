@@ -378,7 +378,7 @@ test "incremental update performance" {
     delta.generation = 1;
 
     const timer = std.time.nanoTimestamp();
-    const structural_delta = try parser.processTokenDelta(delta);
+    var structural_delta = try parser.processTokenDelta(delta);
     const elapsed_ns: u64 = @intCast(std.time.nanoTimestamp() - timer);
 
     defer structural_delta.deinit(testing.allocator);

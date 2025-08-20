@@ -172,7 +172,14 @@ pub const BoundaryDetector = struct {
                 self.stats.boundaries_detected += 1;
 
                 // Skip past the detected boundary to avoid overlaps
-                i = if (hint.end_token_idx) |end_idx| end_idx + 1 else i + 1;
+                // Use the pattern length to skip at minimum, or end token if available
+                const min_skip = self.getPatternLength(hint.kind);
+                const skip_distance = if (hint.end_token_idx) |end_idx| 
+                    @max(end_idx + 1 - i, min_skip)
+                else 
+                    min_skip;
+                
+                i += skip_distance;
             } else {
                 i += 1;
             }
@@ -190,14 +197,22 @@ pub const BoundaryDetector = struct {
     ) !?BoundaryHint {
         if (position >= tokens.len) return null;
 
-        // Try each pattern
+        // Try each pattern, but prioritize longer patterns first
+        // This prevents "fn" from matching when "pub fn" should match
+        var best_hint: ?BoundaryHint = null;
+        var best_pattern_length: usize = 0;
+        
         for (self.patterns) |pattern| {
             if (try self.matchPattern(tokens, position, pattern)) |hint| {
-                return hint;
+                // Prefer longer patterns (more specific matches)
+                if (pattern.min_tokens > best_pattern_length) {
+                    best_hint = hint;
+                    best_pattern_length = pattern.min_tokens;
+                }
             }
         }
 
-        return null;
+        return best_hint;
     }
 
     /// Find matching closing boundary for an opening boundary
@@ -232,6 +247,18 @@ pub const BoundaryDetector = struct {
     /// Reset statistics
     pub fn resetStats(self: *BoundaryDetector) void {
         self.stats = DetectorStats{};
+    }
+
+    /// Get minimum pattern length for a boundary kind
+    fn getPatternLength(self: *BoundaryDetector, kind: BoundaryKind) usize {
+        // Find the shortest pattern for this boundary kind
+        var min_length: usize = 1;
+        for (self.patterns) |pattern| {
+            if (pattern.boundary_kind == kind) {
+                min_length = @max(min_length, pattern.min_tokens);
+            }
+        }
+        return min_length;
     }
 
     // ========================================================================

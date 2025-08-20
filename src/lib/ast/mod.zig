@@ -100,16 +100,16 @@ pub const FieldSpec = @import("factory.zig").FieldSpec;
 
 /// Test utilities for all language modules
 pub const ASTTestHelpers = @import("test_helpers.zig").ASTTestHelpers;
-pub const createZonAST = @import("test_helpers.zig").createZonAST;
-pub const createSimpleObject = @import("test_helpers.zig").createSimpleObject;
-pub const createSimpleArray = @import("test_helpers.zig").createSimpleArray;
-pub const createStructuredAST = @import("test_helpers.zig").createStructuredAST;
-pub const assertASTEqual = @import("test_helpers.zig").assertASTEqual;
-pub const assertASTStructure = @import("test_helpers.zig").assertASTStructure;
-pub const assertHasChild = @import("test_helpers.zig").assertHasChild;
-pub const assertIsFieldAssignment = @import("test_helpers.zig").assertIsFieldAssignment;
-pub const debugPrintAST = @import("test_helpers.zig").debugPrintAST;
-pub const TestContext = @import("test_helpers.zig").TestContext;
+pub const createZonAST = @import("test_helpers.zig").ASTTestHelpers.createZonAST;
+pub const createSimpleObject = @import("test_helpers.zig").ASTTestHelpers.createSimpleObject;
+pub const createSimpleArray = @import("test_helpers.zig").ASTTestHelpers.createSimpleArray;
+pub const createStructuredAST = @import("test_helpers.zig").ASTTestHelpers.createStructuredAST;
+pub const assertASTEqual = @import("test_helpers.zig").ASTTestHelpers.assertASTEqual;
+pub const assertASTStructure = @import("test_helpers.zig").ASTTestHelpers.assertASTStructure;
+pub const assertHasChild = @import("test_helpers.zig").ASTTestHelpers.assertHasChild;
+pub const assertIsFieldAssignment = @import("test_helpers.zig").ASTTestHelpers.assertIsFieldAssignment;
+pub const debugPrintAST = @import("test_helpers.zig").ASTTestHelpers.debugPrintAST;
+pub const TestContext = @import("test_helpers.zig").ASTTestHelpers.TestContext;
 
 /// Common AST manipulation utilities
 pub const ASTUtils = @import("utils.zig").ASTUtils;

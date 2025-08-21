@@ -1,30 +1,29 @@
 //! Test Coverage Analyzer
 //!
-//! Systematically analyzes test.zig file organization to ensure proper test tree structure.
-//! Verifies that every .zig file with test blocks is properly imported by a test.zig barrel file
-//! within configurable directory depth tolerance.
+//! Analyzes import relationships between .zig files with tests and test.zig barrel files.
+//! Reports which test files are not imported by any test.zig file.
 //!
 //! ## Usage
 //!
-//! Basic analysis:
+//! Minimal output (default, CI-friendly):
 //!   zig run src/scripts/check_test_coverage.zig
 //!
-//! Export results to ZON format:
-//!   zig run src/scripts/check_test_coverage.zig -- --export-zon
-//!   zig run src/scripts/check_test_coverage.zig -- --export-zon my_coverage.zon
+//! Pretty human-readable report:
+//!   zig run src/scripts/check_test_coverage.zig -- --pretty
 //!
-//! Configure search depth:
-//!   zig run src/scripts/check_test_coverage.zig -- --depth=2
+//! Export results to ZON format:
+//!   zig run src/scripts/check_test_coverage.zig -- -o
+//!   zig run src/scripts/check_test_coverage.zig -- --output my_coverage.zon
 //!
 //! Combined options:
-//!   zig run src/scripts/check_test_coverage.zig -- --depth=2 --export-zon coverage.zon
+//!   zig run src/scripts/check_test_coverage.zig -- --pretty -o coverage.zon
 //!
 //! ## What it checks
 //!
 //! 1. **Test Discovery**: Finds all .zig files containing `test {` blocks
-//! 2. **Test Barrel Location**: Ensures each file has an accessible test.zig within depth tolerance
-//! 3. **Import Verification**: Confirms test.zig files properly import child test files
-//! 4. **Tree Structure**: Validates parent-child relationships form a proper test tree
+//! 2. **Import Analysis**: Parses all test.zig files to see what they import
+//! 3. **Coverage Reporting**: Lists files with tests that aren't imported anywhere
+//! 4. **Exit Code**: Returns 1 if uncovered files found, 0 if all files covered
 //!
 //! ## Expected Structure
 //!
@@ -45,11 +44,17 @@
 //!
 //! ## Output
 //!
+//! **Default (minimal)**:
+//! - One line per uncovered file (empty if all covered)
+//! - Exit code 1 if any uncovered files, 0 if all covered
+//!
+//! **Pretty mode (--pretty)**:
 //! - Coverage percentage and statistics
-//! - Files missing test.zig coverage
-//! - Files with tests not imported by any test.zig
 //! - List of existing test.zig barrel files
-//! - Optional ZON export with complete analysis data
+//! - Files with tests not imported by any test.zig
+//! - Detailed summary with recommendations
+//!
+//! **Optional ZON export** with complete analysis data
 
 const std = @import("std");
 const print = std.debug.print;
@@ -58,10 +63,9 @@ const HashMap = std.HashMap;
 const Allocator = std.mem.Allocator;
 
 const Config = struct {
-    depth_tolerance: u32 = 1,
-    export_zon: bool = false,
-    zon_path: []const u8 = "test_coverage.zon",
+    output_file: ?[]const u8 = null,
     src_root: []const u8 = "src",
+    pretty: bool = false,
 };
 
 const TestFile = struct {
@@ -70,7 +74,6 @@ const TestFile = struct {
     has_tests: bool,
     is_test_barrel: bool, // is a test.zig file
     imported_by: ArrayList([]const u8),
-    expected_test_barrel: ?[]const u8, // which test.zig should import this
 
     fn init(allocator: Allocator, path: []const u8, relative_path: []const u8) TestFile {
         return TestFile{
@@ -79,7 +82,6 @@ const TestFile = struct {
             .has_tests = false,
             .is_test_barrel = false,
             .imported_by = ArrayList([]const u8).init(allocator),
-            .expected_test_barrel = null,
         };
     }
 
@@ -112,10 +114,6 @@ const TestCoverageAnalyzer = struct {
             self.allocator.free(entry.key_ptr.*);
             // Free the relative path
             self.allocator.free(entry.value_ptr.relative_path);
-            // Free the expected test barrel path if it exists
-            if (entry.value_ptr.expected_test_barrel) |path| {
-                self.allocator.free(path);
-            }
             // Deinit the test file
             entry.value_ptr.deinit(self.allocator);
         }
@@ -124,13 +122,8 @@ const TestCoverageAnalyzer = struct {
 
     /// Recursively scan directory for .zig files and analyze them
     pub fn analyze(self: *TestCoverageAnalyzer) !void {
-        print("🔍 Analyzing test coverage for {s}/\n", .{self.config.src_root});
-
         // Use std.fs to recursively scan directory
         try self.scanDirectory(self.config.src_root);
-
-        // Determine expected test barrel locations
-        try self.determineExpectedTestBarrels();
 
         // Analyze imports in test.zig files
         try self.analyzeTestBarrelImports();
@@ -211,52 +204,7 @@ const TestCoverageAnalyzer = struct {
         return false;
     }
 
-    fn determineExpectedTestBarrels(self: *TestCoverageAnalyzer) !void {
-        var iterator = self.files.iterator();
-        while (iterator.next()) |entry| {
-            const test_file = entry.value_ptr;
-            if (!test_file.has_tests or test_file.is_test_barrel) continue;
 
-            // Find the expected test.zig location within depth tolerance
-            const expected_barrel = try self.findExpectedTestBarrel(test_file.relative_path);
-            test_file.expected_test_barrel = expected_barrel;
-        }
-    }
-
-    fn findExpectedTestBarrel(self: *TestCoverageAnalyzer, relative_path: []const u8) !?[]const u8 {
-        const dir_path = std.fs.path.dirname(relative_path) orelse "";
-
-        // Check current directory first
-        const test_barrel_path = try std.fmt.allocPrint(self.allocator, "{s}/{s}/test.zig", .{ self.config.src_root, dir_path });
-        defer self.allocator.free(test_barrel_path); // Always free this allocation
-        if (std.fs.cwd().access(test_barrel_path, .{})) |_| {
-            return try self.allocator.dupe(u8, test_barrel_path);
-        } else |_| {
-            // File doesn't exist, continue to check parent directories
-        }
-
-        // Check parent directories up to depth tolerance
-        var current_dir = dir_path;
-        var depth: u32 = 0;
-
-        while (depth < self.config.depth_tolerance) {
-            const parent = std.fs.path.dirname(current_dir);
-            if (parent == null or std.mem.eql(u8, parent.?, current_dir)) break;
-
-            current_dir = parent.?;
-            depth += 1;
-
-            const parent_test_path = try std.fmt.allocPrint(self.allocator, "{s}/{s}/test.zig", .{ self.config.src_root, current_dir });
-            defer self.allocator.free(parent_test_path); // Always free this allocation
-            if (std.fs.cwd().access(parent_test_path, .{})) |_| {
-                return try self.allocator.dupe(u8, parent_test_path);
-            } else |_| {
-                // File doesn't exist, continue to next parent
-            }
-        }
-
-        return null;
-    }
 
     fn analyzeTestBarrelImports(self: *TestCoverageAnalyzer) !void {
         var iterator = self.files.iterator();
@@ -351,10 +299,7 @@ const TestCoverageAnalyzer = struct {
         return null;
     }
 
-    pub fn generateReport(self: *TestCoverageAnalyzer) !void {
-        print("\nTEST COVERAGE ANALYSIS REPORT\n", .{});
-        print("=" ** 50 ++ "\n\n", .{});
-
+    pub fn generateReport(self: *TestCoverageAnalyzer) !u8 {
         var uncovered_files = ArrayList([]const u8).init(self.allocator);
         defer uncovered_files.deinit();
 
@@ -396,18 +341,42 @@ const TestCoverageAnalyzer = struct {
             }
         }.lessThan);
 
+        if (self.config.pretty) {
+            try self.generatePrettyReport(test_barrels.items, uncovered_files.items, total_files_with_tests, files_with_coverage);
+        } else {
+            try self.generateMinimalReport(uncovered_files.items);
+        }
+
+        if (self.config.output_file) |_| {
+            try self.exportToZon();
+        }
+
+        // Return exit code: 0 if all files covered, 1 if any uncovered
+        return if (uncovered_files.items.len == 0) 0 else 1;
+    }
+
+    fn generateMinimalReport(self: *TestCoverageAnalyzer, uncovered_files: [][]const u8) !void {
+        for (uncovered_files) |path| {
+            print("./{s}/{s}\n", .{ self.config.src_root, path });
+        }
+    }
+
+    fn generatePrettyReport(self: *TestCoverageAnalyzer, test_barrels: [][]const u8, uncovered_files: [][]const u8, total_files_with_tests: u32, files_with_coverage: u32) !void {
+        print("\nTEST COVERAGE ANALYSIS REPORT\n", .{});
+        print("=" ** 50 ++ "\n\n", .{});
+
         // Show existing test barrels first
         print("\x1b[32m▓ Existing test.zig files:\x1b[0m\n", .{});
-        for (test_barrels.items) |path| {
-            print("  \x1b[32m•\x1b[0m {s}\n", .{path});
+        for (test_barrels) |path| {
+            print("  \x1b[32m•\x1b[0m ./{s}/{s}\n", .{ self.config.src_root, path });
         }
         print("\n", .{});
 
         // Show uncovered files
-        if (uncovered_files.items.len > 0) {
+        if (uncovered_files.len > 0) {
             print("\x1b[31m▓ Files with tests not imported by any test.zig:\x1b[0m\n", .{});
-            for (uncovered_files.items) |path| {
-                print("  \x1b[31m•\x1b[0m {s}\n", .{path});
+            for (uncovered_files) |path| {
+                print("  \x1b[31m•\x1b[0m ./{s}/{s}\n", .{ self.config.src_root, path });
             }
             print("\n", .{});
         }
@@ -420,9 +389,9 @@ const TestCoverageAnalyzer = struct {
         print("═" ** 60 ++ "\n", .{});
 
         print("  \x1b[1mTotal files analyzed:\x1b[0m     {} files with test blocks\n", .{total_files_with_tests});
-        print("  \x1b[1mTest barrels found:\x1b[0m       \x1b[32m{}\x1b[0m test.zig files\n", .{test_barrels.items.len});
+        print("  \x1b[1mTest barrels found:\x1b[0m       \x1b[32m{}\x1b[0m test.zig files\n", .{test_barrels.len});
         print("  \x1b[1mProperly covered:\x1b[0m         \x1b[32m{}\x1b[0m files imported by test.zig\n", .{files_with_coverage});
-        print("  \x1b[1mMissing coverage:\x1b[0m         \x1b[31m{}\x1b[0m files not imported\n", .{uncovered_files.items.len});
+        print("  \x1b[1mMissing coverage:\x1b[0m         \x1b[31m{}\x1b[0m files not imported\n", .{uncovered_files.len});
         print("\n", .{});
 
         // Coverage percentage - red unless 100%
@@ -434,40 +403,56 @@ const TestCoverageAnalyzer = struct {
 
         print("\n", .{});
         print("▓ \x1b[2mNext steps: Import uncovered files into appropriate test.zig barrels\x1b[0m\n", .{});
-
-        if (self.config.export_zon) {
-            try self.exportToZon();
-        }
     }
 
     fn exportToZon(self: *TestCoverageAnalyzer) !void {
-        print("\n💾 Exporting analysis to {s}\n", .{self.config.zon_path});
+        const output_path = self.config.output_file.?;
+        if (self.config.pretty) {
+            print("\n💾 Exporting analysis to {s}\n", .{output_path});
+        }
 
-        const file = try std.fs.cwd().createFile(self.config.zon_path, .{});
+        const file = try std.fs.cwd().createFile(output_path, .{});
         defer file.close();
 
         const writer = file.writer();
         try writer.print(".{{\n", .{});
-        try writer.print("    .analysis_timestamp = \"{}\",\n", .{std.time.timestamp()});
-        try writer.print("    .config = .{{\n", .{});
-        try writer.print("        .depth_tolerance = {},\n", .{self.config.depth_tolerance});
-        try writer.print("        .src_root = \"{s}\",\n", .{self.config.src_root});
-        try writer.print("    }},\n", .{});
-        try writer.print("    .files = .{{\n", .{});
-
+        try writer.print("    .timestamp = \"{}\",\n", .{std.time.timestamp()});
+        
+        // Collect all files with tests (not test barrels)
+        var test_files = ArrayList(*TestFile).init(self.allocator);
+        defer test_files.deinit();
+        
         var iterator = self.files.iterator();
         while (iterator.next()) |entry| {
             const test_file = entry.value_ptr;
-            try writer.print("        .@\"{s}\" = .{{\n", .{test_file.relative_path});
-            try writer.print("            .has_tests = {},\n", .{test_file.has_tests});
-            try writer.print("            .is_test_barrel = {},\n", .{test_file.is_test_barrel});
-            try writer.print("            .imported_by_count = {},\n", .{test_file.imported_by.items.len});
-            if (test_file.expected_test_barrel) |barrel| {
-                try writer.print("            .expected_test_barrel = \"{s}\",\n", .{barrel});
+            if (test_file.has_tests and !test_file.is_test_barrel) {
+                try test_files.append(test_file);
             }
+        }
+        
+        // Sort for consistent output
+        std.mem.sort(*TestFile, test_files.items, {}, struct {
+            fn lessThan(_: void, a: *TestFile, b: *TestFile) bool {
+                return std.mem.order(u8, a.relative_path, b.relative_path) == .lt;
+            }
+        }.lessThan);
+        
+        try writer.print("    .files = .{{\n", .{});
+        for (test_files.items) |test_file| {
+            try writer.print("        .@\"./{s}/{s}\" = .{{\n", .{ self.config.src_root, test_file.relative_path });
+            try writer.print("            .covered = {},\n", .{test_file.imported_by.items.len > 0});
+            try writer.print("            .imported_by = .{{\n", .{});
+            for (test_file.imported_by.items) |importer_path| {
+                // Convert absolute path to relative with ./src/ prefix
+                const relative_importer = if (std.mem.startsWith(u8, importer_path, self.config.src_root)) 
+                    importer_path[self.config.src_root.len + 1..] // +1 to skip the '/' 
+                else 
+                    importer_path;
+                try writer.print("                \"./{s}/{s}\",\n", .{ self.config.src_root, relative_importer });
+            }
+            try writer.print("            }},\n", .{});
             try writer.print("        }},\n", .{});
         }
-
         try writer.print("    }},\n", .{});
         try writer.print("}}\n", .{});
     }
@@ -487,29 +472,26 @@ pub fn main() !void {
     var i: usize = 1;
     while (i < args.len) : (i += 1) {
         const arg = args[i];
-        if (std.mem.eql(u8, arg, "--export-zon")) {
-            config.export_zon = true;
+        if (std.mem.eql(u8, arg, "--output") or std.mem.eql(u8, arg, "-o")) {
             if (i + 1 < args.len and !std.mem.startsWith(u8, args[i + 1], "--")) {
                 i += 1;
-                config.zon_path = args[i];
+                config.output_file = args[i];
+            } else {
+                config.output_file = "test_coverage.zon";
             }
-        } else if (std.mem.startsWith(u8, arg, "--depth=")) {
-            const depth_str = arg[8..];
-            config.depth_tolerance = std.fmt.parseInt(u32, depth_str, 10) catch {
-                print("❌ Invalid depth value: {s}\n", .{depth_str});
-                return;
-            };
+        } else if (std.mem.eql(u8, arg, "--pretty")) {
+            config.pretty = true;
         } else if (std.mem.eql(u8, arg, "--help") or std.mem.eql(u8, arg, "-h")) {
             print("Test Coverage Checker\n\n", .{});
             print("Usage: zig run src/scripts/check_test_coverage.zig [options]\n\n", .{});
             print("Options:\n", .{});
-            print("  --export-zon [file]    Export analysis to ZON format (default: test_coverage.zon)\n", .{});
-            print("  --depth=N              Set depth tolerance for test.zig search (default: 1)\n", .{});
+            print("  -o, --output [file]    Export analysis to ZON format (default: test_coverage.zon)\n", .{});
+            print("  --pretty               Show detailed human-readable report (default: minimal output)\n", .{});
             print("  --help, -h             Show this help\n\n", .{});
             print("Examples:\n", .{});
             print("  zig run src/scripts/check_test_coverage.zig\n", .{});
-            print("  zig run src/scripts/check_test_coverage.zig -- --export-zon\n", .{});
-            print("  zig run src/scripts/check_test_coverage.zig -- --depth=2 --export-zon coverage.zon\n", .{});
+            print("  zig run src/scripts/check_test_coverage.zig -- --pretty\n", .{});
+            print("  zig run src/scripts/check_test_coverage.zig -- --pretty -o coverage.zon\n", .{});
             return;
         }
     }
@@ -518,5 +500,6 @@ pub fn main() !void {
     defer analyzer.deinit();
 
     try analyzer.analyze();
-    try analyzer.generateReport();
+    const exit_code = try analyzer.generateReport();
+    std.process.exit(exit_code);
 }

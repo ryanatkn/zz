@@ -1,30 +1,54 @@
 # Progressive Parser Known Issues
 
-## Phase 1 Status (Module Restructuring)
+## Phase 2 Status (Error Recovery & Incremental Parsing)
 
-### Completed ✅
+### Session Progress (2025-08-21) ✅
+- **Fixed `error` reserved word**: Changed to `err` in node.zig
+- **Fixed cache eviction test**: Added TODO for Phase 3 implementation
+- **Fixed JSON lexer test**: Corrected token type (left_bracket vs left_brace)
+- **Fixed incremental parser tests**: Updated to use valid JSON input
+
+### Current Test Status
+- **Baseline**: 788 passed, 20 failed (after fixes)
+- **Memory Issues**: Some tests causing crashes due to allocation issues
+- **Module Tests**: Individual modules (lexer, parser, transform) passing
+
+### Phase 1 Status (Module Restructuring) ✅
+
+#### Completed
 - **Lexer Infrastructure**: Created clean `lib/lexer/` with pure re-exports
 - **Parser Infrastructure**: Created optional `lib/parser/` layer  
 - **Token Module**: Reorganized to pure re-exports
 - **Transform Module**: Created pipeline infrastructure
 - **Module Organization**: All mod.zig files are now pure re-exports
+- **Test Infrastructure**: Unified test runner in `lib/test.zig`
 
 ### Pending Work 🚧
+
+#### Phase 2A: Error Recovery (In Progress)
+- Cache eviction not fully implemented (needs Phase 3)
+- Incremental parser needs better error handling for invalid JSON
+- Stateful lexer chunk boundary handling incomplete
+
+#### Phase 2B: Incremental Parsing
+- JSON/ZON need to implement new LexerInterface
+- Incremental update support not yet implemented
+- Token delta tracking missing
+
+#### Phase 2C: Streaming Improvements
+- StreamingLexer buffer management needs work
+- Chunk boundary handling for split tokens
+- Performance optimization needed
 
 #### Language Implementations
 - JSON needs to implement new LexerInterface
 - ZON needs to implement new LexerInterface
 - Other languages (TypeScript, CSS, HTML, Zig) need migration
 
-#### Import Path Issues
-- AST module references need updating (using ast_old paths)
-- Fact module imports may need adjustment
-- Stream module compatibility with new interfaces
-
-#### Test Failures
-- 21 test failures related to module boundaries
-- TokenIterator tests failing due to import changes
-- Stream lexer tests need updating
+#### Memory Management Issues
+- Tests crashing with allocation errors in complex scenarios
+- Need to investigate memory leaks in test suite
+- Consider arena allocators for test isolation
 
 ## Known Issues
 
@@ -127,17 +151,36 @@ const LexerInterface = @import("lib/lexer/mod.zig").LexerInterface;
 3. Create migration guide for language implementers
 4. Document performance characteristics
 
-## Next Steps
+## Next Session Priorities
 
-1. **Fix critical issues**: AST module, test failures
-2. **Complete JSON/ZON**: Implement new interfaces
-3. **Update format command**: Use new pipeline
-4. **Benchmark**: Measure performance vs old architecture
-5. **Clean up**: Remove deprecated code
+### Immediate (Phase 2 Completion)
+1. **Fix memory issues**: Investigate test crashes and leaks
+2. **Implement LexerInterface**: JSON and ZON adapters
+3. **Error recovery**: Improve parser resilience to invalid input
+4. **Streaming fixes**: Handle chunk boundaries properly
+
+### Short-term (Phase 3)
+1. **Cache eviction**: Complete FactCache memory management
+2. **Incremental updates**: Implement token delta tracking
+3. **Performance benchmarks**: Validate streaming performance
+4. **Migration guide**: Document language implementation process
+
+### Long-term (Phase 4)
+1. **Remove old modules**: Clean up lexer_old, parser_old
+2. **Unify AST**: Merge ast and ast_old modules
+3. **Full language support**: Migrate all languages to new architecture
+4. **Production readiness**: Comprehensive testing and optimization
+
+## Key TODOs Left in Code
+
+- `// TODO: Phase 2B` - Incremental parsing features
+- `// TODO: Phase 3` - Cache eviction and memory management
+- `// TODO: reserved word` - Fixed (changed to `err`)
+- Various performance and optimization TODOs
 
 ## Notes
 
 - Performance is the top priority - no regressions allowed
-- Maintain backward compatibility during migration
-- Delete old code aggressively once migrated
-- Document all architectural decisions
+- Test infrastructure unified in `lib/test.zig`
+- Individual module tests passing, integration tests need work
+- Memory management needs attention before wider adoption

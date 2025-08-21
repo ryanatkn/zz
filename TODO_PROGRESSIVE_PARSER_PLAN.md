@@ -190,7 +190,6 @@ All infrastructure in place
 - Transform pipeline created
 
 ### Phase 2: Language Integration (Current - Week 2)
-1. **Set up testing infrastructure** - Create test_progressive_parser.zig runner
 2. **Create test barrel files** - Add test.zig to lexer, parser, transform modules
 3. Update JSON lexer to implement LexerInterface
 4. Update ZON lexer to implement LexerInterface
@@ -209,44 +208,13 @@ All infrastructure in place
 3. Unify AST modules
 4. Performance benchmarking
 
-## Testing Infrastructure
-
-### Test Runner Pattern
-Following the established pattern from `test_stream_first.zig`:
-```bash
-zig test src/lib/test_progressive_parser.zig
-```
-
-### Test Organization by Phase
-- **Phase 1 Infrastructure**: New lexer, parser, transform modules  
-- **Phase 2 Integration**: Language implementations using new interfaces
-- **Phase 3 Migration**: Comparison tests between old/new architectures
-- **Phase 4 Validation**: End-to-end pipeline tests
-
-### Barrel Test Files Created
-- `src/lib/lexer/test.zig` - Interface, streaming, incremental, buffer, context
-- `src/lib/parser/test.zig` - Interface, recursive, structural, recovery, viewport, cache  
-- `src/lib/transform/test.zig` - Pipeline, format, extract, optimize transforms
-
-### Integration with Existing Tests
-Imports all existing test.zig barrel files:
-- Core: `token/test.zig`, `span/test.zig`, `fact/test.zig`, `stream/test.zig`
-- Languages: `languages/json/test.zig`, `languages/zon/test.zig`
-- Legacy: `transform_old/test.zig` (for comparison)
-
-### Success Criteria
-- All progressive parser modules have test coverage
-- Tests run with `zig test src/lib/test_progressive_parser.zig`
-- Easy to add new tests as implementation progresses
-
 ## Next Immediate Steps
 
-1. **Set up test infrastructure** - Create test_progressive_parser.zig and barrel files
-2. **Fix test failures** - Update import paths and module boundaries  
-3. **JSON implementation** - Create JsonLexer implementing LexerInterface
-4. **ZON implementation** - Create ZonLexer implementing LexerInterface
-5. **Format command** - Update to use new pipeline
-6. **Integration tests** - Verify end-to-end flow
+1. **Fix test failures** - Update import paths and module boundaries  
+2. **JSON implementation** - Create JsonLexer implementing LexerInterface
+3. **ZON implementation** - Create ZonLexer implementing LexerInterface
+4. **Format command** - Update to use new pipeline
+5. **Integration tests** - Verify end-to-end flow
 
 ## Success Metrics
 

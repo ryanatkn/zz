@@ -16,6 +16,13 @@ pub const directFromRingBuffer = @import("direct_stream.zig").fromRingBuffer;
 pub const directEmpty = @import("direct_stream.zig").empty;
 pub const GeneratorStream = @import("direct_stream.zig").GeneratorStream;
 
+// Phase 5B: Embedded operators for zero-allocation
+pub const MapEmbedded = @import("embedded_operators.zig").MapEmbedded;
+pub const FilterEmbedded = @import("embedded_operators.zig").FilterEmbedded;
+pub const TakeEmbedded = @import("embedded_operators.zig").TakeEmbedded;
+pub const DropEmbedded = @import("embedded_operators.zig").DropEmbedded;
+pub const MapFilterEmbedded = @import("embedded_operators.zig").MapFilterEmbedded;
+
 // Re-export key types from other modules
 pub const StreamError = @import("error.zig").StreamError;
 pub const RingBuffer = @import("buffer.zig").RingBuffer;

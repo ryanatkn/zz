@@ -21,6 +21,7 @@ const Builder = @import("../fact/mod.zig").Builder;
 const Predicate = @import("../fact/mod.zig").Predicate;
 const PackedSpan = @import("../span/mod.zig").PackedSpan;
 const Span = @import("../span/mod.zig").Span;
+const packSpan = @import("../span/mod.zig").packSpan;
 
 // Import DirectStream support
 const DirectStream = @import("../stream/mod.zig").DirectStream;
@@ -514,4 +515,95 @@ test "DirectStream query with complex conditions" {
     
     // Should be limited to 2
     try testing.expect(try stream.next() == null);
+}
+
+test "QueryExecutor.directExecuteStream true streaming" {
+    const allocator = std.testing.allocator;
+    
+    // Create fact store with test data
+    var store = FactStore.init(allocator);
+    defer store.deinit();
+    
+    // Add test facts
+    const predicates = [_]Predicate{ .is_function, .is_class, .is_variable };
+    for (0..100) |i| {
+        const fact = Fact{
+            .id = @intCast(i),
+            .subject = packSpan(.{ .start = @intCast(i * 10), .end = @intCast(i * 10 + 5) }),
+            .predicate = predicates[i % 3],
+            .object = .{ .number = @intCast(i) },
+            .confidence = @floatCast(@as(f32, @floatFromInt(i)) / 100.0),
+        };
+        _ = try store.append(fact);
+    }
+    
+    // Build streaming query
+    var builder = QueryBuilder.init(allocator);
+    defer builder.deinit();
+    
+    _ = builder.select(&.{ .is_function }).from(&store);
+    _ = try builder.where(.confidence, .gte, 0.5);
+    
+    // Test DirectStream execution (true streaming)
+    var executor = QueryExecutor.init(allocator);
+    defer executor.deinit();
+    
+    const query = try builder.build();
+    defer {
+        var q = query;
+        q.deinit();
+    }
+    
+    var stream = try executor.directExecuteStream(&query);
+    
+    // Verify streaming results
+    var count: usize = 0;
+    while (try stream.next()) |fact| {
+        // Should only get is_function predicates
+        try testing.expectEqual(Predicate.is_function, fact.predicate);
+        // Should only get confidence >= 0.5
+        try testing.expect(fact.confidence >= 0.5);
+        count += 1;
+    }
+    
+    // We should get facts with IDs: 51, 54, 57, ..., 99 (all is_function with confidence >= 0.5)
+    // That's 17 facts total
+    try testing.expectEqual(@as(usize, 17), count);
+}
+
+test "QueryBuilder.directExecuteStream convenience method" {
+    const allocator = std.testing.allocator;
+    
+    // Create fact store with test data
+    var store = FactStore.init(allocator);
+    defer store.deinit();
+    
+    // Add some test facts
+    for (0..50) |i| {
+        const fact = Fact{
+            .id = @intCast(i),
+            .subject = packSpan(.{ .start = @intCast(i), .end = @intCast(i + 1) }),
+            .predicate = if (i % 2 == 0) .is_function else .is_class,
+            .object = .{ .number = @intCast(i) },
+            .confidence = 0.9,
+        };
+        _ = try store.append(fact);
+    }
+    
+    // Use QueryBuilder's directExecuteStream method
+    var builder = QueryBuilder.init(allocator);
+    defer builder.deinit();
+    
+    _ = builder.select(&.{ .is_function }).from(&store);
+    
+    var stream = try builder.directExecuteStream();
+    
+    // Verify we get all is_function facts (25 total)
+    var count: usize = 0;
+    while (try stream.next()) |fact| {
+        try testing.expectEqual(Predicate.is_function, fact.predicate);
+        count += 1;
+    }
+    
+    try testing.expectEqual(@as(usize, 25), count);
 }

@@ -14,6 +14,7 @@ const format = @import("../format/main.zig");
 const echo = @import("../echo/main.zig");
 const demo = @import("../demo.zig");
 const deps = @import("../deps/main.zig");
+const stream_demo = @import("../stream_demo/main.zig");
 
 // Type aliases
 const FilesystemInterface = filesystem.FilesystemInterface;
@@ -91,6 +92,14 @@ pub const Runner = struct {
                 deps.run(self.allocator, self.filesystem, args) catch |err| {
                     const error_msg = errors.getMessage(err);
                     reporting.reportError("Deps command failed: {s}", .{error_msg}) catch {};
+                    return err;
+                };
+            },
+            .stream_demo => {
+                // Pass full args and filesystem to stream_demo module
+                stream_demo.run(self.allocator, self.filesystem, args) catch |err| {
+                    const error_msg = errors.getMessage(err);
+                    reporting.reportError("Stream demo command failed: {s}", .{error_msg}) catch {};
                     return err;
                 };
             },

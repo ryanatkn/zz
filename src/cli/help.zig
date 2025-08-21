@@ -11,6 +11,7 @@ pub fn showBrief(program_name: []const u8) void {
     std.debug.print("  echo [text...]        Output text with escape sequences\n", .{});
     std.debug.print("  demo [options]        Interactive demo of zz capabilities\n", .{});
     std.debug.print("  deps [options]        Manage vendored dependencies\n", .{});
+    std.debug.print("  stream-demo [opts]    Showcase DirectStream architecture\n", .{});
     std.debug.print("  help                  Show detailed help\n", .{});
     std.debug.print("\n", .{});
     std.debug.print("Use '{s} --help' or '{s} help' for detailed information\n", .{ program_name, program_name });
@@ -103,6 +104,16 @@ pub fn show(program_name: []const u8) void {
     std.debug.print("                                  zz deps --dry-run                  # Preview what would change\n", .{});
     std.debug.print("                                  zz deps --force-dep webref    # Force update webref only\n", .{});
     std.debug.print("                                  zz deps --update-pattern \"tree*\"   # Update all webref deps\n", .{});
+    std.debug.print("  stream-demo [options]         Showcase DirectStream architecture and performance\n", .{});
+    std.debug.print("                                Options:\n", .{});
+    std.debug.print("                                  --performance, -p                  Compare DirectStream vs vtable performance\n", .{});
+    std.debug.print("                                  --query, -q                        Demonstrate DirectFactStream queries\n", .{});
+    std.debug.print("                                  --tokenization, -t                 Show JSON/ZON DirectTokenStream\n", .{});
+    std.debug.print("                                  --help, -h                         Show stream-demo help\n", .{});
+    std.debug.print("                                Examples:\n", .{});
+    std.debug.print("                                  zz stream-demo                     # Run all demos\n", .{});
+    std.debug.print("                                  zz stream-demo --performance       # Performance comparison\n", .{});
+    std.debug.print("                                  zz stream-demo --query             # Query engine demo\n", .{});
     std.debug.print("  help                          Show this help\n", .{});
     std.debug.print("\nGlob Patterns:\n", .{});
     std.debug.print("  *.zig                         Match all .zig files\n", .{});

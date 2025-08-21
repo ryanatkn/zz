@@ -7,6 +7,7 @@ pub const Command = enum {
     echo,
     demo,
     deps,
+    stream_demo,
     help,
 
     const Self = @This();
@@ -18,6 +19,7 @@ pub const Command = enum {
         if (std.mem.eql(u8, cmd, "echo")) return .echo;
         if (std.mem.eql(u8, cmd, "demo")) return .demo;
         if (std.mem.eql(u8, cmd, "deps")) return .deps;
+        if (std.mem.eql(u8, cmd, "stream-demo")) return .stream_demo;
         if (std.mem.eql(u8, cmd, "help")) return .help;
         return null;
     }

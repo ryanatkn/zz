@@ -17,6 +17,7 @@ const Direction = @import("operators.zig").Direction;
 
 const Fact = @import("../fact/mod.zig").Fact;
 const FactStore = @import("../fact/mod.zig").FactStore;
+const FactIterator = @import("../fact/mod.zig").FactIterator;
 const Predicate = @import("../fact/mod.zig").Predicate;
 const PackedSpan = @import("../span/mod.zig").PackedSpan;
 const unpackSpan = @import("../span/mod.zig").unpackSpan;
@@ -289,9 +290,11 @@ pub const QueryExecutor = struct {
             .subject => Value{ .number = @intCast(fact.subject) },
             .predicate => Value{ .predicate = fact.predicate },
             .object => blk: {
-                // Value is an extern union, so we need to interpret based on predicate
-                // For now, return as number by default
-                break :blk Value{ .number = @bitCast(fact.object.number) };
+                // Convert fact.Value (extern union) to query.Value (tagged union)
+                // The fact.object is an extern union, we need to safely interpret it
+                // For now, treat it as a number since we can't determine the actual type
+                // TODO: Use predicate to determine proper interpretation
+                break :blk Value{ .number = @intCast(fact.object.uint) };
             },
             .confidence => Value{ .float = @floatCast(fact.confidence) },
             .span_start => blk: {
@@ -529,6 +532,7 @@ pub const QueryExecutor = struct {
         const ctx = try self.allocator.create(DirectStreamContext);
         ctx.* = DirectStreamContext{
             .allocator = self.allocator,
+            .executor = self,
             .query = query,
             .store = store,
             .iterator = store.iterator(),
@@ -540,7 +544,7 @@ pub const QueryExecutor = struct {
         const gen_fn = struct {
             fn generate(ptr: *anyopaque) ?Fact {
                 const context = @as(*DirectStreamContext, @ptrCast(@alignCast(ptr)));
-                return directStreamNext(context);
+                return directStreamNext(context) catch null;
             }
         }.generate;
         
@@ -555,26 +559,23 @@ pub const QueryExecutor = struct {
     /// Context for DirectStream streaming query execution
     const DirectStreamContext = struct {
         allocator: std.mem.Allocator,
+        executor: *QueryExecutor,
         query: *const Query,
         store: *FactStore,
-        iterator: FactStore.Iterator,
+        iterator: FactIterator,
         state: StreamState,
         current_fact: ?Fact,
     };
     
     /// Get next fact for DirectStream (zero-allocation streaming)
-    fn directStreamNext(ctx: *DirectStreamContext) ?Fact {
+    fn directStreamNext(ctx: *DirectStreamContext) !?Fact {
         while (ctx.iterator.next()) |fact| {
-            // Apply WHERE conditions if present
-            if (ctx.query.where_conditions.items.len > 0) {
-                var all_match = true;
-                for (ctx.query.where_conditions.items) |condition| {
-                    if (!evaluateCondition(fact, condition)) {
-                        all_match = false;
-                        break;
-                    }
+            // Apply WHERE condition if present
+            if (ctx.query.where) |where_clause| {
+                const result = try ctx.executor.evaluateCondition(fact, &where_clause.condition);
+                if (!result) {
+                    continue;
                 }
-                if (!all_match) continue;
             }
             
             // Apply SELECT predicate filter if not SELECT *
@@ -587,6 +588,11 @@ pub const QueryExecutor = struct {
                         }
                     }
                     continue; // Skip this fact
+                },
+                .fields => {
+                    // TODO: Field projection not yet supported in streaming
+                    // For now, return all facts when fields are selected
+                    return fact;
                 },
             }
         }
@@ -605,7 +611,7 @@ pub const QueryExecutor = struct {
         executor: *QueryExecutor,
         query: *const Query,
         store: *FactStore,
-        iterator: FactStore.Iterator,
+        iterator: FactIterator,
         state: StreamState,
         current_fact: ?Fact,
     };

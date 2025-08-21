@@ -17,6 +17,7 @@ pub const AtomId = @import("value.zig").AtomId;
 
 // Storage and builder
 pub const FactStore = @import("store.zig").FactStore;
+pub const FactIterator = @import("store.zig").FactIterator;
 pub const Builder = @import("builder.zig").Builder;
 
 // Size assertions for all core types

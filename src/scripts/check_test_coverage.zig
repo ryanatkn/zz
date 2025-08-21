@@ -15,6 +15,9 @@
 //!   zig run src/scripts/check_test_coverage.zig -- -o
 //!   zig run src/scripts/check_test_coverage.zig -- --output my_coverage.zon
 //!
+//! Track progress with expected count:
+//!   zig run src/scripts/check_test_coverage.zig -- --expect 24
+//!
 //! Combined options:
 //!   zig run src/scripts/check_test_coverage.zig -- --pretty -o coverage.zon
 //!
@@ -23,7 +26,7 @@
 //! 1. **Test Discovery**: Finds all .zig files containing `test {` blocks
 //! 2. **Import Analysis**: Parses all test.zig files to see what they import
 //! 3. **Coverage Reporting**: Lists files with tests that aren't imported anywhere
-//! 4. **Exit Code**: Returns 1 if uncovered files found, 0 if all files covered
+//! 4. **Exit Code**: Returns 0 if actual count matches expected, 1 otherwise
 //!
 //! ## Expected Structure
 //!
@@ -46,7 +49,7 @@
 //!
 //! **Default (minimal)**:
 //! - One line per uncovered file (empty if all covered)
-//! - Exit code 1 if any uncovered files, 0 if all covered
+//! - Exit code 0 if actual count matches expected, 1 otherwise
 //!
 //! **Pretty mode (--pretty)**:
 //! - Coverage percentage and statistics
@@ -66,6 +69,7 @@ const Allocator = std.mem.Allocator;
 const ANSI = struct {
     const GREEN = "\x1b[32m";
     const RED = "\x1b[31m";
+    const YELLOW = "\x1b[33m";
     const CYAN = "\x1b[36m";
     const BOLD = "\x1b[1m";
     const DIM = "\x1b[2m";
@@ -76,6 +80,7 @@ const Config = struct {
     output_file: ?[]const u8 = null,
     src_root: []const u8 = "src",
     pretty: bool = false,
+    expected_uncovered: u32 = 0,
 };
 
 const TestFile = struct {
@@ -409,16 +414,33 @@ const TestCoverageAnalyzer = struct {
             try self.exportToZon();
         }
 
-        // Return exit code: 0 if all files covered, 1 if any uncovered
-        return if (uncovered_files.items.len == 0) 0 else 1;
+        // Return exit code based on expected vs actual uncovered count
+        const actual_uncovered = uncovered_files.items.len;
+        if (actual_uncovered == self.config.expected_uncovered) {
+            return 0; // Success: matches expectation
+        } else {
+            if (self.config.pretty) {
+                if (actual_uncovered > self.config.expected_uncovered) {
+                    print("\n{s}Found {} uncovered files, expected {}{s}\n", .{ ANSI.RED, actual_uncovered, self.config.expected_uncovered, ANSI.RESET });
+                } else {
+                    print("\n{s}Found {} uncovered files, expected {} (improvement!){s}\n", .{ ANSI.YELLOW, actual_uncovered, self.config.expected_uncovered, ANSI.RESET });
+                }
+            }
+            return 1; // Failure: doesn't match expectation
+        }
     }
 
     fn generateMinimalReport(self: *TestCoverageAnalyzer, uncovered_files: [][]const u8) !void {
-        if (uncovered_files.len > 0) {
-            print("# Found {} uncovered test files\n", .{uncovered_files.len});
+        const actual = uncovered_files.len;
+        const expected = self.config.expected_uncovered;
+
+        if (actual > 0) {
+            print("# Found {} uncovered test files (expected {})\n", .{ actual, expected });
             for (uncovered_files) |path| {
                 print("./{s}/{s}\n", .{ self.config.src_root, path });
             }
+        } else if (expected > 0) {
+            print("# Found 0 uncovered test files (expected {})\n", .{expected});
         }
     }
 
@@ -435,9 +457,10 @@ const TestCoverageAnalyzer = struct {
 
         // Show uncovered files
         if (uncovered_files.len > 0) {
-            print("{s}▓ Files with tests not imported by any test.zig:{s}\n", .{ ANSI.RED, ANSI.RESET });
+            const color = if (uncovered_files.len == self.config.expected_uncovered) ANSI.YELLOW else ANSI.RED;
+            print("{s}▓ Files with tests not imported by any test.zig:{s}\n", .{ color, ANSI.RESET });
             for (uncovered_files) |path| {
-                print("  {s}•{s} ./{s}/{s}\n", .{ ANSI.RED, ANSI.RESET, self.config.src_root, path });
+                print("  {s}•{s} ./{s}/{s}\n", .{ color, ANSI.RESET, self.config.src_root, path });
             }
             print("\n", .{});
         }
@@ -455,7 +478,8 @@ const TestCoverageAnalyzer = struct {
         print("  {s}Total files analyzed:{s}     {} files with test blocks\n", .{ ANSI.BOLD, ANSI.RESET, total_files_with_tests });
         print("  {s}Test barrels found:{s}       {s}{}{s} test.zig files\n", .{ ANSI.BOLD, ANSI.RESET, ANSI.GREEN, test_barrels.len, ANSI.RESET });
         print("  {s}Properly covered:{s}         {s}{}{s} files imported by test.zig\n", .{ ANSI.BOLD, ANSI.RESET, ANSI.GREEN, files_with_coverage, ANSI.RESET });
-        print("  {s}Missing coverage:{s}         {s}{}{s} files not imported\n", .{ ANSI.BOLD, ANSI.RESET, ANSI.RED, uncovered_files.len, ANSI.RESET });
+        const missing_color = if (uncovered_files.len == self.config.expected_uncovered) ANSI.YELLOW else ANSI.RED;
+        print("  {s}Missing coverage:{s}         {s}{}{s} files not imported\n", .{ ANSI.BOLD, ANSI.RESET, missing_color, uncovered_files.len, ANSI.RESET });
         print("\n", .{});
 
         // Coverage percentage - red unless 100%
@@ -545,16 +569,31 @@ pub fn main() !void {
             }
         } else if (std.mem.eql(u8, arg, "--pretty")) {
             config.pretty = true;
+        } else if (std.mem.eql(u8, arg, "--expect")) {
+            if (i + 1 < args.len and !std.mem.startsWith(u8, args[i + 1], "--")) {
+                i += 1;
+                const expect_str = args[i];
+                config.expected_uncovered = std.fmt.parseInt(u32, expect_str, 10) catch {
+                    print("❌ Invalid expect value: {s}\n", .{expect_str});
+                    return;
+                };
+            } else {
+                print("❌ --expect requires a number argument\n", .{});
+                return;
+            }
         } else if (std.mem.eql(u8, arg, "--help") or std.mem.eql(u8, arg, "-h")) {
             print("Test Coverage Checker\n\n", .{});
             print("Usage: zig run src/scripts/check_test_coverage.zig [options]\n\n", .{});
             print("Options:\n", .{});
             print("  -o, --output [file]    Export analysis to ZON format (default: test_coverage.zon)\n", .{});
             print("  --pretty               Show detailed human-readable report (default: minimal output)\n", .{});
+            print("  --expect N             Expected number of uncovered files (default: 0)\n", .{});
+            print("                         Exit code 0 if actual matches expected, 1 otherwise\n", .{});
             print("  --help, -h             Show this help\n\n", .{});
             print("Examples:\n", .{});
             print("  zig run src/scripts/check_test_coverage.zig\n", .{});
             print("  zig run src/scripts/check_test_coverage.zig -- --pretty\n", .{});
+            print("  zig run src/scripts/check_test_coverage.zig -- --expect 24  # Expect 24 uncovered files\n", .{});
             print("  zig run src/scripts/check_test_coverage.zig -- --pretty -o coverage.zon\n", .{});
             return;
         }

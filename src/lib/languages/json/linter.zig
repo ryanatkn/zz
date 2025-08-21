@@ -1,20 +1,43 @@
 const std = @import("std");
 const char_utils = @import("../../char/mod.zig");
-// Consolidate AST imports
-const ast_mod = @import("../../ast_old/mod.zig");
-const AST = ast_mod.AST;
-const Node = ast_mod.Node;
-const NodeType = ast_mod.NodeType;
-const Span = @import("../../parser_old/foundation/types/span.zig").Span;
-const JsonRules = @import("../../ast_old/rules.zig").JsonRules;
-// Consolidate language interface imports
-const interface_types = @import("../interface.zig");
-const Rule = interface_types.Rule;
-const Diagnostic = interface_types.Diagnostic;
+// Use local JSON AST
+const json_ast = @import("ast.zig");
+const AST = json_ast.AST;
+const Node = json_ast.Node;
+const NodeKind = json_ast.NodeKind;
+const Span = @import("../../span/span.zig").Span;
 const patterns = @import("patterns.zig");
 const JsonLintRules = patterns.JsonLintRules;
-const lint_rules = @import("../common/lint_rules.zig");
-const Severity = lint_rules.Severity;
+
+/// Linting rule definition (local to JSON)
+pub const Rule = struct {
+    name: []const u8,
+    description: []const u8,
+    severity: Severity,
+    enabled: bool = true,
+
+    pub const Severity = enum { @"error", warning, info, hint };
+};
+
+/// Diagnostic from linting (local to JSON)
+pub const Diagnostic = struct {
+    rule: []const u8,
+    message: []const u8,
+    severity: Rule.Severity,
+    range: Span,
+    fix: ?Fix = null,
+
+    pub const Fix = struct {
+        description: []const u8,
+        edits: []Edit,
+    };
+};
+
+/// Edit for diagnostic fixes
+pub const Edit = struct {
+    range: Span,
+    new_text: []const u8,
+};
 
 /// JSON validator/linter with comprehensive error detection
 ///
@@ -102,8 +125,7 @@ pub const JsonLinter = struct {
 
     /// Lint JSON AST and return diagnostics
     pub fn lint(self: *Self, ast: AST, enabled_rules: []const Rule) ![]Diagnostic {
-        var root = ast.root;
-        try self.validateNode(&root, 0, enabled_rules);
+        try self.validateNode(ast.root, 0, enabled_rules);
 
         return self.diagnostics.toOwnedSlice();
     }
@@ -116,7 +138,7 @@ pub const JsonLinter = struct {
                     "max_depth_exceeded",
                     "JSON nesting depth exceeds maximum limit",
                     .@"error",
-                    Span.init(node.start_position, node.end_position),
+                    node.span(),
                 );
             }
             return;
@@ -129,28 +151,44 @@ pub const JsonLinter = struct {
                     "deep_nesting",
                     "JSON structure has deep nesting",
                     .warning,
-                    Span.init(node.start_position, node.end_position),
+                    node.span(),
                 );
             }
         }
 
-        switch (node.rule_id) {
-            JsonRules.string_literal => try self.validateString(node, enabled_rules),
-            JsonRules.number_literal => try self.validateNumber(node, enabled_rules),
-            JsonRules.object => try self.validateObject(node, depth, enabled_rules),
-            JsonRules.array => try self.validateArray(node, depth, enabled_rules),
-            JsonRules.member => try self.validateMember(node, depth, enabled_rules),
-            else => {}, // Ignore other node types
-        }
-
-        // Recursively validate children
-        for (node.children) |*child| {
-            try self.validateNode(child, depth + 1, enabled_rules);
+        switch (node.*) {
+            .string => try self.validateString(node, enabled_rules),
+            .number => try self.validateNumber(node, enabled_rules),
+            .object => |n| {
+                try self.validateObject(node, depth, enabled_rules);
+                // Recursively validate properties
+                for (n.properties) |*property| {
+                    try self.validateNode(property, depth + 1, enabled_rules);
+                }
+            },
+            .array => |n| {
+                try self.validateArray(node, depth, enabled_rules);
+                // Recursively validate elements
+                for (n.elements) |*element| {
+                    try self.validateNode(element, depth + 1, enabled_rules);
+                }
+            },
+            .property => |n| {
+                try self.validateProperty(node, depth, enabled_rules);
+                // Validate key and value
+                try self.validateNode(n.key, depth + 1, enabled_rules);
+                try self.validateNode(n.value, depth + 1, enabled_rules);
+            },
+            .root => |n| {
+                try self.validateNode(n.value, depth, enabled_rules);
+            },
+            .boolean, .null, .err => {}, // No special validation needed
         }
     }
 
     fn validateString(self: *Self, node: *const Node, enabled_rules: []const Rule) !void {
-        const raw_value = node.text;
+        const string_node = node.string;
+        const raw_value = string_node.value;
 
         // Check length
         if (raw_value.len > self.options.max_string_length) {
@@ -159,7 +197,7 @@ pub const JsonLinter = struct {
                     "large_structure",
                     "String exceeds maximum length",
                     .warning,
-                    Span.init(node.start_position, node.end_position),
+                    node.span(),
                 );
             }
         }
@@ -173,19 +211,20 @@ pub const JsonLinter = struct {
                         "valid_string_encoding",
                         "String contains invalid UTF-8 sequences",
                         .@"error",
-                        Span.init(node.start_position, node.end_position),
+                        node.span(),
                     );
                 }
 
                 // Validate escape sequences
-                const span = Span.init(node.start_position, node.end_position);
+                const span = node.span();
                 try self.validateEscapeSequences(content, span, enabled_rules);
             }
         }
     }
 
     fn validateNumber(self: *Self, node: *const Node, enabled_rules: []const Rule) !void {
-        const value = node.text;
+        const number_node = node.number;
+        const value = number_node.raw;
         if (value.len == 0) return;
 
         // Check for leading zeros
@@ -195,7 +234,7 @@ pub const JsonLinter = struct {
                     "no_leading_zeros",
                     "Number has leading zero",
                     .warning,
-                    Span.init(node.start_position, node.end_position),
+                    node.span(),
                 );
             }
         }
@@ -215,7 +254,7 @@ pub const JsonLinter = struct {
                         "large_number_precision",
                         "Number has high precision that may cause floating-point issues",
                         .warning,
-                        Span.init(node.start_position, node.end_position),
+                        node.span(),
                     );
                 }
             }
@@ -227,13 +266,14 @@ pub const JsonLinter = struct {
                 "invalid_number",
                 "Number format is invalid",
                 .@"error",
-                Span.init(node.start_position, node.end_position),
+                node.span(),
             );
         };
     }
 
     fn validateObject(self: *Self, node: *const Node, _: u32, enabled_rules: []const Rule) !void {
-        const members = node.children;
+        const object_node = node.object;
+        const members = object_node.properties;
 
         // Check object size
         if (members.len > self.options.max_object_keys) {
@@ -242,7 +282,7 @@ pub const JsonLinter = struct {
                     "large_structure",
                     "Object has too many keys",
                     .warning,
-                    Span.init(node.start_position, node.end_position),
+                    node.span(),
                 );
             }
         }
@@ -253,12 +293,15 @@ pub const JsonLinter = struct {
             defer seen_keys.deinit();
 
             for (members) |member| {
-                if (member.rule_id != JsonRules.member) continue;
-                const member_children = member.children;
-                if (member_children.len < 2) continue;
+                const property = switch (member) {
+                    .property => |p| p,
+                    else => continue,
+                };
 
-                const key_node = member_children[0];
-                const key_value = key_node.text;
+                const key_value = switch (property.key.*) {
+                    .string => |s| s.value,
+                    else => continue,
+                };
 
                 // Extract key content (remove quotes)
                 const key_content = if (key_value.len >= 2 and key_value[0] == '"' and key_value[key_value.len - 1] == '"')
@@ -272,18 +315,19 @@ pub const JsonLinter = struct {
                         JsonLintRules.name(.no_duplicate_keys), // Static string, no allocation
                         "Duplicate object key",
                         .@"error",
-                        Span.init(key_node.start_position, key_node.end_position),
+                        property.key.span(),
                         "Remove duplicate key or rename to make unique",
                     );
                 } else {
-                    try seen_keys.put(key_content, Span.init(key_node.start_position, key_node.end_position));
+                    try seen_keys.put(key_content, property.key.span());
                 }
             }
         }
     }
 
     fn validateArray(self: *Self, node: *const Node, _: u32, _: []const Rule) !void {
-        const elements = node.children;
+        const array_node = node.array;
+        const elements = array_node.elements;
 
         // Check array size
         if (elements.len > self.options.max_array_elements) {
@@ -292,26 +336,26 @@ pub const JsonLinter = struct {
                     "large_structure",
                     "Array has too many elements",
                     .warning,
-                    Span.init(node.start_position, node.end_position),
+                    node.span(),
                 );
             }
         }
     }
 
-    fn validateMember(self: *Self, node: *const Node, _: u32, _: []const Rule) !void {
-        const children = node.children;
-        if (children.len != 2) return;
-
-        const key_node = children[0];
+    fn validateProperty(self: *Self, node: *const Node, _: u32, _: []const Rule) !void {
+        const property_node = node.property;
 
         // Validate that key is a string
-        if (key_node.rule_id != JsonRules.string_literal) {
-            try self.addDiagnostic(
-                "invalid_key_type",
-                "Object key must be a string",
-                .@"error",
-                Span.init(key_node.start_position, key_node.end_position),
-            );
+        switch (property_node.key.*) {
+            .string => {}, // Valid
+            else => {
+                try self.addDiagnostic(
+                    "invalid_key_type",
+                    "Object key must be a string",
+                    .@"error",
+                    property_node.key.span(),
+                );
+            },
         }
     }
 
@@ -453,11 +497,11 @@ test "JSON linter - duplicate keys" {
 
     const input = "{\"key\": 1, \"key\": 2}";
 
-    var lexer = JsonLexer.init(allocator, input, .{});
+    var lexer = JsonLexer.init(allocator);
     defer lexer.deinit();
-    const tokens = try lexer.tokenize();
+    const tokens = try lexer.batchTokenize(allocator, input);
 
-    var parser = JsonParser.init(allocator, tokens, .{});
+    var parser = JsonParser.init(allocator, tokens, input, .{});
     defer parser.deinit();
     var ast = try parser.parse();
     defer ast.deinit();
@@ -487,11 +531,11 @@ test "JSON linter - deep nesting" {
     // Create deeply nested structure
     const input = "{\"a\": {\"b\": {\"c\": {\"d\": {\"e\": {\"f\": 1}}}}}}";
 
-    var lexer = JsonLexer.init(allocator, input, .{});
+    var lexer = JsonLexer.init(allocator);
     defer lexer.deinit();
-    const tokens = try lexer.tokenize();
+    const tokens = try lexer.batchTokenize(allocator, input);
 
-    var parser = JsonParser.init(allocator, tokens, .{});
+    var parser = JsonParser.init(allocator, tokens, input, .{});
     defer parser.deinit();
     var ast = try parser.parse();
     defer ast.deinit();

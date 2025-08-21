@@ -3,7 +3,6 @@
 /// Transforms for optimizing code structure and performance.
 const std = @import("std");
 const Token = @import("../token/token.zig").Token;
-const AST = @import("../ast/node.zig").AST;
 
 /// Optimization options
 pub const OptimizeOptions = struct {
@@ -103,8 +102,8 @@ pub const ASTOptimizer = struct {
         };
     }
 
-    /// Optimize AST
-    pub fn optimize(self: *Self, ast: *AST) !void {
+    /// Optimize AST (generic over AST type)
+    pub fn optimize(self: *Self, ast: anytype) !void {
         if (self.options.remove_dead_code) {
             try self.removeDeadCode(ast);
         }
@@ -118,19 +117,19 @@ pub const ASTOptimizer = struct {
         }
     }
 
-    fn removeDeadCode(self: *Self, ast: *AST) !void {
+    fn removeDeadCode(self: *Self, ast: anytype) !void {
         _ = self;
         _ = ast;
         // TODO: Implement dead code removal
     }
 
-    fn inlineConstants(self: *Self, ast: *AST) !void {
+    fn inlineConstants(self: *Self, ast: anytype) !void {
         _ = self;
         _ = ast;
         // TODO: Implement constant inlining
     }
 
-    fn simplifyExpressions(self: *Self, ast: *AST) !void {
+    fn simplifyExpressions(self: *Self, ast: anytype) !void {
         _ = self;
         _ = ast;
         // TODO: Implement expression simplification

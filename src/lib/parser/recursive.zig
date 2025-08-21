@@ -4,8 +4,6 @@
 const std = @import("std");
 const Token = @import("../token/token.zig").Token;
 const TokenKind = @import("../token/token.zig").TokenKind;
-const AST = @import("../ast/node.zig").AST;
-const Node = @import("../ast/node.zig").Node;
 const Span = @import("../span/span.zig").Span;
 
 /// Parser state for recursive descent

@@ -1,22 +1,23 @@
-/// AST Module - Bridge to ast_old during migration
+/// AST Utilities - Generic helpers for language-specific ASTs
 ///
-/// This module temporarily re-exports from ast_old while we migrate
-/// the AST implementation to the new architecture.
+/// This module provides generic utilities that work with any AST via comptime
+/// duck typing. Each language defines its own Node types and AST structures
+/// in languages/*/ast.zig and can use these utilities if needed.
 ///
-/// TODO: Phase 2.5 - Gradually move types here and delete ast_old
+/// No shared data types are exported - only generic helper functions.
 
-// For now, re-export everything from ast_old
-// This allows code to import from ast/ instead of ast_old/
-pub usingnamespace @import("../ast_old/mod.zig");
+// Generic walker that works with any Node type
+pub const Walker = @import("walker.zig").Walker;
+pub const walkAST = @import("walker.zig").walkAST;
+pub const findInAST = @import("walker.zig").findInAST;
+pub const collectInAST = @import("walker.zig").collectInAST;
 
-// Also export our new node types for progressive parser
-pub const node = @import("node.zig");
+// Generic arena builder patterns
+pub const ArenaBuilder = @import("builder.zig").ArenaBuilder;
+pub const createArenaBuilder = @import("builder.zig").createArenaBuilder;
+pub const createNodeInArena = @import("builder.zig").createNodeInArena;
+pub const ownStringInArena = @import("builder.zig").ownStringInArena;
+pub const createArrayInArena = @import("builder.zig").createArrayInArena;
 
-// Eventually, we'll have:
-// pub const AST = @import("ast.zig").AST;
-// pub const Node = @import("node.zig").Node;
-// pub const builder = @import("builder.zig");
-// pub const factory = @import("factory.zig");
-// pub const traversal = @import("traversal.zig");
-// pub const query = @import("query.zig");
-// etc.
+// Test utilities if they exist
+pub const test_utils = @import("test.zig");

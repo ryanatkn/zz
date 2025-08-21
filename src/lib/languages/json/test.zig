@@ -68,10 +68,8 @@ test "JSON lexer - basic tokens" {
     };
 
     for (test_cases) |case| {
-        var lexer = JsonLexer.init(allocator, case.input, .{});
-        defer lexer.deinit();
-
-        const tokens = try lexer.tokenize();
+        var lexer = JsonLexer.init(allocator);
+            const tokens = try lexer.batchTokenize(allocator, case.input);
         defer allocator.free(tokens);
 
         try testing.expectEqual(@as(usize, 2), tokens.len); // Includes EOF token
@@ -104,10 +102,8 @@ test "JSON lexer - complex structures" {
         \\}
     ;
 
-    var lexer = JsonLexer.init(allocator, complex_json, .{});
-    defer lexer.deinit();
-
-    const tokens = try lexer.tokenize();
+    var lexer = JsonLexer.init(allocator);
+    const tokens = try lexer.batchTokenize(allocator, complex_json);
     defer allocator.free(tokens);
 
     // Should produce many tokens for this complex structure
@@ -133,9 +129,9 @@ test "JSON lexer - string error handling" {
     };
 
     for (unterminated_strings) |case| {
-        var lexer = JsonLexer.init(allocator, case, .{});
-        defer lexer.deinit();
-
+        var lexer = JsonLexer.init(allocator);
+            const tokens = try lexer.batchTokenize(allocator, case);
+    
         // Should detect unterminated string error
         const result = lexer.tokenize();
         try testing.expectError(error.UnterminatedString, result);
@@ -164,12 +160,11 @@ test "JSON parser - all value types" {
     };
 
     for (test_cases) |case| {
-        var lexer = JsonLexer.init(allocator, case, .{});
-        defer lexer.deinit();
-        const tokens = try lexer.tokenize();
-        defer allocator.free(tokens);
+        var lexer = JsonLexer.init(allocator);
+            const tokens = try lexer.batchTokenize(allocator, case);
+                defer allocator.free(tokens);
 
-        var parser = JsonParser.init(allocator, tokens, .{});
+        var parser = JsonParser.init(allocator, tokens);
         defer parser.deinit();
 
         var ast = try parser.parse();
@@ -205,12 +200,11 @@ test "JSON parser - nested structures" {
         \\}
     ;
 
-    var lexer = JsonLexer.init(allocator, nested_json, .{});
-    defer lexer.deinit();
-    const tokens = try lexer.tokenize();
+    var lexer = JsonLexer.init(allocator);
+            const tokens = try lexer.batchTokenize(allocator, nested_json);
     defer allocator.free(tokens);
 
-    var parser = JsonParser.init(allocator, tokens, .{});
+    var parser = JsonParser.init(allocator, tokens);
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -237,12 +231,11 @@ test "JSON parser - error recovery" {
     };
 
     for (malformed_cases) |case| {
-        var lexer = JsonLexer.init(allocator, case, .{});
-        defer lexer.deinit();
-        const tokens = try lexer.tokenize();
-        defer allocator.free(tokens);
+        var lexer = JsonLexer.init(allocator);
+            const tokens = try lexer.batchTokenize(allocator, case);
+                defer allocator.free(tokens);
 
-        var parser = JsonParser.init(allocator, tokens, .{});
+        var parser = JsonParser.init(allocator, tokens);
         defer parser.deinit();
 
         // Parser should handle errors gracefully
@@ -276,12 +269,11 @@ test "JSON formatter - pretty printing" {
 
     const compact_input = "{\"name\":\"Alice\",\"age\":30,\"hobbies\":[\"reading\",\"swimming\"]}";
 
-    var lexer = JsonLexer.init(allocator, compact_input, .{});
-    defer lexer.deinit();
-    const tokens = try lexer.tokenize();
+    var lexer = JsonLexer.init(allocator);
+            const tokens = try lexer.batchTokenize(allocator, compact_input);
     defer allocator.free(tokens);
 
-    var parser = JsonParser.init(allocator, tokens, .{});
+    var parser = JsonParser.init(allocator, tokens);
     defer parser.deinit();
     var ast = try parser.parse();
     defer ast.deinit();
@@ -302,12 +294,13 @@ test "JSON formatter - pretty printing" {
     try testing.expect(std.mem.indexOf(u8, formatted, "  ") != null);
 
     // Should be valid JSON when parsed again
-    var lexer2 = JsonLexer.init(allocator, formatted, .{});
+    var lexer2 = JsonLexer.init(allocator);
+            const tokens = try lexer.batchTokenize(allocator, formatted);
     defer lexer2.deinit();
     const tokens2 = try lexer2.tokenize();
     defer allocator.free(tokens2);
 
-    var parser2 = JsonParser.init(allocator, tokens2, .{});
+    var parser2 = JsonParser.init(allocator, tokens2);
     defer parser2.deinit();
     var ast2 = try parser2.parse();
     defer ast2.deinit();
@@ -322,12 +315,11 @@ test "JSON formatter - options" {
 
     const input = "{\"zebra\": 1, \"alpha\": 2, \"beta\": 3}";
 
-    var lexer = JsonLexer.init(allocator, input, .{});
-    defer lexer.deinit();
-    const tokens = try lexer.tokenize();
+    var lexer = JsonLexer.init(allocator);
+            const tokens = try lexer.batchTokenize(allocator, input);
     defer allocator.free(tokens);
 
-    var parser = JsonParser.init(allocator, tokens, .{});
+    var parser = JsonParser.init(allocator, tokens);
     defer parser.deinit();
     var ast = try parser.parse();
     defer ast.deinit();
@@ -366,12 +358,11 @@ test "JSON linter - all rules" {
     // Create JSON with duplicate keys (valid JSON syntax)
     const problematic_json = "{\"key\": 1, \"key\": 2}"; // Duplicate key
 
-    var lexer = JsonLexer.init(allocator, problematic_json, .{});
-    defer lexer.deinit();
-    const tokens = try lexer.tokenize();
+    var lexer = JsonLexer.init(allocator);
+            const tokens = try lexer.batchTokenize(allocator, problematic_json);
     defer allocator.free(tokens);
 
-    var parser = JsonParser.init(allocator, tokens, .{});
+    var parser = JsonParser.init(allocator, tokens);
     defer parser.deinit();
     var ast = try parser.parse();
     defer ast.deinit();
@@ -386,7 +377,7 @@ test "JSON linter - all rules" {
         try enabled_rules.append(enabled_rule);
     }
 
-    var linter = JsonLinter.init(allocator, .{});
+    var linter = JsonLinter.init(allocator);
     defer linter.deinit();
 
     const diagnostics = try linter.lint(ast, enabled_rules.items);
@@ -420,12 +411,11 @@ test "JSON linter - deep nesting warning" {
     // Create deeply nested JSON
     const deep_json = "{\"a\": {\"b\": {\"c\": {\"d\": {\"e\": 1}}}}}";
 
-    var lexer = JsonLexer.init(allocator, deep_json, .{});
-    defer lexer.deinit();
-    const tokens = try lexer.tokenize();
+    var lexer = JsonLexer.init(allocator);
+            const tokens = try lexer.batchTokenize(allocator, deep_json);
     defer allocator.free(tokens);
 
-    var parser = JsonParser.init(allocator, tokens, .{});
+    var parser = JsonParser.init(allocator, tokens);
     defer parser.deinit();
     var ast = try parser.parse();
     defer ast.deinit();
@@ -471,17 +461,16 @@ test "JSON analyzer - schema extraction" {
         \\}
     ;
 
-    var lexer = JsonLexer.init(allocator, sample_json, .{});
-    defer lexer.deinit();
-    const tokens = try lexer.tokenize();
+    var lexer = JsonLexer.init(allocator);
+            const tokens = try lexer.batchTokenize(allocator, sample_json);
     defer allocator.free(tokens);
 
-    var parser = JsonParser.init(allocator, tokens, .{});
+    var parser = JsonParser.init(allocator, tokens);
     defer parser.deinit();
     var ast = try parser.parse();
     defer ast.deinit();
 
-    var analyzer = JsonAnalyzer.init(allocator, .{});
+    var analyzer = JsonAnalyzer.init(allocator);
     var schema = try analyzer.extractSchema(ast);
     defer schema.deinit(allocator);
 
@@ -505,17 +494,16 @@ test "JSON analyzer - TypeScript interface generation" {
 
     const simple_json = "{\"name\": \"Alice\", \"age\": 30, \"active\": true}";
 
-    var lexer = JsonLexer.init(allocator, simple_json, .{});
-    defer lexer.deinit();
-    const tokens = try lexer.tokenize();
+    var lexer = JsonLexer.init(allocator);
+            const tokens = try lexer.batchTokenize(allocator, simple_json);
     defer allocator.free(tokens);
 
-    var parser = JsonParser.init(allocator, tokens, .{});
+    var parser = JsonParser.init(allocator, tokens);
     defer parser.deinit();
     var ast = try parser.parse();
     defer ast.deinit();
 
-    var analyzer = JsonAnalyzer.init(allocator, .{});
+    var analyzer = JsonAnalyzer.init(allocator);
     var interface = try analyzer.generateTypeScriptInterface(ast, "User");
     defer interface.deinit(allocator);
 
@@ -558,17 +546,16 @@ test "JSON analyzer - statistics" {
         \\}
     ;
 
-    var lexer = JsonLexer.init(allocator, complex_json, .{});
-    defer lexer.deinit();
-    const tokens = try lexer.tokenize();
+    var lexer = JsonLexer.init(allocator);
+            const tokens = try lexer.batchTokenize(allocator, complex_json);
     defer allocator.free(tokens);
 
-    var parser = JsonParser.init(allocator, tokens, .{});
+    var parser = JsonParser.init(allocator, tokens);
     defer parser.deinit();
     var ast = try parser.parse();
     defer ast.deinit();
 
-    var analyzer = JsonAnalyzer.init(allocator, .{});
+    var analyzer = JsonAnalyzer.init(allocator);
     const stats = try analyzer.generateStatistics(ast);
 
     // Check type counts

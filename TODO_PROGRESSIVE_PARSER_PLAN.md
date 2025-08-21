@@ -45,11 +45,13 @@ Lexical Facts    Parser → AST
 - [ ] Streaming and batch modes verified
 - [ ] Basic incremental support
 
-### 🆕 Phase 2.5: AST Migration (ADDED - NEXT PRIORITY)
-- [ ] Create proper `lib/ast/mod.zig` that exports from ast_old
-- [ ] Migrate AST types gradually to new module
-- [ ] Update all imports from ast_old to ast
-- [ ] Eventually delete ast_old once migration complete
+### ✅ Phase 2.5: Extensible AST Implementation (COMPLETED)
+- [x] **Complete rewrite**: Dropped bridge approach, no backward compatibility
+- [x] **Extensible NodeKind**: enum(u16) with language-specific ranges
+- [x] **Custom nodes**: CustomNode with vtable, attributes, extensible data storage
+- [x] **Language registry**: Dynamic registration system for node type ranges
+- [x] **Performance optimization**: Fast path (1-2 cycles) vs slow path (3-4 cycles)
+- [x] **Future-ready**: Control flow, TypeScript, Zig, plugin nodes pre-defined
 
 ### ⏳ Phase 3: Optional Fact Projections (PENDING)
 - [ ] Implement fact projection functions

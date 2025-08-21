@@ -1,13 +1,9 @@
 const std = @import("std");
-// Consolidate AST imports
-const ast_mod = @import("../../ast_old/mod.zig");
-const AST = ast_mod.AST;
-const Node = ast_mod.Node;
-const NodeType = ast_mod.NodeType;
-const JsonRules = @import("../../ast_old/rules.zig").JsonRules;
-const FormatOptions = @import("../interface.zig").FormatOptions;
-const ASTTraversal = @import("../../ast_old/traversal.zig").ASTTraversal;
-const ASTUtils = @import("../../ast_old/utils.zig").ASTUtils;
+// Use local JSON AST
+const json_ast = @import("ast.zig");
+const AST = json_ast.AST;
+const Node = json_ast.Node;
+const NodeKind = json_ast.NodeKind;
 
 /// High-performance JSON formatter with configurable output
 ///
@@ -67,7 +63,7 @@ pub const JsonFormatter = struct {
     /// Format JSON AST to string using direct formatting
     pub fn format(self: *Self, ast: AST) ![]const u8 {
         // Format the root node directly (no visitor pattern to avoid double formatting)
-        try self.formatNode(&ast.root);
+        try self.formatNode(ast.root);
 
         // Add final newline if not compact
         if (!self.options.force_compact) {
@@ -78,58 +74,51 @@ pub const JsonFormatter = struct {
     }
 
     fn formatNode(self: *Self, node: *const Node) anyerror!void {
-        switch (node.rule_id) {
-            JsonRules.string_literal => try self.formatString(node),
-            JsonRules.number_literal => try self.formatNumber(node),
-            JsonRules.boolean_literal => try self.formatBoolean(node),
-            JsonRules.null_literal => try self.formatNull(node),
-            JsonRules.object => try self.formatObject(node),
-            JsonRules.array => try self.formatArray(node),
-            JsonRules.member => try self.formatMember(node),
-            else => try self.output.appendSlice("null"), // Handle other node types or errors
+        switch (node.*) {
+            .string => try self.formatString(node),
+            .number => try self.formatNumber(node),
+            .boolean => try self.formatBoolean(node),
+            .null => try self.formatNull(node),
+            .object => try self.formatObject(node),
+            .array => try self.formatArray(node),
+            .property => try self.formatProperty(node),
+            .root => try self.formatNode(node.root.value),
+            .err => try self.output.appendSlice("null"), // Handle errors
         }
     }
 
     fn formatString(self: *Self, node: *const Node) !void {
-        const raw_value = if (node.text.len > 0) node.text else "";
+        const string_node = node.string;
+        const value = string_node.value;
 
-        if (self.options.quote_style == .preserve) {
-            // If preserve and already has quotes, use as-is
-            if (raw_value.len >= 2 and raw_value[0] == '"' and raw_value[raw_value.len - 1] == '"') {
-                try self.output.appendSlice(raw_value);
-                self.updateLinePosition(raw_value.len);
-            } else {
-                // Add double quotes if missing
-                try self.output.append('"');
-                try self.output.appendSlice(raw_value);
-                try self.output.append('"');
-                self.updateLinePosition(raw_value.len + 2);
-            }
-        } else if (self.options.quote_style == .double) {
-            // Always use double quotes
-            try self.output.append('"');
-            try self.output.appendSlice(raw_value);
-            try self.output.append('"');
-            self.updateLinePosition(raw_value.len + 2);
+        // JSON strings always use double quotes (JSON5 can use single)
+        if (self.options.quote_style == .single) {
+            try self.output.append('\'');
+            // TODO: Escape single quotes in value
+            try self.output.appendSlice(value);
+            try self.output.append('\'');
+            self.updateLinePosition(value.len + 2);
         } else {
-            // Use single quotes (JSON5)
-            try self.output.append('\'');
-            try self.output.appendSlice(raw_value);
-            try self.output.append('\'');
-            self.updateLinePosition(raw_value.len + 2);
+            try self.output.append('"');
+            // TODO: Escape double quotes in value
+            try self.output.appendSlice(value);
+            try self.output.append('"');
+            self.updateLinePosition(value.len + 2);
         }
     }
 
     fn formatNumber(self: *Self, node: *const Node) !void {
-        const value = if (node.text.len > 0) node.text else "0";
-        try self.output.appendSlice(value);
-        self.updateLinePosition(value.len);
+        const number_node = node.number;
+        const raw_text = number_node.raw;
+        try self.output.appendSlice(raw_text);
+        self.updateLinePosition(raw_text.len);
     }
 
     fn formatBoolean(self: *Self, node: *const Node) !void {
-        const value = if (node.text.len > 0) node.text else "false";
-        try self.output.appendSlice(value);
-        self.updateLinePosition(value.len);
+        const boolean_node = node.boolean;
+        const text = if (boolean_node.value) "true" else "false";
+        try self.output.appendSlice(text);
+        self.updateLinePosition(text.len);
     }
 
     fn formatNull(self: *Self, _: *const Node) !void {
@@ -138,9 +127,10 @@ pub const JsonFormatter = struct {
     }
 
     fn formatObject(self: *Self, node: *const Node) anyerror!void {
-        const members = node.children;
+        const object_node = node.object;
+        const properties = object_node.properties;
 
-        if (members.len == 0) {
+        if (properties.len == 0) {
             try self.output.appendSlice("{}");
             self.updateLinePosition(2);
             return;
@@ -156,33 +146,33 @@ pub const JsonFormatter = struct {
             self.indent_level += 1;
         }
 
-        // Sort members if requested
-        var sorted_members: []const Node = undefined;
-        var member_indices: std.ArrayList(usize) = undefined;
+        // Sort properties if requested
+        var sorted_properties: []const Node = undefined;
+        var property_indices: std.ArrayList(usize) = undefined;
         var sorted_list: ?std.ArrayList(Node) = null;
 
         if (self.options.sort_keys) {
-            member_indices = std.ArrayList(usize).init(self.allocator);
-            defer member_indices.deinit();
+            property_indices = std.ArrayList(usize).init(self.allocator);
+            defer property_indices.deinit();
 
-            for (members, 0..) |_, i| {
-                try member_indices.append(i);
+            for (properties, 0..) |_, i| {
+                try property_indices.append(i);
             }
 
-            std.sort.insertion(usize, member_indices.items, members, memberCompareFn);
+            std.sort.insertion(usize, property_indices.items, properties, propertyCompareFn);
 
             sorted_list = std.ArrayList(Node).init(self.allocator);
 
-            for (member_indices.items) |idx| {
-                try sorted_list.?.append(members[idx]);
+            for (property_indices.items) |idx| {
+                try sorted_list.?.append(properties[idx]);
             }
 
-            sorted_members = sorted_list.?.items;
+            sorted_properties = sorted_list.?.items;
         } else {
-            sorted_members = members;
+            sorted_properties = properties;
         }
 
-        for (sorted_members, 0..) |member, i| {
+        for (sorted_properties, 0..) |member, i| {
             if (!should_compact) {
                 try self.writeIndent();
             } else if (i > 0 and self.options.space_after_comma) {
@@ -192,7 +182,7 @@ pub const JsonFormatter = struct {
 
             try self.formatNode(&member);
 
-            const is_last = i == sorted_members.len - 1;
+            const is_last = i == sorted_properties.len - 1;
             if (!is_last) {
                 try self.output.append(',');
                 self.updateLinePosition(1);
@@ -222,7 +212,8 @@ pub const JsonFormatter = struct {
     }
 
     fn formatArray(self: *Self, node: *const Node) !void {
-        const elements = node.children;
+        const array_node = node.array;
+        const elements = array_node.elements;
 
         if (elements.len == 0) {
             try self.output.appendSlice("[]");
@@ -274,14 +265,10 @@ pub const JsonFormatter = struct {
         self.updateLinePosition(1);
     }
 
-    fn formatMember(self: *Self, node: *const Node) !void {
-        const children = node.children;
-        if (children.len != 2) return;
+    fn formatProperty(self: *Self, node: *const Node) !void {
+        const property_node = node.property;
 
-        const key = children[0];
-        const value = children[1];
-
-        try self.formatNode(&key);
+        try self.formatNode(property_node.key);
 
         try self.output.append(':');
         self.updateLinePosition(1);
@@ -291,7 +278,7 @@ pub const JsonFormatter = struct {
             self.updateLinePosition(1);
         }
 
-        try self.formatNode(&value);
+        try self.formatNode(property_node.value);
     }
 
     fn shouldCompactObject(self: *Self, node: *const Node) bool {
@@ -299,15 +286,16 @@ pub const JsonFormatter = struct {
         if (self.options.force_multiline) return false;
         if (!self.options.compact_objects) return false;
 
-        const members = node.children;
-        if (members.len == 0) return true;
-        if (members.len > 3) return false; // Too many members
+        const object_node = node.object;
+        const properties = object_node.properties;
+        if (properties.len == 0) return true;
+        if (properties.len > 3) return false; // Too many properties
 
         // Estimate size on single line
         var estimated_size: u32 = 2; // {}
-        for (members, 0..) |member, i| {
+        for (properties, 0..) |member, i| {
             estimated_size += self.estimateNodeSize(&member);
-            if (i < members.len - 1) {
+            if (i < properties.len - 1) {
                 estimated_size += 2; // ", "
             }
         }
@@ -320,16 +308,15 @@ pub const JsonFormatter = struct {
         if (self.options.force_multiline) return false;
         if (!self.options.compact_arrays) return false;
 
-        const elements = node.children;
+        const array_node = node.array;
+        const elements = array_node.elements;
         if (elements.len == 0) return true;
         if (elements.len > 5) return false; // Too many elements
 
         // Check if all elements are primitives
         for (elements) |element| {
-            switch (element.rule_id) {
-                JsonRules.object, JsonRules.array => return false,
-                else => {},
-            }
+            // Complex types shouldn't be compacted
+            if (element.isContainer()) return false;
         }
 
         // Estimate size on single line
@@ -345,27 +332,18 @@ pub const JsonFormatter = struct {
     }
 
     fn estimateNodeSize(self: *Self, node: *const Node) u32 {
-        return switch (node.rule_id) {
-            JsonRules.string_literal => @intCast(node.text.len),
-            JsonRules.number_literal => @intCast(node.text.len),
-            JsonRules.boolean_literal => @intCast(node.text.len),
-            JsonRules.null_literal => 4,
-            JsonRules.object => {
-                const children = node.children;
-                return @intCast(children.len * 20); // Rough estimate
+        return switch (node.*) {
+            .string => |n| @intCast(n.value.len + 2), // Add quotes
+            .number => |n| @intCast(n.raw.len),
+            .boolean => |n| if (n.value) 4 else 5, // "true" or "false"
+            .null => 4, // "null"
+            .object => |n| @intCast(n.properties.len * 20), // Rough estimate
+            .array => |n| @intCast(n.elements.len * 10), // Rough estimate
+            .property => |n| {
+                return self.estimateNodeSize(n.key) + self.estimateNodeSize(n.value) + 2; // ": "
             },
-            JsonRules.array => {
-                const children = node.children;
-                return @intCast(children.len * 10); // Rough estimate
-            },
-            JsonRules.member => {
-                const children = node.children;
-                if (children.len == 2) {
-                    return self.estimateNodeSize(&children[0]) + self.estimateNodeSize(&children[1]) + 2;
-                }
-                return 10;
-            },
-            else => 10,
+            .root => |n| self.estimateNodeSize(n.value),
+            .err => 10, // Default fallback
         };
     }
 
@@ -394,36 +372,33 @@ pub const JsonFormatter = struct {
         self.line_position += @intCast(chars);
     }
 
-    fn memberCompareFn(members: []const Node, a_idx: usize, b_idx: usize) bool {
-        const a = &members[a_idx];
-        const b = &members[b_idx];
+    fn propertyCompareFn(properties: []const Node, a_idx: usize, b_idx: usize) bool {
+        const a = &properties[a_idx];
+        const b = &properties[b_idx];
 
         // Both should be member nodes with key as first child
-        const a_children = a.children;
-        const b_children = b.children;
+        // Compare property keys
+        const a_property = a.property;
+        const b_property = b.property;
 
-        if (a_children.len == 0 or b_children.len == 0) {
-            return false;
-        }
-
-        const a_key = a_children[0].text;
-        const b_key = b_children[0].text;
+        const a_key = switch (a_property.key.*) {
+            .string => |n| n.value,
+            else => "",
+        };
+        const b_key = switch (b_property.key.*) {
+            .string => |n| n.value,
+            else => "",
+        };
 
         return std.mem.lessThan(u8, a_key, b_key);
     }
 };
 
 /// Convenience function for basic JSON formatting
-pub fn formatJson(allocator: std.mem.Allocator, ast: AST, options: FormatOptions) ![]const u8 {
-    const json_options = JsonFormatter.JsonFormatOptions{
-        .indent_size = options.indent_size,
-        .indent_style = if (options.indent_style == .tab) .tab else .space,
-        .line_width = options.line_width,
-        .trailing_comma = options.trailing_comma,
-        .sort_keys = options.sort_keys,
-    };
+pub fn formatJson(allocator: std.mem.Allocator, ast: AST, options: JsonFormatter.JsonFormatOptions) ![]const u8 {
+    // Options are already JsonFormatOptions
 
-    var formatter = JsonFormatter.init(allocator, json_options);
+    var formatter = JsonFormatter.init(allocator, options);
     defer formatter.deinit();
 
     return formatter.format(ast);
@@ -448,11 +423,11 @@ test "JSON formatter - simple values" {
     };
 
     for (test_cases) |case| {
-        var lexer = JsonLexer.init(allocator, case, .{});
+        var lexer = JsonLexer.init(allocator);
         defer lexer.deinit();
-        const tokens = try lexer.tokenize();
+        const tokens = try lexer.batchTokenize(allocator, case);
 
-        var parser = JsonParser.init(allocator, tokens, .{});
+        var parser = JsonParser.init(allocator, tokens, case, .{});
         defer parser.deinit();
         var ast = try parser.parse();
         defer ast.deinit();
@@ -474,11 +449,11 @@ test "JSON formatter - object formatting" {
 
     const input = "{\"name\":\"Alice\",\"age\":30}";
 
-    var lexer = JsonLexer.init(allocator, input, .{});
+    var lexer = JsonLexer.init(allocator);
     defer lexer.deinit();
-    const tokens = try lexer.tokenize();
+    const tokens = try lexer.batchTokenize(allocator, input);
 
-    var parser = JsonParser.init(allocator, tokens, .{});
+    var parser = JsonParser.init(allocator, tokens, input, .{});
     defer parser.deinit();
     var ast = try parser.parse();
     defer ast.deinit();
@@ -518,11 +493,11 @@ test "JSON formatter - array formatting" {
 
     const input = "[1,2,3,4,5]";
 
-    var lexer = JsonLexer.init(allocator, input, .{});
+    var lexer = JsonLexer.init(allocator);
     defer lexer.deinit();
-    const tokens = try lexer.tokenize();
+    const tokens = try lexer.batchTokenize(allocator, input);
 
-    var parser = JsonParser.init(allocator, tokens, .{});
+    var parser = JsonParser.init(allocator, tokens, input, .{});
     defer parser.deinit();
     var ast = try parser.parse();
     defer ast.deinit();
@@ -546,11 +521,11 @@ test "JSON formatter - key sorting" {
 
     const input = "{\"zebra\":1,\"alpha\":2,\"beta\":3}";
 
-    var lexer = JsonLexer.init(allocator, input, .{});
+    var lexer = JsonLexer.init(allocator);
     defer lexer.deinit();
-    const tokens = try lexer.tokenize();
+    const tokens = try lexer.batchTokenize(allocator, input);
 
-    var parser = JsonParser.init(allocator, tokens, .{});
+    var parser = JsonParser.init(allocator, tokens, input, .{});
     defer parser.deinit();
     var ast = try parser.parse();
     defer ast.deinit();

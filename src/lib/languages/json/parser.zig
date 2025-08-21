@@ -1,17 +1,18 @@
 const std = @import("std");
-const Token = @import("../../parser_old/foundation/types/token.zig").Token;
-const TokenKind = @import("../../parser_old/foundation/types/predicate.zig").TokenKind;
-const Span = @import("../../parser_old/foundation/types/span.zig").Span;
-// Consolidate AST imports
-const ast_mod = @import("../../ast_old/mod.zig");
-const AST = ast_mod.AST;
-const Node = ast_mod.Node;
-const NodeType = ast_mod.NodeType;
+const Token = @import("../../token/token.zig").Token;
+const TokenKind = @import("../../token/token.zig").TokenKind;
+const Span = @import("../../span/span.zig").Span;
+// Use local JSON AST
+const json_ast = @import("ast.zig");
+const AST = json_ast.AST;
+const Node = json_ast.Node;
+const NodeKind = json_ast.NodeKind;
 const ParseContext = @import("memory.zig").ParseContext;
-const JsonRules = @import("../../ast_old/rules.zig").JsonRules;
 const patterns = @import("patterns.zig");
 const JsonDelimiters = patterns.JsonDelimiters;
 const char_utils = @import("../../char/mod.zig");
+
+// TODO use "property"/"properties" over "member"/"members"
 
 /// High-performance JSON parser producing proper AST
 ///
@@ -24,6 +25,7 @@ const char_utils = @import("../../char/mod.zig");
 pub const JsonParser = struct {
     allocator: std.mem.Allocator,
     tokens: []const Token,
+    source: []const u8,
     current: usize,
     errors: std.ArrayList(ParseError),
     allow_trailing_commas: bool,
@@ -44,10 +46,11 @@ pub const JsonParser = struct {
         recover_from_errors: bool = true,
     };
 
-    pub fn init(allocator: std.mem.Allocator, tokens: []const Token, options: ParserOptions) JsonParser {
+    pub fn init(allocator: std.mem.Allocator, tokens: []const Token, source: []const u8, options: ParserOptions) JsonParser {
         return JsonParser{
             .allocator = allocator,
             .tokens = tokens,
+            .source = source,
             .current = 0,
             .errors = std.ArrayList(ParseError).init(allocator),
             .allow_trailing_commas = options.allow_trailing_commas,
@@ -65,7 +68,17 @@ pub const JsonParser = struct {
 
     /// Parse tokens into JSON AST
     pub fn parse(self: *Self) !AST {
-        const root_node = try self.parseValue();
+        // Create arena for AST allocation
+        const arena = try self.allocator.create(std.heap.ArenaAllocator);
+        arena.* = std.heap.ArenaAllocator.init(self.allocator);
+        const arena_allocator = arena.allocator();
+
+        // Parse root value
+        const root_value = try self.parseValue();
+
+        // Allocate root node in arena
+        const root_node = try arena_allocator.create(Node);
+        root_node.* = root_value;
 
         // Check for trailing tokens (skip EOF)
         while (!self.isAtEnd() and self.peek().kind == .eof) {
@@ -75,13 +88,17 @@ pub const JsonParser = struct {
             try self.addError("Unexpected token after JSON value", self.peek().span);
         }
 
-        // Transfer ownership of allocated texts from parse context
-        const owned_texts = self.context.transferOwnership();
+        // TODO: Collect all nodes for AST.nodes field
+        var nodes = std.ArrayList(Node).init(arena_allocator);
+        defer nodes.deinit();
+        // For now, just add the root
+        try nodes.append(root_value);
 
         return AST{
             .root = root_node,
-            .allocator = self.allocator,
-            .owned_texts = owned_texts,
+            .arena = arena,
+            .source = self.source,
+            .nodes = try nodes.toOwnedSlice(),
         };
     }
 
@@ -105,8 +122,8 @@ pub const JsonParser = struct {
             .null_literal => self.parseNull(),
             .delimiter => {
                 // Use efficient delimiter checking (O(1) vs O(n))
-                if (token.text.len == 1) {
-                    if (JsonDelimiters.fromChar(token.text[0])) |delimiter_kind| {
+                if (token.getText(self.source).len == 1) {
+                    if (JsonDelimiters.fromChar(token.getText(self.source)[0])) |delimiter_kind| {
                         return switch (delimiter_kind) {
                             .left_brace => self.parseObject(),
                             .left_bracket => self.parseArray(),
@@ -129,19 +146,16 @@ pub const JsonParser = struct {
         const token = self.advance();
 
         // Validate and unescape string content
-        const content = try self.unescapeString(token.text);
+        const content = try self.unescapeString(token.getText(self.source));
         const owned_content = try self.context.trackText(content);
         // Don't free content here - ownership transferred to AST via trackText
 
         return Node{
-            .rule_id = JsonRules.string_literal,
-            .node_type = .terminal,
-            .text = owned_content,
-            .start_position = token.span.start,
-            .end_position = token.span.end,
-            .children = &[_]Node{},
-            .attributes = null,
-            .parent = null,
+            .string = .{
+                .span = token.span,
+                .value = owned_content,
+                .quote_style = .double,
+            },
         };
     }
 
@@ -149,26 +163,23 @@ pub const JsonParser = struct {
         const token = self.advance();
 
         // Validate number format according to RFC 8259
-        if (self.hasLeadingZero(token.text)) {
+        if (self.hasLeadingZero(token.getText(self.source))) {
             try self.addError("Numbers with leading zeros are not allowed in JSON", token.span);
             return self.createErrorNode();
         }
 
         // Additional validation using standard library
-        _ = std.fmt.parseFloat(f64, token.text) catch {
+        const value = std.fmt.parseFloat(f64, token.getText(self.source)) catch {
             try self.addError("Invalid number format", token.span);
             return self.createErrorNode();
         };
 
         return Node{
-            .rule_id = JsonRules.number_literal,
-            .node_type = .terminal,
-            .text = token.text,
-            .start_position = token.span.start,
-            .end_position = token.span.end,
-            .children = &[_]Node{},
-            .attributes = null,
-            .parent = null,
+            .number = .{
+                .span = token.span,
+                .value = value,
+                .raw = token.getText(self.source),
+            },
         };
     }
 
@@ -192,17 +203,13 @@ pub const JsonParser = struct {
 
     fn parseBoolean(self: *Self) !Node {
         const token = self.advance();
-        _ = std.mem.eql(u8, token.text, "true");
+        const value = std.mem.eql(u8, token.getText(self.source), "true");
 
         return Node{
-            .rule_id = JsonRules.boolean_literal,
-            .node_type = .terminal,
-            .text = token.text,
-            .start_position = token.span.start,
-            .end_position = token.span.end,
-            .children = &[_]Node{},
-            .attributes = null,
-            .parent = null,
+            .boolean = .{
+                .span = token.span,
+                .value = value,
+            },
         };
     }
 
@@ -210,14 +217,7 @@ pub const JsonParser = struct {
         const token = self.advance();
 
         return Node{
-            .rule_id = JsonRules.null_literal,
-            .node_type = .terminal,
-            .text = token.text,
-            .start_position = token.span.start,
-            .end_position = token.span.end,
-            .children = &[_]Node{},
-            .attributes = null,
-            .parent = null,
+            .null = token.span,
         };
     }
 
@@ -230,14 +230,13 @@ pub const JsonParser = struct {
         if (self.checkDelimiter(.right_brace)) {
             const end_token = self.advance();
             return Node{
-                .rule_id = JsonRules.object,
-                .node_type = .list,
-                .text = &[_]u8{},
-                .start_position = start_token.span.start,
-                .end_position = end_token.span.end,
-                .children = &[_]Node{},
-                .attributes = null,
-                .parent = null,
+                .object = .{
+                    .span = Span{
+                        .start = start_token.span.start,
+                        .end = end_token.span.end,
+                    },
+                    .properties = &[_]Node{},
+                },
             };
         }
 
@@ -280,18 +279,17 @@ pub const JsonParser = struct {
 
         const end_token = self.advance(); // consume '}'
 
-        // Convert ArrayList to slice for children
-        const children = try self.context.trackNodes(members.items);
+        // Convert ArrayList to owned slice
+        const properties = try members.toOwnedSlice();
 
         return Node{
-            .rule_id = JsonRules.object,
-            .node_type = .list,
-            .text = &[_]u8{},
-            .start_position = start_token.span.start,
-            .end_position = end_token.span.end,
-            .children = children,
-            .attributes = null,
-            .parent = null,
+            .object = .{
+                .span = Span{
+                    .start = start_token.span.start,
+                    .end = end_token.span.end,
+                },
+                .properties = properties,
+            },
         };
     }
 
@@ -302,7 +300,11 @@ pub const JsonParser = struct {
             return error.ParseError;
         }
 
-        const key = try self.parseString();
+        const key_node = try self.parseString();
+
+        // Allocate key node as pointer
+        const key_ptr = try self.allocator.create(Node);
+        key_ptr.* = key_node;
 
         // Expect colon
         if (!self.check(.delimiter, ":")) {
@@ -312,20 +314,22 @@ pub const JsonParser = struct {
         _ = self.advance(); // consume ':'
 
         // Parse value
-        const value = try self.parseValue();
+        const value_node = try self.parseValue();
 
-        // Create member node
-        const children = try self.context.trackNodes(&[_]Node{ key, value });
+        // Allocate value node as pointer
+        const value_ptr = try self.allocator.create(Node);
+        value_ptr.* = value_node;
 
+        // Create property node
         return Node{
-            .rule_id = JsonRules.member,
-            .node_type = .rule,
-            .text = &[_]u8{},
-            .start_position = key.start_position,
-            .end_position = value.end_position,
-            .children = children,
-            .attributes = null,
-            .parent = null,
+            .property = .{
+                .span = Span{
+                    .start = key_node.span().start,
+                    .end = value_node.span().end,
+                },
+                .key = key_ptr,
+                .value = value_ptr,
+            },
         };
     }
 
@@ -338,14 +342,13 @@ pub const JsonParser = struct {
         if (self.check(.delimiter, "]")) {
             const end_token = self.advance();
             return Node{
-                .rule_id = JsonRules.array,
-                .node_type = .list,
-                .text = &[_]u8{},
-                .start_position = start_token.span.start,
-                .end_position = end_token.span.end,
-                .children = &[_]Node{},
-                .attributes = null,
-                .parent = null,
+                .array = .{
+                    .span = Span{
+                        .start = start_token.span.start,
+                        .end = end_token.span.end,
+                    },
+                    .elements = &[_]Node{},
+                },
             };
         }
 
@@ -388,18 +391,17 @@ pub const JsonParser = struct {
 
         const end_token = self.advance(); // consume ']'
 
-        // Convert ArrayList to slice for children
-        const children = try self.context.trackNodes(elements.items);
+        // Convert ArrayList to owned slice
+        const array_elements = try elements.toOwnedSlice();
 
         return Node{
-            .rule_id = JsonRules.array,
-            .node_type = .list,
-            .text = &[_]u8{},
-            .start_position = start_token.span.start,
-            .end_position = end_token.span.end,
-            .children = children,
-            .attributes = null,
-            .parent = null,
+            .array = .{
+                .span = Span{
+                    .start = start_token.span.start,
+                    .end = end_token.span.end,
+                },
+                .elements = array_elements,
+            },
         };
     }
 
@@ -456,16 +458,17 @@ pub const JsonParser = struct {
     }
 
     fn createErrorNode(self: *Self) Node {
-        const span = if (self.isAtEnd()) Span.init(0, 0) else self.peek().span;
+        const error_span = if (self.isAtEnd())
+            Span{ .start = 0, .end = 0 }
+        else
+            self.peek().span;
+
         return Node{
-            .rule_id = JsonRules.error_recovery,
-            .node_type = .error_recovery,
-            .text = "error",
-            .start_position = span.start,
-            .end_position = span.end,
-            .children = &[_]Node{},
-            .attributes = null,
-            .parent = null,
+            .err = .{
+                .span = error_span,
+                .message = "Parse error",
+                .partial = null,
+            },
         };
     }
 
@@ -507,7 +510,7 @@ pub const JsonParser = struct {
     fn check(self: *Self, kind: TokenKind, text: ?[]const u8) bool {
         if (self.isAtEnd()) return false;
         const token = self.peek();
-        return token.kind == kind and (text == null or std.mem.eql(u8, token.text, text.?));
+        return token.kind == kind and (text == null or std.mem.eql(u8, token.getText(self.source), text.?));
     }
 
     /// Efficient delimiter checking using enum (O(1) vs O(n) string comparison)
@@ -517,8 +520,8 @@ pub const JsonParser = struct {
         if (token.kind != .delimiter) return false;
 
         // Convert token text to character and check against delimiter
-        if (token.text.len == 1) {
-            if (JsonDelimiters.fromChar(token.text[0])) |found_kind| {
+        if (token.getText(self.source).len == 1) {
+            if (JsonDelimiters.fromChar(token.getText(self.source)[0])) |found_kind| {
                 return found_kind == delimiter_kind;
             }
         }
@@ -530,7 +533,7 @@ pub const JsonParser = struct {
             const token = self.peek();
             if (token.kind == .delimiter) {
                 for (delimiters) |delim| {
-                    if (std.mem.eql(u8, token.text, delim)) {
+                    if (std.mem.eql(u8, token.getText(self.source), delim)) {
                         return;
                     }
                 }
@@ -561,9 +564,9 @@ test "JSON parser - simple values" {
 
     // Test string
     {
-        var lexer = JsonLexer.init(allocator, "\"hello\"", .{});
+        var lexer = JsonLexer.init(allocator);
         defer lexer.deinit();
-        const tokens = try lexer.tokenize();
+        const tokens = try lexer.batchTokenize(allocator, "\"hello\"");
 
         var parser = JsonParser.init(allocator, tokens, .{});
         defer parser.deinit();
@@ -577,9 +580,9 @@ test "JSON parser - simple values" {
 
     // Test number
     {
-        var lexer = JsonLexer.init(allocator, "42", .{});
+        var lexer = JsonLexer.init(allocator);
         defer lexer.deinit();
-        const tokens = try lexer.tokenize();
+        const tokens = try lexer.batchTokenize(allocator, "42");
 
         var parser = JsonParser.init(allocator, tokens, .{});
         defer parser.deinit();
@@ -592,9 +595,9 @@ test "JSON parser - simple values" {
 
     // Test boolean
     {
-        var lexer = JsonLexer.init(allocator, "true", .{});
+        var lexer = JsonLexer.init(allocator);
         defer lexer.deinit();
-        const tokens = try lexer.tokenize();
+        const tokens = try lexer.batchTokenize(allocator, "true");
 
         var parser = JsonParser.init(allocator, tokens, .{});
         defer parser.deinit();
@@ -611,9 +614,9 @@ test "JSON parser - object" {
     defer arena.deinit();
     const allocator = arena.allocator();
 
-    var lexer = JsonLexer.init(allocator, "{\"key\": \"value\"}", .{});
+    var lexer = JsonLexer.init(allocator);
     defer lexer.deinit();
-    const tokens = try lexer.tokenize();
+    const tokens = try lexer.batchTokenize(allocator, "{\"key\": \"value\"}");
 
     var parser = JsonParser.init(allocator, tokens, .{});
     defer parser.deinit();
@@ -631,9 +634,9 @@ test "JSON parser - array" {
     defer arena.deinit();
     const allocator = arena.allocator();
 
-    var lexer = JsonLexer.init(allocator, "[1, 2, 3]", .{});
+    var lexer = JsonLexer.init(allocator);
     defer lexer.deinit();
-    const tokens = try lexer.tokenize();
+    const tokens = try lexer.batchTokenize(allocator, "[1, 2, 3]");
 
     var parser = JsonParser.init(allocator, tokens, .{});
     defer parser.deinit();
@@ -660,9 +663,9 @@ test "JSON parser - nested structure" {
         \\}
     ;
 
-    var lexer = JsonLexer.init(allocator, json_text, .{});
+    var lexer = JsonLexer.init(allocator);
     defer lexer.deinit();
-    const tokens = try lexer.tokenize();
+    const tokens = try lexer.batchTokenize(allocator, json_text);
 
     var parser = JsonParser.init(allocator, tokens, .{});
     defer parser.deinit();
@@ -683,9 +686,9 @@ test "JSON parser - error recovery" {
     const allocator = arena.allocator();
 
     // Test malformed JSON
-    var lexer = JsonLexer.init(allocator, "{\"key\": [1, 2,]}", .{ .allow_trailing_commas = false });
+    var lexer = JsonLexer.init(allocator);
     defer lexer.deinit();
-    const tokens = try lexer.tokenize();
+    const tokens = try lexer.batchTokenize(allocator, "{\"key\": [1, 2,]}");
 
     var parser = JsonParser.init(allocator, tokens, .{});
     defer parser.deinit();

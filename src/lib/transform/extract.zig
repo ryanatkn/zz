@@ -3,7 +3,6 @@
 /// Transforms for extracting information from code (signatures, types, etc).
 const std = @import("std");
 const Token = @import("../token/token.zig").Token;
-const AST = @import("../ast/node.zig").AST;
 const Fact = @import("../fact/fact.zig").Fact;
 
 /// Extraction options
@@ -203,8 +202,8 @@ pub const TypeExtractor = struct {
         self.types.deinit();
     }
 
-    /// Extract types from AST
-    pub fn extract(self: *Self, ast: AST) ![]const TypeInfo {
+    /// Extract types from AST (generic over AST type)
+    pub fn extract(self: *Self, ast: anytype) ![]const TypeInfo {
         _ = ast;
         self.types.clearRetainingCapacity();
 

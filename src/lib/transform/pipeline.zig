@@ -5,7 +5,6 @@ const std = @import("std");
 const Token = @import("../token/token.zig").Token;
 const StreamToken = @import("../token/stream_token.zig").StreamToken;
 const Fact = @import("../fact/fact.zig").Fact;
-const AST = @import("../ast/node.zig").AST;
 
 /// Transform stage interface
 pub const Transform = struct {
@@ -179,7 +178,7 @@ pub const ASTToFactTransform = struct {
         return .{ .allocator = allocator };
     }
 
-    pub fn transform(self: *Self, ast: AST) ![]Fact {
+    pub fn transform(self: *Self, ast: anytype) ![]Fact {
         var facts = std.ArrayList(Fact).init(self.allocator);
 
         // Walk AST and generate semantic facts

@@ -1,14 +1,30 @@
 const std = @import("std");
-// Consolidate AST imports
-const ast_mod = @import("../../ast_old/mod.zig");
-const AST = ast_mod.AST;
-const Node = ast_mod.Node;
-const NodeType = ast_mod.NodeType;
-const JsonRules = @import("../../ast_old/rules.zig").JsonRules;
-const ASTTraversal = @import("../../ast_old/traversal.zig").ASTTraversal;
-const ASTUtils = @import("../../ast_old/utils.zig").ASTUtils;
-const Symbol = @import("../interface.zig").Symbol;
-const Span = @import("../../parser_old/foundation/types/span.zig").Span;
+// Use local JSON AST
+const json_ast = @import("ast.zig");
+const AST = json_ast.AST;
+const Node = json_ast.Node;
+const NodeKind = json_ast.NodeKind;
+const Span = @import("../../span/span.zig").Span;
+
+/// Symbol from semantic analysis (local to JSON)
+pub const Symbol = struct {
+    name: []const u8,
+    kind: SymbolKind,
+    range: Span,
+    signature: ?[]const u8 = null,
+    documentation: ?[]const u8 = null,
+
+    pub const SymbolKind = enum {
+        property,
+        array_element,
+        object,
+        array,
+        string,
+        number,
+        boolean,
+        null_value,
+    };
+};
 
 /// JSON analyzer for schema extraction and structure analysis
 ///
@@ -551,11 +567,11 @@ test "JSON analyzer - schema extraction" {
 
     const input = "{\"name\": \"Alice\", \"age\": 30, \"active\": true}";
 
-    var lexer = JsonLexer.init(allocator, input, .{});
+    var lexer = JsonLexer.init(allocator);
     defer lexer.deinit();
-    const tokens = try lexer.tokenize();
+    const tokens = try lexer.batchTokenize(allocator, input);
 
-    var parser = JsonParser.init(allocator, tokens, .{});
+    var parser = JsonParser.init(allocator, tokens, input, .{});
     defer parser.deinit();
     var ast = try parser.parse();
     defer ast.deinit();
@@ -577,11 +593,11 @@ test "JSON analyzer - statistics" {
 
     const input = "[1, 2, {\"nested\": true}]";
 
-    var lexer = JsonLexer.init(allocator, input, .{});
+    var lexer = JsonLexer.init(allocator);
     defer lexer.deinit();
-    const tokens = try lexer.tokenize();
+    const tokens = try lexer.batchTokenize(allocator, input);
 
-    var parser = JsonParser.init(allocator, tokens, .{});
+    var parser = JsonParser.init(allocator, tokens, input, .{});
     defer parser.deinit();
     var ast = try parser.parse();
     defer ast.deinit();
@@ -603,11 +619,11 @@ test "JSON analyzer - TypeScript interface generation" {
 
     const input = "{\"name\": \"Alice\", \"age\": 30}";
 
-    var lexer = JsonLexer.init(allocator, input, .{});
+    var lexer = JsonLexer.init(allocator);
     defer lexer.deinit();
-    const tokens = try lexer.tokenize();
+    const tokens = try lexer.batchTokenize(allocator, input);
 
-    var parser = JsonParser.init(allocator, tokens, .{});
+    var parser = JsonParser.init(allocator, tokens, input, .{});
     defer parser.deinit();
     var ast = try parser.parse();
     defer ast.deinit();

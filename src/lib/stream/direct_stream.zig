@@ -32,6 +32,7 @@ pub fn DirectStream(comptime T: type) type {
         const Self = @This();
         
         /// Get next item from stream, advancing position
+        /// Inlined for maximum performance (1-2 cycle dispatch)
         pub inline fn next(self: *Self) StreamError!?T {
             return switch (self.*) {
                 .slice => |*s| s.next(),
@@ -46,6 +47,7 @@ pub fn DirectStream(comptime T: type) type {
         }
         
         /// Peek at next item without advancing
+        /// Inlined for zero-overhead preview
         pub inline fn peek(self: *Self) StreamError!?T {
             return switch (self.*) {
                 .slice => |*s| s.peek(),
@@ -60,6 +62,7 @@ pub fn DirectStream(comptime T: type) type {
         }
         
         /// Skip n items in the stream
+        /// Inlined for efficient bulk advancement
         pub inline fn skip(self: *Self, n: usize) StreamError!void {
             return switch (self.*) {
                 .slice => |*s| s.skip(n),
@@ -74,6 +77,7 @@ pub fn DirectStream(comptime T: type) type {
         }
         
         /// Get current position in stream
+        /// Inlined for immediate position access
         pub inline fn getPosition(self: *const Self) usize {
             return switch (self.*) {
                 .slice => |*s| s.getPosition(),
@@ -88,6 +92,7 @@ pub fn DirectStream(comptime T: type) type {
         }
         
         /// Check if stream is exhausted
+        /// Inlined for fast termination checks
         pub inline fn isExhausted(self: *const Self) bool {
             return switch (self.*) {
                 .slice => |*s| s.isExhausted(),

@@ -88,11 +88,17 @@ pub const ZonStreamLexer = struct {
     /// This is 1-2 cycle dispatch vs 3-5 for vtable  
     pub fn next(self: *ZonStreamLexer) ?StreamToken {
         
+        // Return null if already done (after EOF)
+        if (self.state == .done) {
+            return null;
+        }
+        
         // Skip whitespace and comments
         self.skipWhitespaceAndComments();
         
-        // Check for end of input
-        if (self.buffer.isEmpty() and self.state == .start) {
+        // Check for end of input - ANY state can reach EOF, not just .start
+        if (self.buffer.isEmpty()) {
+            self.state = .done; // Mark as done after EOF
             return StreamToken{ .zon = ZonToken{
                 .span = packSpan(Span{ .start = self.position, .end = self.position }),
                 .kind = .eof,
@@ -155,6 +161,25 @@ pub const ZonStreamLexer = struct {
                 return self.makeErrorToken();
             },
         }
+    }
+    
+    /// Convert to DirectStream for integration with stream pipeline
+    /// Uses GeneratorStream pattern for zero-allocation streaming
+    pub fn toDirectStream(self: *ZonStreamLexer) @import("../../stream/mod.zig").DirectStream(StreamToken) {
+        const DirectStream = @import("../../stream/mod.zig").DirectStream;
+        const GeneratorStream = @import("../../stream/mod.zig").GeneratorStream;
+        
+        const gen = GeneratorStream(StreamToken).init(
+            @ptrCast(self),
+            struct {
+                fn generate(ctx: *anyopaque) ?StreamToken {
+                    const lexer: *ZonStreamLexer = @ptrCast(@alignCast(ctx));
+                    return lexer.next();
+                }
+            }.generate,
+        );
+        
+        return DirectStream(StreamToken){ .generator = gen };
     }
     
     /// Skip whitespace and comments
@@ -601,4 +626,26 @@ test "ZonStreamLexer multiline strings" {
     const token = lexer.next() orelse return error.UnexpectedNull;
     try testing.expectEqual(ZonTokenKind.string_value, token.zon.kind);
     try testing.expect(token.zon.flags.multiline_string);
+}
+
+test "ZonStreamLexer EOF handling" {
+    const testing = std.testing;
+    
+    var lexer = ZonStreamLexer.init("42");
+    
+    // Get number token
+    const token1 = lexer.next() orelse return error.UnexpectedNull;
+    try testing.expectEqual(ZonTokenKind.number_value, token1.zon.kind);
+    
+    // Get EOF token
+    const token2 = lexer.next() orelse return error.UnexpectedNull;
+    try testing.expectEqual(ZonTokenKind.eof, token2.zon.kind);
+    
+    // After EOF, should return null
+    const token3 = lexer.next();
+    try testing.expectEqual(@as(?StreamToken, null), token3);
+    
+    // Should continue returning null
+    const token4 = lexer.next();
+    try testing.expectEqual(@as(?StreamToken, null), token4);
 }

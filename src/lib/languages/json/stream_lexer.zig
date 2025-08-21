@@ -89,11 +89,17 @@ pub const JsonStreamLexer = struct {
     /// This is 1-2 cycle dispatch vs 3-5 for vtable
     pub fn next(self: *JsonStreamLexer) ?StreamToken {
         
+        // Return null if already done (after EOF)
+        if (self.state == .done) {
+            return null;
+        }
+        
         // Skip whitespace
         self.skipWhitespace();
         
-        // Check for end of input
-        if (self.buffer.isEmpty() and self.state == .start) {
+        // Check for end of input - ANY state can reach EOF, not just .start
+        if (self.buffer.isEmpty()) {
+            self.state = .done; // Mark as done after EOF
             return StreamToken{ .json = JsonToken{
                 .span = packSpan(Span{ .start = self.position, .end = self.position }),
                 .kind = .eof,
@@ -129,6 +135,25 @@ pub const JsonStreamLexer = struct {
                 return self.makeErrorToken();
             },
         }
+    }
+    
+    /// Convert to DirectStream for integration with stream pipeline
+    /// Uses GeneratorStream pattern for zero-allocation streaming
+    pub fn toDirectStream(self: *JsonStreamLexer) @import("../../stream/mod.zig").DirectStream(StreamToken) {
+        const DirectStream = @import("../../stream/mod.zig").DirectStream;
+        const GeneratorStream = @import("../../stream/mod.zig").GeneratorStream;
+        
+        const gen = GeneratorStream(StreamToken).init(
+            @ptrCast(self),
+            struct {
+                fn generate(ctx: *anyopaque) ?StreamToken {
+                    const lexer: *JsonStreamLexer = @ptrCast(@alignCast(ctx));
+                    return lexer.next();
+                }
+            }.generate,
+        );
+        
+        return DirectStream(StreamToken){ .generator = gen };
     }
     
     /// Skip whitespace and update position
@@ -483,6 +508,14 @@ test "JsonStreamLexer basic tokenization" {
     // EOF
     const token10 = lexer.next() orelse return error.UnexpectedNull;
     try testing.expectEqual(JsonTokenKind.eof, token10.json.kind);
+    
+    // After EOF, should return null
+    const token11 = lexer.next();
+    try testing.expectEqual(@as(?StreamToken, null), token11);
+    
+    // Should continue returning null
+    const token12 = lexer.next();
+    try testing.expectEqual(@as(?StreamToken, null), token12);
 }
 
 test "JsonStreamLexer zero allocations" {
@@ -518,4 +551,25 @@ test "JsonStreamLexer nested structures" {
     }
     
     try testing.expect(max_depth > 0);
+}
+
+test "JsonStreamLexer empty object" {
+    const testing = std.testing;
+    
+    // Test empty object case
+    var lexer = JsonStreamLexer.init("{}");
+    
+    // Should produce: object_start, object_end, eof
+    const token1 = lexer.next() orelse return error.UnexpectedNull;
+    try testing.expectEqual(JsonTokenKind.object_start, token1.json.kind);
+    
+    const token2 = lexer.next() orelse return error.UnexpectedNull;
+    try testing.expectEqual(JsonTokenKind.object_end, token2.json.kind);
+    
+    const token3 = lexer.next() orelse return error.UnexpectedNull;
+    try testing.expectEqual(JsonTokenKind.eof, token3.json.kind);
+    
+    // After EOF, should return null
+    const token4 = lexer.next();
+    try testing.expectEqual(@as(?StreamToken, null), token4);
 }

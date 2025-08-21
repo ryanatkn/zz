@@ -35,6 +35,12 @@ pub const NullSink = @import("sink.zig").NullSink;
 pub const operators = @import("operators.zig");
 pub const fusion = @import("fusion.zig");
 
+// Phase 6: Stream formatting utilities
+pub const format = @import("format.zig");
+pub const FormatOptions = @import("format_options.zig").FormatOptions;
+pub const FormatError = format.FormatError;
+pub const formatStream = format.formatStream;
+
 test "Stream basic operations" {
     const data = [_]u32{ 1, 2, 3, 4, 5 };
     var stream = fromSlice(u32, &data);

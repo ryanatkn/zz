@@ -6,6 +6,7 @@ const StreamError = @import("error.zig").StreamError;
 const RingBuffer = @import("buffer.zig").RingBuffer;
 
 /// Stream from a slice - zero-copy
+/// Optimized for maximum performance with inline dispatch
 pub fn SliceStream(comptime T: type) type {
     return struct {
         data: []const T,
@@ -17,7 +18,7 @@ pub fn SliceStream(comptime T: type) type {
             return .{ .data = data };
         }
         
-        pub fn next(self: *Self) StreamError!?T {
+        pub inline fn next(self: *Self) StreamError!?T {
             if (self.position >= self.data.len) {
                 return null;
             }
@@ -26,26 +27,26 @@ pub fn SliceStream(comptime T: type) type {
             return value;
         }
         
-        pub fn peek(self: *const Self) StreamError!?T {
+        pub inline fn peek(self: *const Self) StreamError!?T {
             if (self.position >= self.data.len) {
                 return null;
             }
             return self.data[self.position];
         }
         
-        pub fn skip(self: *Self, n: usize) StreamError!void {
+        pub inline fn skip(self: *Self, n: usize) StreamError!void {
             self.position = @min(self.position + n, self.data.len);
         }
         
-        pub fn getPosition(self: *const Self) usize {
+        pub inline fn getPosition(self: *const Self) usize {
             return self.position;
         }
         
-        pub fn isExhausted(self: *const Self) bool {
+        pub inline fn isExhausted(self: *const Self) bool {
             return self.position >= self.data.len;
         }
         
-        pub fn close(self: *Self) void {
+        pub inline fn close(self: *Self) void {
             _ = self;
         }
     };
@@ -62,7 +63,7 @@ pub fn RingBufferStream(comptime T: type) type {
             return .{ .buffer = buffer };
         }
         
-        pub fn next(self: *Self) StreamError!?T {
+        pub inline fn next(self: *Self) StreamError!?T {
             return self.buffer.pop();
         }
         
@@ -97,15 +98,24 @@ pub fn GeneratorStream(comptime T: type) type {
     return struct {
         state: *anyopaque,
         gen_fn: *const fn (*anyopaque) ?T,
+        cleanup_fn: ?*const fn (*anyopaque) void = null,
         position: usize = 0,
         
         const Self = @This();
         
         pub fn init(state: *anyopaque, gen_fn: *const fn (*anyopaque) ?T) Self {
-            return .{ .state = state, .gen_fn = gen_fn };
+            return .{ .state = state, .gen_fn = gen_fn, .cleanup_fn = null };
         }
         
-        pub fn next(self: *Self) StreamError!?T {
+        pub fn initWithCleanup(
+            state: *anyopaque, 
+            gen_fn: *const fn (*anyopaque) ?T,
+            cleanup_fn: *const fn (*anyopaque) void,
+        ) Self {
+            return .{ .state = state, .gen_fn = gen_fn, .cleanup_fn = cleanup_fn };
+        }
+        
+        pub inline fn next(self: *Self) StreamError!?T {
             if (self.gen_fn(self.state)) |value| {
                 self.position += 1;
                 return value;
@@ -136,7 +146,9 @@ pub fn GeneratorStream(comptime T: type) type {
         }
         
         pub fn close(self: *Self) void {
-            _ = self;
+            if (self.cleanup_fn) |cleanup| {
+                cleanup(self.state);
+            }
         }
     };
 }

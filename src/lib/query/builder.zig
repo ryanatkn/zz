@@ -268,13 +268,11 @@ pub const QueryBuilder = struct {
     
     /// Execute and return a DirectStream (Phase 5B)
     pub fn directExecuteStream(self: *QueryBuilder) !QueryExecutor.DirectFactStream {
-        // Build query and allocate it on heap so it persists for DirectStream
-        const query_ptr = try self.allocator.create(Query);
-        query_ptr.* = try self.build();
-        // The DirectStream will own this query and needs to free it later
+        // Build query on stack - no heap allocation needed
+        const query = try self.build();
         
         var executor = QueryExecutor.init(self.allocator);
-        return executor.directExecuteStream(query_ptr);
+        return executor.directExecuteStream(&query);
     }
     
     // TODO: Phase 5C - Delete executeStream after full migration to DirectStream

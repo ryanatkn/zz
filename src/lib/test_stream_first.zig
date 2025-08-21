@@ -12,7 +12,7 @@ test {
     
     // Phase 2 modules (Token Integration)
     _ = @import("token/test.zig");
-    _ = @import("lexer/test.zig");     // NEW: Lexer bridge module
+    // Lexer bridge removed in Phase 6
     _ = @import("cache/test.zig");     // NEW: Fact cache module
     
     // Language-specific token tests
@@ -30,6 +30,9 @@ test {
     // Phase 5: DirectStream migration tests
     _ = @import("stream/test_direct_stream.zig");
     
-    // TODO: Phase 4 modules (Language Adapters)
-    // _ = @import("adapter/test.zig");
+    // Phase 6: Stream-first formatters and extractors
+    _ = @import("languages/json/stream_format.zig");
+    _ = @import("languages/zon/stream_format.zig");
+    _ = @import("stream/format.zig");
+    _ = @import("stream/extract.zig");
 }

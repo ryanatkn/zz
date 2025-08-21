@@ -127,11 +127,25 @@ while (try filtered.next()) |value| {
 ```zig
 // Create direct stream
 var stream = directFromSlice(u32, &data);
+defer stream.close(); // IMPORTANT: Always close streams to free resources
 
 // Direct dispatch - 1-2 cycles
 while (try stream.next()) |value| {
     process(value);
 }
+```
+
+#### Memory Management
+DirectStream with generators may allocate context memory that needs cleanup:
+```zig
+// Query streams allocate context
+var stream = try queryBuilder.directExecuteStream();
+defer stream.close(); // Required to free context
+
+// Simple slice streams don't allocate
+var simple = directFromSlice(u32, &data);
+// close() is no-op here but good practice to always call it
+defer simple.close();
 ```
 
 ## Design Principles

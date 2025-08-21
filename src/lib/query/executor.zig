@@ -528,19 +528,21 @@ pub const QueryExecutor = struct {
         const store = @as(*FactStore, @ptrCast(@alignCast(query.from orelse return error.NoFactStore)));
         
         // Create streaming context for DirectStream
-        // TODO: Phase 5C - Use operator pool instead of heap allocation
         const ctx = try self.allocator.create(DirectStreamContext);
         ctx.* = DirectStreamContext{
             .allocator = self.allocator,
-            .executor = self,
-            .query = query,
             .store = store,
             .iterator = store.iterator(),
-            .state = .initial,
-            .current_fact = null,
+            // Copy only the needed query parts (small structs/enums)
+            .where_condition = if (query.where) |w| w.condition else null,
+            .select_clause = query.select,
+            .limit = query.limit_,
+            .offset = query.offset orelse 0,
+            .count = 0,
+            .skipped = 0,
         };
         
-        // Use GeneratorStream for true streaming without collecting all facts
+        // Generator function for streaming facts
         const gen_fn = struct {
             fn generate(ptr: *anyopaque) ?Fact {
                 const context = @as(*DirectStreamContext, @ptrCast(@alignCast(ptr)));
@@ -548,8 +550,16 @@ pub const QueryExecutor = struct {
             }
         }.generate;
         
+        // Cleanup function to free the context when done
+        const cleanup_fn = struct {
+            fn cleanup(ptr: *anyopaque) void {
+                const context = @as(*DirectStreamContext, @ptrCast(@alignCast(ptr)));
+                context.allocator.destroy(context);
+            }
+        }.cleanup;
+        
         return DirectFactStream{
-            .generator = GeneratorStream(Fact).init(ctx, gen_fn),
+            .generator = GeneratorStream(Fact).initWithCleanup(ctx, gen_fn, cleanup_fn),
         };
     }
     
@@ -559,31 +569,52 @@ pub const QueryExecutor = struct {
     /// Context for DirectStream streaming query execution
     const DirectStreamContext = struct {
         allocator: std.mem.Allocator,
-        executor: *QueryExecutor,
-        query: *const Query,
         store: *FactStore,
         iterator: FactIterator,
-        state: StreamState,
-        current_fact: ?Fact,
+        // Copy only the needed query parts (small, can be copied cheaply)
+        where_condition: ?Condition = null,
+        select_clause: SelectClause = .all,
+        limit: ?usize = null,
+        offset: usize = 0,
+        // Track progress
+        count: usize = 0,
+        skipped: usize = 0,
     };
     
     /// Get next fact for DirectStream (zero-allocation streaming)
     fn directStreamNext(ctx: *DirectStreamContext) !?Fact {
+        // Apply OFFSET - skip facts if needed
+        while (ctx.skipped < ctx.offset) {
+            _ = ctx.iterator.next() orelse return null;
+            ctx.skipped += 1;
+        }
+        
+        // Apply LIMIT - stop if we've returned enough facts
+        if (ctx.limit) |limit| {
+            if (ctx.count >= limit) {
+                return null;
+            }
+        }
+        
         while (ctx.iterator.next()) |fact| {
             // Apply WHERE condition if present
-            if (ctx.query.where) |where_clause| {
-                const result = try ctx.executor.evaluateCondition(fact, &where_clause.condition);
+            if (ctx.where_condition) |condition| {
+                const result = try evaluateStreamingCondition(fact, condition);
                 if (!result) {
                     continue;
                 }
             }
             
             // Apply SELECT predicate filter if not SELECT *
-            switch (ctx.query.select) {
-                .all => return fact,
+            switch (ctx.select_clause) {
+                .all => {
+                    ctx.count += 1;
+                    return fact;
+                },
                 .predicates => |predicates| {
                     for (predicates) |pred| {
                         if (fact.predicate == pred) {
+                            ctx.count += 1;
                             return fact;
                         }
                     }
@@ -592,15 +623,27 @@ pub const QueryExecutor = struct {
                 .fields => {
                     // TODO: Field projection not yet supported in streaming
                     // For now, return all facts when fields are selected
+                    ctx.count += 1;
                     return fact;
                 },
             }
         }
         
-        // Clean up when done
-        // TODO: This cleanup should be handled by DirectStream.close()
-        // For now, we leak the context since GeneratorStream doesn't have cleanup
         return null;
+    }
+    
+    /// Simple condition evaluation for streaming (without full executor)
+    fn evaluateStreamingCondition(fact: Fact, condition: Condition) !bool {
+        // Basic evaluation for common conditions
+        // This is a simplified version - expand as needed
+        switch (condition) {
+            .simple => |simple| {
+                const field_value = getFieldValue(fact, simple.field);
+                return compareValues(field_value, simple.op, simple.value);
+            },
+            .composite => return error.NotImplemented, // TODO: Support composite conditions
+            .not => return error.NotImplemented, // TODO: Support NOT conditions
+        }
     }
     
     /// TODO: Phase 5 - Migrate executeStream to use DirectFactStream

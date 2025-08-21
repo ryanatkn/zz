@@ -20,6 +20,11 @@ const zon_transform = @import("../lib/languages/zon/transform.zig");
 const transform_mod = @import("../lib/transform_old/transform.zig");
 const language_interface = @import("../lib/languages/interface.zig");
 
+// Stream-first architecture
+const stream_format = @import("../lib/stream/format.zig");
+const JsonStreamLexer = @import("../lib/languages/json/stream_lexer.zig").JsonStreamLexer;
+const ZonStreamLexer = @import("../lib/languages/zon/stream_lexer.zig").ZonStreamLexer;
+
 // Parser modules
 const StratifiedParser = @import("../lib/parser_old/mod.zig");
 
@@ -61,6 +66,7 @@ const FormatArgs = struct {
     write: bool = false,
     check: bool = false,
     stdin: bool = false,
+    stream: bool = false,
     options: FormatterOptions = .{},
 
     pub fn deinit(self: *FormatArgs) void {
@@ -101,7 +107,7 @@ pub fn run(allocator: std.mem.Allocator, fs: FilesystemInterface, args: [][:0]co
 
     // Handle stdin mode
     if (format_args.stdin) {
-        try formatStdin(allocator, format_args.options);
+        try formatStdin(allocator, format_args.stream, format_args.options);
         return;
     }
 
@@ -173,7 +179,7 @@ pub fn run(allocator: std.mem.Allocator, fs: FilesystemInterface, args: [][:0]co
     var any_errors = false;
 
     for (all_files.items) |file_path| {
-        const result = processFile(allocator, fs, file_path, format_args.write, format_args.check, format_args.options) catch |err| {
+        const result = processFile(allocator, fs, file_path, format_args.write, format_args.check, format_args.stream, format_args.options) catch |err| {
             try reporting.reportError("Failed to process file '{s}': {s}", .{ file_path, @errorName(err) });
             any_errors = true;
             continue;
@@ -193,7 +199,7 @@ pub fn run(allocator: std.mem.Allocator, fs: FilesystemInterface, args: [][:0]co
     }
 }
 
-fn processFile(allocator: std.mem.Allocator, fs: FilesystemInterface, file_path: []const u8, write: bool, check: bool, options: FormatterOptions) !bool {
+fn processFile(allocator: std.mem.Allocator, fs: FilesystemInterface, file_path: []const u8, write: bool, check: bool, stream: bool, options: FormatterOptions) !bool {
     // Detect language from extension
     const ext = path_utils.extension(file_path);
     const language = Language.fromExtension(ext);
@@ -211,8 +217,13 @@ fn processFile(allocator: std.mem.Allocator, fs: FilesystemInterface, file_path:
     const content = try file.readAll(allocator, std.math.maxInt(usize));
     defer allocator.free(content);
 
-    // Format content using stratified parser
-    const formatted = try formatWithStratifiedParser(allocator, content, language, file_path, options);
+    // Use stream-first formatting for JSON/ZON if --stream flag is set
+    const formatted = if (stream and (language == .json or language == .zon)) blk: {
+        break :blk try formatWithStream(allocator, content, language, options);
+    } else blk: {
+        // Format content using stratified parser
+        break :blk try formatWithStratifiedParser(allocator, content, language, file_path, options);
+    };
     defer allocator.free(formatted);
 
     // Check mode: compare and report
@@ -430,7 +441,7 @@ fn formatterOptionsToFormatOptions(formatter_options: FormatterOptions) FormatOp
     };
 }
 
-fn formatStdin(allocator: std.mem.Allocator, options: FormatterOptions) !void {
+fn formatStdin(allocator: std.mem.Allocator, stream: bool, options: FormatterOptions) !void {
     const stdin = std.io.getStdIn().reader();
     const content = try stdin.readAllAlloc(allocator, std.math.maxInt(usize));
     defer allocator.free(content);
@@ -438,8 +449,13 @@ fn formatStdin(allocator: std.mem.Allocator, options: FormatterOptions) !void {
     // Try to detect language from content (simple heuristic)
     const language = detectLanguageFromContent(content);
 
-    // Format using stratified parser
-    const formatted = try formatWithStratifiedParser(allocator, content, language, "<stdin>", options);
+    // Use stream-first formatting for JSON/ZON if --stream flag is set
+    const formatted = if (stream and (language == .json or language == .zon)) blk: {
+        break :blk try formatWithStream(allocator, content, language, options);
+    } else blk: {
+        // Format using stratified parser
+        break :blk try formatWithStratifiedParser(allocator, content, language, "<stdin>", options);
+    };
     defer allocator.free(formatted);
 
     const stdout = std.io.getStdOut().writer();
@@ -548,6 +564,8 @@ fn parseArgs(allocator: std.mem.Allocator, args: [][:0]const u8, base_options: F
             result.check = true;
         } else if (CommonFlags.isStdinFlag(arg)) {
             result.stdin = true;
+        } else if (std.mem.eql(u8, arg, "--stream")) {
+            result.stream = true;
         } else if (CommonFlags.parseIndentSizeFlag(arg)) |value| {
             result.options.indent_size = value;
         } else if (CommonFlags.parseIndentStyleFlag(arg)) |value| {
@@ -588,6 +606,7 @@ fn printFormatHelp() !void {
         "--write, -w              Format files in-place",
         "--check                  Check if files are formatted (exit 1 if not)",
         "--stdin                  Read from stdin, write to stdout",
+        "--stream                 Use stream-first architecture for JSON/ZON (experimental)",
         "--indent-size=N          Number of spaces for indentation (default: 4)",
         "--indent-style=STYLE     Use 'space' or 'tab' (default: space)",
         "--line-width=N           Maximum line width (default: 100)",
@@ -595,4 +614,51 @@ fn printFormatHelp() !void {
     };
 
     try Args.printUsage(stderr, "format", "Format code files with language-aware pretty printing", &options);
+}
+
+/// Format content using stream-first architecture for JSON/ZON
+fn formatWithStream(allocator: std.mem.Allocator, content: []const u8, language: Language, options: FormatterOptions) ![]u8 {
+    // Convert FormatterOptions to stream FormatOptions
+    const stream_options = stream_format.FormatOptions{
+        .indent_style = switch (options.indent_style) {
+            .space => .spaces,
+            .tab => .tabs,
+        },
+        .indent_width = @intCast(options.indent_size),
+        .max_line_width = options.line_width,
+        .compact = false, // Always use pretty formatting
+        .trailing_commas = options.trailing_comma,
+        .sort_keys = options.sort_keys,
+    };
+
+    var buffer = std.ArrayList(u8).init(allocator);
+    defer buffer.deinit();
+
+    switch (language) {
+        .json => {
+            var lexer = JsonStreamLexer.init(content);
+            var token_stream = lexer.toDirectStream();
+            defer token_stream.close();
+            
+            var formatter = stream_format.JsonFormatter(@TypeOf(buffer.writer())).init(buffer.writer(), stream_options);
+            while (try token_stream.next()) |token| {
+                try formatter.writeToken(token);
+            }
+            try formatter.finish();
+        },
+        .zon => {
+            var lexer = ZonStreamLexer.init(content);
+            var token_stream = lexer.toDirectStream();
+            defer token_stream.close();
+            
+            var formatter = stream_format.ZonFormatter(@TypeOf(buffer.writer())).init(buffer.writer(), stream_options);
+            while (try token_stream.next()) |token| {
+                try formatter.writeToken(token);
+            }
+            try formatter.finish();
+        },
+        else => unreachable, // Should only be called for JSON/ZON
+    }
+
+    return buffer.toOwnedSlice();
 }

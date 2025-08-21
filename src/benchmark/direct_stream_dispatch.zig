@@ -20,7 +20,7 @@ const Stream = struct {
     vtable: *const struct {
         nextFn: *const fn (*anyopaque) anyerror!?u32,
     },
-    
+
     fn next(self: *@This()) !?u32 {
         return self.vtable.nextFn(self.ptr);
     }
@@ -61,22 +61,22 @@ inline fn rdtsc() u64 {
 fn measureDirectStreamCycles(iterations: usize) !f64 {
     const data = [_]u32{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
     var total_cycles: u64 = 0;
-    
+
     var i: usize = 0;
     while (i < iterations) : (i += 1) {
         var stream = directFromSlice(u32, &data);
-        
+
         // Warm up CPU caches
         _ = try stream.next();
-        
+
         // Measure dispatch cycles
         const start = rdtsc();
         _ = try stream.next();
         const end = rdtsc();
-        
+
         total_cycles += (end - start);
     }
-    
+
     return @as(f64, @floatFromInt(total_cycles)) / @as(f64, @floatFromInt(iterations));
 }
 
@@ -84,51 +84,51 @@ fn measureDirectStreamCycles(iterations: usize) !f64 {
 fn measureVTableCycles(iterations: usize) !f64 {
     const data = [_]u32{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
     var total_cycles: u64 = 0;
-    
+
     var i: usize = 0;
     while (i < iterations) : (i += 1) {
         var stream = fromSlice(u32, &data);
-        
+
         // Warm up CPU caches
         _ = try stream.next();
-        
+
         // Measure dispatch cycles
         const start = rdtsc();
         _ = try stream.next();
         const end = rdtsc();
-        
+
         total_cycles += (end - start);
     }
-    
+
     return @as(f64, @floatFromInt(total_cycles)) / @as(f64, @floatFromInt(iterations));
 }
 
 pub fn main() !void {
     const stdout = std.io.getStdOut().writer();
     const iterations = 100000;
-    
+
     try stdout.print("DirectStream Dispatch Benchmark\n", .{});
     try stdout.print("================================\n\n", .{});
-    
+
     // Measure DirectStream (tagged union)
     const direct_cycles = try measureDirectStreamCycles(iterations);
     try stdout.print("DirectStream (tagged union): {d:.1f} cycles average\n", .{direct_cycles});
-    
+
     // Measure Stream (vtable)
     const vtable_cycles = try measureVTableCycles(iterations);
     try stdout.print("Stream (vtable):             {d:.1f} cycles average\n", .{vtable_cycles});
-    
+
     // Calculate improvement
     const improvement = ((vtable_cycles - direct_cycles) / vtable_cycles) * 100;
     try stdout.print("\nImprovement: {d:.1f}% faster dispatch\n", .{improvement});
-    
+
     // Validate our claims
     if (direct_cycles <= 2.5) {
         try stdout.print("✅ DirectStream achieves 1-2 cycle dispatch target\n", .{});
     } else {
         try stdout.print("⚠️  DirectStream dispatch is {d:.1f} cycles (target: 1-2)\n", .{direct_cycles});
     }
-    
+
     if (vtable_cycles >= 3.0) {
         try stdout.print("✅ VTable dispatch confirms 3-5 cycle overhead\n", .{});
     } else {
@@ -139,14 +139,14 @@ pub fn main() !void {
 test "DirectStream dispatch is faster than vtable" {
     const direct_cycles = try measureDirectStreamCycles(1000);
     const vtable_cycles = try measureVTableCycles(1000);
-    
+
     // DirectStream should be at least 50% faster
     try std.testing.expect(direct_cycles < vtable_cycles * 0.7);
 }
 
 test "DirectStream achieves 1-2 cycle dispatch" {
     const cycles = try measureDirectStreamCycles(1000);
-    
+
     // Allow some measurement overhead, but should be close to 1-2 cycles
     try std.testing.expect(cycles <= 5.0);
 }

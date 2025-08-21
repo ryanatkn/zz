@@ -1,5 +1,5 @@
 /// Query Engine with SQL-like DSL for fact streams
-/// 
+///
 /// Provides powerful query capabilities over fact stores with optimization
 /// and streaming execution support.
 const std = @import("std");

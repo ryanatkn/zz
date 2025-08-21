@@ -33,19 +33,19 @@ pub const StreamToken = union(enum) {
     // css: CssToken,
     // html: HtmlToken,
     // svelte: SvelteToken,
-    
+
     /// Get the packed span of this token
     pub inline fn span(self: StreamToken) PackedSpan {
         return switch (self) {
             inline else => |token| token.span,
         };
     }
-    
+
     /// Get the unpacked span of this token
     pub inline fn getSpan(self: StreamToken) Span {
         return unpackSpan(self.span());
     }
-    
+
     /// Get the universal token kind
     pub inline fn kind(self: StreamToken) TokenKind {
         return switch (self) {
@@ -53,35 +53,35 @@ pub const StreamToken = union(enum) {
             .zon => |t| mapZonKind(t.kind),
         };
     }
-    
+
     /// Get the nesting depth
     pub inline fn depth(self: StreamToken) u8 {
         return switch (self) {
             inline else => |token| token.depth,
         };
     }
-    
+
     /// Check if token is trivia (whitespace/comments)
     pub inline fn isTrivia(self: StreamToken) bool {
         return switch (self) {
             inline else => |token| token.isTrivia(),
         };
     }
-    
+
     /// Check if token opens a scope
     pub inline fn isOpenDelimiter(self: StreamToken) bool {
         return switch (self) {
             inline else => |token| token.isOpenDelimiter(),
         };
     }
-    
+
     /// Check if token closes a scope
     pub inline fn isCloseDelimiter(self: StreamToken) bool {
         return switch (self) {
             inline else => |token| token.isCloseDelimiter(),
         };
     }
-    
+
     /// Extract facts from this token into the fact store
     pub fn extractFacts(self: StreamToken, store: *FactStore, source: []const u8) !void {
         return switch (self) {
@@ -89,7 +89,7 @@ pub const StreamToken = union(enum) {
             .zon => |t| extractZonFacts(t, store, source),
         };
     }
-    
+
     /// Get string table index if applicable
     pub inline fn getStringIndex(self: StreamToken) ?u32 {
         return switch (self) {
@@ -155,7 +155,7 @@ fn extractJsonFacts(token: JsonToken, store: *FactStore, source: []const u8) !vo
     _ = source; // TODO: Use for text extraction when atom not available
     const Builder = @import("../fact/mod.zig").Builder;
     const Predicate = @import("../fact/mod.zig").Predicate;
-    
+
     // Extract basic token fact
     const token_fact = try Builder.new()
         .withSubject(token.span)
@@ -170,9 +170,9 @@ fn extractJsonFacts(token: JsonToken, store: *FactStore, source: []const u8) !vo
             else => Predicate.is_token,
         })
         .build();
-    
+
     _ = try store.append(token_fact);
-    
+
     // Extract depth fact for structural tokens
     if (token.isOpenDelimiter() or token.isCloseDelimiter()) {
         const depth_fact = try Builder.new()
@@ -182,7 +182,7 @@ fn extractJsonFacts(token: JsonToken, store: *FactStore, source: []const u8) !vo
             .build();
         _ = try store.append(depth_fact);
     }
-    
+
     // Extract text content for strings and properties
     // TODO: Cache atom lookups for hot paths
     // TODO: Consider inline small string optimization (SSO)
@@ -203,8 +203,8 @@ fn extractZonFacts(token: ZonToken, store: *FactStore, source: []const u8) !void
     _ = source; // TODO: Use for text extraction
     const Builder = @import("../fact/mod.zig").Builder;
     const Predicate = @import("../fact/mod.zig").Predicate;
-    
-    // Extract basic token fact  
+
+    // Extract basic token fact
     const token_fact = try Builder.new()
         .withSubject(token.span)
         .withPredicate(switch (token.kind) {
@@ -221,9 +221,9 @@ fn extractZonFacts(token: ZonToken, store: *FactStore, source: []const u8) !void
             else => Predicate.is_token,
         })
         .build();
-    
+
     _ = try store.append(token_fact);
-    
+
     // Extract depth fact for structural tokens
     if (token.isOpenDelimiter() or token.isCloseDelimiter()) {
         const depth_fact = try Builder.new()
@@ -233,7 +233,7 @@ fn extractZonFacts(token: ZonToken, store: *FactStore, source: []const u8) !void
             .build();
         _ = try store.append(depth_fact);
     }
-    
+
     // Extract text content for identifiers and strings
     if (token.getStringIndex()) |_| {
         // TODO: Look up string from string table and get atom ID
@@ -259,21 +259,21 @@ comptime {
 
 test "StreamToken operations" {
     const span = Span.init(10, 20);
-    
+
     // Test JSON token
     const json_tok = JsonToken.structural(span, .object_start, 0);
     const stream_tok_json = StreamToken{ .json = json_tok };
-    
+
     try std.testing.expectEqual(json_tok.span, stream_tok_json.span());
     try std.testing.expectEqual(@as(u8, 0), stream_tok_json.depth());
     try std.testing.expectEqual(TokenKind.left_brace, stream_tok_json.kind());
     try std.testing.expect(stream_tok_json.isOpenDelimiter());
     try std.testing.expect(!stream_tok_json.isCloseDelimiter());
-    
+
     // Test ZON token
     const zon_tok = ZonToken.field(span, 1, 42, false);
     const stream_tok_zon = StreamToken{ .zon = zon_tok };
-    
+
     try std.testing.expectEqual(zon_tok.span, stream_tok_zon.span());
     try std.testing.expectEqual(@as(u8, 1), stream_tok_zon.depth());
     try std.testing.expectEqual(TokenKind.identifier, stream_tok_zon.kind());

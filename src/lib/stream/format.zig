@@ -1,11 +1,10 @@
 /// stream_format module - Stream-first formatting using DirectStream
 /// Zero-allocation formatting pipeline for JSON and ZON
 /// Achieves optimal performance with 1-2 cycle dispatch
-/// 
+///
 /// Language-specific formatters are located with their language modules:
 /// - JSON: languages/json/stream_format.zig
 /// - ZON: languages/zon/stream_format.zig
-
 const std = @import("std");
 
 // Export formatter generator functions from language modules

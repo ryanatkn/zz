@@ -31,42 +31,42 @@ pub const LexerState = enum {
 pub const ZonStreamLexer = struct {
     // Ring buffer for lookahead (4KB on stack)
     buffer: RingBuffer(u8, 4096),
-    
+
     // Current lexer state
     state: LexerState,
-    
+
     // Position tracking
     position: u32,
     line: u32,
     column: u32,
-    
+
     // Token start position
     token_start: u32,
     token_line: u32,
     token_column: u32,
-    
+
     // Nesting depth
     depth: u8,
-    
+
     // Flags for current token
     current_flags: ZonTokenFlags,
-    
+
     // Error state
     error_msg: ?[]const u8,
-    
+
     /// Initialize lexer with input buffer
     /// This is the primary interface - simple iterator pattern
     pub fn init(input: []const u8) ZonStreamLexer {
         var lexer = ZonStreamLexer.initEmpty();
-        
+
         // Fill ring buffer with input
         for (input) |byte| {
             _ = lexer.buffer.push(byte) catch break;
         }
-        
+
         return lexer;
     }
-    
+
     /// Initialize empty lexer (for streaming from reader)
     pub fn initEmpty() ZonStreamLexer {
         return .{
@@ -83,19 +83,19 @@ pub const ZonStreamLexer = struct {
             .error_msg = null,
         };
     }
-    
+
     /// Get next token - Direct iterator interface (no vtable!)
-    /// This is 1-2 cycle dispatch vs 3-5 for vtable  
+    /// This is 1-2 cycle dispatch vs 3-5 for vtable
     pub fn next(self: *ZonStreamLexer) ?StreamToken {
-        
+
         // Return null if already done (after EOF)
         if (self.state == .done) {
             return null;
         }
-        
+
         // Skip whitespace and comments
         self.skipWhitespaceAndComments();
-        
+
         // Check for end of input - ANY state can reach EOF, not just .start
         if (self.buffer.isEmpty()) {
             self.state = .done; // Mark as done after EOF
@@ -105,18 +105,18 @@ pub const ZonStreamLexer = struct {
                 .depth = self.depth,
                 .flags = .{},
                 .data = 0,
-            }};
+            } };
         }
-        
+
         // Mark token start
         self.token_start = self.position;
         self.token_line = self.line;
         self.token_column = self.column;
         self.current_flags = .{};
-        
+
         // Get next character
         const ch = self.buffer.peek() orelse return null;
-        
+
         // Dispatch based on character
         switch (ch) {
             '.' => {
@@ -124,7 +124,7 @@ pub const ZonStreamLexer = struct {
                 _ = self.buffer.pop();
                 self.position += 1;
                 self.column += 1;
-                
+
                 if (self.buffer.peek()) |next_ch| {
                     if (next_ch == '{') {
                         _ = self.buffer.pop();
@@ -137,7 +137,7 @@ pub const ZonStreamLexer = struct {
                             .depth = self.depth,
                             .flags = .{},
                             .data = 0,
-                        }};
+                        } };
                     }
                 }
                 return self.scanFieldAccess();
@@ -162,13 +162,13 @@ pub const ZonStreamLexer = struct {
             },
         }
     }
-    
+
     /// Convert to DirectStream for integration with stream pipeline
     /// Uses GeneratorStream pattern for zero-allocation streaming
     pub fn toDirectStream(self: *ZonStreamLexer) @import("../../stream/mod.zig").DirectStream(StreamToken) {
         const DirectStream = @import("../../stream/mod.zig").DirectStream;
         const GeneratorStream = @import("../../stream/mod.zig").GeneratorStream;
-        
+
         const gen = GeneratorStream(StreamToken).init(
             @ptrCast(self),
             struct {
@@ -178,10 +178,10 @@ pub const ZonStreamLexer = struct {
                 }
             }.generate,
         );
-        
+
         return DirectStream(StreamToken){ .generator = gen };
     }
-    
+
     /// Skip whitespace and comments
     fn skipWhitespaceAndComments(self: *ZonStreamLexer) void {
         while (self.buffer.peek()) |ch| {
@@ -202,14 +202,14 @@ pub const ZonStreamLexer = struct {
                     _ = self.buffer.pop();
                     self.position += 1;
                     self.column += 1;
-                    
+
                     if (self.buffer.peek()) |next_ch| {
                         if (next_ch == '/') {
                             // Single-line comment
                             _ = self.buffer.pop();
                             self.position += 1;
                             self.column += 1;
-                            
+
                             while (self.buffer.peek()) |comment_ch| {
                                 _ = self.buffer.pop();
                                 self.position += 1;
@@ -231,18 +231,18 @@ pub const ZonStreamLexer = struct {
             }
         }
     }
-    
+
     /// Create a simple single-character token
     fn makeSimpleToken(self: *ZonStreamLexer, kind: ZonTokenKind, increase_depth: bool) StreamToken {
         _ = self.buffer.pop();
         const end_pos = self.position + 1;
-        
+
         if (increase_depth) {
             self.depth = @min(self.depth + 1, 255);
         } else if (kind == .object_end or kind == .array_end or kind == .paren_close) {
             self.depth = if (self.depth > 0) self.depth - 1 else 0;
         }
-        
+
         const token = ZonToken{
             .span = packSpan(Span{ .start = self.token_start, .end = end_pos }),
             .kind = kind,
@@ -250,33 +250,30 @@ pub const ZonStreamLexer = struct {
             .flags = .{},
             .data = 0,
         };
-        
+
         self.position = end_pos;
         self.column += 1;
-        
+
         return StreamToken{ .zon = token };
     }
-    
+
     /// Scan a string literal
     fn scanString(self: *ZonStreamLexer) StreamToken {
-        _ = self.buffer.pop();  // Consume opening quote
+        _ = self.buffer.pop(); // Consume opening quote
         self.position += 1;
         self.column += 1;
-        
+
         var has_escapes = false;
-        
+
         while (self.buffer.peek()) |ch| {
             _ = self.buffer.pop();
             self.position += 1;
             self.column += 1;
-            
+
             switch (ch) {
                 '"' => {
                     const token = ZonToken{
-                        .span = packSpan(Span{ 
-                            .start = self.token_start, 
-                            .end = self.position 
-                        }),
+                        .span = packSpan(Span{ .start = self.token_start, .end = self.position }),
                         .kind = .string_value,
                         .depth = self.depth,
                         .flags = .{ .has_escapes = has_escapes },
@@ -298,29 +295,29 @@ pub const ZonStreamLexer = struct {
                 else => {},
             }
         }
-        
+
         self.error_msg = "Unterminated string";
         return self.makeErrorToken();
     }
-    
+
     /// Scan a multiline string (\\\\)
     fn scanMultilineString(self: *ZonStreamLexer) StreamToken {
-        _ = self.buffer.pop();  // Consume first backslash
+        _ = self.buffer.pop(); // Consume first backslash
         self.position += 1;
         self.column += 1;
-        
+
         if (self.buffer.peek()) |ch| {
             if (ch == '\\') {
                 _ = self.buffer.pop();
                 self.position += 1;
                 self.column += 1;
-                
+
                 // Scan until we find another \\\\
                 var line_count: u32 = 0;
                 while (self.buffer.peek()) |scan_ch| {
                     _ = self.buffer.pop();
                     self.position += 1;
-                    
+
                     if (scan_ch == '\n') {
                         self.line += 1;
                         self.column = 1;
@@ -328,19 +325,16 @@ pub const ZonStreamLexer = struct {
                     } else {
                         self.column += 1;
                     }
-                    
+
                     if (scan_ch == '\\') {
                         if (self.buffer.peek()) |next_ch| {
                             if (next_ch == '\\') {
                                 _ = self.buffer.pop();
                                 self.position += 1;
                                 self.column += 1;
-                                
+
                                 const token = ZonToken{
-                                    .span = packSpan(Span{ 
-                                        .start = self.token_start, 
-                                        .end = self.position 
-                                    }),
+                                    .span = packSpan(Span{ .start = self.token_start, .end = self.position }),
                                     .kind = .string_value,
                                     .depth = self.depth,
                                     .flags = .{ .multiline_string = true },
@@ -353,25 +347,25 @@ pub const ZonStreamLexer = struct {
                 }
             }
         }
-        
+
         self.error_msg = "Invalid multiline string";
         return self.makeErrorToken();
     }
-    
+
     /// Scan a number
     fn scanNumber(self: *ZonStreamLexer) StreamToken {
         var is_float = false;
         var is_hex = false;
         var is_binary = false;
         var is_octal = false;
-        
+
         // Check for sign or special prefixes
         if (self.buffer.peek()) |ch| {
             if (ch == '0') {
                 _ = self.buffer.pop();
                 self.position += 1;
                 self.column += 1;
-                
+
                 if (self.buffer.peek()) |next_ch| {
                     switch (next_ch) {
                         'x', 'X' => {
@@ -401,7 +395,7 @@ pub const ZonStreamLexer = struct {
                 self.column += 1;
             }
         }
-        
+
         // Scan number body
         while (self.buffer.peek()) |ch| {
             const valid = if (is_hex)
@@ -412,21 +406,18 @@ pub const ZonStreamLexer = struct {
                 (ch >= '0' and ch <= '7') or ch == '_'
             else
                 (ch >= '0' and ch <= '9') or ch == '.' or ch == 'e' or ch == 'E' or ch == '_';
-            
+
             if (!valid) break;
-            
+
             if (ch == '.') is_float = true;
-            
+
             _ = self.buffer.pop();
             self.position += 1;
             self.column += 1;
         }
-        
+
         const token = ZonToken{
-            .span = packSpan(Span{ 
-                .start = self.token_start, 
-                .end = self.position 
-            }),
+            .span = packSpan(Span{ .start = self.token_start, .end = self.position }),
             .kind = .number_value,
             .depth = self.depth,
             .flags = .{
@@ -437,17 +428,17 @@ pub const ZonStreamLexer = struct {
             },
             .data = 0,
         };
-        
+
         return StreamToken{ .zon = token };
     }
-    
+
     /// Scan an identifier or keyword
     fn scanIdentifier(self: *ZonStreamLexer) StreamToken {
         while (self.buffer.peek()) |ch| {
-            if ((ch >= 'a' and ch <= 'z') or 
-                (ch >= 'A' and ch <= 'Z') or 
-                (ch >= '0' and ch <= '9') or 
-                ch == '_') 
+            if ((ch >= 'a' and ch <= 'z') or
+                (ch >= 'A' and ch <= 'Z') or
+                (ch >= '0' and ch <= '9') or
+                ch == '_')
             {
                 _ = self.buffer.pop();
                 self.position += 1;
@@ -456,7 +447,7 @@ pub const ZonStreamLexer = struct {
                 break;
             }
         }
-        
+
         // Check for keywords
         const len = self.position - self.token_start;
         const kind: ZonTokenKind = if (len == 4 and self.matchesKeywordAt("true", self.token_start))
@@ -469,31 +460,28 @@ pub const ZonStreamLexer = struct {
             .undefined
         else
             .identifier;
-        
+
         const token = ZonToken{
-            .span = packSpan(Span{ 
-                .start = self.token_start, 
-                .end = self.position 
-            }),
+            .span = packSpan(Span{ .start = self.token_start, .end = self.position }),
             .kind = kind,
             .depth = self.depth,
             .flags = .{},
             .data = 0,
         };
-        
+
         return StreamToken{ .zon = token };
     }
-    
+
     /// Scan a builtin (@import, @field, etc.)
     fn scanBuiltin(self: *ZonStreamLexer) StreamToken {
-        _ = self.buffer.pop();  // Consume @
+        _ = self.buffer.pop(); // Consume @
         self.position += 1;
         self.column += 1;
-        
+
         while (self.buffer.peek()) |ch| {
-            if ((ch >= 'a' and ch <= 'z') or 
-                (ch >= 'A' and ch <= 'Z') or 
-                ch == '_') 
+            if ((ch >= 'a' and ch <= 'z') or
+                (ch >= 'A' and ch <= 'Z') or
+                ch == '_')
             {
                 _ = self.buffer.pop();
                 self.position += 1;
@@ -502,28 +490,25 @@ pub const ZonStreamLexer = struct {
                 break;
             }
         }
-        
+
         const token = ZonToken{
-            .span = packSpan(Span{ 
-                .start = self.token_start, 
-                .end = self.position 
-            }),
+            .span = packSpan(Span{ .start = self.token_start, .end = self.position }),
             .kind = .import,
             .depth = self.depth,
             .flags = .{},
             .data = 0,
         };
-        
+
         return StreamToken{ .zon = token };
     }
-    
+
     /// Scan a field access (.field_name)
     fn scanFieldAccess(self: *ZonStreamLexer) StreamToken {
         while (self.buffer.peek()) |ch| {
-            if ((ch >= 'a' and ch <= 'z') or 
-                (ch >= 'A' and ch <= 'Z') or 
-                (ch >= '0' and ch <= '9') or 
-                ch == '_') 
+            if ((ch >= 'a' and ch <= 'z') or
+                (ch >= 'A' and ch <= 'Z') or
+                (ch >= '0' and ch <= '9') or
+                ch == '_')
             {
                 _ = self.buffer.pop();
                 self.position += 1;
@@ -532,21 +517,18 @@ pub const ZonStreamLexer = struct {
                 break;
             }
         }
-        
+
         const token = ZonToken{
-            .span = packSpan(Span{ 
-                .start = self.token_start, 
-                .end = self.position 
-            }),
+            .span = packSpan(Span{ .start = self.token_start, .end = self.position }),
             .kind = .field_name,
             .depth = self.depth,
             .flags = .{},
             .data = 0,
         };
-        
+
         return StreamToken{ .zon = token };
     }
-    
+
     /// Check if buffer matches keyword at position (simplified)
     fn matchesKeywordAt(self: *ZonStreamLexer, keyword: []const u8, start: u32) bool {
         _ = self;
@@ -555,14 +537,11 @@ pub const ZonStreamLexer = struct {
         // TODO: Implement proper keyword matching with buffer history
         return false;
     }
-    
+
     /// Create an error token
     fn makeErrorToken(self: *ZonStreamLexer) StreamToken {
         const token = ZonToken{
-            .span = packSpan(Span{ 
-                .start = self.token_start, 
-                .end = self.position 
-            }),
+            .span = packSpan(Span{ .start = self.token_start, .end = self.position }),
             .kind = .err,
             .depth = self.depth,
             .flags = .{},
@@ -576,23 +555,23 @@ pub const ZonStreamLexer = struct {
 // Tests
 test "ZonStreamLexer basic tokenization" {
     const testing = std.testing;
-    
+
     var lexer = ZonStreamLexer.init(
         \\.{ .name = "test", .value = 42 }
     );
-    
+
     // .{
     const token1 = lexer.next() orelse return error.UnexpectedNull;
     try testing.expectEqual(ZonTokenKind.struct_start, token1.zon.kind);
-    
+
     // .name
     const token2 = lexer.next() orelse return error.UnexpectedNull;
     try testing.expectEqual(ZonTokenKind.field_name, token2.zon.kind);
-    
+
     // =
     const token3 = lexer.next() orelse return error.UnexpectedNull;
     try testing.expectEqual(ZonTokenKind.equals, token3.zon.kind);
-    
+
     // "test"
     const token4 = lexer.next() orelse return error.UnexpectedNull;
     try testing.expectEqual(ZonTokenKind.string_value, token4.zon.kind);
@@ -600,14 +579,14 @@ test "ZonStreamLexer basic tokenization" {
 
 test "ZonStreamLexer zero allocations" {
     const testing = std.testing;
-    
+
     const input = ".{ .a = 1, .b = 2 }";
     var lexer = ZonStreamLexer.init(input);
-    
+
     // Stack-allocated lexer
     const lexer_size = @sizeOf(ZonStreamLexer);
     try testing.expect(lexer_size < 5000);
-    
+
     // Tokenize without allocating
     while (lexer.next()) |token| {
         // Process tokens - no allocations
@@ -617,12 +596,12 @@ test "ZonStreamLexer zero allocations" {
 
 test "ZonStreamLexer multiline strings" {
     const testing = std.testing;
-    
+
     var lexer = ZonStreamLexer.init(
         \\\\This is a
         \\multiline string\\
     );
-    
+
     const token = lexer.next() orelse return error.UnexpectedNull;
     try testing.expectEqual(ZonTokenKind.string_value, token.zon.kind);
     try testing.expect(token.zon.flags.multiline_string);
@@ -630,21 +609,21 @@ test "ZonStreamLexer multiline strings" {
 
 test "ZonStreamLexer EOF handling" {
     const testing = std.testing;
-    
+
     var lexer = ZonStreamLexer.init("42");
-    
+
     // Get number token
     const token1 = lexer.next() orelse return error.UnexpectedNull;
     try testing.expectEqual(ZonTokenKind.number_value, token1.zon.kind);
-    
+
     // Get EOF token
     const token2 = lexer.next() orelse return error.UnexpectedNull;
     try testing.expectEqual(ZonTokenKind.eof, token2.zon.kind);
-    
+
     // After EOF, should return null
     const token3 = lexer.next();
     try testing.expectEqual(@as(?StreamToken, null), token3);
-    
+
     // Should continue returning null
     const token4 = lexer.next();
     try testing.expectEqual(@as(?StreamToken, null), token4);

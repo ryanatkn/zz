@@ -43,7 +43,7 @@ pub const LanguageLexer = union(enum) {
     // css: CssLexer,
     // html: HtmlLexer,
     // svelte: SvelteLexer,
-    
+
     pub fn nextToken(self: *LanguageLexer, source: []const u8, pos: usize) ?StreamToken {
         return switch (self.*) {
             inline else => |*lexer| lexer.nextToken(source, pos),
@@ -58,17 +58,17 @@ pub const TokenIterator = struct {
     position: usize,
     buffer: RingBuffer(StreamToken, 16), // Small lookahead for peek operations
     atom_table: ?*AtomTable = null, // Optional atom table for string interning
-    
+
     // TODO: Batch atom interning for better performance
     // atom_batch: [32][]const u8,
     // batch_count: u8,
-    
+
     // TODO: Consider thread-local atom tables for parallelism
     // thread_local_atoms: ?*ThreadLocalAtomTable,
-    
+
     const Self = @This();
     const AtomTable = @import("../memory/atom_table.zig").AtomTable;
-    
+
     /// Initialize a token iterator for the given source and language
     pub fn init(source: []const u8, language: Language) TokenIterator {
         return .{
@@ -78,47 +78,47 @@ pub const TokenIterator = struct {
             .buffer = RingBuffer(StreamToken, 16).init(),
         };
     }
-    
+
     /// Initialize with atom table for string interning
     pub fn initWithAtoms(source: []const u8, language: Language, atom_table: *AtomTable) TokenIterator {
         var iter = init(source, language);
         iter.atom_table = atom_table;
         return iter;
     }
-    
+
     /// Get the next token, advancing the position
     pub fn next(self: *Self) ?StreamToken {
         // Check buffer first
         if (self.buffer.pop()) |token| {
             return token;
         }
-        
+
         // Lex next token from source
         if (self.lexer.nextToken(self.source, self.position)) |token| {
             // TODO: Update position based on token span
             // self.position = token.getSpan().end;
             return token;
         }
-        
+
         return null;
     }
-    
+
     /// Peek at the next token without consuming it
     pub fn peek(self: *Self) ?StreamToken {
         // Check buffer first
         if (self.buffer.peek()) |token| {
             return token;
         }
-        
+
         // Lex and buffer the next token
         if (self.lexer.nextToken(self.source, self.position)) |token| {
             _ = self.buffer.push(token) catch return null;
             return token;
         }
-        
+
         return null;
     }
-    
+
     /// Skip n tokens
     pub fn skip(self: *Self, n: usize) void {
         var i: usize = 0;
@@ -126,7 +126,7 @@ pub const TokenIterator = struct {
             _ = self.next();
         }
     }
-    
+
     /// Convert to a Stream for composable operations
     pub fn toStream(self: *Self) Stream(StreamToken) {
         // TODO: Implement Stream adapter
@@ -134,12 +134,12 @@ pub const TokenIterator = struct {
         _ = self;
         return undefined;
     }
-    
+
     /// Convert to a DirectStream for optimal performance (Phase 5)
     pub fn toDirectStream(self: *Self) DirectStream(StreamToken) {
         // Create a generator-based DirectStream
         const GeneratorStream = @import("../stream/direct_stream.zig").GeneratorStream;
-        
+
         return DirectStream(StreamToken){
             .generator = GeneratorStream(StreamToken).init(self, struct {
                 fn generate(iter: *anyopaque) ?StreamToken {
@@ -149,7 +149,7 @@ pub const TokenIterator = struct {
             }.generate),
         };
     }
-    
+
     // TODO: Phase 5 - Remove toStream once all consumers migrated to toDirectStream
 };
 

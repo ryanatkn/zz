@@ -16,23 +16,23 @@ test {
 
 // Additional integration tests for streaming
 test "ZON stream lexer integration" {
-    const input = 
+    const input =
         \\.{
         \\  .name = "stream-first",
         \\  .version = 1.0,
         \\  .enabled = true
         \\}
     ;
-    
+
     var lexer = ZonStreamLexer.init(input);
-    
+
     // Verify we can process the entire input
     var token_count: usize = 0;
     while (lexer.next()) |token| {
         if (token.zon.kind == .eof) break;
         token_count += 1;
     }
-    
+
     try testing.expect(token_count > 0);
 }
 
@@ -40,7 +40,7 @@ test "ZON stream lexer performance characteristics" {
     // Verify the lexer struct size is reasonable
     const lexer_size = @sizeOf(ZonStreamLexer);
     try testing.expect(lexer_size < 5000); // Mostly ring buffer
-    
+
     // Verify token size is exactly 16 bytes
     const token_size = @sizeOf(ZonToken);
     try testing.expectEqual(@as(usize, 16), token_size);
@@ -53,7 +53,7 @@ test "ZON stream lexer edge cases" {
     try testing.expectEqual(ZonTokenKind.struct_start, t1.zon.kind);
     const t2 = lexer1.next().?;
     try testing.expectEqual(ZonTokenKind.struct_end, t2.zon.kind);
-    
+
     // Test builtin function
     var lexer2 = ZonStreamLexer.init("@import(\"std\")");
     const t3 = lexer2.next().?;

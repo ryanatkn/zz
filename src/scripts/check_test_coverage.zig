@@ -379,7 +379,7 @@ const TestCoverageAnalyzer = struct {
             break :blk try std.fmt.allocPrint(self.allocator, "{s}/{s}", .{ cwd, test_path });
         };
         defer if (!std.fs.path.isAbsolute(test_path)) self.allocator.free(normalized_path);
-        
+
         // Infer the base directory from the test file path (its parent directory)
         const base_dir = std.fs.path.dirname(test_path) orelse ".";
 
@@ -406,7 +406,7 @@ const TestCoverageAnalyzer = struct {
             var iter = files_to_analyze.iterator();
             const entry = iter.next().?;
             const current_file = entry.key_ptr.*;
-            
+
             // Remove from to-analyze and add to processed
             _ = files_to_analyze.remove(current_file);
             try processed_files.put(try self.allocator.dupe(u8, current_file), {});
@@ -432,27 +432,27 @@ const TestCoverageAnalyzer = struct {
         const original_src_root = self.config.src_root;
         self.config.src_root = base_dir;
         defer self.config.src_root = original_src_root;
-        
+
         // Now analyze only the files in our dependency tree
         var processed_iter = processed_files.iterator();
         while (processed_iter.next()) |entry| {
             const file_path = entry.key_ptr.*;
             defer self.allocator.free(file_path);
-            
+
             // Skip if not a .zig file
             if (!std.mem.endsWith(u8, file_path, ".zig")) continue;
-            
+
             // Convert absolute path to relative if needed for analyzeFile
             var path_buf: [std.fs.max_path_bytes]u8 = undefined;
             const cwd = try std.fs.cwd().realpath(".", &path_buf);
-            
+
             // Normalize the path - handle missing leading slash
             const normalized_file_path = if (!std.mem.startsWith(u8, file_path, "/") and std.mem.indexOf(u8, file_path, "/") != null)
                 try std.fmt.allocPrint(self.allocator, "/{s}", .{file_path})
             else
                 try self.allocator.dupe(u8, file_path);
             defer self.allocator.free(normalized_file_path);
-            
+
             const relative_path = if (std.mem.startsWith(u8, normalized_file_path, cwd)) blk: {
                 // Remove the cwd prefix and leading slash
                 var rel = normalized_file_path[cwd.len..];
@@ -461,16 +461,16 @@ const TestCoverageAnalyzer = struct {
                 }
                 break :blk rel;
             } else normalized_file_path;
-            
+
             // Only analyze files under the inferred base directory
             if (!std.mem.startsWith(u8, relative_path, base_dir)) continue;
-            
+
             // Analyze this file
             try self.analyzeFile(relative_path);
         }
 
         // Mark the main test file as a test barrel so imports get tracked
-        const test_relative_path = test_path;  // Already relative
+        const test_relative_path = test_path; // Already relative
         if (self.files.getPtr(test_relative_path)) |test_file| {
             test_file.is_test_barrel = true;
         }
@@ -525,10 +525,10 @@ const TestCoverageAnalyzer = struct {
                         const import_path = ast.tokenSlice(str_token);
                         // Remove quotes
                         const clean_path = import_path[1 .. import_path.len - 1];
-                        
+
                         // Skip std imports
                         if (std.mem.eql(u8, clean_path, "std")) continue;
-                        
+
                         // Resolve relative import to absolute path
                         const resolved_path = try self.resolveImportPath(file_path, clean_path);
                         if (resolved_path) |path| {
@@ -560,10 +560,10 @@ const TestCoverageAnalyzer = struct {
                     const start = std.mem.indexOf(u8, trimmed, "@import(\"").? + 9;
                     const end = std.mem.indexOf(u8, trimmed[start..], "\")").? + start;
                     const import_path = trimmed[start..end];
-                    
+
                     // Skip std imports
                     if (std.mem.eql(u8, import_path, "std")) continue;
-                    
+
                     // Resolve relative import to absolute path
                     const resolved_path = try self.resolveImportPath(file_path, import_path);
                     if (resolved_path) |path| {
@@ -784,7 +784,7 @@ pub fn main() !void {
     var i: usize = 1;
     while (i < args.len) : (i += 1) {
         const arg = args[i];
-        
+
         // Check for positional argument (test file path)
         if (!std.mem.startsWith(u8, arg, "-")) {
             // This is a positional argument - treat as test file path

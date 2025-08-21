@@ -11,7 +11,7 @@ pub const TokenKind = enum(u8) {
     string,
     boolean,
     null,
-    
+
     // ====== Keywords (common subset) ======
     keyword_if,
     keyword_else,
@@ -45,92 +45,92 @@ pub const TokenKind = enum(u8) {
     keyword_public,
     keyword_private,
     keyword_static,
-    
+
     // ====== Operators ======
     // Arithmetic
-    plus,           // +
-    minus,          // -
-    star,           // *
-    slash,          // /
-    percent,        // %
-    
+    plus, // +
+    minus, // -
+    star, // *
+    slash, // /
+    percent, // %
+
     // Comparison
-    equals,         // ==
-    not_equals,     // !=
-    less_than,      // <
-    greater_than,   // >
-    less_equals,    // <=
+    equals, // ==
+    not_equals, // !=
+    less_than, // <
+    greater_than, // >
+    less_equals, // <=
     greater_equals, // >=
-    
+
     // Assignment
-    assign,         // =
-    plus_assign,    // +=
-    minus_assign,   // -=
-    star_assign,    // *=
-    slash_assign,   // /=
-    
+    assign, // =
+    plus_assign, // +=
+    minus_assign, // -=
+    star_assign, // *=
+    slash_assign, // /=
+
     // Logical
-    logical_and,    // &&
-    logical_or,     // ||
-    logical_not,    // !
-    
+    logical_and, // &&
+    logical_or, // ||
+    logical_not, // !
+
     // Bitwise
-    bit_and,        // &
-    bit_or,         // |
-    bit_xor,        // ^
-    bit_not,        // ~
-    left_shift,     // <<
-    right_shift,    // >>
-    
+    bit_and, // &
+    bit_or, // |
+    bit_xor, // ^
+    bit_not, // ~
+    left_shift, // <<
+    right_shift, // >>
+
     // ====== Delimiters ======
-    left_paren,     // (
-    right_paren,    // )
-    left_brace,     // {
-    right_brace,    // }
-    left_bracket,   // [
-    right_bracket,  // ]
-    left_angle,     // < (when used as delimiter)
-    right_angle,    // > (when used as delimiter)
-    
+    left_paren, // (
+    right_paren, // )
+    left_brace, // {
+    right_brace, // }
+    left_bracket, // [
+    right_bracket, // ]
+    left_angle, // < (when used as delimiter)
+    right_angle, // > (when used as delimiter)
+
     // ====== Punctuation ======
-    comma,          // ,
-    semicolon,      // ;
-    colon,          // :
-    dot,            // .
-    arrow,          // ->
-    fat_arrow,      // =>
-    question,       // ?
-    at,             // @
-    hash,           // #
-    dollar,         // $
-    ampersand,      // & (reference)
-    pipe,           // | (union type)
-    
+    comma, // ,
+    semicolon, // ;
+    colon, // :
+    dot, // .
+    arrow, // ->
+    fat_arrow, // =>
+    question, // ?
+    at, // @
+    hash, // #
+    dollar, // $
+    ampersand, // & (reference)
+    pipe, // | (union type)
+
     // ====== Trivia ======
     whitespace,
     newline,
     comment,
     doc_comment,
-    
+
     // ====== Special ======
     eof,
     err, // 'error' is reserved in Zig
     unknown,
-    
+
     // ====== Language-specific markers ======
     // These help preserve language semantics without full enumeration
-    template_start,     // Template literals, JSX, etc.
+    template_start, // Template literals, JSX, etc.
     template_end,
     interpolation_start,
     interpolation_end,
-    regex,              // Regular expression literals
-    decorator,          // @decorator syntax
-    
+    regex, // Regular expression literals
+    decorator, // @decorator syntax
+
     /// Get a human-readable name for the token kind
     pub fn name(self: TokenKind) []const u8 {
         return @tagName(self);
     }
-    
+
     /// Check if this token kind is trivia (can be skipped in parsing)
     pub fn isTrivia(self: TokenKind) bool {
         return switch (self) {
@@ -138,18 +138,15 @@ pub const TokenKind = enum(u8) {
             else => false,
         };
     }
-    
+
     /// Check if this token kind is a delimiter
     pub fn isDelimiter(self: TokenKind) bool {
         return switch (self) {
-            .left_paren, .right_paren,
-            .left_brace, .right_brace,
-            .left_bracket, .right_bracket,
-            .left_angle, .right_angle => true,
+            .left_paren, .right_paren, .left_brace, .right_brace, .left_bracket, .right_bracket, .left_angle, .right_angle => true,
             else => false,
         };
     }
-    
+
     /// Check if this token kind opens a scope
     pub fn isOpenDelimiter(self: TokenKind) bool {
         return switch (self) {
@@ -157,7 +154,7 @@ pub const TokenKind = enum(u8) {
             else => false,
         };
     }
-    
+
     /// Check if this token kind closes a scope
     pub fn isCloseDelimiter(self: TokenKind) bool {
         return switch (self) {
@@ -165,27 +162,21 @@ pub const TokenKind = enum(u8) {
             else => false,
         };
     }
-    
+
     /// Check if this token kind is a keyword
     pub fn isKeyword(self: TokenKind) bool {
         const name_str = @tagName(self);
         return std.mem.startsWith(u8, name_str, "keyword_");
     }
-    
+
     /// Check if this token kind is an operator
     pub fn isOperator(self: TokenKind) bool {
         return switch (self) {
-            .plus, .minus, .star, .slash, .percent,
-            .equals, .not_equals, .less_than, .greater_than,
-            .less_equals, .greater_equals,
-            .assign, .plus_assign, .minus_assign, .star_assign, .slash_assign,
-            .logical_and, .logical_or, .logical_not,
-            .bit_and, .bit_or, .bit_xor, .bit_not,
-            .left_shift, .right_shift => true,
+            .plus, .minus, .star, .slash, .percent, .equals, .not_equals, .less_than, .greater_than, .less_equals, .greater_equals, .assign, .plus_assign, .minus_assign, .star_assign, .slash_assign, .logical_and, .logical_or, .logical_not, .bit_and, .bit_or, .bit_xor, .bit_not, .left_shift, .right_shift => true,
             else => false,
         };
     }
-    
+
     /// Check if this token kind is a literal
     pub fn isLiteral(self: TokenKind) bool {
         return switch (self) {
@@ -208,21 +199,21 @@ test "TokenKind categorization" {
     try std.testing.expect(TokenKind.whitespace.isTrivia());
     try std.testing.expect(TokenKind.comment.isTrivia());
     try std.testing.expect(!TokenKind.identifier.isTrivia());
-    
+
     try std.testing.expect(TokenKind.left_brace.isDelimiter());
     try std.testing.expect(TokenKind.left_brace.isOpenDelimiter());
     try std.testing.expect(!TokenKind.left_brace.isCloseDelimiter());
-    
+
     try std.testing.expect(TokenKind.right_brace.isDelimiter());
     try std.testing.expect(TokenKind.right_brace.isCloseDelimiter());
     try std.testing.expect(!TokenKind.right_brace.isOpenDelimiter());
-    
+
     try std.testing.expect(TokenKind.keyword_if.isKeyword());
     try std.testing.expect(!TokenKind.identifier.isKeyword());
-    
+
     try std.testing.expect(TokenKind.plus.isOperator());
     try std.testing.expect(!TokenKind.comma.isOperator());
-    
+
     try std.testing.expect(TokenKind.string.isLiteral());
     try std.testing.expect(TokenKind.number.isLiteral());
     try std.testing.expect(!TokenKind.plus.isLiteral());

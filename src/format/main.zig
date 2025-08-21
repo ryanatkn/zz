@@ -639,7 +639,7 @@ fn formatWithStream(allocator: std.mem.Allocator, content: []const u8, language:
             var lexer = JsonStreamLexer.init(content);
             var token_stream = lexer.toDirectStream();
             defer token_stream.close();
-            
+
             var formatter = stream_format.JsonFormatter(@TypeOf(buffer.writer())).init(buffer.writer(), stream_options);
             while (try token_stream.next()) |token| {
                 try formatter.writeToken(token);
@@ -650,7 +650,7 @@ fn formatWithStream(allocator: std.mem.Allocator, content: []const u8, language:
             var lexer = ZonStreamLexer.init(content);
             var token_stream = lexer.toDirectStream();
             defer token_stream.close();
-            
+
             var formatter = stream_format.ZonFormatter(@TypeOf(buffer.writer())).init(buffer.writer(), stream_options);
             while (try token_stream.next()) |token| {
                 try formatter.writeToken(token);

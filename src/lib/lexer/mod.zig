@@ -1,5 +1,5 @@
 /// Lexer module - DEPRECATED
-/// 
+///
 /// LexerBridge and StreamAdapter have been removed in Phase 6.
 /// Use direct stream lexers (JsonStreamLexer, ZonStreamLexer) instead.
 /// This module kept temporarily for LexerState only.

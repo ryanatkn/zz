@@ -1,7 +1,6 @@
-/// DirectStream - Optimal tagged union implementation 
+/// DirectStream - Optimal tagged union implementation
 /// Phase 5C - Clean break from legacy, arena-allocated operators
 /// Achieves 1-2 cycle dispatch through enum-based dispatch
-
 const std = @import("std");
 const StreamError = @import("error.zig").StreamError;
 const RingBuffer = @import("buffer.zig").RingBuffer;
@@ -23,14 +22,14 @@ pub fn DirectStream(comptime T: type) type {
         generator: GeneratorStream(T),
         empty: EmptyStream(T),
         error_stream: ErrorStream(T),
-        
+
         // Operators (pointers to avoid recursion, arena allocated)
         filter: *FilterOperator(T),
         take: *TakeOperator(T),
         drop: *DropOperator(T),
-        
+
         const Self = @This();
-        
+
         /// Get next item from stream, advancing position
         /// Inlined for maximum performance (1-2 cycle dispatch)
         pub inline fn next(self: *Self) StreamError!?T {
@@ -45,7 +44,7 @@ pub fn DirectStream(comptime T: type) type {
                 .drop => |s| s.next(),
             };
         }
-        
+
         /// Peek at next item without advancing
         /// Inlined for zero-overhead preview
         pub inline fn peek(self: *Self) StreamError!?T {
@@ -60,7 +59,7 @@ pub fn DirectStream(comptime T: type) type {
                 .drop => |s| s.peek(),
             };
         }
-        
+
         /// Skip n items in the stream
         /// Inlined for efficient bulk advancement
         pub inline fn skip(self: *Self, n: usize) StreamError!void {
@@ -75,7 +74,7 @@ pub fn DirectStream(comptime T: type) type {
                 .drop => |s| s.skip(n),
             };
         }
-        
+
         /// Get current position in stream
         /// Inlined for immediate position access
         pub inline fn getPosition(self: *const Self) usize {
@@ -90,7 +89,7 @@ pub fn DirectStream(comptime T: type) type {
                 .drop => |s| s.getPosition(),
             };
         }
-        
+
         /// Check if stream is exhausted
         /// Inlined for fast termination checks
         pub inline fn isExhausted(self: *const Self) bool {
@@ -105,7 +104,7 @@ pub fn DirectStream(comptime T: type) type {
                 .drop => |s| s.isExhausted(),
             };
         }
-        
+
         /// Close the stream and release resources
         pub inline fn close(self: *Self) void {
             switch (self.*) {
@@ -130,16 +129,16 @@ pub fn FilterOperator(comptime T: type) type {
     return struct {
         source: DirectStream(T),
         predicate: *const fn (T) bool,
-        
+
         const Self = @This();
-        
+
         pub fn init(source: DirectStream(T), predicate: *const fn (T) bool) Self {
             return .{
                 .source = source,
                 .predicate = predicate,
             };
         }
-        
+
         pub fn next(self: *Self) StreamError!?T {
             while (try self.source.next()) |item| {
                 if (self.predicate(item)) {
@@ -148,7 +147,7 @@ pub fn FilterOperator(comptime T: type) type {
             }
             return null;
         }
-        
+
         pub fn peek(self: *Self) StreamError!?T {
             // Can't peek efficiently with filter
             // TODO: Consider caching peeked value
@@ -160,23 +159,23 @@ pub fn FilterOperator(comptime T: type) type {
             }
             return null;
         }
-        
+
         pub fn skip(self: *Self, n: usize) StreamError!void {
             var count: usize = 0;
             while (count < n) : (count += 1) {
                 _ = try self.next() orelse break;
             }
         }
-        
+
         pub fn getPosition(self: *const Self) usize {
             return self.source.getPosition();
         }
-        
+
         pub fn isExhausted(self: *const Self) bool {
             // TODO: This isn't quite right - need to check if any items pass filter
             return self.source.isExhausted();
         }
-        
+
         pub fn close(self: *Self) void {
             self.source.close();
         }
@@ -189,9 +188,9 @@ pub fn TakeOperator(comptime T: type) type {
         source: DirectStream(T),
         limit: usize,
         taken: usize,
-        
+
         const Self = @This();
-        
+
         pub fn init(source: DirectStream(T), limit: usize) Self {
             return .{
                 .source = source,
@@ -199,7 +198,7 @@ pub fn TakeOperator(comptime T: type) type {
                 .taken = 0,
             };
         }
-        
+
         pub fn next(self: *Self) StreamError!?T {
             if (self.taken >= self.limit) return null;
             if (try self.source.next()) |item| {
@@ -208,26 +207,26 @@ pub fn TakeOperator(comptime T: type) type {
             }
             return null;
         }
-        
+
         pub fn peek(self: *Self) StreamError!?T {
             if (self.taken >= self.limit) return null;
             return self.source.peek();
         }
-        
+
         pub fn skip(self: *Self, n: usize) StreamError!void {
             const to_skip = @min(n, self.limit - self.taken);
             try self.source.skip(to_skip);
             self.taken += to_skip;
         }
-        
+
         pub fn getPosition(self: *const Self) usize {
             return self.taken;
         }
-        
+
         pub fn isExhausted(self: *const Self) bool {
             return self.taken >= self.limit or self.source.isExhausted();
         }
-        
+
         pub fn close(self: *Self) void {
             self.source.close();
         }
@@ -240,9 +239,9 @@ pub fn DropOperator(comptime T: type) type {
         source: DirectStream(T),
         drop_count: usize,
         dropped: bool,
-        
+
         const Self = @This();
-        
+
         pub fn init(source: DirectStream(T), drop_count: usize) Self {
             return .{
                 .source = source,
@@ -250,7 +249,7 @@ pub fn DropOperator(comptime T: type) type {
                 .dropped = false,
             };
         }
-        
+
         pub fn next(self: *Self) StreamError!?T {
             if (!self.dropped) {
                 try self.source.skip(self.drop_count);
@@ -258,7 +257,7 @@ pub fn DropOperator(comptime T: type) type {
             }
             return self.source.next();
         }
-        
+
         pub fn peek(self: *Self) StreamError!?T {
             if (!self.dropped) {
                 try self.source.skip(self.drop_count);
@@ -266,7 +265,7 @@ pub fn DropOperator(comptime T: type) type {
             }
             return self.source.peek();
         }
-        
+
         pub fn skip(self: *Self, n: usize) StreamError!void {
             if (!self.dropped) {
                 try self.source.skip(self.drop_count);
@@ -274,7 +273,7 @@ pub fn DropOperator(comptime T: type) type {
             }
             return self.source.skip(n);
         }
-        
+
         pub fn getPosition(self: *const Self) usize {
             if (!self.dropped) {
                 return 0;
@@ -282,11 +281,11 @@ pub fn DropOperator(comptime T: type) type {
             const pos = self.source.getPosition();
             return if (pos > self.drop_count) pos - self.drop_count else 0;
         }
-        
+
         pub fn isExhausted(self: *const Self) bool {
             return self.source.isExhausted();
         }
-        
+
         pub fn close(self: *Self) void {
             self.source.close();
         }
@@ -309,7 +308,6 @@ fn getArena() !*ArenaPool {
 }
 
 /// Helper functions to create streams
-
 pub fn fromSlice(comptime T: type, data: []const T) DirectStream(T) {
     return DirectStream(T){ .slice = SliceStream(T).init(data) };
 }
@@ -331,7 +329,6 @@ pub fn errorStream(comptime T: type, err: StreamError) DirectStream(T) {
 }
 
 /// Helper functions to create operators with arena allocation
-
 pub fn directFilter(comptime T: type, source: DirectStream(T), pred: *const fn (T) bool) !DirectStream(T) {
     const arena = try getArena();
     const op = try arena.allocator().create(FilterOperator(T));

@@ -35,22 +35,22 @@ const examples = @import("examples.zig");
 const benchmarks = @import("benchmarks.zig");
 
 const DemoMode = enum {
-    performance,     // Show performance comparisons
-    query,          // Demonstrate query engine
-    tokenization,   // Show JSON/ZON tokenization
-    formatting,     // Show JSON/ZON formatting
-    all,           // Run all demos
+    performance, // Show performance comparisons
+    query, // Demonstrate query engine
+    tokenization, // Show JSON/ZON tokenization
+    formatting, // Show JSON/ZON formatting
+    all, // Run all demos
     help,
 };
 
 pub fn run(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: [][:0]const u8) !void {
     _ = filesystem; // TODO: Use for file operations
-    
+
     const mode = parseArgs(args);
-    
+
     const stdout = std.io.getStdOut().writer();
     const stderr = std.io.getStdErr().writer();
-    
+
     switch (mode) {
         .help => try showHelp(stdout),
         .performance => try runPerformanceDemo(allocator, stdout, stderr),
@@ -71,7 +71,7 @@ pub fn run(allocator: std.mem.Allocator, filesystem: FilesystemInterface, args: 
 
 fn parseArgs(args: [][:0]const u8) DemoMode {
     if (args.len <= 1) return .all;
-    
+
     for (args[1..]) |arg| {
         if (std.mem.eql(u8, arg, "--help") or std.mem.eql(u8, arg, "-h")) {
             return .help;
@@ -89,7 +89,7 @@ fn parseArgs(args: [][:0]const u8) DemoMode {
             return .formatting;
         }
     }
-    
+
     return .all;
 }
 
@@ -119,63 +119,63 @@ fn showHelp(writer: anytype) !void {
 
 fn runPerformanceDemo(allocator: std.mem.Allocator, stdout: anytype, stderr: anytype) !void {
     _ = stderr;
-    
+
     try stdout.writeAll("=== DirectStream Performance Demo ===\n\n");
-    
+
     // Create test data
     const test_data = try allocator.alloc(i32, 1000);
     defer allocator.free(test_data);
     for (test_data, 0..) |*item, i| {
         item.* = @intCast(i);
     }
-    
+
     // Benchmark DirectStream
     try stdout.print("Testing with {} elements...\n\n", .{test_data.len});
-    
+
     const direct_result = try benchmarks.benchmarkDirectStream(allocator, test_data);
     const vtable_result = try benchmarks.benchmarkVtableStream(allocator, test_data);
-    
+
     try stdout.print("DirectStream Results:\n", .{});
     try stdout.print("  • Dispatch cycles: {d:.1}\n", .{direct_result.avg_cycles});
     try stdout.print("  • Total time: {d:.1}μs\n", .{direct_result.total_time_us});
     try stdout.print("  • Throughput: {d:.1}M ops/sec\n\n", .{direct_result.throughput_mops});
-    
+
     try stdout.print("Vtable Stream Results:\n", .{});
     try stdout.print("  • Dispatch cycles: {d:.1}\n", .{vtable_result.avg_cycles});
     try stdout.print("  • Total time: {d:.1}μs\n", .{vtable_result.total_time_us});
     try stdout.print("  • Throughput: {d:.1}M ops/sec\n\n", .{vtable_result.throughput_mops});
-    
+
     const speedup = vtable_result.avg_cycles / direct_result.avg_cycles;
     try stdout.print("🚀 DirectStream is {d:.1}x faster!\n", .{speedup});
 }
 
 fn runQueryDemo(allocator: std.mem.Allocator, stdout: anytype, stderr: anytype) !void {
     _ = stderr;
-    
+
     try stdout.writeAll("=== DirectFactStream Query Demo ===\n\n");
-    
+
     // Create a fact store with sample data
     var store = FactStore.init(allocator);
     defer store.deinit();
-    
+
     // Add sample facts
     try examples.addSampleFacts(&store);
-    
+
     // Build and execute query using DirectFactStream
     try stdout.writeAll("Query: SELECT * WHERE confidence >= 0.8 LIMIT 10\n\n");
-    
+
     var builder = QueryBuilder.init(allocator);
     defer builder.deinit();
-    
+
     _ = builder.selectAll()
         .from(&store);
     _ = try builder.where(.confidence, .gte, 0.8);
     _ = builder.limit(10);
-    
+
     // Use directExecuteStream for true streaming
     var stream = try builder.directExecuteStream();
     defer stream.close(); // Ensure cleanup of allocated context
-    
+
     try stdout.writeAll("Results (using DirectFactStream):\n");
     var count: usize = 0;
     while (try stream.next()) |fact| {
@@ -186,18 +186,18 @@ fn runQueryDemo(allocator: std.mem.Allocator, stdout: anytype, stderr: anytype) 
             fact.confidence,
         });
     }
-    
+
     try stdout.print("\nProcessed {} facts with zero heap allocations!\n", .{count});
 }
 
 fn runTokenizationDemo(allocator: std.mem.Allocator, stdout: anytype, stderr: anytype) !void {
     _ = stderr;
     _ = allocator;
-    
+
     try stdout.writeAll("=== DirectTokenStream Demo (JSON/ZON) ===\n\n");
-    
+
     // JSON example
-    const json_input = 
+    const json_input =
         \\{
         \\  "name": "DirectStream",
         \\  "performance": {
@@ -207,16 +207,16 @@ fn runTokenizationDemo(allocator: std.mem.Allocator, stdout: anytype, stderr: an
         \\  "features": ["zero-allocation", "fast-dispatch", "composable"]
         \\}
     ;
-    
+
     try stdout.writeAll("JSON Input:\n");
     try stdout.print("{s}\n\n", .{json_input});
-    
+
     // Tokenize with DirectTokenStream
     var json_lexer = JsonStreamLexer.init(json_input);
-    
+
     try stdout.writeAll("Tokens (via DirectTokenStream):\n");
     var token_count: usize = 0;
-    
+
     // Use DirectTokenStream for true streaming
     var token_stream = json_lexer.toDirectStream();
     while (try token_stream.next()) |token| {
@@ -227,24 +227,24 @@ fn runTokenizationDemo(allocator: std.mem.Allocator, stdout: anytype, stderr: an
             @tagName(token.json.kind),
         });
     }
-    
+
     try stdout.print("\nTokenized {} tokens with 1-2 cycle dispatch!\n", .{token_count});
-    
+
     // ZON example
     try stdout.writeAll("\n--- ZON Example ---\n");
-    const zon_input = 
+    const zon_input =
         \\.{
         \\    .name = "DirectStream",
         \\    .version = 1.0,
         \\    .enabled = true,
         \\}
     ;
-    
+
     try stdout.print("ZON Input:\n{s}\n\n", .{zon_input});
-    
+
     var zon_lexer = ZonStreamLexer.init(zon_input);
     token_count = 0;
-    
+
     try stdout.writeAll("Tokens:\n");
     // Use DirectTokenStream for ZON too
     var zon_stream = zon_lexer.toDirectStream();
@@ -256,35 +256,35 @@ fn runTokenizationDemo(allocator: std.mem.Allocator, stdout: anytype, stderr: an
             @tagName(token.zon.kind),
         });
     }
-    
+
     try stdout.print("\nZON tokenized {} tokens efficiently!\n", .{token_count});
 }
 
 fn runFormattingDemo(allocator: std.mem.Allocator, stdout: anytype, stderr: anytype) !void {
     _ = stderr;
     _ = allocator;
-    
+
     try stdout.writeAll("=== DirectTokenStream Formatting Demo (JSON/ZON) ===\n\n");
-    
+
     // Simple JSON structure to demonstrate formatting pipeline
-    const json_input = 
+    const json_input =
         \\{"compact":true,"array":[1,2,3]}
     ;
-    
+
     try stdout.writeAll("Unformatted JSON Input:\n");
     try stdout.print("{s}\n\n", .{json_input});
-    
+
     // Demonstrate the stream pipeline
     try stdout.writeAll("Stream Pipeline:\n");
     try stdout.writeAll("  1. JsonStreamLexer tokenizes input\n");
     try stdout.writeAll("  2. toDirectStream() creates DirectTokenStream\n");
     try stdout.writeAll("  3. Tokens flow through with 1-2 cycle dispatch\n");
     try stdout.writeAll("  4. JsonFormatter processes each token\n\n");
-    
+
     // Tokenize with DirectTokenStream
     var json_lexer = JsonStreamLexer.init(json_input);
     var json_stream = json_lexer.toDirectStream();
-    
+
     try stdout.writeAll("Tokens via DirectTokenStream:\n");
     var token_count: usize = 0;
     while (try json_stream.next()) |token| {
@@ -295,21 +295,21 @@ fn runFormattingDemo(allocator: std.mem.Allocator, stdout: anytype, stderr: anyt
             @tagName(token.json.kind),
         });
     }
-    
+
     try stdout.print("\nProcessed {} tokens with DirectStream!\n\n", .{token_count});
-    
+
     // ZON example
     try stdout.writeAll("--- ZON Formatting Example ---\n");
-    const zon_input = 
+    const zon_input =
         \\.{.compact=true,.array=[1,2,3]}
     ;
-    
+
     try stdout.writeAll("ZON Input:\n");
     try stdout.print("{s}\n\n", .{zon_input});
-    
+
     var zon_lexer = ZonStreamLexer.init(zon_input);
     var zon_stream = zon_lexer.toDirectStream();
-    
+
     try stdout.writeAll("Tokens via DirectTokenStream:\n");
     token_count = 0;
     while (try zon_stream.next()) |token| {
@@ -320,9 +320,9 @@ fn runFormattingDemo(allocator: std.mem.Allocator, stdout: anytype, stderr: anyt
             @tagName(token.zon.kind),
         });
     }
-    
+
     try stdout.print("\nProcessed {} ZON tokens!\n\n", .{token_count});
-    
+
     try stdout.writeAll("🚀 Stream-first formatting pipeline demonstrated!\n");
     try stdout.writeAll("   • DirectTokenStream: 1-2 cycle dispatch\n");
     try stdout.writeAll("   • Zero heap allocations throughout\n");

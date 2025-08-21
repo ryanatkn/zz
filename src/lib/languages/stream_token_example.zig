@@ -90,15 +90,15 @@ pub const CustomToken = extern struct {
     depth: u8,
     flags: u8,
     data: u32,
-    
+
     pub fn isTrivia(self: CustomToken) bool {
         return self.kind == .whitespace or self.kind == .comment;
     }
-    
+
     pub fn isOpenDelimiter(self: CustomToken) bool {
         return self.kind == .block_start;
     }
-    
+
     pub fn isCloseDelimiter(self: CustomToken) bool {
         return self.kind == .block_end;
     }
@@ -126,22 +126,22 @@ pub const ExtendedStreamToken = SimpleStreamToken(ExtendedTokenUnion);
 test "Custom token composition" {
     const Span = @import("../span/mod.zig").Span;
     const span = Span.init(10, 20);
-    
+
     // Create a JSON token through custom union
     const json_tok = JsonToken.structural(span, .object_start, 0);
     const my_token = MyStreamToken{
         .token = MyTokenUnion{ .json = json_tok },
     };
-    
+
     try std.testing.expectEqual(json_tok.span, my_token.span());
     try std.testing.expectEqual(@as(u8, 0), my_token.depth());
     try std.testing.expect(my_token.isOpenDelimiter());
-    
+
     // Test minimal JSON-only token
     const json_only = JsonOnlyStreamToken{
         .token = JsonOnlyToken{ .json = json_tok },
     };
-    
+
     try std.testing.expectEqual(json_tok.span, json_only.span());
     try std.testing.expect(json_only.isOpenDelimiter());
 }

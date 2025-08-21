@@ -13,7 +13,7 @@ pub const QueryPlan = struct {
     root: PlanNode,
     estimated_cost: f64,
     estimated_rows: usize,
-    
+
     pub fn init(allocator: Allocator, root: PlanNode) QueryPlan {
         return .{
             .allocator = allocator,
@@ -22,11 +22,11 @@ pub const QueryPlan = struct {
             .estimated_rows = 0,
         };
     }
-    
+
     pub fn deinit(self: *QueryPlan) void {
         self.root.deinit(self.allocator);
     }
-    
+
     pub fn format(
         self: QueryPlan,
         comptime fmt: []const u8,
@@ -35,25 +35,25 @@ pub const QueryPlan = struct {
     ) !void {
         _ = fmt;
         _ = options;
-        
+
         try writer.writeAll("QueryPlan {\n");
         try self.formatNode(writer, &self.root, 1);
         try writer.print("  Estimated Cost: {d:.2}\n", .{self.estimated_cost});
         try writer.print("  Estimated Rows: {}\n", .{self.estimated_rows});
         try writer.writeAll("}");
     }
-    
+
     fn formatNode(self: QueryPlan, writer: anytype, node: *const PlanNode, depth: usize) !void {
         // Indent
         for (0..depth) |_| {
             try writer.writeAll("  ");
         }
-        
+
         // Node type
         try writer.print("-> ", .{});
         try node.type.format("", .{}, writer);
         try writer.print(" ", .{});
-        
+
         // Node details
         switch (node.type) {
             .scan => {
@@ -87,9 +87,9 @@ pub const QueryPlan = struct {
                 try writer.writeAll("(JOIN)");
             },
         }
-        
+
         try writer.print(" [cost: {d:.2}, rows: {}]\n", .{ node.cost, node.estimated_rows });
-        
+
         // Children
         for (node.children) |child| {
             try self.formatNode(writer, &child, depth + 1);
@@ -99,15 +99,15 @@ pub const QueryPlan = struct {
 
 /// Plan node types
 pub const PlanNodeType = enum {
-    scan,       // Table/fact scan
+    scan, // Table/fact scan
     index_scan, // Index scan
-    filter,     // WHERE filtering
-    sort,       // ORDER BY sorting
-    limit,      // LIMIT/OFFSET
-    aggregate,  // GROUP BY aggregation
-    project,    // SELECT projection
-    hash_join,  // Hash join (future)
-    
+    filter, // WHERE filtering
+    sort, // ORDER BY sorting
+    limit, // LIMIT/OFFSET
+    aggregate, // GROUP BY aggregation
+    project, // SELECT projection
+    hash_join, // Hash join (future)
+
     pub fn format(
         self: PlanNodeType,
         comptime fmt: []const u8,
@@ -116,7 +116,7 @@ pub const PlanNodeType = enum {
     ) !void {
         _ = fmt;
         _ = options;
-        
+
         const name = switch (self) {
             .scan => "Scan",
             .index_scan => "IndexScan",
@@ -133,10 +133,10 @@ pub const PlanNodeType = enum {
 
 /// Scan types
 pub const ScanType = enum {
-    full,      // Full table scan
+    full, // Full table scan
     predicate, // Predicate-filtered scan
-    range,     // Range scan
-    
+    range, // Range scan
+
     pub fn format(
         self: ScanType,
         comptime fmt: []const u8,
@@ -145,7 +145,7 @@ pub const ScanType = enum {
     ) !void {
         _ = fmt;
         _ = options;
-        
+
         const name = switch (self) {
             .full => "full",
             .predicate => "predicate",
@@ -161,14 +161,14 @@ pub const PlanNode = struct {
     children: []PlanNode,
     cost: f64,
     estimated_rows: usize,
-    
+
     // Node-specific data
     scan_type: ?ScanType = null,
     filter_condition: ?*anyopaque = null,
     sort_fields: ?[]const Field = null,
     limit_count: ?usize = null,
     aggregate_fields: ?[]const Field = null,
-    
+
     pub fn init(node_type: PlanNodeType) PlanNode {
         return .{
             .type = node_type,
@@ -177,7 +177,7 @@ pub const PlanNode = struct {
             .estimated_rows = 0,
         };
     }
-    
+
     pub fn deinit(self: *PlanNode, allocator: Allocator) void {
         for (self.children) |*child| {
             child.deinit(allocator);
@@ -192,34 +192,34 @@ pub const PlanNode = struct {
 pub const QueryPlanner = struct {
     allocator: Allocator,
     optimizer: *QueryOptimizer,
-    
+
     pub fn init(allocator: Allocator, optimizer: *QueryOptimizer) QueryPlanner {
         return .{
             .allocator = allocator,
             .optimizer = optimizer,
         };
     }
-    
+
     pub fn deinit(self: *QueryPlanner) void {
         _ = self;
     }
-    
+
     /// Create execution plan for query
     pub fn createPlan(self: *QueryPlanner, query: *const Query) !QueryPlan {
         // Start with base scan
         var root = try self.createScanNode(query);
-        
+
         // Add filter node if WHERE clause exists
         if (query.where) |_| {
             root = try self.wrapWithNode(root, .filter);
         }
-        
+
         // Add aggregate node if GROUP BY exists
         if (query.group_by) |group_by| {
             root = try self.wrapWithNode(root, .aggregate);
             root.aggregate_fields = group_by;
         }
-        
+
         // Add sort node if ORDER BY exists
         if (query.order_by) |order_by| {
             root = try self.wrapWithNode(root, .sort);
@@ -229,30 +229,30 @@ pub const QueryPlanner = struct {
             }
             root.sort_fields = fields;
         }
-        
+
         // Add limit node if LIMIT exists
         if (query.limit_) |limit| {
             root = try self.wrapWithNode(root, .limit);
             root.limit_count = limit;
         }
-        
+
         // Add projection node for SELECT
         root = try self.wrapWithNode(root, .project);
-        
+
         // Calculate costs
         self.calculateCosts(&root);
-        
+
         var plan = QueryPlan.init(self.allocator, root);
         plan.estimated_cost = root.cost;
         plan.estimated_rows = root.estimated_rows;
-        
+
         return plan;
     }
-    
+
     /// Create base scan node
     fn createScanNode(self: *QueryPlanner, query: *const Query) !PlanNode {
         var node = PlanNode.init(.scan);
-        
+
         // Determine scan type based on query
         if (self.optimizer.selectIndex(query)) |_| {
             node.type = .index_scan;
@@ -264,10 +264,10 @@ pub const QueryPlanner = struct {
                 .fields => node.scan_type = .full,
             }
         }
-        
+
         return node;
     }
-    
+
     /// Wrap a node with a parent node
     fn wrapWithNode(self: *QueryPlanner, child: PlanNode, node_type: PlanNodeType) !PlanNode {
         var parent = PlanNode.init(node_type);
@@ -276,14 +276,14 @@ pub const QueryPlanner = struct {
         parent.children = children;
         return parent;
     }
-    
+
     /// Calculate costs for plan nodes (bottom-up)
     fn calculateCosts(self: *QueryPlanner, node: *PlanNode) void {
         // First calculate children
         for (node.children) |*child| {
             self.calculateCosts(child);
         }
-        
+
         // Then calculate this node
         switch (node.type) {
             .scan, .index_scan => {
@@ -338,17 +338,17 @@ pub const QueryPlanner = struct {
             },
         }
     }
-    
+
     /// Explain plan as string
     pub fn explain(self: *QueryPlanner, query: *const Query) ![]u8 {
         const plan = try self.createPlan(query);
         defer plan.deinit();
-        
+
         var buffer = std.ArrayList(u8).init(self.allocator);
         defer buffer.deinit();
-        
+
         try plan.format("", .{}, buffer.writer());
-        
+
         return buffer.toOwnedSlice();
     }
 };

@@ -703,7 +703,7 @@ pub fn runQueryBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOption
                 // Simple query
                 var builder = query_mod.QueryBuilder.init(ctx.allocator);
                 defer builder.deinit();
-                
+
                 _ = builder.select(&.{.is_function}).from(&store);
                 var result = try builder.execute();
                 defer result.deinit();
@@ -746,13 +746,13 @@ pub fn runQueryBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOption
                 // Complex query
                 var builder = query_mod.QueryBuilder.init(ctx.allocator);
                 defer builder.deinit();
-                
+
                 _ = builder.selectAll().from(&store);
                 _ = try builder.where(.confidence, .gte, 0.5);
                 _ = try builder.andWhere(.predicate, .eq, .is_function);
                 _ = try builder.orderBy(.confidence, .descending);
                 _ = builder.limit(10);
-                
+
                 var result = try builder.execute();
                 defer result.deinit();
             }
@@ -794,17 +794,17 @@ pub fn runQueryBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOption
                 // Build query
                 var builder = query_mod.QueryBuilder.init(ctx.allocator);
                 defer builder.deinit();
-                
+
                 _ = builder.select(&.{.is_function}).from(&store);
                 _ = try builder.where(.confidence, .gte, 0.8);
-                
+
                 var query = try builder.build();
                 defer query.deinit();
-                
+
                 // Optimize
                 var optimizer = query_mod.QueryOptimizer.init(ctx.allocator);
                 defer optimizer.deinit();
-                
+
                 var optimized = try optimizer.optimize(&query);
                 defer optimized.deinit();
             }
@@ -834,22 +834,22 @@ pub fn runQueryBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOption
                 // Build query
                 var builder = query_mod.QueryBuilder.init(ctx.allocator);
                 defer builder.deinit();
-                
+
                 _ = builder.selectAll().from(&store);
                 _ = try builder.where(.confidence, .gte, 0.5);
                 _ = try builder.orderBy(.span_start, .ascending);
                 _ = builder.limit(10);
-                
+
                 var query = try builder.build();
                 defer query.deinit();
-                
+
                 // Create plan
                 var optimizer = query_mod.QueryOptimizer.init(ctx.allocator);
                 defer optimizer.deinit();
-                
+
                 var planner = query_mod.QueryPlanner.init(ctx.allocator, &optimizer);
                 defer planner.deinit();
-                
+
                 var plan = try planner.createPlan(&query);
                 defer plan.deinit();
             }

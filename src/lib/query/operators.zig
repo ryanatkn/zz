@@ -5,36 +5,36 @@ const Predicate = @import("../fact/mod.zig").Predicate;
 /// Comparison operators for WHERE clauses
 pub const Op = enum {
     // Equality
-    eq,    // equals
-    neq,   // not equals
-    
+    eq, // equals
+    neq, // not equals
+
     // Comparison
-    lt,    // less than
-    lte,   // less than or equal
-    gt,    // greater than
-    gte,   // greater than or equal
-    
+    lt, // less than
+    lte, // less than or equal
+    gt, // greater than
+    gte, // greater than or equal
+
     // Range
     between,
     not_between,
-    
+
     // Set operations
     in,
     not_in,
-    
+
     // Pattern matching
     like,
     not_like,
-    
+
     // Null checks
     is_null,
     is_not_null,
-    
+
     // Logical
     and_op,
     or_op,
     not_op,
-    
+
     pub fn toString(self: Op) []const u8 {
         return switch (self) {
             .eq => "=",
@@ -66,21 +66,21 @@ pub const Field = enum {
     predicate,
     object,
     confidence,
-    
+
     // Span fields (via subject)
     span_start,
     span_end,
     span_length,
-    
+
     // Value fields (via object)
     value_type,
     value_number,
     value_atom,
-    
+
     // Metadata
     generation,
     timestamp,
-    
+
     pub fn toString(self: Field) []const u8 {
         return switch (self) {
             .id => "id",
@@ -104,7 +104,7 @@ pub const Field = enum {
 pub const Direction = enum {
     ascending,
     descending,
-    
+
     pub fn toString(self: Direction) []const u8 {
         return switch (self) {
             .ascending => "ASC",
@@ -122,7 +122,7 @@ pub const Aggregation = enum {
     max,
     first,
     last,
-    
+
     pub fn toString(self: Aggregation) []const u8 {
         return switch (self) {
             .count => "COUNT",
@@ -148,7 +148,7 @@ pub const Value = union(enum) {
     span: struct { start: u32, end: u32 },
     range: struct { min: f64, max: f64 },
     list: []const Value,
-    
+
     pub fn format(
         self: Value,
         comptime fmt: []const u8,

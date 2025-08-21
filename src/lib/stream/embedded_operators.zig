@@ -1,7 +1,6 @@
 /// Phase 5B: Embedded state operators for zero-allocation DirectStream
 /// These operators embed their state directly, avoiding heap allocation entirely
 /// Following stream-first principles: 1-2 cycle dispatch, zero allocations
-
 const std = @import("std");
 const DirectStream = @import("direct_stream.zig").DirectStream;
 const StreamError = @import("error.zig").StreamError;
@@ -11,42 +10,42 @@ pub fn MapEmbedded(comptime T: type, comptime U: type) type {
     return struct {
         source: DirectStream(T),
         map_fn: *const fn (T) U,
-        
+
         const Self = @This();
-        
+
         pub fn init(source: DirectStream(T), map_fn: *const fn (T) U) Self {
             return .{
                 .source = source,
                 .map_fn = map_fn,
             };
         }
-        
+
         pub fn next(self: *Self) StreamError!?U {
             if (try self.source.next()) |value| {
                 return self.map_fn(value);
             }
             return null;
         }
-        
+
         pub fn peek(self: *const Self) StreamError!?U {
             if (try self.source.peek()) |value| {
                 return self.map_fn(value);
             }
             return null;
         }
-        
+
         pub fn skip(self: *Self, n: usize) StreamError!void {
             return self.source.skip(n);
         }
-        
+
         pub fn getPosition(self: *const Self) usize {
             return self.source.getPosition();
         }
-        
+
         pub fn isExhausted(self: *const Self) bool {
             return self.source.isExhausted();
         }
-        
+
         pub fn close(self: *Self) void {
             self.source.close();
         }
@@ -59,9 +58,9 @@ pub fn FilterEmbedded(comptime T: type) type {
         source: DirectStream(T),
         predicate: *const fn (T) bool,
         next_value: ?T,
-        
+
         const Self = @This();
-        
+
         pub fn init(source: DirectStream(T), predicate: *const fn (T) bool) Self {
             return .{
                 .source = source,
@@ -69,7 +68,7 @@ pub fn FilterEmbedded(comptime T: type) type {
                 .next_value = null,
             };
         }
-        
+
         pub fn next(self: *Self) StreamError!?T {
             while (try self.source.next()) |value| {
                 if (self.predicate(value)) {
@@ -78,12 +77,12 @@ pub fn FilterEmbedded(comptime T: type) type {
             }
             return null;
         }
-        
+
         pub fn peek(self: *Self) StreamError!?T {
             if (self.next_value) |value| {
                 return value;
             }
-            
+
             while (try self.source.next()) |value| {
                 if (self.predicate(value)) {
                     self.next_value = value;
@@ -92,22 +91,22 @@ pub fn FilterEmbedded(comptime T: type) type {
             }
             return null;
         }
-        
+
         pub fn skip(self: *Self, n: usize) StreamError!void {
             var skipped: usize = 0;
             while (skipped < n) : (skipped += 1) {
                 if (try self.next() == null) break;
             }
         }
-        
+
         pub fn getPosition(self: *const Self) usize {
             return self.source.getPosition();
         }
-        
+
         pub fn isExhausted(self: *const Self) bool {
             return self.next_value == null and self.source.isExhausted();
         }
-        
+
         pub fn close(self: *Self) void {
             self.source.close();
         }
@@ -120,9 +119,9 @@ pub fn TakeEmbedded(comptime T: type) type {
         source: DirectStream(T),
         limit: usize,
         taken: usize,
-        
+
         const Self = @This();
-        
+
         pub fn init(source: DirectStream(T), limit: usize) Self {
             return .{
                 .source = source,
@@ -130,7 +129,7 @@ pub fn TakeEmbedded(comptime T: type) type {
                 .taken = 0,
             };
         }
-        
+
         pub fn next(self: *Self) StreamError!?T {
             if (self.taken >= self.limit) return null;
             if (try self.source.next()) |value| {
@@ -139,26 +138,26 @@ pub fn TakeEmbedded(comptime T: type) type {
             }
             return null;
         }
-        
+
         pub fn peek(self: *const Self) StreamError!?T {
             if (self.taken >= self.limit) return null;
             return self.source.peek();
         }
-        
+
         pub fn skip(self: *Self, n: usize) StreamError!void {
             const to_skip = @min(n, self.limit - self.taken);
             try self.source.skip(to_skip);
             self.taken += to_skip;
         }
-        
+
         pub fn getPosition(self: *const Self) usize {
             return self.taken;
         }
-        
+
         pub fn isExhausted(self: *const Self) bool {
             return self.taken >= self.limit or self.source.isExhausted();
         }
-        
+
         pub fn close(self: *Self) void {
             self.source.close();
         }
@@ -171,9 +170,9 @@ pub fn DropEmbedded(comptime T: type) type {
         source: DirectStream(T),
         to_drop: usize,
         dropped: usize,
-        
+
         const Self = @This();
-        
+
         pub fn init(source: DirectStream(T), to_drop: usize) Self {
             return .{
                 .source = source,
@@ -181,7 +180,7 @@ pub fn DropEmbedded(comptime T: type) type {
                 .dropped = 0,
             };
         }
-        
+
         pub fn next(self: *Self) StreamError!?T {
             // Drop initial elements if needed
             while (self.dropped < self.to_drop) {
@@ -190,7 +189,7 @@ pub fn DropEmbedded(comptime T: type) type {
             }
             return self.source.next();
         }
-        
+
         pub fn peek(self: *Self) StreamError!?T {
             // Drop initial elements if needed
             while (self.dropped < self.to_drop) {
@@ -199,7 +198,7 @@ pub fn DropEmbedded(comptime T: type) type {
             }
             return self.source.peek();
         }
-        
+
         pub fn skip(self: *Self, n: usize) StreamError!void {
             // First drop required elements
             while (self.dropped < self.to_drop) {
@@ -209,15 +208,15 @@ pub fn DropEmbedded(comptime T: type) type {
             // Then skip requested elements
             return self.source.skip(n);
         }
-        
+
         pub fn getPosition(self: *const Self) usize {
             return self.source.getPosition();
         }
-        
+
         pub fn isExhausted(self: *const Self) bool {
             return self.source.isExhausted();
         }
-        
+
         pub fn close(self: *Self) void {
             self.source.close();
         }
@@ -230,9 +229,9 @@ pub fn MapFilterEmbedded(comptime T: type, comptime U: type) type {
         source: DirectStream(T),
         map_fn: *const fn (T) U,
         predicate: *const fn (U) bool,
-        
+
         const Self = @This();
-        
+
         pub fn init(source: DirectStream(T), map_fn: *const fn (T) U, predicate: *const fn (U) bool) Self {
             return .{
                 .source = source,
@@ -240,7 +239,7 @@ pub fn MapFilterEmbedded(comptime T: type, comptime U: type) type {
                 .predicate = predicate,
             };
         }
-        
+
         pub fn next(self: *Self) StreamError!?U {
             while (try self.source.next()) |value| {
                 const mapped = self.map_fn(value);
@@ -250,7 +249,7 @@ pub fn MapFilterEmbedded(comptime T: type, comptime U: type) type {
             }
             return null;
         }
-        
+
         pub fn peek(self: *Self) StreamError!?U {
             // For simplicity, we don't cache peek for fused operators
             // TODO: Add caching if needed
@@ -263,22 +262,22 @@ pub fn MapFilterEmbedded(comptime T: type, comptime U: type) type {
             }
             return null;
         }
-        
+
         pub fn skip(self: *Self, n: usize) StreamError!void {
             var skipped: usize = 0;
             while (skipped < n) : (skipped += 1) {
                 if (try self.next() == null) break;
             }
         }
-        
+
         pub fn getPosition(self: *const Self) usize {
             return self.source.getPosition();
         }
-        
+
         pub fn isExhausted(self: *const Self) bool {
             return self.source.isExhausted();
         }
-        
+
         pub fn close(self: *Self) void {
             self.source.close();
         }

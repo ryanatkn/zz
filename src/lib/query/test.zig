@@ -29,22 +29,22 @@ const directExecute = @import("executor.zig").directExecute;
 
 test "QueryBuilder basic construction" {
     const allocator = testing.allocator;
-    
+
     var builder = QueryBuilder.init(allocator);
     defer builder.deinit();
-    
+
     _ = try builder
         .select(&.{ .is_function, .is_class })
         .where(.confidence, .gte, 0.9);
     _ = try builder.orderBy(.span_start, .ascending);
     _ = builder.limit(10);
-    
+
     const query = try builder.build();
     defer {
         var q = query;
         q.deinit();
     }
-    
+
     // Verify query structure
     try testing.expect(query.limit_ == 10);
     try testing.expect(query.where != null);
@@ -53,11 +53,11 @@ test "QueryBuilder basic construction" {
 
 test "Query execution with simple WHERE" {
     const allocator = testing.allocator;
-    
+
     // Create fact store with test data
     var store = FactStore.init(allocator);
     defer store.deinit();
-    
+
     // Add test facts
     const facts = [_]Fact{
         try Builder.new()
@@ -76,30 +76,30 @@ test "Query execution with simple WHERE" {
             .withConfidence(0.75)
             .build(),
     };
-    
+
     for (facts) |fact| {
         _ = try store.append(fact);
     }
-    
+
     // Execute query for high confidence facts
     var builder = QueryBuilder.init(allocator);
     defer builder.deinit();
-    
+
     _ = builder.selectAll().from(&store);
     _ = try builder.where(.confidence, .gte, 0.8);
     var result = try builder.execute();
     defer result.deinit();
-    
+
     // Should return 2 facts with confidence >= 0.8
     try testing.expectEqual(@as(usize, 2), result.facts.len);
 }
 
 test "Query with predicate selection" {
     const allocator = testing.allocator;
-    
+
     var store = FactStore.init(allocator);
     defer store.deinit();
-    
+
     // Add mixed facts
     const predicates = [_]Predicate{ .is_function, .is_class, .is_method, .is_token };
     for (predicates, 0..) |pred, i| {
@@ -109,24 +109,24 @@ test "Query with predicate selection" {
             .build();
         _ = try store.append(fact);
     }
-    
+
     // Query for specific predicates
     var builder = QueryBuilder.init(allocator);
     defer builder.deinit();
-    
+
     _ = builder.select(&.{ .is_function, .is_method }).from(&store);
     var result = try builder.execute();
     defer result.deinit();
-    
+
     try testing.expectEqual(@as(usize, 2), result.facts.len);
 }
 
 test "Query with ORDER BY" {
     const allocator = testing.allocator;
-    
+
     var store = FactStore.init(allocator);
     defer store.deinit();
-    
+
     // Add facts with different confidence values
     const confidences = [_]f16{ 0.9, 0.5, 0.7, 0.3, 0.8 };
     for (confidences, 0..) |conf, i| {
@@ -137,20 +137,20 @@ test "Query with ORDER BY" {
             .build();
         _ = try store.append(fact);
     }
-    
+
     // Query with ordering
     var builder = QueryBuilder.init(allocator);
     defer builder.deinit();
-    
+
     _ = builder.selectAll().from(&store);
     _ = try builder.orderBy(.confidence, .descending);
     _ = builder.limit(3);
     var result = try builder.execute();
     defer result.deinit();
-    
+
     // Should return top 3 by confidence
     try testing.expectEqual(@as(usize, 3), result.facts.len);
-    
+
     // Verify descending order
     if (result.facts.len >= 2) {
         try testing.expect(result.facts[0].confidence >= result.facts[1].confidence);
@@ -159,10 +159,10 @@ test "Query with ORDER BY" {
 
 test "Query with LIMIT and OFFSET" {
     const allocator = testing.allocator;
-    
+
     var store = FactStore.init(allocator);
     defer store.deinit();
-    
+
     // Add 10 facts
     for (0..10) |i| {
         const fact = try Builder.new()
@@ -171,48 +171,48 @@ test "Query with LIMIT and OFFSET" {
             .build();
         _ = try store.append(fact);
     }
-    
+
     // Query with pagination
     var builder = QueryBuilder.init(allocator);
     defer builder.deinit();
-    
+
     _ = builder.selectAll().from(&store).limit(3).offset(5);
     var result = try builder.execute();
     defer result.deinit();
-    
+
     // Should return 3 facts starting from offset 5
     try testing.expectEqual(@as(usize, 3), result.facts.len);
 }
 
 test "Query optimization - predicate pushdown" {
     const allocator = testing.allocator;
-    
+
     var store = FactStore.init(allocator);
     defer store.deinit();
-    
+
     // Create query with predicate in WHERE
     var builder = QueryBuilder.init(allocator);
     defer builder.deinit();
-    
+
     _ = builder.selectAll().from(&store);
     _ = try builder.where(.predicate, .eq, Value{ .predicate = .is_function });
-    
+
     const query = try builder.build();
     defer {
         var q = query;
         q.deinit();
     }
-    
+
     // Optimize query
     var optimizer = QueryOptimizer.init(allocator);
     defer optimizer.deinit();
-    
+
     const optimized = try optimizer.optimize(&query);
     defer {
         var opt = optimized;
         opt.deinit();
     }
-    
+
     // TODO: Verify predicate was pushed down to SELECT
     // For now just verify optimization doesn't crash
     try testing.expect(optimizer.stats.predicate_pushdowns >= 0);
@@ -220,35 +220,35 @@ test "Query optimization - predicate pushdown" {
 
 test "Query planner - execution plan creation" {
     const allocator = testing.allocator;
-    
+
     var store = FactStore.init(allocator);
     defer store.deinit();
-    
+
     // Create complex query
     var builder = QueryBuilder.init(allocator);
     defer builder.deinit();
-    
+
     _ = builder.select(&.{.is_function}).from(&store);
     _ = try builder.where(.confidence, .gte, 0.8);
     _ = try builder.orderBy(.span_start, .ascending);
     _ = builder.limit(10);
-    
+
     const query = try builder.build();
     defer {
         var q = query;
         q.deinit();
     }
-    
+
     // Create execution plan
     var optimizer = QueryOptimizer.init(allocator);
     defer optimizer.deinit();
-    
+
     var planner = QueryPlanner.init(allocator, &optimizer);
     defer planner.deinit();
-    
+
     var plan = try planner.createPlan(&query);
     defer plan.deinit();
-    
+
     // Verify plan structure
     try testing.expect(plan.root.type == .project);
     try testing.expect(plan.estimated_cost > 0);
@@ -256,15 +256,15 @@ test "Query planner - execution plan creation" {
 
 test "Complex query with multiple conditions" {
     const allocator = testing.allocator;
-    
+
     var store = FactStore.init(allocator);
     defer store.deinit();
-    
+
     // Add diverse facts
     for (0..20) |i| {
         const pred: Predicate = if (i % 2 == 0) .is_function else .is_class;
         const conf: f16 = @floatCast(@as(f32, @floatFromInt(i)) / 20.0);
-        
+
         const fact = try Builder.new()
             .withSubject(@as(PackedSpan, @intCast(i << 32 | (i * 10))))
             .withPredicate(pred)
@@ -272,11 +272,11 @@ test "Complex query with multiple conditions" {
             .build();
         _ = try store.append(fact);
     }
-    
+
     // Complex query
     var builder = QueryBuilder.init(allocator);
     defer builder.deinit();
-    
+
     _ = builder.select(&.{.is_function}).from(&store);
     _ = try builder.where(.confidence, .gte, 0.5);
     _ = try builder.andWhere(.span_length, .lte, 50);
@@ -284,7 +284,7 @@ test "Complex query with multiple conditions" {
     _ = builder.limit(5);
     var result = try builder.execute();
     defer result.deinit();
-    
+
     // Verify results
     try testing.expect(result.facts.len <= 5);
     for (result.facts) |fact| {
@@ -295,29 +295,29 @@ test "Complex query with multiple conditions" {
 
 test "Query format and display" {
     const allocator = testing.allocator;
-    
+
     var builder = QueryBuilder.init(allocator);
     defer builder.deinit();
-    
+
     _ = builder.select(&.{.is_function});
     _ = try builder.where(.confidence, .gte, 0.9);
     _ = try builder.orderBy(.span_start, .ascending);
     _ = builder.limit(10);
-    
+
     const query = try builder.build();
     defer {
         var q = query;
         q.deinit();
     }
-    
+
     // Format query
     var buffer = std.ArrayList(u8).init(allocator);
     defer buffer.deinit();
-    
+
     try query.format("", .{}, buffer.writer());
-    
+
     const output = buffer.items;
-    
+
     // Verify formatted output contains expected elements
     try testing.expect(std.mem.indexOf(u8, output, "SELECT") != null);
     try testing.expect(std.mem.indexOf(u8, output, "WHERE") != null);
@@ -346,60 +346,60 @@ test "Parallel query execution" {
 
 test "QueryExecutor.directExecute basic usage" {
     const allocator = testing.allocator;
-    
+
     // Create fact store
     var store = FactStore.init(allocator);
     defer store.deinit();
-    
+
     // Add test facts
     _ = try store.append(try Builder.new()
         .withSpan(Span.init(0, 10))
         .withPredicate(.is_function)
         .withConfidence(0.95)
         .build());
-    
+
     _ = try store.append(try Builder.new()
         .withSpan(Span.init(20, 30))
         .withPredicate(.is_class)
         .withConfidence(0.85)
         .build());
-    
+
     // Build query
     var builder = QueryBuilder.init(allocator);
     defer builder.deinit();
-    
+
     _ = builder.selectAll().from(&store);
     _ = try builder.where(.confidence, .gte, 0.8);
-    
+
     const query = try builder.build();
     defer {
         var q = query;
         q.deinit();
     }
-    
+
     // Execute with DirectStream
     var executor = QueryExecutor.init(allocator);
     defer executor.deinit();
-    
+
     var stream = try executor.directExecute(&query);
-    
+
     // Verify stream results
     var count: usize = 0;
     while (try stream.next()) |fact| {
         try testing.expect(fact.confidence >= 0.8);
         count += 1;
     }
-    
+
     try testing.expect(count == 2);
 }
 
 test "DirectStream vs Stream performance comparison" {
     const allocator = testing.allocator;
-    
+
     // Create larger fact store for performance testing
     var store = FactStore.init(allocator);
     defer store.deinit();
-    
+
     // Add 1000 test facts
     var i: u32 = 0;
     while (i < 1000) : (i += 1) {
@@ -409,31 +409,31 @@ test "DirectStream vs Stream performance comparison" {
             .withConfidence(@as(f16, @floatFromInt(i % 100)) / 100.0)
             .build());
     }
-    
+
     // Build query
     var builder = QueryBuilder.init(allocator);
     defer builder.deinit();
-    
+
     _ = builder.selectAll().from(&store);
     _ = try builder.where(.confidence, .gte, 0.5);
     _ = builder.limit(100);
-    
+
     const query = try builder.build();
     defer {
         var q = query;
         q.deinit();
     }
-    
+
     var executor = QueryExecutor.init(allocator);
     defer executor.deinit();
-    
+
     // Measure Stream performance
     const stream_start = std.time.nanoTimestamp();
     var stream_result = try executor.execute(&query);
     defer stream_result.deinit();
     const stream_time = std.time.nanoTimestamp() - stream_start;
-    
-    // Measure DirectStream performance  
+
+    // Measure DirectStream performance
     const direct_start = std.time.nanoTimestamp();
     var direct_stream = try executor.directExecute(&query);
     var direct_count: usize = 0;
@@ -441,11 +441,11 @@ test "DirectStream vs Stream performance comparison" {
         direct_count += 1;
     }
     const direct_time = std.time.nanoTimestamp() - direct_start;
-    
+
     // DirectStream should be faster (or at least not slower)
     // We're being lenient here since it's early migration
     try testing.expect(direct_count == stream_result.facts.len);
-    
+
     // Log performance for debugging (not a hard assertion)
     std.debug.print("\n  Stream time: {} ns\n", .{stream_time});
     std.debug.print("  DirectStream time: {} ns\n", .{direct_time});
@@ -457,73 +457,73 @@ test "DirectStream vs Stream performance comparison" {
 
 test "DirectStream query with complex conditions" {
     const allocator = testing.allocator;
-    
+
     var store = FactStore.init(allocator);
     defer store.deinit();
-    
+
     // Add varied test facts
     _ = try store.append(try Builder.new()
         .withSpan(Span.init(0, 10))
         .withPredicate(.is_function)
         .withConfidence(0.95)
         .build());
-    
+
     _ = try store.append(try Builder.new()
         .withSpan(Span.init(10, 20))
         .withPredicate(.is_function)
         .withConfidence(0.75)
         .build());
-    
+
     _ = try store.append(try Builder.new()
         .withSpan(Span.init(20, 30))
         .withPredicate(.is_class)
         .withConfidence(0.85)
         .build());
-    
+
     _ = try store.append(try Builder.new()
         .withSpan(Span.init(30, 40))
         .withPredicate(.is_variable)
         .withConfidence(0.65)
         .build());
-    
+
     // Complex query
     var builder = QueryBuilder.init(allocator);
     defer builder.deinit();
-    
+
     _ = builder.select(&.{ .is_function, .is_class }).from(&store);
     _ = try builder.where(.confidence, .gte, 0.7);
     _ = try builder.orderBy(.confidence, .descending);
     _ = builder.limit(2);
-    
+
     const query = try builder.build();
     defer {
         var q = query;
         q.deinit();
     }
-    
+
     var executor = QueryExecutor.init(allocator);
     defer executor.deinit();
-    
+
     var stream = try executor.directExecute(&query);
-    
+
     // Check results in order
     const fact1 = (try stream.next()).?;
     try testing.expect(fact1.confidence >= 0.85);
-    
+
     const fact2 = (try stream.next()).?;
     try testing.expect(fact2.confidence >= 0.75);
-    
+
     // Should be limited to 2
     try testing.expect(try stream.next() == null);
 }
 
 test "QueryExecutor.directExecuteStream true streaming" {
     const allocator = std.testing.allocator;
-    
+
     // Create fact store with test data
     var store = FactStore.init(allocator);
     defer store.deinit();
-    
+
     // Add test facts
     const predicates = [_]Predicate{ .is_function, .is_class, .is_variable };
     for (0..100) |i| {
@@ -536,26 +536,26 @@ test "QueryExecutor.directExecuteStream true streaming" {
         };
         _ = try store.append(fact);
     }
-    
+
     // Build streaming query
     var builder = QueryBuilder.init(allocator);
     defer builder.deinit();
-    
-    _ = builder.select(&.{ .is_function }).from(&store);
+
+    _ = builder.select(&.{.is_function}).from(&store);
     _ = try builder.where(.confidence, .gte, 0.5);
-    
+
     // Test DirectStream execution (true streaming)
     var executor = QueryExecutor.init(allocator);
     defer executor.deinit();
-    
+
     const query = try builder.build();
     defer {
         var q = query;
         q.deinit();
     }
-    
+
     var stream = try executor.directExecuteStream(&query);
-    
+
     // Verify streaming results
     var count: usize = 0;
     while (try stream.next()) |fact| {
@@ -565,7 +565,7 @@ test "QueryExecutor.directExecuteStream true streaming" {
         try testing.expect(fact.confidence >= 0.5);
         count += 1;
     }
-    
+
     // We should get facts with IDs: 51, 54, 57, ..., 99 (all is_function with confidence >= 0.5)
     // That's 17 facts total
     try testing.expectEqual(@as(usize, 17), count);
@@ -573,11 +573,11 @@ test "QueryExecutor.directExecuteStream true streaming" {
 
 test "QueryBuilder.directExecuteStream convenience method" {
     const allocator = std.testing.allocator;
-    
+
     // Create fact store with test data
     var store = FactStore.init(allocator);
     defer store.deinit();
-    
+
     // Add some test facts
     for (0..50) |i| {
         const fact = Fact{
@@ -589,21 +589,21 @@ test "QueryBuilder.directExecuteStream convenience method" {
         };
         _ = try store.append(fact);
     }
-    
+
     // Use QueryBuilder's directExecuteStream method
     var builder = QueryBuilder.init(allocator);
     defer builder.deinit();
-    
-    _ = builder.select(&.{ .is_function }).from(&store);
-    
+
+    _ = builder.select(&.{.is_function}).from(&store);
+
     var stream = try builder.directExecuteStream();
-    
+
     // Verify we get all is_function facts (25 total)
     var count: usize = 0;
     while (try stream.next()) |fact| {
         try testing.expectEqual(Predicate.is_function, fact.predicate);
         count += 1;
     }
-    
+
     try testing.expectEqual(@as(usize, 25), count);
 }

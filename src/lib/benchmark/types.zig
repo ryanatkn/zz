@@ -72,7 +72,7 @@ pub const BenchmarkOptions = struct {
     skip: ?[]const u8 = null,
     /// Include warmup phase before timing
     warmup: bool = true,
-    /// Duration multiplier (applied after built-in variance multipliers)
+    /// Duration multiplier (multiplies duration_ns for longer statistical accuracy)
     duration_multiplier: f64 = 1.0,
     /// Minimum statistical confidence required (fail if not met)
     min_confidence: ?StatisticalConfidence = null,
@@ -144,18 +144,10 @@ pub const ComparisonResult = struct {
 /// Interface for benchmark implementations
 pub const BenchmarkSuite = struct {
     name: []const u8,
-    /// Built-in variance multiplier for this suite
-    variance_multiplier: f64 = 1.0,
     /// Function to run the benchmark suite
     runFn: *const fn (allocator: std.mem.Allocator, options: BenchmarkOptions) BenchmarkError![]BenchmarkResult,
 
     pub fn run(self: BenchmarkSuite, allocator: std.mem.Allocator, options: BenchmarkOptions) BenchmarkError![]BenchmarkResult {
         return self.runFn(allocator, options);
-    }
-
-    /// Get effective duration with variance multiplier applied
-    pub fn getEffectiveDuration(self: BenchmarkSuite, base_duration_ns: u64, user_multiplier: f64) u64 {
-        const effective_ns = @as(f64, @floatFromInt(base_duration_ns)) * self.variance_multiplier * user_multiplier;
-        return @intFromFloat(effective_ns);
     }
 };

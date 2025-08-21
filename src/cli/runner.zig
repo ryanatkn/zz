@@ -10,7 +10,6 @@ const reporting = @import("../lib/core/reporting.zig");
 // Command modules
 const tree = @import("../tree/main.zig");
 const prompt = @import("../prompt/main.zig");
-const benchmark = @import("../benchmark/main.zig");
 const format = @import("../format/main.zig");
 const echo = @import("../echo/main.zig");
 const demo = @import("../demo.zig");
@@ -60,14 +59,6 @@ pub const Runner = struct {
                         // This is normal, exit cleanly
                         std.process.exit(0);
                     }
-                    return err;
-                };
-            },
-            .benchmark => {
-                // Pass full args to benchmark module
-                benchmark.run(self.allocator, args) catch |err| {
-                    const error_msg = errors.getMessage(err);
-                    reporting.reportError("Benchmark command failed: {s}", .{error_msg}) catch {};
                     return err;
                 };
             },

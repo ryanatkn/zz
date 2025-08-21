@@ -6,29 +6,29 @@ Iterations: Time-based (0s duration)
 
 | Benchmark | Operations | Time (ms) | ns/op | vs Baseline |
 |-----------|------------|-----------|-------|-------------|
-| Path Joining | 8000 | 403.5 | 50443 | NEW |
-| Path Utilities | 30526400 | 400.0 | 13 | NEW |
-| ArrayList Operations | 12000 | 621.8 | 51819 | NEW |
-| HashMap Operations | 6000 | 602.3 | 100391 | NEW |
-| Pattern Matching | 967700 | 400.0 | 413 | NEW |
-| Text Line Processing | 3900 | 201.3 | 51618 | NEW |
-| String Operations | 408000 | 200.0 | 490 | NEW |
-| Character Predicates | 34270100 | 200.0 | 5 | NEW |
-| Character Classification | 2086300 | 200.0 | 95 | NEW |
-| JSON Text Analysis | 182500 | 300.0 | 1644 | NEW |
-| ZON Text Analysis | 256600 | 300.1 | 1169 | NEW |
-| Code Text Analysis | 87100 | 300.1 | 3445 | NEW |
-| Traditional Full-Memory JSON (10KB) | 5300 | 403.1 | 76047 | NEW |
-| Streaming TokenIterator JSON (10KB) | 700 | 424.4 | 606247 | NEW |
-| Memory Usage Comparison (10KB) | 2400 | 411.9 | 171615 | NEW |
-| Incremental Parser ZON (10KB) | 700 | 459.9 | 657005 | NEW |
-| Direct Function Calls (Baseline) | 7900 | 404.9 | 51256 | NEW |
-| Transform Pipeline (Small Chunks) | 7800 | 401.9 | 51520 | NEW |
-| Transform Pipeline (Optimal Chunks) | 200 | 406.1 | 2030374 | NEW |
-| ZON Lexer Small (1KB) | 700 | 337.7 | 482434 | NEW |
-| ZON Lexer Medium (10KB) | 500 | 311.8 | 623644 | NEW |
-| ZON Lexer Large (100KB) | 300 | 423.4 | 1411417 | NEW |
-| ZON Lexer build.zig.zon | 900 | 332.0 | 368929 | NEW |
-| ZON Lexer Config File | 900 | 327.7 | 364087 | NEW |
+| ZON Lexer Small (1KB) | 700 | 329.6 | 470862 | NEW |
+| ZON Lexer Medium (10KB) | 500 | 304.7 | 609417 | NEW |
+| ZON Lexer Large (100KB) | 300 | 438.5 | 1461591 | NEW |
+| ZON Lexer build.zig.zon | 900 | 335.4 | 372643 | NEW |
+| ZON Lexer Config File | 900 | 333.7 | 370723 | NEW |
+| Stream.next() throughput | 1784400 | 200.0 | 112 | NEW |
+| RingBuffer push/pop | 1319200 | 200.0 | 151 | NEW |
+| Map operator | 65600 | 200.0 | 3049 | NEW |
+| Filter operator | 67000 | 200.0 | 2985 | NEW |
+| FusedMap operator | 65800 | 200.3 | 3043 | NEW |
+| Fact creation | 28861700 | 300.0 | 10 | NEW |
+| FactStore append | 6200 | 303.8 | 49006 | NEW |
+| Fact batch append (100) | 1100 | 327.5 | 297715 | NEW |
+| Fact Builder DSL | 3409300 | 300.0 | 87 | NEW |
+| Value type creation | 29061600 | 300.0 | 10 | NEW |
+| PackedSpan pack/unpack | 9063700 | 200.0 | 22 | NEW |
+| Span merge | 33948100 | 200.0 | 5 | NEW |
+| Span intersect | 13841800 | 200.0 | 14 | NEW |
+| SpanSet normalization | 4000 | 201.8 | 50452 | NEW |
+| Span distance | 25377000 | 200.0 | 7 | NEW |
+| SpanSet union | 2300 | 205.1 | 89166 | NEW |
+| ArenaPool acquire/rotate | 8500 | 404.5 | 47583 | NEW |
+| AtomTable interning | 2900 | 410.5 | 141564 | NEW |
+| AtomTable lookup | 16243400 | 400.0 | 24 | NEW |
 
 **Legend:** Positive percentages indicate slower performance (regression), negative percentages indicate faster performance (improvement).

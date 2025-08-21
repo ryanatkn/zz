@@ -42,28 +42,6 @@ $ zig version
 
 See [docs/stratified-parser-architecture.md](docs/stratified-parser-architecture.md) for complete details.
 
-### 🚀 Recent Major Achievements (August 2025)
-
-#### 1. Rule ID Migration **COMPLETE**
-**Successfully completed comprehensive architectural overhaul** replacing all string-based rule names with 16-bit rule IDs:
-- **10-100x performance improvement** for rule lookups via switch statements  
-- **~90% memory reduction** (2 bytes vs 16+ bytes per rule)
-- **50+ modules fully migrated** to rule ID system across entire codebase
-- **Zero-allocation parsing** for core operations
-- **Type-safe rule handling** with compile-time validation
-- **Anti-patterns eliminated** - No string comparisons in performance-critical code
-- **Memory leaks fixed** in grammar builder with proper cleanup
-
-#### 2. Streaming Lexer Phase 2B **COMPLETE**
-**Zero-copy StreamToken architecture eliminates conversion overhead:**
-- **2x+ performance improvement** from ~2100ns/token to <1000ns/token
-- **Zero intermediate allocations** with union-based design
-- **JSON & ZON stateful lexers** complete with chunk boundary handling
-- **Unified TokenIterator** consolidates all streaming operations
-- **4 modules deleted** (TokenConverter, UnifiedTokenIterator, adapters)
-
-These fundamental improvements eliminate performance bottlenecks and provide a clean foundation for multi-language scaling.
-
 ## Project Structure (After Major Refactoring)
 
 ```
@@ -126,7 +104,7 @@ src/
 ├── prompt/              # LLM prompt generation (uses lib/ast)
 ├── tree/                # Directory visualization
 ├── format/              # CLI formatting commands (uses lib/formatting)
-├── benchmark/           # Performance benchmarking
+├── benchmark/           # Internal performance benchmarking (development)
 └── deps/                # Dependency management CLI
 ```
 
@@ -150,7 +128,6 @@ $ zz tree                           # Show directory tree
 $ zz prompt "src/**/*.zig"          # Generate LLM prompt
 $ zz format config.json --write     # Format file in-place
 $ zz deps --list                    # Check dependency status
-$ zz benchmark --format pretty      # Run performance benchmarks
 ```
 
 ## Commands Overview
@@ -179,14 +156,6 @@ $ echo '{"a":1}' | zz format --stdin # Format from stdin
 ```
 See [docs/format-features.md](docs/format-features.md) for language support.
 
-### Benchmark - Performance Testing
-```bash
-$ zz benchmark --format pretty      # Terminal output with confidence symbols
-$ zz benchmark --only path,memory   # Run specific suites
-$ zz benchmark --duration 500ms     # Custom duration (default: 200ms)
-```
-See [docs/benchmarking.md](docs/benchmarking.md) for details.
-
 ### Deps - Dependency Management
 ```bash
 $ zz deps --check                   # Check if updates needed
@@ -204,9 +173,10 @@ See [docs/commands.md](docs/commands.md) for all commands and options.
 $ zig build test                    # Run all tests
 $ zig build test -Dtest-filter="pattern"  # Filter tests
 $ zig build test --summary all      # Show detailed test summary (useful for debugging)
-$ zig build benchmark               # Run benchmarks with statistical confidence
-$ zig build benchmark-baseline      # Save current performance as baseline
-$ zig build benchmark-stdout        # Show pretty benchmark output
+$ zig run src/scripts/check_test_coverage.zig  # Analyze test coverage tree structure
+$ zig run src/scripts/check_test_coverage.zig -- --help
+$ zig build benchmark               # Run internal performance tests
+$ zig build benchmark-baseline      # Save new performance baseline
 ```
 
 - Tests use mock filesystem for isolation

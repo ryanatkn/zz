@@ -30,7 +30,7 @@ pub fn main() !void {
 
 /// Benchmark small file parsing (10 functions)
 fn benchmarkSmallFile(allocator: std.mem.Allocator) !void {
-    std.debug.print("📊 Small File Benchmark (10 functions)\n");
+    std.debug.print("Small File Benchmark (10 functions)\n");
 
     const config = StructuralConfig.forLanguage(.zig);
     var parser = try StructuralParser.init(allocator, config);
@@ -67,7 +67,7 @@ fn benchmarkSmallFile(allocator: std.mem.Allocator) !void {
 
 /// Benchmark medium file parsing (100 functions)
 fn benchmarkMediumFile(allocator: std.mem.Allocator) !void {
-    std.debug.print("📊 Medium File Benchmark (100 functions)\n");
+    std.debug.print("Medium File Benchmark (100 functions)\n");
 
     const config = StructuralConfig.forLanguage(.zig);
     var parser = try StructuralParser.init(allocator, config);
@@ -104,7 +104,7 @@ fn benchmarkMediumFile(allocator: std.mem.Allocator) !void {
 
 /// Benchmark large file parsing (1000 functions)
 fn benchmarkLargeFile(allocator: std.mem.Allocator) !void {
-    std.debug.print("📊 Large File Benchmark (1000 functions)\n");
+    std.debug.print("Large File Benchmark (1000 functions)\n");
 
     const config = StructuralConfig.forLanguage(.zig);
     var parser = try StructuralParser.init(allocator, config);
@@ -141,7 +141,7 @@ fn benchmarkLargeFile(allocator: std.mem.Allocator) !void {
 
 /// Benchmark deeply nested structures
 fn benchmarkDeeplyNested(allocator: std.mem.Allocator) !void {
-    std.debug.print("📊 Deeply Nested Benchmark (20 levels)\n");
+    std.debug.print("Deeply Nested Benchmark (20 levels)\n");
 
     const config = StructuralConfig.forLanguage(.zig);
     var parser = try StructuralParser.init(allocator, config);
@@ -187,7 +187,7 @@ fn benchmarkDeeplyNested(allocator: std.mem.Allocator) !void {
 
 /// Benchmark incremental updates
 fn benchmarkIncrementalUpdates(allocator: std.mem.Allocator) !void {
-    std.debug.print("📊 Incremental Update Benchmark\n");
+    std.debug.print("Incremental Update Benchmark\n");
 
     const config = StructuralConfig.forLanguage(.zig);
     var parser = try StructuralParser.init(allocator, config);
@@ -231,7 +231,7 @@ fn benchmarkIncrementalUpdates(allocator: std.mem.Allocator) !void {
 
 /// Benchmark error recovery performance
 fn benchmarkErrorRecovery(allocator: std.mem.Allocator) !void {
-    std.debug.print("📊 Error Recovery Benchmark\n");
+    std.debug.print("Error Recovery Benchmark\n");
 
     const config = StructuralConfig.forLanguage(.zig);
     var parser = try StructuralParser.init(allocator, config);

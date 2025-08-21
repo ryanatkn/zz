@@ -21,20 +21,20 @@ src/lib/languages/zon/
 
 ## Features
 
-### 🚀 High Performance
+### High Performance
 - **Lexing**: <0.1ms for typical config files (target achieved)
 - **Parsing**: <1ms for build.zig.zon files (target achieved)
 - **Formatting**: <0.5ms for configuration files (target achieved)
 - **Complete Pipeline**: <2ms for typical use cases (target achieved)
 
-### 📝 Comprehensive ZON Support
+### Comprehensive ZON Support
 - Full ZON specification compliance with Zig syntax
 - Support for all Zig literals (decimal, hex, binary, octal numbers)
 - Field names (`.field_name`) and anonymous struct syntax (`.{}`)
 - Comments (both `//` and `/* */`) with preservation
 - Error recovery and detailed diagnostics
 
-### 🔧 Advanced Features
+### Advanced Features
 - Schema extraction from ZON data with type inference
 - Zig type definition generation from ZON schemas
 - Validation against known schemas (build.zig.zon, zz.zon)

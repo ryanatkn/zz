@@ -47,7 +47,7 @@ pub fn parseDuration(duration_str: []const u8) !u64 {
     return @intFromFloat(value * multiplier);
 }
 
-/// Create a progress bar for pretty output
+/// Create a progress bar for pretty output (legacy - based on time scale)
 pub fn createProgressBar(ns_per_op: u64) []const u8 {
     // Simple progress bar based on logarithmic scale
     const log_ns = std.math.log10(@as(f64, @floatFromInt(ns_per_op)));
@@ -57,6 +57,31 @@ pub fn createProgressBar(ns_per_op: u64) []const u8 {
     const bars = [_][]const u8{ "          ", "=         ", "==        ", "===       ", "====      ", "=====     ", "======    ", "=======   ", "========  ", "========= ", "==========" };
 
     return bars[bar_length];
+}
+
+/// Create a progress bar based on percentage change (for baseline comparisons)
+pub fn createChangeProgressBar(percent_change: f64, max_abs_change: f64) []const u8 {
+    if (max_abs_change == 0.0) {
+        return "          "; // No changes at all
+    }
+
+    const abs_change = @abs(percent_change);
+    const normalized = std.math.clamp(abs_change / max_abs_change, 0.0, 1.0);
+    const bar_length = @as(usize, @intFromFloat(normalized * 10));
+
+    // Use different symbols for improvements vs regressions
+    if (percent_change < 0) {
+        // Negative = improvement (faster)
+        const improvement_bars = [_][]const u8{ "          ", "▼         ", "▼▼        ", "▼▼▼       ", "▼▼▼▼      ", "▼▼▼▼▼     ", "▼▼▼▼▼▼    ", "▼▼▼▼▼▼▼   ", "▼▼▼▼▼▼▼▼  ", "▼▼▼▼▼▼▼▼▼ ", "▼▼▼▼▼▼▼▼▼▼" };
+        return improvement_bars[bar_length];
+    } else if (percent_change > 0) {
+        // Positive = regression (slower)
+        const regression_bars = [_][]const u8{ "          ", "▲         ", "▲▲        ", "▲▲▲       ", "▲▲▲▲      ", "▲▲▲▲▲     ", "▲▲▲▲▲▲    ", "▲▲▲▲▲▲▲   ", "▲▲▲▲▲▲▲▲  ", "▲▲▲▲▲▲▲▲▲ ", "▲▲▲▲▲▲▲▲▲▲" };
+        return regression_bars[bar_length];
+    } else {
+        // No change
+        return "          ";
+    }
 }
 
 /// Format large numbers with appropriate units

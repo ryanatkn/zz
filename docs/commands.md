@@ -13,7 +13,6 @@ $ zig build --use-llvm              # Use LLVM backend
 # Development workflow
 $ zig build run -- tree [args]          # Run tree command in development
 $ zig build run -- prompt [args]        # Run prompt command in development
-$ zig build run -- benchmark [args]     # Run benchmarks
 $ zig build run -- format [args]        # Run formatter in development
 $ zig build run -- demo [args]          # Run demo in development
 $ zig build run -- deps [args]          # Run dependency management
@@ -111,20 +110,6 @@ $ zig build deps-check              # Same as zz deps --check
 
 See [deps.md](deps.md) for architecture and configuration details.
 
-## Benchmark Command
-
-Performance benchmarking with multiple output formats.
-
-```bash
-$ zz benchmark                      # Run all benchmarks
-$ zz benchmark --format=pretty      # Color terminal output
-$ zz benchmark --format=json        # JSON output for tooling
-$ zz benchmark --format=csv         # CSV for spreadsheets
-$ zz benchmark --baseline           # Compare against baseline
-$ zig build benchmark               # Save to latest.md, compare baseline
-```
-
-See [benchmarking.md](benchmarking.md) for detailed benchmark guide.
 
 ## Echo Command
 

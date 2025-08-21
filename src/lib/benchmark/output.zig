@@ -3,6 +3,7 @@ const builtin = @import("builtin");
 const types = @import("types.zig");
 const baseline = @import("baseline.zig");
 const utils = @import("utils.zig");
+const text_builders = @import("../text/builders.zig");
 
 const BenchmarkResult = types.BenchmarkResult;
 const BenchmarkOptions = types.BenchmarkOptions;
@@ -172,6 +173,7 @@ fn outputPretty(
         const cyan = "\x1b[36m";
         const red = "\x1b[31m";
         const bold = "\x1b[1m";
+        const dim = "\x1b[2m";
     };
 
     try writer.print("{s}╔══════════════════════════════════════════════════════════════╗{s}\n", .{ Color.bold, Color.reset });
@@ -184,11 +186,22 @@ fn outputPretty(
     var new_benchmarks: u32 = 0;
     var low_confidence: u32 = 0;
 
+    // First pass: find maximum absolute percentage change for progress bar scaling
+    var max_abs_change: f64 = 0.0;
+    for (results) |result| {
+        if (baseline_manager.compare(result.name, result.ns_per_op)) |comparison| {
+            const abs_change = @abs(comparison.percent_change);
+            if (abs_change > max_abs_change) {
+                max_abs_change = abs_change;
+            }
+        }
+    }
+
     for (results) |result| {
         total_time_ns += result.elapsed_ns;
 
-        const time_unit = result.getTimeUnit();
-        const progress_bar = utils.createProgressBar(result.ns_per_op);
+        const time_formatted = text_builders.formatTime(result.ns_per_op);
+        const time_str = std.mem.sliceTo(&time_formatted.buffer, 0);
 
         var status_color: []const u8 = Color.reset;
         var status_symbol: []const u8 = " ";
@@ -211,16 +224,21 @@ fn outputPretty(
                 status_symbol = result.confidence.getSymbol();
             }
 
-            try writer.print("{s}{s} {s:<20} {d:.2} {s} [{s}] ({s}{d:.1}%{s} vs {d:.2} {s}){s}\n", .{ status_color, status_symbol, result.name, time_unit.value, time_unit.unit, progress_bar, if (comparison.percent_change >= 0) "+" else "", comparison.percent_change, Color.reset, @as(f64, @floatFromInt(comparison.baseline_ns_per_op)) / 1000.0, "μs", Color.reset });
+            const baseline_formatted = text_builders.formatTime(comparison.baseline_ns_per_op);
+            const baseline_str = std.mem.sliceTo(&baseline_formatted.buffer, 0);
+            const progress_bar = utils.createChangeProgressBar(comparison.percent_change, max_abs_change);
+            try writer.print("{s}{s} {s:<30} {s} [{s}] ({s}{d:.1}%{s} vs {s}){s}\n", .{ status_color, status_symbol, result.name, time_str, progress_bar, if (comparison.percent_change >= 0) "+" else "", comparison.percent_change, Color.reset, baseline_str, Color.reset });
         } else if (baseline_manager.baseline_results != null) {
             status_color = Color.cyan;
             status_symbol = "?";
             new_benchmarks += 1;
 
-            try writer.print("{s}{s} {s:<20} {d:.2} {s} [{s}] (NEW){s}\n", .{ status_color, status_symbol, result.name, time_unit.value, time_unit.unit, progress_bar, Color.reset });
+            const progress_bar = "          "; // No change info for new benchmarks
+            try writer.print("{s}{s} {s:<30} {s} [{s}] (NEW){s}\n", .{ status_color, status_symbol, result.name, time_str, progress_bar, Color.reset });
         } else {
             status_symbol = result.confidence.getSymbol();
-            try writer.print("{s}{s} {s:<20} {d:.2} {s} [{s}]{s}\n", .{ status_color, status_symbol, result.name, time_unit.value, time_unit.unit, progress_bar, Color.reset });
+            const progress_bar = "          "; // No baseline for comparison
+            try writer.print("{s}{s} {s:<30} {s} [{s}]{s}\n", .{ status_color, status_symbol, result.name, time_str, progress_bar, Color.reset });
         }
     }
 
@@ -229,7 +247,8 @@ fn outputPretty(
     try writer.print("Summary: {d} benchmarks, {d:.2} ms total\n", .{ results.len, total_time_ms });
 
     if (baseline_manager.baseline_results != null) {
-        try writer.print("         {s}✓ {d} improved{s}  {s}⚠ {d} regressed{s}", .{ Color.green, improvements, Color.reset, Color.yellow, regressions, Color.reset });
+        const regression_color = if (regressions == 0) Color.dim else Color.yellow;
+        try writer.print("         {s}✓ {d} improved{s}  {s}⚠ {d} regressed{s}", .{ Color.green, improvements, Color.reset, regression_color, regressions, Color.reset });
         if (new_benchmarks > 0) {
             try writer.print("  {s}? {d} new{s}", .{ Color.cyan, new_benchmarks, Color.reset });
         }

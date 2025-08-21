@@ -43,13 +43,24 @@ pub fn build(b: *std.Build) void {
         .use_llvm = use_llvm,
         .use_lld = use_llvm,
     });
-    
+
     // Link libc for POSIX system calls
     exe.linkLibC();
 
-
     // Default build step (builds to zig-out/)
     b.installArtifact(exe);
+
+    // Benchmark executable (separate from main zz CLI)
+    const benchmark_exe = b.addExecutable(.{
+        .name = "zz-benchmark",
+        .root_source_file = b.path("src/benchmark_main.zig"),
+        .target = target,
+        .optimize = optimize,
+        .use_llvm = use_llvm,
+        .use_lld = use_llvm,
+    });
+    benchmark_exe.linkLibC();
+    b.installArtifact(benchmark_exe);
 
     // Custom install step (installs to user location)
     const install_user_step = b.step("install-user", "Install zz to ~/.zz/bin (or custom --prefix)");
@@ -67,20 +78,20 @@ pub fn build(b: *std.Build) void {
 
     // Benchmark step - save to latest.md and compare
     const benchmark_step = b.step("benchmark", "Run benchmarks, save to latest.md, compare with baseline");
-    const benchmark_cmd = b.addSystemCommand(&.{ "sh", "-c", "mkdir -p benchmarks && ./zig-out/bin/zz benchmark > benchmarks/latest.md && ./zig-out/bin/zz benchmark --format pretty" });
+    const benchmark_cmd = b.addSystemCommand(&.{ "sh", "-c", "mkdir -p benchmarks && ./zig-out/bin/zz-benchmark > benchmarks/latest.md && ./zig-out/bin/zz-benchmark --format pretty --baseline benchmarks/baseline.md" });
     benchmark_cmd.step.dependOn(b.getInstallStep());
     benchmark_step.dependOn(&benchmark_cmd.step);
 
     // Benchmark baseline step - saves new baseline
     const benchmark_baseline_step = b.step("benchmark-baseline", "Save current benchmarks as baseline");
-    const baseline_cmd = b.addSystemCommand(&.{ "sh", "-c", "mkdir -p benchmarks && ./zig-out/bin/zz benchmark > benchmarks/baseline.md && echo 'Baseline saved to benchmarks/baseline.md'" });
+    const baseline_cmd = b.addSystemCommand(&.{ "sh", "-c", "mkdir -p benchmarks && ./zig-out/bin/zz-benchmark > benchmarks/baseline.md && echo 'Baseline saved to benchmarks/baseline.md'" });
     baseline_cmd.step.dependOn(b.getInstallStep());
     benchmark_baseline_step.dependOn(&baseline_cmd.step);
 
     // Benchmark stdout step - just show pretty output
     const benchmark_stdout_step = b.step("benchmark-stdout", "Run benchmarks and show pretty output");
-    const stdout_run = b.addRunArtifact(exe);
-    stdout_run.addArgs(&.{ "benchmark", "--format", "pretty" });
+    const stdout_run = b.addRunArtifact(benchmark_exe);
+    stdout_run.addArgs(&.{ "--format", "pretty" });
     stdout_run.step.dependOn(b.getInstallStep());
     benchmark_stdout_step.dependOn(&stdout_run.step);
 
@@ -152,7 +163,7 @@ fn addTestSteps(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.b
         .optimize = optimize,
         .filters = if (test_filter) |filter| &.{filter} else &.{},
     });
-    
+
     // Link libc for tests (needed for POSIX system calls)
     test_all.linkLibC();
 
@@ -164,7 +175,7 @@ fn addTestSteps(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.b
         // Show filter being applied
         const filter_info_cmd = b.addSystemCommand(&.{ "echo", b.fmt("Filter: '{s}' (no output = no matches, exits 0 for now)", .{filter}) });
         test_step.dependOn(&filter_info_cmd.step);
-        
+
         const run_test = b.addRunArtifact(test_all);
         run_test.step.dependOn(&filter_info_cmd.step);
         test_step.dependOn(&run_test.step);
@@ -173,11 +184,6 @@ fn addTestSteps(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.b
         const run_test = b.addRunArtifact(test_all);
         test_step.dependOn(&run_test.step);
     }
-
-    // Note: Individual module tests (test-tree, test-prompt, etc.) were removed
-    // due to complexity with module imports creating circular dependencies.
-    // Use 'zig build test' to run all tests, which works correctly and runs
-    // all 206 tests including tree, prompt, and benchmark module tests.
 }
 
 fn addCustomInstall(b: *std.Build, exe: *std.Build.Step.Compile, prefix: []const u8) *std.Build.Step {

@@ -21,19 +21,19 @@ src/lib/languages/json/
 
 ## Features
 
-### 🚀 High Performance
+### High Performance
 - **Lexing**: <0.1ms for 10KB JSON (target achieved)
 - **Parsing**: <1ms for 10KB JSON (target achieved)
 - **Formatting**: <0.5ms for 10KB JSON (target achieved)
 - **Complete Pipeline**: <2ms for 10KB JSON (target achieved)
 
-### 📝 Comprehensive Support
+### Comprehensive Support
 - Full JSON specification compliance
 - JSON5 compatibility mode (comments, trailing commas)
 - Error recovery and detailed diagnostics
 - Round-trip formatting guarantee
 
-### 🔧 Advanced Features
+### Advanced Features
 - Schema extraction from JSON data
 - TypeScript interface generation
 - Statistical analysis and complexity metrics

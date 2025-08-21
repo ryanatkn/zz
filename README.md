@@ -5,7 +5,7 @@
 zz is a CLI in Zig written by Claude Code and designed by people.
 For the companion GUI see [Zzz](https://github.com/ryanatkn/zzz).
 
-> **status**: [vibe-engineered](./docs/vibe-engineering.md) slop level 1
+> **status**: [vibe-engineered](./docs/vibe-engineering.md) slop level 0
 
 Fast command-line utilities for exploring and understanding codebases. Built on a **Pure Zig language tooling library** featuring native AST parsing, code formatting, and semantic analysis.
 
@@ -37,9 +37,6 @@ zz echo --json 'Path: C:\file'          # JSON-escaped output
 zz echo --color=red --bold "Error!"     # Colored terminal output
 zz echo --repeat=1000 "test" | wc -l    # Generate test data
 
-# Performance benchmarks
-zz benchmark --format pretty             # Run with confidence symbols  
-zz benchmark --only path,memory          # Run specific suites
 
 # Manage dependencies
 zz deps --list                           # Check dependency status
@@ -90,25 +87,6 @@ zz prompt . --full                       # Everything (default)
 - `--structure` - Code structure outline
 - `--full` - Complete source (default)
 
-### `zz benchmark` - Performance testing
-
-See [benchmarks/latest.md](./benchmarks/latest.md) for the recent status.
-
-Run performance benchmarks with baseline comparison:
-
-```bash
-zz benchmark                     # Run all benchmarks (markdown format)
-zz benchmark --format pretty     # Pretty terminal output
-zz benchmark --only path,memory  # Run specific benchmarks
-zz benchmark --duration 5s       # Extended duration for stability
-```
-
-Build commands for common workflows:
-```bash
-zig build benchmark              # Run and compare with baseline
-zig build benchmark-baseline     # Save new baseline
-zig build benchmark-stdout       # Pretty output only
-```
 
 ### `zz tree` - Visualize directory structure
 
@@ -130,13 +108,6 @@ echo '{"a":1}' | zz format --stdin       # Format from stdin
 
 **Supported:** JSON, ZON, CSS, HTML, Zig (via `zig fmt`), TypeScript, Svelte
 
-### `zz benchmark` - Performance testing
-
-```bash
-zz benchmark --format=pretty              # Colored terminal output
-zz benchmark --format=json                # Machine-readable results
-zz benchmark --baseline=old.md            # Compare with baseline
-```
 
 ### `zz demo` - Interactive demonstration
 

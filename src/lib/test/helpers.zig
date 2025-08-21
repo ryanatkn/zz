@@ -477,7 +477,7 @@ pub const TestRunner = struct {
         completeCurrentModule();
 
         if (verbose) {
-            std.debug.print("\n📊 Test Suite Summary\n", .{});
+            std.debug.print("\nTest Suite Summary\n", .{});
             std.debug.print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n", .{});
 
             var total_tests: u32 = 0;

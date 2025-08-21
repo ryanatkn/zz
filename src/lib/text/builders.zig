@@ -44,6 +44,77 @@ pub fn appendIndentedLine(list: *std.ArrayList(u8), indent: usize, line: []const
 }
 
 // =============================================================================
+// Text Padding and Alignment Functions
+// =============================================================================
+
+/// Pad string to fixed width (left-aligned, right-padded with spaces)
+pub fn padRight(allocator: std.mem.Allocator, text: []const u8, width: usize) ![]u8 {
+    if (text.len >= width) {
+        return allocator.dupe(u8, text);
+    }
+
+    var result = try allocator.alloc(u8, width);
+    @memcpy(result[0..text.len], text);
+    @memset(result[text.len..], ' ');
+    return result;
+}
+
+/// Pad string to fixed width (right-aligned, left-padded with spaces)
+pub fn padLeft(allocator: std.mem.Allocator, text: []const u8, width: usize) ![]u8 {
+    if (text.len >= width) {
+        return allocator.dupe(u8, text);
+    }
+
+    var result = try allocator.alloc(u8, width);
+    const padding = width - text.len;
+    @memset(result[0..padding], ' ');
+    @memcpy(result[padding..], text);
+    return result;
+}
+
+/// Format time value with consistent precision and unit display (allocates)
+pub fn formatTimeAlloc(allocator: std.mem.Allocator, ns: u64) !struct { value: f64, unit: []const u8, formatted: []u8 } {
+    if (ns < 1000) {
+        // Nanoseconds
+        const value = @as(f64, @floatFromInt(ns));
+        const formatted = try std.fmt.allocPrint(allocator, "{d:>7.0} ns", .{value});
+        return .{ .value = value, .unit = "ns", .formatted = formatted };
+    } else if (ns < 1_000_000) {
+        // Microseconds (use 'us' instead of 'μs' to avoid unicode issues)
+        const value = @as(f64, @floatFromInt(ns)) / 1000.0;
+        const formatted = try std.fmt.allocPrint(allocator, "{d:>7.2} us", .{value});
+        return .{ .value = value, .unit = "us", .formatted = formatted };
+    } else {
+        // Milliseconds
+        const value = @as(f64, @floatFromInt(ns)) / 1_000_000.0;
+        const formatted = try std.fmt.allocPrint(allocator, "{d:>7.2} ms", .{value});
+        return .{ .value = value, .unit = "ms", .formatted = formatted };
+    }
+}
+
+/// Format time value with consistent precision and unit display (stack buffer)
+pub fn formatTime(ns: u64) struct { value: f64, unit: []const u8, buffer: [16:0]u8 } {
+    var buffer: [16:0]u8 = [_:0]u8{0} ** 16;
+
+    if (ns < 1000) {
+        // Nanoseconds
+        const value = @as(f64, @floatFromInt(ns));
+        _ = std.fmt.bufPrint(buffer[0..], "{d:>7.0} ns", .{value}) catch unreachable;
+        return .{ .value = value, .unit = "ns", .buffer = buffer };
+    } else if (ns < 1_000_000) {
+        // Microseconds (use 'us' instead of 'μs' to avoid unicode issues)
+        const value = @as(f64, @floatFromInt(ns)) / 1000.0;
+        _ = std.fmt.bufPrint(buffer[0..], "{d:>7.2} us", .{value}) catch unreachable;
+        return .{ .value = value, .unit = "us", .buffer = buffer };
+    } else {
+        // Milliseconds
+        const value = @as(f64, @floatFromInt(ns)) / 1_000_000.0;
+        _ = std.fmt.bufPrint(buffer[0..], "{d:>7.2} ms", .{value}) catch unreachable;
+        return .{ .value = value, .unit = "ms", .buffer = buffer };
+    }
+}
+
+// =============================================================================
 // ResultBuilder - Advanced String Building (from result_builder.zig)
 // =============================================================================
 

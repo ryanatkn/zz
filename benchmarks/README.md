@@ -1,192 +1,91 @@
-# Benchmark Workflow
+# zz Performance Benchmarks
 
-This directory contains performance benchmark results for the zz project.
+This directory contains internal performance benchmarks for the zz codebase itself.
 
-## Design Philosophy
+## Development Workflow
 
-The benchmark system follows Unix philosophy:
-- **CLI outputs to stdout**: Always predictable, always composable
-- **Users control files**: You decide where results go via shell redirects
-- **Build commands for convenience**: Common workflows are automated
-
-## Files
-
-- `baseline.md` - Reference benchmark results (your performance baseline)
-- `latest.md` - Most recent benchmark results (for comparison)
-
-## Typical Workflow
-
-### Option 1: Using Build Commands (Recommended)
-
-The build system provides convenient commands that handle file management:
+zz's performance is measured via a separate `zz-benchmark` executable to keep the main CLI focused:
 
 ```bash
-# First time - establish baseline
+# Establish baseline (first time)
 zig build benchmark-baseline
 
-# Regular development - track changes
+# Regular development - track performance changes  
 zig build benchmark
-# This command:
-# 1. Saves results to benchmarks/latest.md
-# 2. Compares with baseline.md if it exists
-# 3. Shows pretty comparison in terminal
 
-# After optimizations - update baseline
-zig build benchmark-baseline
-
-# Just view results without saving
+# View results without saving files
 zig build benchmark-stdout
 ```
 
-### Option 2: Using CLI Directly (Full Control)
+## Files
 
-The CLI always outputs to stdout, giving you complete control:
+- `baseline.md` - Reference performance results
+- `latest.md` - Most recent benchmark results (for comparison)
+
+## Direct CLI Usage (Advanced)
+
+The `zz-benchmark` executable provides full control:
 
 ```bash
-# Create baseline
-zz benchmark > benchmarks/baseline.md
+# Run all benchmarks (markdown output)
+./zig-out/bin/zz-benchmark
 
-# Save and compare manually
-zz benchmark > benchmarks/latest.md
-diff benchmarks/baseline.md benchmarks/latest.md
+# Pretty terminal output with progress bars
+./zig-out/bin/zz-benchmark -- --format pretty
 
-# Pretty terminal output
-zz benchmark --format=pretty
+# Run specific suites only
+./zig-out/bin/zz-benchmark -- --only stream_first,zon-lexer
 
-# Different formats for different needs
-zz benchmark --format=json | jq '.results[] | select(.name=="Path Joining")'
-zz benchmark --format=csv > results.csv
-
-# Run specific benchmarks
-zz benchmark --only=path,string > quick-check.md
-
-# Extend duration for more stable results
-zz benchmark --duration-multiplier=2.0 > stable-results.md
+# Extended duration for stable results
+./zig-out/bin/zz-benchmark -- --duration 500ms --duration-multiplier 2.0
 ```
 
-## Understanding the Output
+## Understanding Results
 
-### Markdown Format (default)
-```markdown
-# Benchmark Results
-Date: 2024-01-15 10:30:45
-Build: Debug
-Iterations: 200
-
-| Benchmark | Operations | Time (ms) | ns/op | vs Baseline |
-|-----------|------------|-----------|-------|-------------|
-| Path Joining | 4000 | 190 | 47500 | -8.3% |
-```
-
-### Pretty Format (terminal)
+### Pretty Format (Terminal)
 ```
 ╔══════════════════════════════════════════════════════════════╗
 ║                  zz Performance Benchmarks                   ║
 ╚══════════════════════════════════════════════════════════════╝
 
-✓ Path Joining         47.50 μs [=========-] (-8.3% vs 51.84 μs)
-✓ String Pool            143 ns [----------] (-2.0% vs 146 ns)
-⚠ Memory Pools         51.20 μs [==========] (+2.4% vs 50.00 μs)
+✓ Stream.next() throughput           112 ns [          ] (+0.9% vs     111 ns)
+✓ Fact creation                       10 ns [          ] (+0.0% vs      10 ns)
+✓ Span distance                        7 ns [▼▼▼▼▼▼▼▼▼▼] (-12.5% vs       8 ns)
 
-──────────────────────────────────────────────────────────────
-Summary: 3 benchmarks, 812.34 ms total
-         ✓ 2 improved  ⚠ 1 regressed
+Summary: 19 benchmarks, 4928.82 ms total
+         ✓ 2 improved  ⚠ 0 regressed
 ```
 
 **Features:**
-- Color-coded results (green=improved, yellow=regressed, cyan=new)
-- Human-readable time units (ns, μs, ms, s)
-- Progress bars showing relative performance
-- Summary with totals and counts
+- **Progress bars**: Show percentage changes proportionally (▲ = slower, ▼ = faster)
+- **Confidence symbols**: ✓ (high), ○ (medium), △ (low), ⚠ (insufficient data)
+- **Baseline comparison**: Shows improvements/regressions vs saved baseline
 
-### JSON Format (machine-readable)
-```json
-{
-  "timestamp": 1705312245,
-  "build_mode": "Debug",
-  "iterations": 200,
-  "results": [
-    {
-      "name": "Path Joining",
-      "operations": 4000,
-      "elapsed_ns": 190000000,
-      "ns_per_op": 47500
-    }
-  ]
-}
+### Markdown Format (Default)
+```markdown
+| Benchmark | Operations | Time (ms) | ns/op | vs Baseline |
+|-----------|------------|-----------|-------|-------------|
+| Stream.next() throughput | 1800000 | 200.0 | 111 | +0.9% |
 ```
 
-## Regression Detection
+Perfect for saving to files and version control tracking.
 
-If any benchmark regresses by more than 10%, the command exits with code 1.
-This helps catch performance regressions in CI/CD pipelines:
+## Architecture
 
-```bash
-# In CI/CD script
-if ! zz benchmark > /dev/null; then
-    echo "Performance regression detected!"
-    exit 1
-fi
-```
+The benchmark system measures performance of zz's internal modules:
 
-## Advanced Usage
+- **stream_first**: Stream processing architecture performance
+- **zon-lexer**: ZON language lexing speed
+- **Core modules**: Memory, patterns, text processing (currently disabled)
 
-### Custom Comparisons
-```bash
-# Compare with different baseline
-zz benchmark --baseline=benchmarks/v1.0-baseline.md
+Built as a separate executable to maintain clean separation between zz's user-facing commands and internal development tools.
 
-# Disable comparison even if baseline exists
-zz benchmark --no-compare
+## Performance Targets
 
-# Extend duration for more reliable baseline comparisons
-zz benchmark --duration-multiplier=3.0 --baseline=benchmarks/stable-baseline.md
-```
+| Module | Target | Current Status |
+|--------|--------|----------------|
+| Stream.next() | >1M ops/sec | ✅ ~8M ops/sec |
+| Fact creation | >100K ops/sec | ✅ ~96M ops/sec |
+| Span operations | <50ns/op | ✅ 5-22ns/op |
 
-### Shell Functions
-Add these to your `.bashrc` or `.zshrc`:
-
-```bash
-# Quick benchmark and save with timestamp
-bench-save() {
-    zz benchmark > "benchmarks/$(date +%Y%m%d_%H%M%S).md"
-}
-
-# Compare two benchmark files
-bench-compare() {
-    diff -u "$1" "$2" | grep "^[+-]|" | grep -v "^[+-]|--"
-}
-
-# Watch for performance changes
-bench-watch() {
-    watch -n 5 'zz benchmark --format=pretty'
-}
-```
-
-## Tips
-
-1. **Always benchmark in release mode** for accurate results:
-   ```bash
-   zig build -Doptimize=ReleaseFast
-   ./zig-out/bin/zz benchmark
-   ```
-
-2. **Use duration multiplier** for stable results on all benchmarks:
-   ```bash
-   zz benchmark --duration-multiplier=2.0  # 2x longer for all benchmarks
-   zz benchmark --duration-multiplier=3.0  # 3x longer for most stable results
-   ```
-
-3. **Track history** in git:
-   ```bash
-   git add benchmarks/baseline.md
-   git commit -m "Update performance baseline"
-   ```
-
-4. **Automate in CI** to catch regressions:
-   ```yaml
-   - name: Check Performance
-     run: |
-       zig build -Doptimize=ReleaseFast
-       ./zig-out/bin/zz benchmark || exit 1
-   ```
+See [src/benchmark/CLAUDE.md](../src/benchmark/CLAUDE.md) for implementation details.

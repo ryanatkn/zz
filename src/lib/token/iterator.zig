@@ -8,6 +8,7 @@
 const std = @import("std");
 const StreamToken = @import("stream_token.zig").StreamToken;
 const Stream = @import("../stream/mod.zig").Stream;
+const DirectStream = @import("../stream/mod.zig").DirectStream;
 const RingBuffer = @import("../stream/mod.zig").RingBuffer;
 
 // TODO: Import actual language lexers when implemented
@@ -133,6 +134,23 @@ pub const TokenIterator = struct {
         _ = self;
         return undefined;
     }
+    
+    /// Convert to a DirectStream for optimal performance (Phase 5)
+    pub fn toDirectStream(self: *Self) DirectStream(StreamToken) {
+        // Create a generator-based DirectStream
+        const GeneratorStream = @import("../stream/direct_stream.zig").GeneratorStream;
+        
+        return DirectStream(StreamToken){
+            .generator = GeneratorStream(StreamToken).init(self, struct {
+                fn generate(iter: *anyopaque) ?StreamToken {
+                    const it = @as(*TokenIterator, @ptrCast(@alignCast(iter)));
+                    return it.next();
+                }
+            }.generate),
+        };
+    }
+    
+    // TODO: Phase 5 - Remove toStream once all consumers migrated to toDirectStream
 };
 
 /// Language enumeration for lexer creation

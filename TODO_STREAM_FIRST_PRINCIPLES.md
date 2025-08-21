@@ -142,24 +142,6 @@ fn assertStreamLike(comptime T: type) void {
 }
 ```
 
-### Type Erasure Patterns
-```zig
-// Generic storage with type info
-const AnyStream = struct {
-    ptr: *anyopaque,
-    typeId: TypeId,
-    vtable: *const StreamVTable,
-    
-    // Type-safe cast back
-    pub fn cast(self: AnyStream, comptime T: type) ?Stream(T) {
-        if (self.typeId == TypeId.of(T)) {
-            return @ptrCast(*Stream(T), self.ptr);
-        }
-        return null;
-    }
-};
-```
-
 ## Memory Patterns
 
 ### Arena Pool Strategy

@@ -20,8 +20,15 @@ test {
     _ = @import("languages/zon/stream_token.zig");
     _ = @import("languages/stream_token_example.zig");
     
+    // Phase 3: Direct stream lexers
+    _ = @import("languages/json/test_stream.zig");
+    _ = @import("languages/zon/test_stream.zig");
+    
     // Phase 3 modules (Query Engine)
     _ = @import("query/test.zig");
+    
+    // Phase 5: DirectStream migration tests
+    _ = @import("stream/test_direct_stream.zig");
     
     // TODO: Phase 4 modules (Language Adapters)
     // _ = @import("adapter/test.zig");

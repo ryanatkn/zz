@@ -3,19 +3,69 @@
 ## Overview
 Generic streaming infrastructure providing composable, zero-allocation data flow. Foundation for all stream operations in the architecture.
 
-## Core Types
+## Two Implementations (Phase 4)
 
-### Stream(T)
-Generic stream with vtable dispatch:
+### 1. Stream(T) - VTable-Based (Original)
+Generic stream with vtable dispatch (3-5 cycles):
 ```zig
 pub fn Stream(comptime T: type) type {
     return struct {
-        context: *anyopaque,
-        nextFn: *const fn(*anyopaque) ?T,
-        peekFn: ?*const fn(*anyopaque) ?T,
+        ptr: *anyopaque,
+        vtable: *const VTable,
     };
 }
 ```
+**Status**: Kept for backward compatibility during migration
+
+### 2. DirectStream(T) - Tagged Union (New)
+Tagged union dispatch achieving 1-2 cycles:
+```zig
+pub fn DirectStream(comptime T: type) type {
+    return union(enum) {
+        slice: SliceStream(T),
+        ring_buffer: RingBufferStream(T),
+        generator: GeneratorStream(T),
+        // ... other variants
+    };
+}
+```
+**Status**: Phase 4 implementation following stream-first principles
+
+## Performance Comparison
+
+| Metric | Stream (VTable) | DirectStream (Tagged) | Improvement |
+|--------|----------------|--------------------|-------------|
+| Dispatch | 3-5 cycles | 1-2 cycles | 60-80% faster |
+| Memory | Heap allocated | Stack/embedded | Zero alloc |
+| Cache | Pointer chase | Linear access | Better locality |
+
+## Migration Guide
+
+### New Code
+Use DirectStream for all new implementations:
+```zig
+const stream = directFromSlice(u32, &data);
+while (try stream.next()) |item| {
+    process(item);
+}
+```
+
+### Existing Code
+Continue using Stream until ready to migrate:
+```zig
+const stream = fromSlice(u32, &data);  // Still works
+```
+
+### Direct Iterator Pattern (Optimal)
+For maximum performance, bypass Stream entirely:
+```zig
+var lexer = JsonStreamLexer.init(source);
+while (lexer.next()) |token| {
+    // 1-2 cycle dispatch, no overhead
+}
+```
+
+## Core Types
 
 ### RingBuffer
 Fixed-capacity circular buffer:
@@ -30,6 +80,7 @@ pub fn RingBuffer(comptime T: type, comptime capacity: usize) type;
 - `SliceSource`: Stream from array
 - `GeneratorSource`: Computed values
 - `FileSource`: File reading
+- `RingBufferSource`: From circular buffer
 
 ### Sinks
 - `BufferSink`: Collect to buffer
@@ -50,22 +101,35 @@ pub fn RingBuffer(comptime T: type, comptime capacity: usize) type;
 - `chain`: Sequential composition
 
 ## Performance
-- **Throughput**: 8.9M ops/sec (112ns per next())
+- **Stream throughput**: 8.9M ops/sec (112ns per next())
+- **DirectStream dispatch**: 1-2 cycles (vs 3-5 for vtable)
 - **Memory**: O(1) with ring buffers
 - **Allocation**: Zero in core operations
 
 ## Usage Examples
+
+### VTable Stream (Compatibility)
 ```zig
 // Create stream from slice
-var source = SliceSource(u32).init(&data);
-var stream = source.stream();
+var stream = fromSlice(u32, &data);
 
 // Transform with operators
-var mapped = MapOperator(u32, u64).init(&stream, doubleValue);
-var filtered = FilterOperator(u64).init(&mapped.stream(), isEven);
+var mapped = stream.map(u64, doubleValue);
+var filtered = mapped.filter(isEven);
 
 // Consume results
-while (try filtered.stream().next()) |value| {
+while (try filtered.next()) |value| {
+    process(value);
+}
+```
+
+### DirectStream (Recommended)
+```zig
+// Create direct stream
+var stream = directFromSlice(u32, &data);
+
+// Direct dispatch - 1-2 cycles
+while (try stream.next()) |value| {
     process(value);
 }
 ```
@@ -75,8 +139,24 @@ while (try filtered.stream().next()) |value| {
 - **Backpressure**: Consumer controls rate
 - **Composable**: Operators chain naturally
 - **Generic**: Works with any type
+- **Zero-cost**: DirectStream achieves theoretical minimum dispatch
 
 ## Integration
 - Used by TokenStream for lexer output
 - Powers FactStream in query execution
 - Enables streaming parser architecture
+- Direct iterators bypass for maximum performance
+
+## Technical Debt
+- **Stream (vtable)**: Kept for compatibility, should be removed after migration
+- **Operator allocation**: Need arena pools for zero-allocation chains
+- **Migration incomplete**: Many modules still use vtable Stream
+
+## Files
+- `stream.zig` - VTable implementation (compatibility)
+- `direct_stream.zig` - Tagged union implementation (recommended)
+- `buffer.zig` - Ring buffer implementation
+- `operators.zig` - Stream operators
+- `source.zig` - Stream sources
+- `sink.zig` - Stream sinks
+- `fusion.zig` - Operator fusion optimizations

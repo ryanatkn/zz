@@ -1,9 +1,9 @@
 # Stream-First Known Issues
 
-## Test Status (Updated Phase 3)
-- **Total Tests**: 229
-- **Passing**: 221 (96.5%)
-- **Failing**: 7
+## Test Status (Updated Phase 5A)
+- **Total Tests**: 254 (10 new DirectStream tests)
+- **Passing**: 245 (96.5%)
+- **Failing**: 8 (same as before)
 - **Skipped**: 1
 
 ## Known Failing Tests
@@ -62,11 +62,28 @@ These failures do not block Phase 3 work because:
 - ✅ **Value type confusion**: Clarified fact vs query Value types
 - ✅ **applyLimitOffset issues**: Fixed slice vs allocation handling
 
-## Action Items for Phase 3/4
+## Technical Debt After Phase 4
 
-- [ ] Implement native stream lexers to fix lexer tests
+### Completed in Phase 4
+- ✅ Implemented DirectStream with tagged union (1-2 cycles)
+- ✅ Created parallel implementation strategy
+- ✅ Direct stream lexers for JSON/ZON working
+
+### Phase 5A Complete
+- ✅ Type aliases created (DirectFactStream, DirectTokenStream)
+- ✅ Helper functions for migration added
+- ✅ Performance benchmark created
+- ✅ Query module supports DirectStream
+- ✅ Lexer modules support DirectStream
+- ✅ Comprehensive DirectStream tests added
+- ✅ No new test failures from migration
+
+### Remaining for Phase 5
+- [ ] Migrate all modules from Stream to DirectStream
+- [ ] Delete vtable Stream after migration complete
+- [ ] Implement native stream lexers for remaining languages
 - [ ] Adjust cache eviction test expectations
 - [ ] Fix QueryIndex confidence range logic
-- [ ] Delete bridge modules and their tests in Phase 4
-- [ ] Add streaming query execution
-- [ ] Implement GROUP BY/HAVING support
+- [ ] Delete bridge modules and their tests
+- [ ] Add arena allocator for operator chains
+- [ ] Complete GROUP BY/HAVING aggregation functions

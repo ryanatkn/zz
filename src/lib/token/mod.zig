@@ -24,9 +24,20 @@ pub const StreamToken = @import("stream_token.zig").StreamToken;
 pub const SimpleStreamToken = @import("generic.zig").SimpleStreamToken;
 pub const TokenInterface = @import("generic.zig").TokenInterface;
 
-// Re-export Stream type for TokenStream
+// Re-export Stream types for TokenStream
 const Stream = @import("../stream/mod.zig").Stream;
+const DirectStream = @import("../stream/mod.zig").DirectStream;
+const directFromSlice = @import("../stream/mod.zig").directFromSlice;
+
 pub const TokenStream = Stream(StreamToken);
+pub const DirectTokenStream = DirectStream(StreamToken);
+
+/// Create DirectStream from token slice
+pub fn directTokenStream(tokens: []const StreamToken) DirectTokenStream {
+    return directFromSlice(StreamToken, tokens);
+}
+
+/// TODO: Phase 5 - Migrate TokenIterator to produce DirectTokenStream
 
 // TokenIterator for streaming tokenization
 pub const TokenIterator = @import("iterator.zig").TokenIterator;

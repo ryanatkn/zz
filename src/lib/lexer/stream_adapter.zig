@@ -6,6 +6,8 @@
 /// TODO: Memory-mapped file support for zero-copy lexing
 const std = @import("std");
 const Stream = @import("../stream/mod.zig").Stream;
+const DirectStream = @import("../stream/mod.zig").DirectStream;
+const directFromSlice = @import("../stream/mod.zig").directFromSlice;
 const StreamToken = @import("../token/stream_token.zig").StreamToken;
 const RingBuffer = @import("../stream/mod.zig").RingBuffer;
 const LexerBridge = @import("lexer_bridge.zig").LexerBridge;
@@ -41,6 +43,15 @@ pub const StreamAdapter = struct {
             .ptr = self,
             .vtable = &stream_vtable,
         };
+    }
+    
+    /// Create a DirectStream from this adapter (Phase 5 migration)
+    /// TODO: This is a simple slice-based implementation
+    /// TODO: Consider generator-based implementation for lookahead support
+    pub fn toDirectStream(self: *const Self) DirectStream(StreamToken) {
+        // For now, we just wrap the slice directly
+        // This doesn't support lookahead buffer, but that's okay for migration
+        return directFromSlice(StreamToken, self.tokens);
     }
     
     /// Stream vtable implementation

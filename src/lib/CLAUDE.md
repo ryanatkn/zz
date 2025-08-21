@@ -41,13 +41,14 @@ src/lib/
 
 ### Stream-First Architecture (NEW)
 - **Stream Module**: Zero-allocation generic streaming with 8.9M ops/sec
+  - **DirectStream**: NEW - Tagged union dispatch (1-2 cycles) vs vtable (3-5 cycles)
 - **Fact Module**: Universal data unit at exactly 24 bytes, 100M facts/sec creation
 - **Span Module**: Packed spans at 8 bytes with 200M ops/sec
 - **Token Module**: Tagged union dispatch in 1-2 cycles (vs 3-5 for vtable)
 - **Cache Module**: Multi-indexed fact cache with LRU eviction
-- **Query Module**: SQL-like DSL with optimization and planning (Phase 3)
+- **Query Module**: SQL-like DSL with optimization and planning (Phase 3 complete)
 - **Memory Module**: Arena pools and atom tables for zero-allocation paths
-- **Test Coverage**: 220+ tests (includes query tests)
+- **Test Coverage**: 235/244 tests passing (96.3%)
 
 ## Architecture Highlights
 

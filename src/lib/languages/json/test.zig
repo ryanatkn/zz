@@ -27,6 +27,7 @@ test {
     _ = @import("test_rfc8259_compliance.zig");
     _ = @import("tokens.zig");
     _ = @import("stateful_lexer.zig");
+    _ = @import("stream_lexer.zig");  // New direct stream lexer
 }
 
 // Comprehensive test suite for JSON language implementation

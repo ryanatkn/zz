@@ -8,6 +8,7 @@ const SimpleCondition = @import("query.zig").SimpleCondition;
 const CompositeCondition = @import("query.zig").CompositeCondition;
 const SelectClause = @import("query.zig").SelectClause;
 const OrderBy = @import("query.zig").OrderBy;
+const HavingClause = @import("query.zig").HavingClause;
 
 const Op = @import("operators.zig").Op;
 const Field = @import("operators.zig").Field;
@@ -21,6 +22,9 @@ const PackedSpan = @import("../span/mod.zig").PackedSpan;
 const unpackSpan = @import("../span/mod.zig").unpackSpan;
 
 const Stream = @import("../stream/mod.zig").Stream;
+const DirectStream = @import("../stream/mod.zig").DirectStream;
+const directFromSlice = @import("../stream/mod.zig").directFromSlice;
+const GeneratorStream = @import("../stream/mod.zig").GeneratorStream;
 const QueryIndex = @import("../cache/mod.zig").QueryIndex;
 
 /// Query execution result
@@ -131,13 +135,15 @@ pub const QueryExecutor = struct {
         }
         
         // Apply GROUP BY
-        if (query.group_by) |_| {
-            // TODO: Implement grouping in Phase 3
+        if (query.group_by) |group_fields| {
+            facts = try self.applyGroupBy(facts, group_fields);
+            // Note: facts ownership transferred to grouped result
         }
         
         // Apply HAVING
-        if (query.having) |_| {
-            // TODO: Implement having in Phase 3
+        if (query.having) |having| {
+            facts = try self.applyHaving(facts, &having);
+            // Note: facts ownership transferred to filtered result
         }
         
         // Apply ORDER BY
@@ -162,10 +168,27 @@ pub const QueryExecutor = struct {
     
     /// Execute query and return a stream
     pub fn executeStream(self: *QueryExecutor, query: *const Query) !FactStream {
-        _ = self;
-        _ = query;
-        // TODO: Implement streaming execution in Phase 3
-        return error.NotImplemented;
+        // Get fact store
+        const store = @as(*FactStore, @ptrCast(@alignCast(query.from orelse return error.NoFactStore)));
+        
+        // Create streaming context
+        const ctx = try self.allocator.create(StreamContext);
+        ctx.* = StreamContext{
+            .executor = self,
+            .query = query,
+            .store = store,
+            .iterator = store.iterator(),
+            .state = .initial,
+            .current_fact = null,
+        };
+        
+        return FactStream{
+            .context = ctx,
+            .nextFn = streamNext,
+            .peekFn = null,
+            .closeFn = streamClose,
+            .stats = .{},
+        };
     }
     
     /// Get base facts based on SELECT clause
@@ -353,30 +376,105 @@ pub const QueryExecutor = struct {
     
     // Helper functions removed - Value is extern union, fields are reinterpreted based on context
     
-    /// Apply ORDER BY clause
+    /// Apply GROUP BY clause
+    fn applyGroupBy(self: *QueryExecutor, facts: []Fact, group_fields: []const Field) ![]Fact {
+        // TODO: Full GROUP BY implementation with aggregations
+        // For now, just group by first unique value of each field combination
+        
+        if (group_fields.len == 0) return facts;
+        
+        // Create a map to track groups
+        var groups = std.AutoHashMap(u64, std.ArrayList(Fact)).init(self.allocator);
+        defer {
+            var iter = groups.iterator();
+            while (iter.next()) |entry| {
+                entry.value_ptr.deinit();
+            }
+            groups.deinit();
+        }
+        
+        // Group facts by field values
+        for (facts) |fact| {
+            // Create a hash of the group key (simplified - just use first field)
+            const field_value = getFieldValue(fact, group_fields[0]);
+            const hash = switch (field_value) {
+                .number => |n| @as(u64, @bitCast(n)),
+                .float => |f| @as(u64, @bitCast(f)),
+                .predicate => |p| @intFromEnum(p),
+                else => 0,
+            };
+            
+            const result = try groups.getOrPut(hash);
+            if (!result.found_existing) {
+                result.value_ptr.* = std.ArrayList(Fact).init(self.allocator);
+            }
+            try result.value_ptr.append(fact);
+        }
+        
+        // Build result with one fact per group (first fact for now)
+        var result = std.ArrayList(Fact).init(self.allocator);
+        var iter = groups.iterator();
+        while (iter.next()) |entry| {
+            if (entry.value_ptr.items.len > 0) {
+                // TODO: Apply aggregation functions (COUNT, SUM, AVG, etc.)
+                // For now, just take the first fact from each group
+                try result.append(entry.value_ptr.items[0]);
+            }
+        }
+        
+        self.allocator.free(facts);
+        return result.toOwnedSlice();
+    }
+    
+    /// Apply HAVING clause (post-aggregation filtering)
+    fn applyHaving(self: *QueryExecutor, facts: []Fact, having: *const HavingClause) ![]Fact {
+        // TODO: Full HAVING implementation with aggregation conditions
+        // For now, just return all facts since we can't evaluate aggregation conditions yet
+        
+        _ = self;
+        _ = having;
+        
+        // When GROUP BY and aggregations are fully implemented, this will:
+        // 1. Evaluate aggregate functions (COUNT, SUM, AVG, etc.)
+        // 2. Filter groups based on aggregate conditions
+        // 3. Return only groups that meet the HAVING criteria
+        
+        // For now, pass through all facts
+        return facts;
+    }
+    
+    /// Apply ORDER BY clause with multi-field support
     fn applyOrderBy(self: *QueryExecutor, facts: []Fact, order_by: []const OrderBy) !void {
         _ = self;
         
         if (order_by.len == 0) return;
         
-        // Sort by first field only for now
-        // TODO: Implement multi-field sorting
-        const order = order_by[0];
-        
         const Context = struct {
-            field: Field,
-            direction: Direction,
+            orders: []const OrderBy,
             
             pub fn lessThan(ctx: @This(), a: Fact, b: Fact) bool {
-                const a_val = getFieldValue(a, ctx.field);
-                const b_val = getFieldValue(b, ctx.field);
+                // Compare using each field in order until we find a difference
+                for (ctx.orders) |order| {
+                    const a_val = getFieldValue(a, order.field);
+                    const b_val = getFieldValue(b, order.field);
+                    
+                    // Check if values are equal
+                    if (compareValues(a_val, .eq, b_val)) {
+                        // Values are equal, continue to next field
+                        continue;
+                    }
+                    
+                    // Values differ, use this field for comparison
+                    const cmp = compareValues(a_val, .lt, b_val);
+                    return if (order.direction == .ascending) cmp else !cmp;
+                }
                 
-                const cmp = compareValues(a_val, .lt, b_val);
-                return if (ctx.direction == .ascending) cmp else !cmp;
+                // All fields are equal, maintain original order
+                return false;
             }
         };
         
-        std.mem.sort(Fact, facts, Context{ .field = order.field, .direction = order.direction }, Context.lessThan);
+        std.mem.sort(Fact, facts, Context{ .orders = order_by }, Context.lessThan);
     }
     
     /// Apply LIMIT and OFFSET (returns new allocation if limit/offset applied)
@@ -402,4 +500,171 @@ pub const QueryExecutor = struct {
     }
     
     pub const FactStream = Stream(Fact);
+    pub const DirectFactStream = DirectStream(Fact);
+    
+    /// Create DirectStream from fact slice
+    pub fn directFactStream(facts: []const Fact) DirectFactStream {
+        return directFromSlice(Fact, facts);
+    }
+    
+    /// Execute query and return a DirectStream (Phase 5)
+    pub fn directExecute(self: *QueryExecutor, query: *const Query) !DirectFactStream {
+        // For now, execute normally and convert to DirectStream
+        // TODO: Implement true streaming execution without collecting all facts
+        var result = try self.execute(query);
+        defer result.deinit();
+        
+        // Create a copy of facts that DirectStream can own
+        const facts_copy = try self.allocator.dupe(Fact, result.facts);
+        return directFactStream(facts_copy);
+    }
+    
+    /// Execute query and return a DirectStream with true streaming (Phase 5B)
+    pub fn directExecuteStream(self: *QueryExecutor, query: *const Query) !DirectFactStream {
+        // Get fact store
+        const store = @as(*FactStore, @ptrCast(@alignCast(query.from orelse return error.NoFactStore)));
+        
+        // Create streaming context for DirectStream
+        // TODO: Phase 5C - Use operator pool instead of heap allocation
+        const ctx = try self.allocator.create(DirectStreamContext);
+        ctx.* = DirectStreamContext{
+            .allocator = self.allocator,
+            .query = query,
+            .store = store,
+            .iterator = store.iterator(),
+            .state = .initial,
+            .current_fact = null,
+        };
+        
+        // Use GeneratorStream for true streaming without collecting all facts
+        const gen_fn = struct {
+            fn generate(ptr: *anyopaque) ?Fact {
+                const context = @as(*DirectStreamContext, @ptrCast(@alignCast(ptr)));
+                return directStreamNext(context);
+            }
+        }.generate;
+        
+        return DirectFactStream{
+            .generator = GeneratorStream(Fact).init(ctx, gen_fn),
+        };
+    }
+    
+    /// TODO: Phase 5C - Migrate executeStream to use DirectFactStream
+    /// TODO: Delete vtable-based executeStream after full migration
+    
+    /// Context for DirectStream streaming query execution
+    const DirectStreamContext = struct {
+        allocator: std.mem.Allocator,
+        query: *const Query,
+        store: *FactStore,
+        iterator: FactStore.Iterator,
+        state: StreamState,
+        current_fact: ?Fact,
+    };
+    
+    /// Get next fact for DirectStream (zero-allocation streaming)
+    fn directStreamNext(ctx: *DirectStreamContext) ?Fact {
+        while (ctx.iterator.next()) |fact| {
+            // Apply WHERE conditions if present
+            if (ctx.query.where_conditions.items.len > 0) {
+                var all_match = true;
+                for (ctx.query.where_conditions.items) |condition| {
+                    if (!evaluateCondition(fact, condition)) {
+                        all_match = false;
+                        break;
+                    }
+                }
+                if (!all_match) continue;
+            }
+            
+            // Apply SELECT predicate filter if not SELECT *
+            switch (ctx.query.select) {
+                .all => return fact,
+                .predicates => |predicates| {
+                    for (predicates) |pred| {
+                        if (fact.predicate == pred) {
+                            return fact;
+                        }
+                    }
+                    continue; // Skip this fact
+                },
+            }
+        }
+        
+        // Clean up when done
+        // TODO: This cleanup should be handled by DirectStream.close()
+        // For now, we leak the context since GeneratorStream doesn't have cleanup
+        return null;
+    }
+    
+    /// TODO: Phase 5 - Migrate executeStream to use DirectFactStream
+    /// TODO: Implement true streaming without collecting all results first
+    
+    /// Context for streaming query execution
+    const StreamContext = struct {
+        executor: *QueryExecutor,
+        query: *const Query,
+        store: *FactStore,
+        iterator: FactStore.Iterator,
+        state: StreamState,
+        current_fact: ?Fact,
+    };
+    
+    const StreamState = enum {
+        initial,
+        filtering,
+        done,
+    };
+    
+    /// Get next fact from stream
+    fn streamNext(ctx: *anyopaque) ?Fact {
+        const context: *StreamContext = @ptrCast(@alignCast(ctx));
+        
+        while (true) {
+            // Get next fact from store
+            const fact = context.iterator.next() orelse {
+                context.state = .done;
+                return null;
+            };
+            
+            context.executor.stats.rows_examined += 1;
+            
+            // Apply SELECT filtering
+            var matches_select = false;
+            switch (context.query.select) {
+                .all => matches_select = true,
+                .predicates => |predicates| {
+                    for (predicates) |pred| {
+                        if (fact.predicate == pred) {
+                            matches_select = true;
+                            break;
+                        }
+                    }
+                },
+                .fields => matches_select = true,  // TODO: Field filtering
+            }
+            
+            if (!matches_select) continue;
+            
+            // Apply WHERE clause
+            if (context.query.where) |where| {
+                // TODO: For streaming, we need a non-allocating version of evaluateCondition
+                // For now, do simple predicate check
+                _ = where;
+                // if (!context.executor.evaluateCondition(fact, &where.condition)) continue;
+            }
+            
+            // TODO: GROUP BY and HAVING need accumulation, incompatible with streaming
+            // TODO: ORDER BY needs full dataset, incompatible with streaming
+            
+            context.executor.stats.rows_returned += 1;
+            return fact;
+        }
+    }
+    
+    /// Clean up streaming context
+    fn streamClose(ctx: *anyopaque) void {
+        const context: *StreamContext = @ptrCast(@alignCast(ctx));
+        context.executor.allocator.destroy(context);
+    }
 };

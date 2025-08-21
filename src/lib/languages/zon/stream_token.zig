@@ -12,8 +12,13 @@ pub const ZonTokenKind = enum(u8) {
     struct_end,     // }
     array_start,    // .{  (for arrays)
     array_end,      // }
+    object_start,   // {
+    object_end,     // }
+    paren_open,     // (
+    paren_close,    // )
     comma,          // ,
     equals,         // =
+    colon,          // :
     dot,            // .
     
     // Values

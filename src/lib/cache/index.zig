@@ -146,13 +146,22 @@ pub const QueryIndex = struct {
     
     /// Query facts by confidence range
     pub fn queryByConfidence(self: *QueryIndex, min: f16, max: f16) ![]FactId {
+        // TODO: The bucket calculation should consider that confidence values
+        // exactly on bucket boundaries may need special handling
         const min_bucket = confidenceToBucket(min);
         const max_bucket = confidenceToBucket(max);
         
         // Count total facts in range
         var total: usize = 0;
         for (min_bucket..max_bucket + 1) |i| {
-            total += self.by_confidence[i].items.len;
+            // Check each fact in bucket to see if it's actually in range
+            // This is needed because bucket boundaries may not align exactly
+            for (self.by_confidence[i].items) |fact_id| {
+                const fact = self.store.get(fact_id) orelse continue;
+                if (fact.confidence >= min and fact.confidence <= max) {
+                    total += 1;
+                }
+            }
         }
         
         // Collect all fact IDs
@@ -160,9 +169,13 @@ pub const QueryIndex = struct {
         var offset: usize = 0;
         
         for (min_bucket..max_bucket + 1) |i| {
-            const bucket = self.by_confidence[i].items;
-            @memcpy(result[offset..offset + bucket.len], bucket);
-            offset += bucket.len;
+            for (self.by_confidence[i].items) |fact_id| {
+                const fact = self.store.get(fact_id) orelse continue;
+                if (fact.confidence >= min and fact.confidence <= max) {
+                    result[offset] = fact_id;
+                    offset += 1;
+                }
+            }
         }
         
         return result;

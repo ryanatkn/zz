@@ -12,6 +12,8 @@
 const std = @import("std");
 const StreamToken = @import("../token/stream_token.zig").StreamToken;
 const TokenStream = @import("../stream/mod.zig").Stream(StreamToken);
+const DirectStream = @import("../stream/mod.zig").DirectStream;
+const directFromSlice = @import("../stream/mod.zig").directFromSlice;
 const AtomTable = @import("../memory/atom_table.zig").AtomTable;
 const AtomId = @import("../memory/atom_table.zig").AtomId;
 const Language = @import("../core/language.zig").Language;
@@ -140,6 +142,17 @@ pub const LexerBridge = struct {
         }
         
         return new_tokens;
+    }
+    
+    /// Convert source to DirectStream of tokens (Phase 5 migration)
+    /// TODO: This still allocates the full token array - true streaming in Phase 6
+    /// TODO: Consider generator-based approach to avoid intermediate allocation
+    pub fn tokenizeDirectStream(self: *LexerBridge, source: []const u8) !DirectStream(StreamToken) {
+        // For now, tokenize to array then wrap in DirectStream
+        // This is not ideal but maintains compatibility during migration
+        const tokens = try self.tokenize(source);
+        // Note: Caller is responsible for freeing tokens array when done
+        return directFromSlice(StreamToken, tokens);
     }
     
     /// Convert a single old token to new StreamToken

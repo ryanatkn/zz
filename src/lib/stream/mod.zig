@@ -8,6 +8,14 @@ pub const fromSlice = @import("stream.zig").fromSlice;
 pub const fromIterator = @import("stream.zig").fromIterator;
 pub const StreamStats = @import("stream.zig").StreamStats;
 
+// Phase 4: Direct stream with tagged union dispatch (1-2 cycles vs 3-5 for vtable)
+// TODO: Migrate all consumers from Stream to DirectStream
+pub const DirectStream = @import("direct_stream.zig").DirectStream;
+pub const directFromSlice = @import("direct_stream.zig").fromSlice;
+pub const directFromRingBuffer = @import("direct_stream.zig").fromRingBuffer;
+pub const directEmpty = @import("direct_stream.zig").empty;
+pub const GeneratorStream = @import("direct_stream.zig").GeneratorStream;
+
 // Re-export key types from other modules
 pub const StreamError = @import("error.zig").StreamError;
 pub const RingBuffer = @import("buffer.zig").RingBuffer;

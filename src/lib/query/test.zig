@@ -20,6 +20,11 @@ const FactStore = @import("../fact/mod.zig").FactStore;
 const Builder = @import("../fact/mod.zig").Builder;
 const Predicate = @import("../fact/mod.zig").Predicate;
 const PackedSpan = @import("../span/mod.zig").PackedSpan;
+const Span = @import("../span/mod.zig").Span;
+
+// Import DirectStream support
+const DirectStream = @import("../stream/mod.zig").DirectStream;
+const directExecute = @import("executor.zig").directExecute;
 
 test "QueryBuilder basic construction" {
     const allocator = testing.allocator;
@@ -334,4 +339,179 @@ test "Query with index usage" {
 
 test "Parallel query execution" {
     // TODO: Implement when parallel execution is added
+}
+
+// DirectStream migration tests (Phase 5A)
+
+test "QueryExecutor.directExecute basic usage" {
+    const allocator = testing.allocator;
+    
+    // Create fact store
+    var store = FactStore.init(allocator);
+    defer store.deinit();
+    
+    // Add test facts
+    _ = try store.append(try Builder.new()
+        .withSpan(Span.init(0, 10))
+        .withPredicate(.is_function)
+        .withConfidence(0.95)
+        .build());
+    
+    _ = try store.append(try Builder.new()
+        .withSpan(Span.init(20, 30))
+        .withPredicate(.is_class)
+        .withConfidence(0.85)
+        .build());
+    
+    // Build query
+    var builder = QueryBuilder.init(allocator);
+    defer builder.deinit();
+    
+    _ = builder.selectAll().from(&store);
+    _ = try builder.where(.confidence, .gte, 0.8);
+    
+    const query = try builder.build();
+    defer {
+        var q = query;
+        q.deinit();
+    }
+    
+    // Execute with DirectStream
+    var executor = QueryExecutor.init(allocator);
+    defer executor.deinit();
+    
+    var stream = try executor.directExecute(&query);
+    
+    // Verify stream results
+    var count: usize = 0;
+    while (try stream.next()) |fact| {
+        try testing.expect(fact.confidence >= 0.8);
+        count += 1;
+    }
+    
+    try testing.expect(count == 2);
+}
+
+test "DirectStream vs Stream performance comparison" {
+    const allocator = testing.allocator;
+    
+    // Create larger fact store for performance testing
+    var store = FactStore.init(allocator);
+    defer store.deinit();
+    
+    // Add 1000 test facts
+    var i: u32 = 0;
+    while (i < 1000) : (i += 1) {
+        _ = try store.append(try Builder.new()
+            .withSpan(Span.init(i * 10, i * 10 + 5))
+            .withPredicate(if (i % 2 == 0) .is_function else .is_class)
+            .withConfidence(@as(f16, @floatFromInt(i % 100)) / 100.0)
+            .build());
+    }
+    
+    // Build query
+    var builder = QueryBuilder.init(allocator);
+    defer builder.deinit();
+    
+    _ = builder.selectAll().from(&store);
+    _ = try builder.where(.confidence, .gte, 0.5);
+    _ = builder.limit(100);
+    
+    const query = try builder.build();
+    defer {
+        var q = query;
+        q.deinit();
+    }
+    
+    var executor = QueryExecutor.init(allocator);
+    defer executor.deinit();
+    
+    // Measure Stream performance
+    const stream_start = std.time.nanoTimestamp();
+    var stream_result = try executor.execute(&query);
+    defer stream_result.deinit();
+    const stream_time = std.time.nanoTimestamp() - stream_start;
+    
+    // Measure DirectStream performance  
+    const direct_start = std.time.nanoTimestamp();
+    var direct_stream = try executor.directExecute(&query);
+    var direct_count: usize = 0;
+    while (try direct_stream.next()) |_| {
+        direct_count += 1;
+    }
+    const direct_time = std.time.nanoTimestamp() - direct_start;
+    
+    // DirectStream should be faster (or at least not slower)
+    // We're being lenient here since it's early migration
+    try testing.expect(direct_count == stream_result.facts.len);
+    
+    // Log performance for debugging (not a hard assertion)
+    std.debug.print("\n  Stream time: {} ns\n", .{stream_time});
+    std.debug.print("  DirectStream time: {} ns\n", .{direct_time});
+    if (direct_time < stream_time) {
+        const improvement = @as(f64, @floatFromInt(stream_time - direct_time)) / @as(f64, @floatFromInt(stream_time)) * 100;
+        std.debug.print("  DirectStream {d:.1}% faster\n", .{improvement});
+    }
+}
+
+test "DirectStream query with complex conditions" {
+    const allocator = testing.allocator;
+    
+    var store = FactStore.init(allocator);
+    defer store.deinit();
+    
+    // Add varied test facts
+    _ = try store.append(try Builder.new()
+        .withSpan(Span.init(0, 10))
+        .withPredicate(.is_function)
+        .withConfidence(0.95)
+        .build());
+    
+    _ = try store.append(try Builder.new()
+        .withSpan(Span.init(10, 20))
+        .withPredicate(.is_function)
+        .withConfidence(0.75)
+        .build());
+    
+    _ = try store.append(try Builder.new()
+        .withSpan(Span.init(20, 30))
+        .withPredicate(.is_class)
+        .withConfidence(0.85)
+        .build());
+    
+    _ = try store.append(try Builder.new()
+        .withSpan(Span.init(30, 40))
+        .withPredicate(.is_variable)
+        .withConfidence(0.65)
+        .build());
+    
+    // Complex query
+    var builder = QueryBuilder.init(allocator);
+    defer builder.deinit();
+    
+    _ = builder.select(&.{ .is_function, .is_class }).from(&store);
+    _ = try builder.where(.confidence, .gte, 0.7);
+    _ = try builder.orderBy(.confidence, .descending);
+    _ = builder.limit(2);
+    
+    const query = try builder.build();
+    defer {
+        var q = query;
+        q.deinit();
+    }
+    
+    var executor = QueryExecutor.init(allocator);
+    defer executor.deinit();
+    
+    var stream = try executor.directExecute(&query);
+    
+    // Check results in order
+    const fact1 = (try stream.next()).?;
+    try testing.expect(fact1.confidence >= 0.85);
+    
+    const fact2 = (try stream.next()).?;
+    try testing.expect(fact2.confidence >= 0.75);
+    
+    // Should be limited to 2
+    try testing.expect(try stream.next() == null);
 }

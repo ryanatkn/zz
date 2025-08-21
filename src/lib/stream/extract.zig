@@ -182,7 +182,7 @@ test "basic fact extraction" {
 
     // Test JSON extraction
     const JsonStreamLexer = @import("../languages/json/stream_lexer.zig").JsonStreamLexer;
-    const json_input = 
+    const json_input =
         \\{"key": "value", "number": 42}
     ;
 

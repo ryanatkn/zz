@@ -1,17 +1,30 @@
-/// Lexer module - DEPRECATED
+/// Lexer module - PURE RE-EXPORTS ONLY
 ///
-/// LexerBridge and StreamAdapter have been removed in Phase 6.
-/// Use direct stream lexers (JsonStreamLexer, ZonStreamLexer) instead.
-/// This module kept temporarily for LexerState only.
-const std = @import("std");
+/// Unified lexer infrastructure for all language implementations.
+/// This module contains NO implementations, only re-exports.
 
-// Only export remaining types
-pub const LexerState = @import("state.zig").LexerState;
+// Infrastructure components
+pub const interface = @import("interface.zig");
+pub const streaming = @import("streaming.zig");
+pub const incremental = @import("incremental.zig");
+pub const buffer = @import("buffer.zig");
+pub const context = @import("context.zig");
 
-// Re-export for convenience
-pub const Language = @import("../core/language.zig").Language;
-pub const StreamToken = @import("../token/stream_token.zig").StreamToken;
+// Convenience re-exports for common types
+pub const LexerInterface = interface.LexerInterface;
+pub const createInterface = interface.createInterface;
 
-test {
-    _ = @import("state.zig");
-}
+pub const TokenStream = streaming.TokenStream;
+pub const createTokenStream = streaming.createTokenStream;
+
+pub const Edit = incremental.Edit;
+pub const TokenDelta = incremental.TokenDelta;
+pub const IncrementalState = incremental.IncrementalState;
+
+pub const StreamBuffer = buffer.StreamBuffer;
+pub const LookaheadBuffer = buffer.LookaheadBuffer;
+
+pub const LexerError = context.LexerError;
+pub const ErrorDetail = context.ErrorDetail;
+pub const LexerContext = context.LexerContext;
+pub const LexerState = context.LexerState;

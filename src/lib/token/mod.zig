@@ -1,49 +1,37 @@
-/// Token module - Unified token system for stream-first architecture
-/// Provides lightweight tokens with zero vtable overhead via tagged unions
+/// Token module - PURE RE-EXPORTS ONLY
 ///
-/// Architecture: Tagged union dispatch (1-2 cycles) vs vtable (3-5 cycles)
-/// Token size: 16 bytes per language token, ≤24 bytes for StreamToken
-///
-/// Extensibility Strategy:
-/// - Phase 2: Hardcoded core languages (maximum performance)
-/// - Phase 3: Add custom variant with vtable for experimentation
-/// - Phase 4: Comptime composition for build-time extensibility
-/// - Phase 5: Full plugin system preserving fast path
-///
-/// TODO: Integrate with global AtomTable from memory module for string interning
-/// TODO: Create TokenRegistry similar to LanguageRegistry for language dispatch
-/// TODO: Add benchmarks comparing StreamToken dispatch vs old vtable approach
-/// TODO: Consider re-exporting language tokens for convenience (json.Token, etc)
-const std = @import("std");
+/// Unified token system with lightweight representation and efficient dispatch.
+/// This module contains NO implementations, only re-exports.
 
-// Core token types
-pub const TokenKind = @import("kind.zig").TokenKind;
-pub const StreamToken = @import("stream_token.zig").StreamToken;
+// Core components
+pub const token = @import("token.zig");
+pub const stream_token = @import("stream_token.zig");
+pub const kind = @import("kind.zig");
+pub const generic = @import("generic.zig");
+pub const iterator = @import("iterator.zig");
+pub const buffer = @import("buffer.zig");
 
-// Generic/composable token support
-pub const SimpleStreamToken = @import("generic.zig").SimpleStreamToken;
-pub const TokenInterface = @import("generic.zig").TokenInterface;
+// Convenience re-exports for common types
+pub const Token = token.Token;
+pub const TokenKind = token.TokenKind;
+pub const TokenFlags = token.TokenFlags;
 
-// Re-export Stream types for TokenStream
-const Stream = @import("../stream/mod.zig").Stream;
-const DirectStream = @import("../stream/mod.zig").DirectStream;
-const directFromSlice = @import("../stream/mod.zig").directFromSlice;
+pub const StreamToken = stream_token.StreamToken;
 
-pub const TokenStream = Stream(StreamToken);
-pub const DirectTokenStream = DirectStream(StreamToken);
+pub const SimpleStreamToken = generic.SimpleStreamToken;
+pub const TokenInterface = generic.TokenInterface;
+
+pub const TokenIterator = iterator.TokenIterator;
+
+pub const TokenBuffer = buffer.TokenBuffer;
+pub const LookaheadBuffer = buffer.LookaheadBuffer;
+
+// Stream types for tokens
+const stream_mod = @import("../stream/mod.zig");
+pub const TokenStream = stream_mod.Stream(StreamToken);
+pub const DirectTokenStream = stream_mod.DirectStream(StreamToken);
 
 /// Create DirectStream from token slice
 pub fn directTokenStream(tokens: []const StreamToken) DirectTokenStream {
-    return directFromSlice(StreamToken, tokens);
-}
-
-/// TODO: Phase 5 - Migrate TokenIterator to produce DirectTokenStream
-
-// TokenIterator for streaming tokenization
-pub const TokenIterator = @import("iterator.zig").TokenIterator;
-
-test "Token module" {
-    _ = @import("kind.zig");
-    _ = @import("stream_token.zig");
-    _ = @import("test.zig");
+    return stream_mod.directFromSlice(StreamToken, tokens);
 }

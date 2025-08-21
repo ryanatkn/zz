@@ -192,7 +192,8 @@ test "JsonFormatter basic formatting" {
     var buffer: [1024]u8 = undefined;
     var stream = std.io.fixedBufferStream(&buffer);
 
-    var formatter = JsonFormatter(@TypeOf(stream.writer())).init(stream.writer(), .{
+    const WriterType = @TypeOf(stream).Writer;
+    var formatter = JsonFormatter(WriterType).init(stream.writer(), .{
         .compact = true,
     });
 

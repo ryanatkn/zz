@@ -69,7 +69,7 @@ test "JSON lexer - basic tokens" {
 
     for (test_cases) |case| {
         var lexer = JsonLexer.init(allocator);
-            const tokens = try lexer.batchTokenize(allocator, case.input);
+        const tokens = try lexer.batchTokenize(allocator, case.input);
         defer allocator.free(tokens);
 
         try testing.expectEqual(@as(usize, 2), tokens.len); // Includes EOF token
@@ -130,8 +130,8 @@ test "JSON lexer - string error handling" {
 
     for (unterminated_strings) |case| {
         var lexer = JsonLexer.init(allocator);
-            const tokens = try lexer.batchTokenize(allocator, case);
-    
+        const tokens = try lexer.batchTokenize(allocator, case);
+
         // Should detect unterminated string error
         const result = lexer.tokenize();
         try testing.expectError(error.UnterminatedString, result);
@@ -161,8 +161,8 @@ test "JSON parser - all value types" {
 
     for (test_cases) |case| {
         var lexer = JsonLexer.init(allocator);
-            const tokens = try lexer.batchTokenize(allocator, case);
-                defer allocator.free(tokens);
+        const tokens = try lexer.batchTokenize(allocator, case);
+        defer allocator.free(tokens);
 
         var parser = JsonParser.init(allocator, tokens);
         defer parser.deinit();
@@ -201,7 +201,7 @@ test "JSON parser - nested structures" {
     ;
 
     var lexer = JsonLexer.init(allocator);
-            const tokens = try lexer.batchTokenize(allocator, nested_json);
+    const tokens = try lexer.batchTokenize(allocator, nested_json);
     defer allocator.free(tokens);
 
     var parser = JsonParser.init(allocator, tokens);
@@ -232,8 +232,8 @@ test "JSON parser - error recovery" {
 
     for (malformed_cases) |case| {
         var lexer = JsonLexer.init(allocator);
-            const tokens = try lexer.batchTokenize(allocator, case);
-                defer allocator.free(tokens);
+        const tokens = try lexer.batchTokenize(allocator, case);
+        defer allocator.free(tokens);
 
         var parser = JsonParser.init(allocator, tokens);
         defer parser.deinit();
@@ -270,7 +270,7 @@ test "JSON formatter - pretty printing" {
     const compact_input = "{\"name\":\"Alice\",\"age\":30,\"hobbies\":[\"reading\",\"swimming\"]}";
 
     var lexer = JsonLexer.init(allocator);
-            const tokens = try lexer.batchTokenize(allocator, compact_input);
+    const tokens = try lexer.batchTokenize(allocator, compact_input);
     defer allocator.free(tokens);
 
     var parser = JsonParser.init(allocator, tokens);
@@ -295,7 +295,7 @@ test "JSON formatter - pretty printing" {
 
     // Should be valid JSON when parsed again
     var lexer2 = JsonLexer.init(allocator);
-            const tokens = try lexer.batchTokenize(allocator, formatted);
+    const tokens = try lexer.batchTokenize(allocator, formatted);
     defer lexer2.deinit();
     const tokens2 = try lexer2.tokenize();
     defer allocator.free(tokens2);
@@ -316,7 +316,7 @@ test "JSON formatter - options" {
     const input = "{\"zebra\": 1, \"alpha\": 2, \"beta\": 3}";
 
     var lexer = JsonLexer.init(allocator);
-            const tokens = try lexer.batchTokenize(allocator, input);
+    const tokens = try lexer.batchTokenize(allocator, input);
     defer allocator.free(tokens);
 
     var parser = JsonParser.init(allocator, tokens);
@@ -359,7 +359,7 @@ test "JSON linter - all rules" {
     const problematic_json = "{\"key\": 1, \"key\": 2}"; // Duplicate key
 
     var lexer = JsonLexer.init(allocator);
-            const tokens = try lexer.batchTokenize(allocator, problematic_json);
+    const tokens = try lexer.batchTokenize(allocator, problematic_json);
     defer allocator.free(tokens);
 
     var parser = JsonParser.init(allocator, tokens);
@@ -412,7 +412,7 @@ test "JSON linter - deep nesting warning" {
     const deep_json = "{\"a\": {\"b\": {\"c\": {\"d\": {\"e\": 1}}}}}";
 
     var lexer = JsonLexer.init(allocator);
-            const tokens = try lexer.batchTokenize(allocator, deep_json);
+    const tokens = try lexer.batchTokenize(allocator, deep_json);
     defer allocator.free(tokens);
 
     var parser = JsonParser.init(allocator, tokens);
@@ -462,7 +462,7 @@ test "JSON analyzer - schema extraction" {
     ;
 
     var lexer = JsonLexer.init(allocator);
-            const tokens = try lexer.batchTokenize(allocator, sample_json);
+    const tokens = try lexer.batchTokenize(allocator, sample_json);
     defer allocator.free(tokens);
 
     var parser = JsonParser.init(allocator, tokens);
@@ -495,7 +495,7 @@ test "JSON analyzer - TypeScript interface generation" {
     const simple_json = "{\"name\": \"Alice\", \"age\": 30, \"active\": true}";
 
     var lexer = JsonLexer.init(allocator);
-            const tokens = try lexer.batchTokenize(allocator, simple_json);
+    const tokens = try lexer.batchTokenize(allocator, simple_json);
     defer allocator.free(tokens);
 
     var parser = JsonParser.init(allocator, tokens);
@@ -547,7 +547,7 @@ test "JSON analyzer - statistics" {
     ;
 
     var lexer = JsonLexer.init(allocator);
-            const tokens = try lexer.batchTokenize(allocator, complex_json);
+    const tokens = try lexer.batchTokenize(allocator, complex_json);
     defer allocator.free(tokens);
 
     var parser = JsonParser.init(allocator, tokens);

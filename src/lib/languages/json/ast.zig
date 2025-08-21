@@ -12,14 +12,14 @@ pub const NodeKind = enum(u8) {
     number,
     boolean,
     null,
-    
+
     // JSON containers
     object,
     array,
-    
+
     // JSON structural
     property,
-    
+
     // Special
     root,
     err,
@@ -29,7 +29,7 @@ pub const NodeKind = enum(u8) {
 pub const StringNode = struct {
     span: Span,
     value: []const u8, // Unescaped value
-    
+
     // JSON strings only use double quotes
     pub fn isValid(self: StringNode) bool {
         _ = self;
@@ -42,7 +42,7 @@ pub const NumberNode = struct {
     span: Span,
     value: f64, // Parsed numeric value
     raw: []const u8, // Original text representation
-    
+
     // JSON number validation (no leading zeros, etc.)
     pub fn isValid(self: NumberNode) bool {
         // RFC 8259 validation done during parsing
@@ -61,7 +61,7 @@ pub const BooleanNode = struct {
 pub const ObjectNode = struct {
     span: Span,
     properties: []Node, // Array of property nodes
-    
+
     pub fn findProperty(self: ObjectNode, key: []const u8) ?*Node {
         for (self.properties) |*prop| {
             if (prop.* == .property) {
@@ -81,11 +81,11 @@ pub const ObjectNode = struct {
 pub const ArrayNode = struct {
     span: Span,
     elements: []Node,
-    
+
     pub fn len(self: ArrayNode) usize {
         return self.elements.len;
     }
-    
+
     pub fn get(self: ArrayNode, index: usize) ?*Node {
         if (index >= self.elements.len) return null;
         return &self.elements[index];
@@ -97,7 +97,7 @@ pub const PropertyNode = struct {
     span: Span,
     key: *Node, // Must be a string in valid JSON
     value: *Node, // Any JSON value
-    
+
     pub fn getKeyString(self: PropertyNode) ?[]const u8 {
         if (self.key.* == .string) {
             return self.key.string.value;
@@ -126,18 +126,18 @@ pub const Node = union(NodeKind) {
     number: NumberNode,
     boolean: BooleanNode,
     null: Span, // null only needs position info
-    
+
     // JSON containers
     object: ObjectNode,
     array: ArrayNode,
-    
+
     // JSON structural
     property: PropertyNode,
-    
+
     // Special
     root: RootNode,
     err: ErrorNode,
-    
+
     /// Get node span
     pub fn span(self: Node) Span {
         return switch (self) {
@@ -152,12 +152,12 @@ pub const Node = union(NodeKind) {
             .err => |n| n.span,
         };
     }
-    
+
     /// Get node kind
     pub fn kind(self: Node) NodeKind {
         return @as(NodeKind, self);
     }
-    
+
     /// Check if node is a value (not container or structural)
     pub fn isValue(self: Node) bool {
         return switch (self) {
@@ -165,7 +165,7 @@ pub const Node = union(NodeKind) {
             else => false,
         };
     }
-    
+
     /// Check if node is a container
     pub fn isContainer(self: Node) bool {
         return switch (self) {
@@ -173,7 +173,7 @@ pub const Node = union(NodeKind) {
             else => false,
         };
     }
-    
+
     /// Get children for iteration
     pub fn children(self: Node) []Node {
         return switch (self) {
@@ -182,7 +182,7 @@ pub const Node = union(NodeKind) {
             else => &.{}, // Values have no children
         };
     }
-    
+
     /// Convert to JSON string (for debugging)
     pub fn toJsonString(self: Node, writer: anytype) !void {
         switch (self) {
@@ -228,20 +228,20 @@ pub const AST = struct {
     arena: *std.heap.ArenaAllocator,
     source: []const u8,
     nodes: []Node, // All nodes for iteration
-    
+
     /// Single deinit frees everything
     pub fn deinit(self: *AST) void {
         self.arena.deinit();
         self.arena.child_allocator.destroy(self.arena);
     }
-    
+
     /// Get source text for a span
     pub fn getText(self: AST, node_span: Span) []const u8 {
         const start = @min(node_span.start, self.source.len);
         const end = @min(node_span.end, self.source.len);
         return self.source[start..end];
     }
-    
+
     /// Get root value (unwraps root node if present)
     pub fn getRootValue(self: AST) *Node {
         if (self.root.* == .root) {
@@ -249,12 +249,12 @@ pub const AST = struct {
         }
         return self.root;
     }
-    
+
     /// Validate JSON structure
     pub fn validate(self: AST) !void {
         try self.validateNode(self.root);
     }
-    
+
     fn validateNode(self: AST, node: *Node) !void {
         switch (node.*) {
             .property => |prop| {
@@ -268,7 +268,7 @@ pub const AST = struct {
                 // Check for duplicate keys
                 var seen = std.StringHashMap(void).init(self.arena.allocator());
                 defer seen.deinit();
-                
+
                 for (obj.properties) |*prop| {
                     if (prop.* == .property) {
                         if (prop.property.key.* == .string) {

@@ -57,7 +57,6 @@ pub fn format(allocator: std.mem.Allocator, ast: AST, options: JsonFormatter.Jso
 }
 
 /// Convenience functions for end-to-end operations
-
 /// Parse JSON from string
 pub fn parseJson(allocator: std.mem.Allocator, input: []const u8) !AST {
     const tokens = try tokenize(allocator, input);
@@ -89,14 +88,14 @@ pub fn formatJsonString(allocator: std.mem.Allocator, input: []const u8) ![]cons
     return format(allocator, ast, default_options);
 }
 
-/// Validate JSON and return any errors  
+/// Validate JSON and return any errors
 pub fn validateJson(allocator: std.mem.Allocator, input: []const u8) ![]JsonLinter.Diagnostic {
     var ast = try parseJson(allocator, input);
     defer ast.deinit();
 
     var linter = JsonLinter.init(allocator, .{});
     defer linter.deinit();
-    
+
     const all_rules = JsonLinter.RULES;
     return linter.lint(ast, all_rules);
 }

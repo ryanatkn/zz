@@ -48,7 +48,7 @@ const ArenaBuilder = @import("builder.zig").ArenaBuilder;
 test "generic walker compiles with test AST" {
     // Test the walker compiles with our TestNode type
     const TestWalker = Walker(TestNode);
-    
+
     // Verify the types exist
     _ = TestWalker.Order.pre_order;
     _ = TestWalker.WalkResult.continue_walk;

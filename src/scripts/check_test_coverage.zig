@@ -62,6 +62,16 @@ const ArrayList = std.ArrayList;
 const HashMap = std.HashMap;
 const Allocator = std.mem.Allocator;
 
+// ANSI color codes for output formatting
+const ANSI = struct {
+    const GREEN = "\x1b[32m";
+    const RED = "\x1b[31m";
+    const CYAN = "\x1b[36m";
+    const BOLD = "\x1b[1m";
+    const DIM = "\x1b[2m";
+    const RESET = "\x1b[0m";
+};
+
 const Config = struct {
     output_file: ?[]const u8 = null,
     src_root: []const u8 = "src",
@@ -100,10 +110,14 @@ const TestCoverageAnalyzer = struct {
     files: HashMap([]const u8, TestFile, std.hash_map.StringContext, std.hash_map.default_max_load_percentage),
 
     pub fn init(allocator: Allocator, config: Config) TestCoverageAnalyzer {
+        // Pre-size HashMap for better performance, estimating ~200 files
+        var files_map = HashMap([]const u8, TestFile, std.hash_map.StringContext, std.hash_map.default_max_load_percentage).init(allocator);
+        files_map.ensureTotalCapacity(200) catch {}; // Ignore allocation errors, will just be slower
+
         return TestCoverageAnalyzer{
             .allocator = allocator,
             .config = config,
-            .files = HashMap([]const u8, TestFile, std.hash_map.StringContext, std.hash_map.default_max_load_percentage).init(allocator),
+            .files = files_map,
         };
     }
 
@@ -204,8 +218,6 @@ const TestCoverageAnalyzer = struct {
         return false;
     }
 
-
-
     fn analyzeTestBarrelImports(self: *TestCoverageAnalyzer) !void {
         var iterator = self.files.iterator();
         while (iterator.next()) |entry| {
@@ -221,6 +233,52 @@ const TestCoverageAnalyzer = struct {
     }
 
     fn parseImports(self: *TestCoverageAnalyzer, test_barrel_path: []const u8, content: []const u8) !void {
+        // Convert to null-terminated string for AST parser
+        const source = try self.allocator.dupeZ(u8, content);
+        defer self.allocator.free(source);
+
+        var ast = std.zig.Ast.parse(self.allocator, source, .zig) catch {
+            // Fall back to string parsing if AST parsing fails
+            return self.parseImportsStringBased(test_barrel_path, content);
+        };
+        defer ast.deinit(self.allocator);
+
+        const node_tags = ast.nodes.items(.tag);
+        const node_datas = ast.nodes.items(.data);
+        const main_tokens = ast.nodes.items(.main_token);
+
+        for (node_tags, 0..) |tag, i| {
+            // Check for @import builtin calls
+            if (tag == .builtin_call_two or tag == .builtin_call_two_comma) {
+                const main_token = main_tokens[i];
+                const builtin_name = ast.tokenSlice(main_token);
+                if (std.mem.eql(u8, builtin_name, "@import")) {
+                    const data = node_datas[i];
+                    // First argument is the import path
+                    const arg_node = data.lhs;
+                    const arg_tag = node_tags[arg_node];
+                    if (arg_tag == .string_literal) {
+                        const str_token = main_tokens[arg_node];
+                        const import_path = ast.tokenSlice(str_token);
+                        // Remove quotes
+                        const clean_path = import_path[1 .. import_path.len - 1];
+
+                        // Resolve relative import to absolute path
+                        const resolved_path = try self.resolveImportPath(test_barrel_path, clean_path);
+                        if (resolved_path) |path| {
+                            // Mark this file as imported by the test barrel
+                            if (self.files.getPtr(path)) |imported_file| {
+                                try imported_file.imported_by.append(try self.allocator.dupe(u8, test_barrel_path));
+                            }
+                            self.allocator.free(path);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fn parseImportsStringBased(self: *TestCoverageAnalyzer, test_barrel_path: []const u8, content: []const u8) !void {
         var lines = std.mem.splitScalar(u8, content, '\n');
         while (lines.next()) |line| {
             const trimmed = std.mem.trim(u8, line, " \t");
@@ -356,8 +414,11 @@ const TestCoverageAnalyzer = struct {
     }
 
     fn generateMinimalReport(self: *TestCoverageAnalyzer, uncovered_files: [][]const u8) !void {
-        for (uncovered_files) |path| {
-            print("./{s}/{s}\n", .{ self.config.src_root, path });
+        if (uncovered_files.len > 0) {
+            print("# Found {} uncovered test files\n", .{uncovered_files.len});
+            for (uncovered_files) |path| {
+                print("./{s}/{s}\n", .{ self.config.src_root, path });
+            }
         }
     }
 
@@ -366,43 +427,46 @@ const TestCoverageAnalyzer = struct {
         print("=" ** 50 ++ "\n\n", .{});
 
         // Show existing test barrels first
-        print("\x1b[32m▓ Existing test.zig files:\x1b[0m\n", .{});
+        print("{s}▓ Existing test.zig files:{s}\n", .{ ANSI.GREEN, ANSI.RESET });
         for (test_barrels) |path| {
-            print("  \x1b[32m•\x1b[0m ./{s}/{s}\n", .{ self.config.src_root, path });
+            print("  {s}•{s} ./{s}/{s}\n", .{ ANSI.GREEN, ANSI.RESET, self.config.src_root, path });
         }
         print("\n", .{});
 
         // Show uncovered files
         if (uncovered_files.len > 0) {
-            print("\x1b[31m▓ Files with tests not imported by any test.zig:\x1b[0m\n", .{});
+            print("{s}▓ Files with tests not imported by any test.zig:{s}\n", .{ ANSI.RED, ANSI.RESET });
             for (uncovered_files) |path| {
-                print("  \x1b[31m•\x1b[0m ./{s}/{s}\n", .{ self.config.src_root, path });
+                print("  {s}•{s} ./{s}/{s}\n", .{ ANSI.RED, ANSI.RESET, self.config.src_root, path });
             }
             print("\n", .{});
         }
 
         // Print comprehensive summary at the end
-        const coverage_percent = @as(f64, @floatFromInt(files_with_coverage)) * 100.0 / @as(f64, @floatFromInt(total_files_with_tests));
+        const coverage_percent = if (total_files_with_tests > 0)
+            @as(f64, @floatFromInt(files_with_coverage)) * 100.0 / @as(f64, @floatFromInt(total_files_with_tests))
+        else
+            100.0;
 
         print("═" ** 60 ++ "\n", .{});
-        print("\x1b[1m\x1b[36m■ TEST COVERAGE SUMMARY\x1b[0m\n", .{});
+        print("{s}{s}■ TEST COVERAGE SUMMARY{s}\n", .{ ANSI.BOLD, ANSI.CYAN, ANSI.RESET });
         print("═" ** 60 ++ "\n", .{});
 
-        print("  \x1b[1mTotal files analyzed:\x1b[0m     {} files with test blocks\n", .{total_files_with_tests});
-        print("  \x1b[1mTest barrels found:\x1b[0m       \x1b[32m{}\x1b[0m test.zig files\n", .{test_barrels.len});
-        print("  \x1b[1mProperly covered:\x1b[0m         \x1b[32m{}\x1b[0m files imported by test.zig\n", .{files_with_coverage});
-        print("  \x1b[1mMissing coverage:\x1b[0m         \x1b[31m{}\x1b[0m files not imported\n", .{uncovered_files.len});
+        print("  {s}Total files analyzed:{s}     {} files with test blocks\n", .{ ANSI.BOLD, ANSI.RESET, total_files_with_tests });
+        print("  {s}Test barrels found:{s}       {s}{}{s} test.zig files\n", .{ ANSI.BOLD, ANSI.RESET, ANSI.GREEN, test_barrels.len, ANSI.RESET });
+        print("  {s}Properly covered:{s}         {s}{}{s} files imported by test.zig\n", .{ ANSI.BOLD, ANSI.RESET, ANSI.GREEN, files_with_coverage, ANSI.RESET });
+        print("  {s}Missing coverage:{s}         {s}{}{s} files not imported\n", .{ ANSI.BOLD, ANSI.RESET, ANSI.RED, uncovered_files.len, ANSI.RESET });
         print("\n", .{});
 
         // Coverage percentage - red unless 100%
         if (coverage_percent >= 100.0) {
-            print("  \x1b[1m\x1b[32mCOVERAGE: {d:.1}%\x1b[0m\n", .{coverage_percent});
+            print("  {s}{s}COVERAGE: {d:.1}%{s}\n", .{ ANSI.BOLD, ANSI.GREEN, coverage_percent, ANSI.RESET });
         } else {
-            print("  \x1b[1m\x1b[31mCOVERAGE: {d:.1}%\x1b[0m\n", .{coverage_percent});
+            print("  {s}{s}COVERAGE: {d:.1}%{s}\n", .{ ANSI.BOLD, ANSI.RED, coverage_percent, ANSI.RESET });
         }
 
         print("\n", .{});
-        print("▓ \x1b[2mNext steps: Import uncovered files into appropriate test.zig barrels\x1b[0m\n", .{});
+        print("▓ {s}Next steps: Import uncovered files into appropriate test.zig barrels{s}\n", .{ ANSI.DIM, ANSI.RESET });
     }
 
     fn exportToZon(self: *TestCoverageAnalyzer) !void {
@@ -417,11 +481,11 @@ const TestCoverageAnalyzer = struct {
         const writer = file.writer();
         try writer.print(".{{\n", .{});
         try writer.print("    .timestamp = \"{}\",\n", .{std.time.timestamp()});
-        
+
         // Collect all files with tests (not test barrels)
         var test_files = ArrayList(*TestFile).init(self.allocator);
         defer test_files.deinit();
-        
+
         var iterator = self.files.iterator();
         while (iterator.next()) |entry| {
             const test_file = entry.value_ptr;
@@ -429,14 +493,14 @@ const TestCoverageAnalyzer = struct {
                 try test_files.append(test_file);
             }
         }
-        
+
         // Sort for consistent output
         std.mem.sort(*TestFile, test_files.items, {}, struct {
             fn lessThan(_: void, a: *TestFile, b: *TestFile) bool {
                 return std.mem.order(u8, a.relative_path, b.relative_path) == .lt;
             }
         }.lessThan);
-        
+
         try writer.print("    .files = .{{\n", .{});
         for (test_files.items) |test_file| {
             try writer.print("        .@\"./{s}/{s}\" = .{{\n", .{ self.config.src_root, test_file.relative_path });
@@ -444,9 +508,9 @@ const TestCoverageAnalyzer = struct {
             try writer.print("            .imported_by = .{{\n", .{});
             for (test_file.imported_by.items) |importer_path| {
                 // Convert absolute path to relative with ./src/ prefix
-                const relative_importer = if (std.mem.startsWith(u8, importer_path, self.config.src_root)) 
-                    importer_path[self.config.src_root.len + 1..] // +1 to skip the '/' 
-                else 
+                const relative_importer = if (std.mem.startsWith(u8, importer_path, self.config.src_root))
+                    importer_path[self.config.src_root.len + 1 ..] // +1 to skip the '/'
+                else
                     importer_path;
                 try writer.print("                \"./{s}/{s}\",\n", .{ self.config.src_root, relative_importer });
             }

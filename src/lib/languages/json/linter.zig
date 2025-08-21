@@ -1,12 +1,12 @@
 const std = @import("std");
 const char_utils = @import("../../char/mod.zig");
 // Consolidate AST imports
-const ast_mod = @import("../../ast/mod.zig");
+const ast_mod = @import("../../ast_old/mod.zig");
 const AST = ast_mod.AST;
 const Node = ast_mod.Node;
 const NodeType = ast_mod.NodeType;
-const Span = @import("../../parser/foundation/types/span.zig").Span;
-const JsonRules = @import("../../ast/rules.zig").JsonRules;
+const Span = @import("../../parser_old/foundation/types/span.zig").Span;
+const JsonRules = @import("../../ast_old/rules.zig").JsonRules;
 // Consolidate language interface imports
 const interface_types = @import("../interface.zig");
 const Rule = interface_types.Rule;

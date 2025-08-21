@@ -11,7 +11,7 @@ const ZonAnalyzer = @import("analyzer.zig").ZonAnalyzer;
 const ZonToken = @import("tokens.zig").ZonToken;
 const zon_mod = @import("mod.zig");
 const FormatOptions = @import("../interface.zig").FormatOptions;
-const ZonRules = @import("../../ast/rules.zig").ZonRules;
+const ZonRules = @import("../../ast_old/rules.zig").ZonRules;
 
 // Test data
 const test_build_zon =

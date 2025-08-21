@@ -1,14 +1,14 @@
 const std = @import("std");
 
 // Import the generic parameterized systems
-const delimiter_mod = @import("../../parser/foundation/types/delimiter.zig");
+const delimiter_mod = @import("../../parser_old/foundation/types/delimiter.zig");
 const DelimiterKind = delimiter_mod.DelimiterKind;
 const DelimiterSpec = delimiter_mod.DelimiterSpec;
 
-const literal_mod = @import("../../parser/foundation/types/literal.zig");
+const literal_mod = @import("../../parser_old/foundation/types/literal.zig");
 const LiteralKind = literal_mod.LiteralKind;
 const LiteralSpec = literal_mod.LiteralSpec;
-const TokenKind = @import("../../parser/foundation/types/predicate.zig").TokenKind;
+const TokenKind = @import("../../parser_old/foundation/types/predicate.zig").TokenKind;
 
 const lint_rules_mod = @import("../common/lint_rules.zig");
 const LintRuleKind = lint_rules_mod.LintRuleKind;

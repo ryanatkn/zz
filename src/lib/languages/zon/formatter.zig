@@ -3,8 +3,8 @@ const std = common.std;
 const AST = common.AST;
 const Node = common.Node;
 const utils = common.utils;
-const ZonRules = @import("../../ast/rules.zig").ZonRules;
-const ASTTraversal = @import("../../ast/traversal.zig").ASTTraversal;
+const ZonRules = @import("../../ast_old/rules.zig").ZonRules;
+const ASTTraversal = @import("../../ast_old/traversal.zig").ASTTraversal;
 const ZonLexer = @import("lexer.zig").ZonLexer;
 const ZonParser = @import("parser.zig").ZonParser;
 

@@ -4,7 +4,7 @@ const Node = common.Node;
 const AST = common.AST;
 const utils = common.utils;
 // Consolidate AST rules imports
-const ast_rules = @import("../../ast/rules.zig");
+const ast_rules = @import("../../ast_old/rules.zig");
 const ZonRules = ast_rules.ZonRules;
 const CommonRules = ast_rules.CommonRules;
 

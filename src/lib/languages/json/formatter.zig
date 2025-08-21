@@ -1,13 +1,13 @@
 const std = @import("std");
 // Consolidate AST imports
-const ast_mod = @import("../../ast/mod.zig");
+const ast_mod = @import("../../ast_old/mod.zig");
 const AST = ast_mod.AST;
 const Node = ast_mod.Node;
 const NodeType = ast_mod.NodeType;
-const JsonRules = @import("../../ast/rules.zig").JsonRules;
+const JsonRules = @import("../../ast_old/rules.zig").JsonRules;
 const FormatOptions = @import("../interface.zig").FormatOptions;
-const ASTTraversal = @import("../../ast/traversal.zig").ASTTraversal;
-const ASTUtils = @import("../../ast/utils.zig").ASTUtils;
+const ASTTraversal = @import("../../ast_old/traversal.zig").ASTTraversal;
+const ASTUtils = @import("../../ast_old/utils.zig").ASTUtils;
 
 /// High-performance JSON formatter with configurable output
 ///

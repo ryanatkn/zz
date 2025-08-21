@@ -6,12 +6,12 @@ const Grammar = grammar_mod.Grammar;
 const grammar = grammar_mod; // For re-export compatibility
 
 // Consolidate parser imports
-const parser_mod = @import("../parser/mod.zig");
+const parser_mod = @import("../parser_old/mod.zig");
 const Parser = parser_mod.Parser;
 const ParseResult = parser_mod.ParseResult;
 
 // Consolidate AST rules imports
-const ast_rules = @import("../ast/rules.zig");
+const ast_rules = @import("../ast_old/rules.zig");
 const CommonRules = ast_rules.CommonRules;
 const JsonRules = ast_rules.JsonRules;
 

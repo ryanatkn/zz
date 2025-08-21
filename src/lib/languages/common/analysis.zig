@@ -3,11 +3,11 @@ const std = @import("std");
 const interface_types = @import("../interface.zig");
 const Symbol = interface_types.Symbol;
 const Reference = interface_types.Reference;
-const AST = @import("../../ast/mod.zig").AST;
-const CommonRules = @import("../../ast/rules.zig").CommonRules;
-const traversal = @import("../../ast/traversal.zig");
-const query = @import("../../ast/query.zig");
-const Span = @import("../../parser/foundation/types/span.zig").Span;
+const AST = @import("../../ast_old/mod.zig").AST;
+const CommonRules = @import("../../ast_old/rules.zig").CommonRules;
+const traversal = @import("../../ast_old/traversal.zig");
+const query = @import("../../ast_old/query.zig");
+const Span = @import("../../parser_old/foundation/types/span.zig").Span;
 
 /// Common analysis utilities shared across languages
 ///

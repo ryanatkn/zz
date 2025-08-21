@@ -1,10 +1,10 @@
 const std = @import("std");
 // Consolidate parser foundation type imports
-const token_types = @import("../../parser/foundation/types/token.zig");
+const token_types = @import("../../parser_old/foundation/types/token.zig");
 const Token = token_types.Token;
 const TokenFlags = token_types.TokenFlags;
-const TokenKind = @import("../../parser/foundation/types/predicate.zig").TokenKind;
-const Span = @import("../../parser/foundation/types/span.zig").Span;
+const TokenKind = @import("../../parser_old/foundation/types/predicate.zig").TokenKind;
+const Span = @import("../../parser_old/foundation/types/span.zig").Span;
 const char = @import("../../char/mod.zig");
 const patterns = @import("patterns.zig");
 const JsonDelimiters = patterns.JsonDelimiters;

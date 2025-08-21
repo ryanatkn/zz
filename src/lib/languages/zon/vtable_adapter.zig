@@ -1,9 +1,9 @@
 const std = @import("std");
 const ZonToken = @import("tokens.zig").ZonToken;
-const Token = @import("../../parser/foundation/types/token.zig").Token;
-const TokenKind = @import("../../parser/foundation/types/predicate.zig").TokenKind;
-const Span = @import("../../parser/foundation/types/span.zig").Span;
-const GenericStreamToken = @import("../../transform/streaming/generic_stream_token.zig").GenericStreamToken;
+const Token = @import("../../parser_old/foundation/types/token.zig").Token;
+const TokenKind = @import("../../parser_old/foundation/types/predicate.zig").TokenKind;
+const Span = @import("../../parser_old/foundation/types/span.zig").Span;
+const GenericStreamToken = @import("../../transform_old/streaming/generic_stream_token.zig").GenericStreamToken;
 
 /// VTable adapter for ZonToken to work with GenericStreamToken
 /// This enables ZonToken to be used in the generic streaming system

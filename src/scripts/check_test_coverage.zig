@@ -81,6 +81,7 @@ const Config = struct {
     src_root: []const u8 = "src",
     pretty: bool = false,
     expected_uncovered: u32 = 0,
+    test_file_path: ?[]const u8 = null, // Optional specific test file to analyze
 };
 
 const TestFile = struct {
@@ -141,11 +142,16 @@ const TestCoverageAnalyzer = struct {
 
     /// Recursively scan directory for .zig files and analyze them
     pub fn analyze(self: *TestCoverageAnalyzer) !void {
-        // Use std.fs to recursively scan directory
-        try self.scanDirectory(self.config.src_root);
+        if (self.config.test_file_path) |test_path| {
+            // Analyze specific test file and its dependencies
+            try self.analyzeSpecificTestFile(test_path);
+        } else {
+            // Use std.fs to recursively scan directory
+            try self.scanDirectory(self.config.src_root);
 
-        // Analyze imports in test.zig files
-        try self.analyzeTestBarrelImports();
+            // Analyze imports in test.zig files
+            try self.analyzeTestBarrelImports();
+        }
     }
 
     fn scanDirectory(self: *TestCoverageAnalyzer, dir_path: []const u8) !void {
@@ -362,6 +368,214 @@ const TestCoverageAnalyzer = struct {
         return null;
     }
 
+    /// Analyze a specific test file and all its dependencies
+    fn analyzeSpecificTestFile(self: *TestCoverageAnalyzer, test_path: []const u8) !void {
+        // Normalize the path (handle relative paths)
+        const normalized_path = if (std.fs.path.isAbsolute(test_path))
+            test_path
+        else blk: {
+            var path_buf: [std.fs.max_path_bytes]u8 = undefined;
+            const cwd = try std.fs.cwd().realpath(".", &path_buf);
+            break :blk try std.fmt.allocPrint(self.allocator, "{s}/{s}", .{ cwd, test_path });
+        };
+        defer if (!std.fs.path.isAbsolute(test_path)) self.allocator.free(normalized_path);
+        
+        // Infer the base directory from the test file path (its parent directory)
+        const base_dir = std.fs.path.dirname(test_path) orelse ".";
+
+        // Verify the file exists
+        const file = std.fs.openFileAbsolute(normalized_path, .{}) catch |err| {
+            print("❌ Cannot open test file: {s}\n", .{normalized_path});
+            return err;
+        };
+        file.close();
+
+        // Track all files we need to analyze (transitive closure of imports)
+        var files_to_analyze = std.StringHashMap(void).init(self.allocator);
+        defer files_to_analyze.deinit();
+
+        // Track files we've already processed to avoid cycles
+        var processed_files = std.StringHashMap(void).init(self.allocator);
+        defer processed_files.deinit();
+
+        // Start with the test file itself
+        try files_to_analyze.put(normalized_path, {});
+
+        // Recursively collect all imported files
+        while (files_to_analyze.count() > 0) {
+            var iter = files_to_analyze.iterator();
+            const entry = iter.next().?;
+            const current_file = entry.key_ptr.*;
+            
+            // Remove from to-analyze and add to processed
+            _ = files_to_analyze.remove(current_file);
+            try processed_files.put(try self.allocator.dupe(u8, current_file), {});
+
+            // Parse imports from this file
+            const imports = try self.collectImportsFromFile(current_file);
+            defer {
+                for (imports.items) |import| {
+                    self.allocator.free(import);
+                }
+                imports.deinit();
+            }
+
+            // Add new imports to analyze queue
+            for (imports.items) |import_path| {
+                if (!processed_files.contains(import_path) and !files_to_analyze.contains(import_path)) {
+                    try files_to_analyze.put(try self.allocator.dupe(u8, import_path), {});
+                }
+            }
+        }
+
+        // Temporarily override src_root to use the inferred base directory
+        const original_src_root = self.config.src_root;
+        self.config.src_root = base_dir;
+        defer self.config.src_root = original_src_root;
+        
+        // Now analyze only the files in our dependency tree
+        var processed_iter = processed_files.iterator();
+        while (processed_iter.next()) |entry| {
+            const file_path = entry.key_ptr.*;
+            defer self.allocator.free(file_path);
+            
+            // Skip if not a .zig file
+            if (!std.mem.endsWith(u8, file_path, ".zig")) continue;
+            
+            // Convert absolute path to relative if needed for analyzeFile
+            var path_buf: [std.fs.max_path_bytes]u8 = undefined;
+            const cwd = try std.fs.cwd().realpath(".", &path_buf);
+            
+            // Normalize the path - handle missing leading slash
+            const normalized_file_path = if (!std.mem.startsWith(u8, file_path, "/") and std.mem.indexOf(u8, file_path, "/") != null)
+                try std.fmt.allocPrint(self.allocator, "/{s}", .{file_path})
+            else
+                try self.allocator.dupe(u8, file_path);
+            defer self.allocator.free(normalized_file_path);
+            
+            const relative_path = if (std.mem.startsWith(u8, normalized_file_path, cwd)) blk: {
+                // Remove the cwd prefix and leading slash
+                var rel = normalized_file_path[cwd.len..];
+                if (rel.len > 0 and rel[0] == '/') {
+                    rel = rel[1..];
+                }
+                break :blk rel;
+            } else normalized_file_path;
+            
+            // Only analyze files under the inferred base directory
+            if (!std.mem.startsWith(u8, relative_path, base_dir)) continue;
+            
+            // Analyze this file
+            try self.analyzeFile(relative_path);
+        }
+
+        // Mark the main test file as a test barrel so imports get tracked
+        const test_relative_path = test_path;  // Already relative
+        if (self.files.getPtr(test_relative_path)) |test_file| {
+            test_file.is_test_barrel = true;
+        }
+
+        // Analyze imports in test files (including our main test file)
+        try self.analyzeTestBarrelImports();
+    }
+
+    /// Collect all imports from a specific file
+    fn collectImportsFromFile(self: *TestCoverageAnalyzer, file_path: []const u8) !ArrayList([]const u8) {
+        var imports = ArrayList([]const u8).init(self.allocator);
+        errdefer {
+            for (imports.items) |import| {
+                self.allocator.free(import);
+            }
+            imports.deinit();
+        }
+
+        const content = std.fs.cwd().readFileAlloc(self.allocator, file_path, 1024 * 1024) catch {
+            // File might not exist or be readable, that's okay
+            return imports;
+        };
+        defer self.allocator.free(content);
+
+        // Try AST parsing first
+        const source = self.allocator.dupeZ(u8, content) catch {
+            // Fall back to string parsing
+            return self.collectImportsStringBased(file_path, content);
+        };
+        defer self.allocator.free(source);
+
+        var ast = std.zig.Ast.parse(self.allocator, source, .zig) catch {
+            // Fall back to string parsing if AST parsing fails
+            return self.collectImportsStringBased(file_path, content);
+        };
+        defer ast.deinit(self.allocator);
+
+        const node_tags = ast.nodes.items(.tag);
+        const node_datas = ast.nodes.items(.data);
+        const main_tokens = ast.nodes.items(.main_token);
+
+        for (node_tags, 0..) |tag, i| {
+            if (tag == .builtin_call_two or tag == .builtin_call_two_comma) {
+                const main_token = main_tokens[i];
+                const builtin_name = ast.tokenSlice(main_token);
+                if (std.mem.eql(u8, builtin_name, "@import")) {
+                    const data = node_datas[i];
+                    const arg_node = data.lhs;
+                    const arg_tag = node_tags[arg_node];
+                    if (arg_tag == .string_literal) {
+                        const str_token = main_tokens[arg_node];
+                        const import_path = ast.tokenSlice(str_token);
+                        // Remove quotes
+                        const clean_path = import_path[1 .. import_path.len - 1];
+                        
+                        // Skip std imports
+                        if (std.mem.eql(u8, clean_path, "std")) continue;
+                        
+                        // Resolve relative import to absolute path
+                        const resolved_path = try self.resolveImportPath(file_path, clean_path);
+                        if (resolved_path) |path| {
+                            try imports.append(path);
+                        }
+                    }
+                }
+            }
+        }
+
+        return imports;
+    }
+
+    /// String-based fallback for collecting imports
+    fn collectImportsStringBased(self: *TestCoverageAnalyzer, file_path: []const u8, content: []const u8) !ArrayList([]const u8) {
+        var imports = ArrayList([]const u8).init(self.allocator);
+        errdefer {
+            for (imports.items) |import| {
+                self.allocator.free(import);
+            }
+            imports.deinit();
+        }
+
+        var lines = std.mem.splitScalar(u8, content, '\n');
+        while (lines.next()) |line| {
+            const trimmed = std.mem.trim(u8, line, " \t");
+            if (std.mem.indexOf(u8, trimmed, "@import(\"") != null) {
+                if (std.mem.indexOf(u8, trimmed, "\")") != null) {
+                    const start = std.mem.indexOf(u8, trimmed, "@import(\"").? + 9;
+                    const end = std.mem.indexOf(u8, trimmed[start..], "\")").? + start;
+                    const import_path = trimmed[start..end];
+                    
+                    // Skip std imports
+                    if (std.mem.eql(u8, import_path, "std")) continue;
+                    
+                    // Resolve relative import to absolute path
+                    const resolved_path = try self.resolveImportPath(file_path, import_path);
+                    if (resolved_path) |path| {
+                        try imports.append(path);
+                    }
+                }
+            }
+        }
+
+        return imports;
+    }
+
     pub fn generateReport(self: *TestCoverageAnalyzer) !u8 {
         var uncovered_files = ArrayList([]const u8).init(self.allocator);
         defer uncovered_files.deinit();
@@ -434,6 +648,10 @@ const TestCoverageAnalyzer = struct {
         const actual = uncovered_files.len;
         const expected = self.config.expected_uncovered;
 
+        if (self.config.test_file_path) |test_path| {
+            print("# Analyzing: {s}\n", .{test_path});
+        }
+
         if (actual > 0) {
             print("# Found {} uncovered test files (expected {})\n", .{ actual, expected });
             for (uncovered_files) |path| {
@@ -446,6 +664,12 @@ const TestCoverageAnalyzer = struct {
 
     fn generatePrettyReport(self: *TestCoverageAnalyzer, test_barrels: [][]const u8, uncovered_files: [][]const u8, total_files_with_tests: u32, files_with_coverage: u32) !void {
         print("\nTEST COVERAGE ANALYSIS REPORT\n", .{});
+        if (self.config.test_file_path) |test_path| {
+            const dir = std.fs.path.dirname(test_path) orelse ".";
+            print("Scope: {s} (base: {s}/)\n", .{ test_path, dir });
+        } else {
+            print("Scope: Full directory scan of {s}/\n", .{self.config.src_root});
+        }
         print("=" ** 50 ++ "\n\n", .{});
 
         // Show existing test barrels first
@@ -560,7 +784,12 @@ pub fn main() !void {
     var i: usize = 1;
     while (i < args.len) : (i += 1) {
         const arg = args[i];
-        if (std.mem.eql(u8, arg, "--output") or std.mem.eql(u8, arg, "-o")) {
+        
+        // Check for positional argument (test file path)
+        if (!std.mem.startsWith(u8, arg, "-")) {
+            // This is a positional argument - treat as test file path
+            config.test_file_path = arg;
+        } else if (std.mem.eql(u8, arg, "--output") or std.mem.eql(u8, arg, "-o")) {
             if (i + 1 < args.len and !std.mem.startsWith(u8, args[i + 1], "--")) {
                 i += 1;
                 config.output_file = args[i];
@@ -583,7 +812,11 @@ pub fn main() !void {
             }
         } else if (std.mem.eql(u8, arg, "--help") or std.mem.eql(u8, arg, "-h")) {
             print("Test Coverage Checker\n\n", .{});
-            print("Usage: zig run src/scripts/check_test_coverage.zig [options]\n\n", .{});
+            print("Usage: zig run src/scripts/check_test_coverage.zig [TEST_FILE] [options]\n\n", .{});
+            print("Arguments:\n", .{});
+            print("  TEST_FILE              Optional path to specific test file to analyze\n", .{});
+            print("                         If provided, only analyzes modules imported by this file\n", .{});
+            print("                         If omitted, analyzes entire src/ directory\n\n", .{});
             print("Options:\n", .{});
             print("  -o, --output [file]    Export analysis to ZON format (default: test_coverage.zon)\n", .{});
             print("  --pretty               Show detailed human-readable report (default: minimal output)\n", .{});
@@ -591,10 +824,16 @@ pub fn main() !void {
             print("                         Exit code 0 if actual matches expected, 1 otherwise\n", .{});
             print("  --help, -h             Show this help\n\n", .{});
             print("Examples:\n", .{});
+            print("  # Analyze entire src/ directory\n", .{});
             print("  zig run src/scripts/check_test_coverage.zig\n", .{});
             print("  zig run src/scripts/check_test_coverage.zig -- --pretty\n", .{});
-            print("  zig run src/scripts/check_test_coverage.zig -- --expect 24  # Expect 24 uncovered files\n", .{});
-            print("  zig run src/scripts/check_test_coverage.zig -- --pretty -o coverage.zon\n", .{});
+            print("\n", .{});
+            print("  # Analyze only test_stream_first.zig dependencies\n", .{});
+            print("  zig run src/scripts/check_test_coverage.zig ./src/lib/test_stream_first.zig\n", .{});
+            print("  zig run src/scripts/check_test_coverage.zig ./src/lib/test_stream_first.zig -- --pretty\n", .{});
+            print("\n", .{});
+            print("  # With expected count and output\n", .{});
+            print("  zig run src/scripts/check_test_coverage.zig -- --expect 24 --pretty -o coverage.zon\n", .{});
             return;
         }
     }

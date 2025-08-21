@@ -1,0 +1,30 @@
+{
+    "search.exclude": {
+        ".zig-cache/**": true,
+        ".zz/**": true,
+        "zig-out/**": true,
+        "node_modules/**": true,
+        "deps/**": true,
+        "src/shaders/compiled/**": true,
+        "**/*.log": true,
+        ".ai_commands": true
+    },
+    "files.exclude": {
+        ".zig-cache": true,
+        ".zz": true,
+        "zig-out": true,
+        "node_modules": true,
+        "deps": true,
+        "**/*.log": true,
+        ".ai_commands": true
+    },
+    "files.watcherExclude": {
+        "**/.zig-cache/**": true,
+        "**/.zz/**": true,
+        "**/zig-out/**": true,
+        "**/node_modules/**": true,
+        "**/deps/**": true,
+        "**/*.log": true,
+        ".ai_commands": true
+    }
+}

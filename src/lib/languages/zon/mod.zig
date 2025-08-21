@@ -1,7 +1,7 @@
 const std = @import("std");
 const Language = @import("../../core/language.zig").Language;
-const Token = @import("../../parser/foundation/types/token.zig").Token;
-const AST = @import("../../ast/mod.zig").AST;
+const Token = @import("../../parser_old/foundation/types/token.zig").Token;
+const AST = @import("../../ast_old/mod.zig").AST;
 
 // Import all interface types from single module
 const lang_interface = @import("../interface.zig");
@@ -30,9 +30,9 @@ const ZigTypeDefinition = @import("analyzer.zig").ZonAnalyzer.ZigTypeDefinition;
 
 // VTable adapter for generic streaming
 const ZonTokenVTableAdapter = @import("vtable_adapter.zig").ZonTokenVTableAdapter;
-const GenericStreamToken = @import("../../transform/streaming/generic_stream_token.zig").GenericStreamToken;
+const GenericStreamToken = @import("../../transform_old/streaming/generic_stream_token.zig").GenericStreamToken;
 const StatefulZonLexer = @import("stateful_lexer.zig").StatefulZonLexer;
-const StatefulLexer = @import("../../transform/streaming/stateful_lexer.zig").StatefulLexer;
+const StatefulLexer = @import("../../transform_old/streaming/stateful_lexer.zig").StatefulLexer;
 
 /// Complete ZON (Zig Object Notation) language support implementation
 ///

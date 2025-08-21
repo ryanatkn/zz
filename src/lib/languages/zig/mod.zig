@@ -1,7 +1,7 @@
 const std = @import("std");
 const Language = @import("../../core/language.zig").Language;
-const Token = @import("../../parser/foundation/types/token.zig").Token;
-const AST = @import("../../ast/mod.zig").AST;
+const Token = @import("../../parser_old/foundation/types/token.zig").Token;
+const AST = @import("../../ast_old/mod.zig").AST;
 
 // Import all interface types from single module
 const lang_interface = @import("../interface.zig");

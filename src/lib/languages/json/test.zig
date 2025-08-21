@@ -14,10 +14,10 @@ const json_mod = @import("mod.zig");
 
 // Import types
 // Consolidate foundation type imports
-const Token = @import("../../parser/foundation/types/token.zig").Token;
-const predicate_types = @import("../../parser/foundation/types/predicate.zig");
+const Token = @import("../../parser_old/foundation/types/token.zig").Token;
+const predicate_types = @import("../../parser_old/foundation/types/predicate.zig");
 const TokenKind = predicate_types.TokenKind;
-const AST = @import("../../ast/mod.zig").AST;
+const AST = @import("../../ast_old/mod.zig").AST;
 // Consolidate language interface imports
 const interface_types = @import("../interface.zig");
 const FormatOptions = interface_types.FormatOptions;

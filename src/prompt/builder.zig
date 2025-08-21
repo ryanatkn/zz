@@ -15,7 +15,7 @@ const TaskPriority = parallel_mod.TaskPriority;
 const errors = @import("../lib/core/errors.zig");
 
 // Import stratified parser
-const StratifiedParser = @import("../lib/parser/mod.zig");
+const StratifiedParser = @import("../lib/parser_old/mod.zig");
 const Lexical = StratifiedParser.Lexical;
 const Structural = StratifiedParser.Structural;
 

@@ -2,8 +2,8 @@ const common = @import("common.zig");
 const std = common.std;
 const Node = common.Node;
 const utils = common.utils;
-const ZonRules = @import("../../ast/rules.zig").ZonRules;
-const CommonRules = @import("../../ast/rules.zig").CommonRules;
+const ZonRules = @import("../../ast_old/rules.zig").ZonRules;
+const CommonRules = @import("../../ast_old/rules.zig").CommonRules;
 const ZonLexer = @import("lexer.zig").ZonLexer;
 const ZonParser = @import("parser.zig").ZonParser;
 

@@ -4,8 +4,8 @@
 /// regressions are caught early in the development process.
 const std = @import("std");
 const testing = std.testing;
-const GenericTokenIterator = @import("../transform/streaming/generic_token_iterator.zig").GenericTokenIterator;
-const Context = @import("../transform/transform.zig").Context;
+const GenericTokenIterator = @import("../transform_old/streaming/generic_token_iterator.zig").GenericTokenIterator;
+const Context = @import("../transform_old/transform.zig").Context;
 const JsonLexer = @import("../languages/json/lexer.zig").JsonLexer;
 const ZonLexer = @import("../languages/zon/lexer.zig").ZonLexer;
 const JsonParser = @import("../languages/json/parser.zig").JsonParser;

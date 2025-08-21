@@ -1,14 +1,14 @@
 const std = @import("std");
 // Consolidate AST imports
-const ast_mod = @import("../../ast/mod.zig");
+const ast_mod = @import("../../ast_old/mod.zig");
 const AST = ast_mod.AST;
 const Node = ast_mod.Node;
 const NodeType = ast_mod.NodeType;
-const JsonRules = @import("../../ast/rules.zig").JsonRules;
-const ASTTraversal = @import("../../ast/traversal.zig").ASTTraversal;
-const ASTUtils = @import("../../ast/utils.zig").ASTUtils;
+const JsonRules = @import("../../ast_old/rules.zig").JsonRules;
+const ASTTraversal = @import("../../ast_old/traversal.zig").ASTTraversal;
+const ASTUtils = @import("../../ast_old/utils.zig").ASTUtils;
 const Symbol = @import("../interface.zig").Symbol;
-const Span = @import("../../parser/foundation/types/span.zig").Span;
+const Span = @import("../../parser_old/foundation/types/span.zig").Span;
 
 /// JSON analyzer for schema extraction and structure analysis
 ///

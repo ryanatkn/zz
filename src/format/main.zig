@@ -17,11 +17,11 @@ const zon_config = @import("../config/zon.zig");
 // Language and transformation
 const json_transform = @import("../lib/languages/json/transform.zig");
 const zon_transform = @import("../lib/languages/zon/transform.zig");
-const transform_mod = @import("../lib/transform/transform.zig");
+const transform_mod = @import("../lib/transform_old/transform.zig");
 const language_interface = @import("../lib/languages/interface.zig");
 
 // Parser modules
-const StratifiedParser = @import("../lib/parser/mod.zig");
+const StratifiedParser = @import("../lib/parser_old/mod.zig");
 
 // Glob expansion
 const glob_mod = @import("../prompt/glob.zig");

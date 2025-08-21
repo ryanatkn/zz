@@ -5,11 +5,11 @@
 const std = @import("std");
 const testing = std.testing;
 // Consolidate foundation type imports
-const Token = @import("../parser/foundation/types/token.zig").Token;
-const predicate_types = @import("../parser/foundation/types/predicate.zig");
+const Token = @import("../parser_old/foundation/types/token.zig").Token;
+const predicate_types = @import("../parser_old/foundation/types/predicate.zig");
 const TokenKind = predicate_types.TokenKind;
-const Span = @import("../parser/foundation/types/span.zig").Span;
-const AST = @import("../ast/mod.zig").AST;
+const Span = @import("../parser_old/foundation/types/span.zig").Span;
+const AST = @import("../ast_old/mod.zig").AST;
 
 /// Standard test cases that all languages should pass
 pub const StandardTestCases = struct {

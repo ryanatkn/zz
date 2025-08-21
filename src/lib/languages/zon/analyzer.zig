@@ -4,7 +4,7 @@ const AST = common.AST;
 const Node = common.Node;
 const Span = common.Span;
 const utils = common.utils;
-const ZonRules = @import("../../ast/rules.zig").ZonRules;
+const ZonRules = @import("../../ast_old/rules.zig").ZonRules;
 const ZonLexer = @import("lexer.zig").ZonLexer;
 const ZonParser = @import("parser.zig").ZonParser;
 

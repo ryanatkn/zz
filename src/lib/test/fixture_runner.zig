@@ -20,7 +20,7 @@ const Language = @import("../core/language.zig").Language;
 const ExtractionFlags = @import("../core/extraction.zig").ExtractionFlags;
 
 // Import stratified parser for extraction
-const StratifiedParser = @import("../parser/mod.zig");
+const StratifiedParser = @import("../parser_old/mod.zig");
 const Lexical = StratifiedParser.Lexical;
 const Structural = StratifiedParser.Structural;
 

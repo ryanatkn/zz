@@ -2,10 +2,10 @@ const std = @import("std");
 const char_utils = @import("../../char/mod.zig");
 
 // Import centralized AST utilities for generic operations
-const ASTUtils = @import("../../ast/utils.zig").ASTUtils;
-const Node = @import("../../ast/mod.zig").Node;
-const ZonRules = @import("../../ast/rules.zig").ZonRules;
-const CommonRules = @import("../../ast/rules.zig").CommonRules;
+const ASTUtils = @import("../../ast_old/utils.zig").ASTUtils;
+const Node = @import("../../ast_old/mod.zig").Node;
+const ZonRules = @import("../../ast_old/rules.zig").ZonRules;
+const CommonRules = @import("../../ast_old/rules.zig").CommonRules;
 
 /// ZON-specific utility functions
 ///

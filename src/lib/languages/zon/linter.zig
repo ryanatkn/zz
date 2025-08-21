@@ -2,7 +2,7 @@ const std = @import("std");
 
 const common = @import("common.zig");
 const char_utils = @import("../../char/mod.zig");
-const ZonRules = @import("../../ast/rules.zig").ZonRules;
+const ZonRules = @import("../../ast_old/rules.zig").ZonRules;
 const Rule = @import("../interface.zig").Rule;
 const ZonLexer = @import("lexer.zig").ZonLexer;
 const ZonParser = @import("parser.zig").ZonParser;

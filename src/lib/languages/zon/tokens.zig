@@ -1,6 +1,6 @@
 const std = @import("std");
 const TokenData = @import("../common/token_base.zig").TokenData;
-const Span = @import("../../parser/foundation/types/span.zig").Span;
+const Span = @import("../../parser_old/foundation/types/span.zig").Span;
 
 /// Rich token types for ZON (Zig Object Notation)
 /// Extends JSON with Zig-specific features

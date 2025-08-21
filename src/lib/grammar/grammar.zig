@@ -1,7 +1,7 @@
 const std = @import("std");
 const rule = @import("rule.zig");
 const test_framework = @import("test_framework.zig");
-const ast_rules = @import("../ast/rules.zig");
+const ast_rules = @import("../ast_old/rules.zig");
 const Builder = @import("builder.zig").Builder;
 
 const CommonRules = ast_rules.CommonRules;

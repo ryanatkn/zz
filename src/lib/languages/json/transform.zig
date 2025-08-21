@@ -1,13 +1,13 @@
 const std = @import("std");
 
 // Import transform infrastructure
-const transform_mod = @import("../../transform/transform.zig");
+const transform_mod = @import("../../transform_old/transform.zig");
 const Transform = transform_mod.Transform;
 const Context = transform_mod.Context;
-const lexical = @import("../../transform/stages/lexical.zig");
-const syntactic = @import("../../transform/stages/syntactic.zig");
-const lex_parse = @import("../../transform/pipelines/lex_parse.zig");
-const format_pipeline = @import("../../transform/pipelines/format.zig");
+const lexical = @import("../../transform_old/stages/lexical.zig");
+const syntactic = @import("../../transform_old/stages/syntactic.zig");
+const lex_parse = @import("../../transform_old/pipelines/lex_parse.zig");
+const format_pipeline = @import("../../transform_old/pipelines/format.zig");
 
 // Import existing JSON components
 const JsonLexer = @import("lexer.zig").JsonLexer;
@@ -15,8 +15,8 @@ const JsonParser = @import("parser.zig").JsonParser;
 const JsonFormatter = @import("formatter.zig").JsonFormatter;
 
 // Import foundation types
-const Token = @import("../../parser/foundation/types/token.zig").Token;
-const AST = @import("../../ast/mod.zig").AST;
+const Token = @import("../../parser_old/foundation/types/token.zig").Token;
+const AST = @import("../../ast_old/mod.zig").AST;
 const FormatOptions = @import("../interface.zig").FormatOptions;
 
 /// JSON lexical transform wrapper

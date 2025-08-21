@@ -7,7 +7,7 @@ const BenchmarkError = benchmark_lib.BenchmarkError;
 // Import JSON components
 const JsonLexer = @import("../../../lib/languages/json/lexer.zig").JsonLexer;
 const JsonParser = @import("../../../lib/languages/json/parser.zig").JsonParser;
-const Token = @import("../../../lib/parser/foundation/types/token.zig").Token;
+const Token = @import("../../../lib/parser_old/foundation/types/token.zig").Token;
 
 pub fn runJsonParserBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOptions) BenchmarkError![]BenchmarkResult {
     var results = std.ArrayList(BenchmarkResult).init(allocator);

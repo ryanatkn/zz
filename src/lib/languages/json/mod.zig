@@ -1,7 +1,7 @@
 const std = @import("std");
 const Language = @import("../../core/language.zig").Language;
-const Token = @import("../../parser/foundation/types/token.zig").Token;
-const AST = @import("../../ast/mod.zig").AST;
+const Token = @import("../../parser_old/foundation/types/token.zig").Token;
+const AST = @import("../../ast_old/mod.zig").AST;
 
 // Import all interface types from single module
 const lang_interface = @import("../interface.zig");
@@ -31,9 +31,9 @@ pub const JsonSyntacticTransform = transform.JsonSyntacticTransform;
 
 // VTable adapter for generic streaming
 const JsonTokenVTableAdapter = @import("vtable_adapter.zig").JsonTokenVTableAdapter;
-const GenericStreamToken = @import("../../transform/streaming/generic_stream_token.zig").GenericStreamToken;
+const GenericStreamToken = @import("../../transform_old/streaming/generic_stream_token.zig").GenericStreamToken;
 const StatefulJsonLexer = @import("stateful_lexer.zig").StatefulJsonLexer;
-const StatefulLexer = @import("../../transform/streaming/stateful_lexer.zig").StatefulLexer;
+const StatefulLexer = @import("../../transform_old/streaming/stateful_lexer.zig").StatefulLexer;
 
 /// Complete JSON language support implementation
 ///

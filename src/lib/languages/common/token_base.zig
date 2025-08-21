@@ -1,5 +1,5 @@
 const std = @import("std");
-const Span = @import("../../parser/foundation/types/span.zig").Span;
+const Span = @import("../../parser_old/foundation/types/span.zig").Span;
 
 /// Base token data shared by all language-specific tokens
 /// Provides common fields that every token needs regardless of language

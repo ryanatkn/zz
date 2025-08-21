@@ -4,7 +4,7 @@ const extended_rules = @import("extended_rules.zig");
 const validation = @import("validation.zig");
 const resolver = @import("resolver.zig");
 const grammar_mod = @import("grammar.zig");
-const ast_rules = @import("../ast/rules.zig");
+const ast_rules = @import("../ast_old/rules.zig");
 
 const Grammar = grammar_mod.Grammar;
 const TestRules = ast_rules.TestRules;

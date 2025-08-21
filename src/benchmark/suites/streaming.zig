@@ -5,9 +5,9 @@ const BenchmarkOptions = benchmark_lib.BenchmarkOptions;
 const BenchmarkError = benchmark_lib.BenchmarkError;
 
 // Import streaming infrastructure
-const GenericTokenIterator = @import("../../lib/transform/streaming/generic_token_iterator.zig").GenericTokenIterator;
-const IncrementalParser = @import("../../lib/transform/streaming/incremental_parser.zig").IncrementalParser;
-const Context = @import("../../lib/transform/transform.zig").Context;
+const GenericTokenIterator = @import("../../lib/transform_old/streaming/generic_token_iterator.zig").GenericTokenIterator;
+const IncrementalParser = @import("../../lib/transform_old/streaming/incremental_parser.zig").IncrementalParser;
+const Context = @import("../../lib/transform_old/transform.zig").Context;
 
 pub fn runStreamingBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOptions) BenchmarkError![]BenchmarkResult {
     // Diagnostic logging for streaming benchmark debugging (August 19, 2025)

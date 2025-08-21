@@ -1,13 +1,13 @@
 const std = @import("std");
 
 // Import transform infrastructure
-const transform_mod = @import("../../transform/transform.zig");
+const transform_mod = @import("../../transform_old/transform.zig");
 const Transform = transform_mod.Transform;
 const Context = transform_mod.Context;
-const lexical = @import("../../transform/stages/lexical.zig");
-const syntactic = @import("../../transform/stages/syntactic.zig");
-const lex_parse = @import("../../transform/pipelines/lex_parse.zig");
-const format_pipeline = @import("../../transform/pipelines/format.zig");
+const lexical = @import("../../transform_old/stages/lexical.zig");
+const syntactic = @import("../../transform_old/stages/syntactic.zig");
+const lex_parse = @import("../../transform_old/pipelines/lex_parse.zig");
+const format_pipeline = @import("../../transform_old/pipelines/format.zig");
 
 // Import existing ZON components
 const ZonLexer = @import("lexer.zig").ZonLexer;
@@ -15,10 +15,10 @@ const ZonParser = @import("parser.zig").ZonParser;
 const ZonFormatter = @import("formatter.zig").ZonFormatter;
 
 // Import foundation types
-const Token = @import("../../parser/foundation/types/token.zig").Token;
-const Fact = @import("../../parser/foundation/types/fact.zig").Fact;
+const Token = @import("../../parser_old/foundation/types/token.zig").Token;
+const Fact = @import("../../parser_old/foundation/types/fact.zig").Fact;
 // Consolidate AST imports
-const ast_mod = @import("../../ast/mod.zig");
+const ast_mod = @import("../../ast_old/mod.zig");
 const AST = ast_mod.AST;
 const Node = ast_mod.Node;
 const FormatOptions = @import("../interface.zig").FormatOptions;

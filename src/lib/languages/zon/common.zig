@@ -8,20 +8,20 @@
 pub const std = @import("std");
 
 // Core AST and parser types
-const ast_mod = @import("../../ast/mod.zig");
+const ast_mod = @import("../../ast_old/mod.zig");
 pub const Node = ast_mod.Node;
 pub const NodeType = ast_mod.NodeType;
 pub const AST = ast_mod.AST;
-pub const ASTUtils = @import("../../ast/utils.zig").ASTUtils;
-pub const ASTTraversal = @import("../../ast/traversal.zig").ASTTraversal;
+pub const ASTUtils = @import("../../ast_old/utils.zig").ASTUtils;
+pub const ASTTraversal = @import("../../ast_old/traversal.zig").ASTTraversal;
 
 // Parser foundation types
-const token_types = @import("../../parser/foundation/types/token.zig");
+const token_types = @import("../../parser_old/foundation/types/token.zig");
 pub const Token = token_types.Token;
 pub const TokenFlags = token_types.TokenFlags;
-const predicate_types = @import("../../parser/foundation/types/predicate.zig");
+const predicate_types = @import("../../parser_old/foundation/types/predicate.zig");
 pub const TokenKind = predicate_types.TokenKind;
-pub const Span = @import("../../parser/foundation/types/span.zig").Span;
+pub const Span = @import("../../parser_old/foundation/types/span.zig").Span;
 
 // Language interface types (for internal implementation)
 const interface_types = @import("../interface.zig");

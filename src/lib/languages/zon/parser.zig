@@ -8,7 +8,7 @@ const NodeType = common.NodeType;
 const Span = common.Span;
 const ParseContext = common.ParseContext;
 const utils = common.utils;
-const ZonRules = @import("../../ast/rules.zig").ZonRules;
+const ZonRules = @import("../../ast_old/rules.zig").ZonRules;
 
 /// ZON parser using our AST infrastructure
 ///

@@ -2,7 +2,7 @@ test {
     _ = @import("args.zig");
     _ = @import("parallel.zig");
     _ = @import("node_types.zig");
-    _ = @import("ast/test.zig");
+    _ = @import("ast_old/test.zig");
     _ = @import("benchmark/test.zig");
     _ = @import("char/test.zig");
     _ = @import("core/test.zig");
@@ -15,7 +15,7 @@ test {
     _ = @import("languages/json/test.zig");
     _ = @import("languages/zon/test.zig");
     _ = @import("memory/test.zig");
-    _ = @import("parser/test.zig");
+    _ = @import("parser_old/test.zig");
     _ = @import("patterns/test.zig");
     _ = @import("span/test.zig");
     _ = @import("stream/test.zig");
@@ -23,5 +23,5 @@ test {
     _ = @import("test/fixture_runner.zig");
     _ = @import("test/performance_gates.zig");
     _ = @import("text/test.zig");
-    _ = @import("transform/test.zig");
+    _ = @import("transform_old/test.zig");
 }

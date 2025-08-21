@@ -8,7 +8,8 @@ const JsonFormatter = @import("formatter.zig").JsonFormatter;
 const JsonLinter = @import("linter.zig").JsonLinter;
 const JsonAnalyzer = @import("analyzer.zig").JsonAnalyzer;
 // JsonStreamingAdapter removed - using StreamToken architecture
-const StatefulJsonLexer = @import("stateful_lexer.zig").StatefulJsonLexer;
+// TODO: Phase 3 - Re-enable stateful lexer
+// const StatefulJsonLexer = @import("stateful_lexer.zig").StatefulJsonLexer;
 const JsonToken = @import("tokens.zig").JsonToken;
 const json_mod = @import("mod.zig");
 
@@ -26,8 +27,10 @@ const Rule = interface_types.Rule;
 test {
     _ = @import("test_rfc8259_compliance.zig");
     _ = @import("tokens.zig");
-    _ = @import("stateful_lexer.zig");
-    _ = @import("stream_lexer.zig"); // New direct stream lexer
+    // TODO: Phase 3 - Re-enable streaming components
+    // _ = @import("stateful_lexer.zig");
+    // _ = @import("stream_lexer.zig"); // New direct stream lexer
+    // _ = @import("lexer_adapter.zig"); // Phase 2 LexerInterface adapter
 }
 
 // Comprehensive test suite for JSON language implementation

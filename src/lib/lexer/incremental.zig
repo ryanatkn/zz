@@ -2,8 +2,8 @@
 ///
 /// Support for incremental updates in editors - optional capability.
 const std = @import("std");
-const Token = @import("../token/token.zig").Token;
-const Span = @import("../span/span.zig").Span;
+const Token = @import("../token/mod.zig").Token;
+const Span = @import("../span/mod.zig").Span;
 
 /// Edit operation for incremental updates
 pub const Edit = struct {
@@ -53,9 +53,10 @@ pub const IncrementalState = struct {
         const start_idx = self.findTokenIndex(edit.range.start);
         const end_idx = self.findTokenIndex(edit.range.end);
 
-        // Retokenize affected region with context
-        const context_start = if (start_idx > 0) start_idx - 1 else 0;
-        const context_end = @min(end_idx + 1, self.tokens.items.len);
+        // Context variables for Phase 2B implementation
+        // Currently unused but will be needed for context-aware retokenization
+        _ = if (start_idx > 0) start_idx - 1 else 0;
+        _ = @min(end_idx + 1, self.tokens.items.len);
 
         // Get new tokens for the region
         const new_tokens = try retokenizeFn(edit.new_text);

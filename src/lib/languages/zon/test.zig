@@ -1367,4 +1367,6 @@ test "ZON edge cases - all number formats" {
 
 test {
     _ = @import("tokens.zig");
+    // TODO: Phase 3 - Re-enable streaming components
+    // _ = @import("lexer_adapter.zig"); // Phase 2 LexerInterface adapter
 }

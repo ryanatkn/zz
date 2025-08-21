@@ -1,497 +1,288 @@
+/// JSON Lexer - Clean implementation for progressive parser architecture
+///
+/// Implements LexerInterface with direct streaming and batch tokenization.
+/// No legacy code, no adapters, pure implementation.
 const std = @import("std");
-// Consolidate parser foundation type imports
-const token_types = @import("../../parser_old/foundation/types/token.zig");
-const Token = token_types.Token;
-const TokenFlags = token_types.TokenFlags;
-const TokenKind = @import("../../parser_old/foundation/types/predicate.zig").TokenKind;
-const Span = @import("../../parser_old/foundation/types/span.zig").Span;
-const char = @import("../../char/mod.zig");
-const patterns = @import("patterns.zig");
-const JsonDelimiters = patterns.JsonDelimiters;
-const JsonLiterals = patterns.JsonLiterals;
+const Allocator = std.mem.Allocator;
 
-/// High-performance JSON lexer using stratified parser infrastructure
-///
-/// Features:
-/// - Streaming tokenization with minimal allocations
-/// - Complete JSON token support including escape sequences
-/// - JSON5 compatibility mode (comments, trailing commas)
-/// - Error recovery with detailed diagnostics
-/// - Performance target: <0.1ms for 10KB JSON
-///
-/// EOF Token Convention:
-/// All lexers automatically append an EOF token with empty text to signal end-of-input.
-/// Parsers rely on this for clean termination detection. Tests should expect +1 token count.
+// Import new infrastructure
+const token_mod = @import("../../token/mod.zig");
+const Token = token_mod.Token;
+const TokenKind = token_mod.TokenKind;
+const TokenFlags = token_mod.TokenFlags;
+const Span = @import("../../span/mod.zig").Span;
+const LexerInterface = @import("../../lexer/interface.zig").LexerInterface;
+const createInterface = @import("../../lexer/interface.zig").createInterface;
+const TokenStream = @import("../../lexer/streaming.zig").TokenStream;
+const createTokenStream = @import("../../lexer/streaming.zig").createTokenStream;
+
+// Use character utilities
+const char = @import("../../char/mod.zig");
+
+/// JSON Lexer with streaming-first design
 pub const JsonLexer = struct {
-    allocator: std.mem.Allocator,
+    allocator: Allocator,
     source: []const u8,
     position: usize,
-    line: u32,
-    column: u32,
-    tokens: std.ArrayList(Token),
-    allow_comments: bool,
-    allow_trailing_commas: bool,
-
+    
     const Self = @This();
-
-    pub const LexerOptions = struct {
-        allow_comments: bool = false, // JSON5 feature
-        allow_trailing_commas: bool = false, // JSON5 feature
-    };
-
-    pub fn init(allocator: std.mem.Allocator, source: []const u8, options: LexerOptions) JsonLexer {
-        return JsonLexer{
+    
+    pub fn init(allocator: Allocator) Self {
+        return .{
             .allocator = allocator,
-            .source = source,
+            .source = "",
             .position = 0,
-            .line = 1,
-            .column = 1,
-            .tokens = std.ArrayList(Token).init(allocator),
-            .allow_comments = options.allow_comments,
-            .allow_trailing_commas = options.allow_trailing_commas,
         };
     }
-
+    
     pub fn deinit(self: *Self) void {
-        self.tokens.deinit();
+        _ = self;
+        // Nothing to clean up in basic implementation
     }
+    
+    /// Create a LexerInterface for this lexer
+    pub fn interface(self: *Self) LexerInterface {
+        return createInterface(self);
+    }
+    
+    /// Stream tokens without allocation
+    pub fn streamTokens(self: *Self, source: []const u8) TokenStream {
+        self.source = source;
+        self.position = 0;
+        
+        var iterator = StreamIterator.init(self);
+        return createTokenStream(&iterator);
+    }
+    
+    /// Batch tokenize - allocates all tokens
+    pub fn batchTokenize(self: *Self, allocator: Allocator, source: []const u8) ![]Token {
+        self.source = source;
+        self.position = 0;
+        
+        var tokens = std.ArrayList(Token).init(allocator);
+        defer tokens.deinit();
+        
+        var iterator = StreamIterator.init(self);
+        while (iterator.next()) |token| {
+            try tokens.append(token);
+        }
+        
+        return tokens.toOwnedSlice();
+    }
+    
+    /// Reset lexer state
+    pub fn reset(self: *Self) void {
+        self.position = 0;
+        self.source = "";
+    }
+};
 
-    /// Tokenize the entire JSON source
-    pub fn tokenize(self: *Self) ![]Token {
-        while (!self.isAtEnd()) {
-            self.skipWhitespace();
-
-            if (self.isAtEnd()) break;
-
-            const start_pos = self.position;
-            _ = self.line;
-            _ = self.column;
-
-            const token = self.nextToken() catch |err| switch (err) {
-                error.UnexpectedCharacter => {
-                    // Skip invalid character and continue
-                    _ = self.advance();
-                    continue;
-                },
-                else => return err,
+/// Streaming iterator for zero-allocation tokenization
+const StreamIterator = struct {
+    lexer: *JsonLexer,
+    
+    const Self = @This();
+    
+    pub fn init(lexer: *JsonLexer) Self {
+        return .{ .lexer = lexer };
+    }
+    
+    pub fn next(self: *Self) ?Token {
+        const lexer = self.lexer;
+        
+        // Skip whitespace
+        while (lexer.position < lexer.source.len) {
+            const c = lexer.source[lexer.position];
+            if (!char.isWhitespace(c)) break;
+            lexer.position += 1;
+        }
+        
+        // Check for EOF
+        if (lexer.position >= lexer.source.len) {
+            return Token{
+                .span = Span.init(@intCast(lexer.position), @intCast(lexer.position)),
+                .kind = .eof,
+                .depth = 0,
+                .flags = .{},
             };
-
-            // Create span for this token
-            const span = Span.init(start_pos, self.position);
-            const full_token = Token.simple(span, token.kind, token.text, 0);
-
-            try self.tokens.append(full_token);
         }
-
-        // Add EOF token
-        const eof_span = Span.init(self.source.len, self.source.len);
-        const eof_token = Token.simple(eof_span, .eof, "", 0);
-        try self.tokens.append(eof_token);
-
-        return self.tokens.toOwnedSlice();
-    }
-
-    fn nextToken(self: *Self) !TokenResult {
-        const start_pos = self.position;
-        const ch = self.peek();
-
-        // Check for delimiters first (O(1) vs O(n) string comparison)
-        if (JsonDelimiters.fromChar(ch)) |_| {
-            _ = self.advance();
-            return self.makeToken(.delimiter, start_pos, self.source[start_pos..self.position]);
-        }
-
-        // Check for literals first (efficient enum-based lookup)
-        if (JsonLiterals.fromFirstChar(ch)) |literal_kind| {
-            return self.literalEnum(literal_kind);
-        }
-
-        return switch (ch) {
-            '"' => self.string(),
-            '0'...'9', '-' => self.number(),
-            '/' => if (self.allow_comments) self.comment() else error.UnexpectedCharacter,
-            else => error.UnexpectedCharacter,
+        
+        const start = lexer.position;
+        const c = lexer.source[lexer.position];
+        
+        // Single character tokens
+        const token_kind: ?TokenKind = switch (c) {
+            '{' => blk: {
+                lexer.position += 1;
+                break :blk .left_brace;
+            },
+            '}' => blk: {
+                lexer.position += 1;
+                break :blk .right_brace;
+            },
+            '[' => blk: {
+                lexer.position += 1;
+                break :blk .left_bracket;
+            },
+            ']' => blk: {
+                lexer.position += 1;
+                break :blk .right_bracket;
+            },
+            ',' => blk: {
+                lexer.position += 1;
+                break :blk .comma;
+            },
+            ':' => blk: {
+                lexer.position += 1;
+                break :blk .colon;
+            },
+            else => null,
         };
-    }
-
-    fn string(self: *Self) !TokenResult {
-        const start_pos = self.position;
-        _ = self.advance(); // Skip opening quote
-
-        while (!self.isAtEnd() and self.peek() != '"') {
-            if (self.peek() == '\\') {
-                _ = self.advance(); // Skip backslash
-                if (!self.isAtEnd()) {
-                    _ = self.advance(); // Skip escaped character
-                }
-            } else {
-                _ = self.advance();
-            }
+        
+        if (token_kind) |kind| {
+            return Token{
+                .span = Span.init(@intCast(start), @intCast(lexer.position)),
+                .kind = kind,
+                .depth = 0, // TODO: Track nesting depth
+                .flags = .{},
+            };
         }
-
-        if (self.isAtEnd()) {
-            return error.UnterminatedString;
-        }
-
-        _ = self.advance(); // Skip closing quote
-        return self.makeToken(.string_literal, start_pos, self.source[start_pos..self.position]);
-    }
-
-    fn number(self: *Self) !TokenResult {
-        const start_pos = self.position;
-
-        // Handle negative sign
-        if (self.peek() == '-') {
-            _ = self.advance();
-        }
-
-        // Handle integer part per RFC 8259
-        // int = zero / ( digit1-9 *DIGIT )
-        if (self.peek() == '0') {
-            _ = self.advance();
-            // After consuming '0', check if there are more digits (leading zero violation)
-            if (char.isDigit(self.peek())) {
-                return error.InvalidNumber; // Leading zeros not allowed in JSON
-            }
-        } else if (char.isDigit(self.peek())) {
-            while (char.isDigit(self.peek())) {
-                _ = self.advance();
-            }
-        } else {
-            return error.InvalidNumber;
-        }
-
-        // Handle decimal part
-        if (self.peek() == '.') {
-            _ = self.advance();
-            if (!char.isDigit(self.peek())) {
-                return error.InvalidNumber;
-            }
-            while (char.isDigit(self.peek())) {
-                _ = self.advance();
-            }
-        }
-
-        // Handle exponent part
-        if (self.peek() == 'e' or self.peek() == 'E') {
-            _ = self.advance();
-            if (self.peek() == '+' or self.peek() == '-') {
-                _ = self.advance();
-            }
-            if (!char.isDigit(self.peek())) {
-                return error.InvalidNumber;
-            }
-            // Check for leading zero in exponent (same rule as integers)
-            if (self.peek() == '0') {
-                _ = self.advance();
-                // If there are more digits after '0', it's a leading zero violation
-                if (char.isDigit(self.peek())) {
-                    return error.InvalidNumber; // Leading zeros not allowed in exponent
-                }
-            } else {
-                // Non-zero digit, consume remaining digits
-                while (char.isDigit(self.peek())) {
-                    _ = self.advance();
+        
+        // String
+        if (c == '"') {
+            lexer.position += 1; // Skip opening quote
+            while (lexer.position < lexer.source.len) {
+                const ch = lexer.source[lexer.position];
+                lexer.position += 1;
+                if (ch == '"') break;
+                if (ch == '\\' and lexer.position < lexer.source.len) {
+                    lexer.position += 1; // Skip escaped character
                 }
             }
+            
+            return Token{
+                .span = Span.init(@intCast(start), @intCast(lexer.position)),
+                .kind = .string,
+                .depth = 0,
+                .flags = .{ .has_escapes = std.mem.indexOfScalar(u8, lexer.source[start..lexer.position], '\\') != null },
+            };
         }
-
-        return self.makeToken(.number_literal, start_pos, self.source[start_pos..self.position]);
-    }
-
-    fn literal(self: *Self, expected: []const u8) !TokenResult {
-        const start_pos = self.position;
-
-        for (expected) |expected_char| {
-            if (self.isAtEnd() or self.peek() != expected_char) {
-                return error.InvalidLiteral;
-            }
-            _ = self.advance();
-        }
-
-        const kind: TokenKind = if (std.mem.eql(u8, expected, "true") or std.mem.eql(u8, expected, "false"))
-            .boolean_literal
-        else
-            .null_literal;
-
-        return self.makeToken(kind, start_pos, self.source[start_pos..self.position]);
-    }
-
-    /// Efficient literal parsing using enum (replaces string-based matching)
-    fn literalEnum(self: *Self, literal_kind: JsonLiterals.KindType) !TokenResult {
-        const start_pos = self.position;
-        const expected_text = JsonLiterals.text(literal_kind);
-
-        // Check character by character (optimized for known literals)
-        for (expected_text) |expected_char| {
-            if (self.isAtEnd() or self.peek() != expected_char) {
-                return error.InvalidLiteral;
-            }
-            _ = self.advance();
-        }
-
-        // Get the correct token kind from the literal spec
-        const token_kind = JsonLiterals.tokenKind(literal_kind);
-        return self.makeToken(token_kind, start_pos, self.source[start_pos..self.position]);
-    }
-
-    fn comment(self: *Self) !TokenResult {
-        const start_pos = self.position;
-
-        if (self.peek() != '/') {
-            return error.UnexpectedCharacter;
-        }
-        _ = self.advance(); // Skip first '/'
-
-        if (self.peek() == '/') {
-            // Line comment
-            _ = self.advance(); // Skip second '/'
-            while (!self.isAtEnd() and self.peek() != '\n') {
-                _ = self.advance();
-            }
-        } else if (self.peek() == '*') {
-            // Block comment
-            _ = self.advance(); // Skip '*'
-            while (!self.isAtEnd()) {
-                if (self.peek() == '*' and self.peekNext() == '/') {
-                    _ = self.advance(); // Skip '*'
-                    _ = self.advance(); // Skip '/'
+        
+        // Number
+        if (char.isDigit(c) or c == '-') {
+            lexer.position += 1;
+            while (lexer.position < lexer.source.len) {
+                const ch = lexer.source[lexer.position];
+                if (!char.isDigit(ch) and ch != '.' and ch != 'e' and ch != 'E' and ch != '+' and ch != '-') {
                     break;
                 }
-                if (self.peek() == '\n') {
-                    self.line += 1;
-                    self.column = 1;
-                }
-                _ = self.advance();
+                lexer.position += 1;
             }
-        } else {
-            return error.UnexpectedCharacter;
+            
+            return Token{
+                .span = Span.init(@intCast(start), @intCast(lexer.position)),
+                .kind = .number,
+                .depth = 0,
+                .flags = .{},
+            };
         }
-
-        return self.makeToken(.comment, start_pos, self.source[start_pos..self.position]);
-    }
-
-    fn skipWhitespace(self: *Self) void {
-        while (!self.isAtEnd()) {
-            const ch = self.peek();
-            if (char.isWhitespace(ch)) {
-                _ = self.advance();
-            } else if (ch == '\n') {
-                self.line += 1;
-                self.column = 1;
-                _ = self.advance();
-            } else {
-                break;
+        
+        // Keywords: true, false, null
+        if (char.isAlpha(c)) {
+            while (lexer.position < lexer.source.len and char.isAlpha(lexer.source[lexer.position])) {
+                lexer.position += 1;
             }
+            
+            const text = lexer.source[start..lexer.position];
+            const kind: TokenKind = if (std.mem.eql(u8, text, "true") or std.mem.eql(u8, text, "false"))
+                .boolean
+            else if (std.mem.eql(u8, text, "null"))
+                .null
+            else
+                .identifier;
+            
+            return Token{
+                .span = Span.init(@intCast(start), @intCast(lexer.position)),
+                .kind = kind,
+                .depth = 0,
+                .flags = .{},
+            };
         }
-    }
-
-    fn makeToken(_: *Self, kind: TokenKind, _: usize, text: []const u8) TokenResult {
-        return TokenResult{
-            .kind = kind,
-            .text = text,
+        
+        // Unknown character
+        lexer.position += 1;
+        return Token{
+            .span = Span.init(@intCast(start), @intCast(lexer.position)),
+            .kind = .unknown,
+            .depth = 0,
+            .flags = .{},
         };
     }
-
-    fn peek(self: *Self) u8 {
-        if (self.isAtEnd()) return 0;
-        return self.source[self.position];
+    
+    pub fn reset(self: *Self) void {
+        self.lexer.position = 0;
     }
-
-    fn peekNext(self: *Self) u8 {
-        if (self.position + 1 >= self.source.len) return 0;
-        return self.source[self.position + 1];
-    }
-
-    fn advance(self: *Self) u8 {
-        if (self.isAtEnd()) return 0;
-        const ch = self.source[self.position];
-        self.position += 1;
-        self.column += 1;
-        return ch;
-    }
-
-    fn isAtEnd(self: *Self) bool {
-        return self.position >= self.source.len;
-    }
-
-    fn isDigit(ch: u8) bool {
-        return char.isDigit(ch);
-    }
-};
-
-const TokenResult = struct {
-    kind: TokenKind,
-    text: []const u8,
-};
-
-// Error types for JSON lexing
-pub const JsonLexError = error{
-    UnexpectedCharacter,
-    UnterminatedString,
-    InvalidNumber,
-    InvalidLiteral,
-    OutOfMemory,
 };
 
 // Tests
 const testing = std.testing;
 
-test "JSON lexer - simple values" {
-    var arena = std.heap.ArenaAllocator.init(testing.allocator);
-    defer arena.deinit();
-    const allocator = arena.allocator();
-
-    // Test string
-    {
-        var lexer = JsonLexer.init(allocator, "\"hello\"", .{});
-        defer lexer.deinit();
-
-        const tokens = try lexer.tokenize();
-        try testing.expectEqual(@as(usize, 2), tokens.len); // +1 for EOF
-        try testing.expectEqual(TokenKind.string_literal, tokens[0].kind);
-        try testing.expectEqualStrings("\"hello\"", tokens[0].text);
-    }
-
-    // Test number
-    {
-        var lexer = JsonLexer.init(allocator, "42", .{});
-        defer lexer.deinit();
-
-        const tokens = try lexer.tokenize();
-        try testing.expectEqual(@as(usize, 2), tokens.len); // +1 for EOF
-        try testing.expectEqual(TokenKind.number_literal, tokens[0].kind);
-        try testing.expectEqualStrings("42", tokens[0].text);
-    }
-
-    // Test boolean
-    {
-        var lexer = JsonLexer.init(allocator, "true", .{});
-        defer lexer.deinit();
-
-        const tokens = try lexer.tokenize();
-        try testing.expectEqual(@as(usize, 2), tokens.len); // +1 for EOF
-        try testing.expectEqual(TokenKind.boolean_literal, tokens[0].kind);
-        try testing.expectEqualStrings("true", tokens[0].text);
-    }
-
-    // Test null
-    {
-        var lexer = JsonLexer.init(allocator, "null", .{});
-        defer lexer.deinit();
-
-        const tokens = try lexer.tokenize();
-        try testing.expectEqual(@as(usize, 2), tokens.len); // +1 for EOF
-        try testing.expectEqual(TokenKind.null_literal, tokens[0].kind);
-        try testing.expectEqualStrings("null", tokens[0].text);
-    }
-}
-
-test "JSON lexer - complex number formats" {
-    var arena = std.heap.ArenaAllocator.init(testing.allocator);
-    defer arena.deinit();
-    const allocator = arena.allocator();
-
-    const test_cases = [_][]const u8{
-        "0",
-        "-0",
-        "42",
-        "-42",
-        "3.14",
-        "-3.14",
-        "1.23e4",
-        "1.23E4",
-        "1.23e+4",
-        "1.23e-4",
-        "-1.23e-4",
-    };
-
-    for (test_cases) |case| {
-        var lexer = JsonLexer.init(allocator, case, .{});
-        defer lexer.deinit();
-
-        const tokens = try lexer.tokenize();
-        try testing.expectEqual(@as(usize, 2), tokens.len); // +1 for EOF
-        try testing.expectEqual(TokenKind.number_literal, tokens[0].kind);
-        try testing.expectEqualStrings(case, tokens[0].text);
-    }
-}
-
-test "JSON lexer - object and array" {
-    var arena = std.heap.ArenaAllocator.init(testing.allocator);
-    defer arena.deinit();
-    const allocator = arena.allocator();
-
-    var lexer = JsonLexer.init(allocator, "{\"key\": [1, 2, 3]}", .{});
+test "JsonLexer - basic object" {
+    var lexer = JsonLexer.init(testing.allocator);
     defer lexer.deinit();
-
-    const tokens = try lexer.tokenize();
-    try testing.expectEqual(@as(usize, 12), tokens.len); // +1 for EOF
-
-    // Check token sequence
-    try testing.expectEqual(TokenKind.delimiter, tokens[0].kind);
-    try testing.expectEqualStrings("{", tokens[0].text);
-
-    try testing.expectEqual(TokenKind.string_literal, tokens[1].kind);
-    try testing.expectEqualStrings("\"key\"", tokens[1].text);
-
-    try testing.expectEqual(TokenKind.delimiter, tokens[2].kind);
-    try testing.expectEqualStrings(":", tokens[2].text);
-
-    try testing.expectEqual(TokenKind.delimiter, tokens[3].kind);
-    try testing.expectEqualStrings("[", tokens[3].text);
+    
+    const source = "{\"key\": \"value\"}";
+    const tokens = try lexer.batchTokenize(testing.allocator, source);
+    defer testing.allocator.free(tokens);
+    
+    try testing.expect(tokens.len >= 5);
+    try testing.expect(tokens[0].kind == .left_brace);
+    try testing.expect(tokens[1].kind == .string);
+    try testing.expect(tokens[2].kind == .colon);
+    try testing.expect(tokens[3].kind == .string);
+    try testing.expect(tokens[4].kind == .right_brace);
 }
 
-test "JSON lexer - string escapes" {
-    var arena = std.heap.ArenaAllocator.init(testing.allocator);
-    defer arena.deinit();
-    const allocator = arena.allocator();
-
-    var lexer = JsonLexer.init(allocator, "\"hello\\nworld\\\"\"", .{});
+test "JsonLexer - array" {
+    var lexer = JsonLexer.init(testing.allocator);
     defer lexer.deinit();
-
-    const tokens = try lexer.tokenize();
-    try testing.expectEqual(@as(usize, 2), tokens.len); // +1 for EOF
-    try testing.expectEqual(TokenKind.string_literal, tokens[0].kind);
-    try testing.expectEqualStrings("\"hello\\nworld\\\"\"", tokens[0].text);
+    
+    const source = "[1, 2, 3]";
+    const tokens = try lexer.batchTokenize(testing.allocator, source);
+    defer testing.allocator.free(tokens);
+    
+    try testing.expect(tokens[0].kind == .left_bracket);
+    try testing.expect(tokens[1].kind == .number);
+    try testing.expect(tokens[2].kind == .comma);
+    try testing.expect(tokens[3].kind == .number);
 }
 
-test "JSON lexer - JSON5 features" {
-    var arena = std.heap.ArenaAllocator.init(testing.allocator);
-    defer arena.deinit();
-    const allocator = arena.allocator();
+test "JsonLexer - keywords" {
+    var lexer = JsonLexer.init(testing.allocator);
+    defer lexer.deinit();
+    
+    const source = "[true, false, null]";
+    const tokens = try lexer.batchTokenize(testing.allocator, source);
+    defer testing.allocator.free(tokens);
+    
+    try testing.expect(tokens[1].kind == .boolean);
+    try testing.expect(tokens[3].kind == .boolean);
+    try testing.expect(tokens[5].kind == .null);
+}
 
-    // Test comments
-    {
-        var lexer = JsonLexer.init(allocator, "// comment\n42", .{ .allow_comments = true });
-        defer lexer.deinit();
-
-        const tokens = try lexer.tokenize();
-        try testing.expectEqual(@as(usize, 3), tokens.len); // +1 for EOF
-        try testing.expectEqual(TokenKind.comment, tokens[0].kind);
-        try testing.expectEqual(TokenKind.number_literal, tokens[1].kind);
-    }
-
-    // Test block comments
-    {
-        var lexer = JsonLexer.init(allocator, "/* block comment */42", .{ .allow_comments = true });
-        defer lexer.deinit();
-
-        const tokens = try lexer.tokenize();
-        try testing.expectEqual(@as(usize, 3), tokens.len); // +1 for EOF
-        try testing.expectEqual(TokenKind.comment, tokens[0].kind);
-        try testing.expectEqual(TokenKind.number_literal, tokens[1].kind);
-    }
-
-    // Test minimal reproduction of the failing case
-    {
-        // Just test the comment parsing specifically
-        var lexer = JsonLexer.init(allocator, "// Comment\n", .{ .allow_comments = true });
-        defer lexer.deinit();
-
-        const tokens = try lexer.tokenize();
-        try testing.expectEqual(@as(usize, 2), tokens.len); // comment + EOF
-        try testing.expectEqual(TokenKind.comment, tokens[0].kind);
-        try testing.expectEqualStrings("// Comment", tokens[0].text);
-    }
+test "JsonLexer - streaming" {
+    var lexer = JsonLexer.init(testing.allocator);
+    defer lexer.deinit();
+    
+    const source = "{}";
+    var stream = lexer.streamTokens(source);
+    
+    const token1 = stream.next();
+    try testing.expect(token1.?.kind == .left_brace);
+    
+    const token2 = stream.next();
+    try testing.expect(token2.?.kind == .right_brace);
+    
+    const token3 = stream.next();
+    try testing.expect(token3.?.kind == .eof);
 }

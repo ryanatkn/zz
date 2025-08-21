@@ -104,8 +104,8 @@ pub const RecursiveParser = struct {
     }
 
     /// Restore to marked position
-    pub fn restore(self: *Self, mark: usize) void {
-        self.current = mark;
+    pub fn restore(self: *Self, saved_position: usize) void {
+        self.current = saved_position;
     }
 
     /// Add parse error
@@ -114,8 +114,8 @@ pub const RecursiveParser = struct {
     }
 
     /// Get span from mark to current
-    pub fn spanFrom(self: *Self, mark: usize) Span {
-        const start_token = self.tokens[mark];
+    pub fn spanFrom(self: *Self, start_position: usize) Span {
+        const start_token = self.tokens[start_position];
         const end_token = if (self.current > 0)
             self.tokens[self.current - 1]
         else

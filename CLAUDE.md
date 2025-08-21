@@ -286,4 +286,4 @@ See [docs/llm-guidelines.md](docs/llm-guidelines.md) for complete guidelines. Ke
 - Test frequently with `zig build run`
 - Always update documentation, be concise but thorough 
 - We prioritize maintainable code and want to give users max power
-- Leave `// TODO` comments for unknowns
+- Leave `// TODO` comments for unknowns and future work

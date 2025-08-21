@@ -211,14 +211,10 @@ pub const StreamFormatTransform = struct {
 
     /// Process single token (streaming)
     pub fn processToken(self: *Self, token: StreamToken) !void {
-        // Extract common token properties
-        const kind = switch (token) {
-            inline else => |t| t.kind,
-        };
-
-        _ = kind;
-        // Format and write immediately
-        // Implementation similar to FormatTransform but streaming
+        _ = self;
+        _ = token;
+        // TODO: Phase 2B - Implement streaming format processing
+        // Will extract token kind and format appropriately
     }
 
     /// Flush any pending output

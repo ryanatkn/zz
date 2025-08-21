@@ -1,519 +1,401 @@
+/// ZON Lexer - Clean implementation for progressive parser architecture
+///
+/// Implements LexerInterface with direct streaming and batch tokenization.
+/// Supports Zig Object Notation (ZON) syntax.
 const std = @import("std");
-const Token = @import("../../parser_old/foundation/types/token.zig").Token;
-const TokenKind = @import("../../parser_old/foundation/types/predicate.zig").TokenKind;
-const Span = @import("../../parser_old/foundation/types/span.zig").Span;
-const TokenFlags = @import("../../parser_old/foundation/types/token.zig").TokenFlags;
+const Allocator = std.mem.Allocator;
+
+// Import new infrastructure
+const token_mod = @import("../../token/mod.zig");
+const Token = token_mod.Token;
+const TokenKind = token_mod.TokenKind;
+const TokenFlags = token_mod.TokenFlags;
+const Span = @import("../../span/mod.zig").Span;
+const LexerInterface = @import("../../lexer/interface.zig").LexerInterface;
+const createInterface = @import("../../lexer/interface.zig").createInterface;
+const TokenStream = @import("../../lexer/streaming.zig").TokenStream;
+const createTokenStream = @import("../../lexer/streaming.zig").createTokenStream;
+
+// Use character utilities
 const char = @import("../../char/mod.zig");
 
-/// High-performance ZON lexer using stratified parser infrastructure
-///
-/// Features:
-/// - Complete ZON token support including Zig-specific literals
-/// - Comment handling (// and /* */)
-/// - All Zig number formats (decimal, hex, binary, octal)
-/// - Field names (.field_name) and anonymous struct syntax (.{})
-/// - Error recovery with detailed diagnostics
-/// - Performance target: <0.1ms for typical config files
-///
-/// EOF Token Convention:
-/// All lexers automatically append an EOF token with empty text to signal end-of-input.
-/// Parsers rely on this for clean termination detection. Tests should expect +1 token count.
+/// ZON Lexer with streaming-first design
 pub const ZonLexer = struct {
-    allocator: std.mem.Allocator,
+    allocator: Allocator,
     source: []const u8,
     position: usize,
-    line: u32,
-    column: u32,
-    tokens: std.ArrayList(Token),
-    preserve_comments: bool,
-
+    
     const Self = @This();
-
-    pub const LexerOptions = struct {
-        preserve_comments: bool = true, // ZON often needs comments preserved
-    };
-
-    // ZON uses the foundation TokenKind enum
-    // We'll map specific ZON tokens to the basic kinds
-
-    pub fn init(allocator: std.mem.Allocator, source: []const u8, options: LexerOptions) ZonLexer {
-        return ZonLexer{
+    
+    pub fn init(allocator: Allocator) Self {
+        return .{
             .allocator = allocator,
-            .source = source,
+            .source = "",
             .position = 0,
-            .line = 1,
-            .column = 1,
-            .tokens = std.ArrayList(Token).init(allocator),
-            .preserve_comments = options.preserve_comments,
         };
     }
-
+    
     pub fn deinit(self: *Self) void {
-        self.tokens.deinit();
+        _ = self;
+        // Nothing to clean up in basic implementation
     }
-
-    /// Tokenize the entire ZON source
-    pub fn tokenize(self: *Self) ![]Token {
-        while (self.position < self.source.len) {
-            try self.nextToken();
+    
+    /// Create a LexerInterface for this lexer
+    pub fn interface(self: *Self) LexerInterface {
+        return createInterface(self);
+    }
+    
+    /// Stream tokens without allocation
+    pub fn streamTokens(self: *Self, source: []const u8) TokenStream {
+        self.source = source;
+        self.position = 0;
+        
+        var iterator = StreamIterator.init(self);
+        return createTokenStream(&iterator);
+    }
+    
+    /// Batch tokenize - allocates all tokens
+    pub fn batchTokenize(self: *Self, allocator: Allocator, source: []const u8) ![]Token {
+        self.source = source;
+        self.position = 0;
+        
+        var tokens = std.ArrayList(Token).init(allocator);
+        defer tokens.deinit();
+        
+        var iterator = StreamIterator.init(self);
+        while (iterator.next()) |token| {
+            try tokens.append(token);
         }
-
-        // Add EOF token
-        const eof_span = Span{
-            .start = self.position,
-            .end = self.position,
-        };
-        try self.addToken(TokenKind.eof, eof_span, "", .{});
-
-        return self.tokens.toOwnedSlice();
+        
+        return tokens.toOwnedSlice();
     }
-
-    fn nextToken(self: *Self) !void {
-        self.skipWhitespace();
-
-        if (self.position >= self.source.len) return;
-
-        const start_pos = self.position;
-        const current = self.currentChar();
-
-        switch (current) {
-            '.' => try self.tokenizeDotOrFieldName(),
-            '"' => try self.tokenizeString(),
-            '\\' => try self.tokenizeMultilineString(),
-            '{' => try self.tokenizeSingleChar(TokenKind.delimiter),
-            '}' => try self.tokenizeSingleChar(TokenKind.delimiter),
-            '[' => try self.tokenizeSingleChar(TokenKind.delimiter),
-            ']' => try self.tokenizeSingleChar(TokenKind.delimiter),
-            '(' => try self.tokenizeSingleChar(TokenKind.delimiter),
-            ')' => try self.tokenizeSingleChar(TokenKind.delimiter),
-            '=' => try self.tokenizeSingleChar(TokenKind.operator),
-            ',' => try self.tokenizeSingleChar(TokenKind.delimiter),
-            '/' => try self.tokenizeCommentOrUnknown(),
-            '0'...'9' => try self.tokenizeNumber(),
-            'a'...'z', 'A'...'Z', '_', '@' => try self.tokenizeIdentifierOrKeyword(),
-            '\n' => {
-                const span = Span{
-                    .start = start_pos,
-                    .end = self.position + 1,
-                };
-                self.advance();
-                try self.addToken(TokenKind.newline, span, "\n", .{});
-            },
-            else => {
-                // Unknown character - advance and mark as unknown
-                const span = Span{
-                    .start = start_pos,
-                    .end = self.position + 1,
-                };
-                const text = self.source[start_pos .. self.position + 1];
-                self.advance();
-                try self.addToken(TokenKind.unknown, span, text, .{});
-            },
-        }
-    }
-
-    fn tokenizeDotOrFieldName(self: *Self) !void {
-        const start_pos = self.position;
-
-        // Always emit the dot as a separate operator token
-        const dot_span = Span{
-            .start = start_pos,
-            .end = start_pos + 1,
-        };
-        try self.addToken(TokenKind.operator, dot_span, ".", .{});
-
-        self.advance(); // Skip '.'
-
-        // Check if there's an identifier following the dot
-        if (self.position < self.source.len and isIdentifierStart(self.currentChar())) {
-            // Tokenize the identifier separately
-            const id_start = self.position;
-
-            // Handle @"..." quoted identifiers
-            if (self.currentChar() == '@' and
-                self.position + 1 < self.source.len and
-                self.source[self.position + 1] == '"')
-            {
-                // Quoted identifier
-                self.advance(); // Skip '@'
-                self.advance(); // Skip '"'
-
-                while (self.position < self.source.len and self.currentChar() != '"') {
-                    self.advance();
-                }
-
-                if (self.position < self.source.len and self.currentChar() == '"') {
-                    self.advance(); // Skip closing '"'
-                }
-
-                const id_span = Span{
-                    .start = id_start,
-                    .end = self.position,
-                };
-                const id_text = self.source[id_start..self.position];
-                try self.addToken(TokenKind.identifier, id_span, id_text, .{});
-            } else {
-                // Regular identifier
-                while (self.position < self.source.len and isIdentifierContinue(self.currentChar())) {
-                    self.advance();
-                }
-
-                const id_span = Span{
-                    .start = id_start,
-                    .end = self.position,
-                };
-                const id_text = self.source[id_start..self.position];
-                try self.addToken(TokenKind.identifier, id_span, id_text, .{});
-            }
-        }
-    }
-
-    fn tokenizeString(self: *Self) !void {
-        const start_pos = self.position;
-
-        self.advance(); // Skip opening quote
-
-        while (self.position < self.source.len) {
-            const ch = self.currentChar();
-            if (ch == '"') {
-                self.advance(); // Skip closing quote
-                break;
-            } else if (ch == '\\') {
-                self.advance(); // Skip backslash
-                if (self.position < self.source.len) {
-                    self.advance(); // Skip escaped character
-                }
-            } else {
-                self.advance();
-            }
-        }
-
-        const span = Span{
-            .start = start_pos,
-            .end = self.position,
-        };
-        const text = self.source[start_pos..self.position];
-        try self.addToken(TokenKind.string_literal, span, text, .{});
-    }
-
-    fn tokenizeMultilineString(self: *Self) !void {
-        const start_pos = self.position;
-
-        self.advance(); // Skip first backslash
-
-        if (self.position < self.source.len and self.currentChar() == '\\') {
-            self.advance(); // Skip second backslash
-
-            // Collect the entire multiline string
-            var string_content = std.ArrayList(u8).init(self.allocator);
-            defer string_content.deinit();
-
-            // Add the opening marker
-            try string_content.appendSlice("\\\\");
-
-            // Continue collecting lines until we hit a non-continuation line
-            while (self.position < self.source.len) {
-                // Collect current line
-                const line_start = self.position;
-                while (self.position < self.source.len and self.currentChar() != '\n') {
-                    self.advance();
-                }
-
-                // Add line content
-                try string_content.appendSlice(self.source[line_start..self.position]);
-
-                // Check if we're at end of file
-                if (self.position >= self.source.len) {
-                    break;
-                }
-
-                // Skip the newline
-                if (self.position < self.source.len and self.currentChar() == '\n') {
-                    self.advance();
-                    self.line += 1;
-                    self.column = 1;
-                }
-
-                // Skip leading whitespace on next line
-                while (self.position < self.source.len and
-                    (self.currentChar() == ' ' or self.currentChar() == '\t'))
-                {
-                    self.advance();
-                }
-
-                // Check if the next line starts with \\
-                if (self.position + 1 < self.source.len and
-                    self.source[self.position] == '\\' and
-                    self.source[self.position + 1] == '\\')
-                {
-                    // It's a continuation line
-                    self.advance(); // Skip first backslash
-                    self.advance(); // Skip second backslash
-                    // The line content will be collected in the next iteration
-                } else {
-                    // Not a continuation, we're done
-                    break;
-                }
-            }
-
-            const span = Span{
-                .start = start_pos,
-                .end = self.position,
-            };
-
-            // For now, just return the raw text including the \\ markers
-            // The ast_converter will need to handle the processing
-            const text = self.source[start_pos..self.position];
-            try self.addToken(TokenKind.string_literal, span, text, .{});
-        } else {
-            // Single backslash - treat as unknown
-            const span = Span{
-                .start = start_pos,
-                .end = self.position,
-            };
-            try self.addToken(TokenKind.unknown, span, "\\", .{});
-        }
-    }
-
-    fn tokenizeSingleChar(self: *Self, kind: TokenKind) !void {
-        const start_pos = self.position;
-
-        const text = self.source[start_pos .. start_pos + 1];
-        self.advance();
-
-        const span = Span{
-            .start = start_pos,
-            .end = self.position,
-        };
-        try self.addToken(kind, span, text, .{});
-    }
-
-    fn tokenizeCommentOrUnknown(self: *Self) !void {
-        const start_pos = self.position;
-
-        self.advance(); // Skip first '/'
-
-        if (self.position < self.source.len) {
-            const next = self.currentChar();
-            if (next == '/') {
-                // Line comment
-                self.advance(); // Skip second '/'
-
-                while (self.position < self.source.len and self.currentChar() != '\n') {
-                    self.advance();
-                }
-
-                const span = Span{
-                    .start = start_pos,
-                    .end = self.position,
-                };
-                const text = self.source[start_pos..self.position];
-
-                if (self.preserve_comments) {
-                    try self.addToken(TokenKind.comment, span, text, .{});
-                }
-                return;
-            }
-        }
-
-        // Single '/' - unknown
-        const span = Span{
-            .start = start_pos,
-            .end = self.position,
-        };
-        try self.addToken(TokenKind.unknown, span, "/", .{});
-    }
-
-    fn tokenizeNumber(self: *Self) !void {
-        const start_pos = self.position;
-
-        if (self.currentChar() == '0' and self.position + 1 < self.source.len) {
-            const next = self.source[self.position + 1];
-            switch (next) {
-                'x', 'X' => {
-                    self.advance(); // Skip '0'
-                    self.advance(); // Skip 'x'
-                    while (self.position < self.source.len and isHexDigit(self.currentChar())) {
-                        self.advance();
-                    }
-                    const span = Span{
-                        .start = start_pos,
-                        .end = self.position,
-                    };
-                    const text = self.source[start_pos..self.position];
-                    try self.addToken(TokenKind.number_literal, span, text, .{});
-                    return;
-                },
-                'b', 'B' => {
-                    self.advance(); // Skip '0'
-                    self.advance(); // Skip 'b'
-                    while (self.position < self.source.len and isBinaryDigit(self.currentChar())) {
-                        self.advance();
-                    }
-                    const span = Span{
-                        .start = start_pos,
-                        .end = self.position,
-                    };
-                    const text = self.source[start_pos..self.position];
-                    try self.addToken(TokenKind.number_literal, span, text, .{});
-                    return;
-                },
-                'o', 'O' => {
-                    self.advance(); // Skip '0'
-                    self.advance(); // Skip 'o'
-                    while (self.position < self.source.len and isOctalDigit(self.currentChar())) {
-                        self.advance();
-                    }
-                    const span = Span{
-                        .start = start_pos,
-                        .end = self.position,
-                    };
-                    const text = self.source[start_pos..self.position];
-                    try self.addToken(TokenKind.number_literal, span, text, .{});
-                    return;
-                },
-                else => {},
-            }
-        }
-
-        // Decimal number
-        while (self.position < self.source.len and char.isDigit(self.currentChar())) {
-            self.advance();
-        }
-
-        // Check for decimal point
-        if (self.position < self.source.len and self.currentChar() == '.') {
-            self.advance();
-            while (self.position < self.source.len and char.isDigit(self.currentChar())) {
-                self.advance();
-            }
-        }
-
-        // Check for scientific notation
-        if (self.position < self.source.len and (self.currentChar() == 'e' or self.currentChar() == 'E')) {
-            self.advance();
-            if (self.position < self.source.len and (self.currentChar() == '+' or self.currentChar() == '-')) {
-                self.advance();
-            }
-            while (self.position < self.source.len and char.isDigit(self.currentChar())) {
-                self.advance();
-            }
-        }
-
-        const span = Span{
-            .start = start_pos,
-            .end = self.position,
-        };
-        const text = self.source[start_pos..self.position];
-        try self.addToken(TokenKind.number_literal, span, text, .{});
-    }
-
-    fn tokenizeIdentifierOrKeyword(self: *Self) !void {
-        const start_pos = self.position;
-
-        // Handle @"keyword" syntax
-        if (self.currentChar() == '@') {
-            self.advance(); // Skip '@'
-            if (self.position < self.source.len and self.currentChar() == '"') {
-                self.advance(); // Skip '"'
-                while (self.position < self.source.len and self.currentChar() != '"') {
-                    self.advance();
-                }
-                if (self.position < self.source.len) {
-                    self.advance(); // Skip closing '"'
-                }
-
-                const span = Span{
-                    .start = start_pos,
-                    .end = self.position,
-                };
-                const text = self.source[start_pos..self.position];
-                try self.addToken(TokenKind.identifier, span, text, .{});
-                return;
-            }
-        }
-
-        // Regular identifier
-        while (self.position < self.source.len and isIdentifierContinue(self.currentChar())) {
-            self.advance();
-        }
-
-        const span = Span{
-            .start = start_pos,
-            .end = self.position,
-        };
-        const text = self.source[start_pos..self.position];
-
-        // Check for literal types and keywords
-        const token_kind = if (std.mem.eql(u8, text, "true") or std.mem.eql(u8, text, "false"))
-            TokenKind.boolean_literal
-        else if (std.mem.eql(u8, text, "null"))
-            TokenKind.null_literal
-        else if (std.mem.eql(u8, text, "undefined"))
-            TokenKind.keyword // undefined is a Zig keyword, not a literal
-        else
-            TokenKind.identifier;
-
-        try self.addToken(token_kind, span, text, .{});
-    }
-
-    fn currentChar(self: *const Self) u8 {
-        if (self.position >= self.source.len) return 0;
-        return self.source[self.position];
-    }
-
-    fn advance(self: *Self) void {
-        if (self.position < self.source.len) {
-            if (self.source[self.position] == '\n') {
-                self.line += 1;
-                self.column = 1;
-            } else {
-                self.column += 1;
-            }
-            self.position += 1;
-        }
-    }
-
-    fn skipWhitespace(self: *Self) void {
-        const new_pos = char.skipWhitespace(self.source, self.position);
-        self.position = new_pos;
-    }
-
-    fn addToken(self: *Self, kind: TokenKind, span: Span, text: []const u8, flags: TokenFlags) !void {
-        const token = Token{
-            .kind = kind,
-            .span = span,
-            .text = text,
-            .bracket_depth = 0, // TODO: Track actual bracket depth
-            .flags = flags,
-        };
-        try self.tokens.append(token);
-    }
-
-    fn isIdentifierStart(ch: u8) bool {
-        return char.isIdentifierStart(ch);
-    }
-
-    fn isIdentifierContinue(ch: u8) bool {
-        return char.isIdentifierChar(ch);
-    }
-
-    fn isHexDigit(ch: u8) bool {
-        return char.isHexDigit(ch);
-    }
-
-    fn isBinaryDigit(ch: u8) bool {
-        return char.isBinaryDigit(ch);
-    }
-
-    fn isOctalDigit(ch: u8) bool {
-        return char.isOctalDigit(ch);
+    
+    /// Reset lexer state
+    pub fn reset(self: *Self) void {
+        self.position = 0;
+        self.source = "";
     }
 };
 
-/// Convenience function for tokenizing ZON source
-pub fn tokenize(allocator: std.mem.Allocator, source: []const u8) ![]Token {
-    var lexer = ZonLexer.init(allocator, source, .{});
+/// Streaming iterator for zero-allocation tokenization
+const StreamIterator = struct {
+    lexer: *ZonLexer,
+    
+    const Self = @This();
+    
+    pub fn init(lexer: *ZonLexer) Self {
+        return .{ .lexer = lexer };
+    }
+    
+    pub fn next(self: *Self) ?Token {
+        const lexer = self.lexer;
+        
+        // Skip whitespace
+        while (lexer.position < lexer.source.len) {
+            const c = lexer.source[lexer.position];
+            if (!char.isWhitespace(c)) break;
+            lexer.position += 1;
+        }
+        
+        // Check for EOF
+        if (lexer.position >= lexer.source.len) {
+            return Token{
+                .span = Span.init(@intCast(lexer.position), @intCast(lexer.position)),
+                .kind = .eof,
+                .depth = 0,
+                .flags = .{},
+            };
+        }
+        
+        const start = lexer.position;
+        const c = lexer.source[lexer.position];
+        
+        // Comments (ZON supports //)
+        if (c == '/' and lexer.position + 1 < lexer.source.len and lexer.source[lexer.position + 1] == '/') {
+            lexer.position += 2;
+            while (lexer.position < lexer.source.len and lexer.source[lexer.position] != '\n') {
+                lexer.position += 1;
+            }
+            return Token{
+                .span = Span.init(@intCast(start), @intCast(lexer.position)),
+                .kind = .comment,
+                .depth = 0,
+                .flags = .{},
+            };
+        }
+        
+        // Single character tokens
+        const token_kind: ?TokenKind = switch (c) {
+            '{' => blk: {
+                lexer.position += 1;
+                break :blk .left_brace;
+            },
+            '}' => blk: {
+                lexer.position += 1;
+                break :blk .right_brace;
+            },
+            '[' => blk: {
+                lexer.position += 1;
+                break :blk .left_bracket;
+            },
+            ']' => blk: {
+                lexer.position += 1;
+                break :blk .right_bracket;
+            },
+            '(' => blk: {
+                lexer.position += 1;
+                break :blk .left_paren;
+            },
+            ')' => blk: {
+                lexer.position += 1;
+                break :blk .right_paren;
+            },
+            ',' => blk: {
+                lexer.position += 1;
+                break :blk .comma;
+            },
+            ':' => blk: {
+                lexer.position += 1;
+                break :blk .colon;
+            },
+            ';' => blk: {
+                lexer.position += 1;
+                break :blk .semicolon;
+            },
+            '=' => blk: {
+                lexer.position += 1;
+                break :blk .equal;
+            },
+            '+' => blk: {
+                lexer.position += 1;
+                break :blk .plus;
+            },
+            '-' => blk: {
+                // Could be minus or start of number
+                if (lexer.position + 1 < lexer.source.len and char.isDigit(lexer.source[lexer.position + 1])) {
+                    break :blk null; // Let number handler take it
+                }
+                lexer.position += 1;
+                break :blk .minus;
+            },
+            '*' => blk: {
+                lexer.position += 1;
+                break :blk .star;
+            },
+            '/' => blk: {
+                lexer.position += 1;
+                break :blk .slash;
+            },
+            '%' => blk: {
+                lexer.position += 1;
+                break :blk .percent;
+            },
+            else => null,
+        };
+        
+        if (token_kind) |kind| {
+            return Token{
+                .span = Span.init(@intCast(start), @intCast(lexer.position)),
+                .kind = kind,
+                .depth = 0, // TODO: Track nesting depth
+                .flags = .{},
+            };
+        }
+        
+        // Dot (for .{} struct literals and .field)
+        if (c == '.') {
+            lexer.position += 1;
+            
+            // Check for .{ or .field
+            if (lexer.position < lexer.source.len) {
+                const next_char = lexer.source[lexer.position];
+                if (next_char == '{' or char.isAlpha(next_char) or next_char == '_') {
+                    // Continue to get .{ or .identifier
+                    if (next_char != '{') {
+                        // It's a field access like .field
+                        while (lexer.position < lexer.source.len) {
+                            const ch = lexer.source[lexer.position];
+                            if (!char.isAlphaNum(ch) and ch != '_') break;
+                            lexer.position += 1;
+                        }
+                        return Token{
+                            .span = Span.init(@intCast(start), @intCast(lexer.position)),
+                            .kind = .identifier, // .field is an identifier in ZON
+                            .depth = 0,
+                            .flags = .{},
+                        };
+                    }
+                }
+            }
+            
+            return Token{
+                .span = Span.init(@intCast(start), @intCast(lexer.position)),
+                .kind = .dot,
+                .depth = 0,
+                .flags = .{},
+            };
+        }
+        
+        // String
+        if (c == '"') {
+            lexer.position += 1; // Skip opening quote
+            while (lexer.position < lexer.source.len) {
+                const ch = lexer.source[lexer.position];
+                lexer.position += 1;
+                if (ch == '"') break;
+                if (ch == '\\' and lexer.position < lexer.source.len) {
+                    lexer.position += 1; // Skip escaped character
+                }
+            }
+            
+            return Token{
+                .span = Span.init(@intCast(start), @intCast(lexer.position)),
+                .kind = .string,
+                .depth = 0,
+                .flags = .{ .has_escapes = std.mem.indexOfScalar(u8, lexer.source[start..lexer.position], '\\') != null },
+            };
+        }
+        
+        // Number (including hex 0x, binary 0b, octal 0o)
+        if (char.isDigit(c) or (c == '-' and lexer.position + 1 < lexer.source.len and char.isDigit(lexer.source[lexer.position + 1]))) {
+            if (c == '-') lexer.position += 1;
+            
+            // Check for hex/binary/octal
+            if (lexer.position < lexer.source.len and lexer.source[lexer.position] == '0' and 
+                lexer.position + 1 < lexer.source.len) {
+                const prefix = lexer.source[lexer.position + 1];
+                if (prefix == 'x' or prefix == 'X' or prefix == 'b' or prefix == 'B' or prefix == 'o' or prefix == 'O') {
+                    lexer.position += 2; // Skip 0x, 0b, or 0o
+                    while (lexer.position < lexer.source.len) {
+                        const ch = lexer.source[lexer.position];
+                        const is_valid = switch (prefix) {
+                            'x', 'X' => char.isHexDigit(ch) or ch == '_',
+                            'b', 'B' => ch == '0' or ch == '1' or ch == '_',
+                            'o', 'O' => (ch >= '0' and ch <= '7') or ch == '_',
+                            else => false,
+                        };
+                        if (!is_valid) break;
+                        lexer.position += 1;
+                    }
+                } else {
+                    // Regular decimal number
+                    lexer.position += 1;
+                }
+            }
+            
+            // Regular decimal number parsing
+            while (lexer.position < lexer.source.len) {
+                const ch = lexer.source[lexer.position];
+                if (!char.isDigit(ch) and ch != '.' and ch != 'e' and ch != 'E' and ch != '+' and ch != '-' and ch != '_') {
+                    break;
+                }
+                lexer.position += 1;
+            }
+            
+            return Token{
+                .span = Span.init(@intCast(start), @intCast(lexer.position)),
+                .kind = .number,
+                .depth = 0,
+                .flags = .{},
+            };
+        }
+        
+        // Identifiers and keywords
+        if (char.isAlpha(c) or c == '_' or c == '@') {
+            lexer.position += 1;
+            while (lexer.position < lexer.source.len) {
+                const ch = lexer.source[lexer.position];
+                if (!char.isAlphaNum(ch) and ch != '_') break;
+                lexer.position += 1;
+            }
+            
+            const text = lexer.source[start..lexer.position];
+            const kind: TokenKind = if (std.mem.eql(u8, text, "true") or std.mem.eql(u8, text, "false"))
+                .boolean
+            else if (std.mem.eql(u8, text, "null") or std.mem.eql(u8, text, "undefined"))
+                .null
+            else if (text[0] == '@')
+                .keyword // @import, @field, etc.
+            else
+                .identifier;
+            
+            return Token{
+                .span = Span.init(@intCast(start), @intCast(lexer.position)),
+                .kind = kind,
+                .depth = 0,
+                .flags = .{},
+            };
+        }
+        
+        // Unknown character
+        lexer.position += 1;
+        return Token{
+            .span = Span.init(@intCast(start), @intCast(lexer.position)),
+            .kind = .unknown,
+            .depth = 0,
+            .flags = .{},
+        };
+    }
+    
+    pub fn reset(self: *Self) void {
+        self.lexer.position = 0;
+    }
+};
+
+// Tests
+const testing = std.testing;
+
+test "ZonLexer - struct literal" {
+    var lexer = ZonLexer.init(testing.allocator);
     defer lexer.deinit();
-    return lexer.tokenize();
+    
+    const source = ".{ .key = \"value\" }";
+    const tokens = try lexer.batchTokenize(testing.allocator, source);
+    defer testing.allocator.free(tokens);
+    
+    try testing.expect(tokens.len >= 6);
+    try testing.expect(tokens[0].kind == .dot);
+    try testing.expect(tokens[1].kind == .left_brace);
+    try testing.expect(tokens[2].kind == .identifier); // .key
+    try testing.expect(tokens[3].kind == .equal);
+    try testing.expect(tokens[4].kind == .string);
+    try testing.expect(tokens[5].kind == .right_brace);
+}
+
+test "ZonLexer - array" {
+    var lexer = ZonLexer.init(testing.allocator);
+    defer lexer.deinit();
+    
+    const source = ".{ 1, 0x2A, 0b101 }";
+    const tokens = try lexer.batchTokenize(testing.allocator, source);
+    defer testing.allocator.free(tokens);
+    
+    try testing.expect(tokens[2].kind == .number); // 1
+    try testing.expect(tokens[4].kind == .number); // 0x2A
+    try testing.expect(tokens[6].kind == .number); // 0b101
+}
+
+test "ZonLexer - comments" {
+    var lexer = ZonLexer.init(testing.allocator);
+    defer lexer.deinit();
+    
+    const source = ".{ // comment\n.field = 42 }";
+    const tokens = try lexer.batchTokenize(testing.allocator, source);
+    defer testing.allocator.free(tokens);
+    
+    try testing.expect(tokens[2].kind == .comment);
+}
+
+test "ZonLexer - builtin functions" {
+    var lexer = ZonLexer.init(testing.allocator);
+    defer lexer.deinit();
+    
+    const source = "@import(\"std\")";
+    const tokens = try lexer.batchTokenize(testing.allocator, source);
+    defer testing.allocator.free(tokens);
+    
+    try testing.expect(tokens[0].kind == .keyword); // @import
+    try testing.expect(tokens[1].kind == .left_paren);
+    try testing.expect(tokens[2].kind == .string);
+    try testing.expect(tokens[3].kind == .right_paren);
 }

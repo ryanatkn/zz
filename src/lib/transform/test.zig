@@ -3,12 +3,23 @@
 
 test {
     // Import tests from individual transform modules
-    // Note: Individual modules will have their own test blocks
-    // This barrel just ensures they get compiled during testing
+    // This ensures all test blocks get compiled
+    _ = @import("pipeline.zig");
+    _ = @import("format.zig");
+    _ = @import("extract.zig");
+    _ = @import("optimize.zig");
+    
+    // Also run inline tests in this file
+    @import("std").testing.refAllDecls(@This());
+}
 
-    // TODO: Add test imports once individual modules have tests:
-    // _ = @import("pipeline.zig");
-    // _ = @import("format.zig");
-    // _ = @import("extract.zig");
-    // _ = @import("optimize.zig");
+// Basic smoke test for transform module compilation
+test "transform module compiles" {
+    const pipeline = @import("pipeline.zig");
+    const format = @import("format.zig");
+    
+    // Just verify types exist
+    _ = pipeline.Pipeline;
+    _ = pipeline.Transform;
+    _ = format.FormatTransform;
 }

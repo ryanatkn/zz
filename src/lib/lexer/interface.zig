@@ -6,8 +6,9 @@ const std = @import("std");
 const Allocator = std.mem.Allocator;
 
 // Import types from other modules
-const Token = @import("../token/token.zig").Token;
-const StreamToken = @import("../token/stream_token.zig").StreamToken;
+const token_mod = @import("../token/mod.zig");
+const Token = token_mod.Token;
+const StreamToken = token_mod.StreamToken;
 const TokenStream = @import("streaming.zig").TokenStream;
 const Edit = @import("incremental.zig").Edit;
 const TokenDelta = @import("incremental.zig").TokenDelta;
@@ -54,11 +55,11 @@ pub fn createInterface(lexer: anytype) LexerInterface {
     const T = @TypeOf(lexer);
     const ptr_info = @typeInfo(T);
 
-    if (ptr_info != .Pointer or ptr_info.Pointer.size != .One) {
+    if (ptr_info != .pointer or ptr_info.pointer.size != .one) {
         @compileError("Lexer must be a single-item pointer");
     }
 
-    const Impl = ptr_info.Pointer.child;
+    const Impl = ptr_info.pointer.child;
 
     // Generate wrapper functions
     const gen = struct {

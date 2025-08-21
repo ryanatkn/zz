@@ -139,26 +139,26 @@ pub const TokenToFactTransform = struct {
 
     pub fn toInterface(self: *Self) Transform {
         const gen = struct {
-            fn transform(ptr: *anyopaque, input: anytype, allocator: std.mem.Allocator) anyerror!anyopaque {
+            fn transformImpl(ptr: *anyopaque, input: anytype, allocator: std.mem.Allocator) anyerror!anyopaque {
                 _ = allocator;
                 const s: *Self = @ptrCast(@alignCast(ptr));
                 const tokens = @as([]const Token, input);
                 return @ptrCast(try s.transform(tokens));
             }
 
-            fn deinit(ptr: *anyopaque) void {
+            fn deinitImpl(ptr: *anyopaque) void {
                 _ = ptr;
             }
 
-            fn name(ptr: *anyopaque) []const u8 {
+            fn nameImpl(ptr: *anyopaque) []const u8 {
                 _ = ptr;
                 return "TokenToFact";
             }
 
-            const vtable = VTable{
-                .transformFn = transform,
-                .deinitFn = deinit,
-                .nameFn = name,
+            const vtable = Transform.VTable{
+                .transformFn = transformImpl,
+                .deinitFn = deinitImpl,
+                .nameFn = nameImpl,
             };
         };
 

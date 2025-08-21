@@ -3,15 +3,25 @@
 
 test {
     // Import tests from individual parser modules
-    // Note: Individual modules will have their own test blocks
-    // This barrel just ensures they get compiled during testing
+    // This ensures all test blocks get compiled
+    _ = @import("interface.zig");
+    _ = @import("recursive.zig");
+    _ = @import("structural.zig");
+    _ = @import("recovery.zig");
+    _ = @import("viewport.zig");
+    _ = @import("cache.zig");
+    _ = @import("context.zig");
+    
+    // Also run inline tests in this file
+    @import("std").testing.refAllDecls(@This());
+}
 
-    // TODO: Add test imports once individual modules have tests:
-    // _ = @import("interface.zig");
-    // _ = @import("recursive.zig");
-    // _ = @import("structural.zig");
-    // _ = @import("recovery.zig");
-    // _ = @import("viewport.zig");
-    // _ = @import("cache.zig");
-    // _ = @import("context.zig");
+// Basic smoke test for parser module compilation
+test "parser module compiles" {
+    const interface = @import("interface.zig");
+    const structural = @import("structural.zig");
+    
+    // Just verify types exist
+    _ = interface.ParserInterface;
+    _ = structural.Boundary;
 }

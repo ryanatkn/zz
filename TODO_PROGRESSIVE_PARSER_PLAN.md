@@ -35,14 +35,21 @@ Lexical Facts    Parser → AST
 - Reorganized `lib/token/` to pure re-exports
 - Created `lib/transform/` pipeline infrastructure
 - Created stub `lib/ast/` module
-- Moved old lexer to `lib/lexer_old/` for preservation
 - All mod.zig files are now pure re-exports
 
-### 🚧 Phase 2: Unify Lexer Infrastructure (IN PROGRESS)
-- [ ] JSON lexer to implement LexerInterface
-- [ ] ZON lexer to implement LexerInterface
+### 🚧 Phase 2: Unify Lexer Infrastructure (PARTIAL)
+- [x] JSON lexer implements LexerInterface (new clean implementation)
+- [x] ZON lexer implements LexerInterface (new clean implementation)
+- [x] Deleted old infrastructure (parser_old, lexer_old, transform_old)
+- [ ] Fix import paths and get tests passing
 - [ ] Streaming and batch modes verified
 - [ ] Basic incremental support
+
+### 🆕 Phase 2.5: AST Migration (ADDED - NEXT PRIORITY)
+- [ ] Create proper `lib/ast/mod.zig` that exports from ast_old
+- [ ] Migrate AST types gradually to new module
+- [ ] Update all imports from ast_old to ast
+- [ ] Eventually delete ast_old once migration complete
 
 ### ⏳ Phase 3: Optional Fact Projections (PENDING)
 - [ ] Implement fact projection functions
@@ -248,6 +255,16 @@ All infrastructure in place
 2. **Optional Layers** ✅ - Parser/AST/Facts are optional
 3. **Pure Re-exports** ✅ - All mod.zig files are clean
 4. **Progressive Enrichment** ✅ - Can stop at any level
+5. **No Backwards Compatibility** ✅ - Aggressively deleted old code
+6. **Direct Implementation** ✅ - No adapters or bridges
+
+## Key Architectural Decisions (Session 2)
+
+1. **Delete, Don't Adapt**: Removed all adapter/bridge code, implemented fresh
+2. **Greenfield Approach**: No backwards compatibility, clean slate
+3. **AST Migration Needed**: Can't delete ast_old yet - too many dependencies
+4. **Direct Lexer Implementation**: JSON and ZON lexers directly implement new interface
+5. **Streaming First**: Focus on zero-allocation streaming, batch is secondary
 
 ## Risks and Mitigations
 
@@ -283,3 +300,11 @@ Phase 1 is **COMPLETE** with all infrastructure in place. The architecture succe
 Next session should focus on Phase 2: making JSON and ZON work with the new interfaces, fixing tests, and validating performance.
 
 The key insight remains: **Tokens are the fundamental IR, everything else is optional transformation or projection.**
+
+## Important Implementation Notes
+
+- **Reference _old modules first**: Before implementing new functionality, check ast_old/, parser_old/, and transform_old/ for existing patterns and implementations
+- **Some _old modules may be perfect**: Don't rewrite everything - some modules in _old directories might work with minimal adaptation
+- **Test incrementally**: Use `zig test -Dtest-filter="pattern"` for focused testing during development
+- **Stateful lexer not needed**: The old stateful_lexer was for the previous incremental approach - new architecture uses streaming.zig and incremental.zig
+- **Performance-first design**: Always inline hot path functions, use tagged unions over vtables where possible

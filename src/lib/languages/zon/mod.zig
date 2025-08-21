@@ -28,11 +28,11 @@ const ZonDiagnostic = @import("linter.zig").ZonLinter.Diagnostic;
 const ZonSchema = @import("analyzer.zig").ZonAnalyzer.ZonSchema;
 const ZigTypeDefinition = @import("analyzer.zig").ZonAnalyzer.ZigTypeDefinition;
 
-// VTable adapter for generic streaming
-const ZonTokenVTableAdapter = @import("vtable_adapter.zig").ZonTokenVTableAdapter;
-const GenericStreamToken = @import("../../transform_old/streaming/generic_stream_token.zig").GenericStreamToken;
-const StatefulZonLexer = @import("stateful_lexer.zig").StatefulZonLexer;
-const StatefulLexer = @import("../../transform_old/streaming/stateful_lexer.zig").StatefulLexer;
+// VTable adapter for generic streaming - DISABLED until Phase 3
+// const ZonTokenVTableAdapter = @import("vtable_adapter.zig").ZonTokenVTableAdapter;
+// const GenericStreamToken = @import("../../transform_old/streaming/generic_stream_token.zig").GenericStreamToken;
+// const StatefulZonLexer = @import("stateful_lexer.zig").StatefulZonLexer;
+// const StatefulLexer = @import("../../transform_old/streaming/stateful_lexer.zig").StatefulLexer;
 
 /// Complete ZON (Zig Object Notation) language support implementation
 ///
@@ -100,24 +100,25 @@ pub fn tokenizeChunk(allocator: std.mem.Allocator, input: []const u8, start_pos:
     return tokens;
 }
 
-/// Tokenize ZON chunk to GenericStreamTokens using VTable adapter
-/// This is the new generic interface for streaming tokenization
-pub fn tokenizeChunkGeneric(allocator: std.mem.Allocator, input: []const u8, start_pos: usize) ![]GenericStreamToken {
-    var lexer = StatefulZonLexer.init(allocator, .{
-        .allow_comments = true,
-        .allow_trailing_commas = true,
-        .json5_mode = false, // ZON has its own extensions
-        .error_recovery = true,
-    });
-    defer lexer.deinit();
-
-    // Process chunk and get ZonTokens
-    const zon_tokens = try lexer.processChunkToZon(input, start_pos, allocator);
-    defer allocator.free(zon_tokens);
-
-    // Convert to GenericStreamTokens using VTable adapter
-    return ZonTokenVTableAdapter.convertZonTokensToGeneric(allocator, zon_tokens);
-}
+// TODO: Phase 3 - Re-enable with new streaming architecture
+// /// Tokenize ZON chunk to GenericStreamTokens using VTable adapter
+// /// This is the new generic interface for streaming tokenization
+// pub fn tokenizeChunkGeneric(allocator: std.mem.Allocator, input: []const u8, start_pos: usize) ![]GenericStreamToken {
+//     var lexer = StatefulZonLexer.init(allocator, .{
+//         .allow_comments = true,
+//         .allow_trailing_commas = true,
+//         .json5_mode = false, // ZON has its own extensions
+//         .error_recovery = true,
+//     });
+//     defer lexer.deinit();
+//
+//     // Process chunk and get ZonTokens
+//     const zon_tokens = try lexer.processChunkToZon(input, start_pos, allocator);
+//     defer allocator.free(zon_tokens);
+//
+//     // Convert to GenericStreamTokens using VTable adapter
+//     return ZonTokenVTableAdapter.convertZonTokensToGeneric(allocator, zon_tokens);
+// }
 
 /// Parse ZON tokens into AST
 pub fn parse(allocator: std.mem.Allocator, tokens: []Token) !AST {

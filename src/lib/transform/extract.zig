@@ -98,7 +98,6 @@ pub const SignatureExtractor = struct {
     }
 
     fn extractSignature(self: *Self, tokens: []const Token, index: *usize) !Signature {
-        _ = self;
         const start = index.*;
 
         // Extract function name

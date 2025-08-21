@@ -124,6 +124,7 @@ $ zig build -Doptimize=ReleaseFast
 $ sudo cp zig-out/bin/zz /usr/local/bin/
 
 # Basic usage
+$ zig build install-user            # Refresh binary
 $ zz tree                           # Show directory tree
 $ zz prompt "src/**/*.zig"          # Generate LLM prompt
 $ zz format config.json --write     # Format file in-place
@@ -150,8 +151,8 @@ See [docs/prompt-features.md](docs/prompt-features.md) for AST extraction featur
 
 ### Format - Code Formatting
 ```bash
-$ zz format "**/*.json" --write     # Format all JSON files
-$ zz format "src/**/*.ts" --check   # Check formatting (CI)
+$ zz format "**/*.json" --write      # Format all JSON files
+$ zz format "src/**/*.ts" --check    # Check formatting (CI)
 $ echo '{"a":1}' | zz format --stdin # Format from stdin
 ```
 See [docs/format-features.md](docs/format-features.md) for language support.

@@ -2,33 +2,33 @@
 
 Date: 2025-01-01 00:00:00
 Build: Debug
-Iterations: Time-based (0s duration)
+Iterations: Time-based (2s duration)
 
 | Benchmark | Operations | Time (ms) | ns/op | vs Baseline |
 |-----------|------------|-----------|-------|-------------|
-| ZON Lexer Small (1KB) | 700 | 329.6 | 470862 | NEW |
-| ZON Lexer Medium (10KB) | 500 | 304.7 | 609417 | NEW |
-| ZON Lexer Large (100KB) | 300 | 438.5 | 1461591 | NEW |
-| ZON Lexer build.zig.zon | 900 | 335.4 | 372643 | NEW |
-| ZON Lexer Config File | 900 | 333.7 | 370723 | NEW |
-| Stream.next() throughput | 1784400 | 200.0 | 112 | NEW |
-| RingBuffer push/pop | 1319200 | 200.0 | 151 | NEW |
-| Map operator | 65600 | 200.0 | 3049 | NEW |
-| Filter operator | 67000 | 200.0 | 2985 | NEW |
-| FusedMap operator | 65800 | 200.3 | 3043 | NEW |
-| Fact creation | 28861700 | 300.0 | 10 | NEW |
-| FactStore append | 6200 | 303.8 | 49006 | NEW |
-| Fact batch append (100) | 1100 | 327.5 | 297715 | NEW |
-| Fact Builder DSL | 3409300 | 300.0 | 87 | NEW |
-| Value type creation | 29061600 | 300.0 | 10 | NEW |
-| PackedSpan pack/unpack | 9063700 | 200.0 | 22 | NEW |
-| Span merge | 33948100 | 200.0 | 5 | NEW |
-| Span intersect | 13841800 | 200.0 | 14 | NEW |
-| SpanSet normalization | 4000 | 201.8 | 50452 | NEW |
-| Span distance | 25377000 | 200.0 | 7 | NEW |
-| SpanSet union | 2300 | 205.1 | 89166 | NEW |
-| ArenaPool acquire/rotate | 8500 | 404.5 | 47583 | NEW |
-| AtomTable interning | 2900 | 410.5 | 141564 | NEW |
-| AtomTable lookup | 16243400 | 400.0 | 24 | NEW |
+| ZON Lexer Small (1KB) | 7000 | 3279.8 | 468536 | NEW |
+| ZON Lexer Medium (10KB) | 5000 | 3007.9 | 601584 | NEW |
+| ZON Lexer Large (100KB) | 3000 | 4160.2 | 1386739 | NEW |
+| ZON Lexer build.zig.zon | 9000 | 3273.9 | 363769 | NEW |
+| ZON Lexer Config File | 9000 | 3263.7 | 362635 | NEW |
+| Stream.next() throughput | 18048000 | 2000.0 | 110 | NEW |
+| RingBuffer push/pop | 13317000 | 2000.1 | 150 | NEW |
+| Map operator | 668000 | 2000.0 | 2994 | NEW |
+| Filter operator | 678000 | 2001.1 | 2951 | NEW |
+| FusedMap operator | 664000 | 2000.9 | 3013 | NEW |
+| Fact creation | 305385000 | 3000.0 | 9 | NEW |
+| FactStore append | 61000 | 3009.7 | 49339 | NEW |
+| Fact batch append (100) | 11000 | 3229.5 | 293591 | NEW |
+| Fact Builder DSL | 34443000 | 3000.1 | 87 | NEW |
+| Value type creation | 304919000 | 3000.0 | 9 | NEW |
+| PackedSpan pack/unpack | 92432000 | 2000.0 | 21 | NEW |
+| Span merge | 367167000 | 2000.0 | 5 | NEW |
+| Span intersect | 144958000 | 2000.0 | 13 | NEW |
+| SpanSet normalization | 41000 | 2026.0 | 49415 | NEW |
+| Span distance | 275557000 | 2000.0 | 7 | NEW |
+| SpanSet union | 24000 | 2077.3 | 86554 | NEW |
+| ArenaPool acquire/rotate | 87000 | 4039.3 | 46428 | NEW |
+| AtomTable interning | 30000 | 4125.0 | 137499 | NEW |
+| AtomTable lookup | 169619000 | 4000.0 | 23 | NEW |
 
 **Legend:** Positive percentages indicate slower performance (regression), negative percentages indicate faster performance (improvement).

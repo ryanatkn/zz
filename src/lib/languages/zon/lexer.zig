@@ -24,9 +24,9 @@ pub const ZonLexer = struct {
     allocator: Allocator,
     source: []const u8,
     position: usize,
-    
+
     const Self = @This();
-    
+
     pub fn init(allocator: Allocator) Self {
         return .{
             .allocator = allocator,
@@ -34,42 +34,42 @@ pub const ZonLexer = struct {
             .position = 0,
         };
     }
-    
+
     pub fn deinit(self: *Self) void {
         _ = self;
         // Nothing to clean up in basic implementation
     }
-    
+
     /// Create a LexerInterface for this lexer
     pub fn interface(self: *Self) LexerInterface {
         return createInterface(self);
     }
-    
+
     /// Stream tokens without allocation
     pub fn streamTokens(self: *Self, source: []const u8) TokenStream {
         self.source = source;
         self.position = 0;
-        
+
         var iterator = StreamIterator.init(self);
         return createTokenStream(&iterator);
     }
-    
+
     /// Batch tokenize - allocates all tokens
     pub fn batchTokenize(self: *Self, allocator: Allocator, source: []const u8) ![]Token {
         self.source = source;
         self.position = 0;
-        
+
         var tokens = std.ArrayList(Token).init(allocator);
         defer tokens.deinit();
-        
+
         var iterator = StreamIterator.init(self);
         while (iterator.next()) |token| {
             try tokens.append(token);
         }
-        
+
         return tokens.toOwnedSlice();
     }
-    
+
     /// Reset lexer state
     pub fn reset(self: *Self) void {
         self.position = 0;
@@ -80,23 +80,23 @@ pub const ZonLexer = struct {
 /// Streaming iterator for zero-allocation tokenization
 const StreamIterator = struct {
     lexer: *ZonLexer,
-    
+
     const Self = @This();
-    
+
     pub fn init(lexer: *ZonLexer) Self {
         return .{ .lexer = lexer };
     }
-    
+
     pub fn next(self: *Self) ?Token {
         const lexer = self.lexer;
-        
+
         // Skip whitespace
         while (lexer.position < lexer.source.len) {
             const c = lexer.source[lexer.position];
             if (!char.isWhitespace(c)) break;
             lexer.position += 1;
         }
-        
+
         // Check for EOF
         if (lexer.position >= lexer.source.len) {
             return Token{
@@ -106,10 +106,10 @@ const StreamIterator = struct {
                 .flags = .{},
             };
         }
-        
+
         const start = lexer.position;
         const c = lexer.source[lexer.position];
-        
+
         // Comments (ZON supports //)
         if (c == '/' and lexer.position + 1 < lexer.source.len and lexer.source[lexer.position + 1] == '/') {
             lexer.position += 2;
@@ -123,7 +123,7 @@ const StreamIterator = struct {
                 .flags = .{},
             };
         }
-        
+
         // Single character tokens
         const token_kind: ?TokenKind = switch (c) {
             '{' => blk: {
@@ -192,7 +192,7 @@ const StreamIterator = struct {
             },
             else => null,
         };
-        
+
         if (token_kind) |kind| {
             return Token{
                 .span = Span.init(@intCast(start), @intCast(lexer.position)),
@@ -201,11 +201,11 @@ const StreamIterator = struct {
                 .flags = .{},
             };
         }
-        
+
         // Dot (for .{} struct literals and .field)
         if (c == '.') {
             lexer.position += 1;
-            
+
             // Check for .{ or .field
             if (lexer.position < lexer.source.len) {
                 const next_char = lexer.source[lexer.position];
@@ -227,7 +227,7 @@ const StreamIterator = struct {
                     }
                 }
             }
-            
+
             return Token{
                 .span = Span.init(@intCast(start), @intCast(lexer.position)),
                 .kind = .dot,
@@ -235,7 +235,7 @@ const StreamIterator = struct {
                 .flags = .{},
             };
         }
-        
+
         // String
         if (c == '"') {
             lexer.position += 1; // Skip opening quote
@@ -247,7 +247,7 @@ const StreamIterator = struct {
                     lexer.position += 1; // Skip escaped character
                 }
             }
-            
+
             return Token{
                 .span = Span.init(@intCast(start), @intCast(lexer.position)),
                 .kind = .string,
@@ -255,14 +255,15 @@ const StreamIterator = struct {
                 .flags = .{ .has_escapes = std.mem.indexOfScalar(u8, lexer.source[start..lexer.position], '\\') != null },
             };
         }
-        
+
         // Number (including hex 0x, binary 0b, octal 0o)
         if (char.isDigit(c) or (c == '-' and lexer.position + 1 < lexer.source.len and char.isDigit(lexer.source[lexer.position + 1]))) {
             if (c == '-') lexer.position += 1;
-            
+
             // Check for hex/binary/octal
-            if (lexer.position < lexer.source.len and lexer.source[lexer.position] == '0' and 
-                lexer.position + 1 < lexer.source.len) {
+            if (lexer.position < lexer.source.len and lexer.source[lexer.position] == '0' and
+                lexer.position + 1 < lexer.source.len)
+            {
                 const prefix = lexer.source[lexer.position + 1];
                 if (prefix == 'x' or prefix == 'X' or prefix == 'b' or prefix == 'B' or prefix == 'o' or prefix == 'O') {
                     lexer.position += 2; // Skip 0x, 0b, or 0o
@@ -282,7 +283,7 @@ const StreamIterator = struct {
                     lexer.position += 1;
                 }
             }
-            
+
             // Regular decimal number parsing
             while (lexer.position < lexer.source.len) {
                 const ch = lexer.source[lexer.position];
@@ -291,7 +292,7 @@ const StreamIterator = struct {
                 }
                 lexer.position += 1;
             }
-            
+
             return Token{
                 .span = Span.init(@intCast(start), @intCast(lexer.position)),
                 .kind = .number,
@@ -299,7 +300,7 @@ const StreamIterator = struct {
                 .flags = .{},
             };
         }
-        
+
         // Identifiers and keywords
         if (char.isAlpha(c) or c == '_' or c == '@') {
             lexer.position += 1;
@@ -308,7 +309,7 @@ const StreamIterator = struct {
                 if (!char.isAlphaNum(ch) and ch != '_') break;
                 lexer.position += 1;
             }
-            
+
             const text = lexer.source[start..lexer.position];
             const kind: TokenKind = if (std.mem.eql(u8, text, "true") or std.mem.eql(u8, text, "false"))
                 .boolean
@@ -318,7 +319,7 @@ const StreamIterator = struct {
                 .keyword // @import, @field, etc.
             else
                 .identifier;
-            
+
             return Token{
                 .span = Span.init(@intCast(start), @intCast(lexer.position)),
                 .kind = kind,
@@ -326,7 +327,7 @@ const StreamIterator = struct {
                 .flags = .{},
             };
         }
-        
+
         // Unknown character
         lexer.position += 1;
         return Token{
@@ -336,7 +337,7 @@ const StreamIterator = struct {
             .flags = .{},
         };
     }
-    
+
     pub fn reset(self: *Self) void {
         self.lexer.position = 0;
     }
@@ -348,11 +349,11 @@ const testing = std.testing;
 test "ZonLexer - struct literal" {
     var lexer = ZonLexer.init(testing.allocator);
     defer lexer.deinit();
-    
+
     const source = ".{ .key = \"value\" }";
     const tokens = try lexer.batchTokenize(testing.allocator, source);
     defer testing.allocator.free(tokens);
-    
+
     try testing.expect(tokens.len >= 6);
     try testing.expect(tokens[0].kind == .dot);
     try testing.expect(tokens[1].kind == .left_brace);
@@ -365,11 +366,11 @@ test "ZonLexer - struct literal" {
 test "ZonLexer - array" {
     var lexer = ZonLexer.init(testing.allocator);
     defer lexer.deinit();
-    
+
     const source = ".{ 1, 0x2A, 0b101 }";
     const tokens = try lexer.batchTokenize(testing.allocator, source);
     defer testing.allocator.free(tokens);
-    
+
     try testing.expect(tokens[2].kind == .number); // 1
     try testing.expect(tokens[4].kind == .number); // 0x2A
     try testing.expect(tokens[6].kind == .number); // 0b101
@@ -378,22 +379,22 @@ test "ZonLexer - array" {
 test "ZonLexer - comments" {
     var lexer = ZonLexer.init(testing.allocator);
     defer lexer.deinit();
-    
+
     const source = ".{ // comment\n.field = 42 }";
     const tokens = try lexer.batchTokenize(testing.allocator, source);
     defer testing.allocator.free(tokens);
-    
+
     try testing.expect(tokens[2].kind == .comment);
 }
 
 test "ZonLexer - builtin functions" {
     var lexer = ZonLexer.init(testing.allocator);
     defer lexer.deinit();
-    
+
     const source = "@import(\"std\")";
     const tokens = try lexer.batchTokenize(testing.allocator, source);
     defer testing.allocator.free(tokens);
-    
+
     try testing.expect(tokens[0].kind == .keyword); // @import
     try testing.expect(tokens[1].kind == .left_paren);
     try testing.expect(tokens[2].kind == .string);

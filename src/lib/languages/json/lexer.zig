@@ -24,9 +24,9 @@ pub const JsonLexer = struct {
     allocator: Allocator,
     source: []const u8,
     position: usize,
-    
+
     const Self = @This();
-    
+
     pub fn init(allocator: Allocator) Self {
         return .{
             .allocator = allocator,
@@ -34,42 +34,42 @@ pub const JsonLexer = struct {
             .position = 0,
         };
     }
-    
+
     pub fn deinit(self: *Self) void {
         _ = self;
         // Nothing to clean up in basic implementation
     }
-    
+
     /// Create a LexerInterface for this lexer
     pub fn interface(self: *Self) LexerInterface {
         return createInterface(self);
     }
-    
+
     /// Stream tokens without allocation
     pub fn streamTokens(self: *Self, source: []const u8) TokenStream {
         self.source = source;
         self.position = 0;
-        
+
         var iterator = StreamIterator.init(self);
         return createTokenStream(&iterator);
     }
-    
+
     /// Batch tokenize - allocates all tokens
     pub fn batchTokenize(self: *Self, allocator: Allocator, source: []const u8) ![]Token {
         self.source = source;
         self.position = 0;
-        
+
         var tokens = std.ArrayList(Token).init(allocator);
         defer tokens.deinit();
-        
+
         var iterator = StreamIterator.init(self);
         while (iterator.next()) |token| {
             try tokens.append(token);
         }
-        
+
         return tokens.toOwnedSlice();
     }
-    
+
     /// Reset lexer state
     pub fn reset(self: *Self) void {
         self.position = 0;
@@ -80,23 +80,23 @@ pub const JsonLexer = struct {
 /// Streaming iterator for zero-allocation tokenization
 const StreamIterator = struct {
     lexer: *JsonLexer,
-    
+
     const Self = @This();
-    
+
     pub fn init(lexer: *JsonLexer) Self {
         return .{ .lexer = lexer };
     }
-    
+
     pub fn next(self: *Self) ?Token {
         const lexer = self.lexer;
-        
+
         // Skip whitespace
         while (lexer.position < lexer.source.len) {
             const c = lexer.source[lexer.position];
             if (!char.isWhitespace(c)) break;
             lexer.position += 1;
         }
-        
+
         // Check for EOF
         if (lexer.position >= lexer.source.len) {
             return Token{
@@ -106,10 +106,10 @@ const StreamIterator = struct {
                 .flags = .{},
             };
         }
-        
+
         const start = lexer.position;
         const c = lexer.source[lexer.position];
-        
+
         // Single character tokens
         const token_kind: ?TokenKind = switch (c) {
             '{' => blk: {
@@ -138,7 +138,7 @@ const StreamIterator = struct {
             },
             else => null,
         };
-        
+
         if (token_kind) |kind| {
             return Token{
                 .span = Span.init(@intCast(start), @intCast(lexer.position)),
@@ -147,7 +147,7 @@ const StreamIterator = struct {
                 .flags = .{},
             };
         }
-        
+
         // String
         if (c == '"') {
             lexer.position += 1; // Skip opening quote
@@ -159,7 +159,7 @@ const StreamIterator = struct {
                     lexer.position += 1; // Skip escaped character
                 }
             }
-            
+
             return Token{
                 .span = Span.init(@intCast(start), @intCast(lexer.position)),
                 .kind = .string,
@@ -167,7 +167,7 @@ const StreamIterator = struct {
                 .flags = .{ .has_escapes = std.mem.indexOfScalar(u8, lexer.source[start..lexer.position], '\\') != null },
             };
         }
-        
+
         // Number
         if (char.isDigit(c) or c == '-') {
             lexer.position += 1;
@@ -178,7 +178,7 @@ const StreamIterator = struct {
                 }
                 lexer.position += 1;
             }
-            
+
             return Token{
                 .span = Span.init(@intCast(start), @intCast(lexer.position)),
                 .kind = .number,
@@ -186,13 +186,13 @@ const StreamIterator = struct {
                 .flags = .{},
             };
         }
-        
+
         // Keywords: true, false, null
         if (char.isAlpha(c)) {
             while (lexer.position < lexer.source.len and char.isAlpha(lexer.source[lexer.position])) {
                 lexer.position += 1;
             }
-            
+
             const text = lexer.source[start..lexer.position];
             const kind: TokenKind = if (std.mem.eql(u8, text, "true") or std.mem.eql(u8, text, "false"))
                 .boolean
@@ -200,7 +200,7 @@ const StreamIterator = struct {
                 .null
             else
                 .identifier;
-            
+
             return Token{
                 .span = Span.init(@intCast(start), @intCast(lexer.position)),
                 .kind = kind,
@@ -208,7 +208,7 @@ const StreamIterator = struct {
                 .flags = .{},
             };
         }
-        
+
         // Unknown character
         lexer.position += 1;
         return Token{
@@ -218,7 +218,7 @@ const StreamIterator = struct {
             .flags = .{},
         };
     }
-    
+
     pub fn reset(self: *Self) void {
         self.lexer.position = 0;
     }
@@ -230,11 +230,11 @@ const testing = std.testing;
 test "JsonLexer - basic object" {
     var lexer = JsonLexer.init(testing.allocator);
     defer lexer.deinit();
-    
+
     const source = "{\"key\": \"value\"}";
     const tokens = try lexer.batchTokenize(testing.allocator, source);
     defer testing.allocator.free(tokens);
-    
+
     try testing.expect(tokens.len >= 5);
     try testing.expect(tokens[0].kind == .left_brace);
     try testing.expect(tokens[1].kind == .string);
@@ -246,11 +246,11 @@ test "JsonLexer - basic object" {
 test "JsonLexer - array" {
     var lexer = JsonLexer.init(testing.allocator);
     defer lexer.deinit();
-    
+
     const source = "[1, 2, 3]";
     const tokens = try lexer.batchTokenize(testing.allocator, source);
     defer testing.allocator.free(tokens);
-    
+
     try testing.expect(tokens[0].kind == .left_bracket);
     try testing.expect(tokens[1].kind == .number);
     try testing.expect(tokens[2].kind == .comma);
@@ -260,11 +260,11 @@ test "JsonLexer - array" {
 test "JsonLexer - keywords" {
     var lexer = JsonLexer.init(testing.allocator);
     defer lexer.deinit();
-    
+
     const source = "[true, false, null]";
     const tokens = try lexer.batchTokenize(testing.allocator, source);
     defer testing.allocator.free(tokens);
-    
+
     try testing.expect(tokens[1].kind == .boolean);
     try testing.expect(tokens[3].kind == .boolean);
     try testing.expect(tokens[5].kind == .null);
@@ -273,16 +273,16 @@ test "JsonLexer - keywords" {
 test "JsonLexer - streaming" {
     var lexer = JsonLexer.init(testing.allocator);
     defer lexer.deinit();
-    
+
     const source = "{}";
     var stream = lexer.streamTokens(source);
-    
+
     const token1 = stream.next();
     try testing.expect(token1.?.kind == .left_brace);
-    
+
     const token2 = stream.next();
     try testing.expect(token2.?.kind == .right_brace);
-    
+
     const token3 = stream.next();
     try testing.expect(token3.?.kind == .eof);
 }

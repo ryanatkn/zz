@@ -9,7 +9,7 @@ test {
     _ = @import("buffer.zig");
     _ = @import("context.zig");
     _ = @import("incremental.zig");
-    
+
     // Also run inline tests in this file
     @import("std").testing.refAllDecls(@This());
 }
@@ -18,7 +18,7 @@ test {
 test "lexer module compiles" {
     const interface = @import("interface.zig");
     const streaming = @import("streaming.zig");
-    
+
     // Just verify types exist
     _ = interface.LexerInterface;
     _ = streaming.TokenStream;

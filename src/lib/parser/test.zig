@@ -11,7 +11,7 @@ test {
     _ = @import("viewport.zig");
     _ = @import("cache.zig");
     _ = @import("context.zig");
-    
+
     // Also run inline tests in this file
     @import("std").testing.refAllDecls(@This());
 }
@@ -20,7 +20,7 @@ test {
 test "parser module compiles" {
     const interface = @import("interface.zig");
     const structural = @import("structural.zig");
-    
+
     // Just verify types exist
     _ = interface.ParserInterface;
     _ = structural.Boundary;

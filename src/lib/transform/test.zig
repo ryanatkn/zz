@@ -8,7 +8,7 @@ test {
     _ = @import("format.zig");
     _ = @import("extract.zig");
     _ = @import("optimize.zig");
-    
+
     // Also run inline tests in this file
     @import("std").testing.refAllDecls(@This());
 }
@@ -17,7 +17,7 @@ test {
 test "transform module compiles" {
     const pipeline = @import("pipeline.zig");
     const format = @import("format.zig");
-    
+
     // Just verify types exist
     _ = pipeline.Pipeline;
     _ = pipeline.Transform;

@@ -1,6 +1,7 @@
 # Text Module - Text Processing and Manipulation
 
-Comprehensive text processing utilities for parsing, formatting, and manipulating text content. Complements the char module for higher-level operations.
+## Overview
+Comprehensive text processing utilities for parsing, formatting, and manipulating text content. Complements the char module for higher-level operations. Works alongside stream-first modules for text analysis.
 
 ## Module Structure
 
@@ -183,6 +184,25 @@ const unique = try deduplicateLines(allocator, text);
 - **Line processing:** O(n) with minimal allocations
 - **StringBuilder:** Amortized O(1) append
 - **ANSI stripping:** O(n) single pass
+
+## Integration with Stream-First Architecture
+
+### Relationship to Core Modules
+- **Span Module**: Text operations produce spans for fact subjects
+- **Token Module**: Delimiter tracking assists tokenization
+- **Stream Module**: Line processing can be streamed
+- **Fact Module**: Text patterns become facts (e.g., has_text predicate)
+
+### Usage in Stream Pipeline
+```zig
+// Text processing in streaming context
+var line_stream = LineStream.init(text);
+while (try line_stream.next()) |line| {
+    const trimmed = processing.trim(line);
+    const span = Span.init(line.start, line.end);
+    // Generate facts about the line
+}
+```
 
 ## Usage Examples
 

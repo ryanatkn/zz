@@ -9,6 +9,7 @@ const stream_mod = @import("../../lib/stream/mod.zig");
 const fact_mod = @import("../../lib/fact/mod.zig");
 const span_mod = @import("../../lib/span/mod.zig");
 const memory_mod = @import("../../lib/memory/mod.zig");
+const query_mod = @import("../../lib/query/mod.zig");
 
 // Stream module benchmarks
 pub fn runStreamBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOptions) BenchmarkError![]BenchmarkResult {
@@ -666,6 +667,209 @@ pub fn runMemoryBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOptio
     return results.toOwnedSlice();
 }
 
+// Query module benchmarks
+pub fn runQueryBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOptions) BenchmarkError![]BenchmarkResult {
+    var results = std.ArrayList(BenchmarkResult).init(allocator);
+    errdefer {
+        for (results.items) |result| {
+            result.deinit(allocator);
+        }
+        results.deinit();
+    }
+
+    const effective_duration = @as(u64, @intFromFloat(@as(f64, @floatFromInt(options.duration_ns)) * 1.5 * options.duration_multiplier));
+
+    // Simple query execution
+    {
+        const context = struct {
+            allocator: std.mem.Allocator,
+
+            pub fn run(ctx: @This()) anyerror!void {
+                var store = fact_mod.FactStore.init(ctx.allocator);
+                defer store.deinit();
+
+                // Add test facts
+                for (0..100) |i| {
+                    const fact = fact_mod.Fact{
+                        .id = 0,
+                        .subject = span_mod.packSpan(span_mod.Span{ .start = @intCast(i * 10), .end = @intCast((i + 1) * 10) }),
+                        .predicate = if (i % 2 == 0) .is_function else .is_class,
+                        .confidence = @floatCast(@as(f64, @floatFromInt(i)) / 100.0),
+                        .object = fact_mod.Value{ .number = @intCast(i) },
+                    };
+                    _ = try store.append(fact);
+                }
+
+                // Simple query
+                var builder = query_mod.QueryBuilder.init(ctx.allocator);
+                defer builder.deinit();
+                
+                _ = builder.select(&.{.is_function}).from(&store);
+                var result = try builder.execute();
+                defer result.deinit();
+            }
+        }{ .allocator = allocator };
+
+        const result = try benchmark_lib.measureOperationNamedWithSuite(
+            allocator,
+            "stream_first",
+            "Simple query (SELECT predicate)",
+            effective_duration,
+            options.warmup,
+            context,
+            @TypeOf(context).run,
+        );
+        try results.append(result);
+    }
+
+    // Complex query with WHERE clause
+    {
+        const context = struct {
+            allocator: std.mem.Allocator,
+
+            pub fn run(ctx: @This()) anyerror!void {
+                var store = fact_mod.FactStore.init(ctx.allocator);
+                defer store.deinit();
+
+                // Add test facts
+                for (0..100) |i| {
+                    const fact = fact_mod.Fact{
+                        .id = 0,
+                        .subject = span_mod.packSpan(span_mod.Span{ .start = @intCast(i * 10), .end = @intCast((i + 1) * 10) }),
+                        .predicate = if (i % 2 == 0) .is_function else .is_class,
+                        .confidence = @floatCast(@as(f64, @floatFromInt(i)) / 100.0),
+                        .object = fact_mod.Value{ .number = @intCast(i) },
+                    };
+                    _ = try store.append(fact);
+                }
+
+                // Complex query
+                var builder = query_mod.QueryBuilder.init(ctx.allocator);
+                defer builder.deinit();
+                
+                _ = builder.selectAll().from(&store);
+                _ = try builder.where(.confidence, .gte, 0.5);
+                _ = try builder.andWhere(.predicate, .eq, .is_function);
+                _ = try builder.orderBy(.confidence, .descending);
+                _ = builder.limit(10);
+                
+                var result = try builder.execute();
+                defer result.deinit();
+            }
+        }{ .allocator = allocator };
+
+        const result = try benchmark_lib.measureOperationNamedWithSuite(
+            allocator,
+            "stream_first",
+            "Complex query (WHERE + ORDER BY + LIMIT)",
+            effective_duration,
+            options.warmup,
+            context,
+            @TypeOf(context).run,
+        );
+        try results.append(result);
+    }
+
+    // Query optimization overhead
+    {
+        const context = struct {
+            allocator: std.mem.Allocator,
+
+            pub fn run(ctx: @This()) anyerror!void {
+                var store = fact_mod.FactStore.init(ctx.allocator);
+                defer store.deinit();
+
+                // Add test facts
+                for (0..10) |i| {
+                    const fact = fact_mod.Fact{
+                        .id = 0,
+                        .subject = span_mod.packSpan(span_mod.Span{ .start = @intCast(i * 10), .end = @intCast((i + 1) * 10) }),
+                        .predicate = .is_function,
+                        .confidence = 0.9,
+                        .object = fact_mod.Value{ .number = @intCast(i) },
+                    };
+                    _ = try store.append(fact);
+                }
+
+                // Build query
+                var builder = query_mod.QueryBuilder.init(ctx.allocator);
+                defer builder.deinit();
+                
+                _ = builder.select(&.{.is_function}).from(&store);
+                _ = try builder.where(.confidence, .gte, 0.8);
+                
+                var query = try builder.build();
+                defer query.deinit();
+                
+                // Optimize
+                var optimizer = query_mod.QueryOptimizer.init(ctx.allocator);
+                defer optimizer.deinit();
+                
+                var optimized = try optimizer.optimize(&query);
+                defer optimized.deinit();
+            }
+        }{ .allocator = allocator };
+
+        const result = try benchmark_lib.measureOperationNamedWithSuite(
+            allocator,
+            "stream_first",
+            "Query optimization overhead",
+            effective_duration,
+            options.warmup,
+            context,
+            @TypeOf(context).run,
+        );
+        try results.append(result);
+    }
+
+    // Query planning overhead
+    {
+        const context = struct {
+            allocator: std.mem.Allocator,
+
+            pub fn run(ctx: @This()) anyerror!void {
+                var store = fact_mod.FactStore.init(ctx.allocator);
+                defer store.deinit();
+
+                // Build query
+                var builder = query_mod.QueryBuilder.init(ctx.allocator);
+                defer builder.deinit();
+                
+                _ = builder.selectAll().from(&store);
+                _ = try builder.where(.confidence, .gte, 0.5);
+                _ = try builder.orderBy(.span_start, .ascending);
+                _ = builder.limit(10);
+                
+                var query = try builder.build();
+                defer query.deinit();
+                
+                // Create plan
+                var optimizer = query_mod.QueryOptimizer.init(ctx.allocator);
+                defer optimizer.deinit();
+                
+                var planner = query_mod.QueryPlanner.init(ctx.allocator, &optimizer);
+                defer planner.deinit();
+                
+                var plan = try planner.createPlan(&query);
+                defer plan.deinit();
+            }
+        }{ .allocator = allocator };
+
+        const result = try benchmark_lib.measureOperationNamedWithSuite(
+            allocator,
+            "stream_first",
+            "Query planning overhead",
+            effective_duration,
+            options.warmup,
+            context,
+            @TypeOf(context).run,
+        );
+        try results.append(result);
+    }
+
+    return results.toOwnedSlice();
+}
+
 // Main benchmark runner function
 pub fn runStreamFirstBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOptions) BenchmarkError![]BenchmarkResult {
     var all_results = std.ArrayList(BenchmarkResult).init(allocator);
@@ -692,6 +896,10 @@ pub fn runStreamFirstBenchmarks(allocator: std.mem.Allocator, options: Benchmark
     const memory_results = try runMemoryBenchmarks(allocator, options);
     defer allocator.free(memory_results);
     try all_results.appendSlice(memory_results);
+
+    const query_results = try runQueryBenchmarks(allocator, options);
+    defer allocator.free(query_results);
+    try all_results.appendSlice(query_results);
 
     return all_results.toOwnedSlice();
 }

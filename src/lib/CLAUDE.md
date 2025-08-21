@@ -25,7 +25,7 @@ src/lib/
 ├── token/           # ✅ StreamToken with tagged unions (1-2 cycle dispatch)
 ├── lexer/           # ⚠️ TEMPORARY bridge to old lexers (delete in Phase 4)
 ├── cache/           # ✅ Fact caching with LRU eviction
-└── query/           # 🎯 Phase 3 - SQL-like query engine (planned)
+└── query/           # ✅ SQL-like query engine with optimization (Phase 3)
 ```
 
 ## What's Working
@@ -45,8 +45,9 @@ src/lib/
 - **Span Module**: Packed spans at 8 bytes with 200M ops/sec
 - **Token Module**: Tagged union dispatch in 1-2 cycles (vs 3-5 for vtable)
 - **Cache Module**: Multi-indexed fact cache with LRU eviction
+- **Query Module**: SQL-like DSL with optimization and planning (Phase 3)
 - **Memory Module**: Arena pools and atom tables for zero-allocation paths
-- **Test Coverage**: 207+ tests passing (96% pass rate)
+- **Test Coverage**: 220+ tests (includes query tests)
 
 ## Architecture Highlights
 
@@ -79,6 +80,7 @@ src/lib/
 - [Token architecture](token/README.md)
 - [Lexer bridge](lexer/CLAUDE.md) - TEMPORARY
 - [Cache system](cache/CLAUDE.md)
+- [Query engine](query/CLAUDE.md) - Phase 3
 
 ### Architecture Documents
 - [Stream-First Architecture](../../TODO_STREAM_FIRST_ARCHITECTURE.md)

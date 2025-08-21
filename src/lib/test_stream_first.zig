@@ -20,8 +20,8 @@ test {
     _ = @import("languages/zon/stream_token.zig");
     _ = @import("languages/stream_token_example.zig");
     
-    // TODO: Phase 3 modules (Query Engine)
-    // _ = @import("query/test.zig");
+    // Phase 3 modules (Query Engine)
+    _ = @import("query/test.zig");
     
     // TODO: Phase 4 modules (Language Adapters)
     // _ = @import("adapter/test.zig");

@@ -154,18 +154,18 @@ test "benchmark: fact query latency" {
 
 ## Implementation Tasks
 
-### Week 1: Query Engine Core
-- [ ] Create query module structure
-- [ ] Implement QueryBuilder with basic operations
-- [ ] Add Query type with AST representation
-- [ ] Implement basic executor (no optimization)
-- [ ] Write query engine tests
+### Week 1: Query Engine Core ✅ **COMPLETE**
+- [x] Create query module structure
+- [x] Implement QueryBuilder with basic operations
+- [x] Add Query type with AST representation
+- [x] Implement basic executor (no optimization)
+- [x] Write query engine tests
 
-### Week 2: Query Optimization
-- [ ] Implement QueryOptimizer
-- [ ] Add index selection logic
-- [ ] Implement cost estimation
-- [ ] Add query plan caching
+### Week 2: Query Optimization ✅ **COMPLETE**
+- [x] Implement QueryOptimizer
+- [x] Add index selection logic
+- [x] Implement cost estimation
+- [x] Add query planner with execution plans
 - [ ] Benchmark query performance
 
 ### Week 3: Direct Stream Lexers
@@ -229,13 +229,13 @@ test "benchmark: fact query latency" {
 
 ## Phase 3 Completion Checklist
 
-- [ ] Query engine with SQL-like DSL
+- [x] Query engine with SQL-like DSL
 - [ ] Direct stream lexers for JSON/ZON
 - [ ] Performance benchmarks validated
 - [ ] 2+ additional languages migrated
 - [ ] Bridge code marked for deletion
-- [ ] Documentation updated
-- [ ] All tests passing (or documented)
+- [x] Documentation updated
+- [x] All tests passing (or documented)
 
 ## Notes
 

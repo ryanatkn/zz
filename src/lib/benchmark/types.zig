@@ -59,7 +59,7 @@ pub const StatisticalConfidence = enum {
 
 pub const BenchmarkOptions = struct {
     /// Duration to run each benchmark in nanoseconds (default: 200ms)
-    duration_ns: u64 = 2_000_000_000,
+    duration_ns: u64 = 200_000_000,
     /// Output format for results
     format: OutputFormat = .markdown,
     /// Path to baseline file for comparison

@@ -186,19 +186,32 @@ pub const QueryIndex = struct {
 };
 ```
 
-### 8. Query Module (`src/lib/query/`) ❌ **NOT IMPLEMENTED**
+### 8. Query Module (`src/lib/query/`) ✅ **IMPLEMENTED**
 
-**Purpose**: Powerful query engine over fact streams
+**Purpose**: Powerful query engine over fact streams with SQL-like DSL
 
-**Status**: Planned for Phase 3. Will provide SQL-like queries over facts.
+**Status**: Core implementation complete in Phase 3. Provides SQL-like queries with optimization.
 
-**Planned Interface**:
+**Implemented Interface**:
 ```zig
-pub const Query = struct {
+pub const QueryBuilder = struct {
     // SQL-like query builder for facts
-    pub fn select(predicate: Predicate) QueryBuilder;
+    pub fn select(predicates: []const Predicate) *QueryBuilder;
+    pub fn from(store: *FactStore) *QueryBuilder;
+    pub fn where(field: Field, op: Op, value: anytype) !*QueryBuilder;
+    pub fn orderBy(field: Field, direction: Direction) !*QueryBuilder;
+    pub fn limit(n: usize) *QueryBuilder;
+    pub fn execute() !QueryResult;
+};
+
+pub const QueryOptimizer = struct {
+    // Query optimization with cost estimation
+    pub fn optimize(query: *const Query) !Query;
+    pub fn estimateCost(query: *const Query) f64;
 };
 ```
+
+**TODO**: GROUP BY, HAVING, streaming execution, parallel queries
 
 ### 9. Transform Module (`src/lib/transform/`) ⚠️ **EXISTING BUT DIFFERENT**
 
@@ -264,11 +277,13 @@ pub fn RingBuffer(comptime T: type, comptime capacity: usize) type;
 8. ✅ Implement QueryIndex with multi-indexing
 9. ✅ Wire up stream lexers via bridge (native lexers in Phase 4)
 
-### Phase 3: Index and Query ❌ **PLANNED**
-1. Implement UnifiedIndex with multi-indexing
-2. Build query engine with optimization
-3. Add streaming query execution
-4. Create query result caching
+### Phase 3: Index and Query ✅ **CORE COMPLETE**
+1. ✅ Implement UnifiedIndex with multi-indexing (using QueryIndex from cache)
+2. ✅ Build query engine with optimization
+3. ✅ Add query benchmarks and fix memory issues
+4. ⚠️ Add streaming query execution (TODO)
+5. ⚠️ Create query result caching (TODO)
+6. ⚠️ Direct stream lexers for JSON/ZON (TODO)
 
 ### Phase 4: Language Adapters ❌ **PLANNED**
 1. Refactor existing languages to adapter pattern

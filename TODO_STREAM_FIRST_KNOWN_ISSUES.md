@@ -1,8 +1,8 @@
 # Stream-First Known Issues
 
-## Test Status
-- **Total Tests**: 215
-- **Passing**: 207 (96.3%)
+## Test Status (Updated Phase 3)
+- **Total Tests**: 229
+- **Passing**: 221 (96.5%)
 - **Failing**: 7
 - **Skipped**: 1
 
@@ -54,9 +54,19 @@ These failures do not block Phase 3 work because:
 3. Cache and indexing work for primary use cases
 4. 96% test pass rate indicates solid foundation
 
+## Fixed in Phase 3
+
+### Query Module Issues (RESOLVED)
+- ✅ **Double-free in QueryExecutor**: Fixed memory ownership tracking
+- ✅ **QueryBuilder.execute crashes**: Removed automatic deinit
+- ✅ **Value type confusion**: Clarified fact vs query Value types
+- ✅ **applyLimitOffset issues**: Fixed slice vs allocation handling
+
 ## Action Items for Phase 3/4
 
 - [ ] Implement native stream lexers to fix lexer tests
 - [ ] Adjust cache eviction test expectations
 - [ ] Fix QueryIndex confidence range logic
 - [ ] Delete bridge modules and their tests in Phase 4
+- [ ] Add streaming query execution
+- [ ] Implement GROUP BY/HAVING support

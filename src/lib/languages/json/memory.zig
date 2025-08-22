@@ -42,14 +42,14 @@ pub const ParseContext = struct {
     /// Edge case handling: Graceful fallback on pool allocation failure
     pub fn init(allocator: std.mem.Allocator) ParseContext {
         // Try to initialize with standard capacity, fallback to smaller size on failure
-        const node_pool = NodePool.init(allocator) catch 
-            NodePool.initWithCapacity(allocator, 256) catch 
-            NodePool.initWithCapacity(allocator, 64) catch 
+        const node_pool = NodePool.init(allocator) catch
+            NodePool.initWithCapacity(allocator, 256) catch
+            NodePool.initWithCapacity(allocator, 64) catch
             NodePool.initWithCapacity(allocator, 16) catch blk: {
-                // Last resort: very small pool, but still functional
-                std.log.warn("JSON parser using minimal node pool due to memory pressure", .{});
-                break :blk NodePool.initWithCapacity(allocator, 4) catch unreachable;
-            };
+            // Last resort: very small pool, but still functional
+            std.log.warn("JSON parser using minimal node pool due to memory pressure", .{});
+            break :blk NodePool.initWithCapacity(allocator, 4) catch unreachable;
+        };
 
         var context = ParseContext{
             .allocator = allocator,
@@ -59,10 +59,10 @@ pub const ParseContext = struct {
             .transferred_texts = std.ArrayList([]const u8).init(allocator),
             .transferred_nodes = std.ArrayList([]Node).init(allocator),
         };
-        
+
         // Initialize ArrayPool with arena reference
         context.array_pool = ArrayPool.init(&context.arena);
-        
+
         return context;
     }
 
@@ -71,7 +71,7 @@ pub const ParseContext = struct {
         // Clean up pools first
         self.node_pool.deinit();
         self.array_pool.deinit();
-        
+
         // Arena automatically frees all temporary allocations
         self.arena.deinit();
 

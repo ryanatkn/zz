@@ -259,7 +259,7 @@ pub const JsonStreamLexer = struct {
     /// Continue scanning after boundary - called when more data is available
     pub fn continueBoundaryToken(self: *JsonStreamLexer) ?StreamToken {
         if (self.token_buffer == null) return null;
-        
+
         switch (self.state) {
             .in_string => return self.continueBoundaryString(),
             .in_number => return self.continueBoundaryNumber(),
@@ -272,12 +272,12 @@ pub const JsonStreamLexer = struct {
     fn continueBoundaryString(self: *JsonStreamLexer) ?StreamToken {
         if (self.token_buffer) |*buf| {
             var has_escapes = buf.has_escapes;
-            
+
             while (self.buffer.peek()) |ch| {
                 _ = self.buffer.pop();
                 self.position += 1;
                 self.column += 1;
-                
+
                 // Add character to buffer for reconstruction if needed
                 buf.appendChar(ch) catch {
                     self.error_msg = "Out of memory during boundary string scan";
@@ -289,7 +289,7 @@ pub const JsonStreamLexer = struct {
                         // End of string found - complete the token
                         const completion = buf.completeToken();
                         self.state = .start;
-                        
+
                         const token = JsonToken{
                             .span = packSpan(Span{ .start = completion.start_position, .end = self.position }),
                             .kind = .string_value,
@@ -319,15 +319,15 @@ pub const JsonStreamLexer = struct {
                     else => {},
                 }
             }
-            
+
             // Still need more data
             return self.makeContinuationToken();
         }
-        
+
         return null;
     }
 
-    /// Continue scanning a number that was interrupted at boundary  
+    /// Continue scanning a number that was interrupted at boundary
     fn continueBoundaryNumber(self: *JsonStreamLexer) ?StreamToken {
         // Implementation similar to continueBoundaryString but for numbers
         // For now, return null (not implemented)
@@ -338,7 +338,7 @@ pub const JsonStreamLexer = struct {
     /// Continue scanning a keyword that was interrupted at boundary
     fn continueBoundaryKeyword(self: *JsonStreamLexer) ?StreamToken {
         // Implementation for true/false/null keywords spanning boundaries
-        // For now, return null (not implemented)  
+        // For now, return null (not implemented)
         _ = self; // Suppress unused parameter warning
         return null;
     }
@@ -390,7 +390,7 @@ pub const JsonStreamLexer = struct {
             if (self.token_buffer == null) {
                 self.token_buffer = StreamingTokenBuffer.init(allocator);
             }
-            
+
             if (self.token_buffer) |*buf| {
                 // Start accumulating the string token across boundary
                 buf.startToken(.in_string, self.token_start, self.token_line, self.token_column) catch {
@@ -398,7 +398,7 @@ pub const JsonStreamLexer = struct {
                     return self.makeErrorToken();
                 };
                 buf.setStringFlags(has_escapes, false);
-                
+
                 // Signal that we need more data to continue
                 self.state = .in_string;
                 return self.makeContinuationToken();

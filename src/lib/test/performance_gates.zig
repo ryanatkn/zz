@@ -176,24 +176,24 @@ test "DirectStream streaming memory gate" {
     // Test DirectStream memory efficiency vs legacy TokenIterator
     const DirectStream = @import("../stream/mod.zig").DirectStream;
     const SliceStream = @import("../stream/direct_stream_sources.zig").SliceStream;
-    
+
     // DirectStream should use minimal memory - just the stream state
     var stream = DirectStream(u8){ .slice = SliceStream(u8).init(input) };
-    
+
     var char_count: usize = 0;
     const memory_usage_estimate: usize = @sizeOf(@TypeOf(stream)); // Stream itself
-    
+
     while (try stream.next()) |char| {
         _ = char; // Process character
         char_count += 1;
-        
+
         // Break after reasonable sample to check memory usage
         if (char_count > 10000) break;
     }
-    
+
     const memory_kb = memory_usage_estimate / 1024;
     std.debug.print("DirectStream memory: {}KB for 1MB processing ({} chars)\n", .{ memory_kb, char_count });
-    
+
     // DirectStream should use much less than 100KB (it's stack-allocated)
     try testing.expect(memory_kb <= PerformanceThresholds.streaming_memory_1mb_kb);
     try testing.expect(char_count > 1000); // Should have processed significant data
@@ -209,7 +209,7 @@ test "JSON streaming performance gate" {
     // Use JsonStreamLexer with DirectStream conversion
     var lexer = @import("../languages/json/stream_lexer.zig").JsonStreamLexer.init(input);
     defer lexer.deinit();
-    
+
     // Convert to DirectStream for optimal performance
     var stream = lexer.toDirectStream();
     defer stream.close();
@@ -218,7 +218,7 @@ test "JSON streaming performance gate" {
     while (try stream.next()) |token| {
         _ = token; // Process token
         token_count += 1;
-        
+
         // Safety check
         if (token_count > 10000) break;
     }
@@ -260,19 +260,19 @@ test "ZON streaming performance gate" {
 
 fn generateTestInput(size: usize) ![]u8 {
     const input = try testing.allocator.alloc(u8, size);
-    
+
     // Generate realistic text much more efficiently by repeating a pattern
     const pattern = "word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 ";
     const pattern_len = pattern.len;
-    
+
     var pos: usize = 0;
     while (pos < size) {
         const remaining = size - pos;
         const copy_len = @min(pattern_len, remaining);
-        @memcpy(input[pos..pos + copy_len], pattern[0..copy_len]);
+        @memcpy(input[pos .. pos + copy_len], pattern[0..copy_len]);
         pos += copy_len;
     }
-    
+
     return input;
 }
 
@@ -284,7 +284,7 @@ fn generateJsonInput(size: usize) ![]u8 {
 
     // Generate JSON more efficiently by repeating a pattern
     const item_pattern = "    {\"id\": 1, \"name\": \"Item1\", \"value\": 10},\n";
-    
+
     while (input.items.len < size - 200) { // Leave space for closing
         try input.appendSlice(item_pattern);
     }
@@ -307,7 +307,7 @@ fn generateZonInput(size: usize) ![]u8 {
 
     // Generate ZON more efficiently by repeating a pattern
     const item_pattern = "        .{ .id = 1, .name = \"Item1\", .value = 10 },\n";
-    
+
     while (input.items.len < size - 200) { // Leave space for closing
         try input.appendSlice(item_pattern);
     }

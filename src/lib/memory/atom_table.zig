@@ -10,9 +10,9 @@ const SlabBuffer = struct {
     current_slab: usize,
     current_pos: usize,
     allocator: std.mem.Allocator,
-    
+
     const SLAB_SIZE = 4096; // 4KB slabs for good memory efficiency
-    
+
     pub fn init(allocator: std.mem.Allocator) SlabBuffer {
         return SlabBuffer{
             .slabs = std.ArrayList([]u8).init(allocator),
@@ -21,14 +21,14 @@ const SlabBuffer = struct {
             .allocator = allocator,
         };
     }
-    
+
     pub fn deinit(self: *SlabBuffer) void {
         for (self.slabs.items) |slab| {
             self.allocator.free(slab);
         }
         self.slabs.deinit();
     }
-    
+
     /// Allocate space for a string, returning a slice where it can be written
     pub fn allocateString(self: *SlabBuffer, len: usize) ![]u8 {
         // If string is too large for slab system, allocate separately
@@ -37,24 +37,25 @@ const SlabBuffer = struct {
             try self.slabs.append(large_alloc);
             return large_alloc;
         }
-        
+
         // Check if current slab has enough space
-        if (self.slabs.items.len == 0 or 
-            self.current_pos + len > self.slabs.items[self.current_slab].len) {
+        if (self.slabs.items.len == 0 or
+            self.current_pos + len > self.slabs.items[self.current_slab].len)
+        {
             // Need a new slab
             const new_slab = try self.allocator.alloc(u8, SLAB_SIZE);
             try self.slabs.append(new_slab);
             self.current_slab = self.slabs.items.len - 1;
             self.current_pos = 0;
         }
-        
+
         const slab = self.slabs.items[self.current_slab];
-        const result = slab[self.current_pos..self.current_pos + len];
+        const result = slab[self.current_pos .. self.current_pos + len];
         self.current_pos += len;
-        
+
         return result;
     }
-    
+
     /// Get total bytes allocated (sum of all slab sizes)
     pub fn getTotalBytes(self: SlabBuffer) usize {
         var total: usize = 0;
@@ -63,22 +64,22 @@ const SlabBuffer = struct {
         }
         return total;
     }
-    
+
     /// Get actual bytes used (more precise than total allocated)
     pub fn getUsedBytes(self: SlabBuffer) usize {
         if (self.slabs.items.len == 0) return 0;
-        
+
         var used: usize = 0;
         // Count all full slabs
-        for (self.slabs.items[0..self.slabs.items.len-1]) |slab| {
+        for (self.slabs.items[0 .. self.slabs.items.len - 1]) |slab| {
             used += slab.len;
         }
         // Add current position in last slab
         used += self.current_pos;
-        
+
         return used;
     }
-    
+
     /// Clear all allocated strings while retaining slab capacity
     pub fn clear(self: *SlabBuffer) void {
         self.current_slab = 0;

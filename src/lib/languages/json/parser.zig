@@ -68,7 +68,7 @@ pub const JsonParser = struct {
         }
         self.errors.deinit();
         self.context.deinit();
-        
+
         // Clean up bulk allocator if it was used
         if (self.bulk_allocator) |*bulk| {
             bulk.deinit();
@@ -79,17 +79,17 @@ pub const JsonParser = struct {
     pub fn parse(self: *Self) !AST {
         // Initialize bulk allocator for optimal node allocation (major performance boost)
         const estimated_nodes = estimateNodeCount(self.tokens);
-        self.bulk_allocator = BulkAllocator.init(self.allocator, estimated_nodes) catch 
-            // Fall back to smaller allocation or no bulk allocation  
+        self.bulk_allocator = BulkAllocator.init(self.allocator, estimated_nodes) catch
+            // Fall back to smaller allocation or no bulk allocation
             BulkAllocator.init(self.allocator, estimated_nodes / 2) catch null;
-        
-        // Use existing arena from context for temporary allocations  
+
+        // Use existing arena from context for temporary allocations
         _ = self.context.arena.reset(.retain_capacity);
-        
+
         // Create separate arena for AST ownership (will outlive the parser context)
         const ast_arena = try self.allocator.create(std.heap.ArenaAllocator);
         ast_arena.* = std.heap.ArenaAllocator.init(self.allocator);
-        
+
         // Store AST arena for use in parse methods
         self.ast_arena = ast_arena;
 
@@ -410,7 +410,7 @@ pub const JsonParser = struct {
 
         const end_token = self.advance(); // consume ']'
 
-        // Allocate permanent storage for array elements in AST arena  
+        // Allocate permanent storage for array elements in AST arena
         const array_elements = try self.ast_arena.?.allocator().alloc(Node, elements.items.len);
         @memcpy(array_elements, elements.items);
 

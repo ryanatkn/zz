@@ -27,6 +27,17 @@ pub const JsonLexer = struct {
 
     const Self = @This();
 
+    /// Convert position to u32 safely, clamping to max value if needed
+    inline fn posToU32(pos: usize) u32 {
+        return @intCast(@min(pos, std.math.maxInt(u32)));
+    }
+
+    pub const LexerError = error{
+        UnterminatedString,
+        InvalidCharacter,
+        InvalidNumber,
+    };
+
     pub fn init(allocator: Allocator) Self {
         return .{
             .allocator = allocator,
@@ -70,6 +81,11 @@ pub const JsonLexer = struct {
         return tokens.toOwnedSlice();
     }
 
+    /// Compatibility alias for batchTokenize
+    pub fn tokenize(self: *Self, source: []const u8) ![]Token {
+        return try self.batchTokenize(self.allocator, source);
+    }
+
     /// Reset lexer state
     pub fn reset(self: *Self) void {
         self.position = 0;
@@ -80,27 +96,35 @@ pub const JsonLexer = struct {
 /// Streaming iterator for zero-allocation tokenization
 const StreamIterator = struct {
     lexer: *JsonLexer,
+    eof_returned: bool,
 
     const Self = @This();
 
     pub fn init(lexer: *JsonLexer) Self {
-        return .{ .lexer = lexer };
+        return .{
+            .lexer = lexer,
+            .eof_returned = false,
+        };
     }
 
     pub fn next(self: *Self) ?Token {
         const lexer = self.lexer;
 
-        // Skip whitespace
+        // Skip whitespace including newlines
         while (lexer.position < lexer.source.len) {
             const c = lexer.source[lexer.position];
-            if (!char.isWhitespace(c)) break;
+            if (!char.isWhitespaceOrNewline(c)) break;
             lexer.position += 1;
         }
 
         // Check for EOF
         if (lexer.position >= lexer.source.len) {
+            if (self.eof_returned) {
+                return null; // EOF already returned, stop iteration
+            }
+            self.eof_returned = true;
             return Token{
-                .span = Span.init(@intCast(lexer.position), @intCast(lexer.position)),
+                .span = Span.init(JsonLexer.posToU32(lexer.position), JsonLexer.posToU32(lexer.position)),
                 .kind = .eof,
                 .depth = 0,
                 .flags = .{},
@@ -141,7 +165,7 @@ const StreamIterator = struct {
 
         if (token_kind) |kind| {
             return Token{
-                .span = Span.init(@intCast(start), @intCast(lexer.position)),
+                .span = Span.init(JsonLexer.posToU32(start), JsonLexer.posToU32(lexer.position)),
                 .kind = kind,
                 .depth = 0, // TODO: Track nesting depth
                 .flags = .{},
@@ -151,17 +175,24 @@ const StreamIterator = struct {
         // String
         if (c == '"') {
             lexer.position += 1; // Skip opening quote
+            var string_terminated = false;
             while (lexer.position < lexer.source.len) {
                 const ch = lexer.source[lexer.position];
                 lexer.position += 1;
-                if (ch == '"') break;
+                if (ch == '"') {
+                    string_terminated = true;
+                    break;
+                }
                 if (ch == '\\' and lexer.position < lexer.source.len) {
                     lexer.position += 1; // Skip escaped character
                 }
             }
 
+            // For now, handle unterminated strings gracefully
+            // TODO: Add proper error handling in future iteration
+
             return Token{
-                .span = Span.init(@intCast(start), @intCast(lexer.position)),
+                .span = Span.init(JsonLexer.posToU32(start), JsonLexer.posToU32(lexer.position)),
                 .kind = .string,
                 .depth = 0,
                 .flags = .{ .has_escapes = std.mem.indexOfScalar(u8, lexer.source[start..lexer.position], '\\') != null },
@@ -180,7 +211,7 @@ const StreamIterator = struct {
             }
 
             return Token{
-                .span = Span.init(@intCast(start), @intCast(lexer.position)),
+                .span = Span.init(JsonLexer.posToU32(start), JsonLexer.posToU32(lexer.position)),
                 .kind = .number,
                 .depth = 0,
                 .flags = .{},
@@ -202,7 +233,7 @@ const StreamIterator = struct {
                 .identifier;
 
             return Token{
-                .span = Span.init(@intCast(start), @intCast(lexer.position)),
+                .span = Span.init(JsonLexer.posToU32(start), JsonLexer.posToU32(lexer.position)),
                 .kind = kind,
                 .depth = 0,
                 .flags = .{},
@@ -212,7 +243,7 @@ const StreamIterator = struct {
         // Unknown character
         lexer.position += 1;
         return Token{
-            .span = Span.init(@intCast(start), @intCast(lexer.position)),
+            .span = Span.init(JsonLexer.posToU32(start), JsonLexer.posToU32(lexer.position)),
             .kind = .unknown,
             .depth = 0,
             .flags = .{},
@@ -221,6 +252,7 @@ const StreamIterator = struct {
 
     pub fn reset(self: *Self) void {
         self.lexer.position = 0;
+        self.eof_returned = false;
     }
 };
 

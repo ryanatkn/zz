@@ -1,6 +1,5 @@
 const std = @import("std");
 const predicates = @import("predicates.zig");
-const Token = @import("../parser_old/foundation/types/token.zig").Token;
 
 /// Text consumption utilities
 /// Functions for consuming/skipping sequences of characters

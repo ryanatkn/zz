@@ -2,10 +2,38 @@ const std = @import("std");
 
 const common = @import("common.zig");
 const char_utils = @import("../../char/mod.zig");
-const ZonRules = @import("../../ast_old/rules.zig").ZonRules;
-const Rule = @import("../interface.zig").Rule;
+// Using local enum-based rule system (ZonRuleType defined below)
 const ZonLexer = @import("lexer.zig").ZonLexer;
 const ZonParser = @import("parser.zig").ZonParser;
+
+// Import interface types
+const interface_types = @import("../interface.zig");
+const InterfaceSeverity = interface_types.RuleInfo.Severity;
+
+/// ZON-specific linting rules
+///
+/// Performance Notes - Enum Rule System:
+/// - enum(u8) supports up to 256 rules per language
+/// - Current usage: ZON=9 rules (well under limit)
+/// - EnumSet performance characteristics:
+///   * ≤64 rules: Single u64 register, 1-2 CPU cycles for checks
+///   * ≤128 rules: Single u128, 2-3 CPU cycles
+///   * >128 rules: Bit array, 3-5 CPU cycles
+/// - Future expansion: Change to enum(u16) if >256 rules needed
+pub const ZonRuleType = enum(u8) {
+    no_duplicate_keys,
+    max_depth_exceeded,
+    large_structure,
+    deep_nesting,
+    invalid_field_type,
+    unknown_field,
+    missing_required_field,
+    invalid_identifier,
+    prefer_explicit_type,
+};
+
+/// Efficient rule set using bitflags for O(1) lookups
+pub const EnabledRules = std.EnumSet(ZonRuleType);
 
 const AST = common.AST;
 const Node = common.Node;
@@ -47,7 +75,7 @@ pub const ZonLinter = struct {
         rule_name: []const u8,
 
         pub const Severity = enum {
-            @"error",
+            err,
             warning,
             info,
             hint,
@@ -58,63 +86,83 @@ pub const ZonLinter = struct {
         }
     };
 
-    // Built-in linting rules
-    pub const RULES = [_]Rule{
-        Rule{
+    /// Rule metadata for each enum value
+    pub const RuleInfo = struct {
+        name: []const u8,
+        description: []const u8,
+        severity: InterfaceSeverity,
+        enabled_by_default: bool,
+    };
+
+    /// Built-in linting rules metadata
+    pub const RULE_INFO = std.EnumArray(ZonRuleType, RuleInfo).init(.{
+        .no_duplicate_keys = .{
             .name = "no-duplicate-keys",
             .description = "Object keys must be unique",
-            .severity = .@"error",
-            .enabled = true,
+            .severity = .err,
+            .enabled_by_default = true,
         },
-        Rule{
+        .max_depth_exceeded = .{
             .name = "max-depth-exceeded",
             .description = "ZON structure exceeds maximum nesting depth",
-            .severity = .@"error",
-            .enabled = true,
+            .severity = .err,
+            .enabled_by_default = true,
         },
-        Rule{
+        .large_structure = .{
             .name = "large-structure",
             .description = "ZON structure is very large",
             .severity = .warning,
-            .enabled = false,
+            .enabled_by_default = false,
         },
-        Rule{
+        .deep_nesting = .{
             .name = "deep-nesting",
             .description = "ZON has deep nesting that may be hard to read",
             .severity = .warning,
-            .enabled = true,
+            .enabled_by_default = true,
         },
-        Rule{
+        .invalid_field_type = .{
             .name = "invalid-field-type",
             .description = "Field has invalid type for known schema",
-            .severity = .@"error",
-            .enabled = false,
+            .severity = .err,
+            .enabled_by_default = false,
         },
-        Rule{
+        .unknown_field = .{
             .name = "unknown-field",
             .description = "Field is not recognized in known schema",
             .severity = .warning,
-            .enabled = false, // Disabled by default - too aggressive for general use
+            .enabled_by_default = false, // Disabled by default - too aggressive for general use
         },
-        Rule{
+        .missing_required_field = .{
             .name = "missing-required-field",
             .description = "Required field is missing from object",
-            .severity = .@"error",
-            .enabled = false,
+            .severity = .err,
+            .enabled_by_default = false,
         },
-        Rule{
+        .invalid_identifier = .{
             .name = "invalid-identifier",
             .description = "Identifier uses invalid ZON syntax",
-            .severity = .@"error",
-            .enabled = true,
+            .severity = .err,
+            .enabled_by_default = true,
         },
-        Rule{
+        .prefer_explicit_type = .{
             .name = "prefer-explicit-type",
             .description = "Consider using explicit type annotation",
             .severity = .hint,
-            .enabled = false,
+            .enabled_by_default = false,
         },
-    };
+    });
+
+    /// Get default enabled rules
+    pub fn getDefaultRules() EnabledRules {
+        var rules = EnabledRules.initEmpty();
+        inline for (std.meta.fields(ZonRuleType)) |field| {
+            const rule_type = @field(ZonRuleType, field.name);
+            if (RULE_INFO.get(rule_type).enabled_by_default) {
+                rules.insert(rule_type);
+            }
+        }
+        return rules;
+    }
 
     pub fn init(allocator: std.mem.Allocator, options: ZonLintOptions) ZonLinter {
         return ZonLinter{
@@ -132,182 +180,178 @@ pub const ZonLinter = struct {
     }
 
     /// Lint ZON AST and return diagnostics
-    pub fn lint(self: *Self, ast: AST, enabled_rules: []const []const u8) ![]Diagnostic {
+    pub fn lint(self: *Self, ast: AST, enabled_rules: EnabledRules) ![]Diagnostic {
         self.diagnostics.clearRetainingCapacity();
 
-        // Check if we should run each rule
-        const rules_to_run = try self.filterEnabledRules(enabled_rules);
-        defer self.allocator.free(rules_to_run);
-
         // Run structural analysis
-        try self.analyzeStructure(ast.root, 0, rules_to_run);
+        if (ast.root) |root| {
+            try self.analyzeStructure(root.*, 0, enabled_rules);
+        }
 
         // Run semantic analysis for known schemas
-        if (self.shouldRunRule("invalid-field-type", rules_to_run) or
-            self.shouldRunRule("unknown-field", rules_to_run) or
-            self.shouldRunRule("missing-required-field", rules_to_run))
+        if (enabled_rules.contains(.invalid_field_type) or
+            enabled_rules.contains(.unknown_field) or
+            enabled_rules.contains(.missing_required_field))
         {
-            try self.analyzeSemantics(ast.root);
+            if (ast.root) |root| {
+                try self.analyzeSemantics(root.*);
+            }
         }
 
         return self.diagnostics.toOwnedSlice();
     }
 
-    fn filterEnabledRules(self: *Self, enabled_rules: []const []const u8) ![][]const u8 {
-        var result = std.ArrayList([]const u8).init(self.allocator);
-        defer result.deinit();
-
-        if (enabled_rules.len == 0) {
-            // Use all enabled default rules
-            for (RULES) |rule| {
-                if (rule.enabled) {
-                    try result.append(rule.name);
-                }
-            }
-        } else {
-            // Use specified rules
-            for (enabled_rules) |rule_name| {
-                try result.append(rule_name);
-            }
-        }
-
-        return result.toOwnedSlice();
-    }
-
-    fn shouldRunRule(self: *const Self, rule_name: []const u8, enabled_rules: []const []const u8) bool {
-        _ = self;
-
-        for (enabled_rules) |enabled_rule| {
-            if (std.mem.eql(u8, rule_name, enabled_rule)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    fn analyzeStructure(self: *Self, node: Node, depth: u32, enabled_rules: []const []const u8) !void {
+    fn analyzeStructure(self: *Self, node: Node, depth: u32, enabled_rules: EnabledRules) !void {
         // Check depth limits
-        if (self.shouldRunRule("max-depth-exceeded", enabled_rules)) {
+        if (enabled_rules.contains(.max_depth_exceeded)) {
             if (depth > self.options.max_depth) {
-                try self.addDiagnostic("max-depth-exceeded", "Structure exceeds maximum depth limit", node.start_position, node.end_position, .@"error");
+                const node_span = node.span();
+                try self.addDiagnostic("max-depth-exceeded", "Structure exceeds maximum depth limit", node_span.start, node_span.end, .err);
                 return; // Don't analyze deeper
             }
         }
 
         // Warn about deep nesting
-        if (self.shouldRunRule("deep-nesting", enabled_rules)) {
+        if (enabled_rules.contains(.deep_nesting)) {
             if (depth > self.options.warn_on_deep_nesting) {
-                try self.addDiagnostic("deep-nesting", "Deep nesting may be hard to read", node.start_position, node.end_position, .warning);
+                const span = node.span();
+                try self.addDiagnostic("deep-nesting", "Deep nesting may be hard to read", span.start, span.end, .warning);
             }
         }
 
-        // Analyze specific node types
-        switch (node.node_type) {
-            .list => {
-                switch (node.rule_id) {
-                    ZonRules.object => try self.analyzeObject(node, enabled_rules),
-                    ZonRules.array => try self.analyzeArray(node, enabled_rules),
-                    else => {},
-                }
-            },
-            .terminal => {
-                try self.analyzeTerminal(node, enabled_rules);
-            },
-            else => {},
+        // Analyze specific node types using tagged union matching
+        switch (node) {
+            .object => try self.analyzeObject(node, enabled_rules),
+            .array => try self.analyzeArray(node, enabled_rules),
+            .string, .number, .boolean, .null, .identifier, .field_name => try self.analyzeTerminal(node, enabled_rules),
+            .field => try self.analyzeField(node, enabled_rules),
+            else => {}, // Handle other node types as needed
         }
 
-        // Recursively analyze children
-        for (node.children) |child| {
-            try self.analyzeStructure(child, depth + 1, enabled_rules);
+        // Recursively analyze children based on node type
+        switch (node) {
+            .object => |obj| {
+                for (obj.fields) |child| {
+                    try self.analyzeStructure(child, depth + 1, enabled_rules);
+                }
+            },
+            .array => |arr| {
+                for (arr.elements) |child| {
+                    try self.analyzeStructure(child, depth + 1, enabled_rules);
+                }
+            },
+            .field => |field| {
+                try self.analyzeStructure(field.name.*, depth + 1, enabled_rules);
+                try self.analyzeStructure(field.value.*, depth + 1, enabled_rules);
+            },
+            else => {}, // Leaf nodes have no children
         }
     }
 
-    fn analyzeObject(self: *Self, node: Node, enabled_rules: []const []const u8) !void {
+    fn analyzeObject(self: *Self, node: Node, enabled_rules: EnabledRules) !void {
         // Check object size
-        if (self.shouldRunRule("large-structure", enabled_rules)) {
+        if (enabled_rules.contains(.large_structure)) {
             const field_count = utils.countFieldAssignments(node);
             if (field_count > self.options.max_field_count) {
-                try self.addDiagnostic("large-structure", "Object has too many fields", node.start_position, node.end_position, .warning);
+                const span = node.span();
+                try self.addDiagnostic("large-structure", "Object has too many fields", span.start, span.end, .warning);
             }
         }
 
         // Check for duplicate keys
-        if (self.shouldRunRule("no-duplicate-keys", enabled_rules) and !self.options.allow_duplicate_keys) {
+        if (enabled_rules.contains(.no_duplicate_keys) and !self.options.allow_duplicate_keys) {
             try self.checkDuplicateKeys(node);
         }
     }
 
-    fn analyzeArray(self: *Self, node: Node, enabled_rules: []const []const u8) !void {
+    fn analyzeArray(self: *Self, node: Node, enabled_rules: EnabledRules) !void {
         // Check array size
-        if (self.shouldRunRule("large-structure", enabled_rules)) {
-            if (node.children.len > self.options.max_array_size) {
-                try self.addDiagnostic("large-structure", "Array has too many elements", node.start_position, node.end_position, .warning);
+        if (enabled_rules.contains(.large_structure)) {
+            if (node == .array) {
+                const arr = node.array;
+                if (arr.elements.len > self.options.max_array_size) {
+                    try self.addDiagnostic("large-structure", "Array has too many elements", arr.span.start, arr.span.end, .warning);
+                }
             }
         }
     }
 
-    fn analyzeTerminal(self: *Self, node: Node, enabled_rules: []const []const u8) !void {
+    fn analyzeTerminal(self: *Self, node: Node, enabled_rules: EnabledRules) !void {
         // Check identifier validity
-        if (self.shouldRunRule("invalid-identifier", enabled_rules)) {
-            if (node.rule_id == ZonRules.identifier or
-                node.rule_id == ZonRules.field_name)
-            {
-                try self.checkIdentifierValidity(node);
+        if (enabled_rules.contains(.invalid_identifier)) {
+            switch (node) {
+                .identifier, .field_name => try self.checkIdentifierValidity(node),
+                else => {},
             }
+        }
+    }
+
+    fn analyzeField(self: *Self, node: Node, enabled_rules: EnabledRules) !void {
+        // Analyze field assignments
+        if (node == .field) {
+            // Could add field-specific linting rules here
+            _ = self;
+            _ = enabled_rules;
         }
     }
 
     fn checkDuplicateKeys(self: *Self, object_node: Node) !void {
+        if (object_node != .object) return; // Only check objects
+
         var seen_keys = std.StringHashMap(Span).init(self.allocator);
         defer seen_keys.deinit();
 
-        for (object_node.children) |child| {
-            if (utils.isFieldAssignment(child) and utils.hasMinimumChildren(child, 1)) {
-                const field_name_node = child.children[0];
-                const field_text = field_name_node.text;
-
-                // Extract field name using utils
-                const key_name = utils.extractFieldName(field_text);
+        const obj = object_node.object;
+        for (obj.fields) |field| {
+            if (field == .field) {
+                const field_data = field.field;
+                const field_name = utils.getFieldName(field) orelse continue;
+                const key_name = utils.extractFieldName(field_name);
+                const field_span = field_data.name.span();
 
                 if (seen_keys.get(key_name)) |previous_span| {
                     // Duplicate key found
                     const message = try std.fmt.allocPrint(self.allocator, "Duplicate key '{s}' (previously defined at position {})", .{ key_name, previous_span.start });
 
-                    try self.addDiagnosticOwned("no-duplicate-keys", message, field_name_node.start_position, field_name_node.end_position, .@"error");
+                    try self.addDiagnosticOwned("no-duplicate-keys", message, field_span.start, field_span.end, .err);
                 } else {
-                    try seen_keys.put(key_name, Span{ .start = field_name_node.start_position, .end = field_name_node.end_position });
+                    try seen_keys.put(key_name, field_span);
                 }
             }
         }
     }
 
     fn checkIdentifierValidity(self: *Self, node: Node) !void {
-        const text = node.text;
+        const text = utils.getNodeText(node, "");
 
         // Check for empty identifier
         if (text.len == 0) {
-            try self.addDiagnostic("invalid-identifier", "Empty identifier", node.start_position, node.end_position, .@"error");
+            const span = node.span();
+            try self.addDiagnostic("invalid-identifier", "Empty identifier", span.start, span.end, .err);
             return;
         }
 
         // Check field name format (.field_name)
-        if (node.rule_id == ZonRules.field_name) {
-            if (text[0] != '.') {
-                try self.addDiagnostic("invalid-identifier", "Field name must start with '.'", node.start_position, node.end_position, .@"error");
-                return;
-            }
+        switch (node) {
+            .field_name => |field_name| {
+                if (text[0] != '.') {
+                    try self.addDiagnostic("invalid-identifier", "Field name must start with '.'", field_name.span.start, field_name.span.end, .err);
+                    return;
+                }
 
-            if (text.len == 1) {
-                try self.addDiagnostic("invalid-identifier", "Field name cannot be just '.'", node.start_position, node.end_position, .@"error");
-                return;
-            }
+                if (text.len == 1) {
+                    try self.addDiagnostic("invalid-identifier", "Field name cannot be just '.'", field_name.span.start, field_name.span.end, .err);
+                    return;
+                }
 
-            // Check the identifier part after the dot
-            const identifier_part = text[1..];
-            try self.validateIdentifierText(identifier_part, node);
-        } else {
-            // Regular identifier
-            try self.validateIdentifierText(text, node);
+                // Check the identifier part after the dot
+                const identifier_part = text[1..];
+                try self.validateIdentifierText(identifier_part, node);
+            },
+            else => {
+                // Regular identifier
+                try self.validateIdentifierText(text, node);
+            },
         }
     }
 
@@ -324,14 +368,16 @@ pub const ZonLinter = struct {
         // First character must be letter or underscore
         const first_char = text[0];
         if (!char_utils.isAlpha(first_char) and first_char != '_') {
-            try self.addDiagnostic("invalid-identifier", "Identifier must start with letter or underscore", node.start_position, node.end_position, .@"error");
+            const span = node.span();
+            try self.addDiagnostic("invalid-identifier", "Identifier must start with letter or underscore", span.start, span.end, .err);
             return;
         }
 
         // Remaining characters must be alphanumeric or underscore
         for (text[1..]) |char| {
             if (!char_utils.isAlphaNumeric(char) and char != '_') {
-                try self.addDiagnostic("invalid-identifier", "Identifier contains invalid character", node.start_position, node.end_position, .@"error");
+                const span = node.span();
+                try self.addDiagnostic("invalid-identifier", "Identifier contains invalid character", span.start, span.end, .err);
                 return;
             }
         }
@@ -359,28 +405,35 @@ pub const ZonLinter = struct {
     fn detectSchemaType(self: *const Self, root_node: Node) SchemaType {
         _ = self;
 
-        // Look for known fields to detect schema type
-        for (root_node.children) |child| {
-            if (utils.isFieldAssignment(child) and utils.hasMinimumChildren(child, 1)) {
-                const field_name_node = child.children[0];
-                const field_text = field_name_node.text;
+        // Get the actual object from root
+        const object_node = switch (root_node) {
+            .root => |root| root.value.*,
+            .object => root_node,
+            else => return .unknown,
+        };
 
-                // Extract field name using utils
-                const field_name = utils.extractFieldName(field_text);
+        if (object_node != .object) return .unknown;
+
+        // Look for known fields to detect schema type
+        const obj = object_node.object;
+        for (obj.fields) |field| {
+            if (field == .field) {
+                const field_name = utils.getFieldName(field) orelse continue;
+                const extracted_name = utils.extractFieldName(field_name);
 
                 // Check for build.zig.zon specific fields
-                if (std.mem.eql(u8, field_name, "name") or
-                    std.mem.eql(u8, field_name, "version") or
-                    std.mem.eql(u8, field_name, "dependencies") or
-                    std.mem.eql(u8, field_name, "paths"))
+                if (std.mem.eql(u8, extracted_name, "name") or
+                    std.mem.eql(u8, extracted_name, "version") or
+                    std.mem.eql(u8, extracted_name, "dependencies") or
+                    std.mem.eql(u8, extracted_name, "paths"))
                 {
                     return .build_zig_zon;
                 }
 
                 // Check for zz.zon specific fields
-                if (std.mem.eql(u8, field_name, "base_patterns") or
-                    std.mem.eql(u8, field_name, "ignored_patterns") or
-                    std.mem.eql(u8, field_name, "symlink_behavior"))
+                if (std.mem.eql(u8, extracted_name, "base_patterns") or
+                    std.mem.eql(u8, extracted_name, "ignored_patterns") or
+                    std.mem.eql(u8, extracted_name, "symlink_behavior"))
                 {
                     return .zz_zon;
                 }
@@ -391,44 +444,52 @@ pub const ZonLinter = struct {
     }
 
     fn validateBuildZigZon(self: *Self, root_node: Node) !void {
+        // Get the actual object from root
+        const object_node = switch (root_node) {
+            .root => |root| root.value.*,
+            .object => root_node,
+            else => return,
+        };
+
+        if (object_node != .object) return;
+
         // Check for required fields in build.zig.zon
         var has_name = false;
         var has_version = false;
+        const obj = object_node.object;
 
-        for (root_node.children) |child| {
-            if (utils.isFieldAssignment(child) and utils.hasMinimumChildren(child, 2)) {
-                const field_name_node = child.children[0];
-                const value_node = utils.getFieldValue(child) orelse continue;
-                const field_text = field_name_node.text;
+        for (obj.fields) |field| {
+            if (field == .field) {
+                const field_data = field.field;
+                const value_node = field_data.value.*;
+                const field_name = utils.getFieldName(field) orelse continue;
+                const extracted_name = utils.extractFieldName(field_name);
 
-                const field_name = if (field_text.len > 0 and field_text[0] == '.')
-                    field_text[1..]
-                else
-                    field_text;
-
-                if (std.mem.eql(u8, field_name, "name")) {
+                if (std.mem.eql(u8, extracted_name, "name")) {
                     has_name = true;
                     // Validate name is a string or identifier
-                    if (value_node.rule_id != ZonRules.string_literal and
-                        value_node.rule_id != ZonRules.identifier)
-                    {
-                        try self.addDiagnostic("invalid-field-type", "Package name must be a string or identifier", value_node.start_position, value_node.end_position, .@"error");
+                    switch (value_node) {
+                        .string, .identifier => {}, // Valid types
+                        else => try self.addDiagnostic("invalid-field-type", "Package name must be a string or identifier", value_node.span().start, value_node.span().end, .err),
                     }
-                } else if (std.mem.eql(u8, field_name, "version")) {
+                } else if (std.mem.eql(u8, extracted_name, "version")) {
                     has_version = true;
                     // Validate version is a string
-                    if (value_node.rule_id != ZonRules.string_literal) {
-                        try self.addDiagnostic("invalid-field-type", "Version must be a string", value_node.start_position, value_node.end_position, .@"error");
+                    switch (value_node) {
+                        .string => {}, // Valid type
+                        else => try self.addDiagnostic("invalid-field-type", "Version must be a string", value_node.span().start, value_node.span().end, .err),
                     }
-                } else if (std.mem.eql(u8, field_name, "dependencies")) {
+                } else if (std.mem.eql(u8, extracted_name, "dependencies")) {
                     // Validate dependencies is an object
-                    if (value_node.rule_id != ZonRules.object) {
-                        try self.addDiagnostic("invalid-field-type", "Dependencies must be an object", value_node.start_position, value_node.end_position, .@"error");
+                    switch (value_node) {
+                        .object => {}, // Valid type
+                        else => try self.addDiagnostic("invalid-field-type", "Dependencies must be an object", value_node.span().start, value_node.span().end, .err),
                     }
-                } else if (std.mem.eql(u8, field_name, "paths")) {
+                } else if (std.mem.eql(u8, extracted_name, "paths")) {
                     // Validate paths is an array
-                    if (value_node.rule_id != ZonRules.array) {
-                        try self.addDiagnostic("invalid-field-type", "Paths must be an array", value_node.start_position, value_node.end_position, .@"error");
+                    switch (value_node) {
+                        .array => {}, // Valid type
+                        else => try self.addDiagnostic("invalid-field-type", "Paths must be an array", value_node.span().start, value_node.span().end, .err),
                     }
                 }
             }
@@ -436,53 +497,64 @@ pub const ZonLinter = struct {
 
         // Check for required fields
         if (!has_name) {
-            try self.addDiagnostic("missing-required-field", "Missing required field 'name' in build.zig.zon", root_node.start_position, root_node.start_position, .@"error");
+            const span = root_node.span();
+            try self.addDiagnostic("missing-required-field", "Missing required field 'name' in build.zig.zon", span.start, span.start, .err);
         }
 
         if (!has_version) {
-            try self.addDiagnostic("missing-required-field", "Missing required field 'version' in build.zig.zon", root_node.start_position, root_node.start_position, .@"error");
+            const span = root_node.span();
+            try self.addDiagnostic("missing-required-field", "Missing required field 'version' in build.zig.zon", span.start, span.start, .err);
         }
     }
 
     fn validateZzZon(self: *Self, root_node: Node) !void {
+        // Get the actual object from root
+        const object_node = switch (root_node) {
+            .root => |root| root.value.*,
+            .object => root_node,
+            else => return,
+        };
+
+        if (object_node != .object) return;
+
         // Validate zz.zon configuration fields
-        for (root_node.children) |child| {
-            if (utils.isFieldAssignment(child) and utils.hasMinimumChildren(child, 2)) {
-                const field_name_node = child.children[0];
-                const value_node = utils.getFieldValue(child) orelse continue;
-                const field_text = field_name_node.text;
+        const obj = object_node.object;
+        for (obj.fields) |field| {
+            if (field == .field) {
+                const field_data = field.field;
+                const value_node = field_data.value.*;
+                const field_name = utils.getFieldName(field) orelse continue;
+                const extracted_name = utils.extractFieldName(field_name);
 
-                const field_name = if (field_text.len > 0 and field_text[0] == '.')
-                    field_text[1..]
-                else
-                    field_text;
-
-                if (std.mem.eql(u8, field_name, "base_patterns")) {
+                if (std.mem.eql(u8, extracted_name, "base_patterns")) {
                     // Should be a string
-                    if (value_node.rule_id != ZonRules.string_literal) {
-                        try self.addDiagnostic("invalid-field-type", "base_patterns should be a string", value_node.start_position, value_node.end_position, .warning);
+                    switch (value_node) {
+                        .string => {}, // Valid type
+                        else => try self.addDiagnostic("invalid-field-type", "base_patterns should be a string", value_node.span().start, value_node.span().end, .warning),
                     }
-                } else if (std.mem.eql(u8, field_name, "ignored_patterns")) {
+                } else if (std.mem.eql(u8, extracted_name, "ignored_patterns")) {
                     // Should be an array
-                    if (value_node.rule_id != ZonRules.array) {
-                        try self.addDiagnostic("invalid-field-type", "ignored_patterns should be an array", value_node.start_position, value_node.end_position, .warning);
+                    switch (value_node) {
+                        .array => {}, // Valid type
+                        else => try self.addDiagnostic("invalid-field-type", "ignored_patterns should be an array", value_node.span().start, value_node.span().end, .warning),
                     }
-                } else if (std.mem.eql(u8, field_name, "respect_gitignore")) {
+                } else if (std.mem.eql(u8, extracted_name, "respect_gitignore")) {
                     // Should be a boolean
-                    if (value_node.rule_id != ZonRules.boolean_literal) {
-                        try self.addDiagnostic("invalid-field-type", "respect_gitignore should be a boolean", value_node.start_position, value_node.end_position, .warning);
+                    switch (value_node) {
+                        .boolean => {}, // Valid type
+                        else => try self.addDiagnostic("invalid-field-type", "respect_gitignore should be a boolean", value_node.span().start, value_node.span().end, .warning),
                     }
                 }
             }
         }
     }
 
-    fn addDiagnostic(self: *Self, rule_name: []const u8, message: []const u8, start_pos: usize, end_pos: usize, severity: Diagnostic.Severity) !void {
+    fn addDiagnostic(self: *Self, rule_name: []const u8, message: []const u8, start_pos: u32, end_pos: u32, severity: Diagnostic.Severity) !void {
         const owned_message = try self.allocator.dupe(u8, message);
         try self.addDiagnosticOwned(rule_name, owned_message, start_pos, end_pos, severity);
     }
 
-    fn addDiagnosticOwned(self: *Self, rule_name: []const u8, owned_message: []const u8, start_pos: usize, end_pos: usize, severity: Diagnostic.Severity) !void {
+    fn addDiagnosticOwned(self: *Self, rule_name: []const u8, owned_message: []const u8, start_pos: u32, end_pos: u32, severity: Diagnostic.Severity) !void {
         const diagnostic = Diagnostic{
             .message = owned_message,
             .span = Span{

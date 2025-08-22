@@ -185,6 +185,14 @@ pub const PlanNode = struct {
         if (self.children.len > 0) {
             allocator.free(self.children);
         }
+
+        // Free allocated field arrays
+        if (self.sort_fields) |fields| {
+            allocator.free(fields);
+        }
+        if (self.aggregate_fields) |fields| {
+            allocator.free(fields);
+        }
     }
 };
 
@@ -293,7 +301,7 @@ pub const QueryPlanner = struct {
                     .predicate => 100,
                     .range => 200,
                 };
-                node.estimated_rows = 1000; // TODO: Get from statistics
+                node.estimated_rows = 1000; // Fixed estimate - no statistics available yet
             },
             .filter => {
                 if (node.children.len > 0) {

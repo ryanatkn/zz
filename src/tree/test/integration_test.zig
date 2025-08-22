@@ -95,7 +95,7 @@ test "tree command with depth limitation" {
     }
 
     // Test with depth limit
-    const args = [_][:0]const u8{ "tree", test_dir, "3" };
+    const args = [_][:0]const u8{ "tree", test_dir, "--depth=3" };
     tree_main.runQuiet(testing.allocator, ctx.filesystem, @constCast(args[0..])) catch {
         // Tree command with depth failed
         try testing.expect(false);
@@ -119,11 +119,9 @@ test "tree command error handling" {
     const test_dir = "error_test_tree";
     try tmp_ctx.makeDir(test_dir);
 
-    const args_invalid_depth = [_][:0]const u8{ "tree", test_dir, "not_a_number" };
-    tree_main.runQuiet(testing.allocator, tmp_ctx.filesystem, @constCast(args_invalid_depth[0..])) catch {
-        // Tree command with invalid depth failed - expected
-        try testing.expect(false);
-    };
+    const args_invalid_depth = [_][:0]const u8{ "tree", test_dir, "--depth=not_a_number" };
+    const result = tree_main.runQuiet(testing.allocator, tmp_ctx.filesystem, @constCast(args_invalid_depth[0..]));
+    try testing.expect(std.meta.isError(result)); // Should error with invalid depth
 }
 
 // Test tree command with permission issues (if possible)
@@ -306,7 +304,7 @@ test "tree command argument edge cases" {
 
     const path_z_large_sentinel = try testing.allocator.dupeZ(u8, path_z);
     defer testing.allocator.free(path_z_large_sentinel);
-    const args_large_depth = [_][:0]const u8{ "tree", path_z_large_sentinel, "999999" };
+    const args_large_depth = [_][:0]const u8{ "tree", path_z_large_sentinel, "--depth=999999" };
     const fs_large = RealFilesystem.init();
     tree_main.runQuiet(testing.allocator, fs_large, @constCast(args_large_depth[0..])) catch {
         // Should handle large depth gracefully
@@ -336,7 +334,7 @@ test "tree and list format produce different outputs" {
     // Test both formats work without crashing
     const path_z_tree_sentinel = try testing.allocator.dupeZ(u8, path_z);
     defer testing.allocator.free(path_z_tree_sentinel);
-    const args_tree = [_][:0]const u8{ "tree", path_z_tree_sentinel, "2", "--format=tree" };
+    const args_tree = [_][:0]const u8{ "tree", path_z_tree_sentinel, "--depth=2", "--format=tree" };
     const fs_tree = RealFilesystem.init();
     tree_main.runQuiet(testing.allocator, fs_tree, @constCast(args_tree[0..])) catch {
         try testing.expect(false); // Should not fail
@@ -344,7 +342,7 @@ test "tree and list format produce different outputs" {
 
     const path_z_list_sentinel = try testing.allocator.dupeZ(u8, path_z);
     defer testing.allocator.free(path_z_list_sentinel);
-    const args_list = [_][:0]const u8{ "tree", path_z_list_sentinel, "2", "--format=list" };
+    const args_list = [_][:0]const u8{ "tree", path_z_list_sentinel, "--depth=2", "--format=list" };
     const fs_list = RealFilesystem.init();
     tree_main.runQuiet(testing.allocator, fs_list, @constCast(args_list[0..])) catch {
         try testing.expect(false); // Should not fail
@@ -375,9 +373,9 @@ test "format flags with depth and directory combinations" {
         description: []const u8,
     }{
         .{ .args = &.{ "tree", path_z_combo_sentinel, "--format=list" }, .description = "directory + list format" },
-        .{ .args = &.{ "tree", path_z_combo_sentinel, "1", "--format=list" }, .description = "directory + depth + list format" },
-        .{ .args = &.{ "tree", "--format=tree", path_z_combo_sentinel, "2" }, .description = "format first, then directory + depth" },
-        .{ .args = &.{ "tree", "--format=list", path_z_combo_sentinel, "1" }, .description = "format first, then directory + depth" },
+        .{ .args = &.{ "tree", path_z_combo_sentinel, "--depth=1", "--format=list" }, .description = "directory + depth + list format" },
+        .{ .args = &.{ "tree", "--format=tree", path_z_combo_sentinel, "--depth=2" }, .description = "format first, then directory + depth" },
+        .{ .args = &.{ "tree", "--format=list", path_z_combo_sentinel, "--depth=1" }, .description = "format first, then directory + depth" },
     };
 
     for (test_cases) |test_case| {

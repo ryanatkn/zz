@@ -21,42 +21,34 @@ pub const Analyzer = interface_types.Analyzer;
 // Enhanced registry
 pub const LanguageRegistry = @import("registry.zig").LanguageRegistry;
 
-// Common utilities
-pub const common = @import("common/mod.zig");
-
-// Language implementations
-pub const typescript = @import("typescript/mod.zig");
-pub const svelte = @import("svelte/mod.zig");
+// Language implementations (only JSON and ZON are currently implemented)
 pub const json = @import("json/mod.zig");
-pub const zig = @import("zig/mod.zig");
 pub const zon = @import("zon/mod.zig");
-pub const css = @import("css/mod.zig");
-pub const html = @import("html/mod.zig");
 
-/// Get language support for a specific language
+// TODO: Other language implementations to be added:
+// pub const typescript = @import("typescript/mod.zig");
+// pub const svelte = @import("svelte/mod.zig");
+// pub const zig = @import("zig/mod.zig");
+// pub const css = @import("css/mod.zig");
+// pub const html = @import("html/mod.zig");
+
+/// Get language support for a specific language (delegates to registry)
 pub fn getSupport(allocator: std.mem.Allocator, language: Language) !LanguageSupport {
-    return switch (language) {
-        .typescript => typescript.getSupport(allocator),
-        .svelte => svelte.getSupport(allocator),
-        .json => json.getSupport(allocator),
-        .zig => zig.getSupport(allocator),
-        .zon => zon.getSupport(allocator),
-        .css => css.getSupport(allocator),
-        .html => html.getSupport(allocator),
-        .unknown => error.UnsupportedLanguage,
-    };
+    const registry = try @import("registry.zig").getGlobalRegistry(allocator);
+    return registry.getSupport(language);
 }
 
 /// Check if a language is supported
 pub fn isSupported(language: Language) bool {
     return switch (language) {
-        .typescript, .svelte, .json, .zig, .zon, .css, .html => true,
+        .json, .zon => true,
+        .typescript, .svelte, .zig, .css, .html => false, // Not yet implemented
         .unknown => false,
     };
 }
 
-/// Get all supported languages
+/// Get all supported languages (currently implemented)
 pub fn getSupportedLanguages() []const Language {
-    const supported = [_]Language{ .typescript, .svelte, .json, .zig, .zon, .css, .html };
+    const supported = [_]Language{ .json, .zon };
     return &supported;
 }

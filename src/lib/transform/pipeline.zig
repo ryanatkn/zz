@@ -12,12 +12,12 @@ pub const Transform = struct {
     vtable: *const VTable,
 
     const VTable = struct {
-        transformFn: *const fn (ptr: *anyopaque, input: anytype, allocator: std.mem.Allocator) anyerror!anyopaque,
+        transformFn: *const fn (ptr: *anyopaque, input: anytype, allocator: std.mem.Allocator) anyerror!?*anyopaque,
         deinitFn: *const fn (ptr: *anyopaque) void,
         nameFn: *const fn (ptr: *anyopaque) []const u8,
     };
 
-    pub fn transform(self: Transform, input: anytype, allocator: std.mem.Allocator) !anyopaque {
+    pub fn transform(self: Transform, input: anytype, allocator: std.mem.Allocator) !?*anyopaque {
         return self.vtable.transformFn(self.ptr, input, allocator);
     }
 

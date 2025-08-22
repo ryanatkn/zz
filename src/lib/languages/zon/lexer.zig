@@ -70,6 +70,11 @@ pub const ZonLexer = struct {
         return tokens.toOwnedSlice();
     }
 
+    /// Compatibility alias for batchTokenize
+    pub fn tokenize(self: *Self, source: []const u8) ![]Token {
+        return try self.batchTokenize(self.allocator, source);
+    }
+
     /// Reset lexer state
     pub fn reset(self: *Self) void {
         self.position = 0;
@@ -80,11 +85,12 @@ pub const ZonLexer = struct {
 /// Streaming iterator for zero-allocation tokenization
 const StreamIterator = struct {
     lexer: *ZonLexer,
+    eof_returned: bool,
 
     const Self = @This();
 
     pub fn init(lexer: *ZonLexer) Self {
-        return .{ .lexer = lexer };
+        return .{ .lexer = lexer, .eof_returned = false };
     }
 
     pub fn next(self: *Self) ?Token {
@@ -99,6 +105,10 @@ const StreamIterator = struct {
 
         // Check for EOF
         if (lexer.position >= lexer.source.len) {
+            if (self.eof_returned) {
+                return null; // EOF already returned, stop iteration
+            }
+            self.eof_returned = true;
             return Token{
                 .span = Span.init(@intCast(lexer.position), @intCast(lexer.position)),
                 .kind = .eof,
@@ -215,7 +225,7 @@ const StreamIterator = struct {
                         // It's a field access like .field
                         while (lexer.position < lexer.source.len) {
                             const ch = lexer.source[lexer.position];
-                            if (!char.isAlphaNum(ch) and ch != '_') break;
+                            if (!char.isAlphaNumeric(ch) and ch != '_') break;
                             lexer.position += 1;
                         }
                         return Token{
@@ -306,7 +316,7 @@ const StreamIterator = struct {
             lexer.position += 1;
             while (lexer.position < lexer.source.len) {
                 const ch = lexer.source[lexer.position];
-                if (!char.isAlphaNum(ch) and ch != '_') break;
+                if (!char.isAlphaNumeric(ch) and ch != '_') break;
                 lexer.position += 1;
             }
 

@@ -14,10 +14,7 @@ const Task = parallel_mod.Task;
 const TaskPriority = parallel_mod.TaskPriority;
 const errors = @import("../lib/core/errors.zig");
 
-// Import stratified parser
-const StratifiedParser = @import("../lib/parser_old/mod.zig");
-const Lexical = StratifiedParser.Lexical;
-const Structural = StratifiedParser.Structural;
+// Removed stratified parser - using direct language modules
 
 pub const PromptBuilder = struct {
     allocator: std.mem.Allocator,
@@ -119,96 +116,16 @@ pub const PromptBuilder = struct {
         try self.lines.append("");
     }
 
-    /// Extract content using stratified parser
+    /// Extract content - simplified to return original content
     fn extractContent(self: *Self, language: Language, content: []const u8, file_path: []const u8) ![]const u8 {
-        return self.extractWithStratifiedParser(language, content, file_path);
-    }
-
-    /// Extract content using the stratified parser
-    fn extractWithStratifiedParser(self: *Self, language: Language, content: []const u8, file_path: []const u8) ![]const u8 {
-        // Check if content is valid UTF-8 before parsing
-        if (!std.unicode.utf8ValidateSlice(content)) {
-            // Return a placeholder for binary content
-            return try std.fmt.allocPrint(self.allocator, "// Binary file detected: {s} ({d} bytes)\n// Content cannot be displayed as text\n", .{ file_path, content.len });
-        }
-
-        // Initialize the stratified parser layers
-        const lexical_config = Lexical.LexerConfig{
-            .language = mapLanguageToLexical(language),
-            .buffer_size = @min(content.len * 2, 8192),
-            .track_brackets = true,
-        };
-
-        const structural_config = Structural.StructuralConfig{
-            .language = mapLanguageToStructural(language),
-            .performance_threshold_ns = 1_000_000, // 1ms target
-            .include_folding = false,
-        };
-
-        // Layer 0: Lexical analysis (<0.1ms target)
-        const lexical_start = std.time.nanoTimestamp();
-        var lexer = try Lexical.StreamingLexer.init(self.allocator, lexical_config);
-        defer lexer.deinit();
-
-        const full_span = StratifiedParser.Span.init(0, content.len);
-        const tokens = try lexer.tokenizeRange(content, full_span);
-        defer self.allocator.free(tokens);
-        const lexical_time = std.time.nanoTimestamp() - lexical_start;
-
-        // Layer 1: Structural analysis (<1ms target)
-        const structural_start = std.time.nanoTimestamp();
-        var structural_parser = try Structural.StructuralParser.init(self.allocator, structural_config);
-        defer structural_parser.deinit();
-
-        var parse_result = try structural_parser.parse(tokens);
-        defer parse_result.deinit(self.allocator);
-        const structural_time = std.time.nanoTimestamp() - structural_start;
-
-        // Performance reporting for stratified parser
-        if (!self.quiet) {
-            const stderr = std.io.getStdErr().writer();
-            try stderr.print("🔹 Stratified Parser Performance for {s}:\n", .{file_path});
-            try stderr.print("   Layer 0 (Lexical):   {d:.1}μs (tokens: {})\n", .{ @as(f64, @floatFromInt(lexical_time)) / 1000.0, tokens.len });
-            try stderr.print("   Layer 1 (Structural): {d:.1}μs (boundaries: {})\n", .{ @as(f64, @floatFromInt(structural_time)) / 1000.0, parse_result.boundaries.len });
-
-            // Check performance targets
-            const lexical_target_met = lexical_time < 100_000; // 0.1ms
-            const structural_target_met = structural_time < 1_000_000; // 1ms
-
-            try stderr.print("🎯 Performance Targets:\n", .{});
-            try stderr.print("   Lexical <0.1ms:    {s}\n", .{if (lexical_target_met) "✅ PASS" else "❌ FAIL"});
-            try stderr.print("   Structural <1ms:   {s}\n", .{if (structural_target_met) "✅ PASS" else "❌ FAIL"});
-        }
-
-        // For now, return the original content since we're focused on parsing validation
-        // TODO: Implement fact-to-content generation for actual extraction
-        // The stratified parser excels at structure analysis, not content extraction for prompts
+        _ = language;
+        _ = file_path;
         return self.allocator.dupe(u8, content);
     }
 
-    /// Map Language enum to lexical layer language
-    fn mapLanguageToLexical(language: Language) Lexical.Language {
-        return switch (language) {
-            .zig => .zig,
-            .typescript => .typescript,
-            .json => .json,
-            .css => .css,
-            .html => .html,
-            .svelte, .zon, .unknown => .generic,
-        };
-    }
+    // Removed extractWithStratifiedParser - using direct content return
 
-    /// Map Language enum to structural layer language
-    fn mapLanguageToStructural(language: Language) Structural.Language {
-        return switch (language) {
-            .zig => .zig,
-            .typescript => .typescript,
-            .json => .json,
-            .css => .css,
-            .html => .html,
-            .svelte, .zon, .unknown => .generic,
-        };
-    }
+    // Removed mapping functions - using direct language modules
 
     pub fn addFile(self: *Self, file_path: []const u8) !void {
         const cwd = self.filesystem.cwd();

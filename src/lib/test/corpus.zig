@@ -4,12 +4,10 @@
 /// to ensure consistent behavior and quality across all language modules.
 const std = @import("std");
 const testing = std.testing;
-// Consolidate foundation type imports
-const Token = @import("../parser_old/foundation/types/token.zig").Token;
-const predicate_types = @import("../parser_old/foundation/types/predicate.zig");
-const TokenKind = predicate_types.TokenKind;
-const Span = @import("../parser_old/foundation/types/span.zig").Span;
-const AST = @import("../ast_old/mod.zig").AST;
+// Using generic foundation types (no ast_old dependency)
+const Token = @import("../token/token.zig").Token;
+const TokenKind = @import("../token/mod.zig").TokenKind;
+const Span = @import("../span/mod.zig").Span;
 
 /// Standard test cases that all languages should pass
 pub const StandardTestCases = struct {

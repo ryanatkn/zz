@@ -10,16 +10,19 @@ pub const kind = @import("kind.zig");
 pub const generic = @import("generic.zig");
 pub const iterator = @import("iterator.zig");
 pub const buffer = @import("buffer.zig");
+pub const data = @import("data.zig");
 
 // Convenience re-exports for common types
 pub const Token = token.Token;
 pub const TokenKind = token.TokenKind;
 pub const TokenFlags = token.TokenFlags;
 
+pub const TokenData = data.TokenData;
+pub const TokenInterface = data.TokenInterface;
+
 pub const StreamToken = stream_token.StreamToken;
 
 pub const SimpleStreamToken = generic.SimpleStreamToken;
-pub const TokenInterface = generic.TokenInterface;
 
 pub const TokenIterator = iterator.TokenIterator;
 

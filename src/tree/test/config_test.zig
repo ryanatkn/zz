@@ -67,19 +67,17 @@ test "max depth parameter parsing" {
     defer ctx.deinit();
 
     // Test valid depth
-    const args1 = [_][:0]const u8{ "tree", ".", "3" };
+    const args1 = [_][:0]const u8{ "tree", ".", "--depth=3" };
     var config = try Config.fromArgs(testing.allocator, ctx.filesystem, @constCast(args1[0..]));
     defer config.deinit(testing.allocator);
 
     try testing.expect(config.max_depth != null);
     try testing.expect(config.max_depth.? == 3);
 
-    // Test invalid depth (should be ignored)
-    const args2 = [_][:0]const u8{ "tree", ".", "invalid" };
-    var config2 = try Config.fromArgs(testing.allocator, ctx.filesystem, @constCast(args2[0..]));
-    defer config2.deinit(testing.allocator);
-
-    try testing.expect(config2.max_depth == null);
+    // Test invalid depth flag (should error)
+    const args2 = [_][:0]const u8{ "tree", ".", "--depth=invalid" };
+    const result2 = Config.fromArgs(testing.allocator, ctx.filesystem, @constCast(args2[0..]));
+    try testing.expect(std.meta.isError(result2));
 
     // Test no depth parameter
     const args3 = [_][:0]const u8{ "tree", "." };
@@ -177,13 +175,13 @@ test "edge case command line arguments" {
     defer config.deinit(testing.allocator);
 
     // Very large depth number
-    const args_large = [_][:0]const u8{ "tree", ".", "999999" };
+    const args_large = [_][:0]const u8{ "tree", ".", "--depth=999999" };
     var config_large = try Config.fromArgs(testing.allocator, ctx.filesystem, @constCast(args_large[0..]));
     defer config_large.deinit(testing.allocator);
     try testing.expect(config_large.max_depth.? == 999999);
 
     // Zero depth
-    const args_zero = [_][:0]const u8{ "tree", ".", "0" };
+    const args_zero = [_][:0]const u8{ "tree", ".", "--depth=0" };
     var config_zero = try Config.fromArgs(testing.allocator, ctx.filesystem, @constCast(args_zero[0..]));
     defer config_zero.deinit(testing.allocator);
     try testing.expect(config_zero.max_depth.? == 0);

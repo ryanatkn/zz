@@ -1,5 +1,5 @@
 const std = @import("std");
-const Node = @import("../../ast_old/mod.zig").Node;
+const Node = @import("ast.zig").Node;
 
 /// Memory management for JSON parsing
 ///

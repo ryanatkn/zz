@@ -10,13 +10,13 @@
 ```bash
 zz tree             # No args needed for common case
 zz tree src         # Positional for obvious inputs  
-zz tree src 2       # Natural ordering
+zz tree src --depth=2  # Clear flag-based options
 zz tree --format=json   # Clear key=value for options
 ```
 
 **Bad arguments:**
 ```bash
-zz tree --directory=src --max-depth=2 --output-format=json
+zz tree src --depth=2 --format=json
 zz tree -dtsSxvf src    # Alphabet soup
 zz tree --enable-feature --disable-other-feature --toggle-third-feature
 ```
@@ -195,7 +195,7 @@ Respect platform conventions:
 
 **Useful help:**
 ```
-Usage: zz tree [directory] [depth] [options]
+Usage: zz tree [directory] [options]
 
 Show directory structure as a tree
 
@@ -209,7 +209,7 @@ Options:
 
 Examples:
   zz tree              # Current directory
-  zz tree src 2        # src/ directory, 2 levels
+  zz tree src --depth=2  # src/ directory, 2 levels
   zz tree --format=json > tree.json
 ```
 

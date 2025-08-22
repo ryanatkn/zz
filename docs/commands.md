@@ -27,7 +27,7 @@ $ zz tree                    # Show current directory tree
 $ zz tree /path/to/dir       # Show specific directory
 $ zz tree --format=list      # Use list format instead of tree
 $ zz tree --hidden           # Include hidden files
-$ zz tree --max-depth=3      # Limit depth
+$ zz tree --depth=3          # Limit depth
 ```
 
 See [tree-features.md](tree-features.md) for detailed features and options.

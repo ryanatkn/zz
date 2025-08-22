@@ -135,8 +135,8 @@ $ zz tree --all              # Show everything (no ignores)
 ### Depth Control
 
 ```bash
-$ zz tree --max-depth=2      # Limit to 2 levels deep
-$ zz tree -L 3               # Short form for max-depth
+$ zz tree --depth=2          # Limit to 2 levels deep
+$ zz tree -d 3               # Short form for depth
 $ zz tree --depth=1          # Only immediate children
 ```
 

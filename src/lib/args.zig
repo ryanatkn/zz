@@ -174,6 +174,11 @@ pub const CommonFlags = struct {
     pub fn parseIndentStyleFlag(arg: []const u8) ?[]const u8 {
         return Args.parseFlag(arg, "indent-style", null);
     }
+
+    /// Parse depth flag (for tree command)
+    pub fn parseDepthFlag(arg: []const u8) ?u32 {
+        return Args.parseIntFlag(arg, "depth", "d", u32);
+    }
 };
 
 // Tests

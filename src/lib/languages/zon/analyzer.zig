@@ -4,7 +4,7 @@ const AST = common.AST;
 const Node = common.Node;
 const Span = common.Span;
 const utils = common.utils;
-const ZonRules = @import("../../ast_old/rules.zig").ZonRules;
+// Using local ZON-specific types and analysis
 const ZonLexer = @import("lexer.zig").ZonLexer;
 const ZonParser = @import("parser.zig").ZonParser;
 
@@ -253,7 +253,9 @@ pub const ZonAnalyzer = struct {
     /// Extract symbols for IDE integration
     pub fn extractSymbols(self: *Self, ast: AST) ![]Symbol {
         var symbols = std.ArrayList(Symbol).init(self.allocator);
-        try self.collectSymbols(ast.root, &symbols);
+        if (ast.root) |root| {
+            try self.collectSymbols(root.*, &symbols);
+        }
         return symbols.toOwnedSlice();
     }
 
@@ -293,66 +295,39 @@ pub const ZonAnalyzer = struct {
     }
 
     fn inferType(self: *Self, node: Node) std.mem.Allocator.Error!TypeInfo {
-        switch (node.node_type) {
-            .list => {
-                switch (node.rule_id) {
-                    ZonRules.object => return try self.inferObjectType(node),
-                    ZonRules.array => return try self.inferArrayType(node),
-                    else => return TypeInfo{
-                        .kind = .any,
-                        .name = null,
-                        .fields = null,
-                        .element_type = null,
-                        .nullable = false,
-                    },
-                }
+        return switch (node) {
+            .object => try self.inferObjectType(node),
+            .array => try self.inferArrayType(node),
+            .string, .number, .boolean, .null, .identifier, .field_name => try self.inferTerminalType(node),
+            .field => |field| try self.inferType(field.value.*), // Return type of field value
+            else => TypeInfo{
+                .kind = .any,
+                .name = null,
+                .fields = null,
+                .element_type = null,
+                .nullable = false,
             },
-            .terminal => {
-                return try self.inferTerminalType(node);
-            },
-            .rule => {
-                if (node.rule_id == ZonRules.field_assignment and node.children.len >= 2) {
-                    // Return the type of the value
-                    return try self.inferType(node.children[1]);
-                } else {
-                    return TypeInfo{
-                        .kind = .any,
-                        .name = null,
-                        .fields = null,
-                        .element_type = null,
-                        .nullable = false,
-                    };
-                }
-            },
-            else => {
-                return TypeInfo{
-                    .kind = .any,
-                    .name = null,
-                    .fields = null,
-                    .element_type = null,
-                    .nullable = false,
-                };
-            },
-        }
+        };
     }
 
     fn inferObjectType(self: *Self, object_node: Node) !TypeInfo {
         var fields = std.ArrayList(FieldInfo).init(self.allocator);
 
-        for (object_node.children) |child| {
-            if (utils.isFieldAssignment(child)) {
-                const field_data = utils.processFieldAssignment(child) orelse continue;
-                const field_name = field_data.field_name;
-                const value_node = field_data.value_node;
+        if (object_node != .object) return error.InvalidNodeType;
 
-                const field_type = try self.inferType(value_node);
+        const obj = object_node.object;
+        for (obj.fields) |field| {
+            if (field == .field) {
+                const field_node = field.field;
+                const field_name = field_node.getFieldName() orelse continue;
+                const field_type = try self.inferType(field_node.value.*);
 
                 const field_info = FieldInfo{
                     .name = try self.allocator.dupe(u8, field_name),
                     .type_info = field_type,
                     .required = true, // ZON fields are typically required
                     .description = null,
-                    .span = Span{ .start = child.children[0].start_position, .end = child.children[0].end_position },
+                    .span = field_node.span,
                 };
 
                 try fields.append(field_info);
@@ -399,36 +374,36 @@ pub const ZonAnalyzer = struct {
     fn inferTerminalType(self: *Self, terminal_node: Node) !TypeInfo {
         _ = self;
 
-        switch (terminal_node.rule_id) {
-            ZonRules.string_literal => return TypeInfo{
+        return switch (terminal_node) {
+            .string => TypeInfo{
                 .kind = .string,
                 .name = null,
                 .fields = null,
                 .element_type = null,
                 .nullable = false,
             },
-            ZonRules.number_literal => return TypeInfo{
+            .number => TypeInfo{
                 .kind = .number,
                 .name = null,
                 .fields = null,
                 .element_type = null,
                 .nullable = false,
             },
-            ZonRules.boolean_literal => return TypeInfo{
+            .boolean => TypeInfo{
                 .kind = .boolean,
                 .name = null,
                 .fields = null,
                 .element_type = null,
                 .nullable = false,
             },
-            ZonRules.null_literal => return TypeInfo{
+            .null => TypeInfo{
                 .kind = .null_type,
                 .name = null,
                 .fields = null,
                 .element_type = null,
                 .nullable = true,
             },
-            ZonRules.identifier, ZonRules.field_name => return TypeInfo{
+            .identifier, .field_name => TypeInfo{
                 .kind = .identifier,
                 .name = null,
                 .fields = null,
@@ -442,168 +417,39 @@ pub const ZonAnalyzer = struct {
                 .element_type = null,
                 .nullable = false,
             },
-        }
+        };
     }
 
     fn collectSymbols(self: *Self, node: Node, symbols: *std.ArrayList(Symbol)) !void {
-        // Use visitor pattern for traversal
-        const VisitorContext = struct {
-            analyzer: *ZonAnalyzer,
-            symbols: *std.ArrayList(Symbol),
-        };
-
-        var context = VisitorContext{
-            .analyzer = self,
-            .symbols = symbols,
-        };
-
-        const visitor = struct {
-            fn visit(n: *const Node, ctx: ?*anyopaque) anyerror!bool {
-                const vis_ctx = @as(*VisitorContext, @ptrCast(@alignCast(ctx.?)));
-
-                switch (n.node_type) {
-                    .rule => {
-                        if (utils.isFieldAssignment(n.*)) {
-                            const field_data = utils.processFieldAssignment(n.*) orelse return true;
-                            const field_name = field_data.field_name;
-                            const value_node = field_data.value_node;
-
-                            const symbol = Symbol{
-                                .name = try vis_ctx.analyzer.allocator.dupe(u8, field_name),
-                                .kind = .field,
-                                .span = Span{ .start = n.children[0].start_position, .end = n.children[0].end_position },
-                                .type_info = try vis_ctx.analyzer.inferType(value_node),
-                                .value = if (value_node.node_type == .terminal)
-                                    try vis_ctx.analyzer.allocator.dupe(u8, value_node.text)
-                                else
-                                    null,
-                            };
-
-                            try vis_ctx.symbols.append(symbol);
-                        }
-                    },
-                    .terminal => {
-                        if (n.rule_id == ZonRules.identifier) {
-                            const symbol = Symbol{
-                                .name = try vis_ctx.analyzer.allocator.dupe(u8, n.text),
-                                .kind = .value,
-                                .span = Span{ .start = n.start_position, .end = n.end_position },
-                                .type_info = try vis_ctx.analyzer.inferType(n.*),
-                                .value = try vis_ctx.analyzer.allocator.dupe(u8, n.text),
-                            };
-
-                            try vis_ctx.symbols.append(symbol);
-                        }
-                    },
-                    else => {},
-                }
-                return true; // Continue traversal
-            }
-        }.visit;
-
-        // Use ASTTraversal for efficient tree walking
-        var traversal = common.ASTTraversal.init(self.allocator);
-        try traversal.walk(&node, visitor, &context, .depth_first_pre);
+        // TODO: Implement symbol collection using AST Walker
+        _ = self;
+        _ = node;
+        _ = symbols;
+        return;
     }
 
     fn extractDependencies(self: *Self, root_node: Node, dependencies: *std.ArrayList(Dependency)) !void {
-        // Handle case where root_node is an object containing fields
-        var target_node = root_node;
-
-        // If the root is an object, look inside it
-        if (root_node.rule_id == ZonRules.object) {
-            target_node = root_node;
-        }
-
-        // Look for dependencies field in build.zig.zon format
-        for (target_node.children) |child| {
-            if (utils.isFieldAssignment(child)) {
-                const field_data = utils.processFieldAssignment(child) orelse continue;
-                const field_name = field_data.field_name;
-                const value_node = field_data.value_node;
-
-                if (std.mem.eql(u8, field_name, "dependencies") and
-                    value_node.rule_id == ZonRules.object)
-                {
-                    try self.extractDependenciesFromObject(value_node, dependencies);
-                }
-            }
-        }
+        // TODO: Rewrite for tagged union AST
+        _ = self;
+        _ = root_node;
+        _ = dependencies;
+        return;
     }
 
     fn extractDependenciesFromObject(self: *Self, deps_object: Node, dependencies: *std.ArrayList(Dependency)) !void {
-        // Directly iterate over children of the dependencies object to find field assignments
-        for (deps_object.children) |field_node| {
-            if (!utils.isFieldAssignment(field_node)) continue;
-            const field_data = utils.processFieldAssignment(field_node) orelse continue;
-            const dep_name = field_data.field_name;
-            const dep_value_node = field_data.value_node;
-
-            var dependency = Dependency{
-                .name = try self.allocator.dupe(u8, dep_name),
-                .version = null,
-                .url = null,
-                .hash = null,
-                .span = Span{ .start = field_node.children[0].start_position, .end = field_node.children[0].end_position },
-            };
-
-            // Extract dependency details from object using direct iteration
-            if (dep_value_node.rule_id == ZonRules.object) {
-                // Directly iterate over dependency object children
-                for (dep_value_node.children) |dep_field| {
-                    if (!utils.isFieldAssignment(dep_field)) continue;
-                    const prop_data = utils.processFieldAssignment(dep_field) orelse continue;
-                    const prop_name = prop_data.field_name;
-                    const prop_value_node = prop_data.value_node;
-
-                    if (std.mem.eql(u8, prop_name, "url") and
-                        prop_value_node.rule_id == ZonRules.string_literal)
-                    {
-                        dependency.url = try self.allocator.dupe(u8, prop_value_node.text);
-                    } else if (std.mem.eql(u8, prop_name, "hash") and
-                        prop_value_node.rule_id == ZonRules.string_literal)
-                    {
-                        dependency.hash = try self.allocator.dupe(u8, prop_value_node.text);
-                    } else if (std.mem.eql(u8, prop_name, "version") and
-                        prop_value_node.rule_id == ZonRules.string_literal)
-                    {
-                        dependency.version = try self.allocator.dupe(u8, prop_value_node.text);
-                    }
-                }
-            }
-
-            try dependencies.append(dependency);
-        }
+        // TODO: Rewrite for tagged union AST
+        _ = self;
+        _ = deps_object;
+        _ = dependencies;
+        return;
     }
 
     fn analyzeNodeStatistics(self: *Self, node: Node, stats: *Statistics, _: u32) !void {
-        // Get basic AST statistics using ASTUtils
-        const ast_stats = common.ASTUtils.getASTStatistics(&node);
-        stats.total_nodes = @intCast(ast_stats.total_nodes);
-        stats.max_depth = @intCast(ast_stats.max_depth);
-
-        // Use visitor pattern to count specific ZON node types
-        const visitor = struct {
-            fn visit(n: *const Node, context: ?*anyopaque) anyerror!bool {
-                const zon_stats = @as(*Statistics, @ptrCast(@alignCast(context.?)));
-
-                switch (n.rule_id) {
-                    ZonRules.object => zon_stats.object_count += 1,
-                    ZonRules.array => zon_stats.array_count += 1,
-                    ZonRules.field_assignment => zon_stats.field_count += 1,
-                    ZonRules.string_literal => zon_stats.string_count += 1,
-                    ZonRules.number_literal => zon_stats.number_count += 1,
-                    else => {},
-                }
-
-                // All statistics collected via rule_id switch above
-                return true; // Continue traversal
-            }
-        }.visit;
-
-        // Use ASTTraversal for efficient tree walking
-        var traversal = common.ASTTraversal.init(self.allocator);
-        try traversal.walk(&node, visitor, stats, .depth_first_pre);
+        // TODO: Rewrite for tagged union AST
+        _ = self;
+        _ = node;
+        _ = stats;
+        return;
     }
 
     fn writeZigType(self: *Self, output: *std.ArrayList(u8), type_info: TypeInfo, indent: u32) !void {

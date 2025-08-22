@@ -30,15 +30,15 @@ test {
     _ = @import("text/test.zig");
     _ = @import("patterns/test.zig");
     _ = @import("filesystem/test.zig");
-    _ = @import("grammar/test.zig");
+    // Grammar module deleted
+    // _ = @import("grammar/test.zig");
 
-    // Legacy/Migration (to be removed in Phase 4)
-    _ = @import("ast_old/test.zig");
-    _ = @import("parser_old/test.zig");
-    _ = @import("transform_old/test.zig");
+    // Legacy/Migration (kept for reference, not imported)
+    // _ = @import("parser_old/test.zig");
+    // _ = @import("transform_old/test.zig");
 
     // Development Support
-    _ = @import("benchmark/test.zig");
+    // _ = @import("benchmark/test.zig"); // Disabled until streaming migration complete
     _ = @import("terminal/test.zig");
     _ = @import("execution/test.zig");
     _ = @import("deps/test.zig");

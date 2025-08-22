@@ -7,21 +7,20 @@
 // Standard library
 pub const std = @import("std");
 
-// Core AST and parser types
-const ast_mod = @import("../../ast_old/mod.zig");
-pub const Node = ast_mod.Node;
-pub const NodeType = ast_mod.NodeType;
-pub const AST = ast_mod.AST;
-pub const ASTUtils = @import("../../ast_old/utils.zig").ASTUtils;
-pub const ASTTraversal = @import("../../ast_old/traversal.zig").ASTTraversal;
+// New token and span types
+pub const Token = @import("../../token/token.zig").Token;
+pub const TokenKind = @import("../../token/mod.zig").TokenKind;
+pub const Span = @import("../../span/mod.zig").Span;
 
-// Parser foundation types
-const token_types = @import("../../parser_old/foundation/types/token.zig");
-pub const Token = token_types.Token;
-pub const TokenFlags = token_types.TokenFlags;
-const predicate_types = @import("../../parser_old/foundation/types/predicate.zig");
-pub const TokenKind = predicate_types.TokenKind;
-pub const Span = @import("../../parser_old/foundation/types/span.zig").Span;
+// ZON-specific AST (self-contained)
+const zon_ast = @import("ast.zig");
+pub const AST = zon_ast.AST;
+pub const Node = zon_ast.Node;
+pub const NodeKind = zon_ast.NodeKind;
+
+// Generic AST utilities (zero coupling)
+pub const Walker = @import("../../ast/walker.zig").Walker;
+pub const Builder = @import("../../ast/builder.zig").Builder;
 
 // Language interface types (for internal implementation)
 const interface_types = @import("../interface.zig");

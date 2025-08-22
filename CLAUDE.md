@@ -137,15 +137,16 @@ $ zz deps --list                    # Check dependency status
 ```bash
 $ zz tree --format=list             # List format for parsing
 $ zz tree --hidden                  # Include hidden files
-$ zz tree --max-depth=3             # Limit depth
+$ zz tree --depth=3                 # Limit depth
 ```
 See [docs/tree-features.md](docs/tree-features.md) for details.
 
 ### Prompt - LLM Code Extraction
 ```bash
+$ zz prompt src/main.zig            # Include one file
+$ zz prompt src/                    # Include entire directory
 $ zz prompt --signatures "*.zig"    # Extract function signatures
 $ zz prompt --types --docs "*.ts"   # Extract types and docs
-$ zz prompt src/                    # Process entire directory
 ```
 See [docs/prompt-features.md](docs/prompt-features.md) for AST extraction features.
 

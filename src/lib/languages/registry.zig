@@ -3,21 +3,41 @@ const Language = @import("../core/language.zig").Language;
 
 // Import all interface types from single module
 const lang_interface = @import("interface.zig");
-const LanguageSupport = lang_interface.LanguageSupport;
 const Lexer = lang_interface.Lexer;
 const Parser = lang_interface.Parser;
 const Formatter = lang_interface.Formatter;
 const Linter = lang_interface.Linter;
 const Analyzer = lang_interface.Analyzer;
 
+// Import language-specific AST types and Rule types
+const JsonAST = @import("json/ast.zig").AST;
+const ZonAST = @import("zon/ast.zig").AST;
+const JsonRuleType = @import("json/linter.zig").JsonRuleType;
+const ZonRuleType = @import("zon/linter.zig").ZonRuleType;
+
+// Create a concrete LanguageSupport union for the registry
+const LanguageSupport = union(enum) {
+    json: lang_interface.LanguageSupport(JsonAST, JsonRuleType),
+    zon: lang_interface.LanguageSupport(ZonAST, ZonRuleType),
+    // Other languages will be added as they're implemented
+
+    pub fn deinit(self: *LanguageSupport, allocator: std.mem.Allocator) void {
+        switch (self.*) {
+            .json => |*support| if (support.deinitFn) |deinitFn| deinitFn(allocator),
+            .zon => |*support| if (support.deinitFn) |deinitFn| deinitFn(allocator),
+        }
+    }
+};
+
 // Language module imports
-const typescript_mod = @import("typescript/mod.zig");
-const svelte_mod = @import("svelte/mod.zig");
 const json_mod = @import("json/mod.zig");
-const zig_mod = @import("zig/mod.zig");
 const zon_mod = @import("zon/mod.zig");
-const css_mod = @import("css/mod.zig");
-const html_mod = @import("html/mod.zig");
+
+// TODO: To add a new language module:
+// 1. Add import: const lang_mod = @import("lang/mod.zig");
+// 2. Add to LanguageSupport union below
+// 3. Add case in getSupport() switch statement
+// 4. Add to getSupportedLanguages() array
 
 /// Enhanced language registry for unified language support
 ///
@@ -54,13 +74,9 @@ pub const LanguageRegistry = struct {
 
         // Initialize new language support
         const support = switch (language) {
-            .typescript => try typescript_mod.getSupport(self.allocator),
-            .svelte => try svelte_mod.getSupport(self.allocator),
-            .json => try json_mod.getSupport(self.allocator),
-            .zig => try zig_mod.getSupport(self.allocator),
-            .zon => try zon_mod.getSupport(self.allocator),
-            .css => try css_mod.getSupport(self.allocator),
-            .html => try html_mod.getSupport(self.allocator),
+            .json => LanguageSupport{ .json = try json_mod.getSupport(self.allocator) },
+            .zon => LanguageSupport{ .zon = try zon_mod.getSupport(self.allocator) },
+            .zig, .css, .html, .typescript, .svelte => return error.UnsupportedLanguage, // Not yet implemented
             .unknown => return error.UnsupportedLanguage,
         };
 
@@ -72,38 +88,21 @@ pub const LanguageRegistry = struct {
     /// Get lexer for a language
     pub fn getLexer(self: *LanguageRegistry, language: Language) !Lexer {
         const support = try self.getSupport(language);
-        return support.lexer;
+        return switch (support) {
+            .json => |s| s.lexer,
+            .zon => |s| s.lexer,
+        };
     }
 
-    /// Get parser for a language
-    pub fn getParser(self: *LanguageRegistry, language: Language) !Parser {
-        const support = try self.getSupport(language);
-        return support.parser;
-    }
-
-    /// Get formatter for a language
-    pub fn getFormatter(self: *LanguageRegistry, language: Language) !Formatter {
-        const support = try self.getSupport(language);
-        return support.formatter;
-    }
-
-    /// Get linter for a language (may be null)
-    pub fn getLinter(self: *LanguageRegistry, language: Language) !?Linter {
-        const support = try self.getSupport(language);
-        return support.linter;
-    }
-
-    /// Get analyzer for a language (may be null)
-    pub fn getAnalyzer(self: *LanguageRegistry, language: Language) !?Analyzer {
-        const support = try self.getSupport(language);
-        return support.analyzer;
-    }
+    // Note: Individual component getters removed for now due to generic type complexity
+    // Use getSupport() directly and access the desired component from the union
 
     /// Check if language is supported
     pub fn isLanguageSupported(self: *LanguageRegistry, language: Language) bool {
         _ = self;
         return switch (language) {
-            .typescript, .svelte, .json, .zig, .zon, .css, .html => true,
+            .json, .zon => true,
+            .zig, .css, .html, .typescript, .svelte => false, // Not yet implemented
             .unknown => false,
         };
     }
@@ -123,7 +122,8 @@ pub const LanguageRegistry = struct {
     /// Get supported languages list
     pub fn getSupportedLanguages(self: *LanguageRegistry) []const Language {
         _ = self;
-        const supported = [_]Language{ .typescript, .svelte, .json, .zig, .zon, .css, .html };
+        // Only JSON and ZON are currently implemented
+        const supported = [_]Language{ .json, .zon };
         return &supported;
     }
 

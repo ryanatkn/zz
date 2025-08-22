@@ -510,6 +510,13 @@ pub const QueryExecutor = struct {
         return directFromSlice(Fact, facts);
     }
 
+    /// Context for DirectExecute stream that owns its data
+    const DirectExecuteContext = struct {
+        allocator: Allocator,
+        facts: []const Fact,
+        position: usize = 0,
+    };
+
     /// Execute query and return a DirectStream (Phase 5)
     pub fn directExecute(self: *QueryExecutor, query: *const Query) !DirectFactStream {
         // For now, execute normally and convert to DirectStream
@@ -519,7 +526,37 @@ pub const QueryExecutor = struct {
 
         // Create a copy of facts that DirectStream can own
         const facts_copy = try self.allocator.dupe(Fact, result.facts);
-        return directFactStream(facts_copy);
+
+        // Create context that owns the facts
+        const ctx = try self.allocator.create(DirectExecuteContext);
+        ctx.* = DirectExecuteContext{
+            .allocator = self.allocator,
+            .facts = facts_copy,
+        };
+
+        const gen_fn = struct {
+            fn generate(state: *anyopaque) ?Fact {
+                const context = @as(*DirectExecuteContext, @ptrCast(@alignCast(state)));
+                if (context.position >= context.facts.len) {
+                    return null;
+                }
+                const fact = context.facts[context.position];
+                context.position += 1;
+                return fact;
+            }
+        }.generate;
+
+        const cleanup_fn = struct {
+            fn cleanup(state: *anyopaque) void {
+                const context = @as(*DirectExecuteContext, @ptrCast(@alignCast(state)));
+                context.allocator.free(context.facts);
+                context.allocator.destroy(context);
+            }
+        }.cleanup;
+
+        return DirectFactStream{
+            .generator = GeneratorStream(Fact).initWithCleanup(ctx, gen_fn, cleanup_fn),
+        };
     }
 
     /// Execute query and return a DirectStream with true streaming (Phase 5B)

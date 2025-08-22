@@ -2,7 +2,8 @@ const std = @import("std");
 const zon_mod = @import("../languages/zon/mod.zig");
 const ZonParser = zon_mod.ZonParser;
 const memory = @import("../core/memory.zig");
-const DependencyInfo = @import("../languages/zon/parser.zig").DependencyInfo;
+// TODO: DependencyInfo needs to be defined in ZON AST or moved elsewhere
+// const DependencyInfo = @import("../languages/zon/parser.zig").DependencyInfo;
 const struct_utils = @import("../core/struct_utils.zig");
 const collections = @import("../core/collections.zig");
 const datetime = @import("../core/datetime.zig");

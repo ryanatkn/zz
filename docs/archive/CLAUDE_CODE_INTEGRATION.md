@@ -367,7 +367,7 @@ $ rg "password|secret|key" --context=3
 ### Command Composition
 ```bash
 # Good: Clear, focused commands
-zz tree src/ 2                          # Specific scope and depth
+zz tree src --depth=2                   # Specific scope and depth
 zz prompt "src/cli/*.zig" --prepend="CLI module analysis:"
 
 # Better: Composed workflows

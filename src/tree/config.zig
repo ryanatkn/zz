@@ -104,6 +104,14 @@ pub const Config = struct {
                 i += 1;
                 const format_str = args_slice[i];
                 result.format = Format.fromString(format_str) orelse return ArgError.InvalidFormat;
+            } else if (CommonFlags.parseDepthFlag(arg)) |depth| {
+                result.max_depth = depth;
+            } else if (std.mem.eql(u8, arg, "-d")) {
+                // Handle -d flag that expects next argument as depth
+                if (i + 1 >= args_slice.len) return ArgError.MissingValue;
+                i += 1;
+                const depth_str = args_slice[i];
+                result.max_depth = std.fmt.parseInt(u32, depth_str, 10) catch return ArgError.InvalidFormat;
             } else if (CommonFlags.isShowHiddenFlag(arg)) {
                 result.show_hidden = true;
             } else if (CommonFlags.isNoGitignoreFlag(arg)) {
@@ -117,9 +125,6 @@ pub const Config = struct {
                 // Positional argument
                 if (positional_count == 0) {
                     result.directory = arg;
-                } else if (positional_count == 1) {
-                    // Try to parse as max_depth, but don't error if it fails
-                    result.max_depth = std.fmt.parseInt(u32, arg, 10) catch null;
                 }
                 positional_count += 1;
             }
@@ -135,6 +140,7 @@ pub const Config = struct {
         const stderr = std.io.getStdErr().writer();
         const options = [_][]const u8{
             "--format=FORMAT, -f FORMAT   Output format: tree (default) or list",
+            "--depth=N, -d N              Limit directory traversal depth",
             "--show-hidden                 Show hidden files",
             "--no-gitignore                Disable .gitignore parsing",
             "--help, -h                    Show this help message",

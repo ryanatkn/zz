@@ -8,15 +8,25 @@ The ZON implementation follows the unified language architecture with the follow
 
 ```
 src/lib/languages/zon/
-├── mod.zig         # Main module and LanguageSupport implementation
-├── lexer.zig       # High-performance tokenization with Zig literals
-├── parser.zig      # AST-based parsing using our own infrastructure
-├── formatter.zig   # Configurable pretty-printing with comment preservation
-├── linter.zig      # Validation and schema checking
-├── analyzer.zig    # Schema extraction and Zig type generation
-├── test.zig        # Comprehensive test suite (150+ tests)
-├── benchmark.zig   # Performance benchmarks and validation
-└── README.md       # This documentation
+├── mod.zig              # Main module and LanguageSupport implementation
+├── lexer.zig            # High-performance tokenization with Zig literals
+├── parser.zig           # AST-based parsing using our own infrastructure
+├── formatter.zig        # Configurable pretty-printing with comment preservation
+├── linter.zig           # Validation and schema checking
+├── analyzer.zig         # Schema extraction and Zig type generation
+├── ast.zig              # Self-contained ZON AST definition
+├── patterns.zig         # ZON-specific patterns and utilities
+├── tokens.zig           # Rich token types for ZON
+├── test.zig             # Main test entry point
+├── test_lexer.zig       # Lexer component tests
+├── test_parser.zig      # Parser component tests
+├── test_formatter.zig   # Formatter component tests
+├── test_linter.zig      # Linter component tests
+├── test_analyzer.zig    # Analyzer component tests
+├── test_integration.zig # Integration and pipeline tests
+├── test_performance.zig # Performance and benchmark tests
+├── test_edge_cases.zig  # Edge cases and special scenarios
+└── README.md            # This documentation
 ```
 
 ## Features

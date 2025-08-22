@@ -21,7 +21,7 @@ zz <command> [options] [arguments]
 ```bash
 zz tree                    # Current directory
 zz tree src/              # Specific directory
-zz tree . 3               # Limit depth to 3
+zz tree --depth=3         # Limit depth to 3
 zz tree --format=list     # List format output
 zz tree -f list           # Same as above (short flag)
 ```
@@ -32,7 +32,7 @@ zz tree -f list           # Same as above (short flag)
 | `--format=FORMAT`, `-f FORMAT` | Output format (tree/list) | `--format=list`, `-f tree` |
 | `--show-hidden` | Show hidden files | `zz tree --show-hidden` |
 | `--no-gitignore` | Include gitignored files | `zz tree --no-gitignore` |
-| `[depth]` | Maximum depth | `zz tree . 2` |
+| `--depth=N, -d N` | Maximum depth | `zz tree --depth=2` |
 
 ### Output Symbols
 ```

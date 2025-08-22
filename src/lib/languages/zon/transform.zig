@@ -1,575 +1,230 @@
 const std = @import("std");
 
-// Import transform infrastructure
-const transform_mod = @import("../../transform_old/transform.zig");
-const Transform = transform_mod.Transform;
-const Context = transform_mod.Context;
-const lexical = @import("../../transform_old/stages/lexical.zig");
-const syntactic = @import("../../transform_old/stages/syntactic.zig");
-const lex_parse = @import("../../transform_old/pipelines/lex_parse.zig");
-const format_pipeline = @import("../../transform_old/pipelines/format.zig");
+// Import ZON-specific types
+const zon_mod = @import("mod.zig");
+const Token = @import("../../token/mod.zig").Token;
+const AST = @import("ast.zig").AST;
+const Node = @import("ast.zig").Node;
 
-// Import existing ZON components
-const ZonLexer = @import("lexer.zig").ZonLexer;
-const ZonParser = @import("parser.zig").ZonParser;
-const ZonFormatter = @import("formatter.zig").ZonFormatter;
+// Import fact system (optional)
+const Fact = @import("../../fact/mod.zig").Fact;
+const FactStore = @import("../../fact/mod.zig").FactStore;
+const Span = @import("../../span/mod.zig").Span;
+const packSpan = @import("../../span/mod.zig").packSpan;
 
-// Import foundation types
-const Token = @import("../../parser_old/foundation/types/token.zig").Token;
-const Fact = @import("../../parser_old/foundation/types/fact.zig").Fact;
-// Consolidate AST imports
-const ast_mod = @import("../../ast_old/mod.zig");
-const AST = ast_mod.AST;
-const Node = ast_mod.Node;
-const FormatOptions = @import("../interface.zig").FormatOptions;
+/// Transform result containing optional stages
+pub const TransformResult = struct {
+    /// Always present: tokenized input
+    tokens: []Token,
+    /// Optional: facts extracted from tokens
+    token_facts: ?[]Fact = null,
+    /// Optional: parsed AST
+    ast: ?AST = null,
+    /// Optional: facts extracted from AST
+    ast_facts: ?[]Fact = null,
+    /// Source text for token.getText() calls
+    source: []const u8,
 
-// Import text utilities for escaping
-const escape_mod = @import("../../text/escape.zig");
+    pub fn deinit(self: *TransformResult, allocator: std.mem.Allocator) void {
+        allocator.free(self.tokens);
 
-/// ZON lexical transform wrapper
-pub const ZonLexicalTransform = struct {
-    allocator: std.mem.Allocator,
-    options: ZonLexer.LexerOptions,
-
-    const Self = @This();
-
-    pub fn init(allocator: std.mem.Allocator, options: ZonLexer.LexerOptions) Self {
-        return .{
-            .allocator = allocator,
-            .options = options,
-        };
-    }
-
-    /// Create ILexicalTransform interface
-    pub fn toInterface(self: *const Self) lexical.ILexicalTransform {
-        _ = self;
-        return .{
-            .tokenizeFn = tokenize,
-            .detokenizeFn = detokenize,
-            .language = .zon,
-            .metadata = .{
-                .name = "zon_lexer",
-                .description = "ZON tokenizer with comment support",
-                .reversible = true,
-                .streaming_capable = true,
-                .performance_class = .fast,
-                .estimated_memory = 1024 * 32, // 32KB estimate
-            },
-        };
-    }
-
-    fn tokenize(ctx: *Context, text: []const u8) ![]const Token {
-        // Get options from context if available
-        const preserve_comments = ctx.getOption("preserve_comments", bool) orelse true;
-
-        const options = ZonLexer.LexerOptions{
-            .preserve_comments = preserve_comments,
-        };
-
-        var lexer = ZonLexer.init(ctx.allocator, text, options);
-        defer lexer.deinit();
-
-        return try lexer.tokenize();
-    }
-
-    fn detokenize(ctx: *Context, tokens: []const Token) ![]const u8 {
-        // ZON-specific detokenization with proper escaping
-        var result = std.ArrayList(u8).init(ctx.allocator);
-        defer result.deinit();
-
-        for (tokens) |token| {
-            // Add token text (trivia handling is done at parsing level)
-            try result.appendSlice(token.text);
+        if (self.token_facts) |facts| {
+            allocator.free(facts);
         }
 
-        return try result.toOwnedSlice();
-    }
-
-    /// Direct fact generation for performance (skip token intermediate)
-    pub fn toFacts(self: *Self, ctx: *Context, text: []const u8) ![]const Fact {
-        _ = self;
-        // This could directly generate structural facts for the structural parser layer
-        // For now, delegate to tokenize and convert
-        const tokens = try tokenize(ctx, text);
-        defer ctx.allocator.free(tokens);
-
-        // Convert tokens to facts
-        var facts = std.ArrayList(Fact).init(ctx.allocator);
-        defer facts.deinit();
-
-        var fact_id: u32 = 0;
-        for (tokens) |token| {
-            const fact = Fact.init(
-                fact_id,
-                token.span,
-                .{ .token_kind = token.kind },
-                null,
-                1.0, // Full confidence for lexical facts
-                0, // Generation 0
-            );
-            try facts.append(fact);
-            fact_id += 1;
+        if (self.ast) |*ast| {
+            ast.deinit();
         }
 
-        return try facts.toOwnedSlice();
+        if (self.ast_facts) |facts| {
+            allocator.free(facts);
+        }
     }
 };
 
-/// ZON syntactic transform wrapper
-pub const ZonSyntacticTransform = struct {
+/// Composable ZON transform pipeline
+pub const ZonTransform = struct {
     allocator: std.mem.Allocator,
-    options: ZonParser.ParseOptions,
+
+    // Stage configuration - caller decides what to pay for
+    extract_token_facts: bool = false,
+    build_ast: bool = true,
+    extract_ast_facts: bool = false,
+
+    // Parser options
+    parser_options: zon_mod.ParserOptions = .{},
 
     const Self = @This();
 
-    pub fn init(allocator: std.mem.Allocator, options: ZonParser.ParseOptions) Self {
+    pub fn init(allocator: std.mem.Allocator) Self {
         return .{
             .allocator = allocator,
-            .options = options,
         };
     }
 
-    /// Create ISyntacticTransform interface
-    pub fn toInterface(self: *const Self) syntactic.ISyntacticTransform {
-        _ = self;
-        return .{
-            .parseFn = parse,
-            .emitFn = emit,
-            .parseWithRecoveryFn = parseWithRecovery,
-            .metadata = .{
-                .name = "zon_parser",
-                .description = "ZON parser with build.zig.zon support",
-                .reversible = true,
-                .streaming_capable = false, // TODO: Add streaming support
-                .performance_class = .moderate,
-                .estimated_memory = 1024 * 128, // 128KB estimate
-            },
-        };
+    /// Configure what stages to run
+    pub fn withTokenFacts(self: Self) Self {
+        var result = self;
+        result.extract_token_facts = true;
+        return result;
     }
 
-    fn parse(ctx: *Context, tokens: []const Token) !AST {
-        const preserve_comments = ctx.getOption("preserve_comments", bool) orelse true;
-        const recover_from_errors = ctx.getOption("recover_from_errors", bool) orelse true;
+    pub fn withoutAST(self: Self) Self {
+        var result = self;
+        result.build_ast = false;
+        return result;
+    }
 
-        const options = ZonParser.ParseOptions{
-            .preserve_comments = preserve_comments,
-            .recover_from_errors = recover_from_errors,
+    pub fn withASTFacts(self: Self) Self {
+        var result = self;
+        result.extract_ast_facts = true;
+        return result;
+    }
+
+    /// Main transform pipeline
+    pub fn process(self: *Self, source: []const u8) !TransformResult {
+        // Stage 1: Always tokenize
+        const tokens = try zon_mod.tokenize(self.allocator, source);
+        errdefer self.allocator.free(tokens);
+
+        var result = TransformResult{
+            .tokens = tokens,
+            .source = source,
         };
 
-        var parser = ZonParser.init(ctx.allocator, tokens, options);
-        defer parser.deinit();
-
-        const ast = try parser.parse();
-
-        // Add any parse errors to context diagnostics
-        const errors = parser.getErrors();
-        for (errors) |err| {
-            try ctx.addError(err.message, err.span);
+        // Stage 2: Optional token facts extraction
+        if (self.extract_token_facts) {
+            result.token_facts = try self.extractTokenFacts(tokens, source);
         }
 
-        return ast;
+        // Stage 3: Optional AST building
+        if (self.build_ast) {
+            result.ast = try zon_mod.parse(self.allocator, tokens, source);
+        }
+
+        // Stage 4: Optional AST facts extraction
+        if (self.extract_ast_facts and result.ast != null) {
+            result.ast_facts = try self.extractASTFacts(result.ast.?);
+        }
+
+        return result;
     }
 
-    fn emit(ctx: *Context, ast: AST) ![]const Token {
-        // Use ZON-specific token emission
-        // This should reconstruct tokens from AST preserving ZON syntax
-        return syntactic.defaultEmitTokens(ctx, ast);
-    }
+    /// Extract facts from tokens (TODO: implement full extraction)
+    fn extractTokenFacts(self: *Self, tokens: []Token, source: []const u8) ![]Fact {
+        _ = source;
 
-    fn parseWithRecovery(ctx: *Context, tokens: []const Token) !syntactic.ParseResult {
-        const preserve_comments = ctx.getOption("preserve_comments", bool) orelse true;
+        var facts = std.ArrayList(Fact).init(self.allocator);
 
-        const options = ZonParser.ParseOptions{
-            .preserve_comments = preserve_comments,
-            .recover_from_errors = true,
-        };
-
-        var parser = ZonParser.init(ctx.allocator, tokens, options);
-        defer parser.deinit();
-
-        const ast = parser.parse() catch {
-            // Even on error, try to get partial AST
-            const errors = parser.getErrors();
-            var parse_errors = try ctx.allocator.alloc(syntactic.ParseError, errors.len);
-
-            for (errors, 0..) |error_item, i| {
-                parse_errors[i] = .{
-                    .message = try ctx.allocator.dupe(u8, error_item.message),
-                    .span = error_item.span,
-                    .severity = switch (error_item.severity) {
-                        .@"error" => .err,
-                        .warning => .warning,
-                        else => .info,
-                    },
-                };
-            }
-
-            return syntactic.ParseResult{
-                .ast = null,
-                .errors = parse_errors,
-                .recovered_nodes = &.{},
+        // Simple example: ZON-specific token analysis
+        for (tokens) |token| {
+            // TODO: Create ZON-specific facts (field names, dependencies, etc.)
+            // For now, just create placeholder facts
+            const fact = Fact{
+                .subject = packSpan(token.span),
+                .predicate = .is_token,
+                .object = .{ .none = 0 },
+                .id = 0,
+                .confidence = 1.0,
             };
-        };
-
-        return syntactic.ParseResult{
-            .ast = ast,
-            .errors = &.{},
-            .recovered_nodes = &.{},
-        };
-    }
-
-    /// Parse streaming for large build.zig.zon files
-    pub fn parseStream(_: *Self, ctx: *Context, reader: anytype) !AST {
-        // Read chunks and parse incrementally
-        var all_tokens = std.ArrayList(Token).init(ctx.allocator);
-        defer all_tokens.deinit();
-
-        const CHUNK_SIZE = 64 * 1024; // 64KB chunks
-        var buffer: [CHUNK_SIZE]u8 = undefined;
-        var position: usize = 0;
-
-        while (true) {
-            const bytes_read = try reader.read(&buffer);
-            if (bytes_read == 0) break;
-
-            const chunk = buffer[0..bytes_read];
-
-            // Tokenize chunk (would need ZON lexer to support partial tokenization)
-            var lexer = ZonLexer.init(ctx.allocator, chunk, .{});
-            defer lexer.deinit();
-
-            const tokens = try lexer.tokenize();
-            defer ctx.allocator.free(tokens);
-
-            // Adjust token positions
-            for (tokens) |token| {
-                var adjusted = token;
-                adjusted.span.start += position;
-                adjusted.span.end += position;
-                try all_tokens.append(adjusted);
-            }
-
-            position += bytes_read;
-
-            // Update progress if available
-            if (ctx.progress) |progress| {
-                progress.bytes_processed = position;
-            }
+            try facts.append(fact);
         }
 
-        // Parse all tokens
-        const final_tokens = try all_tokens.toOwnedSlice();
-        defer ctx.allocator.free(final_tokens);
+        return facts.toOwnedSlice();
+    }
 
-        return try parse(ctx, final_tokens);
+    /// Extract facts from AST (TODO: implement full extraction)
+    fn extractASTFacts(self: *Self, ast: AST) ![]Fact {
+        var facts = std.ArrayList(Fact).init(self.allocator);
+
+        // TODO: Walk AST and extract ZON-specific structural facts
+        // - Dependencies and their versions
+        // - Build configuration facts
+        // - Schema validation facts
+        if (ast.root) |root| {
+            const span = root.span();
+            const fact = Fact{
+                .subject = packSpan(span),
+                .predicate = .is_boundary, // Root is a boundary
+                .object = .{ .none = 0 },
+                .id = 0,
+                .confidence = 1.0,
+            };
+            try facts.append(fact);
+        }
+
+        return facts.toOwnedSlice();
     }
 };
 
-/// Complete ZON transform pipeline
-pub const ZonTransformPipeline = struct {
-    allocator: std.mem.Allocator,
-    pipeline: lex_parse.LexParsePipeline,
-    format_options: FormatOptions,
-
-    const Self = @This();
-
-    /// Initialize with default options
-    pub fn init(allocator: std.mem.Allocator) !Self {
-        const lexer_options = ZonLexer.LexerOptions{};
-        const parser_options = ZonParser.ParseOptions{};
-
-        var zon_lexer = ZonLexicalTransform.init(allocator, lexer_options);
-        var zon_parser = ZonSyntacticTransform.init(allocator, parser_options);
-
-        const pipeline = lex_parse.LexParsePipeline.init(
-            allocator,
-            zon_lexer.toInterface(),
-            zon_parser.toInterface(),
-        );
-
-        return .{
-            .allocator = allocator,
-            .pipeline = pipeline,
-            .format_options = FormatOptions{},
-        };
+/// Convenience functions for common use cases
+pub const transform = struct {
+    /// Just tokenize - no AST, no facts
+    pub fn tokenizeOnly(allocator: std.mem.Allocator, source: []const u8) ![]Token {
+        return zon_mod.tokenize(allocator, source);
     }
 
-    /// Initialize with custom options
-    pub fn initWithOptions(
-        allocator: std.mem.Allocator,
-        lexer_options: ZonLexer.LexerOptions,
-        parser_options: ZonParser.ParseOptions,
-        format_options: FormatOptions,
-    ) !Self {
-        var zon_lexer = ZonLexicalTransform.init(allocator, lexer_options);
-        var zon_parser = ZonSyntacticTransform.init(allocator, parser_options);
-
-        const pipeline = lex_parse.LexParsePipeline.init(
-            allocator,
-            zon_lexer.toInterface(),
-            zon_parser.toInterface(),
-        );
-
-        return .{
-            .allocator = allocator,
-            .pipeline = pipeline,
-            .format_options = format_options,
-        };
+    /// Full pipeline: tokens + AST
+    pub fn parseZON(allocator: std.mem.Allocator, source: []const u8) !TransformResult {
+        var transformer = ZonTransform.init(allocator);
+        return transformer.process(source);
     }
 
-    pub fn deinit(self: *Self) void {
-        self.pipeline.deinit();
+    /// Tokens + facts (no AST) - useful for fast dependency analysis
+    pub fn extractTokenFacts(allocator: std.mem.Allocator, source: []const u8) !TransformResult {
+        var transformer = ZonTransform.init(allocator).withTokenFacts().withoutAST();
+        return transformer.process(source);
     }
 
-    /// Parse ZON text to AST
-    pub fn parse(self: *Self, ctx: *Context, zon_text: []const u8) !AST {
-        return try self.pipeline.parse(ctx, zon_text);
+    /// Full analysis: tokens + AST + all facts
+    pub fn fullAnalysis(allocator: std.mem.Allocator, source: []const u8) !TransformResult {
+        var transformer = ZonTransform.init(allocator).withTokenFacts().withASTFacts();
+        return transformer.process(source);
     }
 
-    /// Parse with error recovery
-    pub fn parseWithRecovery(self: *Self, ctx: *Context, zon_text: []const u8) !syntactic.ParseResult {
-        return try self.pipeline.parseWithRecovery(ctx, zon_text);
-    }
-
-    /// Format AST to ZON text
-    pub fn format(self: *Self, ctx: *Context, ast: AST) ![]const u8 {
-        _ = ctx;
-        // Use existing ZON formatter
-        var formatter = ZonFormatter.init(self.allocator, .{
-            .indent_size = @intCast(self.format_options.indent_size),
-            .indent_style = if (self.format_options.indent_style == .space)
-                ZonFormatter.IndentStyle.space
-            else
-                ZonFormatter.IndentStyle.tab,
-            .line_width = self.format_options.line_width,
-            .preserve_comments = self.format_options.preserve_newlines,
-            .trailing_comma = self.format_options.trailing_comma,
-        });
-        defer formatter.deinit();
-
-        return try formatter.format(ast);
-    }
-
-    /// Round-trip: ZON → AST → ZON
-    pub fn roundTrip(self: *Self, ctx: *Context, zon_text: []const u8) ![]const u8 {
-        var ast = try self.parse(ctx, zon_text);
-        defer ast.deinit();
-
-        return try self.format(ctx, ast);
-    }
-
-    /// Enable caching for repeated parsing
-    pub fn enableCaching(self: *Self) void {
-        self.pipeline.enableCaching();
-    }
-
-    /// Direct fact generation (performance optimization)
-    pub fn generateFacts(self: *Self, ctx: *Context, zon_text: []const u8) ![]const Fact {
-        _ = self;
-        var lexer = ZonLexicalTransform.init(ctx.allocator, .{});
-        return try lexer.toFacts(ctx, zon_text);
-    }
-};
-
-/// Convenience functions for quick ZON operations
-pub const zon = struct {
-    /// Parse ZON text to AST
-    pub fn parse(allocator: std.mem.Allocator, text: []const u8) !AST {
-        var ctx = Context.init(allocator);
-        defer ctx.deinit();
-
-        var pipeline = try ZonTransformPipeline.init(allocator);
-        defer pipeline.deinit();
-
-        return try pipeline.parse(&ctx, text);
-    }
-
-    /// Format AST to ZON text
-    pub fn format(allocator: std.mem.Allocator, ast: AST, options: FormatOptions) ![]const u8 {
-        var formatter = ZonFormatter.init(allocator, .{
-            .indent_size = @intCast(options.indent_size),
-            .indent_style = if (options.indent_style == .space)
-                ZonFormatter.IndentStyle.space
-            else
-                ZonFormatter.IndentStyle.tab,
-            .line_width = options.line_width,
-            .preserve_comments = options.preserve_newlines,
-            .trailing_comma = options.trailing_comma,
-        });
-        defer formatter.deinit();
-
-        return try formatter.format(ast);
-    }
-
-    /// Pretty-print ZON text
-    pub fn prettyPrint(allocator: std.mem.Allocator, text: []const u8) ![]const u8 {
-        var ctx = Context.init(allocator);
-        defer ctx.deinit();
-
-        const options = FormatOptions{
-            .indent_size = 4,
-            .indent_style = .space,
-            .line_width = 100,
-            .preserve_newlines = true,
-            .trailing_comma = true,
-            .sort_keys = false,
-            .quote_style = .double,
-        };
-
-        var pipeline = try ZonTransformPipeline.initWithOptions(
-            allocator,
-            .{},
-            .{},
-            options,
-        );
-        defer pipeline.deinit();
-
-        return try pipeline.roundTrip(&ctx, text);
-    }
-
-    /// Minify ZON text (remove unnecessary whitespace)
-    pub fn minify(allocator: std.mem.Allocator, text: []const u8) ![]const u8 {
-        var ctx = Context.init(allocator);
-        defer ctx.deinit();
-
-        const options = FormatOptions{
-            .indent_size = 0,
-            .indent_style = .space,
-            .line_width = 999999,
-            .preserve_newlines = false,
-            .trailing_comma = false,
-            .sort_keys = false,
-            .quote_style = .double,
-        };
-
-        var pipeline = try ZonTransformPipeline.initWithOptions(
-            allocator,
-            .{},
-            .{},
-            options,
-        );
-        defer pipeline.deinit();
-
-        return try pipeline.roundTrip(&ctx, text);
+    /// Extract build.zon dependencies (specialized for zz CLI)
+    pub fn extractDependencies(allocator: std.mem.Allocator, build_zon_source: []const u8) !TransformResult {
+        // TODO: Implement ZON-specific dependency extraction
+        // This would be used by zz deps command
+        var transformer = ZonTransform.init(allocator).withASTFacts();
+        return transformer.process(build_zon_source);
     }
 };
 
 // Tests
 const testing = std.testing;
 
-test "ZON transform pipeline - basic parsing" {
+test "ZON transform - tokenize only" {
     const allocator = testing.allocator;
+    const zon_text = ".{ .name = \"test\" }";
 
-    var ctx = Context.init(allocator);
-    defer ctx.deinit();
+    const tokens = try transform.tokenizeOnly(allocator, zon_text);
+    defer allocator.free(tokens);
 
-    var pipeline = try ZonTransformPipeline.init(allocator);
-    defer pipeline.deinit();
-
-    const zon_text = ".{ .name = \"test\", .version = \"0.1.0\" }";
-    var ast = try pipeline.parse(&ctx, zon_text);
-    defer ast.deinit();
-
-    // AST.root is non-optional now
+    try testing.expect(tokens.len > 0);
 }
 
-test "ZON transform pipeline - with comments" {
+test "ZON transform - full pipeline" {
     const allocator = testing.allocator;
+    const zon_text = ".{ .name = \"test\", .version = \"1.0.0\" }";
 
-    var ctx = Context.init(allocator);
-    defer ctx.deinit();
+    var result = try transform.parseZON(allocator, zon_text);
+    defer result.deinit(allocator);
 
-    const lexer_options = ZonLexer.LexerOptions{
-        .preserve_comments = true,
-    };
-
-    const parser_options = ZonParser.ParseOptions{
-        .preserve_comments = true,
-    };
-
-    var pipeline = try ZonTransformPipeline.initWithOptions(
-        allocator,
-        lexer_options,
-        parser_options,
-        .{},
-    );
-    defer pipeline.deinit();
-
-    const zon_text =
-        \\.{
-        \\    // This is a comment
-        \\    .name = "test",
-        \\    .version = "0.1.0", // Version comment
-        \\}
-    ;
-
-    var ast = try pipeline.parse(&ctx, zon_text);
-    defer ast.deinit();
-
-    // AST.root is non-optional now
+    try testing.expect(result.tokens.len > 0);
+    try testing.expect(result.ast != null);
 }
 
-test "ZON convenience functions" {
+test "ZON transform - custom pipeline" {
     const allocator = testing.allocator;
+    const zon_text = ".{ .dependencies = .{} }";
 
-    // Test parse
-    {
-        const text = ".{ .test = true }";
-        var ast = try zon.parse(allocator, text);
-        defer ast.deinit();
+    var transformer = ZonTransform.init(allocator).withTokenFacts().withASTFacts();
+    var result = try transformer.process(zon_text);
+    defer result.deinit(allocator);
 
-        // AST.root is non-optional now
-    }
-
-    // Test pretty print
-    {
-        const text = ".{.a=1,.b=2}";
-        const pretty = try zon.prettyPrint(allocator, text);
-        defer allocator.free(pretty);
-
-        // Should have formatting
-        try testing.expect(std.mem.indexOf(u8, pretty, "\n") != null or pretty.len > 0);
-    }
-
-    // Test minify
-    {
-        const text =
-            \\.{
-            \\    .a = 1,
-            \\    .b = 2,
-            \\}
-        ;
-        const minified = try zon.minify(allocator, text);
-        defer allocator.free(minified);
-
-        // Should have minimal whitespace
-        try testing.expect(minified.len < text.len);
-    }
-}
-
-test "ZON round-trip preservation" {
-    const allocator = testing.allocator;
-
-    var ctx = Context.init(allocator);
-    defer ctx.deinit();
-
-    var pipeline = try ZonTransformPipeline.init(allocator);
-    defer pipeline.deinit();
-
-    const original = ".{ .name = \"test\", .deps = .{} }";
-
-    // Parse to AST
-    var ast1 = try pipeline.parse(&ctx, original);
-    defer ast1.deinit();
-
-    // Format back to text
-    const formatted = try pipeline.format(&ctx, ast1);
-    defer allocator.free(formatted);
-
-    // Parse again
-    var ast2 = try pipeline.parse(&ctx, formatted);
-    defer ast2.deinit();
-
-    // Both ASTs should have the same structure
-    // AST.root is non-optional now for both ASTs
+    try testing.expect(result.tokens.len > 0);
+    try testing.expect(result.token_facts != null);
+    try testing.expect(result.ast != null);
+    try testing.expect(result.ast_facts != null);
 }

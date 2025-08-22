@@ -46,6 +46,21 @@ pub const Query = struct {
     }
 
     pub fn deinit(self: *Query) void {
+        // Clean up SELECT clause allocations (only if we allocated them)
+        switch (self.select) {
+            .predicates => |preds| {
+                if (self.metadata.allocations.select_predicates_allocated) {
+                    self.allocator.free(preds);
+                }
+            },
+            .fields => |fields| {
+                if (self.metadata.allocations.select_fields_allocated) {
+                    self.allocator.free(fields);
+                }
+            },
+            .all => {},
+        }
+
         if (self.where) |*w| w.deinit(self.allocator);
         if (self.group_by) |gb| self.allocator.free(gb);
         if (self.having) |*h| h.deinit(self.allocator);
@@ -396,6 +411,12 @@ pub const QueryMetadata = struct {
         no_cache: bool = false,
         parallel: bool = false,
         streaming: bool = true,
+    } = .{},
+
+    // Allocation tracking (for proper cleanup)
+    allocations: struct {
+        select_predicates_allocated: bool = false,
+        select_fields_allocated: bool = false,
     } = .{},
 
     // Statistics collection

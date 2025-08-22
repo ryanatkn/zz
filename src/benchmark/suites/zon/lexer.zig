@@ -35,10 +35,10 @@ pub fn runZonLexerBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOpt
             content: []const u8,
 
             pub fn run(ctx: @This()) anyerror!void {
-                var lexer = ZonLexer.init(ctx.allocator, ctx.content, .{});
+                var lexer = ZonLexer.init(ctx.allocator);
                 defer lexer.deinit();
 
-                const tokens = try lexer.tokenize();
+                const tokens = try lexer.batchTokenize(ctx.allocator, ctx.content);
                 defer ctx.allocator.free(tokens);
 
                 std.mem.doNotOptimizeAway(tokens.len);
@@ -56,10 +56,10 @@ pub fn runZonLexerBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOpt
             content: []const u8,
 
             pub fn run(ctx: @This()) anyerror!void {
-                var lexer = ZonLexer.init(ctx.allocator, ctx.content, .{});
+                var lexer = ZonLexer.init(ctx.allocator);
                 defer lexer.deinit();
 
-                const tokens = try lexer.tokenize();
+                const tokens = try lexer.batchTokenize(ctx.allocator, ctx.content);
                 defer ctx.allocator.free(tokens);
 
                 std.mem.doNotOptimizeAway(tokens.len);
@@ -82,10 +82,10 @@ pub fn runZonLexerBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOpt
             content: []const u8,
 
             pub fn run(ctx: @This()) anyerror!void {
-                var lexer = ZonLexer.init(ctx.allocator, ctx.content, .{});
+                var lexer = ZonLexer.init(ctx.allocator);
                 defer lexer.deinit();
 
-                const tokens = try lexer.tokenize();
+                const tokens = try lexer.batchTokenize(ctx.allocator, ctx.content);
                 defer ctx.allocator.free(tokens);
 
                 std.mem.doNotOptimizeAway(tokens.len);
@@ -132,10 +132,10 @@ pub fn runZonLexerBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOpt
             content: []const u8,
 
             pub fn run(ctx: @This()) anyerror!void {
-                var lexer = ZonLexer.init(ctx.allocator, ctx.content, .{});
+                var lexer = ZonLexer.init(ctx.allocator);
                 defer lexer.deinit();
 
-                const tokens = try lexer.tokenize();
+                const tokens = try lexer.batchTokenize(ctx.allocator, ctx.content);
                 defer ctx.allocator.free(tokens);
 
                 std.mem.doNotOptimizeAway(tokens.len);
@@ -180,10 +180,10 @@ pub fn runZonLexerBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOpt
             content: []const u8,
 
             pub fn run(ctx: @This()) anyerror!void {
-                var lexer = ZonLexer.init(ctx.allocator, ctx.content, .{});
+                var lexer = ZonLexer.init(ctx.allocator);
                 defer lexer.deinit();
 
-                const tokens = try lexer.tokenize();
+                const tokens = try lexer.batchTokenize(ctx.allocator, ctx.content);
                 defer ctx.allocator.free(tokens);
 
                 std.mem.doNotOptimizeAway(tokens.len);

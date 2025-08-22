@@ -133,7 +133,7 @@ Yes, configure in `zz.zon`:
 
 ### How do I limit tree depth?
 ```bash
-zz tree . 3  # Maximum depth of 3
+zz tree --depth=3  # Maximum depth of 3
 ```
 
 ### How do I show hidden files?
@@ -342,7 +342,7 @@ sudo zz tree /protected/dir
 
 ### Why is zz slow on network drives?
 Network filesystems have higher latency:
-- Limit depth: `zz tree . 2`
+- Limit depth: `zz tree --depth=2`
 - Disable gitignore: `zz tree --no-gitignore`
 - Copy locally first if possible
 

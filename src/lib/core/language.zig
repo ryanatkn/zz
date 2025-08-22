@@ -1,7 +1,7 @@
 const std = @import("std");
 
-/// Language detection and mapping for core supported languages
-/// Moved from legacy l../core/language.zig to core utilities
+/// Language detection and mapping for all known languages
+/// Currently only JSON and ZON are fully implemented
 pub const Language = enum {
     zig,
     css,
@@ -11,6 +11,14 @@ pub const Language = enum {
     svelte,
     zon,
     unknown,
+
+    // TODO: Languages other than JSON/ZON are not yet implemented
+    // To implement a language:
+    // 1. Create directory in src/lib/languages/<lang>/
+    // 2. Implement: lexer.zig, parser.zig, ast.zig, formatter.zig, linter.zig
+    // 3. Define language-specific RuleType enum for linter (enum(u8), max 256 rules)
+    // 4. Export getSupport() function returning LanguageSupport(AST, RuleType)
+    // 5. Register in languages/registry.zig getSupport() and getSupportedLanguages()
 
     pub fn fromExtension(ext: []const u8) Language {
         if (std.mem.eql(u8, ext, ".zig")) return .zig;
@@ -59,8 +67,8 @@ pub const Language = enum {
     /// Check if this language supports formatting
     pub fn supportsFormatting(self: Language) bool {
         return switch (self) {
-            .json, .zon, .css, .html => true,
-            .zig, .typescript, .svelte => true,
+            .json, .zon => true,
+            .zig, .css, .html, .typescript, .svelte => false, // Not yet implemented
             .unknown => false,
         };
     }
@@ -69,8 +77,7 @@ pub const Language = enum {
     pub fn supportsLinting(self: Language) bool {
         return switch (self) {
             .json, .zon => true,
-            .css, .html, .typescript, .svelte => true,
-            .zig => false, // Delegate to zig compiler
+            .zig, .css, .html, .typescript, .svelte => false, // Not yet implemented
             .unknown => false,
         };
     }
@@ -99,6 +106,7 @@ test "language detection from extension" {
     try testing.expectEqual(Language.typescript, Language.fromExtension(".js"));
     try testing.expectEqual(Language.html, Language.fromExtension(".html"));
     try testing.expectEqual(Language.html, Language.fromExtension(".htm"));
+    try testing.expectEqual(Language.zon, Language.fromExtension(".zon"));
     try testing.expectEqual(Language.unknown, Language.fromExtension(".xyz"));
 }
 
@@ -106,12 +114,14 @@ test "language detection from path" {
     try testing.expectEqual(Language.zig, Language.fromPath("src/main.zig"));
     try testing.expectEqual(Language.json, Language.fromPath("package.json"));
     try testing.expectEqual(Language.typescript, Language.fromPath("src/app.ts"));
+    try testing.expectEqual(Language.zon, Language.fromPath("build.zig.zon"));
     try testing.expectEqual(Language.unknown, Language.fromPath("README.md"));
 }
 
 test "language string conversion" {
     try testing.expectEqualStrings("zig", Language.zig.toString());
     try testing.expectEqualStrings("json", Language.json.toString());
+    try testing.expectEqualStrings("zon", Language.zon.toString());
     try testing.expectEqualStrings("unknown", Language.unknown.toString());
 }
 
@@ -124,5 +134,6 @@ test "language capabilities" {
 test "supported extensions" {
     try testing.expect(isSupportedExtension(".zig"));
     try testing.expect(isSupportedExtension(".json"));
+    try testing.expect(isSupportedExtension(".zon"));
     try testing.expect(!isSupportedExtension(".md"));
 }

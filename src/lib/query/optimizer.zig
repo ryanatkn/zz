@@ -118,6 +118,7 @@ pub const QueryOptimizer = struct {
                     const predicates = try self.allocator.alloc(Predicate, 1);
                     predicates[0] = pred;
                     query.select = SelectClause{ .predicates = predicates };
+                    query.metadata.allocations.select_predicates_allocated = true;
                     self.stats.predicate_pushdowns += 1;
                 }
             }
@@ -125,11 +126,11 @@ pub const QueryOptimizer = struct {
     }
 
     /// Fold constant expressions
+    /// Currently no constants to fold in the simple query structure
     fn constantFolding(self: *QueryOptimizer, query: *Query) !void {
         _ = self;
         _ = query;
-        // TODO: Implement constant folding
-        // For now, no constants to fold in our simple query structure
+        // No constant expressions to fold in current query DSL
     }
 
     /// Select best index for query

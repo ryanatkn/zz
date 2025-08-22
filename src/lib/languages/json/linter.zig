@@ -9,21 +9,38 @@ const Span = @import("../../span/span.zig").Span;
 const patterns = @import("patterns.zig");
 const JsonLintRules = patterns.JsonLintRules;
 
-/// Linting rule definition (local to JSON)
-pub const Rule = struct {
-    name: []const u8,
-    description: []const u8,
-    severity: Severity,
-    enabled: bool = true,
+// Import interface types
+const interface_types = @import("../interface.zig");
+const Severity = interface_types.RuleInfo.Severity;
 
-    pub const Severity = enum { @"error", warning, info, hint };
+/// JSON-specific linting rules
+///
+/// Performance Notes - Enum Rule System:
+/// - enum(u8) supports up to 256 rules per language
+/// - Current usage: JSON=7 rules (well under limit)
+/// - EnumSet performance characteristics:
+///   * ≤64 rules: Single u64 register, 1-2 CPU cycles for checks
+///   * ≤128 rules: Single u128, 2-3 CPU cycles
+///   * >128 rules: Bit array, 3-5 CPU cycles
+/// - Future expansion: Change to enum(u16) if >256 rules needed
+pub const JsonRuleType = enum(u8) {
+    no_duplicate_keys,
+    no_leading_zeros,
+    valid_string_encoding,
+    max_depth_exceeded,
+    large_number_precision,
+    large_structure,
+    deep_nesting,
 };
+
+/// Efficient rule set using bitflags for O(1) lookups
+pub const EnabledRules = std.EnumSet(JsonRuleType);
 
 /// Diagnostic from linting (local to JSON)
 pub const Diagnostic = struct {
     rule: []const u8,
     message: []const u8,
-    severity: Rule.Severity,
+    severity: Severity,
     range: Span,
     fix: ?Fix = null,
 
@@ -69,44 +86,71 @@ pub const JsonLinter = struct {
         warn_on_deep_nesting: u32 = 20,
     };
 
-    // Built-in linting rules
-    pub const RULES = [_]Rule{
-        Rule{
+    /// Rule metadata for each enum value
+    pub const RuleInfo = struct {
+        name: []const u8,
+        description: []const u8,
+        severity: Severity,
+        enabled_by_default: bool,
+    };
+
+    /// Built-in linting rules metadata
+    pub const RULE_INFO = std.EnumArray(JsonRuleType, RuleInfo).init(.{
+        .no_duplicate_keys = .{
             .name = "no_duplicate_keys",
             .description = "Object keys must be unique",
-            .severity = .@"error",
+            .severity = .err,
+            .enabled_by_default = true,
         },
-        Rule{
+        .no_leading_zeros = .{
             .name = "no_leading_zeros",
             .description = "Numbers should not have leading zeros",
             .severity = .warning,
+            .enabled_by_default = true,
         },
-        Rule{
+        .valid_string_encoding = .{
             .name = "valid_string_encoding",
             .description = "Strings must be valid UTF-8",
-            .severity = .@"error",
+            .severity = .err,
+            .enabled_by_default = true,
         },
-        Rule{
+        .max_depth_exceeded = .{
             .name = "max_depth_exceeded",
             .description = "JSON structure exceeds maximum nesting depth",
-            .severity = .@"error",
+            .severity = .err,
+            .enabled_by_default = true,
         },
-        Rule{
+        .large_number_precision = .{
             .name = "large_number_precision",
             .description = "Number has high precision that may cause issues",
             .severity = .warning,
+            .enabled_by_default = false,
         },
-        Rule{
+        .large_structure = .{
             .name = "large_structure",
             .description = "JSON structure is very large",
             .severity = .warning,
+            .enabled_by_default = false,
         },
-        Rule{
+        .deep_nesting = .{
             .name = "deep_nesting",
             .description = "JSON has deep nesting that may be hard to read",
             .severity = .warning,
+            .enabled_by_default = true,
         },
-    };
+    });
+
+    /// Get default enabled rules
+    pub fn getDefaultRules() EnabledRules {
+        var rules = EnabledRules.initEmpty();
+        inline for (std.meta.fields(JsonRuleType)) |field| {
+            const rule_type = @field(JsonRuleType, field.name);
+            if (RULE_INFO.get(rule_type).enabled_by_default) {
+                rules.insert(rule_type);
+            }
+        }
+        return rules;
+    }
 
     pub fn init(allocator: std.mem.Allocator, options: LinterOptions) JsonLinter {
         return JsonLinter{
@@ -124,20 +168,20 @@ pub const JsonLinter = struct {
     }
 
     /// Lint JSON AST and return diagnostics
-    pub fn lint(self: *Self, ast: AST, enabled_rules: []const Rule) ![]Diagnostic {
+    pub fn lint(self: *Self, ast: AST, enabled_rules: EnabledRules) ![]Diagnostic {
         try self.validateNode(ast.root, 0, enabled_rules);
 
         return self.diagnostics.toOwnedSlice();
     }
 
-    fn validateNode(self: *Self, node: *const Node, depth: u32, enabled_rules: []const Rule) !void {
+    fn validateNode(self: *Self, node: *const Node, depth: u32, enabled_rules: EnabledRules) !void {
         // Check depth limit
         if (depth > self.options.max_depth) {
-            if (self.isRuleEnabled("max_depth_exceeded", enabled_rules)) {
+            if (enabled_rules.contains(.max_depth_exceeded)) {
                 try self.addDiagnostic(
                     "max_depth_exceeded",
                     "JSON nesting depth exceeds maximum limit",
-                    .@"error",
+                    .err,
                     node.span(),
                 );
             }
@@ -146,7 +190,7 @@ pub const JsonLinter = struct {
 
         // Warn about deep nesting
         if (depth > self.options.warn_on_deep_nesting) {
-            if (self.isRuleEnabled("deep_nesting", enabled_rules)) {
+            if (enabled_rules.contains(.deep_nesting)) {
                 try self.addDiagnostic(
                     "deep_nesting",
                     "JSON structure has deep nesting",
@@ -186,13 +230,13 @@ pub const JsonLinter = struct {
         }
     }
 
-    fn validateString(self: *Self, node: *const Node, enabled_rules: []const Rule) !void {
+    fn validateString(self: *Self, node: *const Node, enabled_rules: EnabledRules) !void {
         const string_node = node.string;
         const raw_value = string_node.value;
 
         // Check length
         if (raw_value.len > self.options.max_string_length) {
-            if (self.isRuleEnabled("large_structure", &.{})) {
+            if (enabled_rules.contains(.large_structure)) {
                 try self.addDiagnostic(
                     "large_structure",
                     "String exceeds maximum length",
@@ -203,14 +247,14 @@ pub const JsonLinter = struct {
         }
 
         // Validate UTF-8 encoding if rule is enabled
-        if (self.isRuleEnabled("valid_string_encoding", enabled_rules)) {
+        if (enabled_rules.contains(.valid_string_encoding)) {
             if (raw_value.len >= 2 and raw_value[0] == '"' and raw_value[raw_value.len - 1] == '"') {
                 const content = raw_value[1 .. raw_value.len - 1];
                 if (!std.unicode.utf8ValidateSlice(content)) {
                     try self.addDiagnostic(
                         "valid_string_encoding",
                         "String contains invalid UTF-8 sequences",
-                        .@"error",
+                        .err,
                         node.span(),
                     );
                 }
@@ -222,13 +266,13 @@ pub const JsonLinter = struct {
         }
     }
 
-    fn validateNumber(self: *Self, node: *const Node, enabled_rules: []const Rule) !void {
+    fn validateNumber(self: *Self, node: *const Node, enabled_rules: EnabledRules) !void {
         const number_node = node.number;
         const value = number_node.raw;
         if (value.len == 0) return;
 
         // Check for leading zeros
-        if (self.isRuleEnabled("no_leading_zeros", enabled_rules) and !self.options.allow_leading_zeros) {
+        if (enabled_rules.contains(.no_leading_zeros) and !self.options.allow_leading_zeros) {
             if (value.len > 1 and value[0] == '0' and char_utils.isDigit(value[1])) {
                 try self.addDiagnostic(
                     "no_leading_zeros",
@@ -240,7 +284,7 @@ pub const JsonLinter = struct {
         }
 
         // Check number precision
-        if (self.isRuleEnabled("large_number_precision", enabled_rules) and self.options.warn_on_large_numbers) {
+        if (enabled_rules.contains(.large_number_precision) and self.options.warn_on_large_numbers) {
             if (std.mem.indexOf(u8, value, ".")) |dot_pos| {
                 const decimal_part = value[dot_pos + 1 ..];
                 // Remove exponent part if present
@@ -265,19 +309,19 @@ pub const JsonLinter = struct {
             try self.addDiagnostic(
                 "invalid_number",
                 "Number format is invalid",
-                .@"error",
+                .err,
                 node.span(),
             );
         };
     }
 
-    fn validateObject(self: *Self, node: *const Node, _: u32, enabled_rules: []const Rule) !void {
+    fn validateObject(self: *Self, node: *const Node, _: u32, enabled_rules: EnabledRules) !void {
         const object_node = node.object;
         const members = object_node.properties;
 
         // Check object size
         if (members.len > self.options.max_object_keys) {
-            if (self.isRuleEnabled("large_structure", &.{})) {
+            if (enabled_rules.contains(.large_structure)) {
                 try self.addDiagnostic(
                     "large_structure",
                     "Object has too many keys",
@@ -288,7 +332,7 @@ pub const JsonLinter = struct {
         }
 
         // Check for duplicate keys
-        if (self.isRuleEnabled("no_duplicate_keys", enabled_rules) and !self.options.allow_duplicate_keys) {
+        if (enabled_rules.contains(.no_duplicate_keys) and !self.options.allow_duplicate_keys) {
             var seen_keys = std.HashMap([]const u8, Span, std.hash_map.StringContext, std.hash_map.default_max_load_percentage).init(self.allocator);
             defer seen_keys.deinit();
 
@@ -314,7 +358,7 @@ pub const JsonLinter = struct {
                     try self.addDiagnosticWithFix(
                         JsonLintRules.name(.no_duplicate_keys), // Static string, no allocation
                         "Duplicate object key",
-                        .@"error",
+                        .err,
                         property.key.span(),
                         "Remove duplicate key or rename to make unique",
                     );
@@ -325,13 +369,13 @@ pub const JsonLinter = struct {
         }
     }
 
-    fn validateArray(self: *Self, node: *const Node, _: u32, _: []const Rule) !void {
+    fn validateArray(self: *Self, node: *const Node, _: u32, enabled_rules: EnabledRules) !void {
         const array_node = node.array;
         const elements = array_node.elements;
 
         // Check array size
         if (elements.len > self.options.max_array_elements) {
-            if (self.isRuleEnabled("large_structure", &.{})) {
+            if (enabled_rules.contains(.large_structure)) {
                 try self.addDiagnostic(
                     "large_structure",
                     "Array has too many elements",
@@ -342,7 +386,7 @@ pub const JsonLinter = struct {
         }
     }
 
-    fn validateProperty(self: *Self, node: *const Node, _: u32, _: []const Rule) !void {
+    fn validateProperty(self: *Self, node: *const Node, _: u32, _: EnabledRules) !void {
         const property_node = node.property;
 
         // Validate that key is a string
@@ -352,14 +396,14 @@ pub const JsonLinter = struct {
                 try self.addDiagnostic(
                     "invalid_key_type",
                     "Object key must be a string",
-                    .@"error",
+                    .err,
                     property_node.key.span(),
                 );
             },
         }
     }
 
-    fn validateEscapeSequences(self: *Self, content: []const u8, span: Span, _: []const Rule) !void {
+    fn validateEscapeSequences(self: *Self, content: []const u8, span: Span, _: EnabledRules) !void {
         var i: usize = 0;
         while (i < content.len) {
             if (content[i] == '\\' and i + 1 < content.len) {
@@ -377,7 +421,7 @@ pub const JsonLinter = struct {
                                     try self.addDiagnostic(
                                         "invalid_escape_sequence",
                                         "Invalid Unicode escape sequence",
-                                        .@"error",
+                                        .err,
                                         span,
                                     );
                                     break;
@@ -388,7 +432,7 @@ pub const JsonLinter = struct {
                             try self.addDiagnostic(
                                 "invalid_escape_sequence",
                                 "Incomplete Unicode escape sequence",
-                                .@"error",
+                                .err,
                                 span,
                             );
                             i += 2;
@@ -398,7 +442,7 @@ pub const JsonLinter = struct {
                         try self.addDiagnostic(
                             "invalid_escape_sequence",
                             "Invalid escape sequence",
-                            .@"error",
+                            .err,
                             span,
                         );
                         i += 2;
@@ -410,27 +454,7 @@ pub const JsonLinter = struct {
         }
     }
 
-    fn isRuleEnabled(_: *Self, rule_name: []const u8, enabled_rules: []const Rule) bool {
-        for (enabled_rules) |rule| {
-            if (std.mem.eql(u8, rule.name, rule_name)) {
-                return rule.enabled;
-            }
-        }
-        return false;
-    }
-
-    /// Efficient rule checking using enum (O(1) vs O(n) string comparison)
-    fn isRuleEnabledEnum(self: *Self, rule_kind: JsonLintRules.KindType, enabled_rules: []const JsonLintRules.KindType) bool {
-        _ = self;
-        for (enabled_rules) |enabled_rule| {
-            if (enabled_rule == rule_kind) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    fn addDiagnostic(self: *Self, rule: []const u8, message: []const u8, severity: Rule.Severity, span: Span) !void {
+    fn addDiagnostic(self: *Self, rule: []const u8, message: []const u8, severity: Severity, span: Span) !void {
         const owned_message = try self.allocator.dupe(u8, message);
         try self.diagnostics.append(Diagnostic{
             .rule = rule,
@@ -444,12 +468,12 @@ pub const JsonLinter = struct {
     /// Efficient diagnostic creation using enum (no string allocation for rule name)
     fn addDiagnosticEnum(self: *Self, rule_kind: JsonLintRules.KindType, message: []const u8, span: Span) !void {
         const owned_message = try self.allocator.dupe(u8, message);
-        // Convert enum severity to Rule.Severity
+        // Convert enum severity to Severity
         const rule_severity = switch (JsonLintRules.severity(rule_kind)) {
-            .@"error" => Rule.Severity.@"error",
-            .warning => Rule.Severity.warning,
-            .info => Rule.Severity.warning, // Map to warning for now
-            .hint => Rule.Severity.warning, // Map to warning for now
+            .err => Severity.err,
+            .warning => Severity.warning,
+            .info => Severity.warning, // Map to warning for now
+            .hint => Severity.warning, // Map to warning for now
         };
         try self.diagnostics.append(Diagnostic{
             .rule = JsonLintRules.name(rule_kind), // No allocation needed - static string
@@ -460,7 +484,7 @@ pub const JsonLinter = struct {
         });
     }
 
-    fn addDiagnosticWithFix(self: *Self, rule: []const u8, message: []const u8, severity: Rule.Severity, span: Span, fix_description: []const u8) !void {
+    fn addDiagnosticWithFix(self: *Self, rule: []const u8, message: []const u8, severity: Severity, span: Span, fix_description: []const u8) !void {
         const owned_message = try self.allocator.dupe(u8, message);
         const owned_fix_desc = try self.allocator.dupe(u8, fix_description);
 
@@ -478,7 +502,7 @@ pub const JsonLinter = struct {
 };
 
 /// Convenience function for basic JSON linting
-pub fn lintJson(allocator: std.mem.Allocator, ast: AST, enabled_rules: []const Rule) ![]Diagnostic {
+pub fn lintJson(allocator: std.mem.Allocator, ast: AST, enabled_rules: EnabledRules) ![]Diagnostic {
     var linter = JsonLinter.init(allocator, .{});
     defer linter.deinit();
 
@@ -506,9 +530,8 @@ test "JSON linter - duplicate keys" {
     var ast = try parser.parse();
     defer ast.deinit();
 
-    const enabled_rules = &[_]Rule{
-        Rule{ .name = "no_duplicate_keys", .description = "", .severity = .@"error", .enabled = true },
-    };
+    var enabled_rules = EnabledRules.initEmpty();
+    enabled_rules.insert(.no_duplicate_keys);
 
     const diagnostics = try lintJson(allocator, ast, enabled_rules);
     defer {
@@ -543,9 +566,8 @@ test "JSON linter - deep nesting" {
     var linter = JsonLinter.init(allocator, .{ .warn_on_deep_nesting = 3 });
     defer linter.deinit();
 
-    const enabled_rules = &[_]Rule{
-        Rule{ .name = "deep_nesting", .description = "", .severity = .warning, .enabled = true },
-    };
+    var enabled_rules = EnabledRules.initEmpty();
+    enabled_rules.insert(.deep_nesting);
 
     const diagnostics = try linter.lint(ast, enabled_rules);
     defer {

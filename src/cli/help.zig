@@ -5,7 +5,7 @@ pub fn showBrief(program_name: []const u8) void {
     std.debug.print("zz - CLI Utilities\n\n", .{});
     std.debug.print("Usage: {s} <command> [args...]\n\n", .{program_name});
     std.debug.print("Commands:\n", .{});
-    std.debug.print("  tree [dir] [depth]    Show directory tree\n", .{});
+    std.debug.print("  tree [dir]            Show directory tree\n", .{});
     std.debug.print("  prompt [files...]     Build LLM prompts from files\n", .{});
     std.debug.print("  format [files...]     Format code files\n", .{});
     std.debug.print("  echo [text...]        Output text with escape sequences\n", .{});
@@ -22,10 +22,11 @@ pub fn show(program_name: []const u8) void {
     std.debug.print("zz - CLI Utilities\n\n", .{});
     std.debug.print("Usage: {s} <command> [args...]\n\n", .{program_name});
     std.debug.print("Commands:\n", .{});
-    std.debug.print("  tree [directory] [max_depth] [options]\n", .{});
+    std.debug.print("  tree [directory] [options]\n", .{});
     std.debug.print("                                Show directory tree (defaults to current dir)\n", .{});
     std.debug.print("                                Options:\n", .{});
     std.debug.print("                                  --format=FORMAT, -f FORMAT   Output format: tree (default) or list\n", .{});
+    std.debug.print("                                  --depth=N, -d N              Limit directory traversal depth\n", .{});
     std.debug.print("                                  --show-hidden                 Show hidden files\n", .{});
     std.debug.print("                                  --no-gitignore                Disable .gitignore parsing\n", .{});
     std.debug.print("  prompt [files...] [options]  Build LLM prompts with intelligent code extraction\n", .{});

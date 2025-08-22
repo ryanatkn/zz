@@ -38,7 +38,7 @@ pub const JsonParser = struct {
         span: Span,
         severity: Severity,
 
-        pub const Severity = enum { @"error", warning };
+        pub const Severity = enum { err, warning };
     };
 
     pub const ParserOptions = struct {
@@ -116,23 +116,12 @@ pub const JsonParser = struct {
         const token = self.peek();
 
         return switch (token.kind) {
-            .string_literal => self.parseString(),
-            .number_literal => self.parseNumber(),
-            .boolean_literal => self.parseBoolean(),
-            .null_literal => self.parseNull(),
-            .delimiter => {
-                // Use efficient delimiter checking (O(1) vs O(n))
-                if (token.getText(self.source).len == 1) {
-                    if (JsonDelimiters.fromChar(token.getText(self.source)[0])) |delimiter_kind| {
-                        return switch (delimiter_kind) {
-                            .left_brace => self.parseObject(),
-                            .left_bracket => self.parseArray(),
-                            else => self.parseUnexpected(),
-                        };
-                    }
-                }
-                return self.parseUnexpected();
-            },
+            .string => self.parseString(),
+            .number => self.parseNumber(),
+            .boolean => self.parseBoolean(),
+            .null => self.parseNull(),
+            .left_brace => self.parseObject(),
+            .left_bracket => self.parseArray(),
             .comment => {
                 // Skip comments and try next token
                 _ = self.advance();
@@ -154,7 +143,6 @@ pub const JsonParser = struct {
             .string = .{
                 .span = token.span,
                 .value = owned_content,
-                .quote_style = .double,
             },
         };
     }
@@ -266,13 +254,13 @@ pub const JsonParser = struct {
                     }
                     break;
                 }
-            } else if (!self.check(.delimiter, "}")) {
+            } else if (!self.check(.right_brace, null)) {
                 try self.addError("Expected ',' or '}' after object member", self.peek().span);
                 break;
             }
         }
 
-        if (!self.check(.delimiter, "}")) {
+        if (!self.check(.right_brace, null)) {
             try self.addError("Expected '}' to close object", self.peek().span);
             return self.createErrorNode();
         }
@@ -295,7 +283,7 @@ pub const JsonParser = struct {
 
     fn parseObjectMember(self: *Self) !Node {
         // Parse key (must be string)
-        if (!self.check(.string_literal, null)) {
+        if (!self.check(.string, null)) {
             try self.addError("Expected string key in object member", self.peek().span);
             return error.ParseError;
         }
@@ -307,7 +295,7 @@ pub const JsonParser = struct {
         key_ptr.* = key_node;
 
         // Expect colon
-        if (!self.check(.delimiter, ":")) {
+        if (!self.check(.colon, null)) {
             try self.addError("Expected ':' after object key", self.peek().span);
             return error.ParseError;
         }
@@ -339,7 +327,7 @@ pub const JsonParser = struct {
         defer elements.deinit();
 
         // Handle empty array
-        if (self.check(.delimiter, "]")) {
+        if (self.check(.right_bracket, null)) {
             const end_token = self.advance();
             return Node{
                 .array = .{
@@ -353,12 +341,12 @@ pub const JsonParser = struct {
         }
 
         // Parse array elements
-        while (!self.isAtEnd() and !self.check(.delimiter, "]")) {
+        while (!self.isAtEnd() and !self.check(.right_bracket, null)) {
             const element = self.parseValue() catch |err| switch (err) {
                 error.ParseError => {
                     // Skip to next comma or closing bracket for error recovery
                     self.skipToDelimiter(&.{ ",", "]" });
-                    if (self.check(.delimiter, ",")) {
+                    if (self.check(.comma, null)) {
                         _ = self.advance();
                     }
                     continue;
@@ -368,23 +356,23 @@ pub const JsonParser = struct {
 
             try elements.append(element);
 
-            if (self.check(.delimiter, ",")) {
+            if (self.check(.comma, null)) {
                 _ = self.advance(); // consume comma
 
                 // Handle trailing comma
-                if (self.check(.delimiter, "]")) {
+                if (self.check(.right_bracket, null)) {
                     if (!self.allow_trailing_commas) {
                         try self.addError("Trailing comma not allowed", self.peek().span);
                     }
                     break;
                 }
-            } else if (!self.check(.delimiter, "]")) {
+            } else if (!self.check(.right_bracket, null)) {
                 try self.addError("Expected ',' or ']' after array element", self.peek().span);
                 break;
             }
         }
 
-        if (!self.check(.delimiter, "]")) {
+        if (!self.check(.right_bracket, null)) {
             try self.addError("Expected ']' to close array", self.peek().span);
             return self.createErrorNode();
         }
@@ -442,7 +430,7 @@ pub const JsonParser = struct {
                         continue;
                     },
                     else => blk: {
-                        try self.addError("Invalid escape sequence", Span.init(i, i + 2));
+                        try self.addError("Invalid escape sequence", Span.init(@intCast(i), @intCast(i + 2)));
                         break :blk escaped; // Use the escaped character as-is
                     },
                 };
@@ -477,7 +465,7 @@ pub const JsonParser = struct {
         try self.errors.append(ParseError{
             .message = owned_message,
             .span = span,
-            .severity = .@"error",
+            .severity = .err,
         });
     }
 
@@ -491,7 +479,10 @@ pub const JsonParser = struct {
     fn peek(self: *Self) Token {
         if (self.isAtEnd()) {
             // Return a dummy token for EOF
-            return Token.simple(Span.init(0, 0), .eof, "", 0);
+            return Token{
+                .span = Span.init(0, 0),
+                .kind = .eof,
+            };
         }
         return self.tokens[self.current];
     }
@@ -513,29 +504,31 @@ pub const JsonParser = struct {
         return token.kind == kind and (text == null or std.mem.eql(u8, token.getText(self.source), text.?));
     }
 
-    /// Efficient delimiter checking using enum (O(1) vs O(n) string comparison)
+    /// Check for specific delimiter token kinds
     fn checkDelimiter(self: *Self, delimiter_kind: JsonDelimiters.KindType) bool {
         if (self.isAtEnd()) return false;
         const token = self.peek();
-        if (token.kind != .delimiter) return false;
 
-        // Convert token text to character and check against delimiter
-        if (token.getText(self.source).len == 1) {
-            if (JsonDelimiters.fromChar(token.getText(self.source)[0])) |found_kind| {
-                return found_kind == delimiter_kind;
-            }
-        }
-        return false;
+        // Map delimiter kinds to token kinds
+        const expected_token_kind: TokenKind = switch (delimiter_kind) {
+            .left_brace => .left_brace,
+            .right_brace => .right_brace,
+            .left_bracket => .left_bracket,
+            .right_bracket => .right_bracket,
+            .comma => .comma,
+            .colon => .colon,
+        };
+
+        return token.kind == expected_token_kind;
     }
 
     fn skipToDelimiter(self: *Self, delimiters: []const []const u8) void {
         while (!self.isAtEnd()) {
             const token = self.peek();
-            if (token.kind == .delimiter) {
-                for (delimiters) |delim| {
-                    if (std.mem.eql(u8, token.getText(self.source), delim)) {
-                        return;
-                    }
+            // Check if token is a delimiter by comparing text
+            for (delimiters) |delim| {
+                if (std.mem.eql(u8, token.getText(self.source), delim)) {
+                    return;
                 }
             }
             _ = self.advance();
@@ -544,10 +537,10 @@ pub const JsonParser = struct {
 };
 
 // JSON-specific node types are handled via rule_name strings:
-// - "string_literal" for string literals
-// - "number_literal" for numeric values
-// - "boolean_literal" for true/false
-// - "null_literal" for null
+// - "string" for string literals
+// - "number" for numeric values
+// - "boolean" for true/false
+// - "null" for null
 // - "object" for objects
 // - "member" for key-value pairs
 // - "array" for arrays
@@ -568,7 +561,7 @@ test "JSON parser - simple values" {
         defer lexer.deinit();
         const tokens = try lexer.batchTokenize(allocator, "\"hello\"");
 
-        var parser = JsonParser.init(allocator, tokens, .{});
+        var parser = JsonParser.init(allocator, tokens, "\"hello\"", .{});
         defer parser.deinit();
 
         var ast = try parser.parse();
@@ -584,7 +577,7 @@ test "JSON parser - simple values" {
         defer lexer.deinit();
         const tokens = try lexer.batchTokenize(allocator, "42");
 
-        var parser = JsonParser.init(allocator, tokens, .{});
+        var parser = JsonParser.init(allocator, tokens, "42", .{});
         defer parser.deinit();
 
         var ast = try parser.parse();
@@ -599,7 +592,7 @@ test "JSON parser - simple values" {
         defer lexer.deinit();
         const tokens = try lexer.batchTokenize(allocator, "true");
 
-        var parser = JsonParser.init(allocator, tokens, .{});
+        var parser = JsonParser.init(allocator, tokens, "true", .{});
         defer parser.deinit();
 
         var ast = try parser.parse();
@@ -618,7 +611,7 @@ test "JSON parser - object" {
     defer lexer.deinit();
     const tokens = try lexer.batchTokenize(allocator, "{\"key\": \"value\"}");
 
-    var parser = JsonParser.init(allocator, tokens, .{});
+    var parser = JsonParser.init(allocator, tokens, "{\"key\": \"value\"}", .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -638,7 +631,7 @@ test "JSON parser - array" {
     defer lexer.deinit();
     const tokens = try lexer.batchTokenize(allocator, "[1, 2, 3]");
 
-    var parser = JsonParser.init(allocator, tokens, .{});
+    var parser = JsonParser.init(allocator, tokens, "[1, 2, 3]", .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -667,7 +660,7 @@ test "JSON parser - nested structure" {
     defer lexer.deinit();
     const tokens = try lexer.batchTokenize(allocator, json_text);
 
-    var parser = JsonParser.init(allocator, tokens, .{});
+    var parser = JsonParser.init(allocator, tokens, json_text, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -690,7 +683,7 @@ test "JSON parser - error recovery" {
     defer lexer.deinit();
     const tokens = try lexer.batchTokenize(allocator, "{\"key\": [1, 2,]}");
 
-    var parser = JsonParser.init(allocator, tokens, .{});
+    var parser = JsonParser.init(allocator, tokens, "{\"key\": [1, 2,]}", .{});
     defer parser.deinit();
 
     var ast = try parser.parse();

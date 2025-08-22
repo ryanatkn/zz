@@ -100,10 +100,10 @@ if (path.len == 0 or (path.len == 1 and path[0] == '/')) {
 **Solution:** Always put positional args first
 ```bash
 # GOOD
-zz tree src/ 2 --format=json
+zz tree src --depth=2 --format=json
 
 # BAD  
-zz tree --format=json src/ 2
+zz tree --format=json src --depth=2
 ```
 
 ### Output Goes to Stdout

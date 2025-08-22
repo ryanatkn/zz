@@ -63,6 +63,11 @@ pub const Span = struct {
         return self.start <= other.start and self.end >= other.end;
     }
 
+    /// Check if two spans are equal
+    pub fn eql(self: Span, other: Span) bool {
+        return self.start == other.start and self.end == other.end;
+    }
+
     /// Get text slice from source
     pub fn slice(self: Span, source: []const u8) []const u8 {
         const start = @min(self.start, @as(u32, @intCast(source.len)));

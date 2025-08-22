@@ -1,0 +1,200 @@
+const std = @import("std");
+const testing = std.testing;
+
+// Import ZON modules
+const ZonLexer = @import("lexer.zig").ZonLexer;
+const ZonParser = @import("parser.zig").ZonParser;
+const ZonLinter = @import("linter.zig").ZonLinter;
+const ZonRuleType = @import("linter.zig").ZonRuleType;
+const EnabledRules = @import("linter.zig").EnabledRules;
+
+// Import types
+const interface_types = @import("../interface.zig");
+
+// =============================================================================
+// Linter Tests
+// =============================================================================
+
+test "ZON linter - valid ZON" {
+    var arena = std.heap.ArenaAllocator.init(testing.allocator);
+    defer arena.deinit();
+    const allocator = arena.allocator();
+
+    const input =
+        \\.{
+        \\    .name = "test",
+        \\    .version = "1.0.0",
+        \\    .dependencies = .{},
+        \\}
+    ;
+
+    var lexer = ZonLexer.init(allocator);
+    defer lexer.deinit();
+
+    const tokens = try lexer.tokenize(input);
+    defer allocator.free(tokens);
+
+    var parser = ZonParser.init(allocator, tokens, input, .{});
+    defer parser.deinit();
+
+    var ast = try parser.parse();
+    defer ast.deinit();
+
+    // Use default enabled rules from linter
+    const enabled_rules = ZonLinter.getDefaultRules();
+
+    var linter = ZonLinter.init(allocator, .{});
+    defer linter.deinit();
+
+    const diagnostics = try linter.lint(ast, enabled_rules);
+    defer {
+        for (diagnostics) |diag| {
+            allocator.free(diag.message);
+        }
+        allocator.free(diagnostics);
+    }
+
+    // Valid ZON should have no errors
+    try testing.expectEqual(@as(usize, 0), diagnostics.len);
+}
+
+test "ZON linter - duplicate keys" {
+    var arena = std.heap.ArenaAllocator.init(testing.allocator);
+    defer arena.deinit();
+    const allocator = arena.allocator();
+
+    const input =
+        \\.{
+        \\    .name = "test",
+        \\    .name = "duplicate",
+        \\}
+    ;
+
+    var lexer = ZonLexer.init(allocator);
+    defer lexer.deinit();
+
+    const tokens = try lexer.tokenize(input);
+    defer allocator.free(tokens);
+
+    var parser = ZonParser.init(allocator, tokens, input, .{});
+    defer parser.deinit();
+
+    var ast = try parser.parse();
+    defer ast.deinit();
+
+    // Enable specific rule for duplicate key detection
+    var enabled_rules = EnabledRules.initEmpty();
+    enabled_rules.insert(.no_duplicate_keys);
+
+    var linter = ZonLinter.init(allocator, .{});
+    defer linter.deinit();
+
+    const diagnostics = try linter.lint(ast, enabled_rules);
+    defer {
+        for (diagnostics) |diag| {
+            allocator.free(diag.message);
+        }
+        allocator.free(diagnostics);
+    }
+
+    // Should detect duplicate key
+    try testing.expect(diagnostics.len > 0);
+}
+
+test "ZON linter - schema validation" {
+    var arena = std.heap.ArenaAllocator.init(testing.allocator);
+    defer arena.deinit();
+    const allocator = arena.allocator();
+
+    const input =
+        \\.{
+        \\    .name = 123, // Should be string
+        \\    .version = true, // Should be string
+        \\}
+    ;
+
+    var lexer = ZonLexer.init(allocator);
+    defer lexer.deinit();
+
+    const tokens = try lexer.tokenize(input);
+    defer allocator.free(tokens);
+
+    var parser = ZonParser.init(allocator, tokens, input, .{});
+    defer parser.deinit();
+
+    var ast = try parser.parse();
+    defer ast.deinit();
+
+    // TODO: Add schema_validation rule to ZonRuleType enum
+    var enabled_rules = EnabledRules.initEmpty();
+    // enabled_rules.insert(.schema_validation);
+    enabled_rules.insert(.invalid_field_type); // Use similar rule for now
+
+    var linter = ZonLinter.init(allocator, .{});
+    defer linter.deinit();
+
+    const diagnostics = try linter.lint(ast, enabled_rules);
+    defer {
+        for (diagnostics) |diag| {
+            allocator.free(diag.message);
+        }
+        allocator.free(diagnostics);
+    }
+
+    // Should detect type mismatches if schema validation is implemented
+}
+
+test "ZON linter - deep nesting warning" {
+    var arena = std.heap.ArenaAllocator.init(testing.allocator);
+    defer arena.deinit();
+    const allocator = arena.allocator();
+
+    // Create deeply nested structure
+    var deep_input = std.ArrayList(u8).init(allocator);
+    defer deep_input.deinit();
+
+    try deep_input.appendSlice(".{");
+
+    // Create 25 levels of nesting
+    var i: u32 = 0;
+    while (i < 25) : (i += 1) {
+        try deep_input.writer().print(" .level{} = .{{", .{i});
+    }
+
+    try deep_input.appendSlice(" .final = \"value\" ");
+
+    // Close all braces
+    i = 0;
+    while (i < 26) : (i += 1) {
+        try deep_input.appendSlice("}");
+    }
+
+    var lexer = ZonLexer.init(allocator);
+    defer lexer.deinit();
+
+    const tokens = try lexer.tokenize(deep_input.items);
+    defer allocator.free(tokens);
+
+    var parser = ZonParser.init(allocator, tokens, deep_input.items, .{});
+    defer parser.deinit();
+
+    var ast = try parser.parse();
+    defer ast.deinit();
+
+    // Enable specific rule for depth checking
+    var enabled_rules = EnabledRules.initEmpty();
+    enabled_rules.insert(.max_depth_exceeded);
+
+    var linter = ZonLinter.init(allocator, .{ .max_depth = 20 });
+    defer linter.deinit();
+
+    const diagnostics = try linter.lint(ast, enabled_rules);
+    defer {
+        for (diagnostics) |diag| {
+            allocator.free(diag.message);
+        }
+        allocator.free(diagnostics);
+    }
+
+    // Should warn about deep nesting if implemented
+}

@@ -17,7 +17,6 @@ const zon_config = @import("../config/zon.zig");
 // Language and transformation
 const json_transform = @import("../lib/languages/json/transform.zig");
 const zon_transform = @import("../lib/languages/zon/transform.zig");
-const transform_mod = @import("../lib/transform_old/transform.zig");
 const language_interface = @import("../lib/languages/interface.zig");
 
 // Stream-first architecture
@@ -25,8 +24,7 @@ const stream_format = @import("../lib/stream/format.zig");
 const JsonStreamLexer = @import("../lib/languages/json/stream_lexer.zig").JsonStreamLexer;
 const ZonStreamLexer = @import("../lib/languages/zon/stream_lexer.zig").ZonStreamLexer;
 
-// Parser modules
-const StratifiedParser = @import("../lib/parser_old/mod.zig");
+// Parser modules removed - using direct language modules
 
 // Glob expansion
 const glob_mod = @import("../prompt/glob.zig");
@@ -44,9 +42,7 @@ const Args = args_mod.Args;
 const CommonFlags = args_mod.CommonFlags;
 const JsonTransformPipeline = json_transform.JsonTransformPipeline;
 const ZonTransformPipeline = zon_transform.ZonTransformPipeline;
-const Context = transform_mod.Context;
-const Lexical = StratifiedParser.Lexical;
-const Structural = StratifiedParser.Structural;
+// Removed transform_old and StratifiedParser references
 const FormatOptions = language_interface.FormatOptions;
 
 // Minimal formatter options for configuration compatibility
@@ -221,8 +217,8 @@ fn processFile(allocator: std.mem.Allocator, fs: FilesystemInterface, file_path:
     const formatted = if (stream and (language == .json or language == .zon)) blk: {
         break :blk try formatWithStream(allocator, content, language, options);
     } else blk: {
-        // Format content using stratified parser
-        break :blk try formatWithStratifiedParser(allocator, content, language, file_path, options);
+        // Format content using language modules directly
+        break :blk try formatWithLanguageModules(allocator, content, language, formatterOptionsToFormatOptions(options));
     };
     defer allocator.free(formatted);
 
@@ -255,139 +251,48 @@ fn processFile(allocator: std.mem.Allocator, fs: FilesystemInterface, file_path:
     return true;
 }
 
-/// Format content using the stratified parser architecture
-/// This function demonstrates the three-layer parsing with performance measurement
-fn formatWithStratifiedParser(allocator: std.mem.Allocator, content: []const u8, language: Language, file_path: []const u8, options: FormatterOptions) ![]u8 {
-    const start_time = std.time.nanoTimestamp();
+// Removed formatWithStratifiedParser - using direct language modules
 
-    // Initialize the stratified parser layers
-    const lexical_config = Lexical.LexerConfig{
-        .language = mapLanguageToLexical(language),
-        .buffer_size = @min(content.len * 2, 8192),
-        .track_brackets = true,
-    };
-
-    const structural_config = Structural.StructuralConfig{
-        .language = mapLanguageToStructural(language),
-        .performance_threshold_ns = 1_000_000, // 1ms target
-        .include_folding = false,
-    };
-
-    // Layer 0: Lexical analysis (<0.1ms target)
-    const lexical_start = std.time.nanoTimestamp();
-    var lexer = try Lexical.StreamingLexer.init(allocator, lexical_config);
-    defer lexer.deinit();
-
-    const full_span = StratifiedParser.Span.init(0, content.len);
-    const tokens = try lexer.tokenizeRange(content, full_span);
-    defer allocator.free(tokens);
-    const lexical_time = std.time.nanoTimestamp() - lexical_start;
-
-    // Layer 1: Structural analysis (<1ms target)
-    const structural_start = std.time.nanoTimestamp();
-    var structural_parser = try Structural.StructuralParser.init(allocator, structural_config);
-    defer structural_parser.deinit();
-
-    var parse_result = try structural_parser.parse(tokens);
-    defer parse_result.deinit(allocator);
-    const structural_time = std.time.nanoTimestamp() - structural_start;
-
-    // Layer 2: Detailed analysis (<10ms target)
-    // Note: Simplified for dogfooding - just measure what would be detailed parsing
-    const detailed_start = std.time.nanoTimestamp();
-
-    // Simulate detailed parsing work by analyzing boundaries and tokens
-    var fact_count: usize = 0;
-    for (parse_result.boundaries) |boundary| {
-        _ = boundary;
-        fact_count += 1; // Each boundary generates multiple facts
-        fact_count += tokens.len / 10; // Rough estimate of facts per boundary
-    }
-
-    const detailed_time = std.time.nanoTimestamp() - detailed_start;
-
-    const total_time = std.time.nanoTimestamp() - start_time;
-
-    // Report performance (only for files, not stdin)
-    if (!std.mem.eql(u8, file_path, "<stdin>")) {
-        const stderr = std.io.getStdErr().writer();
-        try stderr.print("🔹 Stratified Parser Performance for {s}:\n", .{file_path});
-        try stderr.print("   Layer 0 (Lexical):   {d:.1}μs (tokens: {})\n", .{ @as(f64, @floatFromInt(lexical_time)) / 1000.0, tokens.len });
-        try stderr.print("   Layer 1 (Structural): {d:.1}μs (boundaries: {})\n", .{ @as(f64, @floatFromInt(structural_time)) / 1000.0, parse_result.boundaries.len });
-        try stderr.print("   Layer 2 (Detailed):   {d:.1}μs (facts: {})\n", .{ @as(f64, @floatFromInt(detailed_time)) / 1000.0, fact_count });
-        try stderr.print("   Total Time:           {d:.1}μs\n", .{@as(f64, @floatFromInt(total_time)) / 1000.0});
-
-        // Check performance targets
-        const lexical_target_met = lexical_time < 100_000; // 0.1ms
-        const structural_target_met = structural_time < 1_000_000; // 1ms
-        const detailed_target_met = detailed_time < 10_000_000; // 10ms
-
-        try stderr.print("🎯 Performance Targets:\n", .{});
-        try stderr.print("   Lexical <0.1ms:    {s}\n", .{if (lexical_target_met) "✅ PASS" else "❌ FAIL"});
-        try stderr.print("   Structural <1ms:   {s}\n", .{if (structural_target_met) "✅ PASS" else "❌ FAIL"});
-        try stderr.print("   Detailed <10ms:    {s}\n", .{if (detailed_target_met) "✅ PASS" else "❌ FAIL"});
-    }
-
-    // Convert format options for language interface
-    const format_options = formatterOptionsToFormatOptions(options);
-
-    // Use language-specific formatting instead of returning original content
-    return formatWithLanguageModules(allocator, content, language, format_options) catch |err| {
-        // For JSON validation errors, report the error and propagate it
-        if (language == .json and err == error.InvalidNumber) {
-            if (!std.mem.eql(u8, file_path, "<stdin>")) {
-                try reporting.reportError("Invalid JSON in '{s}': {s}", .{ file_path, @errorName(err) });
-            } else {
-                try reporting.reportError("Invalid JSON: {s}", .{@errorName(err)});
-            }
-            return err;
-        }
-
-        // For other errors, fallback to original content
-        if (!std.mem.eql(u8, file_path, "<stdin>")) {
-            try reporting.reportWarning("Formatting failed for '{s}', returning original content: {}", .{ file_path, err });
-        }
-        return allocator.dupe(u8, content);
-    };
-}
-
-/// Format content using zz's sophisticated Transform Pipeline Architecture
+/// Format content using language modules directly (simplified approach)
 fn formatWithLanguageModules(allocator: std.mem.Allocator, content: []const u8, language: Language, format_options: FormatOptions) ![]u8 {
     switch (language) {
         .json => {
-            // Use zz's JsonTransformPipeline with full FormatOptions support
-            // Create transform context for pipeline execution
-            var ctx = Context.init(allocator);
-            defer ctx.deinit();
-
-            // Initialize JSON pipeline with format options
-            var pipeline = try JsonTransformPipeline.initWithOptions(
-                allocator,
-                .{}, // Default lexer options
-                .{}, // Default parser options
-                format_options, // User-provided format options
-            );
-            defer pipeline.deinit();
-
-            // Round-trip: JSON text → AST → formatted JSON text
-            const formatted_const = try pipeline.roundTrip(&ctx, content);
-            return allocator.dupe(u8, formatted_const);
+            // Use JSON module for formatting
+            const json_mod = @import("../lib/languages/json/mod.zig");
+            // Format JSON with default options
+            const formatted = try json_mod.formatJsonString(allocator, content);
+            defer allocator.free(formatted);
+            // Convert const slice to mutable slice
+            return try allocator.dupe(u8, formatted);
         },
         .zon => {
-            // Use zz's ZonTransformPipeline similarly
-            var ctx = Context.init(allocator);
-            defer ctx.deinit();
+            // Use new ZON module directly
+            const zon_mod = @import("../lib/languages/zon/mod.zig");
 
-            var pipeline = try ZonTransformPipeline.initWithOptions(
-                allocator,
-                .{}, // Default lexer options
-                .{}, // Default parser options
-                format_options, // User-provided format options
-            );
-            defer pipeline.deinit();
+            // Parse ZON to AST
+            var ast = try zon_mod.parseZonString(allocator, content);
+            defer ast.deinit();
 
-            const formatted_const = try pipeline.roundTrip(&ctx, content);
-            return allocator.dupe(u8, formatted_const);
+            // Convert format options to ZON-specific options
+            const zon_options = @import("../lib/languages/zon/formatter.zig").ZonFormatter.ZonFormatOptions{
+                .indent_size = @intCast(format_options.indent_size),
+                .indent_style = if (format_options.indent_style == .space)
+                    @import("../lib/languages/zon/formatter.zig").ZonFormatter.ZonFormatOptions.IndentStyle.space
+                else
+                    @import("../lib/languages/zon/formatter.zig").ZonFormatter.ZonFormatOptions.IndentStyle.tab,
+                .line_width = format_options.line_width,
+                .preserve_comments = format_options.preserve_newlines,
+                .trailing_comma = format_options.trailing_comma,
+                .compact_small_objects = true,
+                .compact_small_arrays = true,
+            };
+
+            // Format using ZON formatter
+            const zon_formatter = @import("../lib/languages/zon/formatter.zig").ZonFormatter;
+            var formatter = zon_formatter.init(allocator, zon_options);
+            defer formatter.deinit();
+            const formatted = try formatter.format(ast);
+            return allocator.dupe(u8, formatted);
         },
         .css, .html, .typescript, .zig, .svelte => {
             // These languages don't have transform pipelines yet
@@ -397,29 +302,7 @@ fn formatWithLanguageModules(allocator: std.mem.Allocator, content: []const u8, 
     }
 }
 
-/// Map Language enum to lexical layer language
-fn mapLanguageToLexical(language: Language) Lexical.Language {
-    return switch (language) {
-        .zig => .zig,
-        .typescript => .typescript,
-        .json => .json,
-        .css => .css,
-        .html => .html,
-        .svelte, .zon, .unknown => .generic,
-    };
-}
-
-/// Map Language enum to structural layer language
-fn mapLanguageToStructural(language: Language) Structural.Language {
-    return switch (language) {
-        .zig => .zig,
-        .typescript => .typescript,
-        .json => .json,
-        .css => .css,
-        .html => .html,
-        .svelte, .zon, .unknown => .generic,
-    };
-}
+// Removed mapping functions - using direct language modules
 
 /// Convert FormatterOptions to FormatOptions for language interface compatibility
 fn formatterOptionsToFormatOptions(formatter_options: FormatterOptions) FormatOptions {
@@ -453,8 +336,8 @@ fn formatStdin(allocator: std.mem.Allocator, stream: bool, options: FormatterOpt
     const formatted = if (stream and (language == .json or language == .zon)) blk: {
         break :blk try formatWithStream(allocator, content, language, options);
     } else blk: {
-        // Format using stratified parser
-        break :blk try formatWithStratifiedParser(allocator, content, language, "<stdin>", options);
+        // Format using language modules directly
+        break :blk try formatWithLanguageModules(allocator, content, language, formatterOptionsToFormatOptions(options));
     };
     defer allocator.free(formatted);
 

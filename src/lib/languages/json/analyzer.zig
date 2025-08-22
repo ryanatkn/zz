@@ -5,6 +5,7 @@ const AST = json_ast.AST;
 const Node = json_ast.Node;
 const NodeKind = json_ast.NodeKind;
 const Span = @import("../../span/span.zig").Span;
+const Walker = @import("../../ast/walker.zig").Walker(Node);
 
 /// Symbol from semantic analysis (local to JSON)
 pub const Symbol = struct {
@@ -156,7 +157,7 @@ pub const JsonAnalyzer = struct {
 
     /// Extract schema from JSON AST
     pub fn extractSchema(self: *Self, ast: AST) !JsonSchema {
-        const root = &ast.root;
+        const root = ast.root;
         return self.analyzeNode(root, 0);
     }
 
@@ -171,7 +172,7 @@ pub const JsonAnalyzer = struct {
             .complexity_score = 0.0,
         };
 
-        const root = &ast.root;
+        const root = ast.root;
         self.calculateStatistics(root, 0, &stats);
 
         // Calculate size bytes by summing up text lengths
@@ -199,8 +200,7 @@ pub const JsonAnalyzer = struct {
         var symbols = std.ArrayList(Symbol).init(self.allocator);
         defer symbols.deinit();
 
-        var root = ast.root;
-        try self.extractSymbolsFromNode(&root, &symbols, "");
+        try self.extractSymbolsFromNode(ast.root, &symbols, "");
 
         return symbols.toOwnedSlice();
     }
@@ -210,31 +210,25 @@ pub const JsonAnalyzer = struct {
             return JsonSchema.init(self.allocator, .any);
         }
 
-        return switch (node.rule_id) {
-            JsonRules.string_literal => blk: {
+        return switch (node.*) {
+            .string => |n| blk: {
                 var schema = JsonSchema.init(self.allocator, .string);
-                if (node.text.len > 0) {
-                    try schema.examples.append(try self.allocator.dupe(u8, node.text));
-                }
+                try schema.examples.append(try self.allocator.dupe(u8, n.value));
                 break :blk schema;
             },
-            JsonRules.number_literal => blk: {
+            .number => |n| blk: {
                 var schema = JsonSchema.init(self.allocator, .number);
-                if (node.text.len > 0) {
-                    try schema.examples.append(try self.allocator.dupe(u8, node.text));
-                }
+                try schema.examples.append(try self.allocator.dupe(u8, n.raw));
                 break :blk schema;
             },
-            JsonRules.boolean_literal => blk: {
+            .boolean => |n| blk: {
                 var schema = JsonSchema.init(self.allocator, .boolean);
-                if (node.text.len > 0) {
-                    try schema.examples.append(try self.allocator.dupe(u8, node.text));
-                }
+                try schema.examples.append(try self.allocator.dupe(u8, if (n.value) "true" else "false"));
                 break :blk schema;
             },
-            JsonRules.null_literal => JsonSchema.init(self.allocator, .null),
-            JsonRules.object => self.analyzeObject(node, depth),
-            JsonRules.array => self.analyzeArray(node, depth),
+            .null => JsonSchema.init(self.allocator, .null),
+            .object => self.analyzeObject(node, depth),
+            .array => self.analyzeArray(node, depth),
             else => JsonSchema.init(self.allocator, .any),
         };
     }
@@ -243,26 +237,22 @@ pub const JsonAnalyzer = struct {
         var schema = JsonSchema.init(self.allocator, .object);
         schema.properties = std.HashMap([]const u8, JsonSchema, std.hash_map.StringContext, std.hash_map.default_max_load_percentage).init(self.allocator);
 
-        const members = node.children;
-        if (members.len == 0) return schema;
+        const object_node = node.object;
+        const properties = object_node.properties;
+        if (properties.len == 0) return schema;
 
-        for (members) |member| {
-            if (member.rule_id != JsonRules.member) continue;
-            const member_children = member.children;
-            if (member_children.len < 2) continue;
+        for (properties) |property| {
+            if (property != .property) continue;
+            const prop_node = property.property;
 
-            const key_node = member_children[0];
-            const value_node = member_children[1];
-
-            // Extract key name
-            const key_value = key_node.text;
-            const key_name = if (key_value.len >= 2 and key_value[0] == '"' and key_value[key_value.len - 1] == '"')
-                key_value[1 .. key_value.len - 1]
+            // Extract key name from the key node (should be a string)
+            const key_name = if (prop_node.key.* == .string)
+                prop_node.key.string.value
             else
-                key_value;
+                "unknown"; // fallback
 
             const owned_key = try self.allocator.dupe(u8, key_name);
-            const value_schema = try self.analyzeNode(&value_node, depth + 1);
+            const value_schema = try self.analyzeNode(prop_node.value, depth + 1);
 
             try schema.properties.?.put(owned_key, value_schema);
         }
@@ -273,7 +263,8 @@ pub const JsonAnalyzer = struct {
     fn analyzeArray(self: *Self, node: *const Node, depth: u32) !JsonSchema {
         var schema = JsonSchema.init(self.allocator, .array);
 
-        const elements = node.children;
+        const array_node = node.array;
+        const elements = array_node.elements;
         if (elements.len == 0) return schema;
 
         if (elements.len == 0) {
@@ -324,34 +315,34 @@ pub const JsonAnalyzer = struct {
         // Update max depth
         stats.max_depth = @max(stats.max_depth, depth);
 
-        // Count node types based on rule_id
-        switch (node.rule_id) {
-            JsonRules.string_literal => {
+        // Count node types based on node union
+        switch (node.*) {
+            .string => {
                 stats.type_counts.strings += 1;
                 stats.total_values += 1;
             },
-            JsonRules.number_literal => {
+            .number => {
                 stats.type_counts.numbers += 1;
                 stats.total_values += 1;
             },
-            JsonRules.boolean_literal => {
+            .boolean => {
                 stats.type_counts.booleans += 1;
                 stats.total_values += 1;
             },
-            JsonRules.null_literal => {
+            .null => {
                 stats.type_counts.nulls += 1;
                 stats.total_values += 1;
             },
-            JsonRules.object => {
+            .object => {
                 stats.type_counts.objects += 1;
                 stats.total_values += 1;
             },
-            JsonRules.array => {
+            .array => {
                 stats.type_counts.arrays += 1;
                 stats.total_values += 1;
             },
-            JsonRules.member => {
-                // Member nodes contain key-value pairs, count the key
+            .property => {
+                // Property nodes contain key-value pairs, count the key
                 stats.total_keys += 1;
             },
             else => {
@@ -360,25 +351,26 @@ pub const JsonAnalyzer = struct {
         }
 
         // Recursively process all children
-        for (node.children) |child| {
+        for (node.children()) |child| {
             self.calculateStatistics(&child, depth + 1, stats);
         }
     }
 
     fn calculateSizeBytes(self: *Self, node: *const Node, stats: *JsonStatistics) void {
 
-        // Add the text length of this node
-        stats.size_bytes += @intCast(node.text.len);
+        // Add the size based on node span
+        const span = node.span();
+        stats.size_bytes += @intCast(span.end - span.start);
 
         // Recursively process children
-        for (node.children) |child| {
+        for (node.children()) |child| {
             self.calculateSizeBytes(&child, stats);
         }
     }
 
     fn calculateDepth(node: *const Node, current_depth: u32) u32 {
         var max = current_depth;
-        for (node.children) |child| {
+        for (node.children()) |child| {
             const child_depth = calculateDepth(&child, current_depth + 1);
             max = @max(max, child_depth);
         }
@@ -455,103 +447,83 @@ pub const JsonAnalyzer = struct {
 
     fn extractSymbolsFromNode(self: *Self, node: *Node, symbols: *std.ArrayList(Symbol), path: []const u8) !void {
         // Create visitor context with path tracking
-        const VisitorContext = struct {
-            allocator: std.mem.Allocator,
-            symbols: *std.ArrayList(Symbol),
-            current_path: []const u8,
-        };
+        // Use simplified traversal for symbol extraction
+        _ = path; // TODO: Use path for hierarchical symbol names
+        try self.extractSymbolsBasic(node, symbols);
+    }
 
-        var context = VisitorContext{
-            .allocator = self.allocator,
-            .symbols = symbols,
-            .current_path = path,
-        };
+    /// Basic symbol extraction without complex walker
+    fn extractSymbolsBasic(self: *Self, node: *const Node, symbols: *std.ArrayList(Symbol)) !void {
+        switch (node.*) {
+            .object => |obj| {
+                try symbols.append(Symbol{
+                    .name = try self.allocator.dupe(u8, "object"),
+                    .kind = .object,
+                    .range = node.span(),
+                    .signature = null,
+                    .documentation = null,
+                });
 
-        const visitor = struct {
-            fn visit(n: *const Node, ctx: ?*anyopaque) anyerror!bool {
-                const vis_ctx = @as(*VisitorContext, @ptrCast(@alignCast(ctx.?)));
-
-                // Check rule_name instead of node_type enum
-                switch (n.rule_id) {
-                    JsonRules.object => {
-                        try vis_ctx.symbols.append(Symbol{
-                            .name = try vis_ctx.allocator.dupe(u8, if (vis_ctx.current_path.len == 0) "root" else vis_ctx.current_path),
-                            .kind = .struct_,
-                            .range = Span.init(n.start_position, n.end_position),
-                            .signature = null,
-                            .documentation = null,
-                        });
-
-                        // Process members using ASTUtils for field extraction
-                        for (n.children) |member| {
-                            if (member.rule_id != JsonRules.member) continue;
-                            if (member.children.len < 2) continue;
-
-                            const key_node = member.children[0];
-                            const value_node = member.children[1];
-
-                            const key_value = key_node.text;
-                            const key_name = if (key_value.len >= 2 and key_value[0] == '"' and key_value[key_value.len - 1] == '"')
-                                key_value[1 .. key_value.len - 1]
-                            else
-                                key_value;
-
-                            const new_path = if (vis_ctx.current_path.len == 0)
-                                try vis_ctx.allocator.dupe(u8, key_name)
-                            else
-                                try std.fmt.allocPrint(vis_ctx.allocator, "{s}.{s}", .{ vis_ctx.current_path, key_name });
-
-                            // Update context for recursion
-                            var child_context = VisitorContext{
-                                .allocator = vis_ctx.allocator,
-                                .symbols = vis_ctx.symbols,
-                                .current_path = new_path,
-                            };
-
-                            // Recursively visit value node with new path
-                            var traversal = ASTTraversal.init(vis_ctx.allocator);
-                            try traversal.walk(&value_node, visit, &child_context, .depth_first_pre);
-
-                            vis_ctx.allocator.free(new_path);
+                // Process properties
+                for (obj.properties) |property| {
+                    if (property == .property) {
+                        const prop_node = property.property;
+                        if (prop_node.key.* == .string) {
+                            const key_name = prop_node.key.string.value;
+                            try symbols.append(Symbol{
+                                .name = try self.allocator.dupe(u8, key_name),
+                                .kind = .property,
+                                .range = prop_node.key.span(),
+                                .signature = null,
+                                .documentation = null,
+                            });
+                            // Recursively process the value
+                            try self.extractSymbolsBasic(prop_node.value, symbols);
                         }
-                        return false; // Don't continue automatic traversal, we handled children
-                    },
-                    JsonRules.array => {
-                        try vis_ctx.symbols.append(Symbol{
-                            .name = try vis_ctx.allocator.dupe(u8, if (vis_ctx.current_path.len == 0) "root" else vis_ctx.current_path),
-                            .kind = .variable,
-                            .range = Span.init(n.start_position, n.end_position),
-                            .signature = try vis_ctx.allocator.dupe(u8, "array"),
-                            .documentation = null,
-                        });
-                        return true; // Continue traversal for array elements
-                    },
-                    JsonRules.string_literal, JsonRules.number_literal, JsonRules.boolean_literal, JsonRules.null_literal => {
-                        const type_name = switch (n.rule_id) {
-                            JsonRules.string_literal => "string",
-                            JsonRules.number_literal => "number",
-                            JsonRules.boolean_literal => "boolean",
-                            JsonRules.null_literal => "null",
-                            else => unreachable,
-                        };
-
-                        try vis_ctx.symbols.append(Symbol{
-                            .name = try vis_ctx.allocator.dupe(u8, if (vis_ctx.current_path.len == 0) "root" else vis_ctx.current_path),
-                            .kind = .property,
-                            .range = Span.init(n.start_position, n.end_position),
-                            .signature = try vis_ctx.allocator.dupe(u8, type_name),
-                            .documentation = null,
-                        });
-                        return true;
-                    },
-                    else => return true, // Continue for other node types
+                    }
                 }
-            }
-        }.visit;
+            },
+            .array => |arr| {
+                try symbols.append(Symbol{
+                    .name = try self.allocator.dupe(u8, "array"),
+                    .kind = .array,
+                    .range = node.span(),
+                    .signature = null,
+                    .documentation = null,
+                });
 
-        // Use traversal to walk the tree
-        var traversal = ASTTraversal.init(self.allocator);
-        try traversal.walk(node, visitor, &context, .depth_first_pre);
+                // Process elements
+                for (arr.elements) |element| {
+                    try self.extractSymbolsBasic(&element, symbols);
+                }
+            },
+            .string, .number, .boolean, .null => {
+                const type_name = switch (node.*) {
+                    .string => "string",
+                    .number => "number",
+                    .boolean => "boolean",
+                    .null => "null",
+                    else => unreachable,
+                };
+
+                try symbols.append(Symbol{
+                    .name = try self.allocator.dupe(u8, type_name),
+                    .kind = switch (node.*) {
+                        .string => .string,
+                        .number => .number,
+                        .boolean => .boolean,
+                        .null => .null_value,
+                        else => unreachable,
+                    },
+                    .range = node.span(),
+                    .signature = null,
+                    .documentation = null,
+                });
+            },
+            else => {
+                // Handle other node types like root, property, error
+            },
+        }
     }
 };
 

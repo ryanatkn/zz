@@ -105,11 +105,11 @@ $ zz config edit
 #### A. Contextual Help
 ```bash
 $ zz tree --help
-Usage: zz tree [directory] [depth] [options]
+Usage: zz tree [directory] [options]
 
 Examples:
   zz tree                    # Current directory
-  zz tree src/ 2            # src/ with max depth 2
+  zz tree src --depth=2     # src/ with max depth 2
   zz tree --format=list     # Flat list output
   zz tree --no-gitignore    # Include gitignored files
 
@@ -117,7 +117,7 @@ Options:
   --format=FORMAT    Output format (tree|list)
   --no-gitignore    Don't respect .gitignore
   --show-hidden     Show hidden files
-  --max-depth=N     Maximum recursion depth
+  --depth=N, -d N   Maximum recursion depth
 ```
 
 #### B. Interactive Mode
@@ -327,7 +327,7 @@ Try running: zz tree src/
 
 [User runs command]
 Great! Notice how ignored directories show as [...]
-Try: zz tree src/ 2  (to limit depth)
+Try: zz tree src --depth=2  (to limit depth)
 
 Lesson 2: Prompt Generation
 [Continues...]

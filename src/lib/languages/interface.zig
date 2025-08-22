@@ -1,40 +1,44 @@
 const std = @import("std");
 
-// Import foundation types from stratified parser
-const Token = @import("../parser_old/foundation/types/token.zig").Token;
-const Span = @import("../parser_old/foundation/types/span.zig").Span;
-const AST = @import("../ast_old/mod.zig").AST;
+// Import foundation types from new modules
+const Token = @import("../token/mod.zig").Token;
+const Span = @import("../span/mod.zig").Span;
 const Language = @import("../core/language.zig").Language;
 
 /// Core language support interface that all languages must implement
-pub const LanguageSupport = struct {
-    /// Language identifier
-    language: Language,
+/// Each language brings its own AST type and RuleType enum for complete isolation
+pub fn LanguageSupport(comptime ASTType: type, comptime RuleType: type) type {
+    return struct {
+        const Self = @This();
 
-    /// Lexical tokenizer
-    lexer: Lexer,
+        /// Language identifier
+        language: Language,
 
-    /// AST parser
-    parser: Parser,
+        /// Lexical tokenizer
+        lexer: Lexer,
 
-    /// Code formatter
-    formatter: Formatter,
+        /// AST parser
+        parser: Parser(ASTType),
 
-    /// Optional linter
-    linter: ?Linter = null,
+        /// Code formatter
+        formatter: Formatter(ASTType),
 
-    /// Optional semantic analyzer
-    analyzer: ?Analyzer = null,
+        /// Optional linter with language-specific rule types
+        linter: ?Linter(ASTType, RuleType) = null,
 
-    /// Cleanup function
-    deinitFn: ?*const fn (allocator: std.mem.Allocator) void = null,
+        /// Optional semantic analyzer
+        analyzer: ?Analyzer(ASTType) = null,
 
-    pub fn deinit(self: LanguageSupport, allocator: std.mem.Allocator) void {
-        if (self.deinitFn) |deinit_fn| {
-            deinit_fn(allocator);
+        /// Cleanup function
+        deinitFn: ?*const fn (allocator: std.mem.Allocator) void = null,
+
+        pub fn deinit(self: Self, allocator: std.mem.Allocator) void {
+            if (self.deinitFn) |deinit_fn| {
+                deinit_fn(allocator);
+            }
         }
-    }
-};
+    };
+}
 
 /// Lexical tokenization interface
 pub const Lexer = struct {
@@ -63,92 +67,116 @@ pub const Lexer = struct {
     }
 };
 
-/// AST parsing interface
-pub const Parser = struct {
-    /// Parse tokens into AST
-    parseFn: *const fn (allocator: std.mem.Allocator, tokens: []Token) anyerror!AST,
+/// AST parsing interface - uses anytype for language-specific ASTs
+pub fn Parser(comptime ASTType: type) type {
+    return struct {
+        const Self = @This();
 
-    /// Optional parsing with pre-computed boundaries for optimization
-    parseWithBoundariesFn: ?*const fn (allocator: std.mem.Allocator, tokens: []Token, boundaries: []Boundary) anyerror!AST,
+        /// Parse tokens into AST
+        parseFn: *const fn (allocator: std.mem.Allocator, tokens: []Token) anyerror!ASTType,
 
-    pub fn parse(self: Parser, allocator: std.mem.Allocator, tokens: []Token) !AST {
-        return self.parseFn(allocator, tokens);
-    }
+        /// Optional parsing with pre-computed boundaries for optimization
+        parseWithBoundariesFn: ?*const fn (allocator: std.mem.Allocator, tokens: []Token, boundaries: []Boundary) anyerror!ASTType,
 
-    pub fn parseWithBoundaries(self: Parser, allocator: std.mem.Allocator, tokens: []Token, boundaries: []Boundary) !?AST {
-        if (self.parseWithBoundariesFn) |parse_fn| {
-            return parse_fn(allocator, tokens, boundaries);
+        pub fn parse(self: Self, allocator: std.mem.Allocator, tokens: []Token) !ASTType {
+            return self.parseFn(allocator, tokens);
         }
-        return null;
-    }
-};
 
-/// Code formatting interface
-pub const Formatter = struct {
-    /// Format AST back to source code
-    formatFn: *const fn (allocator: std.mem.Allocator, ast: AST, options: FormatOptions) anyerror![]const u8,
-
-    /// Optional range formatting for editor integration
-    formatRangeFn: ?*const fn (allocator: std.mem.Allocator, ast: AST, range: Range, options: FormatOptions) anyerror![]const u8,
-
-    pub fn format(self: Formatter, allocator: std.mem.Allocator, ast: AST, options: FormatOptions) ![]const u8 {
-        return self.formatFn(allocator, ast, options);
-    }
-
-    pub fn formatRange(self: Formatter, allocator: std.mem.Allocator, ast: AST, range: Range, options: FormatOptions) !?[]const u8 {
-        if (self.formatRangeFn) |format_fn| {
-            return format_fn(allocator, ast, range, options);
+        pub fn parseWithBoundaries(self: Self, allocator: std.mem.Allocator, tokens: []Token, boundaries: []Boundary) !?ASTType {
+            if (self.parseWithBoundariesFn) |parse_fn| {
+                return parse_fn(allocator, tokens, boundaries);
+            }
+            return null;
         }
-        return null;
-    }
-};
+    };
+}
 
-/// Optional linting interface
-pub const Linter = struct {
-    /// Available linting rules
-    rules: []const Rule,
+/// Code formatting interface - uses anytype for language-specific ASTs
+pub fn Formatter(comptime ASTType: type) type {
+    return struct {
+        const Self = @This();
 
-    /// Run linting on AST
-    lintFn: *const fn (allocator: std.mem.Allocator, ast: AST, rules: []const Rule) anyerror![]Diagnostic,
+        /// Format AST back to source code
+        formatFn: *const fn (allocator: std.mem.Allocator, ast: ASTType, options: FormatOptions) anyerror![]const u8,
 
-    pub fn lint(self: Linter, allocator: std.mem.Allocator, ast: AST, enabled_rules: []const Rule) ![]Diagnostic {
-        return self.lintFn(allocator, ast, enabled_rules);
-    }
+        /// Optional range formatting for editor integration
+        formatRangeFn: ?*const fn (allocator: std.mem.Allocator, ast: ASTType, range: Range, options: FormatOptions) anyerror![]const u8,
 
-    pub fn getAllRules(self: Linter) []const Rule {
-        return self.rules;
-    }
-};
+        pub fn format(self: Self, allocator: std.mem.Allocator, ast: ASTType, options: FormatOptions) ![]const u8 {
+            return self.formatFn(allocator, ast, options);
+        }
+
+        pub fn formatRange(self: Self, allocator: std.mem.Allocator, ast: ASTType, range: Range, options: FormatOptions) !?[]const u8 {
+            if (self.formatRangeFn) |format_fn| {
+                return format_fn(allocator, ast, range, options);
+            }
+            return null;
+        }
+    };
+}
+
+/// Optional linting interface - now generic over language-specific RuleType
+/// Each language defines its own RuleType enum for optimal performance and isolation
+pub fn Linter(comptime ASTType: type, comptime RuleType: type) type {
+    return struct {
+        const Self = @This();
+
+        /// Rule metadata for UI/config (maps enum values to descriptions)
+        ruleInfoFn: *const fn (rule: RuleType) RuleInfo,
+
+        /// Run linting on AST with enum-based rules (O(1) performance)
+        lintFn: *const fn (allocator: std.mem.Allocator, ast: ASTType, rules: std.EnumSet(RuleType)) anyerror![]Diagnostic,
+
+        /// Get default enabled rules for this language
+        getDefaultRulesFn: *const fn () std.EnumSet(RuleType),
+
+        pub fn lint(self: Self, allocator: std.mem.Allocator, ast: ASTType, enabled_rules: std.EnumSet(RuleType)) ![]Diagnostic {
+            return self.lintFn(allocator, ast, enabled_rules);
+        }
+
+        pub fn getDefaultRules(self: Self) std.EnumSet(RuleType) {
+            return self.getDefaultRulesFn();
+        }
+
+        pub fn getRuleInfo(self: Self, rule: RuleType) RuleInfo {
+            return self.ruleInfoFn(rule);
+        }
+    };
+}
 
 /// Optional semantic analysis interface
-pub const Analyzer = struct {
-    /// Extract symbols (functions, types, variables)
-    extractSymbolsFn: *const fn (allocator: std.mem.Allocator, ast: AST) anyerror![]Symbol,
+pub fn Analyzer(comptime ASTType: type) type {
+    return struct {
+        const Self = @This();
 
-    /// Optional call graph generation
-    buildCallGraphFn: ?*const fn (allocator: std.mem.Allocator, ast: AST) anyerror!CallGraph,
+        /// Extract symbols (functions, types, variables)
+        extractSymbolsFn: *const fn (allocator: std.mem.Allocator, ast: ASTType) anyerror![]Symbol,
 
-    /// Optional reference finding
-    findReferencesFn: ?*const fn (allocator: std.mem.Allocator, ast: AST, symbol: Symbol) anyerror![]Reference,
+        /// Optional call graph generation
+        buildCallGraphFn: ?*const fn (allocator: std.mem.Allocator, ast: ASTType) anyerror!CallGraph,
 
-    pub fn extractSymbols(self: Analyzer, allocator: std.mem.Allocator, ast: AST) ![]Symbol {
-        return self.extractSymbolsFn(allocator, ast);
-    }
+        /// Optional reference finding
+        findReferencesFn: ?*const fn (allocator: std.mem.Allocator, ast: ASTType, symbol: Symbol) anyerror![]Reference,
 
-    pub fn buildCallGraph(self: Analyzer, allocator: std.mem.Allocator, ast: AST) !?CallGraph {
-        if (self.buildCallGraphFn) |build_fn| {
-            return build_fn(allocator, ast);
+        pub fn extractSymbols(self: Self, allocator: std.mem.Allocator, ast: ASTType) ![]Symbol {
+            return self.extractSymbolsFn(allocator, ast);
         }
-        return null;
-    }
 
-    pub fn findReferences(self: Analyzer, allocator: std.mem.Allocator, ast: AST, symbol: Symbol) !?[]Reference {
-        if (self.findReferencesFn) |find_fn| {
-            return find_fn(allocator, ast, symbol);
+        pub fn buildCallGraph(self: Self, allocator: std.mem.Allocator, ast: ASTType) !?CallGraph {
+            if (self.buildCallGraphFn) |build_fn| {
+                return build_fn(allocator, ast);
+            }
+            return null;
         }
-        return null;
-    }
-};
+
+        pub fn findReferences(self: Self, allocator: std.mem.Allocator, ast: ASTType, symbol: Symbol) !?[]Reference {
+            if (self.findReferencesFn) |find_fn| {
+                return find_fn(allocator, ast, symbol);
+            }
+            return null;
+        }
+    };
+}
 
 // Supporting data structures
 
@@ -208,21 +236,22 @@ pub const Boundary = struct {
     };
 };
 
-/// Linting rule definition
-pub const Rule = struct {
+/// Rule metadata for language-specific enum values
+/// Used to provide human-readable information about rules
+pub const RuleInfo = struct {
     name: []const u8,
     description: []const u8,
     severity: Severity,
-    enabled: bool = true,
+    enabled_by_default: bool,
 
-    pub const Severity = enum { @"error", warning, info, hint };
+    pub const Severity = enum { err, warning, info, hint };
 };
 
 /// Diagnostic from linting
 pub const Diagnostic = struct {
-    rule: []const u8,
+    rule: []const u8, // Rule name for display
     message: []const u8,
-    severity: Rule.Severity,
+    severity: RuleInfo.Severity,
     range: Span,
     fix: ?Fix = null,
 

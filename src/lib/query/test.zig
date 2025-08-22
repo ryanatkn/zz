@@ -382,6 +382,7 @@ test "QueryExecutor.directExecute basic usage" {
     defer executor.deinit();
 
     var stream = try executor.directExecute(&query);
+    defer stream.close();
 
     // Verify stream results
     var count: usize = 0;
@@ -436,6 +437,7 @@ test "DirectStream vs Stream performance comparison" {
     // Measure DirectStream performance
     const direct_start = std.time.nanoTimestamp();
     var direct_stream = try executor.directExecute(&query);
+    defer direct_stream.close();
     var direct_count: usize = 0;
     while (try direct_stream.next()) |_| {
         direct_count += 1;
@@ -505,6 +507,7 @@ test "DirectStream query with complex conditions" {
     defer executor.deinit();
 
     var stream = try executor.directExecute(&query);
+    defer stream.close();
 
     // Check results in order
     const fact1 = (try stream.next()).?;
@@ -555,6 +558,7 @@ test "QueryExecutor.directExecuteStream true streaming" {
     }
 
     var stream = try executor.directExecuteStream(&query);
+    defer stream.close();
 
     // Verify streaming results
     var count: usize = 0;
@@ -597,6 +601,7 @@ test "QueryBuilder.directExecuteStream convenience method" {
     _ = builder.select(&.{.is_function}).from(&store);
 
     var stream = try builder.directExecuteStream();
+    defer stream.close();
 
     // Verify we get all is_function facts (25 total)
     var count: usize = 0;

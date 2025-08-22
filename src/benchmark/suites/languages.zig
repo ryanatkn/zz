@@ -6,7 +6,7 @@ const BenchmarkError = benchmark_lib.BenchmarkError;
 
 const json_mod = @import("../../lib/languages/json/mod.zig");
 const zon_mod = @import("../../lib/languages/zon/mod.zig");
-const parser_mod = @import("../../lib/parser_old/mod.zig");
+// Removed old parser imports - using new language modules
 
 pub fn runJsonBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOptions) BenchmarkError![]BenchmarkResult {
     var results = std.ArrayList(BenchmarkResult).init(allocator);

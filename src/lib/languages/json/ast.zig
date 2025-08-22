@@ -3,7 +3,7 @@
 /// Self-contained AST module with all JSON node types.
 /// No dependencies on other language ASTs.
 const std = @import("std");
-const Span = @import("../../span/span.zig").Span;
+const Span = @import("../../span/mod.zig").Span;
 
 /// JSON node kinds
 pub const NodeKind = enum(u8) {

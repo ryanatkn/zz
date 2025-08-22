@@ -8,15 +8,24 @@ The JSON implementation follows the unified language architecture with the follo
 
 ```
 src/lib/languages/json/
-├── mod.zig         # Main module and LanguageSupport implementation
-├── lexer.zig       # High-performance tokenization
-├── parser.zig      # AST-based parsing with error recovery
-├── formatter.zig   # Configurable pretty-printing
-├── linter.zig      # Validation and best practices
-├── analyzer.zig    # Schema extraction and analysis
-├── test.zig        # Comprehensive test suite
-├── benchmark.zig   # Performance benchmarks
-└── README.md       # This documentation
+├── mod.zig              # Main module and LanguageSupport implementation
+├── lexer.zig            # High-performance tokenization
+├── parser.zig           # AST-based parsing with error recovery
+├── formatter.zig        # Configurable pretty-printing
+├── linter.zig           # Validation and best practices
+├── analyzer.zig         # Schema extraction and analysis
+├── ast.zig              # Self-contained JSON AST definition
+├── patterns.zig         # JSON-specific patterns and utilities
+├── test.zig             # Main test entry point
+├── test_lexer.zig       # Lexer component tests
+├── test_parser.zig      # Parser component tests
+├── test_formatter.zig   # Formatter component tests
+├── test_linter.zig      # Linter component tests
+├── test_analyzer.zig    # Analyzer component tests
+├── test_integration.zig # Integration and pipeline tests
+├── test_performance.zig # Performance and benchmark tests
+├── test_rfc8259_compliance.zig # RFC 8259 compliance tests
+└── README.md            # This documentation
 ```
 
 ## Features

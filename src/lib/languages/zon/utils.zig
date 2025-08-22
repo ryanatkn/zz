@@ -1,11 +1,8 @@
 const std = @import("std");
 const char_utils = @import("../../char/mod.zig");
 
-// Import centralized AST utilities for generic operations
-const ASTUtils = @import("../../ast_old/utils.zig").ASTUtils;
-const Node = @import("../../ast_old/mod.zig").Node;
-const ZonRules = @import("../../ast_old/rules.zig").ZonRules;
-const CommonRules = @import("../../ast_old/rules.zig").CommonRules;
+// Using local ZON AST types
+const Node = @import("ast.zig").Node;
 
 /// ZON-specific utility functions
 ///
@@ -14,48 +11,48 @@ const CommonRules = @import("../../ast_old/rules.zig").CommonRules;
 /// for reuse across all language modules.
 
 // ============================================================================
-// Re-exported Generic AST Functions (for backward compatibility)
+// ZON Node Utility Functions (using tagged unions)
 // ============================================================================
 
-/// Check if a node has no children (empty container)
-pub const isEmptyNode = isEmptyNodeGeneric;
-pub fn isEmptyNodeGeneric(node: anytype) bool {
-    return node.children.len == 0;
+/// Check if a node is empty (for containers)
+pub fn isEmpty(node: Node) bool {
+    return switch (node) {
+        .object => |obj| obj.fields.len == 0,
+        .array => |arr| arr.elements.len == 0,
+        else => false, // Non-containers are not considered "empty"
+    };
 }
 
-/// Check if a node has at least the minimum number of children
-pub const hasMinimumChildren = hasMinimumChildrenGeneric;
-pub fn hasMinimumChildrenGeneric(node: anytype, min_count: usize) bool {
-    return node.children.len >= min_count;
+/// Check if a container has at least minimum elements/fields
+pub fn hasMinimumElements(node: Node, min_count: usize) bool {
+    return switch (node) {
+        .object => |obj| obj.fields.len >= min_count,
+        .array => |arr| arr.elements.len >= min_count,
+        else => false,
+    };
 }
 
 /// Count the number of field assignments in an object
-pub const countFieldAssignments = countFieldAssignmentsGeneric;
-pub fn countFieldAssignmentsGeneric(object_node: anytype) u32 {
-    var count: u32 = 0;
-    for (object_node.children) |child| {
-        if (isFieldAssignment(child)) {
-            count += 1;
-        }
-    }
-    return count;
+pub fn countFieldAssignments(node: Node) u32 {
+    return switch (node) {
+        .object => |obj| @intCast(obj.fields.len),
+        else => 0,
+    };
 }
 
-/// Check if a node is an object (list node with "object" rule)
-pub const isObjectNode = isObjectNodeGeneric;
-pub fn isObjectNodeGeneric(node: anytype) bool {
-    return node.node_type == .list and node.rule_id == @intFromEnum(CommonRules.object);
+/// Check if a node is an object
+pub fn isObjectNode(node: Node) bool {
+    return node == .object;
 }
 
-/// Check if a node is an array (list node with "array" rule)
-pub const isArrayNode = isArrayNodeGeneric;
-pub fn isArrayNodeGeneric(node: anytype) bool {
-    return node.node_type == .list and node.rule_id == @intFromEnum(CommonRules.array);
+/// Check if a node is an array
+pub fn isArrayNode(node: Node) bool {
+    return node == .array;
 }
 
-/// Check if a node is a terminal node of a specific type
-pub fn isTerminalOfType(node: anytype, rule_id: u16) bool {
-    return node.node_type == .terminal and node.rule_id == rule_id;
+/// Check if a node has a specific tag (replaces rule_id checking)
+pub fn hasTag(node: Node, tag: @typeInfo(Node).Union.tag_type.?) bool {
+    return @as(@typeInfo(Node).Union.tag_type.?, node) == tag;
 }
 
 // ============================================================================
@@ -350,60 +347,46 @@ pub fn isIdentifierStart(char: u8) bool {
 // ============================================================================
 
 /// Get the value node from a ZON field assignment node
-/// Handles both "field = value" (3 children) and "field value" (2 children) patterns
-pub fn getFieldValue(field_assignment: anytype) ?@TypeOf(field_assignment) {
-    if (field_assignment.children.len >= 3) {
-        // field_name = value (with equals token)
-        return field_assignment.children[2];
-    } else if (field_assignment.children.len >= 2) {
-        // field_name value (no equals token)
-        return field_assignment.children[1];
-    }
-    return null;
+pub fn getFieldValue(field_assignment: Node) ?*Node {
+    return switch (field_assignment) {
+        .field => |field| field.value,
+        else => null,
+    };
 }
 
 /// Get ZON field name from a field_assignment node
-pub fn getFieldName(node: anytype) ?[]const u8 {
-    if (!isFieldAssignment(node) or node.children.len < 2) {
-        return null;
-    }
-
-    const field_name_node = node.children[0];
-    return extractFieldName(field_name_node.text);
+pub fn getFieldName(node: Node) ?[]const u8 {
+    return switch (node) {
+        .field => |field| field.getFieldName(),
+        else => null,
+    };
 }
 
 /// Check if a node represents a ZON field assignment
-pub fn isFieldAssignment(node: anytype) bool {
-    return node.rule_id == ZonRules.field_assignment;
+pub fn isFieldAssignment(node: Node) bool {
+    return node == .field;
 }
 
 /// Process a ZON field assignment node and return field name and value node
-pub fn processFieldAssignment(node: anytype) ?struct {
+pub fn processFieldAssignment(node: Node) ?struct {
     field_name: []const u8,
-    value_node: @TypeOf(node),
+    value_node: *Node,
 } {
-    if (!isFieldAssignment(node) or node.children.len < 2) {
-        return null;
-    }
-
-    const field_name_node = node.children[0];
-    const value_node = getFieldValue(node) orelse return null;
-
-    return .{
-        .field_name = extractFieldName(field_name_node.text),
-        .value_node = value_node,
+    return switch (node) {
+        .field => |field| .{
+            .field_name = field.getFieldName() orelse return null,
+            .value_node = field.value,
+        },
+        else => null,
     };
 }
 
 /// Get field value by name from a ZON object node using ZON-specific field processing
-pub fn getFieldByName(node: anytype, target_field_name: []const u8) ?@TypeOf(node) {
-    const field_info = processFieldAssignment(node) orelse return null;
-
-    if (std.mem.eql(u8, field_info.field_name, target_field_name)) {
-        return field_info.value_node;
-    }
-
-    return null;
+pub fn getFieldByName(node: Node, target_field_name: []const u8) ?*Node {
+    return switch (node) {
+        .object => |obj| obj.findField(target_field_name),
+        else => null,
+    };
 }
 
 // Note: Generic AST manipulation functions like isObjectNode, isArrayNode,
@@ -446,32 +429,33 @@ pub fn fieldNamesEqual(name1: []const u8, name2: []const u8) bool {
     return std.mem.eql(u8, canonical1, canonical2);
 }
 
-/// Safe text access with fallback
-pub fn getNodeText(node: anytype, fallback: []const u8) []const u8 {
-    return if (hasText(node)) node.text else fallback;
+/// Get text content from a node with fallback
+pub fn getNodeText(node: Node, fallback: []const u8) []const u8 {
+    return switch (node) {
+        .field_name => |n| n.name,
+        .identifier => |n| n.name,
+        .string => |n| n.value, // String content, not the raw text with quotes
+        else => fallback,
+    };
 }
 
 /// Check if node has text content
-pub fn hasText(node: anytype) bool {
-    return node.text.len > 0;
+pub fn hasText(node: Node) bool {
+    return getNodeText(node, "").len > 0;
 }
 
 /// Check if a field assignment has simple values (no nested objects/arrays)
-pub fn isSimpleFieldAssignment(node: anytype) bool {
+pub fn isSimpleFieldAssignment(node: Node) bool {
     if (!isFieldAssignment(node)) return false;
 
     const value_node = getFieldValue(node) orelse return false;
-    return isSimpleTerminal(value_node);
+    return isSimpleTerminal(value_node.*);
 }
 
 /// Check if a node is a simple terminal (for formatting decisions)
-pub fn isSimpleTerminal(node: anytype) bool {
-    if (node.node_type != .terminal) return false;
-
-    // Consider these simple terminals
-    return isTerminalOfType(node, ZonRules.string_literal) or
-        isTerminalOfType(node, ZonRules.number_literal) or
-        isTerminalOfType(node, ZonRules.boolean_literal) or
-        isTerminalOfType(node, ZonRules.null_literal) or
-        isTerminalOfType(node, ZonRules.identifier);
+pub fn isSimpleTerminal(node: Node) bool {
+    return switch (node) {
+        .string, .number, .boolean, .null, .identifier => true,
+        else => false,
+    };
 }

@@ -61,10 +61,6 @@ pub const ZonParser = struct {
 
     /// Parse tokens into ZON AST
     pub fn parse(self: *Self) !AST {
-        // Create arena for AST allocation
-        const arena = try self.allocator.create(std.heap.ArenaAllocator);
-        arena.* = std.heap.ArenaAllocator.init(self.allocator);
-
         // Parse root value - handle empty input
         const root_value = if (self.tokens.len == 0 or (self.tokens.len == 1 and self.tokens[0].kind == .eof)) blk: {
             break :blk Node{
@@ -97,11 +93,10 @@ pub const ZonParser = struct {
         return switch (token.kind) {
             .string => try self.parseString(),
             .number => try self.parseNumber(),
+            .boolean => try self.parseBoolean(),
             .identifier => blk: {
                 const text = token.getText(self.source);
-                if (std.mem.eql(u8, text, "true") or std.mem.eql(u8, text, "false")) {
-                    break :blk try self.parseBoolean();
-                } else if (std.mem.eql(u8, text, "null")) {
+                if (std.mem.eql(u8, text, "null")) {
                     break :blk try self.parseNull();
                 } else {
                     break :blk try self.parseIdentifier();
@@ -109,7 +104,17 @@ pub const ZonParser = struct {
             },
             .left_brace => try self.parseObject(),
             .left_bracket => try self.parseArray(),
-            .dot => try self.parseFieldName(),
+            .dot => blk: {
+                // Check if this is a ZON object literal (.{) or field name (.name)
+                if (self.current + 1 < self.tokens.len and self.tokens[self.current + 1].kind == .left_brace) {
+                    // This is .{ - parse as object literal
+                    _ = self.advance(); // consume '.'
+                    break :blk try self.parseObject();
+                } else {
+                    // This is .name - parse as field name
+                    break :blk try self.parseFieldName();
+                }
+            },
             .eof => self.createErrorNode("Unexpected end of file"),
             else => self.createErrorNode("Unexpected token"),
         };
@@ -207,39 +212,95 @@ pub const ZonParser = struct {
 
     fn parseObject(self: *Self) std.mem.Allocator.Error!Node {
         const start_token = self.advance(); // consume '{'
-        var fields = std.ArrayList(Node).init(self.allocator);
 
         // Handle empty object
         if (self.match(.right_brace)) {
             return Node{
                 .object = .{
                     .span = Span{ .start = start_token.span.start, .end = self.previous().span.end },
-                    .fields = try fields.toOwnedSlice(),
+                    .fields = &[_]Node{},
                 },
             };
         }
 
-        // Parse fields
-        while (!self.isAtEnd() and !self.check(.right_brace)) {
-            const field = try self.parseField();
-            try fields.append(field);
+        // Look ahead to determine if this is an anonymous array or object
+        // Anonymous array: values without field assignments
+        // Object: field assignments (.field = value)
+        const is_anonymous_array = !self.isNextField();
 
-            if (!self.match(.comma) and !self.check(.right_brace)) {
-                _ = try self.addError("Expected ',' or '}' after field", self.peek().span);
-                break;
+        if (is_anonymous_array) {
+            // Parse as anonymous array (.{ item1, item2, ... })
+            var elements = std.ArrayList(Node).init(self.allocator);
+
+            while (!self.isAtEnd() and !self.check(.right_brace)) {
+                const element = try self.parseValue();
+                try elements.append(element);
+
+                if (!self.match(.comma) and !self.check(.right_brace)) {
+                    _ = try self.addError("Expected ',' or '}' after array element", self.peek().span);
+                    break;
+                }
+            }
+
+            if (!self.match(.right_brace)) {
+                _ = try self.addError("Expected '}' to close anonymous array", self.peek().span);
+            }
+
+            return Node{
+                .array = .{
+                    .span = Span{ .start = start_token.span.start, .end = if (self.current > 0) self.tokens[self.current - 1].span.end else start_token.span.end },
+                    .elements = try elements.toOwnedSlice(),
+                    .is_anonymous_list = true,
+                },
+            };
+        } else {
+            // Parse as object with fields
+            var fields = std.ArrayList(Node).init(self.allocator);
+
+            while (!self.isAtEnd() and !self.check(.right_brace)) {
+                const field = try self.parseField();
+                try fields.append(field);
+
+                if (!self.match(.comma) and !self.check(.right_brace)) {
+                    _ = try self.addError("Expected ',' or '}' after field", self.peek().span);
+                    break;
+                }
+            }
+
+            if (!self.match(.right_brace)) {
+                _ = try self.addError("Expected '}' to close object", self.peek().span);
+            }
+
+            return Node{
+                .object = .{
+                    .span = Span{ .start = start_token.span.start, .end = if (self.current > 0) self.tokens[self.current - 1].span.end else start_token.span.end },
+                    .fields = try fields.toOwnedSlice(),
+                },
+            };
+        }
+    }
+
+    /// Look ahead to determine if next tokens form a field assignment (.field = value)
+    fn isNextField(self: *Self) bool {
+        if (self.isAtEnd()) return false;
+
+        // Check if we have .identifier = pattern
+        if (self.peek().kind == .dot) {
+            if (self.current + 1 < self.tokens.len and self.tokens[self.current + 1].kind == .identifier) {
+                if (self.current + 2 < self.tokens.len and self.tokens[self.current + 2].kind == .equal) {
+                    return true;
+                }
             }
         }
 
-        if (!self.match(.right_brace)) {
-            _ = try self.addError("Expected '}' to close object", self.peek().span);
+        // Check if we have identifier = pattern (for unquoted identifiers)
+        if (self.peek().kind == .identifier) {
+            if (self.current + 1 < self.tokens.len and self.tokens[self.current + 1].kind == .equal) {
+                return true;
+            }
         }
 
-        return Node{
-            .object = .{
-                .span = Span{ .start = start_token.span.start, .end = if (self.current > 0) self.tokens[self.current - 1].span.end else start_token.span.end },
-                .fields = try fields.toOwnedSlice(),
-            },
-        };
+        return false;
     }
 
     fn parseArray(self: *Self) std.mem.Allocator.Error!Node {

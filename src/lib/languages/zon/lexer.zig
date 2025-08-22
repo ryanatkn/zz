@@ -24,6 +24,7 @@ pub const ZonLexer = struct {
     allocator: Allocator,
     source: []const u8,
     position: usize,
+    eof_returned: bool,
 
     const Self = @This();
 
@@ -32,6 +33,7 @@ pub const ZonLexer = struct {
             .allocator = allocator,
             .source = "",
             .position = 0,
+            .eof_returned = false,
         };
     }
 
@@ -49,9 +51,236 @@ pub const ZonLexer = struct {
     pub fn streamTokens(self: *Self, source: []const u8) TokenStream {
         self.source = source;
         self.position = 0;
+        self.eof_returned = false;
 
-        var iterator = StreamIterator.init(self);
-        return createTokenStream(&iterator);
+        return createTokenStream(self);
+    }
+
+    /// Stream-compatible next method for direct TokenStream creation
+    pub fn next(self: *Self) ?Token {
+        // Skip whitespace including newlines
+        while (self.position < self.source.len) {
+            const c = self.source[self.position];
+            if (!char.isWhitespaceOrNewline(c)) break;
+            self.position += 1;
+        }
+
+        // Check for EOF
+        if (self.position >= self.source.len) {
+            if (self.eof_returned) {
+                return null; // EOF already returned, stop iteration
+            }
+            self.eof_returned = true;
+            return Token{
+                .span = Span.init(@intCast(@min(self.position, std.math.maxInt(u32))), @intCast(@min(self.position, std.math.maxInt(u32)))),
+                .kind = .eof,
+                .depth = 0,
+                .flags = .{},
+            };
+        }
+
+        const start = self.position;
+        const c = self.source[self.position];
+
+        // Single character tokens
+        const token_kind: ?TokenKind = switch (c) {
+            '{' => blk: {
+                self.position += 1;
+                break :blk .left_brace;
+            },
+            '}' => blk: {
+                self.position += 1;
+                break :blk .right_brace;
+            },
+            '[' => blk: {
+                self.position += 1;
+                break :blk .left_bracket;
+            },
+            ']' => blk: {
+                self.position += 1;
+                break :blk .right_bracket;
+            },
+            '(' => blk: {
+                self.position += 1;
+                break :blk .left_paren;
+            },
+            ')' => blk: {
+                self.position += 1;
+                break :blk .right_paren;
+            },
+            ',' => blk: {
+                self.position += 1;
+                break :blk .comma;
+            },
+            '=' => blk: {
+                self.position += 1;
+                break :blk .equal;
+            },
+            '.' => blk: {
+                self.position += 1;
+                break :blk .dot;
+            },
+            else => null,
+        };
+
+        if (token_kind) |kind| {
+            return Token{
+                .span = Span.init(@intCast(@min(start, std.math.maxInt(u32))), @intCast(@min(self.position, std.math.maxInt(u32)))),
+                .kind = kind,
+                .depth = 0,
+                .flags = .{},
+            };
+        }
+
+        // String literals
+        if (c == '"') {
+            self.position += 1;
+            while (self.position < self.source.len) {
+                const ch = self.source[self.position];
+                if (ch == '"') {
+                    self.position += 1;
+                    break;
+                } else if (ch == '\\' and self.position + 1 < self.source.len) {
+                    self.position += 2; // Skip escaped character
+                } else {
+                    self.position += 1;
+                }
+            }
+
+            return Token{
+                .span = Span.init(@intCast(@min(start, std.math.maxInt(u32))), @intCast(@min(self.position, std.math.maxInt(u32)))),
+                .kind = .string,
+                .depth = 0,
+                .flags = .{ .has_escapes = std.mem.indexOfScalar(u8, self.source[start..self.position], '\\') != null },
+            };
+        }
+
+        // Numbers (integers, floats)
+        if (char.isDigit(c) or c == '-') {
+            if (c == '-') self.position += 1;
+
+            // Check for hex/binary/octal prefixes
+            if (self.position < self.source.len and self.source[self.position] == '0' and
+                self.position + 1 < self.source.len)
+            {
+                const prefix = self.source[self.position + 1];
+                if (prefix == 'x' or prefix == 'X' or prefix == 'b' or prefix == 'B' or prefix == 'o' or prefix == 'O') {
+                    self.position += 2; // Skip 0x, 0b, or 0o
+                    while (self.position < self.source.len) {
+                        const ch = self.source[self.position];
+                        const is_valid = switch (prefix) {
+                            'x', 'X' => char.isHexDigit(ch) or ch == '_',
+                            'b', 'B' => ch == '0' or ch == '1' or ch == '_',
+                            'o', 'O' => (ch >= '0' and ch <= '7') or ch == '_',
+                            else => false,
+                        };
+                        if (!is_valid) break;
+                        self.position += 1;
+                    }
+                } else {
+                    // Regular decimal number starting with 0
+                    while (self.position < self.source.len and char.isDigit(self.source[self.position])) {
+                        self.position += 1;
+                    }
+                }
+            } else {
+                // Regular decimal number
+                while (self.position < self.source.len and char.isDigit(self.source[self.position])) {
+                    self.position += 1;
+                }
+            }
+
+            // Check for decimal point (only for decimal numbers, not hex/binary)
+            if (self.position < self.source.len and self.source[self.position] == '.') {
+                // Skip decimal point if we're in a hex/binary/octal number
+                var is_special_number = false;
+                if (start < self.source.len and self.source[start] == '0' and start + 1 < self.source.len) {
+                    const p = self.source[start + 1];
+                    is_special_number = (p == 'x' or p == 'X' or p == 'b' or p == 'B' or p == 'o' or p == 'O');
+                }
+
+                if (!is_special_number) {
+                    self.position += 1;
+                    while (self.position < self.source.len and char.isDigit(self.source[self.position])) {
+                        self.position += 1;
+                    }
+
+                    // Check for exponent
+                    if (self.position < self.source.len and (self.source[self.position] == 'e' or self.source[self.position] == 'E')) {
+                        self.position += 1;
+                        if (self.position < self.source.len and (self.source[self.position] == '+' or self.source[self.position] == '-')) {
+                            self.position += 1;
+                        }
+                        while (self.position < self.source.len and char.isDigit(self.source[self.position])) {
+                            self.position += 1;
+                        }
+                    }
+                }
+            }
+
+            return Token{
+                .span = Span.init(@intCast(@min(start, std.math.maxInt(u32))), @intCast(@min(self.position, std.math.maxInt(u32)))),
+                .kind = .number,
+                .depth = 0,
+                .flags = .{},
+            };
+        }
+
+        // Quoted identifiers (@"name")
+        if (c == '@' and self.position + 1 < self.source.len and self.source[self.position + 1] == '"') {
+            self.position += 1; // Skip '@'
+            self.position += 1; // Skip '"'
+
+            while (self.position < self.source.len) {
+                const ch = self.source[self.position];
+                if (ch == '"') {
+                    self.position += 1;
+                    break;
+                } else if (ch == '\\' and self.position + 1 < self.source.len) {
+                    self.position += 2; // Skip escaped character
+                } else {
+                    self.position += 1;
+                }
+            }
+
+            return Token{
+                .span = Span.init(@intCast(@min(start, std.math.maxInt(u32))), @intCast(@min(self.position, std.math.maxInt(u32)))),
+                .kind = .identifier,
+                .depth = 0,
+                .flags = .{},
+            };
+        }
+
+        // Identifiers and keywords
+        if (char.isAlpha(c) or c == '_') {
+            while (self.position < self.source.len and (char.isAlphaNumeric(self.source[self.position]) or self.source[self.position] == '_')) {
+                self.position += 1;
+            }
+
+            const text = self.source[start..self.position];
+            const kind: TokenKind = if (std.mem.eql(u8, text, "true") or std.mem.eql(u8, text, "false"))
+                .boolean
+            else if (std.mem.eql(u8, text, "null"))
+                .null
+            else
+                .identifier;
+
+            return Token{
+                .span = Span.init(@intCast(@min(start, std.math.maxInt(u32))), @intCast(@min(self.position, std.math.maxInt(u32)))),
+                .kind = kind,
+                .depth = 0,
+                .flags = .{},
+            };
+        }
+
+        // Unknown character
+        self.position += 1;
+        return Token{
+            .span = Span.init(@intCast(@min(start, std.math.maxInt(u32))), @intCast(@min(self.position, std.math.maxInt(u32)))),
+            .kind = .unknown,
+            .depth = 0,
+            .flags = .{},
+        };
     }
 
     /// Batch tokenize - allocates all tokens
@@ -62,9 +291,11 @@ pub const ZonLexer = struct {
         var tokens = std.ArrayList(Token).init(allocator);
         defer tokens.deinit();
 
-        var iterator = StreamIterator.init(self);
-        while (iterator.next()) |token| {
+        // Use the lexer's direct next() method for consistency
+        self.eof_returned = false;
+        while (self.next()) |token| {
             try tokens.append(token);
+            if (token.kind == .eof) break;
         }
 
         return tokens.toOwnedSlice();
@@ -364,13 +595,14 @@ test "ZonLexer - struct literal" {
     const tokens = try lexer.batchTokenize(testing.allocator, source);
     defer testing.allocator.free(tokens);
 
-    try testing.expect(tokens.len >= 6);
+    try testing.expect(tokens.len >= 7);
     try testing.expect(tokens[0].kind == .dot);
     try testing.expect(tokens[1].kind == .left_brace);
-    try testing.expect(tokens[2].kind == .identifier); // .key
-    try testing.expect(tokens[3].kind == .equal);
-    try testing.expect(tokens[4].kind == .string);
-    try testing.expect(tokens[5].kind == .right_brace);
+    try testing.expect(tokens[2].kind == .dot); // . before key
+    try testing.expect(tokens[3].kind == .identifier); // key
+    try testing.expect(tokens[4].kind == .equal);
+    try testing.expect(tokens[5].kind == .string);
+    try testing.expect(tokens[6].kind == .right_brace);
 }
 
 test "ZonLexer - array" {

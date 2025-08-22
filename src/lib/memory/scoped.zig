@@ -110,7 +110,7 @@ pub fn withArenaResult(
     return func(arena.allocator());
 }
 
-// TODO: Fix segmentation fault in ArenaResult test - disabled temporarily
+// TODO: Fix segmentation fault in ArenaResult test - needs investigation
 // test "ArenaResult ownership transfer" {
 //     const allocator = std.testing.allocator;
 //     var arena_result = ArenaResult.init(allocator);

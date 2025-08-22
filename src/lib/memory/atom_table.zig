@@ -231,7 +231,7 @@ test "AtomTable getAtom without interning" {
     try testing.expectEqual(id, found_id.?);
 }
 
-// TODO: Phase 2 - Fix this test to handle string buffer reuse correctly
+// TODO: Fix memory efficiency test for string buffer reuse strategy
 test "AtomTable memory efficiency" {
     if (true) return error.SkipZigTest; // Skip for now
     const testing = std.testing;

@@ -25,15 +25,180 @@ pub const AstConverter = struct {
 
 /// Parse ZON content to a specific type (compatibility function)
 pub fn parseFromSlice(comptime T: type, allocator: std.mem.Allocator, content: []const u8) !T {
-    _ = allocator;
-    _ = content;
-    // Return default value for now
-    return std.mem.zeroes(T);
+    const ZonLexer = @import("lexer.zig").ZonLexer;
+    const ZonParser = @import("parser.zig").ZonParser;
+
+    var lexer = ZonLexer.init(allocator);
+    defer lexer.deinit();
+
+    const tokens = try lexer.batchTokenize(allocator, content);
+    defer allocator.free(tokens);
+
+    var parser = ZonParser.init(allocator, tokens, content, .{});
+    defer parser.deinit();
+
+    var ast = try parser.parse();
+    defer ast.deinit();
+
+    // Convert AST to target type
+    if (ast.root) |root| {
+        return try convertAstToType(T, allocator, root);
+    } else {
+        return std.mem.zeroes(T);
+    }
+}
+
+/// Convert ZON AST node to target type
+fn convertAstToType(comptime T: type, allocator: std.mem.Allocator, node: *const Node) !T {
+    const type_info = @typeInfo(T);
+
+    switch (type_info) {
+        // @"struct" is the actual Zig built-in enum variant from @typeInfo()
+        // The @"" syntax is required because 'struct' is a keyword
+        .@"struct" => |struct_info| {
+            var result: T = std.mem.zeroes(T);
+
+            if (node.* != .object) {
+                return result; // Return defaults if not an object
+            }
+
+            const object_node = node.object;
+            // Debug: Print object info
+            // std.debug.print("[DEBUG] Converting object with {d} fields\n", .{object_node.fields.len});
+
+            // For each field in the target struct
+            inline for (struct_info.fields) |field| {
+                // Find matching field in ZON object
+                for (object_node.fields) |ast_field| {
+                    if (ast_field == .field) {
+                        const field_node = ast_field.field;
+
+                        // Get field name from either field_name or identifier nodes
+                        const field_name = switch (field_node.name.*) {
+                            .field_name => |fn_node| fn_node.name,
+                            .identifier => |id_node| blk: {
+                                // Handle quoted identifiers like @"tree-sitter"
+                                if (id_node.name.len >= 3 and id_node.name[0] == '@' and id_node.name[1] == '"' and id_node.name[id_node.name.len - 1] == '"') {
+                                    break :blk id_node.name[2 .. id_node.name.len - 1]; // Remove @" and "
+                                } else {
+                                    break :blk id_node.name;
+                                }
+                            },
+                            else => continue, // Skip if neither field_name nor identifier
+                        };
+
+                        if (std.mem.eql(u8, field_name, field.name)) {
+                            // Found matching field, convert value
+                            @field(result, field.name) = try convertValueToFieldType(field.type, allocator, field_node.value);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return result;
+        },
+        else => {
+            // For non-struct types, try to convert directly
+            return try convertValueToFieldType(T, allocator, node);
+        },
+    }
+}
+
+/// Convert AST node to specific field type
+fn convertValueToFieldType(comptime FieldType: type, allocator: std.mem.Allocator, node: *const Node) !FieldType {
+    const type_info = @typeInfo(FieldType);
+
+    switch (type_info) {
+        .optional => |optional_info| {
+            // For optional types, convert the payload type
+            const payload = try convertValueToFieldType(optional_info.child, allocator, node);
+            return @as(FieldType, payload);
+        },
+        .int => {
+            if (node.* == .number) {
+                const num_str = node.number.raw;
+                return try std.fmt.parseInt(FieldType, num_str, 10);
+            }
+            return std.mem.zeroes(FieldType);
+        },
+        .bool => {
+            if (node.* == .boolean) {
+                return node.boolean.value;
+            }
+            return false;
+        },
+        .pointer => |ptr_info| {
+            if (ptr_info.size == .slice and ptr_info.child == u8) {
+                // String type - need to allocate owned copy
+                if (node.* == .string) {
+                    return try allocator.dupe(u8, node.string.value);
+                }
+                return try allocator.dupe(u8, "");
+            } else if (ptr_info.size == .slice) {
+                // Array type - handle []const []const u8
+                if (node.* == .array) {
+                    const array_node = node.array;
+                    const result = try allocator.alloc(ptr_info.child, array_node.elements.len);
+
+                    for (array_node.elements, 0..) |element, i| {
+                        result[i] = try convertValueToFieldType(ptr_info.child, allocator, &element);
+                    }
+
+                    return result;
+                }
+                return try allocator.alloc(ptr_info.child, 0); // Empty array
+            }
+            return std.mem.zeroes(FieldType);
+        },
+        .@"struct" => {
+            // Nested struct - recurse
+            return try convertAstToType(FieldType, allocator, node);
+        },
+        else => {
+            return std.mem.zeroes(FieldType);
+        },
+    }
 }
 
 /// Free parsed ZON data (compatibility function)
 pub fn free(allocator: std.mem.Allocator, parsed_data: anytype) void {
-    _ = allocator;
-    _ = parsed_data;
-    // Nothing to free in stub
+    const T = @TypeOf(parsed_data);
+    freeType(T, allocator, parsed_data);
+}
+
+/// Recursively free allocated memory in parsed data
+fn freeType(comptime T: type, allocator: std.mem.Allocator, data: T) void {
+    const type_info = @typeInfo(T);
+
+    switch (type_info) {
+        .@"struct" => |struct_info| {
+            inline for (struct_info.fields) |field| {
+                const field_value = @field(data, field.name);
+                freeType(field.type, allocator, field_value);
+            }
+        },
+        .optional => |optional_info| {
+            if (data) |value| {
+                freeType(optional_info.child, allocator, value);
+            }
+        },
+        .pointer => |ptr_info| {
+            if (ptr_info.size == .slice and ptr_info.child == u8) {
+                // Free allocated string
+                if (data.len > 0) {
+                    allocator.free(data);
+                }
+            } else if (ptr_info.size == .slice) {
+                // Free array elements first, then the array itself
+                for (data) |element| {
+                    freeType(ptr_info.child, allocator, element);
+                }
+                allocator.free(data);
+            }
+        },
+        else => {
+            // Other types don't need explicit freeing
+        },
+    }
 }

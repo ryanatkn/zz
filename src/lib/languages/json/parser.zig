@@ -12,8 +12,6 @@ const patterns = @import("patterns.zig");
 const JsonDelimiters = patterns.JsonDelimiters;
 const char_utils = @import("../../char/mod.zig");
 
-// TODO use "property"/"properties" over "member"/"members"
-
 /// High-performance JSON parser producing proper AST
 ///
 /// Features:
@@ -211,8 +209,8 @@ pub const JsonParser = struct {
 
     fn parseObject(self: *Self) !Node {
         const start_token = self.advance(); // consume '{'
-        var members = std.ArrayList(Node).init(self.allocator);
-        defer members.deinit();
+        var properties = std.ArrayList(Node).init(self.allocator);
+        defer properties.deinit();
 
         // Handle empty object
         if (self.checkDelimiter(.right_brace)) {
@@ -228,9 +226,9 @@ pub const JsonParser = struct {
             };
         }
 
-        // Parse object members
+        // Parse object properties
         while (!self.isAtEnd() and !self.checkDelimiter(.right_brace)) {
-            const member = self.parseObjectMember() catch |err| switch (err) {
+            const property = self.parseObjectProperty() catch |err| switch (err) {
                 error.ParseError => {
                     // Skip to next comma or closing brace for error recovery
                     self.skipToDelimiter(&.{ ",", "}" });
@@ -242,7 +240,7 @@ pub const JsonParser = struct {
                 else => return err,
             };
 
-            try members.append(member);
+            try properties.append(property);
 
             if (self.checkDelimiter(.comma)) {
                 _ = self.advance(); // consume comma
@@ -255,7 +253,7 @@ pub const JsonParser = struct {
                     break;
                 }
             } else if (!self.check(.right_brace, null)) {
-                try self.addError("Expected ',' or '}' after object member", self.peek().span);
+                try self.addError("Expected ',' or '}' after object property", self.peek().span);
                 break;
             }
         }
@@ -268,7 +266,7 @@ pub const JsonParser = struct {
         const end_token = self.advance(); // consume '}'
 
         // Convert ArrayList to owned slice
-        const properties = try members.toOwnedSlice();
+        const object_properties = try properties.toOwnedSlice();
 
         return Node{
             .object = .{
@@ -276,15 +274,15 @@ pub const JsonParser = struct {
                     .start = start_token.span.start,
                     .end = end_token.span.end,
                 },
-                .properties = properties,
+                .properties = object_properties,
             },
         };
     }
 
-    fn parseObjectMember(self: *Self) !Node {
+    fn parseObjectProperty(self: *Self) !Node {
         // Parse key (must be string)
         if (!self.check(.string, null)) {
-            try self.addError("Expected string key in object member", self.peek().span);
+            try self.addError("Expected string key in object property", self.peek().span);
             return error.ParseError;
         }
 
@@ -401,11 +399,11 @@ pub const JsonParser = struct {
     }
 
     fn unescapeString(self: *Self, raw: []const u8) ![]u8 {
-        if (raw.len < 2 or raw[0] != '"' or raw[raw.len - 1] != '"') {
-            return error.InvalidString;
-        }
-
-        const content = raw[1 .. raw.len - 1];
+        // Handle both quoted and unquoted strings
+        const content = if (raw.len >= 2 and raw[0] == '"' and raw[raw.len - 1] == '"')
+            raw[1 .. raw.len - 1]
+        else
+            raw;
         var result = std.ArrayList(u8).init(self.allocator);
         defer result.deinit();
 
@@ -542,7 +540,7 @@ pub const JsonParser = struct {
 // - "boolean" for true/false
 // - "null" for null
 // - "object" for objects
-// - "member" for key-value pairs
+// - "property" for key-value pairs
 // - "array" for arrays
 // - "error" for parse errors
 
@@ -618,7 +616,7 @@ test "JSON parser - object" {
     defer ast.deinit();
 
     // AST.root is non-optional now
-    // Verify it's an object with one member
+    // Verify it's an object with one property
     // Additional structure validation would go here
 }
 

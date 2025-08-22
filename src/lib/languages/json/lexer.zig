@@ -24,6 +24,7 @@ pub const JsonLexer = struct {
     allocator: Allocator,
     source: []const u8,
     position: usize,
+    eof_returned: bool,
 
     const Self = @This();
 
@@ -43,6 +44,7 @@ pub const JsonLexer = struct {
             .allocator = allocator,
             .source = "",
             .position = 0,
+            .eof_returned = false,
         };
     }
 
@@ -60,21 +62,226 @@ pub const JsonLexer = struct {
     pub fn streamTokens(self: *Self, source: []const u8) TokenStream {
         self.source = source;
         self.position = 0;
+        self.eof_returned = false;
 
-        var iterator = StreamIterator.init(self);
-        return createTokenStream(&iterator);
+        return createTokenStream(self);
+    }
+
+    /// Stream-compatible next method for direct TokenStream creation
+    pub fn next(self: *Self) ?Token {
+        // Skip whitespace including newlines
+        while (self.position < self.source.len) {
+            const c = self.source[self.position];
+            if (!char.isWhitespaceOrNewline(c)) break;
+            self.position += 1;
+        }
+
+        // Check for EOF
+        if (self.position >= self.source.len) {
+            if (self.eof_returned) {
+                return null; // EOF already returned, stop iteration
+            }
+            self.eof_returned = true;
+            return Token{
+                .span = Span.init(Self.posToU32(self.position), Self.posToU32(self.position)),
+                .kind = .eof,
+                .depth = 0,
+                .flags = .{},
+            };
+        }
+
+        const start = self.position;
+        const c = self.source[self.position];
+
+        // Single character tokens
+        const token_kind: ?TokenKind = switch (c) {
+            '{' => blk: {
+                self.position += 1;
+                break :blk .left_brace;
+            },
+            '}' => blk: {
+                self.position += 1;
+                break :blk .right_brace;
+            },
+            '[' => blk: {
+                self.position += 1;
+                break :blk .left_bracket;
+            },
+            ']' => blk: {
+                self.position += 1;
+                break :blk .right_bracket;
+            },
+            ',' => blk: {
+                self.position += 1;
+                break :blk .comma;
+            },
+            ':' => blk: {
+                self.position += 1;
+                break :blk .colon;
+            },
+            else => null,
+        };
+
+        if (token_kind) |kind| {
+            return Token{
+                .span = Span.init(Self.posToU32(start), Self.posToU32(self.position)),
+                .kind = kind,
+                .depth = 0,
+                .flags = .{},
+            };
+        }
+
+        // String
+        if (c == '"') {
+            self.position += 1;
+            while (self.position < self.source.len) {
+                const ch = self.source[self.position];
+                if (ch == '"') {
+                    self.position += 1;
+                    break;
+                } else if (ch == '\\' and self.position + 1 < self.source.len) {
+                    self.position += 2; // Skip escaped character
+                } else {
+                    self.position += 1;
+                }
+            }
+
+            return Token{
+                .span = Span.init(Self.posToU32(start), Self.posToU32(self.position)),
+                .kind = .string,
+                .depth = 0,
+                .flags = .{ .has_escapes = std.mem.indexOfScalar(u8, self.source[start..self.position], '\\') != null },
+            };
+        }
+
+        // Number (RFC 8259 compliant)
+        if (char.isDigit(c) or c == '-') {
+            var is_valid = true;
+
+            // Handle negative sign
+            if (c == '-') {
+                self.position += 1;
+                if (self.position >= self.source.len or !char.isDigit(self.source[self.position])) {
+                    is_valid = false;
+                }
+            }
+
+            // Integer part
+            if (is_valid and self.position < self.source.len) {
+                if (self.source[self.position] == '0') {
+                    // Leading zero - must be followed by . or e/E or end
+                    self.position += 1;
+                    if (self.position < self.source.len) {
+                        const next_char = self.source[self.position];
+                        if (char.isDigit(next_char)) {
+                            // Leading zeros not allowed (e.g., "01", "00")
+                            is_valid = false;
+                        }
+                    }
+                } else {
+                    // Non-zero digit - consume all digits
+                    while (self.position < self.source.len and char.isDigit(self.source[self.position])) {
+                        self.position += 1;
+                    }
+                }
+            }
+
+            // Decimal part
+            if (is_valid and self.position < self.source.len and self.source[self.position] == '.') {
+                self.position += 1;
+                if (self.position >= self.source.len or !char.isDigit(self.source[self.position])) {
+                    is_valid = false;
+                } else {
+                    while (self.position < self.source.len and char.isDigit(self.source[self.position])) {
+                        self.position += 1;
+                    }
+                }
+            }
+
+            // Exponent part
+            if (is_valid and self.position < self.source.len) {
+                const exp_char = self.source[self.position];
+                if (exp_char == 'e' or exp_char == 'E') {
+                    self.position += 1;
+                    if (self.position < self.source.len) {
+                        const sign = self.source[self.position];
+                        if (sign == '+' or sign == '-') {
+                            self.position += 1;
+                        }
+                    }
+
+                    // Exponent must have at least one digit
+                    if (self.position >= self.source.len or !char.isDigit(self.source[self.position])) {
+                        is_valid = false;
+                    } else {
+                        // Check for leading zeros in exponent (e.g., "1e01" is invalid)
+                        if (self.source[self.position] == '0' and
+                            self.position + 1 < self.source.len and
+                            char.isDigit(self.source[self.position + 1]))
+                        {
+                            // Leading zero in exponent
+                            is_valid = false;
+                        }
+
+                        // Consume exponent digits
+                        while (self.position < self.source.len and char.isDigit(self.source[self.position])) {
+                            self.position += 1;
+                        }
+                    }
+                }
+            }
+
+            // Even if invalid, we still return a token (parser will handle the error)
+            return Token{
+                .span = Span.init(Self.posToU32(start), Self.posToU32(self.position)),
+                .kind = if (is_valid) .number else .unknown,
+                .depth = 0,
+                .flags = .{},
+            };
+        }
+
+        // Keywords: true, false, null
+        if (char.isAlpha(c)) {
+            while (self.position < self.source.len and char.isAlpha(self.source[self.position])) {
+                self.position += 1;
+            }
+
+            const text = self.source[start..self.position];
+            const kind: TokenKind = if (std.mem.eql(u8, text, "true") or std.mem.eql(u8, text, "false"))
+                .boolean
+            else if (std.mem.eql(u8, text, "null"))
+                .null
+            else
+                .identifier;
+
+            return Token{
+                .span = Span.init(Self.posToU32(start), Self.posToU32(self.position)),
+                .kind = kind,
+                .depth = 0,
+                .flags = .{},
+            };
+        }
+
+        // Unknown character
+        self.position += 1;
+        return Token{
+            .span = Span.init(Self.posToU32(start), Self.posToU32(self.position)),
+            .kind = .unknown,
+            .depth = 0,
+            .flags = .{},
+        };
     }
 
     /// Batch tokenize - allocates all tokens
     pub fn batchTokenize(self: *Self, allocator: Allocator, source: []const u8) ![]Token {
         self.source = source;
         self.position = 0;
+        self.eof_returned = false;
 
         var tokens = std.ArrayList(Token).init(allocator);
         defer tokens.deinit();
 
-        var iterator = StreamIterator.init(self);
-        while (iterator.next()) |token| {
+        while (self.next()) |token| {
             try tokens.append(token);
         }
 
@@ -89,6 +296,7 @@ pub const JsonLexer = struct {
     /// Reset lexer state
     pub fn reset(self: *Self) void {
         self.position = 0;
+        self.eof_returned = false;
         self.source = "";
     }
 };
@@ -199,20 +407,87 @@ const StreamIterator = struct {
             };
         }
 
-        // Number
+        // Number (RFC 8259 compliant)
         if (char.isDigit(c) or c == '-') {
-            lexer.position += 1;
-            while (lexer.position < lexer.source.len) {
-                const ch = lexer.source[lexer.position];
-                if (!char.isDigit(ch) and ch != '.' and ch != 'e' and ch != 'E' and ch != '+' and ch != '-') {
-                    break;
-                }
+            var is_valid = true;
+
+            // Handle negative sign
+            if (c == '-') {
                 lexer.position += 1;
+                if (lexer.position >= lexer.source.len or !char.isDigit(lexer.source[lexer.position])) {
+                    is_valid = false;
+                }
             }
 
+            // Integer part
+            if (is_valid and lexer.position < lexer.source.len) {
+                if (lexer.source[lexer.position] == '0') {
+                    // Leading zero - must be followed by . or e/E or end
+                    lexer.position += 1;
+                    if (lexer.position < lexer.source.len) {
+                        const next_char = lexer.source[lexer.position];
+                        if (char.isDigit(next_char)) {
+                            // Leading zeros not allowed (e.g., "01", "00")
+                            is_valid = false;
+                        }
+                    }
+                } else {
+                    // Non-zero digit - consume all digits
+                    while (lexer.position < lexer.source.len and char.isDigit(lexer.source[lexer.position])) {
+                        lexer.position += 1;
+                    }
+                }
+            }
+
+            // Decimal part
+            if (is_valid and lexer.position < lexer.source.len and lexer.source[lexer.position] == '.') {
+                lexer.position += 1;
+                if (lexer.position >= lexer.source.len or !char.isDigit(lexer.source[lexer.position])) {
+                    is_valid = false;
+                } else {
+                    while (lexer.position < lexer.source.len and char.isDigit(lexer.source[lexer.position])) {
+                        lexer.position += 1;
+                    }
+                }
+            }
+
+            // Exponent part
+            if (is_valid and lexer.position < lexer.source.len) {
+                const exp_char = lexer.source[lexer.position];
+                if (exp_char == 'e' or exp_char == 'E') {
+                    lexer.position += 1;
+                    if (lexer.position < lexer.source.len) {
+                        const sign = lexer.source[lexer.position];
+                        if (sign == '+' or sign == '-') {
+                            lexer.position += 1;
+                        }
+                    }
+
+                    // Exponent must have at least one digit
+                    if (lexer.position >= lexer.source.len or !char.isDigit(lexer.source[lexer.position])) {
+                        is_valid = false;
+                    } else {
+                        // Check for leading zeros in exponent (e.g., "1e01" is invalid)
+                        if (lexer.source[lexer.position] == '0' and
+                            lexer.position + 1 < lexer.source.len and
+                            char.isDigit(lexer.source[lexer.position + 1]))
+                        {
+                            // Leading zero in exponent
+                            is_valid = false;
+                        }
+
+                        // Consume exponent digits
+                        while (lexer.position < lexer.source.len and char.isDigit(lexer.source[lexer.position])) {
+                            lexer.position += 1;
+                        }
+                    }
+                }
+            }
+
+            // Even if invalid, we still return a token (parser will handle the error)
             return Token{
                 .span = Span.init(JsonLexer.posToU32(start), JsonLexer.posToU32(lexer.position)),
-                .kind = .number,
+                .kind = if (is_valid) .number else .unknown,
                 .depth = 0,
                 .flags = .{},
             };

@@ -307,7 +307,6 @@ pub const AST = struct {
     pub fn deinit(self: *AST) void {
         if (self.root) |root| {
             self.destroyNode(root);
-            self.allocator.destroy(root);
         }
         // Free owned texts
         for (self.owned_texts.items) |text| {
@@ -322,18 +321,22 @@ pub const AST = struct {
         return ptr;
     }
 
-    pub fn destroyNode(self: *AST, node: *Node) void {
-        // Recursively destroy children
+    /// Clean up the contents of a node without destroying the node itself
+    fn cleanupNodeContents(self: *AST, node: *Node) void {
         switch (node.*) {
             .object => |n| {
                 for (n.fields) |*field| {
-                    self.destroyNode(field);
+                    if (field.* == .field) {
+                        const field_node = field.field;
+                        self.destroyNode(field_node.name);
+                        self.destroyNode(field_node.value);
+                    }
                 }
                 self.allocator.free(n.fields);
             },
             .array => |n| {
                 for (n.elements) |*elem| {
-                    self.destroyNode(elem);
+                    self.cleanupNodeContents(elem);
                 }
                 self.allocator.free(n.elements);
             },
@@ -351,6 +354,12 @@ pub const AST = struct {
             },
             else => {}, // Leaf nodes need no cleanup
         }
+    }
+
+    pub fn destroyNode(self: *AST, node: *Node) void {
+        // Clean up the contents first
+        self.cleanupNodeContents(node);
+        // Then destroy the node itself (since it was allocated with allocator.create)
         self.allocator.destroy(node);
     }
 

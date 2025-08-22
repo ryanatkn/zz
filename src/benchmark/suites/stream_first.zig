@@ -693,7 +693,7 @@ pub fn runQueryBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOption
                     const fact = fact_mod.Fact{
                         .id = 0,
                         .subject = span_mod.packSpan(span_mod.Span{ .start = @intCast(i * 10), .end = @intCast((i + 1) * 10) }),
-                        .predicate = if (i % 2 == 0) .is_function else .is_class,
+                        .predicate = if (i % 2 == 0) fact_mod.Predicate.is_function else fact_mod.Predicate.is_class,
                         .confidence = @floatCast(@as(f64, @floatFromInt(i)) / 100.0),
                         .object = fact_mod.Value{ .number = @intCast(i) },
                     };
@@ -704,7 +704,7 @@ pub fn runQueryBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOption
                 var builder = query_mod.QueryBuilder.init(ctx.allocator);
                 defer builder.deinit();
 
-                _ = builder.select(&.{.is_function}).from(&store);
+                _ = builder.select(&.{fact_mod.Predicate.is_function}).from(&store);
                 var result = try builder.execute();
                 defer result.deinit();
             }
@@ -736,7 +736,7 @@ pub fn runQueryBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOption
                     const fact = fact_mod.Fact{
                         .id = 0,
                         .subject = span_mod.packSpan(span_mod.Span{ .start = @intCast(i * 10), .end = @intCast((i + 1) * 10) }),
-                        .predicate = if (i % 2 == 0) .is_function else .is_class,
+                        .predicate = if (i % 2 == 0) fact_mod.Predicate.is_function else fact_mod.Predicate.is_class,
                         .confidence = @floatCast(@as(f64, @floatFromInt(i)) / 100.0),
                         .object = fact_mod.Value{ .number = @intCast(i) },
                     };
@@ -749,7 +749,7 @@ pub fn runQueryBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOption
 
                 _ = builder.selectAll().from(&store);
                 _ = try builder.where(.confidence, .gte, 0.5);
-                _ = try builder.andWhere(.predicate, .eq, .is_function);
+                _ = try builder.andWhere(.predicate, .eq, fact_mod.Predicate.is_function);
                 _ = try builder.orderBy(.confidence, .descending);
                 _ = builder.limit(10);
 
@@ -784,7 +784,7 @@ pub fn runQueryBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOption
                     const fact = fact_mod.Fact{
                         .id = 0,
                         .subject = span_mod.packSpan(span_mod.Span{ .start = @intCast(i * 10), .end = @intCast((i + 1) * 10) }),
-                        .predicate = .is_function,
+                        .predicate = fact_mod.Predicate.is_function,
                         .confidence = 0.9,
                         .object = fact_mod.Value{ .number = @intCast(i) },
                     };
@@ -795,7 +795,7 @@ pub fn runQueryBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOption
                 var builder = query_mod.QueryBuilder.init(ctx.allocator);
                 defer builder.deinit();
 
-                _ = builder.select(&.{.is_function}).from(&store);
+                _ = builder.select(&.{fact_mod.Predicate.is_function}).from(&store);
                 _ = try builder.where(.confidence, .gte, 0.8);
 
                 var query = try builder.build();

@@ -172,7 +172,7 @@ pub const JsonFormatter = struct {
             sorted_properties = properties;
         }
 
-        for (sorted_properties, 0..) |member, i| {
+        for (sorted_properties, 0..) |property, i| {
             if (!should_compact) {
                 try self.writeIndent();
             } else if (i > 0 and self.options.space_after_comma) {
@@ -180,7 +180,7 @@ pub const JsonFormatter = struct {
                 self.updateLinePosition(1);
             }
 
-            try self.formatNode(&member);
+            try self.formatNode(&property);
 
             const is_last = i == sorted_properties.len - 1;
             if (!is_last) {
@@ -293,8 +293,8 @@ pub const JsonFormatter = struct {
 
         // Estimate size on single line
         var estimated_size: u32 = 2; // {}
-        for (properties, 0..) |member, i| {
-            estimated_size += self.estimateNodeSize(&member);
+        for (properties, 0..) |property, i| {
+            estimated_size += self.estimateNodeSize(&property);
             if (i < properties.len - 1) {
                 estimated_size += 2; // ", "
             }
@@ -376,7 +376,7 @@ pub const JsonFormatter = struct {
         const a = &properties[a_idx];
         const b = &properties[b_idx];
 
-        // Both should be member nodes with key as first child
+        // Both should be property nodes with key as first child
         // Compare property keys
         const a_property = a.property;
         const b_property = b.property;

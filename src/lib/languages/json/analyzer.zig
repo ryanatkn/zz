@@ -341,9 +341,12 @@ pub const JsonAnalyzer = struct {
                 stats.type_counts.arrays += 1;
                 stats.total_values += 1;
             },
-            .property => {
+            .property => |prop| {
                 // Property nodes contain key-value pairs, count the key
                 stats.total_keys += 1;
+                // Recursively process the key and value
+                self.calculateStatistics(prop.key, depth + 1, stats);
+                self.calculateStatistics(prop.value, depth + 1, stats);
             },
             else => {
                 // Other node types (error recovery, etc.)
@@ -362,9 +365,16 @@ pub const JsonAnalyzer = struct {
         const span = node.span();
         stats.size_bytes += @intCast(span.end - span.start);
 
-        // Recursively process children
-        for (node.children()) |child| {
-            self.calculateSizeBytes(&child, stats);
+        // Handle property nodes specially
+        if (node.* == .property) {
+            const prop = node.property;
+            self.calculateSizeBytes(prop.key, stats);
+            self.calculateSizeBytes(prop.value, stats);
+        } else {
+            // Recursively process children
+            for (node.children()) |child| {
+                self.calculateSizeBytes(&child, stats);
+            }
         }
     }
 

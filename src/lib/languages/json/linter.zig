@@ -317,10 +317,10 @@ pub const JsonLinter = struct {
 
     fn validateObject(self: *Self, node: *const Node, _: u32, enabled_rules: EnabledRules) !void {
         const object_node = node.object;
-        const members = object_node.properties;
+        const properties = object_node.properties;
 
         // Check object size
-        if (members.len > self.options.max_object_keys) {
+        if (properties.len > self.options.max_object_keys) {
             if (enabled_rules.contains(.large_structure)) {
                 try self.addDiagnostic(
                     "large_structure",
@@ -336,8 +336,8 @@ pub const JsonLinter = struct {
             var seen_keys = std.HashMap([]const u8, Span, std.hash_map.StringContext, std.hash_map.default_max_load_percentage).init(self.allocator);
             defer seen_keys.deinit();
 
-            for (members) |member| {
-                const property = switch (member) {
+            for (properties) |property_node| {
+                const property = switch (property_node) {
                     .property => |p| p,
                     else => continue,
                 };

@@ -40,7 +40,8 @@ pub const JsonTokenFlags = packed struct {
     is_hex: bool = false, // Number in hex format (non-standard)
     is_scientific: bool = false, // Number in scientific notation
     multiline_comment: bool = false, // /* */ style comment
-    _padding: u10 = 0, // Reserved for future use
+    continuation: bool = false, // Token spans 4KB boundary (needs more data)
+    _padding: u9 = 0, // Reserved for future use
 };
 
 /// Lightweight JSON token - exactly 16 bytes

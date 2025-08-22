@@ -13,6 +13,8 @@ const JsonTokenKind = @import("./stream_token.zig").JsonTokenKind;
 const JsonTokenFlags = @import("./stream_token.zig").JsonTokenFlags;
 const packSpan = @import("../../span/mod.zig").packSpan;
 const Span = @import("../../span/mod.zig").Span;
+const StreamingTokenBuffer = @import("streaming_token_buffer.zig").StreamingTokenBuffer;
+const TokenState = @import("streaming_token_buffer.zig").TokenState;
 
 /// Lexer state for incremental parsing
 pub const LexerState = enum {
@@ -27,7 +29,7 @@ pub const LexerState = enum {
     err,
 };
 
-/// JSON stream lexer with zero allocations
+/// JSON stream lexer with boundary-aware token handling
 pub const JsonStreamLexer = struct {
     // Ring buffer for lookahead (4KB on stack)
     buffer: RingBuffer(u8, 4096),
@@ -54,6 +56,10 @@ pub const JsonStreamLexer = struct {
     // Error state
     error_msg: ?[]const u8,
 
+    // Dynamic token buffer for handling 4KB boundary crossings
+    token_buffer: ?StreamingTokenBuffer,
+    allocator: ?std.mem.Allocator,
+
     /// Initialize lexer with input buffer
     /// This is the primary interface - simple iterator pattern
     pub fn init(input: []const u8) JsonStreamLexer {
@@ -65,6 +71,26 @@ pub const JsonStreamLexer = struct {
         }
 
         return lexer;
+    }
+
+    /// Initialize boundary-aware lexer with allocator for dynamic token buffer
+    /// Use this for streaming that may encounter 4KB boundary issues
+    pub fn initWithAllocator(allocator: std.mem.Allocator) JsonStreamLexer {
+        return JsonStreamLexer{
+            .buffer = RingBuffer(u8, 4096).init(),
+            .state = .start,
+            .position = 0,
+            .line = 1,
+            .column = 1,
+            .token_start = 0,
+            .token_line = 1,
+            .token_column = 1,
+            .depth = 0,
+            .current_flags = .{},
+            .error_msg = null,
+            .token_buffer = null, // Will be created on demand
+            .allocator = allocator,
+        };
     }
 
     /// Initialize empty lexer (for streaming from reader)
@@ -81,7 +107,16 @@ pub const JsonStreamLexer = struct {
             .depth = 0,
             .current_flags = .{},
             .error_msg = null,
+            .token_buffer = null,
+            .allocator = null,
         };
+    }
+
+    /// Clean up dynamic resources
+    pub fn deinit(self: *JsonStreamLexer) void {
+        if (self.token_buffer) |*buf| {
+            buf.deinit();
+        }
     }
 
     /// Get next token - Direct iterator interface (no vtable!)
@@ -200,6 +235,114 @@ pub const JsonStreamLexer = struct {
         return StreamToken{ .json = token };
     }
 
+    /// Create a continuation token to signal more data is needed
+    fn makeContinuationToken(self: *JsonStreamLexer) StreamToken {
+        const token = JsonToken{
+            .span = packSpan(Span{ .start = self.position, .end = self.position }),
+            .kind = .string_value, // Use existing kind for now (TODO: add continuation kind)
+            .depth = self.depth,
+            .flags = .{ .continuation = true }, // Use flag to indicate continuation
+            .data = 0,
+        };
+        return StreamToken{ .json = token };
+    }
+
+    /// Feed more data to the lexer for boundary token continuation
+    /// Call this when you get a continuation token and have more data
+    pub fn feedData(self: *JsonStreamLexer, data: []const u8) !void {
+        // Push new data into ring buffer
+        for (data) |byte| {
+            _ = self.buffer.push(byte) catch break; // Stop if buffer is full
+        }
+    }
+
+    /// Continue scanning after boundary - called when more data is available
+    pub fn continueBoundaryToken(self: *JsonStreamLexer) ?StreamToken {
+        if (self.token_buffer == null) return null;
+        
+        switch (self.state) {
+            .in_string => return self.continueBoundaryString(),
+            .in_number => return self.continueBoundaryNumber(),
+            .in_keyword => return self.continueBoundaryKeyword(),
+            else => return null,
+        }
+    }
+
+    /// Continue scanning a string that was interrupted at boundary
+    fn continueBoundaryString(self: *JsonStreamLexer) ?StreamToken {
+        if (self.token_buffer) |*buf| {
+            var has_escapes = buf.has_escapes;
+            
+            while (self.buffer.peek()) |ch| {
+                _ = self.buffer.pop();
+                self.position += 1;
+                self.column += 1;
+                
+                // Add character to buffer for reconstruction if needed
+                buf.appendChar(ch) catch {
+                    self.error_msg = "Out of memory during boundary string scan";
+                    return self.makeErrorToken();
+                };
+
+                switch (ch) {
+                    '"' => {
+                        // End of string found - complete the token
+                        const completion = buf.completeToken();
+                        self.state = .start;
+                        
+                        const token = JsonToken{
+                            .span = packSpan(Span{ .start = completion.start_position, .end = self.position }),
+                            .kind = .string_value,
+                            .depth = self.depth,
+                            .flags = .{ .has_escapes = completion.has_escapes },
+                            .data = 0,
+                        };
+                        return StreamToken{ .json = token };
+                    },
+                    '\\' => {
+                        // Escape sequence
+                        has_escapes = true;
+                        buf.setStringFlags(has_escapes, false);
+                        if (self.buffer.pop()) |escaped_char| {
+                            self.position += 1;
+                            self.column += 1;
+                            buf.appendChar(escaped_char) catch {
+                                self.error_msg = "Out of memory during boundary string scan";
+                                return self.makeErrorToken();
+                            };
+                        }
+                    },
+                    '\n' => {
+                        self.line += 1;
+                        self.column = 1;
+                    },
+                    else => {},
+                }
+            }
+            
+            // Still need more data
+            return self.makeContinuationToken();
+        }
+        
+        return null;
+    }
+
+    /// Continue scanning a number that was interrupted at boundary  
+    fn continueBoundaryNumber(self: *JsonStreamLexer) ?StreamToken {
+        // Implementation similar to continueBoundaryString but for numbers
+        // For now, return null (not implemented)
+        _ = self; // Suppress unused parameter warning
+        return null;
+    }
+
+    /// Continue scanning a keyword that was interrupted at boundary
+    fn continueBoundaryKeyword(self: *JsonStreamLexer) ?StreamToken {
+        // Implementation for true/false/null keywords spanning boundaries
+        // For now, return null (not implemented)  
+        _ = self; // Suppress unused parameter warning
+        return null;
+    }
+
     /// Scan a string literal
     fn scanString(self: *JsonStreamLexer) StreamToken {
         _ = self.buffer.pop(); // Consume opening quote
@@ -215,7 +358,7 @@ pub const JsonStreamLexer = struct {
 
             switch (ch) {
                 '"' => {
-                    // End of string
+                    // End of string found
                     const token = JsonToken{
                         .span = packSpan(Span{ .start = self.token_start, .end = self.position }),
                         .kind = .string_value,
@@ -241,8 +384,29 @@ pub const JsonStreamLexer = struct {
             }
         }
 
-        // Unterminated string
-        self.error_msg = "Unterminated string";
+        // Buffer is empty - this could be a 4KB boundary issue, not necessarily an error
+        if (self.allocator) |allocator| {
+            // Initialize token buffer if not already done
+            if (self.token_buffer == null) {
+                self.token_buffer = StreamingTokenBuffer.init(allocator);
+            }
+            
+            if (self.token_buffer) |*buf| {
+                // Start accumulating the string token across boundary
+                buf.startToken(.in_string, self.token_start, self.token_line, self.token_column) catch {
+                    self.error_msg = "Out of memory for boundary token";
+                    return self.makeErrorToken();
+                };
+                buf.setStringFlags(has_escapes, false);
+                
+                // Signal that we need more data to continue
+                self.state = .in_string;
+                return self.makeContinuationToken();
+            }
+        }
+
+        // No allocator available, treat as unterminated string (backward compatibility)
+        self.error_msg = "Unterminated string (consider using initWithAllocator for boundary handling)";
         return self.makeErrorToken();
     }
 

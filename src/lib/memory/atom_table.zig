@@ -233,7 +233,11 @@ test "AtomTable getAtom without interning" {
 
 // TODO: Fix memory efficiency test for string buffer reuse strategy
 test "AtomTable memory efficiency" {
-    if (true) return error.SkipZigTest; // Skip for now
+    // TODO: Implement string buffer reuse strategy to pass memory efficiency test
+    // Current issue: AtomTable doesn't reuse string buffers leading to memory inefficiency
+    // Expected work: Add buffer pooling or string deduplication to reduce memory usage
+    // Test expects: 100 strings (~10-12 bytes each) to use <1500 bytes total
+    if (true) return error.SkipZigTest; // Enable when buffer reuse is implemented
     const testing = std.testing;
 
     var table = AtomTable.init(testing.allocator);

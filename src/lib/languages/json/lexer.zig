@@ -396,8 +396,9 @@ const StreamIterator = struct {
                 }
             }
 
-            // For now, handle unterminated strings gracefully
-            // TODO: Add proper error handling in future iteration
+            // TODO: Fix streaming chunk boundary issue - strings spanning 4KB boundaries
+            // appear "unterminated" when processed chunk by chunk. Need state machine
+            // to handle partial strings across chunks in stream lexer.
 
             return Token{
                 .span = Span.init(JsonLexer.posToU32(start), JsonLexer.posToU32(lexer.position)),

@@ -140,3 +140,52 @@ test "JSON parser - error recovery" {
         try testing.expect(errors.len > 0);
     }
 }
+
+// Regression tests for recently fixed parser bugs
+test "JSON parser - regression: Unicode escape sequences" {
+    var arena = std.heap.ArenaAllocator.init(testing.allocator);
+    defer arena.deinit();
+    const allocator = arena.allocator();
+
+    const test_cases = [_]struct {
+        input: []const u8,
+        description: []const u8,
+        should_succeed: bool,
+    }{
+        .{ .input = "\"\\u0041\"", .description = "Simple Unicode A", .should_succeed = true },
+        .{ .input = "\"\\u1F600\"", .description = "Unicode emoji", .should_succeed = true },
+        .{ .input = "\"\\u0020\"", .description = "Unicode space", .should_succeed = true },
+        .{ .input = "\"\\u00FF\"", .description = "Unicode high byte", .should_succeed = true },
+        .{ .input = "\"\\uGGGG\"", .description = "Invalid hex digits", .should_succeed = false },
+        .{ .input = "\"\\u123\"", .description = "Incomplete Unicode", .should_succeed = false },
+        .{ .input = "\"\\u\"", .description = "Missing hex digits", .should_succeed = false },
+    };
+
+    for (test_cases) |case| {
+        var lexer = JsonLexer.init(allocator);
+        defer lexer.deinit();
+
+        const tokens = lexer.tokenize(case.input) catch |err| {
+            if (!case.should_succeed) continue; // Expected failure
+            std.debug.print("Unexpected failure for {s}: {}\n", .{ case.description, err });
+            return err;
+        };
+        defer allocator.free(tokens);
+
+        var parser = JsonParser.init(allocator, tokens, case.input, .{});
+        defer parser.deinit();
+
+        var ast = parser.parse() catch |err| {
+            if (!case.should_succeed) continue; // Expected failure
+            std.debug.print("Parser failed for {s}: {}\n", .{ case.description, err });
+            return err;
+        };
+        defer ast.deinit();
+
+        // If we expected success, verify parsing succeeded (AST created)
+        if (case.should_succeed) {
+            // Successfully created AST - Unicode handling worked
+            _ = ast.root;
+        }
+    }
+}

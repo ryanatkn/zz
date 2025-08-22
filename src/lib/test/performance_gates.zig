@@ -31,6 +31,9 @@ pub const PerformanceThresholds = struct {
 
 // TODO: Re-enable when new streaming architecture is ready
 test "TokenIterator tokenizeSimple performance gate" {
+    // TODO: Implement with new DirectStream architecture - this test needs TokenIterator replacement
+    // Current blocking issue: TokenIterator removed in favor of DirectStream
+    // Expected work: Replace TokenIterator.tokenizeSimple() with DirectStream equivalent
     return error.SkipZigTest; // Disabled until new streaming is ready
 }
 
@@ -84,6 +87,9 @@ test "ZON lexer performance gate" {
 
 // Test JSON parser performance
 test "JSON parser performance gate" {
+    // TODO: JSON parser performance issue - 70ms for 10KB vs 1ms target (70x slower)
+    // Root cause: Expensive AST node allocations and deep recursion
+    // Expected work: Optimize memory allocation patterns and reduce recursion depth
     return error.SkipZigTest; // Disabled temporarily due to hanging
     // const input = try generateJsonInput(10 * 1024); // 10KB JSON
     // defer testing.allocator.free(input);
@@ -115,6 +121,8 @@ test "JSON parser performance gate" {
 
 // Test ZON parser performance
 test "ZON parser performance gate" {
+    // TODO: ZON parser performance needs optimization - likely similar issues to JSON parser
+    // Expected work: Apply same optimizations as JSON parser once those are complete
     return error.SkipZigTest; // Disabled temporarily due to hanging
     // const input = try generateZonInput(10 * 1024); // 10KB ZON
     // defer testing.allocator.free(input);
@@ -146,11 +154,17 @@ test "ZON parser performance gate" {
 
 // TODO: Re-enable when new streaming architecture is ready
 test "TokenIterator streaming memory gate" {
+    // TODO: Replace TokenIterator memory tests with DirectStream memory efficiency tests
+    // Current blocking issue: TokenIterator architecture replaced by DirectStream
+    // Expected work: Create equivalent memory gate test using DirectStream API
     return error.SkipZigTest; // Disabled until new streaming is ready
 }
 
 // TODO: Re-enable when new streaming architecture is ready
 test "SKIP JSON streaming performance gate" {
+    // TODO: Implement JSON streaming test with DirectStream + JsonLexer.streamTokens()
+    // Current blocking issue: GenericTokenIterator replaced by language-specific streaming
+    // Expected work: Use JsonLexer.streamTokens() with performance measurements
     return error.SkipZigTest;
     // const input = try generateJsonInput(10 * 1024); // 10KB
     // defer testing.allocator.free(input);
@@ -179,6 +193,9 @@ test "SKIP JSON streaming performance gate" {
 
 // TODO: Re-enable when new streaming architecture is ready
 test "SKIP ZON streaming performance gate" {
+    // TODO: Implement ZON streaming test with DirectStream + ZonLexer.streamTokens()
+    // Current blocking issue: GenericTokenIterator replaced by language-specific streaming
+    // Expected work: Use ZonLexer.streamTokens() with performance measurements
     return error.SkipZigTest;
     // const input = try generateZonInput(10 * 1024); // 10KB
     // defer testing.allocator.free(input);

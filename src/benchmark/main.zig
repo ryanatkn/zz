@@ -181,14 +181,11 @@ fn registerBenchmarkSuites(runner: *BenchmarkRunner) !void {
     //     .runFn = language_benchmarks.runParserBenchmarks,
     // });
 
-    // Streaming benchmarks - DISABLED due to UnterminatedString error with chunk boundaries
-    // TODO: Fix JSON lexer to handle partial strings across chunk boundaries
-    // Issue: When 4KB chunk ends in middle of JSON string, lexer throws UnterminatedString
-    // try runner.registerSuite(BenchmarkSuite{
-    //     .name = "streaming",
-    //     .variance_multiplier = 3.0, // Memory allocation variability
-    //     .runFn = streaming_benchmarks.runStreamingBenchmarks,
-    // });
+    // TODO: Fix streaming lexer chunk boundary issue - UnterminatedString when 4KB chunk ends mid-string
+    try runner.registerSuite(BenchmarkSuite{
+        .name = "streaming",
+        .runFn = streaming_benchmarks.runStreamingBenchmarks,
+    });
 
     // Comprehensive JSON benchmarks
     try runner.registerSuite(BenchmarkSuite{
@@ -196,11 +193,11 @@ fn registerBenchmarkSuites(runner: *BenchmarkRunner) !void {
         .runFn = json_lexer.runJsonLexerBenchmarks,
     });
 
-    // Temporarily disabled due to performance issues (70ms for 10KB)
-    // try runner.registerSuite(BenchmarkSuite{
-    //     .name = "json-parser", 
-    //     .runFn = json_parser.runJsonParserBenchmarks,
-    // });
+    // TODO: Fix JSON parser performance - 70ms for 10KB vs 1ms target (70x slower than expected)
+    try runner.registerSuite(BenchmarkSuite{
+        .name = "json-parser",
+        .runFn = json_parser.runJsonParserBenchmarks,
+    });
 
     try runner.registerSuite(BenchmarkSuite{
         .name = "json-pipeline",
@@ -219,13 +216,12 @@ fn registerBenchmarkSuites(runner: *BenchmarkRunner) !void {
         .runFn = stream_first_benchmarks.runStreamFirstBenchmarks,
     });
 
-    // Disabled - operations are too slow (15ms each) for normal benchmark durations
-    // Each pipeline operation (format + validate + extract) takes ~45ms
-    // Would need much longer durations (5+ seconds) to get meaningful results
-    // try runner.registerSuite(BenchmarkSuite{
-    //     .name = "zon-pipeline",
-    //     .runFn = zon_pipeline.runZonPipelineBenchmarks,
-    // });
+    // TODO: Optimize ZON pipeline performance - 45ms per operation vs ~1ms target (45x slower)
+    // Each pipeline operation (format + validate + extract) needs optimization
+    try runner.registerSuite(BenchmarkSuite{
+        .name = "zon-pipeline",
+        .runFn = zon_pipeline.runZonPipelineBenchmarks,
+    });
 }
 
 fn printHelp() !void {

@@ -120,7 +120,7 @@ test "ZON lexer - invalid escape sequences" {
 
         // Should fail during tokenization
         const tokens = lexer.tokenize(case) catch {
-            continue; // Expected failure  
+            continue; // Expected failure
         };
         defer allocator.free(tokens);
 
@@ -232,5 +232,81 @@ test "ZON lexer - infinite loop regression test" {
         // Verify EOF token position is at end of input
         try testing.expectEqual(@as(u32, @intCast(case.input.len)), tokens[tokens.len - 1].span.start);
         try testing.expectEqual(@as(u32, @intCast(case.input.len)), tokens[tokens.len - 1].span.end);
+    }
+}
+
+// Regression tests for recently fixed lexer bugs
+test "ZON lexer - regression: single quote should be invalid escape" {
+    var arena = std.heap.ArenaAllocator.init(testing.allocator);
+    defer arena.deinit();
+    const allocator = arena.allocator();
+
+    // Single quote escape was incorrectly allowed, now should fail
+    const input = "\"don\\'t\""; // Single quote escape in double-quoted string
+
+    var lexer = ZonLexer.init(allocator);
+    defer lexer.deinit();
+
+    // Should fail during tokenization
+    _ = lexer.tokenize(input) catch {
+        return; // Expected failure
+    };
+
+    try testing.expect(false); // Should not reach here
+}
+
+test "ZON lexer - regression: unterminated strings properly detected" {
+    var arena = std.heap.ArenaAllocator.init(testing.allocator);
+    defer arena.deinit();
+    const allocator = arena.allocator();
+
+    const unterminated_cases = [_][]const u8{
+        "\"hello world", // No closing quote
+        "\"escaped at end\\", // Ends with escape
+        "\"multiline\nstring", // Newline without closing
+    };
+
+    for (unterminated_cases) |case| {
+        var lexer = ZonLexer.init(allocator);
+        defer lexer.deinit();
+
+        // Should fail with UnterminatedString error
+        _ = lexer.tokenize(case) catch |err| {
+            try testing.expect(err == error.UnterminatedString);
+            continue; // Expected failure
+        };
+
+        try testing.expect(false); // Should not reach here
+    }
+}
+
+test "ZON lexer - regression: valid escape sequences still work" {
+    var arena = std.heap.ArenaAllocator.init(testing.allocator);
+    defer arena.deinit();
+    const allocator = arena.allocator();
+
+    // These should all work correctly after the fix
+    const valid_cases = [_][]const u8{
+        "\"\\n\"", // newline
+        "\"\\t\"", // tab
+        "\"\\\\\"", // backslash
+        "\"\\\"\"", // quote
+        "\"\\r\"", // carriage return
+        "\"\\0\"", // null
+        "\"\\u{1F600}\"", // Unicode emoji
+        "\"\\u{41}\"", // Unicode A
+    };
+
+    for (valid_cases) |case| {
+        var lexer = ZonLexer.init(allocator);
+        defer lexer.deinit();
+
+        const tokens = try lexer.tokenize(case);
+        defer allocator.free(tokens);
+
+        // Should succeed and produce string token + EOF
+        try testing.expect(tokens.len == 2);
+        try testing.expect(tokens[0].kind == .string);
+        try testing.expect(tokens[1].kind == .eof);
     }
 }

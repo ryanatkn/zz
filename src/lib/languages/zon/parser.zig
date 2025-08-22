@@ -28,6 +28,11 @@ pub const ZonParser = struct {
 
     const Self = @This();
 
+    pub const ZonParseError = error{
+        UnexpectedToken,
+        MissingValue,
+    };
+
     pub const ParseError = struct {
         message: []const u8,
         span: Span,
@@ -60,7 +65,7 @@ pub const ZonParser = struct {
     }
 
     /// Parse tokens into ZON AST
-    pub fn parse(self: *Self) !AST {
+    pub fn parse(self: *Self) (std.mem.Allocator.Error || ZonParseError)!AST {
         // Parse root value - handle empty input
         const root_value = if (self.tokens.len == 0 or (self.tokens.len == 1 and self.tokens[0].kind == .eof)) blk: {
             break :blk Node{
@@ -84,7 +89,7 @@ pub const ZonParser = struct {
     }
 
     /// Parse a ZON value
-    fn parseValue(self: *Self) std.mem.Allocator.Error!Node {
+    fn parseValue(self: *Self) (std.mem.Allocator.Error || ZonParseError)!Node {
         if (self.isAtEnd()) {
             return self.createErrorNode("Unexpected end of input");
         }
@@ -210,7 +215,7 @@ pub const ZonParser = struct {
         };
     }
 
-    fn parseObject(self: *Self) std.mem.Allocator.Error!Node {
+    fn parseObject(self: *Self) (std.mem.Allocator.Error || ZonParseError)!Node {
         const start_token = self.advance(); // consume '{'
 
         // Handle empty object
@@ -303,7 +308,7 @@ pub const ZonParser = struct {
         return false;
     }
 
-    fn parseArray(self: *Self) std.mem.Allocator.Error!Node {
+    fn parseArray(self: *Self) (std.mem.Allocator.Error || ZonParseError)!Node {
         const start_token = self.advance(); // consume '['
         var elements = std.ArrayList(Node).init(self.allocator);
 
@@ -342,11 +347,21 @@ pub const ZonParser = struct {
         };
     }
 
-    fn parseField(self: *Self) std.mem.Allocator.Error!Node {
+    fn parseField(self: *Self) (std.mem.Allocator.Error || ZonParseError)!Node {
         const name_node = try self.parseValue(); // Can be field_name or identifier
 
         if (!self.match(.equal)) {
             _ = try self.addError("Expected '=' after field name", self.peek().span);
+        }
+
+        // Check for double equals (invalid syntax like ".field = = value")
+        if (self.check(.equal)) {
+            return ZonParseError.UnexpectedToken;
+        }
+
+        // Check for missing value (invalid syntax like ".field = }")
+        if (self.isAtEnd() or self.check(.right_brace) or self.check(.comma)) {
+            return ZonParseError.MissingValue;
         }
 
         const name_node_ptr = try self.allocator.create(Node);

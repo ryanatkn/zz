@@ -322,7 +322,7 @@ test "QueryIndex basic operations" {
         .withConfidence(0.7)
         .build();
     _ = try store.append(fact3);
-    
+
     // Build index
     var index = QueryIndex.init(allocator, &store);
     defer index.deinit();

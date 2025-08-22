@@ -30,18 +30,22 @@ test {
     _ = @import("text/test.zig");
     _ = @import("patterns/test.zig");
     _ = @import("filesystem/test.zig");
-    // Grammar module deleted
-    // _ = @import("grammar/test.zig");
+    // Grammar module deleted - tests removed with module
+    // _ = @import("grammar/test.zig"); // TODO: Restore when grammar system is rebuilt
 
     // Legacy/Migration (kept for reference, not imported)
     // _ = @import("parser_old/test.zig");
     // _ = @import("transform_old/test.zig");
 
     // Development Support
-    // _ = @import("benchmark/test.zig"); // Disabled until streaming migration complete
+    _ = @import("benchmark/test.zig"); // Re-enabled: prefer failed tests with TODOs over disabled tests
     _ = @import("terminal/test.zig");
     _ = @import("execution/test.zig");
     _ = @import("deps/test.zig");
     _ = @import("test/fixture_runner.zig");
     _ = @import("test/performance_gates.zig");
+
+    // Additional modules with embedded tests
+    _ = @import("cache/mod.zig");
+    _ = @import("query/mod.zig");
 }

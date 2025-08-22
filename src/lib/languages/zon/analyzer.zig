@@ -210,21 +210,32 @@ pub const ZonAnalyzer = struct {
         };
 
         // Analyze the root node
-        schema.root_type = try self.inferType(ast.root);
+        if (ast.root) |root_node| {
+            schema.root_type = try self.inferType(root_node.*);
+        } else {
+            // No root node - empty AST
+            schema.root_type = TypeInfo{
+                .kind = .undefined_type,
+                .name = null,
+                .fields = null,
+                .element_type = null,
+                .nullable = false,
+            };
+        }
 
         // Collect symbols
-        if (self.options.collect_symbols) {
-            try self.collectSymbols(ast.root, &schema.symbols);
+        if (self.options.collect_symbols and ast.root != null) {
+            try self.collectSymbols(ast.root.?.*, &schema.symbols);
         }
 
         // Extract dependencies
-        if (self.options.extract_dependencies) {
-            try self.extractDependencies(ast.root, &schema.dependencies);
+        if (self.options.extract_dependencies and ast.root != null) {
+            try self.extractDependencies(ast.root.?.*, &schema.dependencies);
         }
 
         // Generate statistics
-        if (self.options.analyze_structure) {
-            schema.statistics = try self.generateStatistics(ast.root, 0);
+        if (self.options.analyze_structure and ast.root != null) {
+            schema.statistics = try self.generateStatistics(ast.root.?.*, 0);
         }
 
         return schema;
@@ -294,7 +305,7 @@ pub const ZonAnalyzer = struct {
         return stats;
     }
 
-    fn inferType(self: *Self, node: Node) std.mem.Allocator.Error!TypeInfo {
+    fn inferType(self: *Self, node: Node) (std.mem.Allocator.Error || error{InvalidNodeType})!TypeInfo {
         return switch (node) {
             .object => try self.inferObjectType(node),
             .array => try self.inferArrayType(node),
@@ -344,7 +355,10 @@ pub const ZonAnalyzer = struct {
     }
 
     fn inferArrayType(self: *Self, array_node: Node) !TypeInfo {
-        if (array_node.children.len == 0) {
+        if (array_node != .array) return error.InvalidNodeType;
+        const arr = array_node.array;
+
+        if (arr.elements.len == 0) {
             // Empty array - unknown element type
             return TypeInfo{
                 .kind = .array,
@@ -356,7 +370,7 @@ pub const ZonAnalyzer = struct {
         }
 
         // Infer element type from first element
-        const first_element_type = try self.inferType(array_node.children[0]);
+        const first_element_type = try self.inferType(arr.elements[0]);
 
         // TODO: Could check if all elements have the same type
         const element_type = try self.allocator.create(TypeInfo);
@@ -458,7 +472,7 @@ pub const ZonAnalyzer = struct {
             },
             else => {
                 // No symbols to extract from other node types
-            }
+            },
         }
     }
 

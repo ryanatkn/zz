@@ -157,16 +157,19 @@ pub const ZonLexer = struct {
         // String literals
         if (c == '"') {
             self.position += 1;
+            var found_closing_quote = false;
+
             while (self.position < self.source.len) {
                 const ch = self.source[self.position];
                 if (ch == '"') {
                     self.position += 1;
+                    found_closing_quote = true;
                     break;
                 } else if (ch == '\\' and self.position + 1 < self.source.len) {
                     const escape_char = self.source[self.position + 1];
                     switch (escape_char) {
-                        '\\', '"', '\'', 'n', 'r', 't', '0' => {
-                            self.position += 2; // Valid escape sequence  
+                        '\\', '"', 'n', 'r', 't', '0' => {
+                            self.position += 2; // Valid escape sequence
                         },
                         'u' => {
                             // Unicode escape: \u{XXXX}
@@ -221,7 +224,7 @@ pub const ZonLexer = struct {
             }
 
             // Check if string was properly terminated
-            if (self.position >= self.source.len or self.source[self.position - 1] != '"') {
+            if (!found_closing_quote) {
                 self.last_error = LexerError.UnterminatedString;
                 return null;
             }

@@ -21,4 +21,15 @@ test {
 
     // Keep existing token tests if they exist
     _ = @import("tokens.zig");
+
+    // Include modules with embedded tests
+    _ = @import("lexer.zig");
+    _ = @import("parser.zig");
+    _ = @import("formatter.zig");
+    _ = @import("analyzer.zig");
+    _ = @import("stream_lexer.zig");
+    _ = @import("stream_token.zig");
+    _ = @import("stream_format.zig");
+    _ = @import("transform.zig");
+    _ = @import("serializer.zig");
 }

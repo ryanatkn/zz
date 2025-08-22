@@ -8,6 +8,13 @@ const BenchmarkError = benchmark_lib.BenchmarkError;
 const JsonLexer = @import("../../lib/languages/json/lexer.zig").JsonLexer;
 const ZonLexer = @import("../../lib/languages/zon/lexer.zig").ZonLexer;
 
+// Import fact system for DirectStream benchmark
+const Fact = @import("../../lib/fact/fact.zig").Fact;
+const span_mod = @import("../../lib/span/packed.zig");
+const PackedSpan = span_mod.PackedSpan;
+const packSpan = span_mod.packSpan;
+const Span = span_mod.Span;
+
 pub fn runStreamingBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOptions) BenchmarkError![]BenchmarkResult {
     var results = std.ArrayList(BenchmarkResult).init(allocator);
     defer results.deinit();
@@ -32,7 +39,6 @@ fn benchmarkJsonLexerStreaming(allocator: std.mem.Allocator, options: BenchmarkO
     // Generate test JSON with 10KB of nested structures
     const test_json = generateTestJson(allocator, 10 * 1024) catch |err| switch (err) {
         error.OutOfMemory => return BenchmarkError.OutOfMemory,
-        else => return BenchmarkError.BenchmarkFailed,
     };
     defer allocator.free(test_json);
 
@@ -76,7 +82,6 @@ fn benchmarkZonLexerStreaming(allocator: std.mem.Allocator, options: BenchmarkOp
     // Generate test ZON with 10KB of struct literals
     const test_zon = generateTestZon(allocator, 10 * 1024) catch |err| switch (err) {
         error.OutOfMemory => return BenchmarkError.OutOfMemory,
-        else => return BenchmarkError.BenchmarkFailed,
     };
     defer allocator.free(test_zon);
 
@@ -112,10 +117,7 @@ fn benchmarkZonLexerStreaming(allocator: std.mem.Allocator, options: BenchmarkOp
 
 /// Benchmark DirectStream fact processing
 fn benchmarkDirectStreamProcessing(allocator: std.mem.Allocator, options: BenchmarkOptions) !BenchmarkResult {
-    const DirectStream = @import("../../lib/stream/direct_stream.zig").DirectStream;
-    const Fact = @import("../../lib/fact/fact.zig").Fact;
-    const Span = @import("../../lib/span/span.zig").Span;
-    _ = @import("../../lib/fact/mod.zig").Predicate; // Import for API reference
+    const direct_stream = @import("../../lib/stream/direct_stream.zig");
 
     // Create test facts
     var facts = std.ArrayList(Fact).init(allocator);
@@ -123,11 +125,11 @@ fn benchmarkDirectStreamProcessing(allocator: std.mem.Allocator, options: Benchm
 
     for (0..1000) |i| {
         try facts.append(Fact{
-            .subject = @intCast(i),
+            .id = @intCast(i + 1), // Fact IDs start from 1
+            .subject = packSpan(Span.init(@intCast(i * 10), @intCast(i * 10 + 5))),
             .predicate = .is_token,
-            .object = .{ .atom = @intCast(i % 10) },
+            .object = .{ .uint = @intCast(i % 10) },
             .confidence = 0.9,
-            .span = Span.init(@intCast(i * 10), @intCast(i * 10 + 5)),
         });
     }
 
@@ -136,10 +138,10 @@ fn benchmarkDirectStreamProcessing(allocator: std.mem.Allocator, options: Benchm
     const end_time = start_time + @as(i64, @intCast(options.duration_ns));
 
     while (std.time.nanoTimestamp() < end_time) {
-        var stream = DirectStream.init(facts.items);
+        var stream = direct_stream.fromSlice(Fact, facts.items);
         var fact_count: usize = 0;
 
-        while (stream.next()) |fact| {
+        while (stream.next() catch null) |fact| {
             _ = fact;
             fact_count += 1;
         }
@@ -156,7 +158,7 @@ fn benchmarkDirectStreamProcessing(allocator: std.mem.Allocator, options: Benchm
         .elapsed_ns = elapsed_ns,
         .ns_per_op = ns_per_op,
         .confidence = if (operations >= 1000) .high else if (operations >= 100) .medium else if (operations >= 10) .low else .insufficient,
-        .extra_info = try std.fmt.allocPrint(allocator, "1000 facts, {d:.1f}M ops/sec", .{@as(f64, @floatFromInt(operations * 1000)) / @as(f64, @floatFromInt(elapsed_ns)) * 1000.0}),
+        .extra_info = try std.fmt.allocPrint(allocator, "1000 facts, {d:.1}M ops/sec", .{@as(f64, @floatFromInt(operations * 1000)) / @as(f64, @floatFromInt(elapsed_ns)) * 1000.0}),
     };
 }
 

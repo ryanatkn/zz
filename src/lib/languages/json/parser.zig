@@ -132,15 +132,14 @@ pub const JsonParser = struct {
     fn parseString(self: *Self) !Node {
         const token = self.advance();
 
-        // Validate and unescape string content
+        // Validate and unescape string content (using arena allocator)
         const content = try self.unescapeString(token.getText(self.source));
-        const owned_content = try self.context.trackText(content);
-        // Don't free content here - ownership transferred to AST via trackText
+        // Content is now allocated in arena, will be freed when AST is freed
 
         return Node{
             .string = .{
                 .span = token.span,
-                .value = owned_content,
+                .value = content,
             },
         };
     }
@@ -209,7 +208,7 @@ pub const JsonParser = struct {
 
     fn parseObject(self: *Self) !Node {
         const start_token = self.advance(); // consume '{'
-        var properties = std.ArrayList(Node).init(self.allocator);
+        var properties = std.ArrayList(Node).init(self.context.tempAllocator());
         defer properties.deinit();
 
         // Handle empty object
@@ -289,7 +288,7 @@ pub const JsonParser = struct {
         const key_node = try self.parseString();
 
         // Allocate key node as pointer
-        const key_ptr = try self.allocator.create(Node);
+        const key_ptr = try self.context.tempAllocator().create(Node);
         key_ptr.* = key_node;
 
         // Expect colon
@@ -303,7 +302,7 @@ pub const JsonParser = struct {
         const value_node = try self.parseValue();
 
         // Allocate value node as pointer
-        const value_ptr = try self.allocator.create(Node);
+        const value_ptr = try self.context.tempAllocator().create(Node);
         value_ptr.* = value_node;
 
         // Create property node
@@ -404,7 +403,7 @@ pub const JsonParser = struct {
             raw[1 .. raw.len - 1]
         else
             raw;
-        var result = std.ArrayList(u8).init(self.allocator);
+        var result = std.ArrayList(u8).init(self.context.tempAllocator());
         defer result.deinit();
 
         var i: usize = 0;
@@ -421,10 +420,35 @@ pub const JsonParser = struct {
                     'r' => '\r',
                     't' => '\t',
                     'u' => {
-                        // TODO: Handle Unicode escape sequences
-                        try result.append('\\');
-                        try result.append('u');
-                        i += 2;
+                        // Parse Unicode escape sequence \uXXXX
+                        if (i + 5 >= content.len) {
+                            try self.addError("Incomplete Unicode escape sequence", Span.init(@intCast(i), @intCast(i + 2)));
+                            try result.append('\\');
+                            try result.append('u');
+                            i += 2;
+                            continue;
+                        }
+
+                        // Parse 4 hex digits
+                        const hex_digits = content[i + 2 .. i + 6];
+                        const codepoint = std.fmt.parseInt(u21, hex_digits, 16) catch {
+                            try self.addError("Invalid Unicode escape sequence", Span.init(@intCast(i), @intCast(i + 6)));
+                            try result.append('\\');
+                            try result.append('u');
+                            i += 2;
+                            continue;
+                        };
+
+                        // Convert to UTF-8 and append
+                        var utf8_buf: [4]u8 = undefined;
+                        const utf8_len = std.unicode.utf8Encode(codepoint, &utf8_buf) catch {
+                            try self.addError("Invalid Unicode codepoint", Span.init(@intCast(i), @intCast(i + 6)));
+                            try result.append('?'); // Replacement character
+                            i += 6;
+                            continue;
+                        };
+                        try result.appendSlice(utf8_buf[0..utf8_len]);
+                        i += 6;
                         continue;
                     },
                     else => blk: {

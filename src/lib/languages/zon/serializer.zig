@@ -45,8 +45,9 @@ pub const ZonSerializer = struct {
     /// Serialize any value to ZON string
     pub fn toString(self: *Self, value: anytype) ![]const u8 {
         self.buffer.clearRetainingCapacity();
+        self.writer = self.buffer.writer(); // Recreate writer after clearing
         try self.writeValue(@TypeOf(value), value, 0);
-        return self.buffer.toOwnedSlice();
+        return try self.allocator.dupe(u8, self.buffer.items);
     }
 
     /// Write a value at the given indentation depth
@@ -189,6 +190,12 @@ pub const ZonSerializer = struct {
     fn writeArray(self: *Self, comptime T: type, value: T, depth: u32) !void {
         const type_info = @typeInfo(T);
         const len = type_info.array.len;
+
+        // Handle string arrays (like "hello" which is [5]u8)
+        if (type_info.array.child == u8) {
+            try self.writeString(&value);
+            return;
+        }
 
         if (len == 0) {
             try self.writer.writeAll(".{}");
@@ -336,7 +343,7 @@ pub const ZonSerializer = struct {
 
     /// Write a string value with proper escaping
     fn writeString(self: *Self, value: []const u8) !void {
-        const quote = if (self.options.use_single_quotes) '\'' else '"';
+        const quote: u8 = if (self.options.use_single_quotes) '\'' else '"';
 
         try self.writer.writeByte(quote);
 
@@ -360,7 +367,7 @@ pub const ZonSerializer = struct {
                         try self.writer.writeByte(c);
                     }
                 },
-                0x20...0x7E => try self.writer.writeByte(c),
+                0x20...0x21, 0x23...0x26, 0x28...0x5B, 0x5D...0x7E => try self.writer.writeByte(c),
                 else => {
                     // Escape non-printable characters
                     try std.fmt.format(self.writer, "\\x{x:0>2}", .{c});
@@ -375,7 +382,7 @@ pub const ZonSerializer = struct {
     fn writeIndent(self: *Self, depth: u32) !void {
         if (!self.options.pretty) return;
 
-        const indent_char = if (self.options.use_tabs) '\t' else ' ';
+        const indent_char: u8 = if (self.options.use_tabs) '\t' else ' ';
         const indent_count = if (self.options.use_tabs) depth else depth * self.options.indent_size;
 
         for (0..indent_count) |_| {
@@ -475,19 +482,47 @@ test "ZonSerializer - basic types" {
     const allocator = testing.allocator;
 
     // Boolean
-    try testing.expectEqualStrings("true", try stringify(allocator, true));
-    try testing.expectEqualStrings("false", try stringify(allocator, false));
+    {
+        const result = try stringify(allocator, true);
+        defer allocator.free(result);
+        try testing.expectEqualStrings("true", result);
+    }
+    {
+        const result = try stringify(allocator, false);
+        defer allocator.free(result);
+        try testing.expectEqualStrings("false", result);
+    }
 
     // Integers
-    try testing.expectEqualStrings("42", try stringify(allocator, @as(i32, 42)));
-    try testing.expectEqualStrings("0", try stringify(allocator, @as(u8, 0)));
+    {
+        const result = try stringify(allocator, @as(i32, 42));
+        defer allocator.free(result);
+        try testing.expectEqualStrings("42", result);
+    }
+    {
+        const result = try stringify(allocator, @as(u8, 0));
+        defer allocator.free(result);
+        try testing.expectEqualStrings("0", result);
+    }
 
     // Floats
-    try testing.expectEqualStrings("3.14", try stringify(allocator, @as(f32, 3.14)));
+    {
+        const result = try stringify(allocator, @as(f32, 3.14));
+        defer allocator.free(result);
+        try testing.expectEqualStrings("3.14", result);
+    }
 
     // Strings
-    try testing.expectEqualStrings("\"hello\"", try stringify(allocator, "hello"));
-    try testing.expectEqualStrings("\"hello\\nworld\"", try stringify(allocator, "hello\nworld"));
+    {
+        const result = try stringify(allocator, "hello");
+        defer allocator.free(result);
+        try testing.expectEqualStrings("\"hello\"", result);
+    }
+    {
+        const result = try stringify(allocator, "hello\nworld");
+        defer allocator.free(result);
+        try testing.expectEqualStrings("\"hello\\nworld\"", result);
+    }
 }
 
 test "ZonSerializer - structs" {
@@ -523,8 +558,16 @@ test "ZonSerializer - enums" {
 
     const Color = enum { red, green, blue };
 
-    try testing.expectEqualStrings(".red", try stringify(allocator, Color.red));
-    try testing.expectEqualStrings(".blue", try stringify(allocator, Color.blue));
+    {
+        const result = try stringify(allocator, Color.red);
+        defer allocator.free(result);
+        try testing.expectEqualStrings(".red", result);
+    }
+    {
+        const result = try stringify(allocator, Color.blue);
+        defer allocator.free(result);
+        try testing.expectEqualStrings(".blue", result);
+    }
 }
 
 test "ZonSerializer - optionals" {
@@ -534,8 +577,16 @@ test "ZonSerializer - optionals" {
     const maybe_int: ?i32 = 42;
     const nothing: ?i32 = null;
 
-    try testing.expectEqualStrings("42", try stringify(allocator, maybe_int));
-    try testing.expectEqualStrings("null", try stringify(allocator, nothing));
+    {
+        const result = try stringify(allocator, maybe_int);
+        defer allocator.free(result);
+        try testing.expectEqualStrings("42", result);
+    }
+    {
+        const result = try stringify(allocator, nothing);
+        defer allocator.free(result);
+        try testing.expectEqualStrings("null", result);
+    }
 }
 
 test "ZonSerializer - nested structs" {

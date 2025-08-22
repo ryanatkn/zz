@@ -127,12 +127,12 @@ test "ZON performance - formatting speed" {
 
     // Should produce non-empty formatted output
     try testing.expect(formatted.len > 0);
-    
+
     // Should produce valid ZON (basic check - starts with { and ends with })
     try testing.expect(std.mem.startsWith(u8, formatted, "{"));
     try testing.expect(std.mem.endsWith(u8, formatted, "}"));
-    
-    // Should contain key structure elements  
+
+    // Should contain key structure elements
     try testing.expect(std.mem.indexOf(u8, formatted, ".name") != null);
     try testing.expect(std.mem.indexOf(u8, formatted, ".version") != null);
     try testing.expect(std.mem.indexOf(u8, formatted, ".dependencies") != null);

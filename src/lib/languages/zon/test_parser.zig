@@ -448,3 +448,53 @@ test "ZON parser - mixed literals" {
 
     try testing.expect(ast.root != null);
 }
+
+// Regression tests for recently fixed parser bugs
+test "ZON parser - regression: triple equals should fail" {
+    var arena = std.heap.ArenaAllocator.init(testing.allocator);
+    defer arena.deinit();
+    const allocator = arena.allocator();
+
+    const input = ".{ .field = = = \"value\" }"; // Triple equals
+
+    var lexer = ZonLexer.init(allocator);
+    defer lexer.deinit();
+
+    const tokens = try lexer.tokenize(input);
+    defer allocator.free(tokens);
+
+    var parser = ZonParser.init(allocator, tokens, input, .{});
+    defer parser.deinit();
+
+    // Should fail parsing
+    _ = parser.parse() catch {
+        return; // Expected failure
+    };
+
+    try testing.expect(false); // Should not reach here
+}
+
+test "ZON parser - regression: incomplete assignment with comma" {
+    var arena = std.heap.ArenaAllocator.init(testing.allocator);
+    defer arena.deinit();
+    const allocator = arena.allocator();
+
+    const input = ".{ .name = , .value = \"test\" }"; // Missing value before comma
+
+    var lexer = ZonLexer.init(allocator);
+    defer lexer.deinit();
+
+    const tokens = try lexer.tokenize(input);
+    defer allocator.free(tokens);
+
+    var parser = ZonParser.init(allocator, tokens, input, .{});
+    defer parser.deinit();
+
+    // Should fail with MissingValue error
+    _ = parser.parse() catch |err| {
+        try testing.expect(err == error.MissingValue);
+        return;
+    };
+
+    try testing.expect(false); // Should not reach here
+}

@@ -47,7 +47,7 @@ pub const ZonStreamLexer = struct {
 
     // Nesting depth
     depth: u8,
-    
+
     // Container stack to track opening types (small fixed size stack)
     container_stack: [16]ZonTokenKind,
 

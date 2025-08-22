@@ -64,7 +64,7 @@ fn convertAstToType(comptime T: type, allocator: std.mem.Allocator, node: *const
         // The @"" syntax is required because 'struct' is a keyword
         .@"struct" => |struct_info| {
             var result: T = undefined;
-            
+
             // Initialize all fields to their zero values
             inline for (struct_info.fields) |field| {
                 @field(result, field.name) = getFieldZeroValue(field.type);
@@ -169,7 +169,7 @@ fn convertValueToFieldType(comptime FieldType: type, allocator: std.mem.Allocato
                 const num_str = node.number.raw;
                 return try std.fmt.parseFloat(FieldType, num_str);
             }
-            // Return zero for non-number types to maintain compatibility  
+            // Return zero for non-number types to maintain compatibility
             return 0.0;
         },
         .bool => {
@@ -209,7 +209,7 @@ fn convertValueToFieldType(comptime FieldType: type, allocator: std.mem.Allocato
                     // Check if this looks like an anonymous list (all fields are positional)
                     var elements = std.ArrayList(ptr_info.child).init(allocator);
                     defer elements.deinit();
-                    
+
                     for (node.object.fields) |field| {
                         if (field == .field) {
                             const elem_result = convertValueToFieldType(ptr_info.child, allocator, field.field.value) catch continue;
@@ -220,7 +220,7 @@ fn convertValueToFieldType(comptime FieldType: type, allocator: std.mem.Allocato
                             try elements.append(elem_result);
                         }
                     }
-                    
+
                     const result = try allocator.alloc(ptr_info.child, elements.items.len);
                     @memcpy(result, elements.items);
                     return result;

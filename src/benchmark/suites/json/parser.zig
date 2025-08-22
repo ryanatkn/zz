@@ -41,7 +41,7 @@ pub fn runJsonParserBenchmarks(allocator: std.mem.Allocator, options: BenchmarkO
                 var arena = std.heap.ArenaAllocator.init(ctx.allocator);
                 defer arena.deinit();
                 const arena_alloc = arena.allocator();
-                
+
                 // Pre-tokenize
                 var lexer = JsonLexer.init(arena_alloc);
                 defer lexer.deinit();
@@ -81,7 +81,7 @@ pub fn runJsonParserBenchmarks(allocator: std.mem.Allocator, options: BenchmarkO
                 var arena = std.heap.ArenaAllocator.init(ctx.allocator);
                 defer arena.deinit();
                 const arena_alloc = arena.allocator();
-                
+
                 // Pre-tokenize
                 var lexer = JsonLexer.init(arena_alloc);
                 defer lexer.deinit();
@@ -126,7 +126,7 @@ pub fn runJsonParserBenchmarks(allocator: std.mem.Allocator, options: BenchmarkO
                 var arena = std.heap.ArenaAllocator.init(ctx.allocator);
                 defer arena.deinit();
                 const arena_alloc = arena.allocator();
-                
+
                 // Pre-tokenize
                 var lexer = JsonLexer.init(arena_alloc);
                 defer lexer.deinit();
@@ -172,7 +172,7 @@ pub fn runJsonParserBenchmarks(allocator: std.mem.Allocator, options: BenchmarkO
                 var arena = std.heap.ArenaAllocator.init(ctx.allocator);
                 defer arena.deinit();
                 const arena_alloc = arena.allocator();
-                
+
                 var parser = JsonParser.init(arena_alloc, ctx.tokens, "", .{});
                 defer parser.deinit();
 
@@ -228,7 +228,7 @@ pub fn runJsonParserBenchmarks(allocator: std.mem.Allocator, options: BenchmarkO
                 var arena = std.heap.ArenaAllocator.init(ctx.allocator);
                 defer arena.deinit();
                 const arena_alloc = arena.allocator();
-                
+
                 var lexer = JsonLexer.init(arena_alloc);
                 defer lexer.deinit();
                 const tokens = try lexer.batchTokenize(arena_alloc, ctx.content);

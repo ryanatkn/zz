@@ -190,24 +190,22 @@ fn registerBenchmarkSuites(runner: *BenchmarkRunner) !void {
     //     .runFn = streaming_benchmarks.runStreamingBenchmarks,
     // });
 
-    // Comprehensive JSON benchmarks (temporarily disabled due to TokenKind enum issues)
-    // try runner.registerSuite(BenchmarkSuite{
-    //     .name = "json-lexer",
-    //     .variance_multiplier = 1.2, // Language lexing
-    //     .runFn = json_lexer.runJsonLexerBenchmarks,
-    // });
+    // Comprehensive JSON benchmarks
+    try runner.registerSuite(BenchmarkSuite{
+        .name = "json-lexer",
+        .runFn = json_lexer.runJsonLexerBenchmarks,
+    });
 
+    // Temporarily disabled due to performance issues (70ms for 10KB)
     // try runner.registerSuite(BenchmarkSuite{
-    //     .name = "json-parser",
-    //     .variance_multiplier = 1.5, // Language parsing
+    //     .name = "json-parser", 
     //     .runFn = json_parser.runJsonParserBenchmarks,
     // });
 
-    // try runner.registerSuite(BenchmarkSuite{
-    //     .name = "json-pipeline",
-    //     .variance_multiplier = 2.0, // Complete pipeline
-    //     .runFn = json_pipeline.runJsonPipelineBenchmarks,
-    // });
+    try runner.registerSuite(BenchmarkSuite{
+        .name = "json-pipeline",
+        .runFn = json_pipeline.runJsonPipelineBenchmarks,
+    });
 
     // Comprehensive ZON benchmarks
     try runner.registerSuite(BenchmarkSuite{

@@ -25,8 +25,15 @@ pub const ZonLexer = struct {
     source: []const u8,
     position: usize,
     eof_returned: bool,
+    last_error: ?LexerError,
 
     const Self = @This();
+
+    pub const LexerError = error{
+        InvalidEscapeSequence,
+        InvalidUnicodeEscape,
+        UnterminatedString,
+    };
 
     pub fn init(allocator: Allocator) Self {
         return .{
@@ -34,6 +41,7 @@ pub const ZonLexer = struct {
             .source = "",
             .position = 0,
             .eof_returned = false,
+            .last_error = null,
         };
     }
 
@@ -81,6 +89,20 @@ pub const ZonLexer = struct {
 
         const start = self.position;
         const c = self.source[self.position];
+
+        // Comments (ZON supports //)
+        if (c == '/' and self.position + 1 < self.source.len and self.source[self.position + 1] == '/') {
+            self.position += 2;
+            while (self.position < self.source.len and self.source[self.position] != '\n') {
+                self.position += 1;
+            }
+            return Token{
+                .span = Span.init(@intCast(start), @intCast(self.position)),
+                .kind = .comment,
+                .depth = 0,
+                .flags = .{},
+            };
+        }
 
         // Single character tokens
         const token_kind: ?TokenKind = switch (c) {
@@ -141,10 +163,67 @@ pub const ZonLexer = struct {
                     self.position += 1;
                     break;
                 } else if (ch == '\\' and self.position + 1 < self.source.len) {
-                    self.position += 2; // Skip escaped character
+                    const escape_char = self.source[self.position + 1];
+                    switch (escape_char) {
+                        '\\', '"', '\'', 'n', 'r', 't', '0' => {
+                            self.position += 2; // Valid escape sequence  
+                        },
+                        'u' => {
+                            // Unicode escape: \u{XXXX}
+                            if (self.position + 2 < self.source.len and self.source[self.position + 2] == '{') {
+                                self.position += 3; // Skip \u{
+                                var hex_digits: u32 = 0;
+                                var unicode_value: u32 = 0;
+                                while (self.position < self.source.len) {
+                                    const hex_ch = self.source[self.position];
+                                    if (hex_ch == '}') {
+                                        self.position += 1;
+                                        break;
+                                    }
+                                    if (!char.isHexDigit(hex_ch) or hex_digits >= 6) {
+                                        self.last_error = LexerError.InvalidUnicodeEscape;
+                                        return null;
+                                    }
+                                    // Parse hex digit
+                                    const digit_value = switch (hex_ch) {
+                                        '0'...'9' => hex_ch - '0',
+                                        'A'...'F' => hex_ch - 'A' + 10,
+                                        'a'...'f' => hex_ch - 'a' + 10,
+                                        else => unreachable,
+                                    };
+                                    unicode_value = unicode_value * 16 + digit_value;
+                                    self.position += 1;
+                                    hex_digits += 1;
+                                }
+                                if (hex_digits == 0) {
+                                    self.last_error = LexerError.InvalidUnicodeEscape;
+                                    return null;
+                                }
+                                // Check if unicode value is in valid range (0x0 to 0x10FFFF)
+                                // Also exclude surrogate pairs (0xD800 to 0xDFFF)
+                                if (unicode_value > 0x10FFFF or (unicode_value >= 0xD800 and unicode_value <= 0xDFFF)) {
+                                    self.last_error = LexerError.InvalidUnicodeEscape;
+                                    return null;
+                                }
+                            } else {
+                                self.last_error = LexerError.InvalidEscapeSequence;
+                                return null;
+                            }
+                        },
+                        else => {
+                            self.last_error = LexerError.InvalidEscapeSequence;
+                            return null;
+                        },
+                    }
                 } else {
                     self.position += 1;
                 }
+            }
+
+            // Check if string was properly terminated
+            if (self.position >= self.source.len or self.source[self.position - 1] != '"') {
+                self.last_error = LexerError.UnterminatedString;
+                return null;
             }
 
             return Token{
@@ -251,6 +330,20 @@ pub const ZonLexer = struct {
             };
         }
 
+        // Builtin functions (@import, @field, etc.)
+        if (c == '@' and self.position + 1 < self.source.len and char.isAlpha(self.source[self.position + 1])) {
+            self.position += 1; // Skip '@'
+            while (self.position < self.source.len and (char.isAlphaNumeric(self.source[self.position]) or self.source[self.position] == '_')) {
+                self.position += 1;
+            }
+            return Token{
+                .span = Span.init(@intCast(@min(start, std.math.maxInt(u32))), @intCast(@min(self.position, std.math.maxInt(u32)))),
+                .kind = .keyword,
+                .depth = 0,
+                .flags = .{},
+            };
+        }
+
         // Identifiers and keywords
         if (char.isAlpha(c) or c == '_') {
             while (self.position < self.source.len and (char.isAlphaNumeric(self.source[self.position]) or self.source[self.position] == '_')) {
@@ -287,6 +380,7 @@ pub const ZonLexer = struct {
     pub fn batchTokenize(self: *Self, allocator: Allocator, source: []const u8) ![]Token {
         self.source = source;
         self.position = 0;
+        self.last_error = null;
 
         var tokens = std.ArrayList(Token).init(allocator);
         defer tokens.deinit();
@@ -296,6 +390,11 @@ pub const ZonLexer = struct {
         while (self.next()) |token| {
             try tokens.append(token);
             if (token.kind == .eof) break;
+        }
+
+        // Check if we stopped due to an error
+        if (self.last_error) |err| {
+            return err;
         }
 
         return tokens.toOwnedSlice();

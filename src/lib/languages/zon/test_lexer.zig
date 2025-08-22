@@ -119,9 +119,10 @@ test "ZON lexer - invalid escape sequences" {
         defer lexer.deinit();
 
         // Should fail during tokenization
-        _ = lexer.tokenize(case) catch {
-            continue; // Expected failure
+        const tokens = lexer.tokenize(case) catch {
+            continue; // Expected failure  
         };
+        defer allocator.free(tokens);
 
         // If we get here, the lexer should have caught the error
         try testing.expect(false);

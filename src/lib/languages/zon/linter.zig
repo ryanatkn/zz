@@ -334,19 +334,11 @@ pub const ZonLinter = struct {
         // Check field name format (.field_name)
         switch (node) {
             .field_name => |field_name| {
-                if (text[0] != '.') {
-                    try self.addDiagnostic("invalid-identifier", "Field name must start with '.'", field_name.span.start, field_name.span.end, .err);
+                if (text.len == 0) {
+                    try self.addDiagnostic("invalid-identifier", "Field name cannot be empty", field_name.span.start, field_name.span.end, .err);
                     return;
                 }
-
-                if (text.len == 1) {
-                    try self.addDiagnostic("invalid-identifier", "Field name cannot be just '.'", field_name.span.start, field_name.span.end, .err);
-                    return;
-                }
-
-                // Check the identifier part after the dot
-                const identifier_part = text[1..];
-                try self.validateIdentifierText(identifier_part, node);
+                try self.validateIdentifierText(text, node);
             },
             else => {
                 // Regular identifier

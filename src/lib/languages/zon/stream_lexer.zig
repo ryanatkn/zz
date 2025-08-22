@@ -47,6 +47,9 @@ pub const ZonStreamLexer = struct {
 
     // Nesting depth
     depth: u8,
+    
+    // Container stack to track opening types (small fixed size stack)
+    container_stack: [16]ZonTokenKind,
 
     // Flags for current token
     current_flags: ZonTokenFlags,
@@ -79,6 +82,7 @@ pub const ZonStreamLexer = struct {
             .token_line = 1,
             .token_column = 1,
             .depth = 0,
+            .container_stack = [_]ZonTokenKind{.eof} ** 16,
             .current_flags = .{},
             .error_msg = null,
         };
@@ -131,6 +135,10 @@ pub const ZonStreamLexer = struct {
                         self.position += 1;
                         self.column += 1;
                         self.depth = @min(self.depth + 1, 255);
+                        // Track that this depth opened with struct_start
+                        if (self.depth > 0 and self.depth <= 16) {
+                            self.container_stack[self.depth - 1] = .struct_start;
+                        }
                         return StreamToken{ .zon = ZonToken{
                             .span = packSpan(Span{ .start = self.token_start, .end = self.position }),
                             .kind = .struct_start,
@@ -236,16 +244,28 @@ pub const ZonStreamLexer = struct {
     fn makeSimpleToken(self: *ZonStreamLexer, kind: ZonTokenKind, increase_depth: bool) StreamToken {
         _ = self.buffer.pop();
         const end_pos = self.position + 1;
+        var final_kind = kind;
 
         if (increase_depth) {
             self.depth = @min(self.depth + 1, 255);
+            // Track opening container type
+            if (self.depth > 0 and self.depth <= 16) {
+                self.container_stack[self.depth - 1] = kind;
+            }
         } else if (kind == .object_end or kind == .array_end or kind == .paren_close) {
+            // Check if this should be struct_end instead of object_end
+            if (kind == .object_end and self.depth > 0 and self.depth <= 16) {
+                const opening_kind = self.container_stack[self.depth - 1];
+                if (opening_kind == .struct_start) {
+                    final_kind = .struct_end;
+                }
+            }
             self.depth = if (self.depth > 0) self.depth - 1 else 0;
         }
 
         const token = ZonToken{
             .span = packSpan(Span{ .start = self.token_start, .end = end_pos }),
-            .kind = kind,
+            .kind = final_kind,
             .depth = self.depth,
             .flags = .{},
             .data = 0,

@@ -212,10 +212,12 @@ pub const ZonFormatter = struct {
     }
 
     fn shouldCompactObject(self: *Self, fields: []Node) bool {
+        if (!self.options.compact_small_objects) return false;
         return fields.len <= self.options.max_compact_elements;
     }
 
     fn shouldCompactArray(self: *Self, elements: []Node) bool {
+        if (!self.options.compact_small_arrays) return false;
         return elements.len <= self.options.max_compact_elements;
     }
 

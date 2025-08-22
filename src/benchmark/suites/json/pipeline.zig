@@ -80,7 +80,12 @@ pub fn runJsonPipelineBenchmarks(allocator: std.mem.Allocator, options: Benchmar
                 var ast2 = try json_mod.parseJson(ctx.allocator, formatted);
                 defer ast2.deinit();
 
-                std.mem.doNotOptimizeAway(ast2.root.children.len);
+                const root = ast2.getRootValue();
+                switch (root.*) {
+                    .object => |obj| std.mem.doNotOptimizeAway(obj.properties.len),
+                    .array => |arr| std.mem.doNotOptimizeAway(arr.elements.len),
+                    else => std.mem.doNotOptimizeAway(root.span().start),
+                }
             }
         }{ .allocator = allocator, .content = test_json };
 
@@ -103,9 +108,8 @@ pub fn runJsonPipelineBenchmarks(allocator: std.mem.Allocator, options: Benchmar
 
                 // Get statistics
                 const stats = try json_mod.getJsonStatistics(ctx.allocator, ctx.content);
-                _ = stats;
 
-                std.mem.doNotOptimizeAway(schema.statistics.total_nodes);
+                std.mem.doNotOptimizeAway(stats.total_values);
             }
         }{ .allocator = allocator, .content = test_json };
 

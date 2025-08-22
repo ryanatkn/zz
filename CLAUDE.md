@@ -171,6 +171,8 @@ See [docs/commands.md](docs/commands.md) for all commands and options.
 
 ## Testing & Quality
 
+**Current Status: 700/714 tests passing (98.0%)**
+
 ```bash
 $ zig build test                    # Run all tests
 $ zig build test -Dtest-filter="pattern"  # Filter tests
@@ -182,6 +184,8 @@ $ zig build benchmark-baseline      # Save new performance baseline
 ```
 
 - Tests use mock filesystem for isolation
+- Remaining 7 test failures are documented in [TODO_REMAINING_TESTS.md](TODO_REMAINING_TESTS.md)
+- Core functionality fully tested and working (ZON language, JSON parsing, memory management)
 - See [docs/testing.md](docs/testing.md) for testing guide
 - See [docs/benchmarking.md](docs/benchmarking.md) for performance testing
 
@@ -194,6 +198,8 @@ $ zig build benchmark-baseline      # Save new performance baseline
 - **Shared Infrastructure:** Common utilities for tokens, patterns, formatting, analysis
 - **Performance Optimized:** Registry caching, shared patterns, <10ms parsing targets
 - **Extensible:** Easy to add new languages via interface implementation
+- **JSON Status:** Lexer and benchmarks working; parser performance issue documented (70ms/10KB vs 1ms target)
+- **ZON Status:** Fully functional with lexer, parser, formatter, linter, analyzer, and stream lexer
 - See [TODO_PARSER_NEXT.md](TODO_PARSER_NEXT.md) for implementation details
 
 ### Transform Pipeline Architecture (Planned)

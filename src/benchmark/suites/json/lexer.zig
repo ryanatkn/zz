@@ -18,14 +18,14 @@ pub fn runJsonLexerBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOp
 
     const effective_duration = @as(u64, @intFromFloat(@as(f64, @floatFromInt(options.duration_ns)) * 1.5 * options.duration_multiplier));
 
-    // Generate test data
-    const small_json = try generateJsonData(allocator, 50); // ~1KB
+    // Generate test data (each item is ~200 bytes)
+    const small_json = try generateJsonData(allocator, 5); // ~1KB
     defer allocator.free(small_json);
 
-    const medium_json = try generateJsonData(allocator, 500); // ~10KB
+    const medium_json = try generateJsonData(allocator, 50); // ~10KB
     defer allocator.free(medium_json);
 
-    const large_json = try generateJsonData(allocator, 5000); // ~100KB
+    const large_json = try generateJsonData(allocator, 500); // ~100KB
     defer allocator.free(large_json);
 
     // Lexer benchmark for small JSON (1KB)
@@ -35,10 +35,10 @@ pub fn runJsonLexerBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOp
             content: []const u8,
 
             pub fn run(ctx: @This()) anyerror!void {
-                var lexer = JsonLexer.init(ctx.allocator, ctx.content, .{});
+                var lexer = JsonLexer.init(ctx.allocator);
                 defer lexer.deinit();
 
-                const tokens = try lexer.tokenize();
+                const tokens = try lexer.batchTokenize(ctx.allocator, ctx.content);
                 defer ctx.allocator.free(tokens);
 
                 // Prevent optimization
@@ -59,10 +59,10 @@ pub fn runJsonLexerBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOp
             content: []const u8,
 
             pub fn run(ctx: @This()) anyerror!void {
-                var lexer = JsonLexer.init(ctx.allocator, ctx.content, .{});
+                var lexer = JsonLexer.init(ctx.allocator);
                 defer lexer.deinit();
 
-                const tokens = try lexer.tokenize();
+                const tokens = try lexer.batchTokenize(ctx.allocator, ctx.content);
                 defer ctx.allocator.free(tokens);
 
                 std.mem.doNotOptimizeAway(tokens.len);
@@ -87,10 +87,10 @@ pub fn runJsonLexerBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOp
             content: []const u8,
 
             pub fn run(ctx: @This()) anyerror!void {
-                var lexer = JsonLexer.init(ctx.allocator, ctx.content, .{});
+                var lexer = JsonLexer.init(ctx.allocator);
                 defer lexer.deinit();
 
-                const tokens = try lexer.tokenize();
+                const tokens = try lexer.batchTokenize(ctx.allocator, ctx.content);
                 defer ctx.allocator.free(tokens);
 
                 std.mem.doNotOptimizeAway(tokens.len);
@@ -141,10 +141,10 @@ pub fn runJsonLexerBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOp
             content: []const u8,
 
             pub fn run(ctx: @This()) anyerror!void {
-                var lexer = JsonLexer.init(ctx.allocator, ctx.content, .{});
+                var lexer = JsonLexer.init(ctx.allocator);
                 defer lexer.deinit();
 
-                const tokens = try lexer.tokenize();
+                const tokens = try lexer.batchTokenize(ctx.allocator, ctx.content);
                 defer ctx.allocator.free(tokens);
 
                 std.mem.doNotOptimizeAway(tokens.len);

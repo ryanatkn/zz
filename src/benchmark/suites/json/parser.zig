@@ -20,14 +20,14 @@ pub fn runJsonParserBenchmarks(allocator: std.mem.Allocator, options: BenchmarkO
 
     const effective_duration = @as(u64, @intFromFloat(@as(f64, @floatFromInt(options.duration_ns)) * 1.5 * options.duration_multiplier));
 
-    // Generate test data (similar to lexer benchmarks but focus on parsing)
-    const small_json = try generateJsonData(allocator, 50); // ~1KB
+    // Generate test data (each item is ~200 bytes)
+    const small_json = try generateJsonData(allocator, 5); // ~1KB
     defer allocator.free(small_json);
 
-    const medium_json = try generateJsonData(allocator, 500); // ~10KB
+    const medium_json = try generateJsonData(allocator, 50); // ~10KB
     defer allocator.free(medium_json);
 
-    const large_json = try generateJsonData(allocator, 2000); // ~40KB (reasonable for parsing)
+    const large_json = try generateJsonData(allocator, 200); // ~40KB (reasonable for parsing)
     defer allocator.free(large_json);
 
     // Parser benchmark for small JSON (1KB)
@@ -37,20 +37,30 @@ pub fn runJsonParserBenchmarks(allocator: std.mem.Allocator, options: BenchmarkO
             content: []const u8,
 
             pub fn run(ctx: @This()) anyerror!void {
+                // Use arena for fast cleanup of all allocations
+                var arena = std.heap.ArenaAllocator.init(ctx.allocator);
+                defer arena.deinit();
+                const arena_alloc = arena.allocator();
+                
                 // Pre-tokenize
-                var lexer = JsonLexer.init(ctx.allocator, ctx.content, .{});
+                var lexer = JsonLexer.init(arena_alloc);
                 defer lexer.deinit();
-                const tokens = try lexer.tokenize();
-                defer ctx.allocator.free(tokens);
+                const tokens = try lexer.batchTokenize(arena_alloc, ctx.content);
 
                 // Parse tokens
-                var parser = JsonParser.init(ctx.allocator, tokens, .{});
+                var parser = JsonParser.init(arena_alloc, tokens, ctx.content, .{});
                 defer parser.deinit();
 
                 var ast = try parser.parse();
                 defer ast.deinit();
 
-                std.mem.doNotOptimizeAway(ast.root.children.len);
+                // Prevent optimization by accessing a field of the parsed AST
+                const root_value = ast.getRootValue();
+                switch (root_value.*) {
+                    .object => |obj| std.mem.doNotOptimizeAway(obj.properties.len),
+                    .array => |arr| std.mem.doNotOptimizeAway(arr.elements.len),
+                    else => std.mem.doNotOptimizeAway(root_value.span().start),
+                }
             }
         }{ .allocator = allocator, .content = small_json };
 
@@ -67,20 +77,30 @@ pub fn runJsonParserBenchmarks(allocator: std.mem.Allocator, options: BenchmarkO
             content: []const u8,
 
             pub fn run(ctx: @This()) anyerror!void {
+                // Use arena for fast cleanup of all allocations
+                var arena = std.heap.ArenaAllocator.init(ctx.allocator);
+                defer arena.deinit();
+                const arena_alloc = arena.allocator();
+                
                 // Pre-tokenize
-                var lexer = JsonLexer.init(ctx.allocator, ctx.content, .{});
+                var lexer = JsonLexer.init(arena_alloc);
                 defer lexer.deinit();
-                const tokens = try lexer.tokenize();
-                defer ctx.allocator.free(tokens);
+                const tokens = try lexer.batchTokenize(arena_alloc, ctx.content);
 
                 // Parse tokens
-                var parser = JsonParser.init(ctx.allocator, tokens, .{});
+                var parser = JsonParser.init(arena_alloc, tokens, ctx.content, .{});
                 defer parser.deinit();
 
                 var ast = try parser.parse();
                 defer ast.deinit();
 
-                std.mem.doNotOptimizeAway(ast.root.children.len);
+                // Prevent optimization by accessing a field of the parsed AST
+                const root_value = ast.getRootValue();
+                switch (root_value.*) {
+                    .object => |obj| std.mem.doNotOptimizeAway(obj.properties.len),
+                    .array => |arr| std.mem.doNotOptimizeAway(arr.elements.len),
+                    else => std.mem.doNotOptimizeAway(root_value.span().start),
+                }
             }
         }{ .allocator = allocator, .content = medium_json };
 
@@ -102,20 +122,30 @@ pub fn runJsonParserBenchmarks(allocator: std.mem.Allocator, options: BenchmarkO
             content: []const u8,
 
             pub fn run(ctx: @This()) anyerror!void {
+                // Use arena for fast cleanup of all allocations
+                var arena = std.heap.ArenaAllocator.init(ctx.allocator);
+                defer arena.deinit();
+                const arena_alloc = arena.allocator();
+                
                 // Pre-tokenize
-                var lexer = JsonLexer.init(ctx.allocator, ctx.content, .{});
+                var lexer = JsonLexer.init(arena_alloc);
                 defer lexer.deinit();
-                const tokens = try lexer.tokenize();
-                defer ctx.allocator.free(tokens);
+                const tokens = try lexer.batchTokenize(arena_alloc, ctx.content);
 
                 // Parse tokens
-                var parser = JsonParser.init(ctx.allocator, tokens, .{});
+                var parser = JsonParser.init(arena_alloc, tokens, ctx.content, .{});
                 defer parser.deinit();
 
                 var ast = try parser.parse();
                 defer ast.deinit();
 
-                std.mem.doNotOptimizeAway(ast.root.children.len);
+                // Prevent optimization by accessing a field of the parsed AST
+                const root_value = ast.getRootValue();
+                switch (root_value.*) {
+                    .object => |obj| std.mem.doNotOptimizeAway(obj.properties.len),
+                    .array => |arr| std.mem.doNotOptimizeAway(arr.elements.len),
+                    else => std.mem.doNotOptimizeAway(root_value.span().start),
+                }
             }
         }{ .allocator = allocator, .content = large_json };
 
@@ -128,9 +158,9 @@ pub fn runJsonParserBenchmarks(allocator: std.mem.Allocator, options: BenchmarkO
     // Parse-only benchmark (tokens pre-provided)
     {
         // Pre-tokenize the medium JSON once
-        var lexer = JsonLexer.init(allocator, medium_json, .{});
+        var lexer = JsonLexer.init(allocator);
         defer lexer.deinit();
-        const tokens = try lexer.tokenize();
+        const tokens = try lexer.batchTokenize(allocator, medium_json);
         defer allocator.free(tokens);
 
         const context = struct {
@@ -138,13 +168,24 @@ pub fn runJsonParserBenchmarks(allocator: std.mem.Allocator, options: BenchmarkO
             tokens: []const Token,
 
             pub fn run(ctx: @This()) anyerror!void {
-                var parser = JsonParser.init(ctx.allocator, ctx.tokens, .{});
+                // Use arena for fast cleanup of all allocations
+                var arena = std.heap.ArenaAllocator.init(ctx.allocator);
+                defer arena.deinit();
+                const arena_alloc = arena.allocator();
+                
+                var parser = JsonParser.init(arena_alloc, ctx.tokens, "", .{});
                 defer parser.deinit();
 
                 var ast = try parser.parse();
                 defer ast.deinit();
 
-                std.mem.doNotOptimizeAway(ast.root.children.len);
+                // Prevent optimization by accessing a field of the parsed AST
+                const root_value = ast.getRootValue();
+                switch (root_value.*) {
+                    .object => |obj| std.mem.doNotOptimizeAway(obj.properties.len),
+                    .array => |arr| std.mem.doNotOptimizeAway(arr.elements.len),
+                    else => std.mem.doNotOptimizeAway(root_value.span().start),
+                }
             }
         }{ .allocator = allocator, .tokens = tokens };
 
@@ -183,18 +224,28 @@ pub fn runJsonParserBenchmarks(allocator: std.mem.Allocator, options: BenchmarkO
             content: []const u8,
 
             pub fn run(ctx: @This()) anyerror!void {
-                var lexer = JsonLexer.init(ctx.allocator, ctx.content, .{});
+                // Use arena for fast cleanup of all allocations
+                var arena = std.heap.ArenaAllocator.init(ctx.allocator);
+                defer arena.deinit();
+                const arena_alloc = arena.allocator();
+                
+                var lexer = JsonLexer.init(arena_alloc);
                 defer lexer.deinit();
-                const tokens = try lexer.tokenize();
-                defer ctx.allocator.free(tokens);
+                const tokens = try lexer.batchTokenize(arena_alloc, ctx.content);
 
-                var parser = JsonParser.init(ctx.allocator, tokens, .{});
+                var parser = JsonParser.init(arena_alloc, tokens, ctx.content, .{});
                 defer parser.deinit();
 
                 var ast = try parser.parse();
                 defer ast.deinit();
 
-                std.mem.doNotOptimizeAway(ast.root.children.len);
+                // Prevent optimization by accessing a field of the parsed AST
+                const root_value = ast.getRootValue();
+                switch (root_value.*) {
+                    .object => |obj| std.mem.doNotOptimizeAway(obj.properties.len),
+                    .array => |arr| std.mem.doNotOptimizeAway(arr.elements.len),
+                    else => std.mem.doNotOptimizeAway(root_value.span().start),
+                }
             }
         }{ .allocator = allocator, .content = nested_json };
 

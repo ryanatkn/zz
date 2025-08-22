@@ -420,12 +420,46 @@ pub const ZonAnalyzer = struct {
         };
     }
 
+    /// Recursively collect symbols from AST nodes
+    /// Extracts field names and other identifiers for IDE integration
     fn collectSymbols(self: *Self, node: Node, symbols: *std.ArrayList(Symbol)) !void {
-        // TODO: Implement symbol collection using AST Walker
-        _ = self;
-        _ = node;
-        _ = symbols;
-        return;
+        switch (node) {
+            .field => |field| {
+                // Collect field name as a symbol
+                const name = utils.getNodeText(field.name.*, "");
+                if (name.len > 0) {
+                    const symbol = Symbol{
+                        .name = try self.allocator.dupe(u8, name),
+                        .kind = .field,
+                        .span = field.name.span(),
+                        .type_info = null,
+                        .value = null,
+                    };
+                    try symbols.append(symbol);
+                }
+                // Recurse into field value
+                try self.collectSymbols(field.value.*, symbols);
+            },
+            .object => |object| {
+                // Recurse into object fields
+                for (object.fields) |field| {
+                    try self.collectSymbols(field, symbols);
+                }
+            },
+            .array => |array| {
+                // Recurse into array elements
+                for (array.elements) |element| {
+                    try self.collectSymbols(element, symbols);
+                }
+            },
+            .root => |root| {
+                // Recurse into root value
+                try self.collectSymbols(root.value.*, symbols);
+            },
+            else => {
+                // No symbols to extract from other node types
+            }
+        }
     }
 
     fn extractDependencies(self: *Self, root_node: Node, dependencies: *std.ArrayList(Dependency)) !void {

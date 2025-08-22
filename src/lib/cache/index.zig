@@ -92,9 +92,8 @@ pub const QueryIndex = struct {
 
         // Index all facts
         const facts = self.store.getAll();
-        for (facts, 0..) |fact, i| {
-            const id = @as(FactId, @intCast(i));
-            try self.update(fact, id);
+        for (facts) |fact| {
+            try self.update(fact, fact.id);
         }
 
         self.stats.total_facts = facts.len;
@@ -191,6 +190,13 @@ pub const QueryIndex = struct {
     ) ![]FactId {
         var sets = std.ArrayList([]FactId).init(self.allocator);
         defer sets.deinit();
+        var owned_sets = std.ArrayList([]FactId).init(self.allocator);
+        defer {
+            for (owned_sets.items) |owned_set| {
+                self.allocator.free(owned_set);
+            }
+            owned_sets.deinit();
+        }
 
         if (predicate) |p| {
             try sets.append(self.queryByPredicate(p));
@@ -202,6 +208,7 @@ pub const QueryIndex = struct {
 
         if (min_confidence) |min| {
             const confidence_facts = try self.queryByConfidence(min, 1.0);
+            try owned_sets.append(confidence_facts);
             try sets.append(confidence_facts);
         }
 
@@ -315,7 +322,7 @@ test "QueryIndex basic operations" {
         .withConfidence(0.7)
         .build();
     _ = try store.append(fact3);
-
+    
     // Build index
     var index = QueryIndex.init(allocator, &store);
     defer index.deinit();

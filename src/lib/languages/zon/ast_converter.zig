@@ -31,20 +31,27 @@ pub fn parseFromSlice(comptime T: type, allocator: std.mem.Allocator, content: [
     var lexer = ZonLexer.init(allocator);
     defer lexer.deinit();
 
-    const tokens = try lexer.batchTokenize(allocator, content);
+    const tokens = lexer.batchTokenize(allocator, content) catch |err| {
+        // If lexing fails, bubble up the error
+        return err;
+    };
     defer allocator.free(tokens);
 
     var parser = ZonParser.init(allocator, tokens, content, .{});
     defer parser.deinit();
 
-    var ast = try parser.parse();
+    var ast = parser.parse() catch |err| {
+        // If parsing fails, bubble up the error
+        return err;
+    };
     defer ast.deinit();
 
     // Convert AST to target type
     if (ast.root) |root| {
         return try convertAstToType(T, allocator, root);
     } else {
-        return std.mem.zeroes(T);
+        // No valid AST root - this indicates parsing failed
+        return error.InvalidZonContent;
     }
 }
 
@@ -56,15 +63,23 @@ fn convertAstToType(comptime T: type, allocator: std.mem.Allocator, node: *const
         // @"struct" is the actual Zig built-in enum variant from @typeInfo()
         // The @"" syntax is required because 'struct' is a keyword
         .@"struct" => |struct_info| {
-            var result: T = std.mem.zeroes(T);
+            var result: T = undefined;
+            
+            // Initialize all fields to their zero values
+            inline for (struct_info.fields) |field| {
+                @field(result, field.name) = getFieldZeroValue(field.type);
+            }
 
             if (node.* != .object) {
-                return result; // Return defaults if not an object
+                // If we expect a struct but get something else, handle special cases
+                if (node.* == .root) {
+                    return try convertAstToType(T, allocator, node.root.value);
+                }
+                // For other non-object types, this is a type mismatch error
+                return error.InvalidZonContent;
             }
 
             const object_node = node.object;
-            // Debug: Print object info
-            // std.debug.print("[DEBUG] Converting object with {d} fields\n", .{object_node.fields.len});
 
             // For each field in the target struct
             inline for (struct_info.fields) |field| {
@@ -75,7 +90,14 @@ fn convertAstToType(comptime T: type, allocator: std.mem.Allocator, node: *const
 
                         // Get field name from either field_name or identifier nodes
                         const field_name = switch (field_node.name.*) {
-                            .field_name => |fn_node| fn_node.name,
+                            .field_name => |fn_node| blk: {
+                                // Handle quoted field names like @"tree-sitter"
+                                if (fn_node.name.len >= 3 and fn_node.name[0] == '@' and fn_node.name[1] == '"' and fn_node.name[fn_node.name.len - 1] == '"') {
+                                    break :blk fn_node.name[2 .. fn_node.name.len - 1]; // Remove @" and "
+                                } else {
+                                    break :blk fn_node.name;
+                                }
+                            },
                             .identifier => |id_node| blk: {
                                 // Handle quoted identifiers like @"tree-sitter"
                                 if (id_node.name.len >= 3 and id_node.name[0] == '@' and id_node.name[1] == '"' and id_node.name[id_node.name.len - 1] == '"') {
@@ -105,13 +127,32 @@ fn convertAstToType(comptime T: type, allocator: std.mem.Allocator, node: *const
     }
 }
 
+/// Get appropriate zero value for a field type
+fn getFieldZeroValue(comptime FieldType: type) FieldType {
+    const type_info = @typeInfo(FieldType);
+    switch (type_info) {
+        .optional => return null,
+        .pointer => |ptr_info| {
+            if (ptr_info.size == .slice) {
+                return &[_]ptr_info.child{};
+            }
+            return undefined; // This will need special handling
+        },
+        else => return std.mem.zeroes(FieldType),
+    }
+}
+
 /// Convert AST node to specific field type
 fn convertValueToFieldType(comptime FieldType: type, allocator: std.mem.Allocator, node: *const Node) !FieldType {
     const type_info = @typeInfo(FieldType);
 
     switch (type_info) {
         .optional => |optional_info| {
-            // For optional types, convert the payload type
+            // For optional types, check for null first
+            if (node.* == .null) {
+                return null;
+            }
+            // Otherwise convert the payload type
             const payload = try convertValueToFieldType(optional_info.child, allocator, node);
             return @as(FieldType, payload);
         },
@@ -120,12 +161,22 @@ fn convertValueToFieldType(comptime FieldType: type, allocator: std.mem.Allocato
                 const num_str = node.number.raw;
                 return try std.fmt.parseInt(FieldType, num_str, 10);
             }
-            return std.mem.zeroes(FieldType);
+            // Return zero for non-number types to maintain compatibility
+            return 0;
+        },
+        .float => {
+            if (node.* == .number) {
+                const num_str = node.number.raw;
+                return try std.fmt.parseFloat(FieldType, num_str);
+            }
+            // Return zero for non-number types to maintain compatibility  
+            return 0.0;
         },
         .bool => {
             if (node.* == .boolean) {
                 return node.boolean.value;
             }
+            // Return false for non-boolean types to maintain compatibility
             return false;
         },
         .pointer => |ptr_info| {
@@ -134,12 +185,18 @@ fn convertValueToFieldType(comptime FieldType: type, allocator: std.mem.Allocato
                 if (node.* == .string) {
                     return try allocator.dupe(u8, node.string.value);
                 }
+                // Special case: for identifier nodes, use the name
+                if (node.* == .identifier) {
+                    return try allocator.dupe(u8, node.identifier.name);
+                }
+                // Return empty string for incompatible types to maintain compatibility
                 return try allocator.dupe(u8, "");
             } else if (ptr_info.size == .slice) {
-                // Array type - handle []const []const u8
+                // Array type - handle []const []const u8 or []T
                 if (node.* == .array) {
                     const array_node = node.array;
                     const result = try allocator.alloc(ptr_info.child, array_node.elements.len);
+                    errdefer allocator.free(result);
 
                     for (array_node.elements, 0..) |element, i| {
                         result[i] = try convertValueToFieldType(ptr_info.child, allocator, &element);
@@ -147,16 +204,40 @@ fn convertValueToFieldType(comptime FieldType: type, allocator: std.mem.Allocato
 
                     return result;
                 }
+                // For objects that should be arrays (like ZON anonymous lists)
+                if (node.* == .object and node.object.fields.len > 0) {
+                    // Check if this looks like an anonymous list (all fields are positional)
+                    var elements = std.ArrayList(ptr_info.child).init(allocator);
+                    defer elements.deinit();
+                    
+                    for (node.object.fields) |field| {
+                        if (field == .field) {
+                            const elem_result = convertValueToFieldType(ptr_info.child, allocator, field.field.value) catch continue;
+                            try elements.append(elem_result);
+                        } else {
+                            // Direct element in anonymous list
+                            const elem_result = convertValueToFieldType(ptr_info.child, allocator, &field) catch continue;
+                            try elements.append(elem_result);
+                        }
+                    }
+                    
+                    const result = try allocator.alloc(ptr_info.child, elements.items.len);
+                    @memcpy(result, elements.items);
+                    return result;
+                }
                 return try allocator.alloc(ptr_info.child, 0); // Empty array
             }
-            return std.mem.zeroes(FieldType);
         },
         .@"struct" => {
-            // Nested struct - recurse
-            return try convertAstToType(FieldType, allocator, node);
+            // Nested struct - recurse with better error handling
+            return convertAstToType(FieldType, allocator, node) catch {
+                // If conversion fails, return a zero-valued struct
+                return getFieldZeroValue(FieldType);
+            };
         },
         else => {
-            return std.mem.zeroes(FieldType);
+            // For other types (enums, unions, etc.), return zero value
+            return getFieldZeroValue(FieldType);
         },
     }
 }

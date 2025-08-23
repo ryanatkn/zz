@@ -198,7 +198,7 @@ test "ZON formatter - demo issue: simple config with leading dot" {
 
     // Check that the formatted output starts with ".{" not just "{"
     try testing.expect(std.mem.startsWith(u8, formatted, ".{"));
-    
+
     // Should not contain just "{" without the leading dot
     try testing.expect(!std.mem.startsWith(u8, formatted, "{\n"));
 }
@@ -231,11 +231,11 @@ test "ZON formatter - demo issue: tuple structures should use .{ not [" {
 
     // Check that the formatted output starts with ".{" not "["
     try testing.expect(std.mem.startsWith(u8, formatted, ".{"));
-    
+
     // Should not contain square brackets
     try testing.expect(std.mem.indexOf(u8, formatted, "[") == null);
     try testing.expect(std.mem.indexOf(u8, formatted, "]") == null);
-    
+
     // Should contain the proper ZON tuple syntax ".{" for nested objects
     try testing.expect(std.mem.indexOf(u8, formatted, ".{") != null);
 }
@@ -274,7 +274,7 @@ test "ZON formatter - verify all containers use .{ syntax" {
 
         // All ZON structures should start with ".{"
         try testing.expect(std.mem.startsWith(u8, formatted, ".{"));
-        
+
         // Should never have square brackets or plain braces without dots
         try testing.expect(std.mem.indexOf(u8, formatted, "[") == null);
         try testing.expect(std.mem.indexOf(u8, formatted, "]") == null);
@@ -412,7 +412,7 @@ test "ZON formatter - compact vs multiline decisions" {
     const compact = try compact_formatter.format(ast);
     defer allocator.free(compact);
 
-    // Test multiline formatting  
+    // Test multiline formatting
     var multiline_formatter = ZonFormatter.init(allocator, .{ .compact_small_objects = false, .max_compact_elements = 0 });
     defer multiline_formatter.deinit();
 
@@ -421,11 +421,11 @@ test "ZON formatter - compact vs multiline decisions" {
 
     // Compact should be shorter than multiline
     try testing.expect(compact.len < multiline.len);
-    
+
     // Both should start with .{
     try testing.expect(std.mem.startsWith(u8, compact, ".{"));
     try testing.expect(std.mem.startsWith(u8, multiline, ".{"));
-    
+
     // Multiline should contain newlines
     try testing.expect(std.mem.indexOf(u8, multiline, "\n") != null);
 }

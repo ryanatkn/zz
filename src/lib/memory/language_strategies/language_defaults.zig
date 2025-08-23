@@ -40,9 +40,9 @@ pub const OPTIMIZED_STRATEGY = MemoryStrategy{
 /// - Property keys repeat frequently (benefit from interning)
 pub const JSON_DEFAULT_STRATEGY = MemoryStrategy{
     .hybrid = .{
-        .nodes = .small_pool,      // Frequent object/array nodes
-        .arrays = .size_classed,   // Arrays of various sizes
-        .strings = .interned,      // "name", "id", "type" repeat constantly
+        .nodes = .small_pool, // Frequent object/array nodes
+        .arrays = .size_classed, // Arrays of various sizes
+        .strings = .interned, // "name", "id", "type" repeat constantly
     },
 };
 
@@ -52,9 +52,9 @@ pub const JSON_DEFAULT_STRATEGY = MemoryStrategy{
 /// - Fewer repeated strings
 pub const ZON_DEFAULT_STRATEGY = MemoryStrategy{
     .hybrid = .{
-        .nodes = .arena,           // Simple cleanup
-        .arrays = .arena,          // Usually small arrays
-        .strings = .persistent,    // Keep strings for AST lifetime
+        .nodes = .arena, // Simple cleanup
+        .arrays = .arena, // Usually small arrays
+        .strings = .persistent, // Keep strings for AST lifetime
     },
 };
 
@@ -64,9 +64,9 @@ pub const ZON_DEFAULT_STRATEGY = MemoryStrategy{
 /// - Benefit from pooling for AST nodes
 pub const TYPESCRIPT_DEFAULT_STRATEGY = MemoryStrategy{
     .hybrid = .{
-        .nodes = .small_pool,      // Many AST nodes
-        .arrays = .size_classed,   // Parameter lists, etc.
-        .strings = .interned,      // Identifiers repeat heavily
+        .nodes = .small_pool, // Many AST nodes
+        .arrays = .size_classed, // Parameter lists, etc.
+        .strings = .interned, // Identifiers repeat heavily
     },
 };
 
@@ -76,9 +76,9 @@ pub const TYPESCRIPT_DEFAULT_STRATEGY = MemoryStrategy{
 /// - Relatively flat structure
 pub const CSS_DEFAULT_STRATEGY = MemoryStrategy{
     .hybrid = .{
-        .nodes = .small_pool,      // Rule and declaration nodes
-        .arrays = .arena,          // Selector lists usually small
-        .strings = .interned,      // "color", "margin", "padding" everywhere
+        .nodes = .small_pool, // Rule and declaration nodes
+        .arrays = .arena, // Selector lists usually small
+        .strings = .interned, // "color", "margin", "padding" everywhere
     },
 };
 
@@ -88,9 +88,9 @@ pub const CSS_DEFAULT_STRATEGY = MemoryStrategy{
 /// - Text content usually unique
 pub const HTML_DEFAULT_STRATEGY = MemoryStrategy{
     .hybrid = .{
-        .nodes = .small_pool,      // Element nodes
-        .arrays = .size_classed,   // Child lists vary in size
-        .strings = .interned,      // Tag and attribute names repeat
+        .nodes = .small_pool, // Element nodes
+        .arrays = .size_classed, // Child lists vary in size
+        .strings = .interned, // Tag and attribute names repeat
     },
 };
 
@@ -100,9 +100,9 @@ pub const HTML_DEFAULT_STRATEGY = MemoryStrategy{
 /// - Benefits from advanced optimization
 pub const ZIG_DEFAULT_STRATEGY = MemoryStrategy{
     .hybrid = .{
-        .nodes = .large_pool,      // Complex AST needs larger pool
+        .nodes = .large_pool, // Complex AST needs larger pool
         .arrays = .metadata_tracked, // Advanced optimization for performance
-        .strings = .persistent,    // Identifiers mostly unique
+        .strings = .persistent, // Identifiers mostly unique
     },
 };
 
@@ -112,10 +112,10 @@ pub const ZIG_DEFAULT_STRATEGY = MemoryStrategy{
 pub const SVELTE_DEFAULT_STRATEGY = MemoryStrategy{
     .adaptive = .{
         .config = .{
-            .sample_period = 500,       // Check more frequently
-            .upgrade_threshold = 5.0,   // Upgrade sooner
+            .sample_period = 500, // Check more frequently
+            .upgrade_threshold = 5.0, // Upgrade sooner
             .memory_threshold = 512 * 1024,
-            .allow_downgrade = true,    // Can switch between modes
+            .allow_downgrade = true, // Can switch between modes
         },
         .initial = &SIMPLE_STRATEGY,
         .target = &TYPESCRIPT_DEFAULT_STRATEGY, // Similar to TS when complex
@@ -130,7 +130,7 @@ pub const SVELTE_DEFAULT_STRATEGY = MemoryStrategy{
 pub const LARGE_FILE_STRATEGY = MemoryStrategy{
     .metadata_tracked = .{
         .track_allocations = true,
-        .track_lifetime = false,      // Too expensive for large files
+        .track_lifetime = false, // Too expensive for large files
         .max_tracked = 50000,
         .enable_diagnostics = false,
     },
@@ -140,7 +140,7 @@ pub const LARGE_FILE_STRATEGY = MemoryStrategy{
 pub const HIGH_PERFORMANCE_STRATEGY = MemoryStrategy{
     .tagged_allocation = .{
         .magic_number = 0xFEEDFACE,
-        .alignment = 64,              // Cache line alignment
+        .alignment = 64, // Cache line alignment
         .enable_bounds_checking = false,
         .enable_double_free_detection = false,
     },
@@ -173,12 +173,12 @@ pub fn selectStrategyForWorkload(
     if (file_size > 10 * 1024 * 1024) {
         return LARGE_FILE_STRATEGY;
     }
-    
+
     // Small files can use simple strategy
     if (file_size < 1024 and estimated_nodes < 100) {
         return SIMPLE_STRATEGY;
     }
-    
+
     // Use language-specific defaults if provided
     if (language_hint) |lang| {
         if (std.mem.eql(u8, lang, "json")) return JSON_DEFAULT_STRATEGY;
@@ -189,7 +189,7 @@ pub fn selectStrategyForWorkload(
         if (std.mem.eql(u8, lang, "zig")) return ZIG_DEFAULT_STRATEGY;
         if (std.mem.eql(u8, lang, "svelte")) return SVELTE_DEFAULT_STRATEGY;
     }
-    
+
     // Default to adaptive for unknown workloads
     return DEFAULT_STRATEGY;
 }

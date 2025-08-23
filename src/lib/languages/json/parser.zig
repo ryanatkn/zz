@@ -61,7 +61,7 @@ pub const JsonParser = struct {
             ),
             .ast_arena = null, // Will be set in parse()
         };
-        
+
         return parser;
     }
 

@@ -250,16 +250,16 @@ pub fn formatZonString(allocator: std.mem.Allocator, zon_content: []const u8, op
     // Parse the ZON content
     var lexer = ZonLexer.init(allocator);
     defer lexer.deinit();
-    
+
     const tokens = try lexer.batchTokenize(allocator, zon_content);
     defer allocator.free(tokens);
-    
+
     var parser = ZonParser.init(allocator, tokens, zon_content, .{});
     defer parser.deinit();
-    
+
     var ast = try parser.parse();
     defer ast.deinit();
-    
+
     // Format the AST
     return format(allocator, ast, options);
 }

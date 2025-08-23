@@ -74,30 +74,30 @@ pub const AdaptiveConfig = struct {
 pub const MemoryStrategy = union(enum) {
     /// Simple arena-only allocation
     arena_only,
-    
+
     /// Arena + object pooling with configuration
     pooled: PoolConfig,
-    
+
     /// Hybrid strategy with different optimizations per allocation type
     hybrid: struct {
         nodes: NodeStrategy,
         arrays: ArrayStrategy,
         strings: StringStrategy,
     },
-    
+
     /// Adaptive strategy that changes based on runtime patterns
     adaptive: struct {
         config: AdaptiveConfig,
         initial: *const MemoryStrategy,
         target: *const MemoryStrategy,
     },
-    
+
     /// Advanced metadata-tracked allocation (2.5x faster from TODO)
     metadata_tracked: MetadataConfig,
-    
+
     /// Advanced tagged allocation (3.0x faster from TODO)
     tagged_allocation: TaggedConfig,
-    
+
     /// Custom strategy with user-provided allocator functions
     custom: struct {
         name: []const u8,
@@ -108,7 +108,7 @@ pub const MemoryStrategy = union(enum) {
         free_array: ?*const fn (ptr: []anyopaque) void = null,
         free_string: ?*const fn (str: []const u8) void = null,
     },
-    
+
     pub fn describe(self: MemoryStrategy) []const u8 {
         return switch (self) {
             .arena_only => "arena-only (simple, safe)",
@@ -120,7 +120,7 @@ pub const MemoryStrategy = union(enum) {
             .custom => |c| c.name,
         };
     }
-    
+
     /// Estimate memory overhead for this strategy
     pub fn estimateOverhead(self: MemoryStrategy) usize {
         return switch (self) {
@@ -133,7 +133,7 @@ pub const MemoryStrategy = union(enum) {
             .custom => 0, // Unknown
         };
     }
-    
+
     /// Check if strategy benefits from pre-warming
     pub fn shouldPrewarm(self: MemoryStrategy) bool {
         return switch (self) {

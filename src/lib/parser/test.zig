@@ -12,6 +12,8 @@ test {
     _ = @import("cache.zig");
     _ = @import("context.zig");
 
+    // Pattern parser modules removed - unused and overcomplicated
+
     // Also run inline tests in this file
     @import("std").testing.refAllDecls(@This());
 }

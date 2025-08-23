@@ -114,7 +114,10 @@ echo '{"a":1}' | zz format --stdin       # Format from stdin
 ```bash
 zz demo                      # Interactive terminal demo
 zz demo --non-interactive    # Script-friendly output
+zig build run -- demo       # Development: JSON/ZON capabilities demo
 ```
+
+The JSON/ZON capabilities demo showcases the unified memory architecture with 7 comprehensive demonstrations including parsing, linting, formatting, performance analysis, and memory strategies.
 
 ### `zz deps` - Manage vendored dependencies
 

@@ -42,7 +42,6 @@ const Args = args_mod.Args;
 const CommonFlags = args_mod.CommonFlags;
 const JsonTransformPipeline = json_transform.JsonTransformPipeline;
 const ZonTransformPipeline = zon_transform.ZonTransformPipeline;
-// Removed transform_old and StratifiedParser references
 const FormatOptions = language_interface.FormatOptions;
 
 // Minimal formatter options for configuration compatibility

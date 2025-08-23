@@ -1,0 +1,29 @@
+{
+  "name": "zz",
+  "version": "1.0.0",
+  "description": "Fast command-line utilities and language tooling library",
+  "author": "zz team",
+  "license": "MIT",
+  "dependencies": {
+    "zig": "0.14.1"
+  },
+  "scripts": {
+    "build": "zig build",
+    "test": "zig build test",
+    "run": "zig build run",
+    "format": "zig fmt src/",
+    "benchmark": "zig build benchmark"
+  },
+  "features": ["fast", "memory-efficient", "unified", "pure-zig"],
+  "supported_languages": ["json", "zon", "typescript", "css", "html", "zig", "svelte"],
+  "performance": {
+    "lexer_target": "600µs per 10KB",
+    "parser_target": "1ms per 10KB",
+    "memory_efficiency": "> 90%"
+  },
+  "architecture": {
+    "type": "stratified_parser",
+    "layers": ["lexical", "structural", "detailed"],
+    "memory_system": "unified_language_strategies"
+  }
+}

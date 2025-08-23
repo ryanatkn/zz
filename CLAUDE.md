@@ -4,18 +4,18 @@ Fast command-line utilities and **reusable language tooling library** written in
 
 Performance is a top priority, and this is a greenfield project so we dont care about backwards compat -- always search for the final best code.
 
-## Major Architecture Decision: Pure Zig Grammar System
+## Architecture: Direct Language Implementation
 
-We are replacing tree-sitter with a **Pure Zig grammar and parser system**. This transforms zz from a CLI tool into a comprehensive language tooling library with reusable modules for building parsers, formatters, linters, and more.
+Each language (JSON, ZON) implements its own optimized parser using direct recursive descent. No generic abstractions - each language handles its own requirements for maximum performance and clarity.
 
 **Key Benefits:**
-- **No FFI overhead** - Pure Zig throughout
-- **Complete control** - We own the entire stack
-- **Library-first design** - Every component is reusable
-- **Better performance** - Compile-time optimizations, zero allocations
-- **Easier debugging** - Single language, no C boundaries
+- **Direct implementation** - No abstraction overhead
+- **Language-specific optimization** - Each parser optimized for its use case
+- **Memory system integration** - Unified memory strategies with language-specific defaults
+- **Performance first** - Simple, fast, debuggable code
+- **Easy to extend** - Add new languages by following established patterns
 
-See [TODO_PURE_ZIG_ROADMAP.md](TODO_PURE_ZIG_ROADMAP.md) for implementation details.
+**Memory System:** Each language uses the unified memory strategy system with language-specific defaults (JSON uses hybrid with string interning, ZON uses pooled strategy).
 
 ## Platform Support
 
@@ -42,71 +42,21 @@ $ zig version
 
 See [docs/stratified-parser-architecture.md](docs/stratified-parser-architecture.md) for complete details.
 
-## Project Structure (After Major Refactoring)
+## Project Structure
 
-```
-src/
-├── cli/                 # Command parsing & execution
-├── config/              # Configuration system (ZON-based)
-├── lib/                 # Reusable library modules (the heart of zz)
-│   ├── char/            # Character utilities (single source of truth)
-│   │   ├── predicates.zig   # Character classification (isDigit, isAlpha, etc.)
-│   │   ├── consumers.zig    # Text consumption (skipWhitespace, consumeString, etc.)
-│   │   └── mod.zig          # Module exports
-│   ├── core/            # Fundamental utilities
-│   │   ├── language.zig     # Language detection & enumeration
-│   │   ├── extraction.zig   # Code extraction configuration
-│   │   ├── path.zig         # POSIX path operations
-│   │   └── collections.zig  # Memory-efficient data structures
-│   ├── patterns/        # Pattern matching utilities
-│   │   ├── glob.zig         # Glob pattern matching
-│   │   └── gitignore.zig    # Gitignore pattern handling
-│   ├── text/            # Text processing utilities  
-│   │   ├── delimiters.zig   # Delimiter tracking and balanced parsing
-│   │   ├── processing.zig   # Line processing and text utilities
-│   │   ├── builders.zig     # StringBuilder utilities
-│   │   ├── formatting.zig   # Format utilities (ANSI stripping, etc.)
-│   │   └── line_processing.zig # Line-based operations
-│   ├── ast/             # Enhanced AST infrastructure
-│   │   ├── mod.zig          # AST type definition
-│   │   ├── node.zig         # Core Node types
-│   │   ├── factory.zig      # Programmatic construction
-│   │   ├── builder.zig      # Fluent DSL
-│   │   ├── utils.zig        # Manipulation utilities
-│   │   ├── test_helpers.zig # Test infrastructure
-│   │   ├── traversal.zig    # Tree walking strategies
-│   │   ├── transformation.zig # Immutable transformations
-│   │   ├── query.zig        # CSS-like queries
-│   │   └── serialization.zig # ZON persistence
-│   ├── parser/          # Pure Zig Stratified Parser
-│   │   ├── foundation/  # Foundation types (Span, Fact, Token)
-│   │   ├── lexical/     # Layer 0: Streaming tokenizer
-│   │   ├── structural/  # Layer 1: Boundary detection
-│   │   └── detailed/    # Layer 2: Detailed parsing
-│   ├── languages/       # Language implementations
-│   │   ├── mod.zig      # Language registry and dispatch
-│   │   ├── interface.zig # Language support contracts
-│   │   ├── common/      # Shared utilities
-│   │   │   ├── analysis.zig # AST analysis utilities
-│   │   │   ├── tokens.zig   # Common token types
-│   │   │   └── formatting.zig # Format builders
-│   │   ├── json/        # JSON complete implementation
-│   │   ├── zon/         # ZON complete implementation
-│   │   ├── typescript/  # TypeScript with patterns.zig
-│   │   ├── zig/         # Zig with patterns.zig
-│   │   ├── css/         # CSS with patterns.zig
-│   │   ├── html/        # HTML with patterns.zig
-│   │   └── svelte/      # Svelte stub
-│   ├── grammar/         # Grammar definition DSL
-│   ├── memory/          # Memory management utilities
-│   ├── filesystem/      # Filesystem abstraction layer
-│   └── test/            # Test framework & fixtures
-├── prompt/              # LLM prompt generation (uses lib/ast)
-├── tree/                # Directory visualization
-├── format/              # CLI formatting commands (uses lib/formatting)
-├── benchmark/           # Internal performance benchmarking (development)
-└── deps/                # Dependency management CLI
-```
+- `src/lib/` - Language tooling library with capability-based organization (see [src/lib/CLAUDE.md](src/lib/CLAUDE.md))
+  - **Core Principle:** Library-first design with every component reusable
+  - Pure Zig stratified parser with streaming lexer for <10ms editor operations
+  - Unified language support (JSON, ZON complete; TypeScript, CSS, HTML, Zig, Svelte in progress)
+- `src/cli/` - Command-line interface with parsing & execution
+- `src/prompt/` - LLM code extraction with AST-based signatures/types/docs
+- `src/tree/` - Directory visualization with configurable output formats
+- `src/format/` - Code formatting with language-specific implementations
+- `src/benchmark/` - Performance testing and baseline management
+- `src/config/` - ZON-based configuration system
+- `src/demo/` - Interactive demos showcasing JSON/ZON memory system capabilities
+- `examples/` - Example JSON files for testing and demonstrations (config.json, package.json, large.json)
+- `docs/` - Technical documentation and architecture guides
 
 For detailed architecture, see [docs/module-architecture.md](docs/module-architecture.md).
 
@@ -129,6 +79,9 @@ $ zz tree                           # Show directory tree
 $ zz prompt "src/**/*.zig"          # Generate LLM prompt
 $ zz format config.json --write     # Format file in-place
 $ zz deps --list                    # Check dependency status
+
+# Run JSON/ZON capabilities demo
+$ zig build run -- demo             # Shows memory system and parsing capabilities
 ```
 
 ## Commands Overview
@@ -170,8 +123,6 @@ See [docs/deps.md](docs/deps.md) for architecture details.
 See [docs/commands.md](docs/commands.md) for all commands and options.
 
 ## Testing & Quality
-
-**Current Status: 700/714 tests passing (98.0%)**
 
 ```bash
 $ zig build test                    # Run all tests
@@ -241,7 +192,7 @@ $ zig build run -- tree             # Development workflow
 2. **No backwards compatibility** - delete old code aggressively
 3. **Test thoroughly** - include edge cases
 4. **Document changes** - update CLAUDE.md and README.md
-5. **Follow Zig idioms** - more C than C++, no re-exports
+5. **Follow Zig idioms**
 
 See [docs/llm-guidelines.md](docs/llm-guidelines.md) for detailed development philosophy.
 
@@ -283,14 +234,14 @@ See [docs/llm-guidelines.md](docs/llm-guidelines.md) for detailed development ph
 
 ## Notes
 
-_Remember: Performance is the top priority -- every cycle and byte count
-but context is everything and the big picture UX matters most._
+See [docs/llm-guidelines.md](docs/llm-guidelines.md) for complete guidelines.
+Key points:
 
-### For LLMs
-See [docs/llm-guidelines.md](docs/llm-guidelines.md) for complete guidelines. Key points:
+- performance is a top priority, every cycle and byte count but context is everything and the big picture UX matters most
 - Performance is a feature
 - Delete old code aggressively, no deprecation, refactor without hesitation
-- Test frequently with `zig build run`
+- Test frequently with `zig build` and `zig build test`
+- If needed create ./debug_foo.zig files to `zig test`
 - Always update documentation, be concise but thorough 
 - We prioritize maintainable code and want to give users max power
 - Leave `// TODO` comments for unknowns and future work

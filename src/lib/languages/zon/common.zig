@@ -31,7 +31,10 @@ pub const Diagnostic = interface_types.Diagnostic;
 
 // ZON-specific internal modules
 pub const utils = @import("utils.zig");
-pub const ParseContext = @import("memory.zig").ParseContext;
+
+// Direct memory system usage
+pub const memory = @import("../../memory/language_strategies/mod.zig");
+pub const MemoryContext = memory.MemoryContext;
 
 /// Common error types for ZON operations
 pub const ZonError = error{

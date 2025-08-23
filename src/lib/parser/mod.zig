@@ -12,6 +12,9 @@ pub const viewport = @import("viewport.zig");
 pub const cache = @import("cache.zig");
 pub const context = @import("context.zig");
 
+// Parser pattern modules removed - unused and overcomplicated
+// Direct parsing in each language module works better
+
 // Convenience re-exports for common types
 pub const ParserInterface = interface.ParserInterface;
 pub const createInterface = interface.createInterface;

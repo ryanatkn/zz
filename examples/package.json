@@ -1,0 +1,53 @@
+{
+  "name": "@example/zz-project",
+  "version": "2.1.0",
+  "description": "Example project using zz language tooling",
+  "main": "src/main.zig",
+  "private": true,
+  "type": "application",
+  "keywords": ["zig", "parser", "lexer", "ast", "language-tooling"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/example/zz-project"
+  },
+  "bugs": {
+    "url": "https://github.com/example/zz-project/issues"
+  },
+  "homepage": "https://github.com/example/zz-project#readme",
+  "engines": {
+    "zig": ">=0.14.0"
+  },
+  "files": [
+    "src/**/*.zig",
+    "build.zig",
+    "build.zig.zon",
+    "README.md",
+    "LICENSE"
+  ],
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "eslint": "^8.0.0",
+    "prettier": "^3.0.0"
+  },
+  "peerDependencies": {
+    "zls": ">=0.11.0"
+  },
+  "contributors": [
+    {
+      "name": "Alice Developer",
+      "email": "alice@example.com",
+      "role": "maintainer"
+    },
+    {
+      "name": "Bob Contributor", 
+      "email": "bob@example.com",
+      "role": "contributor"
+    }
+  ],
+  "config": {
+    "port": 3000,
+    "debug": true,
+    "optimization": "ReleaseFast"
+  }
+}

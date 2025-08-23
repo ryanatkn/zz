@@ -5,6 +5,10 @@ const AST = zon_ast.AST;
 const Node = zon_ast.Node;
 const NodeKind = zon_ast.NodeKind;
 
+// Import lexer and parser for formatZonString
+const ZonLexer = @import("lexer.zig").ZonLexer;
+const ZonParser = @import("parser.zig").ZonParser;
+
 /// High-performance ZON formatter with configurable output
 ///
 /// Features:
@@ -112,7 +116,7 @@ pub const ZonFormatter = struct {
     fn formatObject(self: *Self, fields: []Node) std.mem.Allocator.Error!void {
         const should_compact = self.shouldCompactObject(fields);
 
-        try self.output.append('{');
+        try self.output.appendSlice(".{");
 
         if (fields.len == 0) {
             try self.output.append('}');
@@ -131,10 +135,10 @@ pub const ZonFormatter = struct {
     fn formatArray(self: *Self, elements: []Node) std.mem.Allocator.Error!void {
         const should_compact = self.shouldCompactArray(elements);
 
-        try self.output.append('[');
+        try self.output.appendSlice(".{");
 
         if (elements.len == 0) {
-            try self.output.append(']');
+            try self.output.append('}');
             return;
         }
 
@@ -144,7 +148,7 @@ pub const ZonFormatter = struct {
             try self.formatArrayMultiline(elements);
         }
 
-        try self.output.append(']');
+        try self.output.append('}');
     }
 
     fn formatObjectCompact(self: *Self, fields: []Node) std.mem.Allocator.Error!void {
@@ -243,8 +247,19 @@ pub fn format(allocator: std.mem.Allocator, ast: AST, options: ZonFormatter.ZonF
 }
 
 pub fn formatZonString(allocator: std.mem.Allocator, zon_content: []const u8, options: ZonFormatter.ZonFormatOptions) ![]const u8 {
-    // TODO: Parse and format - requires integration with full pipeline
-    _ = zon_content;
-    _ = options;
-    return try allocator.dupe(u8, "/* ZON format string not yet implemented */");
+    // Parse the ZON content
+    var lexer = ZonLexer.init(allocator);
+    defer lexer.deinit();
+    
+    const tokens = try lexer.batchTokenize(allocator, zon_content);
+    defer allocator.free(tokens);
+    
+    var parser = ZonParser.init(allocator, tokens, zon_content, .{});
+    defer parser.deinit();
+    
+    var ast = try parser.parse();
+    defer ast.deinit();
+    
+    // Format the AST
+    return format(allocator, ast, options);
 }

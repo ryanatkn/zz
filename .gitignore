@@ -12,6 +12,7 @@ deps/.deps_state
 # Temporary files
 *.tmp
 .tmp*
+*.bak
 
 # Log files
 *.log

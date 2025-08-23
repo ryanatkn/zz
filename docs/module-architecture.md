@@ -1,5 +1,7 @@
 # Module Architecture
 
+// TODO outdated
+
 ## Current State: Pure Zig Architecture
 
 The zz project has successfully transitioned from tree-sitter to a **Pure Zig language tooling system** with reusable library modules and clean separation of concerns.

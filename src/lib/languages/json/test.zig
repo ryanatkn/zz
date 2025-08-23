@@ -29,8 +29,7 @@ test {
     _ = @import("stream_format.zig");
     _ = @import("transform.zig");
     _ = @import("patterns.zig");
-    _ = @import("node_pool.zig");
-    _ = @import("bulk_allocator.zig");
+    // node_pool.zig and bulk_allocator.zig removed - functionality in new memory system
     _ = @import("streaming_token_buffer.zig");
     _ = @import("test_boundary_lexer.zig");
     _ = @import("mod.zig");

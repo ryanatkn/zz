@@ -7,12 +7,11 @@ const json_ast = @import("ast.zig");
 const AST = json_ast.AST;
 const Node = json_ast.Node;
 const NodeKind = json_ast.NodeKind;
-const ParseContext = @import("memory.zig").ParseContext;
+const memory = @import("../../memory/language_strategies/mod.zig");
 const patterns = @import("patterns.zig");
 const JsonDelimiters = patterns.JsonDelimiters;
 const char_utils = @import("../../char/mod.zig");
-const BulkAllocator = @import("bulk_allocator.zig").BulkAllocator;
-const estimateNodeCount = @import("bulk_allocator.zig").estimateNodeCount;
+// BulkAllocator removed - new memory system handles this internally
 
 /// High-performance JSON parser producing proper AST
 ///
@@ -29,8 +28,8 @@ pub const JsonParser = struct {
     current: usize,
     errors: std.ArrayList(ParseError),
     allow_trailing_commas: bool,
-    context: ParseContext,
-    bulk_allocator: ?BulkAllocator, // Optional bulk allocator for performance
+    context: memory.MemoryContext(Node),
+    // bulk_allocator removed - handled by new memory system
     ast_arena: ?*std.heap.ArenaAllocator, // AST arena for permanent allocations (set during parse())
 
     const Self = @This();
@@ -49,17 +48,21 @@ pub const JsonParser = struct {
     };
 
     pub fn init(allocator: std.mem.Allocator, tokens: []const Token, source: []const u8, options: ParserOptions) JsonParser {
-        return JsonParser{
+        const parser = JsonParser{
             .allocator = allocator,
             .tokens = tokens,
             .source = source,
             .current = 0,
             .errors = std.ArrayList(ParseError).init(allocator),
             .allow_trailing_commas = options.allow_trailing_commas,
-            .context = ParseContext.init(allocator),
-            .bulk_allocator = null, // Will be initialized in parse() for optimal sizing
+            .context = memory.MemoryContext(Node).init(
+                allocator,
+                memory.MemoryStrategy{ .arena_only = {} },
+            ),
             .ast_arena = null, // Will be set in parse()
         };
+        
+        return parser;
     }
 
     pub fn deinit(self: *Self) void {
@@ -69,22 +72,14 @@ pub const JsonParser = struct {
         self.errors.deinit();
         self.context.deinit();
 
-        // Clean up bulk allocator if it was used
-        if (self.bulk_allocator) |*bulk| {
-            bulk.deinit();
-        }
+        // Bulk allocator cleanup removed - handled by memory context
     }
 
     /// Parse tokens into JSON AST
     pub fn parse(self: *Self) !AST {
-        // Initialize bulk allocator for optimal node allocation (major performance boost)
-        const estimated_nodes = estimateNodeCount(self.tokens);
-        self.bulk_allocator = BulkAllocator.init(self.allocator, estimated_nodes) catch
-            // Fall back to smaller allocation or no bulk allocation
-            BulkAllocator.init(self.allocator, estimated_nodes / 2) catch null;
+        // Bulk allocation now handled by the new memory system internally
 
-        // Use existing arena from context for temporary allocations
-        _ = self.context.arena.reset(.retain_capacity);
+        // Memory context handles arena internally
 
         // Create separate arena for AST ownership (will outlive the parser context)
         const ast_arena = try self.allocator.create(std.heap.ArenaAllocator);
@@ -127,15 +122,11 @@ pub const JsonParser = struct {
         return self.errors.items;
     }
 
-    /// Fast node allocation - uses bulk allocator if available, falls back to arena
-    /// This is the key optimization that reduces allocation overhead by 80-90%
+    /// Fast node allocation - uses memory context for optimal allocation
+    /// The new memory system handles pooling and bulk allocation internally
     fn allocateNode(self: *Self) !*Node {
-        if (self.bulk_allocator) |*bulk| {
-            return bulk.allocateNode();
-        } else {
-            // Fallback to context arena
-            return self.context.tempAllocator().create(Node);
-        }
+        // Use memory context which handles pooling internally
+        return self.context.allocateNode();
     }
 
     fn parseValue(self: *Self) anyerror!Node {
@@ -321,8 +312,8 @@ pub const JsonParser = struct {
 
         const key_node = try self.parseString();
 
-        // Allocate key node using optimized allocation
-        const key_ptr = try self.allocateNode();
+        // Allocate key node in AST arena for permanent storage
+        const key_ptr = try self.ast_arena.?.allocator().create(Node);
         key_ptr.* = key_node;
 
         // Expect colon
@@ -335,8 +326,8 @@ pub const JsonParser = struct {
         // Parse value
         const value_node = try self.parseValue();
 
-        // Allocate value node using optimized allocation
-        const value_ptr = try self.allocateNode();
+        // Allocate value node in AST arena for permanent storage
+        const value_ptr = try self.ast_arena.?.allocator().create(Node);
         value_ptr.* = value_node;
 
         // Create property node
@@ -438,8 +429,8 @@ pub const JsonParser = struct {
             raw[1 .. raw.len - 1]
         else
             raw;
-        var result = std.ArrayList(u8).init(self.context.tempAllocator());
-        defer result.deinit();
+        var result = std.ArrayList(u8).init(self.ast_arena.?.allocator());
+        // Don't deinit - we return the owned slice
 
         var i: usize = 0;
         while (i < content.len) {

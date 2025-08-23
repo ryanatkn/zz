@@ -13,7 +13,7 @@ const ZonParser = @import("parser.zig").ZonParser;
 ///
 /// Features:
 /// - Pretty-printing with configurable indentation
-/// - Smart single-line vs multi-line decisions for objects/arrays
+/// - Smart single-line vs multi-line decisions for ZON structures
 /// - ZON-specific features: field names, trailing commas, comment preservation
 /// - Performance target: <0.5ms for typical config files
 pub const ZonFormatter = struct {

@@ -7,9 +7,7 @@
 // Standard library
 pub const std = @import("std");
 
-// New token and span types
-pub const Token = @import("../../token/token.zig").Token;
-pub const TokenKind = @import("../../token/mod.zig").TokenKind;
+// Span type (still used)
 pub const Span = @import("../../span/mod.zig").Span;
 
 // ZON-specific AST (self-contained)

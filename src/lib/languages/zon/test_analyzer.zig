@@ -2,7 +2,6 @@ const std = @import("std");
 const testing = std.testing;
 
 // Import ZON modules
-const ZonLexer = @import("lexer.zig").ZonLexer;
 const ZonParser = @import("parser.zig").ZonParser;
 const ZonAnalyzer = @import("analyzer.zig").ZonAnalyzer;
 
@@ -23,13 +22,8 @@ test "ZON analyzer - schema extraction" {
         \\}
     ;
 
-    var lexer = ZonLexer.init(allocator);
-    defer lexer.deinit();
-
-    const tokens = try lexer.tokenize(test_build_zon);
-    defer allocator.free(tokens);
-
-    var parser = ZonParser.init(allocator, tokens, test_build_zon, .{});
+    // Updated to streaming parser (3-arg pattern)
+    var parser = try ZonParser.init(allocator, test_build_zon, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -62,13 +56,8 @@ test "ZON analyzer - symbol extraction" {
         \\}
     ;
 
-    var lexer = ZonLexer.init(allocator);
-    defer lexer.deinit();
-
-    const tokens = try lexer.tokenize(input);
-    defer allocator.free(tokens);
-
-    var parser = ZonParser.init(allocator, tokens, input, .{});
+    // Updated to streaming parser (3-arg pattern)
+    var parser = try ZonParser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -106,13 +95,8 @@ test "ZON analyzer - dependency extraction" {
         \\}
     ;
 
-    var lexer = ZonLexer.init(allocator);
-    defer lexer.deinit();
-
-    const tokens = try lexer.tokenize(input);
-    defer allocator.free(tokens);
-
-    var parser = ZonParser.init(allocator, tokens, input, .{});
+    // Updated to streaming parser (3-arg pattern)
+    var parser = try ZonParser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -144,13 +128,8 @@ test "ZON analyzer - type inference" {
         \\}
     ;
 
-    var lexer = ZonLexer.init(allocator);
-    defer lexer.deinit();
-
-    const tokens = try lexer.tokenize(input);
-    defer allocator.free(tokens);
-
-    var parser = ZonParser.init(allocator, tokens, input, .{});
+    // Updated to streaming parser (3-arg pattern)
+    var parser = try ZonParser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -183,13 +162,8 @@ test "ZON analyzer - statistics" {
         \\}
     ;
 
-    var lexer = ZonLexer.init(allocator);
-    defer lexer.deinit();
-
-    const tokens = try lexer.tokenize(input);
-    defer allocator.free(tokens);
-
-    var parser = ZonParser.init(allocator, tokens, input, .{});
+    // Updated to streaming parser (3-arg pattern)
+    var parser = try ZonParser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -219,13 +193,8 @@ test "ZON analyzer - Zig type generation" {
         \\}
     ;
 
-    var lexer = ZonLexer.init(allocator);
-    defer lexer.deinit();
-
-    const tokens = try lexer.tokenize(test_zz_zon);
-    defer allocator.free(tokens);
-
-    var parser = ZonParser.init(allocator, tokens, test_zz_zon, .{});
+    // Updated to streaming parser (3-arg pattern)
+    var parser = try ZonParser.init(allocator, test_zz_zon, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();

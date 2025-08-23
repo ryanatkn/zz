@@ -37,9 +37,10 @@ test "ZON stream lexer integration" {
 }
 
 test "ZON stream lexer performance characteristics" {
-    // Verify the lexer struct size is reasonable
+    // Verify the lexer struct size is reasonable for streaming architecture
     const lexer_size = @sizeOf(ZonStreamLexer);
-    try testing.expect(lexer_size < 5000); // Mostly ring buffer
+    try testing.expect(lexer_size < 70000); // ~64KB ring buffer + metadata
+    try testing.expect(lexer_size > 65000); // Should be dominated by ring buffer
 
     // Verify token size is exactly 16 bytes
     const token_size = @sizeOf(ZonToken);

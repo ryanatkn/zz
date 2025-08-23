@@ -2,7 +2,6 @@
 ///
 /// Transforms for code formatting and pretty-printing.
 const std = @import("std");
-const Token = @import("../token/token.zig").Token;
 const StreamToken = @import("../token/stream_token.zig").StreamToken;
 
 /// Format options

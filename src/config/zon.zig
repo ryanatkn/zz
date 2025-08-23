@@ -9,7 +9,7 @@ const patterns = @import("../lib/patterns/gitignore.zig");
 const filesystem_mod = @import("../lib/filesystem/interface.zig");
 const filesystem_utils = @import("../lib/core/filesystem.zig");
 const zon_language = @import("../lib/languages/zon/mod.zig");
-const zon_memory = @import("../lib/memory/zon.zig");
+const zon_memory = @import("../lib/languages/zon/memory.zig");
 
 // Type aliases
 const SharedConfig = shared.SharedConfig;

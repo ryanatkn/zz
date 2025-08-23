@@ -29,8 +29,11 @@ pub const LexerState = enum {
 
 /// ZON stream lexer with zero allocations
 pub const ZonStreamLexer = struct {
-    // Ring buffer for lookahead (4KB on stack)
-    buffer: RingBuffer(u8, 4096),
+    // Ring buffer for lookahead (64KB for large test cases)
+    buffer: RingBuffer(u8, 65536),
+
+    // Source text reference for keyword matching
+    source: []const u8,
 
     // Current lexer state
     state: LexerState,
@@ -48,8 +51,8 @@ pub const ZonStreamLexer = struct {
     // Nesting depth
     depth: u8,
 
-    // Container stack to track opening types (small fixed size stack)
-    container_stack: [16]ZonTokenKind,
+    // Container stack to track opening types (increased size for deep nesting support)
+    container_stack: [32]ZonTokenKind,
 
     // Flags for current token
     current_flags: ZonTokenFlags,
@@ -57,10 +60,14 @@ pub const ZonStreamLexer = struct {
     // Error state
     error_msg: ?[]const u8,
 
+    // Peeked token for lookahead
+    peeked_token: ?StreamToken,
+
     /// Initialize lexer with input buffer
     /// This is the primary interface - simple iterator pattern
     pub fn init(input: []const u8) ZonStreamLexer {
         var lexer = ZonStreamLexer.initEmpty();
+        lexer.source = input;
 
         // Fill ring buffer with input
         for (input) |byte| {
@@ -73,7 +80,8 @@ pub const ZonStreamLexer = struct {
     /// Initialize empty lexer (for streaming from reader)
     pub fn initEmpty() ZonStreamLexer {
         return .{
-            .buffer = RingBuffer(u8, 4096).init(),
+            .buffer = RingBuffer(u8, 65536).init(),
+            .source = "",
             .state = .start,
             .position = 0,
             .line = 1,
@@ -82,15 +90,39 @@ pub const ZonStreamLexer = struct {
             .token_line = 1,
             .token_column = 1,
             .depth = 0,
-            .container_stack = [_]ZonTokenKind{.eof} ** 16,
+            .container_stack = [_]ZonTokenKind{.eof} ** 32,
             .current_flags = .{},
             .error_msg = null,
+            .peeked_token = null,
         };
     }
 
     /// Get next token - Direct iterator interface (no vtable!)
     /// This is 1-2 cycle dispatch vs 3-5 for vtable
     pub fn next(self: *ZonStreamLexer) ?StreamToken {
+        // If we have a peeked token, return it
+        if (self.peeked_token) |token| {
+            self.peeked_token = null;
+            return token;
+        }
+
+        return self.nextInternal();
+    }
+
+    /// Peek at the next token without consuming it
+    pub fn peek(self: *ZonStreamLexer) ?StreamToken {
+        // If we already have a peeked token, return it
+        if (self.peeked_token) |token| {
+            return token;
+        }
+
+        // Get the next token and store it for later
+        const token = self.nextInternal();
+        self.peeked_token = token;
+        return token;
+    }
+
+    fn nextInternal(self: *ZonStreamLexer) ?StreamToken {
 
         // Return null if already done (after EOF)
         if (self.state == .done) {
@@ -124,7 +156,7 @@ pub const ZonStreamLexer = struct {
         // Dispatch based on character
         switch (ch) {
             '.' => {
-                // Could be .{} struct or .field
+                // Could be .{} struct, .field, or .@"quoted field"
                 _ = self.buffer.pop();
                 self.position += 1;
                 self.column += 1;
@@ -136,7 +168,7 @@ pub const ZonStreamLexer = struct {
                         self.column += 1;
                         self.depth = @min(self.depth + 1, 255);
                         // Track that this depth opened with struct_start
-                        if (self.depth > 0 and self.depth <= 16) {
+                        if (self.depth > 0 and self.depth <= 32) {
                             self.container_stack[self.depth - 1] = .struct_start;
                         }
                         return StreamToken{ .zon = ZonToken{
@@ -146,6 +178,9 @@ pub const ZonStreamLexer = struct {
                             .flags = .{},
                             .data = 0,
                         } };
+                    } else if (next_ch == '@') {
+                        // Handle .@"quoted field" syntax
+                        return self.scanQuotedFieldAccess();
                     }
                 }
                 return self.scanFieldAccess();
@@ -206,33 +241,67 @@ pub const ZonStreamLexer = struct {
                     self.column = 1;
                 },
                 '/' => {
-                    // Check for comment
-                    _ = self.buffer.pop();
-                    self.position += 1;
-                    self.column += 1;
+                    // Need at least 2 chars to check comment patterns
+                    if (self.buffer.len() < 2) return;
 
-                    if (self.buffer.peek()) |next_ch| {
-                        if (next_ch == '/') {
-                            // Single-line comment
+                    // Use peekAt to look ahead without consuming
+                    const next_ch = self.buffer.peekAt(1) orelse return;
+
+                    if (next_ch == '/') {
+                        // Single-line comment: //
+                        _ = self.buffer.pop(); // Consume first '/'
+                        _ = self.buffer.pop(); // Consume second '/'
+                        self.position += 2;
+                        self.column += 2;
+
+                        while (self.buffer.peek()) |comment_ch| {
                             _ = self.buffer.pop();
                             self.position += 1;
+                            if (comment_ch == '\n') {
+                                self.line += 1;
+                                self.column = 1;
+                                break;
+                            }
                             self.column += 1;
+                        }
+                    } else if (next_ch == '*') {
+                        // Block comment: /* */
+                        _ = self.buffer.pop(); // Consume '/'
+                        _ = self.buffer.pop(); // Consume '*'
+                        self.position += 2;
+                        self.column += 2;
 
-                            while (self.buffer.peek()) |comment_ch| {
-                                _ = self.buffer.pop();
-                                self.position += 1;
-                                if (comment_ch == '\n') {
-                                    self.line += 1;
-                                    self.column = 1;
-                                    break;
+                        // Look for closing */
+                        var found_end = false;
+                        while (self.buffer.peek()) |comment_ch| {
+                            _ = self.buffer.pop();
+                            self.position += 1;
+
+                            if (comment_ch == '*') {
+                                // Check for closing /
+                                if (self.buffer.peek()) |closing_ch| {
+                                    if (closing_ch == '/') {
+                                        _ = self.buffer.pop(); // Consume '/'
+                                        self.position += 1;
+                                        self.column += 1;
+                                        found_end = true;
+                                        break;
+                                    }
                                 }
                                 self.column += 1;
+                            } else if (comment_ch == '\n') {
+                                self.line += 1;
+                                self.column = 1;
+                            } else {
+                                self.column += 1;
                             }
-                        } else {
-                            // Not a comment, push back the '/'
-                            // TODO: Implement unget for ring buffer
-                            return;
                         }
+
+                        // If we didn't find the end, that's an unterminated comment
+                        // but we'll let the parser handle the error gracefully
+                    } else {
+                        // Not a comment (just a standalone '/'), return without consuming
+                        return;
                     }
                 },
                 else => return,
@@ -249,12 +318,12 @@ pub const ZonStreamLexer = struct {
         if (increase_depth) {
             self.depth = @min(self.depth + 1, 255);
             // Track opening container type
-            if (self.depth > 0 and self.depth <= 16) {
+            if (self.depth > 0 and self.depth <= 32) {
                 self.container_stack[self.depth - 1] = kind;
             }
         } else if (kind == .object_end or kind == .array_end or kind == .paren_close) {
             // Check if this should be struct_end instead of object_end
-            if (kind == .object_end and self.depth > 0 and self.depth <= 16) {
+            if (kind == .object_end and self.depth > 0 and self.depth <= 32) {
                 const opening_kind = self.container_stack[self.depth - 1];
                 if (opening_kind == .struct_start) {
                     final_kind = .struct_end;
@@ -303,9 +372,19 @@ pub const ZonStreamLexer = struct {
                 },
                 '\\' => {
                     has_escapes = true;
-                    if (self.buffer.pop()) |_| {
+
+                    // Validate escape sequence
+                    if (self.buffer.pop()) |escaped_char| {
                         self.position += 1;
                         self.column += 1;
+
+                        // Handle unicode escapes \u{...}
+                        if (escaped_char == 'u') {
+                            if (!self.validateUnicodeEscape()) {
+                                self.error_msg = "Invalid unicode escape sequence";
+                                return self.makeErrorToken();
+                            }
+                        }
                     }
                 },
                 '\n' => {
@@ -320,55 +399,96 @@ pub const ZonStreamLexer = struct {
         return self.makeErrorToken();
     }
 
-    /// Scan a multiline string (\\\\)
+    /// Scan a multiline string (each line starts with \\)
     fn scanMultilineString(self: *ZonStreamLexer) StreamToken {
-        _ = self.buffer.pop(); // Consume first backslash
+        // Consume the first backslash that triggered this scan
+        _ = self.buffer.pop();
         self.position += 1;
         self.column += 1;
 
+        // Check for second backslash to confirm this is a multiline string line
         if (self.buffer.peek()) |ch| {
             if (ch == '\\') {
                 _ = self.buffer.pop();
                 self.position += 1;
                 self.column += 1;
 
-                // Scan until we find another \\\\
-                var line_count: u32 = 0;
+                // Scan this line's content until newline
                 while (self.buffer.peek()) |scan_ch| {
-                    _ = self.buffer.pop();
-                    self.position += 1;
-
                     if (scan_ch == '\n') {
+                        _ = self.buffer.pop();
+                        self.position += 1;
                         self.line += 1;
                         self.column = 1;
-                        line_count += 1;
+                        break;
                     } else {
+                        _ = self.buffer.pop();
+                        self.position += 1;
                         self.column += 1;
                     }
+                }
 
-                    if (scan_ch == '\\') {
-                        if (self.buffer.peek()) |next_ch| {
-                            if (next_ch == '\\') {
+                // Now scan additional lines that start with \\
+                while (true) {
+                    // Skip whitespace at start of line
+                    while (self.buffer.peek()) |space_ch| {
+                        if (space_ch == ' ' or space_ch == '\t') {
+                            _ = self.buffer.pop();
+                            self.position += 1;
+                            self.column += 1;
+                        } else {
+                            break;
+                        }
+                    }
+
+                    // Check if this line starts with \\
+                    if (self.buffer.len() >= 2 and
+                        self.buffer.peekAt(0) == '\\' and
+                        self.buffer.peekAt(1) == '\\')
+                    {
+                        // This line is part of the multiline string
+                        _ = self.buffer.pop(); // First \
+                        _ = self.buffer.pop(); // Second \
+                        self.position += 2;
+                        self.column += 2;
+
+                        // Scan rest of line
+                        while (self.buffer.peek()) |line_ch| {
+                            if (line_ch == '\n') {
+                                _ = self.buffer.pop();
+                                self.position += 1;
+                                self.line += 1;
+                                self.column = 1;
+                                break;
+                            } else {
                                 _ = self.buffer.pop();
                                 self.position += 1;
                                 self.column += 1;
-
-                                const token = ZonToken{
-                                    .span = packSpan(Span{ .start = self.token_start, .end = self.position }),
-                                    .kind = .string_value,
-                                    .depth = self.depth,
-                                    .flags = .{ .multiline_string = true },
-                                    .data = 0,
-                                };
-                                return StreamToken{ .zon = token };
                             }
                         }
+                    } else {
+                        // Line doesn't start with \\, end of multiline string
+                        break;
                     }
+
+                    // If we're at end of input, break
+                    if (self.buffer.peek() == null) break;
                 }
+
+                const token = ZonToken{
+                    .span = packSpan(Span{ .start = self.token_start, .end = self.position }),
+                    .kind = .string_value,
+                    .depth = self.depth,
+                    .flags = .{ .multiline_string = true },
+                    .data = 0,
+                };
+
+                return StreamToken{ .zon = token };
             }
         }
 
-        self.error_msg = "Invalid multiline string";
+        // Not a multiline string, treat as error
+        self.error_msg = "Expected second '\\' for multiline string";
         return self.makeErrorToken();
     }
 
@@ -416,7 +536,8 @@ pub const ZonStreamLexer = struct {
             }
         }
 
-        // Scan number body
+        // Scan number body - ensure we consume at least one digit
+        var consumed_digits = false;
         while (self.buffer.peek()) |ch| {
             const valid = if (is_hex)
                 (ch >= '0' and ch <= '9') or (ch >= 'a' and ch <= 'f') or (ch >= 'A' and ch <= 'F') or ch == '_'
@@ -430,10 +551,19 @@ pub const ZonStreamLexer = struct {
             if (!valid) break;
 
             if (ch == '.') is_float = true;
+            if ((ch >= '0' and ch <= '9') or (is_hex and ((ch >= 'a' and ch <= 'f') or (ch >= 'A' and ch <= 'F')))) {
+                consumed_digits = true;
+            }
 
             _ = self.buffer.pop();
             self.position += 1;
             self.column += 1;
+        }
+
+        // Must have consumed at least one digit
+        if (!consumed_digits) {
+            self.error_msg = "Expected digits in number";
+            return self.makeErrorToken();
         }
 
         const token = ZonToken{
@@ -454,6 +584,8 @@ pub const ZonStreamLexer = struct {
 
     /// Scan an identifier or keyword
     fn scanIdentifier(self: *ZonStreamLexer) StreamToken {
+        // Ensure we consume at least one character (the one that triggered this scan)
+        var consumed_any = false;
         while (self.buffer.peek()) |ch| {
             if ((ch >= 'a' and ch <= 'z') or
                 (ch >= 'A' and ch <= 'Z') or
@@ -463,9 +595,16 @@ pub const ZonStreamLexer = struct {
                 _ = self.buffer.pop();
                 self.position += 1;
                 self.column += 1;
+                consumed_any = true;
             } else {
                 break;
             }
+        }
+
+        // If we didn't consume any characters, something is wrong
+        if (!consumed_any) {
+            self.error_msg = "Expected identifier character";
+            return self.makeErrorToken();
         }
 
         // Check for keywords
@@ -524,6 +663,8 @@ pub const ZonStreamLexer = struct {
 
     /// Scan a field access (.field_name)
     fn scanFieldAccess(self: *ZonStreamLexer) StreamToken {
+        // Ensure we consume at least one character for field name
+        var consumed_any = false;
         while (self.buffer.peek()) |ch| {
             if ((ch >= 'a' and ch <= 'z') or
                 (ch >= 'A' and ch <= 'Z') or
@@ -533,9 +674,16 @@ pub const ZonStreamLexer = struct {
                 _ = self.buffer.pop();
                 self.position += 1;
                 self.column += 1;
+                consumed_any = true;
             } else {
                 break;
             }
+        }
+
+        // If no identifier follows the dot, return error
+        if (!consumed_any) {
+            self.error_msg = "Expected field name after '.'";
+            return self.makeErrorToken();
         }
 
         const token = ZonToken{
@@ -549,13 +697,92 @@ pub const ZonStreamLexer = struct {
         return StreamToken{ .zon = token };
     }
 
-    /// Check if buffer matches keyword at position (simplified)
+    /// Scan a quoted field access (.@"field name")
+    fn scanQuotedFieldAccess(self: *ZonStreamLexer) StreamToken {
+        // Consume the @ character
+        if (self.buffer.peek()) |ch| {
+            if (ch == '@') {
+                _ = self.buffer.pop();
+                self.position += 1;
+                self.column += 1;
+            }
+        }
+
+        // Expect a quoted string after @
+        if (self.buffer.peek()) |ch| {
+            if (ch == '"') {
+                // Consume opening quote
+                _ = self.buffer.pop();
+                self.position += 1;
+                self.column += 1;
+
+                // Scan until closing quote
+                var has_escapes = false;
+                while (self.buffer.peek()) |string_ch| {
+                    _ = self.buffer.pop();
+                    self.position += 1;
+                    self.column += 1;
+
+                    switch (string_ch) {
+                        '"' => {
+                            // Found closing quote, create field name token
+                            const token = ZonToken{
+                                .span = packSpan(Span{ .start = self.token_start, .end = self.position }),
+                                .kind = .field_name,
+                                .depth = self.depth,
+                                .flags = .{
+                                    .has_escapes = has_escapes,
+                                    .is_quoted_field = true,
+                                },
+                                .data = 0,
+                            };
+
+                            return StreamToken{ .zon = token };
+                        },
+                        '\\' => {
+                            has_escapes = true;
+
+                            // Validate escape sequence
+                            if (self.buffer.pop()) |escaped_char| {
+                                self.position += 1;
+                                self.column += 1;
+
+                                // Handle unicode escapes \u{...}
+                                if (escaped_char == 'u') {
+                                    if (!self.validateUnicodeEscape()) {
+                                        self.error_msg = "Invalid unicode escape sequence";
+                                        return self.makeErrorToken();
+                                    }
+                                }
+                            }
+                        },
+                        '\n' => {
+                            self.line += 1;
+                            self.column = 1;
+                        },
+                        else => {},
+                    }
+                }
+
+                // Unterminated quoted string
+                self.error_msg = "Unterminated quoted field name";
+                return self.makeErrorToken();
+            }
+        }
+
+        // Expected quote after @
+        self.error_msg = "Expected '\"' after '.@'";
+        return self.makeErrorToken();
+    }
+
+    /// Check if consumed text matches keyword
     fn matchesKeywordAt(self: *ZonStreamLexer, keyword: []const u8, start: u32) bool {
-        _ = self;
-        _ = keyword;
-        _ = start;
-        // TODO: Implement proper keyword matching with buffer history
-        return false;
+        const len = self.position - start;
+        if (len != keyword.len) return false;
+        if (start + len > self.source.len) return false;
+
+        const consumed_text = self.source[start .. start + len];
+        return std.mem.eql(u8, consumed_text, keyword);
     }
 
     /// Create an error token
@@ -569,6 +796,66 @@ pub const ZonStreamLexer = struct {
         };
         self.state = .err;
         return StreamToken{ .zon = token };
+    }
+
+    /// Validate unicode escape sequence \u{...}
+    /// Returns false if the escape sequence is malformed
+    fn validateUnicodeEscape(self: *ZonStreamLexer) bool {
+        // Expect opening brace
+        if (self.buffer.pop()) |ch| {
+            if (ch != '{') return false;
+            self.position += 1;
+            self.column += 1;
+        } else {
+            return false;
+        }
+
+        var hex_digits: u32 = 0;
+        var codepoint: u32 = 0;
+
+        // Parse hex digits
+        while (self.buffer.peek()) |ch| {
+            switch (ch) {
+                '0'...'9' => {
+                    codepoint = codepoint * 16 + (ch - '0');
+                    hex_digits += 1;
+                },
+                'a'...'f' => {
+                    codepoint = codepoint * 16 + (ch - 'a' + 10);
+                    hex_digits += 1;
+                },
+                'A'...'F' => {
+                    codepoint = codepoint * 16 + (ch - 'A' + 10);
+                    hex_digits += 1;
+                },
+                '}' => {
+                    _ = self.buffer.pop(); // consume }
+                    self.position += 1;
+                    self.column += 1;
+                    break;
+                },
+                else => {
+                    return false; // Invalid hex digit
+                },
+            }
+
+            // Consume the hex digit
+            _ = self.buffer.pop();
+            self.position += 1;
+            self.column += 1;
+
+            // Prevent overflow and overly long sequences
+            if (hex_digits > 6) return false;
+        }
+
+        // Must have at least 1 hex digit and closing brace
+        if (hex_digits == 0) return false;
+
+        // Validate codepoint range (0x0 to 0x10FFFF, excluding surrogates 0xD800-0xDFFF)
+        if (codepoint > 0x10FFFF) return false;
+        if (codepoint >= 0xD800 and codepoint <= 0xDFFF) return false;
+
+        return true;
     }
 };
 
@@ -603,9 +890,10 @@ test "ZonStreamLexer zero allocations" {
     const input = ".{ .a = 1, .b = 2 }";
     var lexer = ZonStreamLexer.init(input);
 
-    // Stack-allocated lexer
+    // Stack-allocated lexer - verify streaming architecture size expectations
     const lexer_size = @sizeOf(ZonStreamLexer);
-    try testing.expect(lexer_size < 5000);
+    try testing.expect(lexer_size < 70000); // ~64KB ring buffer + metadata
+    try testing.expect(lexer_size > 65000); // Should be dominated by ring buffer
 
     // Tokenize without allocating
     while (lexer.next()) |token| {

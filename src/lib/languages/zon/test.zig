@@ -19,11 +19,7 @@ test {
     // Stream tests if they exist
     _ = @import("test_stream.zig");
 
-    // Keep existing token tests if they exist
-    _ = @import("tokens.zig");
-
     // Include modules with embedded tests
-    _ = @import("lexer.zig");
     _ = @import("parser.zig");
     _ = @import("formatter.zig");
     _ = @import("analyzer.zig");

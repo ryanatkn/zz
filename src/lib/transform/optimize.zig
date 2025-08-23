@@ -2,7 +2,7 @@
 ///
 /// Transforms for optimizing code structure and performance.
 const std = @import("std");
-const Token = @import("../token/token.zig").Token;
+const StreamToken = @import("../token/stream_token.zig").StreamToken;
 
 /// Optimization options
 pub const OptimizeOptions = struct {

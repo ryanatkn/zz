@@ -4,8 +4,11 @@ const BenchmarkResult = benchmark_lib.BenchmarkResult;
 const BenchmarkOptions = benchmark_lib.BenchmarkOptions;
 const BenchmarkError = benchmark_lib.BenchmarkError;
 
-// Import JSON components
-const JsonLexer = @import("../../../lib/languages/json/lexer.zig").JsonLexer;
+// Import streaming JSON components
+const JsonStreamLexer = @import("../../../lib/languages/json/stream_lexer.zig").JsonStreamLexer;
+const StreamToken = @import("../../../lib/token/stream_token.zig").StreamToken;
+const TokenIterator = @import("../../../lib/token/iterator.zig").TokenIterator;
+const Language = @import("../../../lib/core/language.zig").Language;
 
 pub fn runJsonLexerBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOptions) BenchmarkError![]BenchmarkResult {
     var results = std.ArrayList(BenchmarkResult).init(allocator);
@@ -28,82 +31,104 @@ pub fn runJsonLexerBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOp
     const large_json = try generateJsonData(allocator, 500); // ~100KB
     defer allocator.free(large_json);
 
-    // Lexer benchmark for small JSON (1KB)
+    // Streaming lexer benchmark for small JSON (1KB)
     {
         const context = struct {
-            allocator: std.mem.Allocator,
             content: []const u8,
 
             pub fn run(ctx: @This()) anyerror!void {
-                var lexer = JsonLexer.init(ctx.allocator);
-                defer lexer.deinit();
+                // Use streaming lexer directly
+                var lexer = JsonStreamLexer.init(ctx.content);
 
-                const tokens = try lexer.batchTokenize(ctx.allocator, ctx.content);
-                defer ctx.allocator.free(tokens);
+                // Iterate through all tokens
+                var token_count: usize = 0;
+                while (lexer.next()) |token| {
+                    token_count += 1;
+                    // Access token to prevent optimization
+                    switch (token) {
+                        .json => |t| std.mem.doNotOptimizeAway(t.kind),
+                        else => {},
+                    }
+                }
 
                 // Prevent optimization
-                std.mem.doNotOptimizeAway(tokens.len);
+                std.mem.doNotOptimizeAway(token_count);
             }
-        }{ .allocator = allocator, .content = small_json };
+        }{ .content = small_json };
 
         var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
         allocator.free(result.name);
-        result.name = try allocator.dupe(u8, "JSON Lexer Small (1KB)");
+        result.name = try allocator.dupe(u8, "JSON Streaming Lexer Small (1KB)");
         try results.append(result);
     }
 
-    // Lexer benchmark for medium JSON (10KB) - Performance target
+    // Streaming lexer benchmark for medium JSON (10KB) - Performance target
     {
         const context = struct {
-            allocator: std.mem.Allocator,
             content: []const u8,
 
             pub fn run(ctx: @This()) anyerror!void {
-                var lexer = JsonLexer.init(ctx.allocator);
-                defer lexer.deinit();
+                // Use streaming lexer directly
+                var lexer = JsonStreamLexer.init(ctx.content);
 
-                const tokens = try lexer.batchTokenize(ctx.allocator, ctx.content);
-                defer ctx.allocator.free(tokens);
+                // Iterate through all tokens
+                var token_count: usize = 0;
+                while (lexer.next()) |token| {
+                    token_count += 1;
+                    // Access token to prevent optimization
+                    switch (token) {
+                        .json => |t| std.mem.doNotOptimizeAway(t.kind),
+                        else => {},
+                    }
+                }
 
-                std.mem.doNotOptimizeAway(tokens.len);
+                std.mem.doNotOptimizeAway(token_count);
             }
-        }{ .allocator = allocator, .content = medium_json };
+        }{ .content = medium_json };
 
         var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
         allocator.free(result.name);
-        result.name = try allocator.dupe(u8, "JSON Lexer Medium (10KB)");
+        result.name = try allocator.dupe(u8, "JSON Streaming Lexer Medium (10KB)");
         try results.append(result);
 
         // Performance target check: <0.1ms (100,000ns) for 10KB
+        // Streaming should be faster than batch
         if (result.ns_per_op > 100_000) {
-            std.log.warn("JSON Lexer performance target missed: {}ns > 100,000ns for 10KB", .{result.ns_per_op});
+            std.log.warn("JSON Streaming Lexer performance target missed: {}ns > 100,000ns for 10KB", .{result.ns_per_op});
         }
     }
 
-    // Lexer benchmark for large JSON (100KB)
+    // Streaming lexer benchmark for large JSON (100KB)
     {
         const context = struct {
-            allocator: std.mem.Allocator,
             content: []const u8,
 
             pub fn run(ctx: @This()) anyerror!void {
-                var lexer = JsonLexer.init(ctx.allocator);
-                defer lexer.deinit();
+                // Use streaming lexer directly
+                var lexer = JsonStreamLexer.init(ctx.content);
 
-                const tokens = try lexer.batchTokenize(ctx.allocator, ctx.content);
-                defer ctx.allocator.free(tokens);
+                // Iterate through all tokens
+                var token_count: usize = 0;
+                while (lexer.next()) |token| {
+                    token_count += 1;
+                    // Access token to prevent optimization
+                    switch (token) {
+                        .json => |t| std.mem.doNotOptimizeAway(t.kind),
+                        else => {},
+                    }
+                }
 
-                std.mem.doNotOptimizeAway(tokens.len);
+                std.mem.doNotOptimizeAway(token_count);
             }
-        }{ .allocator = allocator, .content = large_json };
+        }{ .content = large_json };
 
         var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
         allocator.free(result.name);
-        result.name = try allocator.dupe(u8, "JSON Lexer Large (100KB)");
+        result.name = try allocator.dupe(u8, "JSON Streaming Lexer Large (100KB)");
         try results.append(result);
     }
 
-    // Real-world JSON patterns
+    // Real-world JSON patterns with TokenIterator
     {
         const real_world_json =
             \\{
@@ -137,23 +162,30 @@ pub fn runJsonLexerBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOp
         ;
 
         const context = struct {
-            allocator: std.mem.Allocator,
             content: []const u8,
 
             pub fn run(ctx: @This()) anyerror!void {
-                var lexer = JsonLexer.init(ctx.allocator);
-                defer lexer.deinit();
+                // Use TokenIterator for generic interface
+                var iterator = try TokenIterator.init(ctx.content, .json);
 
-                const tokens = try lexer.batchTokenize(ctx.allocator, ctx.content);
-                defer ctx.allocator.free(tokens);
+                // Iterate through all tokens
+                var token_count: usize = 0;
+                while (iterator.next()) |token| {
+                    token_count += 1;
+                    // Access token to prevent optimization
+                    switch (token) {
+                        .json => |t| std.mem.doNotOptimizeAway(t.kind),
+                        else => {},
+                    }
+                }
 
-                std.mem.doNotOptimizeAway(tokens.len);
+                std.mem.doNotOptimizeAway(token_count);
             }
-        }{ .allocator = allocator, .content = real_world_json };
+        }{ .content = real_world_json };
 
         var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
         allocator.free(result.name);
-        result.name = try allocator.dupe(u8, "JSON Lexer Real-World");
+        result.name = try allocator.dupe(u8, "JSON Streaming Lexer Real-World");
         try results.append(result);
     }
 

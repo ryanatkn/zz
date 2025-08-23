@@ -1,37 +1,37 @@
+/// ZON Streaming Parser - Direct streaming lexer integration
+///
+/// SIMPLIFIED: Uses streaming lexer directly, no token arrays
+/// Handles ZON-specific features like .field syntax and enum literals
 const std = @import("std");
-const Token = @import("../../token/token.zig").Token;
-const TokenKind = @import("../../token/token.zig").TokenKind;
-const Span = @import("../../span/span.zig").Span;
+const Span = @import("../../span/mod.zig").Span;
+const unpackSpan = @import("../../span/mod.zig").unpackSpan;
+const TokenIterator = @import("../../token/iterator.zig").TokenIterator;
+const StreamToken = @import("../../token/stream_token.zig").StreamToken;
+const ZonToken = @import("stream_token.zig").ZonToken;
+const ZonTokenKind = @import("stream_token.zig").ZonTokenKind;
+
 // Use local ZON AST
 const zon_ast = @import("ast.zig");
 const AST = zon_ast.AST;
 const Node = zon_ast.Node;
 const NodeKind = zon_ast.NodeKind;
-const patterns = @import("patterns.zig");
-const char_utils = @import("../../char/mod.zig");
 
-/// High-performance ZON parser producing proper AST
+/// ZON Parser using streaming lexer
 ///
 /// Features:
-/// - Recursive descent parser for all ZON constructs
-/// - Error recovery with detailed diagnostics
-/// - Support for .field syntax, structs, arrays, literals
-/// - Incremental parsing capability
-/// - Performance target: <1ms for typical config files
+/// - Direct streaming tokenization (no intermediate array)
+/// - Support for ZON-specific syntax (.field, enum literals, etc.)
+/// - Recursive descent parsing
+/// - Error recovery
 pub const ZonParser = struct {
     allocator: std.mem.Allocator,
-    tokens: []const Token,
+    iterator: TokenIterator,
     source: []const u8,
-    current: usize,
+    current: ?StreamToken,
     errors: std.ArrayList(ParseError),
     allow_trailing_commas: bool,
 
     const Self = @This();
-
-    pub const ZonParseError = error{
-        UnexpectedToken,
-        MissingValue,
-    };
 
     pub const ParseError = struct {
         message: []const u8,
@@ -43,18 +43,24 @@ pub const ZonParser = struct {
 
     pub const ParserOptions = struct {
         allow_trailing_commas: bool = true, // ZON commonly has trailing commas
-        recover_from_errors: bool = true, // Continue parsing after errors
+        recover_from_errors: bool = true,
     };
 
-    pub fn init(allocator: std.mem.Allocator, tokens: []const Token, source: []const u8, options: ParserOptions) ZonParser {
-        return ZonParser{
+    /// Initialize parser with streaming lexer
+    pub fn init(allocator: std.mem.Allocator, source: []const u8, options: ParserOptions) !Self {
+        var parser = Self{
             .allocator = allocator,
-            .tokens = tokens,
+            .iterator = try TokenIterator.init(source, .zon),
             .source = source,
-            .current = 0,
+            .current = null,
             .errors = std.ArrayList(ParseError).init(allocator),
             .allow_trailing_commas = options.allow_trailing_commas,
         };
+
+        // Prime the pump - get first token
+        _ = try parser.advance();
+
+        return parser;
     }
 
     pub fn deinit(self: *Self) void {
@@ -64,389 +70,632 @@ pub const ZonParser = struct {
         self.errors.deinit();
     }
 
-    /// Parse tokens into ZON AST
-    pub fn parse(self: *Self) (std.mem.Allocator.Error || ZonParseError)!AST {
-        // Parse root value - handle empty input
-        const root_value = if (self.tokens.len == 0 or (self.tokens.len == 1 and self.tokens[0].kind == .eof)) blk: {
-            break :blk Node{
-                .err = .{
-                    .span = Span{ .start = 0, .end = 0 },
-                    .message = "Empty input",
-                    .partial = null,
-                },
-            };
-        } else try self.parseValue();
-
-        // Allocate root node
-        const root_node_ptr = try self.allocator.create(Node);
-        root_node_ptr.* = root_value;
-
-        return AST{
-            .root = root_node_ptr,
-            .allocator = self.allocator,
-            .owned_texts = std.ArrayList([]const u8).init(self.allocator),
-        };
-    }
-
-    /// Parse a ZON value
-    fn parseValue(self: *Self) (std.mem.Allocator.Error || ZonParseError)!Node {
-        if (self.isAtEnd()) {
-            return self.createErrorNode("Unexpected end of input");
+    /// Parse ZON into AST
+    pub fn parse(self: *Self) !AST {
+        // Allocate arena on heap so it persists with AST (same pattern as JSON)
+        const arena = try self.allocator.create(std.heap.ArenaAllocator);
+        arena.* = std.heap.ArenaAllocator.init(self.allocator);
+        errdefer {
+            arena.deinit();
+            self.allocator.destroy(arena);
         }
 
-        const token = self.peek();
+        const arena_allocator = arena.allocator();
+
+        // Parse root value using arena allocator
+        const root_value = try self.parseValue(arena_allocator);
+
+        // Create root node in arena
+        const root_node = try arena_allocator.create(Node);
+        root_node.* = root_value;
+
+        // Check for trailing content
+        if (self.current) |token| {
+            switch (token) {
+                .zon => |t| {
+                    if (t.kind != .eof) {
+                        const span = unpackSpan(t.span);
+                        try self.addError("Unexpected token after ZON value", span);
+                    }
+                },
+                else => unreachable,
+            }
+        }
+
+        // Create AST with arena allocator
+        var ast = AST.init(self.allocator);
+        ast.root = root_node;
+        ast.source = self.source; // Store source reference for formatting
+        ast.arena = arena; // Store arena for cleanup
+
+        return ast;
+    }
+
+    /// Get parse errors
+    pub fn getErrors(self: *Self) []const ParseError {
+        return self.errors.items;
+    }
+
+    // =========================================================================
+    // Token Navigation
+    // =========================================================================
+
+    /// Advance to next meaningful token (skip trivia)
+    fn advance(self: *Self) !?StreamToken {
+        while (self.iterator.next()) |token| {
+            switch (token) {
+                .zon => |t| {
+                    // Skip trivia
+                    if (t.kind == .whitespace or t.kind == .comment) {
+                        continue;
+                    }
+                    self.current = token;
+                    return token;
+                },
+                else => unreachable, // Parser only handles ZON
+            }
+        }
+        self.current = null;
+        return null;
+    }
+
+    /// Peek at current token
+    fn peek(self: *Self) ?ZonToken {
+        if (self.current) |token| {
+            switch (token) {
+                .zon => |t| return t,
+                else => unreachable,
+            }
+        }
+        return null;
+    }
+
+    /// Expect and consume a specific token kind
+    fn expect(self: *Self, kind: ZonTokenKind) !ZonToken {
+        if (self.peek()) |token| {
+            if (token.kind == kind) {
+                const result = token;
+                _ = try self.advance();
+                return result;
+            }
+            const span = unpackSpan(token.span);
+            // Use a static buffer to avoid memory leaks for error messages
+            var buf: [128]u8 = undefined;
+            const msg = std.fmt.bufPrint(&buf, "Expected {s}, got {s}", .{ @tagName(kind), @tagName(token.kind) }) catch "Parse error";
+            try self.addError(msg, span);
+            return error.UnexpectedToken;
+        }
+
+        try self.addError("Unexpected end of input", Span.init(@intCast(self.source.len), @intCast(self.source.len)));
+        return error.UnexpectedEndOfInput;
+    }
+
+    // =========================================================================
+    // Value Parsing
+    // =========================================================================
+
+    fn parseValue(self: *Self, allocator: std.mem.Allocator) anyerror!Node {
+        const token = self.peek() orelse {
+            try self.addError("Unexpected end of input", Span.init(0, 0));
+            return self.createErrorNode(allocator);
+        };
+
         return switch (token.kind) {
-            .string => try self.parseString(),
-            .number => try self.parseNumber(),
-            .boolean => try self.parseBoolean(),
-            .identifier => blk: {
-                const text = token.getText(self.source);
-                if (std.mem.eql(u8, text, "null")) {
-                    break :blk try self.parseNull();
-                } else {
-                    break :blk try self.parseIdentifier();
-                }
+            .string_value => self.parseString(allocator),
+            .number_value => self.parseNumber(allocator),
+            .boolean_true, .boolean_false => self.parseBoolean(allocator),
+            .null_value => self.parseNull(allocator),
+            .undefined => self.parseUndefined(allocator),
+            .struct_start => self.parseStruct(allocator),
+            .object_start => self.parseObject(allocator),
+            .array_start => self.parseArray(allocator),
+            .dot => self.parseEnumLiteral(allocator),
+            .field_name => self.parseFieldName(allocator),
+            .identifier => self.parseIdentifier(allocator),
+            .import => self.parseImport(allocator),
+            else => {
+                const span = unpackSpan(token.span);
+                const msg = try std.fmt.allocPrint(allocator, // Use arena allocator
+                    "Unexpected token: {s}", .{@tagName(token.kind)});
+                try self.addError(msg, span);
+                _ = try self.advance(); // Skip bad token
+                return self.createErrorNode(allocator);
             },
-            .left_brace => try self.parseObject(),
-            .left_bracket => try self.parseArray(),
-            .dot => blk: {
-                // Check if this is a ZON object literal (.{) or field name (.name)
-                if (self.current + 1 < self.tokens.len and self.tokens[self.current + 1].kind == .left_brace) {
-                    // This is .{ - parse as object literal
-                    _ = self.advance(); // consume '.'
-                    break :blk try self.parseObject();
-                } else {
-                    // This is .name - parse as field name
-                    break :blk try self.parseFieldName();
-                }
-            },
-            .eof => self.createErrorNode("Unexpected end of file"),
-            else => self.createErrorNode("Unexpected token"),
         };
     }
 
-    fn parseString(self: *Self) std.mem.Allocator.Error!Node {
-        const token = self.advance();
-        const text = token.getText(self.source);
-        // Remove quotes and handle escaping
-        const content = if (text.len >= 2 and text[0] == '"' and text[text.len - 1] == '"')
-            text[1 .. text.len - 1]
-        else
-            text;
+    fn parseString(self: *Self, allocator: std.mem.Allocator) !Node {
+        const token = try self.expect(.string_value);
+        const span = unpackSpan(token.span);
+
+        // Extract string value from source
+        const raw = self.source[span.start..span.end];
+
+        // Process escape sequences
+        const value = try self.processStringEscapes(allocator, raw);
 
         return Node{
             .string = .{
-                .span = token.span,
-                .value = content,
-                .quote_style = .double,
+                .span = span,
+                .value = value,
             },
         };
     }
 
-    fn parseNumber(self: *Self) std.mem.Allocator.Error!Node {
-        const token = self.advance();
-        const text = token.getText(self.source);
+    fn parseNumber(self: *Self, allocator: std.mem.Allocator) !Node {
+        _ = allocator;
+        const token = try self.expect(.number_value);
+        const span = unpackSpan(token.span);
 
-        // Simple number parsing - could be enhanced to detect integer vs float
-        const number_value = if (std.mem.indexOf(u8, text, ".")) |_|
-            @import("ast.zig").NumberNode.NumberValue{ .float = std.fmt.parseFloat(f64, text) catch 0.0 }
-        else
-            @import("ast.zig").NumberNode.NumberValue{ .integer = std.fmt.parseInt(i64, text, 10) catch 0 };
+        // Extract number text from source
+        const text = self.source[span.start..span.end];
+
+        // ZON supports various number formats
+        const value = if (std.mem.indexOf(u8, text, ".") != null or
+            std.mem.indexOf(u8, text, "e") != null or
+            std.mem.indexOf(u8, text, "E") != null)
+            try std.fmt.parseFloat(f64, text)
+        else blk: {
+            const int_val = try std.fmt.parseInt(i64, text, 0);
+            break :blk @as(f64, @floatFromInt(int_val));
+        };
 
         return Node{
             .number = .{
-                .span = token.span,
+                .span = span,
+                .value = .{ .float = value },
                 .raw = text,
-                .value = number_value,
             },
         };
     }
 
-    fn parseBoolean(self: *Self) std.mem.Allocator.Error!Node {
-        const token = self.advance();
-        const text = token.getText(self.source);
+    fn parseBoolean(self: *Self, allocator: std.mem.Allocator) !Node {
+        _ = allocator;
+        const token = self.peek() orelse return error.UnexpectedEndOfInput;
+
+        const value = switch (token.kind) {
+            .boolean_true => true,
+            .boolean_false => false,
+            else => unreachable,
+        };
+
+        const span = unpackSpan(token.span);
+        _ = try self.advance();
 
         return Node{
             .boolean = .{
-                .span = token.span,
-                .value = std.mem.eql(u8, text, "true"),
+                .span = span,
+                .value = value,
             },
         };
     }
 
-    fn parseNull(self: *Self) std.mem.Allocator.Error!Node {
-        const token = self.advance();
+    fn parseNull(self: *Self, allocator: std.mem.Allocator) !Node {
+        _ = allocator;
+        const token = try self.expect(.null_value);
+        const span = unpackSpan(token.span);
+
         return Node{
-            .null = token.span,
+            .null = span,
         };
     }
 
-    fn parseIdentifier(self: *Self) std.mem.Allocator.Error!Node {
-        const token = self.advance();
-        const text = token.getText(self.source);
+    fn parseUndefined(self: *Self, allocator: std.mem.Allocator) !Node {
+        _ = allocator;
+        const token = try self.expect(.undefined);
+        const span = unpackSpan(token.span);
 
-        // Check for quoted identifier syntax @"name"
-        const is_quoted = text.len >= 3 and text[0] == '@' and text[1] == '"' and text[text.len - 1] == '"';
-        const name = if (is_quoted) text[2 .. text.len - 1] else text;
+        // ZON doesn't have undefined in AST, use null
+        return Node{
+            .null = span,
+        };
+    }
+
+    fn parseIdentifier(self: *Self, allocator: std.mem.Allocator) !Node {
+        const token = try self.expect(.identifier);
+        const span = unpackSpan(token.span);
+        const name = self.source[span.start..span.end];
 
         return Node{
             .identifier = .{
-                .span = token.span,
-                .name = name,
-                .is_quoted = is_quoted,
+                .span = span,
+                .name = try allocator.dupe(u8, name),
             },
         };
     }
 
-    fn parseFieldName(self: *Self) std.mem.Allocator.Error!Node {
-        const dot_token = self.advance(); // consume '.'
-        if (self.isAtEnd() or self.peek().kind != .identifier) {
-            return self.createErrorNode("Expected identifier after '.'");
-        }
-
-        const name_token = self.advance();
-        const name_text = name_token.getText(self.source);
+    fn parseFieldName(self: *Self, allocator: std.mem.Allocator) !Node {
+        const token = try self.expect(.field_name);
+        const span = unpackSpan(token.span);
+        const name = self.source[span.start..span.end];
 
         return Node{
             .field_name = .{
-                .span = Span{ .start = dot_token.span.start, .end = name_token.span.end },
-                .name = name_text,
+                .span = span,
+                .name = try allocator.dupe(u8, name),
             },
         };
     }
 
-    fn parseObject(self: *Self) (std.mem.Allocator.Error || ZonParseError)!Node {
-        const start_token = self.advance(); // consume '{'
+    fn parseEnumLiteral(self: *Self, allocator: std.mem.Allocator) !Node {
+        _ = try self.expect(.dot); // Consume the dot
+        const token = try self.expect(.enum_literal);
+        const span = unpackSpan(token.span);
+        const name = self.source[span.start..span.end];
 
-        // Handle empty object
-        if (self.match(.right_brace)) {
-            return Node{
-                .object = .{
-                    .span = Span{ .start = start_token.span.start, .end = self.previous().span.end },
-                    .fields = &[_]Node{},
-                },
-            };
-        }
-
-        // Look ahead to determine if this is an anonymous array or object
-        // Anonymous array: values without field assignments
-        // Object: field assignments (.field = value)
-        const is_anonymous_array = !self.isNextField();
-
-        if (is_anonymous_array) {
-            // Parse as anonymous array (.{ item1, item2, ... })
-            var elements = std.ArrayList(Node).init(self.allocator);
-
-            while (!self.isAtEnd() and !self.check(.right_brace)) {
-                const element = try self.parseValue();
-                try elements.append(element);
-
-                if (!self.match(.comma) and !self.check(.right_brace)) {
-                    _ = try self.addError("Expected ',' or '}' after array element", self.peek().span);
-                    break;
-                }
-            }
-
-            if (!self.match(.right_brace)) {
-                _ = try self.addError("Expected '}' to close anonymous array", self.peek().span);
-            }
-
-            return Node{
-                .array = .{
-                    .span = Span{ .start = start_token.span.start, .end = if (self.current > 0) self.tokens[self.current - 1].span.end else start_token.span.end },
-                    .elements = try elements.toOwnedSlice(),
-                    .is_anonymous_list = true,
-                },
-            };
-        } else {
-            // Parse as object with fields
-            var fields = std.ArrayList(Node).init(self.allocator);
-
-            while (!self.isAtEnd() and !self.check(.right_brace)) {
-                const field = try self.parseField();
-                try fields.append(field);
-
-                if (!self.match(.comma) and !self.check(.right_brace)) {
-                    _ = try self.addError("Expected ',' or '}' after field", self.peek().span);
-                    break;
-                }
-            }
-
-            if (!self.match(.right_brace)) {
-                _ = try self.addError("Expected '}' to close object", self.peek().span);
-            }
-
-            return Node{
-                .object = .{
-                    .span = Span{ .start = start_token.span.start, .end = if (self.current > 0) self.tokens[self.current - 1].span.end else start_token.span.end },
-                    .fields = try fields.toOwnedSlice(),
-                },
-            };
-        }
+        // Use identifier for enum literals
+        return Node{
+            .identifier = .{
+                .span = span,
+                .name = try allocator.dupe(u8, name),
+            },
+        };
     }
 
-    /// Look ahead to determine if next tokens form a field assignment (.field = value)
-    fn isNextField(self: *Self) bool {
-        if (self.isAtEnd()) return false;
+    fn parseImport(self: *Self, allocator: std.mem.Allocator) !Node {
+        _ = try self.expect(.import);
 
-        // Check if we have .identifier = pattern
-        if (self.peek().kind == .dot) {
-            if (self.current + 1 < self.tokens.len and self.tokens[self.current + 1].kind == .identifier) {
-                if (self.current + 2 < self.tokens.len and self.tokens[self.current + 2].kind == .equal) {
-                    return true;
-                }
-            }
-        }
+        _ = try self.expect(.paren_open);
+        const path_node = try self.parseString(allocator);
+        _ = try self.expect(.paren_close);
 
-        // Check if we have identifier = pattern (for unquoted identifiers)
-        if (self.peek().kind == .identifier) {
-            if (self.current + 1 < self.tokens.len and self.tokens[self.current + 1].kind == .equal) {
-                return true;
-            }
-        }
-
-        return false;
+        // Return the string node for import path
+        return path_node;
     }
 
-    fn parseArray(self: *Self) (std.mem.Allocator.Error || ZonParseError)!Node {
-        const start_token = self.advance(); // consume '['
-        var elements = std.ArrayList(Node).init(self.allocator);
+    fn parseStruct(self: *Self, allocator: std.mem.Allocator) !Node {
+        const start_token = try self.expect(.struct_start);
+        const start_span = unpackSpan(start_token.span);
 
-        // Handle empty array
-        if (self.match(.right_bracket)) {
-            return Node{
-                .array = .{
-                    .span = Span{ .start = start_token.span.start, .end = self.previous().span.end },
-                    .elements = try elements.toOwnedSlice(),
-                    .is_anonymous_list = false,
-                },
-            };
+        var fields = std.ArrayList(Node).init(allocator);
+        defer fields.deinit();
+
+        // Check for empty struct
+        if (self.peek()) |token| {
+            if (token.kind == .struct_end) {
+                const end_token = try self.expect(.struct_end);
+                const end_span = unpackSpan(end_token.span);
+
+                return Node{
+                    .object = .{
+                        .span = Span.init(start_span.start, end_span.end),
+                        .fields = try fields.toOwnedSlice(),
+                    },
+                };
+            }
         }
 
-        // Parse elements
-        while (!self.isAtEnd() and !self.check(.right_bracket)) {
-            const element = try self.parseValue();
-            try elements.append(element);
+        // Parse fields - handle both named fields (.field = value) and positional values
+        while (true) {
+            // Check if this is a named field or positional value
+            if (self.peek()) |token| {
+                if (token.kind == .field_name) {
+                    // Named field: .field = value
+                    const field_token = try self.expect(.field_name);
+                    const field_span = unpackSpan(field_token.span);
+                    const field_name = self.source[field_span.start..field_span.end];
 
-            if (!self.match(.comma) and !self.check(.right_bracket)) {
-                _ = try self.addError("Expected ',' or ']' after array element", self.peek().span);
+                    // Expect equals
+                    _ = try self.expect(.equals);
+
+                    // Check if we have a missing value (comma or } immediately after =)
+                    if (self.peek()) |next| {
+                        if (next.kind == .comma or next.kind == .struct_end) {
+                            const span = unpackSpan(next.span);
+                            try self.addError("Missing value after '='", span);
+                            return error.MissingValue;
+                        }
+                    }
+
+                    // Parse value
+                    const value = try self.parseValue(allocator);
+
+                    // Create field node
+                    const field_name_node = try allocator.create(Node);
+                    field_name_node.* = Node{
+                        .field_name = .{
+                            .span = field_span,
+                            .name = try allocator.dupe(u8, field_name),
+                        },
+                    };
+                    const value_node = try allocator.create(Node);
+                    value_node.* = value;
+                    const field = Node{
+                        .field = .{
+                            .span = Span.init(field_span.start, value.span().end),
+                            .name = field_name_node,
+                            .value = value_node,
+                        },
+                    };
+
+                    try fields.append(field);
+                } else if (token.kind == .struct_end) {
+                    // End of struct
+                    break;
+                } else {
+                    // Positional value (no field name) - for anonymous struct like .{ "a", "b", "c" }
+                    const value = try self.parseValue(allocator);
+                    try fields.append(value);
+                }
+            } else {
+                try self.addError("Unexpected end of input in struct", Span.init(@intCast(self.source.len), @intCast(self.source.len)));
+                break;
+            }
+
+            // Check for continuation
+            if (self.peek()) |next_token| {
+                if (next_token.kind == .comma) {
+                    _ = try self.advance();
+
+                    // Check for trailing comma
+                    if (self.peek()) |next| {
+                        if (next.kind == .struct_end) {
+                            break;
+                        }
+                    }
+                } else if (next_token.kind == .struct_end) {
+                    break;
+                } else {
+                    const span = unpackSpan(next_token.span);
+                    try self.addError("Expected ',' or '}'", span);
+                    break;
+                }
+            } else {
+                try self.addError("Unexpected end of input in struct", Span.init(@intCast(self.source.len), @intCast(self.source.len)));
                 break;
             }
         }
 
-        if (!self.match(.right_bracket)) {
-            _ = try self.addError("Expected ']' to close array", self.peek().span);
+        const end_token = try self.expect(.struct_end);
+        const end_span = unpackSpan(end_token.span);
+
+        return Node{
+            .object = .{
+                .span = Span.init(start_span.start, end_span.end),
+                .fields = try fields.toOwnedSlice(),
+            },
+        };
+    }
+
+    fn parseObject(self: *Self, allocator: std.mem.Allocator) !Node {
+        // ZON objects are similar to structs but without dots
+        const start_token = try self.expect(.object_start);
+        const start_span = unpackSpan(start_token.span);
+
+        var properties = std.ArrayList(Node).init(allocator);
+        defer properties.deinit();
+
+        // Check for empty object
+        if (self.peek()) |token| {
+            if (token.kind == .object_end) {
+                const end_token = try self.expect(.object_end);
+                const end_span = unpackSpan(end_token.span);
+
+                return Node{
+                    .object = .{
+                        .span = Span.init(start_span.start, end_span.end),
+                        .fields = try properties.toOwnedSlice(),
+                    },
+                };
+            }
         }
+
+        // Parse properties
+        while (true) {
+            // Parse property (could be identifier or string key)
+            const property = try self.parseValue(allocator);
+
+            // Expect colon
+            _ = try self.expect(.colon);
+
+            // Parse value
+            const value = try self.parseValue(allocator);
+
+            // Create field node (using field for properties in ZON)
+            const key_node = try allocator.create(Node);
+            key_node.* = property;
+            const value_node = try allocator.create(Node);
+            value_node.* = value;
+            const prop_node = Node{
+                .field = .{
+                    .span = Span.init(property.span().start, value.span().end),
+                    .name = key_node,
+                    .value = value_node,
+                },
+            };
+
+            try properties.append(prop_node);
+
+            // Check for continuation
+            if (self.peek()) |token| {
+                if (token.kind == .comma) {
+                    _ = try self.advance();
+
+                    // Check for trailing comma
+                    if (self.peek()) |next| {
+                        if (next.kind == .object_end) {
+                            break;
+                        }
+                    }
+                } else if (token.kind == .object_end) {
+                    break;
+                } else {
+                    const span = unpackSpan(token.span);
+                    try self.addError("Expected ',' or '}'", span);
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
+
+        const end_token = try self.expect(.object_end);
+        const end_span = unpackSpan(end_token.span);
+
+        return Node{
+            .object = .{
+                .span = Span.init(start_span.start, end_span.end),
+                .fields = try properties.toOwnedSlice(),
+            },
+        };
+    }
+
+    fn parseArray(self: *Self, allocator: std.mem.Allocator) !Node {
+        const start_token = try self.expect(.array_start);
+        const start_span = unpackSpan(start_token.span);
+
+        var elements = std.ArrayList(Node).init(allocator);
+        defer elements.deinit();
+
+        // Check for empty array
+        if (self.peek()) |token| {
+            if (token.kind == .array_end) {
+                const end_token = try self.expect(.array_end);
+                const end_span = unpackSpan(end_token.span);
+
+                return Node{
+                    .array = .{
+                        .span = Span.init(start_span.start, end_span.end),
+                        .elements = try elements.toOwnedSlice(),
+                    },
+                };
+            }
+        }
+
+        // Parse elements
+        while (true) {
+            const element = try self.parseValue(allocator);
+            try elements.append(element);
+
+            // Check for continuation
+            if (self.peek()) |token| {
+                if (token.kind == .comma) {
+                    _ = try self.advance();
+
+                    // Check for trailing comma
+                    if (self.peek()) |next| {
+                        if (next.kind == .array_end) {
+                            break;
+                        }
+                    }
+                } else if (token.kind == .array_end) {
+                    break;
+                } else {
+                    const span = unpackSpan(token.span);
+                    try self.addError("Expected ',' or ']'", span);
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
+
+        const end_token = try self.expect(.array_end);
+        const end_span = unpackSpan(end_token.span);
 
         return Node{
             .array = .{
-                .span = Span{ .start = start_token.span.start, .end = if (self.current > 0) self.tokens[self.current - 1].span.end else start_token.span.end },
+                .span = Span.init(start_span.start, end_span.end),
                 .elements = try elements.toOwnedSlice(),
-                .is_anonymous_list = false,
             },
         };
     }
 
-    fn parseField(self: *Self) (std.mem.Allocator.Error || ZonParseError)!Node {
-        const name_node = try self.parseValue(); // Can be field_name or identifier
+    // =========================================================================
+    // Utilities
+    // =========================================================================
 
-        if (!self.match(.equal)) {
-            _ = try self.addError("Expected '=' after field name", self.peek().span);
-        }
-
-        // Check for double equals (invalid syntax like ".field = = value")
-        if (self.check(.equal)) {
-            return ZonParseError.UnexpectedToken;
-        }
-
-        // Check for missing value (invalid syntax like ".field = }")
-        if (self.isAtEnd() or self.check(.right_brace) or self.check(.comma)) {
-            return ZonParseError.MissingValue;
-        }
-
-        const name_node_ptr = try self.allocator.create(Node);
-        name_node_ptr.* = name_node;
-
-        const value_node_ptr = try self.allocator.create(Node);
-        value_node_ptr.* = try self.parseValue();
-
-        const name_span = name_node.span();
-        const value_span = value_node_ptr.span();
-
-        return Node{
-            .field = .{
-                .span = Span{ .start = name_span.start, .end = value_span.end },
-                .name = name_node_ptr,
-                .value = value_node_ptr,
-            },
-        };
-    }
-
-    // Utility methods
-    fn isAtEnd(self: *Self) bool {
-        return self.current >= self.tokens.len or self.peek().kind == .eof;
-    }
-
-    fn peek(self: *Self) Token {
-        if (self.current >= self.tokens.len) {
-            return Token{ .kind = .eof, .span = Span{ .start = 0, .end = 0 } };
-        }
-        return self.tokens[self.current];
-    }
-
-    fn previous(self: *Self) Token {
-        if (self.current == 0) {
-            return Token{ .kind = .eof, .span = Span{ .start = 0, .end = 0 } };
-        }
-        return self.tokens[self.current - 1];
-    }
-
-    fn advance(self: *Self) Token {
-        if (!self.isAtEnd()) {
-            self.current += 1;
-        }
-        return self.previous();
-    }
-
-    fn check(self: *Self, kind: TokenKind) bool {
-        if (self.isAtEnd()) return false;
-        return self.peek().kind == kind;
-    }
-
-    fn match(self: *Self, kind: TokenKind) bool {
-        if (self.check(kind)) {
-            _ = self.advance();
-            return true;
-        }
-        return false;
-    }
-
-    fn createErrorNode(self: *Self, message: []const u8) Node {
-        const span = if (self.isAtEnd())
-            Span{ .start = 0, .end = 0 }
+    fn processStringEscapes(self: *Self, allocator: std.mem.Allocator, raw: []const u8) ![]const u8 {
+        _ = self;
+        // Remove quotes if present
+        const content = if (raw.len >= 2 and raw[0] == '"' and raw[raw.len - 1] == '"')
+            raw[1 .. raw.len - 1]
         else
-            self.peek().span;
+            raw;
 
-        _ = self.addError(message, span) catch {};
+        // TODO: Handle ZON-specific escape sequences
+        return try allocator.dupe(u8, content);
+    }
 
+    fn createErrorNode(self: *Self, allocator: std.mem.Allocator) Node {
+        _ = self;
+        _ = allocator;
         return Node{
             .err = .{
-                .span = span,
-                .message = message,
+                .message = "Parse error",
+                .span = Span.init(0, 0),
                 .partial = null,
             },
         };
     }
 
     fn addError(self: *Self, message: []const u8, span: Span) !void {
-        const owned_message = try self.allocator.dupe(u8, message);
-        try self.errors.append(ParseError{
-            .message = owned_message,
+        const msg = try self.allocator.dupe(u8, message);
+        try self.errors.append(.{
+            .message = msg,
             .span = span,
             .severity = .err,
         });
     }
 };
 
-// No convenience function needed - callers should use mod.zig parse() which provides source text
-// TODO: If we need a convenience function in the future, it should require source text parameter
+// ============================================================================
+// Tests
+// ============================================================================
+
+test "ZON streaming parser - simple values" {
+    const testing = std.testing;
+    const allocator = testing.allocator;
+
+    const inputs = [_][]const u8{
+        "\"hello\"",
+        "123",
+        "true",
+        "false",
+        "null",
+        "undefined",
+        ".red", // enum literal
+    };
+
+    for (inputs) |input| {
+        var parser = try ZonParser.init(allocator, input, .{});
+        defer parser.deinit();
+
+        var ast = try parser.parse();
+        defer ast.deinit();
+
+        try testing.expect(ast.root != null);
+    }
+}
+
+test "ZON streaming parser - structs" {
+    const testing = std.testing;
+    const allocator = testing.allocator;
+
+    const input = ".{ .name = \"test\", .value = 42 }";
+
+    var parser = try ZonParser.init(allocator, input, .{});
+    defer parser.deinit();
+
+    var ast = try parser.parse();
+    defer ast.deinit();
+
+    try testing.expect(ast.root != null);
+    try testing.expectEqual(NodeKind.object, std.meta.activeTag(ast.root.?.*));
+}
+
+test "ZON streaming parser - arrays" {
+    const testing = std.testing;
+    const allocator = testing.allocator;
+
+    const input = "[1, 2, 3, \"test\", true, null, .red]";
+
+    var parser = try ZonParser.init(allocator, input, .{});
+    defer parser.deinit();
+
+    var ast = try parser.parse();
+    defer ast.deinit();
+
+    try testing.expect(ast.root != null);
+    try testing.expectEqual(NodeKind.array, std.meta.activeTag(ast.root.?.*));
+}

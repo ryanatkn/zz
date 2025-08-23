@@ -59,17 +59,7 @@ fn processJsonData(allocator: std.mem.Allocator, data: []const u8) !LanguageResu
         // Parse timing
         const parse_start = std.time.nanoTimestamp();
 
-        const tokens = json.tokenize(allocator, data) catch |err| {
-            result.success = false;
-            result.error_msg = @errorName(err);
-            return result;
-        };
-        defer allocator.free(tokens);
-
-        var parser = json.Parser.init(allocator, tokens, data, .{});
-        defer parser.deinit();
-
-        var ast = parser.parse() catch |err| {
+        var ast = json.parse(allocator, data) catch |err| {
             result.success = false;
             result.error_msg = @errorName(err);
             return result;
@@ -79,9 +69,14 @@ fn processJsonData(allocator: std.mem.Allocator, data: []const u8) !LanguageResu
         const parse_end = std.time.nanoTimestamp();
         total_parse_time += @intCast(parse_end - parse_start);
 
-        // Format timing
+        // Format timing (AST-first approach)
         const format_start = std.time.nanoTimestamp();
-        const formatted = json.formatJsonString(allocator, data) catch |err| {
+        var formatter = json.Formatter.init(allocator, .{
+            .indent_size = 2,
+            .indent_style = .space,
+        });
+        defer formatter.deinit();
+        const formatted = formatter.format(ast) catch |err| {
             result.success = false;
             result.error_msg = @errorName(err);
             return result;
@@ -92,9 +87,9 @@ fn processJsonData(allocator: std.mem.Allocator, data: []const u8) !LanguageResu
 
         // Collect stats from first successful iteration
         if (token_count == 0) {
-            token_count = tokens.len;
-            const stats = parser.context.getStats();
-            node_count = stats.nodes_allocated;
+            // Approximate token count from data length (rough estimate)
+            token_count = data.len / 10; // Very rough estimate
+            node_count = ast.nodes.len; // Get actual node count from AST
             result.memory_bytes = node_count * @sizeOf(json_ast.Node);
         }
     }
@@ -127,14 +122,7 @@ fn processZonData(allocator: std.mem.Allocator, data: []const u8) !LanguageResul
         // Parse timing
         const parse_start = std.time.nanoTimestamp();
 
-        const tokens = zon.tokenize(allocator, data) catch |err| {
-            result.success = false;
-            result.error_msg = @errorName(err);
-            return result;
-        };
-        defer allocator.free(tokens);
-
-        var ast = zon.parseZonString(allocator, data) catch |err| {
+        var ast = zon.parse(allocator, data) catch |err| {
             result.success = false;
             result.error_msg = @errorName(err);
             return result;
@@ -144,9 +132,14 @@ fn processZonData(allocator: std.mem.Allocator, data: []const u8) !LanguageResul
         const parse_end = std.time.nanoTimestamp();
         total_parse_time += @intCast(parse_end - parse_start);
 
-        // Format timing
+        // Format timing (AST-first approach)
         const format_start = std.time.nanoTimestamp();
-        const formatted = zon.formatZonString(allocator, data) catch |err| {
+        var formatter = zon.ZonFormatter.init(allocator, .{
+            .indent_size = 4,
+            .indent_style = .space,
+        });
+        defer formatter.deinit();
+        const formatted = formatter.format(ast) catch |err| {
             result.success = false;
             result.error_msg = @errorName(err);
             return result;
@@ -157,10 +150,11 @@ fn processZonData(allocator: std.mem.Allocator, data: []const u8) !LanguageResul
 
         // Collect stats from first successful iteration
         if (token_count == 0) {
-            token_count = tokens.len;
-            // Note: ZON doesn't expose parser context stats the same way
-            // We'll estimate nodes based on tokens
-            result.memory_bytes = (token_count / 2) * 32; // rough estimate
+            // Approximate token count from data length (rough estimate)
+            token_count = data.len / 8; // Very rough estimate for ZON
+            // Note: ZON doesn't expose node count directly from AST
+            // We'll estimate based on data size
+            result.memory_bytes = data.len / 4; // rough estimate
         }
     }
 

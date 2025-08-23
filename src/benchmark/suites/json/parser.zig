@@ -5,9 +5,7 @@ const BenchmarkOptions = benchmark_lib.BenchmarkOptions;
 const BenchmarkError = benchmark_lib.BenchmarkError;
 
 // Import JSON components
-const JsonLexer = @import("../../../lib/languages/json/lexer.zig").JsonLexer;
 const JsonParser = @import("../../../lib/languages/json/parser.zig").JsonParser;
-const Token = @import("../../../lib/token/token.zig").Token;
 
 pub fn runJsonParserBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOptions) BenchmarkError![]BenchmarkResult {
     var results = std.ArrayList(BenchmarkResult).init(allocator);
@@ -42,13 +40,8 @@ pub fn runJsonParserBenchmarks(allocator: std.mem.Allocator, options: BenchmarkO
                 defer arena.deinit();
                 const arena_alloc = arena.allocator();
 
-                // Pre-tokenize
-                var lexer = JsonLexer.init(arena_alloc);
-                defer lexer.deinit();
-                const tokens = try lexer.batchTokenize(arena_alloc, ctx.content);
-
-                // Parse tokens
-                var parser = JsonParser.init(arena_alloc, tokens, ctx.content, .{});
+                // Parse directly from source (streaming)
+                var parser = try JsonParser.init(arena_alloc, ctx.content, .{});
                 defer parser.deinit();
 
                 var ast = try parser.parse();
@@ -82,13 +75,8 @@ pub fn runJsonParserBenchmarks(allocator: std.mem.Allocator, options: BenchmarkO
                 defer arena.deinit();
                 const arena_alloc = arena.allocator();
 
-                // Pre-tokenize
-                var lexer = JsonLexer.init(arena_alloc);
-                defer lexer.deinit();
-                const tokens = try lexer.batchTokenize(arena_alloc, ctx.content);
-
-                // Parse tokens
-                var parser = JsonParser.init(arena_alloc, tokens, ctx.content, .{});
+                // Parse directly from source (streaming)
+                var parser = try JsonParser.init(arena_alloc, ctx.content, .{});
                 defer parser.deinit();
 
                 var ast = try parser.parse();
@@ -127,13 +115,8 @@ pub fn runJsonParserBenchmarks(allocator: std.mem.Allocator, options: BenchmarkO
                 defer arena.deinit();
                 const arena_alloc = arena.allocator();
 
-                // Pre-tokenize
-                var lexer = JsonLexer.init(arena_alloc);
-                defer lexer.deinit();
-                const tokens = try lexer.batchTokenize(arena_alloc, ctx.content);
-
-                // Parse tokens
-                var parser = JsonParser.init(arena_alloc, tokens, ctx.content, .{});
+                // Parse directly from source (streaming)
+                var parser = try JsonParser.init(arena_alloc, ctx.content, .{});
                 defer parser.deinit();
 
                 var ast = try parser.parse();
@@ -155,17 +138,11 @@ pub fn runJsonParserBenchmarks(allocator: std.mem.Allocator, options: BenchmarkO
         try results.append(result);
     }
 
-    // Parse-only benchmark (tokens pre-provided)
+    // Parse-only benchmark (using streaming parser)
     {
-        // Pre-tokenize the medium JSON once
-        var lexer = JsonLexer.init(allocator);
-        defer lexer.deinit();
-        const tokens = try lexer.batchTokenize(allocator, medium_json);
-        defer allocator.free(tokens);
-
         const context = struct {
             allocator: std.mem.Allocator,
-            tokens: []const Token,
+            source: []const u8,
 
             pub fn run(ctx: @This()) anyerror!void {
                 // Use arena for fast cleanup of all allocations
@@ -173,7 +150,7 @@ pub fn runJsonParserBenchmarks(allocator: std.mem.Allocator, options: BenchmarkO
                 defer arena.deinit();
                 const arena_alloc = arena.allocator();
 
-                var parser = JsonParser.init(arena_alloc, ctx.tokens, "", .{});
+                var parser = try JsonParser.init(arena_alloc, ctx.source, .{});
                 defer parser.deinit();
 
                 var ast = try parser.parse();
@@ -187,7 +164,7 @@ pub fn runJsonParserBenchmarks(allocator: std.mem.Allocator, options: BenchmarkO
                     else => std.mem.doNotOptimizeAway(root_value.span().start),
                 }
             }
-        }{ .allocator = allocator, .tokens = tokens };
+        }{ .allocator = allocator, .source = medium_json };
 
         var result = try benchmark_lib.measureOperation(allocator, effective_duration, options.warmup, context, @TypeOf(context).run);
         allocator.free(result.name);
@@ -229,11 +206,8 @@ pub fn runJsonParserBenchmarks(allocator: std.mem.Allocator, options: BenchmarkO
                 defer arena.deinit();
                 const arena_alloc = arena.allocator();
 
-                var lexer = JsonLexer.init(arena_alloc);
-                defer lexer.deinit();
-                const tokens = try lexer.batchTokenize(arena_alloc, ctx.content);
-
-                var parser = JsonParser.init(arena_alloc, tokens, ctx.content, .{});
+                // Parse directly from source (streaming)
+                var parser = try JsonParser.init(arena_alloc, ctx.content, .{});
                 defer parser.deinit();
 
                 var ast = try parser.parse();

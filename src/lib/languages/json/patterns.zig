@@ -87,16 +87,14 @@ pub const JsonLiterals = struct {
     }
 
     /// Get token kind for literal (using new token system)
-    pub fn tokenKind(literal: JsonLiteralType) TokenKind {
+    pub fn tokenKind(literal: JsonLiteralType) @import("stream_token.zig").JsonTokenKind {
         return switch (literal) {
-            .true_literal, .false_literal => .boolean,
-            .null_literal => .null,
+            .true_literal => .boolean_true,
+            .false_literal => .boolean_false,
+            .null_literal => .null_value,
         };
     }
 };
-
-// Import TokenKind from new token system
-const TokenKind = @import("../../token/mod.zig").TokenKind;
 
 /// Lint rule operations - using the existing JsonRuleType enum
 pub const JsonLintRules = struct {
@@ -183,7 +181,7 @@ test "JSON literals" {
     // Test literal text
     const true_literal = JsonLiterals.fromFirstChar('t').?;
     try testing.expectEqualStrings("true", JsonLiterals.text(true_literal));
-    try testing.expectEqual(TokenKind.boolean, JsonLiterals.tokenKind(true_literal));
+    try testing.expectEqual(@import("stream_token.zig").JsonTokenKind.boolean_true, JsonLiterals.tokenKind(true_literal));
 }
 
 test "JSON lint rules" {

@@ -295,18 +295,29 @@ pub const AST = struct {
     allocator: std.mem.Allocator,
     root: ?*Node,
     owned_texts: std.ArrayList([]const u8), // For cleanup
+    source: []const u8, // Source text reference for formatting
+    arena: ?*std.heap.ArenaAllocator, // Arena allocator for all AST nodes
 
     pub fn init(allocator: std.mem.Allocator) AST {
         return .{
             .allocator = allocator,
             .root = null,
             .owned_texts = std.ArrayList([]const u8).init(allocator),
+            .source = "",
+            .arena = null,
         };
     }
 
     pub fn deinit(self: *AST) void {
-        if (self.root) |root| {
-            self.destroyNode(root);
+        // Clean up arena if present (contains all AST nodes)
+        if (self.arena) |arena| {
+            arena.deinit();
+            self.allocator.destroy(arena);
+        } else {
+            // Fallback: manual cleanup for old API
+            if (self.root) |root| {
+                self.destroyNode(root);
+            }
         }
         // Free owned texts
         for (self.owned_texts.items) |text| {

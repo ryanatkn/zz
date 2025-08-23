@@ -27,9 +27,6 @@ pub const getStringGlobal = @import("atom_table.zig").lookupGlobal;
 // Scoped memory utilities
 pub const ScopedAllocator = @import("scoped.zig").ScopedAllocator;
 
-// ZON-specific memory utilities
-pub const ZonArena = @import("zon.zig").ZonArena;
-
 test {
     _ = @import("test.zig");
     _ = @import("arena_pool.zig");

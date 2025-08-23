@@ -2,12 +2,7 @@ const std = @import("std");
 const testing = std.testing;
 
 // Import JSON components
-const JsonLexer = @import("lexer.zig").JsonLexer;
 const JsonParser = @import("parser.zig").JsonParser;
-
-// Import types
-const Token = @import("../../token/mod.zig").Token;
-const TokenKind = @import("../../token/mod.zig").TokenKind;
 
 // =============================================================================
 // Parser Tests
@@ -31,11 +26,7 @@ test "JSON parser - all value types" {
     };
 
     for (test_cases) |case| {
-        var lexer = JsonLexer.init(allocator);
-        const tokens = try lexer.batchTokenize(allocator, case);
-        defer allocator.free(tokens);
-
-        var parser = JsonParser.init(allocator, tokens, case, .{});
+        var parser = try JsonParser.init(allocator, case, .{});
         defer parser.deinit();
 
         var ast = try parser.parse();
@@ -81,11 +72,7 @@ test "JSON parser - nested structures" {
         \\}
     ;
 
-    var lexer = JsonLexer.init(allocator);
-    const tokens = try lexer.batchTokenize(allocator, nested_json);
-    defer allocator.free(tokens);
-
-    var parser = JsonParser.init(allocator, tokens, nested_json, .{});
+    var parser = try JsonParser.init(allocator, nested_json, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -113,11 +100,7 @@ test "JSON parser - error recovery" {
     };
 
     for (malformed_cases) |case| {
-        var lexer = JsonLexer.init(allocator);
-        const tokens = try lexer.batchTokenize(allocator, case);
-        defer allocator.free(tokens);
-
-        var parser = JsonParser.init(allocator, tokens, case, .{});
+        var parser = try JsonParser.init(allocator, case, .{});
         defer parser.deinit();
 
         // Parser should handle errors gracefully
@@ -162,17 +145,7 @@ test "JSON parser - regression: Unicode escape sequences" {
     };
 
     for (test_cases) |case| {
-        var lexer = JsonLexer.init(allocator);
-        defer lexer.deinit();
-
-        const tokens = lexer.tokenize(case.input) catch |err| {
-            if (!case.should_succeed) continue; // Expected failure
-            std.debug.print("Unexpected failure for {s}: {}\n", .{ case.description, err });
-            return err;
-        };
-        defer allocator.free(tokens);
-
-        var parser = JsonParser.init(allocator, tokens, case.input, .{});
+        var parser = try JsonParser.init(allocator, case.input, .{});
         defer parser.deinit();
 
         var ast = parser.parse() catch |err| {

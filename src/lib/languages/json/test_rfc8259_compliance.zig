@@ -1,6 +1,5 @@
 const std = @import("std");
 const testing = std.testing;
-const JsonLexer = @import("lexer.zig").JsonLexer;
 const JsonParser = @import("parser.zig").JsonParser;
 
 // Comprehensive RFC 8259 compliance tests for JSON number handling
@@ -48,18 +47,12 @@ test "RFC 8259 compliance - invalid leading zeros should be rejected" {
     };
 
     for (invalid_cases) |case| {
-        var lexer = JsonLexer.init(allocator);
-        defer lexer.deinit();
-
-        // Should fail during tokenization (lexer rejects leading zeros)
-        const tokens = lexer.tokenize(case.input) catch |err| {
+        // Updated to streaming parser - expects parsing errors for invalid numbers
+        var parser = JsonParser.init(allocator, case.input, .{}) catch |err| {
+            // Streaming parser may reject invalid numbers during init
             try testing.expect(err == error.InvalidNumber);
             continue; // Expected failure
         };
-        defer allocator.free(tokens);
-
-        // If tokenization unexpectedly succeeds, parsing should catch it
-        var parser = JsonParser.init(allocator, tokens, case.input, .{});
         defer parser.deinit();
         var ast = parser.parse() catch |err| {
             try testing.expect(err == error.ParseError);
@@ -126,16 +119,8 @@ test "RFC 8259 compliance - valid numbers should be accepted" {
     };
 
     for (valid_cases) |case| {
-        var lexer = JsonLexer.init(allocator);
-        defer lexer.deinit();
-
-        const tokens = lexer.tokenize(case.input) catch |err| {
-            std.debug.print("UNEXPECTED FAILURE: '{s}' ({s}) should have been accepted during tokenization: {}\n", .{ case.input, case.description, err });
-            return err;
-        };
-        defer allocator.free(tokens);
-
-        var parser = JsonParser.init(allocator, tokens, case.input, .{});
+        // Updated to streaming parser
+        var parser = try JsonParser.init(allocator, case.input, .{});
         defer parser.deinit();
         var ast = parser.parse() catch |err| {
             std.debug.print("UNEXPECTED FAILURE: '{s}' ({s}) should have been accepted during parsing: {}\n", .{ case.input, case.description, err });
@@ -184,22 +169,17 @@ test "RFC 8259 compliance - edge cases" {
     };
 
     for (test_cases) |case| {
-        var lexer = JsonLexer.init(allocator);
-        defer lexer.deinit();
-
-        const tokens = lexer.tokenize(case.input) catch |err| {
+        // Updated to streaming parser
+        var parser = JsonParser.init(allocator, case.input, .{}) catch |err| {
             if (case.should_succeed) {
-                std.debug.print("UNEXPECTED LEXER FAILURE: '{s}' ({s}) should have succeeded: {}\n", .{ case.input, case.description, err });
+                std.debug.print("UNEXPECTED PARSER INIT FAILURE: '{s}' ({s}) should have succeeded: {}\n", .{ case.input, case.description, err });
                 return err;
             } else {
-                // Expected failure
+                // Expected failure during init
                 try testing.expect(err == error.InvalidNumber);
                 continue;
             }
         };
-        defer allocator.free(tokens);
-
-        var parser = JsonParser.init(allocator, tokens, case.input, .{});
         defer parser.deinit();
         var ast = parser.parse() catch |err| {
             if (case.should_succeed) {

@@ -2,12 +2,8 @@ const std = @import("std");
 const testing = std.testing;
 
 // Import JSON components
-const JsonLexer = @import("lexer.zig").JsonLexer;
 const JsonParser = @import("parser.zig").JsonParser;
 const JsonFormatter = @import("formatter.zig").JsonFormatter;
-
-// Import types
-const Token = @import("../../token/mod.zig").Token;
 
 // =============================================================================
 // Formatter Tests
@@ -20,11 +16,7 @@ test "JSON formatter - pretty printing" {
 
     const compact_input = "{\"name\":\"Alice\",\"age\":30,\"hobbies\":[\"reading\",\"swimming\"]}";
 
-    var lexer = JsonLexer.init(allocator);
-    const tokens = try lexer.batchTokenize(allocator, compact_input);
-    defer allocator.free(tokens);
-
-    var parser = JsonParser.init(allocator, tokens, compact_input, .{});
+    var parser = try JsonParser.init(allocator, compact_input, .{});
     defer parser.deinit();
     var ast = try parser.parse();
     defer ast.deinit();
@@ -45,12 +37,7 @@ test "JSON formatter - pretty printing" {
     try testing.expect(std.mem.indexOf(u8, formatted, "  ") != null);
 
     // Should be valid JSON when parsed again
-    var lexer2 = JsonLexer.init(allocator);
-    defer lexer2.deinit();
-    const tokens2 = try lexer2.batchTokenize(allocator, formatted);
-    defer allocator.free(tokens2);
-
-    var parser2 = JsonParser.init(allocator, tokens2, formatted, .{});
+    var parser2 = try JsonParser.init(allocator, formatted, .{});
     defer parser2.deinit();
     var ast2 = try parser2.parse();
     defer ast2.deinit();
@@ -65,11 +52,7 @@ test "JSON formatter - options" {
 
     const input = "{\"zebra\": 1, \"alpha\": 2, \"beta\": 3}";
 
-    var lexer = JsonLexer.init(allocator);
-    const tokens = try lexer.batchTokenize(allocator, input);
-    defer allocator.free(tokens);
-
-    var parser = JsonParser.init(allocator, tokens, input, .{});
+    var parser = try JsonParser.init(allocator, input, .{});
     defer parser.deinit();
     var ast = try parser.parse();
     defer ast.deinit();

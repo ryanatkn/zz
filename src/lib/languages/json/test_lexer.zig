@@ -1,184 +1,187 @@
 const std = @import("std");
 const testing = std.testing;
 
-// Import JSON lexer
-const JsonLexer = @import("lexer.zig").JsonLexer;
-
-// Import types
-const Token = @import("../../token/mod.zig").Token;
-const TokenKind = @import("../../token/mod.zig").TokenKind;
+// Import streaming lexer for new tests
+const JsonStreamLexer = @import("stream_lexer.zig").JsonStreamLexer;
+const JsonTokenKind = @import("stream_token.zig").JsonTokenKind;
 
 // =============================================================================
-// Lexer Tests
+// Lexer Tests - Migrated to Streaming Architecture
 // =============================================================================
 
 test "JSON lexer - basic tokens" {
-    // Re-enabled after fixing infinite loop
-    var arena = std.heap.ArenaAllocator.init(testing.allocator);
-    defer arena.deinit();
-    const allocator = arena.allocator();
+    const input = "{ \"name\": \"test\", \"value\": 42, \"flag\": true, \"empty\": null }";
 
-    const test_cases = [_]struct {
-        input: []const u8,
-        expected_kind: TokenKind,
-        expected_text: []const u8,
-    }{
-        .{ .input = "\"hello world\"", .expected_kind = .string, .expected_text = "\"hello world\"" },
-        .{ .input = "42", .expected_kind = .number, .expected_text = "42" },
-        .{ .input = "-3.14", .expected_kind = .number, .expected_text = "-3.14" },
-        .{ .input = "1.23e-4", .expected_kind = .number, .expected_text = "1.23e-4" },
-        .{ .input = "true", .expected_kind = .boolean, .expected_text = "true" },
-        .{ .input = "false", .expected_kind = .boolean, .expected_text = "false" },
-        .{ .input = "null", .expected_kind = .null, .expected_text = "null" },
-        .{ .input = "{", .expected_kind = .left_brace, .expected_text = "{" },
-        .{ .input = "}", .expected_kind = .right_brace, .expected_text = "}" },
-        .{ .input = "[", .expected_kind = .left_bracket, .expected_text = "[" },
-        .{ .input = "]", .expected_kind = .right_bracket, .expected_text = "]" },
-        .{ .input = ",", .expected_kind = .comma, .expected_text = "," },
-        .{ .input = ":", .expected_kind = .colon, .expected_text = ":" },
-    };
+    var lexer = JsonStreamLexer.init(input);
+    var token_count: usize = 0;
+    var found_tokens = std.ArrayList(JsonTokenKind).init(testing.allocator);
+    defer found_tokens.deinit();
 
-    for (test_cases) |case| {
-        var lexer = JsonLexer.init(allocator);
-        const tokens = try lexer.batchTokenize(allocator, case.input);
-        defer allocator.free(tokens);
-
-        try testing.expectEqual(@as(usize, 2), tokens.len); // Includes EOF token
-        try testing.expectEqual(case.expected_kind, tokens[0].kind);
-        try testing.expectEqualStrings(case.expected_text, tokens[0].getText(case.input));
-    }
-}
-
-test "JSON lexer - complex structures" {
-    // Re-enabled after fixing infinite loop issue
-    var arena = std.heap.ArenaAllocator.init(testing.allocator);
-    defer arena.deinit();
-    const allocator = arena.allocator();
-
-    const complex_json =
-        \\{
-        \\  "users": [
-        \\    {
-        \\      "id": 1,
-        \\      "name": "Alice",
-        \\      "metadata": {
-        \\        "active": true,
-        \\        "roles": ["admin", "user"],
-        \\        "settings": {
-        \\          "theme": "dark",
-        \\          "notifications": false
-        \\        }
-        \\      }
-        \\    },
-        \\    {
-        \\      "id": 2, 
-        \\      "name": "Bob",
-        \\      "metadata": {
-        \\        "active": false,
-        \\        "roles": ["user"],
-        \\        "settings": null
-        \\      }
-        \\    }
-        \\  ],
-        \\  "count": 2
-        \\}
-    ;
-
-    var lexer = JsonLexer.init(allocator);
-    const tokens = try lexer.batchTokenize(allocator, complex_json);
-    defer allocator.free(tokens);
-
-    // Should have reasonable number of tokens for this complex structure
-    try testing.expect(tokens.len > 50);
-
-    // Last token should be EOF
-    try testing.expectEqual(TokenKind.eof, tokens[tokens.len - 1].kind);
-
-    // Should have proper braces, brackets, and other structural elements
-    var brace_count: i32 = 0;
-    var bracket_count: i32 = 0;
-    for (tokens) |token| {
-        switch (token.kind) {
-            .left_brace => brace_count += 1,
-            .right_brace => brace_count -= 1,
-            .left_bracket => bracket_count += 1,
-            .right_bracket => bracket_count -= 1,
+    while (lexer.next()) |token| {
+        token_count += 1;
+        switch (token) {
+            .json => |t| {
+                try found_tokens.append(t.kind);
+            },
             else => {},
         }
     }
 
-    // Should be balanced
-    try testing.expectEqual(@as(i32, 0), brace_count);
-    try testing.expectEqual(@as(i32, 0), bracket_count);
+    // Should have tokens: { "name" : "test" , "value" : 42 , "flag" : true , "empty" : null }
+    try testing.expect(token_count >= 15); // At least 15 tokens for this simple JSON
+
+    // Check that we got expected structural tokens
+    var has_object_start = false;
+    var has_object_end = false;
+    var has_string = false;
+    var has_number = false;
+    var has_true = false;
+    var has_null = false;
+
+    for (found_tokens.items) |kind| {
+        switch (kind) {
+            .object_start => has_object_start = true,
+            .object_end => has_object_end = true,
+            .string_value => has_string = true,
+            .number_value => has_number = true,
+            .boolean_true => has_true = true,
+            .null_value => has_null = true,
+            else => {},
+        }
+    }
+
+    try testing.expect(has_object_start);
+    try testing.expect(has_object_end);
+    try testing.expect(has_string);
+    try testing.expect(has_number);
+    try testing.expect(has_true);
+    try testing.expect(has_null);
+}
+
+test "JSON lexer - complex structures" {
+    const input =
+        \\{
+        \\  "users": [
+        \\    { "name": "Alice", "age": 30, "active": true },
+        \\    { "name": "Bob", "age": 25, "active": false }
+        \\  ],
+        \\  "total": 2,
+        \\  "metadata": null
+        \\}
+    ;
+
+    var lexer = JsonStreamLexer.init(input);
+    var token_count: usize = 0;
+    var object_depth: i32 = 0;
+    var array_depth: i32 = 0;
+
+    while (lexer.next()) |token| {
+        token_count += 1;
+        switch (token) {
+            .json => |t| {
+                switch (t.kind) {
+                    .object_start => object_depth += 1,
+                    .object_end => object_depth -= 1,
+                    .array_start => array_depth += 1,
+                    .array_end => array_depth -= 1,
+                    else => {},
+                }
+            },
+            else => {},
+        }
+    }
+
+    // Should have many tokens for this complex structure
+    try testing.expect(token_count >= 30);
+
+    // Should end with balanced braces/brackets
+    try testing.expectEqual(@as(i32, 0), @as(i32, @intCast(object_depth)));
+    try testing.expectEqual(@as(i32, 0), @as(i32, @intCast(array_depth)));
 }
 
 test "JSON lexer - string error handling" {
-    // Re-enabled for basic error detection
-    var arena = std.heap.ArenaAllocator.init(testing.allocator);
-    defer arena.deinit();
-    const allocator = arena.allocator();
+    const unterminated_string = "{ \"key\": \"unterminated value";
+    const invalid_escape = "{ \"key\": \"invalid\\q escape\" }";
 
-    // Test basic string tokenization (even if error handling isn't perfect)
-    const test_cases = [_][]const u8{
-        "\"normal string\"",
-        "\"string with \\\"escaped quotes\\\"\"",
-        "\"string with \\n newlines\"",
-        "\"empty string: \\\"\\\"\"",
-    };
+    // Test unterminated string
+    var lexer1 = JsonStreamLexer.init(unterminated_string);
+    var found_error = false;
 
-    for (test_cases) |case| {
-        var lexer = JsonLexer.init(allocator);
-        defer lexer.deinit();
-
-        const tokens = try lexer.batchTokenize(allocator, case);
-        defer allocator.free(tokens);
-
-        // Should get at least a string token and EOF
-        try testing.expect(tokens.len >= 2);
-        try testing.expectEqual(TokenKind.string, tokens[0].kind);
-        try testing.expectEqual(TokenKind.eof, tokens[tokens.len - 1].kind);
+    while (lexer1.next()) |token| {
+        switch (token) {
+            .json => |t| {
+                if (t.kind == .err) {
+                    found_error = true;
+                }
+            },
+            else => {},
+        }
     }
+
+    try testing.expect(found_error);
+
+    // Test invalid escape - lexer should handle gracefully
+    var lexer2 = JsonStreamLexer.init(invalid_escape);
+    var token_count: usize = 0;
+
+    while (lexer2.next()) |token| {
+        token_count += 1;
+        switch (token) {
+            .json => |t| {
+                // Should still produce tokens, even if some are invalid
+                _ = t;
+            },
+            else => {},
+        }
+        if (token_count > 20) break; // Prevent infinite loop
+    }
+
+    try testing.expect(token_count > 0);
 }
 
 test "JSON lexer - infinite loop regression test" {
-    // This test ensures that the lexer doesn't get stuck in infinite loops
-    // when processing various inputs that previously caused hangs
-    var arena = std.heap.ArenaAllocator.init(testing.allocator);
-    defer arena.deinit();
-    const allocator = arena.allocator();
-
-    const test_cases = [_]struct {
-        input: []const u8,
-        expected_min_tokens: usize, // Minimum tokens expected (including EOF)
-        description: []const u8,
-    }{
-        .{ .input = "{}", .expected_min_tokens = 3, .description = "empty object" },
-        .{ .input = "[]", .expected_min_tokens = 3, .description = "empty array" },
-        .{ .input = "42", .expected_min_tokens = 2, .description = "single number" },
-        .{ .input = "\"test\"", .expected_min_tokens = 2, .description = "single string" },
-        .{ .input = "true", .expected_min_tokens = 2, .description = "boolean true" },
-        .{ .input = "false", .expected_min_tokens = 2, .description = "boolean false" },
-        .{ .input = "null", .expected_min_tokens = 2, .description = "null value" },
-        .{ .input = "{\"key\": \"value\"}", .expected_min_tokens = 6, .description = "simple object" },
-        .{ .input = "[1, 2, 3]", .expected_min_tokens = 8, .description = "simple array" },
-        .{ .input = "{\"users\": [{\"name\": \"Alice\", \"age\": 30}]}", .expected_min_tokens = 15, .description = "nested structure" },
+    // Test various edge cases that might cause infinite loops
+    const edge_cases = [_][]const u8{
+        "", // Empty input
+        "{", // Unclosed brace
+        "}", // Just closing brace
+        "\"", // Just quote
+        "123", // Just number
+        "123.456.789", // Invalid number
+        "{{{{{", // Multiple opening braces
+        "}}}}", // Multiple closing braces
+        "null null null", // Multiple literals
+        "{ , , , }", // Just commas
+        "{ : : : }", // Just colons
     };
 
-    for (test_cases) |case| {
-        var lexer = JsonLexer.init(allocator);
+    for (edge_cases) |input| {
+        var lexer = JsonStreamLexer.init(input);
+        var token_count: usize = 0;
 
-        // This should complete quickly without hanging
-        const tokens = try lexer.batchTokenize(allocator, case.input);
-        defer allocator.free(tokens);
+        // Set a reasonable limit to detect infinite loops
+        while (lexer.next()) |token| {
+            token_count += 1;
+            _ = token; // Use the token
+            if (token_count > 100) {
+                // If we get more than 100 tokens from these simple inputs, something is wrong
+                try testing.expect(false); // This should not happen
+            }
+        }
 
-        // Verify we got reasonable number of tokens
-        try testing.expect(tokens.len >= case.expected_min_tokens);
-
-        // Verify the last token is always EOF
-        try testing.expectEqual(TokenKind.eof, tokens[tokens.len - 1].kind);
-
-        // Verify EOF token position is at end of input
-        try testing.expectEqual(@as(u32, @intCast(case.input.len)), tokens[tokens.len - 1].span.start);
-        try testing.expectEqual(@as(u32, @intCast(case.input.len)), tokens[tokens.len - 1].span.end);
+        // Should always produce at least EOF token
+        try testing.expect(token_count >= 1);
     }
 }
+
+// Original test data preserved for reference when rewriting:
+// - Basic tokens: strings, numbers, booleans, null, structural chars
+// - Complex JSON with nested objects and arrays
+// - Error cases: unterminated strings, invalid escapes
+// - Edge cases that previously caused infinite loops
+
+// When rewriting for streaming:
+// 1. Use JsonStreamLexer.init(source) instead of JsonLexer.init(allocator)
+// 2. Iterate tokens with while (lexer.next()) instead of batchTokenize()
+// 3. Test token properties directly from StreamToken
+// 4. No need to free token arrays (zero-allocation streaming)

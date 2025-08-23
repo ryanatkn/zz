@@ -3,7 +3,7 @@
 
 const std = @import("std");
 const shared = @import("config/shared.zig");
-const zon = @import("config/zon.zig");
+const zon_config = @import("config/zon.zig");
 const resolver = @import("config/resolver.zig");
 const path_matcher = @import("lib/patterns/path.zig");
 const glob = @import("lib/patterns/glob.zig");
@@ -13,8 +13,8 @@ const primitives = @import("lib/patterns/primitives.zig");
 pub const SharedConfig = shared.SharedConfig;
 pub const SymlinkBehavior = shared.SymlinkBehavior;
 pub const BasePatterns = shared.BasePatterns;
-pub const ZonLoader = zon.ZonLoader;
-pub const ZonConfig = zon.ZonConfig;
+pub const ZonLoader = zon_config.ZonLoader;
+pub const ZonConfig = zon_config.ZonConfig;
 pub const PatternResolver = resolver.PatternResolver;
 
 // DRY helper function using layered pattern matching

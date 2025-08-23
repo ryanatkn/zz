@@ -23,21 +23,12 @@ pub const AstConverter = struct {
     }
 };
 
-/// Parse ZON content to a specific type (compatibility function)
+/// Parse ZON content to a specific type (updated for streaming)
 pub fn parseFromSlice(comptime T: type, allocator: std.mem.Allocator, content: []const u8) !T {
-    const ZonLexer = @import("lexer.zig").ZonLexer;
     const ZonParser = @import("parser.zig").ZonParser;
 
-    var lexer = ZonLexer.init(allocator);
-    defer lexer.deinit();
-
-    const tokens = lexer.batchTokenize(allocator, content) catch |err| {
-        // If lexing fails, bubble up the error
-        return err;
-    };
-    defer allocator.free(tokens);
-
-    var parser = ZonParser.init(allocator, tokens, content, .{});
+    // Use streaming parser directly (3-arg pattern)
+    var parser = try ZonParser.init(allocator, content, .{});
     defer parser.deinit();
 
     var ast = parser.parse() catch |err| {
@@ -91,19 +82,29 @@ fn convertAstToType(comptime T: type, allocator: std.mem.Allocator, node: *const
                         // Get field name from either field_name or identifier nodes
                         const field_name = switch (field_node.name.*) {
                             .field_name => |fn_node| blk: {
-                                // Handle quoted field names like @"tree-sitter"
-                                if (fn_node.name.len >= 3 and fn_node.name[0] == '@' and fn_node.name[1] == '"' and fn_node.name[fn_node.name.len - 1] == '"') {
-                                    break :blk fn_node.name[2 .. fn_node.name.len - 1]; // Remove @" and "
+                                var name = fn_node.name;
+                                // First remove leading dot if present
+                                if (name.len > 1 and name[0] == '.') {
+                                    name = name[1..];
+                                }
+                                // Then handle quoted field names like @"tree-sitter"
+                                if (name.len >= 3 and name[0] == '@' and name[1] == '"' and name[name.len - 1] == '"') {
+                                    break :blk name[2 .. name.len - 1]; // Remove @" and "
                                 } else {
-                                    break :blk fn_node.name;
+                                    break :blk name;
                                 }
                             },
                             .identifier => |id_node| blk: {
-                                // Handle quoted identifiers like @"tree-sitter"
-                                if (id_node.name.len >= 3 and id_node.name[0] == '@' and id_node.name[1] == '"' and id_node.name[id_node.name.len - 1] == '"') {
-                                    break :blk id_node.name[2 .. id_node.name.len - 1]; // Remove @" and "
+                                var name = id_node.name;
+                                // First remove leading dot if present
+                                if (name.len > 1 and name[0] == '.') {
+                                    name = name[1..];
+                                }
+                                // Then handle quoted identifiers like @"tree-sitter"
+                                if (name.len >= 3 and name[0] == '@' and name[1] == '"' and name[name.len - 1] == '"') {
+                                    break :blk name[2 .. name.len - 1]; // Remove @" and "
                                 } else {
-                                    break :blk id_node.name;
+                                    break :blk name;
                                 }
                             },
                             else => continue, // Skip if neither field_name nor identifier
@@ -188,6 +189,20 @@ fn convertValueToFieldType(comptime FieldType: type, allocator: std.mem.Allocato
                 // Special case: for identifier nodes, use the name
                 if (node.* == .identifier) {
                     return try allocator.dupe(u8, node.identifier.name);
+                }
+                // Special case: for field_name nodes, extract the name
+                if (node.* == .field_name) {
+                    var field_name = node.field_name.name;
+                    // First remove leading dot if present
+                    if (field_name.len > 1 and field_name[0] == '.') {
+                        field_name = field_name[1..];
+                    }
+                    // Then handle quoted field names like @"tree-sitter"
+                    if (field_name.len >= 3 and field_name[0] == '@' and field_name[1] == '"' and field_name[field_name.len - 1] == '"') {
+                        return try allocator.dupe(u8, field_name[2 .. field_name.len - 1]); // Remove @" and "
+                    } else {
+                        return try allocator.dupe(u8, field_name);
+                    }
                 }
                 // Return empty string for incompatible types to maintain compatibility
                 return try allocator.dupe(u8, "");

@@ -4,8 +4,11 @@ const BenchmarkResult = benchmark_lib.BenchmarkResult;
 const BenchmarkOptions = benchmark_lib.BenchmarkOptions;
 const BenchmarkError = benchmark_lib.BenchmarkError;
 
-// Import ZON components
-const ZonLexer = @import("../../../lib/languages/zon/lexer.zig").ZonLexer;
+// Import streaming ZON components
+const ZonStreamLexer = @import("../../../lib/languages/zon/stream_lexer.zig").ZonStreamLexer;
+const StreamToken = @import("../../../lib/token/stream_token.zig").StreamToken;
+const TokenIterator = @import("../../../lib/token/iterator.zig").TokenIterator;
+const Language = @import("../../../lib/core/language.zig").Language;
 
 pub fn runZonLexerBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOptions) BenchmarkError![]BenchmarkResult {
     var results = std.ArrayList(BenchmarkResult).init(allocator);
@@ -28,221 +31,189 @@ pub fn runZonLexerBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOpt
     const large_zon = try generateZonData(allocator, 1000); // ~100KB
     defer allocator.free(large_zon);
 
-    // Lexer benchmark for small ZON (1KB)
+    // Streaming lexer benchmark for small ZON (1KB)
     {
         const context = struct {
-            allocator: std.mem.Allocator,
             content: []const u8,
 
             pub fn run(ctx: @This()) anyerror!void {
-                var lexer = ZonLexer.init(ctx.allocator);
-                defer lexer.deinit();
+                // Use streaming lexer directly
+                var lexer = ZonStreamLexer.init(ctx.content);
 
-                const tokens = try lexer.batchTokenize(ctx.allocator, ctx.content);
-                defer ctx.allocator.free(tokens);
+                // Iterate through all tokens
+                var token_count: usize = 0;
+                while (lexer.next()) |token| {
+                    token_count += 1;
+                    // Access token to prevent optimization
+                    switch (token) {
+                        .zon => |t| std.mem.doNotOptimizeAway(t.kind),
+                        else => {},
+                    }
+                }
 
-                std.mem.doNotOptimizeAway(tokens.len);
+                // Prevent optimization
+                std.mem.doNotOptimizeAway(token_count);
             }
-        }{ .allocator = allocator, .content = small_zon };
+        }{ .content = small_zon };
 
-        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "zon-lexer", "ZON Lexer Small (1KB)", effective_duration, options.warmup, context, @TypeOf(context).run);
+        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "zon-lexer", "ZON Streaming Lexer Small (1KB)", effective_duration, options.warmup, context, @TypeOf(context).run);
         try results.append(result);
     }
 
-    // Lexer benchmark for medium ZON (10KB) - Performance target
+    // Streaming lexer benchmark for medium ZON (10KB) - Performance target
     {
         const context = struct {
-            allocator: std.mem.Allocator,
             content: []const u8,
 
             pub fn run(ctx: @This()) anyerror!void {
-                var lexer = ZonLexer.init(ctx.allocator);
-                defer lexer.deinit();
+                // Use streaming lexer directly
+                var lexer = ZonStreamLexer.init(ctx.content);
 
-                const tokens = try lexer.batchTokenize(ctx.allocator, ctx.content);
-                defer ctx.allocator.free(tokens);
+                // Iterate through all tokens
+                var token_count: usize = 0;
+                while (lexer.next()) |token| {
+                    token_count += 1;
+                    // Access token to prevent optimization
+                    switch (token) {
+                        .zon => |t| std.mem.doNotOptimizeAway(t.kind),
+                        else => {},
+                    }
+                }
 
-                std.mem.doNotOptimizeAway(tokens.len);
+                std.mem.doNotOptimizeAway(token_count);
             }
-        }{ .allocator = allocator, .content = medium_zon };
+        }{ .content = medium_zon };
 
-        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "zon-lexer", "ZON Lexer Medium (10KB)", effective_duration, options.warmup, context, @TypeOf(context).run);
+        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "zon-lexer", "ZON Streaming Lexer Medium (10KB)", effective_duration, options.warmup, context, @TypeOf(context).run);
         try results.append(result);
 
         // Performance target check: <0.1ms (100,000ns) for 10KB
+        // Streaming should be faster than batch
         if (result.ns_per_op > 100_000) {
-            std.log.warn("ZON Lexer performance target missed: {}ns > 100,000ns for 10KB", .{result.ns_per_op});
+            std.log.warn("ZON Streaming Lexer performance target missed: {}ns > 100,000ns for 10KB", .{result.ns_per_op});
         }
     }
 
-    // Lexer benchmark for large ZON (100KB)
+    // Streaming lexer benchmark for large ZON (100KB)
     {
         const context = struct {
-            allocator: std.mem.Allocator,
             content: []const u8,
 
             pub fn run(ctx: @This()) anyerror!void {
-                var lexer = ZonLexer.init(ctx.allocator);
-                defer lexer.deinit();
+                // Use streaming lexer directly
+                var lexer = ZonStreamLexer.init(ctx.content);
 
-                const tokens = try lexer.batchTokenize(ctx.allocator, ctx.content);
-                defer ctx.allocator.free(tokens);
+                // Iterate through all tokens
+                var token_count: usize = 0;
+                while (lexer.next()) |token| {
+                    token_count += 1;
+                    // Access token to prevent optimization
+                    switch (token) {
+                        .zon => |t| std.mem.doNotOptimizeAway(t.kind),
+                        else => {},
+                    }
+                }
 
-                std.mem.doNotOptimizeAway(tokens.len);
+                std.mem.doNotOptimizeAway(token_count);
             }
-        }{ .allocator = allocator, .content = large_zon };
+        }{ .content = large_zon };
 
-        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "zon-lexer", "ZON Lexer Large (100KB)", effective_duration, options.warmup, context, @TypeOf(context).run);
+        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "zon-lexer", "ZON Streaming Lexer Large (100KB)", effective_duration, options.warmup, context, @TypeOf(context).run);
         try results.append(result);
     }
 
-    // Real-world build.zig.zon file
+    // Real-world ZON patterns with TokenIterator
     {
-        const build_zon =
+        const real_world_zon =
             \\.{
-            \\    .name = "example_project",
+            \\    .name = "example",
             \\    .version = "0.1.0",
-            \\    .minimum_zig_version = "0.14.0",
             \\    .dependencies = .{
-            \\        .std = .{
-            \\            .url = "https://github.com/ziglang/zig",
-            \\            .hash = "1220abcd1234567890abcdef1234567890abcdef1234567890abcdef1234567890ab",
+            \\        .@"tree-sitter" = .{
+            \\            .url = "https://github.com/tree-sitter/tree-sitter",
+            \\            .hash = "1234567890abcdef",
             \\        },
-            \\        .utils = .{
-            \\            .url = "https://github.com/example/utils", 
-            \\            .hash = "1220efgh5678901234567890efgh5678901234567890efgh5678901234567890efgh",
-            \\        },
-            \\        .json = .{
-            \\            .url = "https://github.com/example/json-lib",
-            \\            .hash = "1220ijkl9012345678901234ijkl9012345678901234ijkl9012345678901234ijkl",
+            \\        .ziglyph = .{
+            \\            .path = "../ziglyph",
             \\        },
             \\    },
-            \\    .paths = .{
-            \\        "build.zig",
-            \\        "build.zig.zon",
-            \\        "src",
-            \\        "README.md",
-            \\        "LICENSE",
-            \\    },
+            \\    .paths = .{ "src", "test", "examples" },
+            \\    .minimum_zig_version = "0.11.0",
             \\}
         ;
 
         const context = struct {
-            allocator: std.mem.Allocator,
             content: []const u8,
 
             pub fn run(ctx: @This()) anyerror!void {
-                var lexer = ZonLexer.init(ctx.allocator);
-                defer lexer.deinit();
+                // Use TokenIterator for generic interface
+                var iterator = try TokenIterator.init(ctx.content, .zon);
 
-                const tokens = try lexer.batchTokenize(ctx.allocator, ctx.content);
-                defer ctx.allocator.free(tokens);
+                // Iterate through all tokens
+                var token_count: usize = 0;
+                while (iterator.next()) |token| {
+                    token_count += 1;
+                    // Access token to prevent optimization
+                    switch (token) {
+                        .zon => |t| std.mem.doNotOptimizeAway(t.kind),
+                        else => {},
+                    }
+                }
 
-                std.mem.doNotOptimizeAway(tokens.len);
+                std.mem.doNotOptimizeAway(token_count);
             }
-        }{ .allocator = allocator, .content = build_zon };
+        }{ .content = real_world_zon };
 
-        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "zon-lexer", "ZON Lexer build.zig.zon", effective_duration, options.warmup, context, @TypeOf(context).run);
-        try results.append(result);
-    }
-
-    // Configuration ZON file
-    {
-        const config_zon =
-            \\.{
-            \\    .base_patterns = "extend",
-            \\    .ignored_patterns = .{
-            \\        "node_modules",
-            \\        "*.tmp",
-            \\        "cache",
-            \\        "dist",
-            \\        "build",
-            \\    },
-            \\    .hidden_files = .{
-            \\        ".DS_Store",
-            \\        "Thumbs.db",
-            \\        "*.swp",
-            \\    },
-            \\    .respect_gitignore = true,
-            \\    .symlink_behavior = "skip",
-            \\    .format = .{
-            \\        .indent_size = 4,
-            \\        .indent_style = "space",
-            \\        .line_width = 100,
-            \\        .preserve_newlines = true,
-            \\        .trailing_comma = false,
-            \\    },
-            \\}
-        ;
-
-        const context = struct {
-            allocator: std.mem.Allocator,
-            content: []const u8,
-
-            pub fn run(ctx: @This()) anyerror!void {
-                var lexer = ZonLexer.init(ctx.allocator);
-                defer lexer.deinit();
-
-                const tokens = try lexer.batchTokenize(ctx.allocator, ctx.content);
-                defer ctx.allocator.free(tokens);
-
-                std.mem.doNotOptimizeAway(tokens.len);
-            }
-        }{ .allocator = allocator, .content = config_zon };
-
-        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "zon-lexer", "ZON Lexer Config File", effective_duration, options.warmup, context, @TypeOf(context).run);
+        const result = try benchmark_lib.measureOperationNamedWithSuite(allocator, "zon-lexer", "ZON Streaming Lexer Real-World", effective_duration, options.warmup, context, @TypeOf(context).run);
         try results.append(result);
     }
 
     return results.toOwnedSlice();
 }
 
-fn generateZonData(allocator: std.mem.Allocator, field_count: u32) ![]u8 {
-    var output = std.ArrayList(u8).init(allocator);
-    errdefer output.deinit();
+fn generateZonData(allocator: std.mem.Allocator, num_fields: u32) ![]u8 {
+    var zon = std.ArrayList(u8).init(allocator);
+    errdefer zon.deinit();
 
-    try output.appendSlice(".{\n");
-    try output.writer().print("    .name = \"test_package\",\n", .{});
-    try output.writer().print("    .version = \"1.0.0\",\n", .{});
-    try output.writer().print("    .description = \"Generated test ZON with {} fields\",\n", .{field_count});
+    try zon.appendSlice(".{\n");
 
-    try output.appendSlice("    .metadata = .{\n");
+    for (0..num_fields) |i| {
+        if (i > 0) try zon.appendSlice(",\n");
 
-    var i: u32 = 0;
-    while (i < field_count) : (i += 1) {
-        const field_type = i % 6;
+        // Generate various ZON field types
+        const field_type = i % 5;
         switch (field_type) {
-            0 => try output.writer().print("        .string_field_{} = \"value_{}\",\n", .{ i, i }),
-            1 => try output.writer().print("        .number_field_{} = {},\n", .{ i, i }),
-            2 => try output.writer().print("        .bool_field_{} = {},\n", .{ i, i % 2 == 0 }),
-            3 => try output.writer().print("        .hex_field_{} = 0x{x},\n", .{ i, i }),
-            4 => try output.writer().print("        .array_field_{} = .{{ {}, {}, {} }},\n", .{ i, i * 2, i * 3, i * 4 }),
-            5 => try output.writer().print("        .nested_field_{} = .{{ .inner = \"value_{}\" }},\n", .{ i, i }),
+            0 => {
+                // String field
+                try zon.writer().print("    .field_{} = \"value_{}\"", .{ i, i });
+            },
+            1 => {
+                // Number field
+                try zon.writer().print("    .number_{} = {}", .{ i, i * 42 });
+            },
+            2 => {
+                // Boolean field
+                try zon.writer().print("    .flag_{} = {}", .{ i, i % 2 == 0 });
+            },
+            3 => {
+                // Array field
+                try zon.writer().print("    .array_{} = .{{ {}, {}, {} }}", .{ i, i, i + 1, i + 2 });
+            },
+            4 => {
+                // Nested object
+                try zon.writer().print(
+                    \\    .nested_{} = .{{
+                    \\        .inner = "value",
+                    \\        .count = {},
+                    \\        .enabled = true,
+                    \\    }}
+                , .{ i, i });
+            },
             else => unreachable,
         }
     }
 
-    try output.appendSlice("    },\n");
+    try zon.appendSlice("\n}");
 
-    try output.appendSlice("    .dependencies = .{\n");
-    const dep_count = @min(field_count / 10, 20); // Up to 20 dependencies
-    i = 0;
-    while (i < dep_count) : (i += 1) {
-        try output.writer().print("        .dep_{} = .{{\n", .{i});
-        try output.writer().print("            .url = \"https://github.com/example/dep_{}\",\n", .{i});
-        try output.writer().print("            .hash = \"1220abcd{}efgh{}ijkl{}mnop{}\",\n", .{ i, i * 2, i * 3, i * 4 });
-        try output.appendSlice("        },\n");
-    }
-    try output.appendSlice("    },\n");
-
-    try output.appendSlice("    .paths = .{\n");
-    try output.appendSlice("        \"build.zig\",\n");
-    try output.appendSlice("        \"build.zig.zon\",\n");
-    try output.appendSlice("        \"src\",\n");
-    try output.appendSlice("        \"README.md\",\n");
-    try output.appendSlice("    },\n");
-
-    try output.appendSlice("}");
-
-    return output.toOwnedSlice();
+    return zon.toOwnedSlice();
 }

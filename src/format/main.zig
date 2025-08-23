@@ -253,45 +253,17 @@ fn processFile(allocator: std.mem.Allocator, fs: FilesystemInterface, file_path:
 // Removed formatWithStratifiedParser - using direct language modules
 
 /// Format content using language modules directly (simplified approach)
-fn formatWithLanguageModules(allocator: std.mem.Allocator, content: []const u8, language: Language, format_options: FormatOptions) ![]u8 {
+fn formatWithLanguageModules(allocator: std.mem.Allocator, content: []const u8, language: Language, _: FormatOptions) ![]u8 {
     switch (language) {
         .json => {
-            // Use JSON module for formatting
+            // Use JSON module convenience function for raw JSON formatting
             const json_mod = @import("../lib/languages/json/mod.zig");
-            // Format JSON with default options
-            const formatted = try json_mod.formatJsonString(allocator, content);
-            defer allocator.free(formatted);
-            // Convert const slice to mutable slice
-            return try allocator.dupe(u8, formatted);
+            return json_mod.formatJsonString(allocator, content);
         },
         .zon => {
-            // Use new ZON module directly
+            // Use ZON module convenience function for raw ZON formatting
             const zon_mod = @import("../lib/languages/zon/mod.zig");
-
-            // Parse ZON to AST
-            var ast = try zon_mod.parseZonString(allocator, content);
-            defer ast.deinit();
-
-            // Convert format options to ZON-specific options
-            const zon_options = @import("../lib/languages/zon/formatter.zig").ZonFormatter.ZonFormatOptions{
-                .indent_size = @intCast(format_options.indent_size),
-                .indent_style = if (format_options.indent_style == .space)
-                    @import("../lib/languages/zon/formatter.zig").ZonFormatter.ZonFormatOptions.IndentStyle.space
-                else
-                    @import("../lib/languages/zon/formatter.zig").ZonFormatter.ZonFormatOptions.IndentStyle.tab,
-                .line_width = format_options.line_width,
-                .preserve_comments = format_options.preserve_newlines,
-                .trailing_comma = format_options.trailing_comma,
-                .compact_small_objects = true,
-                .compact_small_arrays = true,
-            };
-
-            // Format using ZON formatter
-            const zon_formatter = @import("../lib/languages/zon/formatter.zig").ZonFormatter;
-            var formatter = zon_formatter.init(allocator, zon_options);
-            defer formatter.deinit();
-            const formatted = try formatter.format(ast);
-            return allocator.dupe(u8, formatted);
+            return zon_mod.formatZonString(allocator, content);
         },
         .css, .html, .typescript, .zig, .svelte => {
             // These languages don't have transform pipelines yet

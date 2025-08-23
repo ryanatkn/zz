@@ -50,6 +50,13 @@ pub const JsonStreamLexer = struct {
     // Nesting depth for objects/arrays
     depth: u8,
 
+    // Context tracking: stack of contexts (object/array) for each depth level
+    // We only track 32 levels to keep it simple (should be enough for most JSON)
+    context_stack: u32, // Each bit indicates: 0=array, 1=object
+
+    // Context for determining property names vs string values
+    expecting_property_key: bool,
+
     // Flags for current token being built
     current_flags: JsonTokenFlags,
 
@@ -59,6 +66,9 @@ pub const JsonStreamLexer = struct {
     // Dynamic token buffer for handling 4KB boundary crossings
     token_buffer: ?StreamingTokenBuffer,
     allocator: ?std.mem.Allocator,
+
+    // Peeked token for lookahead
+    peeked_token: ?StreamToken,
 
     /// Initialize lexer with input buffer
     /// This is the primary interface - simple iterator pattern
@@ -86,10 +96,13 @@ pub const JsonStreamLexer = struct {
             .token_line = 1,
             .token_column = 1,
             .depth = 0,
+            .context_stack = 0,
+            .expecting_property_key = false,
             .current_flags = .{},
             .error_msg = null,
             .token_buffer = null, // Will be created on demand
             .allocator = allocator,
+            .peeked_token = null,
         };
     }
 
@@ -105,10 +118,13 @@ pub const JsonStreamLexer = struct {
             .token_line = 1,
             .token_column = 1,
             .depth = 0,
+            .context_stack = 0,
+            .expecting_property_key = false,
             .current_flags = .{},
             .error_msg = null,
             .token_buffer = null,
             .allocator = null,
+            .peeked_token = null,
         };
     }
 
@@ -122,7 +138,17 @@ pub const JsonStreamLexer = struct {
     /// Get next token - Direct iterator interface (no vtable!)
     /// This is 1-2 cycle dispatch vs 3-5 for vtable
     pub fn next(self: *JsonStreamLexer) ?StreamToken {
+        // If we have a peeked token, return it
+        if (self.peeked_token) |token| {
+            self.peeked_token = null;
+            return token;
+        }
 
+        // Use internal implementation
+        return self.nextInternalOrig();
+    }
+
+    fn nextInternalOrig(self: *JsonStreamLexer) ?StreamToken {
         // Return null if already done (after EOF)
         if (self.state == .done) {
             return null;
@@ -215,10 +241,54 @@ pub const JsonStreamLexer = struct {
         _ = self.buffer.pop(); // Consume the character
         const end_pos = self.position + 1;
 
+        // Update depth and context stack
         if (increase_depth) {
             self.depth = @min(self.depth + 1, 255);
+            // Push context onto stack
+            if (self.depth < 32) {
+                if (kind == .object_start) {
+                    // Set bit for object context
+                    self.context_stack |= (@as(u32, 1) << @as(u5, @intCast(self.depth - 1)));
+                } else {
+                    // Clear bit for array context
+                    self.context_stack &= ~(@as(u32, 1) << @as(u5, @intCast(self.depth - 1)));
+                }
+            }
         } else if (kind == .object_end or kind == .array_end) {
-            self.depth = if (self.depth > 0) self.depth - 1 else 0;
+            if (self.depth > 0) {
+                // Pop context from stack by clearing the bit
+                if (self.depth <= 32) {
+                    self.context_stack &= ~(@as(u32, 1) << @as(u5, @intCast(self.depth - 1)));
+                }
+                self.depth -= 1;
+            }
+        }
+
+        // Update context for property name detection
+        switch (kind) {
+            .object_start => {
+                // After { we expect a property name
+                self.expecting_property_key = true;
+            },
+            .comma => {
+                // After , we expect a property name only if we're in an object
+                const in_object = if (self.depth > 0 and self.depth <= 32)
+                    (self.context_stack & (@as(u32, 1) << @as(u5, @intCast(self.depth - 1)))) != 0
+                else
+                    false;
+                self.expecting_property_key = in_object;
+            },
+            .colon => {
+                // After : we expect a value, not a property name
+                self.expecting_property_key = false;
+            },
+            .array_start => {
+                // In arrays, we don't expect property names
+                self.expecting_property_key = false;
+            },
+            else => {
+                // For other tokens, don't change context
+            },
         }
 
         const token = JsonToken{
@@ -257,6 +327,19 @@ pub const JsonStreamLexer = struct {
     }
 
     /// Continue scanning after boundary - called when more data is available
+    /// Peek at the next token without consuming it
+    pub fn peek(self: *JsonStreamLexer) ?StreamToken {
+        // If we already have a peeked token, return it
+        if (self.peeked_token) |token| {
+            return token;
+        }
+
+        // Get the next token and store it for later
+        const token = self.nextInternalOrig();
+        self.peeked_token = token;
+        return token;
+    }
+
     pub fn continueBoundaryToken(self: *JsonStreamLexer) ?StreamToken {
         if (self.token_buffer == null) return null;
 
@@ -359,9 +442,17 @@ pub const JsonStreamLexer = struct {
             switch (ch) {
                 '"' => {
                     // End of string found
+                    // Determine if this is a property name or string value based on context
+                    const kind: JsonTokenKind = if (self.expecting_property_key) .property_name else .string_value;
+
+                    // After parsing a property name, we expect a colon next
+                    if (self.expecting_property_key) {
+                        self.expecting_property_key = false;
+                    }
+
                     const token = JsonToken{
                         .span = packSpan(Span{ .start = self.token_start, .end = self.position }),
-                        .kind = .string_value,
+                        .kind = kind,
                         .depth = self.depth,
                         .flags = .{ .has_escapes = has_escapes },
                         .data = 0,
@@ -426,7 +517,35 @@ pub const JsonStreamLexer = struct {
             }
         }
 
-        // Scan digits
+        // RFC8259 validation: Check for leading zero pattern
+        if (self.buffer.peek()) |first_ch| {
+            if (first_ch == '0') {
+                _ = self.buffer.pop(); // consume '0'
+                self.position += 1;
+                self.column += 1;
+
+                // After '0', only '.' or end-of-number is valid
+                if (self.buffer.peek()) |second_ch| {
+                    if (second_ch >= '0' and second_ch <= '9') {
+                        // Leading zero followed by another digit - invalid
+                        return self.makeErrorToken();
+                    }
+                }
+            } else {
+                // Not starting with '0', scan normally
+                while (self.buffer.peek()) |ch| {
+                    if (ch >= '0' and ch <= '9') {
+                        _ = self.buffer.pop();
+                        self.position += 1;
+                        self.column += 1;
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Continue with decimal and scientific notation
         while (self.buffer.peek()) |ch| {
             switch (ch) {
                 '0'...'9' => {
@@ -451,6 +570,34 @@ pub const JsonStreamLexer = struct {
                             _ = self.buffer.pop();
                             self.position += 1;
                             self.column += 1;
+                        }
+                    }
+
+                    // RFC8259: Exponent cannot have leading zeros either
+                    if (self.buffer.peek()) |exp_first| {
+                        if (exp_first == '0') {
+                            _ = self.buffer.pop(); // consume '0'
+                            self.position += 1;
+                            self.column += 1;
+
+                            // Check if followed by another digit
+                            if (self.buffer.peek()) |exp_second| {
+                                if (exp_second >= '0' and exp_second <= '9') {
+                                    // Leading zero in exponent - invalid
+                                    return self.makeErrorToken();
+                                }
+                            }
+                        } else {
+                            // Scan remaining exponent digits normally
+                            while (self.buffer.peek()) |exp_ch| {
+                                if (exp_ch >= '0' and exp_ch <= '9') {
+                                    _ = self.buffer.pop();
+                                    self.position += 1;
+                                    self.column += 1;
+                                } else {
+                                    break;
+                                }
+                            }
                         }
                     }
                 },
@@ -621,15 +768,15 @@ test "JsonStreamLexer basic tokenization" {
     const token1 = lexer.next() orelse return error.UnexpectedNull;
     try testing.expectEqual(JsonTokenKind.object_start, token1.json.kind);
 
-    // "name"
+    // "name" (property key)
     const token2 = lexer.next() orelse return error.UnexpectedNull;
-    try testing.expectEqual(JsonTokenKind.string_value, token2.json.kind);
+    try testing.expectEqual(JsonTokenKind.property_name, token2.json.kind);
 
     // :
     const token3 = lexer.next() orelse return error.UnexpectedNull;
     try testing.expectEqual(JsonTokenKind.colon, token3.json.kind);
 
-    // "test"
+    // "test" (string value)
     const token4 = lexer.next() orelse return error.UnexpectedNull;
     try testing.expectEqual(JsonTokenKind.string_value, token4.json.kind);
 
@@ -637,9 +784,9 @@ test "JsonStreamLexer basic tokenization" {
     const token5 = lexer.next() orelse return error.UnexpectedNull;
     try testing.expectEqual(JsonTokenKind.comma, token5.json.kind);
 
-    // "value"
+    // "value" (property key)
     const token6 = lexer.next() orelse return error.UnexpectedNull;
-    try testing.expectEqual(JsonTokenKind.string_value, token6.json.kind);
+    try testing.expectEqual(JsonTokenKind.property_name, token6.json.kind);
 
     // :
     const token7 = lexer.next() orelse return error.UnexpectedNull;

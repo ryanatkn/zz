@@ -2,7 +2,6 @@ const std = @import("std");
 const testing = std.testing;
 
 // Import ZON modules
-const ZonLexer = @import("lexer.zig").ZonLexer;
 const ZonParser = @import("parser.zig").ZonParser;
 const ZonLinter = @import("linter.zig").ZonLinter;
 const ZonRuleType = @import("linter.zig").ZonRuleType;
@@ -28,13 +27,8 @@ test "ZON linter - valid ZON" {
         \\}
     ;
 
-    var lexer = ZonLexer.init(allocator);
-    defer lexer.deinit();
-
-    const tokens = try lexer.tokenize(input);
-    defer allocator.free(tokens);
-
-    var parser = ZonParser.init(allocator, tokens, input, .{});
+    // Updated to streaming parser (3-arg pattern)
+    var parser = try ZonParser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -70,13 +64,8 @@ test "ZON linter - duplicate keys" {
         \\}
     ;
 
-    var lexer = ZonLexer.init(allocator);
-    defer lexer.deinit();
-
-    const tokens = try lexer.tokenize(input);
-    defer allocator.free(tokens);
-
-    var parser = ZonParser.init(allocator, tokens, input, .{});
+    // Updated to streaming parser (3-arg pattern)
+    var parser = try ZonParser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -113,13 +102,8 @@ test "ZON linter - schema validation" {
         \\}
     ;
 
-    var lexer = ZonLexer.init(allocator);
-    defer lexer.deinit();
-
-    const tokens = try lexer.tokenize(input);
-    defer allocator.free(tokens);
-
-    var parser = ZonParser.init(allocator, tokens, input, .{});
+    // Updated to streaming parser (3-arg pattern)
+    var parser = try ZonParser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -169,13 +153,8 @@ test "ZON linter - deep nesting warning" {
         try deep_input.appendSlice("}");
     }
 
-    var lexer = ZonLexer.init(allocator);
-    defer lexer.deinit();
-
-    const tokens = try lexer.tokenize(deep_input.items);
-    defer allocator.free(tokens);
-
-    var parser = ZonParser.init(allocator, tokens, deep_input.items, .{});
+    // Updated to streaming parser (3-arg pattern)
+    var parser = try ZonParser.init(allocator, deep_input.items, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();

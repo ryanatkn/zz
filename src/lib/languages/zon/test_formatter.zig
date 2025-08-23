@@ -2,10 +2,9 @@ const std = @import("std");
 const testing = std.testing;
 
 // Import ZON modules
-const ZonLexer = @import("lexer.zig").ZonLexer;
 const ZonParser = @import("parser.zig").ZonParser;
 const ZonFormatter = @import("formatter.zig").ZonFormatter;
-const formatZonString = @import("formatter.zig").formatZonString;
+const formatZonString = @import("mod.zig").formatZonString;
 const FormatOptions = @import("../interface.zig").FormatOptions;
 
 // =============================================================================
@@ -19,13 +18,8 @@ test "ZON formatter - basic formatting" {
 
     const input = ".{.name=\"test\",.version=\"1.0.0\"}";
 
-    var lexer = ZonLexer.init(allocator);
-    defer lexer.deinit();
-
-    const tokens = try lexer.tokenize(input);
-    defer allocator.free(tokens);
-
-    var parser = ZonParser.init(allocator, tokens, input, .{});
+    // Updated to streaming parser (3-arg pattern)
+    var parser = try ZonParser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -56,13 +50,8 @@ test "ZON formatter - preserve structure" {
         \\}
     ;
 
-    var lexer = ZonLexer.init(allocator);
-    defer lexer.deinit();
-
-    const tokens = try lexer.tokenize(input);
-    defer allocator.free(tokens);
-
-    var parser = ZonParser.init(allocator, tokens, input, .{});
+    // Updated to streaming parser (3-arg pattern)
+    var parser = try ZonParser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -84,13 +73,8 @@ test "ZON formatter - compact vs multiline" {
 
     const input = ".{ .name = \"test\", .version = \"1.0.0\" }";
 
-    var lexer = ZonLexer.init(allocator);
-    defer lexer.deinit();
-
-    const tokens = try lexer.tokenize(input);
-    defer allocator.free(tokens);
-
-    var parser = ZonParser.init(allocator, tokens, input, .{});
+    // Updated to streaming parser (3-arg pattern)
+    var parser = try ZonParser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -127,14 +111,8 @@ test "ZON formatter - round trip" {
     };
 
     for (inputs) |input| {
-        // Parse original
-        var lexer1 = ZonLexer.init(allocator);
-        defer lexer1.deinit();
-
-        const tokens1 = try lexer1.tokenize(input);
-        defer allocator.free(tokens1);
-
-        var parser1 = ZonParser.init(allocator, tokens1, input, .{});
+        // Parse original - Updated to streaming parser
+        var parser1 = try ZonParser.init(allocator, input, .{});
         defer parser1.deinit();
 
         var ast1 = try parser1.parse();
@@ -148,13 +126,8 @@ test "ZON formatter - round trip" {
         defer allocator.free(formatted);
 
         // Parse formatted version
-        var lexer2 = ZonLexer.init(allocator);
-        defer lexer2.deinit();
-
-        const tokens2 = try lexer2.tokenize(formatted);
-        defer allocator.free(tokens2);
-
-        var parser2 = ZonParser.init(allocator, tokens2, formatted, .{});
+        // Updated to streaming parser (3-arg pattern)
+        var parser2 = try ZonParser.init(allocator, formatted, .{});
         defer parser2.deinit();
 
         var ast2 = try parser2.parse();
@@ -178,13 +151,8 @@ test "ZON formatter - demo issue: simple config with leading dot" {
     // This is the exact input from the demo that was dropping the leading dot
     const input = ".{.name=\"zz\",.version=\"1.0.0\",.debug=true,.workers=4,}";
 
-    var lexer = ZonLexer.init(allocator);
-    defer lexer.deinit();
-
-    const tokens = try lexer.tokenize(input);
-    defer allocator.free(tokens);
-
-    var parser = ZonParser.init(allocator, tokens, input, .{});
+    // Updated to streaming parser (3-arg pattern)
+    var parser = try ZonParser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -211,13 +179,8 @@ test "ZON formatter - demo issue: tuple structures should use .{ not [" {
     // This is the exact input from the demo that was getting formatted with []
     const input = ".{.{.id=1,.name=\"Alice\",.active=true,.role=\"admin\"},.{.id=2,.name=\"Bob\",.active=false,.role=\"user\"},.{.id=3,.name=\"Charlie\",.active=true,.role=\"moderator\"},}";
 
-    var lexer = ZonLexer.init(allocator);
-    defer lexer.deinit();
-
-    const tokens = try lexer.tokenize(input);
-    defer allocator.free(tokens);
-
-    var parser = ZonParser.init(allocator, tokens, input, .{});
+    // Updated to streaming parser (3-arg pattern)
+    var parser = try ZonParser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -254,13 +217,8 @@ test "ZON formatter - verify all containers use .{ syntax" {
     };
 
     for (test_cases) |input| {
-        var lexer = ZonLexer.init(allocator);
-        defer lexer.deinit();
-
-        const tokens = try lexer.tokenize(input);
-        defer allocator.free(tokens);
-
-        var parser = ZonParser.init(allocator, tokens, input, .{});
+        // Updated to streaming parser (3-arg pattern)
+        var parser = try ZonParser.init(allocator, input, .{});
         defer parser.deinit();
 
         var ast = try parser.parse();
@@ -298,13 +256,8 @@ test "ZON formatter - empty structure formatting" {
     };
 
     for (test_cases) |input| {
-        var lexer = ZonLexer.init(allocator);
-        defer lexer.deinit();
-
-        const tokens = try lexer.tokenize(input);
-        defer allocator.free(tokens);
-
-        var parser = ZonParser.init(allocator, tokens, input, .{});
+        // Updated to streaming parser (3-arg pattern)
+        var parser = try ZonParser.init(allocator, input, .{});
         defer parser.deinit();
 
         var ast = try parser.parse();
@@ -328,13 +281,8 @@ test "ZON formatter - deeply nested structures" {
 
     const input = ".{.a=.{.b=.{.c=\"deep\"}}}";
 
-    var lexer = ZonLexer.init(allocator);
-    defer lexer.deinit();
-
-    const tokens = try lexer.tokenize(input);
-    defer allocator.free(tokens);
-
-    var parser = ZonParser.init(allocator, tokens, input, .{});
+    // Updated to streaming parser (3-arg pattern)
+    var parser = try ZonParser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -360,13 +308,8 @@ test "ZON formatter - mixed value types in structures" {
 
     const input = ".{.str=\"hello\",.num=42,.bool=true,.null_val=null}";
 
-    var lexer = ZonLexer.init(allocator);
-    defer lexer.deinit();
-
-    const tokens = try lexer.tokenize(input);
-    defer allocator.free(tokens);
-
-    var parser = ZonParser.init(allocator, tokens, input, .{});
+    // Updated to streaming parser (3-arg pattern)
+    var parser = try ZonParser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -393,27 +336,22 @@ test "ZON formatter - compact vs multiline decisions" {
 
     const input = ".{.field1=\"value1\",.field2=\"value2\",.field3=\"value3\",.field4=\"value4\"}";
 
-    var lexer = ZonLexer.init(allocator);
-    defer lexer.deinit();
-
-    const tokens = try lexer.tokenize(input);
-    defer allocator.free(tokens);
-
-    var parser = ZonParser.init(allocator, tokens, input, .{});
+    // Updated to streaming parser (3-arg pattern)
+    var parser = try ZonParser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
     defer ast.deinit();
 
     // Test compact formatting
-    var compact_formatter = ZonFormatter.init(allocator, .{ .compact_small_objects = true, .max_compact_elements = 10 });
+    var compact_formatter = ZonFormatter.init(allocator, .{ .compact_small_objects = true });
     defer compact_formatter.deinit();
 
     const compact = try compact_formatter.format(ast);
     defer allocator.free(compact);
 
     // Test multiline formatting
-    var multiline_formatter = ZonFormatter.init(allocator, .{ .compact_small_objects = false, .max_compact_elements = 0 });
+    var multiline_formatter = ZonFormatter.init(allocator, .{ .compact_small_objects = false });
     defer multiline_formatter.deinit();
 
     const multiline = try multiline_formatter.format(ast);
@@ -436,9 +374,8 @@ test "ZON formatter - formatZonString function integration" {
     const allocator = arena.allocator();
 
     const input = ".{.name=\"test\",.value=123}";
-    const options = ZonFormatter.ZonFormatOptions{ .indent_size = 2 };
 
-    const formatted = try formatZonString(allocator, input, options);
+    const formatted = try formatZonString(allocator, input);
     defer allocator.free(formatted);
 
     // Should produce valid formatted output starting with .{

@@ -3,9 +3,7 @@ const std = @import("std");
 const testing = std.testing;
 
 // Import token module components
-const TokenKind = @import("kind.zig").TokenKind;
 const StreamToken = @import("stream_token.zig").StreamToken;
-const SimpleStreamToken = @import("generic.zig").SimpleStreamToken;
 
 // Import language tokens
 const JsonToken = @import("../languages/json/stream_token.zig").JsonToken;
@@ -15,24 +13,6 @@ const ZonToken = @import("../languages/zon/stream_token.zig").ZonToken;
 const Span = @import("../span/mod.zig").Span;
 const PackedSpan = @import("../span/mod.zig").PackedSpan;
 const packSpan = @import("../span/mod.zig").packSpan;
-
-test "TokenKind basic properties" {
-    // Size check
-    try testing.expectEqual(@as(usize, 1), @sizeOf(TokenKind));
-
-    // Categorization tests
-    try testing.expect(TokenKind.whitespace.isTrivia());
-    try testing.expect(TokenKind.comment.isTrivia());
-    try testing.expect(!TokenKind.identifier.isTrivia());
-
-    try testing.expect(TokenKind.left_brace.isDelimiter());
-    try testing.expect(TokenKind.left_brace.isOpenDelimiter());
-    try testing.expect(!TokenKind.left_brace.isCloseDelimiter());
-
-    try testing.expect(TokenKind.keyword_if.isKeyword());
-    try testing.expect(TokenKind.plus.isOperator());
-    try testing.expect(TokenKind.string.isLiteral());
-}
 
 test "JsonToken size and construction" {
     try testing.expectEqual(@as(usize, 16), @sizeOf(JsonToken));
@@ -84,19 +64,25 @@ test "StreamToken tagged union operations" {
     const json_tok = JsonToken.structural(span, .object_start, 0);
     const stream_json = StreamToken{ .json = json_tok };
 
-    try testing.expectEqual(packSpan(span), stream_json.span());
-    try testing.expectEqual(@as(u8, 0), stream_json.depth());
-    try testing.expectEqual(TokenKind.left_brace, stream_json.kind());
-    try testing.expect(stream_json.isOpenDelimiter());
+    // Direct field access - no methods
+    try testing.expectEqual(packSpan(span), stream_json.json.span);
+    try testing.expectEqual(@as(u8, 0), stream_json.json.depth);
+    // No generic kind mapping - language owns its kinds
+    const JsonTokenKind = @import("../languages/json/stream_token.zig").JsonTokenKind;
+    try testing.expectEqual(JsonTokenKind.object_start, stream_json.json.kind);
+    try testing.expect(stream_json.json.isOpenDelimiter());
 
     // ZON token in StreamToken
     const zon_tok = ZonToken.field(span, 1, 42, false);
     const stream_zon = StreamToken{ .zon = zon_tok };
 
-    try testing.expectEqual(packSpan(span), stream_zon.span());
-    try testing.expectEqual(@as(u8, 1), stream_zon.depth());
-    try testing.expectEqual(TokenKind.identifier, stream_zon.kind());
-    try testing.expectEqual(@as(?u32, 42), stream_zon.getStringIndex());
+    // Direct field access - no methods
+    try testing.expectEqual(packSpan(span), stream_zon.zon.span);
+    try testing.expectEqual(@as(u8, 1), stream_zon.zon.depth);
+    // No generic kind mapping - language owns its kinds
+    const ZonTokenKind = @import("../languages/zon/stream_token.zig").ZonTokenKind;
+    try testing.expectEqual(ZonTokenKind.field_name, stream_zon.zon.kind);
+    try testing.expectEqual(@as(?u32, 42), stream_zon.zon.getStringIndex());
 }
 
 test "StreamToken size constraints" {
@@ -109,71 +95,99 @@ test "StreamToken size constraints" {
     std.debug.print("\n  StreamToken size: {} bytes (target: ≤24)\n", .{size});
 }
 
-test "Generic SimpleStreamToken" {
-    const span = Span.init(50, 60);
-
-    // Define a custom token union
-    const TestUnion = union(enum) {
-        json: JsonToken,
-        zon: ZonToken,
-    };
-
-    const TestToken = SimpleStreamToken(TestUnion);
-
-    // Create a JSON token through generic wrapper
-    const json_tok = JsonToken.structural(span, .array_start, 2);
-    const test_tok = TestToken{
-        .token = TestUnion{ .json = json_tok },
-    };
-
-    try testing.expectEqual(packSpan(span), test_tok.span());
-    try testing.expectEqual(@as(u8, 2), test_tok.depth());
-    try testing.expect(test_tok.isOpenDelimiter());
-}
-
-test "Fact extraction interface" {
-    const allocator = testing.allocator;
-    const FactStore = @import("../fact/mod.zig").FactStore;
-
-    var store = FactStore.init(allocator);
-    defer store.deinit();
-
-    const span = Span.init(0, 5);
-    const source = "{}[]\"test\"";
-
-    // Create tokens
-    const json_obj = JsonToken.structural(span, .object_start, 0);
-    const stream_tok = StreamToken{ .json = json_obj };
-
-    // Extract facts (this will add facts to the store)
-    try stream_tok.extractFacts(&store, source);
-
-    // Verify facts were added
-    const facts = store.getAll();
-    try testing.expect(facts.len > 0);
-
-    // TODO: Once fact extraction is fully implemented, verify specific facts
-    // For now just check that extraction doesn't crash
-}
-
 test "Token categorization across languages" {
     const span = Span.init(0, 1);
 
     // Test that categorization works consistently across languages
     const json_ws = JsonToken.trivia(span, .whitespace);
     const json_stream = StreamToken{ .json = json_ws };
-    try testing.expect(json_stream.isTrivia());
+    try testing.expect(json_stream.json.isTrivia());
 
     const zon_comment = ZonToken.trivia(span, .comment);
     const zon_stream = StreamToken{ .zon = zon_comment };
-    try testing.expect(zon_stream.isTrivia());
+    try testing.expect(zon_stream.zon.isTrivia());
 }
 
-// Integration test with actual lexing would go here once lexers are implemented
+// Integration test with streaming lexers
 test "TokenIterator basic operations" {
-    // TODO: Implement once actual lexers are available
-    // For now, just test that the module compiles
-    _ = @import("iterator.zig");
+    const TokenIterator = @import("iterator.zig").TokenIterator;
+    const Language = @import("../core/language.zig").Language;
+
+    // Test JSON lexing
+    {
+        const json_source =
+            \\{"name": "test", "value": 42}
+        ;
+
+        var iter = try TokenIterator.init(json_source, .json);
+
+        var token_count: usize = 0;
+        while (iter.next()) |token| {
+            token_count += 1;
+
+            // Verify we get StreamToken with json variant
+            switch (token) {
+                .json => |json_token| {
+                    _ = json_token.kind;
+                    _ = json_token.span;
+                },
+                else => unreachable,
+            }
+
+            // Check for EOF using direct field access
+            switch (token) {
+                .json => |t| if (t.kind == .eof) break,
+                else => {},
+            }
+        }
+
+        try testing.expect(token_count > 0);
+    }
+
+    // Test ZON lexing
+    {
+        const zon_source =
+            \\.{ .name = "test", .value = 42 }
+        ;
+
+        var iter = try TokenIterator.init(zon_source, .zon);
+
+        var token_count: usize = 0;
+        while (iter.next()) |token| {
+            token_count += 1;
+
+            switch (token) {
+                .zon => |zon_token| {
+                    _ = zon_token.kind;
+                    _ = zon_token.span;
+                },
+                else => unreachable,
+            }
+
+            // Check for EOF using direct field access
+            switch (token) {
+                .zon => |t| if (t.kind == .eof) break,
+                else => {},
+            }
+        }
+
+        try testing.expect(token_count > 0);
+    }
+
+    // Test language detection by caller
+    {
+        const source = "{}";
+        const lang = Language.fromPath("test.json");
+        var iter = try TokenIterator.init(source, lang);
+
+        const token = iter.next();
+        try testing.expect(token != null);
+
+        switch (token.?) {
+            .json => {}, // Expected
+            else => unreachable,
+        }
+    }
 }
 
 // TODO: Add benchmark test comparing:

@@ -1,6 +1,5 @@
 const std = @import("std");
 const Language = @import("../../core/language.zig").Language;
-const Token = @import("../../token/mod.zig").Token;
 // Import ZON-specific AST
 const zon_ast = @import("ast.zig");
 const AST = zon_ast.AST;
@@ -23,12 +22,11 @@ const ZonRuleType = @import("linter.zig").ZonRuleType;
 const EnabledRules = @import("linter.zig").EnabledRules;
 
 // Module-specific components
-const ZonLexer = @import("lexer.zig").ZonLexer;
 const ZonParserImpl = @import("parser.zig");
 const ZonAnalyzer = @import("analyzer.zig").ZonAnalyzer;
 const AstConverter = @import("ast_converter.zig");
 const ZonSerializer = @import("serializer.zig");
-const ZonDiagnostic = @import("linter.zig").ZonLinter.Diagnostic;
+const ZonDiagnostic = @import("linter.zig").Diagnostic;
 const ZonSchema = @import("analyzer.zig").ZonAnalyzer.ZonSchema;
 const ZigTypeDefinition = @import("analyzer.zig").ZonAnalyzer.ZigTypeDefinition;
 
@@ -54,12 +52,12 @@ pub fn getSupport(allocator: std.mem.Allocator) !lang_interface.LanguageSupport(
     return lang_interface.LanguageSupport(AST, ZonRuleType){
         .language = .zon,
         .lexer = Lexer{
-            .tokenizeFn = tokenize,
-            .tokenizeChunkFn = tokenizeChunk,
-            .updateTokensFn = null, // TODO: Implement incremental tokenization
+            .tokenizeFn = null, // Streaming lexer - not using old batch interface
+            .tokenizeChunkFn = null, // Streaming lexer - not using old batch interface
+            .updateTokensFn = null, // Incremental tokenization not implemented
         },
         .parser = Parser(AST){
-            .parseFn = parseInterface,
+            .parseFn = null, // Streaming parser - not using old interface
             .parseWithBoundariesFn = null, // Boundaries not used for ZON
         },
         .formatter = Formatter(AST){
@@ -80,28 +78,9 @@ pub fn getSupport(allocator: std.mem.Allocator) !lang_interface.LanguageSupport(
     };
 }
 
-/// Tokenize ZON source code
-pub fn tokenize(allocator: std.mem.Allocator, input: []const u8) ![]Token {
-    var lexer = ZonLexer.init(allocator);
-    defer lexer.deinit();
-    return lexer.batchTokenize(allocator, input);
-}
-
-/// Tokenize ZON source code chunk for streaming
-pub fn tokenizeChunk(allocator: std.mem.Allocator, input: []const u8, start_pos: usize) ![]Token {
-    var lexer = ZonLexer.init(allocator);
-    defer lexer.deinit();
-
-    const tokens = try lexer.batchTokenize(allocator, input);
-
-    // Adjust token positions for the start_pos offset
-    for (tokens) |*token| {
-        token.span.start += @intCast(start_pos);
-        token.span.end += @intCast(start_pos);
-    }
-
-    return tokens;
-}
+// DELETED: Old batch tokenization functions no longer needed with streaming architecture
+// The tokenize() and tokenizeChunk() functions that returned []Token arrays
+// have been removed. Use streaming parser directly with ZonParser.init()
 
 // TODO: Phase 3 - Re-enable with new streaming architecture
 // /// Tokenize ZON chunk to GenericStreamTokens using VTable adapter
@@ -123,22 +102,16 @@ pub fn tokenizeChunk(allocator: std.mem.Allocator, input: []const u8, start_pos:
 //     return ZonTokenVTableAdapter.convertZonTokensToGeneric(allocator, zon_tokens);
 // }
 
-/// Parse ZON tokens into AST
-pub fn parse(allocator: std.mem.Allocator, tokens: []Token, source: []const u8) !AST {
-    var parser = ZonParserImpl.ZonParser.init(allocator, tokens, source, .{});
+/// Parse ZON source into AST using streaming parser
+pub fn parse(allocator: std.mem.Allocator, source: []const u8) !AST {
+    var parser = try ZonParserImpl.ZonParser.init(allocator, source, .{});
     defer parser.deinit();
     return parser.parse();
 }
 
-/// Parse ZON tokens into AST (interface wrapper)
-/// TODO: The language interface should be updated to pass source text to all parsers
-fn parseInterface(allocator: std.mem.Allocator, tokens: []Token) !AST {
-    // For interface calls, we don't have source text available
-    // This limits token.getText() functionality but allows basic parsing
-    var parser = ZonParserImpl.ZonParser.init(allocator, tokens, "", .{});
-    defer parser.deinit();
-    return parser.parse();
-}
+// DELETED: Old parseInterface function that used token arrays
+// Streaming parser doesn't use pre-tokenized arrays
+// Use parse() function directly which calls ZonParser.init() with source
 
 /// Format ZON AST
 fn format(allocator: std.mem.Allocator, ast: AST, options: FormatOptions) ![]const u8 {
@@ -158,6 +131,7 @@ fn format(allocator: std.mem.Allocator, ast: AST, options: FormatOptions) ![]con
 
     var formatter = ZonFormatterType.init(allocator, zon_options);
     defer formatter.deinit();
+    // Use the source text stored in the AST
     return formatter.format(ast);
 }
 
@@ -205,27 +179,27 @@ pub fn freeSymbols(allocator: std.mem.Allocator, symbols: []Symbol) void {
 
 /// Parse ZON string directly
 pub fn parseZonString(allocator: std.mem.Allocator, zon_content: []const u8) !AST {
-    const tokens = try tokenize(allocator, zon_content);
-    defer allocator.free(tokens);
-    return parse(allocator, tokens, zon_content);
+    // Use streaming parser directly (3-arg pattern)
+    return parse(allocator, zon_content);
 }
 
 /// Format ZON string directly
-pub fn formatZonString(allocator: std.mem.Allocator, zon_content: []const u8) ![]const u8 {
-    var ast = try parseZonString(allocator, zon_content);
-    defer ast.deinit();
-
-    const default_options = FormatOptions{
+pub fn formatZonString(allocator: std.mem.Allocator, zon_content: []const u8) ![]u8 {
+    // Use formatter directly with source since AST doesn't have source
+    const zon_options = ZonFormatterType.ZonFormatOptions{
         .indent_size = 4,
-        .indent_style = .space,
+        .indent_style = ZonFormatterType.ZonFormatOptions.IndentStyle.space,
         .line_width = 100,
-        .preserve_newlines = false,
+        .preserve_comments = false,
         .trailing_comma = true,
-        .sort_keys = false,
-        .quote_style = .double,
+        .compact_small_objects = true,
+        .compact_small_arrays = true,
     };
 
-    return format(allocator, ast, default_options);
+    var formatter = ZonFormatterType.init(allocator, zon_options);
+    defer formatter.deinit();
+    const formatted = try formatter.formatSource(zon_content);
+    return try allocator.dupe(u8, formatted);
 }
 
 /// Validate ZON string and return diagnostics
@@ -270,6 +244,7 @@ pub const ZonValidator = @import("validator.zig").ZonValidator;
 
 // Export language-specific types for interface
 pub const RuleType = ZonRuleType;
+pub const ZonFormatter = ZonFormatterType;
 
 // Transform pipeline components (using module-scope reference)
 const transform_mod = @import("transform.zig");

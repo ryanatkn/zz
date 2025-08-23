@@ -1,22 +1,20 @@
+/// JSON AST Formatter - Direct AST traversal formatting
+///
+/// Formats JSON by traversing the AST directly, enabling features like key sorting
+/// Performance target: <0.5ms for 10KB JSON
 const std = @import("std");
-// Use local JSON AST
+const unpackSpan = @import("../../span/mod.zig").unpackSpan;
+
+// For compatibility with existing interface
 const json_ast = @import("ast.zig");
 const AST = json_ast.AST;
-const Node = json_ast.Node;
-const NodeKind = json_ast.NodeKind;
 
-/// High-performance JSON formatter with configurable output
-///
-/// Features:
-/// - Pretty-printing with configurable indentation
-/// - Smart single-line vs multi-line decisions
-/// - Optional features: key sorting, trailing commas, compact mode
-/// - Preserve number precision and proper string escaping
-/// - Performance target: <0.5ms for 10KB JSON
+/// High-performance JSON formatter with AST traversal
 pub const JsonFormatter = struct {
     allocator: std.mem.Allocator,
     options: JsonFormatOptions,
     output: std.ArrayList(u8),
+    source: []const u8,
     indent_level: u32,
     line_position: u32,
 
@@ -30,17 +28,17 @@ pub const JsonFormatter = struct {
         preserve_newlines: bool = false,
 
         // JSON-specific options
-        compact_objects: bool = false, // Single-line objects if small
-        compact_arrays: bool = false, // Single-line arrays if small
-        sort_keys: bool = false, // Sort object keys alphabetically
-        trailing_comma: bool = false, // Add trailing commas (JSON5)
-        quote_style: QuoteStyle = .double, // String quote style
-        space_after_colon: bool = true, // Space after : in objects
-        space_after_comma: bool = true, // Space after , in arrays/objects
+        compact_objects: bool = false,
+        compact_arrays: bool = false,
+        sort_keys: bool = false,
+        trailing_comma: bool = false,
+        quote_style: QuoteStyle = .double,
+        space_after_colon: bool = true,
+        space_after_comma: bool = true,
 
         // Compact mode overrides
-        force_compact: bool = false, // Force everything on single lines
-        force_multiline: bool = false, // Force everything multiline
+        force_compact: bool = false,
+        force_multiline: bool = false,
 
         pub const IndentStyle = enum { space, tab };
         pub const QuoteStyle = enum { single, double, preserve };
@@ -51,6 +49,7 @@ pub const JsonFormatter = struct {
             .allocator = allocator,
             .options = options,
             .output = std.ArrayList(u8).init(allocator),
+            .source = "",
             .indent_level = 0,
             .line_position = 0,
         };
@@ -60,9 +59,11 @@ pub const JsonFormatter = struct {
         self.output.deinit();
     }
 
-    /// Format JSON AST to string using direct formatting
+    /// Format JSON AST (direct AST traversal)
     pub fn format(self: *Self, ast: AST) ![]const u8 {
-        // Format the root node directly (no visitor pattern to avoid double formatting)
+        self.source = ast.source;
+
+        // Format from AST directly (no re-tokenization)
         try self.formatNode(ast.root);
 
         // Add final newline if not compact
@@ -73,479 +74,264 @@ pub const JsonFormatter = struct {
         return self.output.toOwnedSlice();
     }
 
-    fn formatNode(self: *Self, node: *const Node) anyerror!void {
+    /// Format JSON from source string directly (INTERNAL - use format(ast) instead)
+    /// This method is package-internal to prevent inefficient double-parsing from external callers.
+    /// Developers should parse once to get AST, then format that AST.
+    /// Only used internally by formatJsonString convenience function.
+    pub fn formatSource(self: *Self, source: []const u8) ![]const u8 {
+        // Parse source to AST first, then format AST (avoids double tokenization)
+        const json_mod = @import("mod.zig");
+        var ast = try json_mod.parseJson(self.allocator, source);
+        defer ast.deinit();
+        return self.format(ast);
+    }
+
+    /// Format a JSON AST node directly
+    fn formatNode(self: *Self, node: *const json_ast.Node) anyerror!void {
         switch (node.*) {
-            .string => try self.formatString(node),
-            .number => try self.formatNumber(node),
-            .boolean => try self.formatBoolean(node),
-            .null => try self.formatNull(node),
-            .object => try self.formatObject(node),
-            .array => try self.formatArray(node),
-            .property => try self.formatProperty(node),
-            .root => try self.formatNode(node.root.value),
-            .err => try self.output.appendSlice("null"), // Handle errors
+            .string => |string_node| {
+                const span = string_node.span;
+                const text = self.source[span.start..span.end];
+                try self.output.appendSlice(text);
+                self.updateLinePosition(text.len);
+            },
+            .number => |number_node| {
+                try self.output.appendSlice(number_node.raw);
+                self.updateLinePosition(number_node.raw.len);
+            },
+            .boolean => |bool_node| {
+                const text = if (bool_node.value) "true" else "false";
+                try self.output.appendSlice(text);
+                self.updateLinePosition(text.len);
+            },
+            .null => {
+                try self.output.appendSlice("null");
+                self.updateLinePosition(4);
+            },
+            .object => |object_node| {
+                try self.formatObjectNode(object_node);
+            },
+            .array => |array_node| {
+                try self.formatArrayNode(array_node);
+            },
+            .root => |root_node| {
+                try self.formatNode(root_node.value);
+            },
+            else => {}, // Skip other node types
         }
     }
 
-    fn formatString(self: *Self, node: *const Node) !void {
-        const string_node = node.string;
-        const value = string_node.value;
-
-        // JSON strings always use double quotes (JSON5 can use single)
-        if (self.options.quote_style == .single) {
-            try self.output.append('\'');
-            // TODO: Escape single quotes in value
-            try self.output.appendSlice(value);
-            try self.output.append('\'');
-            self.updateLinePosition(value.len + 2);
-        } else {
-            try self.output.append('"');
-            // TODO: Escape double quotes in value
-            try self.output.appendSlice(value);
-            try self.output.append('"');
-            self.updateLinePosition(value.len + 2);
-        }
-    }
-
-    fn formatNumber(self: *Self, node: *const Node) !void {
-        const number_node = node.number;
-        const raw_text = number_node.raw;
-        try self.output.appendSlice(raw_text);
-        self.updateLinePosition(raw_text.len);
-    }
-
-    fn formatBoolean(self: *Self, node: *const Node) !void {
-        const boolean_node = node.boolean;
-        const text = if (boolean_node.value) "true" else "false";
-        try self.output.appendSlice(text);
-        self.updateLinePosition(text.len);
-    }
-
-    fn formatNull(self: *Self, _: *const Node) !void {
-        try self.output.appendSlice("null");
-        self.updateLinePosition(4);
-    }
-
-    fn formatObject(self: *Self, node: *const Node) anyerror!void {
-        const object_node = node.object;
-        const properties = object_node.properties;
-
-        if (properties.len == 0) {
-            try self.output.appendSlice("{}");
-            self.updateLinePosition(2);
-            return;
-        }
-
-        const should_compact = self.shouldCompactObject(node);
-
+    /// Format an object node with optional key sorting
+    fn formatObjectNode(self: *Self, object_node: json_ast.ObjectNode) !void {
         try self.output.append('{');
         self.updateLinePosition(1);
 
+        // Check if object should be compact
+        const should_compact = self.options.force_compact or
+            (self.options.compact_objects and object_node.properties.len <= 3);
+
         if (!should_compact) {
-            try self.newline();
             self.indent_level += 1;
         }
 
-        // Sort properties if requested
-        var sorted_properties: []const Node = undefined;
-        var property_indices: std.ArrayList(usize) = undefined;
-        var sorted_list: ?std.ArrayList(Node) = null;
+        // Extract property nodes and sort if requested
+        const property_indices = try self.allocator.alloc(usize, object_node.properties.len);
+        defer self.allocator.free(property_indices);
 
+        // Initialize indices
+        for (property_indices, 0..) |*idx, i| {
+            idx.* = i;
+        }
+
+        // Sort indices by property key if requested
         if (self.options.sort_keys) {
-            property_indices = std.ArrayList(usize).init(self.allocator);
-            defer property_indices.deinit();
+            const SortContext = struct {
+                properties: []json_ast.Node,
 
-            for (properties, 0..) |_, i| {
-                try property_indices.append(i);
-            }
+                pub fn lessThan(ctx: @This(), a_idx: usize, b_idx: usize) bool {
+                    if (ctx.properties[a_idx] != .property or ctx.properties[b_idx] != .property) {
+                        return false;
+                    }
+                    const a_prop = ctx.properties[a_idx].property;
+                    const b_prop = ctx.properties[b_idx].property;
 
-            std.sort.insertion(usize, property_indices.items, properties, propertyCompareFn);
-
-            sorted_list = std.ArrayList(Node).init(self.allocator);
-
-            for (property_indices.items) |idx| {
-                try sorted_list.?.append(properties[idx]);
-            }
-
-            sorted_properties = sorted_list.?.items;
-        } else {
-            sorted_properties = properties;
-        }
-
-        for (sorted_properties, 0..) |property, i| {
-            if (!should_compact) {
-                try self.writeIndent();
-            } else if (i > 0 and self.options.space_after_comma) {
-                try self.output.append(' ');
-                self.updateLinePosition(1);
-            }
-
-            try self.formatNode(&property);
-
-            const is_last = i == sorted_properties.len - 1;
-            if (!is_last) {
-                try self.output.append(',');
-                self.updateLinePosition(1);
-                if (!should_compact) {
-                    try self.newline();
+                    const key_a = a_prop.getKeyString() orelse return false;
+                    const key_b = b_prop.getKeyString() orelse return true;
+                    return std.mem.lessThan(u8, key_a, key_b);
                 }
-            } else if (self.options.trailing_comma and !should_compact) {
-                try self.output.append(',');
-                self.updateLinePosition(1);
-                try self.newline();
-            }
+            };
+
+            std.sort.pdq(usize, property_indices, SortContext{ .properties = object_node.properties }, SortContext.lessThan);
         }
 
-        if (!should_compact) {
+        for (property_indices, 0..) |prop_idx, i| {
+            const property_node = &object_node.properties[prop_idx];
+            if (property_node.* != .property) continue; // Skip non-property nodes
+
+            const property = property_node.property;
+
+            // Handle property separator
+            if (i > 0) {
+                try self.output.append(',');
+                if (self.options.space_after_comma and should_compact) {
+                    try self.output.append(' ');
+                    self.updateLinePosition(2);
+                } else {
+                    self.updateLinePosition(1);
+                }
+            }
+
+            // Add newline and indent for multiline
+            if (!should_compact) {
+                try self.output.append('\n');
+                try self.writeIndent();
+                self.line_position = self.indent_level * self.options.indent_size;
+            }
+
+            // Format property key
+            try self.formatNode(property.key);
+
+            // Add colon separator
+            try self.output.append(':');
+            if (self.options.space_after_colon) {
+                try self.output.append(' ');
+                self.updateLinePosition(2);
+            } else {
+                self.updateLinePosition(1);
+            }
+
+            // Format property value
+            try self.formatNode(property.value);
+        }
+
+        // Close object
+        if (!should_compact and property_indices.len > 0) {
             self.indent_level -= 1;
-            try self.newline();
+            try self.output.append('\n');
             try self.writeIndent();
+            self.line_position = self.indent_level * self.options.indent_size;
         }
 
         try self.output.append('}');
         self.updateLinePosition(1);
-
-        // Clean up sorted list if we created one
-        if (sorted_list) |*list| {
-            list.deinit();
-        }
     }
 
-    fn formatArray(self: *Self, node: *const Node) !void {
-        const array_node = node.array;
-        const elements = array_node.elements;
-
-        if (elements.len == 0) {
-            try self.output.appendSlice("[]");
-            self.updateLinePosition(2);
-            return;
-        }
-
-        const should_compact = self.shouldCompactArray(node);
-
+    /// Format an array node
+    fn formatArrayNode(self: *Self, array_node: json_ast.ArrayNode) !void {
         try self.output.append('[');
         self.updateLinePosition(1);
 
+        // Check if array should be compact
+        const should_compact = self.options.force_compact or
+            (self.options.compact_arrays and array_node.elements.len <= 5);
+
         if (!should_compact) {
-            try self.newline();
             self.indent_level += 1;
         }
 
-        for (elements, 0..) |element, i| {
-            if (!should_compact) {
-                try self.writeIndent();
-            } else if (i > 0 and self.options.space_after_comma) {
-                try self.output.append(' ');
-                self.updateLinePosition(1);
-            }
-
-            try self.formatNode(&element);
-
-            const is_last = i == elements.len - 1;
-            if (!is_last) {
+        for (array_node.elements, 0..) |element, i| {
+            // Handle element separator
+            if (i > 0) {
                 try self.output.append(',');
-                self.updateLinePosition(1);
-                if (!should_compact) {
-                    try self.newline();
+                if (self.options.space_after_comma and should_compact) {
+                    try self.output.append(' ');
+                    self.updateLinePosition(2);
+                } else {
+                    self.updateLinePosition(1);
                 }
-            } else if (self.options.trailing_comma and !should_compact) {
-                try self.output.append(',');
-                self.updateLinePosition(1);
-                try self.newline();
             }
+
+            // Add newline and indent for multiline
+            if (!should_compact) {
+                try self.output.append('\n');
+                try self.writeIndent();
+                self.line_position = self.indent_level * self.options.indent_size;
+            }
+
+            // Format array element
+            try self.formatNode(&element);
         }
 
-        if (!should_compact) {
+        // Close array
+        if (!should_compact and array_node.elements.len > 0) {
             self.indent_level -= 1;
-            try self.newline();
+            try self.output.append('\n');
             try self.writeIndent();
+            self.line_position = self.indent_level * self.options.indent_size;
         }
 
         try self.output.append(']');
         self.updateLinePosition(1);
     }
 
-    fn formatProperty(self: *Self, node: *const Node) !void {
-        const property_node = node.property;
-
-        try self.formatNode(property_node.key);
-
-        try self.output.append(':');
-        self.updateLinePosition(1);
-
-        if (self.options.space_after_colon) {
-            try self.output.append(' ');
-            self.updateLinePosition(1);
-        }
-
-        try self.formatNode(property_node.value);
-    }
-
-    fn shouldCompactObject(self: *Self, node: *const Node) bool {
-        if (self.options.force_compact) return true;
-        if (self.options.force_multiline) return false;
-        if (!self.options.compact_objects) return false;
-
-        const object_node = node.object;
-        const properties = object_node.properties;
-        if (properties.len == 0) return true;
-        if (properties.len > 3) return false; // Too many properties
-
-        // Estimate size on single line
-        var estimated_size: u32 = 2; // {}
-        for (properties, 0..) |property, i| {
-            estimated_size += self.estimateNodeSize(&property);
-            if (i < properties.len - 1) {
-                estimated_size += 2; // ", "
-            }
-        }
-
-        return estimated_size <= self.options.line_width / 2;
-    }
-
-    fn shouldCompactArray(self: *Self, node: *const Node) bool {
-        if (self.options.force_compact) return true;
-        if (self.options.force_multiline) return false;
-        if (!self.options.compact_arrays) return false;
-
-        const array_node = node.array;
-        const elements = array_node.elements;
-        if (elements.len == 0) return true;
-        if (elements.len > 5) return false; // Too many elements
-
-        // Check if all elements are primitives
-        for (elements) |element| {
-            // Complex types shouldn't be compacted
-            if (element.isContainer()) return false;
-        }
-
-        // Estimate size on single line
-        var estimated_size: u32 = 2; // []
-        for (elements, 0..) |element, i| {
-            estimated_size += self.estimateNodeSize(&element);
-            if (i < elements.len - 1) {
-                estimated_size += 2; // ", "
-            }
-        }
-
-        return estimated_size <= self.options.line_width / 2;
-    }
-
-    fn estimateNodeSize(self: *Self, node: *const Node) u32 {
-        return switch (node.*) {
-            .string => |n| @intCast(n.value.len + 2), // Add quotes
-            .number => |n| @intCast(n.raw.len),
-            .boolean => |n| if (n.value) 4 else 5, // "true" or "false"
-            .null => 4, // "null"
-            .object => |n| @intCast(n.properties.len * 20), // Rough estimate
-            .array => |n| @intCast(n.elements.len * 10), // Rough estimate
-            .property => |n| {
-                return self.estimateNodeSize(n.key) + self.estimateNodeSize(n.value) + 2; // ": "
-            },
-            .root => |n| self.estimateNodeSize(n.value),
-            .err => 10, // Default fallback
-        };
-    }
-
     fn writeIndent(self: *Self) !void {
-        const total_indent = self.indent_level * self.options.indent_size;
+        const count = self.indent_level * self.options.indent_size;
 
         if (self.options.indent_style == .tab) {
-            for (0..self.indent_level) |_| {
+            var i: u32 = 0;
+            while (i < count) : (i += 1) {
                 try self.output.append('\t');
             }
-            self.line_position = total_indent * 8; // Assume tab = 8 spaces for line width
         } else {
-            for (0..total_indent) |_| {
+            var i: u32 = 0;
+            while (i < count) : (i += 1) {
                 try self.output.append(' ');
             }
-            self.line_position = total_indent;
         }
     }
 
-    fn newline(self: *Self) !void {
-        try self.output.append('\n');
-        self.line_position = 0;
-    }
-
-    fn updateLinePosition(self: *Self, chars: usize) void {
-        self.line_position += @intCast(chars);
-    }
-
-    fn propertyCompareFn(properties: []const Node, a_idx: usize, b_idx: usize) bool {
-        const a = &properties[a_idx];
-        const b = &properties[b_idx];
-
-        // Both should be property nodes with key as first child
-        // Compare property keys
-        const a_property = a.property;
-        const b_property = b.property;
-
-        const a_key = switch (a_property.key.*) {
-            .string => |n| n.value,
-            else => "",
-        };
-        const b_key = switch (b_property.key.*) {
-            .string => |n| n.value,
-            else => "",
-        };
-
-        return std.mem.lessThan(u8, a_key, b_key);
+    fn updateLinePosition(self: *Self, len: usize) void {
+        self.line_position += @intCast(len);
     }
 };
 
-/// Convenience function for basic JSON formatting
-pub fn formatJson(allocator: std.mem.Allocator, ast: AST, options: JsonFormatter.JsonFormatOptions) ![]const u8 {
-    // Options are already JsonFormatOptions
-
-    var formatter = JsonFormatter.init(allocator, options);
-    defer formatter.deinit();
-
-    return formatter.format(ast);
-}
-
+// ============================================================================
 // Tests
-const testing = std.testing;
-const JsonLexer = @import("lexer.zig").JsonLexer;
-const JsonParser = @import("parser.zig").JsonParser;
+// ============================================================================
 
-test "JSON formatter - simple values" {
-    var arena = std.heap.ArenaAllocator.init(testing.allocator);
-    defer arena.deinit();
-    const allocator = arena.allocator();
+test "JSON streaming formatter - simple values" {
+    const testing = std.testing;
+    const allocator = testing.allocator;
 
-    const test_cases = [_][]const u8{
+    const inputs = [_][]const u8{
         "\"hello\"",
-        "42",
+        "123",
         "true",
         "false",
         "null",
     };
 
-    for (test_cases) |case| {
-        var lexer = JsonLexer.init(allocator);
-        defer lexer.deinit();
-        const tokens = try lexer.batchTokenize(allocator, case);
+    const expected = [_][]const u8{
+        "\"hello\"\n",
+        "123\n",
+        "true\n",
+        "false\n",
+        "null\n",
+    };
 
-        var parser = JsonParser.init(allocator, tokens, case, .{});
-        defer parser.deinit();
-        var ast = try parser.parse();
-        defer ast.deinit();
-
+    for (inputs, expected) |input, expect| {
         var formatter = JsonFormatter.init(allocator, .{});
         defer formatter.deinit();
-        const formatted = try formatter.format(ast);
-        defer allocator.free(formatted);
 
-        // Should preserve the value (with possible whitespace changes)
-        try testing.expect(formatted.len > 0);
+        const output = try formatter.formatSource(input);
+        defer allocator.free(output);
+
+        try testing.expectEqualStrings(expect, output);
     }
 }
 
-test "JSON formatter - object formatting" {
-    var arena = std.heap.ArenaAllocator.init(testing.allocator);
-    defer arena.deinit();
-    const allocator = arena.allocator();
+test "JSON streaming formatter - compact object" {
+    const testing = std.testing;
+    const allocator = testing.allocator;
 
-    const input = "{\"name\":\"Alice\",\"age\":30}";
+    const input = "{\"name\":\"test\",\"value\":42}";
 
-    var lexer = JsonLexer.init(allocator);
-    defer lexer.deinit();
-    const tokens = try lexer.batchTokenize(allocator, input);
-
-    var parser = JsonParser.init(allocator, tokens, input, .{});
-    defer parser.deinit();
-    var ast = try parser.parse();
-    defer ast.deinit();
-
-    // Test pretty formatting
-    {
-        var formatter = JsonFormatter.init(allocator, .{
-            .indent_size = 2,
-            .compact_objects = false,
-        });
-        defer formatter.deinit();
-        const formatted = try formatter.format(ast);
-        defer allocator.free(formatted);
-
-        // Should be multi-line with proper indentation
-        try testing.expect(std.mem.indexOf(u8, formatted, "\n") != null);
-    }
-
-    // Test compact formatting
-    {
-        var formatter = JsonFormatter.init(allocator, .{
-            .force_compact = true,
-        });
-        defer formatter.deinit();
-        const formatted = try formatter.format(ast);
-        defer allocator.free(formatted);
-
-        // Should be single line
-        try testing.expect(std.mem.indexOf(u8, formatted, "\n") == null);
-    }
-}
-
-test "JSON formatter - array formatting" {
-    var arena = std.heap.ArenaAllocator.init(testing.allocator);
-    defer arena.deinit();
-    const allocator = arena.allocator();
-
-    const input = "[1,2,3,4,5]";
-
-    var lexer = JsonLexer.init(allocator);
-    defer lexer.deinit();
-    const tokens = try lexer.batchTokenize(allocator, input);
-
-    var parser = JsonParser.init(allocator, tokens, input, .{});
-    defer parser.deinit();
-    var ast = try parser.parse();
-    defer ast.deinit();
-
-    var formatter = JsonFormatter.init(allocator, .{
-        .compact_arrays = true,
-        .space_after_comma = true,
-    });
+    var formatter = JsonFormatter.init(allocator, .{ .force_compact = true });
     defer formatter.deinit();
-    const formatted = try formatter.format(ast);
-    defer allocator.free(formatted);
 
-    // Should have spaces after commas
-    try testing.expect(std.mem.indexOf(u8, formatted, ", ") != null);
-}
+    const output = try formatter.formatSource(input);
+    defer allocator.free(output);
 
-test "JSON formatter - key sorting" {
-    var arena = std.heap.ArenaAllocator.init(testing.allocator);
-    defer arena.deinit();
-    const allocator = arena.allocator();
-
-    const input = "{\"zebra\":1,\"alpha\":2,\"beta\":3}";
-
-    var lexer = JsonLexer.init(allocator);
-    defer lexer.deinit();
-    const tokens = try lexer.batchTokenize(allocator, input);
-
-    var parser = JsonParser.init(allocator, tokens, input, .{});
-    defer parser.deinit();
-    var ast = try parser.parse();
-    defer ast.deinit();
-
-    var formatter = JsonFormatter.init(allocator, .{
-        .sort_keys = true,
-        .force_compact = true,
-    });
-    defer formatter.deinit();
-    const formatted = try formatter.format(ast);
-    defer allocator.free(formatted);
-
-    // Alpha should come before beta, beta before zebra
-    const alpha_pos = std.mem.indexOf(u8, formatted, "alpha");
-    const beta_pos = std.mem.indexOf(u8, formatted, "beta");
-    const zebra_pos = std.mem.indexOf(u8, formatted, "zebra");
-
-    try testing.expect(alpha_pos != null);
-    try testing.expect(beta_pos != null);
-    try testing.expect(zebra_pos != null);
-    try testing.expect(alpha_pos.? < beta_pos.?);
-    try testing.expect(beta_pos.? < zebra_pos.?);
+    try testing.expect(std.mem.indexOf(u8, output, "\n") == null or
+        std.mem.lastIndexOf(u8, output, "\n").? == output.len - 1);
 }

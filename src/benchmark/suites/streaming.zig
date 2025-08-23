@@ -5,8 +5,8 @@ const BenchmarkOptions = benchmark_lib.BenchmarkOptions;
 const BenchmarkError = benchmark_lib.BenchmarkError;
 
 // Import streaming lexers for benchmarking
-const JsonLexer = @import("../../lib/languages/json/lexer.zig").JsonLexer;
-const ZonLexer = @import("../../lib/languages/zon/lexer.zig").ZonLexer;
+const JsonStreamLexer = @import("../../lib/languages/json/stream_lexer.zig").JsonStreamLexer;
+const ZonStreamLexer = @import("../../lib/languages/zon/stream_lexer.zig").ZonStreamLexer;
 
 // Import fact system for DirectStream benchmark
 const Fact = @import("../../lib/fact/fact.zig").Fact;
@@ -33,9 +33,6 @@ pub fn runStreamingBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOp
 
 /// Benchmark JSON lexer streaming performance
 fn benchmarkJsonLexerStreaming(allocator: std.mem.Allocator, options: BenchmarkOptions) !BenchmarkResult {
-    var lexer = JsonLexer.init(allocator);
-    defer lexer.deinit();
-
     // Generate test JSON with 10KB of nested structures
     const test_json = generateTestJson(allocator, 10 * 1024) catch |err| switch (err) {
         error.OutOfMemory => return BenchmarkError.OutOfMemory,
@@ -47,18 +44,16 @@ fn benchmarkJsonLexerStreaming(allocator: std.mem.Allocator, options: BenchmarkO
     const end_time = start_time + @as(i64, @intCast(options.duration_ns));
 
     while (std.time.nanoTimestamp() < end_time) {
-        var stream = lexer.streamTokens(test_json);
+        // Create new lexer for each iteration (simulates fresh parsing)
+        var lexer = JsonStreamLexer.init(test_json);
         var token_count: usize = 0;
 
-        while (stream.next()) |token| {
+        while (lexer.next()) |token| {
             _ = token;
             token_count += 1;
         }
 
         operations += 1;
-
-        // Reset for next iteration
-        lexer.reset();
     }
 
     const elapsed_ns: u64 = @intCast(std.time.nanoTimestamp() - start_time);
@@ -76,9 +71,6 @@ fn benchmarkJsonLexerStreaming(allocator: std.mem.Allocator, options: BenchmarkO
 
 /// Benchmark ZON lexer streaming performance
 fn benchmarkZonLexerStreaming(allocator: std.mem.Allocator, options: BenchmarkOptions) !BenchmarkResult {
-    var lexer = ZonLexer.init(allocator);
-    defer lexer.deinit();
-
     // Generate test ZON with 10KB of struct literals
     const test_zon = generateTestZon(allocator, 10 * 1024) catch |err| switch (err) {
         error.OutOfMemory => return BenchmarkError.OutOfMemory,
@@ -90,16 +82,16 @@ fn benchmarkZonLexerStreaming(allocator: std.mem.Allocator, options: BenchmarkOp
     const end_time = start_time + @as(i64, @intCast(options.duration_ns));
 
     while (std.time.nanoTimestamp() < end_time) {
-        var stream = lexer.streamTokens(test_zon);
+        // Create new lexer for each iteration
+        var lexer = ZonStreamLexer.init(test_zon);
         var token_count: usize = 0;
 
-        while (stream.next()) |token| {
+        while (lexer.next()) |token| {
             _ = token;
             token_count += 1;
         }
 
         operations += 1;
-        lexer.reset();
     }
 
     const elapsed_ns: u64 = @intCast(std.time.nanoTimestamp() - start_time);

@@ -2,7 +2,6 @@ const std = @import("std");
 const testing = std.testing;
 
 // Import JSON components
-const JsonLexer = @import("lexer.zig").JsonLexer;
 const JsonParser = @import("parser.zig").JsonParser;
 const JsonAnalyzer = @import("analyzer.zig").JsonAnalyzer;
 
@@ -28,11 +27,8 @@ test "JSON analyzer - schema extraction" {
         \\}
     ;
 
-    var lexer = JsonLexer.init(allocator);
-    const tokens = try lexer.batchTokenize(allocator, sample_json);
-    defer allocator.free(tokens);
-
-    var parser = JsonParser.init(allocator, tokens, sample_json, .{});
+    // Updated to streaming parser (3-arg pattern)
+    var parser = try JsonParser.init(allocator, sample_json, .{});
     defer parser.deinit();
     var ast = try parser.parse();
     defer ast.deinit();
@@ -61,11 +57,8 @@ test "JSON analyzer - TypeScript interface generation" {
 
     const simple_json = "{\"name\": \"Alice\", \"age\": 30, \"active\": true}";
 
-    var lexer = JsonLexer.init(allocator);
-    const tokens = try lexer.batchTokenize(allocator, simple_json);
-    defer allocator.free(tokens);
-
-    var parser = JsonParser.init(allocator, tokens, simple_json, .{});
+    // Updated to streaming parser (3-arg pattern)
+    var parser = try JsonParser.init(allocator, simple_json, .{});
     defer parser.deinit();
     var ast = try parser.parse();
     defer ast.deinit();
@@ -113,11 +106,8 @@ test "JSON analyzer - statistics" {
         \\}
     ;
 
-    var lexer = JsonLexer.init(allocator);
-    const tokens = try lexer.batchTokenize(allocator, complex_json);
-    defer allocator.free(tokens);
-
-    var parser = JsonParser.init(allocator, tokens, complex_json, .{});
+    // Updated to streaming parser (3-arg pattern)
+    var parser = try JsonParser.init(allocator, complex_json, .{});
     defer parser.deinit();
     var ast = try parser.parse();
     defer ast.deinit();

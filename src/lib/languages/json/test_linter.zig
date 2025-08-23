@@ -2,7 +2,6 @@ const std = @import("std");
 const testing = std.testing;
 
 // Import JSON components
-const JsonLexer = @import("lexer.zig").JsonLexer;
 const JsonParser = @import("parser.zig").JsonParser;
 const JsonLinter = @import("linter.zig").JsonLinter;
 const EnabledRules = @import("linter.zig").EnabledRules;
@@ -22,11 +21,7 @@ test "JSON linter - all rules" {
     // Create JSON with duplicate keys (valid JSON syntax)
     const problematic_json = "{\"key\": 1, \"key\": 2}"; // Duplicate key
 
-    var lexer = JsonLexer.init(allocator);
-    const tokens = try lexer.batchTokenize(allocator, problematic_json);
-    defer allocator.free(tokens);
-
-    var parser = JsonParser.init(allocator, tokens, problematic_json, .{});
+    var parser = try JsonParser.init(allocator, problematic_json, .{});
     defer parser.deinit();
     var ast = try parser.parse();
     defer ast.deinit();
@@ -68,11 +63,7 @@ test "JSON linter - deep nesting warning" {
     // Create deeply nested JSON
     const deep_json = "{\"a\": {\"b\": {\"c\": {\"d\": {\"e\": 1}}}}}";
 
-    var lexer = JsonLexer.init(allocator);
-    const tokens = try lexer.batchTokenize(allocator, deep_json);
-    defer allocator.free(tokens);
-
-    var parser = JsonParser.init(allocator, tokens, deep_json, .{});
+    var parser = try JsonParser.init(allocator, deep_json, .{});
     defer parser.deinit();
     var ast = try parser.parse();
     defer ast.deinit();

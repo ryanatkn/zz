@@ -11,8 +11,8 @@ const Linter = @import("../core.zig").Linter;
 const EnabledRules = @import("../core.zig").EnabledRules;
 
 // Import token types
-const Token = @import("../../token/mod.zig").Token;
-const TokenKind = @import("../../token/mod.zig").TokenKind;
+const Token = @import("../../token/types.zig").Token;
+const TokenKind = @import("../../token/types.zig").TokenKind;
 
 /// Validate JSON array structure and contents
 pub fn validateArray(linter: *Linter, iter: *TokenIterator, start_token: Token, enabled_rules: EnabledRules) !void {

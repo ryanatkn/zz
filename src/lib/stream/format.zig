@@ -4,12 +4,12 @@
 ///
 /// Language-specific formatters are located with their language modules:
 /// - JSON: languages/json/format/stream.zig
-/// - ZON: languages/zon/stream_format.zig
+/// - ZON: languages/zon/format/stream.zig
 const std = @import("std");
 
 // Export formatter generator functions from language modules
 pub const JsonFormatter = @import("../languages/json/format/stream.zig").Formatter;
-pub const ZonFormatter = @import("../languages/zon/stream_format.zig").ZonFormatter;
+pub const ZonFormatter = @import("../languages/zon/format/stream.zig").ZonFormatter;
 
 // Export common types
 pub const FormatOptions = @import("format_options.zig").FormatOptions;
@@ -37,6 +37,6 @@ pub fn formatStream(
 
 test "stream format tests" {
     _ = @import("../languages/json/format/stream.zig");
-    _ = @import("../languages/zon/stream_format.zig");
+    _ = @import("../languages/zon/format/stream.zig");
     _ = @import("format_options.zig");
 }

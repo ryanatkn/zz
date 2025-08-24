@@ -4,30 +4,76 @@ Complete ZON (Zig Object Notation) language support for the zz unified language 
 
 ## Architecture Overview
 
-The ZON implementation follows the unified language architecture with the following components:
+The ZON implementation follows the unified language architecture with organized subdirectories matching the JSON pattern:
 
 ```
 src/lib/languages/zon/
+├── README.md            # This documentation
 ├── mod.zig              # Main module and LanguageSupport implementation
-├── lexer.zig            # High-performance tokenization with Zig literals
-├── parser.zig           # AST-based parsing using our own infrastructure
-├── formatter.zig        # Configurable pretty-printing with comment preservation
-├── linter.zig           # Validation and schema checking
-├── analyzer.zig         # Schema extraction and Zig type generation
-├── ast.zig              # Self-contained ZON AST definition
-├── patterns.zig         # ZON-specific patterns and utilities
-├── tokens.zig           # Rich token types for ZON
-├── test.zig             # Main test entry point
-├── test_lexer.zig       # Lexer component tests
-├── test_parser.zig      # Parser component tests
-├── test_formatter.zig   # Formatter component tests
-├── test_linter.zig      # Linter component tests
-├── test_analyzer.zig    # Analyzer component tests
-├── test_integration.zig # Integration and pipeline tests
-├── test_performance.zig # Performance and benchmark tests
-├── test_edge_cases.zig  # Edge cases and special scenarios
-└── README.md            # This documentation
+├── analyzer/
+│   ├── mod.zig          # Analyzer module exports
+│   └── core.zig         # Schema extraction and analysis implementation
+├── ast/
+│   ├── mod.zig          # AST module exports
+│   ├── nodes.zig        # ZON AST node definitions
+│   └── converter.zig    # AST conversion utilities
+├── format/
+│   ├── mod.zig          # Format module exports
+│   ├── core.zig         # AST-based formatting implementation
+│   └── stream.zig       # High-performance streaming formatter
+├── lexer/
+│   ├── mod.zig          # Lexer module exports
+│   └── core.zig         # High-performance tokenization with ZON literals
+├── linter/
+│   ├── mod.zig          # Linter module exports
+│   └── core.zig         # Validation and schema checking
+├── parser/
+│   ├── mod.zig          # Parser module exports
+│   └── core.zig         # AST-based parsing implementation
+├── test/
+│   ├── mod.zig          # Test module entry point
+│   ├── analyzer.zig     # Analyzer component tests
+│   ├── edge_cases.zig   # Edge cases and special scenarios
+│   ├── escape_sequences.zig # String escape sequence tests
+│   ├── formatter.zig    # Formatter component tests
+│   ├── integration.zig  # Integration and pipeline tests
+│   ├── lexer.zig        # Lexer component tests
+│   ├── linter.zig       # Linter component tests
+│   ├── parser.zig       # Parser component tests
+│   ├── performance.zig  # Performance and benchmark tests
+│   └── stream.zig       # Streaming functionality tests
+├── token/
+│   ├── mod.zig          # Token module exports
+│   └── types.zig        # ZON token type definitions
+├── transform/
+│   ├── mod.zig          # Transform module exports
+│   ├── pipeline.zig     # Transformation pipeline
+│   └── serializer.zig   # ZON serialization utilities
+└── utils/
+    ├── mod.zig          # Utils module exports
+    ├── common.zig       # Common imports and utilities
+    ├── helpers.zig      # Helper functions
+    ├── memory.zig       # Memory management utilities
+    ├── patterns.zig     # ZON-specific patterns
+    └── validator.zig    # Validation utilities
 ```
+
+## Structural Design
+
+### Divergences from JSON Pattern
+While following the JSON module structure, ZON has these specific differences:
+
+- **utils/ directory** - ZON has shared utilities (common.zig, memory.zig, patterns.zig, helpers.zig, validator.zig) organized in a dedicated utils/ subdirectory. JSON doesn't need this level of utility organization.
+
+- **No rules/ subdirectory** - The linter keeps all rules in `linter/core.zig` rather than having a separate rules/ directory like JSON, as ZON linting is simpler and more focused.
+
+- **No values.zig component** - The parser keeps all functionality in `parser/core.zig`, unlike JSON which splits into `core.zig` and `values.zig` for complex value parsing.
+
+- **No boundaries.zig** - The lexer doesn't need boundary handling like JSON's streaming parser, so there's no `lexer/boundaries.zig` file.
+
+- **Transform structure** - ZON has both `pipeline.zig` and `serializer.zig` in the transform/ directory, providing more comprehensive transformation capabilities than JSON.
+
+These divergences reflect ZON's specific needs while maintaining consistency with the overall module organization pattern.
 
 ## Features
 

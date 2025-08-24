@@ -7,7 +7,7 @@ const Token = @import("stream_token.zig").Token;
 
 // Import language tokens
 const JsonToken = @import("../languages/json/token/mod.zig").Token;
-const ZonToken = @import("../languages/zon/stream_token.zig").ZonToken;
+const ZonToken = @import("../languages/zon/token/mod.zig").Token;
 
 // Import span types
 const Span = @import("../span/mod.zig").Span;
@@ -53,7 +53,7 @@ test "ZonToken size and construction" {
 
     // Enum literal
     const enum_lit = ZonToken.enumLiteral(span, 2, 200);
-    const ZonTokenKind = @import("../languages/zon/stream_token.zig").ZonTokenKind;
+    const ZonTokenKind = @import("../languages/zon/token/mod.zig").TokenKind;
     try testing.expectEqual(ZonTokenKind.enum_literal, enum_lit.kind);
 }
 
@@ -80,7 +80,7 @@ test "Token tagged union operations" {
     try testing.expectEqual(packSpan(span), stream_zon.zon.span);
     try testing.expectEqual(@as(u8, 1), stream_zon.zon.depth);
     // No generic kind mapping - language owns its kinds
-    const ZonTokenKind = @import("../languages/zon/stream_token.zig").ZonTokenKind;
+    const ZonTokenKind = @import("../languages/zon/token/mod.zig").TokenKind;
     try testing.expectEqual(ZonTokenKind.field_name, stream_zon.zon.kind);
     try testing.expectEqual(@as(?u32, 42), stream_zon.zon.getAtomId());
 }

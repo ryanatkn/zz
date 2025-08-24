@@ -206,9 +206,6 @@ pub const Linter = struct {
         if (self.iterator) |*iter| {
             // Start with the root value validation
             try self.validateValue(iter, enabled_rules);
-        } else {
-            // Debug: no iterator available
-            // std.debug.print("lintFromTokens: no iterator available\n", .{});
         }
     }
 
@@ -217,9 +214,6 @@ pub const Linter = struct {
         const token_opt = self.nextNonTriviaJson(iter);
         if (token_opt == null) return;
         const token = token_opt.?;
-
-        // Debug: print what token we got
-        // std.debug.print("validateValue got token: {}\n", .{token.kind});
 
         switch (token.kind) {
             .string_value, .property_name => try linter_rules.validateString(self, token, enabled_rules),

@@ -11,9 +11,9 @@ const Analyzer = lang_interface.Analyzer;
 
 // Import language-specific AST types and Rule types
 const JsonAST = @import("json/ast/mod.zig").AST;
-const ZonAST = @import("zon/ast.zig").AST;
+const ZonAST = @import("zon/ast/nodes.zig").AST;
 const JsonRuleType = @import("json/linter/mod.zig").JsonRuleType;
-const ZonRuleType = @import("zon/linter.zig").ZonRuleType;
+const ZonRuleType = @import("zon/linter/core.zig").ZonRuleType;
 
 // Create a concrete LanguageSupport union for the registry
 const LanguageSupport = union(enum) {

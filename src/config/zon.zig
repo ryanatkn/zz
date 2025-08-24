@@ -9,7 +9,7 @@ const patterns = @import("../lib/patterns/gitignore.zig");
 const filesystem_mod = @import("../lib/filesystem/interface.zig");
 const filesystem_utils = @import("../lib/core/filesystem.zig");
 const zon_language = @import("../lib/languages/zon/mod.zig");
-const zon_memory = @import("../lib/languages/zon/memory.zig");
+const zon_memory = @import("../lib/languages/zon/utils/memory.zig");
 
 // Type aliases
 const SharedConfig = shared.SharedConfig;
@@ -19,7 +19,7 @@ const PatternResolver = resolver_mod.PatternResolver;
 const GitignorePatterns = patterns.GitignorePatterns;
 const FilesystemInterface = filesystem_mod.FilesystemInterface;
 const DirHandle = filesystem_mod.DirHandle;
-const ZonParser = zon_language.ZonParser;
+const ZonParser = zon_language.Parser;
 const ManagedZonConfig = zon_memory.ManagedZonConfig;
 
 pub const IndentStyle = enum {

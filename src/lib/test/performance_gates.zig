@@ -7,9 +7,9 @@ const testing = std.testing;
 // TODO: Replace with new streaming architecture when ready
 // Removed old transform imports - using new architecture
 const JsonLexer = @import("../languages/json/lexer/mod.zig").Lexer;
-const ZonLexer = @import("../languages/zon/lexer.zig").ZonLexer;
+const ZonLexer = @import("../languages/zon/lexer/mod.zig").Lexer;
 const JsonParser = @import("../languages/json/parser/mod.zig").JsonParser;
-const ZonParser = @import("../languages/zon/parser.zig").ZonParser;
+const ZonParser = @import("../languages/zon/parser/mod.zig").Parser;
 // Using GenericTokenIterator architecture for streaming
 
 // TODO re-enable all of these
@@ -240,7 +240,7 @@ test "ZON streaming performance gate" {
     var timer = try std.time.Timer.start();
 
     // Use ZonLexer if available, otherwise use batch lexer for now
-    const ZonLexerType = @import("../languages/zon/lexer.zig").ZonLexer;
+    const ZonLexerType = @import("../languages/zon/lexer/mod.zig").Lexer;
     var lexer = ZonLexerType.init(testing.allocator);
     defer lexer.deinit();
 

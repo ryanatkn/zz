@@ -5,7 +5,7 @@ const BenchmarkOptions = benchmark_lib.BenchmarkOptions;
 const BenchmarkError = benchmark_lib.BenchmarkError;
 
 // Import streaming ZON components
-const ZonLexer = @import("../../../lib/languages/zon/stream_lexer.zig").ZonLexer;
+const ZonLexer = @import("../../../lib/languages/zon/lexer/mod.zig").Lexer;
 const Token = @import("../../../lib/token/stream_token.zig").Token;
 const TokenIterator = @import("../../../lib/token/iterator.zig").TokenIterator;
 const Language = @import("../../../lib/core/language.zig").Language;

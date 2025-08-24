@@ -11,8 +11,8 @@ const Linter = @import("../core.zig").Linter;
 const EnabledRules = @import("../core.zig").EnabledRules;
 
 // Import token types
-const Token = @import("../../token/mod.zig").Token;
-const TokenKind = @import("../../token/mod.zig").TokenKind;
+const Token = @import("../../token/types.zig").Token;
+const TokenKind = @import("../../token/types.zig").TokenKind;
 
 /// Validate JSON object structure and contents
 pub fn validateObject(linter: *Linter, iter: *TokenIterator, start_token: Token, enabled_rules: EnabledRules) !void {
@@ -53,6 +53,11 @@ pub fn validateObject(linter: *Linter, iter: *TokenIterator, start_token: Token,
         switch (vtoken.kind) {
             .object_start => {
                 brace_count += 1;
+                // Check depth using token's built-in depth information
+                if (enabled_rules.contains(.deep_nesting) and vtoken.depth > linter.options.warn_on_deep_nesting) {
+                    const span = unpackSpan(vtoken.span);
+                    try linter.addDiagnostic(.deep_nesting, "Deep nesting may be hard to read", .warning, span);
+                }
             },
             .object_end => {
                 brace_count -= 1;

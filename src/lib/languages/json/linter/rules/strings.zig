@@ -9,7 +9,7 @@ const unpackSpan = @import("../../../../span/mod.zig").unpackSpan;
 // Import core linter types
 const Linter = @import("../core.zig").Linter;
 const EnabledRules = @import("../core.zig").EnabledRules;
-const Token = @import("../../token/mod.zig").Token;
+const Token = @import("../../token/types.zig").Token;
 
 pub fn validateString(linter: *Linter, token: Token, enabled_rules: EnabledRules) !void {
     const span = unpackSpan(token.span);

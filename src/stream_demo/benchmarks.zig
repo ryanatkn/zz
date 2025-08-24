@@ -240,7 +240,7 @@ pub fn benchmarkJsonTokenization(json_input: []const u8) !BenchmarkResult {
 
 /// Benchmark ZON tokenization performance
 pub fn benchmarkZonTokenization(zon_input: []const u8) !BenchmarkResult {
-    const ZonLexer = @import("../lib/languages/zon/stream_lexer.zig").ZonLexer;
+    const ZonLexer = @import("../lib/languages/zon/lexer/mod.zig").Lexer;
 
     const iterations = 100;
     var total_cycles: u64 = 0;

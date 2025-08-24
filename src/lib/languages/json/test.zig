@@ -29,5 +29,6 @@ test {
     _ = @import("patterns.zig");
     _ = @import("streaming_token_buffer.zig");
     _ = @import("test_boundary_lexer.zig");
+    _ = @import("test_escape_sequences.zig");
     _ = @import("mod.zig");
 }

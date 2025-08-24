@@ -58,22 +58,22 @@ test "JSON integration - complete pipeline" {
     // Should be valid
     try testing.expectEqual(@as(usize, 0), diagnostics.len);
 
-    // TODO: Schema extraction not implemented yet
-    // var schema = try json_mod.extractJsonSchema(allocator, original_json);
-    // defer schema.deinit(allocator);
+    // Test schema extraction
+    var schema = try json_mod.extractJsonSchema(allocator, original_json);
+    defer schema.deinit(allocator);
 
-    // try testing.expectEqual(JsonAnalyzer.JsonSchema.SchemaType.object, schema.schema_type);
+    try testing.expectEqual(JsonAnalyzer.JsonSchema.SchemaType.object, schema.schema_type);
 
-    // TODO: TypeScript interface generation not implemented yet
-    // var interface = try json_mod.generateTypeScriptInterface(allocator, original_json, "Data");
-    // defer interface.deinit(allocator);
+    // Test TypeScript interface generation
+    var interface = try json_mod.generateTypeScriptInterface(allocator, original_json, "Data");
+    defer interface.deinit(allocator);
 
-    // try testing.expectEqualStrings("Data", interface.name);
+    try testing.expectEqualStrings("Data", interface.name);
 
-    // TODO: Statistics not implemented yet
-    // const stats = try json_mod.getJsonStatistics(allocator, original_json);
+    // Test statistics generation
+    const stats = try json_mod.getJsonStatistics(allocator, original_json);
 
-    // try testing.expect(stats.complexity_score > 0.0);
+    try testing.expect(stats.complexity_score > 0.0);
 }
 
 test "JSON integration - round-trip fidelity" {
@@ -121,66 +121,74 @@ test "JSON integration - round-trip fidelity" {
 }
 
 test "JSON integration - language support interface" {
-    // TODO: Language support interface not implemented yet
-    return error.SkipZigTest;
+    const json_lang_mod = @import("mod.zig");
+    const Language = @import("../../core/language.zig").Language;
 
-    // var arena = std.heap.ArenaAllocator.init(testing.allocator);
-    // defer arena.deinit();
-    // const allocator = arena.allocator();
+    var arena = std.heap.ArenaAllocator.init(testing.allocator);
+    defer arena.deinit();
+    const allocator = arena.allocator();
 
-    // TODO: getSupport not implemented yet
-    // const support = try json_mod.getSupport(allocator);
+    const json_text = "{\"test\": \"value\", \"number\": 42}";
 
-    // TODO: Complete workflow through interface not implemented yet
-    // const input = "{\"test\": [1, 2, 3]}";
+    const json_lang = try json_lang_mod.getSupport(allocator);
 
-    // // Tokenize
-    // const tokens = try support.lexer.tokenize(allocator, input);
-    // defer allocator.free(tokens);
+    // Test interface properties
+    try testing.expectEqual(Language.json, json_lang.language);
 
-    // try testing.expect(tokens.len > 0);
+    // Parse JSON for AST-based operations
+    var ast = try json_lang_mod.parse(allocator, json_text);
+    defer ast.deinit();
 
-    // // Parse
-    // var ast = try support.parser.parse(allocator, tokens);
-    // defer ast.deinit();
+    // Test formatting through interface (requires AST)
+    const format_options = @import("../interface.zig").FormatOptions{
+        .indent_size = 2,
+        .indent_style = .space,
+        .line_width = 80,
+        .preserve_newlines = false,
+        .trailing_comma = false,
+    };
 
-    // // Format
-    // const options = FormatOptions{
-    //     .indent_size = 2,
-    //     .line_width = 80,
-    // };
-    // const formatted = try support.formatter.format(allocator, ast, options);
-    // defer allocator.free(formatted);
+    const formatted = try json_lang.formatter.formatFn(allocator, ast, format_options);
+    defer allocator.free(formatted);
 
-    // try testing.expect(formatted.len > 0);
+    try testing.expect(formatted.len > 0);
 
-    // TODO: Linting through interface not implemented yet
-    // if (support.linter) |linter| {
-    //     var enabled_rules = EnabledRules.initEmpty();
-    //     enabled_rules.insert(.no_duplicate_keys);
+    // Test linting through interface (uses AST)
+    if (json_lang.linter) |linter| {
+        const default_rules = linter.getDefaultRulesFn();
+        const diagnostics = try linter.lintFn(allocator, ast, default_rules);
+        defer {
+            for (diagnostics) |diag| {
+                allocator.free(diag.rule);
+                allocator.free(diag.message);
+            }
+            allocator.free(diagnostics);
+        }
 
-    //     const diagnostics = try linter.lint(allocator, ast, enabled_rules);
-    //     defer {
-    //         for (diagnostics) |diag| {
-    //             allocator.free(diag.message);
-    //         }
-    //         allocator.free(diagnostics);
-    //     }
-    // }
+        // Should pass linting for valid JSON
+        for (diagnostics) |diagnostic| {
+            if (diagnostic.severity == .err) {
+                return error.UnexpectedLintError;
+            }
+        }
+    }
 
-    // TODO: Analysis through interface not implemented yet
-    // if (support.analyzer) |analyzer| {
-    //     const symbols = try analyzer.extractSymbols(allocator, ast);
-    //     defer {
-    //         for (symbols) |symbol| {
-    //             allocator.free(symbol.name);
-    //             if (symbol.signature) |sig| {
-    //                 allocator.free(sig);
-    //             }
-    //         }
-    //         allocator.free(symbols);
-    //     }
+    // Test analysis through interface
+    if (json_lang.analyzer) |analyzer| {
+        const symbols = try analyzer.extractSymbolsFn(allocator, ast);
+        defer {
+            for (symbols) |symbol| {
+                allocator.free(symbol.name);
+                if (symbol.signature) |sig| {
+                    allocator.free(sig);
+                }
+                if (symbol.documentation) |doc| {
+                    allocator.free(doc);
+                }
+            }
+            allocator.free(symbols);
+        }
 
-    //     try testing.expect(symbols.len > 0);
-    // }
+        try testing.expect(symbols.len > 0);
+    }
 }

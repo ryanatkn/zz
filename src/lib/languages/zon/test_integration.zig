@@ -13,144 +13,185 @@ const ZonAnalyzer = @import("analyzer.zig").ZonAnalyzer;
 // =============================================================================
 
 test "ZON integration - complete pipeline" {
-    return error.SkipZigTest; // TODO: Migrate to streaming pipeline
+    var arena = std.heap.ArenaAllocator.init(testing.allocator);
+    defer arena.deinit();
+    const allocator = arena.allocator();
 
-    // TODO: Original test logic - convert to streaming pipeline:
-    // var arena = std.heap.ArenaAllocator.init(testing.allocator);
-    // defer arena.deinit();
-    // const allocator = arena.allocator();
+    const zon_text =
+        \\.{
+        \\    .name = "test-project",
+        \\    .version = "1.0.0",
+        \\    .dependencies = .{
+        \\        .first = .{ .version = ">=1.0.0" },
+        \\        .second = .{ .version = "2.0.0" },
+        \\    },
+        \\}
+    ;
 
-    // const zon_text =
-    //     \\.{
-    //     \\    .name = "test-project",
-    //     \\    .version = "1.0.0",
-    //     \\    .dependencies = .{
-    //     \\        .first = .{ .version = ">=1.0.0" },
-    //     \\        .second = .{ .version = "2.0.0" },
-    //     \\    },
-    //     \\}
-    // ;
+    // Test parsing with streaming parser
+    var parser = try ZonParser.init(allocator, zon_text, .{});
+    defer parser.deinit();
 
-    // // Test lexing
-    // var lexer = ZonLexer.init(allocator);  // <- CONVERT TO: var lexer = ZonStreamLexer.init(zon_text);
-    // defer lexer.deinit();
+    var ast = try parser.parse();
+    defer ast.deinit();
 
-    // const tokens = try lexer.tokenize(zon_text);  // <- CONVERT TO: while (lexer.next()) |token| { ... }
-    // defer allocator.free(tokens);
+    // AST root should be successfully parsed
+    try testing.expect(ast.root != null);
+    try testing.expect(ast.root.?.* == .object);
 
-    // try testing.expect(tokens.len > 20); // Should have many tokens
+    // Test formatting
+    var formatter = ZonFormatter.init(allocator, .{});
+    defer formatter.deinit();
 
-    // // Test parsing
-    // var parser = ZonParser.init(allocator, tokens, zon_text, .{});  // <- CONVERT TO: var parser = try ZonParser.init(allocator, zon_text, .{});
-    // defer parser.deinit();
+    const formatted = try formatter.format(ast);
+    defer allocator.free(formatted);
+    try testing.expect(formatted.len > 0);
 
-    // const ast = try parser.parse();
-    // try testing.expect(ast.root != null);
+    // Test linting
+    var linter = ZonLinter.init(allocator, .{});
+    defer linter.deinit();
 
-    // // Test formatting
-    // var formatter = ZonFormatter.init(allocator, .{});
-    // defer formatter.deinit();
+    const rules = ZonLinter.getDefaultRules();
+    const diagnostics = try linter.lint(ast, rules);
+    defer {
+        for (diagnostics) |diag| {
+            allocator.free(diag.message);
+        }
+        allocator.free(diagnostics);
+    }
 
-    // const formatted = try formatter.formatSource(zon_text);  // <- CONVERT TO: const formatted = try formatter.format(ast);
-    // try testing.expect(formatted.len > 0);
+    // Should pass basic linting
+    for (diagnostics) |diagnostic| {
+        if (diagnostic.severity == .err) {
+            return error.UnexpectedLintError;
+        }
+    }
 
-    // // Test linting
-    // var linter = ZonLinter.init(allocator, .{});
-    // defer linter.deinit();
+    // Test analysis
+    var analyzer = ZonAnalyzer.init(allocator, .{});
+    defer analyzer.deinit();
 
-    // const rules = ZonLinter.getDefaultRules();
-    // const diagnostics = try linter.lintSource(zon_text, rules);  // <- May need to update for streaming
-    // defer allocator.free(diagnostics);
+    const symbols = try analyzer.extractSymbols(ast);
+    defer allocator.free(symbols);
 
-    // // Should pass basic linting
-    // for (diagnostics) |diagnostic| {
-    //     if (diagnostic.severity == .err) {
-    //         return error.UnexpectedLintError;
-    //     }
-    // }
-
-    // // Test analysis
-    // var analyzer = ZonAnalyzer.init(allocator, .{});
-    // defer analyzer.deinit();
-
-    // const symbols = try analyzer.analyze(ast);  // <- Already uses AST, should work
-    // defer symbols.deinit();
-
-    // try testing.expect(symbols.items.len > 0);
+    try testing.expect(symbols.len > 0);
 }
 
 test "ZON integration - mod.zig convenience functions" {
-    return error.SkipZigTest; // TODO: Migrate to streaming convenience functions
+    // Import ZON mod for convenience functions
+    const zon_mod = @import("mod.zig");
 
-    // TODO: Original test logic - convert to new convenience functions:
-    // var arena = std.heap.ArenaAllocator.init(testing.allocator);
-    // defer arena.deinit();
-    // const allocator = arena.allocator();
+    var arena = std.heap.ArenaAllocator.init(testing.allocator);
+    defer arena.deinit();
+    const allocator = arena.allocator();
 
-    // const zon_text =
-    //     \\.{
-    //     \\    .name = "convenience-test",
-    //     \\    .value = 42,
-    //     \\}
-    // ;
+    const zon_text =
+        \\.{
+        \\    .name = "convenience-test",
+        \\    .value = 42,
+        \\}
+    ;
 
-    // // Test parsing convenience function
-    // const ast = try zon.parseZonString(allocator, zon_text);  // <- CONVERT TO: const ast = try zon.parse(allocator, zon_text);
-    // defer ast.deinit();
+    // Test parsing convenience function
+    var ast = try zon_mod.parseZonString(allocator, zon_text);
+    defer ast.deinit();
 
-    // try testing.expect(ast.root != null);
+    // AST root should be successfully parsed
+    try testing.expect(ast.root != null);
+    try testing.expect(ast.root.?.* == .object);
 
-    // // Test formatting convenience function
-    // const formatted = try zon.formatZonString(allocator, zon_text);  // <- CONVERT TO: var formatter = zon.Formatter.init(allocator, .{}); const formatted = try formatter.format(ast);
-    // defer allocator.free(formatted);
+    // Test formatting convenience function
+    const formatted = try zon_mod.formatZonString(allocator, zon_text);
+    defer allocator.free(formatted);
 
-    // try testing.expect(formatted.len > 0);
+    try testing.expect(formatted.len > 0);
 
-    // // Test validation convenience function
-    // const diagnostics = try zon.validateZonString(allocator, zon_text);  // <- May need to update for streaming
-    // defer allocator.free(diagnostics);
+    // Test validation convenience function
+    const diagnostics = try zon_mod.validateZonString(allocator, zon_text);
+    defer {
+        for (diagnostics) |diag| {
+            allocator.free(diag.message);
+        }
+        allocator.free(diagnostics);
+    }
 
-    // // Should pass validation
-    // for (diagnostics) |diagnostic| {
-    //     if (diagnostic.severity == .err) {
-    //         return error.UnexpectedValidationError;
-    //     }
-    // }
+    // Should pass validation
+    for (diagnostics) |diagnostic| {
+        if (diagnostic.severity == .err) {
+            return error.UnexpectedValidationError;
+        }
+    }
 }
 
 test "ZON integration - LanguageSupport interface" {
-    return error.SkipZigTest; // TODO: Migrate to streaming LanguageSupport interface
+    // Import ZON mod for getSupport function
+    const zon_mod = @import("mod.zig");
+    const Language = @import("../../core/language.zig").Language;
 
-    // TODO: Original test logic - convert to streaming LanguageSupport:
-    // var arena = std.heap.ArenaAllocator.init(testing.allocator);
-    // defer arena.deinit();
-    // const allocator = arena.allocator();
+    var arena = std.heap.ArenaAllocator.init(testing.allocator);
+    defer arena.deinit();
+    const allocator = arena.allocator();
 
-    // const zon_text = ".{ .test = true }";
+    const zon_text = ".{ .test = true }";
 
-    // var zon_lang = try zon.createLanguageSupport(allocator);  // <- May need to update interface
-    // defer zon_lang.deinit();
+    const zon_lang = try zon_mod.getSupport(allocator);
 
-    // // Test interface methods
-    // try testing.expectEqual(Language.zon, zon_lang.getLanguage());
-    // try testing.expect(zon_lang.canFormat());
-    // try testing.expect(zon_lang.canLint());
-    // try testing.expect(zon_lang.canAnalyze());
+    // Test interface properties
+    try testing.expectEqual(Language.zon, zon_lang.language);
 
-    // // Test formatting through interface
-    // const formatted = try zon_lang.format(zon_text, .{});  // <- May need to update for AST-first
-    // defer allocator.free(formatted);
+    // Parse ZON for AST-based operations
+    var ast = try zon_mod.parse(allocator, zon_text);
+    defer ast.deinit();
 
-    // try testing.expect(formatted.len > 0);
+    // Test formatting through interface (requires AST)
+    const format_options = @import("../interface.zig").FormatOptions{
+        .indent_size = 2,
+        .indent_style = .space,
+        .line_width = 80,
+        .preserve_newlines = false,
+        .trailing_comma = false,
+    };
 
-    // // Test linting through interface
-    // const diagnostics = try zon_lang.lint(zon_text, .{});  // <- May need to update for streaming
-    // defer allocator.free(diagnostics);
+    const formatted = try zon_lang.formatter.formatFn(allocator, ast, format_options);
+    defer allocator.free(formatted);
 
-    // // Should pass linting
-    // for (diagnostics) |diagnostic| {
-    //     if (diagnostic.severity == .err) {
-    //         return error.UnexpectedLintError;
-    //     }
-    // }
+    try testing.expect(formatted.len > 0);
+
+    // Test linting through interface (uses AST)
+    if (zon_lang.linter) |linter| {
+        const default_rules = linter.getDefaultRulesFn();
+        const diagnostics = try linter.lintFn(allocator, ast, default_rules);
+        defer {
+            for (diagnostics) |diag| {
+                allocator.free(diag.message);
+            }
+            allocator.free(diagnostics);
+        }
+
+        // Should pass linting
+        for (diagnostics) |diagnostic| {
+            if (diagnostic.severity == .err) {
+                return error.UnexpectedLintError;
+            }
+        }
+    }
+
+    // Test analysis through interface
+    if (zon_lang.analyzer) |analyzer| {
+        const symbols = try analyzer.extractSymbolsFn(allocator, ast);
+        defer {
+            for (symbols) |symbol| {
+                allocator.free(symbol.name);
+                if (symbol.signature) |sig| {
+                    allocator.free(sig);
+                }
+                if (symbol.documentation) |doc| {
+                    allocator.free(doc);
+                }
+            }
+            allocator.free(symbols);
+        }
+
+        try testing.expect(symbols.len > 0);
+    }
 }

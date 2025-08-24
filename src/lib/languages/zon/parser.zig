@@ -613,8 +613,97 @@ pub const ZonParser = struct {
         else
             raw;
 
-        // TODO: Handle ZON-specific escape sequences
-        return try allocator.dupe(u8, content);
+        // Parse ZON escape sequences (includes JSON escapes + multiline)
+        return try parseZonEscapeSequences(allocator, content);
+    }
+
+    /// Parse escape sequences in a ZON string (includes JSON escapes + multiline strings)
+    fn parseZonEscapeSequences(allocator: std.mem.Allocator, input: []const u8) ![]u8 {
+        // Fast path: no escapes
+        if (std.mem.indexOf(u8, input, "\\") == null) {
+            return try allocator.dupe(u8, input);
+        }
+
+        var result = std.ArrayList(u8).init(allocator);
+        defer result.deinit();
+
+        var i: usize = 0;
+        while (i < input.len) {
+            if (input[i] == '\\' and i + 1 < input.len) {
+                switch (input[i + 1]) {
+                    '"' => try result.append('"'),
+                    '\\' => {
+                        // ZON: Check for multiline string continuation (\\)
+                        if (i + 2 < input.len and input[i + 2] == '\\') {
+                            // Triple backslash: \\\  - represents literal backslash in multiline
+                            try result.append('\\');
+                            i += 3;
+                            continue;
+                        } else {
+                            // Double backslash: \\ - normal backslash escape
+                            try result.append('\\');
+                        }
+                    },
+                    '/' => try result.append('/'),
+                    'b' => try result.append('\x08'), // backspace
+                    'f' => try result.append('\x0C'), // form feed
+                    'n' => try result.append('\n'),
+                    'r' => try result.append('\r'),
+                    't' => try result.append('\t'),
+                    'u' => {
+                        // Unicode escape: \uXXXX
+                        if (i + 5 < input.len) {
+                            const hex_digits = input[i + 2 .. i + 6];
+                            if (isValidHexDigits(hex_digits)) {
+                                const code_point = std.fmt.parseInt(u16, hex_digits, 16) catch {
+                                    // Invalid hex, keep as-is
+                                    try result.append(input[i]);
+                                    i += 1;
+                                    continue;
+                                };
+
+                                // Convert Unicode code point to UTF-8
+                                var utf8_bytes: [4]u8 = undefined;
+                                const len = std.unicode.utf8Encode(code_point, &utf8_bytes) catch {
+                                    // Invalid Unicode, keep as-is
+                                    try result.append(input[i]);
+                                    i += 1;
+                                    continue;
+                                };
+                                try result.appendSlice(utf8_bytes[0..len]);
+                                i += 6;
+                                continue;
+                            }
+                        }
+                        // Invalid unicode escape, keep as-is
+                        try result.append(input[i]);
+                        i += 1;
+                    },
+                    else => {
+                        // Unknown escape, keep as-is
+                        try result.append(input[i]);
+                        i += 1;
+                    },
+                }
+                i += 2;
+            } else {
+                try result.append(input[i]);
+                i += 1;
+            }
+        }
+
+        return result.toOwnedSlice();
+    }
+
+    /// Check if all characters are valid hex digits
+    fn isValidHexDigits(hex: []const u8) bool {
+        for (hex) |c| {
+            switch (c) {
+                '0'...'9', 'a'...'f', 'A'...'F' => {},
+                else => return false,
+            }
+        }
+        return true;
     }
 
     fn createErrorNode(self: *Self, allocator: std.mem.Allocator) Node {

@@ -1,7 +1,7 @@
 const std = @import("std");
 
 // Import foundation types from new modules
-const Token = @import("../token/mod.zig").Token;
+pub const StreamToken = @import("../token/mod.zig").StreamToken;
 const Span = @import("../span/mod.zig").Span;
 const Language = @import("../core/language.zig").Language;
 
@@ -43,23 +43,23 @@ pub fn LanguageSupport(comptime ASTType: type, comptime RuleType: type) type {
 /// Lexical tokenization interface
 pub const Lexer = struct {
     /// Tokenize input into stream of tokens
-    tokenizeFn: *const fn (allocator: std.mem.Allocator, input: []const u8) anyerror![]Token,
+    tokenizeFn: *const fn (allocator: std.mem.Allocator, input: []const u8) anyerror![]StreamToken,
 
     /// Streaming tokenization for chunk-based processing (required for TokenIterator)
-    tokenizeChunkFn: *const fn (allocator: std.mem.Allocator, input: []const u8, start_pos: usize) anyerror![]Token,
+    tokenizeChunkFn: *const fn (allocator: std.mem.Allocator, input: []const u8, start_pos: usize) anyerror![]StreamToken,
 
     /// Optional incremental tokenization for editor use
-    updateTokensFn: ?*const fn (allocator: std.mem.Allocator, tokens: []Token, edit: Edit) anyerror!TokenDelta,
+    updateTokensFn: ?*const fn (allocator: std.mem.Allocator, tokens: []StreamToken, edit: Edit) anyerror!TokenDelta,
 
-    pub fn tokenize(self: Lexer, allocator: std.mem.Allocator, input: []const u8) ![]Token {
+    pub fn tokenize(self: Lexer, allocator: std.mem.Allocator, input: []const u8) ![]StreamToken {
         return self.tokenizeFn(allocator, input);
     }
 
-    pub fn tokenizeChunk(self: Lexer, allocator: std.mem.Allocator, input: []const u8, start_pos: usize) ![]Token {
+    pub fn tokenizeChunk(self: Lexer, allocator: std.mem.Allocator, input: []const u8, start_pos: usize) ![]StreamToken {
         return self.tokenizeChunkFn(allocator, input, start_pos);
     }
 
-    pub fn updateTokens(self: Lexer, allocator: std.mem.Allocator, tokens: []Token, edit: Edit) !?TokenDelta {
+    pub fn updateTokens(self: Lexer, allocator: std.mem.Allocator, tokens: []StreamToken, edit: Edit) !?TokenDelta {
         if (self.updateTokensFn) |update_fn| {
             return update_fn(allocator, tokens, edit);
         }
@@ -73,16 +73,16 @@ pub fn Parser(comptime ASTType: type) type {
         const Self = @This();
 
         /// Parse tokens into AST
-        parseFn: *const fn (allocator: std.mem.Allocator, tokens: []Token) anyerror!ASTType,
+        parseFn: *const fn (allocator: std.mem.Allocator, tokens: []StreamToken) anyerror!ASTType,
 
         /// Optional parsing with pre-computed boundaries for optimization
-        parseWithBoundariesFn: ?*const fn (allocator: std.mem.Allocator, tokens: []Token, boundaries: []Boundary) anyerror!ASTType,
+        parseWithBoundariesFn: ?*const fn (allocator: std.mem.Allocator, tokens: []StreamToken, boundaries: []Boundary) anyerror!ASTType,
 
-        pub fn parse(self: Self, allocator: std.mem.Allocator, tokens: []Token) !ASTType {
+        pub fn parse(self: Self, allocator: std.mem.Allocator, tokens: []StreamToken) !ASTType {
             return self.parseFn(allocator, tokens);
         }
 
-        pub fn parseWithBoundaries(self: Self, allocator: std.mem.Allocator, tokens: []Token, boundaries: []Boundary) !?ASTType {
+        pub fn parseWithBoundaries(self: Self, allocator: std.mem.Allocator, tokens: []StreamToken, boundaries: []Boundary) !?ASTType {
             if (self.parseWithBoundariesFn) |parse_fn| {
                 return parse_fn(allocator, tokens, boundaries);
             }
@@ -215,7 +215,7 @@ pub const Edit = struct {
 /// Token delta for incremental updates
 pub const TokenDelta = struct {
     removed: []u32,
-    added: []Token,
+    added: []StreamToken,
     affected_range: Span,
 };
 

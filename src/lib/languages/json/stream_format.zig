@@ -7,6 +7,7 @@ const StreamToken = @import("../../token/mod.zig").StreamToken;
 const JsonTokenKind = @import("stream_token.zig").JsonTokenKind;
 const JsonToken = @import("stream_token.zig").JsonToken;
 const packSpan = @import("../../span/mod.zig").packSpan;
+const unpackSpan = @import("../../span/mod.zig").unpackSpan;
 const Span = @import("../../span/mod.zig").Span;
 
 /// JSON formatter state machine
@@ -14,6 +15,7 @@ pub fn JsonFormatter(comptime Writer: type) type {
     return struct {
         writer: Writer,
         options: FormatOptions,
+        source: ?[]const u8 = null, // Source text for extracting token values
         depth: u8 = 0,
         need_comma: bool = false,
         in_array: [256]bool = [_]bool{false} ** 256,
@@ -24,6 +26,14 @@ pub fn JsonFormatter(comptime Writer: type) type {
             return .{
                 .writer = writer,
                 .options = options,
+            };
+        }
+
+        pub fn initWithSource(writer: Writer, options: FormatOptions, source: []const u8) Self {
+            return .{
+                .writer = writer,
+                .options = options,
+                .source = source,
             };
         }
 
@@ -89,16 +99,28 @@ pub fn JsonFormatter(comptime Writer: type) type {
                     if (!self.in_array[self.depth] and !self.options.compact) {
                         try self.writeIndent();
                     }
-                    // TODO: Get actual string value from token data
-                    try self.writer.writeAll("\"string\"");
+                    if (self.source) |source| {
+                        const span = unpackSpan(json_token.span);
+                        const text = source[span.start..span.end];
+                        try self.writer.writeAll(text);
+                    } else {
+                        // Fallback when no source available
+                        try self.writer.writeAll("\"string\"");
+                    }
                     self.need_comma = true;
                 },
                 .number_value => {
                     if (!self.in_array[self.depth] and !self.options.compact) {
                         try self.writeIndent();
                     }
-                    // TODO: Get actual number value from token data
-                    try self.writer.writeAll("0");
+                    if (self.source) |source| {
+                        const span = unpackSpan(json_token.span);
+                        const text = source[span.start..span.end];
+                        try self.writer.writeAll(text);
+                    } else {
+                        // Fallback when no source available
+                        try self.writer.writeAll("0");
+                    }
                     self.need_comma = true;
                 },
                 .boolean_true => {
@@ -192,10 +214,11 @@ test "JsonFormatter basic formatting" {
     var buffer: [1024]u8 = undefined;
     var stream = std.io.fixedBufferStream(&buffer);
 
+    const test_source = "{\"key\": \"value\"}";
     const WriterType = @TypeOf(stream).Writer;
-    var formatter = JsonFormatter(WriterType).init(stream.writer(), .{
+    var formatter = JsonFormatter(WriterType).initWithSource(stream.writer(), .{
         .compact = true,
-    });
+    }, test_source);
 
     // Simulate tokens for: {"key": "value"}
     try formatter.writeToken(StreamToken{ .json = JsonToken{

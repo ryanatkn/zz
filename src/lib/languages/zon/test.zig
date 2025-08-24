@@ -28,4 +28,5 @@ test {
     _ = @import("stream_format.zig");
     _ = @import("transform.zig");
     _ = @import("serializer.zig");
+    _ = @import("test_escape_sequences.zig");
 }

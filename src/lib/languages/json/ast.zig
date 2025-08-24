@@ -188,8 +188,7 @@ pub const Node = union(NodeKind) {
         switch (self) {
             .string => |n| {
                 try writer.writeByte('"');
-                // TODO: Escape the string properly
-                try writer.writeAll(n.value);
+                try writeEscapedString(writer, n.value);
                 try writer.writeByte('"');
             },
             .number => |n| try writer.writeAll(n.raw),
@@ -217,7 +216,7 @@ pub const Node = union(NodeKind) {
                 try n.value.toJsonString(writer);
             },
             .root => |n| try n.value.toJsonString(writer),
-            .err => |n| try writer.print("/* ERROR: {} */", .{n.message}),
+            .err => |n| try writer.print("/* ERROR: {s} */", .{n.message}),
         }
     }
 };
@@ -292,3 +291,30 @@ pub const AST = struct {
         }
     }
 };
+
+/// Write a string with proper JSON escaping
+fn writeEscapedString(writer: anytype, value: []const u8) !void {
+    for (value) |c| {
+        switch (c) {
+            '"' => try writer.writeAll("\\\""),
+            '\\' => try writer.writeAll("\\\\"),
+            '/' => try writer.writeAll("\\/"),
+            '\x08' => try writer.writeAll("\\b"), // backspace
+            '\x0C' => try writer.writeAll("\\f"), // form feed
+            '\n' => try writer.writeAll("\\n"),
+            '\r' => try writer.writeAll("\\r"),
+            '\t' => try writer.writeAll("\\t"),
+            0...0x07, 0x0B, 0x0E...0x1F, 0x7F => {
+                // Control characters (excluding handled escapes) - use Unicode escape
+                try writer.writeAll("\\u");
+                const hex = "0123456789abcdef";
+                const val = @as(u16, c);
+                try writer.writeByte(hex[(val >> 12) & 0xF]);
+                try writer.writeByte(hex[(val >> 8) & 0xF]);
+                try writer.writeByte(hex[(val >> 4) & 0xF]);
+                try writer.writeByte(hex[val & 0xF]);
+            },
+            else => try writer.writeByte(c),
+        }
+    }
+}

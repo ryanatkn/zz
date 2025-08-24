@@ -52,12 +52,12 @@ pub fn getSupport(allocator: std.mem.Allocator) !lang_interface.LanguageSupport(
     return lang_interface.LanguageSupport(AST, ZonRuleType){
         .language = .zon,
         .lexer = Lexer{
-            .tokenizeFn = null, // Streaming lexer - not using old batch interface
-            .tokenizeChunkFn = null, // Streaming lexer - not using old batch interface
+            .tokenizeFn = tokenizeStub, // Streaming lexer - not using old batch interface
+            .tokenizeChunkFn = tokenizeChunkStub, // Streaming lexer - not using old batch interface
             .updateTokensFn = null, // Incremental tokenization not implemented
         },
         .parser = Parser(AST){
-            .parseFn = null, // Streaming parser - not using old interface
+            .parseFn = parseStub, // Streaming parser - not using old interface
             .parseWithBoundariesFn = null, // Boundaries not used for ZON
         },
         .formatter = Formatter(AST){
@@ -192,8 +192,8 @@ pub fn formatZonString(allocator: std.mem.Allocator, zon_content: []const u8) ![
         .line_width = 100,
         .preserve_comments = false,
         .trailing_comma = true,
-        .compact_small_objects = true,
-        .compact_small_arrays = true,
+        .compact_small_objects = false,
+        .compact_small_arrays = false,
     };
 
     var formatter = ZonFormatterType.init(allocator, zon_options);
@@ -320,4 +320,25 @@ fn zonLintEnum(allocator: std.mem.Allocator, ast: AST, enabled_rules: EnabledRul
 /// Get default rules for ZON
 fn zonGetDefaultRules() EnabledRules {
     return ZonLinterImpl.getDefaultRules();
+}
+
+// Interface stub functions for compatibility
+// TODO: Delete these stubs once interface is updated to remove batch tokenization support
+fn tokenizeStub(allocator: std.mem.Allocator, input: []const u8) ![]lang_interface.StreamToken {
+    _ = allocator;
+    _ = input;
+    return error.NotImplemented; // Use streaming lexer directly instead
+}
+
+fn tokenizeChunkStub(allocator: std.mem.Allocator, input: []const u8, start_pos: usize) ![]lang_interface.StreamToken {
+    _ = allocator;
+    _ = input;
+    _ = start_pos;
+    return error.NotImplemented; // Use streaming lexer directly instead
+}
+
+fn parseStub(allocator: std.mem.Allocator, tokens: []lang_interface.StreamToken) !AST {
+    _ = allocator;
+    _ = tokens;
+    return error.NotImplemented; // Use streaming parser directly instead
 }

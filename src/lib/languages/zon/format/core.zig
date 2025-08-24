@@ -29,8 +29,8 @@ pub const Formatter = struct {
         trailing_comma: bool = true,
 
         // ZON-specific options
-        compact_small_objects: bool = true,
-        compact_small_arrays: bool = true,
+        compact_small_objects: bool = false,
+        compact_small_arrays: bool = false,
         field_alignment: bool = false,
         import_grouping: bool = true,
 

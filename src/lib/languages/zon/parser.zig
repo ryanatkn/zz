@@ -631,58 +631,80 @@ pub const ZonParser = struct {
         while (i < input.len) {
             if (input[i] == '\\' and i + 1 < input.len) {
                 switch (input[i + 1]) {
+                    // Standard Zig/ZON escapes
                     '"' => try result.append('"'),
-                    '\\' => {
-                        // ZON: Check for multiline string continuation (\\)
-                        if (i + 2 < input.len and input[i + 2] == '\\') {
-                            // Triple backslash: \\\  - represents literal backslash in multiline
-                            try result.append('\\');
-                            i += 3;
-                            continue;
-                        } else {
-                            // Double backslash: \\ - normal backslash escape
-                            try result.append('\\');
-                        }
-                    },
-                    '/' => try result.append('/'),
-                    'b' => try result.append('\x08'), // backspace
-                    'f' => try result.append('\x0C'), // form feed
+                    '\\' => try result.append('\\'), // \\ produces single backslash
+                    '\'' => try result.append('\''), // Single quote (Zig has this, JSON doesn't)
                     'n' => try result.append('\n'),
                     'r' => try result.append('\r'),
                     't' => try result.append('\t'),
-                    'u' => {
-                        // Unicode escape: \uXXXX
-                        if (i + 5 < input.len) {
-                            const hex_digits = input[i + 2 .. i + 6];
+                    'x' => {
+                        // Hex byte escape: \xNN (exactly 2 hex digits)
+                        if (i + 4 <= input.len) {
+                            const hex_digits = input[i + 2 .. i + 4];
                             if (isValidHexDigits(hex_digits)) {
-                                const code_point = std.fmt.parseInt(u16, hex_digits, 16) catch {
+                                const byte_val = std.fmt.parseInt(u8, hex_digits, 16) catch {
                                     // Invalid hex, keep as-is
                                     try result.append(input[i]);
                                     i += 1;
                                     continue;
                                 };
-
-                                // Convert Unicode code point to UTF-8
-                                var utf8_bytes: [4]u8 = undefined;
-                                const len = std.unicode.utf8Encode(code_point, &utf8_bytes) catch {
-                                    // Invalid Unicode, keep as-is
-                                    try result.append(input[i]);
-                                    i += 1;
-                                    continue;
-                                };
-                                try result.appendSlice(utf8_bytes[0..len]);
-                                i += 6;
+                                try result.append(byte_val);
+                                i += 4;
                                 continue;
+                            }
+                        }
+                        // Invalid hex escape, keep as-is
+                        try result.append(input[i]);
+                        i += 1;
+                        continue;
+                    },
+                    'u' => {
+                        // Unicode escape: \u{...} (1 or more hex digits)
+                        if (i + 3 < input.len and input[i + 2] == '{') {
+                            // Find closing brace
+                            var end_pos: usize = i + 3;
+                            while (end_pos < input.len and input[end_pos] != '}') {
+                                end_pos += 1;
+                            }
+
+                            if (end_pos < input.len) { // Found closing brace
+                                const hex_digits = input[i + 3 .. end_pos];
+                                if (hex_digits.len > 0 and hex_digits.len <= 6 and isValidHexDigits(hex_digits)) {
+                                    const code_point = std.fmt.parseInt(u32, hex_digits, 16) catch {
+                                        // Invalid hex, keep as-is
+                                        try result.append(input[i]);
+                                        i += 1;
+                                        continue;
+                                    };
+
+                                    // Validate Unicode range
+                                    if (code_point <= 0x10FFFF and !(code_point >= 0xD800 and code_point <= 0xDFFF)) {
+                                        // Convert Unicode code point to UTF-8
+                                        var utf8_bytes: [4]u8 = undefined;
+                                        const len = std.unicode.utf8Encode(@intCast(code_point), &utf8_bytes) catch {
+                                            // Invalid Unicode, keep as-is
+                                            try result.append(input[i]);
+                                            i += 1;
+                                            continue;
+                                        };
+                                        try result.appendSlice(utf8_bytes[0..len]);
+                                        i = end_pos + 1; // Skip past the closing brace
+                                        continue;
+                                    }
+                                }
                             }
                         }
                         // Invalid unicode escape, keep as-is
                         try result.append(input[i]);
                         i += 1;
+                        continue;
                     },
                     else => {
-                        // Unknown escape, keep as-is
+                        // Unknown escape, keep as-is (don't include JSON-only escapes like \b, \f, \/)
                         try result.append(input[i]);
                         i += 1;
+                        continue;
                     },
                 }
                 i += 2;

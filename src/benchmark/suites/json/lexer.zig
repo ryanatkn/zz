@@ -5,7 +5,7 @@ const BenchmarkOptions = benchmark_lib.BenchmarkOptions;
 const BenchmarkError = benchmark_lib.BenchmarkError;
 
 // Import streaming JSON components
-const JsonStreamLexer = @import("../../../lib/languages/json/stream_lexer.zig").JsonStreamLexer;
+const JsonStreamLexer = @import("../../../lib/languages/json/lexer/mod.zig").StreamLexer;
 const StreamToken = @import("../../../lib/token/stream_token.zig").StreamToken;
 const TokenIterator = @import("../../../lib/token/iterator.zig").TokenIterator;
 const Language = @import("../../../lib/core/language.zig").Language;

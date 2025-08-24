@@ -21,7 +21,7 @@ const StreamToken = token_mod.StreamToken;
 const DirectTokenStream = token_mod.DirectTokenStream;
 
 // JSON/ZON stream lexers
-const JsonStreamLexer = @import("../lib/languages/json/stream_lexer.zig").JsonStreamLexer;
+const JsonStreamLexer = @import("../lib/languages/json/lexer/mod.zig").StreamLexer;
 const ZonStreamLexer = @import("../lib/languages/zon/stream_lexer.zig").ZonStreamLexer;
 
 // Stream formatting

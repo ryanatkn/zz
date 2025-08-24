@@ -21,8 +21,6 @@ test {
 
     // Language Support
     _ = @import("languages/test.zig");
-    _ = @import("languages/json/test.zig");
-    _ = @import("languages/zon/test.zig");
     // Language test files removed - components moved to memory/language_strategies and parser/patterns
 
     // Utilities

@@ -80,49 +80,6 @@ test "ZON performance - parsing speed" {
 
     // Should produce valid AST
     try testing.expect(ast.root != null);
-
-    // TODO: Original test logic - convert to streaming:
-    // var arena = std.heap.ArenaAllocator.init(testing.allocator);
-    // defer arena.deinit();
-    // const allocator = arena.allocator();
-
-    // // Generate large ZON structure
-    // var large_zon = std.ArrayList(u8).init(allocator);
-    // defer large_zon.deinit();
-
-    // try large_zon.appendSlice(".{ .data = .{");
-
-    // const num_items = 500; // Smaller for parsing test
-    // for (0..num_items) |i| {
-    //     if (i > 0) try large_zon.appendSlice(", ");
-    //     try large_zon.writer().print(" .item{} = .{{ .id = {}, .name = \"item{}\" }}", .{ i, i, i });
-    // }
-
-    // try large_zon.appendSlice(" } }");
-
-    // const zon_text = large_zon.items;
-
-    // // Time the parsing operation
-    // const start_time = std.time.nanoTimestamp();
-
-    // var lexer = ZonLexer.init(allocator);  // <- DELETE: No longer needed
-    // defer lexer.deinit();
-
-    // const tokens = try lexer.tokenize(zon_text);  // <- DELETE: No longer needed
-    // defer allocator.free(tokens);
-
-    // var parser = ZonParser.init(allocator, tokens, zon_text, .{});  // <- CONVERT TO: var parser = try ZonParser.init(allocator, zon_text, .{});
-    // defer parser.deinit();
-
-    // const ast = try parser.parse();
-
-    // const parse_time = std.time.nanoTimestamp() - start_time;
-
-    // // Should complete in reasonable time (less than 200ms for 500 items)
-    // try testing.expect(parse_time < 200_000_000); // 200ms in nanoseconds
-
-    // // Should produce valid AST
-    // try testing.expect(ast.root != null);
 }
 
 test "ZON performance - formatting speed" {

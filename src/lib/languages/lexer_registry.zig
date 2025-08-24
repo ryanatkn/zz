@@ -11,7 +11,7 @@ const StreamToken = @import("token_registry.zig").StreamToken;
 const Language = @import("../core/language.zig").Language;
 
 // Import all language lexers
-const JsonStreamLexer = @import("json/stream_lexer.zig").JsonStreamLexer;
+const JsonStreamLexer = @import("json/lexer/mod.zig").StreamLexer;
 const ZonStreamLexer = @import("zon/stream_lexer.zig").ZonStreamLexer;
 
 // Future language imports:

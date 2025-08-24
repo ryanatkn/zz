@@ -42,22 +42,8 @@ pub fn LanguageSupport(comptime ASTType: type, comptime RuleType: type) type {
 
 /// Lexical tokenization interface
 pub const Lexer = struct {
-    /// Tokenize input into stream of tokens
-    tokenizeFn: *const fn (allocator: std.mem.Allocator, input: []const u8) anyerror![]StreamToken,
-
-    /// Streaming tokenization for chunk-based processing (required for TokenIterator)
-    tokenizeChunkFn: *const fn (allocator: std.mem.Allocator, input: []const u8, start_pos: usize) anyerror![]StreamToken,
-
     /// Optional incremental tokenization for editor use
     updateTokensFn: ?*const fn (allocator: std.mem.Allocator, tokens: []StreamToken, edit: Edit) anyerror!TokenDelta,
-
-    pub fn tokenize(self: Lexer, allocator: std.mem.Allocator, input: []const u8) ![]StreamToken {
-        return self.tokenizeFn(allocator, input);
-    }
-
-    pub fn tokenizeChunk(self: Lexer, allocator: std.mem.Allocator, input: []const u8, start_pos: usize) ![]StreamToken {
-        return self.tokenizeChunkFn(allocator, input, start_pos);
-    }
 
     pub fn updateTokens(self: Lexer, allocator: std.mem.Allocator, tokens: []StreamToken, edit: Edit) !?TokenDelta {
         if (self.updateTokensFn) |update_fn| {
@@ -72,15 +58,8 @@ pub fn Parser(comptime ASTType: type) type {
     return struct {
         const Self = @This();
 
-        /// Parse tokens into AST
-        parseFn: *const fn (allocator: std.mem.Allocator, tokens: []StreamToken) anyerror!ASTType,
-
         /// Optional parsing with pre-computed boundaries for optimization
         parseWithBoundariesFn: ?*const fn (allocator: std.mem.Allocator, tokens: []StreamToken, boundaries: []Boundary) anyerror!ASTType,
-
-        pub fn parse(self: Self, allocator: std.mem.Allocator, tokens: []StreamToken) !ASTType {
-            return self.parseFn(allocator, tokens);
-        }
 
         pub fn parseWithBoundaries(self: Self, allocator: std.mem.Allocator, tokens: []StreamToken, boundaries: []Boundary) !?ASTType {
             if (self.parseWithBoundariesFn) |parse_fn| {

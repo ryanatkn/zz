@@ -44,7 +44,6 @@ src/lib/languages/json/
 
 ### Advanced Features
 - Schema extraction from JSON data
-- TypeScript interface generation
 - Statistical analysis and complexity metrics
 - Configurable linting with multiple severity levels
 
@@ -104,9 +103,6 @@ defer allocator.free(symbols);
 var schema = try json.extractJsonSchema(allocator, input);
 defer schema.deinit(allocator);
 
-// Generate TypeScript interface
-var interface = try json.generateTypeScriptInterface(allocator, input, "MyType");
-defer interface.deinit(allocator);
 
 // Get statistics
 const stats = try json.getJsonStatistics(allocator, input);
@@ -220,7 +216,6 @@ defer allocator.free(diagnostics);
 
 Schema extraction and structural analysis:
 - Automatic schema inference from JSON data
-- TypeScript interface generation
 - Statistical analysis (type counts, complexity)
 - Symbol extraction for IDE integration
 
@@ -235,9 +230,6 @@ var analyzer = JsonAnalyzer.init(allocator, .{
 var schema = try analyzer.extractSchema(ast);
 defer schema.deinit(allocator);
 
-// Generate TypeScript interface
-var interface = try analyzer.generateTypeScriptInterface(ast, "MyInterface");
-defer interface.deinit(allocator);
 
 // Get statistics
 const stats = try analyzer.generateStatistics(ast);
@@ -317,8 +309,6 @@ zz format "**/*.json" --check
 # Extract schema
 zz analyze config.json --extract-schema
 
-# Generate TypeScript interface
-zz analyze config.json --generate-interface=Config
 ```
 
 ## Testing
@@ -346,10 +336,10 @@ The JSON implementation includes comprehensive tests covering:
 Run tests:
 ```bash
 # Run all JSON tests
-zig build test -Dtest-filter="src/lib/languages/json/test.zig"
+zig build test -Dtest-filter="src/lib/languages/json/test/mod.zig"
 
 # Run specific test
-zig build test -Dtest-filter="src/lib/languages/json/lexer.zig"
+zig build test -Dtest-filter="src/lib/languages/json/lexer/mod.zig"
 
 # Run benchmarks
 zig run src/lib/languages/json/benchmark.zig
@@ -390,7 +380,6 @@ The JSON implementation provides robust error handling:
 - JSONPath query support
 - Streaming parser for large files
 - BSON and MessagePack support
-- Advanced TypeScript generation
 
 ### Performance Optimizations
 - SIMD-accelerated string parsing

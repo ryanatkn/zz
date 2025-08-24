@@ -17,17 +17,19 @@ const Rule = lang_interface.Rule;
 const Symbol = lang_interface.Symbol;
 
 // Import JSON-specific implementations - all self-contained
-const JsonParser = @import("parser.zig").JsonParser;
-const JsonFormatter = @import("formatter.zig").JsonFormatter;
-const linter_mod = @import("linter.zig");
+const JsonParser = @import("parser/mod.zig").JsonParser;
+const JsonFormatter = @import("format/mod.zig").Formatter;
+const linter_mod = @import("linter/mod.zig");
 const JsonLinter = linter_mod.JsonLinter;
 const Diagnostic = linter_mod.Diagnostic;
 const JsonRuleType = linter_mod.JsonRuleType;
 const EnabledRules = linter_mod.EnabledRules;
-const JsonAnalyzer = @import("analyzer.zig").JsonAnalyzer;
+const analyzer_module = @import("analyzer/mod.zig");
+const JsonAnalyzer = analyzer_module.JsonAnalyzer;
+const JsonSchema = analyzer_module.JsonSchema;
 
 // Import JSON AST
-const json_ast = @import("ast.zig");
+const json_ast = @import("ast/mod.zig");
 pub const AST = json_ast.AST;
 pub const Node = json_ast.Node;
 pub const NodeKind = json_ast.NodeKind;
@@ -42,9 +44,9 @@ pub const AnalyzerOptions = JsonAnalyzer.AnalyzerOptions;
 pub const ParserOptions = JsonParser.ParserOptions;
 
 // Streaming lexer exports (the new way)
-pub const StreamLexer = @import("stream_lexer.zig").JsonStreamLexer;
-pub const StreamToken = @import("stream_token.zig").JsonToken;
-pub const StreamTokenKind = @import("stream_token.zig").JsonTokenKind;
+pub const StreamLexer = @import("lexer/mod.zig").StreamLexer;
+pub const StreamToken = @import("token/mod.zig").Token;
+pub const StreamTokenKind = @import("token/mod.zig").TokenKind;
 
 /// Parse JSON source into AST using streaming parser (convenience function)
 pub fn parse(allocator: std.mem.Allocator, source: []const u8) !AST {
@@ -86,21 +88,12 @@ pub fn formatJsonString(allocator: std.mem.Allocator, json_content: []const u8) 
 }
 
 /// Extract JSON schema from source (convenience function)
-pub fn extractJsonSchema(allocator: std.mem.Allocator, json_content: []const u8) !JsonAnalyzer.JsonSchema {
+pub fn extractJsonSchema(allocator: std.mem.Allocator, json_content: []const u8) !JsonSchema {
     var ast = try parse(allocator, json_content);
     defer ast.deinit();
 
     var analyzer = JsonAnalyzer.init(allocator, .{});
     return analyzer.extractSchema(ast);
-}
-
-/// Generate TypeScript interface from JSON source (convenience function)
-pub fn generateTypeScriptInterface(allocator: std.mem.Allocator, json_content: []const u8, interface_name: []const u8) !JsonAnalyzer.TypeScriptInterface {
-    var ast = try parse(allocator, json_content);
-    defer ast.deinit();
-
-    var analyzer = JsonAnalyzer.init(allocator, .{});
-    return analyzer.generateTypeScriptInterface(ast, interface_name);
 }
 
 /// Get JSON statistics from source (convenience function)
@@ -118,12 +111,9 @@ pub fn getSupport(allocator: std.mem.Allocator) !lang_interface.LanguageSupport(
     return lang_interface.LanguageSupport(AST, JsonRuleType){
         .language = .json,
         .lexer = InterfaceLexer{
-            .tokenizeFn = tokenizeStub, // Streaming lexer - not using old batch interface
-            .tokenizeChunkFn = tokenizeChunkStub, // Streaming lexer - not using old batch interface
             .updateTokensFn = null, // Incremental tokenization not implemented
         },
         .parser = InterfaceParser(AST){
-            .parseFn = parseStub, // Streaming parser - not using old interface
             .parseWithBoundariesFn = null, // Boundaries not used for JSON
         },
         .formatter = InterfaceFormatter(AST){
@@ -187,6 +177,7 @@ pub fn extractSymbols(allocator: std.mem.Allocator, ast: AST) ![]Symbol {
                 .array_element => .constant,
                 .object => .struct_,
                 .array => .constant,
+                .unknown => .constant,
             },
             .range = json_symbol.range,
             .signature = if (json_symbol.signature) |sig| try allocator.dupe(u8, sig) else null,
@@ -277,28 +268,7 @@ fn jsonGetDefaultRules() EnabledRules {
     return JsonLinter.getDefaultRules();
 }
 
-// Interface stub functions for compatibility
-// TODO: Delete these stubs once interface is updated to remove batch tokenization support
-fn tokenizeStub(allocator: std.mem.Allocator, input: []const u8) ![]lang_interface.StreamToken {
-    _ = allocator;
-    _ = input;
-    return error.NotImplemented; // Use streaming lexer directly instead
-}
-
-fn tokenizeChunkStub(allocator: std.mem.Allocator, input: []const u8, start_pos: usize) ![]lang_interface.StreamToken {
-    _ = allocator;
-    _ = input;
-    _ = start_pos;
-    return error.NotImplemented; // Use streaming lexer directly instead
-}
-
-fn parseStub(allocator: std.mem.Allocator, tokens: []lang_interface.StreamToken) !AST {
-    _ = allocator;
-    _ = tokens;
-    return error.NotImplemented; // Use streaming parser directly instead
-}
-
 // Test support
 test "JSON module tests" {
-    _ = @import("test.zig");
+    _ = @import("test/mod.zig");
 }

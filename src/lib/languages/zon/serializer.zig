@@ -94,8 +94,24 @@ pub const ZonSerializer = struct {
 
         // Optionally sort fields
         if (self.options.sort_fields) {
-            // TODO: Implement field sorting
-            inline for (fields, 0..) |field, i| {
+            // For compile-time field sorting, create a comptime sorted field list
+            const FieldSorter = struct {
+                fn lessThan(_: void, a: std.builtin.Type.StructField, b: std.builtin.Type.StructField) bool {
+                    return std.mem.lessThan(u8, a.name, b.name);
+                }
+            };
+
+            // Create array of fields for sorting
+            comptime var field_array: [fields.len]std.builtin.Type.StructField = undefined;
+            comptime {
+                for (fields, 0..) |field, i| {
+                    field_array[i] = field;
+                }
+                std.sort.insertion(std.builtin.Type.StructField, &field_array, {}, FieldSorter.lessThan);
+            }
+
+            // Write fields in sorted order
+            inline for (field_array, 0..) |field, i| {
                 try self.writeField(T, field, @field(value, field.name), depth + 1, use_multiline);
                 if (i < fields.len - 1 or self.options.trailing_comma) {
                     try self.writer.writeByte(',');

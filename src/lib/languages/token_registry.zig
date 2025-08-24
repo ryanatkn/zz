@@ -10,7 +10,7 @@
 const std = @import("std");
 
 // Import all language token types
-const JsonToken = @import("json/stream_token.zig").JsonToken;
+const JsonToken = @import("json/token/mod.zig").Token;
 const ZonToken = @import("zon/stream_token.zig").ZonToken;
 
 // Future language imports will go here:

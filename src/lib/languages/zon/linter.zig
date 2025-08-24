@@ -40,6 +40,7 @@ pub const ZonRuleType = enum(u8) {
     missing_required_field,
     invalid_identifier,
     prefer_explicit_type,
+    schema_validation,
 };
 
 /// Efficient rule set using bitflags for O(1) lookups
@@ -162,6 +163,12 @@ pub const ZonLinter = struct {
             .name = "prefer-explicit-type",
             .description = "Consider using explicit type annotation",
             .severity = .hint,
+            .enabled_by_default = false,
+        },
+        .schema_validation = .{
+            .name = "schema-validation",
+            .description = "Validate ZON structure against known schemas",
+            .severity = .warning,
             .enabled_by_default = false,
         },
     });

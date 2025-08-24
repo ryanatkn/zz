@@ -15,13 +15,13 @@ const shared_config = @import("../config/shared.zig");
 const zon_config = @import("../config/zon.zig");
 
 // Language and transformation
-const json_transform = @import("../lib/languages/json/transform.zig");
+const json_transform = @import("../lib/languages/json/transform/mod.zig");
 const zon_transform = @import("../lib/languages/zon/transform.zig");
 const language_interface = @import("../lib/languages/interface.zig");
 
 // Stream-first architecture
 const stream_format = @import("../lib/stream/format.zig");
-const JsonStreamLexer = @import("../lib/languages/json/stream_lexer.zig").JsonStreamLexer;
+const JsonStreamLexer = @import("../lib/languages/json/lexer/mod.zig").StreamLexer;
 const ZonStreamLexer = @import("../lib/languages/zon/stream_lexer.zig").ZonStreamLexer;
 
 // Parser modules removed - using direct language modules

@@ -3,6 +3,7 @@ const std = common.std;
 const Node = common.Node;
 const AST = common.AST;
 const utils = common.utils;
+const Span = common.Span;
 // ZonNodeRule removed - using tagged unions now
 
 /// Validate ZON content against known schemas
@@ -60,13 +61,13 @@ pub const ZonValidator = struct {
     /// Validate build.zig.zon file
     pub fn validateBuildZon(self: *Self, ast: AST) !void {
         self.clearErrors();
-        try self.validateAgainstSchema(ast.root, &BUILD_ZON_SCHEMA, "");
+        try self.validateAgainstSchema(ast.root.?.*, &BUILD_ZON_SCHEMA, "");
     }
 
     /// Validate zz.zon configuration file
     pub fn validateZzConfig(self: *Self, ast: AST) !void {
         self.clearErrors();
-        try self.validateAgainstSchema(ast.root, &ZZ_CONFIG_SCHEMA, "");
+        try self.validateAgainstSchema(ast.root.?.*, &ZZ_CONFIG_SCHEMA, "");
     }
 
     /// Validate package manager dependencies
@@ -74,16 +75,21 @@ pub const ZonValidator = struct {
         self.clearErrors();
 
         // Find dependencies field
-        const deps_node = self.findField(ast.root, "dependencies") orelse {
+        const deps_node = self.findField(ast.root.?.*, "dependencies") orelse {
             try self.addError("", "Missing 'dependencies' field", .warning);
             return;
         };
 
-        // Validate each dependency
-        for (deps_node.children) |child| {
-            if (utils.isFieldAssignment(child)) {
-                try self.validateDependency(child);
-            }
+        // Validate each dependency (deps_node should be an object)
+        switch (deps_node.*) {
+            .object => |obj| {
+                for (obj.fields) |field_ptr| {
+                    try self.validateDependency(field_ptr.*);
+                }
+            },
+            else => {
+                try self.addError("dependencies", "Dependencies must be an object", .err);
+            },
         }
     }
 
@@ -250,30 +256,28 @@ pub const ZonValidator = struct {
 
     /// Validate a single dependency entry
     fn validateDependency(self: *Self, node: Node) !void {
-        if (!utils.hasMinimumChildren(node, 2)) return;
+        // Expect a field node with name and value
+        switch (node) {
+            .field => |field| {
+                const dep_name = field.getFieldName() orelse "unknown";
 
-        const name_node = node.children[0];
-        var dep_name = name_node.text;
+                // Check for required dependency fields
+                const url_field = self.findField(field.value.*, "url");
+                const path_field = self.findField(field.value.*, "path");
 
-        // Clean up dependency name
-        if (dep_name.len > 0 and dep_name[0] == '.') {
-            dep_name = dep_name[1..];
-        }
+                if (url_field == null and path_field == null) {
+                    const message = try std.fmt.allocPrint(self.allocator, "Dependency '{s}' must have either 'url' or 'path' field", .{dep_name});
+                    try self.addError(dep_name, message, .err);
+                }
 
-        const value_node = utils.getFieldValue(node) orelse return;
-
-        // Check for required dependency fields
-        const url_field = self.findField(value_node, "url");
-        const path_field = self.findField(value_node, "path");
-
-        if (url_field == null and path_field == null) {
-            const message = try std.fmt.allocPrint(self.allocator, "Dependency '{s}' must have either 'url' or 'path' field", .{dep_name});
-            try self.addError(dep_name, message, .err);
-        }
-
-        if (url_field != null and path_field != null) {
-            const message = try std.fmt.allocPrint(self.allocator, "Dependency '{s}' cannot have both 'url' and 'path' fields", .{dep_name});
-            try self.addError(dep_name, message, .err);
+                if (url_field != null and path_field != null) {
+                    const message = try std.fmt.allocPrint(self.allocator, "Dependency '{s}' cannot have both 'url' and 'path' fields", .{dep_name});
+                    try self.addError(dep_name, message, .err);
+                }
+            },
+            else => {
+                try self.addError("", "Expected field node in dependency", .err);
+            },
         }
 
         // TODO: Rewrite URL validation for tagged union AST
@@ -317,53 +321,30 @@ pub const ZonValidator = struct {
     }
 
     /// Find a field in an object node
-    fn findField(self: *Self, node: Node, field_name: []const u8) ?Node {
-        _ = self;
-
-        for (node.children) |child| {
-            if (utils.isFieldAssignment(child)) {
-                if (utils.hasMinimumChildren(child, 1)) {
-                    var name = child.children[0].text;
-
-                    // Clean up field name
-                    if (name.len > 0 and name[0] == '.') {
-                        name = name[1..];
-                    }
-
-                    // Handle @"..." format
-                    if (std.mem.indexOf(u8, name, "@\"")) |at_pos| {
-                        const start = at_pos + 2;
-                        if (std.mem.indexOf(u8, name[start..], "\"")) |end_quote| {
-                            name = name[start..][0..end_quote];
+    fn findField(self: *Self, node: Node, field_name: []const u8) ?*Node {
+        return switch (node) {
+            .object => |obj| {
+                for (obj.fields) |field_ptr| {
+                    if (field_ptr.field.getFieldName()) |name| {
+                        if (std.mem.eql(u8, name, field_name)) {
+                            return field_ptr.field.value;
                         }
                     }
-
-                    if (std.mem.eql(u8, name, field_name)) {
-                        return utils.getFieldValue(child) orelse child;
-                    }
                 }
-            }
-        }
-
-        return null;
+                return null;
+            },
+            .root => |root| self.findField(root.value.*, field_name),
+            else => null,
+        };
     }
 
     /// Find an object node in the AST
     fn findObjectNode(self: *Self, node: Node) ?Node {
-        switch (node) {
-            .object => return node,
-            .root => |root| return self.findObjectNode(root.value.*),
-            else => return null,
-        }
-
-        // Search in children
-        for (node.children) |child| {
-            if (self.findObjectNode(child)) |obj| {
-                return obj;
-            }
-        }
-
-        return null;
+        return switch (node) {
+            .object => node,
+            .root => |root| self.findObjectNode(root.value.*),
+            else => null,
+        };
     }
 };
 
@@ -454,98 +435,92 @@ const LINT_CONFIG_SCHEMA = Schema{
 // Tests
 // ============================================================================
 
-// TODO: Rewrite test for tagged union AST
-// test "ZonValidator - validate build.zig.zon" {
-//     const testing = std.testing;
-//     const allocator = testing.allocator;
-//
-//     // Create a mock AST
-//     const root = Node{
-//         .rule_id = @intFromEnum(CommonRules.object),
-//         .node_type = .list,
-//         .text = "",
-//         .start_position = 0,
-//         .end_position = 100,
-//         .children = &[_]Node{
-//             Node{
-//                 .rule_id = ZonNodeRule.field_assignment.toU16(),
-//                 .node_type = .rule,
-//                 .text = "",
-//                 .start_position = 0,
-//                 .end_position = 20,
-//                 .children = &[_]Node{
-//                     Node{
-//                         .rule_id = ZonNodeRule.field_name.toU16(),
-//                         .node_type = .terminal,
-//                         .text = ".name",
-//                         .start_position = 0,
-//                         .end_position = 5,
-//                         .children = &[_]Node{},
-//                         .attributes = null,
-//                         .parent = null,
-//                     },
-//                     Node{
-//                         .rule_id = @intFromEnum(CommonRules.string_literal),
-//                         .node_type = .terminal,
-//                         .text = "\"my-package\"",
-//                         .start_position = 8,
-//                         .end_position = 20,
-//                         .children = &[_]Node{},
-//                         .attributes = null,
-//                         .parent = null,
-//                     },
-//                 },
-//                 .attributes = null,
-//                 .parent = null,
-//             },
-//         },
-//         .attributes = null,
-//         .parent = null,
-//     };
-//
-//     const ast = AST{
-//         .root = root,
-//         .allocator = allocator,
-//         .owned_texts = &[_][]const u8{}, // No owned texts for test AST
-//         .source = "",
-//     };
-//
-//     var validator = ZonValidator.init(allocator);
-//     defer validator.deinit();
-//
-//     try validator.validateBuildZon(ast);
-//
-//     const errors = validator.getErrors();
-//
-//     // Should have an error for missing 'version' field
-//     try testing.expect(errors.len > 0);
-//
-//     var found_version_error = false;
-//     for (errors) |err| {
-//         if (std.mem.indexOf(u8, err.message, "version") != null) {
-//             found_version_error = true;
-//             break;
-//         }
-//     }
-//     try testing.expect(found_version_error);
-// }
+test "ZonValidator - validate build.zig.zon" {
+    const testing = std.testing;
+    const allocator = testing.allocator;
 
-// TODO: Rewrite test for tagged union AST
-// test "ZonValidator - validate dependencies" {
-//     const testing = std.testing;
-//     const allocator = testing.allocator;
-//
-//     var validator = ZonValidator.init(allocator);
-//     defer validator.deinit();
-//
-//     // Test URL validation
-//     try validator.validateUrl("https://github.com/user/repo.git", "test-dep");
-//     try testing.expect(validator.getErrors().len == 0);
-//
-//     validator.clearErrors();
-//     try validator.validateUrl("not-a-url", "test-dep");
-//     try testing.expect(validator.getErrors().len > 0);
-// }
+    // Create arena for AST nodes
+    var arena = std.heap.ArenaAllocator.init(allocator);
+    defer arena.deinit();
+    const arena_allocator = arena.allocator();
+
+    // Create a mock build.zig.zon AST with only 'name' field (missing 'version')
+    const name_field_name = try arena_allocator.create(Node);
+    name_field_name.* = Node{
+        .field_name = .{
+            .span = Span.init(0, 5),
+            .name = try arena_allocator.dupe(u8, "name"),
+        },
+    };
+
+    const name_field_value = try arena_allocator.create(Node);
+    name_field_value.* = Node{
+        .string = .{
+            .span = Span.init(8, 20),
+            .value = try arena_allocator.dupe(u8, "my-package"),
+        },
+    };
+
+    const name_field = try arena_allocator.create(Node);
+    name_field.* = Node{
+        .field = .{
+            .span = Span.init(0, 20),
+            .name = name_field_name,
+            .value = name_field_value,
+        },
+    };
+
+    const fields = try arena_allocator.alloc(*Node, 1);
+    fields[0] = name_field;
+
+    const root_object = try arena_allocator.create(Node);
+    root_object.* = Node{
+        .object = .{
+            .span = Span.init(0, 100),
+            .fields = fields,
+        },
+    };
+
+    var ast = AST.init(allocator);
+    ast.root = root_object;
+    ast.arena = &arena;
+    defer ast.deinit();
+
+    var validator = ZonValidator.init(allocator);
+    defer validator.deinit();
+
+    try validator.validateBuildZon(ast);
+
+    const errors = validator.getErrors();
+
+    // Should have an error for missing 'version' field
+    try testing.expect(errors.len > 0);
+
+    var found_version_error = false;
+    for (errors) |err| {
+        if (std.mem.indexOf(u8, err.message, "version") != null) {
+            found_version_error = true;
+            break;
+        }
+    }
+    try testing.expect(found_version_error);
+}
+
+test "ZonValidator - validate dependencies" {
+    const testing = std.testing;
+    const allocator = testing.allocator;
+
+    var validator = ZonValidator.init(allocator);
+    defer validator.deinit();
+
+    // Test URL validation
+    try validator.validateUrl("https://github.com/user/repo.git", "test-dep");
+    try testing.expect(validator.getErrors().len == 0);
+
+    validator.clearErrors();
+    try validator.validateUrl("not-a-url", "test-dep");
+    try testing.expect(validator.getErrors().len > 0);
+}
 
 // TODO: Rewrite test for tagged union AST
 // test "ZonValidator - field type validation" {

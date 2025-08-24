@@ -2,9 +2,10 @@
 /// Implements direct iterator pattern without vtable overhead
 /// Performance target: >10MB/sec throughput with 1-2 cycle dispatch
 ///
-/// TODO: Stream module uses vtables (3-5 cycles overhead)
-/// TODO: This lexer follows our principles with direct dispatch
-/// TODO: Add Stream adapter only when needed for compatibility
+/// ARCHITECTURE: Direct dispatch pattern for optimal performance
+/// - Primary API: next() method (1-2 cycle dispatch, no vtables)
+/// - Stream integration: toDirectStream() when pipeline compatibility needed
+/// - Zero allocations: Uses ring buffer for efficient token streaming
 const std = @import("std");
 const RingBuffer = @import("../../stream/mod.zig").RingBuffer;
 const StreamToken = @import("../../token/mod.zig").StreamToken;
@@ -798,7 +799,7 @@ pub const ZonStreamLexer = struct {
         return StreamToken{ .zon = token };
     }
 
-    /// Validate unicode escape sequence \u{...}
+    /// Validate unicode escape sequence \u{...} (Zig-style)
     /// Returns false if the escape sequence is malformed
     fn validateUnicodeEscape(self: *ZonStreamLexer) bool {
         // Expect opening brace
@@ -844,7 +845,7 @@ pub const ZonStreamLexer = struct {
             self.position += 1;
             self.column += 1;
 
-            // Prevent overflow and overly long sequences
+            // Prevent overflow and overly long sequences (max 6 hex digits for 0x10FFFF)
             if (hex_digits > 6) return false;
         }
 

@@ -5,7 +5,7 @@ const BenchmarkOptions = benchmark_lib.BenchmarkOptions;
 const BenchmarkError = benchmark_lib.BenchmarkError;
 
 // Import streaming lexers for benchmarking
-const JsonStreamLexer = @import("../../lib/languages/json/stream_lexer.zig").JsonStreamLexer;
+const JsonStreamLexer = @import("../../lib/languages/json/lexer/mod.zig").StreamLexer;
 const ZonStreamLexer = @import("../../lib/languages/zon/stream_lexer.zig").ZonStreamLexer;
 
 // Import fact system for DirectStream benchmark

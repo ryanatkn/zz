@@ -1,7 +1,8 @@
-/// ZON AST Converter - Simplified stub for migration
+/// ZON AST Converter - Type-safe ZON parsing
 ///
-/// This module is temporarily stubbed during the progressive parser refactor.
-/// It will be fully reimplemented to work with the new ZON AST structure.
+/// This module provides conversion from ZON AST nodes to Zig types.
+/// Main API: parseFromSlice() - converts ZON content directly to target types.
+/// Supports structs, arrays, strings, numbers, booleans, optionals with proper memory management.
 const std = @import("std");
 const zon_ast = @import("ast.zig");
 const Node = zon_ast.Node;
@@ -14,12 +15,9 @@ pub const AstConverter = struct {
         return .{ .allocator = allocator };
     }
 
-    /// Convert an AST node to the specified type T - STUB
+    /// Convert an AST node to the specified type T
     pub fn toStruct(self: *AstConverter, comptime T: type, node: Node) !T {
-        _ = self;
-        _ = node;
-        // Return default value for now
-        return std.mem.zeroes(T);
+        return try convertAstToType(T, self.allocator, &node);
     }
 };
 

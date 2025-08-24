@@ -6,7 +6,7 @@ const testing = std.testing;
 const StreamToken = @import("stream_token.zig").StreamToken;
 
 // Import language tokens
-const JsonToken = @import("../languages/json/stream_token.zig").JsonToken;
+const JsonToken = @import("../languages/json/token/mod.zig").JsonToken;
 const ZonToken = @import("../languages/zon/stream_token.zig").ZonToken;
 
 // Import span types
@@ -27,12 +27,12 @@ test "JsonToken size and construction" {
 
     // String tokens
     const str = JsonToken.string(span, false, 1, 42, true);
-    try testing.expectEqual(@as(?u32, 42), str.getStringIndex());
+    try testing.expectEqual(@as(?u32, 42), str.getAtomId());
     try testing.expect(str.flags.has_escapes);
 
     // Boolean tokens
     const bool_true = JsonToken.boolean(span, 2, true);
-    const JsonTokenKind = @import("../languages/json/stream_token.zig").JsonTokenKind;
+    const JsonTokenKind = @import("../languages/json/token/mod.zig").JsonTokenKind;
     try testing.expectEqual(JsonTokenKind.boolean_true, bool_true.kind);
 }
 
@@ -48,7 +48,7 @@ test "ZonToken size and construction" {
 
     // Field tokens
     const field = ZonToken.field(span, 1, 100, true);
-    try testing.expectEqual(@as(?u32, 100), field.getStringIndex());
+    try testing.expectEqual(@as(?u32, 100), field.getAtomId());
     try testing.expect(field.flags.is_quoted_field);
 
     // Enum literal
@@ -68,7 +68,7 @@ test "StreamToken tagged union operations" {
     try testing.expectEqual(packSpan(span), stream_json.json.span);
     try testing.expectEqual(@as(u8, 0), stream_json.json.depth);
     // No generic kind mapping - language owns its kinds
-    const JsonTokenKind = @import("../languages/json/stream_token.zig").JsonTokenKind;
+    const JsonTokenKind = @import("../languages/json/token/mod.zig").JsonTokenKind;
     try testing.expectEqual(JsonTokenKind.object_start, stream_json.json.kind);
     try testing.expect(stream_json.json.isOpenDelimiter());
 
@@ -82,7 +82,7 @@ test "StreamToken tagged union operations" {
     // No generic kind mapping - language owns its kinds
     const ZonTokenKind = @import("../languages/zon/stream_token.zig").ZonTokenKind;
     try testing.expectEqual(ZonTokenKind.field_name, stream_zon.zon.kind);
-    try testing.expectEqual(@as(?u32, 42), stream_zon.zon.getStringIndex());
+    try testing.expectEqual(@as(?u32, 42), stream_zon.zon.getAtomId());
 }
 
 test "StreamToken size constraints" {

@@ -109,10 +109,8 @@ test "ZON linter - schema validation" {
     var ast = try parser.parse();
     defer ast.deinit();
 
-    // TODO: Add schema_validation rule to ZonRuleType enum
     var enabled_rules = EnabledRules.initEmpty();
-    // enabled_rules.insert(.schema_validation);
-    enabled_rules.insert(.invalid_field_type); // Use similar rule for now
+    enabled_rules.insert(.schema_validation);
 
     var linter = ZonLinter.init(allocator, .{});
     defer linter.deinit();

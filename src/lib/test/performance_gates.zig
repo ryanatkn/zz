@@ -6,9 +6,9 @@ const std = @import("std");
 const testing = std.testing;
 // TODO: Replace with new streaming architecture when ready
 // Removed old transform imports - using new architecture
-const JsonLexer = @import("../languages/json/lexer.zig").JsonLexer;
+const JsonStreamLexer = @import("../languages/json/lexer/mod.zig").StreamLexer;
 const ZonLexer = @import("../languages/zon/lexer.zig").ZonLexer;
-const JsonParser = @import("../languages/json/parser.zig").JsonParser;
+const JsonParser = @import("../languages/json/parser/mod.zig").JsonParser;
 const ZonParser = @import("../languages/zon/parser.zig").ZonParser;
 // Using GenericTokenIterator architecture for streaming
 
@@ -207,7 +207,7 @@ test "JSON streaming performance gate" {
     var timer = try std.time.Timer.start();
 
     // Use JsonStreamLexer with DirectStream conversion
-    var lexer = @import("../languages/json/stream_lexer.zig").JsonStreamLexer.init(input);
+    var lexer = JsonStreamLexer.init(input);
     defer lexer.deinit();
 
     // Convert to DirectStream for optimal performance

@@ -34,9 +34,8 @@ pub const TransformResult = struct {
         if (self.token_facts) |facts| {
             allocator.free(facts);
         }
-        if (self.ast) |ast| {
-            // TODO: Call AST deinit when implemented
-            _ = ast;
+        if (self.ast) |*ast| {
+            ast.deinit();
         }
         if (self.ast_facts) |facts| {
             allocator.free(facts);

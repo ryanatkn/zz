@@ -10,11 +10,9 @@ test "ZON escape sequences - basic escapes" {
         input: []const u8,
         expected: []const u8,
     }{
-        .{ .input = "\"\\\"\"", .expected = "\"" }, // \"
-        .{ .input = "\"\\\\\"", .expected = "\\" }, // \\
-        .{ .input = "\"\\/\"", .expected = "/" }, // \/
-        .{ .input = "\"\\b\"", .expected = "\x08" }, // \b (backspace)
-        .{ .input = "\"\\f\"", .expected = "\x0C" }, // \f (form feed)
+        .{ .input = "\"\\\"\"", .expected = "\"" }, // \" (double quote)
+        .{ .input = "\"\\\\\"", .expected = "\\" }, // \\ (backslash)
+        .{ .input = "\"\\'\"", .expected = "'" }, // \' (single quote - Zig only)
         .{ .input = "\"\\n\"", .expected = "\n" }, // \n (newline)
         .{ .input = "\"\\r\"", .expected = "\r" }, // \r (carriage return)
         .{ .input = "\"\\t\"", .expected = "\t" }, // \t (tab)
@@ -44,12 +42,12 @@ test "ZON escape sequences - Unicode escapes" {
         expected: []const u8,
         description: []const u8,
     }{
-        .{ .input = "\"\\u0041\"", .expected = "A", .description = "Basic ASCII (A)" },
-        .{ .input = "\"\\u0048\\u0065\\u006C\\u006C\\u006F\"", .expected = "Hello", .description = "ASCII sequence" },
-        .{ .input = "\"\\u00A9\"", .expected = "©", .description = "Copyright symbol" },
-        .{ .input = "\"\\u03A9\"", .expected = "Ω", .description = "Greek Omega" },
-        .{ .input = "\"\\u20AC\"", .expected = "€", .description = "Euro symbol" },
-        .{ .input = "\"\\u2603\"", .expected = "☃", .description = "Snowman emoji" },
+        .{ .input = "\"\\u{41}\"", .expected = "A", .description = "Basic ASCII (A)" },
+        .{ .input = "\"\\u{48}\\u{65}\\u{6C}\\u{6C}\\u{6F}\"", .expected = "Hello", .description = "ASCII sequence" },
+        .{ .input = "\"\\u{A9}\"", .expected = "©", .description = "Copyright symbol" },
+        .{ .input = "\"\\u{3A9}\"", .expected = "Ω", .description = "Greek Omega" },
+        .{ .input = "\"\\u{20AC}\"", .expected = "€", .description = "Euro symbol" },
+        .{ .input = "\"\\u{2603}\"", .expected = "☃", .description = "Snowman emoji" },
     };
 
     for (test_cases) |case| {
@@ -76,7 +74,7 @@ test "ZON escape sequences - multiline string escapes" {
         expected: []const u8,
         description: []const u8,
     }{
-        .{ .input = "\"\\\\\\\\\"", .expected = "\\", .description = "Literal backslash in multiline" },
+        .{ .input = "\"\\\\\"", .expected = "\\", .description = "Literal backslash" },
         .{ .input = "\"line1\\\\\\nline2\"", .expected = "line1\\\nline2", .description = "Multiline with literal backslash" },
     };
 
@@ -98,7 +96,7 @@ test "ZON escape sequences - multiline string escapes" {
 test "ZON escape sequences - mixed content" {
     const allocator = testing.allocator;
 
-    const input = "\"Hello\\nWorld\\t\\\"quoted\\\"\\u00A9\"";
+    const input = "\"Hello\\nWorld\\t\\\"quoted\\\"\\u{A9}\"";
     const expected = "Hello\nWorld\t\"quoted\"©";
 
     var parser = try ZonParser.init(allocator, input, .{});
@@ -121,7 +119,7 @@ test "ZON escape sequences - complex ZON with escapes" {
         \\.{
         \\    .name = "Test \"User\"",
         \\    .bio = "Line 1\nLine 2\tTabbed",
-        \\    .symbol = "\u00A9 2024",
+        \\    .symbol = "\u{A9} 2024",
         \\    .path = "C:\\\\Users\\\\test"
         \\}
     ;
@@ -167,9 +165,10 @@ test "ZON escape sequences - invalid Unicode" {
     const allocator = testing.allocator;
 
     const test_cases = [_][]const u8{
-        "\"\\uXXXX\"", // Invalid hex digits
-        "\"\\u123\"", // Too few hex digits
-        "\"\\u\"", // No hex digits
+        "\"\\u{GGGG}\"", // Invalid hex digits
+        "\"\\u{}\"", // Empty braces
+        "\"\\u{110000}\"", // Codepoint too large
+        "\"\\u\"", // No opening brace
     };
 
     for (test_cases) |input| {
@@ -179,11 +178,15 @@ test "ZON escape sequences - invalid Unicode" {
         var ast = try parser.parse();
         defer ast.deinit();
 
-        // Invalid Unicode may either fail to parse or parse with escape as-is
+        // Invalid Unicode should either fail to parse or parse with error node
         if (ast.root) |root| {
-            try testing.expect(root.* == .string);
+            switch (root.*) {
+                .string => {}, // Graceful handling - escape kept as literal
+                .err => {}, // Lexer/parser detected invalid sequence - also acceptable
+                else => return error.TestUnexpectedResult,
+            }
         }
-        // If ast.root is null, the parser failed which is also acceptable
+        // If ast.root is null, complete parsing failure - also acceptable
     }
 }
 

@@ -7,7 +7,7 @@
 /// - Basic throughput tests
 const std = @import("std");
 const StreamToken = @import("../lib/token/stream_token.zig").StreamToken;
-const JsonToken = @import("../lib/languages/json/stream_token.zig").JsonToken;
+const JsonToken = @import("../lib/languages/json/token/mod.zig").JsonToken;
 const ZonToken = @import("../lib/languages/zon/stream_token.zig").ZonToken;
 const Fact = @import("../lib/fact/mod.zig").Fact;
 const PackedSpan = @import("../lib/span/mod.zig").PackedSpan;

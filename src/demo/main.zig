@@ -15,7 +15,7 @@
 const std = @import("std");
 const json = @import("../lib/languages/json/mod.zig");
 const zon = @import("../lib/languages/zon/mod.zig");
-const json_ast = @import("../lib/languages/json/ast.zig");
+const json_ast = @import("../lib/languages/json/ast/mod.zig");
 
 // Benchmark duration: 200ms minimum for statistical backing
 const BENCHMARK_DURATION_NS: u64 = 200_000_000;

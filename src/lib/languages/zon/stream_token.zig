@@ -166,19 +166,17 @@ pub const ZonToken = extern struct {
         return self.kind == .struct_end or self.kind == .array_end;
     }
 
-    /// Get string table index (for string/identifier tokens)
-    /// TODO: Rename to getAtomId() once migration complete
-    pub fn getStringIndex(self: ZonToken) ?u32 {
+    /// Get atom ID for this token's text content
+    pub fn getAtomId(self: ZonToken) ?u32 {
         return switch (self.kind) {
             .field_name, .identifier, .string_value, .enum_literal, .import => self.data,
             else => null,
         };
     }
 
-    /// Get atom ID for this token's text content
-    /// TODO: Replace getStringIndex with this method
-    pub fn getAtomId(self: ZonToken) ?u32 {
-        return self.getStringIndex();
+    /// DEPRECATED: Use getAtomId() instead
+    pub fn getStringIndex(self: ZonToken) ?u32 {
+        return self.getAtomId();
     }
 };
 

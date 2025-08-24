@@ -10,9 +10,9 @@ const Linter = lang_interface.Linter;
 const Analyzer = lang_interface.Analyzer;
 
 // Import language-specific AST types and Rule types
-const JsonAST = @import("json/ast.zig").AST;
+const JsonAST = @import("json/ast/mod.zig").AST;
 const ZonAST = @import("zon/ast.zig").AST;
-const JsonRuleType = @import("json/linter.zig").JsonRuleType;
+const JsonRuleType = @import("json/linter/mod.zig").JsonRuleType;
 const ZonRuleType = @import("zon/linter.zig").ZonRuleType;
 
 // Create a concrete LanguageSupport union for the registry

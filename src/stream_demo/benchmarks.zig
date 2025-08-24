@@ -190,7 +190,7 @@ pub fn benchmarkDirectStreamOperators(allocator: std.mem.Allocator, data: []cons
 
 /// Benchmark JSON tokenization performance
 pub fn benchmarkJsonTokenization(json_input: []const u8) !BenchmarkResult {
-    const JsonStreamLexer = @import("../lib/languages/json/stream_lexer.zig").JsonStreamLexer;
+    const JsonStreamLexer = @import("../lib/languages/json/lexer/mod.zig").StreamLexer;
 
     const iterations = 100;
     var total_cycles: u64 = 0;

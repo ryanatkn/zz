@@ -8,7 +8,7 @@
 /// - Zero allocations: Uses ring buffer for efficient token streaming
 const std = @import("std");
 const RingBuffer = @import("../../stream/mod.zig").RingBuffer;
-const StreamToken = @import("../../token/mod.zig").StreamToken;
+const Token = @import("../../token/mod.zig").Token;
 const ZonToken = @import("./stream_token.zig").ZonToken;
 const ZonTokenKind = @import("./stream_token.zig").ZonTokenKind;
 const ZonTokenFlags = @import("./stream_token.zig").ZonTokenFlags;
@@ -62,7 +62,7 @@ pub const ZonLexer = struct {
     error_msg: ?[]const u8,
 
     // Peeked token for lookahead
-    peeked_token: ?StreamToken,
+    peeked_token: ?Token,
 
     /// Initialize lexer with input buffer
     /// This is the primary interface - simple iterator pattern
@@ -100,7 +100,7 @@ pub const ZonLexer = struct {
 
     /// Get next token - Direct iterator interface (no vtable!)
     /// This is 1-2 cycle dispatch vs 3-5 for vtable
-    pub fn next(self: *ZonLexer) ?StreamToken {
+    pub fn next(self: *ZonLexer) ?Token {
         // If we have a peeked token, return it
         if (self.peeked_token) |token| {
             self.peeked_token = null;
@@ -111,7 +111,7 @@ pub const ZonLexer = struct {
     }
 
     /// Peek at the next token without consuming it
-    pub fn peek(self: *ZonLexer) ?StreamToken {
+    pub fn peek(self: *ZonLexer) ?Token {
         // If we already have a peeked token, return it
         if (self.peeked_token) |token| {
             return token;
@@ -123,7 +123,7 @@ pub const ZonLexer = struct {
         return token;
     }
 
-    fn nextInternal(self: *ZonLexer) ?StreamToken {
+    fn nextInternal(self: *ZonLexer) ?Token {
 
         // Return null if already done (after EOF)
         if (self.state == .done) {
@@ -136,7 +136,7 @@ pub const ZonLexer = struct {
         // Check for end of input - ANY state can reach EOF, not just .start
         if (self.buffer.isEmpty()) {
             self.state = .done; // Mark as done after EOF
-            return StreamToken{ .zon = ZonToken{
+            return Token{ .zon = ZonToken{
                 .span = packSpan(Span{ .start = self.position, .end = self.position }),
                 .kind = .eof,
                 .depth = self.depth,
@@ -172,7 +172,7 @@ pub const ZonLexer = struct {
                         if (self.depth > 0 and self.depth <= 32) {
                             self.container_stack[self.depth - 1] = .struct_start;
                         }
-                        return StreamToken{ .zon = ZonToken{
+                        return Token{ .zon = ZonToken{
                             .span = packSpan(Span{ .start = self.token_start, .end = self.position }),
                             .kind = .struct_start,
                             .depth = self.depth,
@@ -209,21 +209,21 @@ pub const ZonLexer = struct {
 
     /// Convert to DirectStream for integration with stream pipeline
     /// Uses GeneratorStream pattern for zero-allocation streaming
-    pub fn toDirectStream(self: *ZonLexer) @import("../../stream/mod.zig").DirectStream(StreamToken) {
+    pub fn toDirectStream(self: *ZonLexer) @import("../../stream/mod.zig").DirectStream(Token) {
         const DirectStream = @import("../../stream/mod.zig").DirectStream;
         const GeneratorStream = @import("../../stream/mod.zig").GeneratorStream;
 
-        const gen = GeneratorStream(StreamToken).init(
+        const gen = GeneratorStream(Token).init(
             @ptrCast(self),
             struct {
-                fn generate(ctx: *anyopaque) ?StreamToken {
+                fn generate(ctx: *anyopaque) ?Token {
                     const lexer: *ZonLexer = @ptrCast(@alignCast(ctx));
                     return lexer.next();
                 }
             }.generate,
         );
 
-        return DirectStream(StreamToken){ .generator = gen };
+        return DirectStream(Token){ .generator = gen };
     }
 
     /// Skip whitespace and comments
@@ -311,7 +311,7 @@ pub const ZonLexer = struct {
     }
 
     /// Create a simple single-character token
-    fn makeSimpleToken(self: *ZonLexer, kind: ZonTokenKind, increase_depth: bool) StreamToken {
+    fn makeSimpleToken(self: *ZonLexer, kind: ZonTokenKind, increase_depth: bool) Token {
         _ = self.buffer.pop();
         const end_pos = self.position + 1;
         var final_kind = kind;
@@ -344,11 +344,11 @@ pub const ZonLexer = struct {
         self.position = end_pos;
         self.column += 1;
 
-        return StreamToken{ .zon = token };
+        return Token{ .zon = token };
     }
 
     /// Scan a string literal
-    fn scanString(self: *ZonLexer) StreamToken {
+    fn scanString(self: *ZonLexer) Token {
         _ = self.buffer.pop(); // Consume opening quote
         self.position += 1;
         self.column += 1;
@@ -369,7 +369,7 @@ pub const ZonLexer = struct {
                         .flags = .{ .has_escapes = has_escapes },
                         .data = 0,
                     };
-                    return StreamToken{ .zon = token };
+                    return Token{ .zon = token };
                 },
                 '\\' => {
                     has_escapes = true;
@@ -401,7 +401,7 @@ pub const ZonLexer = struct {
     }
 
     /// Scan a multiline string (each line starts with \\)
-    fn scanMultilineString(self: *ZonLexer) StreamToken {
+    fn scanMultilineString(self: *ZonLexer) Token {
         // Consume the first backslash that triggered this scan
         _ = self.buffer.pop();
         self.position += 1;
@@ -484,7 +484,7 @@ pub const ZonLexer = struct {
                     .data = 0,
                 };
 
-                return StreamToken{ .zon = token };
+                return Token{ .zon = token };
             }
         }
 
@@ -494,7 +494,7 @@ pub const ZonLexer = struct {
     }
 
     /// Scan a number
-    fn scanNumber(self: *ZonLexer) StreamToken {
+    fn scanNumber(self: *ZonLexer) Token {
         var is_float = false;
         var is_hex = false;
         var is_binary = false;
@@ -580,11 +580,11 @@ pub const ZonLexer = struct {
             .data = 0,
         };
 
-        return StreamToken{ .zon = token };
+        return Token{ .zon = token };
     }
 
     /// Scan an identifier or keyword
-    fn scanIdentifier(self: *ZonLexer) StreamToken {
+    fn scanIdentifier(self: *ZonLexer) Token {
         // Ensure we consume at least one character (the one that triggered this scan)
         var consumed_any = false;
         while (self.buffer.peek()) |ch| {
@@ -629,11 +629,11 @@ pub const ZonLexer = struct {
             .data = 0,
         };
 
-        return StreamToken{ .zon = token };
+        return Token{ .zon = token };
     }
 
     /// Scan a builtin (@import, @field, etc.)
-    fn scanBuiltin(self: *ZonLexer) StreamToken {
+    fn scanBuiltin(self: *ZonLexer) Token {
         _ = self.buffer.pop(); // Consume @
         self.position += 1;
         self.column += 1;
@@ -659,11 +659,11 @@ pub const ZonLexer = struct {
             .data = 0,
         };
 
-        return StreamToken{ .zon = token };
+        return Token{ .zon = token };
     }
 
     /// Scan a field access (.field_name)
-    fn scanFieldAccess(self: *ZonLexer) StreamToken {
+    fn scanFieldAccess(self: *ZonLexer) Token {
         // Ensure we consume at least one character for field name
         var consumed_any = false;
         while (self.buffer.peek()) |ch| {
@@ -695,11 +695,11 @@ pub const ZonLexer = struct {
             .data = 0,
         };
 
-        return StreamToken{ .zon = token };
+        return Token{ .zon = token };
     }
 
     /// Scan a quoted field access (.@"field name")
-    fn scanQuotedFieldAccess(self: *ZonLexer) StreamToken {
+    fn scanQuotedFieldAccess(self: *ZonLexer) Token {
         // Consume the @ character
         if (self.buffer.peek()) |ch| {
             if (ch == '@') {
@@ -738,7 +738,7 @@ pub const ZonLexer = struct {
                                 .data = 0,
                             };
 
-                            return StreamToken{ .zon = token };
+                            return Token{ .zon = token };
                         },
                         '\\' => {
                             has_escapes = true;
@@ -787,7 +787,7 @@ pub const ZonLexer = struct {
     }
 
     /// Create an error token
-    fn makeErrorToken(self: *ZonLexer) StreamToken {
+    fn makeErrorToken(self: *ZonLexer) Token {
         const token = ZonToken{
             .span = packSpan(Span{ .start = self.token_start, .end = self.position }),
             .kind = .err,
@@ -796,7 +796,7 @@ pub const ZonLexer = struct {
             .data = 0,
         };
         self.state = .err;
-        return StreamToken{ .zon = token };
+        return Token{ .zon = token };
     }
 
     /// Validate unicode escape sequence \u{...} (Zig-style)
@@ -931,9 +931,9 @@ test "ZonLexer EOF handling" {
 
     // After EOF, should return null
     const token3 = lexer.next();
-    try testing.expectEqual(@as(?StreamToken, null), token3);
+    try testing.expectEqual(@as(?Token, null), token3);
 
     // Should continue returning null
     const token4 = lexer.next();
-    try testing.expectEqual(@as(?StreamToken, null), token4);
+    try testing.expectEqual(@as(?Token, null), token4);
 }

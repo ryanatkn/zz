@@ -2,7 +2,7 @@
 ///
 /// Composable transformations for progressive data enrichment.
 const std = @import("std");
-const StreamToken = @import("../token/stream_token.zig").StreamToken;
+const Token = @import("../token/stream_token.zig").Token;
 const Fact = @import("../fact/fact.zig").Fact;
 
 /// Transform stage interface

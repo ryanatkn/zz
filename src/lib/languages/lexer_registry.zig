@@ -7,7 +7,7 @@
 /// - Clean tagged union for optimal dispatch
 /// - No methods, just data and factory function
 const std = @import("std");
-const StreamToken = @import("token_registry.zig").StreamToken;
+const Token = @import("token_registry.zig").Token;
 const Language = @import("../core/language.zig").Language;
 
 // Import all language lexers

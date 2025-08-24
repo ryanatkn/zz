@@ -3,8 +3,8 @@
 const std = @import("std");
 const Lexer = @import("core.zig").Lexer;
 const LexerState = @import("core.zig").LexerState;
-const StreamToken = @import("../../../token/mod.zig").StreamToken;
-const Token = @import("../token/types.zig").Token;
+const Token = @import("../../../token/mod.zig").Token;
+const JsonToken = @import("../token/types.zig").Token;
 const TokenKind = @import("../token/types.zig").TokenKind;
 const packSpan = @import("../../../span/mod.zig").packSpan;
 const Span = @import("../../../span/mod.zig").Span;
@@ -18,7 +18,7 @@ pub fn feedData(self: *Lexer, data: []const u8) !void {
 }
 
 /// Peek at next token without consuming
-pub fn peek(self: *Lexer) ?StreamToken {
+pub fn peek(self: *Lexer) ?Token {
     if (self.peeked_token) |token| return token;
     const token = self.next();
     self.peeked_token = token;
@@ -26,7 +26,7 @@ pub fn peek(self: *Lexer) ?StreamToken {
 }
 
 /// Continue boundary token scanning
-pub fn continueBoundaryToken(self: *Lexer) ?StreamToken {
+pub fn continueBoundaryToken(self: *Lexer) ?Token {
     if (self.token_buffer == null) return null;
 
     switch (self.state) {
@@ -35,7 +35,7 @@ pub fn continueBoundaryToken(self: *Lexer) ?StreamToken {
     }
 }
 
-fn continueBoundaryString(self: *Lexer) ?StreamToken {
+fn continueBoundaryString(self: *Lexer) ?Token {
     // Simplified boundary string continuation
     if (self.token_buffer) |*buf| {
         while (self.buffer.peek()) |ch| {
@@ -52,14 +52,14 @@ fn continueBoundaryString(self: *Lexer) ?StreamToken {
                 const completion = buf.completeToken();
                 self.state = .start;
 
-                const token = Token{
+                const token = JsonToken{
                     .span = packSpan(Span{ .start = completion.start_position, .end = self.position }),
                     .kind = .string_value,
                     .depth = self.depth,
                     .flags = .{ .has_escapes = completion.has_escapes },
                     .data = 0,
                 };
-                return StreamToken{ .json = token };
+                return Token{ .json = token };
             }
         }
         return makeContinuationToken(self);
@@ -67,8 +67,8 @@ fn continueBoundaryString(self: *Lexer) ?StreamToken {
     return null;
 }
 
-fn makeErrorToken(self: *Lexer) StreamToken {
-    const token = Token{
+fn makeErrorToken(self: *Lexer) Token {
+    const token = JsonToken{
         .span = packSpan(Span{ .start = self.token_start, .end = self.position }),
         .kind = .err,
         .depth = self.depth,
@@ -76,16 +76,16 @@ fn makeErrorToken(self: *Lexer) StreamToken {
         .data = 0,
     };
     self.state = .err;
-    return StreamToken{ .json = token };
+    return Token{ .json = token };
 }
 
-fn makeContinuationToken(self: *Lexer) StreamToken {
-    const token = Token{
+fn makeContinuationToken(self: *Lexer) Token {
+    const token = JsonToken{
         .span = packSpan(Span{ .start = self.position, .end = self.position }),
         .kind = .continuation,
         .depth = self.depth,
         .flags = .{ .continuation = true },
         .data = 0,
     };
-    return StreamToken{ .json = token };
+    return Token{ .json = token };
 }

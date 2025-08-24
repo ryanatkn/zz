@@ -8,7 +8,7 @@ pub const stream_token = @import("stream_token.zig");
 pub const iterator = @import("iterator.zig");
 
 // Main re-exports (new streaming system)
-pub const StreamToken = stream_token.StreamToken;
+pub const Token = stream_token.Token;
 pub const TokenIterator = iterator.TokenIterator;
 
 // Old buffer utilities removed (data.zig, buffer.zig compatibility stubs deleted)

@@ -1,11 +1,11 @@
 /// Token Registry - Centralized language token type management
-/// SIMPLIFIED: StreamToken is now just a pure union with no methods
+/// SIMPLIFIED: Token is now just a pure union with no methods
 /// Each language owns its semantics completely
 ///
 /// Design principles:
-/// - StreamToken is just data, no abstractions
+/// - Token is just data, no abstractions
 /// - All language-specific imports contained here
-/// - Other modules import StreamToken from here
+/// - Other modules import Token from here
 /// - Maintains 1-2 cycle dispatch for all languages
 const std = @import("std");
 
@@ -20,10 +20,10 @@ const ZonToken = @import("zon/stream_token.zig").ZonToken;
 // const HtmlToken = @import("html/stream_token.zig").HtmlToken;
 // const SvelteToken = @import("svelte/stream_token.zig").SvelteToken;
 
-/// Universal stream token - the tagged union of all language tokens
+/// Universal token - the tagged union of all language tokens
 /// This is THE token type used throughout the system
 /// SIMPLIFIED: No methods, no abstractions - just a union for dispatch
-pub const StreamToken = union(enum) {
+pub const Token = union(enum) {
     json: JsonToken,
     zon: ZonToken,
     // typescript: TsToken,

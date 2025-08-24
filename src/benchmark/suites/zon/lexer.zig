@@ -5,8 +5,8 @@ const BenchmarkOptions = benchmark_lib.BenchmarkOptions;
 const BenchmarkError = benchmark_lib.BenchmarkError;
 
 // Import streaming ZON components
-const ZonStreamLexer = @import("../../../lib/languages/zon/stream_lexer.zig").ZonStreamLexer;
-const StreamToken = @import("../../../lib/token/stream_token.zig").StreamToken;
+const ZonLexer = @import("../../../lib/languages/zon/stream_lexer.zig").ZonLexer;
+const Token = @import("../../../lib/token/stream_token.zig").Token;
 const TokenIterator = @import("../../../lib/token/iterator.zig").TokenIterator;
 const Language = @import("../../../lib/core/language.zig").Language;
 
@@ -38,7 +38,7 @@ pub fn runZonLexerBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOpt
 
             pub fn run(ctx: @This()) anyerror!void {
                 // Use streaming lexer directly
-                var lexer = ZonStreamLexer.init(ctx.content);
+                var lexer = ZonLexer.init(ctx.content);
 
                 // Iterate through all tokens
                 var token_count: usize = 0;
@@ -67,7 +67,7 @@ pub fn runZonLexerBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOpt
 
             pub fn run(ctx: @This()) anyerror!void {
                 // Use streaming lexer directly
-                var lexer = ZonStreamLexer.init(ctx.content);
+                var lexer = ZonLexer.init(ctx.content);
 
                 // Iterate through all tokens
                 var token_count: usize = 0;
@@ -101,7 +101,7 @@ pub fn runZonLexerBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOpt
 
             pub fn run(ctx: @This()) anyerror!void {
                 // Use streaming lexer directly
-                var lexer = ZonStreamLexer.init(ctx.content);
+                var lexer = ZonLexer.init(ctx.content);
 
                 // Iterate through all tokens
                 var token_count: usize = 0;

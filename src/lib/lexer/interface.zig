@@ -8,7 +8,6 @@ const Allocator = std.mem.Allocator;
 // Import types from other modules
 const token_mod = @import("../token/mod.zig");
 const Token = token_mod.Token;
-const StreamToken = token_mod.StreamToken;
 const TokenStream = @import("streaming.zig").TokenStream;
 const Edit = @import("incremental.zig").Edit;
 const TokenDelta = @import("incremental.zig").TokenDelta;

@@ -22,7 +22,7 @@ src/lib/
 ├── stream/          # ✅ Generic streaming infrastructure (zero-allocation)
 ├── fact/            # ✅ Facts as universal data unit (24 bytes)
 ├── span/            # ✅ Efficient span management (8 bytes packed)
-├── token/           # ✅ StreamToken with tagged unions (1-2 cycle dispatch)
+├── token/           # ✅ Token with tagged unions (1-2 cycle dispatch)
 ├── lexer/           # ⚠️ TEMPORARY bridge to old lexers (delete in Phase 4)
 ├── cache/           # ✅ Fact caching with LRU eviction
 └── query/           # ✅ SQL-like query engine with optimization (Phase 3)

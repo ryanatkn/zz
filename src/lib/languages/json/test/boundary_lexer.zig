@@ -5,7 +5,7 @@ const testing = std.testing;
 
 const Lexer = @import("../lexer/mod.zig").Lexer;
 const BoundaryTester = @import("../token/buffer.zig").BoundaryTester;
-const StreamToken = @import("../../../token/mod.zig").StreamToken;
+const Token = @import("../../../token/mod.zig").Token;
 
 test "Lexer basic boundary handling" {
     // Test boundary handling with a simple but realistic JSON

@@ -183,5 +183,5 @@ test "JSON lexer - infinite loop regression test" {
 // When rewriting for streaming:
 // 1. Use Lexer.init(source) instead of JsonLexer.init(allocator)
 // 2. Iterate tokens with while (lexer.next()) instead of batchTokenize()
-// 3. Test token properties directly from StreamToken
+// 3. Test token properties directly from Token
 // 4. No need to free token arrays (zero-allocation streaming)

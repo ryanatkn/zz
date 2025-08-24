@@ -3,7 +3,7 @@ const std = @import("std");
 const testing = std.testing;
 
 // Import token module components
-const StreamToken = @import("stream_token.zig").StreamToken;
+const Token = @import("stream_token.zig").Token;
 
 // Import language tokens
 const JsonToken = @import("../languages/json/token/mod.zig").Token;
@@ -57,12 +57,12 @@ test "ZonToken size and construction" {
     try testing.expectEqual(ZonTokenKind.enum_literal, enum_lit.kind);
 }
 
-test "StreamToken tagged union operations" {
+test "Token tagged union operations" {
     const span = Span.init(0, 10);
 
-    // JSON token in StreamToken
+    // JSON token in Token
     const json_tok = JsonToken.structural(span, .object_start, 0);
-    const stream_json = StreamToken{ .json = json_tok };
+    const stream_json = Token{ .json = json_tok };
 
     // Direct field access - no methods
     try testing.expectEqual(packSpan(span), stream_json.json.span);
@@ -72,9 +72,9 @@ test "StreamToken tagged union operations" {
     try testing.expectEqual(JsonTokenKind.object_start, stream_json.json.kind);
     try testing.expect(stream_json.json.isOpenDelimiter());
 
-    // ZON token in StreamToken
+    // ZON token in Token
     const zon_tok = ZonToken.field(span, 1, 42, false);
-    const stream_zon = StreamToken{ .zon = zon_tok };
+    const stream_zon = Token{ .zon = zon_tok };
 
     // Direct field access - no methods
     try testing.expectEqual(packSpan(span), stream_zon.zon.span);
@@ -85,14 +85,14 @@ test "StreamToken tagged union operations" {
     try testing.expectEqual(@as(?u32, 42), stream_zon.zon.getAtomId());
 }
 
-test "StreamToken size constraints" {
-    const size = @sizeOf(StreamToken);
-    // StreamToken should be: 1 byte tag + 16 byte max variant = 17 bytes
+test "Token size constraints" {
+    const size = @sizeOf(Token);
+    // Token should be: 1 byte tag + 16 byte max variant = 17 bytes
     // Aligned to 24 bytes typically
     try testing.expect(size <= 24);
 
     // Report actual size for visibility
-    std.debug.print("\n  StreamToken size: {} bytes (target: ≤24)\n", .{size});
+    std.debug.print("\n  Token size: {} bytes (target: ≤24)\n", .{size});
 }
 
 test "Token categorization across languages" {
@@ -100,11 +100,11 @@ test "Token categorization across languages" {
 
     // Test that categorization works consistently across languages
     const json_ws = JsonToken.trivia(span, .whitespace);
-    const json_stream = StreamToken{ .json = json_ws };
+    const json_stream = Token{ .json = json_ws };
     try testing.expect(json_stream.json.isTrivia());
 
     const zon_comment = ZonToken.trivia(span, .comment);
-    const zon_stream = StreamToken{ .zon = zon_comment };
+    const zon_stream = Token{ .zon = zon_comment };
     try testing.expect(zon_stream.zon.isTrivia());
 }
 
@@ -125,7 +125,7 @@ test "TokenIterator basic operations" {
         while (iter.next()) |token| {
             token_count += 1;
 
-            // Verify we get StreamToken with json variant
+            // Verify we get Token with json variant
             switch (token) {
                 .json => |json_token| {
                     _ = json_token.kind;
@@ -191,8 +191,8 @@ test "TokenIterator basic operations" {
 }
 
 // TODO: Add benchmark test comparing:
-// - StreamToken tagged union dispatch performance
-// - Old vtable-based GenericStreamToken performance
+// - Token tagged union dispatch performance
+// - Old vtable-based GenericToken performance
 // - Direct language token access performance
 
 // TODO: Test fact extraction with real AtomTable integration

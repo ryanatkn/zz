@@ -19,7 +19,7 @@ const Parser = @import("core.zig").Parser;
 // =========================================================================
 
 pub fn parseString(parser: *Parser, allocator: std.mem.Allocator) !Node {
-    const token = try parser.expect(.string_value);
+    const token = try parser.expectJson(.string_value);
     const span = unpackSpan(token.span);
 
     // Extract string value from source
@@ -38,7 +38,7 @@ pub fn parseString(parser: *Parser, allocator: std.mem.Allocator) !Node {
 
 pub fn parseNumber(parser: *Parser, allocator: std.mem.Allocator) !Node {
     _ = allocator;
-    const token = try parser.expect(.number_value);
+    const token = try parser.expectJson(.number_value);
     const span = unpackSpan(token.span);
 
     // Extract number text from source
@@ -58,7 +58,7 @@ pub fn parseNumber(parser: *Parser, allocator: std.mem.Allocator) !Node {
 
 pub fn parseBoolean(parser: *Parser, allocator: std.mem.Allocator) !Node {
     _ = allocator;
-    const token = parser.peek() orelse return error.UnexpectedEndOfInput;
+    const token = parser.peekJson() orelse return error.UnexpectedEndOfInput;
 
     const value = switch (token.kind) {
         .boolean_true => true,
@@ -79,7 +79,7 @@ pub fn parseBoolean(parser: *Parser, allocator: std.mem.Allocator) !Node {
 
 pub fn parseNull(parser: *Parser, allocator: std.mem.Allocator) !Node {
     _ = allocator;
-    const token = try parser.expect(.null_value);
+    const token = try parser.expectJson(.null_value);
     const span = unpackSpan(token.span);
 
     return Node{

@@ -6,7 +6,7 @@ const std = @import("std");
 const Span = @import("../../span/mod.zig").Span;
 const unpackSpan = @import("../../span/mod.zig").unpackSpan;
 const TokenIterator = @import("../../token/iterator.zig").TokenIterator;
-const StreamToken = @import("../../token/stream_token.zig").StreamToken;
+const Token = @import("../../token/stream_token.zig").Token;
 const ZonToken = @import("stream_token.zig").ZonToken;
 const ZonTokenKind = @import("stream_token.zig").ZonTokenKind;
 
@@ -27,7 +27,7 @@ pub const ZonParser = struct {
     allocator: std.mem.Allocator,
     iterator: TokenIterator,
     source: []const u8,
-    current: ?StreamToken,
+    current: ?Token,
     errors: std.ArrayList(ParseError),
     allow_trailing_commas: bool,
 
@@ -121,7 +121,7 @@ pub const ZonParser = struct {
     // =========================================================================
 
     /// Advance to next meaningful token (skip trivia)
-    fn advance(self: *Self) !?StreamToken {
+    fn advance(self: *Self) !?Token {
         while (self.iterator.next()) |token| {
             switch (token) {
                 .zon => |t| {

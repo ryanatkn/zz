@@ -38,7 +38,6 @@ test {
     _ = @import("../token/mod.zig");
     _ = @import("../format/stream.zig");
     _ = @import("../transform/mod.zig");
-    _ = @import("../patterns.zig");
     _ = @import("../token/buffer.zig");
     _ = @import("../mod.zig");
 }

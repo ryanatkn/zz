@@ -3,7 +3,7 @@
 const std = @import("std");
 const FormatOptions = @import("../../stream/format_options.zig").FormatOptions;
 const FormatError = @import("../../stream/format.zig").FormatError;
-const StreamToken = @import("../../token/mod.zig").StreamToken;
+const Token = @import("../../token/mod.zig").Token;
 const ZonTokenKind = @import("stream_token.zig").ZonTokenKind;
 const ZonToken = @import("stream_token.zig").ZonToken;
 const packSpan = @import("../../span/mod.zig").packSpan;
@@ -38,7 +38,7 @@ pub fn ZonFormatter(comptime Writer: type) type {
         }
 
         /// Write a single token with appropriate formatting
-        pub fn writeToken(self: *Self, token: StreamToken) !void {
+        pub fn writeToken(self: *Self, token: Token) !void {
             // Only handle ZON tokens
             if (token != .zon) return FormatError.InvalidToken;
 
@@ -272,35 +272,35 @@ test "ZonFormatter basic formatting" {
     });
 
     // Simulate tokens for: .{ .field = "value" }
-    try formatter.writeToken(StreamToken{ .zon = ZonToken{
+    try formatter.writeToken(Token{ .zon = ZonToken{
         .span = packSpan(Span.init(0, 2)),
         .kind = .struct_start,
         .depth = 0,
         .flags = .{},
         .data = 0,
     } });
-    try formatter.writeToken(StreamToken{ .zon = ZonToken{
+    try formatter.writeToken(Token{ .zon = ZonToken{
         .span = packSpan(Span.init(3, 9)),
         .kind = .field_name,
         .depth = 1,
         .flags = .{},
         .data = 0,
     } });
-    try formatter.writeToken(StreamToken{ .zon = ZonToken{
+    try formatter.writeToken(Token{ .zon = ZonToken{
         .span = packSpan(Span.init(10, 11)),
         .kind = .equals,
         .depth = 1,
         .flags = .{},
         .data = 0,
     } });
-    try formatter.writeToken(StreamToken{ .zon = ZonToken{
+    try formatter.writeToken(Token{ .zon = ZonToken{
         .span = packSpan(Span.init(12, 19)),
         .kind = .string_value,
         .depth = 1,
         .flags = .{},
         .data = 0,
     } });
-    try formatter.writeToken(StreamToken{ .zon = ZonToken{
+    try formatter.writeToken(Token{ .zon = ZonToken{
         .span = packSpan(Span.init(20, 21)),
         .kind = .object_end,
         .depth = 0,

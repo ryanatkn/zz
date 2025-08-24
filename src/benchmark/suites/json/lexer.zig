@@ -5,8 +5,8 @@ const BenchmarkOptions = benchmark_lib.BenchmarkOptions;
 const BenchmarkError = benchmark_lib.BenchmarkError;
 
 // Import streaming JSON components
-const JsonStreamLexer = @import("../../../lib/languages/json/lexer/mod.zig").StreamLexer;
-const StreamToken = @import("../../../lib/token/stream_token.zig").StreamToken;
+const JsonLexer = @import("../../../lib/languages/json/lexer/mod.zig").Lexer;
+const Token = @import("../../../lib/token/stream_token.zig").Token;
 const TokenIterator = @import("../../../lib/token/iterator.zig").TokenIterator;
 const Language = @import("../../../lib/core/language.zig").Language;
 
@@ -38,7 +38,7 @@ pub fn runJsonLexerBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOp
 
             pub fn run(ctx: @This()) anyerror!void {
                 // Use streaming lexer directly
-                var lexer = JsonStreamLexer.init(ctx.content);
+                var lexer = JsonLexer.init(ctx.content);
 
                 // Iterate through all tokens
                 var token_count: usize = 0;
@@ -69,7 +69,7 @@ pub fn runJsonLexerBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOp
 
             pub fn run(ctx: @This()) anyerror!void {
                 // Use streaming lexer directly
-                var lexer = JsonStreamLexer.init(ctx.content);
+                var lexer = JsonLexer.init(ctx.content);
 
                 // Iterate through all tokens
                 var token_count: usize = 0;
@@ -105,7 +105,7 @@ pub fn runJsonLexerBenchmarks(allocator: std.mem.Allocator, options: BenchmarkOp
 
             pub fn run(ctx: @This()) anyerror!void {
                 // Use streaming lexer directly
-                var lexer = JsonStreamLexer.init(ctx.content);
+                var lexer = JsonLexer.init(ctx.content);
 
                 // Iterate through all tokens
                 var token_count: usize = 0;

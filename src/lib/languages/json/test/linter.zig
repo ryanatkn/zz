@@ -21,18 +21,13 @@ test "JSON linter - all rules" {
     // Create JSON with duplicate keys (valid JSON syntax)
     const problematic_json = "{\"key\": 1, \"key\": 2}"; // Duplicate key
 
-    var parser = try Parser.init(allocator, problematic_json, .{});
-    defer parser.deinit();
-    var ast = try parser.parse();
-    defer ast.deinit();
-
     // Use default enabled rules from linter
     const enabled_rules = Linter.getDefaultRules();
 
     var linter = Linter.init(allocator, .{});
     defer linter.deinit();
 
-    const diagnostics = try linter.lint(ast, enabled_rules);
+    const diagnostics = try linter.lintSource(problematic_json, enabled_rules);
     defer {
         for (diagnostics) |diag| {
             allocator.free(diag.message);
@@ -63,18 +58,13 @@ test "JSON linter - deep nesting warning" {
     // Create deeply nested JSON
     const deep_json = "{\"a\": {\"b\": {\"c\": {\"d\": {\"e\": 1}}}}}";
 
-    var parser = try Parser.init(allocator, deep_json, .{});
-    defer parser.deinit();
-    var ast = try parser.parse();
-    defer ast.deinit();
-
     var linter = Linter.init(allocator, .{ .warn_on_deep_nesting = 3 });
     defer linter.deinit();
 
     var enabled_rules = EnabledRules.initEmpty();
     enabled_rules.insert(.deep_nesting);
 
-    const diagnostics = try linter.lint(ast, enabled_rules);
+    const diagnostics = try linter.lintSource(deep_json, enabled_rules);
     defer {
         for (diagnostics) |diag| {
             allocator.free(diag.message);

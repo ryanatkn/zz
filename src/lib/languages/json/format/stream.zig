@@ -1,11 +1,10 @@
-/// JSON formatter using DirectTokenStream
+/// JSON formatter
 /// Zero-allocation streaming formatter with optimal performance
 const std = @import("std");
 const FormatOptions = @import("../../../stream/format_options.zig").FormatOptions;
 const FormatError = @import("../../../stream/format.zig").FormatError;
-const StreamToken = @import("../../../token/mod.zig").StreamToken;
+const Token = @import("../../../token/mod.zig").Token;
 const TokenKind = @import("../token/types.zig").TokenKind;
-const Token = @import("../token/types.zig").Token;
 const packSpan = @import("../../../span/mod.zig").packSpan;
 const unpackSpan = @import("../../../span/mod.zig").unpackSpan;
 const Span = @import("../../../span/mod.zig").Span;
@@ -38,7 +37,7 @@ pub fn Formatter(comptime Writer: type) type {
         }
 
         /// Write a single token with appropriate formatting
-        pub fn writeToken(self: *Self, token: StreamToken) !void {
+        pub fn writeToken(self: *Self, token: Token) !void {
             // Only handle JSON tokens
             if (token != .json) return FormatError.InvalidToken;
 
@@ -221,35 +220,35 @@ test "Formatter basic formatting" {
     }, test_source);
 
     // Simulate tokens for: {"key": "value"}
-    try formatter.writeToken(StreamToken{ .json = Token{
+    try formatter.writeToken(Token{ .json = .{
         .span = packSpan(Span.init(0, 1)),
         .kind = .object_start,
         .depth = 0,
         .flags = .{},
         .data = 0,
     } });
-    try formatter.writeToken(StreamToken{ .json = Token{
+    try formatter.writeToken(Token{ .json = .{
         .span = packSpan(Span.init(1, 6)),
         .kind = .string_value,
         .depth = 1,
         .flags = .{},
         .data = 0,
     } });
-    try formatter.writeToken(StreamToken{ .json = Token{
+    try formatter.writeToken(Token{ .json = .{
         .span = packSpan(Span.init(6, 7)),
         .kind = .colon,
         .depth = 1,
         .flags = .{},
         .data = 0,
     } });
-    try formatter.writeToken(StreamToken{ .json = Token{
+    try formatter.writeToken(Token{ .json = .{
         .span = packSpan(Span.init(8, 15)),
         .kind = .string_value,
         .depth = 1,
         .flags = .{},
         .data = 0,
     } });
-    try formatter.writeToken(StreamToken{ .json = Token{
+    try formatter.writeToken(Token{ .json = .{
         .span = packSpan(Span.init(15, 16)),
         .kind = .object_end,
         .depth = 0,

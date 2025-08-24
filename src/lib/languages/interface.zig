@@ -1,7 +1,7 @@
 const std = @import("std");
 
 // Import foundation types from new modules
-pub const StreamToken = @import("../token/mod.zig").StreamToken;
+pub const Token = @import("../token/mod.zig").Token;
 const Span = @import("../span/mod.zig").Span;
 const Language = @import("../core/language.zig").Language;
 
@@ -43,9 +43,9 @@ pub fn LanguageSupport(comptime ASTType: type, comptime RuleType: type) type {
 /// Lexical tokenization interface
 pub const Lexer = struct {
     /// Optional incremental tokenization for editor use
-    updateTokensFn: ?*const fn (allocator: std.mem.Allocator, tokens: []StreamToken, edit: Edit) anyerror!TokenDelta,
+    updateTokensFn: ?*const fn (allocator: std.mem.Allocator, tokens: []Token, edit: Edit) anyerror!TokenDelta,
 
-    pub fn updateTokens(self: Lexer, allocator: std.mem.Allocator, tokens: []StreamToken, edit: Edit) !?TokenDelta {
+    pub fn updateTokens(self: Lexer, allocator: std.mem.Allocator, tokens: []Token, edit: Edit) !?TokenDelta {
         if (self.updateTokensFn) |update_fn| {
             return update_fn(allocator, tokens, edit);
         }
@@ -59,9 +59,9 @@ pub fn Parser(comptime ASTType: type) type {
         const Self = @This();
 
         /// Optional parsing with pre-computed boundaries for optimization
-        parseWithBoundariesFn: ?*const fn (allocator: std.mem.Allocator, tokens: []StreamToken, boundaries: []Boundary) anyerror!ASTType,
+        parseWithBoundariesFn: ?*const fn (allocator: std.mem.Allocator, tokens: []Token, boundaries: []Boundary) anyerror!ASTType,
 
-        pub fn parseWithBoundaries(self: Self, allocator: std.mem.Allocator, tokens: []StreamToken, boundaries: []Boundary) !?ASTType {
+        pub fn parseWithBoundaries(self: Self, allocator: std.mem.Allocator, tokens: []Token, boundaries: []Boundary) !?ASTType {
             if (self.parseWithBoundariesFn) |parse_fn| {
                 return parse_fn(allocator, tokens, boundaries);
             }
@@ -194,7 +194,7 @@ pub const Edit = struct {
 /// Token delta for incremental updates
 pub const TokenDelta = struct {
     removed: []u32,
-    added: []StreamToken,
+    added: []Token,
     affected_range: Span,
 };
 

@@ -5,8 +5,8 @@ const BenchmarkOptions = benchmark_lib.BenchmarkOptions;
 const BenchmarkError = benchmark_lib.BenchmarkError;
 
 // Import streaming lexers for benchmarking
-const JsonStreamLexer = @import("../../lib/languages/json/lexer/mod.zig").StreamLexer;
-const ZonStreamLexer = @import("../../lib/languages/zon/stream_lexer.zig").ZonStreamLexer;
+const JsonLexer = @import("../../lib/languages/json/lexer/mod.zig").Lexer;
+const ZonLexer = @import("../../lib/languages/zon/stream_lexer.zig").ZonLexer;
 
 // Import fact system for DirectStream benchmark
 const Fact = @import("../../lib/fact/fact.zig").Fact;
@@ -45,7 +45,7 @@ fn benchmarkJsonLexerStreaming(allocator: std.mem.Allocator, options: BenchmarkO
 
     while (std.time.nanoTimestamp() < end_time) {
         // Create new lexer for each iteration (simulates fresh parsing)
-        var lexer = JsonStreamLexer.init(test_json);
+        var lexer = JsonLexer.init(test_json);
         var token_count: usize = 0;
 
         while (lexer.next()) |token| {
@@ -83,7 +83,7 @@ fn benchmarkZonLexerStreaming(allocator: std.mem.Allocator, options: BenchmarkOp
 
     while (std.time.nanoTimestamp() < end_time) {
         // Create new lexer for each iteration
-        var lexer = ZonStreamLexer.init(test_zon);
+        var lexer = ZonLexer.init(test_zon);
         var token_count: usize = 0;
 
         while (lexer.next()) |token| {

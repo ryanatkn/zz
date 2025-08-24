@@ -4,7 +4,7 @@
 /// Performance target: <1ms for typical build.zig.zon files
 const std = @import("std");
 const TokenIterator = @import("../../token/iterator.zig").TokenIterator;
-const StreamToken = @import("../../token/stream_token.zig").StreamToken;
+const Token = @import("../../token/stream_token.zig").Token;
 const ZonToken = @import("stream_token.zig").ZonToken;
 const ZonTokenKind = @import("stream_token.zig").ZonTokenKind;
 const unpackSpan = @import("../../span/mod.zig").unpackSpan;

@@ -2,7 +2,7 @@
 ///
 /// Transforms for code formatting and pretty-printing.
 const std = @import("std");
-const StreamToken = @import("../token/stream_token.zig").StreamToken;
+const Token = @import("../token/stream_token.zig").Token;
 
 /// Format options
 pub const FormatOptions = struct {
@@ -209,7 +209,7 @@ pub const StreamFormatTransform = struct {
     }
 
     /// Process single token (streaming)
-    pub fn processToken(self: *Self, token: StreamToken) !void {
+    pub fn processToken(self: *Self, token: Token) !void {
         _ = self;
         _ = token;
         // TODO: Phase 2B - Implement streaming format processing

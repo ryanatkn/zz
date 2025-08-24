@@ -190,7 +190,7 @@ pub fn benchmarkDirectStreamOperators(allocator: std.mem.Allocator, data: []cons
 
 /// Benchmark JSON tokenization performance
 pub fn benchmarkJsonTokenization(json_input: []const u8) !BenchmarkResult {
-    const JsonStreamLexer = @import("../lib/languages/json/lexer/mod.zig").StreamLexer;
+    const JsonLexer = @import("../lib/languages/json/lexer/mod.zig").Lexer;
 
     const iterations = 100;
     var total_cycles: u64 = 0;
@@ -199,7 +199,7 @@ pub fn benchmarkJsonTokenization(json_input: []const u8) !BenchmarkResult {
 
     // Warm up
     for (0..10) |_| {
-        var lexer = JsonStreamLexer.init(json_input);
+        var lexer = JsonLexer.init(json_input);
         while (lexer.next()) |token| {
             if (token.json.kind == .eof) break;
         }
@@ -209,7 +209,7 @@ pub fn benchmarkJsonTokenization(json_input: []const u8) !BenchmarkResult {
     const start_time = std.time.nanoTimestamp();
 
     for (0..iterations) |_| {
-        var lexer = JsonStreamLexer.init(json_input);
+        var lexer = JsonLexer.init(json_input);
 
         const start_cycles = rdtsc();
         token_count = 0;
@@ -240,7 +240,7 @@ pub fn benchmarkJsonTokenization(json_input: []const u8) !BenchmarkResult {
 
 /// Benchmark ZON tokenization performance
 pub fn benchmarkZonTokenization(zon_input: []const u8) !BenchmarkResult {
-    const ZonStreamLexer = @import("../lib/languages/zon/stream_lexer.zig").ZonStreamLexer;
+    const ZonLexer = @import("../lib/languages/zon/stream_lexer.zig").ZonLexer;
 
     const iterations = 100;
     var total_cycles: u64 = 0;
@@ -249,7 +249,7 @@ pub fn benchmarkZonTokenization(zon_input: []const u8) !BenchmarkResult {
 
     // Warm up
     for (0..10) |_| {
-        var lexer = ZonStreamLexer.init(zon_input);
+        var lexer = ZonLexer.init(zon_input);
         while (lexer.next()) |token| {
             if (token.zon.kind == .eof) break;
         }
@@ -259,7 +259,7 @@ pub fn benchmarkZonTokenization(zon_input: []const u8) !BenchmarkResult {
     const start_time = std.time.nanoTimestamp();
 
     for (0..iterations) |_| {
-        var lexer = ZonStreamLexer.init(zon_input);
+        var lexer = ZonLexer.init(zon_input);
 
         const start_cycles = rdtsc();
         token_count = 0;

@@ -16,7 +16,7 @@ const Builder = fact_mod.Builder;
 
 // Import token system
 const token_mod = @import("../token/mod.zig");
-const StreamToken = token_mod.StreamToken;
+const Token = token_mod.Token;
 const DirectTokenStream = token_mod.DirectTokenStream;
 
 // Export extractors from language modules (when implemented)
@@ -64,7 +64,7 @@ pub const BasicExtractor = struct {
         };
     }
 
-    pub fn processToken(self: *Self, token: StreamToken) !void {
+    pub fn processToken(self: *Self, token: Token) !void {
         // Extract facts based on token type
         switch (token) {
             .json => |json_token| {

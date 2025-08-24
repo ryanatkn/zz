@@ -21,8 +21,8 @@ const language_interface = @import("../lib/languages/interface.zig");
 
 // Stream-first architecture
 const stream_format = @import("../lib/stream/format.zig");
-const JsonStreamLexer = @import("../lib/languages/json/lexer/mod.zig").StreamLexer;
-const ZonStreamLexer = @import("../lib/languages/zon/stream_lexer.zig").ZonStreamLexer;
+const JsonLexer = @import("../lib/languages/json/lexer/mod.zig").Lexer;
+const ZonLexer = @import("../lib/languages/zon/stream_lexer.zig").ZonLexer;
 
 // Parser modules removed - using direct language modules
 
@@ -490,7 +490,7 @@ fn formatWithStream(allocator: std.mem.Allocator, content: []const u8, language:
 
     switch (language) {
         .json => {
-            var lexer = JsonStreamLexer.init(content);
+            var lexer = JsonLexer.init(content);
             var token_stream = lexer.toDirectStream();
             defer token_stream.close();
 
@@ -502,7 +502,7 @@ fn formatWithStream(allocator: std.mem.Allocator, content: []const u8, language:
             try formatter.finish();
         },
         .zon => {
-            var lexer = ZonStreamLexer.init(content);
+            var lexer = ZonLexer.init(content);
             var token_stream = lexer.toDirectStream();
             defer token_stream.close();
 

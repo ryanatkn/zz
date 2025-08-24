@@ -17,7 +17,7 @@ pub fn main() !void {
         // Tokens (from Phase 2)
         // @compileError("JsonToken size: " ++ std.fmt.comptimePrint("{}", .{@sizeOf(JsonToken)}));
         // @compileError("ZonToken size: " ++ std.fmt.comptimePrint("{}", .{@sizeOf(ZonToken)}));
-        // @compileError("StreamToken size: " ++ std.fmt.comptimePrint("{}", .{@sizeOf(StreamToken)}));
+        // @compileError("Token size: " ++ std.fmt.comptimePrint("{}", .{@sizeOf(Token)}));
     }
 
     // Manual size checks (hardcoded from our implementation)
@@ -27,7 +27,7 @@ pub fn main() !void {
     std.debug.print("  Span:         8 bytes (2 x u32)\n", .{});
     std.debug.print("  JsonToken:   16 bytes (target)\n", .{});
     std.debug.print("  ZonToken:    16 bytes (target)\n", .{});
-    std.debug.print("  StreamToken: 24 bytes (with tag)\n", .{});
+    std.debug.print("  Token:       24 bytes (with tag)\n", .{});
 
     std.debug.print("\nPerformance Achievements:\n", .{});
     std.debug.print("  ✓ Token dispatch: 1-2 cycles (tagged union)\n", .{});

@@ -80,9 +80,9 @@ pub fn getSupport(allocator: std.mem.Allocator) !lang_interface.LanguageSupport(
 // have been removed. Use streaming parser directly with ZonParser.init()
 
 // TODO: Phase 3 - Re-enable with new streaming architecture
-// /// Tokenize ZON chunk to GenericStreamTokens using VTable adapter
+// /// Tokenize ZON chunk to GenericTokens using VTable adapter
 // /// This is the new generic interface for streaming tokenization
-// pub fn tokenizeChunkGeneric(allocator: std.mem.Allocator, input: []const u8, start_pos: usize) ![]GenericStreamToken {
+// pub fn tokenizeChunkGeneric(allocator: std.mem.Allocator, input: []const u8, start_pos: usize) ![]GenericToken {
 //     var lexer = StatefulZonLexer.init(allocator, .{
 //         .allow_comments = true,
 //         .allow_trailing_commas = true,
@@ -95,7 +95,7 @@ pub fn getSupport(allocator: std.mem.Allocator) !lang_interface.LanguageSupport(
 //     const zon_tokens = try lexer.processChunkToZon(input, start_pos, allocator);
 //     defer allocator.free(zon_tokens);
 //
-//     // Convert to GenericStreamTokens using VTable adapter
+//     // Convert to GenericTokens using VTable adapter
 //     return ZonTokenVTableAdapter.convertZonTokensToGeneric(allocator, zon_tokens);
 // }
 

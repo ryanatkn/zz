@@ -3,8 +3,7 @@
 /// Core linting infrastructure with streaming token validation
 const std = @import("std");
 const TokenIterator = @import("../../../token/iterator.zig").TokenIterator;
-const StreamToken = @import("../../../token/stream_token.zig").StreamToken;
-const Token = @import("../token/mod.zig").Token;
+const Token = @import("../../../token/stream_token.zig").Token;
 const TokenKind = @import("../token/mod.zig").TokenKind;
 const unpackSpan = @import("../../../span/mod.zig").unpackSpan;
 const Span = @import("../../../span/span.zig").Span;
@@ -202,16 +201,6 @@ pub const Linter = struct {
         return self.diagnostics.toOwnedSlice();
     }
 
-    /// Lint JSON from AST (legacy compatibility)
-    /// TODO: Remove this bridge method and use direct token stream validation
-    pub fn lint(self: *Self, ast: anytype, enabled_rules: EnabledRules) ![]Diagnostic {
-        // Extract source from AST if self.source is empty
-        if (self.source.len == 0) {
-            return self.lintSource(ast.source, enabled_rules);
-        }
-        return self.lintSource(self.source, enabled_rules);
-    }
-
     /// Core token-based validation loop
     pub fn lintFromTokens(self: *Self, enabled_rules: EnabledRules) !void {
         if (self.iterator) |*iter| {
@@ -225,7 +214,7 @@ pub const Linter = struct {
 
     /// Validate a value starting from the iterator position
     pub fn validateValue(self: *Self, iter: *TokenIterator, enabled_rules: EnabledRules) ValidationError!void {
-        const token_opt = self.nextNonTrivia(iter);
+        const token_opt = self.nextNonTriviaJson(iter);
         if (token_opt == null) return;
         const token = token_opt.?;
 
@@ -298,13 +287,14 @@ pub const Linter = struct {
         return null;
     }
 
-    pub fn nextNonTrivia(self: *Self, iter: *TokenIterator) ?Token {
+    // Helper to extract JSON token from Token union, skipping trivia
+    pub fn nextNonTriviaJson(self: *Self, iter: *TokenIterator) ?@import("../token/types.zig").Token {
         _ = self;
-        while (iter.next()) |stream_token| {
-            switch (stream_token) {
-                .json => |token| {
-                    if (token.kind != .whitespace and token.kind != .comment) {
-                        return token;
+        while (iter.next()) |token| {
+            switch (token) {
+                .json => |json_token| {
+                    if (json_token.kind != .whitespace and json_token.kind != .comment) {
+                        return json_token;
                     }
                 },
                 else => unreachable,

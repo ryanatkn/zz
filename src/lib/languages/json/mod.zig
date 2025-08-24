@@ -46,8 +46,9 @@ pub const Schema = SchemaImpl;
 
 // Streaming lexer exports (the new way)
 pub const Lexer = @import("lexer/mod.zig").Lexer;
-pub const StreamToken = @import("token/mod.zig").Token;
-pub const StreamTokenKind = @import("token/mod.zig").TokenKind;
+pub const Token = @import("../../token/mod.zig").Token;
+pub const JsonToken = @import("token/mod.zig").Token;
+pub const JsonTokenKind = @import("token/mod.zig").TokenKind;
 
 /// Parse JSON source into AST using streaming parser (convenience function)
 pub fn parse(allocator: std.mem.Allocator, source: []const u8) !AST {
@@ -200,7 +201,7 @@ fn lintEnum(allocator: std.mem.Allocator, ast: AST, enabled_rules: EnabledRules)
     var linter = LinterImpl.init(allocator, .{});
     defer linter.deinit();
 
-    const diagnostics = try linter.lint(ast, enabled_rules);
+    const diagnostics = try linter.lintSource(ast.source, enabled_rules);
     defer {
         for (diagnostics) |diag| {
             allocator.free(diag.message);

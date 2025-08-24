@@ -5,7 +5,7 @@ const std = @import("std");
 
 // Import JSON-specific types
 const json_mod = @import("../mod.zig");
-const StreamToken = @import("../../../token/mod.zig").StreamToken;
+const Token = @import("../../../token/mod.zig").Token;
 const AST = @import("../ast/mod.zig").AST;
 const Node = @import("../ast/mod.zig").Node;
 
@@ -19,7 +19,7 @@ const packSpan = @import("../../../span/mod.zig").packSpan;
 /// Transform result containing AST and optional semantic facts
 pub const TransformResult = struct {
     /// Legacy token array (not used in streaming architecture)
-    tokens: []StreamToken,
+    tokens: []Token,
     /// Legacy token facts (not used in streaming architecture)
     token_facts: ?[]Fact = null,
     /// Parsed AST from streaming parser
@@ -75,7 +75,7 @@ pub const TransformOptions = struct {
             null;
 
         return TransformResult{
-            .tokens = &[_]StreamToken{}, // Not used in streaming architecture
+            .tokens = &[_]Token{}, // Not used in streaming architecture
             .token_facts = null, // Not used in streaming architecture
             .ast = ast,
             .ast_facts = ast_facts,
@@ -83,7 +83,7 @@ pub const TransformOptions = struct {
         };
     }
 
-    fn extractTokenFacts(self: *Self, tokens: []StreamToken, source: []const u8) ![]Fact {
+    fn extractTokenFacts(self: *Self, tokens: []Token, source: []const u8) ![]Fact {
         // Token-based fact extraction not used in streaming architecture
         _ = self;
         _ = tokens;

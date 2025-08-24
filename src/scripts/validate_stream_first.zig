@@ -1,12 +1,12 @@
 /// Performance validation script for stream-first architecture
 ///
 /// Validates that core performance targets are met:
-/// - Token sizes (16 bytes for language tokens, 24 bytes for StreamToken)
+/// - Token sizes (16 bytes for language tokens, 24 bytes for Token union)
 /// - Fact size (exactly 24 bytes)
 /// - Span size (8 bytes packed)
 /// - Basic throughput tests
 const std = @import("std");
-const StreamToken = @import("../lib/token/stream_token.zig").StreamToken;
+const Token = @import("../lib/token/stream_token.zig").Token;
 const JsonToken = @import("../lib/languages/json/token/mod.zig").JsonToken;
 const ZonToken = @import("../lib/languages/zon/stream_token.zig").ZonToken;
 const Fact = @import("../lib/fact/mod.zig").Fact;
@@ -70,10 +70,10 @@ fn validateSizes() !bool {
     printResult("ZonToken", zon_passed, zon_token_size, 16);
     all_passed = all_passed and zon_passed;
 
-    const stream_token_size = @sizeOf(StreamToken);
-    const stream_token_passed = stream_token_size <= 24;
-    printResult("StreamToken", stream_token_passed, stream_token_size, 24);
-    all_passed = all_passed and stream_token_passed;
+    const token_size = @sizeOf(Token);
+    const token_passed = token_size <= 24;
+    printResult("Token", token_passed, token_size, 24);
+    all_passed = all_passed and token_passed;
 
     return all_passed;
 }
@@ -149,7 +149,7 @@ fn printSummary(sizes_passed: bool) void {
         std.debug.print("  • Fact: exactly 24 bytes ✓\n", .{});
         std.debug.print("  • Span: 8 bytes packed ✓\n", .{});
         std.debug.print("  • Tokens: ≤16 bytes ✓\n", .{});
-        std.debug.print("  • StreamToken: ≤24 bytes ✓\n", .{});
+        std.debug.print("  • Token: ≤24 bytes ✓\n", .{});
     } else {
         std.debug.print("{s}✗ Some size targets not met{s}\n", .{ Color.red, Color.reset });
         std.debug.print("  See failures above for details\n", .{});

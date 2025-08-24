@@ -17,12 +17,12 @@ const QueryBuilder = query_mod.QueryBuilder;
 const QueryExecutor = query_mod.QueryExecutor;
 
 const token_mod = @import("../lib/token/mod.zig");
-const StreamToken = token_mod.StreamToken;
+const Token = token_mod.Token;
 const DirectTokenStream = token_mod.DirectTokenStream;
 
 // JSON/ZON stream lexers
-const JsonStreamLexer = @import("../lib/languages/json/lexer/mod.zig").StreamLexer;
-const ZonStreamLexer = @import("../lib/languages/zon/stream_lexer.zig").ZonStreamLexer;
+const JsonLexer = @import("../lib/languages/json/lexer/mod.zig").Lexer;
+const ZonLexer = @import("../lib/languages/zon/stream_lexer.zig").ZonLexer;
 
 // Stream formatting
 const stream_format = @import("../lib/stream/format.zig");
@@ -212,7 +212,7 @@ fn runTokenizationDemo(allocator: std.mem.Allocator, stdout: anytype, stderr: an
     try stdout.print("{s}\n\n", .{json_input});
 
     // Tokenize with DirectTokenStream
-    var json_lexer = JsonStreamLexer.init(json_input);
+    var json_lexer = JsonLexer.init(json_input);
 
     try stdout.writeAll("Tokens (via DirectTokenStream):\n");
     var token_count: usize = 0;
@@ -242,7 +242,7 @@ fn runTokenizationDemo(allocator: std.mem.Allocator, stdout: anytype, stderr: an
 
     try stdout.print("ZON Input:\n{s}\n\n", .{zon_input});
 
-    var zon_lexer = ZonStreamLexer.init(zon_input);
+    var zon_lexer = ZonLexer.init(zon_input);
     token_count = 0;
 
     try stdout.writeAll("Tokens:\n");
@@ -276,13 +276,13 @@ fn runFormattingDemo(allocator: std.mem.Allocator, stdout: anytype, stderr: anyt
 
     // Demonstrate the stream pipeline
     try stdout.writeAll("Stream Pipeline:\n");
-    try stdout.writeAll("  1. JsonStreamLexer tokenizes input\n");
+    try stdout.writeAll("  1. JsonLexer tokenizes input\n");
     try stdout.writeAll("  2. toDirectStream() creates DirectTokenStream\n");
     try stdout.writeAll("  3. Tokens flow through with 1-2 cycle dispatch\n");
     try stdout.writeAll("  4. JsonFormatter processes each token\n\n");
 
     // Tokenize with DirectTokenStream
-    var json_lexer = JsonStreamLexer.init(json_input);
+    var json_lexer = JsonLexer.init(json_input);
     var json_stream = json_lexer.toDirectStream();
 
     try stdout.writeAll("Tokens via DirectTokenStream:\n");
@@ -307,7 +307,7 @@ fn runFormattingDemo(allocator: std.mem.Allocator, stdout: anytype, stderr: anyt
     try stdout.writeAll("ZON Input:\n");
     try stdout.print("{s}\n\n", .{zon_input});
 
-    var zon_lexer = ZonStreamLexer.init(zon_input);
+    var zon_lexer = ZonLexer.init(zon_input);
     var zon_stream = zon_lexer.toDirectStream();
 
     try stdout.writeAll("Tokens via DirectTokenStream:\n");

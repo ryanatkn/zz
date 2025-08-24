@@ -6,8 +6,8 @@ const std = @import("std");
 const Span = @import("../../../span/mod.zig").Span;
 const unpackSpan = @import("../../../span/mod.zig").unpackSpan;
 const TokenIterator = @import("../../../token/iterator.zig").TokenIterator;
-const StreamToken = @import("../../../token/stream_token.zig").StreamToken;
-const Token = @import("../token/mod.zig").Token;
+const Token = @import("../../../token/stream_token.zig").Token;
+const JsonToken = @import("../token/types.zig").Token;
 const TokenKind = @import("../token/mod.zig").TokenKind;
 
 // Use local JSON AST
@@ -30,7 +30,7 @@ pub const Parser = struct {
     allocator: std.mem.Allocator,
     iterator: TokenIterator,
     source: []const u8,
-    current: ?StreamToken,
+    current: ?Token,
     errors: std.ArrayList(ParseError),
     allow_trailing_commas: bool,
 
@@ -127,7 +127,7 @@ pub const Parser = struct {
     // =========================================================================
 
     /// Advance to next meaningful token (skip trivia)
-    pub fn advance(self: *Self) !?StreamToken {
+    pub fn advance(self: *Self) !?Token {
         while (self.iterator.next()) |token| {
             switch (token) {
                 .json => |t| {
@@ -145,29 +145,29 @@ pub const Parser = struct {
         return null;
     }
 
-    /// Peek at current token
-    pub fn peek(self: *Self) ?Token {
+    /// Peek at current JSON token (extracts from union)
+    pub fn peekJson(self: *Self) ?@import("../token/types.zig").Token {
         if (self.current) |token| {
             switch (token) {
-                .json => |t| return t,
+                .json => |json_token| return json_token,
                 else => unreachable,
             }
         }
         return null;
     }
 
-    /// Expect and consume a specific token kind
-    pub fn expect(self: *Self, kind: TokenKind) !Token {
-        if (self.peek()) |token| {
-            if (token.kind == kind) {
-                const result = token;
+    /// Expect and consume a specific JSON token kind
+    pub fn expectJson(self: *Self, kind: TokenKind) !@import("../token/types.zig").Token {
+        if (self.peekJson()) |json_token| {
+            if (json_token.kind == kind) {
+                const result = json_token;
                 _ = try self.advance();
                 return result;
             }
-            const span = unpackSpan(token.span);
+            const span = unpackSpan(json_token.span);
             // Use a static buffer to avoid memory leaks for error messages
             var buf: [128]u8 = undefined;
-            const msg = std.fmt.bufPrint(&buf, "Expected {s}, got {s}", .{ @tagName(kind), @tagName(token.kind) }) catch "Parse error";
+            const msg = std.fmt.bufPrint(&buf, "Expected {s}, got {s}", .{ @tagName(kind), @tagName(json_token.kind) }) catch "Parse error";
             try self.addError(msg, span);
             return error.UnexpectedToken;
         }
@@ -181,7 +181,7 @@ pub const Parser = struct {
     // =========================================================================
 
     pub fn parseValue(self: *Self, allocator: std.mem.Allocator) anyerror!Node {
-        const token = self.peek() orelse {
+        const token = self.peekJson() orelse {
             try self.addError("Unexpected end of input", Span.init(0, 0));
             return self.createErrorNode(allocator);
         };
@@ -205,16 +205,16 @@ pub const Parser = struct {
     }
 
     pub fn parseObject(self: *Self, allocator: std.mem.Allocator) !Node {
-        const start_token = try self.expect(.object_start);
+        const start_token = try self.expectJson(.object_start);
         const start_span = unpackSpan(start_token.span);
 
         var properties = std.ArrayList(Node).init(allocator);
         defer properties.deinit();
 
         // Check for empty object
-        if (self.peek()) |token| {
+        if (self.peekJson()) |token| {
             if (token.kind == .object_end) {
-                const end_token = try self.expect(.object_end);
+                const end_token = try self.expectJson(.object_end);
                 const end_span = unpackSpan(end_token.span);
 
                 return Node{
@@ -229,14 +229,14 @@ pub const Parser = struct {
         // Parse properties
         while (true) {
             // Parse property name - handle malformed keys gracefully
-            const name_token = self.expect(.property_name) catch |err| switch (err) {
+            const name_token = self.expectJson(.property_name) catch |err| switch (err) {
                 error.UnexpectedToken, error.UnexpectedEndOfInput => blk: {
                     // Try to use current token as key, skip malformed object
-                    if (self.peek()) |token| {
+                    if (self.peekJson()) |token| {
                         _ = try self.advance(); // consume the bad token
                         // Create a synthetic property name token using the malformed token's span
                         const span = unpackSpan(token.span);
-                        break :blk Token.init(span, .property_name, 0);
+                        break :blk JsonToken.init(span, .property_name, 0);
                     } else {
                         // End of input, break out of property parsing
                         break;
@@ -249,7 +249,7 @@ pub const Parser = struct {
             const name_value = try parser_values.processStringEscapes(self, allocator, name_raw);
 
             // Expect colon - handle missing colon gracefully
-            _ = self.expect(.colon) catch |err| switch (err) {
+            _ = self.expectJson(.colon) catch |err| switch (err) {
                 error.UnexpectedToken, error.UnexpectedEndOfInput => {
                     // Error already recorded, continue with value parsing
                 },
@@ -287,12 +287,12 @@ pub const Parser = struct {
             try properties.append(property);
 
             // Check for continuation
-            if (self.peek()) |token| {
+            if (self.peekJson()) |token| {
                 if (token.kind == .comma) {
                     _ = try self.advance();
 
                     // Check for trailing comma
-                    if (self.peek()) |next| {
+                    if (self.peekJson()) |next| {
                         if (next.kind == .object_end) {
                             if (!self.allow_trailing_commas) {
                                 const span = unpackSpan(next.span);
@@ -315,7 +315,7 @@ pub const Parser = struct {
         }
 
         // Try to expect closing brace, but handle missing brace gracefully
-        const end_span = if (self.expect(.object_end)) |end_token|
+        const end_span = if (self.expectJson(.object_end)) |end_token|
             unpackSpan(end_token.span)
         else |err| switch (err) {
             error.UnexpectedToken, error.UnexpectedEndOfInput =>
@@ -333,16 +333,16 @@ pub const Parser = struct {
     }
 
     pub fn parseArray(self: *Self, allocator: std.mem.Allocator) !Node {
-        const start_token = try self.expect(.array_start);
+        const start_token = try self.expectJson(.array_start);
         const start_span = unpackSpan(start_token.span);
 
         var elements = std.ArrayList(Node).init(allocator);
         defer elements.deinit();
 
         // Check for empty array
-        if (self.peek()) |token| {
+        if (self.peekJson()) |token| {
             if (token.kind == .array_end) {
-                const end_token = try self.expect(.array_end);
+                const end_token = try self.expectJson(.array_end);
                 const end_span = unpackSpan(end_token.span);
 
                 return Node{
@@ -360,12 +360,12 @@ pub const Parser = struct {
             try elements.append(element);
 
             // Check for continuation
-            if (self.peek()) |token| {
+            if (self.peekJson()) |token| {
                 if (token.kind == .comma) {
                     _ = try self.advance();
 
                     // Check for trailing comma
-                    if (self.peek()) |next| {
+                    if (self.peekJson()) |next| {
                         if (next.kind == .array_end) {
                             if (!self.allow_trailing_commas) {
                                 const span = unpackSpan(next.span);
@@ -388,7 +388,7 @@ pub const Parser = struct {
         }
 
         // Try to expect closing bracket, but handle missing bracket gracefully
-        const end_span = if (self.expect(.array_end)) |end_token|
+        const end_span = if (self.expectJson(.array_end)) |end_token|
             unpackSpan(end_token.span)
         else |err| switch (err) {
             error.UnexpectedToken, error.UnexpectedEndOfInput =>

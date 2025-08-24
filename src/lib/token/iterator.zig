@@ -2,7 +2,7 @@
 /// SIMPLIFIED: Direct access to language lexers, no abstraction
 /// Achieves 1-2 cycle dispatch, zero allocations
 const std = @import("std");
-const StreamToken = @import("stream_token.zig").StreamToken;
+const Token = @import("stream_token.zig").Token;
 const Language = @import("../core/language.zig").Language;
 
 // Import the centralized lexer registry
@@ -25,7 +25,7 @@ pub const TokenIterator = struct {
 
     /// Get the next token - now users must switch on lexer type
     /// This pushes language handling to the caller, as designed
-    pub fn next(self: *Self) ?StreamToken {
+    pub fn next(self: *Self) ?Token {
         return switch (self.lexer) {
             .json => |*l| l.next(),
             .zon => |*l| l.next(),
@@ -34,7 +34,7 @@ pub const TokenIterator = struct {
 
     /// Peek at the next token without consuming it
     /// Returns null if at end of stream
-    pub fn peek(self: *Self) ?StreamToken {
+    pub fn peek(self: *Self) ?Token {
         return switch (self.lexer) {
             .json => |*l| l.peek(),
             .zon => |*l| l.peek(),

@@ -1,6 +1,6 @@
 const std = @import("std");
 const testing = std.testing;
-const JsonParser = @import("../parser/mod.zig").JsonParser;
+const Parser = @import("../parser/mod.zig").Parser;
 
 // Comprehensive RFC 8259 compliance tests for JSON number handling
 // https://datatracker.ietf.org/doc/html/rfc8259
@@ -48,7 +48,7 @@ test "RFC 8259 compliance - invalid leading zeros should be rejected" {
 
     for (invalid_cases) |case| {
         // Updated to streaming parser - expects parsing errors for invalid numbers
-        var parser = JsonParser.init(allocator, case.input, .{}) catch |err| {
+        var parser = Parser.init(allocator, case.input, .{}) catch |err| {
             // Streaming parser may reject invalid numbers during init
             try testing.expect(err == error.InvalidNumber);
             continue; // Expected failure
@@ -120,7 +120,7 @@ test "RFC 8259 compliance - valid numbers should be accepted" {
 
     for (valid_cases) |case| {
         // Updated to streaming parser
-        var parser = try JsonParser.init(allocator, case.input, .{});
+        var parser = try Parser.init(allocator, case.input, .{});
         defer parser.deinit();
         var ast = parser.parse() catch |err| {
             std.debug.print("UNEXPECTED FAILURE: '{s}' ({s}) should have been accepted during parsing: {}\n", .{ case.input, case.description, err });
@@ -170,7 +170,7 @@ test "RFC 8259 compliance - edge cases" {
 
     for (test_cases) |case| {
         // Updated to streaming parser
-        var parser = JsonParser.init(allocator, case.input, .{}) catch |err| {
+        var parser = Parser.init(allocator, case.input, .{}) catch |err| {
             if (case.should_succeed) {
                 std.debug.print("UNEXPECTED PARSER INIT FAILURE: '{s}' ({s}) should have succeeded: {}\n", .{ case.input, case.description, err });
                 return err;

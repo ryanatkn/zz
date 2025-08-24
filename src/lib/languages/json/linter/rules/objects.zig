@@ -7,15 +7,15 @@ const unpackSpan = @import("../../../../span/mod.zig").unpackSpan;
 const TokenIterator = @import("../../../../token/iterator.zig").TokenIterator;
 
 // Import core linter types
-const JsonLinter = @import("../core.zig").JsonLinter;
+const Linter = @import("../core.zig").Linter;
 const EnabledRules = @import("../core.zig").EnabledRules;
 
 // Import token types
-const JsonToken = @import("../../token/mod.zig").JsonToken;
-const JsonTokenKind = @import("../../token/mod.zig").JsonTokenKind;
+const Token = @import("../../token/mod.zig").Token;
+const TokenKind = @import("../../token/mod.zig").TokenKind;
 
 /// Validate JSON object structure and contents
-pub fn validateObject(linter: *JsonLinter, iter: *TokenIterator, start_token: JsonToken, enabled_rules: EnabledRules) !void {
+pub fn validateObject(linter: *Linter, iter: *TokenIterator, start_token: Token, enabled_rules: EnabledRules) !void {
     const start_span = unpackSpan(start_token.span);
 
     // Check depth
@@ -23,11 +23,11 @@ pub fn validateObject(linter: *JsonLinter, iter: *TokenIterator, start_token: Js
     defer linter.depth -= 1;
 
     if (enabled_rules.contains(.max_depth_exceeded) and linter.depth > linter.options.max_depth) {
-        try linter.addDiagnostic("max-depth-exceeded", "Structure exceeds maximum depth limit", .err, start_span);
+        try linter.addDiagnostic(.max_depth_exceeded, "Structure exceeds maximum depth limit", .err, start_span);
     }
 
-    if (enabled_rules.contains(.deep_nesting) and linter.depth > 10) {
-        try linter.addDiagnostic("deep-nesting", "Deep nesting may be hard to read", .warning, start_span);
+    if (enabled_rules.contains(.deep_nesting) and linter.depth > linter.options.warn_on_deep_nesting) {
+        try linter.addDiagnostic(.deep_nesting, "Deep nesting may be hard to read", .warning, start_span);
     }
 
     // Track object keys for duplicate detection
@@ -73,7 +73,7 @@ pub fn validateObject(linter: *JsonLinter, iter: *TokenIterator, start_token: Js
                         key_text;
 
                     if (seen_keys.contains(unquoted_key)) {
-                        try linter.addDiagnostic("no-duplicate-keys", "Duplicate object key found", .err, span);
+                        try linter.addDiagnostic(.no_duplicate_keys, "Duplicate object key found", .err, span);
                     } else {
                         try seen_keys.put(try linter.allocator.dupe(u8, unquoted_key), {});
                     }
@@ -86,7 +86,7 @@ pub fn validateObject(linter: *JsonLinter, iter: *TokenIterator, start_token: Js
 
                 // Check if it's a leading zero issue in object context
                 if (enabled_rules.contains(.no_leading_zeros) and text.len > 0 and text[0] == '0') {
-                    try linter.addDiagnostic("no-leading-zeros", "Number has leading zero (invalid in JSON)", .err, span);
+                    try linter.addDiagnostic(.no_leading_zeros, "Number has leading zero (invalid in JSON)", .err, span);
                 }
             },
             else => {
@@ -97,13 +97,13 @@ pub fn validateObject(linter: *JsonLinter, iter: *TokenIterator, start_token: Js
 
     // Check for large structure
     if (enabled_rules.contains(.large_structure) and property_count > 50) {
-        try linter.addDiagnostic("large-structure", "Object has many properties and may be hard to read", .warning, start_span);
+        try linter.addDiagnostic(.large_structure, "Object has many properties and may be hard to read", .warning, start_span);
     }
 }
 
 /// Skip to matching closing brace (utility function)
-pub fn skipToMatchingBrace(iter: *TokenIterator, start_kind: JsonTokenKind) !void {
-    const end_kind: JsonTokenKind = switch (start_kind) {
+pub fn skipToMatchingBrace(iter: *TokenIterator, start_kind: TokenKind) !void {
+    const end_kind: TokenKind = switch (start_kind) {
         .object_start => .object_end,
         .array_start => .array_end,
         else => return,

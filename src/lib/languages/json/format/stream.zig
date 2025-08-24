@@ -4,14 +4,14 @@ const std = @import("std");
 const FormatOptions = @import("../../../stream/format_options.zig").FormatOptions;
 const FormatError = @import("../../../stream/format.zig").FormatError;
 const StreamToken = @import("../../../token/mod.zig").StreamToken;
-const JsonTokenKind = @import("../token/types.zig").JsonTokenKind;
-const JsonToken = @import("../token/types.zig").JsonToken;
+const TokenKind = @import("../token/types.zig").TokenKind;
+const Token = @import("../token/types.zig").Token;
 const packSpan = @import("../../../span/mod.zig").packSpan;
 const unpackSpan = @import("../../../span/mod.zig").unpackSpan;
 const Span = @import("../../../span/mod.zig").Span;
 
 /// JSON formatter state machine
-pub fn JsonFormatter(comptime Writer: type) type {
+pub fn Formatter(comptime Writer: type) type {
     return struct {
         writer: Writer,
         options: FormatOptions,
@@ -171,7 +171,7 @@ pub fn JsonFormatter(comptime Writer: type) type {
 
         // Helper functions
 
-        fn needsComma(self: *const Self, kind: JsonTokenKind) bool {
+        fn needsComma(self: *const Self, kind: TokenKind) bool {
             _ = self;
             return switch (kind) {
                 .object_end, .array_end, .comma, .colon => false,
@@ -208,7 +208,7 @@ pub fn JsonFormatter(comptime Writer: type) type {
     };
 }
 
-test "JsonFormatter basic formatting" {
+test "Formatter basic formatting" {
     const testing = std.testing;
 
     var buffer: [1024]u8 = undefined;
@@ -216,40 +216,40 @@ test "JsonFormatter basic formatting" {
 
     const test_source = "{\"key\": \"value\"}";
     const WriterType = @TypeOf(stream).Writer;
-    var formatter = JsonFormatter(WriterType).initWithSource(stream.writer(), .{
+    var formatter = Formatter(WriterType).initWithSource(stream.writer(), .{
         .compact = true,
     }, test_source);
 
     // Simulate tokens for: {"key": "value"}
-    try formatter.writeToken(StreamToken{ .json = JsonToken{
+    try formatter.writeToken(StreamToken{ .json = Token{
         .span = packSpan(Span.init(0, 1)),
         .kind = .object_start,
         .depth = 0,
         .flags = .{},
         .data = 0,
     } });
-    try formatter.writeToken(StreamToken{ .json = JsonToken{
+    try formatter.writeToken(StreamToken{ .json = Token{
         .span = packSpan(Span.init(1, 6)),
         .kind = .string_value,
         .depth = 1,
         .flags = .{},
         .data = 0,
     } });
-    try formatter.writeToken(StreamToken{ .json = JsonToken{
+    try formatter.writeToken(StreamToken{ .json = Token{
         .span = packSpan(Span.init(6, 7)),
         .kind = .colon,
         .depth = 1,
         .flags = .{},
         .data = 0,
     } });
-    try formatter.writeToken(StreamToken{ .json = JsonToken{
+    try formatter.writeToken(StreamToken{ .json = Token{
         .span = packSpan(Span.init(8, 15)),
         .kind = .string_value,
         .depth = 1,
         .flags = .{},
         .data = 0,
     } });
-    try formatter.writeToken(StreamToken{ .json = JsonToken{
+    try formatter.writeToken(StreamToken{ .json = Token{
         .span = packSpan(Span.init(15, 16)),
         .kind = .object_end,
         .depth = 0,

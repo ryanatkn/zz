@@ -13,7 +13,7 @@ const char_utils = @import("../../char/mod.zig");
 
 // Import interface types for compatibility
 const interface_types = @import("../interface.zig");
-const InterfaceSeverity = interface_types.RuleInfo.Severity;
+const InterfaceSeverity = interface_types.Severity;
 
 // For AST compatibility
 const common = @import("common.zig");
@@ -41,6 +41,9 @@ pub const ZonRuleType = enum(u8) {
     invalid_identifier,
     prefer_explicit_type,
     schema_validation,
+    // Additional rules found in code
+    invalid_string,
+    invalid_number,
 };
 
 /// Efficient rule set using bitflags for O(1) lookups
@@ -51,7 +54,7 @@ pub const Diagnostic = struct {
     message: []const u8,
     span: Span,
     severity: Severity,
-    rule_name: []const u8,
+    rule: ZonRuleType, // Enum instead of string!
 
     pub const Severity = enum {
         err,
@@ -62,6 +65,7 @@ pub const Diagnostic = struct {
 
     pub fn deinit(self: Diagnostic, allocator: std.mem.Allocator) void {
         allocator.free(self.message);
+        // No need to free rule - it's an enum, not allocated memory
     }
 };
 
@@ -103,7 +107,6 @@ pub const ZonLinter = struct {
 
     /// Rule metadata for each enum value
     pub const RuleInfo = struct {
-        name: []const u8,
         description: []const u8,
         severity: InterfaceSeverity,
         enabled_by_default: bool,
@@ -112,64 +115,64 @@ pub const ZonLinter = struct {
     /// Built-in linting rules metadata
     pub const RULE_INFO = std.EnumArray(ZonRuleType, RuleInfo).init(.{
         .no_duplicate_keys = .{
-            .name = "no-duplicate-keys",
             .description = "Object keys must be unique",
             .severity = .err,
             .enabled_by_default = true,
         },
         .max_depth_exceeded = .{
-            .name = "max-depth-exceeded",
             .description = "ZON structure exceeds maximum nesting depth",
             .severity = .err,
             .enabled_by_default = true,
         },
         .large_structure = .{
-            .name = "large-structure",
             .description = "ZON structure is very large",
             .severity = .warning,
             .enabled_by_default = false,
         },
         .deep_nesting = .{
-            .name = "deep-nesting",
             .description = "ZON has deep nesting that may be hard to read",
             .severity = .warning,
             .enabled_by_default = true,
         },
         .invalid_field_type = .{
-            .name = "invalid-field-type",
             .description = "Field has invalid type for known schema",
             .severity = .err,
             .enabled_by_default = false,
         },
         .unknown_field = .{
-            .name = "unknown-field",
             .description = "Field is not recognized in known schema",
             .severity = .warning,
             .enabled_by_default = false,
         },
         .missing_required_field = .{
-            .name = "missing-required-field",
             .description = "Required field is missing from object",
             .severity = .err,
             .enabled_by_default = false,
         },
         .invalid_identifier = .{
-            .name = "invalid-identifier",
             .description = "Identifier uses invalid ZON syntax",
             .severity = .err,
             .enabled_by_default = true,
         },
         .prefer_explicit_type = .{
-            .name = "prefer-explicit-type",
             .description = "Consider using explicit type annotation",
             .severity = .hint,
             .enabled_by_default = false,
         },
         .schema_validation = .{
-            .name = "schema-validation",
             .description = "Validate ZON structure against known schemas",
             .severity = .warning,
             .enabled_by_default = false,
+        },
+        .invalid_string = .{
+            .description = "String contains invalid characters or encoding",
+            .severity = .err,
+            .enabled_by_default = true,
+        },
+        .invalid_number = .{
+            .description = "Number has invalid format",
+            .severity = .err,
+            .enabled_by_default = true,
         },
     });
 
@@ -302,7 +305,7 @@ pub const ZonLinter = struct {
         if (!std.unicode.utf8ValidateSlice(text)) {
             if (enabled_rules.contains(.invalid_identifier)) {
                 try self.addDiagnostic(
-                    "invalid-string",
+                    .invalid_string,
                     "String contains invalid UTF-8 sequences",
                     span.start,
                     span.end,
@@ -321,7 +324,7 @@ pub const ZonLinter = struct {
             // Try parsing as integer
             _ = std.fmt.parseInt(i64, text, 0) catch {
                 try self.addDiagnostic(
-                    "invalid-number",
+                    .invalid_number,
                     try std.fmt.allocPrint(self.allocator, "Invalid number format: {}", .{err}),
                     span.start,
                     span.end,
@@ -339,7 +342,7 @@ pub const ZonLinter = struct {
         if (text.len == 0) {
             if (enabled_rules.contains(.invalid_identifier)) {
                 try self.addDiagnostic(
-                    "invalid-identifier",
+                    .invalid_identifier,
                     "Field name cannot be empty",
                     span.start,
                     span.end,
@@ -353,7 +356,7 @@ pub const ZonLinter = struct {
         if (text[0] != '.') {
             if (enabled_rules.contains(.invalid_identifier)) {
                 try self.addDiagnostic(
-                    "invalid-identifier",
+                    .invalid_identifier,
                     "Field name must start with '.'",
                     span.start,
                     span.end,
@@ -377,7 +380,7 @@ pub const ZonLinter = struct {
         if (text.len == 0 or text[0] != '.') {
             if (enabled_rules.contains(.invalid_identifier)) {
                 try self.addDiagnostic(
-                    "invalid-identifier",
+                    .invalid_identifier,
                     "Enum literal must start with '.'",
                     span.start,
                     span.end,
@@ -396,7 +399,7 @@ pub const ZonLinter = struct {
 
         if (enabled_rules.contains(.max_depth_exceeded) and self.depth > self.options.max_depth) {
             try self.addDiagnostic(
-                "max-depth-exceeded",
+                .max_depth_exceeded,
                 "Structure exceeds maximum depth limit",
                 start_span.start,
                 start_span.end,
@@ -409,7 +412,7 @@ pub const ZonLinter = struct {
 
         if (enabled_rules.contains(.deep_nesting) and self.depth > self.options.warn_on_deep_nesting) {
             try self.addDiagnostic(
-                "deep-nesting",
+                .deep_nesting,
                 "Deep nesting may be hard to read",
                 start_span.start,
                 start_span.end,
@@ -459,7 +462,7 @@ pub const ZonLinter = struct {
                         .{ field_name, prev_span.start },
                     );
                     try self.addDiagnosticOwned(
-                        "no-duplicate-keys",
+                        .no_duplicate_keys,
                         message,
                         field_span.start,
                         field_span.end,
@@ -498,7 +501,7 @@ pub const ZonLinter = struct {
         // Check field count
         if (enabled_rules.contains(.large_structure) and field_count > self.options.max_field_count) {
             try self.addDiagnostic(
-                "large-structure",
+                .large_structure,
                 "Object has too many fields",
                 start_span.start,
                 start_span.end,
@@ -510,7 +513,7 @@ pub const ZonLinter = struct {
         if (self.schema_type == .build_zig_zon and enabled_rules.contains(.missing_required_field)) {
             if (!has_name) {
                 try self.addDiagnostic(
-                    "missing-required-field",
+                    .missing_required_field,
                     "Missing required field 'name' in build.zig.zon",
                     start_span.start,
                     start_span.start,
@@ -519,7 +522,7 @@ pub const ZonLinter = struct {
             }
             if (!has_version) {
                 try self.addDiagnostic(
-                    "missing-required-field",
+                    .missing_required_field,
                     "Missing required field 'version' in build.zig.zon",
                     start_span.start,
                     start_span.start,
@@ -538,7 +541,7 @@ pub const ZonLinter = struct {
 
         if (enabled_rules.contains(.max_depth_exceeded) and self.depth > self.options.max_depth) {
             try self.addDiagnostic(
-                "max-depth-exceeded",
+                .max_depth_exceeded,
                 "Structure exceeds maximum depth limit",
                 start_span.start,
                 start_span.end,
@@ -573,7 +576,7 @@ pub const ZonLinter = struct {
         // Check array size
         if (enabled_rules.contains(.large_structure) and element_count > self.options.max_array_size) {
             try self.addDiagnostic(
-                "large-structure",
+                .large_structure,
                 "Array has too many elements",
                 start_span.start,
                 start_span.end,
@@ -589,7 +592,7 @@ pub const ZonLinter = struct {
             // Should be string
             if (value_token.kind != .string_value) {
                 try self.addDiagnostic(
-                    "invalid-field-type",
+                    .invalid_field_type,
                     try std.fmt.allocPrint(self.allocator, "'{s}' must be a string", .{field_name}),
                     span.start,
                     span.end,
@@ -600,7 +603,7 @@ pub const ZonLinter = struct {
             // Should be object
             if (value_token.kind != .object_start) {
                 try self.addDiagnostic(
-                    "invalid-field-type",
+                    .invalid_field_type,
                     "Dependencies must be an object",
                     span.start,
                     span.end,
@@ -611,7 +614,7 @@ pub const ZonLinter = struct {
             // Should be array
             if (value_token.kind != .array_start and value_token.kind != .object_start) {
                 try self.addDiagnostic(
-                    "invalid-field-type",
+                    .invalid_field_type,
                     "Paths must be an array",
                     span.start,
                     span.end,
@@ -636,7 +639,7 @@ pub const ZonLinter = struct {
         if (!char_utils.isAlpha(first_char) and first_char != '_') {
             if (enabled_rules.contains(.invalid_identifier)) {
                 try self.addDiagnostic(
-                    "invalid-identifier",
+                    .invalid_identifier,
                     "Identifier must start with letter or underscore",
                     span.start,
                     span.end,
@@ -651,7 +654,7 @@ pub const ZonLinter = struct {
             if (!char_utils.isAlphaNumeric(char) and char != '_') {
                 if (enabled_rules.contains(.invalid_identifier)) {
                     try self.addDiagnostic(
-                        "invalid-identifier",
+                        .invalid_identifier,
                         "Identifier contains invalid character",
                         span.start,
                         span.end,
@@ -681,17 +684,17 @@ pub const ZonLinter = struct {
         }
     }
 
-    fn addDiagnostic(self: *Self, rule_name: []const u8, message: []const u8, start_pos: u32, end_pos: u32, severity: Diagnostic.Severity) !void {
+    fn addDiagnostic(self: *Self, rule: ZonRuleType, message: []const u8, start_pos: u32, end_pos: u32, severity: Diagnostic.Severity) !void {
         const owned_message = try self.allocator.dupe(u8, message);
-        try self.addDiagnosticOwned(rule_name, owned_message, start_pos, end_pos, severity);
+        try self.addDiagnosticOwned(rule, owned_message, start_pos, end_pos, severity);
     }
 
-    fn addDiagnosticOwned(self: *Self, rule_name: []const u8, owned_message: []const u8, start_pos: u32, end_pos: u32, severity: Diagnostic.Severity) !void {
+    fn addDiagnosticOwned(self: *Self, rule: ZonRuleType, owned_message: []const u8, start_pos: u32, end_pos: u32, severity: Diagnostic.Severity) !void {
         const diagnostic = Diagnostic{
             .message = owned_message,
             .span = Span.init(start_pos, end_pos),
             .severity = severity,
-            .rule_name = rule_name,
+            .rule = rule, // Direct enum, no allocation needed!
         };
 
         try self.diagnostics.append(diagnostic);

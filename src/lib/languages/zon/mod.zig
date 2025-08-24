@@ -277,10 +277,10 @@ pub fn stringifyWithOptions(allocator: std.mem.Allocator, value: anytype, option
 // Interface functions for the new generic linter
 
 /// Get rule information for a specific ZON rule
-fn zonGetRuleInfo(rule: ZonRuleType) lang_interface.RuleInfo {
+fn zonGetRuleInfo(rule: ZonRuleType) lang_interface.RuleInfo(ZonRuleType) {
     const rule_info = ZonLinterImpl.RULE_INFO.get(rule);
-    return lang_interface.RuleInfo{
-        .name = rule_info.name,
+    return lang_interface.RuleInfo(ZonRuleType){
+        .rule = rule, // Use enum directly instead of string!
         .description = rule_info.description,
         .severity = rule_info.severity,
         .enabled_by_default = rule_info.enabled_by_default,
@@ -288,17 +288,17 @@ fn zonGetRuleInfo(rule: ZonRuleType) lang_interface.RuleInfo {
 }
 
 /// Lint with enum-based rules (new interface)
-fn zonLintEnum(allocator: std.mem.Allocator, ast: AST, enabled_rules: EnabledRules) ![]lang_interface.Diagnostic {
+fn zonLintEnum(allocator: std.mem.Allocator, ast: AST, enabled_rules: EnabledRules) ![]lang_interface.Diagnostic(ZonRuleType) {
     var linter = ZonLinterImpl.init(allocator, .{});
     defer linter.deinit();
 
     const diagnostics = try linter.lint(ast, enabled_rules);
 
-    // Convert to interface diagnostics
-    var result = try allocator.alloc(lang_interface.Diagnostic, diagnostics.len);
+    // Convert to interface diagnostics (enum-based)
+    var result = try allocator.alloc(lang_interface.Diagnostic(ZonRuleType), diagnostics.len);
     for (diagnostics, 0..) |diag, i| {
-        result[i] = lang_interface.Diagnostic{
-            .rule = diag.rule_name,
+        result[i] = lang_interface.Diagnostic(ZonRuleType){
+            .rule = diag.rule, // Direct enum usage - no conversion needed!
             .message = diag.message,
             .severity = switch (diag.severity) {
                 .err => .err,

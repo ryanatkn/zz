@@ -416,7 +416,7 @@ pub fn demoFormattingVisual(allocator: std.mem.Allocator) !void {
         std.debug.print("{}. {s} - Formatting Comparison\n", .{ i + 1, test_case.name });
 
         // Format JSON
-        const json_formatted = json.formatJsonString(allocator, test_case.json_data) catch |err| {
+        const json_formatted = json.formatString(allocator, test_case.json_data) catch |err| {
             std.debug.print("   ⚠️  JSON formatting failed: {}\n\n", .{err});
             continue;
         };
@@ -484,7 +484,7 @@ pub fn demoLintingComparison(allocator: std.mem.Allocator) !void {
 
     // Test JSON linting
     std.debug.print("JSON Linting Results:\n", .{});
-    const json_issues = json.validateJson(allocator, problematic_json) catch |err| {
+    const json_issues = json.validate(allocator, problematic_json) catch |err| {
         std.debug.print("  ⚠️  JSON linter error: {}\n", .{err});
         return;
     };

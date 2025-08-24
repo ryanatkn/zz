@@ -6,7 +6,7 @@ const std = @import("std");
 const testing = std.testing;
 // TODO: Replace with new streaming architecture when ready
 // Removed old transform imports - using new architecture
-const JsonStreamLexer = @import("../languages/json/lexer/mod.zig").StreamLexer;
+const JsonLexer = @import("../languages/json/lexer/mod.zig").Lexer;
 const ZonLexer = @import("../languages/zon/lexer.zig").ZonLexer;
 const JsonParser = @import("../languages/json/parser/mod.zig").JsonParser;
 const ZonParser = @import("../languages/zon/parser.zig").ZonParser;
@@ -199,15 +199,15 @@ test "DirectStream streaming memory gate" {
     try testing.expect(char_count > 1000); // Should have processed significant data
 }
 
-// Re-enabled with JsonStreamLexer DirectStream integration
+// Re-enabled with JsonLexer DirectStream integration
 test "JSON streaming performance gate" {
     const input = try generateJsonInput(10 * 1024); // 10KB JSON
     defer testing.allocator.free(input);
 
     var timer = try std.time.Timer.start();
 
-    // Use JsonStreamLexer with DirectStream conversion
-    var lexer = JsonStreamLexer.init(input);
+    // Use JsonLexer with DirectStream conversion
+    var lexer = JsonLexer.init(input);
     defer lexer.deinit();
 
     // Convert to DirectStream for optimal performance
@@ -239,7 +239,7 @@ test "ZON streaming performance gate" {
 
     var timer = try std.time.Timer.start();
 
-    // Use ZonStreamLexer if available, otherwise use batch lexer for now
+    // Use ZonLexer if available, otherwise use batch lexer for now
     const ZonLexerType = @import("../languages/zon/lexer.zig").ZonLexer;
     var lexer = ZonLexerType.init(testing.allocator);
     defer lexer.deinit();

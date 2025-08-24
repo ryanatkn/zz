@@ -4,9 +4,9 @@ const std = @import("std");
 const testing = std.testing;
 
 // Import only the stream-first components
-const JsonStreamLexer = @import("../lexer/mod.zig").StreamLexer;
+const Lexer = @import("../lexer/mod.zig").Lexer;
 const JsonToken = @import("../token/mod.zig").Token;
-const JsonTokenKind = @import("../token/mod.zig").TokenKind;
+const TokenKind = @import("../token/mod.zig").TokenKind;
 
 // Re-export tests from stream modules
 test {
@@ -24,7 +24,7 @@ test "JSON stream lexer integration" {
         \\}
     ;
 
-    var lexer = JsonStreamLexer.init(input);
+    var lexer = Lexer.init(input);
 
     // Verify we can process the entire input
     var token_count: usize = 0;
@@ -38,7 +38,7 @@ test "JSON stream lexer integration" {
 
 test "JSON stream lexer performance characteristics" {
     // Verify the lexer struct size is reasonable
-    const lexer_size = @sizeOf(JsonStreamLexer);
+    const lexer_size = @sizeOf(Lexer);
     try testing.expect(lexer_size < 5000); // Mostly ring buffer
 
     // Verify token size is exactly 16 bytes
@@ -48,21 +48,21 @@ test "JSON stream lexer performance characteristics" {
 
 test "JSON stream lexer edge cases" {
     // Test empty object
-    var lexer1 = JsonStreamLexer.init("{}");
+    var lexer1 = Lexer.init("{}");
     const t1 = lexer1.next().?;
-    try testing.expectEqual(JsonTokenKind.object_start, t1.json.kind);
+    try testing.expectEqual(TokenKind.object_start, t1.json.kind);
     const t2 = lexer1.next().?;
-    try testing.expectEqual(JsonTokenKind.object_end, t2.json.kind);
+    try testing.expectEqual(TokenKind.object_end, t2.json.kind);
 
     // Test empty array
-    var lexer2 = JsonStreamLexer.init("[]");
+    var lexer2 = Lexer.init("[]");
     const t3 = lexer2.next().?;
-    try testing.expectEqual(JsonTokenKind.array_start, t3.json.kind);
+    try testing.expectEqual(TokenKind.array_start, t3.json.kind);
     const t4 = lexer2.next().?;
-    try testing.expectEqual(JsonTokenKind.array_end, t4.json.kind);
+    try testing.expectEqual(TokenKind.array_end, t4.json.kind);
 
     // Test single values
-    var lexer3 = JsonStreamLexer.init("null");
+    var lexer3 = Lexer.init("null");
     const t5 = lexer3.next().?;
-    try testing.expectEqual(JsonTokenKind.null_value, t5.json.kind);
+    try testing.expectEqual(TokenKind.null_value, t5.json.kind);
 }

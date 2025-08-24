@@ -2,7 +2,7 @@ const std = @import("std");
 const testing = std.testing;
 
 // Import JSON components
-const JsonParser = @import("../parser/mod.zig").JsonParser;
+const Parser = @import("../parser/mod.zig").Parser;
 
 // =============================================================================
 // Parser Tests
@@ -26,7 +26,7 @@ test "JSON parser - all value types" {
     };
 
     for (test_cases) |case| {
-        var parser = try JsonParser.init(allocator, case, .{});
+        var parser = try Parser.init(allocator, case, .{});
         defer parser.deinit();
 
         var ast = try parser.parse();
@@ -72,7 +72,7 @@ test "JSON parser - nested structures" {
         \\}
     ;
 
-    var parser = try JsonParser.init(allocator, nested_json, .{});
+    var parser = try Parser.init(allocator, nested_json, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -100,7 +100,7 @@ test "JSON parser - error recovery" {
     };
 
     for (malformed_cases) |case| {
-        var parser = try JsonParser.init(allocator, case, .{});
+        var parser = try Parser.init(allocator, case, .{});
         defer parser.deinit();
 
         // Parser should handle errors gracefully
@@ -145,7 +145,7 @@ test "JSON parser - regression: Unicode escape sequences" {
     };
 
     for (test_cases) |case| {
-        var parser = try JsonParser.init(allocator, case.input, .{});
+        var parser = try Parser.init(allocator, case.input, .{});
         defer parser.deinit();
 
         var ast = parser.parse() catch |err| {

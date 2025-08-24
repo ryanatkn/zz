@@ -11,26 +11,26 @@ const StreamToken = @import("token_registry.zig").StreamToken;
 const Language = @import("../core/language.zig").Language;
 
 // Import all language lexers
-const JsonStreamLexer = @import("json/lexer/mod.zig").StreamLexer;
-const ZonStreamLexer = @import("zon/stream_lexer.zig").ZonStreamLexer;
+const JsonLexer = @import("json/lexer/mod.zig").Lexer;
+const ZonLexer = @import("zon/stream_lexer.zig").ZonLexer;
 
 // Future language imports:
-// const TsStreamLexer = @import("typescript/stream_lexer.zig").TsStreamLexer;
-// const ZigStreamLexer = @import("zig/stream_lexer.zig").ZigStreamLexer;
-// const CssStreamLexer = @import("css/stream_lexer.zig").CssStreamLexer;
-// const HtmlStreamLexer = @import("html/stream_lexer.zig").HtmlStreamLexer;
-// const SvelteStreamLexer = @import("svelte/stream_lexer.zig").SvelteStreamLexer;
+// const TsLexer = @import("typescript/stream_lexer.zig").TsLexer;
+// const ZigLexer = @import("zig/stream_lexer.zig").ZigLexer;
+// const CssLexer = @import("css/stream_lexer.zig").CssLexer;
+// const HtmlLexer = @import("html/stream_lexer.zig").HtmlLexer;
+// const SvelteLexer = @import("svelte/stream_lexer.zig").SvelteLexer;
 
 /// Universal lexer type - tagged union of all language lexers
 /// SIMPLIFIED: No methods. Users call lexer.json.next() directly
 pub const LanguageLexer = union(enum) {
-    json: JsonStreamLexer,
-    zon: ZonStreamLexer,
-    // typescript: TsStreamLexer,
-    // zig: ZigStreamLexer,
-    // css: CssStreamLexer,
-    // html: HtmlStreamLexer,
-    // svelte: SvelteStreamLexer,
+    json: JsonLexer,
+    zon: ZonLexer,
+    // typescript: TsLexer,
+    // zig: ZigLexer,
+    // css: CssLexer,
+    // html: HtmlLexer,
+    // svelte: SvelteLexer,
 
     // That's it! No methods. Users access lexers directly:
     // switch (lexer) {
@@ -42,14 +42,14 @@ pub const LanguageLexer = union(enum) {
 /// Create a lexer for the given language and source
 pub fn createLexer(source: []const u8, language: Language) !LanguageLexer {
     return switch (language) {
-        .json => .{ .json = JsonStreamLexer.init(source) },
-        .zon => .{ .zon = ZonStreamLexer.init(source) },
+        .json => .{ .json = JsonLexer.init(source) },
+        .zon => .{ .zon = ZonLexer.init(source) },
         // When we add more languages:
-        // .typescript => .{ .typescript = TsStreamLexer.init(source) },
-        // .zig => .{ .zig = ZigStreamLexer.init(source) },
-        // .css => .{ .css = CssStreamLexer.init(source) },
-        // .html => .{ .html = HtmlStreamLexer.init(source) },
-        // .svelte => .{ .svelte = SvelteStreamLexer.init(source) },
+        // .typescript => .{ .typescript = TsLexer.init(source) },
+        // .zig => .{ .zig = ZigLexer.init(source) },
+        // .css => .{ .css = CssLexer.init(source) },
+        // .html => .{ .html = HtmlLexer.init(source) },
+        // .svelte => .{ .svelte = SvelteLexer.init(source) },
         else => error.UnsupportedLanguage,
     };
 }

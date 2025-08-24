@@ -4,14 +4,14 @@
 const std = @import("std");
 
 // Re-export core parser
-pub const JsonParser = @import("core.zig").JsonParser;
+pub const Parser = @import("core.zig").Parser;
 
 // Re-export value parsing utilities (accessible as parser.values.*)
 pub const values = @import("values.zig");
 
 // Re-export commonly used types and functions
-pub const ParseError = JsonParser.ParseError;
-pub const ParserOptions = JsonParser.ParserOptions;
+pub const ParseError = Parser.ParseError;
+pub const ParserOptions = Parser.ParserOptions;
 
 // ============================================================================
 // Tests for Complete Parser Functionality
@@ -30,7 +30,7 @@ test "JSON streaming parser - simple values" {
     };
 
     for (inputs) |input| {
-        var parser = try JsonParser.init(allocator, input, .{});
+        var parser = try Parser.init(allocator, input, .{});
         defer parser.deinit();
 
         var ast = try parser.parse();
@@ -47,7 +47,7 @@ test "JSON streaming parser - objects" {
 
     const input = "{\"name\": \"test\", \"value\": 42}";
 
-    var parser = try JsonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -66,7 +66,7 @@ test "JSON streaming parser - arrays" {
 
     const input = "[1, 2, 3, \"test\", true, null]";
 
-    var parser = try JsonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();

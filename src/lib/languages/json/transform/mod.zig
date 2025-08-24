@@ -4,7 +4,7 @@
 // Core transformation types and functions
 pub const TransformResult = @import("pipeline.zig").TransformResult;
 pub const TransformOptions = @import("pipeline.zig").TransformOptions;
-pub const JsonTransform = @import("pipeline.zig").JsonTransform;
+pub const Transform = @import("pipeline.zig").Transform;
 
 // Main transform function
 pub const transform = @import("pipeline.zig").transform;

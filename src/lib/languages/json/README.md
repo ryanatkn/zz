@@ -130,7 +130,7 @@ const tokens = try lexer.tokenize();
 defer allocator.free(tokens);
 ```
 
-### JsonParser
+### Parser
 
 Recursive descent parser producing proper AST:
 - Error recovery with detailed diagnostics
@@ -139,7 +139,7 @@ Recursive descent parser producing proper AST:
 - Integration with stratified parser foundation
 
 ```zig
-var parser = JsonParser.init(allocator, tokens, .{
+var parser = Parser.init(allocator, tokens, .{
     .allow_trailing_commas = false,
     .recover_from_errors = true,
 });
@@ -154,7 +154,7 @@ for (errors) |err| {
 }
 ```
 
-### JsonFormatter
+### Formatter
 
 Configurable pretty-printing with smart formatting:
 - Configurable indentation (spaces/tabs, custom size)
@@ -164,7 +164,7 @@ Configurable pretty-printing with smart formatting:
 - Quote style options
 
 ```zig
-var formatter = JsonFormatter.init(allocator, .{
+var formatter = Formatter.init(allocator, .{
     .indent_size = 2,
     .indent_style = .space,
     .line_width = 80,
@@ -181,7 +181,7 @@ const formatted = try formatter.format(ast);
 defer allocator.free(formatted);
 ```
 
-### JsonLinter
+### Linter
 
 Comprehensive validation and best practices:
 - Duplicate key detection
@@ -200,7 +200,7 @@ Built-in rules:
 - `deep-nesting`: JSON has deep nesting that may be hard to read
 
 ```zig
-var linter = JsonLinter.init(allocator, .{
+var linter = Linter.init(allocator, .{
     .max_depth = 100,
     .max_string_length = 65536,
     .warn_on_deep_nesting = 20,
@@ -212,7 +212,7 @@ const diagnostics = try linter.lint(ast, enabled_rules);
 defer allocator.free(diagnostics);
 ```
 
-### JsonAnalyzer
+### Analyzer
 
 Schema extraction and structural analysis:
 - Automatic schema inference from JSON data
@@ -220,7 +220,7 @@ Schema extraction and structural analysis:
 - Symbol extraction for IDE integration
 
 ```zig
-var analyzer = JsonAnalyzer.init(allocator, .{
+var analyzer = Analyzer.init(allocator, .{
     .infer_array_types = true,
     .detect_nullable_fields = true,
     .suggest_optimizations = true,

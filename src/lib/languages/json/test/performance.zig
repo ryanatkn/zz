@@ -33,7 +33,7 @@ test "JSON performance - large file handling" {
     const start_time = std.time.nanoTimestamp();
 
     // Parse
-    var ast = try json_mod.parseJson(allocator, json_text);
+    var ast = try json_mod.parse(allocator, json_text);
     defer ast.deinit();
 
     const parse_time = std.time.nanoTimestamp() - start_time;
@@ -43,7 +43,7 @@ test "JSON performance - large file handling" {
 
     // Format
     const format_start = std.time.nanoTimestamp();
-    const formatted = try json_mod.formatJsonString(allocator, json_text);
+    const formatted = try json_mod.formatString(allocator, json_text);
     defer allocator.free(formatted);
     const format_time = std.time.nanoTimestamp() - format_start;
 
@@ -56,6 +56,6 @@ test "JSON performance - large file handling" {
     try testing.expect(formatted.len > 0); // Should produce some output
 
     // Verify the formatted result is valid JSON by parsing it
-    var ast2 = try json_mod.parseJson(allocator, formatted);
+    var ast2 = try json_mod.parse(allocator, formatted);
     defer ast2.deinit();
 }

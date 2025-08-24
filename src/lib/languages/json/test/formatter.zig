@@ -2,8 +2,8 @@ const std = @import("std");
 const testing = std.testing;
 
 // Import JSON components
-const JsonParser = @import("../parser/mod.zig").JsonParser;
-const JsonFormatter = @import("../format/mod.zig").Formatter;
+const Parser = @import("../parser/mod.zig").Parser;
+const Formatter = @import("../format/mod.zig").Formatter;
 
 // =============================================================================
 // Formatter Tests
@@ -16,13 +16,13 @@ test "JSON formatter - pretty printing" {
 
     const compact_input = "{\"name\":\"Alice\",\"age\":30,\"hobbies\":[\"reading\",\"swimming\"]}";
 
-    var parser = try JsonParser.init(allocator, compact_input, .{});
+    var parser = try Parser.init(allocator, compact_input, .{});
     defer parser.deinit();
     var ast = try parser.parse();
     defer ast.deinit();
 
     // Test pretty formatting
-    var formatter = JsonFormatter.init(allocator, .{
+    var formatter = Formatter.init(allocator, .{
         .indent_size = 2,
         .compact_objects = false,
         .compact_arrays = false,
@@ -37,7 +37,7 @@ test "JSON formatter - pretty printing" {
     try testing.expect(std.mem.indexOf(u8, formatted, "  ") != null);
 
     // Should be valid JSON when parsed again
-    var parser2 = try JsonParser.init(allocator, formatted, .{});
+    var parser2 = try Parser.init(allocator, formatted, .{});
     defer parser2.deinit();
     var ast2 = try parser2.parse();
     defer ast2.deinit();
@@ -52,13 +52,13 @@ test "JSON formatter - options" {
 
     const input = "{\"zebra\": 1, \"alpha\": 2, \"beta\": 3}";
 
-    var parser = try JsonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
     var ast = try parser.parse();
     defer ast.deinit();
 
     // Test key sorting
-    var formatter = JsonFormatter.init(allocator, .{
+    var formatter = Formatter.init(allocator, .{
         .sort_keys = true,
         .force_compact = true,
     });

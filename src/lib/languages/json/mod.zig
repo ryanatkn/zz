@@ -17,16 +17,16 @@ const Rule = lang_interface.Rule;
 const Symbol = lang_interface.Symbol;
 
 // Import JSON-specific implementations - all self-contained
-const JsonParser = @import("parser/mod.zig").JsonParser;
-const JsonFormatter = @import("format/mod.zig").Formatter;
+const ParserImpl = @import("parser/mod.zig").Parser;
+const FormatterImpl = @import("format/mod.zig").Formatter;
 const linter_mod = @import("linter/mod.zig");
-const JsonLinter = linter_mod.JsonLinter;
+const LinterImpl = linter_mod.Linter;
 const Diagnostic = linter_mod.Diagnostic;
-const JsonRuleType = linter_mod.JsonRuleType;
+const RuleTypeImpl = linter_mod.RuleType;
 const EnabledRules = linter_mod.EnabledRules;
 const analyzer_module = @import("analyzer/mod.zig");
-const JsonAnalyzer = analyzer_module.JsonAnalyzer;
-const JsonSchema = analyzer_module.JsonSchema;
+const AnalyzerImpl = analyzer_module.Analyzer;
+const SchemaImpl = analyzer_module.Schema;
 
 // Import JSON AST
 const json_ast = @import("ast/mod.zig");
@@ -35,44 +35,42 @@ pub const Node = json_ast.Node;
 pub const NodeKind = json_ast.NodeKind;
 
 // Direct exports
-pub const Parser = JsonParser;
-pub const Formatter = JsonFormatter;
-pub const Linter = JsonLinter;
-pub const RuleType = JsonRuleType;
-pub const Analyzer = JsonAnalyzer;
-pub const AnalyzerOptions = JsonAnalyzer.AnalyzerOptions;
-pub const ParserOptions = JsonParser.ParserOptions;
+pub const Parser = ParserImpl;
+pub const Formatter = FormatterImpl;
+pub const Linter = LinterImpl;
+pub const RuleType = RuleTypeImpl;
+pub const Analyzer = AnalyzerImpl;
+pub const AnalyzerOptions = AnalyzerImpl.AnalyzerOptions;
+pub const ParserOptions = ParserImpl.ParserOptions;
+pub const Schema = SchemaImpl;
 
 // Streaming lexer exports (the new way)
-pub const StreamLexer = @import("lexer/mod.zig").StreamLexer;
+pub const Lexer = @import("lexer/mod.zig").Lexer;
 pub const StreamToken = @import("token/mod.zig").Token;
 pub const StreamTokenKind = @import("token/mod.zig").TokenKind;
 
 /// Parse JSON source into AST using streaming parser (convenience function)
 pub fn parse(allocator: std.mem.Allocator, source: []const u8) !AST {
-    var parser = try JsonParser.init(allocator, source, .{});
+    var parser = try ParserImpl.init(allocator, source, .{});
     defer parser.deinit();
     return parser.parse();
 }
 
-/// Parse JSON source into AST (alias for backward compatibility)
-pub const parseJson = parse;
-
 /// Validate JSON string and return diagnostics (convenience function)
-pub fn validateJson(allocator: std.mem.Allocator, json_content: []const u8) ![]Diagnostic {
-    var linter = JsonLinter.init(allocator, .{});
+pub fn validate(allocator: std.mem.Allocator, content: []const u8) ![]Diagnostic {
+    var linter = LinterImpl.init(allocator, .{});
     defer linter.deinit();
-    const rules = JsonLinter.getDefaultRules();
-    return linter.lintSource(json_content, rules);
+    const rules = LinterImpl.getDefaultRules();
+    return linter.lintSource(content, rules);
 }
 
 /// Format JSON string directly (convenience function)
 /// This is a convenience function for cases where you have raw JSON text
 /// and need to format it without first parsing to AST (e.g., CLI tools).
 /// For better performance, prefer parse() → format(ast) when you need both parsing and formatting.
-pub fn formatJsonString(allocator: std.mem.Allocator, json_content: []const u8) ![]u8 {
+pub fn formatString(allocator: std.mem.Allocator, content: []const u8) ![]u8 {
     // Use formatter directly with source for this convenience case
-    const json_options = JsonFormatter.JsonFormatOptions{
+    const options = FormatterImpl.FormatOptions{
         .indent_size = 4,
         .indent_style = .space,
         .line_width = 100,
@@ -81,34 +79,34 @@ pub fn formatJsonString(allocator: std.mem.Allocator, json_content: []const u8) 
         .trailing_comma = false,
     };
 
-    var formatter = JsonFormatter.init(allocator, json_options);
+    var formatter = FormatterImpl.init(allocator, options);
     defer formatter.deinit();
-    const formatted = try formatter.formatSource(json_content);
+    const formatted = try formatter.formatSource(content);
     return try allocator.dupe(u8, formatted);
 }
 
 /// Extract JSON schema from source (convenience function)
-pub fn extractJsonSchema(allocator: std.mem.Allocator, json_content: []const u8) !JsonSchema {
-    var ast = try parse(allocator, json_content);
+pub fn extractSchema(allocator: std.mem.Allocator, content: []const u8) !SchemaImpl {
+    var ast = try parse(allocator, content);
     defer ast.deinit();
 
-    var analyzer = JsonAnalyzer.init(allocator, .{});
+    var analyzer = AnalyzerImpl.init(allocator, .{});
     return analyzer.extractSchema(ast);
 }
 
 /// Get JSON statistics from source (convenience function)
-pub fn getJsonStatistics(allocator: std.mem.Allocator, json_content: []const u8) !JsonAnalyzer.JsonStatistics {
-    var ast = try parse(allocator, json_content);
+pub fn getStatistics(allocator: std.mem.Allocator, content: []const u8) !AnalyzerImpl.Statistics {
+    var ast = try parse(allocator, content);
     defer ast.deinit();
 
-    var analyzer = JsonAnalyzer.init(allocator, .{});
+    var analyzer = AnalyzerImpl.init(allocator, .{});
     return analyzer.generateStatistics(ast);
 }
 
 /// Get JSON language support instance
-pub fn getSupport(allocator: std.mem.Allocator) !lang_interface.LanguageSupport(AST, JsonRuleType) {
+pub fn getSupport(allocator: std.mem.Allocator) !lang_interface.LanguageSupport(AST, RuleTypeImpl) {
     _ = allocator; // Not needed for static interface
-    return lang_interface.LanguageSupport(AST, JsonRuleType){
+    return lang_interface.LanguageSupport(AST, RuleTypeImpl){
         .language = .json,
         .lexer = InterfaceLexer{
             .updateTokensFn = null, // Incremental tokenization not implemented
@@ -120,10 +118,10 @@ pub fn getSupport(allocator: std.mem.Allocator) !lang_interface.LanguageSupport(
             .formatFn = format,
             .formatRangeFn = null, // Range formatting not implemented for JSON
         },
-        .linter = InterfaceLinter(AST, JsonRuleType){
-            .ruleInfoFn = jsonGetRuleInfo,
-            .lintFn = jsonLintEnum,
-            .getDefaultRulesFn = jsonGetDefaultRules,
+        .linter = InterfaceLinter(AST, RuleTypeImpl){
+            .ruleInfoFn = getRuleInfo,
+            .lintFn = lintEnum,
+            .getDefaultRulesFn = getDefaultRules,
         },
         .analyzer = InterfaceAnalyzer(AST){
             .extractSymbolsFn = extractSymbols,
@@ -137,38 +135,38 @@ pub fn getSupport(allocator: std.mem.Allocator) !lang_interface.LanguageSupport(
 /// Format JSON AST
 fn format(allocator: std.mem.Allocator, ast: AST, options: FormatOptions) ![]const u8 {
     // Convert generic FormatOptions to JSON-specific options
-    const json_options = JsonFormatter.JsonFormatOptions{
+    const format_options = FormatterImpl.FormatOptions{
         .indent_size = @intCast(options.indent_size), // Convert u32 to u8
         .indent_style = if (options.indent_style == .space)
-            JsonFormatter.JsonFormatOptions.IndentStyle.space
+            FormatterImpl.FormatOptions.IndentStyle.space
         else
-            JsonFormatter.JsonFormatOptions.IndentStyle.tab,
+            FormatterImpl.FormatOptions.IndentStyle.tab,
         .line_width = options.line_width,
         .preserve_newlines = options.preserve_newlines,
         .force_compact = false, // JSON-specific default
         .trailing_comma = options.trailing_comma,
     };
 
-    var formatter = JsonFormatter.init(allocator, json_options);
+    var formatter = FormatterImpl.init(allocator, format_options);
     defer formatter.deinit();
     return formatter.format(ast);
 }
 
 /// Extract symbols from JSON AST
 pub fn extractSymbols(allocator: std.mem.Allocator, ast: AST) ![]Symbol {
-    var analyzer = JsonAnalyzer.init(allocator, .{});
+    var analyzer = AnalyzerImpl.init(allocator, .{});
 
-    const json_symbols = try analyzer.extractSymbols(ast);
-    defer allocator.free(json_symbols);
+    const extracted_symbols = try analyzer.extractSymbols(ast);
+    defer allocator.free(extracted_symbols);
 
     // Convert JSON symbols to generic symbols (allocate new strings)
     var symbols = std.ArrayList(Symbol).init(allocator);
     defer symbols.deinit();
 
-    for (json_symbols) |json_symbol| {
+    for (extracted_symbols) |symbol| {
         try symbols.append(Symbol{
-            .name = try allocator.dupe(u8, json_symbol.name),
-            .kind = switch (json_symbol.kind) {
+            .name = try allocator.dupe(u8, symbol.name),
+            .kind = switch (symbol.kind) {
                 .string => .constant,
                 .number => .constant,
                 .boolean => .constant,
@@ -179,93 +177,49 @@ pub fn extractSymbols(allocator: std.mem.Allocator, ast: AST) ![]Symbol {
                 .array => .constant,
                 .unknown => .constant,
             },
-            .range = json_symbol.range,
-            .signature = if (json_symbol.signature) |sig| try allocator.dupe(u8, sig) else null,
-            .documentation = if (json_symbol.documentation) |doc| try allocator.dupe(u8, doc) else null,
+            .range = symbol.range,
+            .signature = if (symbol.signature) |sig| try allocator.dupe(u8, sig) else null,
+            .documentation = if (symbol.documentation) |doc| try allocator.dupe(u8, doc) else null,
         });
     }
 
     return symbols.toOwnedSlice();
 }
 
-fn jsonGetRuleInfo(rule: JsonRuleType) lang_interface.RuleInfo {
-    return switch (rule) {
-        .no_duplicate_keys => .{
-            .name = "no-duplicate-keys",
-            .description = "Disallow duplicate keys in objects",
-            .severity = .err,
-            .enabled_by_default = true,
-        },
-        .no_leading_zeros => .{
-            .name = "no-leading-zeros",
-            .description = "Disallow leading zeros in numbers",
-            .severity = .warning,
-            .enabled_by_default = true,
-        },
-        .valid_string_encoding => .{
-            .name = "valid-string-encoding",
-            .description = "Ensure valid string encoding",
-            .severity = .err,
-            .enabled_by_default = true,
-        },
-        .max_depth_exceeded => .{
-            .name = "max-depth-exceeded",
-            .description = "Maximum nesting depth exceeded",
-            .severity = .warning,
-            .enabled_by_default = true,
-        },
-        .large_number_precision => .{
-            .name = "large-number-precision",
-            .description = "Large number may lose precision",
-            .severity = .info,
-            .enabled_by_default = false,
-        },
-        .large_structure => .{
-            .name = "large-structure",
-            .description = "Structure is unusually large",
-            .severity = .info,
-            .enabled_by_default = false,
-        },
-        .deep_nesting => .{
-            .name = "deep-nesting",
-            .description = "Structure has deep nesting",
-            .severity = .info,
-            .enabled_by_default = false,
-        },
+pub fn getRuleInfo(rule: RuleTypeImpl) lang_interface.RuleInfo(RuleTypeImpl) {
+    const rule_info = LinterImpl.RULE_INFO.get(rule);
+    return lang_interface.RuleInfo(RuleTypeImpl){
+        .rule = rule, // Use enum directly instead of string!
+        .description = rule_info.description,
+        .severity = rule_info.severity,
+        .enabled_by_default = rule_info.enabled_by_default,
     };
 }
 
-fn jsonLintEnum(allocator: std.mem.Allocator, ast: AST, enabled_rules: EnabledRules) ![]lang_interface.Diagnostic {
-    var linter = JsonLinter.init(allocator, .{});
+fn lintEnum(allocator: std.mem.Allocator, ast: AST, enabled_rules: EnabledRules) ![]lang_interface.Diagnostic(RuleTypeImpl) {
+    var linter = LinterImpl.init(allocator, .{});
     defer linter.deinit();
 
-    const json_diagnostics = try linter.lint(ast, enabled_rules);
+    const diagnostics = try linter.lint(ast, enabled_rules);
     defer {
-        for (json_diagnostics) |diag| {
+        for (diagnostics) |diag| {
             allocator.free(diag.message);
         }
-        allocator.free(json_diagnostics);
+        allocator.free(diagnostics);
     }
 
-    // Convert JSON diagnostics to generic diagnostics
-    var diagnostics = std.ArrayList(lang_interface.Diagnostic).init(allocator);
-    defer diagnostics.deinit();
-
-    for (json_diagnostics) |json_diag| {
-        try diagnostics.append(lang_interface.Diagnostic{
-            .rule = try allocator.dupe(u8, json_diag.rule),
-            .message = try allocator.dupe(u8, json_diag.message),
-            .severity = json_diag.severity, // Already compatible
-            .range = json_diag.range,
-            .fix = null, // TODO: Convert fix if needed
-        });
+    // JSON diagnostics are already the correct type (enum-based)!
+    // No conversion needed - just transfer ownership
+    const owned_diagnostics = try allocator.alloc(lang_interface.Diagnostic(RuleTypeImpl), diagnostics.len);
+    for (diagnostics, 0..) |diag, i| {
+        owned_diagnostics[i] = diag; // Direct copy - no rule conversion needed!
     }
 
-    return diagnostics.toOwnedSlice();
+    return owned_diagnostics;
 }
 
-fn jsonGetDefaultRules() EnabledRules {
-    return JsonLinter.getDefaultRules();
+fn getDefaultRules() EnabledRules {
+    return LinterImpl.getDefaultRules();
 }
 
 // Test support

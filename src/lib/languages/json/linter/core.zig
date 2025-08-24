@@ -4,15 +4,15 @@
 const std = @import("std");
 const TokenIterator = @import("../../../token/iterator.zig").TokenIterator;
 const StreamToken = @import("../../../token/stream_token.zig").StreamToken;
-const JsonToken = @import("../token/mod.zig").JsonToken;
-const JsonTokenKind = @import("../token/mod.zig").JsonTokenKind;
+const Token = @import("../token/mod.zig").Token;
+const TokenKind = @import("../token/mod.zig").TokenKind;
 const unpackSpan = @import("../../../span/mod.zig").unpackSpan;
 const Span = @import("../../../span/span.zig").Span;
 const char_utils = @import("../../../char/mod.zig");
 
 // Import interface types for compatibility
 const interface_types = @import("../../interface.zig");
-const Severity = interface_types.RuleInfo.Severity;
+const Severity = interface_types.Severity;
 
 // Import rule implementations
 const linter_rules = @import("rules/mod.zig");
@@ -28,7 +28,7 @@ pub const ValidationError = error{
 };
 
 /// JSON-specific linting rules
-pub const JsonRuleType = enum(u8) {
+pub const RuleType = enum(u8) {
     no_duplicate_keys,
     no_leading_zeros,
     valid_string_encoding,
@@ -36,24 +36,17 @@ pub const JsonRuleType = enum(u8) {
     large_number_precision,
     large_structure,
     deep_nesting,
+    // Additional rules found in code
+    invalid_number,
+    invalid_escape_sequence,
+    syntax_error,
 };
 
 /// Efficient rule set using bitflags for O(1) lookups
-pub const EnabledRules = std.EnumSet(JsonRuleType);
+pub const EnabledRules = std.EnumSet(RuleType);
 
-/// Diagnostic from linting
-pub const Diagnostic = struct {
-    rule: []const u8,
-    message: []const u8,
-    severity: Severity,
-    range: Span,
-    fix: ?Fix = null,
-
-    pub const Fix = struct {
-        description: []const u8,
-        edits: []Edit,
-    };
-};
+/// Diagnostic from linting (enum-based, zero allocation for rules)
+pub const Diagnostic = @import("../../interface.zig").Diagnostic(RuleType);
 
 /// Edit for diagnostic fixes
 pub const Edit = struct {
@@ -70,7 +63,7 @@ pub const Edit = struct {
 /// - String encoding validation on the fly
 /// - Nesting depth tracking in real-time
 /// - Memory efficient with streaming approach
-pub const JsonLinter = struct {
+pub const Linter = struct {
     allocator: std.mem.Allocator,
     options: LinterOptions,
     diagnostics: std.ArrayList(Diagnostic),
@@ -101,54 +94,61 @@ pub const JsonLinter = struct {
 
     /// Rule metadata for each enum value
     pub const RuleInfo = struct {
-        name: []const u8,
         description: []const u8,
         severity: Severity,
         enabled_by_default: bool,
     };
 
     /// Built-in linting rules metadata
-    pub const RULE_INFO = std.EnumArray(JsonRuleType, RuleInfo).init(.{
+    pub const RULE_INFO = std.EnumArray(RuleType, RuleInfo).init(.{
         .no_duplicate_keys = .{
-            .name = "no_duplicate_keys",
             .description = "Object keys must be unique",
             .severity = .err,
             .enabled_by_default = true,
         },
         .no_leading_zeros = .{
-            .name = "no_leading_zeros",
             .description = "Numbers should not have leading zeros",
             .severity = .warning,
             .enabled_by_default = true,
         },
         .valid_string_encoding = .{
-            .name = "valid_string_encoding",
             .description = "Strings must be valid UTF-8",
             .severity = .err,
             .enabled_by_default = true,
         },
         .max_depth_exceeded = .{
-            .name = "max_depth_exceeded",
             .description = "JSON structure exceeds maximum nesting depth",
             .severity = .err,
             .enabled_by_default = true,
         },
         .large_number_precision = .{
-            .name = "large_number_precision",
             .description = "Number has high precision that may cause issues",
             .severity = .warning,
             .enabled_by_default = false,
         },
         .large_structure = .{
-            .name = "large_structure",
             .description = "JSON structure is very large",
             .severity = .warning,
             .enabled_by_default = false,
         },
         .deep_nesting = .{
-            .name = "deep_nesting",
             .description = "JSON has deep nesting that may be hard to read",
             .severity = .warning,
+            .enabled_by_default = true,
+        },
+        .invalid_number = .{
+            .description = "Number format is invalid",
+            .severity = .err,
+            .enabled_by_default = true,
+        },
+        .invalid_escape_sequence = .{
+            .description = "String contains invalid escape sequence",
+            .severity = .err,
+            .enabled_by_default = true,
+        },
+        .syntax_error = .{
+            .description = "Invalid JSON syntax",
+            .severity = .err,
             .enabled_by_default = true,
         },
     });
@@ -156,8 +156,8 @@ pub const JsonLinter = struct {
     /// Get default enabled rules
     pub fn getDefaultRules() EnabledRules {
         var rules = EnabledRules.initEmpty();
-        inline for (std.meta.fields(JsonRuleType)) |field| {
-            const rule_type = @field(JsonRuleType, field.name);
+        inline for (std.meta.fields(RuleType)) |field| {
+            const rule_type = @field(RuleType, field.name);
             if (RULE_INFO.get(rule_type).enabled_by_default) {
                 rules.insert(rule_type);
             }
@@ -165,8 +165,8 @@ pub const JsonLinter = struct {
         return rules;
     }
 
-    pub fn init(allocator: std.mem.Allocator, options: LinterOptions) JsonLinter {
-        return JsonLinter{
+    pub fn init(allocator: std.mem.Allocator, options: LinterOptions) Linter {
+        return Linter{
             .allocator = allocator,
             .options = options,
             .diagnostics = std.ArrayList(Diagnostic).init(allocator),
@@ -256,10 +256,10 @@ pub const JsonLinter = struct {
 
                 // Check if it's a leading zero issue (common JSON syntax error)
                 if (enabled_rules.contains(.no_leading_zeros) and text.len > 0 and text[0] == '0') {
-                    try self.addDiagnostic("no_leading_zeros", "Number has leading zero (invalid in JSON)", .err, span);
+                    try self.addDiagnostic(.no_leading_zeros, "Number has leading zero (invalid in JSON)", .err, span);
                 } else {
                     // Generic syntax error
-                    try self.addDiagnostic("syntax_error", "Invalid JSON syntax", .err, span);
+                    try self.addDiagnostic(.syntax_error, "Invalid JSON syntax", .err, span);
                 }
             },
             .continuation => {
@@ -272,17 +272,18 @@ pub const JsonLinter = struct {
     // Core Utilities
     // =========================================================================
 
-    pub fn addDiagnostic(self: *Self, rule: []const u8, message: []const u8, severity: Severity, span: Span) !void {
+    /// Add diagnostic using enum rule (zero allocation for rule names)
+    pub fn addDiagnostic(self: *Self, rule: RuleType, message: []const u8, severity: Severity, span: Span) !void {
         const owned_message = try self.allocator.dupe(u8, message);
         try self.diagnostics.append(.{
-            .rule = rule,
+            .rule = rule, // Direct enum - no conversion or allocation needed!
             .message = owned_message,
             .severity = severity,
             .range = span,
         });
     }
 
-    pub fn peekNonTrivia(_: *Self, iter: *TokenIterator) ?JsonToken {
+    pub fn peekNonTrivia(_: *Self, iter: *TokenIterator) ?Token {
         while (iter.peek()) |stream_token| {
             switch (stream_token) {
                 .json => |token| {
@@ -297,7 +298,7 @@ pub const JsonLinter = struct {
         return null;
     }
 
-    pub fn nextNonTrivia(self: *Self, iter: *TokenIterator) ?JsonToken {
+    pub fn nextNonTrivia(self: *Self, iter: *TokenIterator) ?Token {
         _ = self;
         while (iter.next()) |stream_token| {
             switch (stream_token) {

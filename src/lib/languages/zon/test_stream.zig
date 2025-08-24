@@ -4,7 +4,7 @@ const std = @import("std");
 const testing = std.testing;
 
 // Import only the stream-first components
-const ZonStreamLexer = @import("stream_lexer.zig").ZonStreamLexer;
+const ZonLexer = @import("stream_lexer.zig").ZonLexer;
 const ZonToken = @import("stream_token.zig").ZonToken;
 const ZonTokenKind = @import("stream_token.zig").ZonTokenKind;
 
@@ -24,7 +24,7 @@ test "ZON stream lexer integration" {
         \\}
     ;
 
-    var lexer = ZonStreamLexer.init(input);
+    var lexer = ZonLexer.init(input);
 
     // Verify we can process the entire input
     var token_count: usize = 0;
@@ -38,7 +38,7 @@ test "ZON stream lexer integration" {
 
 test "ZON stream lexer performance characteristics" {
     // Verify the lexer struct size is reasonable for streaming architecture
-    const lexer_size = @sizeOf(ZonStreamLexer);
+    const lexer_size = @sizeOf(ZonLexer);
     try testing.expect(lexer_size < 70000); // ~64KB ring buffer + metadata
     try testing.expect(lexer_size > 65000); // Should be dominated by ring buffer
 
@@ -49,14 +49,14 @@ test "ZON stream lexer performance characteristics" {
 
 test "ZON stream lexer edge cases" {
     // Test empty struct
-    var lexer1 = ZonStreamLexer.init(".{}");
+    var lexer1 = ZonLexer.init(".{}");
     const t1 = lexer1.next().?;
     try testing.expectEqual(ZonTokenKind.struct_start, t1.zon.kind);
     const t2 = lexer1.next().?;
     try testing.expectEqual(ZonTokenKind.struct_end, t2.zon.kind);
 
     // Test builtin function
-    var lexer2 = ZonStreamLexer.init("@import(\"std\")");
+    var lexer2 = ZonLexer.init("@import(\"std\")");
     const t3 = lexer2.next().?;
     try testing.expectEqual(ZonTokenKind.import, t3.zon.kind);
 }

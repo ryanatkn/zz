@@ -10,9 +10,9 @@ const json_ast = @import("../ast/mod.zig");
 const AST = json_ast.AST;
 
 /// High-performance JSON formatter with AST traversal
-pub const JsonFormatter = struct {
+pub const Formatter = struct {
     allocator: std.mem.Allocator,
-    options: JsonFormatOptions,
+    options: FormatOptions,
     output: std.ArrayList(u8),
     source: []const u8,
     indent_level: u32,
@@ -20,7 +20,7 @@ pub const JsonFormatter = struct {
 
     const Self = @This();
 
-    pub const JsonFormatOptions = struct {
+    pub const FormatOptions = struct {
         // Basic formatting
         indent_size: u32 = 2,
         indent_style: IndentStyle = .space,
@@ -44,8 +44,8 @@ pub const JsonFormatter = struct {
         pub const QuoteStyle = enum { single, double, preserve };
     };
 
-    pub fn init(allocator: std.mem.Allocator, options: JsonFormatOptions) JsonFormatter {
-        return JsonFormatter{
+    pub fn init(allocator: std.mem.Allocator, options: FormatOptions) Formatter {
+        return Formatter{
             .allocator = allocator,
             .options = options,
             .output = std.ArrayList(u8).init(allocator),
@@ -81,7 +81,7 @@ pub const JsonFormatter = struct {
     pub fn formatSource(self: *Self, source: []const u8) ![]const u8 {
         // Parse source to AST first, then format AST (avoids double tokenization)
         const json_mod = @import("../mod.zig");
-        var ast = try json_mod.parseJson(self.allocator, source);
+        var ast = try json_mod.parse(self.allocator, source);
         defer ast.deinit();
         return self.format(ast);
     }
@@ -310,7 +310,7 @@ test "JSON streaming formatter - simple values" {
     };
 
     for (inputs, expected) |input, expect| {
-        var formatter = JsonFormatter.init(allocator, .{});
+        var formatter = Formatter.init(allocator, .{});
         defer formatter.deinit();
 
         const output = try formatter.formatSource(input);
@@ -326,7 +326,7 @@ test "JSON streaming formatter - compact object" {
 
     const input = "{\"name\":\"test\",\"value\":42}";
 
-    var formatter = JsonFormatter.init(allocator, .{ .force_compact = true });
+    var formatter = Formatter.init(allocator, .{ .force_compact = true });
     defer formatter.deinit();
 
     const output = try formatter.formatSource(input);

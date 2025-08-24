@@ -258,7 +258,7 @@ fn formatWithLanguageModules(allocator: std.mem.Allocator, content: []const u8, 
         .json => {
             // Use JSON module convenience function for raw JSON formatting
             const json_mod = @import("../lib/languages/json/mod.zig");
-            return json_mod.formatJsonString(allocator, content);
+            return json_mod.formatString(allocator, content);
         },
         .zon => {
             // Use ZON module convenience function for raw ZON formatting

@@ -101,15 +101,15 @@ pub fn Linter(comptime ASTType: type, comptime RuleType: type) type {
         const Self = @This();
 
         /// Rule metadata for UI/config (maps enum values to descriptions)
-        ruleInfoFn: *const fn (rule: RuleType) RuleInfo,
+        ruleInfoFn: *const fn (rule: RuleType) RuleInfo(RuleType),
 
         /// Run linting on AST with enum-based rules (O(1) performance)
-        lintFn: *const fn (allocator: std.mem.Allocator, ast: ASTType, rules: std.EnumSet(RuleType)) anyerror![]Diagnostic,
+        lintFn: *const fn (allocator: std.mem.Allocator, ast: ASTType, rules: std.EnumSet(RuleType)) anyerror![]Diagnostic(RuleType),
 
         /// Get default enabled rules for this language
         getDefaultRulesFn: *const fn () std.EnumSet(RuleType),
 
-        pub fn lint(self: Self, allocator: std.mem.Allocator, ast: ASTType, enabled_rules: std.EnumSet(RuleType)) ![]Diagnostic {
+        pub fn lint(self: Self, allocator: std.mem.Allocator, ast: ASTType, enabled_rules: std.EnumSet(RuleType)) ![]Diagnostic(RuleType) {
             return self.lintFn(allocator, ast, enabled_rules);
         }
 
@@ -117,7 +117,7 @@ pub fn Linter(comptime ASTType: type, comptime RuleType: type) type {
             return self.getDefaultRulesFn();
         }
 
-        pub fn getRuleInfo(self: Self, rule: RuleType) RuleInfo {
+        pub fn getRuleInfo(self: Self, rule: RuleType) RuleInfo(RuleType) {
             return self.ruleInfoFn(rule);
         }
     };
@@ -217,28 +217,35 @@ pub const Boundary = struct {
 
 /// Rule metadata for language-specific enum values
 /// Used to provide human-readable information about rules
-pub const RuleInfo = struct {
-    name: []const u8,
-    description: []const u8,
-    severity: Severity,
-    enabled_by_default: bool,
+/// Severity levels for rules
+pub const Severity = enum { err, warning, info, hint };
 
-    pub const Severity = enum { err, warning, info, hint };
-};
+/// Generic rule info with enum-based rule (no string duplication)
+pub fn RuleInfo(comptime RuleType: type) type {
+    return struct {
+        rule: RuleType, // Enum instead of string!
+        description: []const u8,
+        severity: Severity,
+        enabled_by_default: bool,
+    };
+}
 
 /// Diagnostic from linting
-pub const Diagnostic = struct {
-    rule: []const u8, // Rule name for display
-    message: []const u8,
-    severity: RuleInfo.Severity,
-    range: Span,
-    fix: ?Fix = null,
+/// Generic diagnostic with enum-based rule (zero allocation for rule names)
+pub fn Diagnostic(comptime RuleType: type) type {
+    return struct {
+        rule: RuleType, // Enum instead of string - no allocation needed!
+        message: []const u8, // Dynamic message - still needs allocation
+        severity: Severity,
+        range: Span,
+        fix: ?Fix = null,
 
-    pub const Fix = struct {
-        description: []const u8,
-        edits: []Edit,
+        pub const Fix = struct {
+            description: []const u8,
+            edits: []Edit,
+        };
     };
-};
+}
 
 /// Symbol from semantic analysis
 pub const Symbol = struct {

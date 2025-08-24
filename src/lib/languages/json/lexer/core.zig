@@ -9,9 +9,9 @@
 const std = @import("std");
 const RingBuffer = @import("../../../stream/mod.zig").RingBuffer;
 const StreamToken = @import("../../../token/mod.zig").StreamToken;
-const JsonToken = @import("../token/types.zig").JsonToken;
-const JsonTokenKind = @import("../token/types.zig").JsonTokenKind;
-const JsonTokenFlags = @import("../token/types.zig").JsonTokenFlags;
+const Token = @import("../token/types.zig").Token;
+const TokenKind = @import("../token/types.zig").TokenKind;
+const TokenFlags = @import("../token/types.zig").TokenFlags;
 const packSpan = @import("../../../span/mod.zig").packSpan;
 const Span = @import("../../../span/mod.zig").Span;
 const TokenBuffer = @import("../token/buffer.zig").TokenBuffer;
@@ -37,7 +37,7 @@ pub const LexerState = enum {
 };
 
 /// JSON stream lexer with boundary-aware token handling
-pub const JsonStreamLexer = struct {
+pub const Lexer = struct {
     // Ring buffer for lookahead (4KB on stack)
     buffer: RingBuffer(u8, 4096),
 
@@ -64,7 +64,7 @@ pub const JsonStreamLexer = struct {
     expecting_property_key: bool,
 
     // Flags for current token being built
-    current_flags: JsonTokenFlags,
+    current_flags: TokenFlags,
 
     // Error state
     error_msg: ?[]const u8,
@@ -77,8 +77,8 @@ pub const JsonStreamLexer = struct {
     peeked_token: ?StreamToken,
 
     /// Initialize lexer with input buffer - primary interface
-    pub fn init(input: []const u8) JsonStreamLexer {
-        var lexer = JsonStreamLexer.initEmpty();
+    pub fn init(input: []const u8) Lexer {
+        var lexer = Lexer.initEmpty();
         for (input) |byte| {
             _ = lexer.buffer.push(byte) catch break;
         }
@@ -86,8 +86,8 @@ pub const JsonStreamLexer = struct {
     }
 
     /// Initialize boundary-aware lexer with allocator
-    pub fn initWithAllocator(allocator: std.mem.Allocator) JsonStreamLexer {
-        return JsonStreamLexer{
+    pub fn initWithAllocator(allocator: std.mem.Allocator) Lexer {
+        return Lexer{
             .buffer = RingBuffer(u8, 4096).init(),
             .state = .start,
             .position = 0,
@@ -108,8 +108,8 @@ pub const JsonStreamLexer = struct {
     }
 
     /// Initialize empty lexer for streaming
-    pub fn initEmpty() JsonStreamLexer {
-        return JsonStreamLexer{
+    pub fn initEmpty() Lexer {
+        return Lexer{
             .buffer = RingBuffer(u8, 4096).init(),
             .state = .start,
             .position = 0,
@@ -130,14 +130,14 @@ pub const JsonStreamLexer = struct {
     }
 
     /// Clean up dynamic resources
-    pub fn deinit(self: *JsonStreamLexer) void {
+    pub fn deinit(self: *Lexer) void {
         if (self.token_buffer) |*buf| {
             buf.deinit();
         }
     }
 
     /// Get next token - Direct iterator interface (1-2 cycle dispatch)
-    pub fn next(self: *JsonStreamLexer) ?StreamToken {
+    pub fn next(self: *Lexer) ?StreamToken {
         if (self.peeked_token) |token| {
             self.peeked_token = null;
             return token;
@@ -145,14 +145,14 @@ pub const JsonStreamLexer = struct {
         return self.nextInternal();
     }
 
-    fn nextInternal(self: *JsonStreamLexer) ?StreamToken {
+    fn nextInternal(self: *Lexer) ?StreamToken {
         if (self.state == .done) return null;
 
         self.skipWhitespace();
 
         if (self.buffer.isEmpty()) {
             self.state = .done;
-            return StreamToken{ .json = JsonToken{
+            return StreamToken{ .json = Token{
                 .span = packSpan(Span{ .start = self.position, .end = self.position }),
                 .kind = .eof,
                 .depth = self.depth,
@@ -189,17 +189,17 @@ pub const JsonStreamLexer = struct {
     }
 
     /// Peek at next token without consuming (method interface for compatibility)
-    pub fn peek(self: *JsonStreamLexer) ?StreamToken {
+    pub fn peek(self: *Lexer) ?StreamToken {
         return boundary.peek(self);
     }
 
     /// Feed more data for boundary continuation (method interface for compatibility)
-    pub fn feedData(self: *JsonStreamLexer, data: []const u8) !void {
+    pub fn feedData(self: *Lexer, data: []const u8) !void {
         return boundary.feedData(self, data);
     }
 
     /// Convert to DirectStream for pipeline integration
-    pub fn toDirectStream(self: *JsonStreamLexer) @import("../../../stream/mod.zig").DirectStream(StreamToken) {
+    pub fn toDirectStream(self: *Lexer) @import("../../../stream/mod.zig").DirectStream(StreamToken) {
         const DirectStream = @import("../../../stream/mod.zig").DirectStream;
         const GeneratorStream = @import("../../../stream/mod.zig").GeneratorStream;
 
@@ -207,7 +207,7 @@ pub const JsonStreamLexer = struct {
             @ptrCast(self),
             struct {
                 fn generate(ctx: *anyopaque) ?StreamToken {
-                    const lexer: *JsonStreamLexer = @ptrCast(@alignCast(ctx));
+                    const lexer: *Lexer = @ptrCast(@alignCast(ctx));
                     return lexer.next();
                 }
             }.generate,
@@ -217,7 +217,7 @@ pub const JsonStreamLexer = struct {
     }
 
     /// Scan a string literal
-    fn scanString(self: *JsonStreamLexer) StreamToken {
+    fn scanString(self: *Lexer) StreamToken {
         _ = self.buffer.pop(); // Consume opening quote
         self.position += 1;
         self.column += 1;
@@ -232,13 +232,13 @@ pub const JsonStreamLexer = struct {
             switch (ch) {
                 '"' => {
                     // End of string found
-                    const kind: JsonTokenKind = if (self.expecting_property_key) .property_name else .string_value;
+                    const kind: TokenKind = if (self.expecting_property_key) .property_name else .string_value;
 
                     if (self.expecting_property_key) {
                         self.expecting_property_key = false;
                     }
 
-                    const token = JsonToken{
+                    const token = Token{
                         .span = packSpan(Span{ .start = self.token_start, .end = self.position }),
                         .kind = kind,
                         .depth = self.depth,
@@ -284,7 +284,7 @@ pub const JsonStreamLexer = struct {
     }
 
     /// Scan a number
-    fn scanNumber(self: *JsonStreamLexer) StreamToken {
+    fn scanNumber(self: *Lexer) StreamToken {
         var is_float = false;
         var is_negative = false;
         var is_scientific = false;
@@ -380,7 +380,7 @@ pub const JsonStreamLexer = struct {
             }
         }
 
-        const token = JsonToken{
+        const token = Token{
             .span = packSpan(Span{ .start = self.token_start, .end = self.position }),
             .kind = .number_value,
             .depth = self.depth,
@@ -396,10 +396,10 @@ pub const JsonStreamLexer = struct {
     }
 
     /// Scan a keyword (true, false, null)
-    fn scanKeyword(self: *JsonStreamLexer) StreamToken {
+    fn scanKeyword(self: *Lexer) StreamToken {
         const start_ch = self.buffer.peek() orelse return self.makeErrorToken();
 
-        const kind: JsonTokenKind = switch (start_ch) {
+        const kind: TokenKind = switch (start_ch) {
             't' => blk: {
                 if (self.matchKeyword("true")) break :blk .boolean_true;
                 break :blk .err;
@@ -420,7 +420,7 @@ pub const JsonStreamLexer = struct {
             return self.makeErrorToken();
         }
 
-        const token = JsonToken{
+        const token = Token{
             .span = packSpan(Span{ .start = self.token_start, .end = self.position }),
             .kind = kind,
             .depth = self.depth,
@@ -432,7 +432,7 @@ pub const JsonStreamLexer = struct {
     }
 
     /// Scan a comment (non-standard but common)
-    fn scanComment(self: *JsonStreamLexer) StreamToken {
+    fn scanComment(self: *Lexer) StreamToken {
         _ = self.buffer.pop(); // Consume '/'
         self.position += 1;
         self.column += 1;
@@ -485,7 +485,7 @@ pub const JsonStreamLexer = struct {
             },
         }
 
-        const token = JsonToken{
+        const token = Token{
             .span = packSpan(Span{ .start = self.token_start, .end = self.position }),
             .kind = .comment,
             .depth = self.depth,
@@ -496,7 +496,7 @@ pub const JsonStreamLexer = struct {
         return StreamToken{ .json = token };
     }
 
-    fn skipWhitespace(self: *JsonStreamLexer) void {
+    fn skipWhitespace(self: *Lexer) void {
         while (self.buffer.peek()) |ch| {
             switch (ch) {
                 ' ', '\t', '\r' => {
@@ -515,7 +515,7 @@ pub const JsonStreamLexer = struct {
         }
     }
 
-    fn makeSimpleToken(self: *JsonStreamLexer, kind: JsonTokenKind, increase_depth: bool) StreamToken {
+    fn makeSimpleToken(self: *Lexer, kind: TokenKind, increase_depth: bool) StreamToken {
         _ = self.buffer.pop();
         const end_pos = self.position + 1;
 
@@ -553,7 +553,7 @@ pub const JsonStreamLexer = struct {
             else => {},
         }
 
-        const token = JsonToken{
+        const token = Token{
             .span = packSpan(Span{ .start = self.token_start, .end = end_pos }),
             .kind = kind,
             .depth = self.depth,
@@ -566,7 +566,7 @@ pub const JsonStreamLexer = struct {
         return StreamToken{ .json = token };
     }
 
-    fn matchKeyword(self: *JsonStreamLexer, keyword: []const u8) bool {
+    fn matchKeyword(self: *Lexer, keyword: []const u8) bool {
         var i: usize = 0;
         while (i < keyword.len) : (i += 1) {
             const ch = self.buffer.peek() orelse return false;
@@ -578,8 +578,8 @@ pub const JsonStreamLexer = struct {
         return true;
     }
 
-    fn makeErrorToken(self: *JsonStreamLexer) StreamToken {
-        const token = JsonToken{
+    fn makeErrorToken(self: *Lexer) StreamToken {
+        const token = Token{
             .span = packSpan(Span{ .start = self.token_start, .end = self.position }),
             .kind = .err,
             .depth = self.depth,
@@ -590,8 +590,8 @@ pub const JsonStreamLexer = struct {
         return StreamToken{ .json = token };
     }
 
-    fn makeContinuationToken(self: *JsonStreamLexer) StreamToken {
-        const token = JsonToken{
+    fn makeContinuationToken(self: *Lexer) StreamToken {
+        const token = Token{
             .span = packSpan(Span{ .start = self.position, .end = self.position }),
             .kind = .continuation,
             .depth = self.depth,
@@ -603,43 +603,43 @@ pub const JsonStreamLexer = struct {
 };
 
 // Tests
-test "JsonStreamLexer basic tokenization" {
+test "Lexer basic tokenization" {
     const testing = std.testing;
 
-    var lexer = JsonStreamLexer.init(
+    var lexer = Lexer.init(
         \\{"name": "test", "value": 42}
     );
 
     // Test token sequence
     const token1 = lexer.next() orelse return error.UnexpectedNull;
-    try testing.expectEqual(JsonTokenKind.object_start, token1.json.kind);
+    try testing.expectEqual(TokenKind.object_start, token1.json.kind);
 
     const token2 = lexer.next() orelse return error.UnexpectedNull;
-    try testing.expectEqual(JsonTokenKind.property_name, token2.json.kind);
+    try testing.expectEqual(TokenKind.property_name, token2.json.kind);
 
     const token3 = lexer.next() orelse return error.UnexpectedNull;
-    try testing.expectEqual(JsonTokenKind.colon, token3.json.kind);
+    try testing.expectEqual(TokenKind.colon, token3.json.kind);
 
     const token4 = lexer.next() orelse return error.UnexpectedNull;
-    try testing.expectEqual(JsonTokenKind.string_value, token4.json.kind);
+    try testing.expectEqual(TokenKind.string_value, token4.json.kind);
 
     const token5 = lexer.next() orelse return error.UnexpectedNull;
-    try testing.expectEqual(JsonTokenKind.comma, token5.json.kind);
+    try testing.expectEqual(TokenKind.comma, token5.json.kind);
 
     const token6 = lexer.next() orelse return error.UnexpectedNull;
-    try testing.expectEqual(JsonTokenKind.property_name, token6.json.kind);
+    try testing.expectEqual(TokenKind.property_name, token6.json.kind);
 
     const token7 = lexer.next() orelse return error.UnexpectedNull;
-    try testing.expectEqual(JsonTokenKind.colon, token7.json.kind);
+    try testing.expectEqual(TokenKind.colon, token7.json.kind);
 
     const token8 = lexer.next() orelse return error.UnexpectedNull;
-    try testing.expectEqual(JsonTokenKind.number_value, token8.json.kind);
+    try testing.expectEqual(TokenKind.number_value, token8.json.kind);
 
     const token9 = lexer.next() orelse return error.UnexpectedNull;
-    try testing.expectEqual(JsonTokenKind.object_end, token9.json.kind);
+    try testing.expectEqual(TokenKind.object_end, token9.json.kind);
 
     const token10 = lexer.next() orelse return error.UnexpectedNull;
-    try testing.expectEqual(JsonTokenKind.eof, token10.json.kind);
+    try testing.expectEqual(TokenKind.eof, token10.json.kind);
 
     try testing.expectEqual(@as(?StreamToken, null), lexer.next());
 }

@@ -6,7 +6,7 @@ const testing = std.testing;
 const StreamToken = @import("stream_token.zig").StreamToken;
 
 // Import language tokens
-const JsonToken = @import("../languages/json/token/mod.zig").JsonToken;
+const JsonToken = @import("../languages/json/token/mod.zig").Token;
 const ZonToken = @import("../languages/zon/stream_token.zig").ZonToken;
 
 // Import span types
@@ -32,7 +32,7 @@ test "JsonToken size and construction" {
 
     // Boolean tokens
     const bool_true = JsonToken.boolean(span, 2, true);
-    const JsonTokenKind = @import("../languages/json/token/mod.zig").JsonTokenKind;
+    const JsonTokenKind = @import("../languages/json/token/mod.zig").TokenKind;
     try testing.expectEqual(JsonTokenKind.boolean_true, bool_true.kind);
 }
 
@@ -68,7 +68,7 @@ test "StreamToken tagged union operations" {
     try testing.expectEqual(packSpan(span), stream_json.json.span);
     try testing.expectEqual(@as(u8, 0), stream_json.json.depth);
     // No generic kind mapping - language owns its kinds
-    const JsonTokenKind = @import("../languages/json/token/mod.zig").JsonTokenKind;
+    const JsonTokenKind = @import("../languages/json/token/mod.zig").TokenKind;
     try testing.expectEqual(JsonTokenKind.object_start, stream_json.json.kind);
     try testing.expect(stream_json.json.isOpenDelimiter());
 

@@ -4,16 +4,16 @@
 const std = @import("std");
 
 // Re-export core analyzer
-pub const JsonAnalyzer = @import("core.zig").JsonAnalyzer;
+pub const Analyzer = @import("core.zig").Analyzer;
 pub const Symbol = @import("core.zig").Symbol;
 
 // Re-export schema functionality (accessible as analyzer.schema.*)
 pub const schema = @import("schema.zig");
-pub const JsonSchema = schema.JsonSchema;
+pub const Schema = schema.Schema;
 
 // Re-export commonly used types
-pub const JsonStatistics = JsonAnalyzer.JsonStatistics;
-pub const AnalyzerOptions = JsonAnalyzer.AnalyzerOptions;
+pub const Statistics = Analyzer.Statistics;
+pub const AnalyzerOptions = Analyzer.AnalyzerOptions;
 
 // ============================================================================
 // Tests for Complete Analyzer Functionality
@@ -23,21 +23,21 @@ test "JSON analyzer - extract schema from simple object" {
     const testing = std.testing;
     const allocator = testing.allocator;
 
-    const JsonParser = @import("../parser/mod.zig").JsonParser;
+    const Parser = @import("../parser/mod.zig").Parser;
 
     const input = "{\"name\": \"test\", \"value\": 42, \"active\": true}";
 
-    var parser = try JsonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
     defer ast.deinit();
 
-    var analyzer = JsonAnalyzer.init(allocator, .{});
+    var analyzer = Analyzer.init(allocator, .{});
     var extracted_schema = try analyzer.extractSchema(ast);
     defer extracted_schema.deinit(allocator);
 
-    try testing.expectEqual(JsonSchema.SchemaType.object, extracted_schema.schema_type);
+    try testing.expectEqual(Schema.SchemaType.object, extracted_schema.schema_type);
     try testing.expect(extracted_schema.properties != null);
     try testing.expectEqual(@as(u32, 3), extracted_schema.properties.?.count());
 }
@@ -46,17 +46,17 @@ test "JSON analyzer - generate statistics" {
     const testing = std.testing;
     const allocator = testing.allocator;
 
-    const JsonParser = @import("../parser/mod.zig").JsonParser;
+    const Parser = @import("../parser/mod.zig").Parser;
 
     const input = "{\"items\": [1, 2, 3], \"count\": 3}";
 
-    var parser = try JsonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
     defer ast.deinit();
 
-    var analyzer = JsonAnalyzer.init(allocator, .{});
+    var analyzer = Analyzer.init(allocator, .{});
     const stats = try analyzer.generateStatistics(ast);
 
     try testing.expect(stats.max_depth >= 2); // object -> array -> number
@@ -70,17 +70,17 @@ test "JSON analyzer - extract symbols" {
     const testing = std.testing;
     const allocator = testing.allocator;
 
-    const JsonParser = @import("../parser/mod.zig").JsonParser;
+    const Parser = @import("../parser/mod.zig").Parser;
 
     const input = "{\"user\": {\"name\": \"Alice\", \"age\": 30}}";
 
-    var parser = try JsonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
     defer ast.deinit();
 
-    var analyzer = JsonAnalyzer.init(allocator, .{});
+    var analyzer = Analyzer.init(allocator, .{});
     const symbols = try analyzer.extractSymbols(ast);
     defer {
         for (symbols) |symbol| {

@@ -6,14 +6,14 @@ const std = @import("std");
 const json_ast = @import("../ast/mod.zig");
 const Node = json_ast.Node;
 
-// Forward declare JsonAnalyzer from analyzer_core.zig
-const JsonAnalyzer = @import("core.zig").JsonAnalyzer;
+// Forward declare Analyzer from analyzer_core.zig
+const Analyzer = @import("core.zig").Analyzer;
 
 /// JSON Schema representation for type inference
-pub const JsonSchema = struct {
+pub const Schema = struct {
     schema_type: SchemaType,
-    properties: ?std.HashMap([]const u8, JsonSchema, std.hash_map.StringContext, std.hash_map.default_max_load_percentage),
-    items: ?*JsonSchema,
+    properties: ?std.HashMap([]const u8, Schema, std.hash_map.StringContext, std.hash_map.default_max_load_percentage),
+    items: ?*Schema,
     nullable: bool = false,
     examples: std.ArrayList([]const u8),
 
@@ -27,7 +27,7 @@ pub const JsonSchema = struct {
         any,
     };
 
-    pub fn deinit(self: *JsonSchema, allocator: std.mem.Allocator) void {
+    pub fn deinit(self: *Schema, allocator: std.mem.Allocator) void {
         if (self.properties) |*props| {
             var iter = props.iterator();
             while (iter.next()) |entry| {
@@ -48,8 +48,8 @@ pub const JsonSchema = struct {
         self.examples.deinit();
     }
 
-    pub fn init(allocator: std.mem.Allocator, schema_type: SchemaType) JsonSchema {
-        return JsonSchema{
+    pub fn init(allocator: std.mem.Allocator, schema_type: SchemaType) Schema {
+        return Schema{
             .schema_type = schema_type,
             .properties = null,
             .items = null,
@@ -63,37 +63,37 @@ pub const JsonSchema = struct {
 // Schema Analysis Methods
 // =========================================================================
 
-pub fn analyzeNode(analyzer: *JsonAnalyzer, node: *const Node, depth: u32) anyerror!JsonSchema {
+pub fn analyzeNode(analyzer: *Analyzer, node: *const Node, depth: u32) anyerror!Schema {
     if (depth > analyzer.options.max_schema_depth) {
-        return JsonSchema.init(analyzer.allocator, .any);
+        return Schema.init(analyzer.allocator, .any);
     }
 
     return switch (node.*) {
         .string => |n| blk: {
-            var schema = JsonSchema.init(analyzer.allocator, .string);
+            var schema = Schema.init(analyzer.allocator, .string);
             try schema.examples.append(try analyzer.allocator.dupe(u8, n.value));
             break :blk schema;
         },
         .number => |n| blk: {
-            var schema = JsonSchema.init(analyzer.allocator, .number);
+            var schema = Schema.init(analyzer.allocator, .number);
             try schema.examples.append(try analyzer.allocator.dupe(u8, n.raw));
             break :blk schema;
         },
         .boolean => |n| blk: {
-            var schema = JsonSchema.init(analyzer.allocator, .boolean);
+            var schema = Schema.init(analyzer.allocator, .boolean);
             try schema.examples.append(try analyzer.allocator.dupe(u8, if (n.value) "true" else "false"));
             break :blk schema;
         },
-        .null => JsonSchema.init(analyzer.allocator, .null),
+        .null => Schema.init(analyzer.allocator, .null),
         .object => analyzeObject(analyzer, node, depth),
         .array => analyzeArray(analyzer, node, depth),
-        else => JsonSchema.init(analyzer.allocator, .any),
+        else => Schema.init(analyzer.allocator, .any),
     };
 }
 
-pub fn analyzeObject(analyzer: *JsonAnalyzer, node: *const Node, depth: u32) !JsonSchema {
-    var schema = JsonSchema.init(analyzer.allocator, .object);
-    schema.properties = std.HashMap([]const u8, JsonSchema, std.hash_map.StringContext, std.hash_map.default_max_load_percentage).init(analyzer.allocator);
+pub fn analyzeObject(analyzer: *Analyzer, node: *const Node, depth: u32) !Schema {
+    var schema = Schema.init(analyzer.allocator, .object);
+    schema.properties = std.HashMap([]const u8, Schema, std.hash_map.StringContext, std.hash_map.default_max_load_percentage).init(analyzer.allocator);
 
     const object_node = node.object;
     const properties = object_node.properties;
@@ -118,15 +118,15 @@ pub fn analyzeObject(analyzer: *JsonAnalyzer, node: *const Node, depth: u32) !Js
     return schema;
 }
 
-pub fn analyzeArray(analyzer: *JsonAnalyzer, node: *const Node, depth: u32) !JsonSchema {
-    var schema = JsonSchema.init(analyzer.allocator, .array);
+pub fn analyzeArray(analyzer: *Analyzer, node: *const Node, depth: u32) !Schema {
+    var schema = Schema.init(analyzer.allocator, .array);
 
     const array_node = node.array;
     const elements = array_node.elements;
     if (elements.len == 0) {
         // Empty array - infer as any[]
-        schema.items = try analyzer.allocator.create(JsonSchema);
-        schema.items.?.* = JsonSchema.init(analyzer.allocator, .any);
+        schema.items = try analyzer.allocator.create(Schema);
+        schema.items.?.* = Schema.init(analyzer.allocator, .any);
         return schema;
     }
 
@@ -149,18 +149,18 @@ pub fn analyzeArray(analyzer: *JsonAnalyzer, node: *const Node, depth: u32) !Jso
         }
 
         if (uniform_type) {
-            schema.items = try analyzer.allocator.create(JsonSchema);
+            schema.items = try analyzer.allocator.create(Schema);
             schema.items.?.* = first_element_schema;
         } else {
             // Mixed types - use any
             var mutable_first_schema = first_element_schema;
             mutable_first_schema.deinit(analyzer.allocator);
-            schema.items = try analyzer.allocator.create(JsonSchema);
-            schema.items.?.* = JsonSchema.init(analyzer.allocator, .any);
+            schema.items = try analyzer.allocator.create(Schema);
+            schema.items.?.* = Schema.init(analyzer.allocator, .any);
         }
     } else {
-        schema.items = try analyzer.allocator.create(JsonSchema);
-        schema.items.?.* = JsonSchema.init(analyzer.allocator, .any);
+        schema.items = try analyzer.allocator.create(Schema);
+        schema.items.?.* = Schema.init(analyzer.allocator, .any);
     }
 
     return schema;
@@ -170,9 +170,9 @@ pub fn analyzeArray(analyzer: *JsonAnalyzer, node: *const Node, depth: u32) !Jso
 // Schema Type Utilities
 // =========================================================================
 
-pub fn inferSchemaFromMultipleValues(analyzer: *JsonAnalyzer, values: []const Node) !JsonSchema {
+pub fn inferSchemaFromMultipleValues(analyzer: *Analyzer, values: []const Node) !Schema {
     if (values.len == 0) {
-        return JsonSchema.init(analyzer.allocator, .any);
+        return Schema.init(analyzer.allocator, .any);
     }
 
     // Start with the schema of the first value
@@ -190,7 +190,7 @@ pub fn inferSchemaFromMultipleValues(analyzer: *JsonAnalyzer, values: []const No
             base_schema.deinit(analyzer.allocator);
             var mutable_value_schema = value_schema;
             mutable_value_schema.deinit(analyzer.allocator);
-            return JsonSchema.init(analyzer.allocator, .any);
+            return Schema.init(analyzer.allocator, .any);
         }
 
         // For compatible types, we could merge examples
@@ -205,7 +205,7 @@ pub fn inferSchemaFromMultipleValues(analyzer: *JsonAnalyzer, values: []const No
     return base_schema;
 }
 
-pub fn isSchemaCompatible(schema1: *const JsonSchema, schema2: *const JsonSchema) bool {
+pub fn isSchemaCompatible(schema1: *const Schema, schema2: *const Schema) bool {
     // Basic type compatibility check
     if (schema1.schema_type != schema2.schema_type) {
         return false;
@@ -259,7 +259,7 @@ pub fn isSchemaCompatible(schema1: *const JsonSchema, schema2: *const JsonSchema
 // Schema Optimization Suggestions
 // =========================================================================
 
-pub fn generateOptimizationSuggestions(analyzer: *JsonAnalyzer, schema: *const JsonSchema) ![][]const u8 {
+pub fn generateOptimizationSuggestions(analyzer: *Analyzer, schema: *const Schema) ![][]const u8 {
     var suggestions = std.ArrayList([]const u8).init(analyzer.allocator);
 
     switch (schema.schema_type) {

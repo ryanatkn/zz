@@ -7,8 +7,8 @@ const Span = @import("../../../span/mod.zig").Span;
 const unpackSpan = @import("../../../span/mod.zig").unpackSpan;
 const TokenIterator = @import("../../../token/iterator.zig").TokenIterator;
 const StreamToken = @import("../../../token/stream_token.zig").StreamToken;
-const JsonToken = @import("../token/mod.zig").JsonToken;
-const JsonTokenKind = @import("../token/mod.zig").JsonTokenKind;
+const Token = @import("../token/mod.zig").Token;
+const TokenKind = @import("../token/mod.zig").TokenKind;
 
 // Use local JSON AST
 const json_ast = @import("../ast/mod.zig");
@@ -26,7 +26,7 @@ const parser_values = @import("values.zig");
 /// - Recursive descent parsing
 /// - Error recovery
 /// - Zero-allocation tokenization
-pub const JsonParser = struct {
+pub const Parser = struct {
     allocator: std.mem.Allocator,
     iterator: TokenIterator,
     source: []const u8,
@@ -146,7 +146,7 @@ pub const JsonParser = struct {
     }
 
     /// Peek at current token
-    pub fn peek(self: *Self) ?JsonToken {
+    pub fn peek(self: *Self) ?Token {
         if (self.current) |token| {
             switch (token) {
                 .json => |t| return t,
@@ -157,7 +157,7 @@ pub const JsonParser = struct {
     }
 
     /// Expect and consume a specific token kind
-    pub fn expect(self: *Self, kind: JsonTokenKind) !JsonToken {
+    pub fn expect(self: *Self, kind: TokenKind) !Token {
         if (self.peek()) |token| {
             if (token.kind == kind) {
                 const result = token;
@@ -236,7 +236,7 @@ pub const JsonParser = struct {
                         _ = try self.advance(); // consume the bad token
                         // Create a synthetic property name token using the malformed token's span
                         const span = unpackSpan(token.span);
-                        break :blk JsonToken.init(span, .property_name, 0);
+                        break :blk Token.init(span, .property_name, 0);
                     } else {
                         // End of input, break out of property parsing
                         break;

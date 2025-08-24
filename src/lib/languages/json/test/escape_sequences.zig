@@ -1,7 +1,7 @@
 /// Comprehensive escape sequence tests for JSON parser
 const std = @import("std");
 const testing = std.testing;
-const JsonParser = @import("../parser/mod.zig").JsonParser;
+const Parser = @import("../parser/mod.zig").Parser;
 
 test "JSON escape sequences - basic escapes" {
     const allocator = testing.allocator;
@@ -21,7 +21,7 @@ test "JSON escape sequences - basic escapes" {
     };
 
     for (test_cases) |case| {
-        var parser = try JsonParser.init(allocator, case.input, .{});
+        var parser = try Parser.init(allocator, case.input, .{});
         defer parser.deinit();
 
         var ast = try parser.parse();
@@ -52,7 +52,7 @@ test "JSON escape sequences - Unicode escapes" {
     };
 
     for (test_cases) |case| {
-        var parser = try JsonParser.init(allocator, case.input, .{});
+        var parser = try Parser.init(allocator, case.input, .{});
         defer parser.deinit();
 
         var ast = try parser.parse();
@@ -71,7 +71,7 @@ test "JSON escape sequences - mixed content" {
     const input = "\"Hello\\nWorld\\t\\\"quoted\\\"\\u00A9\"";
     const expected = "Hello\nWorld\t\"quoted\"©";
 
-    var parser = try JsonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -95,7 +95,7 @@ test "JSON escape sequences - complex JSON with escapes" {
         \\}
     ;
 
-    var parser = try JsonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -118,7 +118,7 @@ test "JSON escape sequences - invalid Unicode" {
     };
 
     for (test_cases) |input| {
-        var parser = try JsonParser.init(allocator, input, .{});
+        var parser = try Parser.init(allocator, input, .{});
         defer parser.deinit();
 
         var ast = try parser.parse();
@@ -135,7 +135,7 @@ test "JSON escape sequences - AST toString with escaping" {
     // Test that AST can properly escape strings when converted back to JSON
     const input = "\"Hello\\nWorld\"";
 
-    var parser = try JsonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();

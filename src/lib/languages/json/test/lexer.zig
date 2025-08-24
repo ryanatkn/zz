@@ -2,8 +2,8 @@ const std = @import("std");
 const testing = std.testing;
 
 // Import streaming lexer for new tests
-const JsonStreamLexer = @import("../lexer/mod.zig").StreamLexer;
-const JsonTokenKind = @import("../token/mod.zig").TokenKind;
+const Lexer = @import("../lexer/mod.zig").Lexer;
+const TokenKind = @import("../token/mod.zig").TokenKind;
 
 // =============================================================================
 // Lexer Tests - Migrated to Streaming Architecture
@@ -12,9 +12,9 @@ const JsonTokenKind = @import("../token/mod.zig").TokenKind;
 test "JSON lexer - basic tokens" {
     const input = "{ \"name\": \"test\", \"value\": 42, \"flag\": true, \"empty\": null }";
 
-    var lexer = JsonStreamLexer.init(input);
+    var lexer = Lexer.init(input);
     var token_count: usize = 0;
-    var found_tokens = std.ArrayList(JsonTokenKind).init(testing.allocator);
+    var found_tokens = std.ArrayList(TokenKind).init(testing.allocator);
     defer found_tokens.deinit();
 
     while (lexer.next()) |token| {
@@ -70,7 +70,7 @@ test "JSON lexer - complex structures" {
         \\}
     ;
 
-    var lexer = JsonStreamLexer.init(input);
+    var lexer = Lexer.init(input);
     var token_count: usize = 0;
     var object_depth: i32 = 0;
     var array_depth: i32 = 0;
@@ -104,7 +104,7 @@ test "JSON lexer - string error handling" {
     const invalid_escape = "{ \"key\": \"invalid\\q escape\" }";
 
     // Test unterminated string
-    var lexer1 = JsonStreamLexer.init(unterminated_string);
+    var lexer1 = Lexer.init(unterminated_string);
     var found_error = false;
 
     while (lexer1.next()) |token| {
@@ -121,7 +121,7 @@ test "JSON lexer - string error handling" {
     try testing.expect(found_error);
 
     // Test invalid escape - lexer should handle gracefully
-    var lexer2 = JsonStreamLexer.init(invalid_escape);
+    var lexer2 = Lexer.init(invalid_escape);
     var token_count: usize = 0;
 
     while (lexer2.next()) |token| {
@@ -156,7 +156,7 @@ test "JSON lexer - infinite loop regression test" {
     };
 
     for (edge_cases) |input| {
-        var lexer = JsonStreamLexer.init(input);
+        var lexer = Lexer.init(input);
         var token_count: usize = 0;
 
         // Set a reasonable limit to detect infinite loops
@@ -181,7 +181,7 @@ test "JSON lexer - infinite loop regression test" {
 // - Edge cases that previously caused infinite loops
 
 // When rewriting for streaming:
-// 1. Use JsonStreamLexer.init(source) instead of JsonLexer.init(allocator)
+// 1. Use Lexer.init(source) instead of JsonLexer.init(allocator)
 // 2. Iterate tokens with while (lexer.next()) instead of batchTokenize()
 // 3. Test token properties directly from StreamToken
 // 4. No need to free token arrays (zero-allocation streaming)

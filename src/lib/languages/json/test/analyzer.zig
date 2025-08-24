@@ -2,10 +2,10 @@ const std = @import("std");
 const testing = std.testing;
 
 // Import JSON components
-const JsonParser = @import("../parser/mod.zig").JsonParser;
+const Parser = @import("../parser/mod.zig").Parser;
 const analyzer_module = @import("../analyzer/mod.zig");
-const JsonAnalyzer = analyzer_module.JsonAnalyzer;
-const JsonSchema = analyzer_module.JsonSchema;
+const Analyzer = analyzer_module.Analyzer;
+const Schema = analyzer_module.Schema;
 
 // =============================================================================
 // Analyzer Tests
@@ -30,17 +30,17 @@ test "JSON analyzer - schema extraction" {
     ;
 
     // Updated to streaming parser (3-arg pattern)
-    var parser = try JsonParser.init(allocator, sample_json, .{});
+    var parser = try Parser.init(allocator, sample_json, .{});
     defer parser.deinit();
     var ast = try parser.parse();
     defer ast.deinit();
 
-    var analyzer = JsonAnalyzer.init(allocator, .{});
+    var analyzer = Analyzer.init(allocator, .{});
     var schema = try analyzer.extractSchema(ast);
     defer schema.deinit(allocator);
 
     // Should be object type
-    try testing.expectEqual(JsonSchema.SchemaType.object, schema.schema_type);
+    try testing.expectEqual(Schema.SchemaType.object, schema.schema_type);
 
     // Should have properties
     try testing.expect(schema.properties != null);
@@ -70,12 +70,12 @@ test "JSON analyzer - statistics" {
     ;
 
     // Updated to streaming parser (3-arg pattern)
-    var parser = try JsonParser.init(allocator, complex_json, .{});
+    var parser = try Parser.init(allocator, complex_json, .{});
     defer parser.deinit();
     var ast = try parser.parse();
     defer ast.deinit();
 
-    var analyzer = JsonAnalyzer.init(allocator, .{});
+    var analyzer = Analyzer.init(allocator, .{});
     const stats = try analyzer.generateStatistics(ast);
 
     // Check type counts

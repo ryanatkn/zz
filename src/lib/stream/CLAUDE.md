@@ -59,7 +59,7 @@ const stream = fromSlice(u32, &data);  // Still works
 ### Direct Iterator Pattern (Optimal)
 For maximum performance, bypass Stream entirely:
 ```zig
-var lexer = JsonStreamLexer.init(source);
+var lexer = JsonLexer.init(source);
 while (lexer.next()) |token| {
     // 1-2 cycle dispatch, no overhead
 }

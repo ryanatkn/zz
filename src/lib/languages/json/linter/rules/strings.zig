@@ -7,11 +7,11 @@ const char_utils = @import("../../../../char/mod.zig");
 const unpackSpan = @import("../../../../span/mod.zig").unpackSpan;
 
 // Import core linter types
-const JsonLinter = @import("../core.zig").JsonLinter;
+const Linter = @import("../core.zig").Linter;
 const EnabledRules = @import("../core.zig").EnabledRules;
-const JsonToken = @import("../../token/mod.zig").JsonToken;
+const Token = @import("../../token/mod.zig").Token;
 
-pub fn validateString(linter: *JsonLinter, token: JsonToken, enabled_rules: EnabledRules) !void {
+pub fn validateString(linter: *Linter, token: Token, enabled_rules: EnabledRules) !void {
     const span = unpackSpan(token.span);
     const text = linter.source[span.start..span.end];
 
@@ -19,7 +19,7 @@ pub fn validateString(linter: *JsonLinter, token: JsonToken, enabled_rules: Enab
     if (text.len > linter.options.max_string_length) {
         if (enabled_rules.contains(.large_structure)) {
             try linter.addDiagnostic(
-                "large_structure",
+                .large_structure,
                 "String exceeds maximum length",
                 .warning,
                 span,
@@ -33,7 +33,7 @@ pub fn validateString(linter: *JsonLinter, token: JsonToken, enabled_rules: Enab
             const content = text[1 .. text.len - 1];
             if (!std.unicode.utf8ValidateSlice(content)) {
                 try linter.addDiagnostic(
-                    "valid_string_encoding",
+                    .valid_string_encoding,
                     "String contains invalid UTF-8 sequences",
                     .err,
                     span,
@@ -46,7 +46,7 @@ pub fn validateString(linter: *JsonLinter, token: JsonToken, enabled_rules: Enab
     }
 }
 
-pub fn validateEscapeSequences(linter: *JsonLinter, content: []const u8, span: Span, _: EnabledRules) !void {
+pub fn validateEscapeSequences(linter: *Linter, content: []const u8, span: Span, _: EnabledRules) !void {
     var i: usize = 0;
     while (i < content.len) {
         if (content[i] == '\\' and i + 1 < content.len) {
@@ -62,7 +62,7 @@ pub fn validateEscapeSequences(linter: *JsonLinter, content: []const u8, span: S
                         for (hex_digits) |digit| {
                             if (!char_utils.isHexDigit(digit)) {
                                 try linter.addDiagnostic(
-                                    "invalid_escape_sequence",
+                                    .invalid_escape_sequence,
                                     "Invalid Unicode escape sequence",
                                     .err,
                                     span,
@@ -73,7 +73,7 @@ pub fn validateEscapeSequences(linter: *JsonLinter, content: []const u8, span: S
                         i += 6;
                     } else {
                         try linter.addDiagnostic(
-                            "invalid_escape_sequence",
+                            .invalid_escape_sequence,
                             "Incomplete Unicode escape sequence",
                             .err,
                             span,
@@ -83,7 +83,7 @@ pub fn validateEscapeSequences(linter: *JsonLinter, content: []const u8, span: S
                 },
                 else => {
                     try linter.addDiagnostic(
-                        "invalid_escape_sequence",
+                        .invalid_escape_sequence,
                         "Invalid escape sequence",
                         .err,
                         span,

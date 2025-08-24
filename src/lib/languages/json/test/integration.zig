@@ -3,7 +3,7 @@ const testing = std.testing;
 
 // Import JSON module and components
 const json_mod = @import("../mod.zig");
-const JsonAnalyzer = @import("../analyzer/mod.zig").JsonAnalyzer;
+const Analyzer = @import("../analyzer/mod.zig").Analyzer;
 const EnabledRules = @import("../linter/mod.zig").EnabledRules;
 
 // Import types
@@ -33,7 +33,7 @@ test "JSON integration - complete pipeline" {
     ;
 
     // Test full pipeline using module functions
-    var ast = try json_mod.parseJson(allocator, original_json);
+    var ast = try json_mod.parse(allocator, original_json);
     defer ast.deinit();
 
     // AST root is no longer optional, it's always a Node struct
@@ -41,13 +41,13 @@ test "JSON integration - complete pipeline" {
     // ast.root is a pointer, so it's always valid if AST was created
 
     // Format the JSON
-    const formatted = try json_mod.formatJsonString(allocator, original_json);
+    const formatted = try json_mod.formatString(allocator, original_json);
     defer allocator.free(formatted);
 
     try testing.expect(formatted.len > 0);
 
     // Validate the JSON
-    const diagnostics = try json_mod.validateJson(allocator, original_json);
+    const diagnostics = try json_mod.validate(allocator, original_json);
     defer {
         for (diagnostics) |diag| {
             allocator.free(diag.message);
@@ -59,14 +59,14 @@ test "JSON integration - complete pipeline" {
     try testing.expectEqual(@as(usize, 0), diagnostics.len);
 
     // Test schema extraction
-    var schema = try json_mod.extractJsonSchema(allocator, original_json);
+    var schema = try json_mod.extractSchema(allocator, original_json);
     defer schema.deinit(allocator);
 
     const analyzer_module = @import("../analyzer/mod.zig");
-    try testing.expectEqual(analyzer_module.JsonSchema.SchemaType.object, schema.schema_type);
+    try testing.expectEqual(analyzer_module.Schema.SchemaType.object, schema.schema_type);
 
     // Test statistics generation
-    const stats = try json_mod.getJsonStatistics(allocator, original_json);
+    const stats = try json_mod.getStatistics(allocator, original_json);
 
     try testing.expect(stats.complexity_score > 0.0);
 }
@@ -91,15 +91,15 @@ test "JSON integration - round-trip fidelity" {
 
     for (test_cases) |original| {
         // Parse original
-        var ast1 = try json_mod.parseJson(allocator, original);
+        var ast1 = try json_mod.parse(allocator, original);
         defer ast1.deinit();
 
         // Format it
-        const formatted = try json_mod.formatJsonString(allocator, original);
+        const formatted = try json_mod.formatString(allocator, original);
         defer allocator.free(formatted);
 
         // Parse formatted version
-        var ast2 = try json_mod.parseJson(allocator, formatted);
+        var ast2 = try json_mod.parse(allocator, formatted);
         defer ast2.deinit();
 
         // Both should be valid
@@ -107,7 +107,7 @@ test "JSON integration - round-trip fidelity" {
         // AST.root is non-optional now
 
         // Formatted version should also be valid when re-formatted
-        const formatted2 = try json_mod.formatJsonString(allocator, formatted);
+        const formatted2 = try json_mod.formatString(allocator, formatted);
         defer allocator.free(formatted2);
 
         // Should be stable (format(format(x)) = format(x))
@@ -154,7 +154,7 @@ test "JSON integration - language support interface" {
         const diagnostics = try linter.lintFn(allocator, ast, default_rules);
         defer {
             for (diagnostics) |diag| {
-                allocator.free(diag.rule);
+                // Rule is now an enum - no allocation to free!
                 allocator.free(diag.message);
             }
             allocator.free(diagnostics);

@@ -4,21 +4,21 @@
 const std = @import("std");
 const Span = @import("../../../span/mod.zig").Span;
 const unpackSpan = @import("../../../span/mod.zig").unpackSpan;
-const JsonToken = @import("../token/mod.zig").JsonToken;
-const JsonTokenKind = @import("../token/mod.zig").JsonTokenKind;
+const Token = @import("../token/mod.zig").Token;
+const TokenKind = @import("../token/mod.zig").TokenKind;
 
 // Use local JSON AST
 const json_ast = @import("../ast/mod.zig");
 const Node = json_ast.Node;
 
-// Forward declare JsonParser from parser_core.zig
-const JsonParser = @import("core.zig").JsonParser;
+// Forward declare Parser from parser_core.zig
+const Parser = @import("core.zig").Parser;
 
 // =========================================================================
 // Value Parsing Methods
 // =========================================================================
 
-pub fn parseString(parser: *JsonParser, allocator: std.mem.Allocator) !Node {
+pub fn parseString(parser: *Parser, allocator: std.mem.Allocator) !Node {
     const token = try parser.expect(.string_value);
     const span = unpackSpan(token.span);
 
@@ -36,7 +36,7 @@ pub fn parseString(parser: *JsonParser, allocator: std.mem.Allocator) !Node {
     };
 }
 
-pub fn parseNumber(parser: *JsonParser, allocator: std.mem.Allocator) !Node {
+pub fn parseNumber(parser: *Parser, allocator: std.mem.Allocator) !Node {
     _ = allocator;
     const token = try parser.expect(.number_value);
     const span = unpackSpan(token.span);
@@ -56,7 +56,7 @@ pub fn parseNumber(parser: *JsonParser, allocator: std.mem.Allocator) !Node {
     };
 }
 
-pub fn parseBoolean(parser: *JsonParser, allocator: std.mem.Allocator) !Node {
+pub fn parseBoolean(parser: *Parser, allocator: std.mem.Allocator) !Node {
     _ = allocator;
     const token = parser.peek() orelse return error.UnexpectedEndOfInput;
 
@@ -77,7 +77,7 @@ pub fn parseBoolean(parser: *JsonParser, allocator: std.mem.Allocator) !Node {
     };
 }
 
-pub fn parseNull(parser: *JsonParser, allocator: std.mem.Allocator) !Node {
+pub fn parseNull(parser: *Parser, allocator: std.mem.Allocator) !Node {
     _ = allocator;
     const token = try parser.expect(.null_value);
     const span = unpackSpan(token.span);
@@ -91,7 +91,7 @@ pub fn parseNull(parser: *JsonParser, allocator: std.mem.Allocator) !Node {
 // String Processing Utilities
 // =========================================================================
 
-pub fn processStringEscapes(parser: *JsonParser, allocator: std.mem.Allocator, raw: []const u8) ![]const u8 {
+pub fn processStringEscapes(parser: *Parser, allocator: std.mem.Allocator, raw: []const u8) ![]const u8 {
     _ = parser;
     // Remove quotes if present
     const content = if (raw.len >= 2 and raw[0] == '"' and raw[raw.len - 1] == '"')

@@ -3,11 +3,11 @@
 const std = @import("std");
 const testing = std.testing;
 
-const JsonStreamLexer = @import("../lexer/mod.zig").StreamLexer;
+const Lexer = @import("../lexer/mod.zig").Lexer;
 const BoundaryTester = @import("../token/buffer.zig").BoundaryTester;
 const StreamToken = @import("../../../token/mod.zig").StreamToken;
 
-test "JsonStreamLexer basic boundary handling" {
+test "Lexer basic boundary handling" {
     // Test boundary handling with a simple but realistic JSON
     const allocator = testing.allocator;
 
@@ -15,7 +15,7 @@ test "JsonStreamLexer basic boundary handling" {
     const test_json = "{\"name\": \"test\", \"value\": 123, \"active\": true}";
 
     // Test with regular init first (should work fine)
-    var simple_lexer = JsonStreamLexer.init(test_json);
+    var simple_lexer = Lexer.init(test_json);
     var simple_token_count: usize = 0;
 
     while (simple_lexer.next()) |_| {
@@ -29,7 +29,7 @@ test "JsonStreamLexer basic boundary handling" {
     try testing.expect(simple_token_count < 25);
 
     // Test with boundary-aware lexer (should also work)
-    var boundary_lexer = JsonStreamLexer.initWithAllocator(allocator);
+    var boundary_lexer = Lexer.initWithAllocator(allocator);
     defer boundary_lexer.deinit();
 
     // Feed the data in one chunk (simpler test)
@@ -46,11 +46,11 @@ test "JsonStreamLexer basic boundary handling" {
     try testing.expectEqual(simple_token_count, boundary_token_count);
 }
 
-test "JsonStreamLexer backward compatibility" {
+test "Lexer backward compatibility" {
     // Test that the original init() method still works for non-boundary cases
     const simple_json = "{\"test\": \"value\"}";
 
-    var lexer = JsonStreamLexer.init(simple_json);
+    var lexer = Lexer.init(simple_json);
     // Note: no deinit() needed for simple init
 
     var token_count: usize = 0;
@@ -83,7 +83,7 @@ test "TokenBuffer edge cases" {
     try testing.expect(large_boundary_json.len > 64 * 1024);
 
     // Test with very large strings that definitely span boundaries
-    var lexer = JsonStreamLexer.initWithAllocator(allocator);
+    var lexer = Lexer.initWithAllocator(allocator);
     defer lexer.deinit();
 
     // Should handle large inputs without crashing

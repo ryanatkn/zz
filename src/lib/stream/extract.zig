@@ -181,12 +181,12 @@ test "basic fact extraction" {
     };
 
     // Test JSON extraction
-    const JsonStreamLexer = @import("../languages/json/stream_lexer.zig").JsonStreamLexer;
+    const JsonLexer = @import("../languages/json/stream_lexer.zig").JsonLexer;
     const json_input =
         \\{"key": "value", "number": 42}
     ;
 
-    var lexer = JsonStreamLexer.init(json_input);
+    var lexer = JsonLexer.init(json_input);
     var stream = lexer.toDirectStream();
 
     // Extract facts

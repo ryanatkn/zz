@@ -2,8 +2,8 @@ const std = @import("std");
 const testing = std.testing;
 
 // Import JSON components
-const JsonParser = @import("../parser/mod.zig").JsonParser;
-const JsonLinter = @import("../linter/mod.zig").JsonLinter;
+const Parser = @import("../parser/mod.zig").Parser;
+const Linter = @import("../linter/mod.zig").Linter;
 const EnabledRules = @import("../linter/mod.zig").EnabledRules;
 
 // Import types
@@ -21,15 +21,15 @@ test "JSON linter - all rules" {
     // Create JSON with duplicate keys (valid JSON syntax)
     const problematic_json = "{\"key\": 1, \"key\": 2}"; // Duplicate key
 
-    var parser = try JsonParser.init(allocator, problematic_json, .{});
+    var parser = try Parser.init(allocator, problematic_json, .{});
     defer parser.deinit();
     var ast = try parser.parse();
     defer ast.deinit();
 
     // Use default enabled rules from linter
-    const enabled_rules = JsonLinter.getDefaultRules();
+    const enabled_rules = Linter.getDefaultRules();
 
-    var linter = JsonLinter.init(allocator, .{});
+    var linter = Linter.init(allocator, .{});
     defer linter.deinit();
 
     const diagnostics = try linter.lint(ast, enabled_rules);
@@ -47,7 +47,7 @@ test "JSON linter - all rules" {
     var found_duplicate_keys = false;
 
     for (diagnostics) |diag| {
-        if (std.mem.eql(u8, diag.rule, "no-duplicate-keys")) {
+        if (diag.rule == .no_duplicate_keys) {
             found_duplicate_keys = true;
         }
     }
@@ -63,12 +63,12 @@ test "JSON linter - deep nesting warning" {
     // Create deeply nested JSON
     const deep_json = "{\"a\": {\"b\": {\"c\": {\"d\": {\"e\": 1}}}}}";
 
-    var parser = try JsonParser.init(allocator, deep_json, .{});
+    var parser = try Parser.init(allocator, deep_json, .{});
     defer parser.deinit();
     var ast = try parser.parse();
     defer ast.deinit();
 
-    var linter = JsonLinter.init(allocator, .{ .warn_on_deep_nesting = 3 });
+    var linter = Linter.init(allocator, .{ .warn_on_deep_nesting = 3 });
     defer linter.deinit();
 
     var enabled_rules = EnabledRules.initEmpty();

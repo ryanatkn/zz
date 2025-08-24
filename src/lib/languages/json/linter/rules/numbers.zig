@@ -6,11 +6,11 @@ const char_utils = @import("../../../../char/mod.zig");
 const unpackSpan = @import("../../../../span/mod.zig").unpackSpan;
 
 // Import core linter types
-const JsonLinter = @import("../core.zig").JsonLinter;
+const Linter = @import("../core.zig").Linter;
 const EnabledRules = @import("../core.zig").EnabledRules;
-const JsonToken = @import("../../token/mod.zig").JsonToken;
+const Token = @import("../../token/mod.zig").Token;
 
-pub fn validateNumber(linter: *JsonLinter, token: JsonToken, enabled_rules: EnabledRules) !void {
+pub fn validateNumber(linter: *Linter, token: Token, enabled_rules: EnabledRules) !void {
     const span = unpackSpan(token.span);
     const text = linter.source[span.start..span.end];
 
@@ -20,7 +20,7 @@ pub fn validateNumber(linter: *JsonLinter, token: JsonToken, enabled_rules: Enab
     if (enabled_rules.contains(.no_leading_zeros) and !linter.options.allow_leading_zeros) {
         if (text.len > 1 and text[0] == '0' and char_utils.isDigit(text[1])) {
             try linter.addDiagnostic(
-                "no_leading_zeros",
+                .no_leading_zeros,
                 "Number has leading zero",
                 .warning,
                 span,
@@ -40,7 +40,7 @@ pub fn validateNumber(linter: *JsonLinter, token: JsonToken, enabled_rules: Enab
 
             if (decimal_digits.len > linter.options.max_number_precision) {
                 try linter.addDiagnostic(
-                    "large_number_precision",
+                    .large_number_precision,
                     "Number has high precision that may cause floating-point issues",
                     .warning,
                     span,
@@ -52,7 +52,7 @@ pub fn validateNumber(linter: *JsonLinter, token: JsonToken, enabled_rules: Enab
     // Validate number format
     _ = std.fmt.parseFloat(f64, text) catch {
         try linter.addDiagnostic(
-            "invalid_number",
+            .invalid_number,
             "Number format is invalid",
             .err,
             span,

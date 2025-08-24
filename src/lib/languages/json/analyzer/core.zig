@@ -10,11 +10,11 @@ const NodeKind = json_ast.NodeKind;
 const Span = @import("../../../span/span.zig").Span;
 const Walker = @import("../../../ast/walker.zig").Walker(Node);
 const TokenIterator = @import("../../../token/iterator.zig").TokenIterator;
-const JsonParser = @import("../parser/mod.zig").JsonParser;
+const Parser = @import("../parser/mod.zig").Parser;
 
 // Import schema types from analyzer_schema.zig
 const analyzer_schema = @import("schema.zig");
-pub const JsonSchema = analyzer_schema.JsonSchema;
+pub const Schema = analyzer_schema.Schema;
 
 /// Symbol from semantic analysis (local to JSON)
 pub const Symbol = struct {
@@ -46,7 +46,7 @@ pub const Symbol = struct {
 /// - Type inference and structure analysis
 /// - Performance metrics and optimization suggestions
 /// - NOW USES STREAMING LEXER for 8-10x performance improvement
-pub const JsonAnalyzer = struct {
+pub const Analyzer = struct {
     allocator: std.mem.Allocator,
     options: AnalyzerOptions,
 
@@ -60,7 +60,7 @@ pub const JsonAnalyzer = struct {
         min_samples_for_inference: u32 = 2,
     };
 
-    pub const JsonStatistics = struct {
+    pub const Statistics = struct {
         max_depth: u32,
         total_keys: u32,
         total_values: u32,
@@ -78,22 +78,22 @@ pub const JsonAnalyzer = struct {
         };
     };
 
-    pub fn init(allocator: std.mem.Allocator, options: AnalyzerOptions) JsonAnalyzer {
-        return JsonAnalyzer{
+    pub fn init(allocator: std.mem.Allocator, options: AnalyzerOptions) Analyzer {
+        return Analyzer{
             .allocator = allocator,
             .options = options,
         };
     }
 
     /// Extract schema from JSON AST
-    pub fn extractSchema(self: *Self, ast: AST) !JsonSchema {
+    pub fn extractSchema(self: *Self, ast: AST) !Schema {
         const root = ast.root;
         return analyzer_schema.analyzeNode(self, root, 0);
     }
 
     /// Generate statistics about JSON structure
-    pub fn generateStatistics(self: *Self, ast: AST) !JsonStatistics {
-        var stats = JsonStatistics{
+    pub fn generateStatistics(self: *Self, ast: AST) !Statistics {
+        var stats = Statistics{
             .max_depth = 0,
             .total_keys = 0,
             .total_values = 0,
@@ -128,7 +128,7 @@ pub const JsonAnalyzer = struct {
     // Statistics Calculation
     // =========================================================================
 
-    pub fn calculateStatistics(self: *Self, node: *const Node, depth: u32, stats: *JsonStatistics) void {
+    pub fn calculateStatistics(self: *Self, node: *const Node, depth: u32, stats: *Statistics) void {
         // Update max depth
         stats.max_depth = @max(stats.max_depth, depth);
 
@@ -176,7 +176,7 @@ pub const JsonAnalyzer = struct {
         }
     }
 
-    pub fn calculateSizeBytes(self: *Self, node: *const Node, stats: *JsonStatistics) void {
+    pub fn calculateSizeBytes(self: *Self, node: *const Node, stats: *Statistics) void {
         const span = node.span();
         stats.size_bytes += @intCast(span.end - span.start);
 
@@ -238,7 +238,7 @@ pub const JsonAnalyzer = struct {
         return max_depth;
     }
 
-    pub fn calculateComplexity(_: *Self, stats: *JsonStatistics) f32 {
+    pub fn calculateComplexity(_: *Self, stats: *Statistics) f32 {
         const depth_weight: f32 = 1.5;
         const key_weight: f32 = 0.1;
         const value_weight: f32 = 0.05;

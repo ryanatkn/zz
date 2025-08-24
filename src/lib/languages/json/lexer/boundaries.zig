@@ -1,24 +1,24 @@
 /// JSON Stream Lexer - Boundary handling functionality
 /// Handles tokens that span 4KB boundaries in streaming scenarios
 const std = @import("std");
-const JsonStreamLexer = @import("core.zig").JsonStreamLexer;
+const Lexer = @import("core.zig").Lexer;
 const LexerState = @import("core.zig").LexerState;
 const StreamToken = @import("../../../token/mod.zig").StreamToken;
-const JsonToken = @import("../token/types.zig").JsonToken;
-const JsonTokenKind = @import("../token/types.zig").JsonTokenKind;
+const Token = @import("../token/types.zig").Token;
+const TokenKind = @import("../token/types.zig").TokenKind;
 const packSpan = @import("../../../span/mod.zig").packSpan;
 const Span = @import("../../../span/mod.zig").Span;
 const TokenBuffer = @import("../token/buffer.zig").TokenBuffer;
 
 /// Feed more data for boundary continuation
-pub fn feedData(self: *JsonStreamLexer, data: []const u8) !void {
+pub fn feedData(self: *Lexer, data: []const u8) !void {
     for (data) |byte| {
         _ = self.buffer.push(byte) catch break;
     }
 }
 
 /// Peek at next token without consuming
-pub fn peek(self: *JsonStreamLexer) ?StreamToken {
+pub fn peek(self: *Lexer) ?StreamToken {
     if (self.peeked_token) |token| return token;
     const token = self.next();
     self.peeked_token = token;
@@ -26,7 +26,7 @@ pub fn peek(self: *JsonStreamLexer) ?StreamToken {
 }
 
 /// Continue boundary token scanning
-pub fn continueBoundaryToken(self: *JsonStreamLexer) ?StreamToken {
+pub fn continueBoundaryToken(self: *Lexer) ?StreamToken {
     if (self.token_buffer == null) return null;
 
     switch (self.state) {
@@ -35,7 +35,7 @@ pub fn continueBoundaryToken(self: *JsonStreamLexer) ?StreamToken {
     }
 }
 
-fn continueBoundaryString(self: *JsonStreamLexer) ?StreamToken {
+fn continueBoundaryString(self: *Lexer) ?StreamToken {
     // Simplified boundary string continuation
     if (self.token_buffer) |*buf| {
         while (self.buffer.peek()) |ch| {
@@ -52,7 +52,7 @@ fn continueBoundaryString(self: *JsonStreamLexer) ?StreamToken {
                 const completion = buf.completeToken();
                 self.state = .start;
 
-                const token = JsonToken{
+                const token = Token{
                     .span = packSpan(Span{ .start = completion.start_position, .end = self.position }),
                     .kind = .string_value,
                     .depth = self.depth,
@@ -67,8 +67,8 @@ fn continueBoundaryString(self: *JsonStreamLexer) ?StreamToken {
     return null;
 }
 
-fn makeErrorToken(self: *JsonStreamLexer) StreamToken {
-    const token = JsonToken{
+fn makeErrorToken(self: *Lexer) StreamToken {
+    const token = Token{
         .span = packSpan(Span{ .start = self.token_start, .end = self.position }),
         .kind = .err,
         .depth = self.depth,
@@ -79,8 +79,8 @@ fn makeErrorToken(self: *JsonStreamLexer) StreamToken {
     return StreamToken{ .json = token };
 }
 
-fn makeContinuationToken(self: *JsonStreamLexer) StreamToken {
-    const token = JsonToken{
+fn makeContinuationToken(self: *Lexer) StreamToken {
+    const token = Token{
         .span = packSpan(Span{ .start = self.position, .end = self.position }),
         .kind = .continuation,
         .depth = self.depth,

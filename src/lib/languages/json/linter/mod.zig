@@ -4,9 +4,9 @@
 const std = @import("std");
 
 // Re-export core linter
-pub const JsonLinter = @import("core.zig").JsonLinter;
+pub const Linter = @import("core.zig").Linter;
 pub const ValidationError = @import("core.zig").ValidationError;
-pub const JsonRuleType = @import("core.zig").JsonRuleType;
+pub const RuleType = @import("core.zig").RuleType;
 pub const EnabledRules = @import("core.zig").EnabledRules;
 pub const Diagnostic = @import("core.zig").Diagnostic;
 pub const Edit = @import("core.zig").Edit;
@@ -15,8 +15,8 @@ pub const Edit = @import("core.zig").Edit;
 pub const rules = @import("rules/mod.zig");
 
 // Re-export commonly used types
-pub const LinterOptions = JsonLinter.LinterOptions;
-pub const RuleInfo = JsonLinter.RuleInfo;
+pub const LinterOptions = Linter.LinterOptions;
+pub const RuleInfo = Linter.RuleInfo;
 
 // ============================================================================
 // Tests for Complete Linter Functionality
@@ -28,7 +28,7 @@ test "JSON linter - detect duplicate keys" {
 
     const input = "{\"key\": 1, \"key\": 2}";
 
-    var linter = JsonLinter.init(allocator, .{});
+    var linter = Linter.init(allocator, .{});
     defer linter.deinit();
 
     var enabled_rules = EnabledRules.initEmpty();
@@ -43,7 +43,7 @@ test "JSON linter - detect duplicate keys" {
     }
 
     try testing.expect(diagnostics.len > 0);
-    try testing.expectEqualStrings("no-duplicate-keys", diagnostics[0].rule);
+    try testing.expect(diagnostics[0].rule == .no_duplicate_keys);
 }
 
 test "JSON linter - detect leading zeros" {
@@ -52,7 +52,7 @@ test "JSON linter - detect leading zeros" {
 
     const input = "{\"number\": 01234}";
 
-    var linter = JsonLinter.init(allocator, .{});
+    var linter = Linter.init(allocator, .{});
     defer linter.deinit();
 
     var enabled_rules = EnabledRules.initEmpty();
@@ -67,7 +67,7 @@ test "JSON linter - detect leading zeros" {
     }
 
     try testing.expect(diagnostics.len > 0);
-    try testing.expectEqualStrings("no-leading-zeros", diagnostics[0].rule);
+    try testing.expect(diagnostics[0].rule == .no_leading_zeros);
 }
 
 test "JSON linter - detect deep nesting" {
@@ -77,10 +77,10 @@ test "JSON linter - detect deep nesting" {
     // Create deeply nested JSON
     const input = "{\"a\": {\"b\": {\"c\": {\"d\": {\"e\": 1}}}}}";
 
-    var options = JsonLinter.LinterOptions{};
+    var options = Linter.LinterOptions{};
     options.warn_on_deep_nesting = 3; // Warn at depth 3
 
-    var linter = JsonLinter.init(allocator, options);
+    var linter = Linter.init(allocator, options);
     defer linter.deinit();
 
     var enabled_rules = EnabledRules.initEmpty();
@@ -95,7 +95,7 @@ test "JSON linter - detect deep nesting" {
     }
 
     try testing.expect(diagnostics.len > 0);
-    try testing.expectEqualStrings("deep-nesting", diagnostics[0].rule);
+    try testing.expect(diagnostics[0].rule == .deep_nesting);
 }
 
 test "JSON linter - valid JSON passes" {
@@ -104,10 +104,10 @@ test "JSON linter - valid JSON passes" {
 
     const input = "{\"name\": \"test\", \"value\": 42, \"active\": true}";
 
-    var linter = JsonLinter.init(allocator, .{});
+    var linter = Linter.init(allocator, .{});
     defer linter.deinit();
 
-    const default_rules = JsonLinter.getDefaultRules();
+    const default_rules = Linter.getDefaultRules();
     const diagnostics = try linter.lintSource(input, default_rules);
     defer {
         for (diagnostics) |diag| {

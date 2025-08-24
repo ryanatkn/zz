@@ -18,6 +18,7 @@ test {
     _ = @import("stream.zig");
     _ = @import("boundary_lexer.zig");
     _ = @import("escape_sequences.zig");
+    _ = @import("edge_cases.zig");
 
     // Include parent modules with embedded tests (split modules)
     _ = @import("../parser/mod.zig"); // Bridge file with tests

@@ -9,6 +9,7 @@ const Span = @import("../../../span/mod.zig").Span;
 pub const NodeKind = enum(u8) {
     // ZON value types
     string,
+    character,
     number,
     boolean,
     null,
@@ -40,6 +41,17 @@ pub const StringNode = struct {
     pub fn isValid(self: StringNode) bool {
         _ = self;
         return true; // All strings are valid once parsed
+    }
+};
+
+/// Character node for ZON character literals
+pub const CharacterNode = struct {
+    span: Span,
+    value: u21, // Unicode codepoint
+
+    pub fn isValid(self: CharacterNode) bool {
+        // Valid Unicode codepoint range
+        return self.value <= 0x10FFFF;
     }
 };
 
@@ -157,6 +169,7 @@ pub const ErrorNode = struct {
 pub const Node = union(NodeKind) {
     // ZON values
     string: StringNode,
+    character: CharacterNode,
     number: NumberNode,
     boolean: BooleanNode,
     null: Span, // null only needs position info
@@ -180,6 +193,7 @@ pub const Node = union(NodeKind) {
     pub fn span(self: Node) Span {
         return switch (self) {
             .string => |n| n.span,
+            .character => |n| n.span,
             .number => |n| n.span,
             .boolean => |n| n.span,
             .null => |s| s,
@@ -230,6 +244,22 @@ pub const Node = union(NodeKind) {
                 try writer.writeByte('"');
                 try writeEscapedString(writer, n.value);
                 try writer.writeByte('"');
+            },
+            .character => |n| {
+                try writer.writeByte('\'');
+                if (n.value <= 127 and std.ascii.isPrint(@intCast(n.value))) {
+                    switch (n.value) {
+                        '\n' => try writer.writeAll("\\n"),
+                        '\t' => try writer.writeAll("\\t"),
+                        '\r' => try writer.writeAll("\\r"),
+                        '\\' => try writer.writeAll("\\\\"),
+                        '\'' => try writer.writeAll("\\'"),
+                        else => try writer.writeByte(@intCast(n.value)),
+                    }
+                } else {
+                    try writer.print("\\u{{{X}}}", .{n.value});
+                }
+                try writer.writeByte('\'');
             },
             .number => |n| try writer.writeAll(n.raw),
             .boolean => |n| try writer.writeAll(if (n.value) "true" else "false"),

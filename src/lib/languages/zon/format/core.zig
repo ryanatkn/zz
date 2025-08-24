@@ -113,6 +113,9 @@ pub const Formatter = struct {
                 try self.output.append('"');
                 self.updateLinePosition(str.value.len + 2);
             },
+            .character => |char_node| {
+                try self.formatCharacterLiteral(char_node.value);
+            },
             .number => |num| {
                 try self.output.appendSlice(num.raw);
                 self.updateLinePosition(num.raw.len);
@@ -263,6 +266,58 @@ pub const Formatter = struct {
 
         // Format field value
         try self.formatNode(field.value);
+    }
+
+    /// Format a character literal with proper escaping
+    fn formatCharacterLiteral(self: *Self, char_value: u21) !void {
+        try self.output.append('\'');
+
+        // Handle common escape sequences
+        switch (char_value) {
+            '\n' => {
+                try self.output.appendSlice("\\n");
+                self.updateLinePosition(4); // '...'
+            },
+            '\t' => {
+                try self.output.appendSlice("\\t");
+                self.updateLinePosition(4);
+            },
+            '\r' => {
+                try self.output.appendSlice("\\r");
+                self.updateLinePosition(4);
+            },
+            '\\' => {
+                try self.output.appendSlice("\\\\");
+                self.updateLinePosition(4);
+            },
+            '\'' => {
+                try self.output.appendSlice("\\'");
+                self.updateLinePosition(4);
+            },
+            '"' => {
+                try self.output.appendSlice("\\\"");
+                self.updateLinePosition(4);
+            },
+            0 => {
+                try self.output.appendSlice("\\0");
+                self.updateLinePosition(4);
+            },
+            else => {
+                if (char_value <= 127 and std.ascii.isPrint(@intCast(char_value))) {
+                    // Printable ASCII - output directly
+                    try self.output.append(@intCast(char_value));
+                    self.updateLinePosition(3); // '.'
+                } else {
+                    // Unicode escape
+                    var buf: [32]u8 = undefined;
+                    const escape = try std.fmt.bufPrint(buf[0..], "\\u{{{X}}}", .{char_value});
+                    try self.output.appendSlice(escape);
+                    self.updateLinePosition(escape.len + 2); // '...'
+                }
+            },
+        }
+
+        try self.output.append('\'');
     }
 
     /// Check if an object should be formatted compactly

@@ -138,6 +138,14 @@ pub const Pipeline = struct {
                     Value{ .span = packSpan(str.span) },
                 ));
             },
+            .character => |char| {
+                try facts.append(Fact.certain(
+                    @intCast(facts.items.len),
+                    packSpan(parent_span),
+                    .is_string, // Character literals are character values
+                    Value{ .span = packSpan(char.span) },
+                ));
+            },
             .number => |num| {
                 try facts.append(Fact.certain(
                     @intCast(facts.items.len),

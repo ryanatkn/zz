@@ -196,6 +196,7 @@ pub const Lexer = struct {
             ':' => return self.makeSimpleToken(.colon, false),
             '=' => return self.makeSimpleToken(.equals, false),
             '"' => return self.scanString(),
+            '\'' => return self.scanCharacterLiteral(),
             '\\' => return self.scanMultilineString(),
             '@' => return self.scanBuiltin(),
             '0'...'9', '-', '+' => return self.scanNumber(),
@@ -398,6 +399,122 @@ pub const Lexer = struct {
 
         self.error_msg = "Unterminated string";
         return self.makeErrorToken();
+    }
+
+    /// Scan a character literal
+    fn scanCharacterLiteral(self: *Lexer) Token {
+        _ = self.buffer.pop(); // Consume opening quote
+        self.position += 1;
+        self.column += 1;
+
+        const char_value: u21 = blk: {
+            const ch = self.buffer.peek() orelse {
+                self.error_msg = "Unterminated character literal";
+                return self.makeErrorToken();
+            };
+
+            _ = self.buffer.pop();
+            self.position += 1;
+            self.column += 1;
+
+            if (ch == '\\') {
+                // Handle escape sequences
+                const escaped_char = self.buffer.peek() orelse {
+                    self.error_msg = "Unterminated escape sequence in character literal";
+                    return self.makeErrorToken();
+                };
+
+                _ = self.buffer.pop();
+                self.position += 1;
+                self.column += 1;
+
+                switch (escaped_char) {
+                    'n' => break :blk '\n',
+                    't' => break :blk '\t',
+                    'r' => break :blk '\r',
+                    '\\' => break :blk '\\',
+                    '\'' => break :blk '\'',
+                    '"' => break :blk '"',
+                    '0' => break :blk 0,
+                    'u' => {
+                        // Unicode escape \u{...}
+                        if (self.buffer.peek() != '{') {
+                            self.error_msg = "Expected '{' after \\u in character literal";
+                            return self.makeErrorToken();
+                        }
+                        _ = self.buffer.pop(); // consume '{'
+                        self.position += 1;
+                        self.column += 1;
+
+                        var codepoint: u21 = 0;
+                        var digit_count: u8 = 0;
+
+                        while (self.buffer.peek()) |digit_ch| {
+                            if (digit_ch == '}') {
+                                _ = self.buffer.pop();
+                                self.position += 1;
+                                self.column += 1;
+                                break;
+                            }
+
+                            const digit_value = switch (digit_ch) {
+                                '0'...'9' => digit_ch - '0',
+                                'a'...'f' => digit_ch - 'a' + 10,
+                                'A'...'F' => digit_ch - 'A' + 10,
+                                else => {
+                                    self.error_msg = "Invalid hex digit in unicode escape";
+                                    return self.makeErrorToken();
+                                },
+                            };
+
+                            codepoint = codepoint * 16 + digit_value;
+                            digit_count += 1;
+
+                            if (digit_count > 6) {
+                                self.error_msg = "Unicode escape too long";
+                                return self.makeErrorToken();
+                            }
+
+                            _ = self.buffer.pop();
+                            self.position += 1;
+                            self.column += 1;
+                        }
+
+                        if (digit_count == 0) {
+                            self.error_msg = "Empty unicode escape";
+                            return self.makeErrorToken();
+                        }
+
+                        if (codepoint > 0x10FFFF) {
+                            self.error_msg = "Unicode codepoint out of range";
+                            return self.makeErrorToken();
+                        }
+
+                        break :blk codepoint;
+                    },
+                    else => {
+                        self.error_msg = "Invalid escape sequence in character literal";
+                        return self.makeErrorToken();
+                    },
+                }
+            } else {
+                // Regular character
+                break :blk @intCast(ch);
+            }
+        };
+
+        // Expect closing quote
+        if (self.buffer.peek() != '\'') {
+            self.error_msg = "Expected closing ' in character literal";
+            return self.makeErrorToken();
+        }
+
+        _ = self.buffer.pop(); // Consume closing quote
+        self.position += 1;
+        self.column += 1;
+
+        const token = ZonToken.character(Span{ .start = self.token_start, .end = self.position }, self.depth, char_value);
+        return Token{ .zon = token };
     }
 
     /// Scan a multiline string (each line starts with \\)

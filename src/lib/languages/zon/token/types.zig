@@ -25,6 +25,7 @@ pub const TokenKind = enum(u8) {
     field_name, // .field_name or "field_name"
     identifier, // Simple identifier
     string_value, // String literal
+    character_literal, // Character literal 'a', '\n', etc.
     number_value, // Number (int or float)
     boolean_true, // true
     boolean_false, // false
@@ -99,6 +100,13 @@ pub const Token = extern struct {
         var token = init(span, .string_value, depth);
         token.data = string_index;
         token.flags = flags;
+        return token;
+    }
+
+    /// Create a character literal token
+    pub fn character(span: Span, depth: u8, char_value: u21) Token {
+        var token = init(span, .character_literal, depth);
+        token.data = char_value; // Store Unicode codepoint directly
         return token;
     }
 

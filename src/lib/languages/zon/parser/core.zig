@@ -182,6 +182,7 @@ pub const Parser = struct {
 
         return switch (token.kind) {
             .string_value => self.parseString(allocator),
+            .character_literal => self.parseCharacterLiteral(allocator),
             .number_value => self.parseNumber(allocator),
             .boolean_true, .boolean_false => self.parseBoolean(allocator),
             .null_value => self.parseNull(allocator),
@@ -218,6 +219,22 @@ pub const Parser = struct {
             .string = .{
                 .span = span,
                 .value = value,
+            },
+        };
+    }
+
+    fn parseCharacterLiteral(self: *Self, allocator: std.mem.Allocator) !Node {
+        _ = allocator; // Character value is already parsed in lexer
+        const token = try self.expect(.character_literal);
+        const span = unpackSpan(token.span);
+
+        // Character value is stored directly in token.data as u21 codepoint
+        const char_value: u21 = @intCast(token.data);
+
+        return Node{
+            .character = .{
+                .span = span,
+                .value = char_value,
             },
         };
     }

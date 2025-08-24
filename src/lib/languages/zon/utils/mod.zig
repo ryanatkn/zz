@@ -9,5 +9,5 @@ pub const helpers = @import("helpers.zig");
 pub const validator = @import("validator.zig");
 
 // Re-export frequently used items
-pub const ManagedZonConfig = memory.ManagedZonConfig;
+pub const ManagedConfig = memory.ManagedConfig;
 pub const ValidationError = validator.ValidationError;

@@ -6,13 +6,13 @@ const std = @import("std");
 const unpackSpan = @import("../../../span/mod.zig").unpackSpan;
 
 // For compatibility with existing interface
-const zon_ast = @import("../ast/nodes.zig");
-const AST = zon_ast.AST;
+const ast_nodes = @import("../ast/nodes.zig");
+const AST = ast_nodes.AST;
 
 /// High-performance ZON formatter with AST traversal
-pub const ZonFormatter = struct {
+pub const Formatter = struct {
     allocator: std.mem.Allocator,
-    options: ZonFormatOptions,
+    options: FormatOptions,
     output: std.ArrayList(u8),
     source: []const u8,
     indent_level: u32,
@@ -20,7 +20,7 @@ pub const ZonFormatter = struct {
 
     const Self = @This();
 
-    pub const ZonFormatOptions = struct {
+    pub const FormatOptions = struct {
         // Basic formatting
         indent_size: u8 = 4,
         indent_style: IndentStyle = .space,
@@ -37,8 +37,8 @@ pub const ZonFormatter = struct {
         pub const IndentStyle = enum { space, tab };
     };
 
-    pub fn init(allocator: std.mem.Allocator, options: ZonFormatOptions) ZonFormatter {
-        return ZonFormatter{
+    pub fn init(allocator: std.mem.Allocator, options: FormatOptions) Formatter {
+        return Formatter{
             .allocator = allocator,
             .options = options,
             .output = std.ArrayList(u8).init(allocator),
@@ -88,7 +88,7 @@ pub const ZonFormatter = struct {
     }
 
     /// Format a ZON AST node directly
-    fn formatNode(self: *Self, node: *const zon_ast.Node) anyerror!void {
+    fn formatNode(self: *Self, node: *const ast_nodes.Node) anyerror!void {
         switch (node.*) {
             .object => |obj| {
                 try self.formatObjectNode(obj);
@@ -138,7 +138,7 @@ pub const ZonFormatter = struct {
     }
 
     /// Format an object node with ZON-specific syntax
-    fn formatObjectNode(self: *Self, obj: zon_ast.ObjectNode) !void {
+    fn formatObjectNode(self: *Self, obj: ast_nodes.ObjectNode) !void {
         try self.output.append('.');
         try self.output.append('{');
         self.updateLinePosition(2);
@@ -198,7 +198,7 @@ pub const ZonFormatter = struct {
     }
 
     /// Format an array node with ZON-specific syntax
-    fn formatArrayNode(self: *Self, arr: zon_ast.ArrayNode) !void {
+    fn formatArrayNode(self: *Self, arr: ast_nodes.ArrayNode) !void {
         try self.output.append('.');
         try self.output.append('{');
         self.updateLinePosition(2);
@@ -251,7 +251,7 @@ pub const ZonFormatter = struct {
     }
 
     /// Format a field node (field_name = value)
-    fn formatFieldNode(self: *Self, field: zon_ast.FieldNode) !void {
+    fn formatFieldNode(self: *Self, field: ast_nodes.FieldNode) !void {
         // Format field name
         try self.formatNode(field.name);
 
@@ -266,7 +266,7 @@ pub const ZonFormatter = struct {
     }
 
     /// Check if an object should be formatted compactly
-    fn shouldCompactObject(self: *Self, obj: zon_ast.ObjectNode) bool {
+    fn shouldCompactObject(self: *Self, obj: ast_nodes.ObjectNode) bool {
         if (!self.options.compact_small_objects) return false;
 
         // Compact if 4 or fewer fields - this allows the 4-field test to be compact
@@ -275,7 +275,7 @@ pub const ZonFormatter = struct {
     }
 
     /// Check if an array should be formatted compactly
-    fn shouldCompactArray(self: *Self, arr: zon_ast.ArrayNode) bool {
+    fn shouldCompactArray(self: *Self, arr: ast_nodes.ArrayNode) bool {
         if (!self.options.compact_small_arrays) return false;
 
         // Compact if 5 or fewer elements (similar to JSON logic)
@@ -324,7 +324,7 @@ test "ZON streaming formatter - simple values" {
     };
 
     for (inputs, expected) |input, expect| {
-        var formatter = ZonFormatter.init(allocator, .{});
+        var formatter = Formatter.init(allocator, .{});
         defer formatter.deinit();
 
         const output = try formatter.formatSource(input);
@@ -347,7 +347,7 @@ test "ZON streaming formatter - object" {
         \\
     ;
 
-    var formatter = ZonFormatter.init(allocator, .{ .compact_small_objects = false });
+    var formatter = Formatter.init(allocator, .{ .compact_small_objects = false });
     defer formatter.deinit();
 
     const output = try formatter.formatSource(input);

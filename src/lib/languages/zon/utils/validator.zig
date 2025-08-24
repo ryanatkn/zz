@@ -61,7 +61,7 @@ pub const ZonValidator = struct {
     /// Validate build.zig.zon file
     pub fn validateBuildZon(self: *Self, ast: AST) !void {
         self.clearErrors();
-        try self.validateAgainstSchema(ast.root.?.*, &BUILD_ZON_SCHEMA, "");
+        try self.validateAgainstSchema(ast.root.?.*, &BUILD_SCHEMA, "");
     }
 
     /// Validate zz.zon configuration file
@@ -379,7 +379,7 @@ const FieldType = enum {
 // ============================================================================
 
 /// Schema for build.zig.zon files
-const BUILD_ZON_SCHEMA = Schema{
+const BUILD_SCHEMA = Schema{
     .required_fields = &[_]FieldSpec{
         .{ .name = "name", .field_type = .string, .description = "Package name" },
         .{ .name = "version", .field_type = .string, .description = "Package version" },
@@ -523,11 +523,11 @@ test "ZonValidator - validate dependencies" {
 }
 
 // TODO: Rewrite test for tagged union AST
-// test "ZonValidator - field type validation" {
+// test "Validator - field type validation" {
 //     const testing = std.testing;
 //     const allocator = testing.allocator;
 //
-//     var validator = ZonValidator.init(allocator);
+//     var validator = Validator.init(allocator);
 //     defer validator.deinit();
 //
 //     const spec = FieldSpec{

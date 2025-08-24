@@ -30,18 +30,18 @@ pub fn runZonPipelineBenchmarks(allocator: std.mem.Allocator, options: Benchmark
 
             pub fn run(ctx: @This()) anyerror!void {
                 // Format ZON
-                std.debug.print("[zon-pipeline-debug] Starting formatZonString...\n", .{});
-                const formatted = zon_mod.formatZonString(ctx.allocator, ctx.content) catch |err| {
-                    std.debug.print("[zon-pipeline-debug] formatZonString failed: {}\n", .{err});
+                std.debug.print("[zon-pipeline-debug] Starting formatString...\n", .{});
+                const formatted = zon_mod.formatString(ctx.allocator, ctx.content) catch |err| {
+                    std.debug.print("[zon-pipeline-debug] formatString failed: {}\n", .{err});
                     return err;
                 };
                 defer ctx.allocator.free(formatted);
-                std.debug.print("[zon-pipeline-debug] formatZonString complete ({} bytes)\n", .{formatted.len});
+                std.debug.print("[zon-pipeline-debug] formatString complete ({} bytes)\n", .{formatted.len});
 
                 // Validate ZON
-                std.debug.print("[zon-pipeline-debug] Starting validateZonString...\n", .{});
-                const diagnostics = zon_mod.validateZonString(ctx.allocator, ctx.content) catch |err| {
-                    std.debug.print("[zon-pipeline-debug] validateZonString failed: {}\n", .{err});
+                std.debug.print("[zon-pipeline-debug] Starting validateString...\n", .{});
+                const diagnostics = zon_mod.validateString(ctx.allocator, ctx.content) catch |err| {
+                    std.debug.print("[zon-pipeline-debug] validateString failed: {}\n", .{err});
                     return err;
                 };
                 defer {
@@ -50,16 +50,16 @@ pub fn runZonPipelineBenchmarks(allocator: std.mem.Allocator, options: Benchmark
                     }
                     ctx.allocator.free(diagnostics);
                 }
-                std.debug.print("[zon-pipeline-debug] validateZonString complete ({} diagnostics)\n", .{diagnostics.len});
+                std.debug.print("[zon-pipeline-debug] validateString complete ({} diagnostics)\n", .{diagnostics.len});
 
                 // Extract schema
-                std.debug.print("[zon-pipeline-debug] Starting extractZonSchema...\n", .{});
-                var schema = zon_mod.extractZonSchema(ctx.allocator, ctx.content) catch |err| {
-                    std.debug.print("[zon-pipeline-debug] extractZonSchema failed: {}\n", .{err});
+                std.debug.print("[zon-pipeline-debug] Starting extractSchema...\n", .{});
+                var schema = zon_mod.extractSchema(ctx.allocator, ctx.content) catch |err| {
+                    std.debug.print("[zon-pipeline-debug] extractSchema failed: {}\n", .{err});
                     return err;
                 };
                 defer schema.deinit();
-                std.debug.print("[zon-pipeline-debug] extractZonSchema complete ({} nodes)\n", .{schema.statistics.total_nodes});
+                std.debug.print("[zon-pipeline-debug] extractSchema complete ({} nodes)\n", .{schema.statistics.total_nodes});
 
                 std.mem.doNotOptimizeAway(formatted.len);
                 std.mem.doNotOptimizeAway(diagnostics.len);
@@ -110,11 +110,11 @@ pub fn runZonPipelineBenchmarks(allocator: std.mem.Allocator, options: Benchmark
 
             pub fn run(ctx: @This()) anyerror!void {
                 // Format
-                const formatted = try zon_mod.formatZonString(ctx.allocator, ctx.content);
+                const formatted = try zon_mod.formatString(ctx.allocator, ctx.content);
                 defer ctx.allocator.free(formatted);
 
                 // Validate
-                const diagnostics = try zon_mod.validateZonString(ctx.allocator, ctx.content);
+                const diagnostics = try zon_mod.validateString(ctx.allocator, ctx.content);
                 defer {
                     for (diagnostics) |diag| {
                         ctx.allocator.free(diag.message);
@@ -167,11 +167,11 @@ pub fn runZonPipelineBenchmarks(allocator: std.mem.Allocator, options: Benchmark
 
             pub fn run(ctx: @This()) anyerror!void {
                 // Format
-                const formatted = try zon_mod.formatZonString(ctx.allocator, ctx.content);
+                const formatted = try zon_mod.formatString(ctx.allocator, ctx.content);
                 defer ctx.allocator.free(formatted);
 
                 // Validate
-                const diagnostics = try zon_mod.validateZonString(ctx.allocator, ctx.content);
+                const diagnostics = try zon_mod.validateString(ctx.allocator, ctx.content);
                 defer {
                     for (diagnostics) |diag| {
                         ctx.allocator.free(diag.message);
@@ -196,11 +196,11 @@ pub fn runZonPipelineBenchmarks(allocator: std.mem.Allocator, options: Benchmark
 
             pub fn run(ctx: @This()) anyerror!void {
                 // Format
-                const formatted = try zon_mod.formatZonString(ctx.allocator, ctx.content);
+                const formatted = try zon_mod.formatString(ctx.allocator, ctx.content);
                 defer ctx.allocator.free(formatted);
 
                 // Extract schema from formatted result (round-trip test)
-                var schema = try zon_mod.extractZonSchema(ctx.allocator, formatted);
+                var schema = try zon_mod.extractSchema(ctx.allocator, formatted);
                 defer schema.deinit();
 
                 std.mem.doNotOptimizeAway(schema.statistics.total_nodes);
@@ -242,7 +242,7 @@ pub fn runZonPipelineBenchmarks(allocator: std.mem.Allocator, options: Benchmark
 
             pub fn run(ctx: @This()) anyerror!void {
                 // Try to validate invalid ZON and collect diagnostics
-                const diagnostics = try zon_mod.validateZonString(ctx.allocator, ctx.content);
+                const diagnostics = try zon_mod.validateString(ctx.allocator, ctx.content);
                 defer {
                     for (diagnostics) |diag| {
                         ctx.allocator.free(diag.message);

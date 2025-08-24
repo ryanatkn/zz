@@ -9,7 +9,7 @@
 const std = @import("std");
 
 /// ZON delimiters and structural tokens
-pub const ZonDelimiters = struct {
+pub const Delimiters = struct {
     pub const OBJECT_START = '{';
     pub const OBJECT_END = '}';
     pub const ARRAY_START = '[';

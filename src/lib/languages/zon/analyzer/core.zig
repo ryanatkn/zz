@@ -18,13 +18,13 @@ const TokenIterator = @import("../../../token/iterator.zig").TokenIterator;
 /// - Configuration validation and suggestions
 /// - Performance optimized for config file analysis
 /// - NOW USES STREAMING LEXER for 8-10x performance improvement
-pub const ZonAnalyzer = struct {
+pub const Analyzer = struct {
     allocator: std.mem.Allocator,
-    options: ZonAnalysisOptions,
+    options: AnalysisOptions,
 
     const Self = @This();
 
-    pub const ZonAnalysisOptions = struct {
+    pub const AnalysisOptions = struct {
         infer_types: bool = true, // Infer types from values
         extract_dependencies: bool = true, // Extract dependency information
         analyze_structure: bool = true, // Perform structural analysis
@@ -32,14 +32,14 @@ pub const ZonAnalyzer = struct {
         collect_symbols: bool = true, // Collect symbols for IDE
     };
 
-    pub const ZonSchema = struct {
+    pub const Schema = struct {
         allocator: std.mem.Allocator,
         root_type: TypeInfo,
         symbols: std.ArrayList(Symbol),
         dependencies: std.ArrayList(Dependency),
         statistics: Statistics,
 
-        pub fn deinit(self: *ZonSchema) void {
+        pub fn deinit(self: *Schema) void {
             self.root_type.deinit(self.allocator);
             for (self.symbols.items) |symbol| {
                 symbol.deinit(self.allocator);
@@ -173,21 +173,21 @@ pub const ZonAnalyzer = struct {
         }
     };
 
-    pub fn init(allocator: std.mem.Allocator, options: ZonAnalysisOptions) ZonAnalyzer {
-        return ZonAnalyzer{
+    pub fn init(allocator: std.mem.Allocator, options: AnalysisOptions) Analyzer {
+        return Analyzer{
             .allocator = allocator,
             .options = options,
         };
     }
 
     pub fn deinit(self: *Self) void {
-        // ZonAnalyzer doesn't allocate anything itself, so no cleanup needed
+        // Analyzer doesn't allocate anything itself, so no cleanup needed
         _ = self;
     }
 
     /// Extract schema from ZON AST
-    pub fn extractSchema(self: *Self, ast: AST) !ZonSchema {
-        var schema = ZonSchema{
+    pub fn extractSchema(self: *Self, ast: AST) !Schema {
+        var schema = Schema{
             .allocator = self.allocator,
             .root_type = TypeInfo{
                 .kind = .any,
@@ -243,7 +243,7 @@ pub const ZonAnalyzer = struct {
     }
 
     /// Generate Zig type definition from schema
-    pub fn generateZigTypeDefinition(self: *Self, schema: ZonSchema, type_name: []const u8) !ZigTypeDefinition {
+    pub fn generateZigTypeDefinition(self: *Self, schema: Schema, type_name: []const u8) !ZigTypeDefinition {
         var definition = std.ArrayList(u8).init(self.allocator);
         defer definition.deinit();
 
@@ -557,21 +557,22 @@ pub const ZonAnalyzer = struct {
 };
 
 /// Convenience function for extracting ZON schema
-pub fn extractSchema(allocator: std.mem.Allocator, ast: AST) !ZonAnalyzer.ZonSchema {
-    var analyzer = ZonAnalyzer.init(allocator, .{});
+pub fn extractSchema(allocator: std.mem.Allocator, ast: AST) !Analyzer.Schema {
+    var analyzer = Analyzer.init(allocator, .{});
     return analyzer.extractSchema(ast);
 }
 
 /// Extract schema from ZON string directly using streaming lexer
-pub fn extractSchemaFromString(allocator: std.mem.Allocator, zon_content: []const u8) !ZonAnalyzer.ZonSchema {
+pub fn extractSchemaFromString(allocator: std.mem.Allocator, zon_content: []const u8) !Analyzer.Schema {
     // Parse using streaming lexer directly (no more batch tokenization)
-    var parser = try ZonParser.init(allocator, zon_content, .{});
+    const Parser = @import("../parser/mod.zig").Parser;
+    var parser = try Parser.init(allocator, zon_content, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
     defer ast.deinit();
 
     // Analyze
-    var analyzer = ZonAnalyzer.init(allocator, .{});
+    var analyzer = Analyzer.init(allocator, .{});
     return analyzer.extractSchema(ast);
 }

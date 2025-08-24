@@ -4,14 +4,14 @@ const std = @import("std");
 const FormatOptions = @import("../../../stream/format_options.zig").FormatOptions;
 const FormatError = @import("../../../stream/format.zig").FormatError;
 const Token = @import("../../../token/mod.zig").Token;
-const ZonTokenKind = @import("../token/types.zig").ZonTokenKind;
-const ZonToken = @import("../token/types.zig").ZonToken;
+const TokenKind = @import("../token/types.zig").TokenKind;
+const ZonToken = @import("../token/types.zig").Token;
 const packSpan = @import("../../../span/mod.zig").packSpan;
 const unpackSpan = @import("../../../span/mod.zig").unpackSpan;
 const Span = @import("../../../span/mod.zig").Span;
 
 /// ZON formatter state machine
-pub fn ZonFormatter(comptime Writer: type) type {
+pub fn Formatter(comptime Writer: type) type {
     return struct {
         writer: Writer,
         options: FormatOptions,
@@ -223,7 +223,7 @@ pub fn ZonFormatter(comptime Writer: type) type {
 
         // Helper functions
 
-        fn needsComma(self: *const Self, kind: ZonTokenKind) bool {
+        fn needsComma(self: *const Self, kind: TokenKind) bool {
             _ = self;
             return switch (kind) {
                 .object_end, .array_end, .comma, .equals, .paren_close => false,
@@ -260,14 +260,14 @@ pub fn ZonFormatter(comptime Writer: type) type {
     };
 }
 
-test "ZonFormatter basic formatting" {
+test "Formatter basic formatting" {
     const testing = std.testing;
 
     var buffer: [1024]u8 = undefined;
     var stream = std.io.fixedBufferStream(&buffer);
 
     const WriterType = @TypeOf(stream).Writer;
-    var formatter = ZonFormatter(WriterType).init(stream.writer(), .{
+    var formatter = Formatter(WriterType).init(stream.writer(), .{
         .compact = true,
     });
 

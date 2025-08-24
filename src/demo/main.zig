@@ -134,7 +134,7 @@ fn processZonData(allocator: std.mem.Allocator, data: []const u8) !LanguageResul
 
         // Format timing (AST-first approach)
         const format_start = std.time.nanoTimestamp();
-        var formatter = zon.ZonFormatter.init(allocator, .{
+        var formatter = zon.Formatter.init(allocator, .{
             .indent_size = 4,
             .indent_style = .space,
         });
@@ -423,7 +423,7 @@ pub fn demoFormattingVisual(allocator: std.mem.Allocator) !void {
         defer allocator.free(json_formatted);
 
         // Format ZON
-        const zon_formatted = zon.formatZonString(allocator, test_case.zon_data) catch |err| {
+        const zon_formatted = zon.formatString(allocator, test_case.zon_data) catch |err| {
             std.debug.print("   ⚠️  ZON formatting failed: {}\n\n", .{err});
             continue;
         };
@@ -505,7 +505,7 @@ pub fn demoLintingComparison(allocator: std.mem.Allocator) !void {
 
     // Test ZON linting
     std.debug.print("\nZON Linting Results:\n", .{});
-    const zon_issues = zon.validateZonString(allocator, problematic_zon) catch |err| {
+    const zon_issues = zon.validateString(allocator, problematic_zon) catch |err| {
         std.debug.print("  ⚠️  ZON linter error: {}\n", .{err});
         return;
     };

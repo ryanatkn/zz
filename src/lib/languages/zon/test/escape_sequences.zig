@@ -1,7 +1,7 @@
 /// Comprehensive escape sequence tests for ZON parser
 const std = @import("std");
 const testing = std.testing;
-const ZonParser = @import("../parser/mod.zig").Parser;
+const Parser = @import("../parser/mod.zig").Parser;
 
 test "ZON escape sequences - basic escapes" {
     const allocator = testing.allocator;
@@ -19,7 +19,7 @@ test "ZON escape sequences - basic escapes" {
     };
 
     for (test_cases) |case| {
-        var parser = try ZonParser.init(allocator, case.input, .{});
+        var parser = try Parser.init(allocator, case.input, .{});
         defer parser.deinit();
 
         var ast = try parser.parse();
@@ -51,7 +51,7 @@ test "ZON escape sequences - Unicode escapes" {
     };
 
     for (test_cases) |case| {
-        var parser = try ZonParser.init(allocator, case.input, .{});
+        var parser = try Parser.init(allocator, case.input, .{});
         defer parser.deinit();
 
         var ast = try parser.parse();
@@ -79,7 +79,7 @@ test "ZON escape sequences - multiline string escapes" {
     };
 
     for (test_cases) |case| {
-        var parser = try ZonParser.init(allocator, case.input, .{});
+        var parser = try Parser.init(allocator, case.input, .{});
         defer parser.deinit();
 
         var ast = try parser.parse();
@@ -99,7 +99,7 @@ test "ZON escape sequences - mixed content" {
     const input = "\"Hello\\nWorld\\t\\\"quoted\\\"\\u{A9}\"";
     const expected = "Hello\nWorld\t\"quoted\"©";
 
-    var parser = try ZonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -124,7 +124,7 @@ test "ZON escape sequences - complex ZON with escapes" {
         \\}
     ;
 
-    var parser = try ZonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -148,7 +148,7 @@ test "ZON escape sequences - field names with escapes" {
         \\}
     ;
 
-    var parser = try ZonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -172,7 +172,7 @@ test "ZON escape sequences - invalid Unicode" {
     };
 
     for (test_cases) |input| {
-        var parser = try ZonParser.init(allocator, input, .{});
+        var parser = try Parser.init(allocator, input, .{});
         defer parser.deinit();
 
         var ast = try parser.parse();
@@ -196,7 +196,7 @@ test "ZON escape sequences - AST toString with escaping" {
     // Test that AST can properly escape strings when converted back to ZON
     const input = "\"Hello\\nWorld\"";
 
-    var parser = try ZonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -206,7 +206,7 @@ test "ZON escape sequences - AST toString with escaping" {
     var buffer = std.ArrayList(u8).init(allocator);
     defer buffer.deinit();
 
-    try ast.root.?.toZonString(buffer.writer());
+    try ast.root.?.toString(buffer.writer());
     const result = buffer.items;
 
     // Should properly escape the newline
@@ -224,7 +224,7 @@ test "ZON escape sequences - anonymous list with escapes" {
         \\]
     ;
 
-    var parser = try ZonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();

@@ -9,7 +9,7 @@ const std = @import("std");
 
 // Export formatter generator functions from language modules
 pub const JsonFormatter = @import("../languages/json/format/stream.zig").Formatter;
-pub const ZonFormatter = @import("../languages/zon/format/stream.zig").ZonFormatter;
+pub const ZonFormatter = @import("../languages/zon/format/stream.zig").Formatter;
 
 // Export common types
 pub const FormatOptions = @import("format_options.zig").FormatOptions;

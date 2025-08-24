@@ -2,7 +2,7 @@ const std = @import("std");
 const testing = std.testing;
 
 // Import ZON modules
-const ZonParser = @import("../parser/mod.zig").Parser;
+const Parser = @import("../parser/mod.zig").Parser;
 // Using streaming tokens now
 
 // =============================================================================
@@ -17,7 +17,7 @@ test "ZON parser - string escape processing" {
     const input = ".{ .str = \"hello\\nworld\" }";
 
     // Updated to streaming parser (3-arg pattern)
-    var parser = try ZonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -39,7 +39,7 @@ test "ZON parser - malformed unicode handling" {
 
     for (invalid_cases) |test_input| {
         // Updated to streaming - parser handles lexing errors
-        var parser = ZonParser.init(allocator, test_input, .{}) catch {
+        var parser = Parser.init(allocator, test_input, .{}) catch {
             continue; // Expected failure during init
         };
         defer parser.deinit();
@@ -61,7 +61,7 @@ test "ZON parser - simple object" {
     const input = ".{ .name = \"test\", .version = \"1.0.0\" }";
 
     // Updated to streaming parser (3-arg pattern)
-    var parser = try ZonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -78,7 +78,7 @@ test "ZON parser - nested objects" {
     const input = ".{ .dependencies = .{ .package = .{ .url = \"https://example.com\" } } }";
 
     // Updated to streaming parser (3-arg pattern)
-    var parser = try ZonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -95,7 +95,7 @@ test "ZON parser - arrays" {
     const input = ".{ .paths = .{ \"src\", \"lib\", \"test\" } }";
 
     // Updated to streaming parser (3-arg pattern)
-    var parser = try ZonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -118,7 +118,7 @@ test "ZON parser - build.zig.zon format" {
     ;
 
     // Updated to streaming parser (3-arg pattern)
-    var parser = try ZonParser.init(allocator, test_build_zon, .{});
+    var parser = try Parser.init(allocator, test_build_zon, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -135,7 +135,7 @@ test "ZON parser - error recovery" {
     const input = ".{ .name = \"test\", .invalid syntax here }";
 
     // Updated to streaming parser (3-arg pattern)
-    var parser = try ZonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
 
     // Should either parse with errors or fail gracefully
@@ -159,7 +159,7 @@ test "ZON parser - multiple syntax errors" {
 
     for (invalid_cases) |case| {
         // Updated to streaming parser (3-arg pattern)
-        var parser = try ZonParser.init(allocator, case, .{});
+        var parser = try Parser.init(allocator, case, .{});
         defer parser.deinit();
 
         // Should fail parsing
@@ -182,7 +182,7 @@ test "ZON parser - malformed nested structures" {
 
     for (invalid_cases) |case| {
         // Updated to streaming parser (3-arg pattern)
-        var parser = try ZonParser.init(allocator, case, .{});
+        var parser = try Parser.init(allocator, case, .{});
         defer parser.deinit();
 
         // Should fail parsing
@@ -200,7 +200,7 @@ test "ZON parser - invalid token sequences" {
     const input = ".{ .field = = \"value\" }"; // Double equals
 
     // Updated to streaming parser (3-arg pattern)
-    var parser = try ZonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
 
     // Should fail parsing
@@ -219,7 +219,7 @@ test "ZON parser - error message quality" {
     const input = ".{ .name = }"; // Missing value
 
     // Updated to streaming parser (3-arg pattern)
-    var parser = try ZonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
 
     // Should fail with descriptive error
@@ -260,7 +260,7 @@ test "ZON parser - single boolean literal true" {
     const input = "true";
 
     // Updated to streaming parser (3-arg pattern)
-    var parser = try ZonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -277,7 +277,7 @@ test "ZON parser - single boolean literal false" {
     const input = "false";
 
     // Updated to streaming parser (3-arg pattern)
-    var parser = try ZonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -294,7 +294,7 @@ test "ZON parser - multiple boolean literals" {
     const input = ".{ .enabled = true, .disabled = false }";
 
     // Updated to streaming parser (3-arg pattern)
-    var parser = try ZonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -317,7 +317,7 @@ test "ZON parser - sequential boolean fields (regression test)" {
     ;
 
     // Updated to streaming parser (3-arg pattern)
-    var parser = try ZonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -334,7 +334,7 @@ test "ZON parser - null literal" {
     const input = ".{ .optional = null }";
 
     // Updated to streaming parser (3-arg pattern)
-    var parser = try ZonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -362,7 +362,7 @@ test "ZON parser - mixed literals" {
     ;
 
     // Updated to streaming parser (3-arg pattern)
-    var parser = try ZonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -380,7 +380,7 @@ test "ZON parser - regression: triple equals should fail" {
     const input = ".{ .field = = = \"value\" }"; // Triple equals
 
     // Updated to streaming parser (3-arg pattern)
-    var parser = try ZonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
 
     // Should fail parsing
@@ -399,7 +399,7 @@ test "ZON parser - regression: incomplete assignment with comma" {
     const input = ".{ .name = , .value = \"test\" }"; // Missing value before comma
 
     // Updated to streaming parser (3-arg pattern)
-    var parser = try ZonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
 
     // Should fail with MissingValue error

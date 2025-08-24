@@ -7,14 +7,14 @@ const Span = @import("../../../span/mod.zig").Span;
 const unpackSpan = @import("../../../span/mod.zig").unpackSpan;
 const TokenIterator = @import("../../../token/iterator.zig").TokenIterator;
 const Token = @import("../../../token/stream_token.zig").Token;
-const ZonToken = @import("../token/types.zig").ZonToken;
-const ZonTokenKind = @import("../token/types.zig").ZonTokenKind;
+const ZonToken = @import("../token/types.zig").Token;
+const TokenKind = @import("../token/types.zig").TokenKind;
 
 // Use local ZON AST
-const zon_ast = @import("../ast/nodes.zig");
-const AST = zon_ast.AST;
-const Node = zon_ast.Node;
-const NodeKind = zon_ast.NodeKind;
+const ast_nodes = @import("../ast/nodes.zig");
+const AST = ast_nodes.AST;
+const Node = ast_nodes.Node;
+const NodeKind = ast_nodes.NodeKind;
 
 /// ZON Parser using streaming lexer
 ///
@@ -23,7 +23,7 @@ const NodeKind = zon_ast.NodeKind;
 /// - Support for ZON-specific syntax (.field, enum literals, etc.)
 /// - Recursive descent parsing
 /// - Error recovery
-pub const ZonParser = struct {
+pub const Parser = struct {
     allocator: std.mem.Allocator,
     iterator: TokenIterator,
     source: []const u8,
@@ -151,7 +151,7 @@ pub const ZonParser = struct {
     }
 
     /// Expect and consume a specific token kind
-    fn expect(self: *Self, kind: ZonTokenKind) !ZonToken {
+    fn expect(self: *Self, kind: TokenKind) !ZonToken {
         if (self.peek()) |token| {
             if (token.kind == kind) {
                 const result = token;
@@ -769,7 +769,7 @@ test "ZON streaming parser - simple values" {
     };
 
     for (inputs) |input| {
-        var parser = try ZonParser.init(allocator, input, .{});
+        var parser = try Parser.init(allocator, input, .{});
         defer parser.deinit();
 
         var ast = try parser.parse();
@@ -785,7 +785,7 @@ test "ZON streaming parser - structs" {
 
     const input = ".{ .name = \"test\", .value = 42 }";
 
-    var parser = try ZonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -801,7 +801,7 @@ test "ZON streaming parser - arrays" {
 
     const input = "[1, 2, 3, \"test\", true, null, .red]";
 
-    var parser = try ZonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();

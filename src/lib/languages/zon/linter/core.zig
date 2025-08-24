@@ -4,9 +4,9 @@
 /// Performance target: <1ms for typical build.zig.zon files
 const std = @import("std");
 const TokenIterator = @import("../../../token/iterator.zig").TokenIterator;
-const Token = @import("../../../token/stream_token.zig").Token;
-const ZonToken = @import("../token/types.zig").ZonToken;
-const ZonTokenKind = @import("../token/types.zig").ZonTokenKind;
+const StreamToken = @import("../../../token/stream_token.zig").Token;
+const ZonToken = @import("../token/types.zig").Token;
+const TokenKind = @import("../token/types.zig").TokenKind;
 const unpackSpan = @import("../../../span/mod.zig").unpackSpan;
 const Span = @import("../../../span/mod.zig").Span;
 const char_utils = @import("../../../char/mod.zig");
@@ -30,7 +30,7 @@ pub const ValidationError = error{
 };
 
 /// ZON-specific linting rules
-pub const ZonRuleType = enum(u8) {
+pub const RuleType = enum(u8) {
     no_duplicate_keys,
     max_depth_exceeded,
     large_structure,
@@ -47,14 +47,14 @@ pub const ZonRuleType = enum(u8) {
 };
 
 /// Efficient rule set using bitflags for O(1) lookups
-pub const EnabledRules = std.EnumSet(ZonRuleType);
+pub const EnabledRules = std.EnumSet(RuleType);
 
 /// Diagnostic from linting
 pub const Diagnostic = struct {
     message: []const u8,
     span: Span,
     severity: Severity,
-    rule: ZonRuleType, // Enum instead of string!
+    rule: RuleType, // Enum instead of string!
 
     pub const Severity = enum {
         err,
@@ -78,9 +78,9 @@ pub const Diagnostic = struct {
 /// - Structural validation (depth limits, size checks)
 /// - ZON-specific syntax validation
 /// - Memory efficient with streaming approach
-pub const ZonLinter = struct {
+pub const Linter = struct {
     allocator: std.mem.Allocator,
-    options: ZonLintOptions,
+    options: LintOptions,
     diagnostics: std.ArrayList(Diagnostic),
     source: []const u8,
     iterator: ?TokenIterator,
@@ -93,7 +93,7 @@ pub const ZonLinter = struct {
 
     const Self = @This();
 
-    pub const ZonLintOptions = struct {
+    pub const LintOptions = struct {
         max_depth: u32 = 100,
         max_field_count: u32 = 1000,
         max_array_size: u32 = 10000,
@@ -113,7 +113,7 @@ pub const ZonLinter = struct {
     };
 
     /// Built-in linting rules metadata
-    pub const RULE_INFO = std.EnumArray(ZonRuleType, RuleInfo).init(.{
+    pub const RULE_INFO = std.EnumArray(RuleType, RuleInfo).init(.{
         .no_duplicate_keys = .{
             .description = "Object keys must be unique",
             .severity = .err,
@@ -185,8 +185,8 @@ pub const ZonLinter = struct {
     /// Get default enabled rules
     pub fn getDefaultRules() EnabledRules {
         var rules = EnabledRules.initEmpty();
-        inline for (std.meta.fields(ZonRuleType)) |field| {
-            const rule_type = @field(ZonRuleType, field.name);
+        inline for (std.meta.fields(RuleType)) |field| {
+            const rule_type = @field(RuleType, field.name);
             if (RULE_INFO.get(rule_type).enabled_by_default) {
                 rules.insert(rule_type);
             }
@@ -194,8 +194,8 @@ pub const ZonLinter = struct {
         return rules;
     }
 
-    pub fn init(allocator: std.mem.Allocator, options: ZonLintOptions) ZonLinter {
-        return ZonLinter{
+    pub fn init(allocator: std.mem.Allocator, options: LintOptions) Linter {
+        return Linter{
             .allocator = allocator,
             .options = options,
             .diagnostics = std.ArrayList(Diagnostic).init(allocator),
@@ -486,7 +486,7 @@ pub const ZonLinter = struct {
             if (value_start != null and self.schema_type == .build_zig_zon and
                 enabled_rules.contains(.invalid_field_type))
             {
-                try self.validateBuildZigZonField(field_name, value_start.?, enabled_rules);
+                try self.validateBuildField(field_name, value_start.?, enabled_rules);
             }
 
             try self.validateValue(iter, enabled_rules);
@@ -585,7 +585,7 @@ pub const ZonLinter = struct {
         }
     }
 
-    fn validateBuildZigZonField(self: *Self, field_name: []const u8, value_token: ZonToken, _: EnabledRules) !void {
+    fn validateBuildField(self: *Self, field_name: []const u8, value_token: ZonToken, _: EnabledRules) !void {
         const span = unpackSpan(value_token.span);
 
         if (std.mem.eql(u8, field_name, "name") or std.mem.eql(u8, field_name, "version")) {
@@ -666,7 +666,7 @@ pub const ZonLinter = struct {
         }
     }
 
-    fn skipToMatchingBrace(_: *Self, iter: *TokenIterator, end_kind: ZonTokenKind) !void {
+    fn skipToMatchingBrace(_: *Self, iter: *TokenIterator, end_kind: TokenKind) !void {
         var depth: u32 = 1;
 
         while (iter.next()) |token| {
@@ -684,12 +684,12 @@ pub const ZonLinter = struct {
         }
     }
 
-    fn addDiagnostic(self: *Self, rule: ZonRuleType, message: []const u8, start_pos: u32, end_pos: u32, severity: Diagnostic.Severity) !void {
+    fn addDiagnostic(self: *Self, rule: RuleType, message: []const u8, start_pos: u32, end_pos: u32, severity: Diagnostic.Severity) !void {
         const owned_message = try self.allocator.dupe(u8, message);
         try self.addDiagnosticOwned(rule, owned_message, start_pos, end_pos, severity);
     }
 
-    fn addDiagnosticOwned(self: *Self, rule: ZonRuleType, owned_message: []const u8, start_pos: u32, end_pos: u32, severity: Diagnostic.Severity) !void {
+    fn addDiagnosticOwned(self: *Self, rule: RuleType, owned_message: []const u8, start_pos: u32, end_pos: u32, severity: Diagnostic.Severity) !void {
         const diagnostic = Diagnostic{
             .message = owned_message,
             .span = Span.init(start_pos, end_pos),
@@ -733,17 +733,17 @@ pub const ZonLinter = struct {
 };
 
 /// Convenience function for linting ZON AST (compatibility)
-pub fn lint(allocator: std.mem.Allocator, ast: AST, enabled_rules: anytype) ![]ZonLinter.Diagnostic {
+pub fn lint(allocator: std.mem.Allocator, ast: AST, enabled_rules: anytype) ![]Linter.Diagnostic {
     _ = enabled_rules;
-    var linter = ZonLinter.init(allocator, .{});
+    var linter = Linter.init(allocator, .{});
     defer linter.deinit();
-    return linter.lint(ast, ZonLinter.getDefaultRules());
+    return linter.lint(ast, Linter.getDefaultRules());
 }
 
 /// Lint ZON string directly
-pub fn lintZonString(allocator: std.mem.Allocator, zon_content: []const u8, enabled_rules: anytype) ![]ZonLinter.Diagnostic {
+pub fn lintString(allocator: std.mem.Allocator, zon_content: []const u8, enabled_rules: anytype) ![]Linter.Diagnostic {
     _ = enabled_rules;
-    var linter = ZonLinter.init(allocator, .{});
+    var linter = Linter.init(allocator, .{});
     defer linter.deinit();
-    return linter.lintSource(zon_content, ZonLinter.getDefaultRules());
+    return linter.lintSource(zon_content, Linter.getDefaultRules());
 }

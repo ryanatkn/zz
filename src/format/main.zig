@@ -263,7 +263,7 @@ fn formatWithLanguageModules(allocator: std.mem.Allocator, content: []const u8, 
         .zon => {
             // Use ZON module convenience function for raw ZON formatting
             const zon_mod = @import("../lib/languages/zon/mod.zig");
-            return zon_mod.formatZonString(allocator, content);
+            return zon_mod.formatString(allocator, content);
         },
         .css, .html, .typescript, .zig, .svelte => {
             // These languages don't have transform pipelines yet

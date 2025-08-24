@@ -2,8 +2,8 @@ const std = @import("std");
 const testing = std.testing;
 
 // Import ZON modules
-const ZonParser = @import("../parser/mod.zig").Parser;
-const ZonAnalyzer = @import("../analyzer/mod.zig").Analyzer;
+const Parser = @import("../parser/mod.zig").Parser;
+const Analyzer = @import("../analyzer/mod.zig").Analyzer;
 
 // =============================================================================
 // Analyzer Tests
@@ -23,13 +23,13 @@ test "ZON analyzer - schema extraction" {
     ;
 
     // Updated to streaming parser (3-arg pattern)
-    var parser = try ZonParser.init(allocator, test_build_zon, .{});
+    var parser = try Parser.init(allocator, test_build_zon, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
     defer ast.deinit();
 
-    const analyzer = ZonAnalyzer.init(allocator, .{});
+    const analyzer = Analyzer.init(allocator, .{});
 
     // Extract schema if implemented
     // const schema = try analyzer.extractSchema(ast);
@@ -57,13 +57,13 @@ test "ZON analyzer - symbol extraction" {
     ;
 
     // Updated to streaming parser (3-arg pattern)
-    var parser = try ZonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
     defer ast.deinit();
 
-    var analyzer = ZonAnalyzer.init(allocator, .{});
+    var analyzer = Analyzer.init(allocator, .{});
 
     const symbols = try analyzer.extractSymbols(ast);
     defer {
@@ -96,13 +96,13 @@ test "ZON analyzer - dependency extraction" {
     ;
 
     // Updated to streaming parser (3-arg pattern)
-    var parser = try ZonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
     defer ast.deinit();
 
-    const analyzer = ZonAnalyzer.init(allocator, .{});
+    const analyzer = Analyzer.init(allocator, .{});
 
     // Extract dependencies if implemented
     // const deps = try analyzer.extractDependencies(ast);
@@ -129,13 +129,13 @@ test "ZON analyzer - type inference" {
     ;
 
     // Updated to streaming parser (3-arg pattern)
-    var parser = try ZonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
     defer ast.deinit();
 
-    const analyzer = ZonAnalyzer.init(allocator, .{});
+    const analyzer = Analyzer.init(allocator, .{});
 
     // Infer types if implemented
     // const types = try analyzer.inferTypes(ast);
@@ -163,13 +163,13 @@ test "ZON analyzer - statistics" {
     ;
 
     // Updated to streaming parser (3-arg pattern)
-    var parser = try ZonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
     defer ast.deinit();
 
-    const analyzer = ZonAnalyzer.init(allocator, .{});
+    const analyzer = Analyzer.init(allocator, .{});
 
     // Generate statistics if implemented
     // const stats = try analyzer.generateStatistics(ast);
@@ -194,13 +194,13 @@ test "ZON analyzer - Zig type generation" {
     ;
 
     // Updated to streaming parser (3-arg pattern)
-    var parser = try ZonParser.init(allocator, test_zz_zon, .{});
+    var parser = try Parser.init(allocator, test_zz_zon, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
     defer ast.deinit();
 
-    const analyzer = ZonAnalyzer.init(allocator, .{});
+    const analyzer = Analyzer.init(allocator, .{});
 
     // Generate Zig type if implemented
     // const zig_type = try analyzer.generateZigType(allocator, ast, "BuildZon");

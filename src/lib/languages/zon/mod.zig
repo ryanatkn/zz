@@ -15,43 +15,42 @@ const InterfaceLinter = lang_interface.Linter;
 const InterfaceAnalyzer = lang_interface.Analyzer;
 const FormatOptions = lang_interface.FormatOptions;
 const Symbol = lang_interface.Symbol;
-const Diagnostic = lang_interface.Diagnostic;
+const InterfaceDiagnostic = lang_interface.Diagnostic;
 
 // Import ZON-specific implementations - all self-contained in subdirectories
 const ParserImpl = @import("parser/mod.zig").Parser;
 const FormatterImpl = @import("format/mod.zig").Formatter;
 const linter_mod = @import("linter/mod.zig");
 const LinterImpl = linter_mod.Linter;
-const ZonDiagnostic = linter_mod.Diagnostic;
-const ZonRuleType = linter_mod.RuleType;
+const LinterDiagnostic = linter_mod.Diagnostic;
+const LinterRuleType = linter_mod.RuleType;
 const EnabledRules = linter_mod.EnabledRules;
 const analyzer_module = @import("analyzer/mod.zig");
 const AnalyzerImpl = analyzer_module.Analyzer;
-const ZonSchema = analyzer_module.ZonSchema;
+const AnalyzerSchema = analyzer_module.Schema;
 const ZigTypeDefinition = analyzer_module.ZigTypeDefinition;
 
 // Import ZON AST
-const zon_ast = @import("ast/mod.zig");
-pub const AST = zon_ast.AST;
-pub const Node = zon_ast.Node;
-pub const NodeKind = zon_ast.NodeKind;
+const ast_mod = @import("ast/mod.zig");
+pub const AST = ast_mod.AST;
+pub const Node = ast_mod.Node;
+pub const NodeKind = ast_mod.NodeKind;
 
 // Direct exports
 pub const Parser = ParserImpl;
 pub const Formatter = FormatterImpl;
-pub const ZonFormatter = FormatterImpl; // Compatibility alias
 pub const Linter = LinterImpl;
-pub const RuleType = ZonRuleType;
+pub const RuleType = LinterRuleType;
 pub const Analyzer = AnalyzerImpl;
-pub const AnalyzerOptions = AnalyzerImpl.AnalyzerOptions;
+pub const AnalyzerOptions = AnalyzerImpl.AnalysisOptions;
 pub const ParserOptions = ParserImpl.ParserOptions;
-pub const Schema = ZonSchema;
+pub const Schema = AnalyzerSchema;
+pub const Diagnostic = LinterDiagnostic;
 
 // Streaming lexer exports (the new way)
 pub const Lexer = @import("lexer/mod.zig").Lexer;
 pub const Token = @import("../../token/mod.zig").Token;
-pub const ZonToken = @import("token/mod.zig").Token;
-pub const ZonTokenKind = @import("token/mod.zig").TokenKind;
+pub const TokenKind = @import("token/mod.zig").TokenKind;
 
 // Transform exports
 pub const Transform = @import("transform/mod.zig").Pipeline;
@@ -70,9 +69,9 @@ pub const Serializer = @import("transform/mod.zig").Serializer;
 /// - Schema extraction and Zig type generation
 /// - Performance optimized for config files
 /// Get ZON language support instance
-pub fn getSupport(allocator: std.mem.Allocator) !lang_interface.LanguageSupport(AST, ZonRuleType) {
+pub fn getSupport(allocator: std.mem.Allocator) !lang_interface.LanguageSupport(AST, LinterRuleType) {
     _ = allocator; // Not needed for static interface
-    return lang_interface.LanguageSupport(AST, ZonRuleType){
+    return lang_interface.LanguageSupport(AST, LinterRuleType){
         .language = .zon,
         .lexer = InterfaceLexer{
             .updateTokensFn = null, // Incremental tokenization not implemented
@@ -84,7 +83,7 @@ pub fn getSupport(allocator: std.mem.Allocator) !lang_interface.LanguageSupport(
             .formatFn = formatAST,
             .formatRangeFn = null, // Range formatting not implemented for ZON
         },
-        .linter = InterfaceLinter(AST, ZonRuleType){
+        .linter = InterfaceLinter(AST, LinterRuleType){
             .ruleInfoFn = zonGetRuleInfo,
             .lintFn = zonLintEnum,
             .getDefaultRulesFn = zonGetDefaultRules,
@@ -120,14 +119,14 @@ pub fn free(allocator: std.mem.Allocator, data: anytype) void {
 }
 
 /// Validate ZON string and return diagnostics (convenience function)
-pub fn lint(allocator: std.mem.Allocator, source: []const u8, rules: EnabledRules) ![]ZonDiagnostic {
+pub fn lint(allocator: std.mem.Allocator, source: []const u8, rules: EnabledRules) ![]LinterDiagnostic {
     var linter = LinterImpl.init(allocator, .{});
     defer linter.deinit();
     return linter.lintSource(source, rules);
 }
 
 /// Validate ZON string with default rules (convenience function for benchmarks)
-pub fn validateZonString(allocator: std.mem.Allocator, content: []const u8) ![]ZonDiagnostic {
+pub fn validateString(allocator: std.mem.Allocator, content: []const u8) ![]LinterDiagnostic {
     var linter = LinterImpl.init(allocator, .{});
     defer linter.deinit();
     const rules = LinterImpl.getDefaultRules();
@@ -135,7 +134,7 @@ pub fn validateZonString(allocator: std.mem.Allocator, content: []const u8) ![]Z
 }
 
 /// Extract ZON schema from content (convenience function for benchmarks)
-pub fn extractZonSchema(allocator: std.mem.Allocator, content: []const u8) !ZonSchema {
+pub fn extractSchema(allocator: std.mem.Allocator, content: []const u8) !AnalyzerSchema {
     var ast = try parse(allocator, content);
     defer ast.deinit();
 
@@ -146,7 +145,7 @@ pub fn extractZonSchema(allocator: std.mem.Allocator, content: []const u8) !ZonS
 /// Format ZON AST (interface function)
 pub fn formatAST(allocator: std.mem.Allocator, ast: AST, options: FormatOptions) ![]const u8 {
     // Convert interface options to ZON-specific options
-    const zon_options = FormatterImpl.ZonFormatOptions{
+    const zon_options = FormatterImpl.FormatOptions{
         .indent_size = @intCast(options.indent_size),
         .indent_style = switch (options.indent_style) {
             .space => .space,
@@ -169,7 +168,7 @@ pub fn formatAST(allocator: std.mem.Allocator, ast: AST, options: FormatOptions)
 /// Format ZON source string (convenience function)
 pub fn format(allocator: std.mem.Allocator, source: []const u8, options: FormatOptions) ![]const u8 {
     // Convert interface options to ZON-specific options
-    const zon_options = FormatterImpl.ZonFormatOptions{
+    const zon_options = FormatterImpl.FormatOptions{
         .indent_size = @intCast(options.indent_size),
         .indent_style = switch (options.indent_style) {
             .space => .space,
@@ -185,9 +184,9 @@ pub fn format(allocator: std.mem.Allocator, source: []const u8, options: FormatO
 }
 
 /// Format ZON string with default options (convenience function for CLI)
-pub fn formatZonString(allocator: std.mem.Allocator, content: []const u8) ![]u8 {
+pub fn formatString(allocator: std.mem.Allocator, content: []const u8) ![]u8 {
     // Use formatter directly with default ZON options for CLI use
-    const options = FormatterImpl.ZonFormatOptions{
+    const options = FormatterImpl.FormatOptions{
         .indent_size = 4,
         .indent_style = .space,
         .line_width = 80,
@@ -201,10 +200,10 @@ pub fn formatZonString(allocator: std.mem.Allocator, content: []const u8) ![]u8 
     return try allocator.dupe(u8, formatted);
 }
 
-fn zonGetRuleInfo(rule: ZonRuleType) lang_interface.RuleInfo(ZonRuleType) {
+fn zonGetRuleInfo(rule: LinterRuleType) lang_interface.RuleInfo(LinterRuleType) {
     // Convert ZON RuleInfo to interface RuleInfo
     const zon_info = LinterImpl.RULE_INFO.get(rule);
-    return lang_interface.RuleInfo(ZonRuleType){
+    return lang_interface.RuleInfo(LinterRuleType){
         .rule = rule,
         .description = zon_info.description,
         .severity = zon_info.severity,
@@ -212,15 +211,15 @@ fn zonGetRuleInfo(rule: ZonRuleType) lang_interface.RuleInfo(ZonRuleType) {
     };
 }
 
-fn zonLintEnum(allocator: std.mem.Allocator, ast: AST, rules: EnabledRules) ![]Diagnostic(ZonRuleType) {
+fn zonLintEnum(allocator: std.mem.Allocator, ast: AST, rules: EnabledRules) ![]InterfaceDiagnostic(LinterRuleType) {
     var linter = LinterImpl.init(allocator, .{});
     defer linter.deinit();
     const zon_diagnostics = try linter.lint(ast, rules);
 
     // Convert ZON diagnostics to interface diagnostics
-    const interface_diagnostics = try allocator.alloc(Diagnostic(ZonRuleType), zon_diagnostics.len);
+    const interface_diagnostics = try allocator.alloc(InterfaceDiagnostic(LinterRuleType), zon_diagnostics.len);
     for (zon_diagnostics, 0..) |zon_diag, i| {
-        interface_diagnostics[i] = Diagnostic(ZonRuleType){
+        interface_diagnostics[i] = InterfaceDiagnostic(LinterRuleType){
             .rule = zon_diag.rule,
             .message = zon_diag.message,
             .severity = switch (zon_diag.severity) {
@@ -264,13 +263,13 @@ fn extractSymbols(allocator: std.mem.Allocator, ast: AST) ![]Symbol {
 
 // DELETED: Old batch tokenization functions no longer needed with streaming architecture
 // The tokenize() and tokenizeChunk() functions that returned []Token arrays
-// have been removed. Use streaming parser directly with ZonParser.init()
+// have been removed. Use streaming parser directly with Parser.init()
 
 // TODO: Phase 3 - Re-enable with new streaming architecture
 // /// Tokenize ZON chunk to GenericTokens using VTable adapter
 // /// This is the new generic interface for streaming tokenization
 // pub fn tokenizeChunkGeneric(allocator: std.mem.Allocator, input: []const u8, start_pos: usize) ![]GenericToken {
-//     var lexer = StatefulZonLexer.init(allocator, .{
+//     var lexer = StatefulLexer.init(allocator, .{
 //         .allow_comments = true,
 //         .allow_trailing_commas = true,
 //         .json5_mode = false, // ZON has its own extensions
@@ -278,10 +277,10 @@ fn extractSymbols(allocator: std.mem.Allocator, ast: AST) ![]Symbol {
 //     });
 //     defer lexer.deinit();
 //
-//     // Process chunk and get ZonTokens
+//     // Process chunk and get tokens
 //     const zon_tokens = try lexer.processChunkToZon(input, start_pos, allocator);
 //     defer allocator.free(zon_tokens);
 //
 //     // Convert to GenericTokens using VTable adapter
-//     return ZonTokenVTableAdapter.convertZonTokensToGeneric(allocator, zon_tokens);
+//     return TokenVTableAdapter.convertTokensToGeneric(allocator, tokens);
 // }

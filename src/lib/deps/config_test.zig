@@ -22,7 +22,7 @@ test "ZON parsing with simple dependency structure" {
         \\}
     ;
 
-    const ZonParser = @import("../languages/zon/mod.zig");
+    const zon_mod = @import("../languages/zon/mod.zig");
 
     // Try parsing with a minimal structure first
     const MinimalConfig = struct {
@@ -38,8 +38,8 @@ test "ZON parsing with simple dependency structure" {
         },
     };
 
-    const parsed = try ZonParser.parseFromSlice(MinimalConfig, allocator, simple_zon);
-    defer ZonParser.free(allocator, parsed);
+    const parsed = try zon_mod.parseFromSlice(MinimalConfig, allocator, simple_zon);
+    defer zon_mod.free(allocator, parsed);
 
     // Verify parsing succeeded
     try testing.expectEqualStrings("https://github.com/tree-sitter/tree-sitter.git", parsed.dependencies.@"tree-sitter".url);

@@ -2,8 +2,8 @@ const std = @import("std");
 const testing = std.testing;
 
 // Import ZON modules
-const ZonParser = @import("../parser/mod.zig").Parser;
-const ZonFormatter = @import("../format/mod.zig").Formatter;
+const Parser = @import("../parser/mod.zig").Parser;
+const Formatter = @import("../format/mod.zig").Formatter;
 const zon_mod = @import("../mod.zig");
 
 // =============================================================================
@@ -107,7 +107,7 @@ test "ZON performance - formatting speed" {
     // Time the formatting operation
     const start_time = std.time.nanoTimestamp();
 
-    var formatter = ZonFormatter.init(allocator, .{});
+    var formatter = Formatter.init(allocator, .{});
     defer formatter.deinit();
 
     const formatted = try formatter.format(ast);

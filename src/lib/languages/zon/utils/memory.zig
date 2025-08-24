@@ -5,7 +5,7 @@ const ast_converter = @import("../ast/converter.zig");
 /// Handles parsed vs default ZON configurations with proper cleanup
 /// Memory management helper for ZON parsed data
 /// Follows ownership patterns with clear naming and explicit ownership tracking
-pub fn ManagedZonConfig(comptime T: type) type {
+pub fn ManagedConfig(comptime T: type) type {
     return struct {
         const Self = @This();
 
@@ -52,48 +52,48 @@ pub fn ManagedZonConfig(comptime T: type) type {
 }
 
 /// Helper function to safely parse ZON content with proper memory management
-pub fn parseZonSafely(
+pub fn parseSafely(
     comptime T: type,
     allocator: std.mem.Allocator,
     content: []const u8,
     default_value: T,
-) ManagedZonConfig(T) {
+) ManagedConfig(T) {
     const parsed = ast_converter.parseFromSlice(T, allocator, content) catch {
         // On parse error, use default (no freeing needed)
-        return ManagedZonConfig(T).initDefault(allocator, default_value);
+        return ManagedConfig(T).initDefault(allocator, default_value);
     };
 
     // Success - parsed data needs freeing
-    return ManagedZonConfig(T).initParsed(allocator, parsed);
+    return ManagedConfig(T).initParsed(allocator, parsed);
 }
 
 /// Arena-based ZON parsing for temporary usage (like tests)
 /// All allocations are cleaned up when arena is deinitialized
-pub const ArenaZonParser = struct {
+pub const ArenaParser = struct {
     arena: std.heap.ArenaAllocator,
 
-    pub fn init(backing_allocator: std.mem.Allocator) ArenaZonParser {
-        return ArenaZonParser{
+    pub fn init(backing_allocator: std.mem.Allocator) ArenaParser {
+        return ArenaParser{
             .arena = std.heap.ArenaAllocator.init(backing_allocator),
         };
     }
 
-    pub fn deinit(self: *ArenaZonParser) void {
+    pub fn deinit(self: *ArenaParser) void {
         self.arena.deinit();
     }
 
     /// Parse ZON with arena allocator - no need for individual freeing
-    pub fn parseFromSlice(self: *ArenaZonParser, comptime T: type, content: []const u8) !T {
+    pub fn parseFromSlice(self: *ArenaParser, comptime T: type, content: []const u8) !T {
         return ast_converter.parseFromSlice(T, self.arena.allocator(), content);
     }
 
     /// Parse with default fallback
-    pub fn parseFromSliceWithDefault(self: *ArenaZonParser, comptime T: type, content: []const u8, default_value: T) T {
+    pub fn parseFromSliceWithDefault(self: *ArenaParser, comptime T: type, content: []const u8, default_value: T) T {
         return self.parseFromSlice(T, content) catch default_value;
     }
 };
 
-test "ManagedZonConfig with parsed data" {
+test "ManagedConfig with parsed data" {
     const testing = std.testing;
 
     const TestConfig = struct {
@@ -110,7 +110,7 @@ test "ManagedZonConfig with parsed data" {
 
     // Parse ZON data
     const parsed = try ast_converter.parseFromSlice(TestConfig, testing.allocator, test_content);
-    var managed = ManagedZonConfig(TestConfig).initParsed(testing.allocator, parsed);
+    var managed = ManagedConfig(TestConfig).initParsed(testing.allocator, parsed);
     defer managed.deinit();
 
     // Verify data
@@ -119,7 +119,7 @@ test "ManagedZonConfig with parsed data" {
     try testing.expect(managed.wasParsed());
 }
 
-test "ManagedZonConfig with default data" {
+test "ManagedConfig with default data" {
     const testing = std.testing;
 
     const TestConfig = struct {
@@ -128,7 +128,7 @@ test "ManagedZonConfig with default data" {
     };
 
     const default_config = TestConfig{};
-    var managed = ManagedZonConfig(TestConfig).initDefault(testing.allocator, default_config);
+    var managed = ManagedConfig(TestConfig).initDefault(testing.allocator, default_config);
     defer managed.deinit(); // Safe to call, won't free anything
 
     // Verify data
@@ -137,7 +137,7 @@ test "ManagedZonConfig with default data" {
     try testing.expect(!managed.wasParsed());
 }
 
-test "parseZonSafely with valid content" {
+test "parseSafely with valid content" {
     const testing = std.testing;
 
     const TestConfig = struct {
@@ -153,7 +153,7 @@ test "parseZonSafely with valid content" {
     ;
 
     const default_config = TestConfig{ .name = "default", .value = 0 };
-    var managed = parseZonSafely(TestConfig, testing.allocator, test_content, default_config);
+    var managed = parseSafely(TestConfig, testing.allocator, test_content, default_config);
     defer managed.deinit();
 
     try testing.expectEqualStrings("test", managed.get().name);
@@ -161,7 +161,7 @@ test "parseZonSafely with valid content" {
     try testing.expect(managed.wasParsed());
 }
 
-test "parseZonSafely with invalid content" {
+test "parseSafely with invalid content" {
     const testing = std.testing;
 
     const TestConfig = struct {
@@ -172,7 +172,7 @@ test "parseZonSafely with invalid content" {
     // Use definitely invalid ZON syntax
     const invalid_content = "not valid zon at all";
     const default_config = TestConfig{ .name = "default", .value = 42 };
-    var managed = parseZonSafely(TestConfig, testing.allocator, invalid_content, default_config);
+    var managed = parseSafely(TestConfig, testing.allocator, invalid_content, default_config);
     defer managed.deinit(); // Safe - uses default, no freeing needed
 
     // The invalid content should cause parseFromSlice to fail and use default
@@ -181,7 +181,7 @@ test "parseZonSafely with invalid content" {
     try testing.expect(!managed.wasParsed());
 }
 
-test "ArenaZonParser basic usage" {
+test "ArenaParser basic usage" {
     const testing = std.testing;
 
     const TestConfig = struct {
@@ -196,7 +196,7 @@ test "ArenaZonParser basic usage" {
         \\}
     ;
 
-    var arena_parser = ArenaZonParser.init(testing.allocator);
+    var arena_parser = ArenaParser.init(testing.allocator);
     defer arena_parser.deinit(); // Cleans up all allocations automatically
 
     const parsed = try arena_parser.parseFromSlice(TestConfig, test_content);

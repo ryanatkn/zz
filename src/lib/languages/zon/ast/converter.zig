@@ -14,9 +14,9 @@
 /// 2. Use arena allocation and require callers to manage the arena, or
 /// 3. Document that callers must manually free string fields
 const std = @import("std");
-const zon_ast = @import("nodes.zig");
-const Node = zon_ast.Node;
-const AST = zon_ast.AST;
+const ast_nodes = @import("nodes.zig");
+const Node = ast_nodes.Node;
+const AST = ast_nodes.AST;
 
 pub const AstConverter = struct {
     allocator: std.mem.Allocator,
@@ -33,10 +33,10 @@ pub const AstConverter = struct {
 
 /// Parse ZON content to a specific type (updated for streaming)
 pub fn parseFromSlice(comptime T: type, allocator: std.mem.Allocator, content: []const u8) !T {
-    const ZonParser = @import("../parser/core.zig").ZonParser;
+    const Parser = @import("../parser/core.zig").Parser;
 
     // Use streaming parser directly (3-arg pattern)
-    var parser = try ZonParser.init(allocator, content, .{});
+    var parser = try Parser.init(allocator, content, .{});
     defer parser.deinit();
 
     var ast = parser.parse() catch |err| {
@@ -50,7 +50,7 @@ pub fn parseFromSlice(comptime T: type, allocator: std.mem.Allocator, content: [
         return try convertAstToType(T, allocator, root);
     } else {
         // No valid AST root - this indicates parsing failed
-        return error.InvalidZonContent;
+        return error.InvalidContent;
     }
 }
 
@@ -75,7 +75,7 @@ fn convertAstToType(comptime T: type, allocator: std.mem.Allocator, node: *const
                     return try convertAstToType(T, allocator, node.root.value);
                 }
                 // For other non-object types, this is a type mismatch error
-                return error.InvalidZonContent;
+                return error.InvalidContent;
             }
 
             const object_node = node.object;

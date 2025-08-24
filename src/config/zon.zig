@@ -19,8 +19,8 @@ const PatternResolver = resolver_mod.PatternResolver;
 const GitignorePatterns = patterns.GitignorePatterns;
 const FilesystemInterface = filesystem_mod.FilesystemInterface;
 const DirHandle = filesystem_mod.DirHandle;
-const ZonParser = zon_language.Parser;
-const ManagedZonConfig = zon_memory.ManagedZonConfig;
+const Parser = zon_language.Parser;
+const ManagedConfig = zon_memory.ManagedConfig;
 
 pub const IndentStyle = enum {
     space,
@@ -76,7 +76,7 @@ pub const ZonConfig = struct {
 
 pub const ZonLoader = struct {
     allocator: std.mem.Allocator,
-    config: ?ManagedZonConfig(ZonConfig),
+    config: ?ManagedConfig(ZonConfig),
     filesystem: FilesystemInterface,
 
     const Self = @This();
@@ -101,7 +101,7 @@ pub const ZonLoader = struct {
             defer self.allocator.free(content);
             try self.loadFromContent(content);
         } else {
-            self.config = ManagedZonConfig(ZonConfig).initDefault(self.allocator, ZonConfig{}); // Empty config - file not found
+            self.config = ManagedConfig(ZonConfig).initDefault(self.allocator, ZonConfig{}); // Empty config - file not found
         }
     }
 
@@ -113,7 +113,7 @@ pub const ZonLoader = struct {
             defer self.allocator.free(content);
             try self.loadFromContent(content);
         } else {
-            self.config = ManagedZonConfig(ZonConfig).initDefault(self.allocator, ZonConfig{}); // Empty config - file not found
+            self.config = ManagedConfig(ZonConfig).initDefault(self.allocator, ZonConfig{}); // Empty config - file not found
         }
     }
 
@@ -125,7 +125,7 @@ pub const ZonLoader = struct {
             defer self.allocator.free(content);
             try self.loadFromContent(content);
         } else {
-            self.config = ManagedZonConfig(ZonConfig).initDefault(self.allocator, ZonConfig{}); // Empty config - file not found
+            self.config = ManagedConfig(ZonConfig).initDefault(self.allocator, ZonConfig{}); // Empty config - file not found
         }
     }
 
@@ -133,7 +133,7 @@ pub const ZonLoader = struct {
         if (self.config != null) return; // Already loaded
 
         // Use safe ZON parsing with proper memory management
-        self.config = zon_memory.parseZonSafely(ZonConfig, self.allocator, content, ZonConfig{});
+        self.config = zon_memory.parseSafely(ZonConfig, self.allocator, content, ZonConfig{});
     }
 
     pub fn getConfig(self: *Self) !ZonConfig {

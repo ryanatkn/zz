@@ -4,9 +4,9 @@ const std = @import("std");
 const testing = std.testing;
 
 // Import only the stream-first components
-const ZonLexer = @import("../lexer/mod.zig").Lexer;
-const ZonToken = @import("../token/mod.zig").Token;
-const ZonTokenKind = @import("../token/mod.zig").TokenKind;
+const Lexer = @import("../lexer/mod.zig").Lexer;
+const Token = @import("../token/mod.zig").Token;
+const TokenKind = @import("../token/mod.zig").TokenKind;
 
 // Re-export tests from stream modules
 test {
@@ -24,7 +24,7 @@ test "ZON stream lexer integration" {
         \\}
     ;
 
-    var lexer = ZonLexer.init(input);
+    var lexer = Lexer.init(input);
 
     // Verify we can process the entire input
     var token_count: usize = 0;
@@ -38,25 +38,25 @@ test "ZON stream lexer integration" {
 
 test "ZON stream lexer performance characteristics" {
     // Verify the lexer struct size is reasonable for streaming architecture
-    const lexer_size = @sizeOf(ZonLexer);
+    const lexer_size = @sizeOf(Lexer);
     try testing.expect(lexer_size < 70000); // ~64KB ring buffer + metadata
     try testing.expect(lexer_size > 65000); // Should be dominated by ring buffer
 
     // Verify token size is exactly 16 bytes
-    const token_size = @sizeOf(ZonToken);
+    const token_size = @sizeOf(Token);
     try testing.expectEqual(@as(usize, 16), token_size);
 }
 
 test "ZON stream lexer edge cases" {
     // Test empty struct
-    var lexer1 = ZonLexer.init(".{}");
+    var lexer1 = Lexer.init(".{}");
     const t1 = lexer1.next().?;
-    try testing.expectEqual(ZonTokenKind.struct_start, t1.zon.kind);
+    try testing.expectEqual(TokenKind.struct_start, t1.zon.kind);
     const t2 = lexer1.next().?;
-    try testing.expectEqual(ZonTokenKind.struct_end, t2.zon.kind);
+    try testing.expectEqual(TokenKind.struct_end, t2.zon.kind);
 
     // Test builtin function
-    var lexer2 = ZonLexer.init("@import(\"std\")");
+    var lexer2 = Lexer.init("@import(\"std\")");
     const t3 = lexer2.next().?;
-    try testing.expectEqual(ZonTokenKind.import, t3.zon.kind);
+    try testing.expectEqual(TokenKind.import, t3.zon.kind);
 }

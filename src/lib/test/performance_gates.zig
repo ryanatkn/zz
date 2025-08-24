@@ -9,7 +9,7 @@ const testing = std.testing;
 const JsonLexer = @import("../languages/json/lexer/mod.zig").Lexer;
 const ZonLexer = @import("../languages/zon/lexer/mod.zig").Lexer;
 const JsonParser = @import("../languages/json/parser/mod.zig").JsonParser;
-const ZonParser = @import("../languages/zon/parser/mod.zig").Parser;
+const Parser = @import("../languages/zon/parser/mod.zig").Parser;
 // Using GenericTokenIterator architecture for streaming
 
 // TODO re-enable all of these
@@ -153,7 +153,7 @@ test "ZON parser performance gate" {
     // Then parse
     var timer = try std.time.Timer.start();
 
-    var parser = ZonParser.init(testing.allocator, tokens, input, .{});
+    var parser = Parser.init(testing.allocator, tokens, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();

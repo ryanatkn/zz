@@ -3,11 +3,11 @@ const testing = std.testing;
 
 // Import ZON modules
 const zon_mod = @import("../mod.zig");
-const ZonParser = @import("../parser/mod.zig").Parser;
-const ZonFormatter = @import("../format/mod.zig").Formatter;
-const ZonLinter = @import("../linter/mod.zig").Linter;
+const Parser = @import("../parser/mod.zig").Parser;
+const Formatter = @import("../format/mod.zig").Formatter;
+const Linter = @import("../linter/mod.zig").Linter;
 const EnabledRules = @import("../linter/mod.zig").EnabledRules;
-const ZonAnalyzer = @import("../analyzer/mod.zig").Analyzer;
+const Analyzer = @import("../analyzer/mod.zig").Analyzer;
 
 // =============================================================================
 // Integration Tests
@@ -30,7 +30,7 @@ test "ZON integration - complete pipeline" {
     ;
 
     // Test parsing with streaming parser
-    var parser = try ZonParser.init(allocator, zon_text, .{});
+    var parser = try Parser.init(allocator, zon_text, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -41,7 +41,7 @@ test "ZON integration - complete pipeline" {
     try testing.expect(ast.root.?.* == .object);
 
     // Test formatting
-    var formatter = ZonFormatter.init(allocator, .{});
+    var formatter = Formatter.init(allocator, .{});
     defer formatter.deinit();
 
     const formatted = try formatter.format(ast);
@@ -49,10 +49,10 @@ test "ZON integration - complete pipeline" {
     try testing.expect(formatted.len > 0);
 
     // Test linting
-    var linter = ZonLinter.init(allocator, .{});
+    var linter = Linter.init(allocator, .{});
     defer linter.deinit();
 
-    const rules = ZonLinter.getDefaultRules();
+    const rules = Linter.getDefaultRules();
     const diagnostics = try linter.lint(ast, rules);
     defer {
         for (diagnostics) |diag| {
@@ -69,7 +69,7 @@ test "ZON integration - complete pipeline" {
     }
 
     // Test analysis
-    var analyzer = ZonAnalyzer.init(allocator, .{});
+    var analyzer = Analyzer.init(allocator, .{});
     defer analyzer.deinit();
 
     const symbols = try analyzer.extractSymbols(ast);
@@ -101,13 +101,13 @@ test "ZON integration - mod.zig convenience functions" {
     try testing.expect(ast.root.?.* == .object);
 
     // Test formatting convenience function
-    const formatted = try zon_mod.formatZonString(allocator, zon_text);
+    const formatted = try zon_mod.formatString(allocator, zon_text);
     defer allocator.free(formatted);
 
     try testing.expect(formatted.len > 0);
 
     // Test validation convenience function
-    const diagnostics = try zon_mod.validateZonString(allocator, zon_text);
+    const diagnostics = try zon_mod.validateString(allocator, zon_text);
     defer {
         for (diagnostics) |diag| {
             allocator.free(diag.message);

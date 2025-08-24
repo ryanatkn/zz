@@ -2,8 +2,8 @@ const std = @import("std");
 const testing = std.testing;
 
 // Import ZON modules
-const ZonParser = @import("../parser/mod.zig").Parser;
-const ZonLinter = @import("../linter/mod.zig").Linter;
+const Parser = @import("../parser/mod.zig").Parser;
+const Linter = @import("../linter/mod.zig").Linter;
 const ZonRuleType = @import("../linter/mod.zig").RuleType;
 const EnabledRules = @import("../linter/mod.zig").EnabledRules;
 
@@ -28,16 +28,16 @@ test "ZON linter - valid ZON" {
     ;
 
     // Updated to streaming parser (3-arg pattern)
-    var parser = try ZonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
     defer ast.deinit();
 
     // Use default enabled rules from linter
-    const enabled_rules = ZonLinter.getDefaultRules();
+    const enabled_rules = Linter.getDefaultRules();
 
-    var linter = ZonLinter.init(allocator, .{});
+    var linter = Linter.init(allocator, .{});
     defer linter.deinit();
 
     const diagnostics = try linter.lint(ast, enabled_rules);
@@ -65,7 +65,7 @@ test "ZON linter - duplicate keys" {
     ;
 
     // Updated to streaming parser (3-arg pattern)
-    var parser = try ZonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -75,7 +75,7 @@ test "ZON linter - duplicate keys" {
     var enabled_rules = EnabledRules.initEmpty();
     enabled_rules.insert(.no_duplicate_keys);
 
-    var linter = ZonLinter.init(allocator, .{});
+    var linter = Linter.init(allocator, .{});
     defer linter.deinit();
 
     const diagnostics = try linter.lint(ast, enabled_rules);
@@ -103,7 +103,7 @@ test "ZON linter - schema validation" {
     ;
 
     // Updated to streaming parser (3-arg pattern)
-    var parser = try ZonParser.init(allocator, input, .{});
+    var parser = try Parser.init(allocator, input, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -112,7 +112,7 @@ test "ZON linter - schema validation" {
     var enabled_rules = EnabledRules.initEmpty();
     enabled_rules.insert(.schema_validation);
 
-    var linter = ZonLinter.init(allocator, .{});
+    var linter = Linter.init(allocator, .{});
     defer linter.deinit();
 
     const diagnostics = try linter.lint(ast, enabled_rules);
@@ -152,7 +152,7 @@ test "ZON linter - deep nesting warning" {
     }
 
     // Updated to streaming parser (3-arg pattern)
-    var parser = try ZonParser.init(allocator, deep_input.items, .{});
+    var parser = try Parser.init(allocator, deep_input.items, .{});
     defer parser.deinit();
 
     var ast = try parser.parse();
@@ -162,7 +162,7 @@ test "ZON linter - deep nesting warning" {
     var enabled_rules = EnabledRules.initEmpty();
     enabled_rules.insert(.max_depth_exceeded);
 
-    var linter = ZonLinter.init(allocator, .{ .max_depth = 20 });
+    var linter = Linter.init(allocator, .{ .max_depth = 20 });
     defer linter.deinit();
 
     const diagnostics = try linter.lint(ast, enabled_rules);

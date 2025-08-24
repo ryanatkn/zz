@@ -11,10 +11,10 @@ pub const std = @import("std");
 pub const Span = @import("../../../span/mod.zig").Span;
 
 // ZON-specific AST (self-contained)
-const zon_ast = @import("../ast/nodes.zig");
-pub const AST = zon_ast.AST;
-pub const Node = zon_ast.Node;
-pub const NodeKind = zon_ast.NodeKind;
+const ast_nodes = @import("../ast/nodes.zig");
+pub const AST = ast_nodes.AST;
+pub const Node = ast_nodes.Node;
+pub const NodeKind = ast_nodes.NodeKind;
 
 // Generic AST utilities (zero coupling)
 pub const Walker = @import("../../../ast/walker.zig").Walker;
@@ -35,7 +35,7 @@ pub const memory = @import("../../../memory/language_strategies/mod.zig");
 pub const MemoryContext = memory.MemoryContext;
 
 /// Common error types for ZON operations
-pub const ZonError = error{
+pub const Error = error{
     InvalidSyntax,
     UnexpectedToken,
     MissingField,

@@ -12,7 +12,7 @@ const Language = @import("../core/language.zig").Language;
 
 // Import all language lexers
 const JsonLexer = @import("json/lexer/mod.zig").Lexer;
-const ZonLexer = @import("zon/lexer/core.zig").ZonLexer;
+const ZonLexer = @import("zon/lexer/core.zig").Lexer;
 
 // Future language imports:
 // const TsLexer = @import("typescript/stream_lexer.zig").TsLexer;

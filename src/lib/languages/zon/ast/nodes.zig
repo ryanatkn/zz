@@ -224,11 +224,11 @@ pub const Node = union(NodeKind) {
     }
 
     /// Convert to ZON string (for debugging)
-    pub fn toZonString(self: Node, writer: anytype) !void {
+    pub fn toString(self: Node, writer: anytype) !void {
         switch (self) {
             .string => |n| {
                 try writer.writeByte('"');
-                try writeEscapedZonString(writer, n.value);
+                try writeEscapedString(writer, n.value);
                 try writer.writeByte('"');
             },
             .number => |n| try writer.writeAll(n.raw),
@@ -251,7 +251,7 @@ pub const Node = union(NodeKind) {
                 try writer.writeAll(".{");
                 for (n.fields, 0..) |field, i| {
                     if (i > 0) try writer.writeAll(", ");
-                    try field.toZonString(writer);
+                    try field.toString(writer);
                 }
                 try writer.writeByte('}');
             },
@@ -263,7 +263,7 @@ pub const Node = union(NodeKind) {
                 }
                 for (n.elements, 0..) |elem, i| {
                     if (i > 0) try writer.writeAll(", ");
-                    try elem.toZonString(writer);
+                    try elem.toString(writer);
                 }
                 if (n.is_anonymous_list) {
                     try writer.writeByte('}');
@@ -272,17 +272,17 @@ pub const Node = union(NodeKind) {
                 }
             },
             .field => |n| {
-                try n.name.toZonString(writer);
+                try n.name.toString(writer);
                 try writer.writeAll(" = ");
-                try n.value.toZonString(writer);
+                try n.value.toString(writer);
             },
-            .root => |n| try n.value.toZonString(writer),
+            .root => |n| try n.value.toString(writer),
             .err => |n| {
                 try writer.writeAll("/* ERROR: ");
                 try writer.writeAll(n.message);
                 try writer.writeAll(" */");
                 if (n.partial) |partial| {
-                    try partial.toZonString(writer);
+                    try partial.toString(writer);
                 }
             },
         }
@@ -376,7 +376,7 @@ pub const AST = struct {
     /// Pretty print for debugging
     pub fn print(self: AST, writer: anytype) !void {
         if (self.root) |root| {
-            try root.toZonString(writer);
+            try root.toString(writer);
         } else {
             try writer.writeAll("/* empty AST */");
         }
@@ -384,7 +384,7 @@ pub const AST = struct {
 };
 
 /// Write a string with proper ZON escaping (includes JSON escapes + multiline support)
-fn writeEscapedZonString(writer: anytype, value: []const u8) !void {
+fn writeEscapedString(writer: anytype, value: []const u8) !void {
     for (value) |c| {
         switch (c) {
             '"' => try writer.writeAll("\\\""),

@@ -250,20 +250,20 @@ var linter = ZonLinter.init(allocator, .{
 });
 defer linter.deinit();
 
-const enabled_rules = &.{"no-duplicate-keys", "max-depth-exceeded"};
+const enabled_rules = &.{"no_duplicate_keys", "max_depth_exceeded"};
 const diagnostics = try linter.lint(ast, enabled_rules);
 defer allocator.free(diagnostics);
 ```
 
 **Built-in Rules:**
-- `no-duplicate-keys`: Object keys must be unique
-- `max-depth-exceeded`: Structure exceeds maximum nesting depth
-- `large-structure`: Object/array has too many elements
-- `deep-nesting`: Structure has deep nesting that may be hard to read
-- `invalid-field-type`: Field has invalid type for known schema
-- `unknown-field`: Field not recognized in known schema
-- `missing-required-field`: Required field missing from object
-- `invalid-identifier`: Identifier uses invalid ZON syntax
+- `no_duplicate_keys`: Object keys must be unique
+- `max_depth_exceeded`: Structure exceeds maximum nesting depth
+- `large_structure`: Object/array has too many elements
+- `deep_nesting`: Structure has deep nesting that may be hard to read
+- `invalid_field_type`: Field has invalid type for known schema
+- `unknown_field`: Field not recognized in known schema
+- `missing_required_field`: Required field missing from object
+- `invalid_identifier`: Identifier uses invalid ZON syntax
 
 **Schema Validation:**
 - **build.zig.zon**: Validates package name, version, dependencies, paths

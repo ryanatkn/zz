@@ -43,8 +43,8 @@ pub const TransformResult = struct {
     }
 };
 
-/// Transform options - controls what stages to execute
-pub const TransformOptions = struct {
+/// Transform pipeline - controls what stages to execute
+pub const Pipeline = struct {
     // What to build
     extract_token_facts: bool = false,
     build_ast: bool = true,
@@ -179,9 +179,9 @@ pub const transform = struct {
 
     /// Full pipeline: AST + facts
     pub fn full(allocator: std.mem.Allocator, source: []const u8) !TransformResult {
-        var transformer = TransformOptions.init(allocator);
+        var transformer = Pipeline.init(allocator);
         transformer.extract_ast_facts = true;
-        // No deinit needed for TransformOptions
+        // No deinit needed for Pipeline
         return transformer.process(source);
     }
 

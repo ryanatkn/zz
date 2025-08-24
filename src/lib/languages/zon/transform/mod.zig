@@ -3,7 +3,9 @@
 
 // Transform pipeline functionality
 pub const Pipeline = @import("pipeline.zig").Pipeline;
-pub const TransformPipeline = @import("pipeline.zig").TransformPipeline;
+
+// Export with prefix for disambiguation at boundary
+pub const ZonTransformPipeline = Pipeline;
 
 // Serialization functionality
 pub const Serializer = @import("serializer.zig").ZonSerializer;

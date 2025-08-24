@@ -191,13 +191,13 @@ Comprehensive validation and best practices:
 - Configurable rules with severity levels
 
 Built-in rules:
-- `no-duplicate-keys`: Object keys must be unique
-- `no-leading-zeros`: Numbers should not have leading zeros
-- `valid-string-encoding`: Strings must be valid UTF-8
-- `max-depth-exceeded`: JSON structure exceeds maximum nesting depth
-- `large-number-precision`: Number has high precision that may cause issues
-- `large-structure`: JSON structure is very large
-- `deep-nesting`: JSON has deep nesting that may be hard to read
+- `no_duplicate_keys`: Object keys must be unique
+- `no_leading_zeros`: Numbers should not have leading zeros
+- `valid_string_encoding`: Strings must be valid UTF-8
+- `max_depth_exceeded`: JSON structure exceeds maximum nesting depth
+- `large_number_precision`: Number has high precision that may cause issues
+- `large_structure`: JSON structure is very large
+- `deep_nesting`: JSON has deep nesting that may be hard to read
 
 ```zig
 var linter = Linter.init(allocator, .{

@@ -110,12 +110,10 @@ pub fn parseFromSlice(comptime T: type, allocator: std.mem.Allocator, content: [
     return converter.parseFromSlice(T, allocator, content);
 }
 
-/// Free parsed ZON data (convenience function for compatibility)
+/// Free parsed ZON data (convenience function)
 pub fn free(allocator: std.mem.Allocator, data: anytype) void {
-    // AST converter handles its own memory management
-    // For now, this is a no-op for compatibility
-    _ = allocator;
-    _ = data;
+    const converter = @import("ast/converter.zig");
+    converter.free(allocator, data);
 }
 
 /// Validate ZON string and return diagnostics (convenience function)
@@ -260,27 +258,3 @@ fn extractSymbols(allocator: std.mem.Allocator, ast: AST) ![]Symbol {
 
     return interface_symbols;
 }
-
-// DELETED: Old batch tokenization functions no longer needed with streaming architecture
-// The tokenize() and tokenizeChunk() functions that returned []Token arrays
-// have been removed. Use streaming parser directly with Parser.init()
-
-// TODO: Phase 3 - Re-enable with new streaming architecture
-// /// Tokenize ZON chunk to GenericTokens using VTable adapter
-// /// This is the new generic interface for streaming tokenization
-// pub fn tokenizeChunkGeneric(allocator: std.mem.Allocator, input: []const u8, start_pos: usize) ![]GenericToken {
-//     var lexer = StatefulLexer.init(allocator, .{
-//         .allow_comments = true,
-//         .allow_trailing_commas = true,
-//         .json5_mode = false, // ZON has its own extensions
-//         .error_recovery = true,
-//     });
-//     defer lexer.deinit();
-//
-//     // Process chunk and get tokens
-//     const zon_tokens = try lexer.processChunkToZon(input, start_pos, allocator);
-//     defer allocator.free(zon_tokens);
-//
-//     // Convert to GenericTokens using VTable adapter
-//     return TokenVTableAdapter.convertTokensToGeneric(allocator, tokens);
-// }

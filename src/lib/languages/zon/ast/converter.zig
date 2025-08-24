@@ -4,15 +4,10 @@
 /// Main API: parseFromSlice() - converts ZON content directly to target types.
 /// Supports structs, arrays, strings, numbers, booleans, optionals with proper memory management.
 ///
-/// KNOWN ISSUE: Memory Leak in String Conversion (lines 185, 189, 201-202)
-/// The convertValueToFieldType function allocates memory for strings using allocator.dupe()
-/// but does not provide a way to free this memory. Callers of parseFromSlice() receive
-/// data structures with owned strings but no cleanup mechanism.
-///
-/// TODO: Either:
-/// 1. Add a deinit function for converted types, or
-/// 2. Use arena allocation and require callers to manage the arena, or
-/// 3. Document that callers must manually free string fields
+/// Memory Management:
+/// - parseFromSlice() allocates owned strings and arrays using the provided allocator
+/// - Use the provided free() function to properly clean up allocated memory
+/// - ManagedConfig wrapper handles cleanup automatically for common use cases
 const std = @import("std");
 const ast_nodes = @import("nodes.zig");
 const Node = ast_nodes.Node;

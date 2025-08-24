@@ -34,7 +34,8 @@ pub fn ManagedConfig(comptime T: type) type {
         /// Safe cleanup - only frees parsed data, ignores default values
         pub fn deinit(self: *Self) void {
             if (self.is_parsed) {
-                // Note: parseFromSlice handles its own memory, no explicit free needed
+                // Free the parsed data using the AST converter's free function
+                ast_converter.free(self.allocator, self.config);
             }
             // Default configs don't need freeing
         }

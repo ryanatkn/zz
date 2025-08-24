@@ -265,6 +265,34 @@ const test_case_templates = [_]TestCaseTemplate{
         \\}
         ,
     },
+    .{
+        .name = "ZON-Specific Features",
+        .description = "Enum literals, character literals, and other ZON-only syntax",
+        .json_template =
+        \\{
+        \\  "status": "active",
+        \\  "priority": "high",
+        \\  "theme": "dark",
+        \\  "shortcut": "h",
+        \\  "settings": {
+        \\    "mode": "production",
+        \\    "level": "info"
+        \\  }
+        \\}
+        ,
+        .zon_template =
+        \\.{
+        \\    .status = .Active,
+        \\    .priority = .High,
+        \\    .theme = .Dark,
+        \\    .shortcut = 'h',
+        \\    .settings = .{
+        \\        .mode = .Production,
+        \\        .level = .Info,
+        \\    },
+        \\}
+        ,
+    },
 };
 
 /// Create compacted test cases from templates at runtime
@@ -527,6 +555,214 @@ pub fn demoLintingComparison(allocator: std.mem.Allocator) !void {
     std.debug.print("\n✅ Both JSON and ZON linters working\n", .{});
 }
 
+/// Demo 5: ZON-Specific Features Showcase
+pub fn demoZonSpecificFeatures(allocator: std.mem.Allocator) !void {
+    std.debug.print("\n═══ ZON-Specific Features: Enums & Characters ═══\n\n", .{});
+
+    // Enum literal demonstrations
+    const enum_examples = [_]struct {
+        description: []const u8,
+        zon_code: []const u8,
+        json_equivalent: []const u8,
+    }{
+        .{
+            .description = "Configuration with Status Enums",
+            .zon_code = ".{ .server = .Production, .logging = .Enabled, .cache = .Disabled }",
+            .json_equivalent = "{ \"server\": \"Production\", \"logging\": \"Enabled\", \"cache\": \"Disabled\" }",
+        },
+        .{
+            .description = "Theme Configuration",
+            .zon_code = ".{ .theme = .Dark, .size = .Large, .animation = .Fast }",
+            .json_equivalent = "{ \"theme\": \"Dark\", \"size\": \"Large\", \"animation\": \"Fast\" }",
+        },
+        .{
+            .description = "Standalone Enum Values",
+            .zon_code = ".Active",
+            .json_equivalent = "\"Active\"",
+        },
+    };
+
+    // Character literal demonstrations
+    const char_examples = [_]struct {
+        description: []const u8,
+        zon_code: []const u8,
+        json_equivalent: []const u8,
+    }{
+        .{
+            .description = "Keyboard Shortcuts",
+            .zon_code = ".{ .save = 's', .copy = 'c', .paste = 'v', .quit = 'q' }",
+            .json_equivalent = "{ \"save\": \"s\", \"copy\": \"c\", \"paste\": \"v\", \"quit\": \"q\" }",
+        },
+        .{
+            .description = "Special Characters",
+            .zon_code = ".{ .newline = '\\n', .tab = '\\t', .escape = '\\x1B' }",
+            .json_equivalent = "{ \"newline\": \"\\n\", \"tab\": \"\\t\", \"escape\": \"\\u001B\" }",
+        },
+        // TODO failing
+        .{
+            .description = "Unicode Characters",
+            .zon_code = ".{ .emoji = '😀', .arrow = '→', .bullet = '•' }",
+            .json_equivalent = "{ \"emoji\": \"😀\", \"arrow\": \"→\", \"bullet\": \"•\" }",
+        },
+    };
+
+    std.debug.print("🏷️  ENUM LITERALS - Type-safe constants without quotes:\n\n", .{});
+
+    for (enum_examples, 0..) |example, i| {
+        std.debug.print("{}. {s}\n", .{ i + 1, example.description });
+
+        // Parse and format the ZON code
+        var ast = zon.parse(allocator, example.zon_code) catch |err| {
+            std.debug.print("   ⚠️  Failed to parse: {}\n\n", .{err});
+            continue;
+        };
+        defer ast.deinit();
+
+        var formatter = zon.Formatter.init(allocator, .{});
+        defer formatter.deinit();
+        const formatted = formatter.format(ast) catch |err| {
+            std.debug.print("   ⚠️  Failed to format: {}\n\n", .{err});
+            continue;
+        };
+        defer allocator.free(formatted);
+
+        std.debug.print("   ZON:  {s}\n", .{example.zon_code});
+        std.debug.print("   JSON: {s}\n", .{example.json_equivalent});
+        std.debug.print("   ✅ Parsed and formatted successfully\n\n", .{});
+    }
+
+    std.debug.print("🔤 CHARACTER LITERALS - Single character values:\n\n", .{});
+
+    for (char_examples, 0..) |example, i| {
+        std.debug.print("{}. {s}\n", .{ i + 1, example.description });
+
+        // Parse and format the ZON code
+        var ast = zon.parse(allocator, example.zon_code) catch |err| {
+            std.debug.print("   ⚠️  Failed to parse: {}\n\n", .{err});
+            continue;
+        };
+        defer ast.deinit();
+
+        var formatter = zon.Formatter.init(allocator, .{});
+        defer formatter.deinit();
+        const formatted = formatter.format(ast) catch |err| {
+            std.debug.print("   ⚠️  Failed to format: {}\n\n", .{err});
+            continue;
+        };
+        defer allocator.free(formatted);
+
+        std.debug.print("   ZON:  {s}\n", .{example.zon_code});
+        std.debug.print("   JSON: {s}\n", .{example.json_equivalent});
+        std.debug.print("   ✅ Parsed and formatted successfully\n\n", .{});
+    }
+
+    // Combined example showcasing both features
+    std.debug.print("🎯 COMBINED EXAMPLE - Real-world usage:\n\n", .{});
+
+    const combined_zon =
+        \\.{
+        \\    .window = .{
+        \\        .title = "Code Editor",
+        \\        .state = .Maximized,
+        \\        .theme = .Dark,
+        \\    },
+        \\    .keybindings = .{
+        \\        .save = 's',
+        \\        .open = 'o',
+        \\        .find = 'f',
+        \\        .escape = '\x1B',
+        \\    },
+        \\    .features = .{
+        \\        .syntax_highlighting = .Enabled,
+        \\        .auto_complete = .Enabled,
+        \\        .spell_check = .Disabled,
+        \\    },
+        \\}
+    ;
+
+    const combined_json =
+        \\{
+        \\  "window": {
+        \\    "title": "Code Editor",
+        \\    "state": "Maximized",
+        \\    "theme": "Dark"
+        \\  },
+        \\  "keybindings": {
+        \\    "save": "s",
+        \\    "open": "o", 
+        \\    "find": "f",
+        \\    "escape": "\u001B"
+        \\  },
+        \\  "features": {
+        \\    "syntax_highlighting": "Enabled",
+        \\    "auto_complete": "Enabled",
+        \\    "spell_check": "Disabled"
+        \\  }
+        \\}
+    ;
+
+    std.debug.print("Editor Configuration Example:\n\n", .{});
+
+    // Parse and measure ZON
+    const zon_start = std.time.nanoTimestamp();
+    var zon_ast = zon.parse(allocator, combined_zon) catch |err| {
+        std.debug.print("   ⚠️  ZON parse failed: {}\n", .{err});
+        return;
+    };
+    defer zon_ast.deinit();
+    const zon_end = std.time.nanoTimestamp();
+
+    var zon_formatter = zon.Formatter.init(allocator, .{ .compact_small_objects = false });
+    defer zon_formatter.deinit();
+    const zon_formatted = zon_formatter.format(zon_ast) catch |err| {
+        std.debug.print("   ⚠️  ZON format failed: {}\n", .{err});
+        return;
+    };
+    defer allocator.free(zon_formatted);
+
+    // Parse and measure JSON
+    const json_start = std.time.nanoTimestamp();
+    var json_combined_ast = json.parse(allocator, combined_json) catch |err| {
+        std.debug.print("   ⚠️  JSON parse failed: {}\n", .{err});
+        return;
+    };
+    defer json_combined_ast.deinit();
+    const json_end = std.time.nanoTimestamp();
+
+    var json_formatter = json.Formatter.init(allocator, .{});
+    defer json_formatter.deinit();
+    const json_formatted = json_formatter.format(json_combined_ast) catch |err| {
+        std.debug.print("   ⚠️  JSON format failed: {}\n", .{err});
+        return;
+    };
+    defer allocator.free(json_formatted);
+
+    const zon_parse_us = @as(u64, @intCast(zon_end - zon_start)) / 1000;
+    const json_parse_us = @as(u64, @intCast(json_end - json_start)) / 1000;
+
+    std.debug.print("ZON (with enum/char literals):\n", .{});
+    var zon_lines = std.mem.splitScalar(u8, zon_formatted, '\n');
+    while (zon_lines.next()) |line| {
+        std.debug.print("   {s}\n", .{line});
+    }
+
+    std.debug.print("\nJSON (string equivalents):\n", .{});
+    var json_lines = std.mem.splitScalar(u8, json_formatted, '\n');
+    while (json_lines.next()) |line| {
+        std.debug.print("   {s}\n", .{line});
+    }
+
+    std.debug.print("\nParsing Performance:\n", .{});
+    std.debug.print("   ZON:  {d}µs\n", .{zon_parse_us});
+    std.debug.print("   JSON: {d}µs\n", .{json_parse_us});
+
+    std.debug.print("\n✅ ZON-specific features demonstrate:\n", .{});
+    std.debug.print("   • Type-safe enum literals (.Status, .Theme)\n", .{});
+    std.debug.print("   • Efficient character literals ('a', '\\n', '\\x1B')\n", .{});
+    std.debug.print("   • Cleaner syntax for configuration files\n", .{});
+    std.debug.print("   • Full compatibility with Zig type system\n", .{});
+}
+
 /// Main demo runner
 pub fn main() !void {
     const allocator = std.heap.page_allocator;
@@ -539,12 +775,14 @@ pub fn main() !void {
     try demoPerformanceAnalysis(allocator);
     try demoFormattingVisual(allocator);
     try demoLintingComparison(allocator);
+    try demoZonSpecificFeatures(allocator);
 
     std.debug.print("\n🎉 Demo Complete!\n", .{});
     std.debug.print("\n📊 Summary:\n", .{});
     std.debug.print("   • Direct JSON vs ZON comparison with equivalent data structures\n", .{});
     std.debug.print("   • Statistical performance analysis (200ms+ benchmarks)\n", .{});
     std.debug.print("   • Visual before/after formatting demonstration\n", .{});
+    std.debug.print("   • ZON-specific features: enum literals and character literals\n", .{});
     std.debug.print("   • Unified memory architecture with arena allocation\n", .{});
     std.debug.print("   • Both parsers stable and performant (~10-100µs range)\n", .{});
     std.debug.print("   • Linting and formatting working for both languages\n", .{});

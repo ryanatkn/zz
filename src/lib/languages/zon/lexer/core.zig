@@ -436,6 +436,35 @@ pub const Lexer = struct {
                     '\'' => break :blk '\'',
                     '"' => break :blk '"',
                     '0' => break :blk 0,
+                    'x' => {
+                        // Hexadecimal escape \xNN
+                        var codepoint: u21 = 0;
+
+                        // Read exactly 2 hex digits
+                        for (0..2) |_| {
+                            const hex_ch = self.buffer.peek() orelse {
+                                self.error_msg = "Incomplete hex escape sequence";
+                                return self.makeErrorToken();
+                            };
+
+                            const digit_value = switch (hex_ch) {
+                                '0'...'9' => hex_ch - '0',
+                                'a'...'f' => hex_ch - 'a' + 10,
+                                'A'...'F' => hex_ch - 'A' + 10,
+                                else => {
+                                    self.error_msg = "Invalid hex digit in escape sequence";
+                                    return self.makeErrorToken();
+                                },
+                            };
+
+                            codepoint = codepoint * 16 + digit_value;
+                            _ = self.buffer.pop();
+                            self.position += 1;
+                            self.column += 1;
+                        }
+
+                        break :blk codepoint;
+                    },
                     'u' => {
                         // Unicode escape \u{...}
                         if (self.buffer.peek() != '{') {

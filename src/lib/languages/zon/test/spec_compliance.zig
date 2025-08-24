@@ -147,6 +147,20 @@ test "ZON spec compliance - value types" {
         // Character literals (ZON specific)
         .{ .input = ".{ .char = 'a' }", .description = "character literal" },
         .{ .input = ".{ .special = '\\n' }", .description = "escaped character" },
+        .{ .input = ".{ .tab = '\\t' }", .description = "tab character" },
+        .{ .input = ".{ .backslash = '\\\\' }", .description = "backslash character" },
+        .{ .input = ".{ .quote = '\\'' }", .description = "single quote character" },
+        .{ .input = ".{ .null_char = '\\0' }", .description = "null character" },
+        .{ .input = ".{ .hex_escape = '\\x1B' }", .description = "hex escape character" },
+        .{ .input = ".{ .unicode_escape = '\\u{1F600}' }", .description = "unicode escape character" },
+        .{ .input = ".{ .keybind = 's', .alt = 'a', .ctrl = 'c' }", .description = "multiple character literals" },
+
+        // Enum literals (ZON specific)
+        .{ .input = ".{ .status = .Active }", .description = "enum literal" },
+        .{ .input = ".{ .color = .Red, .size = .Large }", .description = "multiple enum literals" },
+        .{ .input = ".Active", .description = "standalone enum literal" },
+        .{ .input = ".{ .theme = .Dark, .mode = .Production }", .description = "configuration enum literals" },
+        .{ .input = ".{ .logging = .Enabled, .debug = .Disabled }", .description = "status enum literals" },
     };
 
     for (test_cases) |case| {

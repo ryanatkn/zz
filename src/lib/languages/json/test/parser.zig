@@ -91,36 +91,50 @@ test "JSON parser - error recovery" {
     defer arena.deinit();
     const allocator = arena.allocator();
 
-    const malformed_cases = [_][]const u8{
-        "{\"key\": }", // Missing value
-        "{\"key\": \"value\",}", // Trailing comma
-        "[1, 2,]", // Trailing comma in array
-        "{key: \"value\"}", // Unquoted key
-        "{'key': 'value'}", // Single quotes
+    const malformed_cases = [_]struct { input: []const u8, should_succeed: bool, should_have_errors: bool }{
+        .{ .input = "{\"key\": }", .should_succeed = false, .should_have_errors = true }, // Missing value
+        .{ .input = "{\"key\": \"value\",}", .should_succeed = true, .should_have_errors = false }, // Trailing comma (allowed by default)
+        .{ .input = "[1, 2,]", .should_succeed = true, .should_have_errors = false }, // Trailing comma in array (allowed by default)
+        .{ .input = "{key: \"value\"}", .should_succeed = false, .should_have_errors = true }, // Unquoted key
+        .{ .input = "{'key': 'value'}", .should_succeed = false, .should_have_errors = true }, // Single quotes
     };
 
     for (malformed_cases) |case| {
-        var parser = try Parser.init(allocator, case, .{});
+        var parser = try Parser.init(allocator, case.input, .{});
         defer parser.deinit();
 
-        // Parser should handle errors gracefully
-        var ast = parser.parse() catch |err| switch (err) {
-            error.ParseError => {
-                // Some malformed JSON might fail completely
-                continue;
-            },
-            else => return err,
-        };
-        defer ast.deinit();
+        // Test parsing behavior
+        const parse_result = parser.parse();
 
-        // If parsing succeeds, should still produce some AST
-        // AST root is no longer optional, it's always a Node struct
-        // Check that AST was created successfully
-        // ast.root is a pointer, so it's always valid if AST was created
+        if (case.should_succeed) {
+            // Should parse successfully
+            var ast = parse_result catch |err| {
+                std.debug.print("Unexpected parse failure for '{s}': {}\n", .{ case.input, err });
+                return err;
+            };
+            defer ast.deinit();
+        } else {
+            // Should fail to parse
+            if (parse_result) |ast| {
+                var ast_mut = ast;
+                ast_mut.deinit();
+                std.debug.print("Unexpected parse success for '{s}'\n", .{case.input});
+                try testing.expect(false);
+            } else |err| switch (err) {
+                error.ParseError => {
+                    // Expected failure
+                },
+                else => return err,
+            }
+        }
 
-        // Should have recorded errors
+        // Check error expectations
         const errors = parser.getErrors();
-        try testing.expect(errors.len > 0);
+        if (case.should_have_errors) {
+            try testing.expect(errors.len > 0);
+        } else {
+            try testing.expectEqual(@as(usize, 0), errors.len);
+        }
     }
 }
 

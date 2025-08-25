@@ -42,7 +42,7 @@ zz echo --repeat=1000 "test" | wc -l    # Generate test data
 zz deps --list                           # Check dependency status
 zz deps --check                          # CI-friendly update check
 
-# Interactive demo
+# Language support demo
 zz demo                                  # See zz in action
 ```
 
@@ -112,9 +112,8 @@ echo '{"a":1}' | zz format --stdin       # Format from stdin
 ### `zz demo` - Interactive demonstration
 
 ```bash
-zz demo                      # Interactive terminal demo
-zz demo --non-interactive    # Script-friendly output
-zig build run -- demo       # Development: JSON/ZON capabilities demo
+zz demo                # Interactive terminal demo
+zig build run -- demo  # Development: JSON/ZON capabilities demo
 ```
 
 The JSON/ZON capabilities demo showcases the unified memory architecture with 7 comprehensive demonstrations including parsing, linting, formatting, performance analysis, and memory strategies.

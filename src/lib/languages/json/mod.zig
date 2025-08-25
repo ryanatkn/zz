@@ -3,6 +3,10 @@
 /// SIMPLIFIED: Direct streaming architecture, no old Token infrastructure
 /// Each language owns its implementation completely
 const std = @import("std");
+const unicode = @import("../../unicode/mod.zig");
+
+/// Re-export Unicode mode from unicode module for compatibility
+pub const UnicodeMode = unicode.UnicodeMode;
 
 // Import all interface types from single module
 const lang_interface = @import("../interface.zig");
@@ -21,7 +25,6 @@ const ParserImpl = @import("parser/mod.zig").Parser;
 const FormatterImpl = @import("format/mod.zig").Formatter;
 const linter_mod = @import("linter/mod.zig");
 const LinterImpl = linter_mod.Linter;
-const Diagnostic = linter_mod.Diagnostic;
 const RuleTypeImpl = linter_mod.RuleType;
 const EnabledRules = linter_mod.EnabledRules;
 const analyzer_module = @import("analyzer/mod.zig");
@@ -38,6 +41,7 @@ pub const NodeKind = json_ast.NodeKind;
 pub const Parser = ParserImpl;
 pub const Formatter = FormatterImpl;
 pub const Linter = LinterImpl;
+pub const Diagnostic = linter_mod.Diagnostic;
 pub const RuleType = RuleTypeImpl;
 pub const Analyzer = AnalyzerImpl;
 pub const AnalyzerOptions = AnalyzerImpl.AnalyzerOptions;
@@ -57,12 +61,57 @@ pub fn parse(allocator: std.mem.Allocator, source: []const u8) !AST {
     return parser.parse();
 }
 
-/// Validate JSON string and return diagnostics (convenience function)
-pub fn validate(allocator: std.mem.Allocator, content: []const u8) ![]Diagnostic {
-    var linter = LinterImpl.init(allocator, .{});
-    defer linter.deinit();
-    const rules = LinterImpl.getDefaultRules();
-    return linter.lintSource(content, rules);
+/// Validate JSON string and return comprehensive diagnostics
+/// Collects both syntax errors (from parser) and semantic issues (from linter)
+pub fn validate(allocator: std.mem.Allocator, content: []const u8) ![]linter_mod.Diagnostic {
+    var diagnostics = std.ArrayList(linter_mod.Diagnostic).init(allocator);
+
+    // First, try to parse with error collection enabled
+    var parser = try ParserImpl.init(allocator, content, .{ .collect_all_errors = true });
+    defer parser.deinit();
+
+    // Try to parse and clean up any AST that might be created
+    if (parser.parse()) |ast| {
+        var mutable_ast = ast;
+        defer mutable_ast.deinit();
+        // AST was created successfully, but we still want to check for linter issues
+    } else |_| {
+        // Expected for invalid JSON - we want the error details from getErrors()
+    }
+
+    // Convert parser errors to diagnostics
+    for (parser.getErrors()) |parse_error| {
+        try diagnostics.append(.{
+            .rule = .syntax_error,
+            .message = try allocator.dupe(u8, parse_error.message),
+            .severity = switch (parse_error.severity) {
+                .err => .err,
+                .warning => .warning,
+            },
+            .range = parse_error.span,
+        });
+    }
+
+    // If no syntax errors, run linter for semantic issues
+    if (diagnostics.items.len == 0) {
+        var linter = LinterImpl.init(allocator, .{});
+        defer linter.deinit();
+        const rules = LinterImpl.getDefaultRules();
+        const lint_issues = try linter.lintSource(content, rules);
+        defer allocator.free(lint_issues); // Only free the slice
+
+        // Transfer ownership of linter diagnostics (don't duplicate messages)
+        for (lint_issues) |issue| {
+            try diagnostics.append(.{
+                .rule = issue.rule,
+                .message = issue.message, // Transfer ownership, don't duplicate
+                .severity = issue.severity,
+                .range = issue.range,
+            });
+        }
+    }
+
+    return diagnostics.toOwnedSlice();
 }
 
 /// Format JSON string directly (convenience function)
@@ -83,6 +132,7 @@ pub fn formatString(allocator: std.mem.Allocator, content: []const u8) ![]u8 {
     var formatter = FormatterImpl.init(allocator, options);
     defer formatter.deinit();
     const formatted = try formatter.formatSource(content);
+    defer allocator.free(formatted);
     return try allocator.dupe(u8, formatted);
 }
 

@@ -39,11 +39,32 @@ pub const LanguageLexer = union(enum) {
     // }
 };
 
+/// Lexer options for language-specific configuration
+pub const LexerOptions = struct {
+    json: JsonLexerOptions = .{},
+    zon: ZonLexerOptions = .{},
+
+    // JSON-specific options
+    pub const JsonLexerOptions = struct {
+        unicode_mode: @import("json/mod.zig").UnicodeMode = .strict,
+    };
+
+    // ZON-specific options (currently none, but maintain consistency)
+    pub const ZonLexerOptions = struct {
+        // Future ZON-specific options can go here
+    };
+};
+
 /// Create a lexer for the given language and source
 pub fn createLexer(source: []const u8, language: Language) !LanguageLexer {
+    return createLexerWithOptions(source, language, .{});
+}
+
+/// Create a lexer with specific options
+pub fn createLexerWithOptions(source: []const u8, language: Language, options: LexerOptions) !LanguageLexer {
     return switch (language) {
-        .json => .{ .json = JsonLexer.init(source) },
-        .zon => .{ .zon = ZonLexer.init(source) },
+        .json => .{ .json = JsonLexer.initWithOptions(source, options.json) },
+        .zon => .{ .zon = ZonLexer.init(source) }, // ZON doesn't need options yet
         // When we add more languages:
         // .typescript => .{ .typescript = TsLexer.init(source) },
         // .zig => .{ .zig = ZigLexer.init(source) },

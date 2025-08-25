@@ -1,11 +1,17 @@
-# Character Module - Single Source of Truth
+# Character Module - ASCII Character Operations
 
-Centralized character classification and text consumption utilities used by all lexers and parsers in zz.
+Centralized ASCII character classification and text consumption utilities used by all lexers and parsers in zz.
+
+## Module Boundaries
+
+**ASCII Focus:** This module handles ASCII character classification (0x00-0x7F)
+**Unicode Handling:** Use `src/lib/unicode/` for Unicode validation, UTF-8 processing, and code point classification
+**Clear Separation:** char = ASCII predicates, unicode = Unicode/UTF-8 operations
 
 ## Architecture
 
 **Design Philosophy:**
-- **Single Source of Truth:** All character operations in one place
+- **ASCII-Only Scope:** Focused on 7-bit ASCII character operations
 - **Zero Duplication:** No repeated implementations across modules
 - **Performance First:** All predicates are inline functions
 - **Consistent Behavior:** Same rules apply everywhere

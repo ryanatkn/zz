@@ -1,5 +1,6 @@
 const std = @import("std");
 const char_utils = @import("../../../char/mod.zig");
+const unicode = @import("../../../unicode/mod.zig");
 
 /// Convert Zig structs back to ZON format
 /// This module handles serialization of Zig values into properly formatted ZON strings
@@ -385,8 +386,17 @@ pub const ZonSerializer = struct {
                 },
                 0x20...0x21, 0x23...0x26, 0x28...0x5B, 0x5D...0x7E => try self.writer.writeByte(c),
                 else => {
-                    // Escape non-printable characters
-                    try std.fmt.format(self.writer, "\\x{x:0>2}", .{c});
+                    // Use unicode module for proper escape formatting
+                    const escaped = unicode.formatEscape(self.allocator, c, .zon_style) catch |err| switch (err) {
+                        error.OutOfMemory => return error.OutOfMemory,
+                        else => {
+                            // Fallback to simple hex escape if unicode module fails
+                            try std.fmt.format(self.writer, "\\x{x:0>2}", .{c});
+                            return;
+                        },
+                    };
+                    defer self.allocator.free(escaped);
+                    try self.writer.writeAll(escaped);
                 },
             }
         }
@@ -446,15 +456,14 @@ pub const ZonSerializer = struct {
 fn needsQuoting(name: []const u8) bool {
     // ZON reserved keywords and special cases
     const reserved = [_][]const u8{
-        "align",     "allowzero", "and",         "anyframe",       "anytype",     "asm",
-        "async",     "await",     "break",       "catch",          "comptime",    "const",
-        "continue",  "defer",     "else",        "enum",           "errdefer",    "error",
-        "export",    "extern",    "false",       "fn",             "for",         "if",
-        "inline",    "noalias",   "nosuspend",   "null",           "or",          "orelse",
-        "packed",    "pub",       "resume",      "return",         "linksection", "struct",
-        "suspend",   "switch",    "test",        "threadlocal",    "true",        "try",
-        "undefined", "union",     "unreachable", "usingnamespace", "var",         "volatile",
-        "while",
+        "align",     "allowzero", "and",         "anyframe",    "anytype",     "asm",
+        "async",     "await",     "break",       "catch",       "comptime",    "const",
+        "continue",  "defer",     "else",        "enum",        "errdefer",    "error",
+        "export",    "extern",    "false",       "fn",          "for",         "if",
+        "inline",    "noalias",   "nosuspend",   "null",        "or",          "orelse",
+        "packed",    "pub",       "resume",      "return",      "linksection", "struct",
+        "suspend",   "switch",    "test",        "threadlocal", "true",        "try",
+        "undefined", "union",     "unreachable", "var",         "volatile",    "while",
     };
 
     for (reserved) |keyword| {

@@ -23,6 +23,13 @@ pub const TokenIterator = struct {
         };
     }
 
+    /// Initialize a token iterator with specific lexer options
+    pub fn initWithOptions(source: []const u8, language: Language, options: lexer_registry.LexerOptions) !TokenIterator {
+        return .{
+            .lexer = try lexer_registry.createLexerWithOptions(source, language, options),
+        };
+    }
+
     /// Get the next token - now users must switch on lexer type
     /// This pushes language handling to the caller, as designed
     pub fn next(self: *Self) ?Token {

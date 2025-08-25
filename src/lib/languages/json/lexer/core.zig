@@ -11,11 +11,15 @@ const RingBuffer = @import("../../../stream/mod.zig").RingBuffer;
 const Token = @import("../../../token/mod.zig").Token;
 const JsonToken = @import("../token/types.zig").Token;
 const TokenKind = @import("../token/types.zig").TokenKind;
+const ErrorCode = @import("../token/types.zig").ErrorCode;
 const TokenFlags = @import("../token/types.zig").TokenFlags;
+const UnicodeMode = @import("../mod.zig").UnicodeMode;
 const packSpan = @import("../../../span/mod.zig").packSpan;
 const Span = @import("../../../span/mod.zig").Span;
 const TokenBuffer = @import("../token/buffer.zig").TokenBuffer;
 const TokenState = @import("../token/buffer.zig").TokenState;
+const unicode = @import("../../../unicode/mod.zig");
+const char_utils = @import("../../../char/mod.zig");
 
 // Re-export boundary functionality
 const boundary = @import("boundaries.zig");
@@ -76,9 +80,22 @@ pub const Lexer = struct {
     // Peeked token for lookahead
     peeked_token: ?Token,
 
+    // Unicode validation mode (RFC 9839)
+    unicode_mode: UnicodeMode,
+
     /// Initialize lexer with input buffer - primary interface
     pub fn init(input: []const u8) Lexer {
         var lexer = Lexer.initEmpty();
+        for (input) |byte| {
+            _ = lexer.buffer.push(byte) catch break;
+        }
+        return lexer;
+    }
+
+    /// Initialize lexer with input buffer and options
+    pub fn initWithOptions(input: []const u8, options: @import("../../lexer_registry.zig").LexerOptions.JsonLexerOptions) Lexer {
+        var lexer = Lexer.initEmpty();
+        lexer.unicode_mode = options.unicode_mode;
         for (input) |byte| {
             _ = lexer.buffer.push(byte) catch break;
         }
@@ -104,6 +121,7 @@ pub const Lexer = struct {
             .token_buffer = null,
             .allocator = allocator,
             .peeked_token = null,
+            .unicode_mode = .strict,
         };
     }
 
@@ -126,6 +144,7 @@ pub const Lexer = struct {
             .token_buffer = null,
             .allocator = null,
             .peeked_token = null,
+            .unicode_mode = .strict,
         };
     }
 
@@ -183,7 +202,7 @@ pub const Lexer = struct {
             '/' => return self.scanComment(),
             else => {
                 self.error_msg = "Unexpected character";
-                return self.makeErrorToken();
+                return self.makeErrorToken(.invalid_character);
             },
         }
     }
@@ -249,16 +268,66 @@ pub const Lexer = struct {
                 },
                 '\\' => {
                     has_escapes = true;
-                    if (self.buffer.pop()) |_| {
-                        self.position += 1;
-                        self.column += 1;
+                    // Validate the escape sequence
+                    if (self.buffer.peek()) |next_ch| {
+                        switch (next_ch) {
+                            '"', '\\', '/', 'b', 'f', 'n', 'r', 't' => {
+                                // Valid single-character escape
+                                _ = self.buffer.pop();
+                                self.position += 1;
+                                self.column += 1;
+                            },
+                            'u' => {
+                                // Unicode escape sequence: \uXXXX
+                                _ = self.buffer.pop(); // consume 'u'
+                                self.position += 1;
+                                self.column += 1;
+
+                                // Check for exactly 4 hex digits
+                                var hex_count: u8 = 0;
+                                while (hex_count < 4) : (hex_count += 1) {
+                                    if (self.buffer.peek()) |next_hex| {
+                                        if (char_utils.isHexDigit(next_hex)) {
+                                            _ = self.buffer.pop();
+                                            self.position += 1;
+                                            self.column += 1;
+                                        } else {
+                                            self.error_msg = "Invalid Unicode escape sequence";
+                                            return self.makeErrorToken(.invalid_unicode_escape);
+                                        }
+                                    } else {
+                                        self.error_msg = "Incomplete Unicode escape sequence";
+                                        return self.makeErrorToken(.incomplete_unicode_escape);
+                                    }
+                                }
+                            },
+                            else => {
+                                self.error_msg = "Invalid escape sequence";
+                                return self.makeErrorToken(.invalid_escape_sequence);
+                            },
+                        }
+                    } else {
+                        self.error_msg = "Incomplete escape sequence";
+                        return self.makeErrorToken(.invalid_escape_sequence);
                     }
                 },
                 '\n' => {
                     self.line += 1;
                     self.column = 1;
                 },
-                else => {},
+                else => {
+                    // RFC 9839 Unicode validation
+                    const validation_error = self.validateCharacter(ch);
+                    if (validation_error) |error_code| {
+                        self.error_msg = switch (error_code) {
+                            .control_character_in_string => "Unescaped control character in string",
+                            .surrogate_in_string => "Invalid surrogate code point in string (U+D800-U+DFFF)",
+                            .noncharacter_in_string => "Noncharacter code point in string (not for interchange)",
+                            else => "Invalid Unicode character in string",
+                        };
+                        return self.makeErrorToken(error_code);
+                    }
+                },
             }
         }
 
@@ -271,7 +340,7 @@ pub const Lexer = struct {
             if (self.token_buffer) |*buf| {
                 buf.startToken(.in_string, self.token_start, self.token_line, self.token_column) catch {
                     self.error_msg = "Out of memory for boundary token";
-                    return self.makeErrorToken();
+                    return self.makeErrorToken(.unknown);
                 };
                 buf.setStringFlags(has_escapes, false);
                 self.state = .in_string;
@@ -280,7 +349,20 @@ pub const Lexer = struct {
         }
 
         self.error_msg = "Unterminated string";
-        return self.makeErrorToken();
+        return self.makeErrorToken(.unterminated_string);
+    }
+
+    /// Validate character using centralized Unicode module
+    /// Returns error code if character is problematic, null if valid
+    fn validateCharacter(self: *Lexer, byte: u8) ?ErrorCode {
+        const unicode_error = unicode.validateByte(byte, self.unicode_mode);
+        return if (unicode_error) |err| switch (err) {
+            .control_character_in_string => .control_character_in_string,
+            .carriage_return_in_string => .control_character_in_string,
+            .surrogate_in_string => .surrogate_in_string,
+            .noncharacter_in_string => .noncharacter_in_string,
+            else => .invalid_character,
+        } else null;
     }
 
     /// Scan a number
@@ -308,7 +390,7 @@ pub const Lexer = struct {
 
                 if (self.buffer.peek()) |second_ch| {
                     if (second_ch >= '0' and second_ch <= '9') {
-                        return self.makeErrorToken(); // Leading zero error
+                        return self.makeErrorToken(.leading_zero); // Leading zero error
                     }
                 }
             } else {
@@ -338,6 +420,25 @@ pub const Lexer = struct {
                     _ = self.buffer.pop();
                     self.position += 1;
                     self.column += 1;
+
+                    // RFC 8259: frac = decimal-point 1*DIGIT
+                    // Must have at least one digit after decimal point
+                    var has_fraction_digits = false;
+                    while (self.buffer.peek()) |frac_ch| {
+                        if (frac_ch >= '0' and frac_ch <= '9') {
+                            has_fraction_digits = true;
+                            _ = self.buffer.pop();
+                            self.position += 1;
+                            self.column += 1;
+                        } else {
+                            break;
+                        }
+                    }
+
+                    if (!has_fraction_digits) {
+                        self.error_msg = "Invalid number: decimal point must be followed by digits";
+                        return self.makeErrorToken(.decimal_no_digits);
+                    }
                 },
                 'e', 'E' => {
                     is_scientific = true;
@@ -352,18 +453,27 @@ pub const Lexer = struct {
                             self.column += 1;
                         }
                     }
-                    // Scan exponent digits with leading zero validation
+                    // RFC 8259: exp = e [ minus / plus ] 1*DIGIT
+                    // Must have at least one digit in exponent, and no leading zeros
+                    var has_exponent_digits = false;
                     if (self.buffer.peek()) |exp_first| {
-                        if (exp_first == '0') {
+                        if (exp_first >= '0' and exp_first <= '9') {
+                            has_exponent_digits = true;
                             _ = self.buffer.pop();
                             self.position += 1;
                             self.column += 1;
-                            if (self.buffer.peek()) |exp_second| {
-                                if (exp_second >= '0' and exp_second <= '9') {
-                                    return self.makeErrorToken();
+
+                            // RFC 8259: Check for leading zero in exponent (invalid)
+                            if (exp_first == '0') {
+                                if (self.buffer.peek()) |exp_second| {
+                                    if (exp_second >= '0' and exp_second <= '9') {
+                                        self.error_msg = "Invalid number: exponent cannot have leading zeros";
+                                        return self.makeErrorToken(.leading_zero);
+                                    }
                                 }
                             }
-                        } else {
+
+                            // Continue scanning remaining exponent digits
                             while (self.buffer.peek()) |exp_ch| {
                                 if (exp_ch >= '0' and exp_ch <= '9') {
                                     _ = self.buffer.pop();
@@ -374,6 +484,11 @@ pub const Lexer = struct {
                                 }
                             }
                         }
+                    }
+
+                    if (!has_exponent_digits) {
+                        self.error_msg = "Invalid number: exponent must contain digits";
+                        return self.makeErrorToken(.exponent_no_digits);
                     }
                 },
                 else => break,
@@ -397,7 +512,7 @@ pub const Lexer = struct {
 
     /// Scan a keyword (true, false, null)
     fn scanKeyword(self: *Lexer) Token {
-        const start_ch = self.buffer.peek() orelse return self.makeErrorToken();
+        const start_ch = self.buffer.peek() orelse return self.makeErrorToken(.unexpected_eof);
 
         const kind: TokenKind = switch (start_ch) {
             't' => blk: {
@@ -417,7 +532,7 @@ pub const Lexer = struct {
 
         if (kind == .err) {
             self.error_msg = "Invalid keyword";
-            return self.makeErrorToken();
+            return self.makeErrorToken(.invalid_character);
         }
 
         const token = JsonToken{
@@ -437,7 +552,7 @@ pub const Lexer = struct {
         self.position += 1;
         self.column += 1;
 
-        const next_ch = self.buffer.peek() orelse return self.makeErrorToken();
+        const next_ch = self.buffer.peek() orelse return self.makeErrorToken(.unexpected_eof);
 
         switch (next_ch) {
             '/' => {
@@ -481,7 +596,7 @@ pub const Lexer = struct {
             },
             else => {
                 self.error_msg = "Invalid comment";
-                return self.makeErrorToken();
+                return self.makeErrorToken(.invalid_character);
             },
         }
 
@@ -578,13 +693,13 @@ pub const Lexer = struct {
         return true;
     }
 
-    fn makeErrorToken(self: *Lexer) Token {
+    fn makeErrorToken(self: *Lexer, error_code: ErrorCode) Token {
         const token = JsonToken{
             .span = packSpan(Span{ .start = self.token_start, .end = self.position }),
             .kind = .err,
             .depth = self.depth,
             .flags = .{},
-            .data = 0,
+            .data = @intFromEnum(error_code),
         };
         self.state = .err;
         return Token{ .json = token };

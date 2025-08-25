@@ -2,6 +2,8 @@ const std = @import("std");
 
 // Import all test files (now in test/ subdirectory)
 test {
+    // Test utilities (shared infrastructure)
+    _ = @import("test_utils.zig");
     // Core component tests in test/ directory
     _ = @import("lexer.zig");
     _ = @import("parser.zig");
@@ -19,6 +21,21 @@ test {
     _ = @import("boundary_lexer.zig");
     _ = @import("escape_sequences.zig");
     _ = @import("edge_cases.zig");
+
+    // Invalid JSON test suites (organized by category)
+    _ = @import("invalid_numbers.zig"); // RFC 8259 number violations
+    _ = @import("invalid_strings.zig"); // RFC 8259 string violations
+    _ = @import("invalid_structure.zig"); // Structural errors (unclosed, mismatched)
+    _ = @import("invalid_syntax.zig"); // Syntax errors (missing commas, values, etc)
+    _ = @import("strict_mode.zig"); // Strict vs permissive mode tests
+
+    // Valid JSON test suite (comprehensive coverage)
+    _ = @import("valid_json.zig"); // All valid JSON constructs using declarative data
+
+    // Unicode validation tests (RFC 9839 compliance)
+    _ = @import("unicode_validation.zig"); // Unicode mode testing for control characters, etc.
+
+    _ = @import("fail_fast.zig"); // Error collection mode tests
 
     // Include parent modules with embedded tests (split modules)
     _ = @import("../parser/mod.zig"); // Bridge file with tests

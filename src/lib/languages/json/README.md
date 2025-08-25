@@ -4,7 +4,7 @@ Complete JSON language support for the zz unified language architecture. This im
 
 ## Architecture Overview
 
-The JSON implementation follows the unified language architecture with the following components:
+The JSON implementation follows the unified language architecture with centralized Unicode processing via `src/lib/unicode/` for RFC 8259/9839 compliance. Components include:
 
 ```
 src/lib/languages/json/
@@ -54,7 +54,7 @@ src/lib/languages/json/
 ```zig
 const json = @import("languages/json/mod.zig");
 
-// Parse JSON string
+// Parse JSON string with default options
 var ast = try json.parseJson(allocator, "{\"key\": \"value\"}");
 defer ast.deinit();
 
@@ -142,6 +142,7 @@ Recursive descent parser producing proper AST:
 var parser = Parser.init(allocator, tokens, .{
     .allow_trailing_commas = false,
     .recover_from_errors = true,
+    .unicode_mode = .strict,  // RFC 9839 Unicode validation
 });
 defer parser.deinit();
 
@@ -153,6 +154,35 @@ for (errors) |err| {
     std.log.err("Parse error: {s}", .{err.message});
 }
 ```
+
+### Unicode Validation
+
+RFC 9839 compliant Unicode validation with three modes:
+
+- **strict** (default): Rejects problematic Unicode code points
+- **sanitize**: Replaces problematic characters with U+FFFD (implementation pending)
+- **permissive**: Allows all characters (validates on output)
+
+Problematic code points per RFC 9839:
+- Control characters (C0: U+0000-U+001F except tab/newline, C1: U+0080-U+009F, DEL: U+007F)
+- Carriage return (U+000D) - enforces Unix-style line endings
+- Surrogates (U+D800-U+DFFF) - invalid in UTF-8 context
+- Noncharacters (U+FDD0-U+FDEF and last two code points of each plane)
+
+```zig
+// Default strict mode - rejects control characters
+var parser = Parser.init(allocator, tokens, .{ .unicode_mode = .strict });
+
+// Permissive mode - allows everything
+var parser_permissive = Parser.init(allocator, tokens, .{ .unicode_mode = .permissive });
+
+// Example: NULL byte in string is rejected in strict mode
+const input_with_control = "{\"test\": \"hello\\u0000world\"}";
+// Strict mode: ParseError with "control character in string"
+// Permissive mode: Parses successfully
+```
+
+The implementation validates characters during string lexing and provides clear error messages for problematic content, encouraging users to fix broken input while providing escape hatches when needed.
 
 ### Formatter
 
@@ -271,7 +301,7 @@ Performance Targets:
     .format = .{
         .json = .{
             .indent_size = 2,
-            .indent_style = "space", // "space" | "tab"
+            .indent_style = .space, // .space | .tab
             .line_width = 80,
             .sort_keys = false,
             .trailing_comma = false,
@@ -286,6 +316,7 @@ Performance Targets:
             .warn_on_deep_nesting = 20,
             .allow_duplicate_keys = false,
             .allow_leading_zeros = false,
+            .unicode_mode = .strict,  // .strict | .sanitize | .permissive
         },
     },
 }
@@ -366,6 +397,10 @@ The JSON implementation provides robust error handling:
 - Type mismatches
 - Structural violations
 - Encoding issues
+- Unicode validation (RFC 9839)
+  - Control characters in strings
+  - Surrogate code points
+  - Noncharacter code points
 
 ### Recovery Strategies
 - Skip invalid tokens and continue

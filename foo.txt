@@ -1,0 +1,247 @@
+
+┌══════════════════════════┐
+│  Language Tooling Demos  │
+└══════════════════════════┘
+
+Available demos:
+  • JSON - Formatter, Linter, Validator
+  • ZON  - Formatter, Linter, Validator (with enum/char features)
+
+┌══════════════════════┐
+│  JSON Language Demo  │
+└══════════════════════┘
+
+🔸 Formatter
+─────────
+
+Simple:
+{"name":"test","value":123}
+→ Basic object formatting
+Formatted:
+{
+    "name": "test",
+    "value": 123
+}
+
+
+──────────────────────────────────────────────────
+
+
+Complex:
+{"str":"hello","num":42,"bool":true,"null":null,"arr":[1,2,3],"obj":{"nested":"value"}}
+→ All JSON primitives: string, number, boolean, null, array, object
+Formatted:
+{
+    "str": "hello",
+    "num": 42,
+    "bool": true,
+    "null": null,
+    "arr": [
+        1,
+        2,
+        3
+    ],
+    "obj": {
+        "nested": "value"
+    }
+}
+
+🔸 RFC 8259 Compliance
+───────────────────
+
+Zero:
+0
+→ Single zero is valid
+✅ Valid
+
+──────────────────────────────────────────────────
+
+
+Negative Zero:
+-0
+→ Negative zero is valid
+✅ Valid
+
+──────────────────────────────────────────────────
+
+
+Simple Integer:
+123
+→ Multi-digit integers are valid
+✅ Valid
+
+──────────────────────────────────────────────────
+
+
+Decimal:
+1.5
+→ Decimal numbers are valid
+✅ Valid
+
+──────────────────────────────────────────────────
+
+
+Scientific (e0):
+1e0
+→ Single digit exponent is valid
+✅ Valid
+
+──────────────────────────────────────────────────
+
+
+Scientific (e10):
+1e10
+→ Multi-digit exponent is valid
+✅ Valid
+
+──────────────────────────────────────────────────
+
+
+Leading Zero:
+01
+→ Leading zeros are invalid per RFC 8259
+❌ ParseError
+
+──────────────────────────────────────────────────
+
+
+Multiple Leading Zeros:
+001
+→ Multiple leading zeros are invalid
+❌ ParseError
+
+──────────────────────────────────────────────────
+
+
+Exponent Leading Zero:
+1e01
+→ Exponent leading zeros are invalid (recent fix)
+❌ ParseError
+
+──────────────────────────────────────────────────
+
+
+Trailing Decimal:
+1.
+→ Trailing decimal point is invalid
+❌ ParseError
+
+──────────────────────────────────────────────────
+
+
+Leading Decimal:
+.5
+→ Leading decimal point is invalid
+❌ ParseError
+
+──────────────────────────────────────────────────
+
+
+Plus Sign:
++1
+→ Leading plus sign is invalid
+❌ ParseError
+
+──────────────────────────────────────────────────
+
+
+Infinity:
+Infinity
+→ Infinity literal is invalid in JSON
+❌ ParseError
+
+──────────────────────────────────────────────────
+
+🔸 String Escape Sequences
+───────────────────────
+
+Quote Escape:
+\"
+→ Escaped quote character
+✅ Valid escape
+
+──────────────────────────────────────────────────
+
+
+Backslash Escape:
+\\
+→ Escaped backslash character
+✅ Valid escape
+
+──────────────────────────────────────────────────
+
+
+Newline Escape:
+\n
+→ Escaped newline character
+✅ Valid escape
+
+──────────────────────────────────────────────────
+
+
+Tab Escape:
+\t
+→ Escaped tab character
+✅ Valid escape
+
+──────────────────────────────────────────────────
+
+
+Unicode ASCII:
+\u0041
+→ Unicode escape for 'A'
+✅ Valid escape
+
+──────────────────────────────────────────────────
+
+
+Unicode Symbol:
+\u00A9
+→ Unicode escape for '©'
+✅ Valid escape
+
+──────────────────────────────────────────────────
+
+
+Invalid Escape:
+\z
+→ Unknown escape character
+thread 85270 panic: Demo assertion failed: escape '\z' should be invalid but was accepted
+
+/home/desk/dev/zz/src/demo/json.zig:137:32: 0x11a98a1 in demoEscapeSequences (zz)
+                std.debug.panic("Demo assertion failed: escape '{s}' should be invalid but was accepted\n", .{test_case.input});
+                               ^
+/home/desk/dev/zz/src/demo/json.zig:11:28: 0x11ae7f1 in runDemo (zz)
+    try demoEscapeSequences(runner);
+                           ^
+/home/desk/dev/zz/src/demo/main.zig:16:26: 0x11b32e8 in main (zz)
+    try json_demo.runDemo(runner);
+                         ^
+/home/desk/dev/zz/src/demo.zig:7:23: 0x11b43a8 in run (zz)
+    try demo_main.main();
+                      ^
+/home/desk/dev/zz/src/cli/runner.zig:84:25: 0x1220d8e in run (zz)
+                demo.run(self.allocator, args) catch |err| {
+                        ^
+/home/desk/dev/zz/src/cli/main.zig:43:19: 0x1221cd1 in run (zz)
+    try runner.run(command, @ptrCast(args));
+                  ^
+/home/desk/dev/zz/src/main.zig:13:16: 0x1222721 in main (zz)
+    try cli.run(allocator, filesystem);
+               ^
+/home/desk/.config/Code/User/globalStorage/ziglang.vscode-zig/zig/x86_64-linux-0.14.1/lib/std/start.zig:660:37: 0x1222cd7 in main (zz)
+            const result = root.main() catch |err| {
+                                    ^
+../sysdeps/nptl/libc_start_call_main.h:58:16: 0x7ba945a2a1c9 in __libc_start_call_main (../sysdeps/x86/libc-start.c)
+../csu/libc-start.c:360:3: 0x7ba945a2a28a in __libc_start_main_impl (../sysdeps/x86/libc-start.c)
+???:?:?: 0x10ca384 in ??? (???)
+???:?:?: 0x0 in ??? (???)
+run
++- run zz failure
+error: the following command terminated unexpectedly:
+/home/desk/dev/zz/zig-out/bin/zz demo 
+Build Summary: 5/7 steps succeeded; 1 failed
+run transitive failure
++- run zz failure
+error: the following build command failed with exit code 1:
+/home/desk/dev/zz/.zig-cache/o/b768bf045067aeecb6b7c5f281abd134/build /home/desk/.config/Code/User/globalStorage/ziglang.vscode-zig/zig/x86_64-linux-0.14.1/zig /home/desk/.config/Code/User/globalStorage/ziglang.vscode-zig/zig/x86_64-linux-0.14.1/lib /home/desk/dev/zz /home/desk/dev/zz/.zig-cache /home/desk/.cache/zig --seed 0x24823023 -Z68d0a2a678fe5be1 run -- demo

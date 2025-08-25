@@ -4,7 +4,7 @@ Complete ZON (Zig Object Notation) language support for the zz unified language 
 
 ## Architecture Overview
 
-The ZON implementation follows the unified language architecture with organized subdirectories matching the JSON pattern:
+The ZON implementation follows the unified language architecture with centralized Unicode processing via `src/lib/unicode/` for escape sequence handling and validation:
 
 ```
 src/lib/languages/zon/
@@ -332,7 +332,7 @@ Performance Targets:
     .format = .{
         .zon = .{
             .indent_size = 4,
-            .indent_style = "space", // "space" | "tab"
+            .indent_style = .space, // .space | .tab
             .line_width = 100,
             .trailing_comma = true,
             .compact_small_objects = true,

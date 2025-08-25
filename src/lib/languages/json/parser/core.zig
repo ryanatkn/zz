@@ -9,6 +9,8 @@ const TokenIterator = @import("../../../token/iterator.zig").TokenIterator;
 const Token = @import("../../../token/stream_token.zig").Token;
 const JsonToken = @import("../token/types.zig").Token;
 const TokenKind = @import("../token/mod.zig").TokenKind;
+const ErrorCode = @import("../token/types.zig").ErrorCode;
+const UnicodeMode = @import("../mod.zig").UnicodeMode;
 
 // Use local JSON AST
 const json_ast = @import("../ast/mod.zig");
@@ -33,6 +35,8 @@ pub const Parser = struct {
     current: ?Token,
     errors: std.ArrayList(ParseError),
     allow_trailing_commas: bool,
+    allow_comments: bool,
+    collect_all_errors: bool,
 
     const Self = @This();
 
@@ -45,19 +49,27 @@ pub const Parser = struct {
     };
 
     pub const ParserOptions = struct {
-        allow_trailing_commas: bool = false,
-        recover_from_errors: bool = true,
+        allow_trailing_commas: bool = true, // Permissive about fixable issues
+        allow_comments: bool = true, // Default: permissive about JSON5 comments
+        collect_all_errors: bool = true, // Default: collect all errors for comprehensive diagnostics
+        unicode_mode: UnicodeMode = .strict, // Default: RFC 9839 strict validation
     };
 
     /// Initialize parser with streaming lexer
     pub fn init(allocator: std.mem.Allocator, source: []const u8, options: ParserOptions) !Self {
+        const lexer_options = @import("../../lexer_registry.zig").LexerOptions{
+            .json = .{ .unicode_mode = options.unicode_mode },
+        };
+
         var parser = Self{
             .allocator = allocator,
-            .iterator = try TokenIterator.init(source, .json),
+            .iterator = try TokenIterator.initWithOptions(source, .json, lexer_options),
             .source = source,
             .current = null,
             .errors = std.ArrayList(ParseError).init(allocator),
             .allow_trailing_commas = options.allow_trailing_commas,
+            .allow_comments = options.allow_comments,
+            .collect_all_errors = options.collect_all_errors,
         };
 
         // Prime the pump - get first token
@@ -78,15 +90,24 @@ pub const Parser = struct {
         // Allocate arena on heap so it persists with AST
         const arena = try self.allocator.create(std.heap.ArenaAllocator);
         arena.* = std.heap.ArenaAllocator.init(self.allocator);
-        errdefer {
+        var arena_needs_cleanup = true;
+        defer if (arena_needs_cleanup) {
             arena.deinit();
             self.allocator.destroy(arena);
-        }
+        };
 
         const arena_allocator = arena.allocator();
 
-        // Parse root value
-        const root_value = try self.parseValue(arena_allocator);
+        // Parse root value - handle errors according to collect_all_errors setting
+        const root_value = self.parseValue(arena_allocator) catch |err| blk: {
+            if (!self.collect_all_errors) {
+                // In fail-fast mode, propagate error immediately
+                // arena_needs_cleanup is true, so defer will handle cleanup
+                return err;
+            }
+            // In collect-all-errors mode, create null node and continue
+            break :blk Node{ .null = Span.init(0, 0) };
+        };
 
         // Create root node
         const root_node = try arena_allocator.create(Node);
@@ -105,15 +126,34 @@ pub const Parser = struct {
             }
         }
 
+        // After parsing, if we have actual errors (not just warnings), signal invalid JSON
+        // Only return error for actual errors, not warnings (like trailing commas when allowed)
+        var has_errors = false;
+        for (self.errors.items) |parse_error| {
+            if (parse_error.severity == .err) {
+                has_errors = true;
+                break;
+            }
+        }
+        if (has_errors) {
+            // The AST is still created for partial analysis, but we signal it's invalid
+            // arena_needs_cleanup is true, so defer will handle cleanup
+            return error.ParseError;
+        }
+
         // Create nodes array
         var nodes = std.ArrayList(Node).init(arena_allocator);
         try nodes.append(root_value);
+        const nodes_slice = try nodes.toOwnedSlice();
+
+        // Success! Transfer arena ownership to AST
+        arena_needs_cleanup = false;
 
         return AST{
             .root = root_node,
             .arena = arena,
             .source = self.source,
-            .nodes = try nodes.toOwnedSlice(),
+            .nodes = nodes_slice,
         };
     }
 
@@ -131,9 +171,30 @@ pub const Parser = struct {
         while (self.iterator.next()) |token| {
             switch (token) {
                 .json => |t| {
-                    // Skip trivia
-                    if (t.kind == .whitespace or t.kind == .comment) {
+                    // Skip whitespace always
+                    if (t.kind == .whitespace) {
                         continue;
+                    }
+                    // Handle comments based on allow_comments option
+                    if (t.kind == .comment) {
+                        if (self.allow_comments) {
+                            continue; // Skip allowed comments
+                        } else {
+                            // Comments not allowed - treat as error
+                            const span = unpackSpan(t.span);
+                            try self.addError("Comments not allowed in JSON", span);
+                            continue; // Skip the comment token but record error
+                        }
+                    }
+                    // Handle error tokens from lexer
+                    if (t.kind == .err) {
+                        const span = unpackSpan(t.span);
+                        const error_code = @as(ErrorCode, @enumFromInt(t.data));
+                        const message = error_code.getMessage();
+                        try self.addError(message, span);
+                        // Return the error token to prevent infinite loop
+                        self.current = token;
+                        return token;
                     }
                     self.current = token;
                     return token;
@@ -167,7 +228,13 @@ pub const Parser = struct {
             const span = unpackSpan(json_token.span);
             // Use a static buffer to avoid memory leaks for error messages
             var buf: [128]u8 = undefined;
-            const msg = std.fmt.bufPrint(&buf, "Expected {s}, got {s}", .{ @tagName(kind), @tagName(json_token.kind) }) catch "Parse error";
+            const msg = if (json_token.kind == .err) blk: {
+                // Extract error code from data field and get specific message
+                const error_code: @import("../token/types.zig").ErrorCode = @enumFromInt(json_token.data);
+                break :blk error_code.getMessage();
+            } else blk: {
+                break :blk std.fmt.bufPrint(&buf, "Expected {s}, got {s}", .{ @tagName(kind), @tagName(json_token.kind) }) catch "Parse error";
+            };
             try self.addError(msg, span);
             return error.UnexpectedToken;
         }
@@ -195,8 +262,13 @@ pub const Parser = struct {
             .array_start => self.parseArray(allocator),
             else => {
                 const span = unpackSpan(token.span);
-                const msg = try std.fmt.allocPrint(allocator, // Use arena allocator
-                    "Unexpected token: {s}", .{@tagName(token.kind)});
+                const msg = if (token.kind == .err) blk: {
+                    // Extract error code from data field and get specific message
+                    const error_code: @import("../token/types.zig").ErrorCode = @enumFromInt(token.data);
+                    break :blk try allocator.dupe(u8, error_code.getMessage());
+                } else blk: {
+                    break :blk try std.fmt.allocPrint(allocator, "Unexpected token: {s}", .{@tagName(token.kind)});
+                };
                 try self.addError(msg, span);
                 _ = try self.advance(); // Skip bad token
                 return self.createErrorNode(allocator);
@@ -428,5 +500,20 @@ pub const Parser = struct {
             .span = span,
             .severity = .err,
         });
+
+        // If not collecting all errors, stop immediately after first error
+        if (!self.collect_all_errors) {
+            return error.ParseError;
+        }
+    }
+
+    pub fn addWarning(self: *Self, message: []const u8, span: Span) !void {
+        const msg = try self.allocator.dupe(u8, message);
+        try self.errors.append(.{
+            .message = msg,
+            .span = span,
+            .severity = .warning,
+        });
+        // Warnings never cause immediate failure, even in fail-fast mode
     }
 };

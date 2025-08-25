@@ -27,6 +27,7 @@ test {
     _ = @import("char/test.zig");
     _ = @import("core/test.zig");
     _ = @import("text/test.zig");
+    _ = @import("unicode/test/mod.zig");
     _ = @import("patterns/test.zig");
     _ = @import("filesystem/test.zig");
     // Grammar module deleted - tests removed with module

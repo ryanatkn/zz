@@ -33,6 +33,44 @@ pub const TokenKind = enum(u8) {
     continuation, // Token continues across buffer boundaries
 };
 
+/// Error codes for error tokens (stored in data field)
+pub const ErrorCode = enum(u32) {
+    unknown = 0,
+    unterminated_string,
+    invalid_escape_sequence,
+    invalid_unicode_escape,
+    incomplete_unicode_escape,
+    control_character_in_string,
+    surrogate_in_string,
+    noncharacter_in_string,
+    decimal_no_digits,
+    exponent_no_digits,
+    leading_zero,
+    invalid_character,
+    unexpected_eof,
+    _,
+
+    /// Get human-readable error message
+    pub fn getMessage(self: ErrorCode) []const u8 {
+        return switch (self) {
+            .unknown => "Unknown error",
+            .unterminated_string => "Unterminated string",
+            .invalid_escape_sequence => "Invalid escape sequence",
+            .invalid_unicode_escape => "Invalid Unicode escape sequence",
+            .incomplete_unicode_escape => "Incomplete Unicode escape sequence",
+            .control_character_in_string => "Unescaped control character in string",
+            .surrogate_in_string => "Invalid surrogate code point in string (U+D800-U+DFFF)",
+            .noncharacter_in_string => "Noncharacter code point in string (not for interchange)",
+            .decimal_no_digits => "Invalid number: decimal point must be followed by digits",
+            .exponent_no_digits => "Invalid number: exponent must contain digits",
+            .leading_zero => "Invalid number: leading zeros not allowed",
+            .invalid_character => "Invalid character",
+            .unexpected_eof => "Unexpected end of input",
+            _ => "Unknown error code",
+        };
+    }
+};
+
 /// Flags for additional token information (2 bytes)
 pub const TokenFlags = packed struct {
     has_escapes: bool = false, // String contains escape sequences
